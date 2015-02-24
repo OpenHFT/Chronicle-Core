@@ -1,4 +1,4 @@
-package net.openhft.core;
+package net.openhft.chronicle.core;
 
 import java.util.function.Function;
 

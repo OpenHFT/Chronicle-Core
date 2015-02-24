@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package net.openhft.core.pool;
+package net.openhft.chronicle.core.pool;
 
 
 import net.openhft.chronicle.core.Maths;

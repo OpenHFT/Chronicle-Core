@@ -1,4 +1,4 @@
-package net.openhft.core;
+package net.openhft.chronicle.core;
 
 public interface Memory {
     void storeFence();
