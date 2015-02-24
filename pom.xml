@@ -45,18 +45,6 @@
                 <scope>import</scope>
             </dependency>
 
-            <dependency>
-                <groupId>net.openhft</groupId>
-                <artifactId>chronicle-wire</artifactId>
-                <version>1.0.1-alpha-SNAPSHOT</version>
-            </dependency>
-
-            <dependency>
-                <groupId>net.openhft</groupId>
-                <artifactId>affinity</artifactId>
-                <version>2.2</version>
-            </dependency>
-
         </dependencies>
 
     </dependencyManagement>
@@ -77,12 +65,6 @@
 
 
         <!-- test dependencies -->
-
-        <dependency>
-            <groupId>net.openhft</groupId>
-            <artifactId>affinity</artifactId>
-            <scope>test</scope>
-        </dependency>
 
         <dependency>
             <groupId>junit</groupId>
