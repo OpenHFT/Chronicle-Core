@@ -1,6 +1,10 @@
 package net.openhft.chronicle.core;
 
 public interface Memory {
+    default long heapUsed() {
+        Runtime runtime = Runtime.getRuntime();
+        return runtime.totalMemory() - runtime.freeMemory();
+    }
     void storeFence();
 
     void loadFence();
