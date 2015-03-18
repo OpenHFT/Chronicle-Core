@@ -69,7 +69,7 @@ public interface Memory {
 
     void copyMemory(byte[] bytes, int offset, long address, int length);
 
-    void copyMemory(long fromAddress, long address, int length);
+    void copyMemory(long fromAddress, long address, long length);
 
     void copyMemory(byte[] bytes, int offset, Object obj2, long offset2, int length);
 

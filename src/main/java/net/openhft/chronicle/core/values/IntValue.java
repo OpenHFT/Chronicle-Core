@@ -35,13 +35,4 @@ public interface IntValue {
     int addAtomicValue(int delta);
 
     boolean compareAndSwapValue(int expected, int value);
-
-    boolean tryLockValue();
-
-    boolean tryLockNanosValue(long nanos);
-
-    void busyLockValue() throws InterruptedException, IllegalStateException;
-
-    void unlockValue() throws IllegalMonitorStateException;
-
 }

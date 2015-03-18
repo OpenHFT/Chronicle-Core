@@ -165,7 +165,7 @@ public enum UnsafeMemory implements Memory {
     }
 
     @Override
-    public void copyMemory(long fromAddress, long address, int length) {
+    public void copyMemory(long fromAddress, long address, long length) {
         UNSAFE.copyMemory(fromAddress, address, length);
     }
 
