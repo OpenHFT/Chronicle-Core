@@ -8,9 +8,9 @@ public enum Maths {
     private static final double WHOLE_NUMBER = 1L << 53;
 
     /**
-     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it might be rounded up or
-     * down. This is a pragmatic choice for performance reasons as it is assumed you are not working on the edge of the
-     * precision of double.
+     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5
+     * it might be rounded up or down. This is a pragmatic choice for performance reasons
+     * as it is assumed you are not working on the edge of the precision of double.
      *
      * @param d value to round
      * @return rounded value
@@ -22,9 +22,9 @@ public enum Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it might be rounded up or
-     * down. This is a pragmatic choice for performance reasons as it is assumed you are not working on the edge of the
-     * precision of double.
+     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5
+     * it might be rounded up or down. This is a pragmatic choice for performance reasons
+     * as it is assumed you are not working on the edge of the precision of double.
      *
      * @param d value to round
      * @return rounded value
@@ -36,9 +36,9 @@ public enum Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it might be rounded up or
-     * down. This is a pragmatic choice for performance reasons as it is assumed you are not working on the edge of the
-     * precision of double.
+     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5
+     * it might be rounded up or down. This is a pragmatic choice for performance reasons
+     * as it is assumed you are not working on the edge of the precision of double.
      *
      * @param d value to round
      * @return rounded value
@@ -50,9 +50,9 @@ public enum Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it might be rounded up or
-     * down. This is a pragmatic choice for performance reasons as it is assumed you are not working on the edge of the
-     * precision of double.
+     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5
+     * it might be rounded up or down. This is a pragmatic choice for performance reasons
+     * as it is assumed you are not working on the edge of the precision of double.
      *
      * @param d value to round
      * @return rounded value
@@ -123,7 +123,8 @@ public enum Maths {
     }
 
     public static short toUInt8(long x) {
-        if (x < 0 || x > 1 << 8) throw new IllegalArgumentException("Unsigned Byte " + x + " out of range");
+        if (x < 0 || x > 1 << 8)
+            throw new IllegalArgumentException("Unsigned Byte " + x + " out of range");
         return (short) x;
     }
 
@@ -134,7 +135,8 @@ public enum Maths {
     }
 
     public static int toUInt16(long x) {
-        if (x < 0 || x > 1 << 16) throw new IllegalArgumentException("Unsigned Short " + x + " out of range");
+        if (x < 0 || x > 1 << 16)
+            throw new IllegalArgumentException("Unsigned Short " + x + " out of range");
         return (int) x;
     }
 
@@ -151,7 +153,8 @@ public enum Maths {
     }
 
     public static long toUInt32(long x) {
-        if (x < 0 || x > 1L << 32) throw new IllegalArgumentException("Unsigned Int " + x + " out of range");
+        if (x < 0 || x > 1L << 32)
+            throw new IllegalArgumentException("Unsigned Int " + x + " out of range");
         return x;
     }
 
