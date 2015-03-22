@@ -131,7 +131,7 @@ public enum Maths {
     public static short toInt16(long x) {
         if (x < Short.MIN_VALUE || x > Short.MAX_VALUE)
             throw new IllegalArgumentException("Short " + x + " out of range");
-        return (byte) x;
+        return (short) x;
     }
 
     public static int toUInt16(long x) {
