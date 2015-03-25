@@ -18,10 +18,11 @@
 
 package net.openhft.chronicle.core;
 
+import java.io.Closeable;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
-public interface ReferenceCounted {
+public interface ReferenceCounted extends Closeable {
     static void release(ReferenceCounted rc) {
         if (rc != null)
             rc.release();
@@ -41,6 +42,10 @@ public interface ReferenceCounted {
     void reserve() throws IllegalStateException;
 
     void release() throws IllegalStateException;
+
+    default void close() {
+        release();
+    }
 
     long refCount();
 
