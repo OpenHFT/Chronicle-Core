@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.pool;
 
+@FunctionalInterface
 public interface CharSequenceInterner<S> {
     S intern(CharSequence cs);
 }
