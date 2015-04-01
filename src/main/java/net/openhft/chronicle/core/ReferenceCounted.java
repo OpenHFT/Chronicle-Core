@@ -19,7 +19,6 @@
 package net.openhft.chronicle.core;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
@@ -44,7 +43,7 @@ public interface ReferenceCounted extends Closeable {
 
     void release() throws IllegalStateException;
 
-    default void close() throws IOException {
+    default void close() {
         release();
     }
 
