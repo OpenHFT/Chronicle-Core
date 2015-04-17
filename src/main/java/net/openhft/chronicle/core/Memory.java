@@ -106,4 +106,8 @@ public interface Memory {
     boolean compareAndSwapLong(Object underlyingObject, long offset, long expected, long value);
 
     int pageSize();
+
+    int readVolatileInt(long address);
+
+    long readVolatileLong(long address);
 }

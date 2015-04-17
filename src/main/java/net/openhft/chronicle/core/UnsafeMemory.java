@@ -48,13 +48,24 @@ public enum UnsafeMemory implements Memory {
     }
 
     @Override
-    public byte readByte(Object object, long offset) {
-        return UNSAFE.getByte(object, offset);
+    public void setMemory(long address, long size, byte b) {
+        UNSAFE.setMemory(address, size, b);
     }
 
     @Override
-    public byte readByte(long address) {
-        return UNSAFE.getByte(address);
+    public void freeMemory(long address) {
+        if (address != 0)
+            UNSAFE.freeMemory(address);
+    }
+
+    @Override
+    public long allocate(long capacity) {
+        if (capacity <= 0)
+            throw new IllegalArgumentException("Invalid capacity: " + capacity);
+        long address = UNSAFE.allocateMemory(capacity);
+        if (address == 0)
+            throw new OutOfMemoryError("Not enough free native memory, capacity attempted: " + capacity / 1024 + " KiB");
+        return address;
     }
 
     @Override
@@ -65,6 +76,16 @@ public enum UnsafeMemory implements Memory {
     @Override
     public void writeByte(Object object, long offset, byte b) {
         UNSAFE.putByte(object, offset, b);
+    }
+
+    @Override
+    public byte readByte(Object object, long offset) {
+        return UNSAFE.getByte(object, offset);
+    }
+
+    @Override
+    public byte readByte(long address) {
+        return UNSAFE.getByte(address);
     }
 
     @Override
@@ -213,13 +234,13 @@ public enum UnsafeMemory implements Memory {
     }
 
     @Override
-    public boolean compareAndSwapLong(long offset, long expected, long value) {
-        return UNSAFE.compareAndSwapLong(null, offset, expected, value);
+    public boolean compareAndSwapInt(Object underlyingObject, long offset, int expected, int value) {
+        return UNSAFE.compareAndSwapInt(underlyingObject, offset, expected, value);
     }
 
     @Override
-    public boolean compareAndSwapInt(Object underlyingObject, long offset, int expected, int value) {
-        return UNSAFE.compareAndSwapInt(underlyingObject, offset, expected, value);
+    public boolean compareAndSwapLong(long offset, long expected, long value) {
+        return UNSAFE.compareAndSwapLong(null, offset, expected, value);
     }
 
     @Override
@@ -233,24 +254,13 @@ public enum UnsafeMemory implements Memory {
     }
 
     @Override
-    public void setMemory(long address, long size, byte b) {
-        UNSAFE.setMemory(address, size, b);
+    public int readVolatileInt(long address) {
+        return UNSAFE.getIntVolatile(null, address);
     }
 
     @Override
-    public void freeMemory(long address) {
-        if (address != 0)
-            UNSAFE.freeMemory(address);
-    }
-
-    @Override
-    public long allocate(long capacity) {
-        if (capacity <= 0)
-            throw new IllegalArgumentException("Invalid capacity: " + capacity);
-        long address = UNSAFE.allocateMemory(capacity);
-        if (address == 0)
-            throw new OutOfMemoryError("Not enough free native memory, capacity attempted: " + capacity / 1024 + " KiB");
-        return address;
+    public long readVolatileLong(long address) {
+        return UNSAFE.getLongVolatile(null, address);
     }
 
 
