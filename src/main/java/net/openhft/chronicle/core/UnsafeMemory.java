@@ -37,6 +37,11 @@ public enum UnsafeMemory implements Memory {
         }
     }
 
+    public <E> E allocateInstance(Class<E> clazz) throws InstantiationException {
+        return (E) UNSAFE.allocateInstance(clazz);
+    }
+
+
     @Override
     public void storeFence() {
         UNSAFE.storeFence();
