@@ -21,6 +21,14 @@ package net.openhft.chronicle.core;
 public enum Jvm {
     ;
 
+    public static RuntimeException rethrow(Throwable throwable) {
+        // blindly rethrow checked exceptions.
+        UnsafeMemory.UNSAFE.throwException(throwable);
+
+        // just to keep the compiler happy.
+        return null;
+    }
+
     public static void checkInterrupted() throws InterruptedException {
         if (Thread.interrupted())
             throw new InterruptedException();
