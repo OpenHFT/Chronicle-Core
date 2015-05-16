@@ -110,4 +110,6 @@ public interface Memory {
     int readVolatileInt(long address);
 
     long readVolatileLong(long address);
+
+    <E> E allocateInstance(Class<E> clazz);
 }

@@ -43,9 +43,23 @@ public class OS {
     private static final Logger LOG = Logger.getLogger(OS.class.getName());
     private static final int PROCESS_ID = getProcessId0();
     private static final String OS = System.getProperty("os.name").toLowerCase();
+    private static Memory MEMORY;
 
     public static Memory memory() {
-        return UnsafeMemory.MEMORY;
+        if (MEMORY != null)
+            return MEMORY;
+        try {
+            Class<? extends Memory> java9MemoryClass = Class
+                    .forName("software.chronicle.enterprise.core.Java9Memory")
+                    .asSubclass(Memory.class);
+            Method create = java9MemoryClass.getMethod("create");
+            MEMORY = (Memory) create.invoke(null);
+        } catch (ClassNotFoundException expected) {
+            // expected
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            LOG.log(Level.WARNING, "Unable to load Java9MemoryClass", e);
+        }
+        return MEMORY = UnsafeMemory.create();
     }
 
     public static int pageSize() {

@@ -22,23 +22,28 @@ import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
 
-public enum UnsafeMemory implements Memory {
-    MEMORY;
+public class UnsafeMemory implements Memory {
+    protected static Unsafe UNSAFE;
 
-    static final Unsafe UNSAFE;
-
-    static {
-        try {
-            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
-            theUnsafe.setAccessible(true);
-            UNSAFE = (Unsafe) theUnsafe.get(null);
-        } catch (Exception e) {
-            throw new AssertionError(e);
+    public static Memory create() {
+        if (UNSAFE == null) {
+            try {
+                Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+                theUnsafe.setAccessible(true);
+                UNSAFE = (Unsafe) theUnsafe.get(null);
+            } catch (Exception e) {
+                throw new AssertionError(e);
+            }
         }
+        return new UnsafeMemory();
     }
 
-    public <E> E allocateInstance(Class<E> clazz) throws InstantiationException {
-        return (E) UNSAFE.allocateInstance(clazz);
+    public <E> E allocateInstance(Class<E> clazz) {
+        try {
+            return (E) UNSAFE.allocateInstance(clazz);
+        } catch (InstantiationException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
 
