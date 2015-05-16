@@ -25,6 +25,8 @@ import java.lang.reflect.Field;
 public class UnsafeMemory implements Memory {
     protected static Unsafe UNSAFE;
 
+    public static Memory MEMORY = create();
+
     public static Memory create() {
         if (UNSAFE == null) {
             try {
