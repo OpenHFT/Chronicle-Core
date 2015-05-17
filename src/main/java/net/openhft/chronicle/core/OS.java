@@ -43,23 +43,28 @@ public class OS {
     private static final Logger LOG = Logger.getLogger(OS.class.getName());
     private static final int PROCESS_ID = getProcessId0();
     private static final String OS = System.getProperty("os.name").toLowerCase();
-    private static Memory MEMORY;
+    private static final Memory MEMORY;
 
-    public static Memory memory() {
-        if (MEMORY != null)
-            return MEMORY;
+    static {
+        Memory memory = null;
         try {
             Class<? extends Memory> java9MemoryClass = Class
                     .forName("software.chronicle.enterprise.core.Java9Memory")
                     .asSubclass(Memory.class);
             Method create = java9MemoryClass.getMethod("create");
-            MEMORY = (Memory) create.invoke(null);
+            memory = (Memory) create.invoke(null);
         } catch (ClassNotFoundException expected) {
             // expected
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
             LOG.log(Level.WARNING, "Unable to load Java9MemoryClass", e);
         }
-        return MEMORY = UnsafeMemory.create();
+        if (memory == null)
+            memory = UnsafeMemory.create();
+        MEMORY = memory;
+    }
+
+    public static Memory memory() {
+        return MEMORY;
     }
 
     public static int pageSize() {
@@ -121,7 +126,6 @@ public class OS {
         // Assume 48 bit for 16 to 24-bit process id and 16 million threads from the start.
         return ((long) getProcessId() << 24) | thread.getId();
     }*/
-
     public static boolean isWindows() {
         return OS.startsWith("win");
     }
