@@ -27,7 +27,7 @@ public class StringBuilderPool {
     public StringBuilder acquireStringBuilder() {
         StringBuilder sb = sbtl.get();
         if (sb == null) {
-            sbtl.set(sb = new StringBuilder(128));
+            sbtl.set(sb = new StringBuilder(1024));
         }
         sb.setLength(0);
         return sb;
