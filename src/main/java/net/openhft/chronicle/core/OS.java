@@ -44,7 +44,8 @@ public class OS {
     private static final int PROCESS_ID = getProcessId0();
     private static final String OS = System.getProperty("os.name").toLowerCase();
     private static final Memory MEMORY;
-
+    public static boolean IS_DEBUG = java.lang.management.ManagementFactory.getRuntimeMXBean().
+            getInputArguments().toString().contains("jdwp");
     static {
         Memory memory = null;
         try {
