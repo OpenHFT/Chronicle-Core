@@ -18,6 +18,8 @@
 
 package net.openhft.chronicle.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sun.misc.Cleaner;
 import sun.nio.ch.FileChannelImpl;
 
@@ -30,8 +32,7 @@ import java.lang.reflect.Method;
 import java.nio.channels.FileChannel;
 import java.util.Random;
 import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 public class OS {
     public static final String TMP = System.getProperty("java.io.tmpdir");
@@ -39,8 +40,8 @@ public class OS {
     private static final int MAP_RW = 1;
     private static final int MAP_PV = 2;
     private static final boolean IS64BIT = is64Bit0();
-    // Switch to j.u.l
-    private static final Logger LOG = Logger.getLogger(OS.class.getName());
+    private static final Logger LOG = LoggerFactory.getLogger(OS.class);
+
     private static final int PROCESS_ID = getProcessId0();
     private static final String OS = System.getProperty("os.name").toLowerCase();
     private static final Memory MEMORY;
@@ -57,7 +58,7 @@ public class OS {
         } catch (ClassNotFoundException expected) {
             // expected
         } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-            LOG.log(Level.WARNING, "Unable to load Java9MemoryClass", e);
+            LOG.warn("Unable to load Java9MemoryClass", e);
         }
         if (memory == null)
             memory = UnsafeMemory.create();
@@ -107,7 +108,7 @@ public class OS {
             pid = ManagementFactory.getRuntimeMXBean().getName().split("@", 0)[0];
         if (pid == null) {
             int rpid = new Random().nextInt(1 << 16);
-            LOG.log(Level.WARNING, "Unable to determine PID, picked a random number=" + rpid);
+            LOG.warn("Unable to determine PID, picked a random number=" + rpid);
             return rpid;
         } else {
             return Integer.parseInt(pid);
@@ -146,7 +147,7 @@ public class OS {
                 try {
                     return Maths.nextPower2(new Scanner(file).nextLong(), 1);
                 } catch (FileNotFoundException e) {
-                    LOG.log(Level.WARNING, "", e);
+                    LOG.warn("", e);
                 }
         } else if (isMacOSX()) {
             return 1L << 24;
