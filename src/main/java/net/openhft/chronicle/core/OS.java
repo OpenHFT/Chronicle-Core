@@ -43,12 +43,11 @@ public class OS {
     private static final Logger LOG = LoggerFactory.getLogger(OS.class);
 
     private static final int PROCESS_ID = getProcessId0();
+    private static final Memory MEMORY;
     private static final String OS = System.getProperty("os.name").toLowerCase();
     private static final boolean IS_LINUX = OS.startsWith("linux");
     private static final boolean IS_MAC = OS.contains("mac");
     private static final boolean IS_WIN = OS.startsWith("win");
-    private static final Memory MEMORY;
-    public static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : pageSize();
     private static boolean IS_DEBUG = java.lang.management.ManagementFactory.getRuntimeMXBean().
             getInputArguments().toString().contains("jdwp");
     static {
@@ -68,6 +67,8 @@ public class OS {
             memory = UnsafeMemory.create();
         MEMORY = memory;
     }
+
+    public static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : pageSize();
 
     public static Memory memory() {
         return MEMORY;
