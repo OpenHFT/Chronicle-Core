@@ -44,8 +44,12 @@ public class OS {
 
     private static final int PROCESS_ID = getProcessId0();
     private static final String OS = System.getProperty("os.name").toLowerCase();
+    private static final boolean IS_LINUX = OS.startsWith("linux");
+    private static final boolean IS_MAC = OS.contains("mac");
+    private static final boolean IS_WIN = OS.startsWith("win");
     private static final Memory MEMORY;
-    public static boolean IS_DEBUG = java.lang.management.ManagementFactory.getRuntimeMXBean().
+    public static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : pageSize();
+    private static boolean IS_DEBUG = java.lang.management.ManagementFactory.getRuntimeMXBean().
             getInputArguments().toString().contains("jdwp");
     static {
         Memory memory = null;
@@ -71,6 +75,15 @@ public class OS {
 
     public static int pageSize() {
         return memory().pageSize();
+    }
+
+    public static int mapAlignment() {
+        return MAP_ALIGNMENT;
+    }
+
+    public static long mapAlign(long size) {
+        int chunkMultiple = mapAlignment();
+        return (size + chunkMultiple - 1) / chunkMultiple * chunkMultiple;
     }
 
     public static boolean is64Bit() {
@@ -129,15 +142,15 @@ public class OS {
         return ((long) getProcessId() << 24) | thread.getId();
     }*/
     public static boolean isWindows() {
-        return OS.startsWith("win");
+        return IS_WIN;
     }
 
     public static boolean isMacOSX() {
-        return OS.contains("mac");
+        return IS_MAC;
     }
 
     public static boolean isLinux() {
-        return OS.startsWith("linux");
+        return IS_LINUX;
     }
 
     public static long getPidMax() {
@@ -242,6 +255,10 @@ public class OS {
 
     public static Cleaner cleanerFor(ReferenceCounted owner, long address, long size) {
         return Cleaner.create(owner, new Unmapper(address, size, owner));
+    }
+
+    public static boolean isDebug() {
+        return IS_DEBUG;
     }
 
 
