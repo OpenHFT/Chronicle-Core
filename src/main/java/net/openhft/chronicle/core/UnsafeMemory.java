@@ -48,7 +48,6 @@ public class UnsafeMemory implements Memory {
         }
     }
 
-
     @Override
     public void storeFence() {
         UNSAFE.storeFence();
@@ -274,6 +273,4 @@ public class UnsafeMemory implements Memory {
     public long readVolatileLong(long address) {
         return UNSAFE.getLongVolatile(null, address);
     }
-
-
 }

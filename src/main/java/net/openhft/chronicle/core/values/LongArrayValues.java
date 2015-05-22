@@ -31,5 +31,4 @@ public interface LongArrayValues {
     long getVolatileValueAt(long index);
 
     void setOrderedValueAt(long index, long value);
-
 }

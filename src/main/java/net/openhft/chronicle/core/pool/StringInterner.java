@@ -18,7 +18,6 @@
 
 package net.openhft.chronicle.core.pool;
 
-
 import net.openhft.chronicle.core.Maths;
 
 /**

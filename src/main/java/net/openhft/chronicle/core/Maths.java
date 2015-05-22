@@ -122,7 +122,6 @@ public enum Maths {
         return hash;
     }
 
-
     public static int intLog2(long num) {
         long l = Double.doubleToRawLongBits((double) num);
         return (int) ((l >> 52) - 1023L);
@@ -175,5 +174,4 @@ public enum Maths {
             throw new IllegalArgumentException("Unsigned Int " + x + " out of range");
         return x;
     }
-
 }

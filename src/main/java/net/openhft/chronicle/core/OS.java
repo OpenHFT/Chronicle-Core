@@ -33,7 +33,6 @@ import java.nio.channels.FileChannel;
 import java.util.Random;
 import java.util.Scanner;
 
-
 public class OS {
     public static final String TMP = System.getProperty("java.io.tmpdir");
     private static final int MAP_RO = 0;
@@ -124,6 +123,7 @@ public class OS {
             int rpid = new Random().nextInt(1 << 16);
             LOG.warn("Unable to determine PID, picked a random number=" + rpid);
             return rpid;
+
         } else {
             return Integer.parseInt(pid);
         }
@@ -262,7 +262,6 @@ public class OS {
         return IS_DEBUG;
     }
 
-
     public static class Unmapper implements Runnable {
         private final long size;
         private final ReferenceCounted owner;
@@ -290,5 +289,4 @@ public class OS {
             }
         }
     }
-
 }

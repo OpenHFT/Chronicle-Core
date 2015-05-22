@@ -18,6 +18,8 @@
 
 package net.openhft.chronicle.core;
 
+import static java.lang.management.ManagementFactory.getRuntimeMXBean;
+
 public enum Jvm {
     ;
 
@@ -33,7 +35,6 @@ public enum Jvm {
         if (Thread.interrupted())
             throw new InterruptedException();
     }
-
 
     public static void trimStackTrace(StringBuilder sb, StackTraceElement... stes) {
         int first = trimFirst(stes);
@@ -63,5 +64,9 @@ public enum Jvm {
 
     public static boolean isInternal(String className) {
         return className.startsWith("jdk.") || className.startsWith("sun.") || className.startsWith("java.");
+    }
+
+    public static boolean isDebug() {
+        return getRuntimeMXBean().getInputArguments().toString().indexOf("jdwp") >= 0;
     }
 }
