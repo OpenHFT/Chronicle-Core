@@ -19,6 +19,7 @@
 package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.Maths;
+import net.openhft.chronicle.core.util.StringUtils;
 
 /**
  * @author peter.lawrey
@@ -33,15 +34,6 @@ public class StringInterner implements CharSequenceInterner<String> {
         mask = n - 1;
     }
 
-    public static boolean isEqual(CharSequence s, CharSequence cs) {
-        if (s == null) return false;
-        if (s.length() != cs.length()) return false;
-        for (int i = 0; i < cs.length(); i++)
-            if (s.charAt(i) != cs.charAt(i))
-                return false;
-        return true;
-    }
-
     @Override
     public String intern(CharSequence cs) {
         long hash = 0;
@@ -49,7 +41,7 @@ public class StringInterner implements CharSequenceInterner<String> {
             hash = 57 * hash + cs.charAt(i);
         int h = (int) Maths.hash(hash) & mask;
         String s = interner[h];
-        if (isEqual(s, cs))
+        if (StringUtils.isEqual(s, cs))
             return s;
         String s2 = cs.toString();
         return interner[h] = s2;
