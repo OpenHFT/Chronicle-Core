@@ -23,12 +23,9 @@ import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 public enum Jvm {
     ;
 
-    public static RuntimeException rethrow(Throwable throwable) {
-        // blindly rethrow checked exceptions.
-        UnsafeMemory.UNSAFE.throwException(throwable);
-
-        // just to keep the compiler happy.
-        return null;
+    @SuppressWarnings("unchecked")
+    public static <T extends Throwable> RuntimeException rethrow(Throwable t) throws T {
+        throw (T) t; // rely on vacuous cast
     }
 
     public static void checkInterrupted() throws InterruptedException {
