@@ -127,52 +127,51 @@ public enum Maths {
         return (int) ((l >> 52) - 1023L);
     }
 
-    public static int toInt32(long x, String msg) {
-        if (x < Integer.MIN_VALUE || x > Integer.MAX_VALUE)
-            throw new IllegalArgumentException(String.format(msg, x));
-        return (int) x;
-    }
-
     public static byte toInt8(long x) {
-        if (x < Byte.MIN_VALUE || x > Byte.MAX_VALUE)
-            throw new IllegalArgumentException("Byte " + x + " out of range");
-        return (byte) x;
-    }
-
-    public static short toUInt8(long x) {
-        if (x < 0 || x >= 1 << 8)
-            throw new IllegalArgumentException("Unsigned Byte " + x + " out of range");
-        return (short) x;
+        if ((byte) x == x)
+            return (byte) x;
+        throw new IllegalArgumentException("Byte " + x + " out of range");
     }
 
     public static short toInt16(long x) {
-        if (x < Short.MIN_VALUE || x > Short.MAX_VALUE)
-            throw new IllegalArgumentException("Short " + x + " out of range");
-        return (short) x;
+        if ((short) x == x)
+            return (short) x;
+        throw new IllegalArgumentException("Short " + x + " out of range");
     }
 
-    public static int toUInt16(long x) {
-        if (x < 0 || x >= 1 << 16)
-            throw new IllegalArgumentException("Unsigned Short " + x + " out of range");
-        return (int) x;
+    public static int toInt32(long x, String msg) {
+        if ((int) x == x)
+            return (int) x;
+        throw new IllegalArgumentException(String.format(msg, x));
     }
 
     public static int toInt32(long x) {
+        if ((int) x == x)
+            return (int) x;
+        throw new IllegalArgumentException("Int " + x + " out of range");
+    }
 
-        if ((x & 0xFFFF) != x)
-            throw new IllegalArgumentException("Int " + x + " out of range");
-        return (int) x;
+    public static short toUInt8(long x) {
+        if ((x & 0xFF) == x)
+            return (short) x;
+        throw new IllegalArgumentException("Unsigned Byte " + x + " out of range");
+    }
+
+    public static int toUInt16(long x) {
+        if ((x & 0xFFFF) == x)
+            return (int) x;
+        throw new IllegalArgumentException("Unsigned Short " + x + " out of range");
     }
 
     public static int toUInt31(long x) {
-        if (x < 0 || x > Integer.MAX_VALUE)
-            throw new IllegalArgumentException("Unsigned Int 31-bit " + x + " out of range");
-        return (int) x;
+        if ((x & 0x7FFFFFFFL) == x)
+            return (int) x;
+        throw new IllegalArgumentException("Unsigned Int 31-bit " + x + " out of range");
     }
 
     public static long toUInt32(long x) {
-        if (x < 0 || x >= 1L << 32)
-            throw new IllegalArgumentException("Unsigned Int " + x + " out of range");
-        return x;
+        if ((x & 0xFFFFFFFFL) == x)
+            return x;
+        throw new IllegalArgumentException("Unsigned Int " + x + " out of range");
     }
 }
