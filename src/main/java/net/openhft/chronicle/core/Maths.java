@@ -140,7 +140,7 @@ public enum Maths {
     }
 
     public static short toUInt8(long x) {
-        if (x < 0 || x > 1 << 8)
+        if (x < 0 || x >= 1 << 8)
             throw new IllegalArgumentException("Unsigned Byte " + x + " out of range");
         return (short) x;
     }
@@ -152,13 +152,14 @@ public enum Maths {
     }
 
     public static int toUInt16(long x) {
-        if (x < 0 || x > 1 << 16)
+        if (x < 0 || x >= 1 << 16)
             throw new IllegalArgumentException("Unsigned Short " + x + " out of range");
         return (int) x;
     }
 
     public static int toInt32(long x) {
-        if (x < Integer.MIN_VALUE || x > Integer.MAX_VALUE)
+
+        if ((x & 0xFFFF) != x)
             throw new IllegalArgumentException("Int " + x + " out of range");
         return (int) x;
     }
@@ -170,7 +171,7 @@ public enum Maths {
     }
 
     public static long toUInt32(long x) {
-        if (x < 0 || x > 1L << 32)
+        if (x < 0 || x >= 1L << 32)
             throw new IllegalArgumentException("Unsigned Int " + x + " out of range");
         return x;
     }
