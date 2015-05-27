@@ -23,9 +23,7 @@ import org.slf4j.LoggerFactory;
 import sun.misc.Cleaner;
 import sun.nio.ch.FileChannelImpl;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -256,6 +254,35 @@ public class OS {
 
     public static Cleaner cleanerFor(ReferenceCounted owner, long address, long size) {
         return Cleaner.create(owner, new Unmapper(address, size, owner));
+    }
+
+    public static long spaceUsed(String filename) {
+        return spaceUsed(new File(filename));
+    }
+    public static long spaceUsed(File file) {
+        if (!isWindows()) {
+            try {
+                String du_k = run("du", "-ks", file.getAbsolutePath());
+                return Long.parseLong(du_k.substring(0, du_k.indexOf('\t')));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return file.length();
+    }
+
+    public static String run(String... cmds) throws IOException {
+        ProcessBuilder pb = new ProcessBuilder(cmds);
+        pb.redirectErrorStream(true);
+        Process process = pb.start();
+        StringWriter sw = new StringWriter();
+        char[] chars = new char[1024];
+        try (Reader r = new InputStreamReader(process.getInputStream())) {
+            for (int len; (len = r.read(chars)) > 0; ) {
+                sw.write(chars, 0, len);
+            }
+        }
+        return sw.toString();
     }
 
     public static boolean isDebug() {
