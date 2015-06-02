@@ -285,6 +285,36 @@ public class OS {
         return sw.toString();
     }
 
+    public static void warnOnWindows(long size) {
+        if (!isWindows())
+            return;
+        long offHeapMapSize = size;
+        long oneGb = MemoryUnit.GIGABYTES.toBytes(1L);
+        double offHeapMapSizeInGb = offHeapMapSize * 1.0 / oneGb;
+        if (offHeapMapSize >  MemoryUnit.GIGABYTES.toBytes(4L)) {
+            System.out.printf(
+                    "WARNING: On Windows, you probably cannot create a ChronicleMap\n" +
+                            "of more than 4 GB. The configured map requires %.2f GB of " +
+                            "off-heap memory.\n",
+                    offHeapMapSizeInGb);
+        }
+        try {
+            long freePhysicalMemory = freePhysicalMemoryOnWindowsInBytes();
+            if (offHeapMapSize > freePhysicalMemory * 0.9) {
+                double freePhysicalMemoryInGb = freePhysicalMemory * 1.0 / oneGb;
+                System.out.printf(
+                        "WARNING: On Windows, you probably cannot create a ChronicleMap\n" +
+                                "of more than 90%% of available free memory in the system.\n" +
+                                "The configured map requires %.2f GB of off-heap memory.\n" +
+                                "There is only %.2f GB of free physical memory in the system.\n",
+                        offHeapMapSizeInGb, freePhysicalMemoryInGb);
+
+            }
+        } catch (IOException e) {
+            // ignore -- anyway we just warn the user
+        }
+    }
+
     public static boolean isDebug() {
         return IS_DEBUG;
     }
