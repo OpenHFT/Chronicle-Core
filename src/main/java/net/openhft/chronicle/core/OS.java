@@ -285,9 +285,11 @@ public class OS {
         return sw.toString();
     }
 
-    public static void warnOnWindows(long size) {
+    public static boolean warnOnWindows(long size) {
+        boolean isWarning = false;
+
         if (!isWindows())
-            return;
+            return isWarning;
         long offHeapMapSize = size;
         long oneGb = MemoryUnit.GIGABYTES.toBytes(1L);
         double offHeapMapSizeInGb = offHeapMapSize * 1.0 / oneGb;
@@ -297,6 +299,7 @@ public class OS {
                             "of more than 4 GB. The configured map requires %.2f GB of " +
                             "off-heap memory.\n",
                     offHeapMapSizeInGb);
+            isWarning = true;
         }
         try {
             long freePhysicalMemory = freePhysicalMemoryOnWindowsInBytes();
@@ -312,7 +315,9 @@ public class OS {
             }
         } catch (IOException e) {
             // ignore -- anyway we just warn the user
+            isWarning = true;
         }
+        return isWarning;
     }
 
     public static boolean isDebug() {
