@@ -177,7 +177,7 @@ public class OS {
         if (!isWindows())
             throw new IllegalStateException("Method freePhysicalMemoryOnWindowsInBytes() should " +
                     "be called only on windows. Use Jvm.isWindows() to check the OS.");
-        Process pr = Runtime.getRuntime().exec("wmic OS get FreePhysicalMemory /Value < NUL");
+        Process pr = Runtime.getRuntime().exec("wmic OS get FreePhysicalMemory /Value");
         try {
             int result = pr.waitFor();
             String output = convertStreamToString(pr.getInputStream());
