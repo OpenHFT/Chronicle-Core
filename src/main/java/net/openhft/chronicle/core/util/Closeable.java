@@ -7,5 +7,5 @@ public interface Closeable extends java.io.Closeable {
     /**
      * Doesn't throw a checked exception.
      */
-    public void close();
+    void close();
 }
