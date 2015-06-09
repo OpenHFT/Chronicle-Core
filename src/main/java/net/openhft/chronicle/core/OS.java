@@ -47,6 +47,7 @@ public class OS {
     private static final boolean IS_WIN = OS.startsWith("win");
     private static boolean IS_DEBUG = java.lang.management.ManagementFactory.getRuntimeMXBean().
             getInputArguments().toString().contains("jdwp");
+
     static {
         Memory memory = null;
         try {
@@ -207,6 +208,8 @@ public class OS {
     }
 
     public static long map(FileChannel fileChannel, FileChannel.MapMode mode, long start, long size) throws IOException {
+        if (isWindows() && size > 4L << 30)
+            throw new IllegalArgumentException("Mapping more than 4096 MiB is unusable on Windows, size = " + (size >> 20) + " MiB");
         try {
             return map0(fileChannel, imodeFor(mode), start, size);
         } catch (NoSuchMethodException | IllegalAccessException e) {
@@ -216,7 +219,7 @@ public class OS {
         }
     }
 
-    private static long map0(FileChannel fileChannel, int imode, long start, long size) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    static long map0(FileChannel fileChannel, int imode, long start, long size) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Method map0 = fileChannel.getClass().getDeclaredMethod("map0", int.class, long.class, long.class);
         map0.setAccessible(true);
         return (Long) map0.invoke(fileChannel, imode, start, size);
@@ -240,7 +243,7 @@ public class OS {
         return new IOException(e);
     }
 
-    private static int imodeFor(FileChannel.MapMode mode) {
+    static int imodeFor(FileChannel.MapMode mode) {
         int imode = -1;
         if (mode == FileChannel.MapMode.READ_ONLY)
             imode = MAP_RO;
@@ -259,6 +262,7 @@ public class OS {
     public static long spaceUsed(String filename) {
         return spaceUsed(new File(filename));
     }
+
     public static long spaceUsed(File file) {
         if (!isWindows()) {
             try {
@@ -293,7 +297,7 @@ public class OS {
         long offHeapMapSize = size;
         long oneGb = MemoryUnit.GIGABYTES.toBytes(1L);
         double offHeapMapSizeInGb = offHeapMapSize * 1.0 / oneGb;
-        if (offHeapMapSize >  MemoryUnit.GIGABYTES.toBytes(4L)) {
+        if (offHeapMapSize > MemoryUnit.GIGABYTES.toBytes(4L)) {
             System.out.printf(
                     "WARNING: On Windows, you probably cannot create a ChronicleMap\n" +
                             "of more than 4 GB. The configured map requires %.2f GB of " +
