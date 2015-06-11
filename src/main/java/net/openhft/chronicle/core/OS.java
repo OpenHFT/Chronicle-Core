@@ -24,12 +24,13 @@ import sun.misc.Cleaner;
 import sun.nio.ch.FileChannelImpl;
 
 import java.io.*;
-import java.lang.management.ManagementFactory;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.channels.FileChannel;
 import java.util.Random;
 import java.util.Scanner;
+
+import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 
 public class OS {
     public static final String TMP = System.getProperty("java.io.tmpdir");
@@ -48,8 +49,7 @@ public class OS {
     private static final boolean IS_LINUX = OS.startsWith("linux");
     private static final boolean IS_MAC = OS.contains("mac");
     private static final boolean IS_WIN = OS.startsWith("win");
-    private static boolean IS_DEBUG = java.lang.management.ManagementFactory.getRuntimeMXBean().
-            getInputArguments().toString().contains("jdwp");
+
     static {
         Memory memory = null;
         try {
@@ -66,10 +66,6 @@ public class OS {
         if (memory == null)
             memory = UnsafeMemory.create();
         MEMORY = memory;
-    }
-
-    private static String getTarget() {
-        return null;
     }
 
     public static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : pageSize();
@@ -123,7 +119,7 @@ public class OS {
             // ignored
         }
         if (pid == null)
-            pid = ManagementFactory.getRuntimeMXBean().getName().split("@", 0)[0];
+            pid = getRuntimeMXBean().getName().split("@", 0)[0];
         if (pid == null) {
             int rpid = new Random().nextInt(1 << 16);
             LOG.warn("Unable to determine PID, picked a random number=" + rpid);
@@ -173,44 +169,6 @@ public class OS {
         }
         // the default.
         return 1L << 16;
-    }
-
-    private static String convertStreamToString(java.io.InputStream is) {
-        java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
-        return s.hasNext() ? s.next() : "";
-    }
-
-    public static long freePhysicalMemoryOnWindowsInBytes() throws IOException {
-        if (!isWindows())
-            throw new IllegalStateException("Method freePhysicalMemoryOnWindowsInBytes() should " +
-                    "be called only on windows. Use Jvm.isWindows() to check the OS.");
-        Process pr = Runtime.getRuntime().exec("wmic OS get FreePhysicalMemory /Value");
-        try {
-            int result = pr.waitFor();
-            String output = convertStreamToString(pr.getInputStream());
-            if (result != 0) {
-                String errorOutput = convertStreamToString(pr.getErrorStream());
-                throw new IOException("Couldn't get free physical memory on windows. " +
-                        "Command \"wmic OS get FreePhysicalMemory /Value\" exited with " +
-                        result + " code, putput: \"" + output + "\", error output: \"" +
-                        errorOutput + "\"");
-            }
-            String[] parts = output.trim().split("=");
-            if (parts.length != 2) {
-                throw new IOException("Couldn't get free physical memory on windows. " +
-                        "Command \"wmic OS get FreePhysicalMemory /Value\" output has unexpected " +
-                        "format: \"" + output + "\"");
-            }
-            try {
-                return Long.parseLong(parts[1]) * 1024; // KiB => bytes.
-            } catch (NumberFormatException e) {
-                throw new IOException("Couldn't get free physical memory on windows. " +
-                        "Command \"wmic OS get FreePhysicalMemory /Value\" output has unexpected " +
-                        "format: \"" + output + "\"", e);
-            }
-        } catch (InterruptedException e) {
-            throw new IOException(e);
-        }
     }
 
     public static long map(FileChannel fileChannel, FileChannel.MapMode mode, long start, long size) throws IOException {
@@ -293,45 +251,6 @@ public class OS {
             }
         }
         return sw.toString();
-    }
-
-    public static boolean warnOnWindows(long size) {
-        boolean isWarning = false;
-
-        if (!isWindows())
-            return isWarning;
-        long offHeapMapSize = size;
-        long oneGb = MemoryUnit.GIGABYTES.toBytes(1L);
-        double offHeapMapSizeInGb = offHeapMapSize * 1.0 / oneGb;
-        if (offHeapMapSize > MemoryUnit.GIGABYTES.toBytes(4L)) {
-            System.out.printf(
-                    "WARNING: On Windows, you probably cannot create a ChronicleMap\n" +
-                            "of more than 4 GB. The configured map requires %.2f GB of " +
-                            "off-heap memory.\n",
-                    offHeapMapSizeInGb);
-            isWarning = true;
-        }
-        try {
-            long freePhysicalMemory = freePhysicalMemoryOnWindowsInBytes();
-            if (offHeapMapSize > freePhysicalMemory * 0.9) {
-                double freePhysicalMemoryInGb = freePhysicalMemory * 1.0 / oneGb;
-                System.out.printf(
-                        "WARNING: On Windows, you probably cannot create a ChronicleMap\n" +
-                                "of more than 90%% of available free memory in the system.\n" +
-                                "The configured map requires %.2f GB of off-heap memory.\n" +
-                                "There is only %.2f GB of free physical memory in the system.\n",
-                        offHeapMapSizeInGb, freePhysicalMemoryInGb);
-
-            }
-        } catch (IOException e) {
-            // ignore -- anyway we just warn the user
-            isWarning = true;
-        }
-        return isWarning;
-    }
-
-    public static boolean isDebug() {
-        return IS_DEBUG;
     }
 
     public static class Unmapper implements Runnable {

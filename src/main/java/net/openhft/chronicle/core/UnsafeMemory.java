@@ -42,7 +42,9 @@ public class UnsafeMemory implements Memory {
 
     public <E> E allocateInstance(Class<E> clazz) {
         try {
-            return (E) UNSAFE.allocateInstance(clazz);
+            @SuppressWarnings("unchecked")
+            E e = (E) UNSAFE.allocateInstance(clazz);
+            return e;
         } catch (InstantiationException e) {
             throw new IllegalStateException(e);
         }
