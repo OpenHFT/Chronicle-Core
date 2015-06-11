@@ -66,4 +66,12 @@ public enum Jvm {
     public static boolean isDebug() {
         return getRuntimeMXBean().getInputArguments().toString().indexOf("jdwp") >= 0;
     }
+
+    public static void pause(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        }
+    }
 }
