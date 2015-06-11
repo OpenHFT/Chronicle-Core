@@ -46,7 +46,7 @@ public class OSTest {
         // doesn't crash the JVM.
         long length = (4L << 30L);
 
-        String name = OS.TMP + "/deleteme";
+        String name = OS.TARGET + "/deleteme";
         new File(name).deleteOnExit();
         FileChannel fc = new RandomAccessFile(name, "rw").getChannel();
         long address = OS.map0(fc, OS.imodeFor(FileChannel.MapMode.READ_WRITE), 0, length);

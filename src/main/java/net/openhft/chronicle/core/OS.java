@@ -33,13 +33,16 @@ import java.util.Scanner;
 
 public class OS {
     public static final String TMP = System.getProperty("java.io.tmpdir");
+    public static final String TARGET = System.getProperty("project.build.directory", TMP + "/target");
+
     private static final int MAP_RO = 0;
+
     private static final int MAP_RW = 1;
     private static final int MAP_PV = 2;
     private static final boolean IS64BIT = is64Bit0();
     private static final Logger LOG = LoggerFactory.getLogger(OS.class);
-
     private static final int PROCESS_ID = getProcessId0();
+
     private static final Memory MEMORY;
     private static final String OS = System.getProperty("os.name").toLowerCase();
     private static final boolean IS_LINUX = OS.startsWith("linux");
@@ -47,7 +50,6 @@ public class OS {
     private static final boolean IS_WIN = OS.startsWith("win");
     private static boolean IS_DEBUG = java.lang.management.ManagementFactory.getRuntimeMXBean().
             getInputArguments().toString().contains("jdwp");
-
     static {
         Memory memory = null;
         try {
@@ -64,6 +66,10 @@ public class OS {
         if (memory == null)
             memory = UnsafeMemory.create();
         MEMORY = memory;
+    }
+
+    private static String getTarget() {
+        return null;
     }
 
     public static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : pageSize();
