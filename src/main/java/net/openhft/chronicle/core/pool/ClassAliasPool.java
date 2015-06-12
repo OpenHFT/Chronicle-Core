@@ -76,6 +76,7 @@ public class ClassAliasPool {
             stringClassMap.putIfAbsent(clazz.getName(), clazz);
             stringClassMap2.putIfAbsent(clazz.getSimpleName(), clazz);
             stringClassMap2.putIfAbsent(toCamelCase(clazz.getSimpleName()), clazz);
+            classStringMap.computeIfAbsent(clazz, c -> c.getSimpleName());
         }
     }
 
