@@ -71,10 +71,12 @@ public class ClassAliasPool {
         return classStringMap.computeIfAbsent(clazz, c -> c.getName());
     }
 
-    public void addAlias(Class clazz) {
-        stringClassMap.putIfAbsent(clazz.getName(), clazz);
-        stringClassMap2.putIfAbsent(clazz.getSimpleName(), clazz);
-        stringClassMap2.putIfAbsent(toCamelCase(clazz.getSimpleName()), clazz);
+    public void addAlias(Class... classes) {
+        for (Class clazz : classes) {
+            stringClassMap.putIfAbsent(clazz.getName(), clazz);
+            stringClassMap2.putIfAbsent(clazz.getSimpleName(), clazz);
+            stringClassMap2.putIfAbsent(toCamelCase(clazz.getSimpleName()), clazz);
+        }
     }
 
     // to lower camel case.

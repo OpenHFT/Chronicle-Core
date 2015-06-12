@@ -47,9 +47,7 @@ public enum Jvm {
         for (; first < stes.length; first++)
             if (!isInternal(stes[first].getClassName()))
                 break;
-        if (first > 0) first--;
-        if (first > 0) first--;
-        return first;
+        return Math.max(0, first - 2);
     }
 
     public static int trimLast(int first, StackTraceElement[] stes) {
@@ -69,7 +67,7 @@ public enum Jvm {
         return IS_DEBUG;
     }
 
-    public static void pause(int millis) {
+    public static void pause(long millis) {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException ie) {
