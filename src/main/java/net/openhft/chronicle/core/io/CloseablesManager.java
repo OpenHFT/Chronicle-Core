@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package net.openhft.chronicle.core.util;
+package net.openhft.chronicle.core.io;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

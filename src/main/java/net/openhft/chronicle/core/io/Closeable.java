@@ -1,4 +1,4 @@
-package net.openhft.chronicle.core.util;
+package net.openhft.chronicle.core.io;
 
 public interface Closeable extends java.io.Closeable {
     /**

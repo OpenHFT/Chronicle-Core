@@ -18,7 +18,7 @@
 
 package net.openhft.chronicle.core;
 
-import net.openhft.chronicle.core.util.Closeable;
+import net.openhft.chronicle.core.io.Closeable;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
