@@ -16,6 +16,7 @@
 
 package net.openhft.chronicle.core.io;
 
+@FunctionalInterface
 public interface Closeable extends java.io.Closeable {
     /**
      * Doesn't throw a checked exception.
