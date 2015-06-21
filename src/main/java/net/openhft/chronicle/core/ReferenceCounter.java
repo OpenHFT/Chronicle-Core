@@ -22,7 +22,7 @@ public class ReferenceCounter {
     private final AtomicLong value = new AtomicLong(1);
     private final Runnable onRelease;
 
-    ReferenceCounter(Runnable onRelease) {
+    private ReferenceCounter(Runnable onRelease) {
         this.onRelease = onRelease;
     }
 

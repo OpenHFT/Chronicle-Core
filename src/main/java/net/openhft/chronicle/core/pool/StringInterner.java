@@ -22,7 +22,7 @@ import net.openhft.chronicle.core.util.StringUtils;
 /**
  * @author peter.lawrey
  */
-public class StringInterner implements CharSequenceInterner<String> {
+public class StringInterner {
     private final String[] interner;
     private final int mask;
 
@@ -32,7 +32,6 @@ public class StringInterner implements CharSequenceInterner<String> {
         mask = n - 1;
     }
 
-    @Override
     public String intern(CharSequence cs) {
         long hash = 0;
         for (int i = 0; i < cs.length(); i++)

@@ -21,6 +21,7 @@ public interface Memory {
         Runtime runtime = Runtime.getRuntime();
         return runtime.totalMemory() - runtime.freeMemory();
     }
+
     void storeFence();
 
     void loadFence();

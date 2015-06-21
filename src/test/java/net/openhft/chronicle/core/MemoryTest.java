@@ -14,9 +14,16 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.openhft.chronicle.core.util;
+package net.openhft.chronicle.core;
 
-@FunctionalInterface
-public interface ThrowingSupplier<O, T extends Throwable> {
-    O get() throws T;
+import org.junit.Test;
+
+/**
+ * Created by peter on 21/06/15.
+ */
+public class MemoryTest {
+    @Test
+    public void testHeapUsed() throws Exception {
+        System.out.println("heap used: " + OS.memory().heapUsed());
+    }
 }

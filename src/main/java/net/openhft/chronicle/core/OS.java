@@ -47,7 +47,6 @@ public class OS {
     private static final boolean IS_LINUX = OS.startsWith("linux");
     private static final boolean IS_MAC = OS.contains("mac");
     private static final boolean IS_WIN = OS.startsWith("win");
-
     static {
         Memory memory = null;
         try {
@@ -66,7 +65,7 @@ public class OS {
         MEMORY = memory;
     }
 
-    public static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : pageSize();
+    private static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : pageSize();
 
     public static Memory memory() {
         return MEMORY;
@@ -76,12 +75,8 @@ public class OS {
         return memory().pageSize();
     }
 
-    public static int mapAlignment() {
-        return MAP_ALIGNMENT;
-    }
-
     public static long mapAlign(long size) {
-        int chunkMultiple = mapAlignment();
+        int chunkMultiple = MAP_ALIGNMENT;
         return (size + chunkMultiple - 1) / chunkMultiple * chunkMultiple;
     }
 

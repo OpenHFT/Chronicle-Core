@@ -17,7 +17,7 @@
 package net.openhft.chronicle.core.pool;
 
 public class StringBuilderPool {
-    final ThreadLocal<StringBuilder> sbtl = new ThreadLocal<>();
+    private final ThreadLocal<StringBuilder> sbtl = new ThreadLocal<>();
 
     public StringBuilder acquireStringBuilder() {
         StringBuilder sb = sbtl.get();

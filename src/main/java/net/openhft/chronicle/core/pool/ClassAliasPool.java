@@ -28,13 +28,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * Created by peter on 12/06/15.
  */
 public class ClassAliasPool {
-    public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool().defaultAliases();
-
     private final Map<String, Class> stringClassMap = new ConcurrentHashMap<>();
     private final Map<String, Class> stringClassMap2 = new ConcurrentHashMap<>();
     private final Map<Class, String> classStringMap = new ConcurrentHashMap<>();
+    public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool().defaultAliases();
 
-    public ClassAliasPool defaultAliases() {
+    ClassAliasPool defaultAliases() {
         addAlias(Set.class);
         addAlias(String.class);
         addAlias(CharSequence.class);

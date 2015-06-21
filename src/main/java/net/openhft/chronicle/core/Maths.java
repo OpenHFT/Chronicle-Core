@@ -97,7 +97,7 @@ public enum Maths {
         return i;
     }
 
-    public static boolean isPowerOf2(long n) {
+    static boolean isPowerOf2(long n) {
         return n != 0 && (n & (n - 1L)) == 0L;
     }
 

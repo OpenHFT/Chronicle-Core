@@ -40,7 +40,7 @@ public enum Jvm {
             sb.append("\n\tat ").append(stes[i]);
     }
 
-    public static int trimFirst(StackTraceElement[] stes) {
+    static int trimFirst(StackTraceElement[] stes) {
         int first = 0;
         for (; first < stes.length; first++)
             if (!isInternal(stes[first].getClassName()))
@@ -57,10 +57,11 @@ public enum Jvm {
         return last;
     }
 
-    public static boolean isInternal(String className) {
+    static boolean isInternal(String className) {
         return className.startsWith("jdk.") || className.startsWith("sun.") || className.startsWith("java.");
     }
 
+    @SuppressWarnings("SameReturnValue")
     public static boolean isDebug() {
         return IS_DEBUG;
     }

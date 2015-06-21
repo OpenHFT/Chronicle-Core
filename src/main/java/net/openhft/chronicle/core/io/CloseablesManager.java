@@ -36,17 +36,9 @@ public final class CloseablesManager implements Closeable {
             closeables.add(closeable);
     }
 
-    public synchronized void close(Closeable closeable) throws IOException {
+    synchronized void close(Closeable closeable) throws IOException {
         closeables.remove(closeable);
         closeable.close();
-    }
-
-    public synchronized void closeQuietly(Closeable closeable) {
-        try {
-            close(closeable);
-        } catch (IOException e) {
-            LOG.error("", e);
-        }
     }
 
     @Override
