@@ -22,6 +22,7 @@ public enum Maths {
      * Numbers larger than this are whole numbers due to representation error.
      */
     private static final double WHOLE_NUMBER = 1L << 53;
+    private static final long K0 = 0xc3a5c85c97cb3127L;
 
     /**
      * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5
@@ -101,23 +102,15 @@ public enum Maths {
         return n != 0 && (n & (n - 1L)) == 0L;
     }
 
-    public static int hash(int n) {
-        n ^= (n >>> 21) - (n >>> 11);
-        n ^= (n >>> 7) + (n >>> 4);
-        return n;
+    public static int hash(long n) {
+        return (int) ((n * K0) >> 16);
     }
 
-    public static long hash(long n) {
-        n ^= (n >>> 41) - (n >>> 21);
-        n ^= (n >>> 15) + (n >>> 7);
-        return n;
-    }
-
-    public static long hash(CharSequence cs) {
-        long hash = 0;
+    public static int hash(CharSequence cs) {
+        double hash = 0;
         for (int i = 0; i < cs.length(); i++)
             hash = hash * 131 + cs.charAt(i);
-        return hash;
+        return hash(Double.doubleToRawLongBits(hash));
     }
 
     public static int intLog2(long num) {

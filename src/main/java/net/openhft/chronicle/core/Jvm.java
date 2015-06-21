@@ -28,11 +28,6 @@ public enum Jvm {
         throw (T) t; // rely on vacuous cast
     }
 
-    public static void checkInterrupted() throws InterruptedException {
-        if (Thread.interrupted())
-            throw new InterruptedException();
-    }
-
     public static void trimStackTrace(StringBuilder sb, StackTraceElement... stes) {
         int first = trimFirst(stes);
         int last = trimLast(first, stes);

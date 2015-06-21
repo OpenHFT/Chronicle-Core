@@ -33,10 +33,7 @@ public class StringInterner {
     }
 
     public String intern(CharSequence cs) {
-        long hash = 0;
-        for (int i = 0; i < cs.length(); i++)
-            hash = 57 * hash + cs.charAt(i);
-        int h = (int) Maths.hash(hash) & mask;
+        int h = Maths.hash(cs) & mask;
         String s = interner[h];
         if (StringUtils.isEqual(s, cs))
             return s;

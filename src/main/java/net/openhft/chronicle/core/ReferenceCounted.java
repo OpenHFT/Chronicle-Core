@@ -22,11 +22,6 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 
 public interface ReferenceCounted extends Closeable {
-    static void release(ReferenceCounted rc) {
-        if (rc != null)
-            rc.release();
-    }
-
     static void releaseAll(List<WeakReference<ReferenceCounted>> refCounts) {
         for (WeakReference<? extends ReferenceCounted> refCountRef : refCounts) {
             if (refCountRef == null)

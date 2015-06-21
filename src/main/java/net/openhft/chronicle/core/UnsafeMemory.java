@@ -21,7 +21,7 @@ import sun.misc.Unsafe;
 import java.lang.reflect.Field;
 
 public class UnsafeMemory implements Memory {
-    protected static Unsafe UNSAFE;
+    static Unsafe UNSAFE;
 
     public static Memory create() {
         if (UNSAFE == null) {

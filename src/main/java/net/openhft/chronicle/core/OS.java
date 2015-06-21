@@ -18,7 +18,6 @@ package net.openhft.chronicle.core;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.misc.Cleaner;
 import sun.nio.ch.FileChannelImpl;
 
 import java.io.*;
@@ -31,7 +30,7 @@ import java.util.Scanner;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 
 public class OS {
-    public static final String TMP = System.getProperty("java.io.tmpdir");
+    private static final String TMP = System.getProperty("java.io.tmpdir");
     public static final String TARGET = System.getProperty("project.build.directory", TMP + "/target");
 
     private static final int MAP_RO = 0;
@@ -47,6 +46,8 @@ public class OS {
     private static final boolean IS_LINUX = OS.startsWith("linux");
     private static final boolean IS_MAC = OS.contains("mac");
     private static final boolean IS_WIN = OS.startsWith("win");
+    private static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : pageSize();
+
     static {
         Memory memory = null;
         try {
@@ -64,8 +65,6 @@ public class OS {
             memory = UnsafeMemory.create();
         MEMORY = memory;
     }
-
-    private static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : pageSize();
 
     public static Memory memory() {
         return MEMORY;
@@ -140,11 +139,11 @@ public class OS {
         return IS_WIN;
     }
 
-    public static boolean isMacOSX() {
+    private static boolean isMacOSX() {
         return IS_MAC;
     }
 
-    public static boolean isLinux() {
+    private static boolean isLinux() {
         return IS_LINUX;
     }
 
@@ -212,15 +211,11 @@ public class OS {
         return imode;
     }
 
-    public static Cleaner cleanerFor(ReferenceCounted owner, long address, long size) {
-        return Cleaner.create(owner, new Unmapper(address, size, owner));
-    }
-
     public static long spaceUsed(String filename) {
         return spaceUsed(new File(filename));
     }
 
-    public static long spaceUsed(File file) {
+    private static long spaceUsed(File file) {
         if (!isWindows()) {
             try {
                 String du_k = run("du", "-ks", file.getAbsolutePath());
@@ -232,7 +227,7 @@ public class OS {
         return file.length();
     }
 
-    public static String run(String... cmds) throws IOException {
+    private static String run(String... cmds) throws IOException {
         ProcessBuilder pb = new ProcessBuilder(cmds);
         pb.redirectErrorStream(true);
         Process process = pb.start();

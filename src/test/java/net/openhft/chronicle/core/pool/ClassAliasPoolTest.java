@@ -14,26 +14,22 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.openhft.chronicle.core;
+package net.openhft.chronicle.core.pool;
 
-import java.util.function.Function;
+import org.junit.Test;
+
+import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
+import static org.junit.Assert.assertEquals;
 
 /**
- * Lambda friendly, ClassLocal value to cache information relating to a class.
+ * Created by peter on 21/06/15.
  */
-public class ClassLocal<V> extends ClassValue<V> {
-    private final Function<Class, V> classVFunction;
+public class ClassAliasPoolTest {
 
-    private ClassLocal(Function<Class, V> classVFunction) {
-        this.classVFunction = classVFunction;
-    }
-
-    public static <V> ClassLocal<V> withInitial(Function<Class, V> classVFunction) {
-        return new ClassLocal<>(classVFunction);
-    }
-
-    @Override
-    protected V computeValue(Class<?> type) {
-        return classVFunction.apply(type);
+    @Test
+    public void testClean() throws Exception {
+        assertEquals("String", CLASS_ALIASES.nameFor(String.class));
+        CLASS_ALIASES.clean();
+        assertEquals("String", CLASS_ALIASES.nameFor(String.class));
     }
 }

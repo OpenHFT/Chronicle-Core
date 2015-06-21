@@ -24,16 +24,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Created by peter on 12/06/15.
- */
 public class ClassAliasPool {
     private final Map<String, Class> stringClassMap = new ConcurrentHashMap<>();
     private final Map<String, Class> stringClassMap2 = new ConcurrentHashMap<>();
     private final Map<Class, String> classStringMap = new ConcurrentHashMap<>();
     public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool().defaultAliases();
 
-    ClassAliasPool defaultAliases() {
+    private ClassAliasPool defaultAliases() {
         addAlias(Set.class);
         addAlias(String.class);
         addAlias(CharSequence.class);
@@ -83,7 +80,7 @@ public class ClassAliasPool {
     }
 
     public String nameFor(Class clazz) {
-        return classStringMap.computeIfAbsent(clazz, c -> c.getName());
+        return classStringMap.computeIfAbsent(clazz, Class::getName);
     }
 
     public void addAlias(Class... classes) {
@@ -91,7 +88,7 @@ public class ClassAliasPool {
             stringClassMap.putIfAbsent(clazz.getName(), clazz);
             stringClassMap2.putIfAbsent(clazz.getSimpleName(), clazz);
             stringClassMap2.putIfAbsent(toCamelCase(clazz.getSimpleName()), clazz);
-            classStringMap.computeIfAbsent(clazz, c -> c.getSimpleName());
+            classStringMap.computeIfAbsent(clazz, Class::getSimpleName);
         }
     }
 
