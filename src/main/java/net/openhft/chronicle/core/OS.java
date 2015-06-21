@@ -39,14 +39,14 @@ public class OS {
     private static final int MAP_PV = 2;
     private static final boolean IS64BIT = is64Bit0();
     private static final int PROCESS_ID = getProcessId0();
-    private static final Memory MEMORY;
+    private static final Memory MEMORY = getMemory();
     private static final String OS = System.getProperty("os.name").toLowerCase();
     private static final boolean IS_LINUX = OS.startsWith("linux");
     private static final boolean IS_MAC = OS.contains("mac");
     private static final boolean IS_WIN = OS.startsWith("win");
     private static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : pageSize();
 
-    static {
+    private static Memory getMemory() {
         Memory memory = null;
         try {
             Class<? extends Memory> java9MemoryClass = Class
@@ -61,7 +61,7 @@ public class OS {
         }
         if (memory == null)
             memory = UnsafeMemory.create();
-        MEMORY = memory;
+        return memory;
     }
 
     public static Memory memory() {
