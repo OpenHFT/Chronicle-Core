@@ -36,11 +36,6 @@ public final class CloseablesManager implements Closeable {
             closeables.add(closeable);
     }
 
-    synchronized void close(Closeable closeable) throws IOException {
-        closeables.remove(closeable);
-        closeable.close();
-    }
-
     @Override
     public synchronized void close() throws IOException {
         IOException ex = null;

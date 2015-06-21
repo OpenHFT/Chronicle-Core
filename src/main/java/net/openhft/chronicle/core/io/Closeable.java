@@ -16,10 +16,21 @@
 
 package net.openhft.chronicle.core.io;
 
+import java.io.IOException;
+
 @FunctionalInterface
 public interface Closeable extends java.io.Closeable {
     /**
      * Doesn't throw a checked exception.
      */
     void close();
+
+    static void closeQuietly(Object o) {
+        if (o instanceof java.io.Closeable) {
+            try {
+                ((java.io.Closeable) o).close();
+            } catch (IOException ignored) {
+            }
+        }
+    }
 }
