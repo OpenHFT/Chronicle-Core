@@ -14,12 +14,20 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.openhft.chronicle.core;
+package net.openhft.chronicle.core.annotation;
 
-public enum Threads {
-    ;
+import org.jetbrains.annotations.NotNull;
 
-    public static void checkInterrupted() {
-        throw new UnsupportedOperationException();
-    }
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+/**
+ * Created by peter.lawrey on 22/01/15.
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface HotMethod {
+    @NotNull String value() default "";
 }

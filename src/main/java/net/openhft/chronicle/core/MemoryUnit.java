@@ -385,9 +385,7 @@ public enum MemoryUnit {
      * or {@code Long.MIN_VALUE} if conversion would negatively
      * overflow, or {@code Long.MAX_VALUE} if it would positively overflow.
      */
-    public long toBits(long amount) {
-        throw new AbstractMethodError();
-    }
+    public abstract long toBits(long amount);
 
     /**
      * Equivalent to
@@ -397,9 +395,7 @@ public enum MemoryUnit {
      * or {@code Long.MIN_VALUE} if conversion would negatively
      * overflow, or {@code Long.MAX_VALUE} if it would positively overflow.
      */
-    public long toBytes(long amount) {
-        throw new AbstractMethodError();
-    }
+    public abstract long toBytes(long amount);
 
     /**
      * Equivalent to
@@ -409,9 +405,7 @@ public enum MemoryUnit {
      * or {@code Long.MIN_VALUE} if conversion would negatively
      * overflow, or {@code Long.MAX_VALUE} if it would positively overflow.
      */
-    public long toLongs(long amount) {
-        throw new AbstractMethodError();
-    }
+    public abstract long toLongs(long amount);
 
     /**
      * Equivalent to
@@ -421,9 +415,7 @@ public enum MemoryUnit {
      * or {@code Long.MIN_VALUE} if conversion would negatively
      * overflow, or {@code Long.MAX_VALUE} if it would positively overflow.
      */
-    public long toCacheLines(long amount) {
-        throw new AbstractMethodError();
-    }
+    public abstract long toCacheLines(long amount);
 
     /**
      * Equivalent to
@@ -433,9 +425,7 @@ public enum MemoryUnit {
      * or {@code Long.MIN_VALUE} if conversion would negatively
      * overflow, or {@code Long.MAX_VALUE} if it would positively overflow.
      */
-    public long toKilobytes(long amount) {
-        throw new AbstractMethodError();
-    }
+    public abstract long toKilobytes(long amount);
 
     /**
      * Equivalent to
@@ -445,9 +435,7 @@ public enum MemoryUnit {
      * or {@code Long.MIN_VALUE} if conversion would negatively
      * overflow, or {@code Long.MAX_VALUE} if it would positively overflow.
      */
-    public long toPages(long amount) {
-        throw new AbstractMethodError();
-    }
+    public abstract long toPages(long amount);
 
     /**
      * Equivalent to
@@ -457,9 +445,7 @@ public enum MemoryUnit {
      * or {@code Long.MIN_VALUE} if conversion would negatively
      * overflow, or {@code Long.MAX_VALUE} if it would positively overflow.
      */
-    public long toMegabytes(long amount) {
-        throw new AbstractMethodError();
-    }
+    public abstract long toMegabytes(long amount);
 
     /**
      * Equivalent to
@@ -467,9 +453,7 @@ public enum MemoryUnit {
      * @param amount the amount
      * @return the converted amount
      */
-    public long toGigabytes(long amount) {
-        throw new AbstractMethodError();
-    }
+    public abstract long toGigabytes(long amount);
 
     abstract long alignToBytes(long amount);
     abstract long alignToLongs(long amount);
