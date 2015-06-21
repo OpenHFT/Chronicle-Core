@@ -56,9 +56,8 @@ public class ClassAliasPool {
     }
 
     private void clean(Iterable<Class> coll) {
-        Iterator<Class> iter = coll.iterator();
         ClassLoader classLoader2 = ClassAliasPool.class.getClassLoader();
-        while (iter.hasNext()) {
+        for (Iterator<Class> iter = coll.iterator(); iter.hasNext(); ) {
             Class clazz = iter.next();
             ClassLoader classLoader = clazz.getClassLoader();
             if (classLoader == null || classLoader == classLoader2)

@@ -33,14 +33,12 @@ public class OS {
     private static final String TMP = System.getProperty("java.io.tmpdir");
     public static final String TARGET = System.getProperty("project.build.directory", TMP + "/target");
 
+    private static final Logger LOG = LoggerFactory.getLogger(OS.class);
     private static final int MAP_RO = 0;
-
     private static final int MAP_RW = 1;
     private static final int MAP_PV = 2;
     private static final boolean IS64BIT = is64Bit0();
-    private static final Logger LOG = LoggerFactory.getLogger(OS.class);
     private static final int PROCESS_ID = getProcessId0();
-
     private static final Memory MEMORY;
     private static final String OS = System.getProperty("os.name").toLowerCase();
     private static final boolean IS_LINUX = OS.startsWith("linux");
