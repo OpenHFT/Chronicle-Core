@@ -68,17 +68,21 @@ public class ClassAliasPool {
 
     public Class forName(CharSequence name) throws IllegalArgumentException {
         String name0 = name.toString();
-        return stringClassMap.getOrDefault(name0,
-                stringClassMap2.computeIfAbsent(name0, n -> {
-                    try {
-                        return Class.forName(name0);
-                    } catch (ClassNotFoundException e) {
-                        throw new IllegalArgumentException(e);
-                    }
-                }));
+        Class clazz = stringClassMap.get(name0);
+        return clazz != null
+                ? clazz
+                : stringClassMap2.computeIfAbsent(name0, n -> {
+            try {
+                return Class.forName(name0);
+            } catch (ClassNotFoundException e) {
+                throw new IllegalArgumentException(e);
+            }
+        });
     }
 
     public String nameFor(Class clazz) {
+        if (Enum.class.isAssignableFrom(clazz))
+            clazz = clazz.getEnclosingClass();
         return classStringMap.computeIfAbsent(clazz, Class::getName);
     }
 
