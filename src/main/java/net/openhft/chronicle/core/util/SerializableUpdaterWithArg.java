@@ -17,11 +17,11 @@
 package net.openhft.chronicle.core.util;
 
 import java.io.Serializable;
-import java.util.function.Consumer;
 
 /**
  * This interface expect to take an object for alteration and it must be serializable.
  */
 @FunctionalInterface
-public interface SerializableUpdater<U> extends Consumer<U>, Serializable {
+public interface SerializableUpdaterWithArg<U, A> extends Serializable {
+    void accept(U updated, A argument);
 }
