@@ -16,6 +16,8 @@
 
 package net.openhft.chronicle.core;
 
+import java.lang.reflect.Field;
+
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 
 public enum Jvm {
@@ -66,6 +68,16 @@ public enum Jvm {
             Thread.sleep(millis);
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
+        }
+    }
+
+    public static Field getField(Class clazz, String name) {
+        try {
+            Field field = clazz.getDeclaredField(name);
+            field.setAccessible(true);
+            return field;
+        } catch (NoSuchFieldException e) {
+            throw new AssertionError(e);
         }
     }
 }

@@ -26,10 +26,9 @@ public class UnsafeMemory implements Memory {
     public static Memory create() {
         if (UNSAFE == null) {
             try {
-                Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
-                theUnsafe.setAccessible(true);
+                Field theUnsafe = Jvm.getField(Unsafe.class, "theUnsafe");
                 UNSAFE = (Unsafe) theUnsafe.get(null);
-            } catch (Exception e) {
+            } catch (IllegalAccessException e) {
                 throw new AssertionError(e);
             }
         }
