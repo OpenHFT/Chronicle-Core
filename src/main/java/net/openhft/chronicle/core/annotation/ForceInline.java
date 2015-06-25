@@ -14,20 +14,19 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.openhft.chronicle.core.pool;
+package net.openhft.chronicle.core.annotation;
 
-import net.openhft.chronicle.core.annotation.ForceInline;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-public class StringBuilderPool {
-    private final ThreadLocal<StringBuilder> sbtl = new ThreadLocal<>();
-
-    @ForceInline
-    public StringBuilder acquireStringBuilder() {
-        StringBuilder sb = sbtl.get();
-        if (sb == null) {
-            sbtl.set(sb = new StringBuilder(1024));
-        }
-        sb.setLength(0);
-        return sb;
-    }
+/**
+ * Marker annotation for some methods and constructors in the JSR 292 implementation.
+ * <p>
+ * To utilise this annotation se Chronicle Enterprise Warmup module.
+ */
+@Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
+@Retention(RetentionPolicy.RUNTIME)
+public @interface ForceInline {
 }

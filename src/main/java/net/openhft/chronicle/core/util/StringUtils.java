@@ -16,6 +16,7 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.annotation.ForceInline;
 import org.jetbrains.annotations.NotNull;
 
 import static java.lang.Character.toLowerCase;
@@ -38,6 +39,7 @@ public enum StringUtils {
         return true;
     }
 
+    @ForceInline
     public static boolean isEqual(CharSequence s, CharSequence cs) {
         if (s == null) return false;
         if (s.length() != cs.length()) return false;
@@ -47,6 +49,7 @@ public enum StringUtils {
         return true;
     }
 
+    @ForceInline
     public static String toString(Object o) {
         return o == null ? null : o.toString();
     }
