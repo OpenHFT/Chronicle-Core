@@ -22,7 +22,6 @@ public enum Maths {
      * Numbers larger than this are whole numbers due to representation error.
      */
     private static final double WHOLE_NUMBER = 1L << 53;
-    private static final long K0 = 0xc3a5c85c97cb3127L;
 
     /**
      * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5
@@ -102,15 +101,16 @@ public enum Maths {
         return n != 0 && (n & (n - 1L)) == 0L;
     }
 
-    public static int hash(long n) {
-        return (int) ((n * K0) >> 16);
+    public static int hash(CharSequence cs) {
+        long h = longHash(cs);
+        return (int) (h ^ (h >> 32));
     }
 
-    public static int hash(CharSequence cs) {
-        double hash = 0;
+    public static long longHash(CharSequence cs) {
+        long hash = 0;
         for (int i = 0; i < cs.length(); i++)
-            hash = hash * 131 + cs.charAt(i);
-        return hash(Double.doubleToRawLongBits(hash));
+            hash = Long.rotateLeft(hash, 7) + cs.charAt(i);
+        return longHash(hash);
     }
 
     public static int intLog2(long num) {
@@ -164,5 +164,24 @@ public enum Maths {
         if ((x & 0xFFFFFFFFL) == x)
             return x;
         throw new IllegalArgumentException("Unsigned Int " + x + " out of range");
+    }
+
+    public static long agitate(long l) {
+        l ^= l >> 23;
+        l += Long.rotateRight(l, 18);
+        return l;
+    }
+
+    /**
+     * net.openhft.chronicle.bytes.algo.NativeBytesHash
+     *
+     * @param l to hash
+     * @return int hash value.
+     */
+    public static long longHash(long l) {
+        long h0 = -7826470488L + l * 0x4932_5e2f;
+        long h1 = (l >> 32) * 0x3275_2743;
+
+        return agitate(h0) ^ agitate(h1);
     }
 }
