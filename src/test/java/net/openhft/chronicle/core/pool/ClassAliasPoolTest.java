@@ -27,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 public class ClassAliasPoolTest {
 
     @Test
-    public void testClean() throws Exception {
+    public void testClean() {
         assertEquals("String", CLASS_ALIASES.nameFor(String.class));
         CLASS_ALIASES.clean();
         assertEquals("String", CLASS_ALIASES.nameFor(String.class));

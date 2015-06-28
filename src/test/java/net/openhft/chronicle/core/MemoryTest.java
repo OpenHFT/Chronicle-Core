@@ -23,7 +23,7 @@ import org.junit.Test;
  */
 public class MemoryTest {
     @Test
-    public void testHeapUsed() throws Exception {
+    public void testHeapUsed() {
         System.out.println("heap used: " + OS.memory().heapUsed());
     }
 }

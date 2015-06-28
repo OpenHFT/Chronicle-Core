@@ -29,4 +29,6 @@ public interface LongArrayValues {
     long getVolatileValueAt(long index);
 
     void setOrderedValueAt(long index, long value);
+
+    boolean compareAndSet(long index, long expected, long value);
 }
