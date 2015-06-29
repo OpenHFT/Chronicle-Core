@@ -31,4 +31,6 @@ public interface LongArrayValues {
     void setOrderedValueAt(long index, long value);
 
     boolean compareAndSet(long index, long expected, long value);
+
+    void bindValueAt(int index, LongValue value);
 }
