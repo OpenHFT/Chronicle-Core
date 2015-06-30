@@ -23,6 +23,8 @@ import sun.nio.ch.FileChannelImpl;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.channels.FileChannel;
 import java.util.Random;
 import java.util.Scanner;
@@ -32,7 +34,8 @@ import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 public class OS {
     private static final String TMP = System.getProperty("java.io.tmpdir");
     public static final String TARGET = System.getProperty("project.build.directory", TMP + "/target");
-
+    public static final String HOST_NAME = getHostName();
+    public static final String USER_NAME = System.getProperty("user.name");
     private static final Logger LOG = LoggerFactory.getLogger(OS.class);
     private static final int MAP_RO = 0;
     private static final int MAP_RW = 1;
@@ -45,6 +48,14 @@ public class OS {
     private static final boolean IS_MAC = OS.contains("mac");
     private static final boolean IS_WIN = OS.startsWith("win");
     private static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : pageSize();
+
+    private static String getHostName() {
+        try {
+            return InetAddress.getLocalHost().getHostName();
+        } catch (UnknownHostException e) {
+            return "localhost";
+        }
+    }
 
     private static Memory getMemory() {
         Memory memory = null;
