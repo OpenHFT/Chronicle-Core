@@ -24,4 +24,5 @@ import java.util.function.Function;
  */
 @FunctionalInterface
 public interface SerializableFunction<I, O> extends Function<I, O>, Serializable {
+    SerializableFunction<?, Void> RETURN_NOTHING = i -> null;
 }
