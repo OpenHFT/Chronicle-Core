@@ -18,7 +18,8 @@ public enum Time {
         tickTime++;
         return lastTime = now;
     }
-    public static long now() {
+
+    public static long tickTime() {
         currentTimeMillis();
         return tickTime;
     }
@@ -26,8 +27,8 @@ public enum Time {
     public static void wait(Object o, long waitTimeMS) throws InterruptedException {
         if ((int) waitTimeMS != waitTimeMS)
             throw new IllegalArgumentException("waitTimeMS: " + waitTimeMS);
-        long end = now() + waitTimeMS;
-        for (long remaining; (remaining = end - now()) > 0; )
+        long end = tickTime() + waitTimeMS;
+        for (long remaining; (remaining = end - tickTime()) > 0; )
             o.wait(remaining);
     }
 
