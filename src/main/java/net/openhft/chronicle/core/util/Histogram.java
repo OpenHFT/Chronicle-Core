@@ -21,7 +21,7 @@ package net.openhft.chronicle.core.util;
  */
 public class Histogram {
     private final int fractionBits;
-    private long totalCount, underRange, overRange;
+    private long totalCount, overRange;
     private int[] sampleCount;
     private long floor;
 
@@ -37,11 +37,9 @@ public class Histogram {
 
     public int sample(double time) {
         int bucket = (int) ((Double.doubleToRawLongBits(time) >> (52 - fractionBits)) - floor);
-        if (bucket < 0)
-            underRange++;
-        else if (bucket >= sampleCount.length)
+        if (bucket >= sampleCount.length)
             overRange++;
-        else
+        else if (bucket >= 0)
             sampleCount[bucket]++;
         totalCount++;
         return bucket;
