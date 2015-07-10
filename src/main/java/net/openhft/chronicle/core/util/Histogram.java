@@ -25,6 +25,10 @@ public class Histogram {
     private int[] sampleCount;
     private long floor;
 
+    public Histogram() {
+        this(42, 4);
+    }
+
     public Histogram(int powersOf2, int fractionBits) {
         this.fractionBits = fractionBits;
         sampleCount = new int[powersOf2 << fractionBits];
@@ -59,10 +63,21 @@ public class Histogram {
     }
 
     public String toMicrosFormat() {
-        return String.format("50/90 99/99.9 99.99/99.999 - worst was %.2f/%.2f %.1f/%.1f %,d/%,d - %,d",
-                percentile(0.5) / 1e3, percentile(0.9) / 1e3,
-                percentile(0.99) / 1e3, percentile(0.999) / 1e3,
-                (long) percentile(0.9999) / 1000, (long) percentile(0.99999) / 1000,
-                (long) percentile(1) / 1000);
+        return "50/90 99/99.9 99.99/99.999 - worst was " +
+                p(percentile(0.5) / 1e3) + " / " +
+                p(percentile(0.9) / 1e3) + "  " +
+                p(percentile(0.99) / 1e3) + " / " +
+                p(percentile(0.999) / 1e3) + "  " +
+                p(percentile(0.9999) / 1e3) + " / " +
+                p(percentile(0.99999) / 1e3) + " - " +
+                p(percentile(1) / 1000);
+    }
+
+    private String p(double v) {
+        return v < 0.1 ? String.format("%.3f", v) :
+                v < 1 ? String.format("%.2f", v) :
+                        v < 10 ? String.format("%.1f", v) :
+                                v < 1000 ? Long.toString(Math.round(v)) :
+                                        String.format("%,d", Math.round(v / 10) * 10);
     }
 }
