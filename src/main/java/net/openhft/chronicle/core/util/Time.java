@@ -8,7 +8,7 @@ import java.util.concurrent.locks.LockSupport;
 public enum Time {
     ;
 
-    static long lastTime = System.currentTimeMillis();
+    static volatile long lastTime = System.currentTimeMillis();
     static volatile long tickTime = 0;
 
     public static long currentTimeMillis() {
