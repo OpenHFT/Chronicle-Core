@@ -61,13 +61,33 @@ public class Histogram {
     }
 
     public String toMicrosFormat() {
-        return "50/90 99/99.9 99.99/99.999 - worst was " +
+        if (totalCount < 1_000_000)
+            return "50/90 99/99.9 99.99 - worst was " +
+                p(percentile(0.5) / 1e3) + " / " +
+                p(percentile(0.9) / 1e3) + "  " +
+                p(percentile(0.99) / 1e3) + " / " +
+                p(percentile(0.999) / 1e3) + "  " +
+                    p(percentile(0.9999) / 1e3) + " - " +
+                p(percentile(1) / 1000);
+
+        if (totalCount < 10_000_000)
+            return "50/90 99/99.9 99.99/99.999 - worst was " +
+                    p(percentile(0.5) / 1e3) + " / " +
+                    p(percentile(0.9) / 1e3) + "  " +
+                    p(percentile(0.99) / 1e3) + " / " +
+                    p(percentile(0.999) / 1e3) + "  " +
+                    p(percentile(0.9999) / 1e3) + " / " +
+                    p(percentile(0.99999) / 1e3) + " - " +
+                    p(percentile(1) / 1000);
+
+        return "50/90 99/99.9 99.99/99.999 99.9999/worst was " +
                 p(percentile(0.5) / 1e3) + " / " +
                 p(percentile(0.9) / 1e3) + "  " +
                 p(percentile(0.99) / 1e3) + " / " +
                 p(percentile(0.999) / 1e3) + "  " +
                 p(percentile(0.9999) / 1e3) + " / " +
-                p(percentile(0.99999) / 1e3) + " - " +
+                p(percentile(0.99999) / 1e3) + "  " +
+                p(percentile(0.999999) / 1e3) + " / " +
                 p(percentile(1) / 1000);
     }
 
@@ -77,5 +97,9 @@ public class Histogram {
                         v < 10 ? String.format("%.1f", v) :
                                 v < 1000 ? Long.toString(Math.round(v)) :
                                         String.format("%,d", Math.round(v / 10) * 10);
+    }
+
+    public long totalCount() {
+        return totalCount;
     }
 }

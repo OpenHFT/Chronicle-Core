@@ -16,7 +16,10 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.affinity.AffinitySupport;
 import org.junit.Test;
+
+import java.util.BitSet;
 
 import static org.junit.Assert.assertEquals;
 
@@ -30,14 +33,14 @@ public class HistogramTest {
         Histogram h = new Histogram(40, 2);
         double base = 1;
         for (int i = 0; i < 40; i++) {
-            System.out.println(i);
+//            System.out.println(i);
             assertEquals(i * 4 + 0, h.sample(base));
             assertEquals(i * 4 + 1, h.sample(base * 1.25));
             assertEquals(i * 4 + 2, h.sample(base * 1.5));
             assertEquals(i * 4 + 3, h.sample(base * 1.75));
             base *= 2;
         }
-        System.out.println(base);
+//        System.out.println(base);
     }
 
     @Test
@@ -59,14 +62,19 @@ public class HistogramTest {
 
     @Test
     public void testManySamples() {
-        for (int t = 0; t < 5; t++) {
+        BitSet affinity = AffinitySupport.getAffinity();
+        System.out.println(affinity);
+        affinity.clear();
+        affinity.set(2);
+        AffinitySupport.setAffinity(affinity);
+        System.out.println("Cpu: " + AffinitySupport.getAffinity());
+        for (int t = 0; t < 100; t++) {
             Histogram h = new Histogram(32, 4);
             long start = System.nanoTime(), prev = start;
-            for (int i = 0; i < 20_000_000; i++) {
+            for (int i = 0; i <= 100_000_000; i++) {
                 long now = System.nanoTime();
                 long time = now - prev;
-                if (time > 40)
-                    h.sample(time);
+                h.sample(time);
                 prev = now;
             }
             System.out.println(h.toMicrosFormat());
