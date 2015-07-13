@@ -17,8 +17,8 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.affinity.Affinity;
-import net.openhft.clock.Clock;
-import net.openhft.clock.IClock;
+import net.openhft.ticker.ITicker;
+import net.openhft.ticker.Ticker;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -72,7 +72,7 @@ public class HistogramTest {
 
             Affinity.setAffinity(2);
             System.out.println("Cpu: " + Affinity.getAffinity());
-            IClock instance = Clock.INSTANCE;
+            ITicker instance = Ticker.INSTANCE;
             for (int t = 0; t < 100; t++) {
                 Histogram h = new Histogram(32, 4);
                 long start = instance.ticks(), prev = start;
