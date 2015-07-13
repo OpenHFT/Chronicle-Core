@@ -16,6 +16,8 @@
 
 package net.openhft.chronicle.core.util;
 
+import java.util.function.DoubleFunction;
+
 /**
  * Created by peter on 10/07/15.
  */
@@ -61,34 +63,81 @@ public class Histogram {
     }
 
     public String toMicrosFormat() {
+        return toMicrosFormat(t -> t / 1e3);
+    }
+
+    public String toMicrosFormat(DoubleFunction<Double> toMicros) {
         if (totalCount < 1_000_000)
             return "50/90 99/99.9 99.99 - worst was " +
-                p(percentile(0.5) / 1e3) + " / " +
-                p(percentile(0.9) / 1e3) + "  " +
-                p(percentile(0.99) / 1e3) + " / " +
-                p(percentile(0.999) / 1e3) + "  " +
-                    p(percentile(0.9999) / 1e3) + " - " +
-                p(percentile(1) / 1000);
+                    p(toMicros.apply(percentile(0.5))) + " / " +
+                    p(toMicros.apply(percentile(0.9))) + "  " +
+                    p(toMicros.apply(percentile(0.99))) + " / " +
+                    p(toMicros.apply(percentile(0.999))) + "  " +
+                    p(toMicros.apply(percentile(0.9999))) + " - " +
+                    p(toMicros.apply(percentile(1)));
 
         if (totalCount < 10_000_000)
             return "50/90 99/99.9 99.99/99.999 - worst was " +
-                    p(percentile(0.5) / 1e3) + " / " +
-                    p(percentile(0.9) / 1e3) + "  " +
-                    p(percentile(0.99) / 1e3) + " / " +
-                    p(percentile(0.999) / 1e3) + "  " +
-                    p(percentile(0.9999) / 1e3) + " / " +
-                    p(percentile(0.99999) / 1e3) + " - " +
-                    p(percentile(1) / 1000);
+                    p(toMicros.apply(percentile(0.5))) + " / " +
+                    p(toMicros.apply(percentile(0.9))) + "  " +
+                    p(toMicros.apply(percentile(0.99))) + " / " +
+                    p(toMicros.apply(percentile(0.999))) + "  " +
+                    p(toMicros.apply(percentile(0.9999))) + " / " +
+                    p(toMicros.apply(percentile(0.99999))) + " - " +
+                    p(toMicros.apply(percentile(1)));
 
         return "50/90 99/99.9 99.99/99.999 99.9999/worst was " +
-                p(percentile(0.5) / 1e3) + " / " +
-                p(percentile(0.9) / 1e3) + "  " +
-                p(percentile(0.99) / 1e3) + " / " +
-                p(percentile(0.999) / 1e3) + "  " +
-                p(percentile(0.9999) / 1e3) + " / " +
-                p(percentile(0.99999) / 1e3) + "  " +
-                p(percentile(0.999999) / 1e3) + " / " +
-                p(percentile(1) / 1000);
+                p(toMicros.apply(percentile(0.5))) + " / " +
+                p(toMicros.apply(percentile(0.9))) + "  " +
+                p(toMicros.apply(percentile(0.99))) + " / " +
+                p(toMicros.apply(percentile(0.999))) + "  " +
+                p(toMicros.apply(percentile(0.9999))) + " / " +
+                p(toMicros.apply(percentile(0.99999))) + "  " +
+                p(toMicros.apply(percentile(0.999999))) + " / " +
+                p(toMicros.apply(percentile(1)));
+    }
+
+    public String toLongMicrosFormat(DoubleFunction<Double> toMicros) {
+        if (totalCount < 1_000_000)
+            return "50/90 93/99 99.3/99.9 99.93/99.99 - worst was " +
+                    p(toMicros.apply(percentile(0.5))) + " / " +
+                    p(toMicros.apply(percentile(0.9))) + "  " +
+                    p(toMicros.apply(percentile(0.93))) + " / " +
+                    p(toMicros.apply(percentile(0.99))) + "  " +
+                    p(toMicros.apply(percentile(0.993))) + " / " +
+                    p(toMicros.apply(percentile(0.999))) + "  " +
+                    p(toMicros.apply(percentile(0.9993))) + " / " +
+                    p(toMicros.apply(percentile(0.9999))) + " - " +
+                    p(toMicros.apply(percentile(1)));
+
+        if (totalCount < 10_000_000)
+            return "50/90 93/99 99.3/99.9 99.93/99.99 99.993/99.999 - worst was " +
+                    p(toMicros.apply(percentile(0.5))) + " / " +
+                    p(toMicros.apply(percentile(0.9))) + "  " +
+                    p(toMicros.apply(percentile(0.93))) + " / " +
+                    p(toMicros.apply(percentile(0.99))) + "  " +
+                    p(toMicros.apply(percentile(0.993))) + " / " +
+                    p(toMicros.apply(percentile(0.999))) + "  " +
+                    p(toMicros.apply(percentile(0.9993))) + " / " +
+                    p(toMicros.apply(percentile(0.9999))) + "  " +
+                    p(toMicros.apply(percentile(0.99993))) + " / " +
+                    p(toMicros.apply(percentile(0.99999))) + " - " +
+                    p(toMicros.apply(percentile(1)));
+
+        return "50/90 93/99 99.3/99.9 99.93/99.99 99.993/99.999 99.9993/99.9999 - worst was " +
+                p(toMicros.apply(percentile(0.5))) + " / " +
+                p(toMicros.apply(percentile(0.9))) + "  " +
+                p(toMicros.apply(percentile(0.93))) + " / " +
+                p(toMicros.apply(percentile(0.99))) + "  " +
+                p(toMicros.apply(percentile(0.993))) + " / " +
+                p(toMicros.apply(percentile(0.999))) + "  " +
+                p(toMicros.apply(percentile(0.9993))) + " / " +
+                p(toMicros.apply(percentile(0.9999))) + "  " +
+                p(toMicros.apply(percentile(0.99993))) + " / " +
+                p(toMicros.apply(percentile(0.99999))) + "  " +
+                p(toMicros.apply(percentile(0.999993))) + " / " +
+                p(toMicros.apply(percentile(0.999999))) + " - " +
+                p(toMicros.apply(percentile(1)));
     }
 
     private String p(double v) {

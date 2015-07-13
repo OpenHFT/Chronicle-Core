@@ -16,10 +16,14 @@
 
 package net.openhft.chronicle.core.util;
 
-import net.openhft.affinity.AffinitySupport;
+import net.openhft.affinity.Affinity;
+import net.openhft.clock.Clock;
+import net.openhft.clock.IClock;
+import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.BitSet;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
 
@@ -61,24 +65,25 @@ public class HistogramTest {
     }
 
     @Test
-    public void testManySamples() {
-        BitSet affinity = AffinitySupport.getAffinity();
-        System.out.println(affinity);
-        affinity.clear();
-        affinity.set(2);
-        AffinitySupport.setAffinity(affinity);
-        System.out.println("Cpu: " + AffinitySupport.getAffinity());
-        for (int t = 0; t < 100; t++) {
-            Histogram h = new Histogram(32, 4);
-            long start = System.nanoTime(), prev = start;
-            for (int i = 0; i <= 100_000_000; i++) {
-                long now = System.nanoTime();
-                long time = now - prev;
-                h.sample(time);
-                prev = now;
+    @Ignore("Long running")
+    public void testManySamples() throws IOException {
+        try (FileOutputStream cpu_dma_latency = new FileOutputStream("/dev/cpu_dma_latency")) {
+            cpu_dma_latency.write('0');
+
+            Affinity.setAffinity(2);
+            System.out.println("Cpu: " + Affinity.getAffinity());
+            IClock instance = Clock.INSTANCE;
+            for (int t = 0; t < 100; t++) {
+                Histogram h = new Histogram(32, 4);
+                long start = instance.ticks(), prev = start;
+                for (int i = 0; i <= 1000_000_000; i++) {
+                    long now = instance.ticks();
+                    long time = now - prev;
+                    h.sample(time);
+                    prev = now;
+                }
+                System.out.println(h.toLongMicrosFormat(instance::toMicros));
             }
-            System.out.println(h.toMicrosFormat());
         }
     }
-
 }
