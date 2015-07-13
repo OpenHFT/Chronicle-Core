@@ -22,7 +22,6 @@ import net.openhft.ticker.Ticker;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 
 import static org.junit.Assert.assertEquals;
@@ -67,13 +66,13 @@ public class HistogramTest {
     @Test
     @Ignore("Long running")
     public void testManySamples() throws IOException {
-        try (FileOutputStream cpu_dma_latency = new FileOutputStream("/dev/cpu_dma_latency")) {
-            cpu_dma_latency.write('0');
+//        try (FileOutputStream cpu_dma_latency = new FileOutputStream("/dev/cpu_dma_latency")) {
+//            cpu_dma_latency.write('0');
 
             Affinity.setAffinity(2);
             System.out.println("Cpu: " + Affinity.getAffinity());
             ITicker instance = Ticker.INSTANCE;
-            for (int t = 0; t < 100; t++) {
+        for (int t = 0; t < 5; t++) {
                 Histogram h = new Histogram(32, 4);
                 long start = instance.ticks(), prev = start;
                 for (int i = 0; i <= 1000_000_000; i++) {
@@ -84,6 +83,6 @@ public class HistogramTest {
                 }
                 System.out.println(h.toLongMicrosFormat(instance::toMicros));
             }
-        }
+//        }
     }
 }
