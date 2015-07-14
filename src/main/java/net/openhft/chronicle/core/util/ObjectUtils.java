@@ -19,6 +19,8 @@ package net.openhft.chronicle.core.util;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * Created by peter on 23/06/15.
@@ -53,8 +55,54 @@ public enum ObjectUtils {
                 throw cce;
             }
         }
+        if (Number.class.isAssignableFrom(eClass)) {
+            return (E) convertToNumber(eClass, o);
+        }
         if (ReadResolvable.class.isAssignableFrom(eClass))
             return (E) o;
         throw new ClassCastException("Unable to convert " + o.getClass() + " " + o + " to " + eClass);
+    }
+
+    private static Number convertToNumber(Class eClass, Object o) {
+        if (o instanceof Number) {
+            Number n = (Number) o;
+            if (eClass == Double.class)
+                return n.doubleValue();
+            if (eClass == Long.class)
+                return n.longValue();
+            if (eClass == Integer.class)
+                return n.intValue();
+            if (eClass == Float.class)
+                return n.floatValue();
+            if (eClass == Short.class)
+                return n.shortValue();
+            if (eClass == Byte.class)
+                return n.byteValue();
+            if (eClass == BigDecimal.class)
+                return n instanceof Long ? BigDecimal.valueOf(n.longValue()) : BigDecimal.valueOf(n.doubleValue());
+            // TODO fix for large numbers.
+            if (eClass == BigInteger.class)
+                return new BigInteger(o.toString());
+        } else {
+            String s = o.toString();
+            if (eClass == Double.class)
+                return Double.parseDouble(s);
+            if (eClass == Long.class)
+                return Long.parseLong(s);
+            if (eClass == Integer.class)
+                return Integer.parseInt(s);
+            if (eClass == Float.class)
+                return Float.parseFloat(s);
+            if (eClass == Short.class)
+                return Short.parseShort(s);
+            if (eClass == Byte.class)
+                return Byte.parseByte(s);
+            if (eClass == BigDecimal.class)
+                return new BigDecimal(s);
+            // TODO fix for large numbers.
+            if (eClass == BigInteger.class)
+                return new BigInteger(s);
+        }
+        throw new UnsupportedOperationException("Cannot convert " + o.getClass() + " to " + eClass);
     }
 }
