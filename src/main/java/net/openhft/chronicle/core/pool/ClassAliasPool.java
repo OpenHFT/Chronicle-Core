@@ -43,6 +43,8 @@ public class ClassAliasPool {
         addAlias(LocalDate.class, "Date");
         addAlias(LocalDateTime.class, "DateTime");
         addAlias(LocalTime.class, "Time");
+
+
         return this;
     }
 
