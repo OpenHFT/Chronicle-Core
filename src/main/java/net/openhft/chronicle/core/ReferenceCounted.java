@@ -37,6 +37,13 @@ public interface ReferenceCounted extends Closeable {
 
     void release() throws IllegalStateException;
 
+    static void release(Object o) throws IllegalStateException {
+        if (o instanceof ReferenceCounted) {
+            ReferenceCounted rc = (ReferenceCounted) o;
+            rc.release();
+        }
+    }
+
     default void close() {
         release();
     }
