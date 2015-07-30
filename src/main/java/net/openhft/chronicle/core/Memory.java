@@ -28,9 +28,11 @@ public interface Memory {
 
     void setMemory(long address, long size, byte b);
 
-    void freeMemory(long address);
+    void freeMemory(long address, long size);
 
     long allocate(long capacity);
+
+    long nativeMemoryUsed();
 
     void writeByte(long address, byte i8);
 

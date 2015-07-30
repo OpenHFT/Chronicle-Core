@@ -20,9 +20,11 @@ import net.openhft.chronicle.core.annotation.ForceInline;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class UnsafeMemory implements Memory {
     static Unsafe UNSAFE;
+    private final AtomicLong nativeMemoryUsed = new AtomicLong();
 
     public static Memory create() {
         if (UNSAFE == null) {
@@ -65,9 +67,10 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    public void freeMemory(long address) {
+    public void freeMemory(long address, long size) {
         if (address != 0)
             UNSAFE.freeMemory(address);
+        nativeMemoryUsed.addAndGet(-size);
     }
 
     @Override
@@ -77,7 +80,15 @@ public class UnsafeMemory implements Memory {
         long address = UNSAFE.allocateMemory(capacity);
         if (address == 0)
             throw new OutOfMemoryError("Not enough free native memory, capacity attempted: " + capacity / 1024 + " KiB");
+
+        nativeMemoryUsed.addAndGet(capacity);
+
         return address;
+    }
+
+    @Override
+    public long nativeMemoryUsed() {
+        return nativeMemoryUsed.get();
     }
 
     @Override
