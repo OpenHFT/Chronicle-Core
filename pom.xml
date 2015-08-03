@@ -45,18 +45,10 @@
             <dependency>
                 <groupId>net.openhft</groupId>
                 <artifactId>chronicle-bom</artifactId>
-                <version>1.6.4</version>
+                <version>1.6.5</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
-
-            <dependency>
-                <groupId>net.openhft</groupId>
-                <artifactId>affinity</artifactId>
-                <version>3.0</version>
-            </dependency>
-
         </dependencies>
 
     </dependencyManagement>
