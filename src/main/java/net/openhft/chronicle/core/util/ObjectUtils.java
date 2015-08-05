@@ -16,11 +16,16 @@
 
 package net.openhft.chronicle.core.util;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
 
 /**
  * Created by peter on 23/06/15.
@@ -60,7 +65,49 @@ public enum ObjectUtils {
         }
         if (ReadResolvable.class.isAssignableFrom(eClass))
             return (E) o;
+        if (Object[].class.isAssignableFrom(eClass)) {
+            return convertToArray(eClass, o);
+        }
+//        if (Collection.class.isAssignableFrom(eClass)) {
+//            return convertCollection(eClass, o);
+//        }
         throw new ClassCastException("Unable to convert " + o.getClass() + " " + o + " to " + eClass);
+    }
+
+    private static <E> E convertToArray(Class<E> eClass, Object o) {
+        int len = sizeOf(o);
+        Object array = Array.newInstance(eClass, len);
+        Iterator iter = iteratorFor(o);
+        Class elementType = elementType(eClass);
+        for (int i = 0; i < len; i++)
+            Array.set(array, i, convertTo(elementType, iter.next()));
+        return (E) array;
+    }
+
+    private static <E> Class elementType(Class<E> eClass) {
+        if (Object[].class.isAssignableFrom(eClass))
+            return eClass.getComponentType();
+        return Object.class;
+    }
+
+    private static Iterator iteratorFor(Object o) {
+        if (o instanceof Iterable) {
+            return ((Iterable) o).iterator();
+        }
+        if (o instanceof Object[]) {
+            return Arrays.asList((Object[]) o).iterator();
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    private static int sizeOf(Object o) {
+        if (o instanceof Collection)
+            return ((Collection) o).size();
+        if (o instanceof Map)
+            return ((Map) o).size();
+        if (o.getClass().isArray())
+            return Array.getLength(o);
+        throw new UnsupportedOperationException();
     }
 
     private static Number convertToNumber(Class eClass, Object o) {
