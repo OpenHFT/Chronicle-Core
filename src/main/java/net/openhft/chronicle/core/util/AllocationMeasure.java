@@ -1,5 +1,8 @@
 package net.openhft.chronicle.core.util;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
@@ -11,6 +14,9 @@ import java.util.concurrent.atomic.AtomicLong;
  * thread. Useful in tests to make sure there has been little or even zreo allocation.
  */
 public class AllocationMeasure {
+
+    private static final Logger LOG = LoggerFactory.getLogger(AllocationMeasure.class);
+
 
     private static final String GET_THREAD_ALLOCATED_BYTES = "getThreadAllocatedBytes";
     private final String[] SIGNATURE = new String[]{long.class.getName()};
@@ -29,7 +35,7 @@ public class AllocationMeasure {
                     ManagementFactory.THREAD_MXBEAN_NAME);
             mBeanServer = ManagementFactory.getPlatformMBeanServer();
         } catch (MalformedObjectNameException e) {
-            e.printStackTrace();
+            LOG.error("", e);
         }
 
         //calibrate
@@ -79,7 +85,7 @@ public class AllocationMeasure {
         if (tid != Thread.currentThread().getId())
             throw new AssertionError("AllocationMeasure must not be used over more than 1 thread.");
         long mark1 = ((threadAllocatedBytes() - BYTES_USED_TO_MEASURE) - allocated.get());
-        System.out.println(threadName + " allocated " + marker + ":" + mark1);
+        LOG.info(threadName + " allocated " + marker + ":" + mark1);
         allocated.set(threadAllocatedBytes());
     }
 

@@ -230,7 +230,7 @@ public class OS {
                 String du_k = run("du", "-ks", file.getAbsolutePath());
                 return Long.parseLong(du_k.substring(0, du_k.indexOf('\t')));
             } catch (IOException e) {
-                e.printStackTrace();
+                LOG.error("", e);
             }
         }
         return file.length();
@@ -273,7 +273,7 @@ public class OS {
 
                 owner.release();
             } catch (IOException e) {
-                e.printStackTrace();
+                LOG.error("", e);
             }
         }
     }
