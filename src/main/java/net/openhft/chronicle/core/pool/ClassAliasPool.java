@@ -84,11 +84,15 @@ public class ClassAliasPool {
     }
 
     public String nameFor(Class clazz) {
+
         return classStringMap.computeIfAbsent(clazz, (aClass) -> {
             if (Enum.class.isAssignableFrom(aClass)) {
                 Class clazz2 = aClass.getEnclosingClass();
-                if (clazz2 != null)
+                if (clazz2 != null) {
                     aClass = clazz2;
+                    String alias = classStringMap.get(clazz2);
+                    if (alias != null) return alias;
+                }
             }
             return aClass.getName();
         });
