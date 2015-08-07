@@ -40,10 +40,19 @@ public enum ObjectUtils {
             return (E) Enum.valueOf((Class) eClass, o.toString());
         }
         if (o instanceof String) {
+
+            if (Character.class.equals(eClass)) {
+                if (((String) o).length() > 0)
+                    return (E) (Character) ((String) o).charAt(0);
+                else
+                    return null;
+            }
+
             try {
                 Method valueOf = eClass.getDeclaredMethod("valueOf", String.class);
                 valueOf.setAccessible(true);
                 return (E) valueOf.invoke(null, o);
+
             } catch (InvocationTargetException | IllegalAccessException e) {
                 ClassCastException cce = new ClassCastException();
                 cce.initCause(e);
