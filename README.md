@@ -8,6 +8,6 @@ This library wraps up low level access to
  - Resource reference counting
  - Object pools
  - Class local caching.
- - Maths functions
+ - Maths functions for casting types, rounding double, faster hashing.
  - serializable lambda interfaces
  - a high performance wide range histogram.
