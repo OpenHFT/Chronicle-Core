@@ -60,7 +60,7 @@ public enum Jvm {
 
     @SuppressWarnings("SameReturnValue")
     public static boolean isDebug() {
-        return IS_DEBUG;
+        return IS_DEBUG || Boolean.getBoolean("debug");
     }
 
     public static void pause(long millis) {
