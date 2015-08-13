@@ -23,7 +23,8 @@ import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 public enum Jvm {
     ;
 
-    public static final boolean IS_DEBUG = getRuntimeMXBean().getInputArguments().toString().contains("jdwp");
+    private static final boolean IS_DEBUG = getRuntimeMXBean().getInputArguments().toString()
+            .contains("jdwp");
 
     @SuppressWarnings("unchecked")
     public static <T extends Throwable> RuntimeException rethrow(Throwable t) throws T {
