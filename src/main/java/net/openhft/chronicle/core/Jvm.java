@@ -23,7 +23,7 @@ import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 public enum Jvm {
     ;
 
-    public static final boolean IS_DEBUG = getRuntimeMXBean().getInputArguments().toString().contains("jdwp");
+    public static final boolean IS_DEBUG = getRuntimeMXBean().getInputArguments().toString().contains("jdwp") || Boolean.getBoolean("debug");
 
     @SuppressWarnings("unchecked")
     public static <T extends Throwable> RuntimeException rethrow(Throwable t) throws T {
@@ -60,7 +60,7 @@ public enum Jvm {
 
     @SuppressWarnings("SameReturnValue")
     public static boolean isDebug() {
-        return IS_DEBUG || Boolean.getBoolean("debug");
+        return IS_DEBUG;
     }
 
     public static void pause(long millis) {
