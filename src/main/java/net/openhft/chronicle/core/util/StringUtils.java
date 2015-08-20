@@ -19,6 +19,9 @@ package net.openhft.chronicle.core.util;
 import net.openhft.chronicle.core.annotation.ForceInline;
 import org.jetbrains.annotations.NotNull;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+
 import static java.lang.Character.toLowerCase;
 
 /**
@@ -26,6 +29,25 @@ import static java.lang.Character.toLowerCase;
  */
 public enum StringUtils {
     ;
+
+    private static final Constructor<String> STRING_CONSTRUCTOR;
+    private static final Field S_VALUE, SB_VALUE, SB_COUNT;
+
+    static {
+        try {
+            STRING_CONSTRUCTOR = String.class.getDeclaredConstructor(char[].class, boolean.class);
+            STRING_CONSTRUCTOR.setAccessible(true);
+            S_VALUE = String.class.getDeclaredField("value");
+            S_VALUE.setAccessible(true);
+            SB_VALUE = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField("value");
+            SB_VALUE.setAccessible(true);
+            SB_COUNT = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField("count");
+            SB_COUNT.setAccessible(true);
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+    }
+
 
     public static boolean endsWith(@NotNull final CharSequence source,
                                    @NotNull final String endsWith) {
@@ -52,5 +74,37 @@ public enum StringUtils {
     @ForceInline
     public static String toString(Object o) {
         return o == null ? null : o.toString();
+    }
+
+    public static char[] extractChars(StringBuilder sb) {
+        try {
+            return (char[]) SB_VALUE.get(sb);
+        } catch (IllegalAccessException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    public static char[] extractChars(String s) {
+        try {
+            return (char[]) S_VALUE.get(s);
+        } catch (IllegalAccessException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    public static void setCount(StringBuilder sb, int count) {
+        try {
+            SB_COUNT.setInt(sb, count);
+        } catch (IllegalAccessException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    public static String newString(char[] chars) {
+        try {
+            return STRING_CONSTRUCTOR.newInstance(chars, true);
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
     }
 }

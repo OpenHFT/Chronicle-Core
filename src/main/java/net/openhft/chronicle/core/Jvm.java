@@ -17,6 +17,7 @@
 package net.openhft.chronicle.core;
 
 import java.lang.reflect.Field;
+import java.util.concurrent.locks.LockSupport;
 
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 
@@ -64,10 +65,15 @@ public enum Jvm {
     }
 
     public static void pause(long millis) {
-        try {
-            Thread.sleep(millis);
-        } catch (InterruptedException ie) {
-            Thread.currentThread().interrupt();
+        long timeNanos = millis * 1000000;
+        if (timeNanos > 1e9) {
+            try {
+                Thread.sleep(millis);
+            } catch (InterruptedException e) {
+                throw new AssertionError(e);
+            }
+        } else {
+            LockSupport.parkNanos(timeNanos);
         }
     }
 
