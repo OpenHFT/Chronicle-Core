@@ -32,7 +32,7 @@ public class ClassAliasPool {
 
     private ClassAliasPool defaultAliases() {
         addAlias(Set.class);
-        addAlias(String.class);
+        addAlias(String.class, "String, !str");
         addAlias(CharSequence.class);
         addAlias(Byte.class, "Byte, int8");
         addAlias(Character.class, "Char");
