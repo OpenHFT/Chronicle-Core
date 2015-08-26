@@ -16,6 +16,10 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.ClassLocal;
+import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.OS;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -34,16 +38,26 @@ public enum ObjectUtils {
     ;
 
 
+    static final ClassLocal<Constructor> CONSTRUCTOR_CLASS_LOCAL = ClassLocal.withInitial(c -> {
+        try {
+            Constructor constructor = c.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            return constructor;
+        } catch (Exception e) {
+            return (Constructor) null;
+        }
+    });
+
     public static <E> E convertTo(Class<E> eClass, Object o) throws ClassCastException {
         if (eClass.isInstance(o) || o == null) return (E) o;
         if (Enum.class.isAssignableFrom(eClass)) {
             return (E) Enum.valueOf((Class) eClass, o.toString());
         }
         if (o instanceof String) {
-
+            String s = (String) o;
             if (Character.class.equals(eClass)) {
-                if (((String) o).length() > 0)
-                    return (E) (Character) ((String) o).charAt(0);
+                if (s.length() > 0)
+                    return (E) (Character) s.charAt(0);
                 else
                     return null;
             }
@@ -54,9 +68,7 @@ public enum ObjectUtils {
                 return (E) valueOf.invoke(null, o);
 
             } catch (InvocationTargetException | IllegalAccessException e) {
-                ClassCastException cce = new ClassCastException();
-                cce.initCause(e);
-                throw cce;
+                throw asCCE(e);
             } catch (NoSuchMethodException e) {
             }
             try {
@@ -64,9 +76,15 @@ public enum ObjectUtils {
                 constructor.setAccessible(true);
                 return constructor.newInstance(o);
             } catch (Exception e) {
-                ClassCastException cce = new ClassCastException();
-                cce.initCause(e);
-                throw cce;
+                if (s.length() == 0) {
+                    try {
+                        return newInstance(eClass);
+                    } catch (Exception e2) {
+                        throw asCCE(e);
+                    }
+                }
+
+                throw asCCE(e);
             }
         }
         if (Number.class.isAssignableFrom(eClass)) {
@@ -81,6 +99,12 @@ public enum ObjectUtils {
 //            return convertCollection(eClass, o);
 //        }
         throw new ClassCastException("Unable to convert " + o.getClass() + " " + o + " to " + eClass);
+    }
+
+    public static ClassCastException asCCE(Exception e) {
+        ClassCastException cce = new ClassCastException();
+        cce.initCause(e);
+        return cce;
     }
 
     private static <E> E convertToArray(Class<E> eClass, Object o) {
@@ -160,5 +184,16 @@ public enum ObjectUtils {
                 return new BigInteger(s);
         }
         throw new UnsupportedOperationException("Cannot convert " + o.getClass() + " to " + eClass);
+    }
+
+    public static <T> T newInstance(Class<T> clazz) {
+        Constructor cons = CONSTRUCTOR_CLASS_LOCAL.get(clazz);
+        try {
+            if (cons != null)
+                return (T) cons.newInstance();
+        } catch (Exception e) {
+            throw Jvm.rethrow(e);
+        }
+        return OS.memory().allocateInstance(clazz);
     }
 }
