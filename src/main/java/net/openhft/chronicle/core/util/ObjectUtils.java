@@ -53,14 +53,17 @@ public enum ObjectUtils {
         if (Enum.class.isAssignableFrom(eClass)) {
             return (E) Enum.valueOf((Class) eClass, o.toString());
         }
-        if (o instanceof String) {
-            String s = (String) o;
+        if (o instanceof CharSequence) {
+            CharSequence cs = (CharSequence) o;
             if (Character.class.equals(eClass)) {
-                if (s.length() > 0)
-                    return (E) (Character) s.charAt(0);
+                if (cs.length() > 0)
+                    return (E) (Character) cs.charAt(0);
                 else
                     return null;
             }
+            String s = cs.toString();
+            if (eClass == String.class)
+                return (E) s;
 
             try {
                 Method valueOf = eClass.getDeclaredMethod("valueOf", String.class);
