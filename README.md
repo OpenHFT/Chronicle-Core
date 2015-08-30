@@ -154,7 +154,7 @@ default <R> R applyToKey(K key, @NotNull SerializableFunction<E, R> function) {
 // in code
 
 String fullename = map.applyToKey("u:123223", u -> u.getFullName());
- ```
+```
 
 Histogram
 =================
