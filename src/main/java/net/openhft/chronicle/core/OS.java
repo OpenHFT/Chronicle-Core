@@ -31,11 +31,14 @@ import java.util.Scanner;
 
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 
+/**
+ * Low level axcess to OS class.
+ */
 public class OS {
-    private static final String TMP = System.getProperty("java.io.tmpdir");
-    public static final String TARGET = System.getProperty("project.build.directory", TMP + "/target");
     public static final String HOST_NAME = getHostName();
     public static final String USER_NAME = System.getProperty("user.name");
+    private static final String TMP = System.getProperty("java.io.tmpdir");
+    public static final String TARGET = System.getProperty("project.build.directory", TMP + "/target");
     private static final Logger LOG = LoggerFactory.getLogger(OS.class);
     private static final int MAP_RO = 0;
     private static final int MAP_RW = 1;
@@ -75,19 +78,34 @@ public class OS {
         return memory;
     }
 
+    /**
+     * @return native memory accessor class
+     */
     public static Memory memory() {
         return MEMORY;
     }
 
+    /**
+     * @return size of pages
+     */
     public static int pageSize() {
         return memory().pageSize();
     }
 
+    /**
+     * Align a size of a memoyr mapping based on OS.
+     *
+     * @param size to align
+     * @return size aligned
+     */
     public static long mapAlign(long size) {
         int chunkMultiple = MAP_ALIGNMENT;
         return (size + chunkMultiple - 1) / chunkMultiple * chunkMultiple;
     }
 
+    /**
+     * @return is the JVM 64-bit
+     */
     public static boolean is64Bit() {
         return IS64BIT;
     }
@@ -156,6 +174,9 @@ public class OS {
         return IS_LINUX;
     }
 
+    /**
+     * @return the maximum PID.
+     */
     public static long getPidMax() {
         if (isLinux()) {
             File file = new File("/proc/sys/kernel/pid_max");
@@ -172,15 +193,24 @@ public class OS {
         return 1L << 16;
     }
 
+    /**
+     * Map a region of a file into memory.
+     * @param fileChannel to map
+     * @param mode of access
+     * @param start offset within a file
+     * @param size of region to map.
+     * @return the address of the memory mapping.
+     * @throws IOException
+     */
     public static long map(FileChannel fileChannel, FileChannel.MapMode mode, long start, long size) throws IOException {
         if (isWindows() && size > 4L << 30)
             throw new IllegalArgumentException("Mapping more than 4096 MiB is unusable on Windows, size = " + (size >> 20) + " MiB");
         try {
-            return map0(fileChannel, imodeFor(mode), start, size);
+            return map0(fileChannel, imodeFor(mode), mapAlign(start), mapAlign(size));
         } catch (NoSuchMethodException | IllegalAccessException e) {
             throw new AssertionError(e);
         } catch (InvocationTargetException e) {
-            throw wrap(e);
+            throw asAnIOException(e);
         }
     }
 
@@ -190,17 +220,23 @@ public class OS {
         return (Long) map0.invoke(fileChannel, imode, start, size);
     }
 
+    /**
+     * Unmap a region of memory.
+     * @param address of the start of the mapping.
+     * @param size of the region mapped.
+     * @throws IOException if the unmap fails.
+     */
     public static void unmap(long address, long size) throws IOException {
         try {
             Method unmap0 = FileChannelImpl.class.getDeclaredMethod("unmap0", long.class, long.class);
             unmap0.setAccessible(true);
-            unmap0.invoke(null, address, size);
+            unmap0.invoke(null, address, mapAlign(size));
         } catch (Exception e) {
-            throw wrap(e);
+            throw asAnIOException(e);
         }
     }
 
-    private static IOException wrap(Throwable e) {
+    private static IOException asAnIOException(Throwable e) {
         if (e instanceof InvocationTargetException)
             e = e.getCause();
         if (e instanceof IOException)
@@ -220,6 +256,11 @@ public class OS {
         return imode;
     }
 
+    /**
+     * Get the sapce actually used by a file.
+     * @param filename to get the actual size of
+     * @return size in bytes.
+     */
     public static long spaceUsed(String filename) {
         return spaceUsed(new File(filename));
     }

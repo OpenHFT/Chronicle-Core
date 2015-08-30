@@ -21,16 +21,31 @@ import java.util.concurrent.locks.LockSupport;
 
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 
+/**
+ * Utility class to access information in the JVM.
+ */
 public enum Jvm {
     ;
 
     public static final boolean IS_DEBUG = getRuntimeMXBean().getInputArguments().toString().contains("jdwp") || Boolean.getBoolean("debug");
 
+    /**
+     * Cast a CheckedException as an unchecked one.
+     *
+     * @param throwable to cast
+     * @throws T the throwable as an unchecked thorwable
+     */
     @SuppressWarnings("unchecked")
-    public static <T extends Throwable> RuntimeException rethrow(Throwable t) throws T {
-        throw (T) t; // rely on vacuous cast
+    public static <T extends Throwable> RuntimeException rethrow(Throwable throwable) throws T {
+        throw (T) throwable; // rely on vacuous cast
     }
 
+    /**
+     * Append the StackTraceElements to the StringBuilder trimming some internal methods.
+     *
+     * @param sb to append to
+     * @param stes stack trace elements
+     */
     public static void trimStackTrace(StringBuilder sb, StackTraceElement... stes) {
         int first = trimFirst(stes);
         int last = trimLast(first, stes);
@@ -59,11 +74,18 @@ public enum Jvm {
         return className.startsWith("jdk.") || className.startsWith("sun.") || className.startsWith("java.");
     }
 
+    /**
+     * @return is the JVM in debug mode.
+     */
     @SuppressWarnings("SameReturnValue")
     public static boolean isDebug() {
         return IS_DEBUG;
     }
 
+    /**
+     * Silently pause for milli seconds.
+     * @param millis to sleep for.
+     */
     public static void pause(long millis) {
         long timeNanos = millis * 1000000;
         if (timeNanos > 1e9) {
@@ -77,6 +99,12 @@ public enum Jvm {
         }
     }
 
+    /**
+     * Get the Field for a class by name.
+     * @param clazz to get the field for
+     * @param name of the field
+     * @return the Field.
+     */
     public static Field getField(Class clazz, String name) {
         try {
             Field field = clazz.getDeclaredField(name);

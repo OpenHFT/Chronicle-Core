@@ -21,6 +21,9 @@ import net.openhft.chronicle.core.io.Closeable;
 import java.lang.ref.WeakReference;
 import java.util.List;
 
+/**
+ * A resource which is reference counted and freed when the refCount drop to 0.
+ */
 public interface ReferenceCounted extends Closeable {
     static void releaseAll(List<WeakReference<ReferenceCounted>> refCounts) {
         for (WeakReference<? extends ReferenceCounted> refCountRef : refCounts) {
@@ -33,16 +36,16 @@ public interface ReferenceCounted extends Closeable {
         }
     }
 
-    void reserve() throws IllegalStateException;
-
-    void release() throws IllegalStateException;
-
     static void release(Object o) throws IllegalStateException {
         if (o instanceof ReferenceCounted) {
             ReferenceCounted rc = (ReferenceCounted) o;
             rc.release();
         }
     }
+
+    void reserve() throws IllegalStateException;
+
+    void release() throws IllegalStateException;
 
     default void close() {
         release();

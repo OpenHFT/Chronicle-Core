@@ -16,13 +16,30 @@
 
 package net.openhft.chronicle.core;
 
+/**
+ * Utility class to create classes from a byte[]
+ */
 public enum ClassLoading {
     ;
 
+    /**
+     * Define a class into the current class loader
+     *
+     * @param className of the class to define.
+     * @param bytes     byte code for the class
+     * @return the class loaded.
+     */
     public static Class defineClass(String className, byte[] bytes) {
         return defineClass(Thread.currentThread().getContextClassLoader(), className, bytes);
     }
 
+    /**
+     * Define a class into the current class loader
+     * @param classLoader to load the class.
+     * @param className of the class to define.
+     * @param bytes byte code for the class
+     * @return the class loaded.
+     */
     private static Class defineClass(ClassLoader classLoader, String className, byte[] bytes) {
         return UnsafeMemory.UNSAFE.defineClass(className, bytes, 0, bytes.length, classLoader, null);
     }
