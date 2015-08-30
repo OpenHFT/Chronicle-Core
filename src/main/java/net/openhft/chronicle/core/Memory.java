@@ -16,6 +16,9 @@
 
 package net.openhft.chronicle.core;
 
+/**
+ * Low level memory access
+ */
 public interface Memory {
     default long heapUsed() {
         Runtime runtime = Runtime.getRuntime();
