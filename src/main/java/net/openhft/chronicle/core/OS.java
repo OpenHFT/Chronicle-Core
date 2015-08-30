@@ -35,8 +35,8 @@ import static java.lang.management.ManagementFactory.getRuntimeMXBean;
  * Low level axcess to OS class.
  */
 public class OS {
-    public static final String HOST_NAME = getHostName();
-    public static final String USER_NAME = System.getProperty("user.name");
+    private static final String HOST_NAME = getHostName0();
+    private static final String USER_NAME = System.getProperty("user.name");
     private static final String TMP = System.getProperty("java.io.tmpdir");
     public static final String TARGET = System.getProperty("project.build.directory", TMP + "/target");
     private static final Logger LOG = LoggerFactory.getLogger(OS.class);
@@ -52,7 +52,19 @@ public class OS {
     private static final boolean IS_WIN = OS.startsWith("win");
     private static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : pageSize();
 
-    private static String getHostName() {
+    public static String getHostName() {
+        return HOST_NAME;
+    }
+
+    public static String getUserName() {
+        return USER_NAME;
+    }
+
+    public static String getTarget() {
+        return TARGET;
+    }
+
+    private static String getHostName0() {
         try {
             return InetAddress.getLocalHost().getHostName();
         } catch (UnknownHostException e) {
