@@ -69,20 +69,20 @@ public class HistogramTest {
 //        try (FileOutputStream cpu_dma_latency = new FileOutputStream("/dev/cpu_dma_latency")) {
 //            cpu_dma_latency.write('0');
 
-            Affinity.setAffinity(2);
-            System.out.println("Cpu: " + Affinity.getAffinity());
-            ITicker instance = Ticker.INSTANCE;
+        Affinity.setAffinity(2);
+        System.out.println("Cpu: " + Affinity.getAffinity());
+        ITicker instance = Ticker.INSTANCE;
         for (int t = 0; t < 5; t++) {
-                Histogram h = new Histogram(32, 4);
-                long start = instance.ticks(), prev = start;
-                for (int i = 0; i <= 1000_000_000; i++) {
-                    long now = instance.ticks();
-                    long time = now - prev;
-                    h.sample(time);
-                    prev = now;
-                }
-                System.out.println(h.toLongMicrosFormat(instance::toMicros));
+            Histogram h = new Histogram(32, 4);
+            long start = instance.ticks(), prev = start;
+            for (int i = 0; i <= 1000_000_000; i++) {
+                long now = instance.ticks();
+                long time = now - prev;
+                h.sample(time);
+                prev = now;
             }
+            System.out.println(h.toLongMicrosFormat(instance::toMicros));
+        }
 //        }
     }
 }

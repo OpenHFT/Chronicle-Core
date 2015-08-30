@@ -115,14 +115,59 @@ String s2 = si.intern(b);
 assertEquals("World", s);
 assertSame(s, s2);
 ```
+
 Class Local Caching
 =================
+Add caching of a data structure for each class using a lambda
+```java
+public static final ClassLocal<EnumInterner> ENUM_INTERNER = 
+        ClassLocal.withInitial(c -> new EnumInterner<>(c));
+        
+E enumValue = ENUM_INTERNER.get(enumClass).intern(stringBuilder);
+```
 
 Maths Functions
 =================
+Maths functions to support rounds
+
+```java
+double a = 0.1;
+double b = 0.3;
+double c= Maths.round2(b - a); // 0.2 rounded to 2 decimal places
+```
+
+Checking type conversions
+
+```java
+int i = Maths.toInt32(longValue);
+```
 
 Serializable Lambdas
 =================
+There is a number of FunctionalInterfaces you can utilise as method arguments.
+This allows implicitly making a lambda Serializable.
+
+```java
+// in KeyedVisitable
+default <R> R applyToKey(K key, @NotNull SerializableFunction<E, R> function) {
+
+// in code
+
+String fullename = map.applyToKey("u:123223", u -> u.getFullName());
+ ```
 
 Histogram
 =================
+A high dynamic range histogram with tunable accuracy.
+
+```java
+Histogram h = new Histogram(32, 4);
+long start = instance.ticks(), prev = start;
+for (int i = 0; i <= 1000_000_000; i++) {
+    long now = instance.ticks();
+    long time = now - prev;
+    h.sample(time);
+    prev = now;
+}
+System.out.println(h.toLongMicrosFormat(instance::toMicros));
+```
