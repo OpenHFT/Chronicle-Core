@@ -23,9 +23,6 @@ public enum Maths {
      */
     private static final double WHOLE_NUMBER = 1L << 53;
     private static final int K0 = 0x6d0f27bd;
-    private static final int K1 = 0xc1f3bfc9;
-    private static final int K2 = 0x6b192397;
-    private static final int K3 = 0x6b915657;
     private static final int M0 = 0x5bc80bad;
     private static final int M1 = 0xea7585d7;
     private static final int M2 = 0x7a646e19;
@@ -181,14 +178,15 @@ public enum Maths {
     }
 
     /**
-     * net.openhft.chronicle.bytes.algo.NativeBytesHash
+     * Hashing algorithm for a 64-bit value
+     * from net.openhft.chronicle.bytes.algo.VanillaBytesStoreHash
      *
      * @param l to hash
-     * @return int hash value.
+     * @return hash value.
      */
     public static long longHash(long l) {
         final long remaining = 8L;
-        long h0 = (long) remaining * K0;
+        long h0 = remaining * K0;
 
         final long l0 = l;
         final long l0a = l >>> 32;
@@ -206,8 +204,34 @@ public enum Maths {
 
         return agitate(h0) /*^ agitate(h1)*/
                 ^ agitate(h2) ^ agitate(h3);
-
     }
 
+    /**
+     * Hashing algorithm for a 128-bit value
+     * from net.openhft.chronicle.bytes.algo.VanillaBytesStoreHash
+     *
+     * @param l0 to hash
+     * @param l1 to hash
+     * @return hash value.
+     */
 
+    public static long longHash(long l0, long l1) {
+        final long remaining = 16L;
+        long h0 = remaining * K0;
+
+        int l0a = (int) (l0 >> 32);
+        int l1a = (int) (l1 >> 32);
+        final long l2 = 0;
+        final int l2a = 0;
+        final long l3 = 0;
+        final int l3a = 0;
+
+        h0 += (l0 + l1a - l2a) * M0;
+        long h1 = (l1 + l2a - l3a) * M1;
+        long h2 = (l2 + l3a - l0a) * M2;
+        long h3 = (l3 + l0a - l1a) * M3;
+
+        return agitate(h0) ^ agitate(h1)
+                ^ agitate(h2) ^ agitate(h3);
+    }
 }
