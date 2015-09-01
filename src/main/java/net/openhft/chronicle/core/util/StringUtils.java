@@ -72,6 +72,17 @@ public enum StringUtils {
     }
 
     @ForceInline
+    public static boolean equalsCaseIgnore(CharSequence s, CharSequence cs) {
+        if (s == null) return false;
+        if (s.length() != cs.length()) return false;
+        for (int i = 0; i < cs.length(); i++)
+            if (Character.toLowerCase(s.charAt(i)) !=
+                    Character.toLowerCase(cs.charAt(i)))
+                return false;
+        return true;
+    }
+
+    @ForceInline
     public static String toString(Object o) {
         return o == null ? null : o.toString();
     }
