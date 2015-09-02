@@ -40,15 +40,33 @@ public interface ReferenceCounted extends Closeable {
         }
     }
 
-    static void release(Object o) throws IllegalStateException {
+    /**
+     * release a reference counted object
+     *
+     * @param o to release if ReferenceCounted
+     */
+
+    static void release(Object o) {
         if (o instanceof ReferenceCounted) {
             ReferenceCounted rc = (ReferenceCounted) o;
-            rc.release();
+            try {
+                rc.release();
+            } catch (IllegalStateException e) {
+                // ignored.
+            }
         }
     }
 
+    /**
+     * reserve a resource
+     * @throws IllegalStateException if the resource has already been freed.
+     */
     void reserve() throws IllegalStateException;
 
+    /**
+     * release a resource
+     * @throws IllegalStateException if the resource has already been freed.
+     */
     void release() throws IllegalStateException;
 
     default void close() {
