@@ -16,21 +16,24 @@
 
 package net.openhft.chronicle.core.values;
 
+import java.nio.BufferOverflowException;
+import java.nio.BufferUnderflowException;
+
 /**
  * User: peter.lawrey Date: 10/10/13 Time: 07:11
  */
 public interface LongArrayValues {
     long getCapacity();
 
-    long getValueAt(long index);
+    long getValueAt(long index) throws BufferUnderflowException;
 
-    void setValueAt(long index, long value);
+    void setValueAt(long index, long value) throws IllegalArgumentException, BufferOverflowException;
 
-    long getVolatileValueAt(long index);
+    long getVolatileValueAt(long index) throws BufferUnderflowException;
 
-    void setOrderedValueAt(long index, long value);
+    void setOrderedValueAt(long index, long value) throws IllegalArgumentException, BufferOverflowException;
 
-    boolean compareAndSet(long index, long expected, long value);
+    boolean compareAndSet(long index, long expected, long value) throws IllegalArgumentException, BufferOverflowException;
 
     void bindValueAt(int index, LongValue value);
 }
