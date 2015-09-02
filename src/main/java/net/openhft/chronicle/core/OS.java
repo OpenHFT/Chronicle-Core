@@ -82,7 +82,8 @@ public class OS {
             memory = (Memory) create.invoke(null);
         } catch (ClassNotFoundException expected) {
             // expected
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+        } catch (NoSuchMethodException | InvocationTargetException
+                | IllegalAccessException | IllegalArgumentException e) {
             LOG.warn("Unable to load Java9MemoryClass", e);
         }
         if (memory == null)
@@ -140,7 +141,7 @@ public class OS {
         return PROCESS_ID;
     }
 
-    private static int getProcessId0() {
+    private static int getProcessId0() throws NumberFormatException {
         String pid = null;
         final File self = new File("/proc/self");
         try {
@@ -157,7 +158,7 @@ public class OS {
             return rpid;
 
         } else {
-            return Integer.parseInt(pid);
+                return Integer.parseInt(pid);
         }
     }
 
@@ -189,7 +190,7 @@ public class OS {
     /**
      * @return the maximum PID.
      */
-    public static long getPidMax() {
+    public static long getPidMax() throws NumberFormatException {
         if (isLinux()) {
             File file = new File("/proc/sys/kernel/pid_max");
             if (file.canRead())
@@ -214,7 +215,8 @@ public class OS {
      * @return the address of the memory mapping.
      * @throws IOException
      */
-    public static long map(FileChannel fileChannel, FileChannel.MapMode mode, long start, long size) throws IOException {
+    public static long map(FileChannel fileChannel, FileChannel.MapMode mode, long start, long size)
+            throws IOException, IllegalArgumentException {
         if (isWindows() && size > 4L << 30)
             throw new IllegalArgumentException("Mapping more than 4096 MiB is unusable on Windows, size = " + (size >> 20) + " MiB");
         try {
@@ -226,7 +228,8 @@ public class OS {
         }
     }
 
-    static long map0(FileChannel fileChannel, int imode, long start, long size) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    static long map0(FileChannel fileChannel, int imode, long start, long size)
+            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IllegalArgumentException {
         Method map0 = fileChannel.getClass().getDeclaredMethod("map0", int.class, long.class, long.class);
         map0.setAccessible(true);
         return (Long) map0.invoke(fileChannel, imode, start, size);
@@ -277,7 +280,7 @@ public class OS {
         return spaceUsed(new File(filename));
     }
 
-    private static long spaceUsed(File file) {
+    private static long spaceUsed(File file) throws NumberFormatException {
         if (!isWindows()) {
             try {
                 String du_k = run("du", "-ks", file.getAbsolutePath());
@@ -308,7 +311,7 @@ public class OS {
         private final ReferenceCounted owner;
         private volatile long address;
 
-        public Unmapper(long address, long size, ReferenceCounted owner) {
+        public Unmapper(long address, long size, ReferenceCounted owner) throws IllegalStateException {
             owner.reserve();
             this.owner = owner;
             assert (address != 0);
@@ -325,8 +328,8 @@ public class OS {
                 address = 0;
 
                 owner.release();
-            } catch (IOException e) {
-                LOG.error("", e);
+            } catch (IOException | IllegalStateException e) {
+                LOG.error("Error on unmap and release", e);
             }
         }
     }

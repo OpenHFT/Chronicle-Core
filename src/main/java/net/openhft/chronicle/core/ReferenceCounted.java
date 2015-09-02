@@ -25,13 +25,17 @@ import java.util.List;
  * A resource which is reference counted and freed when the refCount drop to 0.
  */
 public interface ReferenceCounted extends Closeable {
-    static void releaseAll(List<WeakReference<ReferenceCounted>> refCounts) {
+    static void releaseAll(List<WeakReference<ReferenceCounted>> refCounts)  {
         for (WeakReference<? extends ReferenceCounted> refCountRef : refCounts) {
             if (refCountRef == null)
                 continue;
             ReferenceCounted refCounted = refCountRef.get();
             if (refCounted != null) {
-                refCounted.release();
+                try {
+                    refCounted.release();
+                } catch (IllegalStateException e) {
+                   // ignored
+                }
             }
         }
     }
@@ -48,7 +52,7 @@ public interface ReferenceCounted extends Closeable {
     void release() throws IllegalStateException;
 
     default void close() {
-        release();
+            release();
     }
 
     long refCount();

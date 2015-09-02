@@ -31,7 +31,7 @@ public class UnsafeMemory implements Memory {
             try {
                 Field theUnsafe = Jvm.getField(Unsafe.class, "theUnsafe");
                 UNSAFE = (Unsafe) theUnsafe.get(null);
-            } catch (IllegalAccessException e) {
+            } catch (IllegalAccessException | IllegalArgumentException e) {
                 throw new AssertionError(e);
             }
         }
@@ -44,7 +44,7 @@ public class UnsafeMemory implements Memory {
             E e = (E) UNSAFE.allocateInstance(clazz);
             return e;
         } catch (InstantiationException e) {
-            throw new IllegalStateException(e);
+            throw Jvm.rethrow(e);
         }
     }
 
@@ -74,7 +74,7 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    public long allocate(long capacity) {
+    public long allocate(long capacity) throws IllegalArgumentException {
         if (capacity <= 0)
             throw new IllegalArgumentException("Invalid capacity: " + capacity);
         long address = UNSAFE.allocateMemory(capacity);

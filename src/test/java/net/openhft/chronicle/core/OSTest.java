@@ -20,9 +20,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.channels.FileChannel;
 
 public class OSTest {
@@ -38,7 +36,7 @@ public class OSTest {
 
     @Test
     @Ignore("Should always pass, or crash the JVM based on length")
-    public void testMap() throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void testMap()            throws Exception {
         if (!OS.isWindows()) return;
 
         // crashes the JVM.

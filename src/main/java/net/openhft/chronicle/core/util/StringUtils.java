@@ -90,7 +90,7 @@ public enum StringUtils {
     public static char[] extractChars(StringBuilder sb) {
         try {
             return (char[]) SB_VALUE.get(sb);
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | IllegalArgumentException e) {
             throw new AssertionError(e);
         }
     }
@@ -98,7 +98,7 @@ public enum StringUtils {
     public static char[] extractChars(String s) {
         try {
             return (char[]) S_VALUE.get(s);
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException| IllegalArgumentException e) {
             throw new AssertionError(e);
         }
     }
@@ -106,7 +106,7 @@ public enum StringUtils {
     public static void setCount(StringBuilder sb, int count) {
         try {
             SB_COUNT.setInt(sb, count);
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException| IllegalArgumentException e) {
             throw new AssertionError(e);
         }
     }

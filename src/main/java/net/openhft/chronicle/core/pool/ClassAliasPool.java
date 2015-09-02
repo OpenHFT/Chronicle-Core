@@ -16,6 +16,8 @@
 
 package net.openhft.chronicle.core.pool;
 
+import net.openhft.chronicle.core.Jvm;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -25,10 +27,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ClassAliasPool {
+    public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool().defaultAliases();
     private final Map<String, Class> stringClassMap = new ConcurrentHashMap<>();
     private final Map<String, Class> stringClassMap2 = new ConcurrentHashMap<>();
     private final Map<Class, String> classStringMap = new ConcurrentHashMap<>();
-    public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool().defaultAliases();
 
     private ClassAliasPool defaultAliases() {
         addAlias(Set.class);
@@ -69,7 +71,7 @@ public class ClassAliasPool {
         }
     }
 
-    public Class forName(CharSequence name) throws IllegalArgumentException {
+    public Class forName(CharSequence name) throws ClassNotFoundException {
         String name0 = name.toString();
         Class clazz = stringClassMap.get(name0);
         return clazz != null
@@ -78,7 +80,7 @@ public class ClassAliasPool {
             try {
                 return Class.forName(name0);
             } catch (ClassNotFoundException e) {
-                throw new IllegalArgumentException(e);
+                throw Jvm.rethrow(e);
             }
         });
     }

@@ -24,7 +24,7 @@ public enum Time {
         return tickTime;
     }
 
-    public static void wait(Object o, long waitTimeMS) throws InterruptedException {
+    public static void wait(Object o, long waitTimeMS) throws InterruptedException, IllegalArgumentException {
         if ((int) waitTimeMS != waitTimeMS)
             throw new IllegalArgumentException("waitTimeMS: " + waitTimeMS);
         long end = tickTime() + waitTimeMS;

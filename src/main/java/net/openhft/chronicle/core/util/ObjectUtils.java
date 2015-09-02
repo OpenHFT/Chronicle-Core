@@ -48,7 +48,8 @@ public enum ObjectUtils {
         }
     });
 
-    public static <E> E convertTo(Class<E> eClass, Object o) throws ClassCastException {
+    public static <E> E convertTo(Class<E> eClass, Object o)
+            throws ClassCastException, IllegalArgumentException {
         if (eClass.isInstance(o) || o == null) return (E) o;
         if (Enum.class.isAssignableFrom(eClass)) {
             return (E) Enum.valueOf((Class) eClass, o.toString());
@@ -70,7 +71,7 @@ public enum ObjectUtils {
                 valueOf.setAccessible(true);
                 return (E) valueOf.invoke(null, o);
 
-            } catch (InvocationTargetException | IllegalAccessException e) {
+            } catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
                 throw asCCE(e);
             } catch (NoSuchMethodException e) {
             }
@@ -110,7 +111,8 @@ public enum ObjectUtils {
         return cce;
     }
 
-    private static <E> E convertToArray(Class<E> eClass, Object o) {
+    private static <E> E convertToArray(Class<E> eClass, Object o)
+            throws IllegalArgumentException {
         int len = sizeOf(o);
         Object array = Array.newInstance(eClass, len);
         Iterator iter = iteratorFor(o);
@@ -136,7 +138,7 @@ public enum ObjectUtils {
         throw new UnsupportedOperationException();
     }
 
-    private static int sizeOf(Object o) {
+    private static int sizeOf(Object o) throws IllegalArgumentException {
         if (o instanceof Collection)
             return ((Collection) o).size();
         if (o instanceof Map)
@@ -146,7 +148,8 @@ public enum ObjectUtils {
         throw new UnsupportedOperationException();
     }
 
-    private static Number convertToNumber(Class eClass, Object o) {
+    private static Number convertToNumber(Class eClass, Object o)
+            throws NumberFormatException{
         if (o instanceof Number) {
             Number n = (Number) o;
             if (eClass == Double.class)

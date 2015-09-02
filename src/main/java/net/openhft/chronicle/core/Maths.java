@@ -84,13 +84,13 @@ public enum Maths {
                 (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor;
     }
 
-    public static int nextPower2(int n, int min) {
+    public static int nextPower2(int n, int min) throws IllegalArgumentException {
         return (int) Math.min(1 << 30, nextPower2((long) n, (long) min));
     }
 
-    public static long nextPower2(long n, long min) {
+    public static long nextPower2(long n, long min) throws IllegalArgumentException {
         if (!isPowerOf2(min))
-            throw new IllegalArgumentException();
+            throw new IllegalArgumentException(min+" must be a power of 2");
         if (n < min) return min;
         if (isPowerOf2(n))
             return n;
@@ -123,49 +123,49 @@ public enum Maths {
         return (int) ((l >> 52) - 1023L);
     }
 
-    public static byte toInt8(long x) {
+    public static byte toInt8(long x) throws IllegalArgumentException {
         if ((byte) x == x)
             return (byte) x;
         throw new IllegalArgumentException("Byte " + x + " out of range");
     }
 
-    public static short toInt16(long x) {
+    public static short toInt16(long x) throws IllegalArgumentException {
         if ((short) x == x)
             return (short) x;
         throw new IllegalArgumentException("Short " + x + " out of range");
     }
 
-    public static int toInt32(long x, String msg) {
+    public static int toInt32(long x, String msg) throws IllegalArgumentException {
         if ((int) x == x)
             return (int) x;
         throw new IllegalArgumentException(String.format(msg, x));
     }
 
-    public static int toInt32(long x) {
+    public static int toInt32(long x) throws IllegalArgumentException {
         if ((int) x == x)
             return (int) x;
         throw new IllegalArgumentException("Int " + x + " out of range");
     }
 
-    public static short toUInt8(long x) {
+    public static short toUInt8(long x) throws IllegalArgumentException {
         if ((x & 0xFF) == x)
             return (short) x;
         throw new IllegalArgumentException("Unsigned Byte " + x + " out of range");
     }
 
-    public static int toUInt16(long x) {
+    public static int toUInt16(long x) throws IllegalArgumentException {
         if ((x & 0xFFFF) == x)
             return (int) x;
         throw new IllegalArgumentException("Unsigned Short " + x + " out of range");
     }
 
-    public static int toUInt31(long x) {
+    public static int toUInt31(long x) throws IllegalArgumentException {
         if ((x & 0x7FFFFFFFL) == x)
             return (int) x;
         throw new IllegalArgumentException("Unsigned Int 31-bit " + x + " out of range");
     }
 
-    public static long toUInt32(long x) {
+    public static long toUInt32(long x) throws IllegalArgumentException {
         if ((x & 0xFFFFFFFFL) == x)
             return x;
         throw new IllegalArgumentException("Unsigned Int " + x + " out of range");

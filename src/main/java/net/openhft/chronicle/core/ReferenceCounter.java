@@ -30,7 +30,7 @@ public class ReferenceCounter {
         return new ReferenceCounter(onRelease);
     }
 
-    public void reserve() {
+    public void reserve() throws IllegalStateException {
         for (; ; ) {
             long v = value.get();
             if (v <= 0)
@@ -40,7 +40,7 @@ public class ReferenceCounter {
         }
     }
 
-    public void release() {
+    public void release() throws IllegalStateException {
         for (; ; ) {
             long v = value.get();
             if (v <= 0)
