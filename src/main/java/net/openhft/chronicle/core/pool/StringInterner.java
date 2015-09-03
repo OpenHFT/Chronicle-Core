@@ -23,8 +23,8 @@ import net.openhft.chronicle.core.util.StringUtils;
  * @author peter.lawrey
  */
 public class StringInterner {
-    private final String[] interner;
-    private final int mask;
+    protected final String[] interner;
+    protected final int mask;
 
     public StringInterner(int capacity) {
         int n = Maths.nextPower2(capacity, 128);
@@ -40,4 +40,6 @@ public class StringInterner {
         String s2 = cs.toString();
         return interner[h] = s2;
     }
+
+
 }

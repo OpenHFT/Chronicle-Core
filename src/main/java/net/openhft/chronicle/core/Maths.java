@@ -29,9 +29,9 @@ public enum Maths {
     private static final int M3 = 0x855dd4db;
 
     /**
-     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5
-     * it might be rounded up or down. This is a pragmatic choice for performance reasons
-     * as it is assumed you are not working on the edge of the precision of double.
+     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
+     * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
+     * assumed you are not working on the edge of the precision of double.
      *
      * @param d value to round
      * @return rounded value
@@ -43,9 +43,9 @@ public enum Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5
-     * it might be rounded up or down. This is a pragmatic choice for performance reasons
-     * as it is assumed you are not working on the edge of the precision of double.
+     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
+     * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
+     * assumed you are not working on the edge of the precision of double.
      *
      * @param d value to round
      * @return rounded value
@@ -57,9 +57,9 @@ public enum Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5
-     * it might be rounded up or down. This is a pragmatic choice for performance reasons
-     * as it is assumed you are not working on the edge of the precision of double.
+     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
+     * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
+     * assumed you are not working on the edge of the precision of double.
      *
      * @param d value to round
      * @return rounded value
@@ -71,9 +71,9 @@ public enum Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5
-     * it might be rounded up or down. This is a pragmatic choice for performance reasons
-     * as it is assumed you are not working on the edge of the precision of double.
+     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
+     * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
+     * assumed you are not working on the edge of the precision of double.
      *
      * @param d value to round
      * @return rounded value
@@ -111,12 +111,14 @@ public enum Maths {
         return (int) (h ^ (h >> 32));
     }
 
+
     public static long longHash(CharSequence cs) {
         long hash = 0;
         for (int i = 0; i < cs.length(); i++)
             hash = Long.rotateLeft(hash, 7) + cs.charAt(i);
         return longHash(hash);
     }
+
 
     public static int intLog2(long num) {
         long l = Double.doubleToRawLongBits((double) num);
