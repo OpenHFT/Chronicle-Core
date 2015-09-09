@@ -24,7 +24,7 @@ package net.openhft.chronicle.core.util;
  * Represents an operation that accepts a an object-valued and {@code float}-valued argument, and returns no result.  This is the
  * {@code (reference, long)} specialization of {@link java.util.function.BiConsumer} for {@code float}.  Unlike most other functional
  * interfaces, {@code ObjFloatConsumer} is expected to operate via side-effects.
- * <p>
+ *
  * <p>This is a <a href="package-summary.html">functional interface</a> whose functional method is
  * {@link #accept(Object, float)}.
  *
