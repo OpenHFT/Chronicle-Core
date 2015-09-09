@@ -208,12 +208,14 @@ public class OS {
 
     /**
      * Map a region of a file into memory.
+     *
      * @param fileChannel to map
      * @param mode of access
      * @param start offset within a file
      * @param size of region to map.
      * @return the address of the memory mapping.
-     * @throws IOException
+     * @throws IOException if the mapping fails
+     * @throws IllegalArgumentException if the arguments are not valid
      */
     public static long map(FileChannel fileChannel, FileChannel.MapMode mode, long start, long size)
             throws IOException, IllegalArgumentException {
