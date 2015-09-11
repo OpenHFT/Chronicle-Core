@@ -17,7 +17,6 @@ public class AllocationMeasure {
 
     private static final Logger LOG = LoggerFactory.getLogger(AllocationMeasure.class);
 
-
     private static final String GET_THREAD_ALLOCATED_BYTES = "getThreadAllocatedBytes";
     private final String[] SIGNATURE = new String[]{long.class.getName()};
     private final String threadName = Thread.currentThread().getName();
@@ -57,7 +56,6 @@ public class AllocationMeasure {
             //allocationMeasure = new AllocationMeasure();
 
             long mark1 = allocationMeasure.markAllocations();
-
 
             if (mark1 > 0)
                 System.out.println("m1:" + mark1);

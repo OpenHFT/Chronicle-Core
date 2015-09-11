@@ -47,7 +47,6 @@ public class ClassAliasPool {
         addAlias(LocalTime.class, "Time");
         addAlias(String[].class, "String[]");
 
-
         return this;
     }
 

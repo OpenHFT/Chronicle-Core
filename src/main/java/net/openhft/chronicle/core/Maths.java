@@ -111,14 +111,12 @@ public enum Maths {
         return (int) (h ^ (h >> 32));
     }
 
-
     public static long longHash(CharSequence cs) {
         long hash = 0;
         for (int i = 0; i < cs.length(); i++)
             hash = Long.rotateLeft(hash, 7) + cs.charAt(i);
         return longHash(hash);
     }
-
 
     public static int intLog2(long num) {
         long l = Double.doubleToRawLongBits((double) num);

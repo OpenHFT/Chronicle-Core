@@ -37,7 +37,6 @@ import java.util.Map;
 public enum ObjectUtils {
     ;
 
-
     static final ClassLocal<Constructor> CONSTRUCTOR_CLASS_LOCAL = ClassLocal.withInitial(c -> {
         try {
             Constructor constructor = c.getDeclaredConstructor();
