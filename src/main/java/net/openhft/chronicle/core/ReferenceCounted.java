@@ -45,7 +45,6 @@ public interface ReferenceCounted extends Closeable {
      *
      * @param o to release if ReferenceCounted
      */
-
     static void release(Object o) {
         if (o instanceof ReferenceCounted) {
             ReferenceCounted rc = (ReferenceCounted) o;

@@ -216,7 +216,6 @@ public enum Maths {
      * @param l1 to hash
      * @return hash value.
      */
-
     public static long longHash(long l0, long l1) {
         final long remaining = 16L;
         long h0 = remaining * K0;
