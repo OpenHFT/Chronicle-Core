@@ -179,11 +179,11 @@ public class OS {
         return IS_WIN;
     }
 
-    private static boolean isMacOSX() {
+    public static boolean isMacOSX() {
         return IS_MAC;
     }
 
-    private static boolean isLinux() {
+    public static boolean isLinux() {
         return IS_LINUX;
     }
 
