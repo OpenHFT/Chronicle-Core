@@ -19,26 +19,42 @@ package net.openhft.chronicle.core.pool;
 import net.openhft.chronicle.core.Maths;
 import net.openhft.chronicle.core.util.StringUtils;
 
+import java.util.stream.Stream;
+
 /**
  * @author peter.lawrey
  */
 public class StringInterner {
     protected final String[] interner;
-    protected final int mask;
+    protected final int mask, shift;
+    protected boolean toggle = false;
 
     public StringInterner(int capacity) {
         int n = Maths.nextPower2(capacity, 128);
+        shift = Maths.intLog2(n);
         interner = new String[n];
         mask = n - 1;
     }
 
     public String intern(CharSequence cs) {
-        int h = Maths.hash(cs) & mask;
+        int hash = Maths.hash(cs);
+        int h = hash & mask;
         String s = interner[h];
         if (StringUtils.isEqual(s, cs))
             return s;
-        String s2 = cs.toString();
-        return interner[h] = s2;
+        int h2 = (hash >> shift) & mask;
+        String s2 = interner[h2];
+        if (StringUtils.isEqual(s2, cs))
+            return s2;
+        String s3 = cs.toString();
+        return interner[toggle() ? h : h2] = s3;
     }
 
+    protected boolean toggle() {
+        return toggle = !toggle;
+    }
+
+    public int valueCount() {
+        return (int) Stream.of(interner).filter(s -> s != null).count();
+    }
 }

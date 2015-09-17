@@ -108,13 +108,16 @@ public enum Maths {
 
     public static int hash(CharSequence cs) {
         long h = longHash(cs);
-        return (int) (h ^ (h >> 32));
+        h ^= h >> 32;
+        h ^= h >> 16;
+        h ^= h >> 9;
+        return (int) h;
     }
 
     public static long longHash(CharSequence cs) {
         long hash = 0;
         for (int i = 0; i < cs.length(); i++)
-            hash = Long.rotateLeft(hash, 7) + cs.charAt(i);
+            hash = hash * 841248317 + cs.charAt(i);
         return longHash(hash);
     }
 
