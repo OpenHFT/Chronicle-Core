@@ -42,7 +42,7 @@ public class EnumInterner<E extends Enum<E>> {
     }
 
     public E intern(CharSequence cs) {
-        int h = Maths.hash(cs) & mask;
+        int h = Maths.hash32(cs) & mask;
         E e = interner[h];
         if (e != null && StringUtils.isEqual(e.name(), cs))
             return e;

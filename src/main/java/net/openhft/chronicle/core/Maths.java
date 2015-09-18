@@ -106,19 +106,17 @@ public enum Maths {
         return Long.bitCount(n) == 1;
     }
 
-    public static int hash(CharSequence cs) {
-        long h = longHash(cs);
+    public static int hash32(CharSequence cs) {
+        long h = hash64(cs);
         h ^= h >> 32;
-        h ^= h >> 16;
-        h ^= h >> 9;
         return (int) h;
     }
 
-    public static long longHash(CharSequence cs) {
+    public static long hash64(CharSequence cs) {
         long hash = 0;
         for (int i = 0; i < cs.length(); i++)
             hash = hash * 841248317 + cs.charAt(i);
-        return longHash(hash);
+        return agitate(hash);
     }
 
     public static int intLog2(long num) {
@@ -181,59 +179,19 @@ public enum Maths {
     }
 
     /**
-     * Hashing algorithm for a 64-bit value
-     * from net.openhft.chronicle.bytes.algo.VanillaBytesStoreHash
-     *
-     * @param l to hash
-     * @return hash value.
-     */
-    public static long longHash(long l) {
-        final long remaining = 8L;
-        long h0 = remaining * K0;
-
-        final long l0 = l;
-        final long l0a = l >>> 32;
-
-        final int l1a = 0;
-        final long l2 = 0;
-        final int l2a = 0;
-        final long l3 = 0;
-        final int l3a = 0;
-
-        h0 += (l0 + l1a - l2a) * M0;
-        long h1 = 0L;
-        long h2 = (l2 + l3a - l0a) * M2;
-        long h3 = (l3 + l0a - l1a) * M3;
-
-        return agitate(h0) /*^ agitate(h1)*/
-                ^ agitate(h2) ^ agitate(h3);
-    }
-
-    /**
-     * Hashing algorithm for a 128-bit value
-     * from net.openhft.chronicle.bytes.algo.VanillaBytesStoreHash
+     * A simple hashing algorithm for a 128-bit value
      *
      * @param l0 to hash
      * @param l1 to hash
      * @return hash value.
      */
-    public static long longHash(long l0, long l1) {
-        final long remaining = 16L;
-        long h0 = remaining * K0;
-
+    public static long hash64(long l0, long l1) {
         int l0a = (int) (l0 >> 32);
         int l1a = (int) (l1 >> 32);
-        final long l2 = 0;
-        final int l2a = 0;
-        final long l3 = 0;
-        final int l3a = 0;
 
-        h0 += (l0 + l1a - l2a) * M0;
-        long h1 = (l1 + l2a - l3a) * M1;
-        long h2 = (l2 + l3a - l0a) * M2;
-        long h3 = (l3 + l0a - l1a) * M3;
+        long h0 = (l0 + l1a) * M0;
+        long h1 = (l1 + l0a) * M1;
 
-        return agitate(h0) ^ agitate(h1)
-                ^ agitate(h2) ^ agitate(h3);
+        return agitate(h0) ^ agitate(h1);
     }
 }

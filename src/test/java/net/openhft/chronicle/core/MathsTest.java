@@ -67,7 +67,7 @@ public class MathsTest {
                 sb.setLength(0);
                 sb.append(t).append('-').append(i);
                 long start = System.nanoTime();
-                hashs[i] = Maths.longHash(sb);
+                hashs[i] = Maths.hash64(sb);
                 time += System.nanoTime() - start;
                 timeCount++;
             }

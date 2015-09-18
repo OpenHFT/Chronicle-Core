@@ -37,7 +37,7 @@ public class StringInterner {
     }
 
     public String intern(CharSequence cs) {
-        int hash = Maths.hash(cs);
+        int hash = Maths.hash32(cs);
         int h = hash & mask;
         String s = interner[h];
         if (StringUtils.isEqual(s, cs))
