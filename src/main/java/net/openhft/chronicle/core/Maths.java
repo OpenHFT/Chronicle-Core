@@ -112,6 +112,12 @@ public enum Maths {
         return (int) h;
     }
 
+    public static int hash32(long l0) {
+        long h = hash64(l0);
+        h ^= h >> 32;
+        return (int) h;
+    }
+
     public static long hash64(CharSequence cs) {
         long hash = 0;
         for (int i = 0; i < cs.length(); i++)
@@ -176,6 +182,20 @@ public enum Maths {
         l += l >>> 22;
         l ^= Long.rotateRight(l, 17);
         return l;
+    }
+
+    /**
+     * A simple hashing algorithm for a 64-bit value
+     *
+     * @param l0 to hash
+     * @return hash value.
+     */
+    public static long hash64(long l0) {
+        int l0a = (int) (l0 >> 32);
+
+        long h0 = l0 * M0 + l0a * M1;
+
+        return agitate(h0);
     }
 
     /**
