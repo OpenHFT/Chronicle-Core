@@ -30,6 +30,6 @@ public class StringInternerTest {
         for (int i = 0; i < 100; i++) {
             si.intern("" + i);
         }
-        assertEquals(68, si.valueCount());
+        assertEquals(82, si.valueCount());
     }
 }
