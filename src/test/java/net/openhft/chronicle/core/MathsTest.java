@@ -88,4 +88,18 @@ public class MathsTest {
         System.out.println("Average score: " + scoreSum / 500);
         System.out.printf("Average time %.3f us%n", time / timeCount / 1e3);
     }
+
+    @Test
+    public void testDivideRoundUp() {
+        assertEquals(2, Maths.divideRoundUp(10, 5));
+        assertEquals(3, Maths.divideRoundUp(11, 5));
+
+        assertEquals(-2, Maths.divideRoundUp(-10, 5));
+        assertEquals(-2, Maths.divideRoundUp(10, -5));
+        assertEquals(2, Maths.divideRoundUp(-10, -5));
+
+        assertEquals(-3, Maths.divideRoundUp(-11, 5));
+        assertEquals(-3, Maths.divideRoundUp(11, -5));
+        assertEquals(3, Maths.divideRoundUp(-11, -5));
+    }
 }

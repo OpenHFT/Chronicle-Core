@@ -102,7 +102,7 @@ public enum Maths {
         return i;
     }
 
-    static boolean isPowerOf2(long n) {
+    public static boolean isPowerOf2(long n) {
         return Long.bitCount(n) == 1;
     }
 
@@ -213,5 +213,17 @@ public enum Maths {
         long h1 = (l1 + l0a) * M1;
 
         return agitate(h0) ^ agitate(h1);
+    }
+
+    /**
+     * Divide {@code dividend} by divisor, if division is not integral the result is rounded up.
+     * Examples: {@code divideRoundUp(10, 5) == 2}, {@code divideRoundUp(11, 5) == 3},
+     * {@code divideRoundUp(-10, 5) == -2}, {@code divideRoundUp(-11, 5) == -3}.
+     *
+     * @return the rounded up quotient
+     */
+    public static long divideRoundUp(long dividend, long divisor) {
+        int sign = (dividend > 0 ? 1 : -1) * (divisor > 0 ? 1 : -1);
+        return sign * (Math.abs(dividend) + Math.abs(divisor) - 1) / Math.abs(divisor);
     }
 }
