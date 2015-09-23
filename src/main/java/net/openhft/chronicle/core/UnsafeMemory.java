@@ -323,4 +323,24 @@ public class UnsafeMemory implements Memory {
     public long readVolatileLong(long address) {
         return UNSAFE.getLongVolatile(null, address);
     }
+
+    @Override
+    public int addInt(long address, int increment) {
+        return UNSAFE.getAndAddInt(null, address, increment) + increment;
+    }
+
+    @Override
+    public int addInt(Object object, long offset, int increment) {
+        return UNSAFE.getAndAddInt(object, offset, increment) + increment;
+    }
+
+    @Override
+    public long addLong(long address, long increment) {
+        return UNSAFE.getAndAddLong(null, address, increment) + increment;
+    }
+
+    @Override
+    public long addLong(Object object, long offset, long increment) {
+        return UNSAFE.getAndAddLong(object, offset, increment) + increment;
+    }
 }

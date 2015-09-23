@@ -115,5 +115,13 @@ public interface Memory {
 
     long readVolatileLong(long address);
 
+    int addInt(long address, int increment);
+
+    int addInt(Object object, long offset, int increment);
+
+    long addLong(long address, long increment);
+
+    long addLong(Object object, long offset, long increment);
+
     <E> E allocateInstance(Class<E> clazz);
 }
