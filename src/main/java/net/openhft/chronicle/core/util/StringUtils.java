@@ -117,4 +117,8 @@ public enum StringUtils {
             throw new AssertionError(e);
         }
     }
+
+    public static String firstLowerCase(String str){
+        return Character.toLowerCase( str.charAt(0)) + str.substring(1);
+    }
 }
