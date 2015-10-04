@@ -99,21 +99,46 @@ public class OS {
     }
 
     /**
+     * Align the size to page boundary
+     *
+     * @param size the size to align
+     * @return aligned size
+     * @see #pageSize()
+     */
+    public static long pageAlign(long size) {
+        long mask = pageSize() - 1;
+        return (size + mask) & ~mask;
+    }
+
+    /**
      * @return size of pages
+     * @see #pageAlign(long)
      */
     public static int pageSize() {
         return memory().pageSize();
     }
 
     /**
-     * Align a size of a memoyr mapping based on OS.
+     * Align an offset of a memory mapping in file based on OS.
      *
-     * @param size to align
-     * @return size aligned
+     * @param offset to align
+     * @return offset aligned
+     * @see #mapAlignment()
      */
-    public static long mapAlign(long size) {
+    public static long mapAlign(long offset) {
         int chunkMultiple = MAP_ALIGNMENT;
-        return (size + chunkMultiple - 1) / chunkMultiple * chunkMultiple;
+        return (offset + chunkMultiple - 1) / chunkMultiple * chunkMultiple;
+    }
+
+    /**
+     * Returns the alignment of offsets in file, from which memory mapping could start, based on
+     * OS.
+     *
+     * @return granularity of an offset in a file
+     * @see #mapAlign(long)
+     */
+    public static long mapAlignment() {
+        return MAP_ALIGNMENT;
     }
 
     /**
@@ -222,7 +247,7 @@ public class OS {
         if (isWindows() && size > 4L << 30)
             throw new IllegalArgumentException("Mapping more than 4096 MiB is unusable on Windows, size = " + (size >> 20) + " MiB");
         try {
-            return map0(fileChannel, imodeFor(mode), mapAlign(start), mapAlign(size));
+            return map0(fileChannel, imodeFor(mode), mapAlign(start), pageAlign(size));
         } catch (NoSuchMethodException | IllegalAccessException e) {
             throw new AssertionError(e);
         } catch (InvocationTargetException e) {
@@ -247,7 +272,7 @@ public class OS {
         try {
             Method unmap0 = FileChannelImpl.class.getDeclaredMethod("unmap0", long.class, long.class);
             unmap0.setAccessible(true);
-            unmap0.invoke(null, address, mapAlign(size));
+            unmap0.invoke(null, address, pageAlign(size));
         } catch (Exception e) {
             throw asAnIOException(e);
         }
