@@ -22,6 +22,8 @@ import org.junit.Test;
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 
@@ -40,13 +42,12 @@ public class OSTest {
     public void testMapGranularity() throws Exception {
         // tests that windows supports page mapping granularity
         long length = OS.pageSize();
-        String name = OS.TARGET + "/deleteme";
+        String name = Paths.get(OS.TARGET, "deleteme" + UUID.randomUUID().toString()).toString();
         File file = new File(name);
         file.deleteOnExit();
         FileChannel fc = new RandomAccessFile(name, "rw").getChannel();
         long address = OS.map0(fc, OS.imodeFor(FileChannel.MapMode.READ_WRITE), 0, length);
-        for (long offset = 0; offset < length; offset += OS.pageSize())
-            OS.memory().writeLong(address + offset, offset);
+        OS.memory().writeLong(address, 0);
         OS.unmap(address, length);
         assertEquals(length, file.length());
     }
