@@ -23,6 +23,8 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 
+import static org.junit.Assert.assertEquals;
+
 public class OSTest {
     @Test
     public void testIs64Bit() {
@@ -32,6 +34,21 @@ public class OSTest {
     @Test
     public void testGetProcessId() {
         System.out.println("pid = " + OS.getProcessId());
+    }
+
+    @Test
+    public void testMapGranularity() throws Exception {
+        // tests that windows supports page mapping granularity
+        long length = OS.pageSize();
+        String name = OS.TARGET + "/deleteme";
+        File file = new File(name);
+        file.deleteOnExit();
+        FileChannel fc = new RandomAccessFile(name, "rw").getChannel();
+        long address = OS.map0(fc, OS.imodeFor(FileChannel.MapMode.READ_WRITE), 0, length);
+        for (long offset = 0; offset < length; offset += OS.pageSize())
+            OS.memory().writeLong(address + offset, offset);
+        OS.unmap(address, length);
+        assertEquals(length, file.length());
     }
 
     @Test
