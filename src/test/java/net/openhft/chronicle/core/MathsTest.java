@@ -36,6 +36,25 @@ public class MathsTest {
         for (int i = 0; i < 63; i++) {
             long l = 1L << i;
             assertEquals(i, Maths.intLog2(l));
+            if (i > 0)
+                assertEquals(i - 1, Maths.intLog2(l - 1));
+        }
+        assertEquals(62, Maths.intLog2(Long.MAX_VALUE));
+
+        try {
+            assertEquals(0, Maths.intLog2(0));
+            throw new AssertionError("expected IllegalArgumentException Math.intLong2(0)");
+        } catch (IllegalArgumentException expected) {
+            // expected
+        }
+        for (int i = 0; i < 64; i++) {
+            try {
+                long l = -1L << i;
+                Maths.intLog2(l);
+                throw new AssertionError("expected IllegalArgumentException Math.intLong2 " + l);
+            } catch (IllegalArgumentException expected) {
+                // expected
+            }
         }
     }
 

@@ -125,9 +125,16 @@ public enum Maths {
         return agitate(hash);
     }
 
+    /**
+     * Returns rounded down log<sub>2</sub>{@code num}, e. g.: {@code intLog2(1) == 0},
+     * {@code intLog2(2) == 1}, {@code intLog2(7) == 2}, {@code intLog2(8) == 3}, etc.
+     *
+     * @throws IllegalArgumentException if the given number <= 0
+     */
     public static int intLog2(long num) {
-        long l = Double.doubleToRawLongBits((double) num);
-        return (int) ((l >> 52) - 1023L);
+        if (num <= 0)
+            throw new IllegalArgumentException("positive argument expected, " + num + " given");
+        return 63 - Long.numberOfLeadingZeros(num);
     }
 
     public static byte toInt8(long x) throws IllegalArgumentException {
