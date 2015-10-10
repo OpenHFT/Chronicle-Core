@@ -160,6 +160,22 @@
         </plugins>
     </build>
 
+    <repositories>
+        <repository>
+            <id>Snapshot Repository</id>
+            <name>Snapshot Repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+            <releases>
+                <enabled>false</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+        </repository>
+    </repositories>
+
     <scm>
         <url>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</url>
         <connection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</connection>
