@@ -32,4 +32,25 @@ public class ClassAliasPoolTest {
         CLASS_ALIASES.clean();
         assertEquals("String", CLASS_ALIASES.nameFor(String.class));
     }
+
+    enum TestEnum {
+        FOO {
+            @Override
+            void foo() {
+            }
+        },
+        BAR;
+
+        void foo() {}
+    }
+
+    @Test
+    public void testEnum() {
+        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum",
+                CLASS_ALIASES.nameFor(TestEnum.class));
+        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum",
+                CLASS_ALIASES.nameFor(TestEnum.FOO.getClass()));
+        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum",
+                CLASS_ALIASES.nameFor(TestEnum.BAR.getClass()));
+    }
 }
