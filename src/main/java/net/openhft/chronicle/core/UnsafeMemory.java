@@ -291,8 +291,8 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public boolean compareAndSwapInt(Object underlyingObject, long offset, int expected, int value) {
-        return UNSAFE.compareAndSwapInt(underlyingObject, offset, expected, value);
+    public boolean compareAndSwapInt(Object object, long offset, int expected, int value) {
+        return UNSAFE.compareAndSwapInt(object, offset, expected, value);
     }
 
     @Override
@@ -303,13 +303,37 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public boolean compareAndSwapLong(Object underlyingObject, long offset, long expected, long value) {
-        return UNSAFE.compareAndSwapLong(underlyingObject, offset, expected, value);
+    public boolean compareAndSwapLong(Object object, long offset, long expected, long value) {
+        return UNSAFE.compareAndSwapLong(object, offset, expected, value);
     }
 
     @Override
     public int pageSize() {
         return UNSAFE.pageSize();
+    }
+
+    @Override
+    @ForceInline
+    public byte readVolatileByte(long address) {
+        return UNSAFE.getByteVolatile(null, address);
+    }
+
+    @Override
+    @ForceInline
+    public byte readVolatileByte(Object object, long offset) {
+        return UNSAFE.getByteVolatile(object, offset);
+    }
+
+    @Override
+    @ForceInline
+    public short readVolatileShort(long address) {
+        return UNSAFE.getShortVolatile(null, address);
+    }
+
+    @Override
+    @ForceInline
+    public short readVolatileShort(Object object, long offset) {
+        return UNSAFE.getShortVolatile(object, offset);
     }
 
     @Override
@@ -320,26 +344,138 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
+    public int readVolatileInt(Object object, long offset) {
+        return UNSAFE.getIntVolatile(object, offset);
+    }
+
+    @Override
+    @ForceInline
+    public float readVolatileFloat(long address) {
+        return UNSAFE.getFloatVolatile(null, address);
+    }
+
+    @Override
+    @ForceInline
+    public float readVolatileFloat(Object object, long offset) {
+        return UNSAFE.getFloatVolatile(object, offset);
+    }
+
+    @Override
+    @ForceInline
     public long readVolatileLong(long address) {
         return UNSAFE.getLongVolatile(null, address);
     }
 
     @Override
+    @ForceInline
+    public long readVolatileLong(Object object, long offset) {
+        return UNSAFE.getLongVolatile(object, offset);
+    }
+
+    @Override
+    @ForceInline
+    public double readVolatileDouble(long address) {
+        return UNSAFE.getDoubleVolatile(null, address);
+    }
+
+    @Override
+    @ForceInline
+    public double readVolatileDouble(Object object, long offset) {
+        return UNSAFE.getDoubleVolatile(object, offset);
+    }
+
+    @Override
+    @ForceInline
+    public void writeVolatileByte(long address, byte b) {
+        UNSAFE.putByteVolatile(null, address, b);
+    }
+
+    @Override
+    @ForceInline
+    public void writeVolatileByte(Object object, long offset, byte b) {
+        UNSAFE.putByteVolatile(object, offset, b);
+    }
+
+    @Override
+    @ForceInline
+    public void writeVolatileShort(long address, short i16) {
+        UNSAFE.putShortVolatile(null, address, i16);
+    }
+
+    @Override
+    @ForceInline
+    public void writeVolatileShort(Object object, long offset, short i16) {
+        UNSAFE.putShortVolatile(object, offset, i16);
+    }
+
+    @Override
+    @ForceInline
+    public void writeVolatileInt(long address, int i32) {
+        UNSAFE.putIntVolatile(null, address, i32);
+    }
+
+    @Override
+    @ForceInline
+    public void writeVolatileInt(Object object, long offset, int i32) {
+        UNSAFE.putIntVolatile(object, offset, i32);
+    }
+
+    @Override
+    @ForceInline
+    public void writeVolatileFloat(long address, float f) {
+        UNSAFE.putFloatVolatile(null, address, f);
+    }
+
+    @Override
+    @ForceInline
+    public void writeVolatileFloat(Object object, long offset, float f) {
+        UNSAFE.putFloatVolatile(object, offset, f);
+    }
+
+    @Override
+    @ForceInline
+    public void writeVolatileLong(long address, long i64) {
+        UNSAFE.putLongVolatile(null, address, i64);
+    }
+
+    @Override
+    @ForceInline
+    public void writeVolatileLong(Object object, long offset, long i64) {
+        UNSAFE.putLongVolatile(object, offset, i64);
+    }
+
+    @Override
+    @ForceInline
+    public void writeVolatileDouble(long address, double d) {
+        UNSAFE.putDoubleVolatile(null, address, d);
+    }
+
+    @Override
+    @ForceInline
+    public void writeVolatileDouble(Object object, long offset, double d) {
+        UNSAFE.putDoubleVolatile(object, offset, d);
+    }
+
+    @Override
+    @ForceInline
     public int addInt(long address, int increment) {
         return UNSAFE.getAndAddInt(null, address, increment) + increment;
     }
 
     @Override
+    @ForceInline
     public int addInt(Object object, long offset, int increment) {
         return UNSAFE.getAndAddInt(object, offset, increment) + increment;
     }
 
     @Override
+    @ForceInline
     public long addLong(long address, long increment) {
         return UNSAFE.getAndAddLong(null, address, increment) + increment;
     }
 
     @Override
+    @ForceInline
     public long addLong(Object object, long offset, long increment) {
         return UNSAFE.getAndAddLong(object, offset, increment) + increment;
     }

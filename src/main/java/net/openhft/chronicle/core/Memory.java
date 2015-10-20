@@ -103,17 +103,61 @@ public interface Memory {
 
     boolean compareAndSwapInt(long address, int expected, int value);
 
-    boolean compareAndSwapInt(Object underlyingObject, long offset, int expected, int value);
+    boolean compareAndSwapInt(Object object, long offset, int expected, int value);
 
     boolean compareAndSwapLong(long address, long expected, long value);
 
-    boolean compareAndSwapLong(Object underlyingObject, long offset, long expected, long value);
+    boolean compareAndSwapLong(Object object, long offset, long expected, long value);
 
     int pageSize();
 
+    byte readVolatileByte(long address);
+
+    byte readVolatileByte(Object object, long offset);
+
+    short readVolatileShort(long address);
+
+    short readVolatileShort(Object object, long offset);
+
     int readVolatileInt(long address);
 
+    int readVolatileInt(Object object, long offset);
+
+    float readVolatileFloat(long address);
+
+    float readVolatileFloat(Object object, long offset);
+
     long readVolatileLong(long address);
+
+    long readVolatileLong(Object object, long offset);
+
+    double readVolatileDouble(long address);
+
+    double readVolatileDouble(Object object, long offset);
+
+    void writeVolatileByte(long address, byte b);
+
+    void writeVolatileByte(Object object, long offset, byte b);
+
+    void writeVolatileShort(long address, short i16);
+
+    void writeVolatileShort(Object object, long offset, short i16);
+
+    void writeVolatileInt(long address, int i32);
+
+    void writeVolatileInt(Object object, long offset, int i32);
+
+    void writeVolatileFloat(long address, float f);
+
+    void writeVolatileFloat(Object object, long offset, float f);
+
+    void writeVolatileLong(long address, long i64);
+
+    void writeVolatileLong(Object object, long offset, long i64);
+
+    void writeVolatileDouble(long address, double d);
+
+    void writeVolatileDouble(Object object, long offset, double d);
 
     int addInt(long address, int increment);
 
