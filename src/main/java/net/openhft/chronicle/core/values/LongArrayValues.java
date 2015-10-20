@@ -36,4 +36,7 @@ public interface LongArrayValues {
     boolean compareAndSet(long index, long expected, long value) throws IllegalArgumentException, BufferOverflowException;
 
     void bindValueAt(int index, LongValue value);
+
+    long sizeInBytes(long capacity);
+
 }
