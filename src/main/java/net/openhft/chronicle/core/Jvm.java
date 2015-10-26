@@ -102,6 +102,18 @@ public enum Jvm {
     }
 
     /**
+     * This method is designed tobe used when the time to be
+     * waited is very small, typically under a millisecond.
+     * @param nanos Time in nanos
+     */
+    public static void busyWait(long nanos){
+        long waitUntil = System.nanoTime() + nanos;
+        while(waitUntil > System.nanoTime()){
+            ;
+        }
+    }
+
+    /**
      * Get the Field for a class by name.
      * @param clazz to get the field for
      * @param name of the field
