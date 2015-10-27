@@ -104,10 +104,10 @@ public enum Jvm {
     /**
      * This method is designed tobe used when the time to be
      * waited is very small, typically under a millisecond.
-     * @param nanos Time in nanos
+     * @param micros Time in micros
      */
-    public static void busyWait(long nanos){
-        long waitUntil = System.nanoTime() + nanos;
+    public static void busyWaitMicros(long micros){
+        long waitUntil = System.nanoTime() + (micros * 1_000);
         while(waitUntil > System.nanoTime()){
             ;
         }
