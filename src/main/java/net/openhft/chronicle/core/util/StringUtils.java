@@ -32,6 +32,7 @@ public enum StringUtils {
 
     private static final Constructor<String> STRING_CONSTRUCTOR;
     private static final Field S_VALUE, SB_VALUE, SB_COUNT;
+    private static final long MAX_VALUE_DIVIDE_10 = Long.MAX_VALUE / 10;
 
     static {
         try {
@@ -97,7 +98,7 @@ public enum StringUtils {
     public static char[] extractChars(String s) {
         try {
             return (char[]) S_VALUE.get(s);
-        } catch (IllegalAccessException| IllegalArgumentException e) {
+        } catch (IllegalAccessException | IllegalArgumentException e) {
             throw new AssertionError(e);
         }
     }
@@ -105,7 +106,7 @@ public enum StringUtils {
     public static void setCount(StringBuilder sb, int count) {
         try {
             SB_COUNT.setInt(sb, count);
-        } catch (IllegalAccessException| IllegalArgumentException e) {
+        } catch (IllegalAccessException | IllegalArgumentException e) {
             throw new AssertionError(e);
         }
     }
@@ -118,7 +119,130 @@ public enum StringUtils {
         }
     }
 
-    public static String firstLowerCase(String str){
-        return Character.toLowerCase( str.charAt(0)) + str.substring(1);
+    public static String firstLowerCase(String str) {
+        return Character.toLowerCase(str.charAt(0)) + str.substring(1);
+    }
+
+    public static double parseDouble(@net.openhft.chronicle.core.annotation.NotNull
+                                     CharSequence in) {
+        long value = 0;
+        int exp = 0;
+        boolean negative = false;
+        int decimalPlaces = Integer.MIN_VALUE;
+
+        int ch = in.charAt(0);
+        int pos = 1;
+        switch (ch) {
+            case 'N':
+                if (compareRest(in, 1, "aN"))
+                    return Double.NaN;
+                return Double.NaN;
+            case 'I':
+                //noinspection SpellCheckingInspection
+                if (compareRest(in, 1, "nfinity"))
+                    return Double.POSITIVE_INFINITY;
+
+                return Double.NaN;
+            case '-':
+                if (compareRest(in, 1, "Infinity"))
+                    return Double.NEGATIVE_INFINITY;
+                negative = true;
+                ch = in.charAt(pos++);
+                break;
+        }
+        while (true) {
+            if (ch >= '0' && ch <= '9') {
+                while (value >= MAX_VALUE_DIVIDE_10) {
+                    value >>>= 1;
+                    exp++;
+                }
+                value = value * 10 + (ch - '0');
+                decimalPlaces++;
+
+            } else if (ch == '.') {
+                decimalPlaces = 0;
+
+            } else {
+                break;
+            }
+            if (pos == in.length())
+                break;
+            ch = in.charAt(pos++);
+        }
+
+        return asDouble(value, exp, negative, decimalPlaces);
+    }
+
+
+    private static boolean compareRest(@net.openhft.chronicle.core.annotation.NotNull CharSequence in,
+                                       int pos, @net.openhft.chronicle.core.annotation.NotNull String s) {
+
+
+        if (s.length() > in.length() - pos)
+            return false;
+
+        for (int i = 0; i < s.length(); i++) {
+            if (in.charAt(i + pos) != s.charAt(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    private static double asDouble(long value, int exp, boolean negative, int decimalPlaces) {
+        if (decimalPlaces > 0 && value < Long.MAX_VALUE / 2) {
+            if (value < Long.MAX_VALUE / (1L << 32)) {
+                exp -= 32;
+                value <<= 32;
+            }
+            if (value < Long.MAX_VALUE / (1L << 16)) {
+                exp -= 16;
+                value <<= 16;
+            }
+            if (value < Long.MAX_VALUE / (1L << 8)) {
+                exp -= 8;
+                value <<= 8;
+            }
+            if (value < Long.MAX_VALUE / (1L << 4)) {
+                exp -= 4;
+                value <<= 4;
+            }
+            if (value < Long.MAX_VALUE / (1L << 2)) {
+                exp -= 2;
+                value <<= 2;
+            }
+            if (value < Long.MAX_VALUE / (1L << 1)) {
+                exp -= 1;
+                value <<= 1;
+            }
+        }
+        for (; decimalPlaces > 0; decimalPlaces--) {
+            exp--;
+            long mod = value % 5;
+            value /= 5;
+            int modDiv = 1;
+            if (value < Long.MAX_VALUE / (1L << 4)) {
+                exp -= 4;
+                value <<= 4;
+                modDiv <<= 4;
+            }
+            if (value < Long.MAX_VALUE / (1L << 2)) {
+                exp -= 2;
+                value <<= 2;
+                modDiv <<= 2;
+            }
+            if (value < Long.MAX_VALUE / (1L << 1)) {
+                exp -= 1;
+                value <<= 1;
+                modDiv <<= 1;
+            }
+            if (decimalPlaces > 1)
+                value += modDiv * mod / 5;
+            else
+                value += (modDiv * mod + 4) / 5;
+        }
+        final double d = Math.scalb((double) value, exp);
+        return negative ? -d : d;
     }
 }
