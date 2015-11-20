@@ -63,6 +63,8 @@ public enum StringUtils {
 
     @ForceInline
     public static boolean isEqual(CharSequence s, CharSequence cs) {
+        if (s == cs)
+            return true;
         if (s == null) return false;
         if (s.length() != cs.length()) return false;
         for (int i = 0; i < cs.length(); i++)
