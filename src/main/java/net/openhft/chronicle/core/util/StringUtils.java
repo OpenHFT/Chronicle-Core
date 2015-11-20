@@ -66,6 +66,7 @@ public enum StringUtils {
         if (s == cs)
             return true;
         if (s == null) return false;
+        if (cs == null) return false;
         if (s.length() != cs.length()) return false;
         for (int i = 0; i < cs.length(); i++)
             if (s.charAt(i) != cs.charAt(i))
