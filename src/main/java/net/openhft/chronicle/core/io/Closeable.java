@@ -17,6 +17,7 @@
 package net.openhft.chronicle.core.io;
 
 import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 
 @FunctionalInterface
 public interface Closeable extends java.io.Closeable {
@@ -29,8 +30,10 @@ public interface Closeable extends java.io.Closeable {
         if (o instanceof java.io.Closeable) {
             try {
                 ((java.io.Closeable) o).close();
+            } catch (ClosedChannelException ignore) {
             } catch (IOException ignored) {
             }
+
         }
     }
 }
