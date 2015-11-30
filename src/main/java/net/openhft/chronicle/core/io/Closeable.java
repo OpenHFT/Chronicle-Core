@@ -21,11 +21,6 @@ import java.nio.channels.ClosedChannelException;
 
 @FunctionalInterface
 public interface Closeable extends java.io.Closeable {
-    /**
-     * Doesn't throw a checked exception.
-     */
-    void close();
-
     static void closeQuietly(Object o) {
         if (o instanceof java.io.Closeable) {
             try {
@@ -35,5 +30,14 @@ public interface Closeable extends java.io.Closeable {
             }
 
         }
+    }
+
+    /**
+     * Doesn't throw a checked exception.
+     */
+    void close();
+
+    default void notifyClosing() {
+        // take an action before everything else closes.
     }
 }
