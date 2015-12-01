@@ -33,7 +33,7 @@ public enum Jvm {
      * Cast a CheckedException as an unchecked one.
      *
      * @param throwable to cast
-     * @param <T> the type of the Throwable
+     * @param <T>       the type of the Throwable
      * @return this method will never return a Throwable instance, it will just throw it.
      * @throws T the throwable as an unchecked throwable
      */
@@ -45,7 +45,7 @@ public enum Jvm {
     /**
      * Append the StackTraceElements to the StringBuilder trimming some internal methods.
      *
-     * @param sb to append to
+     * @param sb   to append to
      * @param stes stack trace elements
      */
     public static void trimStackTrace(StringBuilder sb, StackTraceElement... stes) {
@@ -86,6 +86,7 @@ public enum Jvm {
 
     /**
      * Silently pause for milli seconds.
+     *
      * @param millis to sleep for.
      */
     public static void pause(long millis) {
@@ -104,19 +105,21 @@ public enum Jvm {
     /**
      * This method is designed tobe used when the time to be
      * waited is very small, typically under a millisecond.
+     *
      * @param micros Time in micros
      */
-    public static void busyWaitMicros(long micros){
+    public static void busyWaitMicros(long micros) {
         long waitUntil = System.nanoTime() + (micros * 1_000);
-        while(waitUntil > System.nanoTime()){
+        while (waitUntil > System.nanoTime()) {
             ;
         }
     }
 
     /**
      * Get the Field for a class by name.
+     *
      * @param clazz to get the field for
-     * @param name of the field
+     * @param name  of the field
      * @return the Field.
      */
     public static Field getField(Class clazz, String name) {
@@ -125,6 +128,12 @@ public enum Jvm {
             field.setAccessible(true);
             return field;
         } catch (NoSuchFieldException e) {
+            Class superclass = clazz.getSuperclass();
+            if (superclass != null)
+                try {
+                    return getField(superclass, name);
+                } catch (Exception ignored) {
+                }
             throw new AssertionError(e);
         }
     }
