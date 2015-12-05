@@ -30,6 +30,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Created by peter on 23/06/15.
@@ -37,13 +38,19 @@ import java.util.Map;
 public enum ObjectUtils {
     ;
 
-    static final ClassLocal<Constructor> CONSTRUCTOR_CLASS_LOCAL = ClassLocal.withInitial(c -> {
+    static final ClassLocal<Supplier> SUPPLIER_CLASS_LOCAL = ClassLocal.withInitial(c -> {
         try {
             Constructor constructor = c.getDeclaredConstructor();
             constructor.setAccessible(true);
-            return constructor;
+            return () -> {
+                try {
+                    return constructor.newInstance();
+                } catch (Exception e) {
+                    throw Jvm.rethrow(e);
+                }
+            };
         } catch (Exception e) {
-            return (Constructor) null;
+            return () -> OS.memory().allocateInstance(c);
         }
     });
 
@@ -148,7 +155,7 @@ public enum ObjectUtils {
     }
 
     private static Number convertToNumber(Class eClass, Object o)
-            throws NumberFormatException{
+            throws NumberFormatException {
         if (o instanceof Number) {
             Number n = (Number) o;
             if (eClass == Double.class)
@@ -192,13 +199,7 @@ public enum ObjectUtils {
     }
 
     public static <T> T newInstance(Class<T> clazz) {
-        Constructor cons = CONSTRUCTOR_CLASS_LOCAL.get(clazz);
-        try {
-            if (cons != null)
-                return (T) cons.newInstance();
-        } catch (Exception e) {
-            throw Jvm.rethrow(e);
-        }
-        return OS.memory().allocateInstance(clazz);
+        Supplier cons = SUPPLIER_CLASS_LOCAL.get(clazz);
+        return (T) cons.get();
     }
 }
