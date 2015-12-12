@@ -90,7 +90,7 @@ public enum Maths {
 
     public static long nextPower2(long n, long min) throws IllegalArgumentException {
         if (!isPowerOf2(min))
-            throw new IllegalArgumentException(min+" must be a power of 2");
+            throw new IllegalArgumentException(min + " must be a power of 2");
         if (n < min) return min;
         if (isPowerOf2(n))
             return n;
@@ -232,5 +232,17 @@ public enum Maths {
     public static long divideRoundUp(long dividend, long divisor) {
         int sign = (dividend > 0 ? 1 : -1) * (divisor > 0 ? 1 : -1);
         return sign * (Math.abs(dividend) + Math.abs(divisor) - 1) / Math.abs(divisor);
+    }
+
+    static long[] TENS = new long[19];
+
+    static {
+        TENS[0] = 1;
+        for (int i = 1; i < TENS.length; i++)
+            TENS[i] = 10 * TENS[i - 1];
+    }
+
+    public static long tens(int decimalPlaces) {
+        return TENS[decimalPlaces];
     }
 }
