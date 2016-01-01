@@ -28,7 +28,6 @@ public interface Closeable extends java.io.Closeable {
             } catch (ClosedChannelException ignore) {
             } catch (IOException ignored) {
             }
-
         }
     }
 

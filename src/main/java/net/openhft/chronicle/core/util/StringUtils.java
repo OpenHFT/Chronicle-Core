@@ -176,10 +176,8 @@ public enum StringUtils {
         return asDouble(value, exp, negative, decimalPlaces);
     }
 
-
     private static boolean compareRest(@net.openhft.chronicle.core.annotation.NotNull CharSequence in,
                                        int pos, @net.openhft.chronicle.core.annotation.NotNull String s) {
-
 
         if (s.length() > in.length() - pos)
             return false;
@@ -191,7 +189,6 @@ public enum StringUtils {
         }
         return true;
     }
-
 
     private static double asDouble(long value, int exp, boolean negative, int decimalPlaces) {
         if (decimalPlaces > 0 && value < Long.MAX_VALUE / 2) {
