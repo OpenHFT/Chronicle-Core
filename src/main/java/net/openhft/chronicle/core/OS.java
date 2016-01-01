@@ -183,7 +183,7 @@ public class OS {
             return rpid;
 
         } else {
-                return Integer.parseInt(pid);
+            return Integer.parseInt(pid);
         }
     }
 
@@ -235,11 +235,11 @@ public class OS {
      * Map a region of a file into memory.
      *
      * @param fileChannel to map
-     * @param mode of access
-     * @param start offset within a file
-     * @param size of region to map.
+     * @param mode        of access
+     * @param start       offset within a file
+     * @param size        of region to map.
      * @return the address of the memory mapping.
-     * @throws IOException if the mapping fails
+     * @throws IOException              if the mapping fails
      * @throws IllegalArgumentException if the arguments are not valid
      */
     public static long map(FileChannel fileChannel, FileChannel.MapMode mode, long start, long size)
@@ -264,8 +264,9 @@ public class OS {
 
     /**
      * Unmap a region of memory.
+     *
      * @param address of the start of the mapping.
-     * @param size of the region mapped.
+     * @param size    of the region mapped.
      * @throws IOException if the unmap fails.
      */
     public static void unmap(long address, long size) throws IOException {
@@ -300,6 +301,7 @@ public class OS {
 
     /**
      * Get the sapce actually used by a file.
+     *
      * @param filename to get the actual size of
      * @return size in bytes.
      */

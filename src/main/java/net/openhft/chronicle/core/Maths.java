@@ -27,6 +27,13 @@ public enum Maths {
     private static final int M1 = 0xea7585d7;
     private static final int M2 = 0x7a646e19;
     private static final int M3 = 0x855dd4db;
+    static long[] TENS = new long[19];
+
+    static {
+        TENS[0] = 1;
+        for (int i = 1; i < TENS.length; i++)
+            TENS[i] = 10 * TENS[i - 1];
+    }
 
     /**
      * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
@@ -232,14 +239,6 @@ public enum Maths {
     public static long divideRoundUp(long dividend, long divisor) {
         int sign = (dividend > 0 ? 1 : -1) * (divisor > 0 ? 1 : -1);
         return sign * (Math.abs(dividend) + Math.abs(divisor) - 1) / Math.abs(divisor);
-    }
-
-    static long[] TENS = new long[19];
-
-    static {
-        TENS[0] = 1;
-        for (int i = 1; i < TENS.length; i++)
-            TENS[i] = 10 * TENS[i - 1];
     }
 
     public static long tens(int decimalPlaces) {
