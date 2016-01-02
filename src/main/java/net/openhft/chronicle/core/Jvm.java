@@ -18,6 +18,7 @@ package net.openhft.chronicle.core;
 
 import java.lang.reflect.Field;
 import java.util.concurrent.locks.LockSupport;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 
@@ -136,5 +137,30 @@ public enum Jvm {
                 }
             throw new AssertionError(e);
         }
+    }
+
+    public static <V> V getValue(Object obj, String name) {
+        for (String n : name.split("/")) {
+            Field f = getField(obj.getClass(), n);
+            try {
+                obj = f.get(obj);
+                if (obj == null)
+                    return null;
+            } catch (IllegalAccessException e) {
+                throw new AssertionError(e);
+            }
+        }
+        return (V) obj;
+    }
+
+    public static String lockWithStack(ReentrantLock lock) {
+        Thread t = getValue(lock, "sync/exclusiveOwnerThread");
+        if (t == null) {
+            return lock.toString();
+        }
+        StringBuilder ret = new StringBuilder();
+        ret.append(lock).append(" running at");
+        trimStackTrace(ret, t.getStackTrace());
+        return ret.toString();
     }
 }
