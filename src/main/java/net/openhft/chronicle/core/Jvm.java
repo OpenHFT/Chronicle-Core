@@ -153,6 +153,12 @@ public enum Jvm {
         return (V) obj;
     }
 
+    /**
+     * Log the stack trace of the thread holding a lock.
+     *
+     * @param lock to log
+     * @return the lock.toString plus a stack trace.
+     */
     public static String lockWithStack(ReentrantLock lock) {
         Thread t = getValue(lock, "sync/exclusiveOwnerThread");
         if (t == null) {
