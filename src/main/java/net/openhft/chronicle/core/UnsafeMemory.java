@@ -49,6 +49,16 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
+    public long getFieldOffset(Field field) {
+        return UNSAFE.objectFieldOffset(field);
+    }
+
+    @Override
+    public void setInt(Object o, long offset, int value) {
+        UNSAFE.putInt(o, offset, value);
+    }
+
+    @Override
     @ForceInline
     public void storeFence() {
         UNSAFE.storeFence();

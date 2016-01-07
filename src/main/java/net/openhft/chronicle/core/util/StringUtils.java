@@ -16,6 +16,7 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.annotation.ForceInline;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,6 +33,7 @@ public enum StringUtils {
 
     private static final Constructor<String> STRING_CONSTRUCTOR;
     private static final Field S_VALUE, SB_VALUE, SB_COUNT;
+    private static final long SB_COUNT_OFFSET;
     private static final long MAX_VALUE_DIVIDE_10 = Long.MAX_VALUE / 10;
 
     static {
@@ -44,6 +46,7 @@ public enum StringUtils {
             SB_VALUE.setAccessible(true);
             SB_COUNT = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField("count");
             SB_COUNT.setAccessible(true);
+            SB_COUNT_OFFSET = OS.memory().getFieldOffset(SB_COUNT);
         } catch (Exception e) {
             throw new AssertionError(e);
         }
@@ -107,11 +110,7 @@ public enum StringUtils {
     }
 
     public static void setCount(StringBuilder sb, int count) {
-        try {
-            SB_COUNT.setInt(sb, count);
-        } catch (IllegalAccessException | IllegalArgumentException e) {
-            throw new AssertionError(e);
-        }
+        OS.memory().setInt(sb, SB_COUNT_OFFSET, count);
     }
 
     public static String newString(char[] chars) {

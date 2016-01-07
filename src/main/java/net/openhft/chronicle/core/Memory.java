@@ -16,6 +16,8 @@
 
 package net.openhft.chronicle.core;
 
+import java.lang.reflect.Field;
+
 /**
  * Low level memory access
  */
@@ -168,4 +170,8 @@ public interface Memory {
     long addLong(Object object, long offset, long increment);
 
     <E> E allocateInstance(Class<E> clazz);
+
+    long getFieldOffset(Field field);
+
+    void setInt(Object o, long offset, int value);
 }

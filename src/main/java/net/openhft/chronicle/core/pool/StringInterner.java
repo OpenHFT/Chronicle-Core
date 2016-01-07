@@ -29,7 +29,7 @@ public class StringInterner {
     protected final int mask, shift;
     protected boolean toggle = false;
 
-    public StringInterner(int capacity) {
+    public StringInterner(int capacity) throws IllegalArgumentException {
         int n = Maths.nextPower2(capacity, 128);
         shift = Maths.intLog2(n);
         interner = new String[n];
@@ -37,6 +37,8 @@ public class StringInterner {
     }
 
     public String intern(CharSequence cs) {
+        if (cs.length() > interner.length)
+            return cs.toString();
         int hash = Maths.hash32(cs);
         int h = hash & mask;
         String s = interner[h];
