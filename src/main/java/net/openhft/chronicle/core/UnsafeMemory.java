@@ -22,21 +22,21 @@ import sun.misc.Unsafe;
 import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class UnsafeMemory implements Memory {
-    static Unsafe UNSAFE;
-    private final AtomicLong nativeMemoryUsed = new AtomicLong();
+public enum UnsafeMemory implements Memory {
+    INSTANCE;
 
-    public static Memory create() {
-        if (UNSAFE == null) {
-            try {
-                Field theUnsafe = Jvm.getField(Unsafe.class, "theUnsafe");
-                UNSAFE = (Unsafe) theUnsafe.get(null);
-            } catch (IllegalAccessException | IllegalArgumentException e) {
-                throw new AssertionError(e);
-            }
+    public static final Unsafe UNSAFE;
+
+    static {
+        try {
+            Field theUnsafe = Jvm.getField(Unsafe.class, "theUnsafe");
+            UNSAFE = (Unsafe) theUnsafe.get(null);
+        } catch (IllegalAccessException | IllegalArgumentException e) {
+            throw new AssertionError(e);
         }
-        return new UnsafeMemory();
     }
+
+    private final AtomicLong nativeMemoryUsed = new AtomicLong();
 
     public <E> E allocateInstance(Class<E> clazz) {
         try {

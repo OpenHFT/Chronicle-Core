@@ -87,7 +87,7 @@ public class OS {
             LOG.warn("Unable to load Java9MemoryClass", e);
         }
         if (memory == null)
-            memory = UnsafeMemory.create();
+            memory = UnsafeMemory.INSTANCE;
         return memory;
     }
 
