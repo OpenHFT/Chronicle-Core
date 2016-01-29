@@ -36,10 +36,11 @@ public class ClassAliasPool {
         addAlias(Set.class);
         addAlias(String.class, "String, !str");
         addAlias(CharSequence.class);
-        addAlias(Byte.class, "Byte, int8");
+        addAlias(Byte.class, "byte, int8");
+        addAlias(Short.class, "short, int16");
         addAlias(Character.class, "Char");
-        addAlias(Integer.class, "int32");
-        addAlias(Long.class, "Int, int64");
+        addAlias(Integer.class, "int, int32");
+        addAlias(Long.class, "long, int64");
         addAlias(Float.class, "Float32");
         addAlias(Double.class, "Float64");
         addAlias(LocalDate.class, "Date");
