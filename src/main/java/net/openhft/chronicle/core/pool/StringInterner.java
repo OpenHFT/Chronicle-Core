@@ -18,6 +18,7 @@ package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.Maths;
 import net.openhft.chronicle.core.util.StringUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.stream.Stream;
 
@@ -36,7 +37,10 @@ public class StringInterner {
         mask = n - 1;
     }
 
-    public String intern(CharSequence cs) {
+    @Nullable
+    public String intern(@Nullable CharSequence cs) {
+        if (cs == null)
+            return null;
         if (cs.length() > interner.length)
             return cs.toString();
         int hash = Maths.hash32(cs);
