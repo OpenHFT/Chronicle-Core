@@ -59,6 +59,11 @@ public enum UnsafeMemory implements Memory {
     }
 
     @Override
+    public <T> T getObject(Object o, long offset) {
+        return (T) UNSAFE.getObject(o, offset);
+    }
+
+    @Override
     @ForceInline
     public void storeFence() {
         UNSAFE.storeFence();
@@ -489,4 +494,6 @@ public enum UnsafeMemory implements Memory {
     public long addLong(Object object, long offset, long increment) {
         return UNSAFE.getAndAddLong(object, offset, increment) + increment;
     }
+
+
 }
