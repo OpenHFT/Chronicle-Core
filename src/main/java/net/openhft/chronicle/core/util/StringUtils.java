@@ -33,7 +33,7 @@ public enum StringUtils {
 
     private static final Constructor<String> STRING_CONSTRUCTOR;
     private static final Field S_VALUE, SB_VALUE, SB_COUNT;
-    private static final long SB_COUNT_OFFSET;
+    private static final long S_VALUE_OFFSET, SB_VALUE_OFFSET, SB_COUNT_OFFSET;
     private static final long MAX_VALUE_DIVIDE_10 = Long.MAX_VALUE / 10;
 
     static {
@@ -42,8 +42,10 @@ public enum StringUtils {
             STRING_CONSTRUCTOR.setAccessible(true);
             S_VALUE = String.class.getDeclaredField("value");
             S_VALUE.setAccessible(true);
+            S_VALUE_OFFSET = OS.memory().getFieldOffset(S_VALUE);
             SB_VALUE = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField("value");
             SB_VALUE.setAccessible(true);
+            SB_VALUE_OFFSET = OS.memory().getFieldOffset(SB_VALUE);
             SB_COUNT = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField("count");
             SB_COUNT.setAccessible(true);
             SB_COUNT_OFFSET = OS.memory().getFieldOffset(SB_COUNT);
@@ -94,19 +96,11 @@ public enum StringUtils {
     }
 
     public static char[] extractChars(StringBuilder sb) {
-        try {
-            return (char[]) SB_VALUE.get(sb);
-        } catch (IllegalAccessException | IllegalArgumentException e) {
-            throw new AssertionError(e);
-        }
+        return OS.memory().getObject(sb, SB_VALUE_OFFSET);
     }
 
     public static char[] extractChars(String s) {
-        try {
-            return (char[]) S_VALUE.get(s);
-        } catch (IllegalAccessException | IllegalArgumentException e) {
-            throw new AssertionError(e);
-        }
+        return OS.memory().getObject(s, S_VALUE_OFFSET);
     }
 
     public static void setCount(StringBuilder sb, int count) {

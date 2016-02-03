@@ -174,4 +174,6 @@ public interface Memory {
     long getFieldOffset(Field field);
 
     void setInt(Object o, long offset, int value);
+
+    <T> T getObject(Object o, long offset);
 }

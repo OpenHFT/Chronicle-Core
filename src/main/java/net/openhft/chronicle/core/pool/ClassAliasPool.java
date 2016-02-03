@@ -27,10 +27,10 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ClassAliasPool {
-    public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool().defaultAliases();
     private final Map<String, Class> stringClassMap = new ConcurrentHashMap<>();
     private final Map<String, Class> stringClassMap2 = new ConcurrentHashMap<>();
     private final Map<Class, String> classStringMap = new ConcurrentHashMap<>();
+    public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool().defaultAliases();
 
     private ClassAliasPool defaultAliases() {
         addAlias(Set.class);
@@ -74,9 +74,12 @@ public class ClassAliasPool {
     public Class forName(CharSequence name) throws ClassNotFoundException {
         String name0 = name.toString();
         Class clazz = stringClassMap.get(name0);
-        return clazz != null
-                ? clazz
-                : stringClassMap2.computeIfAbsent(name0, n -> {
+        if (clazz != null)
+            return clazz;
+        clazz = stringClassMap2.get(name0);
+        if (clazz != null)
+            return clazz;
+        return stringClassMap2.computeIfAbsent(name0, n -> {
             try {
                 return Class.forName(name0);
             } catch (ClassNotFoundException e) {
