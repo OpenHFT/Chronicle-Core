@@ -47,6 +47,8 @@ public class EnumInterner<E extends Enum<E>> {
         if (e != null && StringUtils.isEqual(e.name(), cs))
             return e;
         String s2 = cs.toString();
-        return interner[h] = Enum.valueOf(eClass, s2);
+        interner[h] = Enum.valueOf(eClass, s2);
+        
+        return interner[h];
     }
 }

@@ -53,7 +53,9 @@ public class StringInterner {
         if (StringUtils.isEqual(s2, cs))
             return s2;
         String s3 = cs.toString();
-        return interner[s == null || (s2 != null && toggle()) ? h : h2] = s3;
+        interner[s == null || (s2 != null && toggle()) ? h : h2] = s3;
+        
+        return s3;
     }
 
     protected boolean toggle() {
