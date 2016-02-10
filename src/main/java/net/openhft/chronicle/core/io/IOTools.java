@@ -62,4 +62,12 @@ public enum IOTools {
         out.write(bytes);
         out.close();
     }
+
+    public static String tempName(String filename) {
+        int ext = filename.lastIndexOf('.');
+        if (ext > 0 && ext > filename.length() - 5) {
+            return filename.substring(0, ext) + System.nanoTime() + filename.substring(ext);
+        }
+        return filename + System.nanoTime();
+    }
 }
