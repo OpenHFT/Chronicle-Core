@@ -34,7 +34,8 @@ import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 /**
  * Low level axcess to OS class.
  */
-public class OS {
+public enum OS {
+    ;
     private static final String HOST_NAME = getHostName0();
     private static final String USER_NAME = System.getProperty("user.name");
     private static final String TMP = System.getProperty("java.io.tmpdir");
