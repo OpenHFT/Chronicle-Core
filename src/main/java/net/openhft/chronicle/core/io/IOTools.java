@@ -19,6 +19,8 @@ package net.openhft.chronicle.core.io;
 import sun.reflect.Reflection;
 
 import java.io.*;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * Created by peter on 26/08/15.
@@ -41,7 +43,7 @@ public enum IOTools {
                 is = new FileInputStream(name);
             } catch (FileNotFoundException e) {
                 try {
-                    is = new FileInputStream(name + ".gz");
+                    is = new GZIPInputStream(new FileInputStream(name + ".gz"));
                 } catch (FileNotFoundException e1) {
                     throw e;
                 }
@@ -51,5 +53,13 @@ public enum IOTools {
         for (int len; (len = is.read(bytes)) > 0; )
             out.write(bytes, 0, len);
         return out.toByteArray();
+    }
+
+    public static void writeFile(String filename, byte[] bytes) throws IOException {
+        OutputStream out = new FileOutputStream(filename);
+        if (filename.endsWith(".gz"))
+            out = new GZIPOutputStream(out);
+        out.write(bytes);
+        out.close();
     }
 }
