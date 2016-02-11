@@ -290,11 +290,11 @@ public enum OS {
 
     static int imodeFor(FileChannel.MapMode mode) {
         int imode = -1;
-        if (mode == FileChannel.MapMode.READ_ONLY)
+        if (FileChannel.MapMode.READ_ONLY.equals(mode))
             imode = MAP_RO;
-        else if (mode == FileChannel.MapMode.READ_WRITE)
+        else if (FileChannel.MapMode.READ_WRITE.equals(mode))
             imode = MAP_RW;
-        else if (mode == FileChannel.MapMode.PRIVATE)
+        else if (FileChannel.MapMode.PRIVATE.equals(mode))
             imode = MAP_PV;
         assert (imode >= 0);
         return imode;
