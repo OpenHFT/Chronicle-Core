@@ -26,11 +26,18 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class ClassAliasPool {
+public class ClassAliasPool implements ClassLookup {
+    public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool(null, Thread.currentThread().getContextClassLoader()).defaultAliases();
+    private final ClassLookup parent;
+    private final ClassLoader classLoader;
     private final Map<String, Class> stringClassMap = new ConcurrentHashMap<>();
     private final Map<String, Class> stringClassMap2 = new ConcurrentHashMap<>();
     private final Map<Class, String> classStringMap = new ConcurrentHashMap<>();
-    public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool().defaultAliases();
+
+    ClassAliasPool(ClassLookup parent, ClassLoader classLoader) {
+        this.parent = parent;
+        this.classLoader = classLoader;
+    }
 
     private ClassAliasPool defaultAliases() {
         addAlias(Set.class);
@@ -71,6 +78,7 @@ public class ClassAliasPool {
         }
     }
 
+    @Override
     public Class forName(CharSequence name) throws ClassNotFoundException {
         String name0 = name.toString();
         Class clazz = stringClassMap.get(name0);
@@ -81,13 +89,21 @@ public class ClassAliasPool {
             return clazz;
         return stringClassMap2.computeIfAbsent(name0, n -> {
             try {
-                return Class.forName(name0);
+                return Class.forName(name0, true, classLoader);
             } catch (ClassNotFoundException e) {
+                if (parent != null) {
+                    try {
+                        return parent.forName(name);
+                    } catch (ClassNotFoundException e2) {
+                        // ignored.
+                    }
+                }
                 throw Jvm.rethrow(e);
             }
         });
     }
 
+    @Override
     public String nameFor(Class clazz) {
 
         return classStringMap.computeIfAbsent(clazz, (aClass) -> {
@@ -103,6 +119,7 @@ public class ClassAliasPool {
         });
     }
 
+    @Override
     public void addAlias(Class... classes) {
         for (Class clazz : classes) {
             stringClassMap.putIfAbsent(clazz.getName(), clazz);
@@ -117,6 +134,7 @@ public class ClassAliasPool {
         return Character.toLowerCase(name.charAt(0)) + name.substring(1);
     }
 
+    @Override
     public void addAlias(Class clazz, String names) {
         for (String name : names.split(", ?")) {
             stringClassMap.put(name, clazz);
