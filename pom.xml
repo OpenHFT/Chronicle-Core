@@ -142,6 +142,10 @@
                         <Export-Package>
                             net.openhft.chronicle.core.*;-noimport:=true
                         </Export-Package>
+                        <Import-Package>
+                            software.chronicle.enterprise.core;resolution:=optional,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
                 <executions>
