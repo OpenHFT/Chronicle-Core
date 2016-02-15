@@ -15,8 +15,7 @@
   ~     along with this program.  If not, see <http://www.gnu.org/licenses />.
   -->
 
-<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <parent>
         <groupId>net.openhft</groupId>
@@ -27,7 +26,7 @@
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>chronicle-core</artifactId>
-    <version>1.2.3-SNAPSHOT</version>
+    <version>1.3.3-SNAPSHOT</version>
     <name>OpenHFT/Chronicle-Core</name>
     <description>Chronicle-Core</description>
     <packaging>bundle</packaging>
@@ -38,13 +37,13 @@
                 <groupId>net.openhft</groupId>
                 <artifactId>third-party-bom</artifactId>
                 <type>pom</type>
-                <version>3.5.0-SNAPSHOT</version>
+                <version>3.5.0</version>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>net.openhft</groupId>
                 <artifactId>chronicle-bom</artifactId>
-                <version>1.11.8</version>
+                <version>1.11.12</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -141,8 +140,12 @@
                         <Bundle-Name>OpenHFT :: ${project.artifactId}</Bundle-Name>
                         <Bundle-Version>${project.version}</Bundle-Version>
                         <Export-Package>
-                            net.openhft.chronicle.core.*
+                            net.openhft.chronicle.core.*;-noimport:=true
                         </Export-Package>
+                        <Import-Package>
+                            software.chronicle.enterprise.core;resolution:=optional,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
                 <executions>

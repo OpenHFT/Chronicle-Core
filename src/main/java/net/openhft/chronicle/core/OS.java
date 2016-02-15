@@ -34,7 +34,8 @@ import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 /**
  * Low level axcess to OS class.
  */
-public class OS {
+public enum OS {
+    ;
     private static final String HOST_NAME = getHostName0();
     private static final String USER_NAME = System.getProperty("user.name");
     private static final String TMP = System.getProperty("java.io.tmpdir");
@@ -289,11 +290,11 @@ public class OS {
 
     static int imodeFor(FileChannel.MapMode mode) {
         int imode = -1;
-        if (mode == FileChannel.MapMode.READ_ONLY)
+        if (FileChannel.MapMode.READ_ONLY.equals(mode))
             imode = MAP_RO;
-        else if (mode == FileChannel.MapMode.READ_WRITE)
+        else if (FileChannel.MapMode.READ_WRITE.equals(mode))
             imode = MAP_RW;
-        else if (mode == FileChannel.MapMode.PRIVATE)
+        else if (FileChannel.MapMode.PRIVATE.equals(mode))
             imode = MAP_PV;
         assert (imode >= 0);
         return imode;
