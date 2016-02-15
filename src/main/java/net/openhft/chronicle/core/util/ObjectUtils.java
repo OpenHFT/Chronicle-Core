@@ -75,7 +75,7 @@ public enum ObjectUtils {
             try {
                 Method valueOf = eClass.getDeclaredMethod("valueOf", String.class);
                 valueOf.setAccessible(true);
-                return (E) valueOf.invoke(null, o);
+                return (E) valueOf.invoke(null, s);
 
             } catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
                 throw asCCE(e);
@@ -84,7 +84,7 @@ public enum ObjectUtils {
             try {
                 Constructor<E> constructor = eClass.getDeclaredConstructor(String.class);
                 constructor.setAccessible(true);
-                return constructor.newInstance(o);
+                return constructor.newInstance(s);
             } catch (Exception e) {
                 if (s.length() == 0) {
                     try {
