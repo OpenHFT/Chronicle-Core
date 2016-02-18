@@ -21,6 +21,7 @@ import java.util.function.DoubleFunction;
 /**
  * Created by peter on 10/07/15.
  */
+// TODO add a dummy histogram.
 public class Histogram {
     private final int fractionBits;
     private long totalCount, overRange;
