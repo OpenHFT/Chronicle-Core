@@ -16,9 +16,12 @@
 
 package net.openhft.chronicle.core.io;
 
+import sun.misc.Cleaner;
+import sun.nio.ch.DirectBuffer;
 import sun.reflect.Reflection;
 
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -69,5 +72,13 @@ public enum IOTools {
             return filename.substring(0, ext) + System.nanoTime() + filename.substring(ext);
         }
         return filename + System.nanoTime();
+    }
+
+    public static void clean(ByteBuffer bb) {
+        if (bb instanceof DirectBuffer) {
+            Cleaner cl = ((DirectBuffer) bb).cleaner();
+            if (cl != null)
+                cl.clean();
+        }
     }
 }
