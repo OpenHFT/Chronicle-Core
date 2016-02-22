@@ -16,6 +16,8 @@
 
 package net.openhft.chronicle.core;
 
+import sun.misc.VM;
+
 import java.lang.reflect.Field;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
@@ -29,6 +31,18 @@ public enum Jvm {
     ;
 
     public static final boolean IS_DEBUG = getRuntimeMXBean().getInputArguments().toString().contains("jdwp") || Boolean.getBoolean("debug");
+    static final Class bitsClass;
+    static final Field reservedMemory;
+
+    static {
+        try {
+            bitsClass = Class.forName("java.nio.Bits");
+            reservedMemory = bitsClass.getDeclaredField("reservedMemory");
+            reservedMemory.setAccessible(true);
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+    }
 
     /**
      * Cast a CheckedException as an unchecked one.
@@ -168,5 +182,19 @@ public enum Jvm {
         ret.append(lock).append(" running at");
         trimStackTrace(ret, t.getStackTrace());
         return ret.toString();
+    }
+
+    public static long usedDirectMemory() {
+        try {
+            synchronized (bitsClass) {
+                return reservedMemory.getLong(null);
+            }
+        } catch (IllegalAccessException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    public static long maxDirectMemory() {
+        return VM.maxDirectMemory();
     }
 }
