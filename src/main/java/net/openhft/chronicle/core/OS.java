@@ -51,6 +51,7 @@ public enum OS {
     private static final boolean IS_LINUX = OS.startsWith("linux");
     private static final boolean IS_MAC = OS.contains("mac");
     private static final boolean IS_WIN = OS.startsWith("win");
+    private static final boolean IS_WIN10 = OS.equals("windows 10");
     private static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : pageSize();
 
     public static String getHostName() {
@@ -229,7 +230,7 @@ public enum OS {
             return 1L << 24;
         }
         // the default.
-        return 1L << 16;
+        return IS_WIN10 ? 1L << 32 : 1L << 16;
     }
 
     /**
