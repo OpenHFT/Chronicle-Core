@@ -184,6 +184,9 @@ public enum Jvm {
         return ret.toString();
     }
 
+    /**
+     * @return The size of memory used by direct ByteBuffers i.e. ByteBuffer.allocateDirect()
+     */
     public static long usedDirectMemory() {
         try {
             synchronized (bitsClass) {
@@ -192,6 +195,13 @@ public enum Jvm {
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(e);
         }
+    }
+
+    /**
+     * @return The size of memory used by UnsafeMemory.allocate()
+     */
+    public static long usedNativeMemory() {
+        return UnsafeMemory.INSTANCE.nativeMemoryUsed();
     }
 
     public static long maxDirectMemory() {

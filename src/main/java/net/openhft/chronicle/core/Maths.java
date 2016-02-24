@@ -43,9 +43,37 @@ public enum Maths {
      * @param d value to round
      * @return rounded value
      */
+    public static double round1(double d) {
+        final double factor = 1e1;
+        return d > WHOLE_NUMBER / factor || d < -WHOLE_NUMBER / factor ? d :
+                (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor;
+    }
+
+    /**
+     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
+     * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
+     * assumed you are not working on the edge of the precision of double.
+     *
+     * @param d value to round
+     * @return rounded value
+     */
     public static double round2(double d) {
         final double factor = 1e2;
-        return d > WHOLE_NUMBER || d < -WHOLE_NUMBER ? d :
+        return d > WHOLE_NUMBER / factor || d < -WHOLE_NUMBER / factor ? d :
+                (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor;
+    }
+
+    /**
+     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
+     * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
+     * assumed you are not working on the edge of the precision of double.
+     *
+     * @param d value to round
+     * @return rounded value
+     */
+    public static double round3(double d) {
+        final double factor = 1e3;
+        return d > WHOLE_NUMBER / factor || d < -WHOLE_NUMBER / factor ? d :
                 (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor;
     }
 
@@ -59,7 +87,21 @@ public enum Maths {
      */
     public static double round4(double d) {
         final double factor = 1e4;
-        return d > Long.MAX_VALUE / factor || d < -Long.MAX_VALUE / factor ? d :
+        return d > WHOLE_NUMBER / factor || d < -WHOLE_NUMBER / factor ? d :
+                (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor;
+    }
+
+    /**
+     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
+     * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
+     * assumed you are not working on the edge of the precision of double.
+     *
+     * @param d value to round
+     * @return rounded value
+     */
+    public static double round5(double d) {
+        final double factor = 1e5;
+        return d > WHOLE_NUMBER / factor || d < -WHOLE_NUMBER / factor ? d :
                 (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor;
     }
 
@@ -73,7 +115,21 @@ public enum Maths {
      */
     public static double round6(double d) {
         final double factor = 1e6;
-        return d > Long.MAX_VALUE / factor || d < -Long.MAX_VALUE / factor ? d :
+        return d > WHOLE_NUMBER / factor || d < -WHOLE_NUMBER / factor ? d :
+                (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor;
+    }
+
+    /**
+     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
+     * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
+     * assumed you are not working on the edge of the precision of double.
+     *
+     * @param d value to round
+     * @return rounded value
+     */
+    public static double round7(double d) {
+        final double factor = 1e7;
+        return d > WHOLE_NUMBER / factor || d < -WHOLE_NUMBER / factor ? d :
                 (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor;
     }
 
@@ -87,7 +143,7 @@ public enum Maths {
      */
     public static double round8(double d) {
         final double factor = 1e8;
-        return d > Long.MAX_VALUE / factor || d < -Long.MAX_VALUE / factor ? d :
+        return d > WHOLE_NUMBER / factor || d < -WHOLE_NUMBER / factor ? d :
                 (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor;
     }
 
