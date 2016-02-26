@@ -1,14 +1,15 @@
 package net.openhft.chronicle.core;
 
 import org.junit.Test;
+import sun.nio.ch.DirectBuffer;
 
 import javax.naming.ConfigurationException;
 import java.nio.ByteBuffer;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
- * Created by peter_2 on 26/02/2016.
+ * Created by peter on 26/02/2016.
  */
 public class JvmTest {
 
@@ -36,14 +37,8 @@ public class JvmTest {
 
     @Test
     public void testIsInternal() throws Exception {
-        // TODO: 26/02/2016
-
-    }
-
-    @Test
-    public void testIsDebug() throws Exception {
-        // TODO: 26/02/2016
-
+        assertTrue(Jvm.isInternal(String.class.getName()));
+        assertFalse(Jvm.isInternal(getClass().getName()));
     }
 
     @Test
@@ -55,7 +50,6 @@ public class JvmTest {
     @Test
     public void testBusyWaitMicros() throws Exception {
         // TODO: 26/02/2016
-
     }
 
     @Test
@@ -66,7 +60,9 @@ public class JvmTest {
 
     @Test
     public void testGetValue() throws Exception {
-        // TODO: 26/02/2016
+        ByteBuffer bb = ByteBuffer.allocateDirect(128);
+        long address = Jvm.getValue(bb, "address");
+        assertEquals(((DirectBuffer) bb).address(), address);
 
     }
 
@@ -84,12 +80,8 @@ public class JvmTest {
     }
 
     @Test
-    public void testUsedNativeMemory() throws Exception {
-
-    }
-
-    @Test
     public void testMaxDirectMemory() throws Exception {
-
+        long maxDirectMemory = Jvm.maxDirectMemory();
+        assertTrue(maxDirectMemory > 0);
     }
 }
