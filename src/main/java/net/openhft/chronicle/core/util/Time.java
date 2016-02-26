@@ -16,7 +16,8 @@ public enum Time {
         if (now == lastTime)
             return now;
         tickTime++;
-        return lastTime = now;
+        lastTime = now;
+        return lastTime;
     }
 
     public static long tickTime() {
