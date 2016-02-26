@@ -27,10 +27,21 @@ import java.util.zip.GZIPOutputStream;
 
 /**
  * Created by peter on 26/08/15.
+ * A collection of IO utility tools
  */
 public enum IOTools {
     ;
 
+    /**
+     * This method first looks for the file in the classpath. If this is not found it
+     * appends the suffix .gz and looks again in the classpath to see if it is present.
+     * If it is still not found it looks for the file on the file system. If it not found
+     * it appends the suffix .gz and looks again on the file system.
+     * If it still not found a FileNotFoundException is thrown.
+     * @param name Name of the file
+     * @return A byte[] containing the contents of the file
+     * @throws IOException FileNotFoundException thrown if file is not found
+     */
     public static byte[] readFile(String name) throws IOException {
         ClassLoader classLoader;
         try {
