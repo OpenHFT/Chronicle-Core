@@ -20,7 +20,6 @@ import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.annotation.ForceInline;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 
 import static java.lang.Character.toLowerCase;
@@ -31,15 +30,12 @@ import static java.lang.Character.toLowerCase;
 public enum StringUtils {
     ;
 
-    private static final Constructor<String> STRING_CONSTRUCTOR;
     private static final Field S_VALUE, SB_VALUE, SB_COUNT;
     private static final long S_VALUE_OFFSET, SB_VALUE_OFFSET, SB_COUNT_OFFSET;
     private static final long MAX_VALUE_DIVIDE_10 = Long.MAX_VALUE / 10;
 
     static {
         try {
-            STRING_CONSTRUCTOR = String.class.getDeclaredConstructor(char[].class, boolean.class);
-            STRING_CONSTRUCTOR.setAccessible(true);
             S_VALUE = String.class.getDeclaredField("value");
             S_VALUE.setAccessible(true);
             S_VALUE_OFFSET = OS.memory().getFieldOffset(S_VALUE);
@@ -108,8 +104,11 @@ public enum StringUtils {
     }
 
     public static String newString(char[] chars) {
+        //noinspection RedundantStringConstructorCall
+        String str = new String();
         try {
-            return STRING_CONSTRUCTOR.newInstance(chars, true);
+            S_VALUE.set(str, chars);
+            return str;
         } catch (Exception e) {
             throw new AssertionError(e);
         }

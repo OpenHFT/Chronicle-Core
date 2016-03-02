@@ -53,6 +53,23 @@ public enum OS {
     private static final boolean IS_WIN = OS.startsWith("win");
     private static final boolean IS_WIN10 = OS.equals("windows 10");
     private static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : pageSize();
+    private static final Method UNMAPP0;
+
+    /**
+     * Unmap a region of memory.
+     *
+     * @param address of the start of the mapping.
+     * @param size    of the region mapped.
+     * @throws IOException if the unmap fails.
+     */
+    static {
+        try {
+            UNMAPP0 = FileChannelImpl.class.getDeclaredMethod("unmap0", long.class, long.class);
+            UNMAPP0.setAccessible(true);
+        } catch (NoSuchMethodException e) {
+            throw new AssertionError(e);
+        }
+    }
 
     public static String getHostName() {
         return HOST_NAME;
@@ -264,18 +281,9 @@ public enum OS {
         return (Long) map0.invoke(fileChannel, imode, start, size);
     }
 
-    /**
-     * Unmap a region of memory.
-     *
-     * @param address of the start of the mapping.
-     * @param size    of the region mapped.
-     * @throws IOException if the unmap fails.
-     */
     public static void unmap(long address, long size) throws IOException {
         try {
-            Method unmap0 = FileChannelImpl.class.getDeclaredMethod("unmap0", long.class, long.class);
-            unmap0.setAccessible(true);
-            unmap0.invoke(null, address, pageAlign(size));
+            UNMAPP0.invoke(null, address, pageAlign(size));
         } catch (Exception e) {
             throw asAnIOException(e);
         }
