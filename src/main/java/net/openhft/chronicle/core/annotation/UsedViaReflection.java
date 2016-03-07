@@ -14,16 +14,19 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package net.openhft.chronicle.core.threads;
+package net.openhft.chronicle.core.annotation;
 
-/**
- * Created by peter on 25/06/15.
- */
-public class InvalidEventHandlerException extends Exception {
-    public InvalidEventHandlerException(String message) {
-        super(message);
-    }
+import java.lang.annotation.Documented;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
 
-    public InvalidEventHandlerException() {
-    }
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.CLASS;
+
+@Documented
+@Retention(CLASS)
+@Target({METHOD, FIELD, CONSTRUCTOR})
+public @interface UsedViaReflection {
+
+
 }
