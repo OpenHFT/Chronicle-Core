@@ -26,7 +26,8 @@ public class StringBuilderPool {
     public StringBuilder acquireStringBuilder() {
         StringBuilder sb = sbtl.get();
         if (sb == null) {
-            sbtl.set(sb = new StringBuilder(1024));
+            sb = new StringBuilder(1024);
+            sbtl.set(sb);
         }
         StringUtils.setCount(sb, 0);
         return sb;

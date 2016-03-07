@@ -19,6 +19,7 @@ package net.openhft.chronicle.core;
 import sun.misc.VM;
 
 import java.lang.reflect.Field;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -33,12 +34,21 @@ public enum Jvm {
     public static final boolean IS_DEBUG = getRuntimeMXBean().getInputArguments().toString().contains("jdwp") || Boolean.getBoolean("debug");
     static final Class bitsClass;
     static final Field reservedMemory;
+    static final AtomicLong reservedMemoryAtomicLong;
+    static final DirectMemoryInspector DIRECT_MEMORY_INSPECTOR;
 
     static {
         try {
             bitsClass = Class.forName("java.nio.Bits");
             reservedMemory = bitsClass.getDeclaredField("reservedMemory");
             reservedMemory.setAccessible(true);
+            if (reservedMemory.getType() == AtomicLong.class) {
+                reservedMemoryAtomicLong = (AtomicLong) reservedMemory.get(null);
+                DIRECT_MEMORY_INSPECTOR = DirectMemoryInspector.AtomicLong;
+            } else {
+                reservedMemoryAtomicLong = null;
+                DIRECT_MEMORY_INSPECTOR = DirectMemoryInspector.Reflect;
+            }
         } catch (Exception e) {
             throw new AssertionError(e);
         }
@@ -188,13 +198,7 @@ public enum Jvm {
      * @return The size of memory used by direct ByteBuffers i.e. ByteBuffer.allocateDirect()
      */
     public static long usedDirectMemory() {
-        try {
-            synchronized (bitsClass) {
-                return reservedMemory.getLong(null);
-            }
-        } catch (IllegalAccessException e) {
-            throw new IllegalStateException(e);
-        }
+        return DIRECT_MEMORY_INSPECTOR.usedDirectMemory();
     }
 
     /**
@@ -206,5 +210,28 @@ public enum Jvm {
 
     public static long maxDirectMemory() {
         return VM.maxDirectMemory();
+    }
+
+    enum DirectMemoryInspector {
+        Reflect {
+            @Override
+            public long usedDirectMemory() {
+                try {
+                    synchronized (bitsClass) {
+                        return reservedMemory.getLong(null);
+                    }
+                } catch (IllegalAccessException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+        },
+        AtomicLong {
+            @Override
+            public long usedDirectMemory() {
+                return reservedMemoryAtomicLong.get();
+            }
+        };
+
+        public abstract long usedDirectMemory();
     }
 }
