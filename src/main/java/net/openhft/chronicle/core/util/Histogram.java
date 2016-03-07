@@ -65,6 +65,17 @@ public class Histogram {
         return 1;
     }
 
+    public double[] getPercentiles(){
+        return new double[]{
+            percentile(0.5),
+            percentile(0.9),
+            percentile(0.99),
+            percentile(0.999),
+            percentile(0.9999),
+            percentile(1)
+        };
+    }
+
     public String toMicrosFormat() {
         return toMicrosFormat(t -> t / 1e3);
     }
