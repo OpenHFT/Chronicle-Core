@@ -54,6 +54,7 @@ public class ClassAliasPool implements ClassLookup {
         addAlias(LocalDateTime.class, "DateTime");
         addAlias(LocalTime.class, "Time");
         addAlias(String[].class, "String[]");
+        addAlias(byte[].class, "byte[]");
 
         return this;
     }
