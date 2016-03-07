@@ -23,6 +23,7 @@ import java.util.function.DoubleFunction;
  */
 // TODO add a dummy histogram.
 public class Histogram {
+    private int powersOf2;
     private final int fractionBits;
     private long totalCount, overRange;
     private int[] sampleCount;
@@ -33,6 +34,7 @@ public class Histogram {
     }
 
     public Histogram(int powersOf2, int fractionBits) {
+        this.powersOf2 = powersOf2;
         this.fractionBits = fractionBits;
         sampleCount = new int[powersOf2 << fractionBits];
         floor = Double.doubleToRawLongBits(1) >> (52 - fractionBits);
@@ -151,5 +153,10 @@ public class Histogram {
 
     public long totalCount() {
         return totalCount;
+    }
+
+    public void reset(){
+        sampleCount = new int[powersOf2 << fractionBits];
+        totalCount = overRange = 0;
     }
 }
