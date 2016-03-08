@@ -33,4 +33,24 @@ public interface LongValue {
     long addAtomicValue(long delta);
 
     boolean compareAndSwapValue(long expected, long value);
+
+    default void setMaxValue(long value) {
+        for (; ; ) {
+            long pos = getVolatileValue();
+            if (pos >= value)
+                break;
+            if (compareAndSwapValue(pos, value))
+                break;
+        }
+    }
+
+    default void setMinValue(long value) {
+        for (; ; ) {
+            long pos = getVolatileValue();
+            if (pos <= value)
+                break;
+            if (compareAndSwapValue(pos, value))
+                break;
+        }
+    }
 }
