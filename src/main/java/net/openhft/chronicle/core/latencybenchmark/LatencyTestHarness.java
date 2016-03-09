@@ -220,10 +220,12 @@ public class LatencyTestHarness {
     public void sample(long nanoTime) {
         noResultsReturned++;
         if (noResultsReturned < warmUp && !warmedUp) {
+            histogram.sample(nanoTime);
             return;
         }
         if (noResultsReturned == warmUp && !warmedUp) {
             warmedUp = true;
+            histogram.reset();
             warmUpComplete.set(true);
             return;
         }

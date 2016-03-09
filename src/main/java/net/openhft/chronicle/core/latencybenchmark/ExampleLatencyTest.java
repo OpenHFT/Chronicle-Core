@@ -12,9 +12,9 @@ public class ExampleLatencyTest implements LatencyTask {
     @Override
     public void run(long startTimeNS) {
         count++;
-        if(count==610_000) {
-            System.out.println("PAUSE");
-            Jvm.pause(1000);
+        if(count==60_000) {
+            //System.out.println("PAUSE");
+            //Jvm.pause(1000);
         }
         lth.sample(System.nanoTime()-startTimeNS);
     }
@@ -31,11 +31,11 @@ public class ExampleLatencyTest implements LatencyTask {
 
     public static void main(String[] args) {
         LatencyTestHarness lth = new LatencyTestHarness()
-                .warmUp(500_000)
+                .warmUp(50_000)
                 .messageCount(100_000)
                 .throughput(25_000)
                 .accountForCoordinatedOmmission(true)
-                .runs(4)
+                .runs(10)
                 .build(new ExampleLatencyTest());
         lth.start();
     }
