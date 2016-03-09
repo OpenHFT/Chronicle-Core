@@ -14,7 +14,7 @@ public class ExampleLatencyMain implements LatencyTask {
 
     public static void main(String[] args) {
         LatencyTestHarness lth = new LatencyTestHarness()
-                .warmUp(50_000)
+                .warmUp(500_000)
                 .messageCount(20_000)
                 .throughput(25_000)
                 .accountForCoordinatedOmmission(true)
