@@ -2,6 +2,7 @@ package net.openhft.chronicle.core.latencybenchmark;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.util.Histogram;
+import net.openhft.chronicle.core.util.NanoSampler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -74,7 +75,7 @@ public class LatencyTestHarness {
         return this;
     }
 
-    public Histogram createAdditionalHistogram(String name){
+    public NanoSampler createAdditionalSampler(String name){
         return additionHistograms.computeIfAbsent(name, n->new Histogram());
     }
 
@@ -122,7 +123,12 @@ public class LatencyTestHarness {
             System.out.println("-------------------------------- BENCHMARK RESULTS (RUN " + (run + 1) + ") --------------------------------------------------------");
             System.out.println("Correcting for co-ordinated:" + accountForCoordinatedOmmission);
             System.out.println("Target throughtput:" + throughput + "/s" + " = 1 message every " + (rate / 1000) + "us");
-            System.out.println("TotalCount:" + histogram.totalCount());
+            System.out.println("TotalCount (whole run):" + histogram.totalCount());
+            if (additionHistograms.size() > 0) {
+                additionHistograms.entrySet().stream().forEach(e -> {
+                    System.out.println("TotalCount (" + e.getKey() + "):" + e.getValue().totalCount());
+                });
+            }
             System.out.printf("%-40s", "whole run:");
             System.out.println(histogram.toMicrosFormat());
 
@@ -218,7 +224,7 @@ public class LatencyTestHarness {
             sb.append("%12.2f ");
         }
         sb.append("%12.2f");
-        sb.append("%12.4f");
+        sb.append("%12.2f");
         sb.append("%n");
     }
 
@@ -244,6 +250,9 @@ public class LatencyTestHarness {
         if (noResultsReturned == warmUp && !warmedUp) {
             warmedUp = true;
             histogram.reset();
+            if(additionHistograms.size()>0){
+                additionHistograms.values().forEach(Histogram::reset);
+            }
             warmUpComplete.set(true);
             return;
         }

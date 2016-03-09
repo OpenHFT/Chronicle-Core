@@ -22,7 +22,7 @@ import java.util.function.DoubleFunction;
  * Created by peter on 10/07/15.
  */
 // TODO add a dummy histogram.
-public class Histogram {
+public class Histogram implements NanoSampler {
     private int powersOf2;
     private final int fractionBits;
     private long totalCount, overRange;
@@ -169,5 +169,10 @@ public class Histogram {
     public void reset(){
         sampleCount = new int[powersOf2 << fractionBits];
         totalCount = overRange = 0;
+    }
+
+    @Override
+    public void sampleNanos(long nanos) {
+        sample(nanos);
     }
 }
