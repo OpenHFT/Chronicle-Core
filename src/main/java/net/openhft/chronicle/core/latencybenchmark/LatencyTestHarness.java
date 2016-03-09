@@ -173,14 +173,15 @@ public class LatencyTestHarness {
             }
             consistencies.add(100 * (maxValue-minValue)/(maxValue+minValue/2));
 
+
             double avg_log = total_log / percentileRuns.size();
             double total_sqr_log = 0;
             for (int j = 0; j < percentileRuns.size(); j++) {
                 double v = percentileRuns.get(j)[i];
-                total_sqr_log += (v - avg_log) * (v - avg_log);
+                double logv = Math.log(v);
+                total_sqr_log += (logv - avg_log) * (logv - avg_log);
             }
-            double var_log = total_sqr_log / percentileRuns.size();
-
+            double var_log = total_sqr_log / (percentileRuns.size()-1);
             consistencies.add(var_log);
             maxValue = Double.MIN_VALUE;
             minValue = Double.MAX_VALUE;
@@ -191,8 +192,8 @@ public class LatencyTestHarness {
             for(int j=0; j<percentileRuns.size(); j++){
                 summary.add(percentileRuns.get(j)[i]/1e3);
             }
-            summary.add(consistencies.get(i));
-            summary.add(consistencies.get(i + 1));
+            summary.add(consistencies.get(i*2));
+            summary.add(consistencies.get(i*2 + 1));
         }
 
         StringBuilder sb = new StringBuilder();
@@ -230,7 +231,7 @@ public class LatencyTestHarness {
              sb.append("         run" + i);
         }
         sb.append("      % Variation");
-        sb.append("      var(log)");
+        sb.append("   var(log)");
     }
 
 
