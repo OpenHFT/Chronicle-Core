@@ -23,8 +23,8 @@ import java.util.function.DoubleFunction;
  */
 // TODO add a dummy histogram.
 public class Histogram implements NanoSampler {
-    private int powersOf2;
     private final int fractionBits;
+    private int powersOf2;
     private long totalCount, overRange;
     private int[] sampleCount;
     private long floor;
@@ -38,6 +38,15 @@ public class Histogram implements NanoSampler {
         this.fractionBits = fractionBits;
         sampleCount = new int[powersOf2 << fractionBits];
         floor = Double.doubleToRawLongBits(1) >> (52 - fractionBits);
+    }
+
+    public void add(Histogram h) {
+        assert powersOf2 == h.powersOf2;
+        assert fractionBits == h.fractionBits;
+        totalCount += h.totalCount;
+        overRange += h.overRange;
+        for (int i = 0; i < sampleCount.length; i++)
+            sampleCount[i] += h.sampleCount[i];
     }
 
     public int sample(double time) {

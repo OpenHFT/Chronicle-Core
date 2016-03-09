@@ -1,5 +1,7 @@
 package net.openhft.chronicle.core.latencybenchmark;
 
+import net.openhft.affinity.Affinity;
+import net.openhft.affinity.AffinityLock;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.util.Histogram;
 import net.openhft.chronicle.core.util.NanoSampler;
@@ -75,8 +77,8 @@ public class LatencyTestHarness {
         return this;
     }
 
-    public NanoSampler createAdditionalSampler(String name){
-        return additionHistograms.computeIfAbsent(name, n->new Histogram());
+    public NanoSampler createAdditionalSampler(String name) {
+        return additionHistograms.computeIfAbsent(name, n -> new Histogram());
     }
 
     public void start() {
@@ -94,63 +96,71 @@ public class LatencyTestHarness {
             latencyTask.run(System.nanoTime());
         }
 
-        for (int run = 0; run < runs; run++) {
-            long startTimeNs = System.nanoTime();
-            for (int i = 0; i < messageCount; i++) {
+        AffinityLock lock = Affinity.acquireLock();
+        try {
+            for (int run = 0; run < runs; run++) {
+                long startTimeNs = System.nanoTime();
+                for (int i = 0; i < messageCount; i++) {
 
-                if (i == 0 && run == 0) {
-                    while (!warmUpComplete.get())
+                    if (i == 0 && run == 0) {
+                        while (!warmUpComplete.get())
+                            Thread.yield();
+                        Jvm.pause(100);
                         startTimeNs = System.nanoTime();
+                    } else if (accountForCoordinatedOmmission) {
+                        startTimeNs += rate;
+                        while (System.nanoTime() < startTimeNs)
+                            ;
+                    } else {
+                        Jvm.busyWaitMicros(rate / 1000);
+                        startTimeNs = System.nanoTime();
+                    }
+
+                    latencyTask.run(startTimeNs);
                 }
-                else if (accountForCoordinatedOmmission) {
-                    startTimeNs += rate;
-                    while (System.nanoTime() < startTimeNs)
-                        ;
-                } else {
-                    Jvm.busyWaitMicros(rate / 1000);
-                    startTimeNs = System.nanoTime();
+
+                while (histogram.totalCount() < messageCount) {
+                    Thread.yield();
                 }
 
-                latencyTask.run(startTimeNs);
-            }
+                percentileRuns.add(histogram.getPercentiles());
 
-            while (histogram.totalCount() < messageCount) {
-                Thread.yield();
-            }
+                System.out.println("-------------------------------- BENCHMARK RESULTS (RUN " + (run + 1) + ") --------------------------------------------------------");
+                System.out.println("Correcting for co-ordinated:" + accountForCoordinatedOmmission);
+                System.out.println("Target throughput:" + throughput + "/s" + " = 1 message every " + (rate / 1000) + "us");
+                System.out.println("TotalCount (whole run):" + histogram.totalCount());
+                if (additionHistograms.size() > 0) {
+                    additionHistograms.entrySet().stream().forEach(e -> {
+                        System.out.println("TotalCount (" + e.getKey() + "):" + e.getValue().totalCount());
+                    });
+                }
+                System.out.printf("%-40s", "whole run:");
+                System.out.println(histogram.toMicrosFormat());
 
-            percentileRuns.add(histogram.getPercentiles());
+                if (additionHistograms.size() > 0) {
+                    additionHistograms.entrySet().stream().forEach(e -> {
+                        List<double[]> ds = additionalPercentileRuns.computeIfAbsent(e.getKey(),
+                                i -> new ArrayList<>());
+                        ds.add(e.getValue().getPercentiles());
+                        System.out.printf("%-40s", e.getKey() + ":");
+                        System.out.println(e.getValue().toMicrosFormat());
+                    });
+                }
+                if (recordOSJitter) {
+                    System.out.printf("%-40s", "OS Jitter:");
+                    System.out.println(osJitter.toMicrosFormat());
+                }
+                System.out.println("-------------------------------------------------------------------------------------------------------------------");
 
-            System.out.println("-------------------------------- BENCHMARK RESULTS (RUN " + (run + 1) + ") --------------------------------------------------------");
-            System.out.println("Correcting for co-ordinated:" + accountForCoordinatedOmmission);
-            System.out.println("Target throughtput:" + throughput + "/s" + " = 1 message every " + (rate / 1000) + "us");
-            System.out.println("TotalCount (whole run):" + histogram.totalCount());
-            if (additionHistograms.size() > 0) {
-                additionHistograms.entrySet().stream().forEach(e -> {
-                    System.out.println("TotalCount (" + e.getKey() + "):" + e.getValue().totalCount());
-                });
+                noResultsReturned = 0;
+                histogram.reset();
+                additionHistograms.values().stream().forEach(Histogram::reset);
+                osJitterMonitor.reset();
             }
-            System.out.printf("%-40s", "whole run:");
-            System.out.println(histogram.toMicrosFormat());
-
-            if (additionHistograms.size() > 0) {
-                additionHistograms.entrySet().stream().forEach(e -> {
-                    List<double[]> ds = additionalPercentileRuns.computeIfAbsent(e.getKey(),
-                            i->new ArrayList<>());
-                    ds.add(e.getValue().getPercentiles());
-                    System.out.printf("%-40s", e.getKey() + ":");
-                    System.out.println(e.getValue().toMicrosFormat());
-                });
-            }
-            if (recordOSJitter){
-                System.out.printf("%-40s", "OS Jitter:");
-                System.out.println(osJitter.toMicrosFormat());
-            }
-            System.out.println("-------------------------------------------------------------------------------------------------------------------");
-
-            noResultsReturned = 0;
-            histogram.reset();
-            additionHistograms.values().stream().forEach(Histogram::reset);
-            osJitterMonitor.reset();
+        } finally {
+            Jvm.pause(5);
+            lock.release();
+            Jvm.pause(5);
         }
 
         printPercentilesSummary("whole run", percentileRuns);
@@ -162,51 +172,51 @@ public class LatencyTestHarness {
         latencyTask.complete();
     }
 
-    public void printPercentilesSummary(String label, List<double[]> percentileRuns){
-        System.out.println("-------------------------------- SUMMARY ("+ label + ")------------------------------------------------------------");
+    public void printPercentilesSummary(String label, List<double[]> percentileRuns) {
+        System.out.println("-------------------------------- SUMMARY (" + label + ")------------------------------------------------------------");
         List<Double> consistencies = new ArrayList<>();
         double maxValue = Double.MIN_VALUE;
         double minValue = Double.MAX_VALUE;
-        for(int i=0; i<percentileRuns.get(0).length; i++){
+        for (int i = 0; i < percentileRuns.get(0).length; i++) {
             double total_log = 0;
-            for(int j=0; j<percentileRuns.size(); j++){
-                double v = percentileRuns.get(j)[i];
+            for (double[] percentileRun : percentileRuns) {
+                double v = percentileRun[i];
                 if (v > maxValue)
                     maxValue = v;
                 if (v < minValue)
                     minValue = v;
                 total_log += Math.log10(v);
             }
-            consistencies.add(100 * (maxValue-minValue)/(maxValue+minValue/2));
+            consistencies.add(100 * (maxValue - minValue) / (maxValue + minValue / 2));
 
 
             double avg_log = total_log / percentileRuns.size();
             double total_sqr_log = 0;
-            for (int j = 0; j < percentileRuns.size(); j++) {
-                double v = percentileRuns.get(j)[i];
-                double logv = Math.log(v);
+            for (double[] percentileRun : percentileRuns) {
+                double v = percentileRun[i];
+                double logv = Math.log10(v);
                 total_sqr_log += (logv - avg_log) * (logv - avg_log);
             }
-            double var_log = total_sqr_log / (percentileRuns.size()-1);
+            double var_log = total_sqr_log / (percentileRuns.size() - 1);
             consistencies.add(var_log);
             maxValue = Double.MIN_VALUE;
             minValue = Double.MAX_VALUE;
         }
 
         List<Double> summary = new ArrayList<>();
-        for(int i=0; i<percentileRuns.get(0).length; i++){
-            for(int j=0; j<percentileRuns.size(); j++){
-                summary.add(percentileRuns.get(j)[i]/1e3);
+        for (int i = 0; i < percentileRuns.get(0).length; i++) {
+            for (double[] percentileRun : percentileRuns) {
+                summary.add(percentileRun[i] / 1e3);
             }
-            summary.add(consistencies.get(i*2));
-            summary.add(consistencies.get(i*2 + 1));
+            summary.add(consistencies.get(i * 2));
+            summary.add(consistencies.get(i * 2 + 1));
         }
 
         StringBuilder sb = new StringBuilder();
         addHeaderToPrint(sb, runs);
         System.out.println(sb.toString());
 
-        sb= new StringBuilder();
+        sb = new StringBuilder();
         addPrToPrint(sb, "50:   ", runs);
         addPrToPrint(sb, "90:   ", runs);
         addPrToPrint(sb, "99:   ", runs);
@@ -218,9 +228,9 @@ public class LatencyTestHarness {
         System.out.println("-------------------------------------------------------------------------------------------------------------------");
     }
 
-    private void addPrToPrint(StringBuilder sb, String pr, int runs){
+    private void addPrToPrint(StringBuilder sb, String pr, int runs) {
         sb.append(pr);
-        for(int i=0; i<runs; i++){
+        for (int i = 0; i < runs; i++) {
             sb.append("%12.2f ");
         }
         sb.append("%12.2f");
@@ -228,13 +238,13 @@ public class LatencyTestHarness {
         sb.append("%n");
     }
 
-    private void addHeaderToPrint(StringBuilder sb, int runs){
+    private void addHeaderToPrint(StringBuilder sb, int runs) {
         sb.append("Percentile");
-        for(int i=1; i<runs+1; i++){
-            if(i==1)
+        for (int i = 1; i < runs + 1; i++) {
+            if (i == 1)
                 sb.append("   run" + i);
             else
-             sb.append("         run" + i);
+                sb.append("         run" + i);
         }
         sb.append("      % Variation");
         sb.append("   var(log)");
@@ -250,7 +260,7 @@ public class LatencyTestHarness {
         if (noResultsReturned == warmUp && !warmedUp) {
             warmedUp = true;
             histogram.reset();
-            if(additionHistograms.size()>0){
+            if (additionHistograms.size() > 0) {
                 additionHistograms.values().forEach(Histogram::reset);
             }
             warmUpComplete.set(true);
@@ -259,13 +269,16 @@ public class LatencyTestHarness {
         histogram.sample(nanoTime);
     }
 
-    private class OSJitterMonitor extends Thread{
-        AtomicBoolean reset = new AtomicBoolean(false);
+    class OSJitterMonitor extends Thread {
+        final AtomicBoolean reset = new AtomicBoolean(false);
 
-        public void run(){
+        public void run() {
+            // make sure this thread is not bound by its parent.
+            Affinity.setAffinity(AffinityLock.BASE_AFFINITY);
+
             long lastTime = System.nanoTime();
             while (true) {
-                if(reset.get()){
+                if (reset.get()) {
                     reset.set(false);
                     osJitter.reset();
                     lastTime = System.nanoTime();
@@ -277,9 +290,10 @@ public class LatencyTestHarness {
                 }
                 lastTime = time;
             }
+
         }
 
-        public void reset(){
+        public void reset() {
             reset.set(true);
         }
     }
