@@ -1,13 +1,22 @@
 package net.openhft.chronicle.core.latencybenchmark;
 
-import net.openhft.chronicle.core.Jvm;
-
 /**
  * Created by daniel on 08/03/2016.
  */
-public class ExampleLatencyTest implements LatencyTask {
-    private LatencyTestHarness lth;
+public class ExampleLatencyMain implements LatencyTask {
     int count = 0;
+    private LatencyTestHarness lth;
+
+    public static void main(String[] args) {
+        LatencyTestHarness lth = new LatencyTestHarness()
+                .warmUp(50_000)
+                .messageCount(10_000)
+                .throughput(25_000)
+                .accountForCoordinatedOmmission(true)
+                .runs(3)
+                .build(new ExampleLatencyMain());
+        lth.start();
+    }
 
     @Override
     public void run(long startTimeNS) {
@@ -27,16 +36,5 @@ public class ExampleLatencyTest implements LatencyTask {
 
     @Override
     public void complete() {
-    }
-
-    public static void main(String[] args) {
-        LatencyTestHarness lth = new LatencyTestHarness()
-                .warmUp(50_000)
-                .messageCount(100_000)
-                .throughput(25_000)
-                .accountForCoordinatedOmmission(true)
-                .runs(10)
-                .build(new ExampleLatencyTest());
-        lth.start();
     }
 }

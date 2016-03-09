@@ -13,6 +13,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Created by daniel on 03/03/2016.
  */
 public class LatencyTestHarness {
+    public static final Double[] NO_DOUBLES = {};
+    private final Map<String, Histogram> additionHistograms = new HashMap<>();
     private int messageCount = -1;
     private int warmUp = 10000;
     private int throughput = 10_000;
@@ -26,8 +28,6 @@ public class LatencyTestHarness {
     private boolean recordOSJitter = true;
     private long noResultsReturned;
     private AtomicBoolean warmUpComplete = new AtomicBoolean(false);
-    private final Map<String, Histogram>additionHistograms = new HashMap<>();
-
     //Use non-atomic when so thread synchronisation is necessary
     private boolean warmedUp;
 
@@ -162,13 +162,26 @@ public class LatencyTestHarness {
         double maxValue = Double.MIN_VALUE;
         double minValue = Double.MAX_VALUE;
         for(int i=0; i<percentileRuns.get(0).length; i++){
+            double total_log = 0;
             for(int j=0; j<percentileRuns.size(); j++){
-                if(percentileRuns.get(j)[i] > maxValue)
-                    maxValue = percentileRuns.get(j)[i];
-                if(percentileRuns.get(j)[i] < minValue)
-                    minValue = percentileRuns.get(j)[i];
+                double v = percentileRuns.get(j)[i];
+                if (v > maxValue)
+                    maxValue = v;
+                if (v < minValue)
+                    minValue = v;
+                total_log += Math.log10(v);
             }
             consistencies.add(100 * (maxValue-minValue)/(maxValue+minValue/2));
+
+            double avg_log = total_log / percentileRuns.size();
+            double total_sqr_log = 0;
+            for (int j = 0; j < percentileRuns.size(); j++) {
+                double v = percentileRuns.get(j)[i];
+                total_sqr_log += (v - avg_log) * (v - avg_log);
+            }
+            double var_log = total_sqr_log / percentileRuns.size();
+
+            consistencies.add(var_log);
             maxValue = Double.MIN_VALUE;
             minValue = Double.MAX_VALUE;
         }
@@ -179,6 +192,7 @@ public class LatencyTestHarness {
                 summary.add(percentileRuns.get(j)[i]/1e3);
             }
             summary.add(consistencies.get(i));
+            summary.add(consistencies.get(i + 1));
         }
 
         StringBuilder sb = new StringBuilder();
@@ -193,7 +207,7 @@ public class LatencyTestHarness {
         addPrToPrint(sb, "99.99:", runs);
         addPrToPrint(sb, "worst:", runs);
 
-        System.out.printf(sb.toString(), summary.toArray(new Double[0]));
+        System.out.printf(sb.toString(), summary.toArray(NO_DOUBLES));
         System.out.println("-------------------------------------------------------------------------------------------------------------------");
     }
 
@@ -202,7 +216,9 @@ public class LatencyTestHarness {
         for(int i=0; i<runs; i++){
             sb.append("%12.2f ");
         }
-        sb.append("%12.4f%n");
+        sb.append("%12.2f");
+        sb.append("%12.4f");
+        sb.append("%n");
     }
 
     private void addHeaderToPrint(StringBuilder sb, int runs){
@@ -214,6 +230,7 @@ public class LatencyTestHarness {
              sb.append("         run" + i);
         }
         sb.append("      % Variation");
+        sb.append("      var(log)");
     }
 
 
