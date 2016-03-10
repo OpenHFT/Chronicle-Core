@@ -39,4 +39,7 @@ public interface LongArrayValues {
 
     long sizeInBytes(long capacity);
 
+    boolean isNull();
+
+    void reset();
 }
