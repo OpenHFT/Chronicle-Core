@@ -26,10 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 
 /**
@@ -54,8 +51,22 @@ public enum ObjectUtils {
         }
     });
 
+    static final Map<Class, Class> primMap = new LinkedHashMap<Class, Class>() {{
+        put(boolean.class, Boolean.class);
+        put(byte.class, Byte.class);
+        put(char.class, Character.class);
+        put(short.class, Short.class);
+        put(int.class, Integer.class);
+        put(float.class, Float.class);
+        put(long.class, Long.class);
+        put(double.class, Double.class);
+    }};
+
     public static <E> E convertTo(Class<E> eClass, Object o)
             throws ClassCastException, IllegalArgumentException {
+        Class clazz0 = primMap.get(eClass);
+        if (clazz0 != null)
+            eClass = clazz0;
         if (eClass.isInstance(o) || o == null) return (E) o;
         if (Enum.class.isAssignableFrom(eClass)) {
             return (E) Enum.valueOf((Class) eClass, o.toString());
