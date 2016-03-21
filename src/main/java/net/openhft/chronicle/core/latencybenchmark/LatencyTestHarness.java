@@ -6,10 +6,7 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.util.Histogram;
 import net.openhft.chronicle.core.util.NanoSampler;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -17,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class LatencyTestHarness {
     public static final Double[] NO_DOUBLES = {};
-    private final Map<String, Histogram> additionHistograms = new HashMap<>();
+    private final Map<String, Histogram> additionHistograms = new TreeMap<>();
     private int messageCount = -1;
     private int warmUp = 10000;
     private int throughput = 10_000;
@@ -77,7 +74,7 @@ public class LatencyTestHarness {
         return this;
     }
 
-    public NanoSampler createAdditionalSampler(String name) {
+    public NanoSampler addProbe(String name) {
         return additionHistograms.computeIfAbsent(name, n -> new Histogram());
     }
 

@@ -46,8 +46,8 @@ public class ExampleLatencyMain implements LatencyTask {
     public void init(LatencyTestHarness lth) {
 
         this.lth = lth;
-        //nanoSamplerSin = lth.createAdditionalSampler("sin");
-        //nanoSamplerWait = lth.createAdditionalSampler("busyWait");
+        //nanoSamplerSin = lth.addProbe("sin");
+        //nanoSamplerWait = lth.addProbe("busyWait");
     }
 
     @Override
