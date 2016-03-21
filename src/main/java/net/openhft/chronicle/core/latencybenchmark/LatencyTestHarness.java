@@ -261,6 +261,7 @@ public class LatencyTestHarness {
                 additionHistograms.values().forEach(Histogram::reset);
             }
             warmUpComplete.set(true);
+            System.out.println("Warm up complete");
             return;
         }
         histogram.sample(nanoTime);
