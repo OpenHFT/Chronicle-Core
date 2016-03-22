@@ -7,6 +7,7 @@ import net.openhft.chronicle.core.util.Histogram;
 import net.openhft.chronicle.core.util.NanoSampler;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -14,12 +15,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class LatencyTestHarness {
     public static final Double[] NO_DOUBLES = {};
-    private final Map<String, Histogram> additionHistograms = new TreeMap<>();
+    private final SortedMap<String, Histogram> additionHistograms = new ConcurrentSkipListMap<>();
     private int messageCount = -1;
     private int warmUp = 10000;
     private int throughput = 10_000;
     private int rate = 1_000_000_000 / throughput;
-    private boolean accountForCoordinatedOmmission = true;
+    private boolean accountForCoordinatedOmission = true;
     private Histogram histogram = new Histogram();
     private Histogram osJitter = new Histogram();
     private int recordJitterGreaterThanNs = 1_000;
@@ -37,7 +38,7 @@ public class LatencyTestHarness {
     }
 
     public LatencyTestHarness accountForCoordinatedOmmission(Boolean accountForCoordinatedOmmission) {
-        this.accountForCoordinatedOmmission = accountForCoordinatedOmmission;
+        this.accountForCoordinatedOmission = accountForCoordinatedOmmission;
         return this;
     }
 
@@ -82,7 +83,7 @@ public class LatencyTestHarness {
         latencyTask.init(this);
         OSJitterMonitor osJitterMonitor = new OSJitterMonitor();
         List<double[]> percentileRuns = new ArrayList<>();
-        Map<String, List<double[]>> additionalPercentileRuns = new HashMap<>();
+        Map<String, List<double[]>> additionalPercentileRuns = new TreeMap<>();
 
         if (recordOSJitter) {
             osJitterMonitor.setDaemon(true);
@@ -104,7 +105,7 @@ public class LatencyTestHarness {
                             Thread.yield();
                         Jvm.pause(100);
                         startTimeNs = System.nanoTime();
-                    } else if (accountForCoordinatedOmmission) {
+                    } else if (accountForCoordinatedOmission) {
                         startTimeNs += rate;
                         while (System.nanoTime() < startTimeNs)
                             ;
@@ -123,15 +124,9 @@ public class LatencyTestHarness {
                 percentileRuns.add(histogram.getPercentiles());
 
                 System.out.println("-------------------------------- BENCHMARK RESULTS (RUN " + (run + 1) + ") --------------------------------------------------------");
-                System.out.println("Correcting for co-ordinated:" + accountForCoordinatedOmmission);
+                System.out.println("Correcting for co-ordinated:" + accountForCoordinatedOmission);
                 System.out.println("Target throughput:" + throughput + "/s" + " = 1 message every " + (rate / 1000) + "us");
-                System.out.println("TotalCount (whole run):" + histogram.totalCount());
-                if (additionHistograms.size() > 0) {
-                    additionHistograms.entrySet().stream().forEach(e -> {
-                        System.out.println("TotalCount (" + e.getKey() + "):" + e.getValue().totalCount());
-                    });
-                }
-                System.out.printf("%-40s", "whole run:");
+                System.out.printf("%-48s", String.format("End to End: (%,d)", histogram.totalCount()));
                 System.out.println(histogram.toMicrosFormat());
 
                 if (additionHistograms.size() > 0) {
@@ -139,12 +134,12 @@ public class LatencyTestHarness {
                         List<double[]> ds = additionalPercentileRuns.computeIfAbsent(e.getKey(),
                                 i -> new ArrayList<>());
                         ds.add(e.getValue().getPercentiles());
-                        System.out.printf("%-40s", e.getKey() + ":");
+                        System.out.printf("%-48s", String.format("%s (%,d) ", e.getKey(), e.getValue().totalCount()));
                         System.out.println(e.getValue().toMicrosFormat());
                     });
                 }
                 if (recordOSJitter) {
-                    System.out.printf("%-40s", "OS Jitter:");
+                    System.out.printf("%-48s", String.format("OS Jitter (%,d)", osJitter.totalCount()));
                     System.out.println(osJitter.toMicrosFormat());
                 }
                 System.out.println("-------------------------------------------------------------------------------------------------------------------");
@@ -239,9 +234,9 @@ public class LatencyTestHarness {
         sb.append("Percentile");
         for (int i = 1; i < runs + 1; i++) {
             if (i == 1)
-                sb.append("   run" + i);
+                sb.append("   run").append(i);
             else
-                sb.append("         run" + i);
+                sb.append("         run").append(i);
         }
         sb.append("      % Variation");
         sb.append("   var(log)");
