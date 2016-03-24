@@ -22,8 +22,10 @@ import org.junit.Test;
 import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.Random;
+import java.util.stream.DoubleStream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * User: peter.lawrey
@@ -70,6 +72,22 @@ public class MathsTest {
             if (d < 1e8)
                 assertEquals(bd.setScale(8, BigDecimal.ROUND_HALF_UP).doubleValue(), Maths.round8(d), 5e-8);
         }
+    }
+
+    @Test
+    @Ignore("Long running")
+    public void longRunningRound() {
+        double[] ds = new double[17];
+        ds[0] = 1e-4;
+        for (int i = 1; i < ds.length; i++)
+            ds[i] = 2 * ds[i - 1];
+
+        DoubleStream.of(ds).parallel()
+                .forEach(x -> {
+                    for (double d = x; d <= 2 * x && d < 10; d += Math.ulp(d))
+                        if (Double.toString(Maths.round4(d)).length() > 6)
+                            fail("d: " + d);
+                });
     }
 
     @Test
