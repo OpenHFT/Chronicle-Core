@@ -26,10 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 
 /**
@@ -54,8 +51,33 @@ public enum ObjectUtils {
         }
     });
 
+    static final Map<Class, Class> primMap = new LinkedHashMap<Class, Class>() {{
+        put(boolean.class, Boolean.class);
+        put(byte.class, Byte.class);
+        put(char.class, Character.class);
+        put(short.class, Short.class);
+        put(int.class, Integer.class);
+        put(float.class, Float.class);
+        put(long.class, Long.class);
+        put(double.class, Double.class);
+        put(void.class, Void.class);
+    }};
+
+    /**
+     * If the class is a primitive type, change it to the equivalent wrapper.
+     * @param eClass to check
+     * @return the wrapper class if eClass is a primitive type, or the eClass if not.
+     */
+    public static Class primToWrapper(Class eClass) {
+        Class clazz0 = primMap.get(eClass);
+        if (clazz0 != null)
+            eClass = clazz0;
+        return eClass;
+    }
+
     public static <E> E convertTo(Class<E> eClass, Object o)
             throws ClassCastException, IllegalArgumentException {
+        eClass = primToWrapper(eClass);
         if (eClass.isInstance(o) || o == null) return (E) o;
         if (Enum.class.isAssignableFrom(eClass)) {
             return (E) Enum.valueOf((Class) eClass, o.toString());

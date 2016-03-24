@@ -16,14 +16,20 @@
  *
  */
 
-package net.openhft.chronicle.core.util;
-
-import java.io.Serializable;
-import java.util.function.Predicate;
+package net.openhft.chronicle.core.time;
 
 /**
- * Created by peter.lawrey on 11/07/2015.
+ * Created by peter on 10/03/16.
  */
-@FunctionalInterface
-public interface SerializablePredicate<T> extends Predicate<T>, Serializable {
+public class SetTimeProvider implements TimeProvider {
+    private long currentTimeMillis;
+
+    public void currentTimeMillis(long currentTimeMillis) {
+        this.currentTimeMillis = currentTimeMillis;
+    }
+
+    @Override
+    public long currentTimeMillis() {
+        return currentTimeMillis;
+    }
 }

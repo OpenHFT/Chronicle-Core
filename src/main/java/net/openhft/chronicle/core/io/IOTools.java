@@ -34,7 +34,10 @@ public enum IOTools {
     ;
 
     public static boolean shallowDeleteDirWithFiles(String directory) {
-        File dir = new File(directory);
+        return shallowDeleteDirWithFiles(new File(directory));
+    }
+
+    public static boolean shallowDeleteDirWithFiles(File dir) {
         File[] entries = dir.listFiles();
         if(entries==null)return false;
         Stream.of(entries).filter(File::isDirectory).forEach(f -> {

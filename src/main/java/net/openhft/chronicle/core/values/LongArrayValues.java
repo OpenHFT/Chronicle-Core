@@ -25,6 +25,10 @@ import java.nio.BufferUnderflowException;
 public interface LongArrayValues {
     long getCapacity();
 
+    long getUsed();
+
+    void setMaxUsed(long usedAtLeast);
+
     long getValueAt(long index) throws BufferUnderflowException;
 
     void setValueAt(long index, long value) throws IllegalArgumentException, BufferOverflowException;
@@ -39,4 +43,7 @@ public interface LongArrayValues {
 
     long sizeInBytes(long capacity);
 
+    boolean isNull();
+
+    void reset();
 }

@@ -16,14 +16,13 @@
  *
  */
 
-package net.openhft.chronicle.core.util;
-
-import java.io.Serializable;
-import java.util.function.Predicate;
+package net.openhft.chronicle.core.latencybenchmark;
 
 /**
- * Created by peter.lawrey on 11/07/2015.
+ * Created by daniel on 03/03/2016.
  */
-@FunctionalInterface
-public interface SerializablePredicate<T> extends Predicate<T>, Serializable {
+public interface LatencyTask {
+    void run(long startTimeNS);
+    void init(LatencyTestHarness lth);
+    void complete();
 }
