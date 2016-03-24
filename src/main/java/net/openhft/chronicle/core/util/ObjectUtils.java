@@ -60,13 +60,24 @@ public enum ObjectUtils {
         put(float.class, Float.class);
         put(long.class, Long.class);
         put(double.class, Double.class);
+        put(void.class, Void.class);
     }};
 
-    public static <E> E convertTo(Class<E> eClass, Object o)
-            throws ClassCastException, IllegalArgumentException {
+    /**
+     * If the class is a primitive type, change it to the equivalent wrapper.
+     * @param eClass to check
+     * @return the wrapper class if eClass is a primitive type, or the eClass if not.
+     */
+    public static Class primToWrapper(Class eClass) {
         Class clazz0 = primMap.get(eClass);
         if (clazz0 != null)
             eClass = clazz0;
+        return eClass;
+    }
+
+    public static <E> E convertTo(Class<E> eClass, Object o)
+            throws ClassCastException, IllegalArgumentException {
+        eClass = primToWrapper(eClass);
         if (eClass.isInstance(o) || o == null) return (E) o;
         if (Enum.class.isAssignableFrom(eClass)) {
             return (E) Enum.valueOf((Class) eClass, o.toString());
