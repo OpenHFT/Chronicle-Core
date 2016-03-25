@@ -20,13 +20,11 @@ import net.openhft.chronicle.core.ClassLocal;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 /**
@@ -62,9 +60,22 @@ public enum ObjectUtils {
         put(double.class, Double.class);
         put(void.class, Void.class);
     }};
+    static final Map<Class, Object> DEFAULT_MAP = new HashMap<>();
+
+    static {
+        DEFAULT_MAP.put(boolean.class, false);
+        DEFAULT_MAP.put(byte.class, (byte) 0);
+        DEFAULT_MAP.put(short.class, (short) 0);
+        DEFAULT_MAP.put(char.class, (char) 0);
+        DEFAULT_MAP.put(int.class, 0);
+        DEFAULT_MAP.put(long.class, 0L);
+        DEFAULT_MAP.put(float.class, 0.0f);
+        DEFAULT_MAP.put(double.class, 0.0);
+    }
 
     /**
      * If the class is a primitive type, change it to the equivalent wrapper.
+     *
      * @param eClass to check
      * @return the wrapper class if eClass is a primitive type, or the eClass if not.
      */
@@ -223,5 +234,44 @@ public enum ObjectUtils {
     public static <T> T newInstance(Class<T> clazz) {
         Supplier cons = SUPPLIER_CLASS_LOCAL.get(clazz);
         return (T) cons.get();
+    }
+
+    public static Class[] addAll(Class clazz, Class... additional) {
+        Class[] interfaces;
+        if (additional.length == 0) {
+            interfaces = new Class[]{clazz};
+        } else {
+            List<Class> classes = new ArrayList<>();
+            classes.add(clazz);
+            Collections.addAll(classes, additional);
+            interfaces = classes.toArray(new Class[0]);
+        }
+        return interfaces;
+    }
+
+    public static <T> T printAll(Class<T> tClass, Class... additional) {
+        return onMethodCall((method, args) -> {
+            String argsStr = args == null ? "()" : Arrays.toString(args);
+            System.out.println(method.getName() + " " + argsStr);
+            return defaultValue(method.getReturnType());
+        }, tClass, additional);
+    }
+
+    public static Object defaultValue(Class<?> type) {
+        return DEFAULT_MAP.get(type);
+    }
+
+    public static <T> T onMethodCall(BiFunction<Method, Object[], Object> biFunction, Class<T> tClass, Class... additional) {
+        Class[] interfaces = addAll(tClass, additional);
+        //noinspection unchecked
+        return (T) Proxy.newProxyInstance(tClass.getClassLoader(), interfaces, new InvocationHandler() {
+            @Override
+            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                if (method.getDeclaringClass() == Object.class) {
+                    return method.invoke(this, args);
+                }
+                return biFunction.apply(method, args);
+            }
+        });
     }
 }
