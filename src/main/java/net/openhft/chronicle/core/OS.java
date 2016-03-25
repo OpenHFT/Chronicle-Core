@@ -36,10 +36,10 @@ import static java.lang.management.ManagementFactory.getRuntimeMXBean;
  */
 public enum OS {
     ;
+    public static final String TMP = System.getProperty("java.io.tmpdir");
+    public static final String TARGET = System.getProperty("project.build.directory", findTarget());
     private static final String HOST_NAME = getHostName0();
     private static final String USER_NAME = System.getProperty("user.name");
-    private static final String TMP = System.getProperty("java.io.tmpdir");
-    public static final String TARGET = System.getProperty("project.build.directory", findTarget());
     private static final Logger LOG = LoggerFactory.getLogger(OS.class);
     private static final int MAP_RO = 0;
     private static final int MAP_RW = 1;
@@ -54,6 +54,7 @@ public enum OS {
     private static final boolean IS_WIN10 = OS.equals("windows 10");
     private static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : pageSize();
     private static final Method UNMAPP0;
+
     /**
      * Unmap a region of memory.
      *

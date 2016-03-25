@@ -91,7 +91,11 @@ public enum ObjectUtils {
         eClass = primToWrapper(eClass);
         if (eClass.isInstance(o) || o == null) return (E) o;
         if (Enum.class.isAssignableFrom(eClass)) {
-            return (E) Enum.valueOf((Class) eClass, o.toString());
+            try {
+                return (E) Enum.valueOf((Class) eClass, o.toString());
+            } catch (Exception e) {
+                throw new AssertionError(e);
+            }
         }
         if (o instanceof CharSequence) {
             CharSequence cs = (CharSequence) o;

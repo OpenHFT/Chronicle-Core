@@ -33,11 +33,14 @@ import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 public enum Jvm {
     ;
 
-    public static final boolean IS_DEBUG = getRuntimeMXBean().getInputArguments().toString().contains("jdwp") || Boolean.getBoolean("debug");
-    static final Class bitsClass;
-    static final Field reservedMemory;
-    static final AtomicLong reservedMemoryAtomicLong;
-    static final DirectMemoryInspector DIRECT_MEMORY_INSPECTOR;
+    private static final boolean IS_DEBUG = getRuntimeMXBean().getInputArguments().toString().contains("jdwp") || Boolean.getBoolean("debug");
+    // e.g-verbose:gc  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=dumponexit=true,filename=myrecording.jfr,settings=profile -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints
+
+    private static final boolean IS_FLIGHT_RECORDER = (" " + getRuntimeMXBean().getInputArguments()).contains(" -XX:+FlightRecorder") || Boolean.getBoolean("jfr");
+    private static final Class bitsClass;
+    private static final Field reservedMemory;
+    private static final AtomicLong reservedMemoryAtomicLong;
+    private static final DirectMemoryInspector DIRECT_MEMORY_INSPECTOR;
 
     static {
         try {
@@ -109,6 +112,14 @@ public enum Jvm {
     @SuppressWarnings("SameReturnValue")
     public static boolean isDebug() {
         return IS_DEBUG;
+    }
+
+    /**
+     * @return is the JVM in flight recorder mode.
+     */
+    @SuppressWarnings("SameReturnValue")
+    public static boolean isFlightRecorder() {
+        return IS_FLIGHT_RECORDER;
     }
 
     /**
