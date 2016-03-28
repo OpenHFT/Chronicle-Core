@@ -33,6 +33,7 @@ import java.util.function.Supplier;
 public enum ObjectUtils {
     ;
 
+    public static final Object[] NO_OBJECTS = {};
     static final ClassLocal<Supplier> SUPPLIER_CLASS_LOCAL = ClassLocal.withInitial(c -> {
         try {
             Constructor constructor = c.getDeclaredConstructor();
@@ -48,7 +49,6 @@ public enum ObjectUtils {
             return () -> OS.memory().allocateInstance(c);
         }
     });
-
     static final Map<Class, Class> primMap = new LinkedHashMap<Class, Class>() {{
         put(boolean.class, Boolean.class);
         put(byte.class, Byte.class);
@@ -240,15 +240,16 @@ public enum ObjectUtils {
         return (T) cons.get();
     }
 
-    public static Class[] addAll(Class clazz, Class... additional) {
-        Class[] interfaces;
+    public static <T> T[] addAll(T first, T... additional) {
+        T[] interfaces;
         if (additional.length == 0) {
-            interfaces = new Class[]{clazz};
+            interfaces = (T[]) Array.newInstance(first.getClass(), 1);
+            interfaces[0] = first;
         } else {
-            List<Class> classes = new ArrayList<>();
-            classes.add(clazz);
-            Collections.addAll(classes, additional);
-            interfaces = classes.toArray(new Class[0]);
+            List<T> objs = new ArrayList<>();
+            objs.add(first);
+            Collections.addAll(objs, additional);
+            interfaces = objs.toArray((T[]) Array.newInstance(first.getClass(), objs.size()));
         }
         return interfaces;
     }

@@ -26,6 +26,11 @@ public enum UnsafeMemory implements Memory {
     INSTANCE;
 
     public static final Unsafe UNSAFE;
+    // see java.nio.Bits.copyMemory
+    // This number limits the number of bytes to copy per call to Unsafe's
+    // copyMemory method. A limit is imposed to allow for safepoint polling
+    // during a large copy
+    static final long UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
 
     static {
         try {
@@ -271,19 +276,30 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void copyMemory(long fromAddress, long address, long length) {
-        UNSAFE.copyMemory(fromAddress, address, length);
+        copyMemory0(null, fromAddress, null, address, length);
     }
 
     @Override
     @ForceInline
     public void copyMemory(byte[] bytes, int offset, Object obj2, long offset2, int length) {
-        UNSAFE.copyMemory(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, obj2, offset2, length);
+        copyMemory0(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, obj2, offset2, length);
     }
 
     @Override
     @ForceInline
     public void copyMemory(long fromAddress, Object obj2, long offset2, int length) {
-        UNSAFE.copyMemory(null, fromAddress, obj2, offset2, length);
+        copyMemory0(null, fromAddress, obj2, offset2, length);
+    }
+
+    void copyMemory0(Object from, long fromOffset, Object to, long toOffset, long length) {
+        // use a loop to ensure there is a safe point every so often.
+        while (length > 0) {
+            long size = Math.min(length, UNSAFE_COPY_THRESHOLD);
+            UNSAFE.copyMemory(from, fromOffset, to, toOffset, size);
+            length -= size;
+            fromOffset += size;
+            toOffset += size;
+        }
     }
 
     @Override
