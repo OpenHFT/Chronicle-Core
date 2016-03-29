@@ -39,6 +39,7 @@ public enum Jvm {
     private static final Field reservedMemory;
     private static final AtomicLong reservedMemoryAtomicLong;
     private static final DirectMemoryInspector DIRECT_MEMORY_INSPECTOR;
+    private static final boolean IS_64BIT = is64bit0();
 
     static {
         try {
@@ -55,6 +56,20 @@ public enum Jvm {
         } catch (Exception e) {
             throw new AssertionError(e);
         }
+    }
+
+    private static boolean is64bit0() {
+        String systemProp;
+        systemProp = System.getProperty("com.ibm.vm.bitmode");
+        if (systemProp != null) {
+            return "64".equals(systemProp);
+        }
+        systemProp = System.getProperty("sun.arch.data.model");
+        if (systemProp != null) {
+            return "64".equals(systemProp);
+        }
+        systemProp = System.getProperty("java.vm.version");
+        return systemProp != null && systemProp.contains("_64");
     }
 
     /**
@@ -220,6 +235,10 @@ public enum Jvm {
 
     public static long maxDirectMemory() {
         return VM.maxDirectMemory();
+    }
+
+    public static boolean is64bit() {
+        return IS_64BIT;
     }
 
     enum DirectMemoryInspector {
