@@ -36,13 +36,13 @@ public class JLBH {
     private static final Double[] NO_DOUBLES = {};
     private final SortedMap<String, Histogram> additionHistograms = new ConcurrentSkipListMap<>();
     private final int rate;
+    private final JLBHOptions jlbhOptions;
     private Histogram endToEndHistogram = new Histogram();
     private Histogram osJitterHistogram = new Histogram();
     private long noResultsReturned;
     private AtomicBoolean warmUpComplete = new AtomicBoolean(false);
     //Use non-atomic when so thread synchronisation is necessary
     private boolean warmedUp;
-    private final JLBHOptions jlbhOptions;
 
     /**
      * @param jlbhOptions
@@ -145,15 +145,21 @@ public class JLBH {
         List<Double> consistencies = new ArrayList<>();
         double maxValue = Double.MIN_VALUE;
         double minValue = Double.MAX_VALUE;
-        for (int i = 0; i < percentileRuns.get(0).length; i++) {
+        int length = percentileRuns.get(0).length;
+        for (int i = 0; i < length; i++) {
             double total_log = 0;
+            boolean skipFirst = length > 3;
             for (double[] percentileRun : percentileRuns) {
+                if (skipFirst) {
+                    skipFirst = false;
+                    continue;
+                }
                 double v = percentileRun[i];
                 if (v > maxValue)
                     maxValue = v;
                 if (v < minValue)
                     minValue = v;
-                total_log += Math.log10(v);
+                total_log += Math.log(v);
             }
             consistencies.add(100 * (maxValue - minValue) / (maxValue + minValue / 2));
 
@@ -172,7 +178,7 @@ public class JLBH {
         }
 
         List<Double> summary = new ArrayList<>();
-        for (int i = 0; i < percentileRuns.get(0).length; i++) {
+        for (int i = 0; i < length; i++) {
             for (double[] percentileRun : percentileRuns) {
                 summary.add(percentileRun[i] / 1e3);
             }
