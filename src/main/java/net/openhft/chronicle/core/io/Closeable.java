@@ -39,4 +39,8 @@ public interface Closeable extends java.io.Closeable {
     default void notifyClosing() {
         // take an action before everything else closes.
     }
+
+    default boolean isClosed() {
+        throw new UnsupportedOperationException("todo");
+    }
 }
