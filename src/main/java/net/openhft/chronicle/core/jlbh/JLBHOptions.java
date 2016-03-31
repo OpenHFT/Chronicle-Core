@@ -12,6 +12,7 @@ public class JLBHOptions {
     int runs = 3;
     int iterations = 100_000;
     JLBHTask jlbhTask;
+    int pauseAfterWarmupMS = 0;
 
     /**
      * Number of iterations per second to be pushed through the benchmark
@@ -93,6 +94,16 @@ public class JLBHOptions {
      */
     public JLBHOptions jlbhTask(JLBHTask JLBHTask) {
         this.jlbhTask = JLBHTask;
+        return this;
+    }
+
+    /**
+     * Option to set a pause after the warmup is complete
+     * @param pauseMS pause in ms default to 0
+     * @return
+     */
+    public JLBHOptions pauseAfterWarmupMS(int pauseMS) {
+        this.pauseAfterWarmupMS = pauseMS;
         return this;
     }
 }

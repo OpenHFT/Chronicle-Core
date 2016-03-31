@@ -68,6 +68,7 @@ public class JLBH {
             osJitterMonitor.start();
         }
 
+        long warmupStart = System.currentTimeMillis();
         for (int i = 0; i < jlbhOptions.warmUpIterations; i++) {
             jlbhOptions.jlbhTask.run(System.nanoTime());
         }
@@ -75,13 +76,20 @@ public class JLBH {
         AffinityLock lock = Affinity.acquireLock();
         try {
             for (int run = 0; run < jlbhOptions.runs; run++) {
+                long runStart = System.currentTimeMillis();
                 long startTimeNs = System.nanoTime();
                 for (int i = 0; i < jlbhOptions.iterations; i++) {
 
                     if (i == 0 && run == 0) {
                         while (!warmUpComplete.get())
                             Thread.yield();
-                        Jvm.pause(100);
+                        System.out.println("Warm up complete (" + jlbhOptions.warmUpIterations + " iterations took " +
+                                ((System.currentTimeMillis()-warmupStart)/1000.0) + "s)");
+                        if(jlbhOptions.pauseAfterWarmupMS!=0){
+                            System.out.println("Pausing after warmup for " + jlbhOptions.pauseAfterWarmupMS + "ms");
+                            Jvm.pause(jlbhOptions.pauseAfterWarmupMS);
+                        }
+                        runStart = System.currentTimeMillis();
                         startTimeNs = System.nanoTime();
                     } else if (jlbhOptions.accountForCoordinatedOmission) {
                         startTimeNs += rate;
@@ -98,10 +106,12 @@ public class JLBH {
                 while (endToEndHistogram.totalCount() < jlbhOptions.iterations) {
                     Thread.yield();
                 }
+                long totalRunTime = System.currentTimeMillis()-runStart;
 
                 percentileRuns.add(endToEndHistogram.getPercentiles());
 
                 System.out.println("-------------------------------- BENCHMARK RESULTS (RUN " + (run + 1) + ") --------------------------------------------------------");
+                System.out.println("Run time: " + totalRunTime/1000.0 + "s");
                 System.out.println("Correcting for co-ordinated:" + jlbhOptions.accountForCoordinatedOmission);
                 System.out.println("Target throughput:" + jlbhOptions.throughput + "/s" + " = 1 message every " + (rate / 1000) + "us");
                 System.out.printf("%-48s", String.format("End to End: (%,d)", endToEndHistogram.totalCount()));
@@ -232,7 +242,6 @@ public class JLBH {
                 additionHistograms.values().forEach(Histogram::reset);
             }
             warmUpComplete.set(true);
-            System.out.println("Warm up complete");
             return;
         }
         endToEndHistogram.sample(nanoTime);
