@@ -159,6 +159,11 @@ public class JLBH {
         for (int i = 0; i < length; i++) {
             double total_log = 0;
             boolean skipFirst = length > 3;
+            if(jlbhOptions.skipFirstRun== JLBHOptions.SKIP_FIRST_RUN.SKIP) {
+                skipFirst = true;
+            }else if(jlbhOptions.skipFirstRun== JLBHOptions.SKIP_FIRST_RUN.NO_SKIP){
+                skipFirst = false;
+            }
             for (double[] percentileRun : percentileRuns) {
                 if (skipFirst) {
                     skipFirst = false;

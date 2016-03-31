@@ -13,6 +13,11 @@ public class JLBHOptions {
     int iterations = 100_000;
     JLBHTask jlbhTask;
     int pauseAfterWarmupMS = 0;
+    SKIP_FIRST_RUN skipFirstRun = SKIP_FIRST_RUN.NOT_SET;
+
+    enum SKIP_FIRST_RUN{
+        NOT_SET, SKIP, NO_SKIP
+    }
 
     /**
      * Number of iterations per second to be pushed through the benchmark
@@ -90,7 +95,7 @@ public class JLBHOptions {
     /**
      * The latency benchmark to be run.
      * @param JLBHTask
-     * @return
+     * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
     public JLBHOptions jlbhTask(JLBHTask JLBHTask) {
         this.jlbhTask = JLBHTask;
@@ -100,10 +105,20 @@ public class JLBHOptions {
     /**
      * Option to set a pause after the warmup is complete
      * @param pauseMS pause in ms default to 0
-     * @return
+     * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
     public JLBHOptions pauseAfterWarmupMS(int pauseMS) {
         this.pauseAfterWarmupMS = pauseMS;
+        return this;
+    }
+
+    /**
+     * Option to skip first run from being included in the variation statistics.
+     * @param skip defult to true if runs greater than 3
+     * @return Instance of the JLBHOptions to be used in the builder pattern.
+     */
+    public JLBHOptions skipFirstRun(boolean skip) {
+        skipFirstRun = skip ? SKIP_FIRST_RUN.SKIP : SKIP_FIRST_RUN.NO_SKIP;
         return this;
     }
 }
