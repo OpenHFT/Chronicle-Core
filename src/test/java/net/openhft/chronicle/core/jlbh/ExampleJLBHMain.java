@@ -14,30 +14,30 @@
  * limitations under the License.
  */
 
-package net.openhft.chronicle.core.latencybenchmark;
+package net.openhft.chronicle.core.jlbh;
 
 import net.openhft.chronicle.core.Jvm;
 
 /**
  * Created by daniel on 08/03/2016.
  */
-public class ExampleLatencyMain implements LatencyTask {
+public class ExampleJLBHMain implements JLBHTask {
     int count = 0;
     double sin;
     //private NanoSampler nanoSamplerSin;
     //private NanoSampler nanoSamplerWait;
-    private LatencyTestHarness lth;
+    private JLBH lth;
 
     public static void main(String[] args) {
-        LatencyTestHarness lth = new LatencyTestHarness()
-                .warmUp(50_000)
-                .messageCount(100_000)
+        JLBHOptions jlbhOptions = new JLBHOptions()
+                .warmUpIterations(50_000)
+                .iterations(100_000)
                 .throughput(25_000)
                 .accountForCoordinatedOmmission(true)
                 .runs(3)
                 .accountForCoordinatedOmmission(true)
-                .build(new ExampleLatencyMain());
-        lth.start();
+                .jlbhTask(new ExampleJLBHMain());
+        new JLBH(jlbhOptions).start();
     }
 
     @Override
@@ -58,7 +58,7 @@ public class ExampleLatencyMain implements LatencyTask {
     }
 
     @Override
-    public void init(LatencyTestHarness lth) {
+    public void init(JLBH lth) {
 
         this.lth = lth;
         //nanoSamplerSin = lth.addProbe("sin");

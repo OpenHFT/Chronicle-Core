@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package net.openhft.chronicle.core.latencybenchmark;
+package net.openhft.chronicle.core.jlbh;
 
 import net.openhft.affinity.Affinity;
 import net.openhft.affinity.AffinityLock;
@@ -27,68 +27,30 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Created by daniel on 03/03/2016.
+ * Java Latency Benchmark Harness
+ * The harness is intended to be used for benchmarks where co-odinated ommission is an issue.
+ * Typically these would be of the producer/consumer nature where the start time for the benchmark
+ * may be on a different thread than the end time.
  */
-public class LatencyTestHarness {
-    public static final Double[] NO_DOUBLES = {};
+public class JLBH {
+    private static final Double[] NO_DOUBLES = {};
     private final SortedMap<String, Histogram> additionHistograms = new ConcurrentSkipListMap<>();
-    private int messageCount = -1;
-    private int warmUp = 10000;
-    private int throughput = 10_000;
-    private int rate = 1_000_000_000 / throughput;
-    private boolean accountForCoordinatedOmission = true;
-    private Histogram histogram = new Histogram();
-    private Histogram osJitter = new Histogram();
-    private int recordJitterGreaterThanNs = 1_000;
-    private int runs = 1;
-    private LatencyTask latencyTask;
-    private boolean recordOSJitter = true;
+    private final int rate;
+    private final JLBHOptions jlbhOptions;
+    private Histogram endToEndHistogram = new Histogram();
+    private Histogram osJitterHistogram = new Histogram();
     private long noResultsReturned;
     private AtomicBoolean warmUpComplete = new AtomicBoolean(false);
     //Use non-atomic when so thread synchronisation is necessary
     private boolean warmedUp;
 
-    public LatencyTestHarness throughput(int throughput) {
-        this.throughput = throughput;
-        return this;
-    }
-
-    public LatencyTestHarness accountForCoordinatedOmmission(Boolean accountForCoordinatedOmmission) {
-        this.accountForCoordinatedOmission = accountForCoordinatedOmmission;
-        return this;
-    }
-
-    public LatencyTestHarness recordJitterGreaterThanNs(int recordJitterGreaterThanNs) {
-        this.recordJitterGreaterThanNs = recordJitterGreaterThanNs;
-        return this;
-    }
-
-    public LatencyTestHarness recordOSJitter(boolean recordOSJitter) {
-        this.recordOSJitter = recordOSJitter;
-        return this;
-    }
-
-    public LatencyTestHarness warmUp(int warmUp) {
-        this.warmUp = warmUp;
-        return this;
-    }
-
-    public LatencyTestHarness runs(int runs) {
-        this.runs = runs;
-        return this;
-    }
-
-    public LatencyTestHarness messageCount(int messageCount) {
-        this.messageCount = messageCount;
-        return this;
-    }
-
-    public LatencyTestHarness build(LatencyTask latencyTask) {
-        if (messageCount == -1) throw new IllegalStateException("messageCount must be set");
-        if (throughput == -1) throw new IllegalStateException("throughput must be set");
-        this.latencyTask = latencyTask;
-        rate = 1_000_000_000 / throughput;
-        return this;
+    /**
+     * @param jlbhOptions
+     */
+    public JLBH(JLBHOptions jlbhOptions) {
+        this.jlbhOptions = jlbhOptions;
+        if (jlbhOptions.jlbhTask == null) throw new IllegalStateException("jlbhTask must be set");
+        rate = 1_000_000_000 / jlbhOptions.throughput;
     }
 
     public NanoSampler addProbe(String name) {
@@ -96,32 +58,40 @@ public class LatencyTestHarness {
     }
 
     public void start() {
-        latencyTask.init(this);
+        jlbhOptions.jlbhTask.init(this);
         OSJitterMonitor osJitterMonitor = new OSJitterMonitor();
         List<double[]> percentileRuns = new ArrayList<>();
         Map<String, List<double[]>> additionalPercentileRuns = new TreeMap<>();
 
-        if (recordOSJitter) {
+        if (jlbhOptions.recordOSJitter) {
             osJitterMonitor.setDaemon(true);
             osJitterMonitor.start();
         }
 
-        for (int i = 0; i < warmUp; i++) {
-            latencyTask.run(System.nanoTime());
+        long warmupStart = System.currentTimeMillis();
+        for (int i = 0; i < jlbhOptions.warmUpIterations; i++) {
+            jlbhOptions.jlbhTask.run(System.nanoTime());
         }
 
         AffinityLock lock = Affinity.acquireLock();
         try {
-            for (int run = 0; run < runs; run++) {
+            for (int run = 0; run < jlbhOptions.runs; run++) {
+                long runStart = System.currentTimeMillis();
                 long startTimeNs = System.nanoTime();
-                for (int i = 0; i < messageCount; i++) {
+                for (int i = 0; i < jlbhOptions.iterations; i++) {
 
                     if (i == 0 && run == 0) {
                         while (!warmUpComplete.get())
                             Thread.yield();
-                        Jvm.pause(100);
+                        System.out.println("Warm up complete (" + jlbhOptions.warmUpIterations + " iterations took " +
+                                ((System.currentTimeMillis()-warmupStart)/1000.0) + "s)");
+                        if(jlbhOptions.pauseAfterWarmupMS!=0){
+                            System.out.println("Pausing after warmup for " + jlbhOptions.pauseAfterWarmupMS + "ms");
+                            Jvm.pause(jlbhOptions.pauseAfterWarmupMS);
+                        }
+                        runStart = System.currentTimeMillis();
                         startTimeNs = System.nanoTime();
-                    } else if (accountForCoordinatedOmission) {
+                    } else if (jlbhOptions.accountForCoordinatedOmission) {
                         startTimeNs += rate;
                         while (System.nanoTime() < startTimeNs)
                             ;
@@ -130,20 +100,22 @@ public class LatencyTestHarness {
                         startTimeNs = System.nanoTime();
                     }
 
-                    latencyTask.run(startTimeNs);
+                    jlbhOptions.jlbhTask.run(startTimeNs);
                 }
 
-                while (histogram.totalCount() < messageCount) {
+                while (endToEndHistogram.totalCount() < jlbhOptions.iterations) {
                     Thread.yield();
                 }
+                long totalRunTime = System.currentTimeMillis()-runStart;
 
-                percentileRuns.add(histogram.getPercentiles());
+                percentileRuns.add(endToEndHistogram.getPercentiles());
 
                 System.out.println("-------------------------------- BENCHMARK RESULTS (RUN " + (run + 1) + ") --------------------------------------------------------");
-                System.out.println("Correcting for co-ordinated:" + accountForCoordinatedOmission);
-                System.out.println("Target throughput:" + throughput + "/s" + " = 1 message every " + (rate / 1000) + "us");
-                System.out.printf("%-48s", String.format("End to End: (%,d)", histogram.totalCount()));
-                System.out.println(histogram.toMicrosFormat());
+                System.out.println("Run time: " + totalRunTime/1000.0 + "s");
+                System.out.println("Correcting for co-ordinated:" + jlbhOptions.accountForCoordinatedOmission);
+                System.out.println("Target throughput:" + jlbhOptions.throughput + "/s" + " = 1 message every " + (rate / 1000) + "us");
+                System.out.printf("%-48s", String.format("End to End: (%,d)", endToEndHistogram.totalCount()));
+                System.out.println(endToEndHistogram.toMicrosFormat());
 
                 if (additionHistograms.size() > 0) {
                     additionHistograms.entrySet().stream().forEach(e -> {
@@ -154,14 +126,14 @@ public class LatencyTestHarness {
                         System.out.println(e.getValue().toMicrosFormat());
                     });
                 }
-                if (recordOSJitter) {
-                    System.out.printf("%-48s", String.format("OS Jitter (%,d)", osJitter.totalCount()));
-                    System.out.println(osJitter.toMicrosFormat());
+                if (jlbhOptions.recordOSJitter) {
+                    System.out.printf("%-48s", String.format("OS Jitter (%,d)", osJitterHistogram.totalCount()));
+                    System.out.println(osJitterHistogram.toMicrosFormat());
                 }
                 System.out.println("-------------------------------------------------------------------------------------------------------------------");
 
                 noResultsReturned = 0;
-                histogram.reset();
+                endToEndHistogram.reset();
                 additionHistograms.values().stream().forEach(Histogram::reset);
                 osJitterMonitor.reset();
             }
@@ -171,29 +143,33 @@ public class LatencyTestHarness {
             Jvm.pause(5);
         }
 
-        printPercentilesSummary("whole run", percentileRuns);
+        printPercentilesSummary("end to end", percentileRuns);
         if (additionalPercentileRuns.size() > 0) {
-            additionalPercentileRuns.entrySet().stream().forEach(e -> {
-                printPercentilesSummary(e.getKey(), e.getValue());
-            });
+            additionalPercentileRuns.entrySet().stream().forEach(e -> printPercentilesSummary(e.getKey(), e.getValue()));
         }
-        latencyTask.complete();
+        jlbhOptions.jlbhTask.complete();
     }
 
-    public void printPercentilesSummary(String label, List<double[]> percentileRuns) {
+    private void printPercentilesSummary(String label, List<double[]> percentileRuns) {
         System.out.println("-------------------------------- SUMMARY (" + label + ")------------------------------------------------------------");
         List<Double> consistencies = new ArrayList<>();
         double maxValue = Double.MIN_VALUE;
         double minValue = Double.MAX_VALUE;
-        for (int i = 0; i < percentileRuns.get(0).length; i++) {
+        int length = percentileRuns.get(0).length;
+        for (int i = 0; i < length; i++) {
             double total_log = 0;
+            boolean skipFirst = length > 3;
             for (double[] percentileRun : percentileRuns) {
+                if (skipFirst) {
+                    skipFirst = false;
+                    continue;
+                }
                 double v = percentileRun[i];
                 if (v > maxValue)
                     maxValue = v;
                 if (v < minValue)
                     minValue = v;
-                total_log += Math.log10(v);
+                total_log += Math.log(v);
             }
             consistencies.add(100 * (maxValue - minValue) / (maxValue + minValue / 2));
 
@@ -212,7 +188,7 @@ public class LatencyTestHarness {
         }
 
         List<Double> summary = new ArrayList<>();
-        for (int i = 0; i < percentileRuns.get(0).length; i++) {
+        for (int i = 0; i < length; i++) {
             for (double[] percentileRun : percentileRuns) {
                 summary.add(percentileRun[i] / 1e3);
             }
@@ -221,16 +197,16 @@ public class LatencyTestHarness {
         }
 
         StringBuilder sb = new StringBuilder();
-        addHeaderToPrint(sb, runs);
+        addHeaderToPrint(sb, jlbhOptions.runs);
         System.out.println(sb.toString());
 
         sb = new StringBuilder();
-        addPrToPrint(sb, "50:   ", runs);
-        addPrToPrint(sb, "90:   ", runs);
-        addPrToPrint(sb, "99:   ", runs);
-        addPrToPrint(sb, "99.9: ", runs);
-        addPrToPrint(sb, "99.99:", runs);
-        addPrToPrint(sb, "worst:", runs);
+        addPrToPrint(sb, "50:   ", jlbhOptions.runs);
+        addPrToPrint(sb, "90:   ", jlbhOptions.runs);
+        addPrToPrint(sb, "99:   ", jlbhOptions.runs);
+        addPrToPrint(sb, "99.9: ", jlbhOptions.runs);
+        addPrToPrint(sb, "99.99:", jlbhOptions.runs);
+        addPrToPrint(sb, "worst:", jlbhOptions.runs);
 
         System.out.printf(sb.toString(), summary.toArray(NO_DOUBLES));
         System.out.println("-------------------------------------------------------------------------------------------------------------------");
@@ -261,24 +237,23 @@ public class LatencyTestHarness {
 
     public void sample(long nanoTime) {
         noResultsReturned++;
-        if (noResultsReturned < warmUp && !warmedUp) {
-            histogram.sample(nanoTime);
+        if (noResultsReturned < jlbhOptions.warmUpIterations && !warmedUp) {
+            endToEndHistogram.sample(nanoTime);
             return;
         }
-        if (noResultsReturned == warmUp && !warmedUp) {
+        if (noResultsReturned == jlbhOptions.warmUpIterations && !warmedUp) {
             warmedUp = true;
-            histogram.reset();
+            endToEndHistogram.reset();
             if (additionHistograms.size() > 0) {
                 additionHistograms.values().forEach(Histogram::reset);
             }
             warmUpComplete.set(true);
-            System.out.println("Warm up complete");
             return;
         }
-        histogram.sample(nanoTime);
+        endToEndHistogram.sample(nanoTime);
     }
 
-    class OSJitterMonitor extends Thread {
+    private class OSJitterMonitor extends Thread {
         final AtomicBoolean reset = new AtomicBoolean(false);
 
         public void run() {
@@ -289,20 +264,20 @@ public class LatencyTestHarness {
             while (true) {
                 if (reset.get()) {
                     reset.set(false);
-                    osJitter.reset();
+                    osJitterHistogram.reset();
                     lastTime = System.nanoTime();
                 }
                 long time = System.nanoTime();
-                if (time - lastTime > recordJitterGreaterThanNs) {
+                if (time - lastTime > jlbhOptions.recordJitterGreaterThanNs) {
                     //System.out.println("DELAY " + (time - lastTime) / 100_000 / 10.0 + "ms");
-                    osJitter.sample(time - lastTime);
+                    osJitterHistogram.sample(time - lastTime);
                 }
                 lastTime = time;
             }
 
         }
 
-        public void reset() {
+        void reset() {
             reset.set(true);
         }
     }
