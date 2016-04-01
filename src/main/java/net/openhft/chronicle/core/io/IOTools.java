@@ -22,6 +22,7 @@ import sun.reflect.Reflection;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -38,12 +39,30 @@ public enum IOTools {
     }
 
     public static boolean shallowDeleteDirWithFiles(File dir) {
+        return deleteDirWithFiles(dir, 1);
+    }
+
+    public static boolean deleteDirWithFiles(String dir, int maxDepth) {
+        return deleteDirWithFiles(new File(dir), maxDepth);
+    }
+
+    public static boolean deleteDirWithFiles(File dir, int maxDepth) {
         File[] entries = dir.listFiles();
-        if(entries==null)return false;
+        if (entries == null) return false;
         Stream.of(entries).filter(File::isDirectory).forEach(f -> {
-            throw new AssertionError("Contains directory " + f);
+            if (maxDepth < 1) {
+                throw new AssertionError("Contains directory " + f);
+            } else {
+                deleteDirWithFiles(f, maxDepth - 1);
+            }
         });
-        Stream.of(entries).forEach(File::delete);
+        Stream.of(entries).forEach(f -> {
+            try {
+                Files.delete(f.toPath());
+            } catch (IOException e) {
+                throw new IORuntimeException(e);
+            }
+        });
         return dir.delete();
     }
 

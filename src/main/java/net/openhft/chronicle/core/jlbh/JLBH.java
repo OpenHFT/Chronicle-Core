@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Typically these would be of the producer/consumer nature where the start time for the benchmark
  * may be on a different thread than the end time.
  */
-public class JLBH {
+public class JLBH implements NanoSampler {
     private static final Double[] NO_DOUBLES = {};
     private final SortedMap<String, Histogram> additionHistograms = new ConcurrentSkipListMap<>();
     private final int rate;
@@ -81,8 +81,10 @@ public class JLBH {
                 for (int i = 0; i < jlbhOptions.iterations; i++) {
 
                     if (i == 0 && run == 0) {
-                        while (!warmUpComplete.get())
-                            Thread.yield();
+                        while (!warmUpComplete.get()) {
+                            Jvm.pause(1000);
+                            System.out.println("Complete: " + noResultsReturned);
+                        }
                         System.out.println("Warm up complete (" + jlbhOptions.warmUpIterations + " iterations took " +
                                 ((System.currentTimeMillis()-warmupStart)/1000.0) + "s)");
                         if(jlbhOptions.pauseAfterWarmupMS!=0){
@@ -239,6 +241,10 @@ public class JLBH {
         sb.append("   var(log)");
     }
 
+    @Override
+    public void sampleNanos(long nanos) {
+        sample(nanos);
+    }
 
     public void sample(long nanoTime) {
         noResultsReturned++;
