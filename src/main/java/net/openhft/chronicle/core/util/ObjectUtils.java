@@ -279,4 +279,19 @@ public enum ObjectUtils {
             }
         });
     }
+
+    public static Class getTypeFor(Class clazz, Class interfaceClass) {
+        for (Type type : clazz.getGenericInterfaces()) {
+            if (type instanceof ParameterizedType) {
+                ParameterizedType ptype = (ParameterizedType) type;
+                if (interfaceClass.isAssignableFrom((Class<?>) ptype.getRawType())) {
+                    Type type0 = ptype.getActualTypeArguments()[0];
+                    if (type0 instanceof Class)
+                        return (Class) type0;
+                    throw new IllegalArgumentException("The match super interface for " + clazz + " was not a concrete class, was " + ptype);
+                }
+            }
+        }
+        throw new IllegalArgumentException("No matching super interface for " + clazz + " which was a " + interfaceClass);
+    }
 }
