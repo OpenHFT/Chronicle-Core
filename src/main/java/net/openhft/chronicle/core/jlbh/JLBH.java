@@ -264,20 +264,29 @@ public class JLBH {
         public void run() {
             // make sure this thread is not bound by its parent.
             Affinity.setAffinity(AffinityLock.BASE_AFFINITY);
+            AffinityLock affinityLock = null;
+            if(jlbhOptions.jitterAffinity){
+                affinityLock = AffinityLock.acquireLock();
+            }
 
-            long lastTime = System.nanoTime();
-            while (true) {
-                if (reset.get()) {
-                    reset.set(false);
-                    osJitterHistogram.reset();
-                    lastTime = System.nanoTime();
+            try {
+                long lastTime = System.nanoTime();
+                while (true) {
+                    if (reset.get()) {
+                        reset.set(false);
+                        osJitterHistogram.reset();
+                        lastTime = System.nanoTime();
+                    }
+                    long time = System.nanoTime();
+                    if (time - lastTime > jlbhOptions.recordJitterGreaterThanNs) {
+                        //System.out.println("DELAY " + (time - lastTime) / 100_000 / 10.0 + "ms");
+                        osJitterHistogram.sample(time - lastTime);
+                    }
+                    lastTime = time;
                 }
-                long time = System.nanoTime();
-                if (time - lastTime > jlbhOptions.recordJitterGreaterThanNs) {
-                    //System.out.println("DELAY " + (time - lastTime) / 100_000 / 10.0 + "ms");
-                    osJitterHistogram.sample(time - lastTime);
-                }
-                lastTime = time;
+            }finally{
+                if(affinityLock!=null)
+                    affinityLock.release();
             }
 
         }
