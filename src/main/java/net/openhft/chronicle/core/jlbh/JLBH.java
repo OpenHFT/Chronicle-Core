@@ -210,12 +210,16 @@ public class JLBH implements NanoSampler {
         System.out.println(sb.toString());
 
         sb = new StringBuilder();
-        addPrToPrint(sb, "50:   ", jlbhOptions.runs);
-        addPrToPrint(sb, "90:   ", jlbhOptions.runs);
-        addPrToPrint(sb, "99:   ", jlbhOptions.runs);
-        addPrToPrint(sb, "99.9: ", jlbhOptions.runs);
-        addPrToPrint(sb, "99.99:", jlbhOptions.runs);
-        addPrToPrint(sb, "worst:", jlbhOptions.runs);
+        addPrToPrint(sb, "50:     ", jlbhOptions.runs);
+        addPrToPrint(sb, "90:     ", jlbhOptions.runs);
+        addPrToPrint(sb, "99:     ", jlbhOptions.runs);
+        addPrToPrint(sb, "99.9:   ", jlbhOptions.runs);
+        addPrToPrint(sb, "99.99:  ", jlbhOptions.runs);
+        if(jlbhOptions.iterations > 10_000_000)
+            addPrToPrint(sb, "99.999: ", jlbhOptions.runs);
+        if(jlbhOptions.iterations > 100_000_000)
+            addPrToPrint(sb, "99.9999:", jlbhOptions.runs);
+        addPrToPrint(sb, "worst:  ", jlbhOptions.runs);
 
         System.out.printf(sb.toString(), summary.toArray(NO_DOUBLES));
         System.out.println("-------------------------------------------------------------------------------------------------------------------");
@@ -272,20 +276,29 @@ public class JLBH implements NanoSampler {
         public void run() {
             // make sure this thread is not bound by its parent.
             Affinity.setAffinity(AffinityLock.BASE_AFFINITY);
+            AffinityLock affinityLock = null;
+            if(jlbhOptions.jitterAffinity){
+                affinityLock = AffinityLock.acquireLock();
+            }
 
-            long lastTime = System.nanoTime();
-            while (true) {
-                if (reset.get()) {
-                    reset.set(false);
-                    osJitterHistogram.reset();
-                    lastTime = System.nanoTime();
+            try {
+                long lastTime = System.nanoTime();
+                while (true) {
+                    if (reset.get()) {
+                        reset.set(false);
+                        osJitterHistogram.reset();
+                        lastTime = System.nanoTime();
+                    }
+                    long time = System.nanoTime();
+                    if (time - lastTime > jlbhOptions.recordJitterGreaterThanNs) {
+                        //System.out.println("DELAY " + (time - lastTime) / 100_000 / 10.0 + "ms");
+                        osJitterHistogram.sample(time - lastTime);
+                    }
+                    lastTime = time;
                 }
-                long time = System.nanoTime();
-                if (time - lastTime > jlbhOptions.recordJitterGreaterThanNs) {
-                    //System.out.println("DELAY " + (time - lastTime) / 100_000 / 10.0 + "ms");
-                    osJitterHistogram.sample(time - lastTime);
-                }
-                lastTime = time;
+            }finally{
+                if(affinityLock!=null)
+                    affinityLock.release();
             }
 
         }

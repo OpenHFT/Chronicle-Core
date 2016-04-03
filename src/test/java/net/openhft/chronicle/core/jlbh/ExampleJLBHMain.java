@@ -31,10 +31,10 @@ public class ExampleJLBHMain implements JLBHTask {
     public static void main(String[] args) {
         JLBHOptions jlbhOptions = new JLBHOptions()
                 .warmUpIterations(50_000)
-                .iterations(100_000)
-                .throughput(25_000)
+                .iterations(10_000_001)
+                .throughput(2000_000)
                 .accountForCoordinatedOmmission(true)
-                .runs(3)
+                .runs(2)
                 .accountForCoordinatedOmmission(true)
                 .jlbhTask(new ExampleJLBHMain());
         new JLBH(jlbhOptions).start();
@@ -46,7 +46,7 @@ public class ExampleJLBHMain implements JLBHTask {
         if(count==160_000) {
             System.out.println("PAUSE");
             //long now = System.nanoTime();
-            Jvm.pause(1000);
+            Jvm.pause(100);
             //nanoSamplerWait.sampleNanos(System.nanoTime()-now);
         }
 

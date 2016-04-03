@@ -14,6 +14,8 @@ public class JLBHOptions {
     JLBHTask jlbhTask;
     int pauseAfterWarmupMS = 0;
     SKIP_FIRST_RUN skipFirstRun = SKIP_FIRST_RUN.NOT_SET;
+    boolean jitterAffinity;
+
 
     enum SKIP_FIRST_RUN{
         NOT_SET, SKIP, NO_SKIP
@@ -119,6 +121,16 @@ public class JLBHOptions {
      */
     public JLBHOptions skipFirstRun(boolean skip) {
         skipFirstRun = skip ? SKIP_FIRST_RUN.SKIP : SKIP_FIRST_RUN.NO_SKIP;
+        return this;
+    }
+
+    /**
+     * Should the jitter thread set affinity or not
+     * @param jitterAffinity default is false
+     * @return Instance of the JLBHOptions to be used in the builder pattern.
+     */
+    public JLBHOptions jitterAffinity(boolean jitterAffinity) {
+        this.jitterAffinity = jitterAffinity;
         return this;
     }
 }

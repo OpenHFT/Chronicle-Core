@@ -75,13 +75,38 @@ public class Histogram implements NanoSampler {
     }
 
     public double[] getPercentiles(){
+        if (totalCount < 1_000_000) {
+            return new double[]{
+                    percentile(0.5),
+                    percentile(0.9),
+                    percentile(0.99),
+                    percentile(0.999),
+                    percentile(0.9999),
+                    percentile(1)
+            };
+        }
+
+        if (totalCount < 10_000_000) {
+            return new double[]{
+                    percentile(0.5),
+                    percentile(0.9),
+                    percentile(0.99),
+                    percentile(0.999),
+                    percentile(0.9999),
+                    percentile(0.99999),
+                    percentile(1)
+            };
+        }
+
         return new double[]{
-            percentile(0.5),
-            percentile(0.9),
-            percentile(0.99),
-            percentile(0.999),
-            percentile(0.9999),
-            percentile(1)
+                percentile(0.5),
+                percentile(0.9),
+                percentile(0.99),
+                percentile(0.999),
+                percentile(0.9999),
+                percentile(0.99999),
+                percentile(0.999999),
+                percentile(1)
         };
     }
 
