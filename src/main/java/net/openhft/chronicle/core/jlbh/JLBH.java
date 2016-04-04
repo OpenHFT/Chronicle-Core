@@ -47,7 +47,7 @@ public class JLBH implements NanoSampler {
     private boolean warmedUp;
 
     /**
-     * @param jlbhOptions
+     * @param jlbhOptions Options to run the benchmark
      */
     public JLBH(JLBHOptions jlbhOptions) {
         this.jlbhOptions = jlbhOptions;
@@ -55,10 +55,18 @@ public class JLBH implements NanoSampler {
         rate = 1_000_000_000 / jlbhOptions.throughput;
     }
 
+    /**
+     * Add a probe to measure a section of the benchmark.
+     * @param name Name of probe
+     * @return NanoSampler
+     */
     public NanoSampler addProbe(String name) {
         return additionHistograms.computeIfAbsent(name, n -> new Histogram());
     }
 
+    /**
+     * Start benchmark
+     */
     public void start() {
         jlbhOptions.jlbhTask.init(this);
         OSJitterMonitor osJitterMonitor = new OSJitterMonitor();
@@ -278,6 +286,7 @@ public class JLBH implements NanoSampler {
             Affinity.setAffinity(AffinityLock.BASE_AFFINITY);
             AffinityLock affinityLock = null;
             if(jlbhOptions.jitterAffinity){
+                System.out.println("Jitter thread running with affinity.");
                 affinityLock = AffinityLock.acquireLock();
             }
 
@@ -291,7 +300,6 @@ public class JLBH implements NanoSampler {
                     }
                     long time = System.nanoTime();
                     if (time - lastTime > jlbhOptions.recordJitterGreaterThanNs) {
-                        //System.out.println("DELAY " + (time - lastTime) / 100_000 / 10.0 + "ms");
                         osJitterHistogram.sample(time - lastTime);
                     }
                     lastTime = time;
