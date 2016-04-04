@@ -213,9 +213,9 @@ public class JLBH implements NanoSampler {
         addPrToPrint(sb, "99:     ", jlbhOptions.runs);
         addPrToPrint(sb, "99.9:   ", jlbhOptions.runs);
         addPrToPrint(sb, "99.99:  ", jlbhOptions.runs);
-        if(jlbhOptions.iterations > 10_000_000)
+        if(jlbhOptions.iterations > 1_000_000)
             addPrToPrint(sb, "99.999: ", jlbhOptions.runs);
-        if(jlbhOptions.iterations > 100_000_000)
+        if(jlbhOptions.iterations > 10_000_000)
             addPrToPrint(sb, "99.9999:", jlbhOptions.runs);
         addPrToPrint(sb, "worst:  ", jlbhOptions.runs);
 
