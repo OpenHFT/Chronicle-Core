@@ -16,6 +16,9 @@
 
 package net.openhft.chronicle.core.pool;
 
+import net.openhft.chronicle.core.threads.ThreadDump;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
@@ -26,11 +29,33 @@ import static org.junit.Assert.assertEquals;
  */
 public class ClassAliasPoolTest {
 
+    private ThreadDump threadDump;
+
+    @Before
+    public void threadDump() {
+        threadDump = new ThreadDump();
+    }
+
+    @After
+    public void checkThreadDump() {
+        threadDump.assertNoNewThreads();
+    }
+
     @Test
     public void testClean() {
         assertEquals("String", CLASS_ALIASES.nameFor(String.class));
         CLASS_ALIASES.clean();
         assertEquals("String", CLASS_ALIASES.nameFor(String.class));
+    }
+
+    @Test
+    public void testEnum() {
+        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum",
+                CLASS_ALIASES.nameFor(TestEnum.class));
+        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum",
+                CLASS_ALIASES.nameFor(TestEnum.FOO.getClass()));
+        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum",
+                CLASS_ALIASES.nameFor(TestEnum.BAR.getClass()));
     }
 
     enum TestEnum {
@@ -42,15 +67,5 @@ public class ClassAliasPoolTest {
         BAR;
 
         void foo() {}
-    }
-
-    @Test
-    public void testEnum() {
-        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum",
-                CLASS_ALIASES.nameFor(TestEnum.class));
-        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum",
-                CLASS_ALIASES.nameFor(TestEnum.FOO.getClass()));
-        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum",
-                CLASS_ALIASES.nameFor(TestEnum.BAR.getClass()));
     }
 }

@@ -16,6 +16,9 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.threads.ThreadDump;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import sun.nio.ch.DirectBuffer;
 
@@ -28,6 +31,19 @@ import static org.junit.Assert.*;
  * Created by peter on 26/02/2016.
  */
 public class JvmTest {
+
+
+    private ThreadDump threadDump;
+
+    @Before
+    public void threadDump() {
+        threadDump = new ThreadDump();
+    }
+
+    @After
+    public void checkThreadDump() {
+        threadDump.assertNoNewThreads();
+    }
 
     @Test(expected = ConfigurationException.class)
     public void testRethrow() throws Exception {

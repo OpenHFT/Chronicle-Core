@@ -16,6 +16,9 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.threads.ThreadDump;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -28,6 +31,18 @@ import java.util.UUID;
 import static org.junit.Assert.assertEquals;
 
 public class OSTest {
+
+    private ThreadDump threadDump;
+
+    @Before
+    public void threadDump() {
+        threadDump = new ThreadDump();
+    }
+
+    @After
+    public void checkThreadDump() {
+        threadDump.assertNoNewThreads();
+    }
     @Test
     public void testIs64Bit() {
         System.out.println("is64 = " + OS.is64Bit());

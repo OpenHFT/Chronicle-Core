@@ -16,6 +16,9 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.threads.ThreadDump;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -33,6 +36,19 @@ import static org.junit.Assert.fail;
  * Time: 10:31
  */
 public class MathsTest {
+
+    private ThreadDump threadDump;
+
+    @Before
+    public void threadDump() {
+        threadDump = new ThreadDump();
+    }
+
+    @After
+    public void checkThreadDump() {
+        threadDump.assertNoNewThreads();
+    }
+
     @Test
     public void testIntLog2() {
         for (int i = 0; i < 63; i++) {
