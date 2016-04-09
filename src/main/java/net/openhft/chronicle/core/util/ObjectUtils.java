@@ -157,11 +157,13 @@ public enum ObjectUtils {
     private static <E> E convertToArray(Class<E> eClass, Object o)
             throws IllegalArgumentException {
         int len = sizeOf(o);
-        Object array = Array.newInstance(eClass, len);
+        Object array = Array.newInstance(eClass.getComponentType(), len);
         Iterator iter = iteratorFor(o);
         Class elementType = elementType(eClass);
-        for (int i = 0; i < len; i++)
-            Array.set(array, i, convertTo(elementType, iter.next()));
+        for (int i = 0; i < len; i++) {
+            Object value = convertTo(elementType, iter.next());
+            Array.set(array, i, value);
+        }
         return (E) array;
     }
 
