@@ -16,13 +16,9 @@ public class JLBHOptions {
     SKIP_FIRST_RUN skipFirstRun = SKIP_FIRST_RUN.NOT_SET;
     boolean jitterAffinity;
 
-
-    enum SKIP_FIRST_RUN{
-        NOT_SET, SKIP, NO_SKIP
-    }
-
     /**
      * Number of iterations per second to be pushed through the benchmark
+     *
      * @param throughput defaults to 10,000
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
@@ -132,5 +128,9 @@ public class JLBHOptions {
     public JLBHOptions jitterAffinity(boolean jitterAffinity) {
         this.jitterAffinity = jitterAffinity;
         return this;
+    }
+
+    enum SKIP_FIRST_RUN {
+        NOT_SET, SKIP, NO_SKIP
     }
 }

@@ -190,7 +190,6 @@ public class JLBH implements NanoSampler {
             }
             consistencies.add(100 * (maxValue - minValue) / (maxValue + minValue / 2));
 
-
             double avg_log = total_log / percentileRuns.size();
             double total_sqr_log = 0;
             for (double[] percentileRun : percentileRuns) {

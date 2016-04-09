@@ -510,6 +510,4 @@ public enum UnsafeMemory implements Memory {
     public long addLong(Object object, long offset, long increment) {
         return UNSAFE.getAndAddLong(object, offset, increment) + increment;
     }
-
-
 }
