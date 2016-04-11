@@ -17,7 +17,6 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.ClassLocal;
-import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 
 import java.lang.reflect.*;
@@ -38,13 +37,7 @@ public enum ObjectUtils {
         try {
             Constructor constructor = c.getDeclaredConstructor();
             constructor.setAccessible(true);
-            return () -> {
-                try {
-                    return constructor.newInstance();
-                } catch (Exception e) {
-                    throw Jvm.rethrow(e);
-                }
-            };
+            return ThrowingSupplier.asSupplier(() -> constructor.newInstance());
         } catch (Exception e) {
             return () -> OS.memory().allocateInstance(c);
         }

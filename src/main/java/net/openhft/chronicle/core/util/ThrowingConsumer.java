@@ -19,24 +19,25 @@ package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.Jvm;
 
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 /**
- * Represents a function that accepts one argument and produces a result.
+ * Represents an operation that accepts a single input argument and returns no
+ * result. Unlike most other functional interfaces, {@code Consumer} is expected
+ * to operate via side-effects.
  * <p/>
  * <p>This is a <a href="package-summary.html">functional interface</a>
- * whose functional method is {@link #apply(Object)}.
+ * whose functional method is {@link #accept(Object)}.
  *
  * @param <I> the type of the input to the function
  * @param <T> the type of Throwable thrown
- * @param <R> the type of the result of the function
  */
 @FunctionalInterface
-public interface ThrowingFunction<I, T extends Throwable, R> {
-    static <I, T extends Throwable, R> Function<I, R> asFunction(ThrowingFunction<I, T, R> function) {
+public interface ThrowingConsumer<I, T extends Throwable> {
+    static <I, T extends Throwable> Consumer<I> asConsumer(ThrowingConsumer<I, T> function) {
         return in -> {
             try {
-                return function.apply(in);
+                function.accept(in);
             } catch (Throwable t) {
                 throw Jvm.rethrow(t);
             }
@@ -44,10 +45,9 @@ public interface ThrowingFunction<I, T extends Throwable, R> {
     }
 
     /**
-     * Applies this function to the given argument.
+     * Performs this operation on the given argument.
      *
-     * @param in the function argument
-     * @return the function result
+     * @param in the input argument
      */
-    R apply(I in) throws T;
+    void accept(I in) throws T;
 }
