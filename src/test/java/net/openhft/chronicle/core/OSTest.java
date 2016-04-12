@@ -23,7 +23,9 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.channels.FileChannel;
 import java.nio.file.Paths;
 import java.util.UUID;
@@ -56,7 +58,7 @@ public class OSTest {
     @Test
     @Ignore("Failing on TC (linux agent) for unknown reason, anyway the goal of this test is to " +
             "test mapping granularity on windows")
-    public void testMapGranularity() throws Exception {
+    public void testMapGranularity() throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         // tests that windows supports page mapping granularity
         long length = OS.pageSize();
         String name = Paths.get(OS.TARGET, "deleteme" + UUID.randomUUID().toString()).toString();
@@ -71,7 +73,7 @@ public class OSTest {
 
     @Test
     @Ignore("Should always pass, or crash the JVM based on length")
-    public void testMap()            throws Exception {
+    public void testMap() throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         if (!OS.isWindows()) return;
 
         // crashes the JVM.

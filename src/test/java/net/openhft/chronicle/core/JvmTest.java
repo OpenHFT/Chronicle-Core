@@ -46,52 +46,52 @@ public class JvmTest {
     }
 
     @Test(expected = ConfigurationException.class)
-    public void testRethrow() throws Exception {
+    public void testRethrow() {
         Jvm.rethrow(new ConfigurationException());
     }
 
     @Test
-    public void testTrimStackTrace() throws Exception {
+    public void testTrimStackTrace() {
         // TODO: 26/02/2016
     }
 
     @Test
-    public void testTrimFirst() throws Exception {
-        // TODO: 26/02/2016
-
-    }
-
-    @Test
-    public void testTrimLast() throws Exception {
+    public void testTrimFirst() {
         // TODO: 26/02/2016
 
     }
 
     @Test
-    public void testIsInternal() throws Exception {
+    public void testTrimLast() {
+        // TODO: 26/02/2016
+
+    }
+
+    @Test
+    public void testIsInternal() {
         assertTrue(Jvm.isInternal(String.class.getName()));
         assertFalse(Jvm.isInternal(getClass().getName()));
     }
 
     @Test
-    public void testPause() throws Exception {
+    public void testPause() {
         // TODO: 26/02/2016
 
     }
 
     @Test
-    public void testBusyWaitMicros() throws Exception {
+    public void testBusyWaitMicros() {
         // TODO: 26/02/2016
     }
 
     @Test
-    public void testGetField() throws Exception {
+    public void testGetField() {
         // TODO: 26/02/2016
 
     }
 
     @Test
-    public void testGetValue() throws Exception {
+    public void testGetValue() {
         ByteBuffer bb = ByteBuffer.allocateDirect(128);
         long address = Jvm.getValue(bb, "address");
         assertEquals(((DirectBuffer) bb).address(), address);
@@ -99,20 +99,20 @@ public class JvmTest {
     }
 
     @Test
-    public void testLockWithStack() throws Exception {
+    public void testLockWithStack() {
         // TODO: 26/02/2016
 
     }
 
     @Test
-    public void testUsedDirectMemory() throws Exception {
+    public void testUsedDirectMemory() {
         long used = Jvm.usedDirectMemory();
         ByteBuffer.allocateDirect(4 << 10);
         assertEquals(used + (4 << 10), Jvm.usedDirectMemory());
     }
 
     @Test
-    public void testMaxDirectMemory() throws Exception {
+    public void testMaxDirectMemory() {
         long maxDirectMemory = Jvm.maxDirectMemory();
         assertTrue(maxDirectMemory > 0);
     }

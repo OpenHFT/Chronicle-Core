@@ -92,7 +92,7 @@ public class JLBH implements NanoSampler {
 
                     if (i == 0 && run == 0) {
                         while (!warmUpComplete.get()) {
-                            Jvm.pause(1000);
+                            Jvm.pause(2000);
                             System.out.println("Complete: " + noResultsReturned);
                         }
                         System.out.println("Warm up complete (" + jlbhOptions.warmUpIterations + " iterations took " +

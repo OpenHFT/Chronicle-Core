@@ -16,6 +16,7 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.Jvm;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -29,7 +30,7 @@ public class TimeTest {
     public void testTickTime() throws InterruptedException {
         long start = Time.tickTime();
         for (int i = 0; i < 10; i++) {
-            Thread.sleep(10);
+            Jvm.pause(10);
             Time.tickTime();
         }
         long last = Time.tickTime();
@@ -40,7 +41,7 @@ public class TimeTest {
     public void testFastTime() throws InterruptedException {
         long start = Time.tickTime();
         for (int i = 0; i < 100; i++) {
-            Thread.sleep(1);
+            Jvm.pause(1);
             Time.tickTime();
         }
         long last = Time.tickTime();

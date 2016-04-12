@@ -142,11 +142,11 @@ public enum Jvm {
      */
     public static void pause(long millis) {
         long timeNanos = millis * 1000000;
-        if (timeNanos > 1e9) {
+        if (timeNanos > 10e6) {
             try {
                 Thread.sleep(millis);
             } catch (InterruptedException e) {
-                throw new AssertionError(e);
+                Thread.currentThread().isInterrupted();
             }
         } else {
             LockSupport.parkNanos(timeNanos);
