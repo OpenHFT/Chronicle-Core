@@ -95,18 +95,15 @@
 
             <!-- used to allow getClass().getPackage().getImplementationVersion() -->
 
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <compilerArgument>-Xlint:deprecation</compilerArgument>
-                    <source>1.7</source>
-                    <target>1.7</target>
-                    <encoding>UTF-8</encoding>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
-
             <!--
                 generate maven dependencies versions file that can be used later
                 to install the right bundle in test phase.
