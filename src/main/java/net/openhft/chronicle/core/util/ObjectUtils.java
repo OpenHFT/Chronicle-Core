@@ -54,6 +54,40 @@ public enum ObjectUtils {
         put(void.class, Void.class);
     }};
     static final Map<Class, Object> DEFAULT_MAP = new HashMap<>();
+    static final ClassLocal<ThrowingFunction<String, Exception, Object>> PARSER_CL = ClassLocal.withInitial(c -> {
+
+        try {
+            Method valueOf = c.getDeclaredMethod("valueOf", String.class);
+            valueOf.setAccessible(true);
+            return s -> valueOf.invoke(null, s);
+        } catch (NoSuchMethodException e) {
+            // ignored
+        }
+
+        try {
+            Method valueOf = c.getDeclaredMethod("parse", CharSequence.class);
+            valueOf.setAccessible(true);
+            return s -> valueOf.invoke(null, s);
+
+        } catch (NoSuchMethodException e) {
+            // ignored
+        }
+        try {
+            Method valueOf = c.getDeclaredMethod("fromString", String.class);
+            valueOf.setAccessible(true);
+            return s -> valueOf.invoke(null, s);
+
+        } catch (NoSuchMethodException e) {
+            // ignored
+        }
+        try {
+            Constructor constructor = c.getDeclaredConstructor(String.class);
+            constructor.setAccessible(true);
+            return s -> constructor.newInstance(s);
+        } catch (Exception e) {
+            throw asCCE(e);
+        }
+    });
 
     static {
         DEFAULT_MAP.put(boolean.class, false);
@@ -103,27 +137,9 @@ public enum ObjectUtils {
                 return (E) s;
 
             try {
-                Method valueOf = eClass.getDeclaredMethod("valueOf", String.class);
-                valueOf.setAccessible(true);
-                return (E) valueOf.invoke(null, s);
+                return (E) PARSER_CL.get(eClass).apply(s);
 
-            } catch (InvocationTargetException | IllegalAccessException | IllegalArgumentException e) {
-                throw asCCE(e);
-            } catch (NoSuchMethodException e) {
-            }
-            try {
-                Constructor<E> constructor = eClass.getDeclaredConstructor(String.class);
-                constructor.setAccessible(true);
-                return constructor.newInstance(s);
             } catch (Exception e) {
-                if (s.length() == 0) {
-                    try {
-                        return newInstance(eClass);
-                    } catch (Exception e2) {
-                        throw asCCE(e);
-                    }
-                }
-
                 throw asCCE(e);
             }
         }
