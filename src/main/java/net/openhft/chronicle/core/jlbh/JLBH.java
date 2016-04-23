@@ -169,7 +169,6 @@ public class JLBH implements NanoSampler {
         double minValue = Double.MAX_VALUE;
         int length = percentileRuns.get(0).length;
         for (int i = 0; i < length; i++) {
-            double total_log = 0;
             boolean skipFirst = length > 3;
             if(jlbhOptions.skipFirstRun== JLBHOptions.SKIP_FIRST_RUN.SKIP) {
                 skipFirst = true;
@@ -186,19 +185,9 @@ public class JLBH implements NanoSampler {
                     maxValue = v;
                 if (v < minValue)
                     minValue = v;
-                total_log += Math.log(v);
             }
             consistencies.add(100 * (maxValue - minValue) / (maxValue + minValue / 2));
 
-            double avg_log = total_log / percentileRuns.size();
-            double total_sqr_log = 0;
-            for (double[] percentileRun : percentileRuns) {
-                double v = percentileRun[i];
-                double logv = Math.log10(v);
-                total_sqr_log += (logv - avg_log) * (logv - avg_log);
-            }
-            double var_log = total_sqr_log / (percentileRuns.size() - 1);
-            consistencies.add(var_log);
             maxValue = Double.MIN_VALUE;
             minValue = Double.MAX_VALUE;
         }
@@ -208,8 +197,7 @@ public class JLBH implements NanoSampler {
             for (double[] percentileRun : percentileRuns) {
                 summary.add(percentileRun[i] / 1e3);
             }
-            summary.add(consistencies.get(i * 2));
-            summary.add(consistencies.get(i * 2 + 1));
+            summary.add(consistencies.get(i));
         }
 
         StringBuilder sb = new StringBuilder();
@@ -238,7 +226,6 @@ public class JLBH implements NanoSampler {
             sb.append("%12.2f ");
         }
         sb.append("%12.2f");
-        sb.append("%12.2f");
         sb.append("%n");
     }
 
@@ -251,7 +238,6 @@ public class JLBH implements NanoSampler {
                 sb.append("         run").append(i);
         }
         sb.append("      % Variation");
-        sb.append("   var(log)");
     }
 
     @Override
