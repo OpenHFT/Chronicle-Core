@@ -43,5 +43,4 @@ public interface EventLoop extends Closeable {
      * @return {@code true} if the main thread is running
      */
     boolean isAlive();
-
 }

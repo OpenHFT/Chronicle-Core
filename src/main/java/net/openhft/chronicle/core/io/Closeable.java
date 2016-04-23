@@ -22,7 +22,11 @@ import java.nio.channels.ClosedChannelException;
 @FunctionalInterface
 public interface Closeable extends java.io.Closeable {
     static void closeQuietly(Object o) {
-        if (o instanceof java.io.Closeable) {
+        if (o instanceof Object[]) {
+            for (Object o2 : (Object[]) o) {
+                closeQuietly(o2);
+            }
+        } else if (o instanceof java.io.Closeable) {
             try {
                 ((java.io.Closeable) o).close();
             } catch (ClosedChannelException ignore) {
