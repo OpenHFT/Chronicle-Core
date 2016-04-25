@@ -18,6 +18,7 @@ package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.ClassLocal;
 import net.openhft.chronicle.core.OS;
+import net.openhft.chronicle.core.pool.ClassAliasPool;
 
 import java.lang.reflect.*;
 import java.math.BigDecimal;
@@ -55,6 +56,8 @@ public enum ObjectUtils {
     }};
     static final Map<Class, Object> DEFAULT_MAP = new HashMap<>();
     static final ClassLocal<ThrowingFunction<String, Exception, Object>> PARSER_CL = ClassLocal.withInitial(c -> {
+        if (c == Class.class)
+            return ClassAliasPool.CLASS_ALIASES::forName;
 
         try {
             Method valueOf = c.getDeclaredMethod("valueOf", String.class);
