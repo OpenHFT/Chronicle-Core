@@ -55,5 +55,5 @@ public enum HandlerPriority {
     /**
      * A task which can be performed concurrently especially as it might block for some time.
      */
-    IO;
+    CONCURRENT;
 }

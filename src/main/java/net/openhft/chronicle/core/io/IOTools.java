@@ -29,7 +29,7 @@ import java.util.zip.GZIPOutputStream;
 
 /**
  * Created by peter on 26/08/15.
- * A collection of IO utility tools
+ * A collection of CONCURRENT utility tools
  */
 public enum IOTools {
     ;
