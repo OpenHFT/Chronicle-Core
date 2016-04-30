@@ -50,5 +50,10 @@ public enum HandlerPriority {
     /***
      * used for replication, ensures that the replication runs on its own thread
      */
-    REPLICATION
+    REPLICATION,
+
+    /**
+     * A task which can be performed concurrently especially as it might block for some time.
+     */
+    IO;
 }
