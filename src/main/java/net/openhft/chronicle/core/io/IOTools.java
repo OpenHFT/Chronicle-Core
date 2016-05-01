@@ -34,19 +34,19 @@ import java.util.zip.GZIPOutputStream;
 public enum IOTools {
     ;
 
-    public static boolean shallowDeleteDirWithFiles(String directory) {
+    public static boolean shallowDeleteDirWithFiles(String directory) throws IORuntimeException {
         return shallowDeleteDirWithFiles(new File(directory));
     }
 
-    public static boolean shallowDeleteDirWithFiles(File dir) {
+    public static boolean shallowDeleteDirWithFiles(File dir) throws IORuntimeException {
         return deleteDirWithFiles(dir, 1);
     }
 
-    public static boolean deleteDirWithFiles(String dir, int maxDepth) {
+    public static boolean deleteDirWithFiles(String dir, int maxDepth) throws IORuntimeException {
         return deleteDirWithFiles(new File(dir), maxDepth);
     }
 
-    public static boolean deleteDirWithFiles(File dir, int maxDepth) {
+    public static boolean deleteDirWithFiles(File dir, int maxDepth) throws IORuntimeException {
         File[] entries = dir.listFiles();
         if (entries == null) return false;
         Stream.of(entries).filter(File::isDirectory).forEach(f -> {
