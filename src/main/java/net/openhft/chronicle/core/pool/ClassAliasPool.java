@@ -87,8 +87,10 @@ public class ClassAliasPool implements ClassLookup {
         if (clazz != null)
             return clazz;
         clazz = stringClassMap2.get(name0);
-        if (clazz != null)
-            return clazz;
+        return clazz != null ? clazz : forName0(name, name0);
+    }
+
+    private Class forName0(CharSequence name, String name0) {
         return stringClassMap2.computeIfAbsent(name0, n -> {
             try {
                 return Class.forName(name0, true, classLoader);
@@ -107,7 +109,11 @@ public class ClassAliasPool implements ClassLookup {
 
     @Override
     public String nameFor(Class clazz) {
+        String name = classStringMap.get(clazz);
+        return name != null ? name : nameFor0(clazz);
+    }
 
+    private String nameFor0(Class clazz) {
         return classStringMap.computeIfAbsent(clazz, (aClass) -> {
             if (Enum.class.isAssignableFrom(aClass)) {
                 Class clazz2 = aClass.getSuperclass();

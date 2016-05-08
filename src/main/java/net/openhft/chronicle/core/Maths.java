@@ -16,6 +16,8 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.util.StringUtils;
+
 public enum Maths {
     ;
     /**
@@ -175,6 +177,18 @@ public enum Maths {
         return (int) h;
     }
 
+    public static int hash32(String s) {
+        long h = hash64(s);
+        h ^= h >> 32;
+        return (int) h;
+    }
+
+    public static int hash32(StringBuilder s) {
+        long h = hash64(s);
+        h ^= h >> 32;
+        return (int) h;
+    }
+
     public static int hash32(long l0) {
         long h = hash64(l0);
         h ^= h >> 32;
@@ -185,6 +199,22 @@ public enum Maths {
         long hash = 0;
         for (int i = 0; i < cs.length(); i++)
             hash = hash * 841248317 + cs.charAt(i);
+        return agitate(hash);
+    }
+
+    public static long hash64(String s) {
+        long hash = 0;
+        final char[] chars = StringUtils.extractChars(s);
+        for (int i = 0; i < chars.length; i++)
+            hash = hash * 841248317 + chars[i];
+        return agitate(hash);
+    }
+
+    public static long hash64(StringBuilder s) {
+        long hash = 0;
+        final char[] chars = StringUtils.extractChars(s);
+        for (int i = 0; i < chars.length; i++)
+            hash = hash * 841248317 + chars[i];
         return agitate(hash);
     }
 

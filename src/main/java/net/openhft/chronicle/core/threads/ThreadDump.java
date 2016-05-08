@@ -17,6 +17,7 @@ public class ThreadDump {
     public ThreadDump() {
         this.threads = new HashSet<>(Thread.getAllStackTraces().keySet());
         ignored.add("Time-limited test");
+        ignored.add("Attach Listener");
     }
 
     public void ignore(String threadName) {
