@@ -20,6 +20,7 @@ import net.openhft.chronicle.core.util.StringUtils;
 
 public enum Maths {
     ;
+
     /**
      * Numbers larger than this are whole numbers due to representation error.
      */
