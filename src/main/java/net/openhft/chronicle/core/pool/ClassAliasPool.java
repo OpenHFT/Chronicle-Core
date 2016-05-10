@@ -56,6 +56,7 @@ public class ClassAliasPool implements ClassLookup {
         addAlias(String[].class, "String[]");
         addAlias(byte[].class, "byte[]");
         addAlias(Class.class, "type");
+        addAlias(void.class, "!null");
 
         return this;
     }

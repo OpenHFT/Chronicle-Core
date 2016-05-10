@@ -120,6 +120,7 @@ public enum ObjectUtils {
             throws ClassCastException, IllegalArgumentException {
         eClass = primToWrapper(eClass);
         if (eClass.isInstance(o) || o == null) return (E) o;
+        if (eClass == Void.class) return null;
         if (Enum.class.isAssignableFrom(eClass)) {
             try {
                 return (E) Enum.valueOf((Class) eClass, o.toString());
@@ -153,6 +154,9 @@ public enum ObjectUtils {
             return (E) o;
         if (Object[].class.isAssignableFrom(eClass)) {
             return convertToArray(eClass, o);
+        }
+        if (Set.class.isAssignableFrom(eClass)) {
+            return (E) new LinkedHashSet((Collection) o);
         }
 //        if (Collection.class.isAssignableFrom(eClass)) {
 //            return convertCollection(eClass, o);
@@ -250,6 +254,13 @@ public enum ObjectUtils {
     }
 
     public static <T> T newInstance(Class<T> clazz) {
+        if (clazz == null)
+            throw new NullPointerException();
+        if (clazz.isPrimitive())
+            throw new IllegalArgumentException("primitive: " + clazz.getName());
+        if (clazz.isInterface())
+            throw new IllegalArgumentException("interface: " + clazz.getName());
+
         Supplier cons = SUPPLIER_CLASS_LOCAL.get(clazz);
         return (T) cons.get();
     }
