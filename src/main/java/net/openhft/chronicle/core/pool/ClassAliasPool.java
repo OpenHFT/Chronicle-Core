@@ -21,9 +21,7 @@ import net.openhft.chronicle.core.Jvm;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ClassAliasPool implements ClassLookup {
@@ -40,7 +38,11 @@ public class ClassAliasPool implements ClassLookup {
     }
 
     private ClassAliasPool defaultAliases() {
-        addAlias(Set.class);
+        addAlias(Set.class, "!set");
+        addAlias(SortedSet.class, "!oset");
+        addAlias(List.class, "!seq");
+        addAlias(Map.class, "!map");
+        addAlias(SortedMap.class, "!omap");
         addAlias(String.class, "String, !str");
         addAlias(CharSequence.class);
         addAlias(Byte.class, "byte, int8");
