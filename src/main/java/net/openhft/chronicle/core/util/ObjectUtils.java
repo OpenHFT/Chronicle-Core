@@ -118,6 +118,14 @@ public enum ObjectUtils {
 
     public static <E> E convertTo(Class<E> eClass, Object o)
             throws ClassCastException, IllegalArgumentException {
+        // shorter path.
+        return eClass == null || o == null || eClass.isInstance(o)
+                ? (E) o
+                : convertTo0(eClass, o);
+    }
+
+    static <E> E convertTo0(Class<E> eClass, Object o)
+            throws ClassCastException, IllegalArgumentException {
         eClass = primToWrapper(eClass);
         if (eClass.isInstance(o) || o == null) return (E) o;
         if (eClass == Void.class) return null;
