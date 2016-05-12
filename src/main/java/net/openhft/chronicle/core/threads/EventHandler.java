@@ -20,7 +20,7 @@ package net.openhft.chronicle.core.threads;
  * Created by peter.lawrey on 22/01/15.
  */
 @FunctionalInterface
-public interface EventHandler {
+public interface EventHandler extends VanillaEventHandler {
     default void eventLoop(EventLoop eventLoop) {
     }
 
@@ -28,11 +28,4 @@ public interface EventHandler {
         return HandlerPriority.MEDIUM;
     }
 
-    /**
-     * perform all tasks once and return ASAP.
-     *
-     * @return true if you expect more work very soon.
-     * @throws InvalidEventHandlerException when it is not longer valid.
-     */
-    boolean action() throws InvalidEventHandlerException, InterruptedException;
 }
