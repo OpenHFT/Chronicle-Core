@@ -34,7 +34,13 @@ public enum ObjectUtils {
     ;
 
     public static final Object[] NO_OBJECTS = {};
-    static final ClassLocal<Supplier> SUPPLIER_CLASS_LOCAL = ClassLocal.withInitial(c -> {
+    private static final ClassLocal<Supplier> SUPPLIER_CLASS_LOCAL = ClassLocal.withInitial(c -> {
+        if (c == null)
+            throw new NullPointerException();
+        if (c.isPrimitive())
+            throw new IllegalArgumentException("primitive: " + c.getName());
+        if (c.isInterface())
+            throw new IllegalArgumentException("interface: " + c.getName());
         try {
             Constructor constructor = c.getDeclaredConstructor();
             constructor.setAccessible(true);
@@ -262,13 +268,6 @@ public enum ObjectUtils {
     }
 
     public static <T> T newInstance(Class<T> clazz) {
-        if (clazz == null)
-            throw new NullPointerException();
-        if (clazz.isPrimitive())
-            throw new IllegalArgumentException("primitive: " + clazz.getName());
-        if (clazz.isInterface())
-            throw new IllegalArgumentException("interface: " + clazz.getName());
-
         Supplier cons = SUPPLIER_CLASS_LOCAL.get(clazz);
         return (T) cons.get();
     }
