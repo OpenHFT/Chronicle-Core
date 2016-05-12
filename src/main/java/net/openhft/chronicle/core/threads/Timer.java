@@ -59,7 +59,7 @@ public class Timer {
 
             long currentTime = System.currentTimeMillis();
 
-            if (lastTimeRan + waitTimeMs() <= currentTime)
+            if (lastTimeRan + waitTimeMs() > currentTime)
                 return false;
 
             lastTimeRan = currentTime;
