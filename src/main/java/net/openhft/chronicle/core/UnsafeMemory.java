@@ -174,6 +174,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void writeOrderedInt(long address, int i32) {
+//        assert (address & 0x3) == 0;
         UNSAFE.putOrderedInt(null, address, i32);
     }
 
@@ -305,6 +306,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void writeOrderedLong(long address, long i) {
+//        assert (address & 0x7) == 0;
         UNSAFE.putOrderedLong(null, address, i);
     }
 
@@ -316,8 +318,9 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public boolean compareAndSwapInt(long offset, int expected, int value) {
-        return UNSAFE.compareAndSwapInt(null, offset, expected, value);
+    public boolean compareAndSwapInt(long address, int expected, int value) {
+//        assert (address & 0x3) == 0;
+        return UNSAFE.compareAndSwapInt(null, address, expected, value);
     }
 
     @Override
@@ -328,8 +331,9 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public boolean compareAndSwapLong(long offset, long expected, long value) {
-        return UNSAFE.compareAndSwapLong(null, offset, expected, value);
+    public boolean compareAndSwapLong(long address, long expected, long value) {
+//        assert (address & 0x7) == 0;
+        return UNSAFE.compareAndSwapLong(null, address, expected, value);
     }
 
     @Override
@@ -442,6 +446,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void writeVolatileInt(long address, int i32) {
+//        assert (address & 0x3) == 0;
         UNSAFE.putIntVolatile(null, address, i32);
     }
 
@@ -454,6 +459,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void writeVolatileFloat(long address, float f) {
+//        assert (address & 0x3) == 0;
         UNSAFE.putFloatVolatile(null, address, f);
     }
 
@@ -466,6 +472,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void writeVolatileLong(long address, long i64) {
+//        assert (address & 0x7) == 0;
         UNSAFE.putLongVolatile(null, address, i64);
     }
 
@@ -478,6 +485,8 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void writeVolatileDouble(long address, double d) {
+//        assert (address & 0x7) == 0;
+
         UNSAFE.putDoubleVolatile(null, address, d);
     }
 
@@ -490,24 +499,28 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public int addInt(long address, int increment) {
+//        assert (address & 0x3) == 0;
         return UNSAFE.getAndAddInt(null, address, increment) + increment;
     }
 
     @Override
     @ForceInline
     public int addInt(Object object, long offset, int increment) {
+//        assert (offset & 0x3) == 0;
         return UNSAFE.getAndAddInt(object, offset, increment) + increment;
     }
 
     @Override
     @ForceInline
     public long addLong(long address, long increment) {
+//        assert (address & 0x7) == 0;
         return UNSAFE.getAndAddLong(null, address, increment) + increment;
     }
 
     @Override
     @ForceInline
     public long addLong(Object object, long offset, long increment) {
+//        assert (offset & 0x7) == 0;
         return UNSAFE.getAndAddLong(object, offset, increment) + increment;
     }
 }
