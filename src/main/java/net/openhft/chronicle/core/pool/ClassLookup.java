@@ -25,8 +25,16 @@ public interface ClassLookup {
         return ClassAliasPool.CLASS_ALIASES.wrap(loader);
     }
 
+    static ClassLookup create() {
+        return ClassAliasPool.CLASS_ALIASES.wrap();
+    }
+
     default ClassLookup wrap(ClassLoader loader) {
         return new ClassAliasPool(this, loader);
+    }
+
+    default ClassLookup wrap() {
+        return new ClassAliasPool(this);
     }
 
     Class forName(CharSequence name) throws ClassNotFoundException;

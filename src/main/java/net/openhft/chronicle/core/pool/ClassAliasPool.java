@@ -25,7 +25,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ClassAliasPool implements ClassLookup {
-    public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool(null, Thread.currentThread().getContextClassLoader()).defaultAliases();
+    public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool(null).defaultAliases();
     private final ClassLookup parent;
     private final ClassLoader classLoader;
     private final Map<String, Class> stringClassMap = new ConcurrentHashMap<>();
@@ -35,6 +35,11 @@ public class ClassAliasPool implements ClassLookup {
     ClassAliasPool(ClassLookup parent, ClassLoader classLoader) {
         this.parent = parent;
         this.classLoader = classLoader;
+    }
+
+    ClassAliasPool(ClassLookup parent) {
+        this.parent = parent;
+        this.classLoader = Thread.currentThread().getContextClassLoader();
     }
 
     private ClassAliasPool defaultAliases() {
@@ -90,7 +95,10 @@ public class ClassAliasPool implements ClassLookup {
         if (clazz != null)
             return clazz;
         clazz = stringClassMap2.get(name0);
-        return clazz != null ? clazz : forName0(name, name0);
+        if (clazz != null) return clazz;
+        return parent == null
+                ? forName0(name, name0)
+                : parent.forName(name);
     }
 
     private Class forName0(CharSequence name, String name0) {
@@ -113,7 +121,11 @@ public class ClassAliasPool implements ClassLookup {
     @Override
     public String nameFor(Class clazz) {
         String name = classStringMap.get(clazz);
-        return name != null ? name : nameFor0(clazz);
+        return name == null
+                ? parent == null
+                ? nameFor0(clazz)
+                : parent.nameFor(clazz)
+                : name;
     }
 
     private String nameFor0(Class clazz) {
