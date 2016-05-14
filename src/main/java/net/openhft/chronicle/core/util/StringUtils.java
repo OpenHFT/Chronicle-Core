@@ -50,6 +50,14 @@ public enum StringUtils {
         }
     }
 
+    public static void setLength(StringBuilder sb, int length) {
+        try {
+            SB_COUNT.set(sb, length);
+        } catch (IllegalAccessException e) {
+            throw new AssertionError(e);
+        }
+    }
+
     public static boolean endsWith(@NotNull final CharSequence source,
                                    @NotNull final String endsWith) {
         for (int i = 1; i <= endsWith.length(); i++) {
