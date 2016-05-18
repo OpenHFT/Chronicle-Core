@@ -26,4 +26,8 @@ public class InvalidEventHandlerException extends Exception {
 
     public InvalidEventHandlerException() {
     }
+
+    public InvalidEventHandlerException(Throwable cause) {
+        super(cause);
+    }
 }
