@@ -12,4 +12,8 @@ public interface LicenceCheck {
     default void licenceCheck() {
 
     }
+
+    default boolean isAvailable() {
+        return true;
+    }
 }
