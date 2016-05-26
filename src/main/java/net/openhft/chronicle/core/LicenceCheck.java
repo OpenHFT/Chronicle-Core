@@ -12,12 +12,4 @@ public interface LicenceCheck {
     default void licenceCheck() {
 
     }
-
-    /**
-     * checks if the function you are about to call is available
-     */
-    default boolean isAvailable() {
-        return true;
-    }
-
 }
