@@ -1,0 +1,37 @@
+= Articles on Java Latency Benchmarking Harness
+
+http://www.rationaljava.com/2016/04/jlbh-introducing-java-latency.html[Introducting JLBH]
+
+- What is JLBH
+- What was the motivation for JLBH
+- Differences between JMH and JLBH
+- Quick start guide
+
+http://www.rationaljava.com/2016/04/jlbh-examples-1-why-code-should-be.html[Why Code Should be Benchmarked in Context]
+
+ - A side by side example using JMH and JLBH for Date serialisation
+ - Measuring Date serialisation in a microbenchmark
+ - Measuring Date serialisation as part of a proper application
+ - How to add a probe to your JLBH benchmark
+ - Understanding the importance of measuring code in context
+
+http://www.rationaljava.com/2016/04/jlbh-examples-2-accounting-for.html[Accounting for Coordinated Omission]
+
+- Running JLBH with and without accounting for coordinated omission
+- An example to in numbers the effects of coordinated omission
+- A discussion about flow control
+
+http://www.rationaljava.com/2016/04/jlbh-examples-3-affects-of-throughput.html[The Affects of Throughput on Latency]
+
+- A discussion about the effects of throughput on latency
+- How use JLBH to measure TCP loopback
+- Adding probes to test both halves of the TCP round trip
+- Watching the effect of increasing throughput on latency
+- Understanding that you have to drop throughput to achieve good latencies at high percentiles.
+
+http://www.rationaljava.com/2016/04/jlbh-examples-4-benchmarking-quickfix.html[Benchmarking QuickFix vs ChronicleFix]
+
+- Using JLBH to benchmark QuickFIX
+- Observing how QuickFix latencies degrade through the percentiles
+- Comparing QuickFIX with Chronicle FIX
+
