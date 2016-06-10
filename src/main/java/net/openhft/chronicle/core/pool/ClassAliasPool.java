@@ -18,6 +18,7 @@ package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.Jvm;
 
+import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -61,7 +62,8 @@ public class ClassAliasPool implements ClassLookup {
         addAlias(LocalDateTime.class, "DateTime");
         addAlias(LocalTime.class, "Time");
         addAlias(String[].class, "String[]");
-        addAlias(byte[].class, "byte[]");
+        for (Class prim : new Class[]{boolean.class, byte.class, short.class, char.class, int.class, long.class, float.class, double.class})
+            addAlias(Array.newInstance(prim, 0).getClass(), prim.getName() + "[]");
         addAlias(Class.class, "type");
         addAlias(void.class, "!null");
 
