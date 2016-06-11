@@ -34,21 +34,6 @@ public enum ObjectUtils {
     ;
 
     public static final Object[] NO_OBJECTS = {};
-    private static final ClassLocal<Supplier> SUPPLIER_CLASS_LOCAL = ClassLocal.withInitial(c -> {
-        if (c == null)
-            throw new NullPointerException();
-        if (c.isPrimitive())
-            throw new IllegalArgumentException("primitive: " + c.getName());
-        if (c.isInterface())
-            throw new IllegalArgumentException("interface: " + c.getName());
-        try {
-            Constructor constructor = c.getDeclaredConstructor();
-            constructor.setAccessible(true);
-            return ThrowingSupplier.asSupplier(() -> constructor.newInstance());
-        } catch (Exception e) {
-            return () -> OS.memory().allocateInstance(c);
-        }
-    });
     static final Map<Class, Class> primMap = new LinkedHashMap<Class, Class>() {{
         put(boolean.class, Boolean.class);
         put(byte.class, Byte.class);
@@ -61,7 +46,7 @@ public enum ObjectUtils {
         put(void.class, Void.class);
     }};
     static final Map<Class, Object> DEFAULT_MAP = new HashMap<>();
-    static final ClassLocal<ThrowingFunction<String, Exception, Object>> PARSER_CL = ClassLocal.withInitial(c -> {
+    static final ClassLocal<ThrowingFunction<String, Object, Exception>> PARSER_CL = ClassLocal.withInitial(c -> {
         if (c == Class.class)
             return ClassAliasPool.CLASS_ALIASES::forName;
 
@@ -95,6 +80,21 @@ public enum ObjectUtils {
             return s -> constructor.newInstance(s);
         } catch (Exception e) {
             throw asCCE(e);
+        }
+    });
+    private static final ClassLocal<Supplier> SUPPLIER_CLASS_LOCAL = ClassLocal.withInitial(c -> {
+        if (c == null)
+            throw new NullPointerException();
+        if (c.isPrimitive())
+            throw new IllegalArgumentException("primitive: " + c.getName());
+        if (c.isInterface())
+            throw new IllegalArgumentException("interface: " + c.getName());
+        try {
+            Constructor constructor = c.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            return ThrowingSupplier.asSupplier(() -> constructor.newInstance());
+        } catch (Exception e) {
+            return () -> OS.memory().allocateInstance(c);
         }
     });
 

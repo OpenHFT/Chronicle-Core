@@ -32,8 +32,8 @@ import java.util.function.Function;
  * @param <R> the type of the result of the function
  */
 @FunctionalInterface
-public interface ThrowingFunction<I, T extends Throwable, R> {
-    static <I, T extends Throwable, R> Function<I, R> asFunction(ThrowingFunction<I, T, R> function) {
+public interface ThrowingFunction<I, R, T extends Throwable> {
+    static <I, R, T extends Throwable> Function<I, R> asFunction(ThrowingFunction<I, R, T> function) {
         return in -> {
             try {
                 return function.apply(in);
