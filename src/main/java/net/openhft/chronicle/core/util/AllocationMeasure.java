@@ -50,7 +50,7 @@ public class AllocationMeasure {
                     ManagementFactory.THREAD_MXBEAN_NAME);
             mBeanServer = ManagementFactory.getPlatformMBeanServer();
         } catch (MalformedObjectNameException e) {
-            LOG.error("", e);
+            LOG.warn("", e);
         }
 
         //calibrate

@@ -32,7 +32,6 @@ import static org.junit.Assert.*;
  */
 public class JvmTest {
 
-
     private ThreadDump threadDump;
 
     @Before

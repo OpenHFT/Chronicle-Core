@@ -16,6 +16,8 @@
 
 package net.openhft.chronicle.core.io;
 
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 
 @FunctionalInterface
@@ -28,7 +30,8 @@ public interface Closeable extends java.io.Closeable {
         } else if (o instanceof java.io.Closeable) {
             try {
                 ((java.io.Closeable) o).close();
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                LoggerFactory.getLogger(Closeable.class).debug("", e);
             }
         }
     }

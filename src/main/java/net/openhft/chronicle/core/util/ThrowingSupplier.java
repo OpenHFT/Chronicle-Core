@@ -23,6 +23,7 @@ public interface ThrowingSupplier<V, T extends Throwable> {
         return () -> {
             try {
                 return throwingSupplier.get();
+
             } catch (Throwable t) {
                 throw Jvm.rethrow(t);
             }

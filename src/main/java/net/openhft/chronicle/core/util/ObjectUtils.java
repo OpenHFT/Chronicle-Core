@@ -17,6 +17,7 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.ClassLocal;
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.pool.ClassAliasPool;
 
@@ -92,9 +93,16 @@ public enum ObjectUtils {
         try {
             Constructor constructor = c.getDeclaredConstructor();
             constructor.setAccessible(true);
-            return ThrowingSupplier.asSupplier(() -> constructor.newInstance());
+            return ThrowingSupplier.asSupplier((ThrowingSupplier<Object, ReflectiveOperationException>) constructor::newInstance);
+
         } catch (Exception e) {
-            return () -> OS.memory().allocateInstance(c);
+            return () -> {
+                try {
+                    return OS.memory().allocateInstance(c);
+                } catch (InstantiationException e1) {
+                    throw Jvm.rethrow(e1);
+                }
+            };
         }
     });
 
@@ -136,11 +144,7 @@ public enum ObjectUtils {
         if (eClass.isInstance(o) || o == null) return (E) o;
         if (eClass == Void.class) return null;
         if (Enum.class.isAssignableFrom(eClass)) {
-            try {
-                return (E) Enum.valueOf((Class) eClass, o.toString());
-            } catch (Exception e) {
-                throw new AssertionError(e);
-            }
+            return (E) Enum.valueOf((Class) eClass, o.toString());
         }
         if (o instanceof CharSequence) {
             CharSequence cs = (CharSequence) o;

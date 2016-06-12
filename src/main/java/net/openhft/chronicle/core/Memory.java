@@ -169,7 +169,7 @@ public interface Memory {
 
     long addLong(Object object, long offset, long increment);
 
-    <E> E allocateInstance(Class<E> clazz);
+    <E> E allocateInstance(Class<E> clazz) throws InstantiationException;
 
     long getFieldOffset(Field field);
 

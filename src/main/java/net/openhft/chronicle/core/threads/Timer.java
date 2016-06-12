@@ -66,10 +66,8 @@ public class Timer {
 
             try {
                 return eventHandler.action();
-            } catch (InvalidEventHandlerException | InterruptedException e) {
-                throw e;
-            } catch (Exception e) {
-                LOG.error("", e);
+            } catch (RuntimeException e) {
+                LOG.warn("Unexpected runtime exception", e);
             }
 
             return false;
@@ -90,5 +88,5 @@ public class Timer {
         }
 
     }
-
 }
+

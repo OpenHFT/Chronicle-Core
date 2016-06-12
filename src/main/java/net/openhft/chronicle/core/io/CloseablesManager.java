@@ -45,7 +45,7 @@ public final class CloseablesManager implements Closeable {
         try {
             close(closeable);
         } catch (IOException e) {
-            LOG.error("", e);
+            LOG.debug("", e);
         }
     }
 
@@ -75,7 +75,7 @@ public final class CloseablesManager implements Closeable {
         try {
             close();
         } catch (IOException e) {
-            // do nothing
+            LoggerFactory.getLogger(Closeable.class).debug("", e);
         }
     }
 

@@ -334,7 +334,7 @@ public enum OS {
                 String du_k = run("du", "-ks", file.getAbsolutePath());
                 return Long.parseLong(du_k.substring(0, du_k.indexOf('\t')));
             } catch (IOException e) {
-                LOG.error("", e);
+                LOG.warn("", e);
             }
         }
         return file.length();
@@ -377,7 +377,7 @@ public enum OS {
 
                 owner.release();
             } catch (IOException | IllegalStateException e) {
-                LOG.error("Error on unmap and release", e);
+                LOG.warn("Error on unmap and release", e);
             }
         }
     }

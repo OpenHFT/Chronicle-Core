@@ -43,14 +43,10 @@ public enum UnsafeMemory implements Memory {
 
     private final AtomicLong nativeMemoryUsed = new AtomicLong();
 
-    public <E> E allocateInstance(Class<E> clazz) {
-        try {
+    public <E> E allocateInstance(Class<E> clazz) throws InstantiationException {
             @SuppressWarnings("unchecked")
             E e = (E) UNSAFE.allocateInstance(clazz);
             return e;
-        } catch (InstantiationException e) {
-            throw Jvm.rethrow(e);
-        }
     }
 
     @Override

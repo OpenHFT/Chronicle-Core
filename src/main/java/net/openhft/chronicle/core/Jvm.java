@@ -146,7 +146,7 @@ public enum Jvm {
             try {
                 Thread.sleep(millis);
             } catch (InterruptedException e) {
-                Thread.currentThread().isInterrupted();
+                Thread.currentThread().interrupt();
             }
         } else {
             LockSupport.parkNanos(timeNanos);
@@ -177,6 +177,7 @@ public enum Jvm {
             Field field = clazz.getDeclaredField(name);
             field.setAccessible(true);
             return field;
+
         } catch (NoSuchFieldException e) {
             Class superclass = clazz.getSuperclass();
             if (superclass != null)
@@ -250,7 +251,7 @@ public enum Jvm {
                         return reservedMemory.getLong(null);
                     }
                 } catch (IllegalAccessException e) {
-                    throw new IllegalStateException(e);
+                    throw new AssertionError(e);
                 }
             }
         },

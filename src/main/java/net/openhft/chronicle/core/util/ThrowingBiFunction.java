@@ -16,27 +16,29 @@
 
 package net.openhft.chronicle.core.util;
 
+
 import net.openhft.chronicle.core.Jvm;
 
-import java.util.function.Consumer;
+import java.util.function.BiFunction;
 
 /**
- * Represents an operation that accepts a single input argument and returns no
- * result. Unlike most other functional interfaces, {@code Consumer} is expected
- * to operate via side-effects.
- * <p/>
+ * Represents a function that accepts two arguments and produces a result.
+ * This is the two-arity specialization of {@link ThrowingFunction}.
+ * <p>
  * <p>This is a <a href="package-summary.html">functional interface</a>
- * whose functional method is {@link #accept(Object)}.
+ * whose functional method is {@link #apply(Object, Object)}.
  *
- * @param <I> the type of the input to the function
+ * @param <I> the type of the first argument to the function
+ * @param <J> the type of the second argument to the function
  * @param <T> the type of Throwable thrown
+ * @param <R> the type of the result of the function
  */
 @FunctionalInterface
-public interface ThrowingConsumer<I, T extends Throwable> {
-    static <I, T extends Throwable> Consumer<I> asConsumer(ThrowingConsumer<I, T> function) {
-        return in -> {
+public interface ThrowingBiFunction<I, J, R, T extends Throwable> {
+    static <I, J, T extends Throwable, R> BiFunction<I, J, R> asBiFunction(ThrowingBiFunction<I, J, R, T> function) {
+        return (in, i2) -> {
             try {
-                function.accept(in);
+                return function.apply(in, i2);
             } catch (Throwable t) {
                 throw Jvm.rethrow(t);
             }
@@ -44,9 +46,12 @@ public interface ThrowingConsumer<I, T extends Throwable> {
     }
 
     /**
-     * Performs this operation on the given argument.
+     * Applies this function to the given arguments.
      *
-     * @param in the input argument
+     * @param in the first function argument
+     * @param i2 the second function argument
+     * @return the function result
+     * @throws T on an error.
      */
-    void accept(I in) throws T;
+    R apply(I in, J i2) throws T;
 }

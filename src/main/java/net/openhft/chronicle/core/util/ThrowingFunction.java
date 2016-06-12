@@ -16,7 +16,6 @@
 
 package net.openhft.chronicle.core.util;
 
-
 import net.openhft.chronicle.core.Jvm;
 
 import java.util.function.Function;
@@ -37,6 +36,7 @@ public interface ThrowingFunction<I, R, T extends Throwable> {
         return in -> {
             try {
                 return function.apply(in);
+
             } catch (Throwable t) {
                 throw Jvm.rethrow(t);
             }

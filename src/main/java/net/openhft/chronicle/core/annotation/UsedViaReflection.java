@@ -27,5 +27,4 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
 @Retention(CLASS)
 @Target({METHOD, FIELD, CONSTRUCTOR})
 public @interface UsedViaReflection {
-
 }

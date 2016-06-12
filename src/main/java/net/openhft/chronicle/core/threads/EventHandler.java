@@ -27,5 +27,5 @@ public interface EventHandler extends VanillaEventHandler {
     default HandlerPriority priority() {
         return HandlerPriority.MEDIUM;
     }
-
 }
+

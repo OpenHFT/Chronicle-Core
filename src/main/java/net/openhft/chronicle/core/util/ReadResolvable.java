@@ -31,5 +31,4 @@ public interface ReadResolvable<T> {
      * @return the object to use instead.
      */
     T readResolve();
-
 }

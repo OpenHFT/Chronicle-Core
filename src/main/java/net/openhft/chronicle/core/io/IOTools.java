@@ -16,6 +16,7 @@
 
 package net.openhft.chronicle.core.io;
 
+import org.slf4j.LoggerFactory;
 import sun.misc.Cleaner;
 import sun.nio.ch.DirectBuffer;
 import sun.reflect.Reflection;
@@ -60,7 +61,8 @@ public enum IOTools {
             try {
                 Files.delete(f.toPath());
             } catch (IOException e) {
-                throw new IORuntimeException(e);
+                LoggerFactory.getLogger(Closeable.class)
+                        .warn("Failed to delete " + f, e);
             }
         });
         return dir.delete();

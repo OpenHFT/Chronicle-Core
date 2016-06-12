@@ -17,6 +17,7 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.io.Closeable;
+import org.slf4j.LoggerFactory;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
@@ -34,8 +35,8 @@ public interface ReferenceCounted extends Closeable {
                 try {
                     refCounted.release();
                 } catch (IllegalStateException e) {
-                    // ignored
-                }
+                    LoggerFactory.getLogger(Closeable.class).debug("", e);
+            }
             }
         }
     }
@@ -51,7 +52,7 @@ public interface ReferenceCounted extends Closeable {
             try {
                 rc.release();
             } catch (IllegalStateException e) {
-                // ignored.
+                LoggerFactory.getLogger(Closeable.class).debug("", e);
             }
         }
     }
@@ -82,7 +83,8 @@ public interface ReferenceCounted extends Closeable {
                 reserve();
                 return true;
             }
-        } catch (IllegalStateException ignored) {
+        } catch (IllegalStateException e) {
+            LoggerFactory.getLogger(Closeable.class).debug("", e);
         }
         return false;
     }
