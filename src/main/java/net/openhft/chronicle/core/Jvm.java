@@ -255,10 +255,14 @@ public enum Jvm {
     }
 
     public static Map<ExceptionKey, Integer> recordExceptions() {
+        return recordExceptions(false);
+    }
+
+    public static Map<ExceptionKey, Integer> recordExceptions(boolean debug) {
         Map<ExceptionKey, Integer> map = new LinkedHashMap<>();
         FATAL = new RecordingExceptionHandler(LogLevel.FATAL, map);
         WARN = new RecordingExceptionHandler(LogLevel.WARN, map);
-        DEBUG = new RecordingExceptionHandler(LogLevel.DEBUG, map);
+        DEBUG = debug ? new RecordingExceptionHandler(LogLevel.DEBUG, map) : NullExceptionHandler.NOTHING;
         return map;
     }
 

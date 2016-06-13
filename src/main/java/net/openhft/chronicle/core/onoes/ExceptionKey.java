@@ -32,6 +32,7 @@ public class ExceptionKey {
     @Override
     public String toString() {
         StringWriter sw = new StringWriter();
+        if (throwable != null)
         throwable.printStackTrace(new PrintWriter(sw));
         return "ExceptionKey{" +
                 "level=" + level +
