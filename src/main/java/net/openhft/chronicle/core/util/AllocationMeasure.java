@@ -16,6 +16,7 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.Jvm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,7 @@ public class AllocationMeasure {
                     ManagementFactory.THREAD_MXBEAN_NAME);
             mBeanServer = ManagementFactory.getPlatformMBeanServer();
         } catch (MalformedObjectNameException e) {
-            LOG.warn("", e);
+            Jvm.warn().on(getClass(), e);
         }
 
         //calibrate

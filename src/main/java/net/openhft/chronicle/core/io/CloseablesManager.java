@@ -16,6 +16,7 @@
 
 package net.openhft.chronicle.core.io;
 
+import net.openhft.chronicle.core.Jvm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,7 +46,7 @@ public final class CloseablesManager implements Closeable {
         try {
             close(closeable);
         } catch (IOException e) {
-            LOG.debug("", e);
+            Jvm.warn().on(getClass(), e);
         }
     }
 
@@ -59,9 +60,9 @@ public final class CloseablesManager implements Closeable {
             } catch (NullPointerException e) {
                 // at java.nio.channels.spi.AbstractSelectableChannel.removeKey
                 // (AbstractSelectableChannel.java:129) is throwing a NULL on close
-                LOG.debug("", e);
+                Jvm.warn().on(getClass(), e);
             } catch (IOException e) {
-                LOG.debug("", e);
+                Jvm.warn().on(getClass(), e);
                 ex = e;
             }
         }
@@ -75,7 +76,7 @@ public final class CloseablesManager implements Closeable {
         try {
             close();
         } catch (IOException e) {
-            LoggerFactory.getLogger(Closeable.class).debug("", e);
+            Jvm.warn().on(getClass(), e);
         }
     }
 

@@ -112,7 +112,7 @@ public enum OS {
             // expected
         } catch (NoSuchMethodException | InvocationTargetException
                 | IllegalAccessException | IllegalArgumentException e) {
-            LOG.warn("Unable to load Java9MemoryClass", e);
+            Jvm.warn().on(OS.class, "Unable to load Java9MemoryClass", e);
         }
         if (memory == null)
             memory = UnsafeMemory.INSTANCE;
@@ -207,7 +207,7 @@ public enum OS {
             pid = getRuntimeMXBean().getName().split("@", 0)[0];
         if (pid == null) {
             int rpid = new Random().nextInt(1 << 16);
-            LOG.warn("Unable to determine PID, picked a random number=" + rpid);
+            Jvm.warn().on(OS.class, "Unable to determine PID, picked a random number=" + rpid);
             return rpid;
 
         } else {
@@ -250,7 +250,7 @@ public enum OS {
                 try {
                     return Maths.nextPower2(new Scanner(file).nextLong(), 1);
                 } catch (FileNotFoundException e) {
-                    LOG.warn("", e);
+                    Jvm.warn().on(OS.class, e);
                 }
         } else if (isMacOSX()) {
             return 1L << 24;
@@ -334,7 +334,7 @@ public enum OS {
                 String du_k = run("du", "-ks", file.getAbsolutePath());
                 return Long.parseLong(du_k.substring(0, du_k.indexOf('\t')));
             } catch (IOException e) {
-                LOG.warn("", e);
+                Jvm.warn().on(OS.class, e);
             }
         }
         return file.length();
@@ -377,7 +377,7 @@ public enum OS {
 
                 owner.release();
             } catch (IOException | IllegalStateException e) {
-                LOG.warn("Error on unmap and release", e);
+                Jvm.warn().on(OS.class, "Error on unmap and release", e);
             }
         }
     }

@@ -16,9 +16,12 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.onoes.*;
 import sun.misc.VM;
 
 import java.lang.reflect.Field;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
@@ -40,6 +43,9 @@ public enum Jvm {
     private static final AtomicLong reservedMemoryAtomicLong;
     private static final DirectMemoryInspector DIRECT_MEMORY_INSPECTOR;
     private static final boolean IS_64BIT = is64bit0();
+    private static ExceptionHandler FATAL = Slf4jExceptionHandler.FATAL;
+    private static ExceptionHandler WARN = Slf4jExceptionHandler.WARN;
+    private static ExceptionHandler DEBUG = Slf4jExceptionHandler.DEBUG;
 
     static {
         try {
@@ -240,6 +246,50 @@ public enum Jvm {
 
     public static boolean is64bit() {
         return IS_64BIT;
+    }
+
+    public static void resetExceptionHandlers() {
+        FATAL = Slf4jExceptionHandler.FATAL;
+        WARN = Slf4jExceptionHandler.WARN;
+        DEBUG = Slf4jExceptionHandler.DEBUG;
+    }
+
+    public static Map<ExceptionKey, Integer> recordExceptions() {
+        Map<ExceptionKey, Integer> map = new LinkedHashMap<>();
+        FATAL = new RecordingExceptionHandler(LogLevel.FATAL, map);
+        WARN = new RecordingExceptionHandler(LogLevel.WARN, map);
+        DEBUG = new RecordingExceptionHandler(LogLevel.DEBUG, map);
+        return map;
+    }
+
+    public static void setExceptionsHandlers(ExceptionHandler fatal, ExceptionHandler warn, ExceptionHandler debug) {
+        FATAL = fatal;
+        WARN = warn;
+        DEBUG = debug;
+    }
+
+    public static ExceptionHandler fatal() {
+        return FATAL;
+    }
+
+    public static ExceptionHandler warn() {
+        return WARN;
+    }
+
+    public static ExceptionHandler debug() {
+        return DEBUG;
+    }
+
+    public static void dumpException(Map<ExceptionKey, Integer> exceptions) {
+        for (Map.Entry<ExceptionKey, Integer> entry : exceptions.entrySet()) {
+            ExceptionKey key = entry.getKey();
+            System.err.println(key.level + " " + key.clazz.getSimpleName() + " " + key.message);
+            if (key.throwable != null)
+                key.throwable.printStackTrace();
+            Integer value = entry.getValue();
+            if (value > 1)
+                System.err.println("Repeated " + value + " times");
+        }
     }
 
     enum DirectMemoryInspector {

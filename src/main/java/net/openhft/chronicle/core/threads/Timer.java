@@ -1,5 +1,6 @@
 package net.openhft.chronicle.core.threads;
 
+import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +68,7 @@ public class Timer {
             try {
                 return eventHandler.action();
             } catch (RuntimeException e) {
-                LOG.warn("Unexpected runtime exception", e);
+                Jvm.warn().on(getClass(), "Unexpected runtime exception", e);
             }
 
             return false;
