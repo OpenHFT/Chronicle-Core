@@ -250,7 +250,7 @@ public enum OS {
                 try {
                     return Maths.nextPower2(new Scanner(file).nextLong(), 1);
                 } catch (FileNotFoundException e) {
-                    Jvm.warn().on(OS.class, e);
+                    Jvm.debug().on(OS.class, e);
                 }
         } else if (isMacOSX()) {
             return 1L << 24;

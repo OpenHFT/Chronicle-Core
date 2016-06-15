@@ -73,11 +73,7 @@ public final class CloseablesManager implements Closeable {
     }
 
     public synchronized void closeQuietly() {
-        try {
-            close();
-        } catch (IOException e) {
-            Jvm.warn().on(getClass(), e);
-        }
+        net.openhft.chronicle.core.io.Closeable.closeQuietly(this);
     }
 
     public synchronized boolean isEmpty() {
