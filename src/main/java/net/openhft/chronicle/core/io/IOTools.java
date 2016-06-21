@@ -61,7 +61,7 @@ public enum IOTools {
             try {
                 Files.delete(f.toPath());
             } catch (IOException e) {
-                Jvm.warn().on(Closeable.class, "Failed to delete " + f, e);
+                Jvm.debug().on(Closeable.class, "Failed to delete " + f, e);
             }
         });
         return dir.delete();
