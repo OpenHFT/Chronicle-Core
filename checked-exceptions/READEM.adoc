@@ -1,0 +1,9 @@
+= README
+
+This adds checked versions of a number of common unchecked exceptions we have.
+
+We can add these temporaily as we don't expect developers to be force to handle these exceptions but we want to ensure
+
+- we want handle these correctly in our code.
+- we want handle these consistently with the right exception and making these checked helps review the choices made.
+- we want to document when these unchecked exceptions can/cannot occur.
