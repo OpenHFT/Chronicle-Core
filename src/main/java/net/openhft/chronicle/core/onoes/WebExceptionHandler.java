@@ -58,6 +58,5 @@ public class WebExceptionHandler implements ExceptionHandler {
         } catch (Exception e) {
             fallBack.on(WebExceptionHandler.class, "Failed to open browser", e);
         }
-        fallBack.on(clazz, message, t);
     }
 }
