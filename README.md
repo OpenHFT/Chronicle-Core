@@ -20,15 +20,13 @@ This allows you to access native memory using primitives and some thread safe op
 ```java
 Memory memory = OS.memory();
 long address = memory.allocate(1024);
-try
-{
+try {
     memory.writeInt(address, 1);
     assert memory.readInt(address) == 1;
-    memory.compareAndSwapInt(address, 1, 2);
+    final boolean swapped = memory.compareAndSwapInt(address, 1, 2);
+    assert swapped;
     assert memory.readInt(address) == 2;
-}
-finally
-{
+} finally {
     memory.freeMemory(address, 1024);
 }
 ```

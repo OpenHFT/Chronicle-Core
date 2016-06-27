@@ -26,4 +26,19 @@ public class MemoryTest {
     public void testHeapUsed() {
         System.out.println("heap used: " + OS.memory().heapUsed());
     }
+
+    @Test
+    public void testReadme() {
+        Memory memory = OS.memory();
+        long address = memory.allocate(1024);
+        try {
+            memory.writeInt(address, 1);
+            assert memory.readInt(address) == 1;
+            final boolean swapped = memory.compareAndSwapInt(address, 1, 2);
+            assert swapped;
+            assert memory.readInt(address) == 2;
+        } finally {
+            memory.freeMemory(address, 1024);
+        }
+    }
 }
