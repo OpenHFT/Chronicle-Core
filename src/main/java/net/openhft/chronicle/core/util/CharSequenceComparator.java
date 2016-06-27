@@ -26,12 +26,14 @@ public enum CharSequenceComparator implements Comparator<CharSequence> {
     @Override
     @ForceInline
     public int compare(@NotNull CharSequence o1, @NotNull CharSequence o2) {
-        int len = Math.min(o1.length(), o2.length());
+        final int o1Length = o1.length();
+        final int o2Length = o2.length();
+        final int len = Math.min(o1Length, o2Length);
         for (int i = 0; i < len; i++) {
-            int cmp = Character.compare(o1.charAt(i), o2.charAt(i));
+            final int cmp = Character.compare(o1.charAt(i), o2.charAt(i));
             if (cmp != 0)
                 return cmp;
         }
-        return Integer.compare(o1.length(), o2.length());
+        return Integer.compare(o1Length, o2Length);
     }
 }
