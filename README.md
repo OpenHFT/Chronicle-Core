@@ -18,14 +18,18 @@ Off Heap Memory Access
 This allows you to access native memory using primitives and some thread safe operations.
 
 ```java
-Memory m = OS.memory();
-try {
-    long addr = m.allocate(1024);
-    m.writeInt(0L, 1);
-    boolean b = m.compareAndSwap(0L, 1, 2);
-    assert b;
-} finally {
-    m.free(addr);
+Memory memory = OS.memory();
+long address = memory.allocate(1024);
+try
+{
+    memory.writeInt(address, 1);
+    assert memory.readInt(address) == 1;
+    memory.compareAndSwapInt(address, 1, 2);
+    assert memory.readInt(address) == 2;
+}
+finally
+{
+    memory.freeMemory(address, 1024);
 }
 ```
 
