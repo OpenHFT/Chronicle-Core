@@ -84,6 +84,21 @@ public enum StringUtils {
     }
 
     @ForceInline
+    public static boolean isEqual(StringBuilder s, CharSequence cs) {
+        if (s == cs)
+            return true;
+        if (s == null) return false;
+        if (cs == null) return false;
+        int length = cs.length();
+        if (s.length() != length) return false;
+        char[] chars = StringUtils.extractChars(s);
+        for (int i = 0; i < length; i++)
+            if (chars[i] != cs.charAt(i))
+                return false;
+        return true;
+    }
+
+    @ForceInline
     public static boolean equalsCaseIgnore(CharSequence s, CharSequence cs) {
         if (s == null) return false;
         if (s.length() != cs.length()) return false;
