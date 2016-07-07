@@ -293,7 +293,6 @@ public class JLBH implements NanoSampler {
                 if(affinityLock!=null)
                     affinityLock.release();
             }
-
         }
 
         void reset() {

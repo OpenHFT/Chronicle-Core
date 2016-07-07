@@ -87,7 +87,6 @@ public class Timer {
         public HandlerPriority priority() {
             return HandlerPriority.TIMER;
         }
-
     }
 }
 
