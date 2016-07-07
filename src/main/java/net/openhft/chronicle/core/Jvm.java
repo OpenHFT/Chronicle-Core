@@ -294,6 +294,7 @@ public enum Jvm {
             if (value > 1)
                 System.err.println("Repeated " + value + " times");
         }
+        resetExceptionHandlers();
     }
 
     enum DirectMemoryInspector {
