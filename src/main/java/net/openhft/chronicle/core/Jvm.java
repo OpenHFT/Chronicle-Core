@@ -272,6 +272,10 @@ public enum Jvm {
         DEBUG = debug;
     }
 
+    public static void disableDebugHandler() {
+        DEBUG = NullExceptionHandler.NOTHING;
+    }
+
     public static ExceptionHandler fatal() {
         return FATAL;
     }
@@ -295,6 +299,10 @@ public enum Jvm {
                 System.err.println("Repeated " + value + " times");
         }
         resetExceptionHandlers();
+    }
+
+    public static boolean isDebugEnabled(Class aClass) {
+        return DEBUG.isEnabled(aClass);
     }
 
     enum DirectMemoryInspector {

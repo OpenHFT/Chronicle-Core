@@ -21,4 +21,8 @@ public interface ExceptionHandler {
      * @param thrown  any Thorwable caught, or null if there was no exception.
      */
     void on(Class clazz, String message, Throwable thrown);
+
+    default boolean isEnabled(Class aClass) {
+        return true;
+    }
 }

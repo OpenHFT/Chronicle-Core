@@ -9,5 +9,10 @@ public enum NullExceptionHandler implements ExceptionHandler {
         public void on(Class clazz, String message, Throwable thrown) {
 
         }
+
+        @Override
+        public boolean isEnabled(Class aClass) {
+            return false;
+        }
     }
 }
