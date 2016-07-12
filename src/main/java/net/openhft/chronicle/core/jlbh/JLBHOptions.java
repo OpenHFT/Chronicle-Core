@@ -1,10 +1,13 @@
 package net.openhft.chronicle.core.jlbh;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * Data structure to store the options to pass into the JLBH constructor
  */
 public class JLBHOptions {
     int throughput = 10_000;
+    TimeUnit throughputTimeUnit = TimeUnit.SECONDS;
     boolean accountForCoordinatedOmission = true;
     int recordJitterGreaterThanNs = 1_000;
     boolean recordOSJitter = true;
@@ -23,9 +26,22 @@ public class JLBHOptions {
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
     public JLBHOptions throughput(int throughput) {
+        return throughput(throughput, TimeUnit.SECONDS);
+    }
+
+    /**
+     * Number of iterations per time unit to be pushed through the benchmark
+     *
+     * @param throughput defaults to 10,000
+     * @param throughputTimeUnit defaults to <code>TimeUnit.SECOND</code>
+     * @return Instance of the JLBHOptions to be used in the builder pattern.
+     */
+    public JLBHOptions throughput(int throughput, TimeUnit throughputTimeUnit) {
         this.throughput = throughput;
+        this.throughputTimeUnit = throughputTimeUnit;
         return this;
     }
+
 
     /**
      * Determines whether the start time is the time the event was supposed to have happened
