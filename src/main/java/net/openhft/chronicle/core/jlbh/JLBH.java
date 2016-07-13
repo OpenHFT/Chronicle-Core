@@ -38,7 +38,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class JLBH implements NanoSampler {
     private static final Double[] NO_DOUBLES = {};
     private final SortedMap<String, Histogram> additionHistograms = new ConcurrentSkipListMap<>();
+    // wait time between invocations in nanoseconds
     private final long rate;
+    // wait time in full milli seconds
+    private final long waitTimeMillis;
     private final JLBHOptions jlbhOptions;
     private Histogram endToEndHistogram = new Histogram();
     private Histogram osJitterHistogram = new Histogram();
@@ -54,6 +57,12 @@ public class JLBH implements NanoSampler {
         this.jlbhOptions = jlbhOptions;
         if (jlbhOptions.jlbhTask == null) throw new IllegalStateException("jlbhTask must be set");
         rate = jlbhOptions.throughputTimeUnit.toNanos(1) / jlbhOptions.throughput;
+        // we consider 2 ms the threshold where we use a mixed strategy and sleep for rate - 1 ms and busy wait for the rest of the time
+        if (rate > TimeUnit.NANOSECONDS.toMillis(2)) {
+            waitTimeMillis = TimeUnit.NANOSECONDS.toMillis(rate - TimeUnit.NANOSECONDS.toMillis(1));
+        } else {
+            waitTimeMillis = 0;
+        }
     }
 
     /**
@@ -106,10 +115,19 @@ public class JLBH implements NanoSampler {
                         startTimeNs = System.nanoTime();
                     } else if (jlbhOptions.accountForCoordinatedOmission) {
                         startTimeNs += rate;
-                        while (System.nanoTime() < startTimeNs)
-                            ;
+                        if (waitTimeMillis > 0) {
+                            Jvm.pause(waitTimeMillis);
+                        }
+                        Jvm.busyWaitUntil(startTimeNs);
                     } else {
-                        Jvm.busyWaitMicros(rate / 1000);
+                        if (waitTimeMillis > 0) {
+                            long end = System.nanoTime() + rate;
+                            Jvm.pause(waitTimeMillis);
+                            // account for jitter in Thread.sleep() and wait until a fixed point in time
+                            Jvm.busyWaitUntil(end);
+                        } else {
+                            Jvm.busyWaitMicros(rate / 1000);
+                        }
                         startTimeNs = System.nanoTime();
                     }
 
