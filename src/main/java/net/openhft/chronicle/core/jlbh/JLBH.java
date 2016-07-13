@@ -58,8 +58,8 @@ public class JLBH implements NanoSampler {
         if (jlbhOptions.jlbhTask == null) throw new IllegalStateException("jlbhTask must be set");
         rate = jlbhOptions.throughputTimeUnit.toNanos(1) / jlbhOptions.throughput;
         // we consider 2 ms the threshold where we use a mixed strategy and sleep for rate - 1 ms and busy wait for the rest of the time
-        if (rate > TimeUnit.NANOSECONDS.toMillis(2)) {
-            waitTimeMillis = TimeUnit.NANOSECONDS.toMillis(rate - TimeUnit.NANOSECONDS.toMillis(1));
+        if (rate > TimeUnit.MILLISECONDS.toNanos(2)) {
+            waitTimeMillis = TimeUnit.NANOSECONDS.toMillis(rate - TimeUnit.MILLISECONDS.toNanos(1));
         } else {
             waitTimeMillis = 0;
         }
