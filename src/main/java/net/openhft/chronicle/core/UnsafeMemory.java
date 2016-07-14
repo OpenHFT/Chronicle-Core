@@ -285,7 +285,13 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void copyMemory(long fromAddress, Object obj2, long offset2, int length) {
+        long start = length > 128 << 10 ? System.nanoTime() : 0;
         copyMemory0(null, fromAddress, obj2, offset2, length);
+        if (length > 128 << 10) {
+            long time = System.nanoTime() - start;
+            if (time > 100_000)
+                Jvm.warn().on(getClass(), "Took " + time / 1000 / 1e3 + " ms to copy " + length / 1024 + " KB");
+        }
     }
 
     void copyMemory0(Object from, long fromOffset, Object to, long toOffset, long length) {
