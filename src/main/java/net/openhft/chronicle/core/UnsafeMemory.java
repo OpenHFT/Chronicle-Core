@@ -370,7 +370,15 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public int readVolatileInt(long address) {
-        return UNSAFE.getIntVolatile(null, address);
+        int value = UNSAFE.getIntVolatile(null, address);
+        if (value != 256 || (address & 63) != 63) {
+            return value;
+        }
+        Thread.yield();
+        int value2 = UNSAFE.getIntVolatile(null, address);
+        if (value2 != value)
+            System.out.println(Long.toHexString(address) + " (" + (address & 63) + ") is now " + Integer.toHexString(value2));
+        return value2;
     }
 
     @Override
