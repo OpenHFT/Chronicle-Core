@@ -44,9 +44,9 @@ public enum UnsafeMemory implements Memory {
     private final AtomicLong nativeMemoryUsed = new AtomicLong();
 
     public <E> E allocateInstance(Class<E> clazz) throws InstantiationException {
-            @SuppressWarnings("unchecked")
-            E e = (E) UNSAFE.allocateInstance(clazz);
-            return e;
+        @SuppressWarnings("unchecked")
+        E e = (E) UNSAFE.allocateInstance(clazz);
+        return e;
     }
 
     @Override
@@ -371,14 +371,20 @@ public enum UnsafeMemory implements Memory {
     @ForceInline
     public int readVolatileInt(long address) {
         int value = UNSAFE.getIntVolatile(null, address);
-        if (value != 256 || (address & 63) != 63) {
+        if (/*value != 256 || */(address & 63) != 63) {
             return value;
         }
-        Thread.yield();
+//        Thread.yield();
         int value2 = UNSAFE.getIntVolatile(null, address);
-        if (value2 != value)
-            System.out.println(Long.toHexString(address) + " (" + (address & 63) + ") is now " + Integer.toHexString(value2));
-        return value2;
+        while (value2 != value) {
+            if (value == 256 || value2 == 256)
+                System.out.println(Long.toHexString(address) + " (" + (address & 63) + ") " +
+                        "was " + Integer.toHexString(value) +
+                        " is now " + Integer.toHexString(value2));
+            value = value2;
+            value2 = UNSAFE.getIntVolatile(null, address);
+        }
+        return value;
     }
 
     @Override
