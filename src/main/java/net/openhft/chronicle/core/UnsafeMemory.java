@@ -371,10 +371,10 @@ public enum UnsafeMemory implements Memory {
     @ForceInline
     public int readVolatileInt(long address) {
         int value = UNSAFE.getIntVolatile(null, address);
-        if (/*value != 256 || */(address & 63) != 63) {
+        if (value != 256 || (address & 63) != 63) {
             return value;
         }
-//        Thread.yield();
+
         int value2 = UNSAFE.getIntVolatile(null, address);
         while (value2 != value) {
             if (value == 256 || value2 == 256)
