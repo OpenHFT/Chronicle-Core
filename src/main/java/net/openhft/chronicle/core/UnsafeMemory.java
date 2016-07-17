@@ -43,6 +43,19 @@ public enum UnsafeMemory implements Memory {
 
     private final AtomicLong nativeMemoryUsed = new AtomicLong();
 
+    private static int retryReadVolatileInt(long address, int value) {
+        int value2 = UNSAFE.getIntVolatile(null, address);
+        while (value2 != value) {
+            if (value != 0 && value != 0x80000000)
+                System.out.println(Long.toHexString(address) + " (" + (address & 63) + ") " +
+                        "was " + Integer.toHexString(value) +
+                        " is now " + Integer.toHexString(value2));
+            value = value2;
+            value2 = UNSAFE.getIntVolatile(null, address);
+        }
+        return value;
+    }
+
     public <E> E allocateInstance(Class<E> clazz) throws InstantiationException {
         @SuppressWarnings("unchecked")
         E e = (E) UNSAFE.allocateInstance(clazz);
@@ -377,20 +390,12 @@ public enum UnsafeMemory implements Memory {
     @ForceInline
     public int readVolatileInt(long address) {
         int value = UNSAFE.getIntVolatile(null, address);
-        if (value != 256 || (address & 63) != 63) {
+        if ((address & 63) <= 58) {
+            if (value == 0)
+                value = UNSAFE.getIntVolatile(null, address);
             return value;
         }
-
-        int value2 = UNSAFE.getIntVolatile(null, address);
-        while (value2 != value) {
-            if (value == 256 || value2 == 256)
-                System.out.println(Long.toHexString(address) + " (" + (address & 63) + ") " +
-                        "was " + Integer.toHexString(value) +
-                        " is now " + Integer.toHexString(value2));
-            value = value2;
-            value2 = UNSAFE.getIntVolatile(null, address);
-        }
-        return value;
+        return retryReadVolatileInt(address, value);
     }
 
     @Override
