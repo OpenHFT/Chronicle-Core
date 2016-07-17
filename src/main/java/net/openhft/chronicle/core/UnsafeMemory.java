@@ -56,6 +56,19 @@ public enum UnsafeMemory implements Memory {
         return value;
     }
 
+    private static long retryReadVolatileInt(long address, long value) {
+        long value2 = UNSAFE.getLongVolatile(null, address);
+        while (value2 != value) {
+            if (value != 0)
+                System.out.println(Long.toHexString(address) + " (" + (address & 63) + ") " +
+                        "was " + Long.toHexString(value) +
+                        " is now " + Long.toHexString(value2));
+            value = value2;
+            value2 = UNSAFE.getLongVolatile(null, address);
+        }
+        return value;
+    }
+
     public <E> E allocateInstance(Class<E> clazz) throws InstantiationException {
         @SuppressWarnings("unchecked")
         E e = (E) UNSAFE.allocateInstance(clazz);
@@ -419,7 +432,11 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public long readVolatileLong(long address) {
-        return UNSAFE.getLongVolatile(null, address);
+        long value = UNSAFE.getLongVolatile(null, address);
+        if ((address & 63) <= 54) {
+            return value;
+        }
+        return retryReadVolatileInt(address, value);
     }
 
     @Override
