@@ -24,6 +24,7 @@ import net.openhft.chronicle.core.util.NanoSampler;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -37,7 +38,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class JLBH implements NanoSampler {
     private static final Double[] NO_DOUBLES = {};
     private final SortedMap<String, Histogram> additionHistograms = new ConcurrentSkipListMap<>();
-    private final int rate;
+    // wait time between invocations in nanoseconds
+    private final long rate;
+    // wait time in full milli seconds
+    private final long waitTimeMillis;
     private final JLBHOptions jlbhOptions;
     private Histogram endToEndHistogram = new Histogram();
     private Histogram osJitterHistogram = new Histogram();
@@ -52,7 +56,13 @@ public class JLBH implements NanoSampler {
     public JLBH(JLBHOptions jlbhOptions) {
         this.jlbhOptions = jlbhOptions;
         if (jlbhOptions.jlbhTask == null) throw new IllegalStateException("jlbhTask must be set");
-        rate = 1_000_000_000 / jlbhOptions.throughput;
+        rate = jlbhOptions.throughputTimeUnit.toNanos(1) / jlbhOptions.throughput;
+        // we consider 2 ms the threshold where we use a mixed strategy and sleep for rate - 1 ms and busy wait for the rest of the time
+        if (rate > TimeUnit.MILLISECONDS.toNanos(2)) {
+            waitTimeMillis = TimeUnit.NANOSECONDS.toMillis(rate - TimeUnit.MILLISECONDS.toNanos(1));
+        } else {
+            waitTimeMillis = 0;
+        }
     }
 
     /**
@@ -105,10 +115,19 @@ public class JLBH implements NanoSampler {
                         startTimeNs = System.nanoTime();
                     } else if (jlbhOptions.accountForCoordinatedOmission) {
                         startTimeNs += rate;
-                        while (System.nanoTime() < startTimeNs)
-                            ;
+                        if (waitTimeMillis > 0) {
+                            Jvm.pause(waitTimeMillis);
+                        }
+                        Jvm.busyWaitUntil(startTimeNs);
                     } else {
-                        Jvm.busyWaitMicros(rate / 1000);
+                        if (waitTimeMillis > 0) {
+                            long end = System.nanoTime() + rate;
+                            Jvm.pause(waitTimeMillis);
+                            // account for jitter in Thread.sleep() and wait until a fixed point in time
+                            Jvm.busyWaitUntil(end);
+                        } else {
+                            Jvm.busyWaitMicros(rate / 1000);
+                        }
                         startTimeNs = System.nanoTime();
                     }
 
@@ -125,7 +144,7 @@ public class JLBH implements NanoSampler {
                 System.out.println("-------------------------------- BENCHMARK RESULTS (RUN " + (run + 1) + ") --------------------------------------------------------");
                 System.out.println("Run time: " + totalRunTime/1000.0 + "s");
                 System.out.println("Correcting for co-ordinated:" + jlbhOptions.accountForCoordinatedOmission);
-                System.out.println("Target throughput:" + jlbhOptions.throughput + "/s" + " = 1 message every " + (rate / 1000) + "us");
+                System.out.println("Target throughput:" + jlbhOptions.throughput + "/" + timeUnitToString(jlbhOptions.throughputTimeUnit ) + " = 1 message every " + (rate / 1000) + "us");
                 System.out.printf("%-48s", String.format("End to End: (%,d)", endToEndHistogram.totalCount()));
                 System.out.println(endToEndHistogram.toMicrosFormat());
 
@@ -238,6 +257,27 @@ public class JLBH implements NanoSampler {
                 sb.append("         run").append(i);
         }
         sb.append("      % Variation");
+    }
+
+    private String timeUnitToString(TimeUnit timeUnit) {
+        switch (timeUnit) {
+            case NANOSECONDS:
+                return "ns";
+            case MICROSECONDS:
+                return "us";
+            case MILLISECONDS:
+                return "ms";
+            case SECONDS:
+                return "s";
+            case MINUTES:
+                return "min";
+            case HOURS:
+                return "h";
+            case DAYS:
+                return "day";
+            default:
+                throw new IllegalArgumentException("Unrecognized time unit value '" + timeUnit + "'");
+        }
     }
 
     @Override
