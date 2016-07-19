@@ -404,7 +404,7 @@ public enum UnsafeMemory implements Memory {
     @ForceInline
     public int readVolatileInt(long address) {
         int value = UNSAFE.getIntVolatile(null, address);
-        if ((address & 63) <= 58) {
+        if ((address & 63) <= 60) {
             if (value == 0)
                 value = UNSAFE.getIntVolatile(null, address);
             return value;
