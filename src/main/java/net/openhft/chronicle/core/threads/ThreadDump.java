@@ -18,6 +18,7 @@ public class ThreadDump {
         this.threads = new HashSet<>(Thread.getAllStackTraces().keySet());
         ignored.add("Time-limited test");
         ignored.add("Attach Listener");
+        ignored.add("process reaper");
         for (int i = 0, max = Runtime.getRuntime().availableProcessors(); i < max; i++)
             ignored.add("ForkJoinPool.commonPool-worker-" + i);
     }
