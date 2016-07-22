@@ -42,7 +42,6 @@ public class JLBHOptions {
         return this;
     }
 
-
     /**
      * Determines whether the start time is the time the event was supposed to have happened
      * (i.e. accounting for co-ordinated ommission) or whether the the start time is just

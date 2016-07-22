@@ -180,7 +180,6 @@ public enum Jvm {
         }
     }
 
-
     /**
      * Get the Field for a class by name.
      *
