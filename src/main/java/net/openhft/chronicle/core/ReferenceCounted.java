@@ -25,7 +25,7 @@ import java.util.List;
 /**
  * A resource which is reference counted and freed when the refCount drop to 0.
  */
-interface ReferenceCounted {
+public interface ReferenceCounted {
     static void releaseAll(List<WeakReference<ReferenceCounted>> refCounts) {
         for (WeakReference<? extends ReferenceCounted> refCountRef : refCounts) {
             if (refCountRef == null)
@@ -36,7 +36,7 @@ interface ReferenceCounted {
                     refCounted.release();
                 } catch (IllegalStateException e) {
                     LoggerFactory.getLogger(Closeable.class).debug("", e);
-            }
+                }
             }
         }
     }
