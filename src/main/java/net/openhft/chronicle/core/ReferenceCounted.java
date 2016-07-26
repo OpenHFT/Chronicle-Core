@@ -71,7 +71,6 @@ public interface ReferenceCounted {
      */
     void release() throws IllegalStateException;
 
-
     long refCount();
 
     default boolean tryReserve() {
