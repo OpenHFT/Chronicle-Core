@@ -356,12 +356,11 @@ public enum OS {
 
     public static class Unmapper implements Runnable {
         private final long size;
-        private final ReferenceCounted owner;
+
         private volatile long address;
 
         public Unmapper(long address, long size, ReferenceCounted owner) throws IllegalStateException {
-            owner.reserve();
-            this.owner = owner;
+
             assert (address != 0);
             this.address = address;
             this.size = size;
@@ -375,7 +374,6 @@ public enum OS {
                 unmap(address, size);
                 address = 0;
 
-                owner.release();
             } catch (IOException | IllegalStateException e) {
                 Jvm.warn().on(OS.class, "Error on unmap and release", e);
             }
