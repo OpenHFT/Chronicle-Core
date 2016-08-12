@@ -82,7 +82,7 @@ public class ReferenceCounter {
 
     private boolean logReferenceCountHistory() {
         referenceCountHistory.forEach(Throwable::printStackTrace);
-        return true;
+        return false;
     }
 
     private boolean recordRelease(long v) {
