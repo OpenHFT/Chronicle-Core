@@ -41,7 +41,6 @@ public class ReferenceCounter {
     }
 
     public static ReferenceCounter onReleased(Runnable onRelease) {
-
         return new ReferenceCounter(onRelease);
     }
 

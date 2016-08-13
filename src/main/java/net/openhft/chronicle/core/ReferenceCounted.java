@@ -79,9 +79,15 @@ public interface ReferenceCounted {
                 reserve();
                 return true;
             }
+
         } catch (IllegalStateException e) {
-            LoggerFactory.getLogger(Closeable.class).debug("", e);
+            LoggerFactory.getLogger(Closeable.class).error("You can not reserve on a closed " +
+                    "resource who's reference count is zero",e);
+            return false;
         }
+
+        LoggerFactory.getLogger(Closeable.class).error("You can not " +
+                "tryReserve() on a closed resource who's reference count is zero");
         return false;
     }
 }
