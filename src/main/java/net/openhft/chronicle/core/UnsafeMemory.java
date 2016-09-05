@@ -60,7 +60,9 @@ public enum UnsafeMemory implements Memory {
         long value2 = UNSAFE.getLongVolatile(null, address);
         while (value2 != value) {
             if (value != 0)
-                System.out.println(Long.toHexString(address) + " (" + (address & 63) + ") " +
+                System.out.println("WARN: please add padding() when using concurrent writers, " +
+                        "Long" +
+                        Long.toHexString(address) + " (" + (address & 63) + ") " +
                         "was " + Long.toHexString(value) +
                         " is now " + Long.toHexString(value2));
             value = value2;
