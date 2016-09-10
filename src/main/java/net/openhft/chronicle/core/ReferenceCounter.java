@@ -33,15 +33,15 @@ public class ReferenceCounter {
         assert newRefCountHistory();
     }
 
+    public static ReferenceCounter onReleased(Runnable onRelease) {
+
+        return new ReferenceCounter(onRelease);
+    }
 
     private boolean newRefCountHistory() {
         referenceCountHistory = new ArrayList<>();
         referenceCountHistory.add(new RuntimeException("creation ref-count=" + 0));
         return true;
-    }
-
-    public static ReferenceCounter onReleased(Runnable onRelease) {
-        return new ReferenceCounter(onRelease);
     }
 
     public void reserve() throws IllegalStateException {
