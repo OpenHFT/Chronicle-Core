@@ -16,8 +16,8 @@
 
 package net.openhft.chronicle.core;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class ReferenceCounter {
@@ -26,7 +26,7 @@ public class ReferenceCounter {
 
     // records where is reference was created and released, only used for debuging and
     // only active when assertions are turned on
-    private List<Exception> referenceCountHistory;
+    private Queue<Exception> referenceCountHistory;
 
     private ReferenceCounter(Runnable onRelease) {
         this.onRelease = onRelease;
@@ -39,7 +39,7 @@ public class ReferenceCounter {
     }
 
     private boolean newRefCountHistory() {
-        referenceCountHistory = new ArrayList<>();
+        referenceCountHistory = new ConcurrentLinkedQueue<>();
         referenceCountHistory.add(new RuntimeException("creation ref-count=" + 0));
         return true;
     }
