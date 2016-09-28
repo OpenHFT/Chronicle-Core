@@ -328,12 +328,12 @@ public enum OS {
         return spaceUsed(new File(filename));
     }
 
-    private static long spaceUsed(File file) throws NumberFormatException {
+    private static long spaceUsed(File file) {
         if (!isWindows()) {
             try {
                 String du_k = run("du", "-ks", file.getAbsolutePath());
                 return Long.parseLong(du_k.substring(0, du_k.indexOf('\t')));
-            } catch (IOException e) {
+            } catch (IOException | NumberFormatException e) {
                 Jvm.warn().on(OS.class, e);
             }
         }
