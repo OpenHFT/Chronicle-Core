@@ -27,8 +27,7 @@ import java.security.SecureRandom;
 import java.util.Random;
 import java.util.stream.DoubleStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * User: peter.lawrey
@@ -154,5 +153,26 @@ public class MathsTest {
         assertEquals(-3, Maths.divideRoundUp(-11, 5));
         assertEquals(-3, Maths.divideRoundUp(11, -5));
         assertEquals(3, Maths.divideRoundUp(-11, -5));
+    }
+
+    @Test
+    public void sameFloating() {
+        assertTrue(Maths.same(1.0, 1.0));
+        assertTrue(Maths.same(1.0f, 1.0f));
+        assertTrue(Maths.same(0.0, -0.0));
+        assertTrue(Maths.same(0.0f, -0.0f));
+        assertTrue(Maths.same(-0.0, 0.0));
+        assertTrue(Maths.same(-0.0f, 0.0f));
+        assertTrue(Maths.same(Double.NaN, Double.NaN));
+        assertTrue(Maths.same(Float.NaN, Float.NaN));
+
+        assertFalse(Maths.same(1.0, 2.0));
+        assertFalse(Maths.same(1.0f, 2.0f));
+        assertFalse(Maths.same(3.0, 2.0));
+        assertFalse(Maths.same(3.0f, 2.0f));
+        assertFalse(Maths.same(1, Double.NaN));
+        assertFalse(Maths.same(1, Float.NaN));
+        assertFalse(Maths.same(Double.NaN, 1));
+        assertFalse(Maths.same(Float.NaN, 1));
     }
 }

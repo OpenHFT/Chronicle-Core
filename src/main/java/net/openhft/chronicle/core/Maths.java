@@ -331,4 +331,12 @@ public enum Maths {
     public static long tens(int decimalPlaces) {
         return TENS[decimalPlaces];
     }
+
+    public static boolean same(double a, double b) {
+        return Double.isNaN(a) ? Double.isNaN(b) : a == b;
+    }
+
+    public static boolean same(float a, float b) {
+        return Float.isNaN(a) ? Float.isNaN(b) : a == b;
+    }
 }
