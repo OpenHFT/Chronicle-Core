@@ -16,15 +16,12 @@
 
 package net.openhft.chronicle.core.pool;
 
-import net.openhft.chronicle.core.Jvm;
-
 import java.lang.reflect.Array;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZonedDateTime;
+import java.time.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+
+import net.openhft.chronicle.core.Jvm;
 
 public class ClassAliasPool implements ClassLookup {
     public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool(null).defaultAliases();
@@ -100,9 +97,7 @@ public class ClassAliasPool implements ClassLookup {
             return clazz;
         clazz = stringClassMap2.get(name0);
         if (clazz != null) return clazz;
-        return parent == null
-                ? forName0(name, name0)
-                : parent.forName(name);
+        return forName0(name, name0);
     }
 
     private Class forName0(CharSequence name, String name0) {
