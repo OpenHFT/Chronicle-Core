@@ -48,15 +48,11 @@ public class Timer {
         eventLoop.addHandler(new ScheduledEventHandler(eventHandler, initialDelayMs, periodMs));
     }
 
-    public void schedule(VanillaEventHandler eventHandler, long periodMs) {
-        eventLoop.addHandler(new ScheduledEventHandler(eventHandler, 0, periodMs));
-    }
-
 
     public void schedule(Runnable eventHandler, long periodMs) {
         eventLoop.addHandler(new ScheduledEventHandler(() -> {
             eventHandler.run();
-            return false;
+            throw new InvalidEventHandlerException("just runs once");
         }, 0, periodMs));
     }
 
