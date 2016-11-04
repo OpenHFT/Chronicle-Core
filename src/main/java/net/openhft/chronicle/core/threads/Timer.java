@@ -19,15 +19,12 @@ package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author Rob Austin.
  */
 public class Timer {
 
-    static final Logger LOG = LoggerFactory.getLogger(Timer.class);
     private final EventLoop eventLoop;
 
     /**
@@ -54,6 +51,15 @@ public class Timer {
     public void schedule(VanillaEventHandler eventHandler, long periodMs) {
         eventLoop.addHandler(new ScheduledEventHandler(eventHandler, 0, periodMs));
     }
+
+
+    public void schedule(Runnable eventHandler, long periodMs) {
+        eventLoop.addHandler(new ScheduledEventHandler(() -> {
+            eventHandler.run();
+            return false;
+        }, 0, periodMs));
+    }
+
 
     private class ScheduledEventHandler implements EventHandler {
 
