@@ -100,9 +100,7 @@ public class ClassAliasPool implements ClassLookup {
             return clazz;
         clazz = stringClassMap2.get(name0);
         if (clazz != null) return clazz;
-        return parent == null
-                ? forName0(name, name0)
-                : parent.forName(name);
+        return forName0(name, name0);
     }
 
     private Class forName0(CharSequence name, String name0) {

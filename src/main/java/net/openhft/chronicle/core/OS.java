@@ -28,6 +28,7 @@ import java.net.UnknownHostException;
 import java.nio.channels.FileChannel;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 
@@ -54,6 +55,7 @@ public enum OS {
     private static final boolean IS_WIN10 = OS.equals("windows 10");
     private static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : pageSize();
     private static final Method UNMAPP0;
+    private static final AtomicLong memoryMapped = new AtomicLong();
 
     /**
      * Unmap a region of memory.
@@ -287,15 +289,23 @@ public enum OS {
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IllegalArgumentException {
         Method map0 = fileChannel.getClass().getDeclaredMethod("map0", int.class, long.class, long.class);
         map0.setAccessible(true);
-        return (Long) map0.invoke(fileChannel, imode, start, size);
+        final long invoke = (Long) map0.invoke(fileChannel, imode, start, size);
+        memoryMapped.addAndGet(size);
+        return invoke;
     }
 
     public static void unmap(long address, long size) throws IOException {
         try {
-            UNMAPP0.invoke(null, address, pageAlign(size));
+            final long size2 = pageAlign(size);
+            UNMAPP0.invoke(null, address, size2);
+            memoryMapped.addAndGet(-size2);
         } catch (Exception e) {
             throw asAnIOException(e);
         }
+    }
+
+    public static long memoryMapped() {
+        return memoryMapped.get();
     }
 
     private static IOException asAnIOException(Throwable e) {

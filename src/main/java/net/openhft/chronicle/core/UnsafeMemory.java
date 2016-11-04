@@ -56,7 +56,7 @@ public enum UnsafeMemory implements Memory {
         return value;
     }
 
-    private static long retryReadVolatileInt(long address, long value) {
+    private static long retryReadVolatileLong(long address, long value) {
         long value2 = UNSAFE.getLongVolatile(null, address);
         while (value2 != value) {
             if (value != 0)
@@ -437,10 +437,10 @@ public enum UnsafeMemory implements Memory {
     @ForceInline
     public long readVolatileLong(long address) {
         long value = UNSAFE.getLongVolatile(null, address);
-        if ((address & 63) <= 54) {
+        if ((address & 63) <= 64 - 8) {
             return value;
         }
-        return retryReadVolatileInt(address, value);
+        return retryReadVolatileLong(address, value);
     }
 
     @Override
