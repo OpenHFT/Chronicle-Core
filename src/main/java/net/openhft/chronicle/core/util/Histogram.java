@@ -16,6 +16,7 @@
 
 package net.openhft.chronicle.core.util;
 
+import java.util.Arrays;
 import java.util.function.DoubleFunction;
 
 /**
@@ -23,9 +24,10 @@ import java.util.function.DoubleFunction;
  */
 // TODO add a dummy histogram.
 public class Histogram implements NanoSampler {
-    private final int fractionBits;
+    private int fractionBits;
     private int powersOf2;
-    private long totalCount, overRange;
+    private long overRange;
+    private long totalCount;
     private int[] sampleCount;
     private long floor;
 
@@ -34,10 +36,80 @@ public class Histogram implements NanoSampler {
     }
 
     public Histogram(int powersOf2, int fractionBits) {
+        this(powersOf2, fractionBits, 1.0);
+    }
+
+    public Histogram(int powersOf2, int fractionBits, double minValue) {
         this.powersOf2 = powersOf2;
         this.fractionBits = fractionBits;
         sampleCount = new int[powersOf2 << fractionBits];
+        floor = Double.doubleToRawLongBits(minValue) >> (52 - fractionBits);
+    }
+
+    /**
+     * @return Histogram for use with System.nanoTime() up to 4 second delay.
+     */
+    public static Histogram timeMicros() {
+        return new Histogram(22 /* 4 seconds */, 3 /* 2 decimal places */, 1000.0 /* nano-seconds */);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Histogram))
+            return false;
+        Histogram h = (Histogram) obj;
+        if (!(powersOf2 == h.powersOf2
+                && fractionBits == h.fractionBits
+                && floor == h.floor))
+            return false;
+        int size = powersOf2 << fractionBits;
+        for (int i = 0; i < size; i++) {
+            if (sampleCount[i] != h.sampleCount[i])
+                return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Histogram{" +
+                "fractionBits=" + fractionBits +
+                ", powersOf2=" + powersOf2 +
+                ", overRange=" + overRange +
+                ", totalCount=" + totalCount +
+                ", sampleCount=" + Arrays.toString(sampleCount) +
+                ", floor=" + floor +
+                '}';
+    }
+
+    /**
+     * Re initialise this histogram from deserialized data
+     */
+    public void init(int powersOf2, int fractionBits, long overRange, long totalCount) {
+        this.powersOf2 = powersOf2;
+        this.fractionBits = fractionBits;
+        this.overRange = overRange;
+        this.totalCount = totalCount;
+        int minSampleCountLength = powersOf2 << fractionBits;
+        if (sampleCount.length < minSampleCountLength)
+            sampleCount = new int[minSampleCountLength];
         floor = Double.doubleToRawLongBits(1) >> (52 - fractionBits);
+    }
+
+    public int fractionBits() {
+        return fractionBits;
+    }
+
+    public int powersOf2() {
+        return powersOf2;
+    }
+
+    public long overRange() {
+        return overRange;
+    }
+
+    public int[] sampleCount() {
+        return sampleCount;
     }
 
     public void add(Histogram h) {
@@ -74,7 +146,7 @@ public class Histogram implements NanoSampler {
         return 1;
     }
 
-    public double[] getPercentiles(){
+    public double[] getPercentiles() {
         if (totalCount < 1_000_000) {
             return new double[]{
                     percentile(0.5),
@@ -200,7 +272,7 @@ public class Histogram implements NanoSampler {
         return totalCount;
     }
 
-    public void reset(){
+    public void reset() {
         sampleCount = new int[powersOf2 << fractionBits];
         totalCount = overRange = 0;
     }
