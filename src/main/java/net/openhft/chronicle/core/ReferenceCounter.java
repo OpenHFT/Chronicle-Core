@@ -24,8 +24,8 @@ public class ReferenceCounter {
     private final AtomicLong value = new AtomicLong(1);
     private final Runnable onRelease;
 
-    // records where is reference was created and released, only used for debuging and
-    // only active when assertions are turned on
+    // records where reference was created, reserved and released,
+    // only used for debugging and only active when assertions are turned on
     private Queue<Exception> referenceCountHistory;
 
     private ReferenceCounter(Runnable onRelease) {
@@ -34,13 +34,12 @@ public class ReferenceCounter {
     }
 
     public static ReferenceCounter onReleased(Runnable onRelease) {
-
         return new ReferenceCounter(onRelease);
     }
 
     private boolean newRefCountHistory() {
         referenceCountHistory = new ConcurrentLinkedQueue<>();
-        referenceCountHistory.add(new RuntimeException("creation ref-count=" + 0));
+        referenceCountHistory.add(new RuntimeException("creation ref-count=" + 1));
         return true;
     }
 
@@ -48,13 +47,15 @@ public class ReferenceCounter {
         for (; ; ) {
 
             long v = value.get();
-            assert recordResevation(v);
             if (v <= 0) {
+                assert recordResevation(v);
                 assert logReferenceCountHistory();
                 throw new IllegalStateException("Released");
             }
-            if (value.compareAndSet(v, v + 1))
+            if (value.compareAndSet(v, v + 1)) {
+                assert recordResevation(v + 1);
                 break;
+            }
         }
     }
 
@@ -66,12 +67,13 @@ public class ReferenceCounter {
     public void release() throws IllegalStateException {
         for (; ; ) {
             long v = value.get();
-            assert recordRelease(v);
             if (v <= 0) {
+                assert recordRelease(v);
                 assert logReferenceCountHistory();
                 throw new IllegalStateException("Released");
             }
             if (value.compareAndSet(v, v - 1)) {
+                assert recordRelease(v - 1);
                 if (v == 1)
                     onRelease.run();
                 break;
@@ -79,14 +81,14 @@ public class ReferenceCounter {
         }
     }
 
-    private boolean logReferenceCountHistory() {
-        referenceCountHistory.forEach(Throwable::printStackTrace);
-        return false;
-    }
-
     private boolean recordRelease(long v) {
         referenceCountHistory.add(new RuntimeException("Release ref-count=" + v));
         return true;
+    }
+
+    private boolean logReferenceCountHistory() {
+        referenceCountHistory.forEach(Throwable::printStackTrace);
+        return false;
     }
 
     public long get() {
