@@ -58,6 +58,11 @@ public enum StringUtils {
         }
     }
 
+    public static void set(StringBuilder sb, CharSequence cs) {
+        sb.setLength(0);
+        sb.append(cs);
+    }
+
     public static boolean endsWith(@NotNull final CharSequence source,
                                    @NotNull final String endsWith) {
         for (int i = 1; i <= endsWith.length(); i++) {
