@@ -28,8 +28,8 @@ public class Histogram implements NanoSampler {
     private int powersOf2;
     private long overRange;
     private long totalCount;
-    private int[] sampleCount;
     private long floor;
+    private int[] sampleCount;
 
     public Histogram() {
         this(42, 4);
@@ -77,23 +77,24 @@ public class Histogram implements NanoSampler {
                 ", powersOf2=" + powersOf2 +
                 ", overRange=" + overRange +
                 ", totalCount=" + totalCount +
-                ", sampleCount=" + Arrays.toString(sampleCount) +
                 ", floor=" + floor +
+                ", sampleCount=" + Arrays.toString(sampleCount) +
                 '}';
     }
 
     /**
      * Re initialise this histogram from deserialized data
      */
-    public void init(int powersOf2, int fractionBits, long overRange, long totalCount) {
+    public void init(int powersOf2, int fractionBits, long overRange, long totalCount, long floor) {
         this.powersOf2 = powersOf2;
         this.fractionBits = fractionBits;
         this.overRange = overRange;
         this.totalCount = totalCount;
+        this.floor = floor;
+
         int minSampleCountLength = powersOf2 << fractionBits;
         if (sampleCount.length < minSampleCountLength)
             sampleCount = new int[minSampleCountLength];
-        floor = Double.doubleToRawLongBits(1) >> (52 - fractionBits);
     }
 
     public int fractionBits() {
@@ -270,6 +271,10 @@ public class Histogram implements NanoSampler {
 
     public long totalCount() {
         return totalCount;
+    }
+
+    public long floor() {
+        return floor;
     }
 
     public void reset() {
