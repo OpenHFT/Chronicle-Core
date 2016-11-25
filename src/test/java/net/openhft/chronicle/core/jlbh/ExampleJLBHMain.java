@@ -30,7 +30,7 @@ public class ExampleJLBHMain implements JLBHTask {
 
     public static void main(String[] args) {
         JLBHOptions jlbhOptions = new JLBHOptions()
-                .warmUpIterations(50_000)
+                .warmUpIterations(Jvm.compileThreshold() * 2)
                 .iterations(10_000_001)
                 .throughput(2000_000)
                 .accountForCoordinatedOmmission(true)

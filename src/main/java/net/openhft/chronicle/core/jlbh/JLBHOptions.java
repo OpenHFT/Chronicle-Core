@@ -17,6 +17,8 @@
 
 package net.openhft.chronicle.core.jlbh;
 
+import net.openhft.chronicle.core.Jvm;
+
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -28,7 +30,7 @@ public class JLBHOptions {
     boolean accountForCoordinatedOmission = true;
     int recordJitterGreaterThanNs = 1_000;
     boolean recordOSJitter = true;
-    int warmUpIterations = 10_000;
+    int warmUpIterations = Jvm.compileThreshold() * 6 / 5;
     int runs = 3;
     int iterations = 100_000;
     JLBHTask jlbhTask;
