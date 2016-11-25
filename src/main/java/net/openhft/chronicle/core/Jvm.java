@@ -21,6 +21,7 @@ import sun.misc.VM;
 
 import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.LockSupport;
@@ -34,11 +35,12 @@ import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 public enum Jvm {
     ;
 
-    private static final boolean IS_DEBUG = getRuntimeMXBean().getInputArguments().toString().contains("jdwp") || Boolean.getBoolean("debug");
-    // e.g-verbose:gc  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=dumponexit=true,filename=myrecording.jfr,settings=profile -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints
-
+    private static final List<String> INPUT_ARGUMENTS = getRuntimeMXBean().getInputArguments();
+    private static final int COMPILE_THRESHOLD = getCompileThreshold0(INPUT_ARGUMENTS);
+    private static final boolean IS_DEBUG = INPUT_ARGUMENTS.toString().contains("jdwp") || Boolean.getBoolean("debug");
     private static final boolean IS_FLIGHT_RECORDER = (" " + getRuntimeMXBean().getInputArguments()).contains(" -XX:+FlightRecorder") || Boolean.getBoolean("jfr");
     private static final Class bitsClass;
+    // e.g-verbose:gc  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=dumponexit=true,filename=myrecording.jfr,settings=profile -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints
     private static final Field reservedMemory;
     private static final AtomicLong reservedMemoryAtomicLong;
     private static final DirectMemoryInspector DIRECT_MEMORY_INSPECTOR;
@@ -62,6 +64,20 @@ public enum Jvm {
         } catch (Exception e) {
             throw new AssertionError(e);
         }
+    }
+
+    private static int getCompileThreshold0(List<String> inputArguments) {
+        for (String inputArgument : inputArguments) {
+            String prefix = "-XX:CompileThreshold=";
+            if (inputArgument.startsWith(prefix)) {
+                return Integer.parseInt(inputArgument.substring(prefix.length()));
+            }
+        }
+        return 10000;
+    }
+
+    public static int compileThreshold() {
+        return COMPILE_THRESHOLD;
     }
 
     private static boolean is64bit0() {
