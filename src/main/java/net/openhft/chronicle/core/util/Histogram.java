@@ -220,43 +220,43 @@ public class Histogram implements NanoSampler {
 
     public String toLongMicrosFormat(DoubleFunction<Double> toMicros) {
         if (totalCount < 1_000_000)
-            return "50/90 93/99 99.3/99.9 99.93/99.99 - worst was " +
+            return "50/90 97/99 99.7/99.9 99.97/99.99 - worst was " +
                     p(toMicros.apply(percentile(0.5))) + " / " +
                     p(toMicros.apply(percentile(0.9))) + "  " +
-                    p(toMicros.apply(percentile(0.93))) + " / " +
+                    p(toMicros.apply(percentile(0.97))) + " / " +
                     p(toMicros.apply(percentile(0.99))) + "  " +
-                    p(toMicros.apply(percentile(0.993))) + " / " +
+                    p(toMicros.apply(percentile(0.997))) + " / " +
                     p(toMicros.apply(percentile(0.999))) + "  " +
-                    p(toMicros.apply(percentile(0.9993))) + " / " +
+                    p(toMicros.apply(percentile(0.9997))) + " / " +
                     p(toMicros.apply(percentile(0.9999))) + " - " +
                     p(toMicros.apply(percentile(1)));
 
         if (totalCount < 10_000_000)
-            return "50/90 93/99 99.3/99.9 99.93/99.99 99.993/99.999 - worst was " +
+            return "50/90 97/99 99.7/99.9 99.97/99.99 99.997/99.999 - worst was " +
                     p(toMicros.apply(percentile(0.5))) + " / " +
                     p(toMicros.apply(percentile(0.9))) + "  " +
-                    p(toMicros.apply(percentile(0.93))) + " / " +
+                    p(toMicros.apply(percentile(0.97))) + " / " +
                     p(toMicros.apply(percentile(0.99))) + "  " +
-                    p(toMicros.apply(percentile(0.993))) + " / " +
+                    p(toMicros.apply(percentile(0.997))) + " / " +
                     p(toMicros.apply(percentile(0.999))) + "  " +
-                    p(toMicros.apply(percentile(0.9993))) + " / " +
+                    p(toMicros.apply(percentile(0.9997))) + " / " +
                     p(toMicros.apply(percentile(0.9999))) + "  " +
-                    p(toMicros.apply(percentile(0.99993))) + " / " +
+                    p(toMicros.apply(percentile(0.99997))) + " / " +
                     p(toMicros.apply(percentile(0.99999))) + " - " +
                     p(toMicros.apply(percentile(1)));
 
-        return "50/90 93/99 99.3/99.9 99.93/99.99 99.993/99.999 99.9993/99.9999 - worst was " +
+        return "50/90 97/99 99.7/99.9 99.97/99.99 99.997/99.999 99.9997/99.9999 - worst was " +
                 p(toMicros.apply(percentile(0.5))) + " / " +
                 p(toMicros.apply(percentile(0.9))) + "  " +
-                p(toMicros.apply(percentile(0.93))) + " / " +
+                p(toMicros.apply(percentile(0.97))) + " / " +
                 p(toMicros.apply(percentile(0.99))) + "  " +
-                p(toMicros.apply(percentile(0.993))) + " / " +
+                p(toMicros.apply(percentile(0.997))) + " / " +
                 p(toMicros.apply(percentile(0.999))) + "  " +
-                p(toMicros.apply(percentile(0.9993))) + " / " +
+                p(toMicros.apply(percentile(0.9997))) + " / " +
                 p(toMicros.apply(percentile(0.9999))) + "  " +
-                p(toMicros.apply(percentile(0.99993))) + " / " +
+                p(toMicros.apply(percentile(0.99997))) + " / " +
                 p(toMicros.apply(percentile(0.99999))) + "  " +
-                p(toMicros.apply(percentile(0.999993))) + " / " +
+                p(toMicros.apply(percentile(0.999997))) + " / " +
                 p(toMicros.apply(percentile(0.999999))) + " - " +
                 p(toMicros.apply(percentile(1)));
     }
