@@ -82,6 +82,14 @@ public enum OS {
         return TMP + "/target";
     }
 
+    public static String findDir(String suffix) throws FileNotFoundException {
+        for (String s : System.getProperty("java.class.path").split(":")) {
+            if (s.endsWith(suffix) && new File(s).isDirectory())
+                return s;
+        }
+        throw new FileNotFoundException(suffix);
+    }
+
     public static String getHostName() {
         return HOST_NAME;
     }
