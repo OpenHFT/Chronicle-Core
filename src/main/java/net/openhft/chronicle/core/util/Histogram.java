@@ -280,9 +280,7 @@ public class Histogram implements NanoSampler {
     public void reset() {
         totalCount = overRange = 0;
 
-        for (int i = 0; i < sampleCount.length; i++) {
-            sampleCount[i] = 0;
-        }
+        Arrays.fill(sampleCount, 0);
     }
 
     @Override
