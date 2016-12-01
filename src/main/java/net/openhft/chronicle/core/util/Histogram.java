@@ -278,8 +278,11 @@ public class Histogram implements NanoSampler {
     }
 
     public void reset() {
-        sampleCount = new int[powersOf2 << fractionBits];
         totalCount = overRange = 0;
+
+        for (int i = 0; i < sampleCount.length; i++) {
+            sampleCount[i] = 0;
+        }
     }
 
     @Override

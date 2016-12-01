@@ -24,6 +24,7 @@ import sun.reflect.Reflection;
 import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -60,6 +61,8 @@ public enum IOTools {
         Stream.of(entries).forEach(f -> {
             try {
                 Files.delete(f.toPath());
+            } catch (NoSuchFileException fe) {
+                // ignored
             } catch (IOException e) {
                 Jvm.debug().on(Closeable.class, "Failed to delete " + f, e);
             }
