@@ -143,7 +143,11 @@ public enum StringUtils {
     }
 
     public static String firstLowerCase(String str) {
-        return Character.toLowerCase(str.charAt(0)) + str.substring(1);
+        if (str == null || str.isEmpty())
+            return str;
+        final char ch = str.charAt(0);
+        final char c2 = Character.toLowerCase(ch);
+        return ch == c2 ? str : c2 + str.substring(1);
     }
 
     public static double parseDouble(@net.openhft.chronicle.core.annotation.NotNull
@@ -264,5 +268,36 @@ public enum StringUtils {
         }
         final double d = Math.scalb((double) value, exp);
         return negative ? -d : d;
+    }
+
+    public static String toTitleCase(String name) {
+        if (name == null || name.isEmpty())
+            return name;
+        StringBuilder sb = new StringBuilder();
+        sb.append(Character.toUpperCase(name.charAt(0)));
+        boolean wasUnder = false;
+        for (int i = 1; i < name.length(); i++) {
+            char ch0 = name.charAt(i);
+            char ch1 = i+1 < name.length() ? name.charAt(i+1) : ' ';
+            if (Character.isLowerCase(ch0)) {
+                sb.append(Character.toUpperCase(ch0));
+                if (Character.isUpperCase(ch1)) {
+                    sb.append('_');
+                    wasUnder = true;
+                } else {
+                    wasUnder = false;
+                }
+            } else if (Character.isUpperCase(ch0)) {
+                if (!wasUnder && Character.isLowerCase(ch1)) {
+                    sb.append('_');
+                }
+                sb.append(ch0);
+                wasUnder = false;
+            } else {
+                sb.append(ch0);
+                wasUnder = ch0 == '_';
+            }
+        }
+        return sb.toString();
     }
 }
