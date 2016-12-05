@@ -16,6 +16,7 @@
 
 package net.openhft.chronicle.core;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.nio.ch.FileChannelImpl;
@@ -89,6 +90,18 @@ public enum OS {
         }
         throw new FileNotFoundException(suffix);
     }
+
+    @NotNull
+    public static File findFile(String... path) {
+        File dir = new File(".").getAbsoluteFile();
+        for (int i = 0; i < path.length - 1; i++) {
+            File dir2 = new File(dir, path[i]);
+            if (dir2.isDirectory())
+                dir = dir2;
+        }
+        return new File(dir, path[path.length - 1]);
+    }
+
 
     public static String getHostName() {
         return HOST_NAME;
