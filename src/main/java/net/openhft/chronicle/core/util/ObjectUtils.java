@@ -168,6 +168,7 @@ public enum ObjectUtils {
         eClass = primToWrapper(eClass);
         if (eClass.isInstance(o) || o == null) return (E) o;
         if (eClass == Void.class) return null;
+        if (eClass == String.class) return (E) o.toString();
         if (Enum.class.isAssignableFrom(eClass)) {
             return (E) valueOfIgnoreCase((Class) eClass, o.toString());
         }
