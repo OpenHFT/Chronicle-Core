@@ -180,32 +180,23 @@ public class MathsTest {
 
     @Test
     public void testHashStringBuilderFromInterner() throws Exception {
-        // final int INTERNER_FILL = 999; // passes
-        final int INTERNER_FILL = 9999; // fails
-
-        StringInterner interner = new StringInterner(128);
+        StringInterner interner = new StringInterner(16);
 
         final CharSequence csToHash = "557";
         final StringBuilder sb = new StringBuilder(csToHash);
 
         long hash = Maths.hash64(sb);
 
-        for (int i = 0; i < 2; i++) {
-            StringUtils.set(sb, interner.intern(csToHash));
-            final long actual = Maths.hash64(sb);
+        String intern = interner.intern(csToHash);
+        StringUtils.set(sb, intern);
+        final long actual = Maths.hash64(sb);
+        assertEquals(hash, actual);
+        // overflowing the interner?
+        StringUtils.set(sb, "xxxx");
 
-            assertEquals(hash, actual);
-
-            /*if (hash != actual) {
-                System.out.println(hash + "!=" + actual);
-                hash = actual;
-            }*/
-
-            // overflowing the interner?
-            for (int j = 1; j < INTERNER_FILL; j++) {
-                StringUtils.set(sb, interner.intern("" + j));
-            }
-        }
-
+        String intern2 = interner.intern(csToHash);
+        StringUtils.set(sb, intern2);
+        final long actual2 = Maths.hash64(sb);
+        assertEquals(hash, actual2);
     }
 }

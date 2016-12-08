@@ -198,7 +198,7 @@ public enum Maths {
 
     public static long hash64(CharSequence cs) {
         long hash = 0;
-        for (int i = 0; i < cs.length(); i++)
+        for (int i = 0, len = cs.length(); i < len; i++)
             hash = hash * 841248317 + cs.charAt(i);
         return agitate(hash);
     }
@@ -206,7 +206,7 @@ public enum Maths {
     public static long hash64(String s) {
         long hash = 0;
         final char[] chars = StringUtils.extractChars(s);
-        for (int i = 0; i < chars.length; i++)
+        for (int i = 0, len = s.length(); i < len; i++)
             hash = hash * 841248317 + chars[i];
         return agitate(hash);
     }
@@ -214,7 +214,7 @@ public enum Maths {
     public static long hash64(StringBuilder s) {
         long hash = 0;
         final char[] chars = StringUtils.extractChars(s);
-        for (int i = 0; i < chars.length; i++)
+        for (int i = 0, len = s.length(); i < len; i++)
             hash = hash * 841248317 + chars[i];
         return agitate(hash);
     }

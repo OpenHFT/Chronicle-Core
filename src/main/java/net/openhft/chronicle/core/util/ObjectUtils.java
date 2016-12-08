@@ -93,6 +93,8 @@ public enum ObjectUtils {
             throw new IllegalArgumentException("primitive: " + c.getName());
         if (c.isInterface())
             throw new IllegalArgumentException("interface: " + c.getName());
+        if (Modifier.isAbstract(c.getModifiers()))
+            throw new IllegalArgumentException("abstract class: " + c.getName());
         try {
             Constructor constructor = c.getDeclaredConstructor();
             constructor.setAccessible(true);
