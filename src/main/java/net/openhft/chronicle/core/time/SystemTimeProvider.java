@@ -22,8 +22,32 @@ package net.openhft.chronicle.core.time;
 public enum SystemTimeProvider implements TimeProvider {
     INSTANCE;
 
+    static {
+        // warmUp()
+        for (int i = 0; i < 1000; i++)
+            INSTANCE.currentTimeMicros();
+    }
+
+    long delta = 0;
+
     @Override
     public long currentTimeMillis() {
         return System.currentTimeMillis();
+    }
+
+    public long currentTimeMicros() {
+        long n0 = System.nanoTime();
+        long nowMS = System.currentTimeMillis() * 1000;
+        long nowUS = n0 / 1000;
+        long estimate = nowUS + delta;
+        if (estimate < nowMS) {
+            delta = nowMS - nowUS;
+            return nowMS;
+        } else if (estimate > nowMS + 1000) {
+            nowMS += 999;
+            delta = nowMS - nowUS;
+            return nowMS;
+        }
+        return estimate;
     }
 }

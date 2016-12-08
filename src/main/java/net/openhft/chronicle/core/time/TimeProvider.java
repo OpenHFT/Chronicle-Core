@@ -21,4 +21,8 @@ package net.openhft.chronicle.core.time;
  */
 public interface TimeProvider {
     long currentTimeMillis();
+
+    default long currentTimeMicros() {
+        return System.currentTimeMillis() * 1000;
+    }
 }
