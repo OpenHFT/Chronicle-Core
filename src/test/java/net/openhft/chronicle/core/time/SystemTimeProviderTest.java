@@ -16,12 +16,9 @@
 
 package net.openhft.chronicle.core.time;
 
-import net.openhft.chronicle.core.Jvm;
-import net.openhft.chronicle.core.onoes.ExceptionKey;
 import org.junit.Test;
 
-import java.util.HashMap;
-import java.util.Map;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by peter on 08/12/16.
@@ -29,15 +26,20 @@ import java.util.Map;
 public class SystemTimeProviderTest {
     @Test
     public void currentTimeMicros() throws Exception {
-        Jvm.recordExceptions(true);
         TimeProvider tp = SystemTimeProvider.INSTANCE;
         long start = System.currentTimeMillis();
-        while (System.currentTimeMillis() < start + 10000) {
+        long minDiff = Long.MAX_VALUE;
+        long maxDiff = Long.MIN_VALUE;
+        while (System.currentTimeMillis() < start + 500) {
             long time2 = tp.currentTimeMicros();
+            long now = System.currentTimeMillis() * 1000;
+            long diff = time2 - now;
+            if (minDiff > diff) minDiff = diff;
+            if (maxDiff < diff) maxDiff = diff;
             Thread.yield();
         }
-        Map<ExceptionKey, Integer> exceptions = new HashMap<>();
-        Jvm.dumpException(exceptions);
-        System.out.println(exceptions);
+        System.out.println("minDiff: " + minDiff + ", maxDiff: " + maxDiff);
+        assertEquals(minDiff, 0, 50);
+        assertEquals(maxDiff, 1000, 50);
     }
 }
