@@ -362,4 +362,8 @@ public enum ObjectUtils {
         }
         throw new IllegalArgumentException("No matching super interface for " + clazz + " which was a " + interfaceClass);
     }
+
+    public static boolean isConcreteClass(Class tClass) {
+        return (tClass.getModifiers() & (Modifier.ABSTRACT | Modifier.INTERFACE)) == 0;
+    }
 }
