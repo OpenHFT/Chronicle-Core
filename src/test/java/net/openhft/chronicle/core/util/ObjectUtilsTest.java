@@ -17,41 +17,36 @@
 package net.openhft.chronicle.core.util;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
 
-import java.util.Arrays;
-import java.util.Collection;
+import java.math.BigDecimal;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
 
 /**
- * Created by peter on 29/11/16.
+ * Created by peter on 11/12/16.
  */
-@RunWith(Parameterized.class)
 public class ObjectUtilsTest {
-
-    private final Object converted;
-    private final String input;
-
-    public ObjectUtilsTest(Object converted, String input) {
-        this.converted = converted;
-        this.input = input;
-    }
-
-    @Parameterized.Parameters
-    public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][]{
-                {Boolean.TRUE, "Y"},
-                {Boolean.TRUE, "yes"},
-                {Boolean.FALSE, "N"},
-                {Boolean.FALSE, "no"},
-        });
-    }
-
     @Test
-    public void convertTo() throws Exception {
-        assertEquals(converted, ObjectUtils.convertTo(converted.getClass(), input));
+    public void testImmutable() {
+        for (Class c : new Class[]{
+                String.class,
+                Integer.class,
+                Date.class,
+                BigDecimal.class,
+                ZonedDateTime.class,
+        }) {
+            assertEquals(ObjectUtils.Immutability.MAYBE, ObjectUtils.isImmutable(c));
+        }
+        for (Class c : new Class[]{
+                StringBuilder.class,
+                ArrayList.class,
+                HashMap.class,
+        }) {
+            assertEquals(ObjectUtils.Immutability.NO, ObjectUtils.isImmutable(c));
+        }
     }
-
 }

@@ -26,8 +26,12 @@ import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
+
+import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.MAYBE;
+import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
 
 /**
  * Created by peter on 23/06/15.
@@ -86,6 +90,7 @@ public enum ObjectUtils {
         }
     });
     static final ClassLocal<Map<String, Enum>> CASE_IGNORE_LOOKUP = ClassLocal.withInitial(ObjectUtils::caseIgnoreLookup);
+    private static final Map<Class, Immutability> immutabilityMap = new ConcurrentHashMap<>();
     private static final ClassLocal<Supplier> SUPPLIER_CLASS_LOCAL = ClassLocal.withInitial(c -> {
         if (c == null)
             throw new NullPointerException();
@@ -120,6 +125,17 @@ public enum ObjectUtils {
         DEFAULT_MAP.put(long.class, 0L);
         DEFAULT_MAP.put(float.class, 0.0f);
         DEFAULT_MAP.put(double.class, 0.0);
+    }
+
+    public static void immutabile(Class clazz, boolean isImmutable) {
+        immutabilityMap.put(clazz, isImmutable ? Immutability.YES : Immutability.NO);
+    }
+
+    public static Immutability isImmutable(Class clazz) {
+        Immutability immutability = immutabilityMap.get(clazz);
+        if (immutability == null)
+            return Comparable.class.isAssignableFrom(clazz) ? MAYBE : NO;
+        return immutability;
     }
 
     @NotNull
@@ -365,5 +381,9 @@ public enum ObjectUtils {
 
     public static boolean isConcreteClass(Class tClass) {
         return (tClass.getModifiers() & (Modifier.ABSTRACT | Modifier.INTERFACE)) == 0;
+    }
+
+    public enum Immutability {
+        YES, NO, MAYBE
     }
 }
