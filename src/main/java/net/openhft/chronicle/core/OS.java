@@ -310,7 +310,19 @@ public enum OS {
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IllegalArgumentException {
         Method map0 = fileChannel.getClass().getDeclaredMethod("map0", int.class, long.class, long.class);
         map0.setAccessible(true);
-        final long invoke = (Long) map0.invoke(fileChannel, imode, start, size);
+        final long invoke;
+        try {
+            try {
+                invoke = (Long) map0.invoke(fileChannel, imode, start, size);
+            } catch (InvocationTargetException e) {
+                throw Jvm.rethrow(e.getCause());
+            }
+        } catch (OutOfMemoryError oome) {
+            if (oome.getMessage().startsWith("Map failed") && !is64Bit()) {
+                throw new OutOfMemoryError("Ran out of virtual memory on a 32-bit JVM, either use a 64-bit JVM or *reduce* your heap size");
+            }
+            throw oome;
+        }
         memoryMapped.addAndGet(size);
         return invoke;
     }
