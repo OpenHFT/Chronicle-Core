@@ -24,9 +24,9 @@ import java.util.function.Function;
  * @param <V> the type of value in this ClassLocal
  */
 public class ClassLocal<V> extends ClassValue<V> {
-    private final Function<Class, V> classVFunction;
+    private final Function<Class<?>, V> classVFunction;
 
-    private ClassLocal(Function<Class, V> classVFunction) {
+    private ClassLocal(Function<Class<?>, V> classVFunction) {
         this.classVFunction = classVFunction;
     }
 
@@ -37,8 +37,8 @@ public class ClassLocal<V> extends ClassValue<V> {
      * @param <V>            the type of value in this ClassLocal
      * @return the ClassLocal
      */
-    public static <V> ClassLocal<V> withInitial(Function<Class, V> classVFunction) {
-        return new ClassLocal<>(classVFunction);
+    public static <V> ClassLocal<V> withInitial(Function<Class<?>, V> classVFunction) {
+        return new ClassLocal<V>(classVFunction);
     }
 
     @Override

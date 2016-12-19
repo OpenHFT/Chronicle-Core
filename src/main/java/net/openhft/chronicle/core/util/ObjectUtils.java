@@ -19,7 +19,6 @@ package net.openhft.chronicle.core.util;
 import net.openhft.chronicle.core.ClassLocal;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
-import net.openhft.chronicle.core.pool.ClassAliasPool;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.*;
@@ -30,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
+import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
 import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.MAYBE;
 import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
 
@@ -52,9 +52,9 @@ public enum ObjectUtils {
         put(void.class, Void.class);
     }};
     static final Map<Class, Object> DEFAULT_MAP = new HashMap<>();
-    static final ClassLocal<ThrowingFunction<String, Object, Exception>> PARSER_CL = ClassLocal.withInitial(c -> {
+    static final ClassLocal<ThrowingFunction<String, Object, Exception>> PARSER_CL = ClassLocal.withInitial((Class<?> c) -> {
         if (c == Class.class)
-            return ClassAliasPool.CLASS_ALIASES::forName;
+            return CLASS_ALIASES::forName;
         if (c == Boolean.class)
             return ObjectUtils::isTrue;
         try {
@@ -226,6 +226,14 @@ public enum ObjectUtils {
                 return (E) (Character) s.charAt(0);
             if (s.isEmpty())
                 return (E) Character.valueOf((char) 0);
+        }
+        if (CharSequence.class.isAssignableFrom(eClass)) {
+            try {
+                return (E) PARSER_CL.get(eClass).apply(o.toString());
+
+            } catch (Exception e) {
+                throw asCCE(e);
+            }
         }
         throw new ClassCastException("Unable to convert " + o.getClass() + " " + o + " to " + eClass);
     }
