@@ -49,4 +49,13 @@ public class ObjectUtilsTest {
             assertEquals(ObjectUtils.Immutability.NO, ObjectUtils.isImmutable(c));
         }
     }
+
+    @Test
+    public void testConvert() {
+        assertEquals('1', (char) ObjectUtils.convertTo(char.class, 1));
+        assertEquals('1', (char) ObjectUtils.convertTo(char.class, 1L));
+        assertEquals(1, (int) ObjectUtils.convertTo(int.class, '1'));
+        assertEquals(1L, (long) ObjectUtils.convertTo(long.class, '1'));
+        assertEquals(1.0, ObjectUtils.convertTo(double.class, '1'), 0.0);
+    }
 }

@@ -220,9 +220,13 @@ public enum ObjectUtils {
         if (Set.class.isAssignableFrom(eClass)) {
             return (E) new LinkedHashSet((Collection) o);
         }
-//        if (Collection.class.isAssignableFrom(eClass)) {
-//            return convertCollection(eClass, o);
-//        }
+        if (Character.class == eClass) {
+            String s = o.toString();
+            if (s.length() == 1)
+                return (E) (Character) s.charAt(0);
+            if (s.isEmpty())
+                return (E) Character.valueOf((char) 0);
+        }
         throw new ClassCastException("Unable to convert " + o.getClass() + " " + o + " to " + eClass);
     }
 
