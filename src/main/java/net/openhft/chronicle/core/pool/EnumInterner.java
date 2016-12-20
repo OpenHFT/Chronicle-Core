@@ -25,7 +25,7 @@ import net.openhft.chronicle.core.util.StringUtils;
  */
 public class EnumInterner<E extends Enum<E>> {
     public static final ClassLocal<EnumInterner> ENUM_INTERNER =
-            ClassLocal.withInitial(c -> new EnumInterner<>(c));
+            ClassLocal.withInitial(c -> new EnumInterner(c));
     private final E[] interner;
     private final int mask;
     private final Class<E> eClass;
