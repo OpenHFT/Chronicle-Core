@@ -16,12 +16,17 @@
 
 package net.openhft.chronicle.core.util;
 
-import java.io.Serializable;
-import java.util.function.Function;
+import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 /**
- * This interface is a Function which is also Serializable.
+ * Created by peter on 20/12/16.
  */
-@FunctionalInterface
-public interface SerializableFunction<I, O> extends Function<I, O>, Serializable {
+public class URIEncoderTest {
+    @Test
+    public void encodeURI() throws Exception {
+        assertEquals("~%25", URIEncoder.encodeURI("~%"));
+    }
+
 }

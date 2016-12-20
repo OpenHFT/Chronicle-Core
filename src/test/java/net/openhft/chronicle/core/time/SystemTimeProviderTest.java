@@ -39,7 +39,7 @@ public class SystemTimeProviderTest {
             Thread.yield();
         }
         System.out.println("minDiff: " + minDiff + ", maxDiff: " + maxDiff);
-        assertEquals(minDiff, 0, 50);
-        assertEquals(maxDiff, 1000, 50);
+        assertEquals(0, minDiff, 50);
+        assertEquals(1000, maxDiff, 50);
     }
 }

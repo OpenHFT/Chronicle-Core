@@ -19,6 +19,7 @@ package net.openhft.chronicle.core.pool;
 /**
  * Created by peter on 15/02/16.
  */
+@Deprecated
 public interface ClassLookup {
 
     static ClassLookup create(ClassLoader loader) {

@@ -19,6 +19,7 @@ package net.openhft.chronicle.core;
 /**
  * Utility class to create classes from a byte[]
  */
+@Deprecated
 public enum ClassLoading {
     ;
 

@@ -14,14 +14,26 @@
  * limitations under the License.
  */
 
-package net.openhft.chronicle.core.util;
+package net.openhft.chronicle.core.pool;
 
-import java.io.Serializable;
-import java.util.function.Function;
+import org.junit.Test;
+
+import java.math.BigDecimal;
+
+import static org.junit.Assert.*;
 
 /**
- * This interface is a Function which is also Serializable.
+ * Created by peter on 20/12/16.
  */
-@FunctionalInterface
-public interface SerializableFunction<I, O> extends Function<I, O>, Serializable {
+public class ParsingCacheTest {
+    @Test
+    public void intern() throws Exception {
+        ParsingCache<BigDecimal> pc = new ParsingCache<>(128, BigDecimal::new);
+        BigDecimal bd1 = pc.intern("1.234");
+        BigDecimal bd2 = pc.intern("12.234");
+        BigDecimal bd1b = pc.intern("1.234");
+        assertNotEquals(bd1, bd2);
+        assertSame(bd1, bd1b);
+        assertEquals(2, pc.valueCount());
+    }
 }

@@ -16,12 +16,32 @@
 
 package net.openhft.chronicle.core.util;
 
-import java.io.Serializable;
+import org.junit.Test;
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.function.Function;
 
+import static org.junit.Assert.fail;
+
 /**
- * This interface is a Function which is also Serializable.
+ * Created by peter on 20/12/16.
  */
-@FunctionalInterface
-public interface SerializableFunction<I, O> extends Function<I, O>, Serializable {
+public class ThrowingFunctionTest {
+    @Test
+    public void asFunction() throws Exception {
+        Function<String, String> sc = ThrowingFunction.asFunction(s -> {
+            try (BufferedReader br = new BufferedReader(new FileReader(s))) {
+                return br.readLine();
+            }
+        });
+
+        try {
+            fail(sc.apply("doesn't exists"));
+            if (false) throw new IOException();
+        } catch (IOException e) {
+            // expected
+        }
+    }
 }

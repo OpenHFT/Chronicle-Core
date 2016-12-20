@@ -47,11 +47,11 @@ public class ParsingCache<E> {
         int hash = Maths.hash32(cs);
         int h = hash & mask;
         ParsedData<E> s = interner[h];
-        if (StringUtils.isEqual(s.string, cs))
+        if (s != null && StringUtils.isEqual(s.string, cs))
             return s.e;
         int h2 = (hash >> shift) & mask;
         ParsedData<E> s2 = interner[h2];
-        if (StringUtils.isEqual(s2.string, cs))
+        if (s2 != null && StringUtils.isEqual(s2.string, cs))
             return s2.e;
         String string = cs.toString();
         ParsedData<E> s3 = new ParsedData<>(string, eFunction.apply(string));

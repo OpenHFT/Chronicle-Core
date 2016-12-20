@@ -24,5 +24,5 @@ import java.util.function.BiFunction;
  */
 @FunctionalInterface
 public interface SerializableBiFunction<I, T, O> extends BiFunction<I, T, O>, Serializable {
-    SerializableBiFunction<?, ?, Void> RETURN_NOTHING = (i, j) -> null;
+
 }
