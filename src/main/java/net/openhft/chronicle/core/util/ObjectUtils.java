@@ -27,6 +27,7 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
@@ -52,43 +53,7 @@ public enum ObjectUtils {
         put(void.class, Void.class);
     }};
     static final Map<Class, Object> DEFAULT_MAP = new HashMap<>();
-    static final ClassLocal<ThrowingFunction<String, Object, Exception>> PARSER_CL = ClassLocal.withInitial((Class<?> c) -> {
-        if (c == Class.class)
-            return CLASS_ALIASES::forName;
-        if (c == Boolean.class)
-            return ObjectUtils::isTrue;
-        try {
-            Method valueOf = c.getDeclaredMethod("valueOf", String.class);
-            valueOf.setAccessible(true);
-            return s -> valueOf.invoke(null, s);
-        } catch (NoSuchMethodException e) {
-            // ignored
-        }
-
-        try {
-            Method valueOf = c.getDeclaredMethod("parse", CharSequence.class);
-            valueOf.setAccessible(true);
-            return s -> valueOf.invoke(null, s);
-
-        } catch (NoSuchMethodException e) {
-            // ignored
-        }
-        try {
-            Method valueOf = c.getDeclaredMethod("fromString", String.class);
-            valueOf.setAccessible(true);
-            return s -> valueOf.invoke(null, s);
-
-        } catch (NoSuchMethodException e) {
-            // ignored
-        }
-        try {
-            Constructor constructor = c.getDeclaredConstructor(String.class);
-            constructor.setAccessible(true);
-            return s -> constructor.newInstance(s);
-        } catch (Exception e) {
-            throw asCCE(e);
-        }
-    });
+    static final ClassLocal<ThrowingFunction<String, Object, Exception>> PARSER_CL = ClassLocal.withInitial(new ConversionFunction());
     static final ClassLocal<Map<String, Enum>> CASE_IGNORE_LOOKUP = ClassLocal.withInitial(ObjectUtils::caseIgnoreLookup);
     private static final Map<Class, Immutability> immutabilityMap = new ConcurrentHashMap<>();
     private static final ClassLocal<Supplier> SUPPLIER_CLASS_LOCAL = ClassLocal.withInitial(c -> {
@@ -397,5 +362,46 @@ public enum ObjectUtils {
 
     public enum Immutability {
         YES, NO, MAYBE
+    }
+
+    private static class ConversionFunction implements Function<Class<?>, ThrowingFunction<String, Object, Exception>> {
+        @Override
+        public ThrowingFunction<String, Object, Exception> apply(Class<?> c) {
+            if (c == Class.class)
+                return CLASS_ALIASES::forName;
+            if (c == Boolean.class)
+                return ObjectUtils::isTrue;
+            try {
+                Method valueOf = c.getDeclaredMethod("valueOf", String.class);
+                valueOf.setAccessible(true);
+                return s -> valueOf.invoke(null, s);
+            } catch (NoSuchMethodException e) {
+                // ignored
+            }
+
+            try {
+                Method valueOf = c.getDeclaredMethod("parse", CharSequence.class);
+                valueOf.setAccessible(true);
+                return s -> valueOf.invoke(null, s);
+
+            } catch (NoSuchMethodException e) {
+                // ignored
+            }
+            try {
+                Method valueOf = c.getDeclaredMethod("fromString", String.class);
+                valueOf.setAccessible(true);
+                return s -> valueOf.invoke(null, s);
+
+            } catch (NoSuchMethodException e) {
+                // ignored
+            }
+            try {
+                Constructor constructor = c.getDeclaredConstructor(String.class);
+                constructor.setAccessible(true);
+                return s -> constructor.newInstance(s);
+            } catch (Exception e) {
+                throw asCCE(e);
+            }
+        }
     }
 }
