@@ -24,8 +24,10 @@ import net.openhft.chronicle.core.util.StringUtils;
  * @author peter.lawrey
  */
 public class EnumInterner<E extends Enum<E>> {
-    public static final ClassLocal<EnumInterner<?>> ENUM_INTERNER = ClassLocal.withInitial(EnumInterner::new);
+    public static final ClassLocal<EnumInterner> ENUM_INTERNER = ClassLocal.withInitial(EnumInterner::create);
+
     private final E[] interner;
+
     private final int mask;
     private final Class<E> eClass;
 
@@ -38,6 +40,13 @@ public class EnumInterner<E extends Enum<E>> {
         int n = Maths.nextPower2(capacity, 16);
         interner = (E[]) new Enum[n];
         mask = n - 1;
+    }
+
+    // bridging method to fix the types.
+    static <V extends Enum<V>> EnumInterner<V> create(Class<?> aClass) {
+        @SuppressWarnings("unchecked")
+        Class<V> vClass = (Class<V>) aClass;
+        return new EnumInterner<>(vClass);
     }
 
     public E intern(CharSequence cs) {
