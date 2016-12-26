@@ -35,7 +35,7 @@ public interface Memory {
 
     void freeMemory(long address, long size);
 
-    long allocate(long capacity) throws IllegalArgumentException;
+    long allocate(long capacity) throws IllegalArgumentException, OutOfMemoryError;
 
     long nativeMemoryUsed();
 
