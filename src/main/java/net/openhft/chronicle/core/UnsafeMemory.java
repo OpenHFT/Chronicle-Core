@@ -235,7 +235,6 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public long readLong(long address) {
-        assert address != 0;
         return UNSAFE.getLong(address);
     }
 
