@@ -17,6 +17,7 @@
 package net.openhft.chronicle.core;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.nio.ch.FileChannelImpl;
@@ -49,6 +50,7 @@ public enum OS {
     private static final int MAP_PV = 2;
     private static final boolean IS64BIT = is64Bit0();
     private static final int PROCESS_ID = getProcessId0();
+    @Nullable
     private static final Memory MEMORY = getMemory();
     private static final String OS = System.getProperty("os.name").toLowerCase();
     private static final boolean IS_LINUX = OS.startsWith("linux");
@@ -75,17 +77,19 @@ public enum OS {
         }
     }
 
+    @NotNull
     private static String findTarget() {
         for (File dir = new File(System.getProperty("user.dir")); dir != null; dir = dir.getParentFile()) {
-            File target = new File(dir, "target");
+            @NotNull File target = new File(dir, "target");
             if (target.exists())
                 return target.getAbsolutePath();
         }
         return TMP + "/target";
     }
 
-    public static String findDir(String suffix) throws FileNotFoundException {
-        for (String s : System.getProperty("java.class.path").split(":")) {
+    @NotNull
+    public static String findDir(@NotNull String suffix) throws FileNotFoundException {
+        for (@NotNull String s : System.getProperty("java.class.path").split(":")) {
             if (s.endsWith(suffix) && new File(s).isDirectory())
                 return s;
         }
@@ -93,10 +97,10 @@ public enum OS {
     }
 
     @NotNull
-    public static File findFile(String... path) {
-        File dir = new File(".").getAbsoluteFile();
+    public static File findFile(@NotNull String... path) {
+        @NotNull File dir = new File(".").getAbsoluteFile();
         for (int i = 0; i < path.length - 1; i++) {
-            File dir2 = new File(dir, path[i]);
+            @NotNull File dir2 = new File(dir, path[i]);
             if (dir2.isDirectory())
                 dir = dir2;
         }
@@ -124,8 +128,9 @@ public enum OS {
         }
     }
 
+    @Nullable
     private static Memory getMemory() {
-        Memory memory = null;
+        @Nullable Memory memory = null;
         try {
             Class<? extends Memory> java9MemoryClass = Class
                     .forName("software.chronicle.enterprise.core.Java9Memory")
@@ -134,7 +139,7 @@ public enum OS {
             memory = (Memory) create.invoke(null);
         } catch (ClassNotFoundException expected) {
             // expected
-        } catch (NoSuchMethodException | InvocationTargetException
+        } catch (@NotNull NoSuchMethodException | InvocationTargetException
                 | IllegalAccessException | IllegalArgumentException e) {
             Jvm.warn().on(OS.class, "Unable to load Java9MemoryClass", e);
         }
@@ -146,6 +151,7 @@ public enum OS {
     /**
      * @return native memory accessor class
      */
+    @Nullable
     public static Memory memory() {
         return MEMORY;
     }
@@ -219,8 +225,8 @@ public enum OS {
     }
 
     private static int getProcessId0() throws NumberFormatException {
-        String pid = null;
-        final File self = new File("/proc/self");
+        @Nullable String pid = null;
+        @NotNull final File self = new File("/proc/self");
         try {
             if (self.exists())
                 pid = self.getCanonicalFile().getName();
@@ -269,7 +275,7 @@ public enum OS {
      */
     public static long getPidMax() throws NumberFormatException {
         if (isLinux()) {
-            File file = new File("/proc/sys/kernel/pid_max");
+            @NotNull File file = new File("/proc/sys/kernel/pid_max");
             if (file.canRead())
                 try {
                     return Maths.nextPower2(new Scanner(file).nextLong(), 1);
@@ -294,20 +300,20 @@ public enum OS {
      * @throws IOException              if the mapping fails
      * @throws IllegalArgumentException if the arguments are not valid
      */
-    public static long map(FileChannel fileChannel, FileChannel.MapMode mode, long start, long size)
+    public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode, long start, long size)
             throws IOException, IllegalArgumentException {
         if (isWindows() && size > 4L << 30)
             throw new IllegalArgumentException("Mapping more than 4096 MiB is unusable on Windows, size = " + (size >> 20) + " MiB");
         try {
             return map0(fileChannel, imodeFor(mode), mapAlign(start), pageAlign(size));
-        } catch (NoSuchMethodException | IllegalAccessException e) {
+        } catch (@NotNull NoSuchMethodException | IllegalAccessException e) {
             throw new AssertionError(e);
         } catch (InvocationTargetException e) {
             throw asAnIOException(e);
         }
     }
 
-    static long map0(FileChannel fileChannel, int imode, long start, long size)
+    static long map0(@NotNull FileChannel fileChannel, int imode, long start, long size)
             throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IllegalArgumentException {
         Method map0 = fileChannel.getClass().getDeclaredMethod("map0", int.class, long.class, long.class);
         map0.setAccessible(true);
@@ -342,6 +348,7 @@ public enum OS {
         return memoryMapped.get();
     }
 
+    @NotNull
     private static IOException asAnIOException(Throwable e) {
         if (e instanceof InvocationTargetException)
             e = e.getCause();
@@ -368,16 +375,16 @@ public enum OS {
      * @param filename to get the actual size of
      * @return size in bytes.
      */
-    public static long spaceUsed(String filename) {
+    public static long spaceUsed(@NotNull String filename) {
         return spaceUsed(new File(filename));
     }
 
-    private static long spaceUsed(File file) {
+    private static long spaceUsed(@NotNull File file) {
         if (!isWindows()) {
             try {
                 String du_k = run("du", "-ks", file.getAbsolutePath());
                 return Long.parseLong(du_k.substring(0, du_k.indexOf('\t')));
-            } catch (IOException | NumberFormatException e) {
+            } catch (@NotNull IOException | NumberFormatException e) {
                 Jvm.warn().on(OS.class, e);
             }
         }
@@ -385,12 +392,12 @@ public enum OS {
     }
 
     private static String run(String... cmds) throws IOException {
-        ProcessBuilder pb = new ProcessBuilder(cmds);
+        @NotNull ProcessBuilder pb = new ProcessBuilder(cmds);
         pb.redirectErrorStream(true);
         Process process = pb.start();
-        StringWriter sw = new StringWriter();
-        char[] chars = new char[1024];
-        try (Reader r = new InputStreamReader(process.getInputStream())) {
+        @NotNull StringWriter sw = new StringWriter();
+        @NotNull char[] chars = new char[1024];
+        try (@NotNull Reader r = new InputStreamReader(process.getInputStream())) {
             for (int len; (len = r.read(chars)) > 0; ) {
                 sw.write(chars, 0, len);
             }
@@ -422,7 +429,7 @@ public enum OS {
                 unmap(address, size);
                 address = 0;
 
-            } catch (IOException | IllegalStateException e) {
+            } catch (@NotNull IOException | IllegalStateException e) {
                 Jvm.warn().on(OS.class, "Error on unmap and release", e);
             }
         }

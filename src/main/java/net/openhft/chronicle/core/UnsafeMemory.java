@@ -17,6 +17,7 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.annotation.ForceInline;
+import org.jetbrains.annotations.NotNull;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
@@ -25,6 +26,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public enum UnsafeMemory implements Memory {
     INSTANCE;
 
+    @NotNull
     public static final Unsafe UNSAFE;
     // see java.nio.Bits.copyMemory
     // This number limits the number of bytes to copy per call to Unsafe's
@@ -36,7 +38,7 @@ public enum UnsafeMemory implements Memory {
         try {
             Field theUnsafe = Jvm.getField(Unsafe.class, "theUnsafe");
             UNSAFE = (Unsafe) theUnsafe.get(null);
-        } catch (IllegalAccessException | IllegalArgumentException e) {
+        } catch (@NotNull IllegalAccessException | IllegalArgumentException e) {
             throw new AssertionError(e);
         }
     }
@@ -71,8 +73,9 @@ public enum UnsafeMemory implements Memory {
         return value;
     }
 
+    @NotNull
     public <E> E allocateInstance(Class<E> clazz) throws InstantiationException {
-        @SuppressWarnings("unchecked")
+        @NotNull @SuppressWarnings("unchecked")
         E e = (E) UNSAFE.allocateInstance(clazz);
         return e;
     }
@@ -87,6 +90,7 @@ public enum UnsafeMemory implements Memory {
         UNSAFE.putInt(o, offset, value);
     }
 
+    @NotNull
     @Override
     public <T> T getObject(Object o, long offset) {
         return (T) UNSAFE.getObject(o, offset);

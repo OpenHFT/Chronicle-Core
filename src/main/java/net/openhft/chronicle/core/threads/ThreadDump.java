@@ -18,6 +18,8 @@
 package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.Jvm;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -28,6 +30,7 @@ import java.util.Set;
  * Created by peter on 09/04/16.
  */
 public class ThreadDump {
+    @NotNull
     final Set<Thread> threads;
     final Set<String> ignored = new HashSet<>();
 
@@ -45,22 +48,22 @@ public class ThreadDump {
     }
 
     public void assertNoNewThreads() {
-        Map<Thread, StackTraceElement[]> allStackTraces = null;
+        @Nullable Map<Thread, StackTraceElement[]> allStackTraces = null;
         for (int i = 1; i < 4; i++) {
             Jvm.pause(i * i * 50);
             allStackTraces = Thread.getAllStackTraces();
             allStackTraces.keySet().removeAll(threads);
             if (allStackTraces.isEmpty())
                 return;
-            for (Iterator<Thread> iter = allStackTraces.keySet().iterator(); iter.hasNext(); ) {
+            for (@NotNull Iterator<Thread> iter = allStackTraces.keySet().iterator(); iter.hasNext(); ) {
                 Thread next = iter.next();
                 if (ignored.contains(next.getName()))
                     iter.remove();
             }
             if (allStackTraces.isEmpty())
                 return;
-            for (Map.Entry<Thread, StackTraceElement[]> threadEntry : allStackTraces.entrySet()) {
-                StringBuilder sb = new StringBuilder();
+            for (@NotNull Map.Entry<Thread, StackTraceElement[]> threadEntry : allStackTraces.entrySet()) {
+                @NotNull StringBuilder sb = new StringBuilder();
                 sb.append("Thread still running " + threadEntry.getKey());
                 Jvm.trimStackTrace(sb, threadEntry.getValue());
                 System.err.println(sb);

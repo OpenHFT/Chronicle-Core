@@ -16,6 +16,7 @@
 
 package net.openhft.chronicle.core.pool;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -26,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 public class StringInternerTest {
     @Test
     public void testIntern() {
-        StringInterner si = new StringInterner(128);
+        @NotNull StringInterner si = new StringInterner(128);
         for (int i = 0; i < 100; i++) {
             si.intern("" + i);
         }

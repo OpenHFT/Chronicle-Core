@@ -19,6 +19,7 @@ package net.openhft.chronicle.core.util;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.annotation.ForceInline;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 
@@ -58,7 +59,7 @@ public enum StringUtils {
         }
     }
 
-    public static void set(StringBuilder sb, CharSequence cs) {
+    public static void set(@NotNull StringBuilder sb, CharSequence cs) {
         sb.setLength(0);
         sb.append(cs);
     }
@@ -76,7 +77,7 @@ public enum StringUtils {
     }
 
     @ForceInline
-    public static boolean isEqual(CharSequence s, CharSequence cs) {
+    public static boolean isEqual(@Nullable CharSequence s, @Nullable CharSequence cs) {
         if (s == cs)
             return true;
         if (s == null) return false;
@@ -89,7 +90,7 @@ public enum StringUtils {
     }
 
     @ForceInline
-    public static boolean isEqual(StringBuilder s, CharSequence cs) {
+    public static boolean isEqual(@Nullable StringBuilder s, @Nullable CharSequence cs) {
         if (s == cs)
             return true;
         if (s == null) return false;
@@ -104,7 +105,7 @@ public enum StringUtils {
     }
 
     @ForceInline
-    public static boolean equalsCaseIgnore(CharSequence s, CharSequence cs) {
+    public static boolean equalsCaseIgnore(@Nullable CharSequence s, @NotNull CharSequence cs) {
         if (s == null) return false;
         if (s.length() != cs.length()) return false;
         for (int i = 0; i < cs.length(); i++)
@@ -114,8 +115,9 @@ public enum StringUtils {
         return true;
     }
 
+    @Nullable
     @ForceInline
-    public static String toString(Object o) {
+    public static String toString(@Nullable Object o) {
         return o == null ? null : o.toString();
     }
 
@@ -131,9 +133,10 @@ public enum StringUtils {
         OS.memory().setInt(sb, SB_COUNT_OFFSET, count);
     }
 
+    @NotNull
     public static String newString(char[] chars) {
         //noinspection RedundantStringConstructorCall
-        String str = new String();
+        @NotNull String str = new String();
         try {
             S_VALUE.set(str, chars);
             return str;
@@ -142,7 +145,8 @@ public enum StringUtils {
         }
     }
 
-    public static String firstLowerCase(String str) {
+    @Nullable
+    public static String firstLowerCase(@Nullable String str) {
         if (str == null || str.isEmpty())
             return str;
         final char ch = str.charAt(0);
@@ -150,7 +154,7 @@ public enum StringUtils {
         return ch == c2 ? str : c2 + str.substring(1);
     }
 
-    public static double parseDouble(@net.openhft.chronicle.core.annotation.NotNull
+    public static double parseDouble(@NotNull @net.openhft.chronicle.core.annotation.NotNull
                                      CharSequence in) {
         long value = 0;
         int exp = 0;
@@ -200,8 +204,8 @@ public enum StringUtils {
         return asDouble(value, exp, negative, decimalPlaces);
     }
 
-    private static boolean compareRest(@net.openhft.chronicle.core.annotation.NotNull CharSequence in,
-                                       int pos, @net.openhft.chronicle.core.annotation.NotNull String s) {
+    private static boolean compareRest(@NotNull @net.openhft.chronicle.core.annotation.NotNull CharSequence in,
+                                       int pos, @NotNull @net.openhft.chronicle.core.annotation.NotNull String s) {
 
         if (s.length() > in.length() - pos)
             return false;
@@ -270,10 +274,11 @@ public enum StringUtils {
         return negative ? -d : d;
     }
 
-    public static String toTitleCase(String name) {
+    @Nullable
+    public static String toTitleCase(@Nullable String name) {
         if (name == null || name.isEmpty())
             return name;
-        StringBuilder sb = new StringBuilder();
+        @NotNull StringBuilder sb = new StringBuilder();
         sb.append(Character.toUpperCase(name.charAt(0)));
         boolean wasUnder = false;
         for (int i = 1; i < name.length(); i++) {

@@ -16,6 +16,8 @@
 
 package net.openhft.chronicle.core.pool;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -28,10 +30,10 @@ import static org.junit.Assert.*;
 public class ParsingCacheTest {
     @Test
     public void intern() throws Exception {
-        ParsingCache<BigDecimal> pc = new ParsingCache<>(128, BigDecimal::new);
-        BigDecimal bd1 = pc.intern("1.234");
-        BigDecimal bd2 = pc.intern("12.234");
-        BigDecimal bd1b = pc.intern("1.234");
+        @NotNull ParsingCache<BigDecimal> pc = new ParsingCache<>(128, BigDecimal::new);
+        @Nullable BigDecimal bd1 = pc.intern("1.234");
+        @Nullable BigDecimal bd2 = pc.intern("12.234");
+        @Nullable BigDecimal bd1b = pc.intern("1.234");
         assertNotEquals(bd1, bd2);
         assertSame(bd1, bd1b);
         assertEquals(2, pc.valueCount());

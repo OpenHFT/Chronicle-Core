@@ -17,6 +17,7 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.threads.ThreadDump;
+import org.jetbrains.annotations.NotNull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -62,7 +63,7 @@ public class OSTest {
         // tests that windows supports page mapping granularity
         long length = OS.pageSize();
         String name = Paths.get(OS.TARGET, "deleteme" + UUID.randomUUID().toString()).toString();
-        File file = new File(name);
+        @NotNull File file = new File(name);
         file.deleteOnExit();
         FileChannel fc = new RandomAccessFile(name, "rw").getChannel();
         long address = OS.map0(fc, OS.imodeFor(FileChannel.MapMode.READ_WRITE), 0, length);
@@ -81,7 +82,7 @@ public class OSTest {
         // doesn't crash the JVM.
         long length = (4L << 30L);
 
-        String name = OS.TARGET + "/deleteme";
+        @NotNull String name = OS.TARGET + "/deleteme";
         new File(name).deleteOnExit();
         FileChannel fc = new RandomAccessFile(name, "rw").getChannel();
         long address = OS.map0(fc, OS.imodeFor(FileChannel.MapMode.READ_WRITE), 0, length);

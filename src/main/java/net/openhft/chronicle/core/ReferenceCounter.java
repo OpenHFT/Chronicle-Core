@@ -16,6 +16,8 @@
 
 package net.openhft.chronicle.core;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
@@ -33,6 +35,7 @@ public class ReferenceCounter {
         assert newRefCountHistory();
     }
 
+    @NotNull
     public static ReferenceCounter onReleased(Runnable onRelease) {
         return new ReferenceCounter(onRelease);
     }

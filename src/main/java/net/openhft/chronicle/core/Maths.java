@@ -17,6 +17,7 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.util.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 public enum Maths {
     ;
@@ -30,6 +31,7 @@ public enum Maths {
     private static final int M1 = 0xea7585d7;
     private static final int M2 = 0x7a646e19;
     private static final int M3 = 0x855dd4db;
+    @NotNull
     static long[] TENS = new long[19];
 
     static {
@@ -172,19 +174,19 @@ public enum Maths {
         return Long.bitCount(n) == 1;
     }
 
-    public static int hash32(CharSequence cs) {
+    public static int hash32(@NotNull CharSequence cs) {
         long h = hash64(cs);
         h ^= h >> 32;
         return (int) h;
     }
 
-    public static int hash32(String s) {
+    public static int hash32(@NotNull String s) {
         long h = hash64(s);
         h ^= h >> 32;
         return (int) h;
     }
 
-    public static int hash32(StringBuilder s) {
+    public static int hash32(@NotNull StringBuilder s) {
         long h = hash64(s);
         h ^= h >> 32;
         return (int) h;
@@ -196,14 +198,14 @@ public enum Maths {
         return (int) h;
     }
 
-    public static long hash64(CharSequence cs) {
+    public static long hash64(@NotNull CharSequence cs) {
         long hash = 0;
         for (int i = 0, len = cs.length(); i < len; i++)
             hash = hash * 841248317 + cs.charAt(i);
         return agitate(hash);
     }
 
-    public static long hash64(String s) {
+    public static long hash64(@NotNull String s) {
         long hash = 0;
         final char[] chars = StringUtils.extractChars(s);
         for (int i = 0, len = s.length(); i < len; i++)
@@ -211,7 +213,7 @@ public enum Maths {
         return agitate(hash);
     }
 
-    public static long hash64(StringBuilder s) {
+    public static long hash64(@NotNull StringBuilder s) {
         long hash = 0;
         final char[] chars = StringUtils.extractChars(s);
         for (int i = 0, len = s.length(); i < len; i++)
@@ -243,7 +245,7 @@ public enum Maths {
         throw new IllegalArgumentException("Short " + x + " out of range");
     }
 
-    public static int toInt32(long x, String msg) throws IllegalArgumentException {
+    public static int toInt32(long x, @NotNull String msg) throws IllegalArgumentException {
         if ((int) x == x)
             return (int) x;
         throw new IllegalArgumentException(String.format(msg, x));

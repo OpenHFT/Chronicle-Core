@@ -16,10 +16,13 @@
 
 package net.openhft.chronicle.core.util;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Created by peter on 23/06/15.
  */
 public interface ReadResolvable<T> {
+    @NotNull
     @SuppressWarnings("unchecked")
     static <T> T readResolve(Object o) {
         return (T) (o instanceof ReadResolvable ? ((ReadResolvable) o).readResolve() : o);
@@ -30,5 +33,6 @@ public interface ReadResolvable<T> {
      *
      * @return the object to use instead.
      */
+    @NotNull
     T readResolve();
 }

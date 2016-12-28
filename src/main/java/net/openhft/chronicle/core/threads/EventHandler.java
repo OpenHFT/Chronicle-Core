@@ -16,6 +16,8 @@
 
 package net.openhft.chronicle.core.threads;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Created by peter.lawrey on 22/01/15.
  */
@@ -24,6 +26,7 @@ public interface EventHandler extends VanillaEventHandler {
     default void eventLoop(EventLoop eventLoop) {
     }
 
+    @NotNull
     default HandlerPriority priority() {
         return HandlerPriority.MEDIUM;
     }

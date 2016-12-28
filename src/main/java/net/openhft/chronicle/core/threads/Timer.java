@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class Timer {
 
+    @NotNull
     private final EventLoop eventLoop;
 
     /**
@@ -49,7 +50,7 @@ public class Timer {
     }
 
 
-    public void schedule(Runnable eventHandler, long periodMs) {
+    public void schedule(@NotNull Runnable eventHandler, long periodMs) {
         eventLoop.addHandler(new ScheduledEventHandler(() -> {
             eventHandler.run();
             throw new InvalidEventHandlerException("just runs once");
@@ -59,6 +60,7 @@ public class Timer {
 
     private class ScheduledEventHandler implements EventHandler {
 
+        @NotNull
         private final VanillaEventHandler eventHandler;
         private final long initialDelayMs;
         private final long periodMs;

@@ -17,6 +17,7 @@
 package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.Jvm;
+import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Array;
 import java.time.LocalDate;
@@ -44,6 +45,7 @@ public class ClassAliasPool implements ClassLookup {
         this.classLoader = Thread.currentThread().getContextClassLoader();
     }
 
+    @NotNull
     private ClassAliasPool defaultAliases() {
         addAlias(Set.class, "!set");
         addAlias(SortedSet.class, "!oset");
@@ -64,7 +66,7 @@ public class ClassAliasPool implements ClassLookup {
         addAlias(LocalTime.class, "Time");
         addAlias(ZonedDateTime.class, "ZonedDateTime");
         addAlias(String[].class, "String[]");
-        for (Class prim : new Class[]{boolean.class, byte.class, short.class, char.class, int.class, long.class, float.class, double.class})
+        for (@NotNull Class prim : new Class[]{boolean.class, byte.class, short.class, char.class, int.class, long.class, float.class, double.class})
             addAlias(Array.newInstance(prim, 0).getClass(), prim.getName() + "[]");
         addAlias(Class.class, "type");
         addAlias(void.class, "!null");
@@ -81,7 +83,7 @@ public class ClassAliasPool implements ClassLookup {
         clean(classStringMap.keySet());
     }
 
-    private void clean(Iterable<Class> coll) {
+    private void clean(@NotNull Iterable<Class> coll) {
         ClassLoader classLoader2 = ClassAliasPool.class.getClassLoader();
         for (Iterator<Class> iter = coll.iterator(); iter.hasNext(); ) {
             Class clazz = iter.next();
@@ -93,8 +95,8 @@ public class ClassAliasPool implements ClassLookup {
     }
 
     @Override
-    public Class forName(CharSequence name) throws ClassNotFoundException {
-        String name0 = name.toString();
+    public Class forName(@NotNull CharSequence name) throws ClassNotFoundException {
+        @NotNull String name0 = name.toString();
         Class clazz = stringClassMap.get(name0);
         if (clazz != null)
             return clazz;
@@ -145,8 +147,8 @@ public class ClassAliasPool implements ClassLookup {
     }
 
     @Override
-    public void addAlias(Class... classes) {
-        for (Class clazz : classes) {
+    public void addAlias(@NotNull Class... classes) {
+        for (@NotNull Class clazz : classes) {
             stringClassMap.putIfAbsent(clazz.getName(), clazz);
             stringClassMap2.putIfAbsent(clazz.getSimpleName(), clazz);
             stringClassMap2.putIfAbsent(toCamelCase(clazz.getSimpleName()), clazz);
@@ -155,13 +157,14 @@ public class ClassAliasPool implements ClassLookup {
     }
 
     // to lower camel case.
-    private String toCamelCase(String name) {
+    @NotNull
+    private String toCamelCase(@NotNull String name) {
         return Character.toLowerCase(name.charAt(0)) + name.substring(1);
     }
 
     @Override
-    public void addAlias(Class clazz, String names) {
-        for (String name : names.split(", ?")) {
+    public void addAlias(Class clazz, @NotNull String names) {
+        for (@NotNull String name : names.split(", ?")) {
             stringClassMap.put(name, clazz);
             stringClassMap2.putIfAbsent(toCamelCase(name), clazz);
             classStringMap.putIfAbsent(clazz, name);

@@ -17,6 +17,9 @@
 
 package net.openhft.chronicle.core.onoes;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.PrintStream;
 import java.time.LocalDateTime;
 
@@ -26,18 +29,18 @@ import java.time.LocalDateTime;
 public enum PrintExceptionHandler implements ExceptionHandler {
     WARN {
         @Override
-        public void on(Class clazz, String message, Throwable thrown) {
+        public void on(@NotNull Class clazz, String message, Throwable thrown) {
             printLog(clazz, message, thrown, System.err);
         }
     },
     DEBUG {
         @Override
-        public void on(Class clazz, String message, Throwable thrown) {
+        public void on(@NotNull Class clazz, String message, Throwable thrown) {
             printLog(clazz, message, thrown, System.out);
         }
     };
 
-    private static void printLog(Class clazz, String message, Throwable thrown, PrintStream stream) {
+    private static void printLog(@NotNull Class clazz, String message, @Nullable Throwable thrown, PrintStream stream) {
         synchronized (stream) {
             System.err.print(LocalDateTime.now() + " " + Thread.currentThread().getName() + " " + clazz.getSimpleName() + " " + message);
             if (thrown != null)

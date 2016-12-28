@@ -17,6 +17,7 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.Jvm;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Function;
 
@@ -32,7 +33,7 @@ import java.util.function.Function;
  */
 @FunctionalInterface
 public interface ThrowingFunction<I, R, T extends Throwable> {
-    static <I, R, T extends Throwable> Function<I, R> asFunction(ThrowingFunction<I, R, T> function) {
+    static <I, R, T extends Throwable> Function<I, R> asFunction(@NotNull ThrowingFunction<I, R, T> function) {
         return in -> {
             try {
                 return function.apply(in);
@@ -49,5 +50,6 @@ public interface ThrowingFunction<I, R, T extends Throwable> {
      * @param in the function argument
      * @return the function result
      */
+    @NotNull
     R apply(I in) throws T;
 }

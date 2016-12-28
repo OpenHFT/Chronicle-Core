@@ -17,6 +17,8 @@
 
 package net.openhft.chronicle.core.onoes;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
@@ -42,13 +44,14 @@ public class ExceptionKey {
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(@NotNull Object obj) {
         return obj == this || toString().equals(obj.toString());
     }
 
+    @NotNull
     @Override
     public String toString() {
-        StringWriter sw = new StringWriter();
+        @NotNull StringWriter sw = new StringWriter();
         if (throwable != null)
         throwable.printStackTrace(new PrintWriter(sw));
         return "ExceptionKey{" +

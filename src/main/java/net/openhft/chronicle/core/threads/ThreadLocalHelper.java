@@ -16,6 +16,9 @@
 
 package net.openhft.chronicle.core.threads;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.lang.ref.WeakReference;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -26,9 +29,10 @@ import java.util.function.Supplier;
 public enum ThreadLocalHelper {
     ;
 
-    public static <T> T getTL(ThreadLocal<WeakReference<T>> threadLocal, Supplier<T> supplier) {
-        WeakReference<T> ref = threadLocal.get();
-        T ret = null;
+    @Nullable
+    public static <T> T getTL(@NotNull ThreadLocal<WeakReference<T>> threadLocal, @NotNull Supplier<T> supplier) {
+        @Nullable WeakReference<T> ref = threadLocal.get();
+        @Nullable T ret = null;
         if (ref != null) ret = ref.get();
         if (ret == null) {
             ret = supplier.get();
@@ -38,9 +42,10 @@ public enum ThreadLocalHelper {
         return ret;
     }
 
-    public static <T, A> T getTL(ThreadLocal<WeakReference<T>> threadLocal, A a, Function<A, T> function) {
-        WeakReference<T> ref = threadLocal.get();
-        T ret = null;
+    @Nullable
+    public static <T, A> T getTL(@NotNull ThreadLocal<WeakReference<T>> threadLocal, A a, @NotNull Function<A, T> function) {
+        @Nullable WeakReference<T> ref = threadLocal.get();
+        @Nullable T ret = null;
         if (ref != null) ret = ref.get();
         if (ret == null) {
             ret = function.apply(a);

@@ -18,6 +18,7 @@ package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.Maths;
 import net.openhft.chronicle.core.util.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
@@ -27,6 +28,7 @@ import java.util.stream.Stream;
  * Created by peter on 29/02/16.
  */
 public class ParsingCache<E> {
+    @NotNull
     protected final ParsedData<E>[] interner;
     protected final int mask, shift;
     private final Function<String, E> eFunction;
@@ -53,8 +55,8 @@ public class ParsingCache<E> {
         ParsedData<E> s2 = interner[h2];
         if (s2 != null && StringUtils.isEqual(s2.string, cs))
             return s2.e;
-        String string = cs.toString();
-        ParsedData<E> s3 = new ParsedData<>(string, eFunction.apply(string));
+        @NotNull String string = cs.toString();
+        @NotNull ParsedData<E> s3 = new ParsedData<>(string, eFunction.apply(string));
         interner[s == null || (s2 != null && toggle()) ? h : h2] = s3;
 
         return s3.e;

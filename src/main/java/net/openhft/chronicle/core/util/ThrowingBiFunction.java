@@ -17,6 +17,7 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.Jvm;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiFunction;
 
@@ -34,7 +35,7 @@ import java.util.function.BiFunction;
  */
 @FunctionalInterface
 public interface ThrowingBiFunction<I, J, R, T extends Throwable> {
-    static <I, J, T extends Throwable, R> BiFunction<I, J, R> asBiFunction(ThrowingBiFunction<I, J, R, T> function) {
+    static <I, J, T extends Throwable, R> BiFunction<I, J, R> asBiFunction(@NotNull ThrowingBiFunction<I, J, R, T> function) {
         return (in, i2) -> {
             try {
                 return function.apply(in, i2);
@@ -52,5 +53,6 @@ public interface ThrowingBiFunction<I, J, R, T extends Throwable> {
      * @return the function result
      * @throws T on an error.
      */
+    @NotNull
     R apply(I in, J i2) throws T;
 }

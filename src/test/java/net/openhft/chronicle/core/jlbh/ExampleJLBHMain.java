@@ -17,6 +17,7 @@
 package net.openhft.chronicle.core.jlbh;
 
 import net.openhft.chronicle.core.Jvm;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Created by daniel on 08/03/2016.
@@ -29,7 +30,7 @@ public class ExampleJLBHMain implements JLBHTask {
     private JLBH lth;
 
     public static void main(String[] args) {
-        JLBHOptions jlbhOptions = new JLBHOptions()
+        @NotNull JLBHOptions jlbhOptions = new JLBHOptions()
                 .warmUpIterations(Jvm.compileThreshold() * 2)
                 .iterations(10_000_001)
                 .throughput(2000_000)

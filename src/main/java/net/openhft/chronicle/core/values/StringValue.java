@@ -16,11 +16,14 @@
 
 package net.openhft.chronicle.core.values;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * User: peter.lawrey Date: 10/10/13 Time: 07:13
  */
 public interface StringValue {
 
+    @NotNull
     String getValue();
 
     void setValue(@MaxBytes CharSequence value);
@@ -31,5 +34,6 @@ public interface StringValue {
      * @param stringBuilder the builder to return
      * @return a StringBuilder containing the value
      */
+    @NotNull
     StringBuilder getUsingValue(StringBuilder stringBuilder);
 }

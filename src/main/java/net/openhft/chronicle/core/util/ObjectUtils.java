@@ -20,6 +20,7 @@ import net.openhft.chronicle.core.ClassLocal;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.*;
 import java.math.BigDecimal;
@@ -96,7 +97,7 @@ public enum ObjectUtils {
         immutabilityMap.put(clazz, isImmutable ? Immutability.YES : Immutability.NO);
     }
 
-    public static Immutability isImmutable(Class clazz) {
+    public static Immutability isImmutable(@NotNull Class clazz) {
         Immutability immutability = immutabilityMap.get(clazz);
         if (immutability == null)
             return Comparable.class.isAssignableFrom(clazz) ? MAYBE : NO;
@@ -123,7 +124,8 @@ public enum ObjectUtils {
         return eClass;
     }
 
-    public static <E> E convertTo(Class<E> eClass, Object o)
+    @Nullable
+    public static <E> E convertTo(@Nullable Class<E> eClass, @Nullable Object o)
             throws ClassCastException, IllegalArgumentException {
         // shorter path.
         return eClass == null || o == null || eClass.isInstance(o)
@@ -131,22 +133,24 @@ public enum ObjectUtils {
                 : convertTo0(eClass, o);
     }
 
-    private static Map<String, Enum> caseIgnoreLookup(Class c) {
-        Map<String, Enum> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    @NotNull
+    private static Map<String, Enum> caseIgnoreLookup(@NotNull Class c) {
+        @NotNull Map<String, Enum> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         for (Object o : c.getEnumConstants()) {
-            Enum e = (Enum) o;
+            @NotNull Enum e = (Enum) o;
             map.put(e.name().toUpperCase(), e);
         }
         return map;
     }
 
-    public static <E extends Enum<E>> E valueOfIgnoreCase(Class<E> eClass, String name) {
+    @NotNull
+    public static <E extends Enum<E>> E valueOfIgnoreCase(@NotNull Class<E> eClass, @NotNull String name) {
         final Map<String, Enum> map = CASE_IGNORE_LOOKUP.get(eClass);
-        final E anEnum = (E) map.get(name);
+        @NotNull final E anEnum = (E) map.get(name);
         return anEnum == null ? Enum.valueOf(eClass, name) : anEnum;
     }
 
-    static <E> E convertTo0(Class<E> eClass, Object o)
+    static <E> E convertTo0(Class<E> eClass, @Nullable Object o)
             throws ClassCastException, IllegalArgumentException {
         eClass = primToWrapper(eClass);
         if (eClass.isInstance(o) || o == null) return (E) o;
@@ -156,14 +160,14 @@ public enum ObjectUtils {
             return (E) valueOfIgnoreCase((Class) eClass, o.toString());
         }
         if (o instanceof CharSequence) {
-            CharSequence cs = (CharSequence) o;
+            @Nullable CharSequence cs = (CharSequence) o;
             if (Character.class.equals(eClass)) {
                 if (cs.length() > 0)
                     return (E) (Character) cs.charAt(0);
                 else
                     return null;
             }
-            String s = cs.toString();
+            @NotNull String s = cs.toString();
             if (eClass == String.class)
                 return (E) s;
 
@@ -203,26 +207,28 @@ public enum ObjectUtils {
         throw new ClassCastException("Unable to convert " + o.getClass() + " " + o + " to " + eClass);
     }
 
+    @NotNull
     public static ClassCastException asCCE(Exception e) {
-        ClassCastException cce = new ClassCastException();
+        @NotNull ClassCastException cce = new ClassCastException();
         cce.initCause(e);
         return cce;
     }
 
-    private static <E> E convertToArray(Class<E> eClass, Object o)
+    @NotNull
+    private static <E> E convertToArray(@NotNull Class<E> eClass, Object o)
             throws IllegalArgumentException {
         int len = sizeOf(o);
         Object array = Array.newInstance(eClass.getComponentType(), len);
         Iterator iter = iteratorFor(o);
         Class elementType = elementType(eClass);
         for (int i = 0; i < len; i++) {
-            Object value = convertTo(elementType, iter.next());
+            @Nullable Object value = convertTo(elementType, iter.next());
             Array.set(array, i, value);
         }
         return (E) array;
     }
 
-    private static <E> Class elementType(Class<E> eClass) {
+    private static <E> Class elementType(@NotNull Class<E> eClass) {
         if (Object[].class.isAssignableFrom(eClass))
             return eClass.getComponentType();
         return Object.class;
@@ -251,7 +257,7 @@ public enum ObjectUtils {
     private static Number convertToNumber(Class eClass, Object o)
             throws NumberFormatException {
         if (o instanceof Number) {
-            Number n = (Number) o;
+            @NotNull Number n = (Number) o;
             if (eClass == Double.class)
                 return n.doubleValue();
             if (eClass == Long.class)
@@ -292,18 +298,19 @@ public enum ObjectUtils {
         throw new UnsupportedOperationException("Cannot convert " + o.getClass() + " to " + eClass);
     }
 
+    @NotNull
     public static <T> T newInstance(Class<T> clazz) {
         Supplier cons = SUPPLIER_CLASS_LOCAL.get(clazz);
         return (T) cons.get();
     }
 
-    public static <T> T[] addAll(T first, T... additional) {
+    public static <T> T[] addAll(@NotNull T first, @NotNull T... additional) {
         T[] interfaces;
         if (additional.length == 0) {
             interfaces = (T[]) Array.newInstance(first.getClass(), 1);
             interfaces[0] = first;
         } else {
-            List<T> objs = new ArrayList<>();
+            @NotNull List<T> objs = new ArrayList<>();
             objs.add(first);
             Collections.addAll(objs, additional);
             interfaces = objs.toArray((T[]) Array.newInstance(first.getClass(), objs.size()));
@@ -311,9 +318,10 @@ public enum ObjectUtils {
         return interfaces;
     }
 
-    public static <T> T printAll(Class<T> tClass, Class... additional) {
+    @NotNull
+    public static <T> T printAll(@NotNull Class<T> tClass, Class... additional) {
         return onMethodCall((method, args) -> {
-            String argsStr = args == null ? "()" : Arrays.toString(args);
+            @NotNull String argsStr = args == null ? "()" : Arrays.toString(args);
             System.out.println(method.getName() + " " + argsStr);
             return defaultValue(method.getReturnType());
         }, tClass, additional);
@@ -323,12 +331,13 @@ public enum ObjectUtils {
         return DEFAULT_MAP.get(type);
     }
 
-    public static <T> T onMethodCall(BiFunction<Method, Object[], Object> biFunction, Class<T> tClass, Class... additional) {
+    @NotNull
+    public static <T> T onMethodCall(@NotNull BiFunction<Method, Object[], Object> biFunction, @NotNull Class<T> tClass, Class... additional) {
         Class[] interfaces = addAll(tClass, additional);
         //noinspection unchecked
         return (T) Proxy.newProxyInstance(tClass.getClassLoader(), interfaces, new InvocationHandler() {
             @Override
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            public Object invoke(Object proxy, @NotNull Method method, Object[] args) throws Throwable {
                 if (method.getDeclaringClass() == Object.class) {
                     return method.invoke(this, args);
                 }
@@ -337,14 +346,16 @@ public enum ObjectUtils {
         });
     }
 
-    public static Class getTypeFor(Class clazz, Class interfaceClass) {
+    @NotNull
+    public static Class getTypeFor(@NotNull Class clazz, @NotNull Class interfaceClass) {
         return getTypeFor(clazz, interfaceClass, 0);
     }
 
-    public static Class getTypeFor(Class clazz, Class interfaceClass, int index) {
+    @NotNull
+    public static Class getTypeFor(@NotNull Class clazz, @NotNull Class interfaceClass, int index) {
         for (Type type : clazz.getGenericInterfaces()) {
             if (type instanceof ParameterizedType) {
-                ParameterizedType ptype = (ParameterizedType) type;
+                @NotNull ParameterizedType ptype = (ParameterizedType) type;
                 if (interfaceClass.isAssignableFrom((Class<?>) ptype.getRawType())) {
                     Type type0 = ptype.getActualTypeArguments()[index];
                     if (type0 instanceof Class)
@@ -356,7 +367,7 @@ public enum ObjectUtils {
         throw new IllegalArgumentException("No matching super interface for " + clazz + " which was a " + interfaceClass);
     }
 
-    public static boolean isConcreteClass(Class tClass) {
+    public static boolean isConcreteClass(@NotNull Class tClass) {
         return (tClass.getModifiers() & (Modifier.ABSTRACT | Modifier.INTERFACE)) == 0;
     }
 
@@ -366,7 +377,7 @@ public enum ObjectUtils {
 
     private static class ConversionFunction implements Function<Class<?>, ThrowingFunction<String, Object, Exception>> {
         @Override
-        public ThrowingFunction<String, Object, Exception> apply(Class<?> c) {
+        public ThrowingFunction<String, Object, Exception> apply(@NotNull Class<?> c) {
             if (c == Class.class)
                 return CLASS_ALIASES::forName;
             if (c == Boolean.class)

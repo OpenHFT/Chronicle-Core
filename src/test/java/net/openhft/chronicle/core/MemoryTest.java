@@ -16,6 +16,7 @@
 
 package net.openhft.chronicle.core;
 
+import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 
 /**
@@ -29,7 +30,7 @@ public class MemoryTest {
 
     @Test
     public void testReadme() {
-        Memory memory = OS.memory();
+        @Nullable Memory memory = OS.memory();
         long address = memory.allocate(1024);
         try {
             memory.writeInt(address, 1);

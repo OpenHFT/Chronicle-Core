@@ -17,6 +17,7 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.Jvm;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Consumer;
 
@@ -33,7 +34,7 @@ import java.util.function.Consumer;
  */
 @FunctionalInterface
 public interface ThrowingConsumer<I, T extends Throwable> {
-    static <I, T extends Throwable> Consumer<I> asConsumer(ThrowingConsumer<I, T> function) {
+    static <I, T extends Throwable> Consumer<I> asConsumer(@NotNull ThrowingConsumer<I, T> function) {
         return in -> {
             try {
                 function.accept(in);

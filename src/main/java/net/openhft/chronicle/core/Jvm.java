@@ -17,6 +17,7 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.onoes.*;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import sun.misc.VM;
 
@@ -43,11 +44,16 @@ public enum Jvm {
     private static final Class bitsClass;
     // e.g-verbose:gc  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=dumponexit=true,filename=myrecording.jfr,settings=profile -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints
     private static final Field reservedMemory;
+    @Nullable
     private static final AtomicLong reservedMemoryAtomicLong;
+    @NotNull
     private static final DirectMemoryInspector DIRECT_MEMORY_INSPECTOR;
     private static final boolean IS_64BIT = is64bit0();
+    @Nullable
     private static ExceptionHandler FATAL = Slf4jExceptionHandler.FATAL;
+    @Nullable
     private static ExceptionHandler WARN = Slf4jExceptionHandler.WARN;
+    @Nullable
     private static ExceptionHandler DEBUG = Slf4jExceptionHandler.DEBUG;
 
     static {
@@ -67,9 +73,9 @@ public enum Jvm {
         }
     }
 
-    private static int getCompileThreshold0(List<String> inputArguments) {
-        for (String inputArgument : inputArguments) {
-            String prefix = "-XX:CompileThreshold=";
+    private static int getCompileThreshold0(@NotNull List<String> inputArguments) {
+        for (@NotNull String inputArgument : inputArguments) {
+            @NotNull String prefix = "-XX:CompileThreshold=";
             if (inputArgument.startsWith(prefix)) {
                 return Integer.parseInt(inputArgument.substring(prefix.length()));
             }
@@ -103,6 +109,7 @@ public enum Jvm {
      * @return this method will never return a Throwable instance, it will just throw it.
      * @throws T the throwable as an unchecked throwable
      */
+    @NotNull
     @SuppressWarnings("unchecked")
     public static <T extends Throwable> RuntimeException rethrow(Throwable throwable) throws T {
         throw (T) throwable; // rely on vacuous cast
@@ -114,14 +121,14 @@ public enum Jvm {
      * @param sb   to append to
      * @param stes stack trace elements
      */
-    public static void trimStackTrace(StringBuilder sb, StackTraceElement... stes) {
+    public static void trimStackTrace(@NotNull StringBuilder sb, @NotNull StackTraceElement... stes) {
         int first = trimFirst(stes);
         int last = trimLast(first, stes);
         for (int i = first; i <= last; i++)
             sb.append("\n\tat ").append(stes[i]);
     }
 
-    static int trimFirst(StackTraceElement[] stes) {
+    static int trimFirst(@NotNull StackTraceElement[] stes) {
         int first = 0;
         for (; first < stes.length; first++)
             if (!isInternal(stes[first].getClassName()))
@@ -129,7 +136,7 @@ public enum Jvm {
         return Math.max(0, first - 2);
     }
 
-    public static int trimLast(int first, StackTraceElement[] stes) {
+    public static int trimLast(int first, @NotNull StackTraceElement[] stes) {
         int last = stes.length - 1;
         for (; first < last; last--)
             if (!isInternal(stes[last].getClassName()))
@@ -138,7 +145,7 @@ public enum Jvm {
         return last;
     }
 
-    static boolean isInternal(String className) {
+    static boolean isInternal(@NotNull String className) {
         return className.startsWith("jdk.") || className.startsWith("sun.") || className.startsWith("java.");
     }
 
@@ -204,7 +211,7 @@ public enum Jvm {
      * @param name  of the field
      * @return the Field.
      */
-    public static Field getField(Class clazz, String name) {
+    public static Field getField(@NotNull Class clazz, String name) {
         try {
             Field field = clazz.getDeclaredField(name);
             field.setAccessible(true);
@@ -221,7 +228,7 @@ public enum Jvm {
         }
     }
 
-    public static <V> V getValue(Object obj, String name) {
+    public static <V> V getValue(@NotNull Object obj, @NotNull String name) {
         for (String n : name.split("/")) {
             Field f = getField(obj.getClass(), n);
             try {
@@ -241,12 +248,12 @@ public enum Jvm {
      * @param lock to log
      * @return the lock.toString plus a stack trace.
      */
-    public static String lockWithStack(ReentrantLock lock) {
-        Thread t = getValue(lock, "sync/exclusiveOwnerThread");
+    public static String lockWithStack(@NotNull ReentrantLock lock) {
+        @Nullable Thread t = getValue(lock, "sync/exclusiveOwnerThread");
         if (t == null) {
             return lock.toString();
         }
-        StringBuilder ret = new StringBuilder();
+        @NotNull StringBuilder ret = new StringBuilder();
         ret.append(lock).append(" running at");
         trimStackTrace(ret, t.getStackTrace());
         return ret.toString();
@@ -280,12 +287,14 @@ public enum Jvm {
         DEBUG = Slf4jExceptionHandler.DEBUG;
     }
 
+    @NotNull
     public static Map<ExceptionKey, Integer> recordExceptions() {
         return recordExceptions(false);
     }
 
+    @NotNull
     public static Map<ExceptionKey, Integer> recordExceptions(boolean debug) {
-        Map<ExceptionKey, Integer> map = new LinkedHashMap<>();
+        @NotNull Map<ExceptionKey, Integer> map = new LinkedHashMap<>();
         FATAL = new RecordingExceptionHandler(LogLevel.FATAL, map);
         WARN = new RecordingExceptionHandler(LogLevel.WARN, map);
         DEBUG = debug ? new RecordingExceptionHandler(LogLevel.DEBUG, map) : NullExceptionHandler.NOTHING;
@@ -316,20 +325,23 @@ public enum Jvm {
         DEBUG = NullExceptionHandler.NOTHING;
     }
 
+    @Nullable
     public static ExceptionHandler fatal() {
         return FATAL;
     }
 
+    @Nullable
     public static ExceptionHandler warn() {
         return WARN;
     }
 
+    @Nullable
     public static ExceptionHandler debug() {
         return DEBUG;
     }
 
-    public static void dumpException(Map<ExceptionKey, Integer> exceptions) {
-        for (Map.Entry<ExceptionKey, Integer> entry : exceptions.entrySet()) {
+    public static void dumpException(@NotNull Map<ExceptionKey, Integer> exceptions) {
+        for (@NotNull Map.Entry<ExceptionKey, Integer> entry : exceptions.entrySet()) {
             ExceptionKey key = entry.getKey();
             System.err.println(key.level + " " + key.clazz.getSimpleName() + " " + key.message);
             if (key.throwable != null)

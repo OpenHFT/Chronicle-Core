@@ -19,6 +19,8 @@ package net.openhft.chronicle.core.onoes;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.util.URIEncoder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 import java.io.IOException;
@@ -32,10 +34,11 @@ import java.util.Properties;
 public class WebExceptionHandler implements ExceptionHandler {
     private final Properties properties = new Properties();
 
+    @NotNull
     private final ExceptionHandler fallBack;
     private final String baseURI;
 
-    public WebExceptionHandler(String propertiesFile, ExceptionHandler fallBack) {
+    public WebExceptionHandler(String propertiesFile, @NotNull ExceptionHandler fallBack) {
         assert fallBack != null;
         this.fallBack = fallBack;
         InputStream stream = WebExceptionHandler.class.getResourceAsStream(propertiesFile);
@@ -49,7 +52,7 @@ public class WebExceptionHandler implements ExceptionHandler {
     }
 
     @Override
-    public void on(Class clazz, String message, Throwable t) {
+    public void on(@NotNull Class clazz, @Nullable String message, @NotNull Throwable t) {
         while (t.getCause() != null && t.getCause() != t)
             t = t.getCause();
         String uri = properties.getProperty(t.getClass().getName());
@@ -57,7 +60,7 @@ public class WebExceptionHandler implements ExceptionHandler {
             uri = baseURI;
             String version = System.getProperty("java.version");
             if (version.compareTo("1.5") >= 0) {
-                String[] parts = version.split("\\.");
+                @NotNull String[] parts = version.split("\\.");
                 version = parts[1];
             }
 

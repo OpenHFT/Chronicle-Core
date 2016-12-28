@@ -16,6 +16,8 @@
 
 package net.openhft.chronicle.core;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * Utility class to create classes from a byte[]
  */
@@ -30,7 +32,7 @@ public enum ClassLoading {
      * @param bytes     byte code for the class
      * @return the class loaded.
      */
-    public static Class defineClass(String className, byte[] bytes) {
+    public static Class defineClass(String className, @NotNull byte[] bytes) {
         return defineClass(Thread.currentThread().getContextClassLoader(), className, bytes);
     }
 
@@ -42,7 +44,7 @@ public enum ClassLoading {
      * @param bytes       byte code for the class
      * @return the class loaded.
      */
-    private static Class defineClass(ClassLoader classLoader, String className, byte[] bytes) {
+    private static Class defineClass(ClassLoader classLoader, String className, @NotNull byte[] bytes) {
         return UnsafeMemory.UNSAFE.defineClass(className, bytes, 0, bytes.length, classLoader, null);
     }
 }

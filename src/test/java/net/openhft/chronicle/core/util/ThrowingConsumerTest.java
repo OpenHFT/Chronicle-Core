@@ -16,6 +16,7 @@
 
 package net.openhft.chronicle.core.util;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -31,8 +32,8 @@ import static org.junit.Assert.fail;
 public class ThrowingConsumerTest {
     @Test
     public void asConsumer() throws Exception {
-        Consumer<String> sc = ThrowingConsumer.asConsumer(s -> {
-            try (BufferedReader br = new BufferedReader(new FileReader(s))) {
+        @NotNull Consumer<String> sc = ThrowingConsumer.asConsumer(s -> {
+            try (@NotNull BufferedReader br = new BufferedReader(new FileReader(s))) {
                 System.out.println(br.readLine());
             }
         });

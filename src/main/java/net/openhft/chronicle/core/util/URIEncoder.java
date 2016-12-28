@@ -17,6 +17,8 @@
 
 package net.openhft.chronicle.core.util;
 
+import org.jetbrains.annotations.NotNull;
+
 /**
  * simple uri encoder, made from the spec at http://www.ietf.org/rfc/rfc2396.txt
  * Feel free to copy this. I'm not responsible for this code in any way, ever.
@@ -28,8 +30,8 @@ public class URIEncoder {
     private static final String mark = "-_.!~*'()\"";
     private static final char[] hex = "0123456789ABCDEF".toCharArray();
 
-    public static String encodeURI(String argString) {
-        StringBuilder uri = new StringBuilder();
+    public static String encodeURI(@NotNull String argString) {
+        @NotNull StringBuilder uri = new StringBuilder();
 
         for (char c : argString.toCharArray()) {
             if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') ||
@@ -42,7 +44,7 @@ public class URIEncoder {
         return uri.toString();
     }
 
-    private static void appendEscaped(StringBuilder uri, char c) {
+    private static void appendEscaped(@NotNull StringBuilder uri, char c) {
         if (c <= 0xFF) {
             uri.append("%");
             uri.append(hex[(c >> 4) & 0xF]);

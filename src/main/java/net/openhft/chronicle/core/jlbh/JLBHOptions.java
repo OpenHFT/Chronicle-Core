@@ -18,6 +18,7 @@
 package net.openhft.chronicle.core.jlbh;
 
 import net.openhft.chronicle.core.Jvm;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
 
@@ -35,6 +36,7 @@ public class JLBHOptions {
     int iterations = 100_000;
     JLBHTask jlbhTask;
     int pauseAfterWarmupMS = 0;
+    @NotNull
     SKIP_FIRST_RUN skipFirstRun = SKIP_FIRST_RUN.NOT_SET;
     boolean jitterAffinity;
 
@@ -44,6 +46,7 @@ public class JLBHOptions {
      * @param throughput defaults to 10,000
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
+    @NotNull
     public JLBHOptions throughput(int throughput) {
         return throughput(throughput, TimeUnit.SECONDS);
     }
@@ -55,6 +58,7 @@ public class JLBHOptions {
      * @param throughputTimeUnit defaults to <code>TimeUnit.SECOND</code>
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
+    @NotNull
     public JLBHOptions throughput(int throughput, TimeUnit throughputTimeUnit) {
         this.throughput = throughput;
         this.throughputTimeUnit = throughputTimeUnit;
@@ -68,6 +72,7 @@ public class JLBHOptions {
      * @param accountForCoordinatedOmmission defaults to true
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
+    @NotNull
     public JLBHOptions accountForCoordinatedOmmission(boolean accountForCoordinatedOmmission) {
         this.accountForCoordinatedOmission = accountForCoordinatedOmmission;
         return this;
@@ -78,6 +83,7 @@ public class JLBHOptions {
      * @param recordJitterGreaterThanNs Defaults to 1000
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
+    @NotNull
     public JLBHOptions recordJitterGreaterThanNs(int recordJitterGreaterThanNs) {
         this.recordJitterGreaterThanNs = recordJitterGreaterThanNs;
         return this;
@@ -88,6 +94,7 @@ public class JLBHOptions {
      * @param recordOSJitter Defaults to true
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
+    @NotNull
     public JLBHOptions recordOSJitter(boolean recordOSJitter) {
         this.recordOSJitter = recordOSJitter;
         return this;
@@ -99,6 +106,7 @@ public class JLBHOptions {
      * @param warmUp Defaults to 10,000
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
+    @NotNull
     public JLBHOptions warmUpIterations(int warmUp) {
         this.warmUpIterations = warmUp;
         return this;
@@ -109,6 +117,7 @@ public class JLBHOptions {
      * @param runs Defaults to 3
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
+    @NotNull
     public JLBHOptions runs(int runs) {
         this.runs = runs;
         return this;
@@ -119,6 +128,7 @@ public class JLBHOptions {
      * @param iterations Defaults to 100,000
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
+    @NotNull
     public JLBHOptions iterations(int iterations) {
         this.iterations = iterations;
         return this;
@@ -129,6 +139,7 @@ public class JLBHOptions {
      * @param JLBHTask
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
+    @NotNull
     public JLBHOptions jlbhTask(JLBHTask JLBHTask) {
         this.jlbhTask = JLBHTask;
         return this;
@@ -139,6 +150,7 @@ public class JLBHOptions {
      * @param pauseMS pause in ms default to 0
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
+    @NotNull
     public JLBHOptions pauseAfterWarmupMS(int pauseMS) {
         this.pauseAfterWarmupMS = pauseMS;
         return this;
@@ -149,6 +161,7 @@ public class JLBHOptions {
      * @param skip defult to true if runs greater than 3
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
+    @NotNull
     public JLBHOptions skipFirstRun(boolean skip) {
         skipFirstRun = skip ? SKIP_FIRST_RUN.SKIP : SKIP_FIRST_RUN.NO_SKIP;
         return this;
@@ -159,6 +172,7 @@ public class JLBHOptions {
      * @param jitterAffinity default is false
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
+    @NotNull
     public JLBHOptions jitterAffinity(boolean jitterAffinity) {
         this.jitterAffinity = jitterAffinity;
         return this;

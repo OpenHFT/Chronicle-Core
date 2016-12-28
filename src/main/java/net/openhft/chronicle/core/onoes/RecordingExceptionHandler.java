@@ -17,6 +17,8 @@
 
 package net.openhft.chronicle.core.onoes;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Map;
 
 /**
@@ -34,7 +36,7 @@ public class RecordingExceptionHandler implements ExceptionHandler {
     @Override
     public void on(Class clazz, String message, Throwable thrown) {
         synchronized (exceptionKeyCountMap) {
-            ExceptionKey key = new ExceptionKey(level, clazz, message, thrown);
+            @NotNull ExceptionKey key = new ExceptionKey(level, clazz, message, thrown);
             exceptionKeyCountMap.merge(key, 1, (p, v) -> p == null ? v : p + v);
         }
     }

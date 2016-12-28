@@ -17,6 +17,8 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.Jvm;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +41,9 @@ public class AllocationMeasure {
     private final String threadName = Thread.currentThread().getName();
     private final Object[] PARAMS = new Object[]{Thread.currentThread().getId()};
     private MBeanServer mBeanServer;
+    @Nullable
     private ObjectName name = null;
+    @NotNull
     private AtomicLong allocated = new AtomicLong();
     private long BYTES_USED_TO_MEASURE = 336;
     private long tid;
@@ -65,8 +69,8 @@ public class AllocationMeasure {
     }
 
     public static void main(String[] args) throws IllegalStateException {
-        String TEST = "Test";
-        AllocationMeasure allocationMeasure = new AllocationMeasure();
+        @NotNull String TEST = "Test";
+        @NotNull AllocationMeasure allocationMeasure = new AllocationMeasure();
 
         for (int i = 0; i < 1000; i++) {
             allocationMeasure.reset();

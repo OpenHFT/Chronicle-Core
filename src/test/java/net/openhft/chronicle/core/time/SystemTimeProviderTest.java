@@ -16,6 +16,7 @@
 
 package net.openhft.chronicle.core.time;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -26,7 +27,7 @@ import static org.junit.Assert.assertEquals;
 public class SystemTimeProviderTest {
     @Test
     public void currentTimeMicros() throws Exception {
-        TimeProvider tp = SystemTimeProvider.INSTANCE;
+        @NotNull TimeProvider tp = SystemTimeProvider.INSTANCE;
         long start = System.currentTimeMillis();
         long minDiff = Long.MAX_VALUE;
         long maxDiff = Long.MIN_VALUE;

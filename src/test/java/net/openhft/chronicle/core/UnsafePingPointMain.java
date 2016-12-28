@@ -17,6 +17,7 @@
 
 package net.openhft.chronicle.core;
 
+import org.jetbrains.annotations.NotNull;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
@@ -35,18 +36,19 @@ public class UnsafePingPointMain implements Runnable {
         this.addrB = addrB;
     }
 
+    @NotNull
     public static Unsafe getUnsafe() {
         try {
             Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
             theUnsafe.setAccessible(true);
             return (Unsafe) theUnsafe.get(null);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
+        } catch (@NotNull NoSuchFieldException | IllegalAccessException e) {
             throw new AssertionError(e);
         }
     }
 
     public static void main(String[] args) {
-        Unsafe unsafe = getUnsafe();
+        @NotNull Unsafe unsafe = getUnsafe();
         // make sure its a memory mapping.
         long memory = unsafe.allocateMemory(256 << 10);
 

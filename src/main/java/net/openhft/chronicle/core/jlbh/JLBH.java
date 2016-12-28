@@ -21,6 +21,8 @@ import net.openhft.affinity.AffinityLock;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.util.Histogram;
 import net.openhft.chronicle.core.util.NanoSampler;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -42,10 +44,14 @@ public class JLBH implements NanoSampler {
     private final long rate;
     // wait time in full milli seconds
     private final long waitTimeMillis;
+    @NotNull
     private final JLBHOptions jlbhOptions;
+    @NotNull
     private Histogram endToEndHistogram = new Histogram();
+    @NotNull
     private Histogram osJitterHistogram = new Histogram();
     private long noResultsReturned;
+    @NotNull
     private AtomicBoolean warmUpComplete = new AtomicBoolean(false);
     //Use non-atomic when so thread synchronisation is necessary
     private boolean warmedUp;
@@ -53,7 +59,7 @@ public class JLBH implements NanoSampler {
     /**
      * @param jlbhOptions Options to run the benchmark
      */
-    public JLBH(JLBHOptions jlbhOptions) {
+    public JLBH(@NotNull JLBHOptions jlbhOptions) {
         this.jlbhOptions = jlbhOptions;
         if (jlbhOptions.jlbhTask == null) throw new IllegalStateException("jlbhTask must be set");
         rate = jlbhOptions.throughputTimeUnit.toNanos(1) / jlbhOptions.throughput;
@@ -79,9 +85,9 @@ public class JLBH implements NanoSampler {
      */
     public void start() {
         jlbhOptions.jlbhTask.init(this);
-        OSJitterMonitor osJitterMonitor = new OSJitterMonitor();
-        List<double[]> percentileRuns = new ArrayList<>();
-        Map<String, List<double[]>> additionalPercentileRuns = new TreeMap<>();
+        @NotNull OSJitterMonitor osJitterMonitor = new OSJitterMonitor();
+        @NotNull List<double[]> percentileRuns = new ArrayList<>();
+        @NotNull Map<String, List<double[]>> additionalPercentileRuns = new TreeMap<>();
 
         if (jlbhOptions.recordOSJitter) {
             osJitterMonitor.setDaemon(true);
@@ -181,9 +187,9 @@ public class JLBH implements NanoSampler {
         jlbhOptions.jlbhTask.complete();
     }
 
-    private void printPercentilesSummary(String label, List<double[]> percentileRuns) {
+    private void printPercentilesSummary(String label, @NotNull List<double[]> percentileRuns) {
         System.out.println("-------------------------------- SUMMARY (" + label + ")------------------------------------------------------------");
-        List<Double> consistencies = new ArrayList<>();
+        @NotNull List<Double> consistencies = new ArrayList<>();
         double maxValue = Double.MIN_VALUE;
         double minValue = Double.MAX_VALUE;
         int length = percentileRuns.get(0).length;
@@ -211,7 +217,7 @@ public class JLBH implements NanoSampler {
             minValue = Double.MAX_VALUE;
         }
 
-        List<Double> summary = new ArrayList<>();
+        @NotNull List<Double> summary = new ArrayList<>();
         for (int i = 0; i < length; i++) {
             for (double[] percentileRun : percentileRuns) {
                 summary.add(percentileRun[i] / 1e3);
@@ -219,7 +225,7 @@ public class JLBH implements NanoSampler {
             summary.add(consistencies.get(i));
         }
 
-        StringBuilder sb = new StringBuilder();
+        @NotNull StringBuilder sb = new StringBuilder();
         addHeaderToPrint(sb, jlbhOptions.runs);
         System.out.println(sb.toString());
 
@@ -239,7 +245,7 @@ public class JLBH implements NanoSampler {
         System.out.println("-------------------------------------------------------------------------------------------------------------------");
     }
 
-    private void addPrToPrint(StringBuilder sb, String pr, int runs) {
+    private void addPrToPrint(@NotNull StringBuilder sb, String pr, int runs) {
         sb.append(pr);
         for (int i = 0; i < runs; i++) {
             sb.append("%12.2f ");
@@ -248,7 +254,7 @@ public class JLBH implements NanoSampler {
         sb.append("%n");
     }
 
-    private void addHeaderToPrint(StringBuilder sb, int runs) {
+    private void addHeaderToPrint(@NotNull StringBuilder sb, int runs) {
         sb.append("Percentile");
         for (int i = 1; i < runs + 1; i++) {
             if (i == 1)
@@ -259,7 +265,7 @@ public class JLBH implements NanoSampler {
         sb.append("      % Variation");
     }
 
-    private String timeUnitToString(TimeUnit timeUnit) {
+    private String timeUnitToString(@NotNull TimeUnit timeUnit) {
         switch (timeUnit) {
             case NANOSECONDS:
                 return "ns";
@@ -309,7 +315,7 @@ public class JLBH implements NanoSampler {
         public void run() {
             // make sure this thread is not bound by its parent.
             Affinity.setAffinity(AffinityLock.BASE_AFFINITY);
-            AffinityLock affinityLock = null;
+            @Nullable AffinityLock affinityLock = null;
             if(jlbhOptions.jitterAffinity){
                 System.out.println("Jitter thread running with affinity.");
                 affinityLock = AffinityLock.acquireLock();

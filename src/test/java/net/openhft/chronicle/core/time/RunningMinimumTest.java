@@ -17,6 +17,7 @@
 
 package net.openhft.chronicle.core.time;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -31,7 +32,7 @@ public class RunningMinimumTest {
     public void testSample() {
         for (int k = 0; k < 1000; k++) {
             for (long delta : new long[]{0, Integer.MIN_VALUE, Integer.MAX_VALUE}) {
-                RunningMinimum rm = new RunningMinimum(50 * 1000);
+                @NotNull RunningMinimum rm = new RunningMinimum(50 * 1000);
                 int j;
                 for (j = 0; j < 50 * 1000000; j += 1000000) {
                     long startTime = System.nanoTime() + j;
@@ -45,7 +46,7 @@ public class RunningMinimumTest {
 
     @Test
     public void testVanillaDiff() {
-        VanillaDifferencer vd = new VanillaDifferencer();
+        @NotNull VanillaDifferencer vd = new VanillaDifferencer();
         assertEquals(100, vd.sample(123400, 123500));
     }
 }

@@ -19,6 +19,8 @@ package net.openhft.chronicle.core;
 import net.openhft.chronicle.core.pool.StringInterner;
 import net.openhft.chronicle.core.threads.ThreadDump;
 import net.openhft.chronicle.core.util.StringUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -79,10 +81,10 @@ public class MathsTest {
 
     @Test
     public void testRounding() {
-        Random rand = new Random(1);
+        @NotNull Random rand = new Random(1);
         for (int i = 0; i < 1000; i++) {
             double d = Math.pow(1e18, rand.nextDouble()) / 1e6;
-            BigDecimal bd = new BigDecimal(d);
+            @NotNull BigDecimal bd = new BigDecimal(d);
             assertEquals(bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), Maths.round2(d), 5e-2);
             assertEquals(bd.setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue(), Maths.round4(d), 5e-4);
             assertEquals(bd.setScale(6, BigDecimal.ROUND_HALF_UP).doubleValue(), Maths.round6(d), 5e-6);
@@ -94,7 +96,7 @@ public class MathsTest {
     @Test
     @Ignore("Long running")
     public void longRunningRound() {
-        double[] ds = new double[17];
+        @NotNull double[] ds = new double[17];
         ds[0] = 1e-4;
         for (int i = 1; i < ds.length; i++)
             ds[i] = 2 * ds[i - 1];
@@ -113,9 +115,9 @@ public class MathsTest {
         long time = 0, timeCount = 0;
         long scoreSum = 0;
         for (int t = 0; t < 500; t++) {
-            long[] hashs = new long[8192];
-            StringBuilder sb = new StringBuilder();
-            byte[] init = new byte[hashs.length / 64];
+            @NotNull long[] hashs = new long[8192];
+            @NotNull StringBuilder sb = new StringBuilder();
+            @NotNull byte[] init = new byte[hashs.length / 64];
             new SecureRandom().nextBytes(init);
             for (int i = 0; i < hashs.length; i++) {
                 sb.setLength(0);
@@ -180,21 +182,21 @@ public class MathsTest {
 
     @Test
     public void testHashStringBuilderFromInterner() throws Exception {
-        StringInterner interner = new StringInterner(16);
+        @NotNull StringInterner interner = new StringInterner(16);
 
-        final CharSequence csToHash = "557";
-        final StringBuilder sb = new StringBuilder(csToHash);
+        @NotNull final CharSequence csToHash = "557";
+        @NotNull final StringBuilder sb = new StringBuilder(csToHash);
 
         long hash = Maths.hash64(sb);
 
-        String intern = interner.intern(csToHash);
+        @Nullable String intern = interner.intern(csToHash);
         StringUtils.set(sb, intern);
         final long actual = Maths.hash64(sb);
         assertEquals(hash, actual);
         // overflowing the interner?
         StringUtils.set(sb, "xxxx");
 
-        String intern2 = interner.intern(csToHash);
+        @Nullable String intern2 = interner.intern(csToHash);
         StringUtils.set(sb, intern2);
         final long actual2 = Maths.hash64(sb);
         assertEquals(hash, actual2);

@@ -16,6 +16,7 @@
 
 package net.openhft.chronicle.core.util;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import java.io.BufferedReader;
@@ -31,8 +32,8 @@ import static org.junit.Assert.fail;
 public class ThrowingFunctionTest {
     @Test
     public void asFunction() throws Exception {
-        Function<String, String> sc = ThrowingFunction.asFunction(s -> {
-            try (BufferedReader br = new BufferedReader(new FileReader(s))) {
+        @NotNull Function<String, String> sc = ThrowingFunction.asFunction(s -> {
+            try (@NotNull BufferedReader br = new BufferedReader(new FileReader(s))) {
                 return br.readLine();
             }
         });

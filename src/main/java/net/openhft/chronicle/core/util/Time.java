@@ -16,6 +16,8 @@
 
 package net.openhft.chronicle.core.util;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.concurrent.locks.LockSupport;
 
 /**
@@ -41,7 +43,7 @@ public enum Time {
         return tickTime;
     }
 
-    public static void wait(Object o, long waitTimeMS) throws InterruptedException, IllegalArgumentException {
+    public static void wait(@NotNull Object o, long waitTimeMS) throws InterruptedException, IllegalArgumentException {
         if ((int) waitTimeMS != waitTimeMS)
             throw new IllegalArgumentException("waitTimeMS: " + waitTimeMS);
         long end = tickTime() + waitTimeMS;

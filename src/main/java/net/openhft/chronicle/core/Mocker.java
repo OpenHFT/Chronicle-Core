@@ -16,6 +16,9 @@
 
 package net.openhft.chronicle.core;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -32,27 +35,33 @@ import java.util.function.Consumer;
 public enum Mocker {
     ;
 
-    public static <T> T logging(Class<T> tClass, String description, PrintStream out) {
+    @NotNull
+    public static <T> T logging(@NotNull Class<T> tClass, String description, @NotNull PrintStream out) {
         return intercepting(tClass, description, out::println);
     }
 
-    public static <T> T logging(Class<T> tClass, String description, PrintWriter out) {
+    @NotNull
+    public static <T> T logging(@NotNull Class<T> tClass, String description, @NotNull PrintWriter out) {
         return intercepting(tClass, description, out::println);
     }
 
-    public static <T> T logging(Class<T> tClass, String description, StringWriter out) {
+    @NotNull
+    public static <T> T logging(@NotNull Class<T> tClass, String description, @NotNull StringWriter out) {
         return logging(tClass, description, new PrintWriter(out));
     }
 
-    public static <T> T queuing(Class<T> tClass, String description, BlockingQueue<String> queue) {
+    @NotNull
+    public static <T> T queuing(@NotNull Class<T> tClass, String description, @NotNull BlockingQueue<String> queue) {
         return intercepting(tClass, description, queue::add);
     }
 
-    public static <T> T intercepting(Class<T> tClass, String description, Consumer<String> consumer) {
+    @NotNull
+    public static <T> T intercepting(@NotNull Class<T> tClass, String description, @NotNull Consumer<String> consumer) {
         //noinspection unchecked
         return (T) Proxy.newProxyInstance(tClass.getClassLoader(), new Class[]{tClass}, new InvocationHandler() {
+            @Nullable
             @Override
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            public Object invoke(Object proxy, @NotNull Method method, @Nullable Object[] args) throws Throwable {
                 if (method.getDeclaringClass() == Object.class)
                     return method.invoke(this, args);
                 consumer.accept(description + method.getName() + (args == null ? "()" : Arrays.toString(args)));
@@ -61,11 +70,13 @@ public enum Mocker {
         });
     }
 
-    public static <T> T ignored(Class<T> tClass) {
+    @NotNull
+    public static <T> T ignored(@NotNull Class<T> tClass) {
         //noinspection unchecked
         return (T) Proxy.newProxyInstance(tClass.getClassLoader(), new Class[]{tClass}, new InvocationHandler() {
+            @Nullable
             @Override
-            public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            public Object invoke(Object proxy, @NotNull Method method, Object[] args) throws Throwable {
                 if (method.getDeclaringClass() == Object.class)
                     return method.invoke(this, args);
                 return null;

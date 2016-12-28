@@ -18,6 +18,7 @@ package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.IORuntimeException;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.BiConsumer;
 
@@ -33,7 +34,7 @@ import java.util.function.BiConsumer;
  */
 @FunctionalInterface
 public interface ThrowingBiConsumer<I, J, T extends Throwable> {
-    static <I, J, T extends Throwable> BiConsumer<I, J> asConsumer(ThrowingBiConsumer<I, J, T> function) {
+    static <I, J, T extends Throwable> BiConsumer<I, J> asConsumer(@NotNull ThrowingBiConsumer<I, J, T> function) {
         return (in, i2) -> {
             try {
                 function.accept(in, i2);

@@ -16,6 +16,8 @@
 
 package net.openhft.chronicle.core.util;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Arrays;
 import java.util.function.DoubleFunction;
 
@@ -49,6 +51,7 @@ public class Histogram implements NanoSampler {
     /**
      * @return Histogram for use with System.nanoTime() up to 4 second delay.
      */
+    @NotNull
     public static Histogram timeMicros() {
         return new Histogram(22 /* 4 seconds */, 3 /* 2 decimal places */, 1000.0 /* nano-seconds */);
     }
@@ -57,7 +60,7 @@ public class Histogram implements NanoSampler {
     public boolean equals(Object obj) {
         if (!(obj instanceof Histogram))
             return false;
-        Histogram h = (Histogram) obj;
+        @NotNull Histogram h = (Histogram) obj;
         if (!(powersOf2 == h.powersOf2
                 && fractionBits == h.fractionBits
                 && floor == h.floor))
@@ -70,6 +73,7 @@ public class Histogram implements NanoSampler {
         return true;
     }
 
+    @NotNull
     @Override
     public String toString() {
         return "Histogram{" +
@@ -113,7 +117,7 @@ public class Histogram implements NanoSampler {
         return sampleCount;
     }
 
-    public void add(Histogram h) {
+    public void add(@NotNull Histogram h) {
         assert powersOf2 == h.powersOf2;
         assert fractionBits == h.fractionBits;
         totalCount += h.totalCount;
@@ -147,6 +151,7 @@ public class Histogram implements NanoSampler {
         return 1;
     }
 
+    @NotNull
     public double[] getPercentiles() {
         if (totalCount < 1_000_000) {
             return new double[]{
@@ -183,11 +188,13 @@ public class Histogram implements NanoSampler {
         };
     }
 
+    @NotNull
     public String toMicrosFormat() {
         return toMicrosFormat(t -> t / 1e3);
     }
 
-    public String toMicrosFormat(DoubleFunction<Double> toMicros) {
+    @NotNull
+    public String toMicrosFormat(@NotNull DoubleFunction<Double> toMicros) {
         if (totalCount < 1_000_000)
             return "50/90 99/99.9 99.99 - worst was " +
                     p(toMicros.apply(percentile(0.5))) + " / " +
@@ -218,7 +225,8 @@ public class Histogram implements NanoSampler {
                 p(toMicros.apply(percentile(1)));
     }
 
-    public String toLongMicrosFormat(DoubleFunction<Double> toMicros) {
+    @NotNull
+    public String toLongMicrosFormat(@NotNull DoubleFunction<Double> toMicros) {
         if (totalCount < 1_000_000)
             return "50/90 97/99 99.7/99.9 99.97/99.99 - worst was " +
                     p(toMicros.apply(percentile(0.5))) + " / " +

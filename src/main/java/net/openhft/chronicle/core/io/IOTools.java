@@ -17,6 +17,8 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import sun.misc.Cleaner;
 import sun.nio.ch.DirectBuffer;
 import sun.reflect.Reflection;
@@ -36,20 +38,20 @@ import java.util.zip.GZIPOutputStream;
 public enum IOTools {
     ;
 
-    public static boolean shallowDeleteDirWithFiles(String directory) throws IORuntimeException {
+    public static boolean shallowDeleteDirWithFiles(@NotNull String directory) throws IORuntimeException {
         return shallowDeleteDirWithFiles(new File(directory));
     }
 
-    public static boolean shallowDeleteDirWithFiles(File dir) throws IORuntimeException {
+    public static boolean shallowDeleteDirWithFiles(@NotNull File dir) throws IORuntimeException {
         return deleteDirWithFiles(dir, 1);
     }
 
-    public static boolean deleteDirWithFiles(String dir, int maxDepth) throws IORuntimeException {
+    public static boolean deleteDirWithFiles(@NotNull String dir, int maxDepth) throws IORuntimeException {
         return deleteDirWithFiles(new File(dir), maxDepth);
     }
 
-    public static boolean deleteDirWithFiles(File dir, int maxDepth) throws IORuntimeException {
-        File[] entries = dir.listFiles();
+    public static boolean deleteDirWithFiles(@NotNull File dir, int maxDepth) throws IORuntimeException {
+        @Nullable File[] entries = dir.listFiles();
         if (entries == null) return false;
         Stream.of(entries).filter(File::isDirectory).forEach(f -> {
             if (maxDepth < 1) {
@@ -81,7 +83,7 @@ public enum IOTools {
      * @return A byte[] containing the contents of the file
      * @throws IOException FileNotFoundException thrown if file is not found
      */
-    public static byte[] readFile(String name) throws IOException {
+    public static byte[] readFile(@NotNull String name) throws IOException {
         ClassLoader classLoader;
         try {
             classLoader = Reflection.getCallerClass().getClassLoader();
@@ -101,22 +103,23 @@ public enum IOTools {
                     throw e;
                 }
             }
-        ByteArrayOutputStream out = new ByteArrayOutputStream(Math.min(512, is.available()));
-        byte[] bytes = new byte[1024];
+        @NotNull ByteArrayOutputStream out = new ByteArrayOutputStream(Math.min(512, is.available()));
+        @NotNull byte[] bytes = new byte[1024];
         for (int len; (len = is.read(bytes)) > 0; )
             out.write(bytes, 0, len);
         return out.toByteArray();
     }
 
-    public static void writeFile(String filename, byte[] bytes) throws IOException {
-        OutputStream out = new FileOutputStream(filename);
+    public static void writeFile(@NotNull String filename, @NotNull byte[] bytes) throws IOException {
+        @NotNull OutputStream out = new FileOutputStream(filename);
         if (filename.endsWith(".gz"))
             out = new GZIPOutputStream(out);
         out.write(bytes);
         out.close();
     }
 
-    public static String tempName(String filename) {
+    @NotNull
+    public static String tempName(@NotNull String filename) {
         int ext = filename.lastIndexOf('.');
         if (ext > 0 && ext > filename.length() - 5) {
             return filename.substring(0, ext) + System.nanoTime() + filename.substring(ext);

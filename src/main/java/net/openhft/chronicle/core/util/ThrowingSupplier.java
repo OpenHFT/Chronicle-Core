@@ -18,6 +18,7 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.Jvm;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
@@ -36,7 +37,7 @@ import java.util.function.Supplier;
 @FunctionalInterface
 public interface ThrowingSupplier<V, T extends Throwable> {
 
-    static <V, T extends Throwable> Supplier<V> asSupplier(ThrowingSupplier<V, T> throwingSupplier) {
+    static <V, T extends Throwable> Supplier<V> asSupplier(@NotNull ThrowingSupplier<V, T> throwingSupplier) {
         return () -> {
             try {
                 return throwingSupplier.get();
@@ -52,5 +53,6 @@ public interface ThrowingSupplier<V, T extends Throwable> {
      *
      * @return a result
      */
+    @NotNull
     V get() throws T;
 }
