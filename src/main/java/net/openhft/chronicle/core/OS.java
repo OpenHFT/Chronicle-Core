@@ -40,6 +40,7 @@ public enum OS {
     ;
     public static final String TMP = System.getProperty("java.io.tmpdir");
     public static final String TARGET = System.getProperty("project.build.directory", findTarget());
+    public static final String USER_DIR = System.getProperty("user.dir");
     private static final String HOST_NAME = getHostName0();
     private static final String USER_NAME = System.getProperty("user.name");
     private static final Logger LOG = LoggerFactory.getLogger(OS.class);
@@ -395,6 +396,10 @@ public enum OS {
             }
         }
         return sw.toString();
+    }
+
+    public static String userDir() {
+        return USER_DIR;
     }
 
     public static class Unmapper implements Runnable {
