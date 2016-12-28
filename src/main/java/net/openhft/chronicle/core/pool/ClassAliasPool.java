@@ -29,10 +29,11 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ClassAliasPool implements ClassLookup {
     public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool(null).defaultAliases();
+    static final ThreadLocal<CAPKey> CAP_KEY_TL = ThreadLocal.withInitial(CAPKey::new);
     private final ClassLookup parent;
     private final ClassLoader classLoader;
-    private final Map<String, Class> stringClassMap = new ConcurrentHashMap<>();
-    private final Map<String, Class> stringClassMap2 = new ConcurrentHashMap<>();
+    private final Map<CAPKey, Class> stringClassMap = new ConcurrentHashMap<>();
+    private final Map<CAPKey, Class> stringClassMap2 = new ConcurrentHashMap<>();
     private final Map<Class, String> classStringMap = new ConcurrentHashMap<>();
 
     ClassAliasPool(ClassLookup parent, ClassLoader classLoader) {
@@ -96,30 +97,37 @@ public class ClassAliasPool implements ClassLookup {
 
     @Override
     public Class forName(@NotNull CharSequence name) throws ClassNotFoundException {
-        @NotNull String name0 = name.toString();
-        Class clazz = stringClassMap.get(name0);
+        CAPKey key = CAP_KEY_TL.get();
+        key.value = name;
+        Class clazz = stringClassMap.get(key);
         if (clazz != null)
             return clazz;
-        clazz = stringClassMap2.get(name0);
+        clazz = stringClassMap2.get(key);
         if (clazz != null) return clazz;
-        return forName0(name, name0);
+        return forName0(key);
     }
 
-    private Class forName0(CharSequence name, String name0) {
-        return stringClassMap2.computeIfAbsent(name0, n -> {
-            try {
-                return Class.forName(name0, true, classLoader);
-            } catch (ClassNotFoundException e) {
-                if (parent != null) {
-                    try {
-                        return parent.forName(name);
-                    } catch (ClassNotFoundException e2) {
-                        // ignored.
-                    }
+    private synchronized Class forName0(CAPKey key) {
+        //noinspection SuspiciousMethodCalls
+        Class clazz = stringClassMap2.get(key);
+        if (clazz != null) return clazz;
+        String name0 = key.toString();
+        CAPKey key2 = new CAPKey(name0);
+
+        try {
+            clazz = Class.forName(name0, true, classLoader);
+        } catch (ClassNotFoundException e) {
+            if (parent != null) {
+                try {
+                    return parent.forName(name0);
+                } catch (ClassNotFoundException e2) {
+                    // ignored.
                 }
-                throw Jvm.rethrow(e);
             }
-        });
+            throw Jvm.rethrow(e);
+        }
+        stringClassMap2.put(key2, clazz);
+        return clazz;
     }
 
     @Override
@@ -149,9 +157,9 @@ public class ClassAliasPool implements ClassLookup {
     @Override
     public void addAlias(@NotNull Class... classes) {
         for (@NotNull Class clazz : classes) {
-            stringClassMap.putIfAbsent(clazz.getName(), clazz);
-            stringClassMap2.putIfAbsent(clazz.getSimpleName(), clazz);
-            stringClassMap2.putIfAbsent(toCamelCase(clazz.getSimpleName()), clazz);
+            stringClassMap.putIfAbsent(new CAPKey(clazz.getName()), clazz);
+            stringClassMap2.putIfAbsent(new CAPKey(clazz.getSimpleName()), clazz);
+            stringClassMap2.putIfAbsent(new CAPKey(toCamelCase(clazz.getSimpleName())), clazz);
             classStringMap.computeIfAbsent(clazz, Class::getSimpleName);
         }
     }
@@ -165,10 +173,66 @@ public class ClassAliasPool implements ClassLookup {
     @Override
     public void addAlias(Class clazz, @NotNull String names) {
         for (@NotNull String name : names.split(", ?")) {
-            stringClassMap.put(name, clazz);
-            stringClassMap2.putIfAbsent(toCamelCase(name), clazz);
+            stringClassMap.put(new CAPKey(name), clazz);
+            stringClassMap2.putIfAbsent(new CAPKey(toCamelCase(name)), clazz);
             classStringMap.putIfAbsent(clazz, name);
             addAlias(clazz);
+        }
+    }
+
+    static class CAPKey implements CharSequence {
+        CharSequence value;
+
+        CAPKey() {
+        }
+
+        CAPKey(String name) {
+            value = name;
+        }
+
+        @Override
+        public int length() {
+            return value.length();
+        }
+
+        @Override
+        public char charAt(int index) {
+            return value.charAt(index);
+        }
+
+        @Override
+        public CharSequence subSequence(int start, int end) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public String toString() {
+            return value.toString();
+        }
+
+        @Override
+        public int hashCode() {
+            if (value instanceof String)
+                return value.hashCode();
+            int h = 0;
+            for (int i = 0; i < value.length(); i++) {
+                h = 31 * h + charAt(i);
+            }
+            return h;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (!(obj instanceof CharSequence))
+                return false;
+
+            CharSequence cs = (CharSequence) obj;
+            if (length() != cs.length())
+                return false;
+            for (int i = 0; i < length(); i++)
+                if (charAt(i) != cs.charAt(i))
+                    return false;
+            return true;
         }
     }
 }

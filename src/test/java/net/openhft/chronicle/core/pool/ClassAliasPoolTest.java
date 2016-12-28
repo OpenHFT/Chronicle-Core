@@ -42,6 +42,14 @@ public class ClassAliasPoolTest {
     }
 
     @Test
+    public void forName() throws ClassNotFoundException {
+        CLASS_ALIASES.addAlias(ClassAliasPoolTest.class);
+        String simpleName = getClass().getSimpleName();
+        assertEquals(ClassAliasPoolTest.class, CLASS_ALIASES.forName(simpleName));
+        StringBuilder sb = new StringBuilder(simpleName);
+        assertEquals(ClassAliasPoolTest.class, CLASS_ALIASES.forName(sb));
+    }
+    @Test
     public void testClean() {
         assertEquals("String", CLASS_ALIASES.nameFor(String.class));
         CLASS_ALIASES.clean();
