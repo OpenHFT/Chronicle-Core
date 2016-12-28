@@ -49,11 +49,11 @@ public enum Jvm {
     @NotNull
     private static final DirectMemoryInspector DIRECT_MEMORY_INSPECTOR;
     private static final boolean IS_64BIT = is64bit0();
-    @Nullable
+    @NotNull
     private static ExceptionHandler FATAL = Slf4jExceptionHandler.FATAL;
-    @Nullable
+    @NotNull
     private static ExceptionHandler WARN = Slf4jExceptionHandler.WARN;
-    @Nullable
+    @NotNull
     private static ExceptionHandler DEBUG = Slf4jExceptionHandler.DEBUG;
 
     static {
@@ -325,17 +325,17 @@ public enum Jvm {
         DEBUG = NullExceptionHandler.NOTHING;
     }
 
-    @Nullable
+    @NotNull
     public static ExceptionHandler fatal() {
         return FATAL;
     }
 
-    @Nullable
+    @NotNull
     public static ExceptionHandler warn() {
         return WARN;
     }
 
-    @Nullable
+    @NotNull
     public static ExceptionHandler debug() {
         return DEBUG;
     }
