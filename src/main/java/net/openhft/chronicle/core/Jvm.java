@@ -17,6 +17,7 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.onoes.*;
+import org.jetbrains.annotations.Nullable;
 import sun.misc.VM;
 
 import java.lang.reflect.Field;
@@ -291,10 +292,24 @@ public enum Jvm {
         return map;
     }
 
-    public static void setExceptionsHandlers(ExceptionHandler fatal, ExceptionHandler warn, ExceptionHandler debug) {
-        FATAL = fatal;
-        WARN = warn;
-        DEBUG = debug;
+    public static void setExceptionsHandlers(@Nullable ExceptionHandler fatal,
+                                             @Nullable ExceptionHandler warn,
+                                             @Nullable ExceptionHandler debug) {
+
+        if (fatal == null)
+            FATAL = NullExceptionHandler.NOTHING;
+        else
+            FATAL = fatal;
+
+        if (warn == null)
+            WARN = NullExceptionHandler.NOTHING;
+        else
+            WARN = warn;
+
+        if (debug == null)
+            disableDebugHandler();
+        else
+            DEBUG = debug;
     }
 
     public static void disableDebugHandler() {
