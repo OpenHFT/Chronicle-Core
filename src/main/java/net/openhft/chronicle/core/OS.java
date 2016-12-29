@@ -96,6 +96,11 @@ public enum OS {
         throw new FileNotFoundException(suffix);
     }
 
+    /**
+     * Search a list of directories to find a path which is the last element.
+     * @param path of directories to use if found, the last path is always appended.
+     * @return the resulting File path.
+     */
     @NotNull
     public static File findFile(@NotNull String... path) {
         @NotNull File dir = new File(".").getAbsoluteFile();
