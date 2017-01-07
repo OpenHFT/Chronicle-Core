@@ -46,7 +46,7 @@ public enum PrintExceptionHandler implements ExceptionHandler {
             if (thrown != null)
                 thrown.printStackTrace(System.err);
             else
-                System.err.println(message);
+                System.err.println();
 
         }
     }
