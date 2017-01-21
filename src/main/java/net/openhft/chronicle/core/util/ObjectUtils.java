@@ -385,7 +385,7 @@ public enum ObjectUtils {
     public static Object readResolve(Object o) {
         Method readResove = READ_RESOLVE.get(o.getClass());
         if (readResove == null)
-            return 0;
+            return o;
         try {
             return readResove.invoke(o);
         } catch (IllegalAccessException e) {
