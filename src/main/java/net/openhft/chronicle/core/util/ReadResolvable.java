@@ -18,13 +18,19 @@ package net.openhft.chronicle.core.util;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Serializable;
+
 /**
  * Created by peter on 23/06/15.
  */
 public interface ReadResolvable<T> {
     @SuppressWarnings("unchecked")
     static <T> T readResolve(Object o) {
-        return (T) (o instanceof ReadResolvable ? ((ReadResolvable) o).readResolve() : o);
+        return (T) (o instanceof ReadResolvable
+                ? ((ReadResolvable) o).readResolve()
+                : o instanceof Serializable
+                ? ObjectUtils.readResolve(o)
+                : o);
     }
 
     /**

@@ -354,7 +354,7 @@ public enum Jvm {
     }
 
     public static boolean isDebugEnabled(Class aClass) {
-        return DEBUG.isEnabled(aClass);
+        return DEBUG.isEnabled(aClass) || isDebug();
     }
 
     enum DirectMemoryInspector {
