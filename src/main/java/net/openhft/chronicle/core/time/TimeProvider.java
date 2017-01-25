@@ -23,6 +23,6 @@ public interface TimeProvider {
     long currentTimeMillis();
 
     default long currentTimeMicros() {
-        return System.currentTimeMillis() * 1000;
+        return currentTimeMillis() * 1000;
     }
 }
