@@ -56,6 +56,17 @@ public enum ObjectUtils {
     static final Map<Class, Object> DEFAULT_MAP = new HashMap<>();
     static final ClassLocal<ThrowingFunction<String, Object, Exception>> PARSER_CL = ClassLocal.withInitial(new ConversionFunction());
     static final ClassLocal<Map<String, Enum>> CASE_IGNORE_LOOKUP = ClassLocal.withInitial(ObjectUtils::caseIgnoreLookup);
+    static final ClassValue<Method> READ_RESOLVE = ClassLocal.withInitial(c -> {
+        try {
+            Method m = c.getDeclaredMethod("readResolve");
+            m.setAccessible(true);
+            return m;
+        } catch (NoSuchMethodException expected) {
+            return null;
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+    });
     private static final Map<Class, Immutability> immutabilityMap = new ConcurrentHashMap<>();
     private static final ClassLocal<Supplier> SUPPLIER_CLASS_LOCAL = ClassLocal.withInitial(c -> {
         if (c == null)
@@ -369,6 +380,19 @@ public enum ObjectUtils {
 
     public static boolean isConcreteClass(@NotNull Class tClass) {
         return (tClass.getModifiers() & (Modifier.ABSTRACT | Modifier.INTERFACE)) == 0;
+    }
+
+    public static Object readResolve(Object o) {
+        Method readResove = READ_RESOLVE.get(o.getClass());
+        if (readResove == null)
+            return o;
+        try {
+            return readResove.invoke(o);
+        } catch (IllegalAccessException e) {
+            throw Jvm.rethrow(e);
+        } catch (InvocationTargetException e) {
+            throw Jvm.rethrow(e.getCause());
+        }
     }
 
     public enum Immutability {

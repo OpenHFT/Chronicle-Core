@@ -28,7 +28,7 @@ public class ReferenceCounter {
 
     // records where reference was created, reserved and released,
     // only used for debugging and only active when assertions are turned on
-    private Queue<Exception> referenceCountHistory;
+    private Queue<Throwable> referenceCountHistory;
 
     private ReferenceCounter(Runnable onRelease) {
         this.onRelease = onRelease;
@@ -42,7 +42,7 @@ public class ReferenceCounter {
 
     private boolean newRefCountHistory() {
         referenceCountHistory = new ConcurrentLinkedQueue<>();
-        referenceCountHistory.add(new RuntimeException("creation ref-count=" + 1));
+        referenceCountHistory.add(new Throwable(Integer.toHexString(onRelease.hashCode()) + '-' + Thread.currentThread().getName() + " creation ref-count=" + 1));
         return true;
     }
 
@@ -63,7 +63,7 @@ public class ReferenceCounter {
     }
 
     private boolean recordResevation(long v) {
-        referenceCountHistory.add(new RuntimeException("Reserve ref-count=" + v));
+        referenceCountHistory.add(new Throwable(Integer.toHexString(onRelease.hashCode()) + '-' + Thread.currentThread().getName() + " Reserve ref-count=" + v));
         return true;
     }
 
@@ -85,13 +85,13 @@ public class ReferenceCounter {
     }
 
     private boolean recordRelease(long v) {
-        referenceCountHistory.add(new RuntimeException("Release ref-count=" + v));
+        referenceCountHistory.add(new Throwable(Integer.toHexString(onRelease.hashCode()) + '-' + Thread.currentThread().getName() + " Release ref-count=" + v));
         return true;
     }
 
     private boolean logReferenceCountHistory() {
         referenceCountHistory.forEach(Throwable::printStackTrace);
-        return false;
+        return true;
     }
 
     public long get() {
