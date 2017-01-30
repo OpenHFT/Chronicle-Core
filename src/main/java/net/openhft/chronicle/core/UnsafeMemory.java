@@ -305,13 +305,23 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void copyMemory(long fromAddress, long address, long length) {
-        copyMemory0(null, fromAddress, null, address, length);
+        if (length < UNSAFE_COPY_THRESHOLD) {
+            UNSAFE.copyMemory(null, fromAddress, null, address, length);
+
+        } else {
+            copyMemory0(null, fromAddress, null, address, length);
+        }
     }
 
     @Override
     @ForceInline
     public void copyMemory(byte[] bytes, int offset, Object obj2, long offset2, int length) {
-        copyMemory0(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, obj2, offset2, length);
+        if (length < UNSAFE_COPY_THRESHOLD) {
+            UNSAFE.copyMemory(bytes, (long) (Unsafe.ARRAY_BYTE_BASE_OFFSET + offset), obj2, offset2, length);
+
+        } else {
+            copyMemory0(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, obj2, offset2, length);
+        }
     }
 
     @Override
