@@ -35,7 +35,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 
 /**
- * Low level axcess to OS class.
+ * Low level access to OS class.
  */
 public enum OS {
     ;
@@ -375,7 +375,7 @@ public enum OS {
     }
 
     /**
-     * Get the sapce actually used by a file.
+     * Get the space actually used by a file.
      *
      * @param filename to get the actual size of
      * @return size in bytes.
