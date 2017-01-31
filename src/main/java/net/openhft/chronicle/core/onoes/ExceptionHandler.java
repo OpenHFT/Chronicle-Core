@@ -35,7 +35,7 @@ public interface ExceptionHandler {
      *
      * @param clazz   the error is associated with, e.g. the one in which it was caught
      * @param message any message associated with the error, or empty String.
-     * @param thrown  any Thorwable caught, or null if there was no exception.
+     * @param thrown  any Throwable caught, or null if there was no exception.
      */
     void on(Class clazz, String message, Throwable thrown);
 

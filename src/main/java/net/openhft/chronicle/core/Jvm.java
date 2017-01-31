@@ -184,7 +184,7 @@ public enum Jvm {
     }
 
     /**
-     * This method is designed tobe used when the time to be
+     * This method is designed to be used when the time to be
      * waited is very small, typically under a millisecond.
      *
      * @param micros Time in micros
@@ -194,7 +194,7 @@ public enum Jvm {
     }
 
     /**
-     * This method is designed tobe used when the time to be
+     * This method is designed to be used when the time to be
      * waited is very small, typically under a millisecond.
      *
      * @param waitUntil nanosecond precision counter value to await.

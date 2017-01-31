@@ -67,8 +67,8 @@ public class JLBHOptions {
 
     /**
      * Determines whether the start time is the time the event was supposed to have happened
-     * (i.e. accounting for co-ordinated ommission) or whether the the start time is just
-     * the a factor of the throughput (i.e. not accounting for co-ordinated ommission).
+     * (i.e. accounting for co-ordinated omission) or whether the the start time is just
+     * the a factor of the throughput (i.e. not accounting for co-ordinated omission).
      * @param accountForCoordinatedOmmission defaults to true
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
@@ -158,7 +158,7 @@ public class JLBHOptions {
 
     /**
      * Option to skip first run from being included in the variation statistics.
-     * @param skip defult to true if runs greater than 3
+     * @param skip default to true if runs greater than 3
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
     @NotNull

@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Java Latency Benchmark Harness
- * The harness is intended to be used for benchmarks where co-ordinated ommission is an issue.
+ * The harness is intended to be used for benchmarks where co-ordinated omission is an issue.
  * Typically these would be of the producer/consumer nature where the start time for the benchmark
  * may be on a different thread than the end time.
  * <p></p>
