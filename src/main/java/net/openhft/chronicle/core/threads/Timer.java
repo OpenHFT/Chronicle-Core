@@ -50,11 +50,11 @@ public class Timer {
     }
 
 
-    public void schedule(@NotNull Runnable eventHandler, long periodMs) {
+    public void schedule(@NotNull Runnable eventHandler, long initialDelayMs) {
         eventLoop.addHandler(new ScheduledEventHandler(() -> {
             eventHandler.run();
             throw new InvalidEventHandlerException("just runs once");
-        }, 0, periodMs));
+        }, initialDelayMs, 0));
     }
 
 
@@ -84,6 +84,7 @@ public class Timer {
             if (lastTimeRan + waitTimeMs() > currentTime)
                 return false;
 
+            isFirstTime = false;
             lastTimeRan = currentTime;
 
             try {
@@ -99,7 +100,6 @@ public class Timer {
             if (!isFirstTime)
                 return periodMs;
 
-            isFirstTime = false;
             return initialDelayMs;
         }
 
