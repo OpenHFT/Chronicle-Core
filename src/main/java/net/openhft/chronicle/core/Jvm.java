@@ -301,7 +301,14 @@ public enum Jvm {
         return map;
     }
 
+    @Deprecated
     public static void setExceptionsHandlers(@Nullable ExceptionHandler fatal,
+                                             @Nullable ExceptionHandler warn,
+                                             @Nullable ExceptionHandler debug) {
+        setExceptionHandlers(fatal, warn, debug);
+    }
+
+    public static void setExceptionHandlers(@Nullable ExceptionHandler fatal,
                                              @Nullable ExceptionHandler warn,
                                              @Nullable ExceptionHandler debug) {
 

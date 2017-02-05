@@ -27,18 +27,20 @@ import java.time.LocalDateTime;
  * Created by Peter on 13/06/2016.
  */
 public enum PrintExceptionHandler implements ExceptionHandler {
-    WARN {
+    ERR {
         @Override
         public void on(@NotNull Class clazz, String message, Throwable thrown) {
             printLog(clazz, message, thrown, System.err);
         }
     },
-    DEBUG {
+    OUT {
         @Override
         public void on(@NotNull Class clazz, String message, Throwable thrown) {
             printLog(clazz, message, thrown, System.out);
         }
     };
+
+    public static final PrintExceptionHandler WARN = ERR, DEBUG = OUT;
 
     private static void printLog(@NotNull Class clazz, String message, @Nullable Throwable thrown, PrintStream stream) {
         synchronized (stream) {
