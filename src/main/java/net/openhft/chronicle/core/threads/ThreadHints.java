@@ -28,7 +28,7 @@ import static java.lang.invoke.MethodType.methodType;
  * {@link java.lang.Thread} class in some Java SE versions, but missing in prior
  * versions.
  */
-final class ThreadHints {
+public final class ThreadHints {
     private static final MethodHandle ON_SPIN_WAIT_METHOD_HANDLE;
 
     static {
