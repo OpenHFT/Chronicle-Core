@@ -22,6 +22,13 @@ import java.io.IOException;
 
 @FunctionalInterface
 public interface Closeable extends java.io.Closeable {
+
+    static void closeQuietly(Object... closables) {
+        for (Object o : closables) {
+            closeQuietly(o);
+        }
+    }
+
     static void closeQuietly(Object o) {
         if (o instanceof Object[]) {
             for (Object o2 : (Object[]) o) {
