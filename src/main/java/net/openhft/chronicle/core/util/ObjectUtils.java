@@ -77,6 +77,8 @@ public enum ObjectUtils {
             throw new IllegalArgumentException("interface: " + c.getName());
         if (Modifier.isAbstract(c.getModifiers()))
             throw new IllegalArgumentException("abstract class: " + c.getName());
+        if (c.isEnum())
+            throw new IllegalArgumentException("enum class: " + c.getName());
         try {
             Constructor constructor = c.getDeclaredConstructor();
             constructor.setAccessible(true);
