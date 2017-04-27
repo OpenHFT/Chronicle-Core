@@ -16,6 +16,7 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.util.ThrowingFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -309,34 +310,54 @@ public enum OS {
             throws IOException, IllegalArgumentException {
         if (isWindows() && size > 4L << 30)
             throw new IllegalArgumentException("Mapping more than 4096 MiB is unusable on Windows, size = " + (size >> 20) + " MiB");
+        return map0(fileChannel, imodeFor(mode), mapAlign(start), pageAlign(size));
+    }
+
+    private static Method getFileChannelMap0(@NotNull FileChannel fileChannel) {
         try {
-            return map0(fileChannel, imodeFor(mode), mapAlign(start), pageAlign(size));
-        } catch (@NotNull NoSuchMethodException | IllegalAccessException e) {
-            throw new AssertionError(e);
-        } catch (InvocationTargetException e) {
-            throw asAnIOException(e);
+            Method map0 = fileChannel.getClass().getDeclaredMethod("map0", int.class, long.class, long.class);
+            map0.setAccessible(true);
+            return map0;
+        } catch (NoSuchMethodException e) {
+            throw new AssertionError("Method map0 is not available", e);
         }
     }
 
-    static long map0(@NotNull FileChannel fileChannel, int imode, long start, long size)
-            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IllegalArgumentException {
-        Method map0 = fileChannel.getClass().getDeclaredMethod("map0", int.class, long.class, long.class);
-        map0.setAccessible(true);
-        final long invoke;
+    private static long invokeFileChannelMap0(Method map0, @NotNull FileChannel fileChannel, int imode, long start, long size,
+            ThrowingFunction<OutOfMemoryError, Long, IOException> errorHandler) throws IOException {
         try {
-            try {
-                invoke = (Long) map0.invoke(fileChannel, imode, start, size);
-            } catch (InvocationTargetException e) {
-                throw Jvm.rethrow(e.getCause());
+            return (Long) map0.invoke(fileChannel, imode, start, size);
+        } catch (IllegalAccessException e) {
+            throw new AssertionError("Method map0 is not accessible", e);
+        } catch (InvocationTargetException e) {
+            Throwable cause = e.getCause();
+            if (cause instanceof OutOfMemoryError) {
+                return errorHandler.apply((OutOfMemoryError) cause);
+            } else if (cause instanceof IOException) {
+                throw (IOException) cause;
+            } else {
+                throw new IOException(cause);
             }
-        } catch (OutOfMemoryError oome) {
-            if (oome.getMessage().startsWith("Map failed") && !is64Bit()) {
-                throw new OutOfMemoryError("Ran out of virtual memory on a 32-bit JVM, either use a 64-bit JVM or *reduce* your heap size");
-            }
-            throw oome;
         }
+    }
+
+    static long map0(@NotNull FileChannel fileChannel, int imode, long start, long size) throws IOException {
+        Method map0 = getFileChannelMap0(fileChannel);
+        final long address = invokeFileChannelMap0(map0, fileChannel, imode, start, size, oome1 -> {
+            System.gc();
+
+            try {
+                Thread.sleep(100L);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+
+            return invokeFileChannelMap0(map0, fileChannel, imode, start, size, oome2 -> {
+                throw new IOException("Map failed", oome2);
+            });
+        });
         memoryMapped.addAndGet(size);
-        return invoke;
+        return address;
     }
 
     public static void unmap(long address, long size) throws IOException {
