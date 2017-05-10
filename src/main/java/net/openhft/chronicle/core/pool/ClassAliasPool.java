@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ClassAliasPool implements ClassLookup {
     public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool(null).defaultAliases();
-    static final ThreadLocal<CAPKey> CAP_KEY_TL = ThreadLocal.withInitial(CAPKey::new);
+    static final ThreadLocal<CAPKey> CAP_KEY_TL = ThreadLocal.withInitial(() -> new CAPKey(null));
     private final ClassLookup parent;
     private final ClassLoader classLoader;
     private final Map<CAPKey, Class> stringClassMap = new ConcurrentHashMap<>();
@@ -182,9 +182,6 @@ public class ClassAliasPool implements ClassLookup {
 
     static class CAPKey implements CharSequence {
         CharSequence value;
-
-        CAPKey() {
-        }
 
         CAPKey(String name) {
             value = name;
