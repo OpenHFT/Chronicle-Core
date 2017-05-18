@@ -303,7 +303,7 @@ public enum Jvm {
     }
 
     public static boolean hasException(Map<ExceptionKey, Integer> exceptions) {
-        return exceptions.keySet().stream().anyMatch(k -> k.throwable != null);
+        return exceptions.keySet().stream().anyMatch(k -> k.throwable != null && k.level != LogLevel.DEBUG);
     }
 
     @Deprecated
