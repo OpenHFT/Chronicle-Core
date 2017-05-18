@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import sun.misc.VM;
 
 import java.lang.reflect.Field;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -289,16 +290,20 @@ public enum Jvm {
 
     @NotNull
     public static Map<ExceptionKey, Integer> recordExceptions() {
-        return recordExceptions(false);
+        return recordExceptions(true);
     }
 
     @NotNull
     public static Map<ExceptionKey, Integer> recordExceptions(boolean debug) {
-        @NotNull Map<ExceptionKey, Integer> map = new LinkedHashMap<>();
+        @NotNull Map<ExceptionKey, Integer> map = Collections.synchronizedMap(new LinkedHashMap<>());
         FATAL = new RecordingExceptionHandler(LogLevel.FATAL, map);
         WARN = new RecordingExceptionHandler(LogLevel.WARN, map);
         DEBUG = debug ? new RecordingExceptionHandler(LogLevel.DEBUG, map) : NullExceptionHandler.NOTHING;
         return map;
+    }
+
+    public static boolean hasException(Map<ExceptionKey, Integer> exceptions) {
+        return exceptions.keySet().stream().anyMatch(k -> k.throwable != null);
     }
 
     @Deprecated
@@ -348,6 +353,7 @@ public enum Jvm {
     }
 
     public static void dumpException(@NotNull Map<ExceptionKey, Integer> exceptions) {
+        System.out.println("exceptions: " + exceptions.size());
         for (@NotNull Map.Entry<ExceptionKey, Integer> entry : exceptions.entrySet()) {
             ExceptionKey key = entry.getKey();
             System.err.println(key.level + " " + key.clazz.getSimpleName() + " " + key.message);
