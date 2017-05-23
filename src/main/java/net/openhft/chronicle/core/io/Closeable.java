@@ -16,6 +16,7 @@
 
 package net.openhft.chronicle.core.io;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ import java.io.IOException;
 @FunctionalInterface
 public interface Closeable extends java.io.Closeable {
 
-    static void closeQuietly(Object... closables) {
+    static void closeQuietly(@NotNull Object... closables) {
         for (Object o : closables) {
             closeQuietly(o);
         }

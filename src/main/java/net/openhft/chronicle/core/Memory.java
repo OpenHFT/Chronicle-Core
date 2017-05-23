@@ -16,6 +16,8 @@
 
 package net.openhft.chronicle.core;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.reflect.Field;
 
 /**
@@ -169,11 +171,13 @@ public interface Memory {
 
     long addLong(Object object, long offset, long increment);
 
+    @NotNull
     <E> E allocateInstance(Class<E> clazz) throws InstantiationException;
 
     long getFieldOffset(Field field);
 
     void setInt(Object o, long offset, int value);
 
+    @NotNull
     <T> T getObject(Object o, long offset);
 }

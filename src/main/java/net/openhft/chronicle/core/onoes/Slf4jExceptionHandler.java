@@ -17,6 +17,7 @@
 
 package net.openhft.chronicle.core.onoes;
 
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 
 /**
@@ -25,20 +26,20 @@ import org.slf4j.LoggerFactory;
 public enum Slf4jExceptionHandler implements ExceptionHandler {
     FATAL {
         @Override
-        public void on(Class clazz, String message, Throwable thrown) {
+        public void on(@NotNull Class clazz, String message, Throwable thrown) {
             LoggerFactory.getLogger(clazz).error("FATAL error " + message, thrown);
             System.exit(-1);
         }
     },
     WARN {
         @Override
-        public void on(Class clazz, String message, Throwable thrown) {
+        public void on(@NotNull Class clazz, String message, Throwable thrown) {
             LoggerFactory.getLogger(clazz).warn(message, thrown);
         }
     },
     DEBUG {
         @Override
-        public void on(Class clazz, String message, Throwable thrown) {
+        public void on(@NotNull Class clazz, String message, Throwable thrown) {
             LoggerFactory.getLogger(clazz).debug(message, thrown);
         }
     }

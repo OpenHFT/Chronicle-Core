@@ -107,7 +107,7 @@ public class ClassAliasPool implements ClassLookup {
         return forName0(key);
     }
 
-    private synchronized Class forName0(CAPKey key) {
+    private synchronized Class forName0(@NotNull CAPKey key) {
         //noinspection SuspiciousMethodCalls
         Class clazz = stringClassMap2.get(key);
         if (clazz != null) return clazz;
@@ -197,11 +197,13 @@ public class ClassAliasPool implements ClassLookup {
             return value.charAt(index);
         }
 
+        @NotNull
         @Override
         public CharSequence subSequence(int start, int end) {
             throw new UnsupportedOperationException();
         }
 
+        @NotNull
         @Override
         public String toString() {
             return value.toString();

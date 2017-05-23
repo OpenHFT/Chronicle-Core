@@ -212,7 +212,7 @@ public enum Jvm {
      * @param name  of the field
      * @return the Field.
      */
-    public static Field getField(@NotNull Class clazz, String name) {
+    public static Field getField(@NotNull Class clazz, @NotNull String name) {
         try {
             Field field = clazz.getDeclaredField(name);
             field.setAccessible(true);
@@ -302,7 +302,7 @@ public enum Jvm {
         return map;
     }
 
-    public static boolean hasException(Map<ExceptionKey, Integer> exceptions) {
+    public static boolean hasException(@NotNull Map<ExceptionKey, Integer> exceptions) {
         return exceptions.keySet().stream().anyMatch(k -> k.throwable != null && k.level != LogLevel.DEBUG);
     }
 

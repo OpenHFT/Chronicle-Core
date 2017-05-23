@@ -269,6 +269,7 @@ public class Histogram implements NanoSampler {
                 p(toMicros.apply(percentile(1)));
     }
 
+    @NotNull
     private String p(double v) {
         return v < 0.1 ? String.format("%.3f", v) :
                 v < 1 ? String.format("%.2f", v) :

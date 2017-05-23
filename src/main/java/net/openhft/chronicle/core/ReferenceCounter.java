@@ -98,6 +98,7 @@ public class ReferenceCounter {
         return value.get();
     }
 
+    @NotNull
     public String toString() {
         return Long.toString(value.get());
     }

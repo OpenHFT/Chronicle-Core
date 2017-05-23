@@ -323,8 +323,8 @@ public enum OS {
         }
     }
 
-    private static long invokeFileChannelMap0(Method map0, @NotNull FileChannel fileChannel, int imode, long start, long size,
-            ThrowingFunction<OutOfMemoryError, Long, IOException> errorHandler) throws IOException {
+    private static long invokeFileChannelMap0(@NotNull Method map0, @NotNull FileChannel fileChannel, int imode, long start, long size,
+                                              @NotNull ThrowingFunction<OutOfMemoryError, Long, IOException> errorHandler) throws IOException {
         try {
             return (Long) map0.invoke(fileChannel, imode, start, size);
         } catch (IllegalAccessException e) {

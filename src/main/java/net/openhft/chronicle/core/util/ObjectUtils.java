@@ -312,7 +312,7 @@ public enum ObjectUtils {
     }
 
     @NotNull
-    public static <T> T newInstance(Class<T> clazz) {
+    public static <T> T newInstance(@NotNull Class<T> clazz) {
         Supplier cons = SUPPLIER_CLASS_LOCAL.get(clazz);
         return (T) cons.get();
     }
@@ -384,7 +384,7 @@ public enum ObjectUtils {
         return (tClass.getModifiers() & (Modifier.ABSTRACT | Modifier.INTERFACE)) == 0;
     }
 
-    public static Object readResolve(Object o) {
+    public static Object readResolve(@NotNull Object o) {
         Method readResove = READ_RESOLVE.get(o.getClass());
         if (readResove == null)
             return o;
