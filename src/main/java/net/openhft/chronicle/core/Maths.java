@@ -45,6 +45,21 @@ public enum Maths {
      * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
      * assumed you are not working on the edge of the precision of double.
      *
+     * @param d      value to round
+     * @param digits 0 to 18 digits of precision
+     * @return rounded value
+     */
+    public static double roundN(double d, int digits) {
+        final double factor = TENS[digits];
+        return d > WHOLE_NUMBER / factor || d < -WHOLE_NUMBER / factor ? d :
+                (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor;
+    }
+
+    /**
+     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
+     * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
+     * assumed you are not working on the edge of the precision of double.
+     *
      * @param d value to round
      * @return rounded value
      */
