@@ -24,7 +24,6 @@ import java.io.Serializable;
  * Created by peter on 23/06/15.
  */
 public interface ReadResolvable<T> {
-    @NotNull
     @SuppressWarnings("unchecked")
     static <T> T readResolve(Object o) {
         return (T) (o instanceof ReadResolvable
