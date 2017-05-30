@@ -120,7 +120,7 @@ public class JLBH implements NanoSampler {
                             Jvm.pause(millis);
                             long time0 = System.currentTimeMillis();
                             long oversleep = time0 - start0 - millis;
-                            if (oversleep > 1) {
+                            if (oversleep > 2) {
                                 System.out.println("Overslept for " + oversleep + " ms, resetting time for co-ordinated omission");
                                 startTimeNs = System.nanoTime();
                             }
