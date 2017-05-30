@@ -24,6 +24,7 @@ import sun.nio.ch.DirectBuffer;
 import sun.reflect.Reflection;
 
 import java.io.*;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -72,6 +73,30 @@ public enum IOTools {
         return dir.delete();
     }
 
+    public static URL urlFor(String name) throws FileNotFoundException {
+        ClassLoader classLoader;
+        try {
+            classLoader = Reflection.getCallerClass().getClassLoader();
+        } catch (Throwable e) {
+            classLoader = Thread.currentThread().getContextClassLoader();
+        }
+        URL url = classLoader.getResource(name);
+        if (url == null && name.startsWith("/"))
+            url = classLoader.getResource(name.substring(1));
+        if (url == null)
+            url = classLoader.getResource(name + ".gz");
+        if (url == null)
+            throw new FileNotFoundException(name);
+        return url;
+    }
+
+    public static InputStream open(URL url) throws IOException {
+        InputStream in = url.openStream();
+        if (url.getFile().endsWith(".gz"))
+            in = new GZIPInputStream(in);
+        return in;
+    }
+
     /**
      * This method first looks for the file in the classpath. If this is not found it
      * appends the suffix .gz and looks again in the classpath to see if it is present.
@@ -84,25 +109,13 @@ public enum IOTools {
      * @throws IOException FileNotFoundException thrown if file is not found
      */
     public static byte[] readFile(@NotNull String name) throws IOException {
-        ClassLoader classLoader;
-        try {
-            classLoader = Reflection.getCallerClass().getClassLoader();
-        } catch (Throwable e) {
-            classLoader = Thread.currentThread().getContextClassLoader();
-        }
-        InputStream is = classLoader.getResourceAsStream(name);
-        if (is == null)
-            is = classLoader.getResourceAsStream(name + ".gz");
-        if (is == null)
-            try {
-                is = new FileInputStream(name);
-            } catch (FileNotFoundException e) {
-                try {
-                    is = new GZIPInputStream(new FileInputStream(name + ".gz"));
-                } catch (FileNotFoundException e1) {
-                    throw e;
-                }
-            }
+        URL url = urlFor(name);
+        InputStream is = open(url);
+
+        return readAsBytes(is);
+    }
+
+    public static byte[] readAsBytes(InputStream is) throws IOException {
         @NotNull ByteArrayOutputStream out = new ByteArrayOutputStream(Math.min(512, is.available()));
         @NotNull byte[] bytes = new byte[1024];
         for (int len; (len = is.read(bytes)) > 0; )
