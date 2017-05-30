@@ -37,7 +37,7 @@ public enum SystemTimeProvider implements TimeProvider {
 
     public long currentTimeMicros() {
         long n0 = System.nanoTime();
-        long nowMS = System.currentTimeMillis() * 1000;
+        long nowMS = currentTimeMillis() * 1000;
         long nowUS = n0 / 1000;
         long estimate = nowUS + delta;
         if (estimate < nowMS) {

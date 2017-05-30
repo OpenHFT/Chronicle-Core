@@ -32,15 +32,22 @@ public class SystemTimeProviderTest {
         long minDiff = Long.MAX_VALUE;
         long maxDiff = Long.MIN_VALUE;
         while (System.currentTimeMillis() < start + 500) {
+            long now0 = tp.currentTimeMillis();
             long time2 = tp.currentTimeMicros();
-            long now = System.currentTimeMillis() * 1000;
+            long now1 = tp.currentTimeMillis();
+            if (now1 - now0 > 1) {
+                System.out.println("jump: " + (now1 - now0));
+                continue;
+            }
+
+            long now = now1 * 1000;
             long diff = time2 - now;
             if (minDiff > diff) minDiff = diff;
             if (maxDiff < diff) maxDiff = diff;
             Thread.yield();
         }
         System.out.println("minDiff: " + minDiff + ", maxDiff: " + maxDiff);
-        assertEquals(0, minDiff, 50);
+        assertEquals(-45, minDiff, 50);
         assertEquals(1000, maxDiff, 50);
     }
 }
