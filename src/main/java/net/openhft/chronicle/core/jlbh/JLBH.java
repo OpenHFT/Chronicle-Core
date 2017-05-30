@@ -41,9 +41,7 @@ public class JLBH implements NanoSampler {
     private static final Double[] NO_DOUBLES = {};
     private final SortedMap<String, Histogram> additionHistograms = new ConcurrentSkipListMap<>();
     // wait time between invocations in nanoseconds
-    private final long rate;
-    // wait time in full milli seconds
-    private final long waitTimeMillis;
+    private final long latencyBetweenTasks;
     @NotNull
     private final JLBHOptions jlbhOptions;
     @NotNull
@@ -62,17 +60,12 @@ public class JLBH implements NanoSampler {
     public JLBH(@NotNull JLBHOptions jlbhOptions) {
         this.jlbhOptions = jlbhOptions;
         if (jlbhOptions.jlbhTask == null) throw new IllegalStateException("jlbhTask must be set");
-        rate = jlbhOptions.throughputTimeUnit.toNanos(1) / jlbhOptions.throughput;
-        // we consider 2 ms the threshold where we use a mixed strategy and sleep for rate - 1 ms and busy wait for the rest of the time
-        if (rate > TimeUnit.MILLISECONDS.toNanos(2)) {
-            waitTimeMillis = TimeUnit.NANOSECONDS.toMillis(rate - TimeUnit.MILLISECONDS.toNanos(1));
-        } else {
-            waitTimeMillis = 0;
-        }
+        latencyBetweenTasks = jlbhOptions.throughputTimeUnit.toNanos(1) / jlbhOptions.throughput;
     }
 
     /**
      * Add a probe to measure a section of the benchmark.
+     *
      * @param name Name of probe
      * @return NanoSampler
      */
@@ -112,27 +105,36 @@ public class JLBH implements NanoSampler {
                             System.out.println("Complete: " + noResultsReturned);
                         }
                         System.out.println("Warm up complete (" + jlbhOptions.warmUpIterations + " iterations took " +
-                                ((System.currentTimeMillis()-warmupStart)/1000.0) + "s)");
-                        if(jlbhOptions.pauseAfterWarmupMS!=0){
+                                ((System.currentTimeMillis() - warmupStart) / 1000.0) + "s)");
+                        if (jlbhOptions.pauseAfterWarmupMS != 0) {
                             System.out.println("Pausing after warmup for " + jlbhOptions.pauseAfterWarmupMS + "ms");
                             Jvm.pause(jlbhOptions.pauseAfterWarmupMS);
                         }
                         runStart = System.currentTimeMillis();
                         startTimeNs = System.nanoTime();
                     } else if (jlbhOptions.accountForCoordinatedOmission) {
-                        startTimeNs += rate;
-                        if (waitTimeMillis > 0) {
-                            Jvm.pause(waitTimeMillis);
+                        startTimeNs += latencyBetweenTasks;
+                        long millis = (startTimeNs - System.nanoTime()) / 1000000 - 2;
+                        if (millis > 0) {
+                            long start0 = System.currentTimeMillis();
+                            Jvm.pause(millis);
+                            long time0 = System.currentTimeMillis();
+                            long oversleep = time0 - start0 - millis;
+                            if (oversleep > 1) {
+                                System.out.println("Overslept for " + oversleep + " ms, resetting time for co-ordinated omission");
+                                startTimeNs = System.nanoTime();
+                            }
                         }
                         Jvm.busyWaitUntil(startTimeNs);
+
                     } else {
-                        if (waitTimeMillis > 0) {
-                            long end = System.nanoTime() + rate;
-                            Jvm.pause(waitTimeMillis);
+                        if (latencyBetweenTasks > 2e6) {
+                            long end = System.nanoTime() + latencyBetweenTasks;
+                            Jvm.pause(latencyBetweenTasks / 1_000_000 - 1);
                             // account for jitter in Thread.sleep() and wait until a fixed point in time
                             Jvm.busyWaitUntil(end);
                         } else {
-                            Jvm.busyWaitMicros(rate / 1000);
+                            Jvm.busyWaitMicros(latencyBetweenTasks / 1000);
                         }
                         startTimeNs = System.nanoTime();
                     }
@@ -143,14 +145,14 @@ public class JLBH implements NanoSampler {
                 while (endToEndHistogram.totalCount() < jlbhOptions.iterations) {
                     Thread.yield();
                 }
-                long totalRunTime = System.currentTimeMillis()-runStart;
+                long totalRunTime = System.currentTimeMillis() - runStart;
 
                 percentileRuns.add(endToEndHistogram.getPercentiles());
 
                 System.out.println("-------------------------------- BENCHMARK RESULTS (RUN " + (run + 1) + ") --------------------------------------------------------");
-                System.out.println("Run time: " + totalRunTime/1000.0 + "s");
+                System.out.println("Run time: " + totalRunTime / 1000.0 + "s");
                 System.out.println("Correcting for co-ordinated:" + jlbhOptions.accountForCoordinatedOmission);
-                System.out.println("Target throughput:" + jlbhOptions.throughput + "/" + timeUnitToString(jlbhOptions.throughputTimeUnit ) + " = 1 message every " + (rate / 1000) + "us");
+                System.out.println("Target throughput:" + jlbhOptions.throughput + "/" + timeUnitToString(jlbhOptions.throughputTimeUnit) + " = 1 message every " + (latencyBetweenTasks / 1000) + "us");
                 System.out.printf("%-48s", String.format("End to End: (%,d)", endToEndHistogram.totalCount()));
                 System.out.println(endToEndHistogram.toMicrosFormat());
 
@@ -195,9 +197,9 @@ public class JLBH implements NanoSampler {
         int length = percentileRuns.get(0).length;
         for (int i = 0; i < length; i++) {
             boolean skipFirst = length > 3;
-            if(jlbhOptions.skipFirstRun== JLBHOptions.SKIP_FIRST_RUN.SKIP) {
+            if (jlbhOptions.skipFirstRun == JLBHOptions.SKIP_FIRST_RUN.SKIP) {
                 skipFirst = true;
-            }else if(jlbhOptions.skipFirstRun== JLBHOptions.SKIP_FIRST_RUN.NO_SKIP){
+            } else if (jlbhOptions.skipFirstRun == JLBHOptions.SKIP_FIRST_RUN.NO_SKIP) {
                 skipFirst = false;
             }
             for (double[] percentileRun : percentileRuns) {
@@ -235,9 +237,9 @@ public class JLBH implements NanoSampler {
         addPrToPrint(sb, "99:     ", jlbhOptions.runs);
         addPrToPrint(sb, "99.9:   ", jlbhOptions.runs);
         addPrToPrint(sb, "99.99:  ", jlbhOptions.runs);
-        if(jlbhOptions.iterations > 1_000_000)
+        if (jlbhOptions.iterations > 1_000_000)
             addPrToPrint(sb, "99.999: ", jlbhOptions.runs);
-        if(jlbhOptions.iterations > 10_000_000)
+        if (jlbhOptions.iterations > 10_000_000)
             addPrToPrint(sb, "99.9999:", jlbhOptions.runs);
         addPrToPrint(sb, "worst:  ", jlbhOptions.runs);
 
@@ -316,7 +318,7 @@ public class JLBH implements NanoSampler {
             // make sure this thread is not bound by its parent.
             Affinity.setAffinity(AffinityLock.BASE_AFFINITY);
             @Nullable AffinityLock affinityLock = null;
-            if(jlbhOptions.jitterAffinity){
+            if (jlbhOptions.jitterAffinity) {
                 System.out.println("Jitter thread running with affinity.");
                 affinityLock = AffinityLock.acquireLock();
             }
@@ -335,8 +337,8 @@ public class JLBH implements NanoSampler {
                     }
                     lastTime = time;
                 }
-            }finally{
-                if(affinityLock!=null)
+            } finally {
+                if (affinityLock != null)
                     affinityLock.release();
             }
         }
