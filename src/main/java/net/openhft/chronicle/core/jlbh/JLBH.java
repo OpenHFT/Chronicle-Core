@@ -116,14 +116,7 @@ public class JLBH implements NanoSampler {
                         startTimeNs += latencyBetweenTasks;
                         long millis = (startTimeNs - System.nanoTime()) / 1000000 - 2;
                         if (millis > 0) {
-                            long start0 = System.currentTimeMillis();
                             Jvm.pause(millis);
-                            long time0 = System.currentTimeMillis();
-                            long oversleep = time0 - start0 - millis;
-                            if (oversleep > 2) {
-                                System.out.println("Overslept for " + oversleep + " ms, resetting time for co-ordinated omission");
-                                startTimeNs = System.nanoTime();
-                            }
                         }
                         Jvm.busyWaitUntil(startTimeNs);
 
