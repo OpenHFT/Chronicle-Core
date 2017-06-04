@@ -159,8 +159,19 @@ public enum ObjectUtils {
     @NotNull
     public static <E extends Enum<E>> E valueOfIgnoreCase(@NotNull Class<E> eClass, @NotNull String name) {
         final Map<String, Enum> map = CASE_IGNORE_LOOKUP.get(eClass);
+        if (name.startsWith("{") && name.endsWith("}"))
+            return getSingletonForEnum(eClass);
         @NotNull final E anEnum = (E) map.get(name);
         return anEnum == null ? Enum.valueOf(eClass, name) : anEnum;
+    }
+
+    public static <E extends Enum<E>> E getSingletonForEnum(Class<E> eClass) {
+        E[] enumConstants = eClass.getEnumConstants();
+        if (enumConstants.length == 0)
+            throw new IllegalStateException("Cannot convert marshallable to " + eClass + " as it doesn't have any instances");
+        if (enumConstants.length > 1)
+            Jvm.warn().on(ObjectUtils.class, eClass + " has multiple INSTANCEs, picking the first one");
+        return enumConstants[0];
     }
 
     static <E> E convertTo0(Class<E> eClass, @Nullable Object o)
