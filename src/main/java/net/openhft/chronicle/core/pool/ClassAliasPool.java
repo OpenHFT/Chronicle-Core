@@ -43,7 +43,7 @@ public class ClassAliasPool implements ClassLookup {
 
     ClassAliasPool(ClassLookup parent) {
         this.parent = parent;
-        this.classLoader = Thread.currentThread().getContextClassLoader();
+        this.classLoader = getClass().getClassLoader();
     }
 
     @NotNull
