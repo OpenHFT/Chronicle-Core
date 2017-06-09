@@ -342,7 +342,7 @@ public enum ObjectUtils {
         return interfaces;
     }
 
-    public static boolean matchingClass(Class base, Class toMatch) {
+    public static boolean matchingClass(@NotNull Class base, @NotNull Class toMatch) {
         return base == toMatch ||
                 Enum.class.isAssignableFrom(toMatch) && base.equals(toMatch.getEnclosingClass());
     }
