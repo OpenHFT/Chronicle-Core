@@ -113,7 +113,6 @@ public enum OS {
         return new File(dir, path[path.length - 1]);
     }
 
-
     public static String getHostName() {
         return HOST_NAME;
     }
