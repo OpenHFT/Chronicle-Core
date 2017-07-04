@@ -16,12 +16,18 @@
 
 package net.openhft.chronicle.core;
 
-import net.openhft.chronicle.core.onoes.*;
+import net.openhft.chronicle.core.onoes.ExceptionHandler;
+import net.openhft.chronicle.core.onoes.ExceptionKey;
+import net.openhft.chronicle.core.onoes.LogLevel;
+import net.openhft.chronicle.core.onoes.NullExceptionHandler;
+import net.openhft.chronicle.core.onoes.RecordingExceptionHandler;
+import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import sun.misc.VM;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -56,6 +62,8 @@ public enum Jvm {
     private static ExceptionHandler WARN = Slf4jExceptionHandler.WARN;
     @NotNull
     private static ExceptionHandler DEBUG = Slf4jExceptionHandler.DEBUG;
+    private static final long MAX_DIRECT_MEMORY = maxDirectMemory0();
+    private static final int JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
 
     static {
         try {
@@ -86,6 +94,10 @@ public enum Jvm {
 
     public static int compileThreshold() {
         return COMPILE_THRESHOLD;
+    }
+
+    public static int getMajorVersion() {
+        return JVM_JAVA_MAJOR_VERSION;
     }
 
     private static boolean is64bit0() {
@@ -275,7 +287,7 @@ public enum Jvm {
     }
 
     public static long maxDirectMemory() {
-        return VM.maxDirectMemory();
+        return MAX_DIRECT_MEMORY;
     }
 
     public static boolean is64bit() {
@@ -391,5 +403,31 @@ public enum Jvm {
         };
 
         public abstract long usedDirectMemory();
+    }
+
+    private static long maxDirectMemory0() {
+        try {
+            Class<?> clz = Class.forName("sun.misc.VM");
+            final Method method = clz.getDeclaredMethod("maxDirectMemory");
+            return ((Long) method.invoke(null)).longValue();
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            // ignore
+        }
+        System.err.println(Jvm.class.getName() + ": Unable to determine max direct memory");
+        return 0L;
+    }
+
+    private static int getMajorVersion0() {
+        try {
+            final Method method = Runtime.class.getDeclaredMethod("version");
+            if (method != null) {
+                final Object version = method.invoke(Runtime.getRuntime());
+                final Class<?> clz = Class.forName("java.lang.Runtime$Version");
+                return ((Integer) clz.getDeclaredMethod("major").invoke(version)).intValue();
+            }
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
+            // ignore and fall back to pre-jdk9
+        }
+        return Integer.parseInt(Runtime.class.getPackage().getSpecificationVersion().split("\\.")[1]);
     }
 }

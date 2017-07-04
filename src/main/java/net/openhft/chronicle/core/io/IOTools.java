@@ -19,11 +19,18 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import sun.misc.Cleaner;
 import sun.nio.ch.DirectBuffer;
-import sun.reflect.Reflection;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
@@ -38,6 +45,35 @@ import java.util.zip.GZIPOutputStream;
  */
 public enum IOTools {
     ;
+
+    private static MethodHandle DIRECT_BUFFER_CLEANER_METHOD_HANDLE;
+    private static MethodHandle CLEANER_CLEAN_METHOD_HANDLE;
+    private static MethodHandle GET_CALLER_CLASS_METHOD_HANDLE;
+
+    static {
+        final Class<?> cleanerClass;
+        try {
+            final MethodHandles.Lookup lookup = MethodHandles.lookup();
+            if (Jvm.getMajorVersion() > 8) {
+                cleanerClass = Class.forName("jdk.internal.ref.Cleaner");
+                GET_CALLER_CLASS_METHOD_HANDLE = lookup.
+                        findStatic(Class.forName("jdk.internal.reflect.Reflection"), "getCallerClass",
+                                MethodType.methodType(Class.class, int.class));
+            } else {
+                cleanerClass = Class.forName("sun.misc.Cleaner");
+                GET_CALLER_CLASS_METHOD_HANDLE = lookup.
+                        findStatic(Class.forName("sun.reflect.Reflection"), "getCallerClass",
+                                MethodType.methodType(Class.class));
+            }
+
+            DIRECT_BUFFER_CLEANER_METHOD_HANDLE = lookup.findVirtual(DirectBuffer.class, "cleaner",
+                    MethodType.methodType(cleanerClass));
+            CLEANER_CLEAN_METHOD_HANDLE = lookup.findVirtual(cleanerClass, "clean",
+                    MethodType.methodType(Void.class));
+        } catch (NoSuchMethodException | IllegalAccessException | ClassNotFoundException e) {
+            Jvm.warn().on(IOTools.class, "Failed to load method handles for JDK 9 compatibility", e);
+        }
+    }
 
     public static boolean shallowDeleteDirWithFiles(@NotNull String directory) throws IORuntimeException {
         return shallowDeleteDirWithFiles(new File(directory));
@@ -76,7 +112,11 @@ public enum IOTools {
     public static URL urlFor(String name) throws FileNotFoundException {
         ClassLoader classLoader;
         try {
-            classLoader = Reflection.getCallerClass().getClassLoader();
+            if (Jvm.getMajorVersion() > 8) {
+                classLoader = ((Class) GET_CALLER_CLASS_METHOD_HANDLE.invoke(1)).getClassLoader();
+            } else {
+                classLoader = ((Class) GET_CALLER_CLASS_METHOD_HANDLE.invoke(null)).getClassLoader();
+            }
         } catch (Throwable e) {
             classLoader = Thread.currentThread().getContextClassLoader();
         }
@@ -141,10 +181,19 @@ public enum IOTools {
     }
 
     public static void clean(ByteBuffer bb) {
-        if (bb instanceof DirectBuffer) {
-            Cleaner cl = ((DirectBuffer) bb).cleaner();
-            if (cl != null)
-                cl.clean();
+        if (bb instanceof DirectBuffer &&
+                DIRECT_BUFFER_CLEANER_METHOD_HANDLE != null &&
+                CLEANER_CLEAN_METHOD_HANDLE != null) {
+            try {
+                final Object cleaner = DIRECT_BUFFER_CLEANER_METHOD_HANDLE.invoke((DirectBuffer) bb);
+
+
+                if (cleaner != null) {
+                    CLEANER_CLEAN_METHOD_HANDLE.invoke(cleaner);
+                }
+            } catch (Throwable t) {
+                Jvm.warn().on(IOTools.class, "Failed to invoke cleaner on DirectBuffer", t);
+            }
         }
     }
 }

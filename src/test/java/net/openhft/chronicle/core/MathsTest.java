@@ -22,6 +22,7 @@ import net.openhft.chronicle.core.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -182,6 +183,7 @@ public class MathsTest {
 
     @Test
     public void testHashStringBuilderFromInterner() throws Exception {
+        Assume.assumeTrue(Jvm.getMajorVersion() < 9);
         @NotNull StringInterner interner = new StringInterner(16);
 
         @NotNull final CharSequence csToHash = "557";

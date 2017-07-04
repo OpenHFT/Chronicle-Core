@@ -31,6 +31,13 @@
     <description>Chronicle-Core</description>
     <packaging>bundle</packaging>
 
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <compiler.argument>-Xlint:deprecation</compiler.argument>
+    </properties>
+
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -103,12 +110,20 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.1</version>
                 <configuration>
-                    <compilerArgument>-Xlint:deprecation</compilerArgument>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <compilerArgument>${compiler.argument}</compilerArgument>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jdeps-plugin</artifactId>
+                <version>3.0.0</version>
+            </plugin>
+
             <!--
                 generate maven dependencies versions file that can be used later
                 to install the right bundle in test phase.
@@ -132,6 +147,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+                <version>3.3.0</version>
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
@@ -179,6 +195,18 @@
             </releases>
         </repository>
     </repositories>
+
+    <profiles>
+        <profile>
+            <id>java9</id>
+            <properties>
+                <maven.compiler.source>1.9</maven.compiler.source>
+                <maven.compiler.target>1.9</maven.compiler.target>
+                <compiler.argument>--add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-exports java.base/sun.nio.ch=ALL-UNNAMED --add-exports java.unsupported/sun.misc=ALL-UNNAMED</compiler.argument>
+            </properties>
+        </profile>
+    </profiles>
+
 
     <scm>
         <url>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</url>
