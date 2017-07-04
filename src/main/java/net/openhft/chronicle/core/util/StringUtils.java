@@ -16,6 +16,7 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.annotation.ForceInline;
 import org.jetbrains.annotations.NotNull;
@@ -122,10 +123,38 @@ public enum StringUtils {
     }
 
     public static char[] extractChars(StringBuilder sb) {
+        if (Jvm.getMajorVersion() > 8) {
+            final Object data = OS.memory().getObject(sb, SB_VALUE_OFFSET);
+            if (data instanceof byte[]) {
+                final byte[] dataBytes = (byte[]) data;
+                final char[] copy = new char[sb.length()];
+                for (int i = 0; i < copy.length; i++) {
+                    copy[i] = (char) dataBytes[i];
+                }
+
+                return copy;
+            }
+
+            return (char[]) data;
+        }
         return OS.memory().getObject(sb, SB_VALUE_OFFSET);
     }
 
     public static char[] extractChars(String s) {
+        if (Jvm.getMajorVersion() > 8) {
+            final Object data = OS.memory().getObject(s, S_VALUE_OFFSET);
+            if (data instanceof byte[]) {
+                final byte[] dataBytes = (byte[]) data;
+                final char[] copy = new char[dataBytes.length];
+                for (int i = 0; i < dataBytes.length; i++) {
+                    copy[i] = (char) dataBytes[i];
+                }
+
+                return copy;
+            }
+
+            return (char[]) data;
+        }
         return OS.memory().getObject(s, S_VALUE_OFFSET);
     }
 

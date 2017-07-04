@@ -22,7 +22,6 @@ import net.openhft.chronicle.core.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.After;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -32,7 +31,13 @@ import java.security.SecureRandom;
 import java.util.Random;
 import java.util.stream.DoubleStream;
 
-import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * User: peter.lawrey
@@ -182,8 +187,21 @@ public class MathsTest {
     }
 
     @Test
+    public void shouldGetCharsOfStringBuilder() throws Exception {
+        final StringBuilder sb = new StringBuilder("foobar_nine");
+        final char[] chars = StringUtils.extractChars(sb);
+        assertThat(new String(chars), equalTo(sb.toString()));
+    }
+
+    @Test
+    public void shouldGetCharsOfString() throws Exception {
+        final String s = "foobar_nine";
+        final char[] chars = StringUtils.extractChars(s);
+        assertThat(new String(chars), equalTo(s));
+    }
+
+    @Test
     public void testHashStringBuilderFromInterner() throws Exception {
-        Assume.assumeTrue(Jvm.getMajorVersion() < 9);
         @NotNull StringInterner interner = new StringInterner(16);
 
         @NotNull final CharSequence csToHash = "557";
