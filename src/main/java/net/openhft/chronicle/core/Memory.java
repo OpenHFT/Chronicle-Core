@@ -176,6 +176,8 @@ public interface Memory {
 
     long getFieldOffset(Field field);
 
+    /** @deprecated Redundant to {@link #writeInt(Object,long,int)}. */
+    @Deprecated
     void setInt(Object o, long offset, int value);
 
     @NotNull
