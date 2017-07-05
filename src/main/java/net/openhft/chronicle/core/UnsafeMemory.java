@@ -74,6 +74,7 @@ public enum UnsafeMemory implements Memory {
     }
 
     @NotNull
+    @Override
     public <E> E allocateInstance(Class<E> clazz) throws InstantiationException {
         @NotNull @SuppressWarnings("unchecked")
         E e = (E) UNSAFE.allocateInstance(clazz);
