@@ -57,6 +57,11 @@ public enum Mocker {
 
     @NotNull
     public static <T> T intercepting(@NotNull Class<T> tClass, String description, @NotNull Consumer<String> consumer) {
+        return intercepting(tClass, description, consumer, null);
+    }
+
+    @NotNull
+    public static <T> T intercepting(@NotNull Class<T> tClass, String description, @NotNull Consumer<String> consumer, T t) {
         //noinspection unchecked
         return (T) Proxy.newProxyInstance(tClass.getClassLoader(), new Class[]{tClass}, new InvocationHandler() {
             @Nullable
@@ -65,6 +70,8 @@ public enum Mocker {
                 if (method.getDeclaringClass() == Object.class)
                     return method.invoke(this, args);
                 consumer.accept(description + method.getName() + (args == null ? "()" : Arrays.toString(args)));
+                if (t != null)
+                    method.invoke(t, args);
                 return null;
             }
         });
