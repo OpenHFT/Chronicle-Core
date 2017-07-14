@@ -24,6 +24,8 @@ import org.slf4j.LoggerFactory;
 import sun.nio.ch.FileChannelImpl;
 
 import java.io.*;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
@@ -62,6 +64,8 @@ public enum OS {
     private static final Method UNMAPP0;
     private static final AtomicLong memoryMapped = new AtomicLong();
 
+    private static MethodHandle UNMAPP0_MH;
+
     /**
      * Unmap a region of memory.
      *
@@ -73,7 +77,10 @@ public enum OS {
         try {
             UNMAPP0 = FileChannelImpl.class.getDeclaredMethod("unmap0", long.class, long.class);
             UNMAPP0.setAccessible(true);
+            UNMAPP0_MH = MethodHandles.lookup().unreflect(UNMAPP0);
         } catch (NoSuchMethodException e) {
+            throw new AssertionError(e);
+        } catch (IllegalAccessException e) {
             throw new AssertionError(e);
         }
     }
@@ -112,7 +119,6 @@ public enum OS {
         }
         return new File(dir, path[path.length - 1]);
     }
-
 
     public static String getHostName() {
         return HOST_NAME;
@@ -313,36 +319,38 @@ public enum OS {
         return map0(fileChannel, imodeFor(mode), mapAlign(start), pageAlign(size));
     }
 
-    private static Method getFileChannelMap0(@NotNull FileChannel fileChannel) {
+    static final ClassLocal<MethodHandle> MAP0_MH = ClassLocal.withInitial(c -> {
         try {
-            Method map0 = fileChannel.getClass().getDeclaredMethod("map0", int.class, long.class, long.class);
+            Method map0 = c.getDeclaredMethod("map0", int.class, long.class, long.class);
             map0.setAccessible(true);
-            return map0;
+            return MethodHandles.lookup().unreflect(map0);
         } catch (NoSuchMethodException e) {
             throw new AssertionError("Method map0 is not available", e);
+        } catch (IllegalAccessException e) {
+            throw new AssertionError(e);
         }
-    }
+    });
 
-    private static long invokeFileChannelMap0(@NotNull Method map0, @NotNull FileChannel fileChannel, int imode, long start, long size,
+
+    private static long invokeFileChannelMap0(@NotNull MethodHandle map0, @NotNull FileChannel fileChannel, int imode, long start, long size,
                                               @NotNull ThrowingFunction<OutOfMemoryError, Long, IOException> errorHandler) throws IOException {
         try {
-            return (Long) map0.invoke(fileChannel, imode, start, size);
+            return (long) map0.invokeExact((FileChannelImpl) fileChannel, imode, start, size);
         } catch (IllegalAccessException e) {
             throw new AssertionError("Method map0 is not accessible", e);
-        } catch (InvocationTargetException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof OutOfMemoryError) {
-                return errorHandler.apply((OutOfMemoryError) cause);
-            } else if (cause instanceof IOException) {
-                throw (IOException) cause;
+        } catch (Throwable e) {
+            if (e instanceof OutOfMemoryError) {
+                return errorHandler.apply((OutOfMemoryError) e);
+            } else if (e instanceof IOException) {
+                throw (IOException) e;
             } else {
-                throw new IOException(cause);
+                throw new IOException(e);
             }
         }
     }
 
     static long map0(@NotNull FileChannel fileChannel, int imode, long start, long size) throws IOException {
-        Method map0 = getFileChannelMap0(fileChannel);
+        MethodHandle map0 = MAP0_MH.computeValue(fileChannel.getClass());
         final long address = invokeFileChannelMap0(map0, fileChannel, imode, start, size, oome1 -> {
             System.gc();
 
@@ -363,9 +371,9 @@ public enum OS {
     public static void unmap(long address, long size) throws IOException {
         try {
             final long size2 = pageAlign(size);
-            UNMAPP0.invoke(null, address, size2);
+            int n = (int) UNMAPP0_MH.invokeExact(address, size2);
             memoryMapped.addAndGet(-size2);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw asAnIOException(e);
         }
     }
