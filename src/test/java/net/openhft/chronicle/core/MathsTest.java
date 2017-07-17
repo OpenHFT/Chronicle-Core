@@ -39,8 +39,90 @@ import static org.junit.Assert.*;
  * Time: 10:31
  */
 public class MathsTest {
-
     private ThreadDump threadDump;
+
+    @Test
+    public void roundN() throws Exception {
+        assertEquals(1, Maths.roundN(1 + 0.4999999, 0), 0.0);
+        assertEquals(2.0, Maths.roundN(1 + 0.5, 0), 0.0);
+        assertEquals(1, Maths.roundN(1 + 0.24999999, 0.5), 0.0);
+        assertEquals(1.5, Maths.roundN(1 + 0.25, 0.5), 0.0);
+        assertEquals(1.1, Maths.roundN(1.1 + 0.4999999e-1, 1), 0.0);
+        assertEquals(1.2, Maths.roundN(1.1 + 0.5e-1, 1), 0.0);
+
+        assertEquals(1.11115, Maths.roundN(1.1111 + 0.74999999e-4, 4.5), 0.0);
+        assertEquals(1.1112, Maths.roundN(1.1111 + 0.75e-4, 4.5), 0.0);
+    }
+
+    @Test
+    public void ceilN() throws Exception {
+        assertEquals(2, Maths.ceilN(2, 0), 0.0);
+        assertEquals(2, Maths.ceilN(Math.nextUp(1), 0), 0.0);
+        assertEquals(1.5, Maths.ceilN(1.5, 0.5), 0.0);
+        assertEquals(2, Maths.ceilN(Math.nextUp(1.5), 0.5), 0.0);
+        assertEquals(1.2, Maths.ceilN(1.2, 1), 0.0);
+        assertEquals(1.2, Maths.ceilN(Math.nextUp(1.1), 1), 0.0);
+    }
+
+    @Test
+    public void floorN() throws Exception {
+        assertEquals(1, Maths.floorN(Math.nextDown(2), 0), 0.0);
+        assertEquals(2.0, Maths.floorN(2, 0), 0.0);
+        assertEquals(1, Maths.floorN(Math.nextDown(1.5), 0.5), 0.0);
+        assertEquals(1.5, Maths.floorN(1.5, 0.5), 0.0);
+        assertEquals(1.1, Maths.floorN(Math.nextDown(1.2), 1), 0.0);
+        assertEquals(1.2, Maths.floorN(1.2, 1), 0.0);
+    }
+
+    @Test
+    public void round1() throws Exception {
+        assertEquals(1.1, Maths.round1(1.1 + 0.4999999e-1), 0.0);
+        assertEquals(1.2, Maths.round1(1.1 + 0.5e-1), 0.0);
+    }
+
+    @Test
+    public void round2() throws Exception {
+        assertEquals(1.1, Maths.round2(1.1 + 0.4999999e-2), 0.0);
+        assertEquals(1.1 + 1e-2, Maths.round2(1.1 + 0.5e-2), 0.0);
+    }
+
+    @Test
+    public void round3() throws Exception {
+        assertEquals(1.1, Maths.round3(1.1 + 0.4999999e-3), 0.0);
+        assertEquals(1.1 + 1e-3, Maths.round3(1.1 + 0.5e-3), 0.0);
+    }
+
+    @Test
+    public void round4() throws Exception {
+        assertEquals(1.1, Maths.round4(1.1 + 0.4999999e-4), 0.0);
+        assertEquals(1.1 + 1e-4, Maths.round4(1.1 + 0.5e-4), 0.0);
+    }
+
+    @Test
+    public void round5() throws Exception {
+        assertEquals(1.1, Maths.round5(1.1 + 0.4999999e-5), 0.0);
+        assertEquals(1.10001, Maths.round5(1.1 + 0.5e-5), 0.0);
+    }
+
+    @Test
+    public void round6() throws Exception {
+        assertEquals(1.1, Maths.round6(1.1 + 0.4999999e-6), 0.0);
+        assertEquals(1.1 + 1e-6, Maths.round6(1.1 + 0.5e-6), 0.0);
+    }
+
+    @Test
+    public void round7() throws Exception {
+        assertEquals(1.1, Maths.round7(1.1 + 0.4999999e-7), 0.0);
+        assertEquals(1.1000001, Maths.round7(1.1 + 0.5e-7), 0.0);
+    }
+
+    @Test
+    public void round8() throws Exception {
+        assertEquals(1, Maths.round8(1), 0.0);
+        assertEquals(1.1, Maths.round8(1.1 + 0.4999999e-8), 0.0);
+        assertEquals(1.1 + 1e-8, Maths.round8(1.1 + 0.5e-8), 0.0);
+        assertEquals((double) Long.MAX_VALUE, Maths.round8(Long.MAX_VALUE), 0.0);
+    }
 
     @Before
     public void threadDump() {

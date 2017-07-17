@@ -55,6 +55,49 @@ public enum Maths {
                 (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor;
     }
 
+
+    public static double ceilN(double d, int digits) {
+        final double factor = TENS[digits];
+        return d > WHOLE_NUMBER / factor || d < -WHOLE_NUMBER / factor ? d :
+                Math.ceil(d * factor) / factor;
+    }
+
+    public static double floorN(double d, int digits) {
+        final double factor = TENS[digits];
+        return d > WHOLE_NUMBER / factor || d < -WHOLE_NUMBER / factor ? d :
+                Math.floor(d * factor) / factor;
+    }
+
+    public static double roundN(double d, double digits) {
+        int digits2 = (int) digits;
+        double fract = digits - digits2;
+        if (fract == 0.0)
+            return roundN(d, digits2);
+        if (fract == 0.5)
+            return roundN(d * 2, digits2) / 2;
+        throw new IllegalArgumentException("digits= " + digits);
+    }
+
+    public static double ceilN(double d, double digits) {
+        int digits2 = (int) digits;
+        double fract = digits - digits2;
+        if (fract == 0.0)
+            return ceilN(d, digits2);
+        if (fract == 0.5)
+            return ceilN(d * 2, digits2) / 2;
+        throw new IllegalArgumentException("digits= " + digits);
+    }
+
+    public static double floorN(double d, double digits) {
+        int digits2 = (int) digits;
+        double fract = digits - digits2;
+        if (fract == 0.0)
+            return floorN(d, digits2);
+        if (fract == 0.5)
+            return floorN(d * 2, digits2) / 2;
+        throw new IllegalArgumentException("digits= " + digits);
+    }
+
     /**
      * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
      * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
