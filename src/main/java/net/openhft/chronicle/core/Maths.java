@@ -57,15 +57,17 @@ public enum Maths {
 
 
     public static double ceilN(double d, int digits) {
-        final double factor = TENS[digits];
+        final double factor = TENS[digits + 8];
+        final double factor2 = TENS[digits];
         return d > WHOLE_NUMBER / factor || d < -WHOLE_NUMBER / factor ? d :
-                Math.ceil(d * factor) / factor;
+                Math.ceil(Math.round(d * factor) / 1e8) / factor2;
     }
 
     public static double floorN(double d, int digits) {
-        final double factor = TENS[digits];
+        final double factor = TENS[digits + 8];
+        final double factor2 = TENS[digits];
         return d > WHOLE_NUMBER / factor || d < -WHOLE_NUMBER / factor ? d :
-                Math.floor(d * factor) / factor;
+                Math.floor(Math.round(d * factor) / 1e8) / factor2;
     }
 
     public static double roundN(double d, double digits) {

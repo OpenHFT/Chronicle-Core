@@ -39,6 +39,7 @@ import static org.junit.Assert.*;
  * Time: 10:31
  */
 public class MathsTest {
+    static final double err = 5.1e-9;
     private ThreadDump threadDump;
 
     @Test
@@ -57,20 +58,20 @@ public class MathsTest {
     @Test
     public void ceilN() throws Exception {
         assertEquals(2, Maths.ceilN(2, 0), 0.0);
-        assertEquals(2, Maths.ceilN(Math.nextUp(1), 0), 0.0);
+        assertEquals(2, Maths.ceilN(1 + err, 0), 0.0);
         assertEquals(1.5, Maths.ceilN(1.5, 0.5), 0.0);
-        assertEquals(2, Maths.ceilN(Math.nextUp(1.5), 0.5), 0.0);
+        assertEquals(2, Maths.ceilN(1.5 + err, 0.5), 0.0);
         assertEquals(1.2, Maths.ceilN(1.2, 1), 0.0);
-        assertEquals(1.2, Maths.ceilN(Math.nextUp(1.1), 1), 0.0);
+        assertEquals(1.2, Maths.ceilN(1.1 + err, 1), 0.0);
     }
 
     @Test
     public void floorN() throws Exception {
-        assertEquals(1, Maths.floorN(Math.nextDown(2), 0), 0.0);
+        assertEquals(1, Maths.floorN(2 - err, 0), 0.0);
         assertEquals(2.0, Maths.floorN(2, 0), 0.0);
-        assertEquals(1, Maths.floorN(Math.nextDown(1.5), 0.5), 0.0);
+        assertEquals(1, Maths.floorN(1.5 - err, 0.5), 0.0);
         assertEquals(1.5, Maths.floorN(1.5, 0.5), 0.0);
-        assertEquals(1.1, Maths.floorN(Math.nextDown(1.2), 1), 0.0);
+        assertEquals(1.1, Maths.floorN(1.2 - err, 1), 0.0);
         assertEquals(1.2, Maths.floorN(1.2, 1), 0.0);
     }
 
@@ -122,6 +123,11 @@ public class MathsTest {
         assertEquals(1.1, Maths.round8(1.1 + 0.4999999e-8), 0.0);
         assertEquals(1.1 + 1e-8, Maths.round8(1.1 + 0.5e-8), 0.0);
         assertEquals((double) Long.MAX_VALUE, Maths.round8(Long.MAX_VALUE), 0.0);
+    }
+
+    @Test
+    public void floorNX() {
+        assertEquals(1.14563, Maths.floorN(1.14563, 5), 0);
     }
 
     @Before
