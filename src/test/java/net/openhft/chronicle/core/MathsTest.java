@@ -44,23 +44,30 @@ public class MathsTest {
 
     @Test
     public void roundN() throws Exception {
+        assertEquals(1.5, Maths.roundN(1 + 0.25, 0.3f), 0.0);
         assertEquals(1, Maths.roundN(1 + 0.4999999, 0), 0.0);
         assertEquals(2.0, Maths.roundN(1 + 0.5, 0), 0.0);
-        assertEquals(1, Maths.roundN(1 + 0.24999999, 0.5), 0.0);
-        assertEquals(1.5, Maths.roundN(1 + 0.25, 0.5), 0.0);
+        assertEquals(1, Maths.roundN(1 + 0.24999999, 0.3), 0.0);
+        assertEquals(1.25, Maths.roundN(1 + 0.24999999, 0.6), 0.0);
+        assertEquals(1.5, Maths.roundN(1 + 0.375, 0.6), 0.0);
+        assertEquals(1.5, Maths.roundN(1 + 0.624, 0.6), 0.0);
+        assertEquals(1.0, Maths.roundN(1.09999999999, 0.7), 0.0);
+        assertEquals(1.2, Maths.roundN(1.10000000001, 0.7), 0.0);
+        assertEquals(1.2, Maths.roundN(1.29999999999, 0.7), 0.0);
+        assertEquals(1.4, Maths.roundN(1.30000000001, 0.7), 0.0);
         assertEquals(1.1, Maths.roundN(1.1 + 0.4999999e-1, 1), 0.0);
         assertEquals(1.2, Maths.roundN(1.1 + 0.5e-1, 1), 0.0);
 
-        assertEquals(1.11115, Maths.roundN(1.1111 + 0.74999999e-4, 4.5), 0.0);
-        assertEquals(1.1112, Maths.roundN(1.1111 + 0.75e-4, 4.5), 0.0);
+        assertEquals(1.11115, Maths.roundN(1.1111 + 0.74999999e-4, 4.3), 0.0);
+        assertEquals(1.1112, Maths.roundN(1.1111 + 0.75e-4, 4.3), 0.0);
     }
 
     @Test
     public void ceilN() throws Exception {
         assertEquals(2, Maths.ceilN(2, 0), 0.0);
         assertEquals(2, Maths.ceilN(1 + err, 0), 0.0);
-        assertEquals(1.5, Maths.ceilN(1.5, 0.5), 0.0);
-        assertEquals(2, Maths.ceilN(1.5 + err, 0.5), 0.0);
+        assertEquals(1.5, Maths.ceilN(1.5, 0.3f), 0.0);
+        assertEquals(2, Maths.ceilN(1.5 + err, 0.3f), 0.0);
         assertEquals(1.2, Maths.ceilN(1.2, 1), 0.0);
         assertEquals(1.2, Maths.ceilN(1.1 + err, 1), 0.0);
     }
@@ -69,8 +76,8 @@ public class MathsTest {
     public void floorN() throws Exception {
         assertEquals(1, Maths.floorN(2 - err, 0), 0.0);
         assertEquals(2.0, Maths.floorN(2, 0), 0.0);
-        assertEquals(1, Maths.floorN(1.5 - err, 0.5), 0.0);
-        assertEquals(1.5, Maths.floorN(1.5, 0.5), 0.0);
+        assertEquals(1, Maths.floorN(1.5 - err, 0.3f), 0.0);
+        assertEquals(1.5, Maths.floorN(1.5, 0.3f), 0.0);
         assertEquals(1.1, Maths.floorN(1.2 - err, 1), 0.0);
         assertEquals(1.2, Maths.floorN(1.2, 1), 0.0);
     }
