@@ -130,6 +130,7 @@ public class MathsTest {
         assertEquals(1.1, Maths.round8(1.1 + 0.4999999e-8), 0.0);
         assertEquals(1.1 + 1e-8, Maths.round8(1.1 + 0.5e-8), 0.0);
         assertEquals((double) Long.MAX_VALUE, Maths.round8(Long.MAX_VALUE), 0.0);
+        assertEquals(Double.NaN, Maths.round8(Double.NaN), 0.0);
     }
 
     @Test
