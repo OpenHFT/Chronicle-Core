@@ -21,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import sun.misc.Cleaner;
 import sun.nio.ch.DirectBuffer;
-import sun.reflect.Reflection;
 
 import java.io.*;
 import java.net.URL;
@@ -73,13 +72,19 @@ public enum IOTools {
         return dir.delete();
     }
 
+    @Deprecated
     public static URL urlFor(String name) throws FileNotFoundException {
-        ClassLoader classLoader;
-        try {
-            classLoader = Reflection.getCallerClass().getClassLoader();
-        } catch (Throwable e) {
-            classLoader = Thread.currentThread().getContextClassLoader();
-        }
+        // use the callers class loader not the default one if possible.
+        return urlFor(Thread.currentThread().getContextClassLoader(), name);
+    }
+
+    @NotNull
+    public static URL urlFor(Class clazz, String name) throws FileNotFoundException {
+        return urlFor(clazz.getClassLoader(), name);
+    }
+
+    @NotNull
+    public static URL urlFor(ClassLoader classLoader, String name) throws FileNotFoundException {
         URL url = classLoader.getResource(name);
         if (url == null && name.startsWith("/"))
             url = classLoader.getResource(name.substring(1));
@@ -110,6 +115,13 @@ public enum IOTools {
      */
     public static byte[] readFile(@NotNull String name) throws IOException {
         URL url = urlFor(name);
+        InputStream is = open(url);
+
+        return readAsBytes(is);
+    }
+
+    public static byte[] readFile(Class clazz, @NotNull String name) throws IOException {
+        URL url = urlFor(clazz, name);
         InputStream is = open(url);
 
         return readAsBytes(is);
