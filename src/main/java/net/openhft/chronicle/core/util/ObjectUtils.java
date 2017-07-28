@@ -19,6 +19,7 @@ package net.openhft.chronicle.core.util;
 import net.openhft.chronicle.core.ClassLocal;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
+import net.openhft.chronicle.core.pool.EnumCache;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -162,7 +163,7 @@ public enum ObjectUtils {
         if (name.startsWith("{") && name.endsWith("}"))
             return getSingletonForEnum(eClass);
         @NotNull final E anEnum = (E) map.get(name);
-        return anEnum == null ? Enum.valueOf(eClass, name) : anEnum;
+        return anEnum == null ? EnumCache.of(eClass).valueOf(name) : anEnum;
     }
 
     public static <E extends Enum<E>> E getSingletonForEnum(Class<E> eClass) {
