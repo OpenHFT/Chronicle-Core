@@ -288,6 +288,10 @@ public enum Jvm {
         DEBUG.defaultHandler(Slf4jExceptionHandler.DEBUG).resetThreadLocalHandler();
     }
 
+    public static void disableDebugHandler() {
+        DEBUG.defaultHandler(null).resetThreadLocalHandler();
+    }
+
     @NotNull
     public static Map<ExceptionKey, Integer> recordExceptions() {
         return recordExceptions(true);
