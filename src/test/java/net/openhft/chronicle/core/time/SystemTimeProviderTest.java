@@ -31,6 +31,9 @@ public class SystemTimeProviderTest {
         long start = System.currentTimeMillis();
         long minDiff = Long.MAX_VALUE;
         long maxDiff = Long.MIN_VALUE;
+        // mini-warmup.
+        warmup(tp);
+
         while (System.currentTimeMillis() < start + 500) {
             long now0 = tp.currentTimeMillis();
             long time2 = tp.currentTimeMicros();
@@ -49,5 +52,11 @@ public class SystemTimeProviderTest {
         System.out.println("minDiff: " + minDiff + ", maxDiff: " + maxDiff);
         assertEquals(-45, minDiff, 50);
         assertEquals(1000, maxDiff, 50);
+    }
+
+    private void warmup(TimeProvider tp) {
+        for (int i = 0; i < 100000; i++)
+            tp.currentTimeMillis();
+        Thread.yield();
     }
 }

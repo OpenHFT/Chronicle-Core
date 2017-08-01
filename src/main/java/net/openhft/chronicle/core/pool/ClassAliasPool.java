@@ -116,6 +116,7 @@ public class ClassAliasPool implements ClassLookup {
 
         try {
             clazz = Class.forName(name0, true, classLoader);
+
         } catch (ClassNotFoundException e) {
             if (parent != null) {
                 try {

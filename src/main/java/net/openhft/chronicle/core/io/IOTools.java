@@ -128,19 +128,25 @@ public enum IOTools {
     }
 
     public static byte[] readAsBytes(InputStream is) throws IOException {
-        @NotNull ByteArrayOutputStream out = new ByteArrayOutputStream(Math.min(512, is.available()));
-        @NotNull byte[] bytes = new byte[1024];
-        for (int len; (len = is.read(bytes)) > 0; )
-            out.write(bytes, 0, len);
-        return out.toByteArray();
+        try {
+            @NotNull ByteArrayOutputStream out = new ByteArrayOutputStream(Math.min(512, is.available()));
+            @NotNull byte[] bytes = new byte[1024];
+            for (int len; (len = is.read(bytes)) > 0; )
+                out.write(bytes, 0, len);
+            return out.toByteArray();
+        } finally {
+            Closeable.closeQuietly(is);
+        }
     }
 
     public static void writeFile(@NotNull String filename, @NotNull byte[] bytes) throws IOException {
-        @NotNull OutputStream out = new FileOutputStream(filename);
-        if (filename.endsWith(".gz"))
-            out = new GZIPOutputStream(out);
-        out.write(bytes);
-        out.close();
+        try (@NotNull OutputStream out0 = new FileOutputStream(filename)) {
+            OutputStream out = out0;
+            if (filename.endsWith(".gz"))
+                out = new GZIPOutputStream(out);
+            out.write(bytes);
+            out.close();
+        }
     }
 
     @NotNull
