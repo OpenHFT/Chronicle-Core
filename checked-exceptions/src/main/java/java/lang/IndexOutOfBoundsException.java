@@ -16,7 +16,7 @@
 
 package java.lang;
 
-/**
+/*
  * Created by peter on 01/09/15.
  */
 public class IndexOutOfBoundsException extends Exception {

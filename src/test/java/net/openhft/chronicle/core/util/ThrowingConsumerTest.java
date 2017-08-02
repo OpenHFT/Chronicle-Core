@@ -26,7 +26,7 @@ import java.util.function.Consumer;
 
 import static org.junit.Assert.fail;
 
-/**
+/*
  * Created by peter on 20/12/16.
  */
 public class ThrowingConsumerTest {

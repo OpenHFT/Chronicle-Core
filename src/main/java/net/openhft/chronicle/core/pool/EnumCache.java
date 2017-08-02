@@ -2,7 +2,7 @@ package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.ClassLocal;
 
-/**
+/*
  * Created by peter.lawrey@chronicle.software on 28/07/2017
  */
 public abstract class EnumCache<E extends Enum<E>> {

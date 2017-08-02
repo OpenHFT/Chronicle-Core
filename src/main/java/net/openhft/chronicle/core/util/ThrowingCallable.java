@@ -19,7 +19,7 @@ package net.openhft.chronicle.core.util;
 
 import org.jetbrains.annotations.NotNull;
 
-/**
+/*
  * Created by Peter on 13/06/2016.
  */
 @FunctionalInterface

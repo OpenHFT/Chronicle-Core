@@ -36,7 +36,7 @@ import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
 import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.MAYBE;
 import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
 
-/**
+/*
  * Created by peter on 23/06/15.
  */
 public enum ObjectUtils {
@@ -452,7 +452,7 @@ public enum ObjectUtils {
             try {
                 Constructor constructor = c.getDeclaredConstructor(String.class);
                 constructor.setAccessible(true);
-                return s -> constructor.newInstance(s);
+                return constructor::newInstance;
             } catch (Exception e) {
                 throw asCCE(e);
             }

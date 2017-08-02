@@ -20,13 +20,12 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.ReferenceQueue;
-import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
+/*
  * Created by peter on 04/11/16.
  */
 public enum ThreadLocalHelper {
@@ -39,7 +38,7 @@ public enum ThreadLocalHelper {
         if (ref != null) ret = ref.get();
         if (ret == null) {
             ret = supplier.get();
-            ref = new WeakReference<T>(ret);
+            ref = new WeakReference<>(ret);
             threadLocal.set(ref);
         }
         return ret;
@@ -61,10 +60,10 @@ public enum ThreadLocalHelper {
         if (ret == null) {
             ret = function.apply(a);
             if (referenceQueue != null && refConsumer != null) {
-                ref = new WeakReference<T>(ret, referenceQueue);
+                ref = new WeakReference<>(ret, referenceQueue);
                 refConsumer.accept(ref);
             } else {
-                ref = new WeakReference<T>(ret);
+                ref = new WeakReference<>(ret);
             }
             threadLocal.set(ref);
         }

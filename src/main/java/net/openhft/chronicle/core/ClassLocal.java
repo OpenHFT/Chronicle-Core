@@ -41,7 +41,7 @@ public class ClassLocal<V> extends ClassValue<V> {
      */
     @NotNull
     public static <V> ClassLocal<V> withInitial(Function<Class<?>, V> classVFunction) {
-        return new ClassLocal<V>(classVFunction);
+        return new ClassLocal<>(classVFunction);
     }
 
     @Override

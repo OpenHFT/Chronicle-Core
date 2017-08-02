@@ -2,7 +2,7 @@ package net.openhft.chronicle.core.util;
 
 import java.security.SecureRandom;
 
-/**
+/*
  * Created by peter on 03/02/2017.
  */
 public class ThreadLocalSecureRandom {

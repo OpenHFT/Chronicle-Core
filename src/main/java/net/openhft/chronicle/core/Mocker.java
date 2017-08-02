@@ -29,7 +29,7 @@ import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Consumer;
 
-/**
+/*
  * Created by peter on 13/12/16.
  */
 public enum Mocker {

@@ -19,7 +19,7 @@ package net.openhft.chronicle.core.threads;
 import net.openhft.chronicle.core.io.Closeable;
 import org.jetbrains.annotations.NotNull;
 
-/**
+/*
  * Created by peter.lawrey on 22/01/15.
  */
 public interface EventLoop extends Closeable {

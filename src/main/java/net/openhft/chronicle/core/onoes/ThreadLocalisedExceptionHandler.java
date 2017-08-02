@@ -1,6 +1,6 @@
 package net.openhft.chronicle.core.onoes;
 
-/**
+/*
  * Created by peter.lawrey@chronicle.software on 31/07/2017
  */
 public class ThreadLocalisedExceptionHandler implements ExceptionHandler {

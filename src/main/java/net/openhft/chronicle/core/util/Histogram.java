@@ -22,7 +22,7 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.function.DoubleFunction;
 
-/**
+/*
  * Created by peter on 10/07/15.
  */
 // TODO add a dummy histogram.

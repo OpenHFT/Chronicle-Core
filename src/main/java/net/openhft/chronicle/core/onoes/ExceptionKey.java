@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-/**
+/*
  * Created by Peter on 13/06/2016.
  */
 public class ExceptionKey {

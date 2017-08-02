@@ -19,7 +19,7 @@ package net.openhft.chronicle.core;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 
-/**
+/*
  * Created by peter on 21/06/15.
  */
 public class MemoryTest {

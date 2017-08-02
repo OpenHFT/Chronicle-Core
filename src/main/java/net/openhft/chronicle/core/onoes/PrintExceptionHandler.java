@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.PrintStream;
 import java.time.LocalDateTime;
 
-/**
+/*
  * Created by Peter on 13/06/2016.
  */
 public enum PrintExceptionHandler implements ExceptionHandler {

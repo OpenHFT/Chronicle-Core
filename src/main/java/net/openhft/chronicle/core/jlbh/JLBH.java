@@ -150,7 +150,7 @@ public class JLBH implements NanoSampler {
                 System.out.println(endToEndHistogram.toMicrosFormat());
 
                 if (additionHistograms.size() > 0) {
-                    additionHistograms.entrySet().stream().forEach(e -> {
+                    additionHistograms.entrySet().forEach(e -> {
                         List<double[]> ds = additionalPercentileRuns.computeIfAbsent(e.getKey(),
                                 i -> new ArrayList<>());
                         ds.add(e.getValue().getPercentiles());
@@ -166,7 +166,7 @@ public class JLBH implements NanoSampler {
 
                 noResultsReturned = 0;
                 endToEndHistogram.reset();
-                additionHistograms.values().stream().forEach(Histogram::reset);
+                additionHistograms.values().forEach(Histogram::reset);
                 osJitterMonitor.reset();
             }
         } finally {
@@ -177,7 +177,7 @@ public class JLBH implements NanoSampler {
 
         printPercentilesSummary("end to end", percentileRuns);
         if (additionalPercentileRuns.size() > 0) {
-            additionalPercentileRuns.entrySet().stream().forEach(e -> printPercentilesSummary(e.getKey(), e.getValue()));
+            additionalPercentileRuns.entrySet().forEach(e -> printPercentilesSummary(e.getKey(), e.getValue()));
         }
         jlbhOptions.jlbhTask.complete();
     }

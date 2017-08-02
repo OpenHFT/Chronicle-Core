@@ -25,7 +25,7 @@ import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 
-/**
+/*
  * Created by peter on 29/11/16.
  */
 @RunWith(Parameterized.class)

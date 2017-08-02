@@ -21,7 +21,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-/**
+/*
  * Created by peter on 08/12/16.
  */
 public class SystemTimeProviderTest {

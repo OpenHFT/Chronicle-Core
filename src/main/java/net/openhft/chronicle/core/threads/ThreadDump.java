@@ -22,11 +22,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-/**
+/*
  * Created by peter on 09/04/16.
  */
 public class ThreadDump {
@@ -55,16 +54,12 @@ public class ThreadDump {
             allStackTraces.keySet().removeAll(threads);
             if (allStackTraces.isEmpty())
                 return;
-            for (@NotNull Iterator<Thread> iter = allStackTraces.keySet().iterator(); iter.hasNext(); ) {
-                Thread next = iter.next();
-                if (ignored.contains(next.getName()))
-                    iter.remove();
-            }
+            allStackTraces.keySet().removeIf(next -> ignored.contains(next.getName()));
             if (allStackTraces.isEmpty())
                 return;
             for (@NotNull Map.Entry<Thread, StackTraceElement[]> threadEntry : allStackTraces.entrySet()) {
                 @NotNull StringBuilder sb = new StringBuilder();
-                sb.append("Thread still running " + threadEntry.getKey());
+                sb.append("Thread still running ").append(threadEntry.getKey());
                 Jvm.trimStackTrace(sb, threadEntry.getValue());
                 System.err.println(sb);
             }

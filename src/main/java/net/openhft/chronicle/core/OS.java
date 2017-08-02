@@ -66,21 +66,12 @@ public enum OS {
 
     private static MethodHandle UNMAPP0_MH;
 
-    /**
-     * Unmap a region of memory.
-     *
-     * @param address of the start of the mapping.
-     * @param size    of the region mapped.
-     * @throws IOException if the unmap fails.
-     */
     static {
         try {
             UNMAPP0 = FileChannelImpl.class.getDeclaredMethod("unmap0", long.class, long.class);
             UNMAPP0.setAccessible(true);
             UNMAPP0_MH = MethodHandles.lookup().unreflect(UNMAPP0);
-        } catch (NoSuchMethodException e) {
-            throw new AssertionError(e);
-        } catch (IllegalAccessException e) {
+        } catch (NoSuchMethodException | IllegalAccessException e) {
             throw new AssertionError(e);
         }
     }
@@ -106,6 +97,7 @@ public enum OS {
 
     /**
      * Search a list of directories to find a path which is the last element.
+     *
      * @param path of directories to use if found, the last path is always appended.
      * @return the resulting File path.
      */
@@ -368,6 +360,13 @@ public enum OS {
         return address;
     }
 
+    /**
+     * Unmap a region of memory.
+     *
+     * @param address of the start of the mapping.
+     * @param size    of the region mapped.
+     * @throws IOException if the unmap fails.
+     */
     public static void unmap(long address, long size) throws IOException {
         try {
             final long size2 = pageAlign(size);

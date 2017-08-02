@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-/**
+/*
  * Created by peter on 26/08/15.
  * A collection of CONCURRENT utility tools
  */

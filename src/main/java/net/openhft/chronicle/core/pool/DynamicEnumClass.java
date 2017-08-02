@@ -9,7 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-/**
+/*
  * Created by peter.lawrey@chronicle.software on 28/07/2017
  */
 public class DynamicEnumClass<E extends Enum<E>> extends EnumCache<E> {

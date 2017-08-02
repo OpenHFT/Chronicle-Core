@@ -15,7 +15,7 @@
  */
 package net.openhft.chronicle.core.util;
 
-/**
+/*
  * Created by peter.lawrey on 16/01/15.
  */
 
