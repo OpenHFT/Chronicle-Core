@@ -47,6 +47,7 @@ public interface Closeable extends java.io.Closeable {
     /**
      * Doesn't throw a checked exception.
      */
+    @Override
     void close();
 
     default void notifyClosing() {

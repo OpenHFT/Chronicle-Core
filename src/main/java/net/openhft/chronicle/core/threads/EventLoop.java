@@ -37,6 +37,7 @@ public interface EventLoop extends Closeable {
     /**
      * @return {@code true} close has been called
      */
+    @Override
     boolean isClosed();
 
     /**

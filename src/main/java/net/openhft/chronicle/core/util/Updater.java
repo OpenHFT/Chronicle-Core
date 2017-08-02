@@ -7,6 +7,7 @@ import java.util.function.Consumer;
  */
 @FunctionalInterface
 public interface Updater<T> extends Consumer<T> {
+    @Override
     default void accept(T t) {
         update(t);
     }

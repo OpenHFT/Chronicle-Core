@@ -307,6 +307,7 @@ public class JLBH implements NanoSampler {
     private class OSJitterMonitor extends Thread {
         final AtomicBoolean reset = new AtomicBoolean(false);
 
+        @Override
         public void run() {
             // make sure this thread is not bound by its parent.
             Affinity.setAffinity(AffinityLock.BASE_AFFINITY);
