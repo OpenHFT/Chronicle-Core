@@ -16,17 +16,18 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.util.AbstractInvocationHandler;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 /*
@@ -63,12 +64,9 @@ public enum Mocker {
     @NotNull
     public static <T> T intercepting(@NotNull Class<T> tClass, String description, @NotNull Consumer<String> consumer, T t) {
         //noinspection unchecked
-        return (T) Proxy.newProxyInstance(tClass.getClassLoader(), new Class[]{tClass}, new InvocationHandler() {
-            @Nullable
+        return (T) Proxy.newProxyInstance(tClass.getClassLoader(), new Class[]{tClass}, new AbstractInvocationHandler(ConcurrentHashMap::new) {
             @Override
-            public Object invoke(Object proxy, @NotNull Method method, @Nullable Object[] args) throws Throwable {
-                if (method.getDeclaringClass() == Object.class)
-                    return method.invoke(this, args);
+            protected Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
                 consumer.accept(description + method.getName() + (args == null ? "()" : Arrays.toString(args)));
                 if (t != null)
                     method.invoke(t, args);
@@ -80,12 +78,9 @@ public enum Mocker {
     @NotNull
     public static <T> T ignored(@NotNull Class<T> tClass) {
         //noinspection unchecked
-        return (T) Proxy.newProxyInstance(tClass.getClassLoader(), new Class[]{tClass}, new InvocationHandler() {
-            @Nullable
+        return (T) Proxy.newProxyInstance(tClass.getClassLoader(), new Class[]{tClass}, new AbstractInvocationHandler(ConcurrentHashMap::new) {
             @Override
-            public Object invoke(Object proxy, @NotNull Method method, Object[] args) throws Throwable {
-                if (method.getDeclaringClass() == Object.class)
-                    return method.invoke(this, args);
+            protected Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
                 return null;
             }
         });
