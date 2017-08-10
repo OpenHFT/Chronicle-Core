@@ -26,7 +26,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /*
- * Created by peter on 04/11/16.
+ * Created by Peter Lawrey on 04/11/16.
  */
 public enum ThreadLocalHelper {
     ;

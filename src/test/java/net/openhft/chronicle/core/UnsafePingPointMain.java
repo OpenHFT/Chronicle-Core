@@ -23,7 +23,7 @@ import sun.misc.Unsafe;
 import java.lang.reflect.Field;
 
 /*
- * Created by peter on 14/07/16.
+ * Created by Peter Lawrey on 14/07/16.
  */
 public class UnsafePingPointMain implements Runnable {
     private final Unsafe unsafe;

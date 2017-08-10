@@ -19,7 +19,7 @@ package net.openhft.chronicle.core.pool;
 import org.jetbrains.annotations.NotNull;
 
 /*
- * Created by peter on 15/02/16.
+ * Created by Peter Lawrey on 15/02/16.
  */
 @Deprecated
 public interface ClassLookup {

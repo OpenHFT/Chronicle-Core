@@ -25,7 +25,7 @@ import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
 import static org.junit.Assert.assertEquals;
 
 /*
- * Created by peter on 21/06/15.
+ * Created by Peter Lawrey on 21/06/15.
  */
 public class ClassAliasPoolTest {
 

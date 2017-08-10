@@ -21,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Serializable;
 
 /*
- * Created by peter on 23/06/15.
+ * Created by Peter Lawrey on 23/06/15.
  */
 public interface ReadResolvable<T> {
     @SuppressWarnings("unchecked")

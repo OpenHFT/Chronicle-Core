@@ -26,7 +26,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 /*
- * Created by peter on 29/02/16.
+ * Created by Peter Lawrey on 29/02/16.
  */
 public class ParsingCache<E> {
     @NotNull

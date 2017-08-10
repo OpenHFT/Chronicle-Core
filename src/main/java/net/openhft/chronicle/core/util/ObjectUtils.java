@@ -37,7 +37,7 @@ import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.MAYBE;
 import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
 
 /*
- * Created by peter on 23/06/15.
+ * Created by Peter Lawrey on 23/06/15.
  */
 public enum ObjectUtils {
     ;

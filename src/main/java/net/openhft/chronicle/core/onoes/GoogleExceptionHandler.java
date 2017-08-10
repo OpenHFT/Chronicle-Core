@@ -20,7 +20,7 @@ package net.openhft.chronicle.core.onoes;
 import org.jetbrains.annotations.NotNull;
 
 /*
- * Created by Peter on 07/04/2016.
+ * Created by Peter Lawrey on 07/04/2016.
  */
 public class GoogleExceptionHandler extends WebExceptionHandler {
     public static final ExceptionHandler WARN = new GoogleExceptionHandler(Slf4jExceptionHandler.WARN);

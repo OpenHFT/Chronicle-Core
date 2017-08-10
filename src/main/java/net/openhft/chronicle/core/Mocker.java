@@ -31,7 +31,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 /*
- * Created by peter on 13/12/16.
+ * Created by Peter Lawrey on 13/12/16.
  */
 public enum Mocker {
     ;
