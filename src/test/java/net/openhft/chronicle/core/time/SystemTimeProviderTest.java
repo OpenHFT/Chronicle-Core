@@ -20,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /*
  * Created by Peter Lawrey on 08/12/16.
@@ -31,6 +32,7 @@ public class SystemTimeProviderTest {
         long start = System.currentTimeMillis();
         long minDiff = Long.MAX_VALUE;
         long maxDiff = Long.MIN_VALUE;
+        long lastTimeMicros = 0;
         // mini-warmup.
         warmup(tp);
 
@@ -48,6 +50,8 @@ public class SystemTimeProviderTest {
             if (minDiff > diff) minDiff = diff;
             if (maxDiff < diff) maxDiff = diff;
             Thread.yield();
+            assertTrue(time2 >= lastTimeMicros);
+            lastTimeMicros = time2;
         }
         System.out.println("minDiff: " + minDiff + ", maxDiff: " + maxDiff);
         assertEquals(-45, minDiff, 50);
@@ -55,7 +59,7 @@ public class SystemTimeProviderTest {
     }
 
     private void warmup(TimeProvider tp) {
-        for (int i = 0; i < 100000; i++)
+        for (int i = 0; i < 500000; i++)
             tp.currentTimeMillis();
         Thread.yield();
     }

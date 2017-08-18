@@ -45,7 +45,7 @@ public enum SystemTimeProvider implements TimeProvider {
             delta = nowMS - nowUS;
             return nowMS;
         } else if (estimate > nowMS + 1000) {
-            nowMS += 999;
+            nowMS += 1000;
             delta = nowMS - nowUS;
             return nowMS;
         }
