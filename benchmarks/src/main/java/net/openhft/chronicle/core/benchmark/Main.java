@@ -33,6 +33,31 @@ import java.util.concurrent.TimeUnit;
 
 /*
  * Created by Peter Lawrey on 11/08/15.
+ *
+ * Windows 10
+
+ Benchmark                                       Mode      Cnt      Score   Error  Units
+Main.systemNanoTime                           sample  1071824     24.531 ± 0.566  ns/op
+Main.systemNanoTime:systemNanoTime·p0.00      sample                 ≈ 0          ns/op
+Main.systemNanoTime:systemNanoTime·p0.50      sample                 ≈ 0          ns/op
+Main.systemNanoTime:systemNanoTime·p0.90      sample                 ≈ 0          ns/op
+Main.systemNanoTime:systemNanoTime·p0.95      sample             284.000          ns/op
+Main.systemNanoTime:systemNanoTime·p0.99      sample             285.000          ns/op
+Main.systemNanoTime:systemNanoTime·p0.999     sample             285.000          ns/op
+Main.systemNanoTime:systemNanoTime·p0.9999    sample            1422.000          ns/op
+Main.systemNanoTime:systemNanoTime·p1.00      sample           73088.000          ns/op
+Main.threadLocal_get                          sample  1267035     19.575 ± 0.365  ns/op
+Main.threadLocal_get:threadLocal_get·p0.00    sample                 ≈ 0          ns/op
+Main.threadLocal_get:threadLocal_get·p0.50    sample                 ≈ 0          ns/op
+Main.threadLocal_get:threadLocal_get·p0.90    sample                 ≈ 0          ns/op
+Main.threadLocal_get:threadLocal_get·p0.95    sample             284.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.99    sample             285.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.999   sample             285.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.9999  sample             285.000          ns/op
+Main.threadLocal_get:threadLocal_get·p1.00    sample           16480.000          ns/op
+
+ * Centos 7
+ *
    Percentiles, ns/op:
       p(0.0000) =   4456.000 ns/op
      p(50.0000) =   4496.000 ns/op
@@ -78,9 +103,9 @@ public class Main {
             System.out.println("measurementTime: " + time + " secs");
             Options opt = new OptionsBuilder()
                     .include(Main.class.getSimpleName())
-//                    .warmupIterations(5)
+                    .warmupIterations(5)
                     .measurementIterations(5)
-                    .forks(10)
+                    .forks(5)
                     .mode(Mode.SampleTime)
                     .measurementTime(TimeValue.seconds(time))
                     .timeUnit(TimeUnit.NANOSECONDS)
@@ -103,6 +128,11 @@ public class Main {
     @Benchmark
     public Object threadLocal_get() {
         return threadLocal.get();
+    }
+
+    @Benchmark
+    public long systemNanoTime() {
+        return System.nanoTime();
     }
 }
 
