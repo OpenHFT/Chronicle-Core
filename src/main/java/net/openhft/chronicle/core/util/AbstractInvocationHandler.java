@@ -78,10 +78,11 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
             Closeable.closeQuietly(closeable);
             return null;
 
-        } else if (method.isDefault()) {
-            Function<Method, MethodHandle> function = proxyToLambda.computeIfAbsent(proxy, p -> m -> methodHandleForProxy(p, m));
-            MethodHandle methodHandle = defaultMethod.computeIfAbsent(method, function);
-            return methodHandle.invokeWithArguments(args);
+//        } else if (method.isDefault()) {
+//            // this will call the default impl. of the method, not the proxy's impl.
+//            Function<Method, MethodHandle> function = proxyToLambda.computeIfAbsent(proxy, p -> m -> methodHandleForProxy(p, m));
+//            MethodHandle methodHandle = defaultMethod.computeIfAbsent(method, function);
+//            return methodHandle.invokeWithArguments(args);
         }
 
         if (args == null)
