@@ -48,7 +48,7 @@ public class ThreadDump {
 
     public void assertNoNewThreads() {
         @Nullable Map<Thread, StackTraceElement[]> allStackTraces = null;
-        for (int i = 1; i < 4; i++) {
+        for (int i = 1; i < 5; i++) {
             Jvm.pause(i * i * 50);
             allStackTraces = Thread.getAllStackTraces();
             allStackTraces.keySet().removeAll(threads);
