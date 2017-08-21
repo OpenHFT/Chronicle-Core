@@ -33,6 +33,32 @@ import java.util.concurrent.TimeUnit;
 
 /*
  * Created by Peter Lawrey on 11/08/15.
+   Percentiles, ns/op:
+      p(0.0000) =   4456.000 ns/op
+     p(50.0000) =   4496.000 ns/op
+     p(90.0000) =   4536.000 ns/op
+     p(95.0000) =   8992.000 ns/op
+     p(99.0000) =  16080.000 ns/op
+     p(99.9000) =  40448.000 ns/op
+     p(99.9900) =  71936.000 ns/op
+     p(99.9990) = 126117.797 ns/op
+     p(99.9999) = 190711.637 ns/op
+    p(100.0000) = 247296.000 ns/op
+
+
+# Run complete. Total time: 00:05:09
+
+Benchmark                                       Mode      Cnt       Score   Error  Units
+Main.threadLocal_get                          sample  3590156    5126.819 ± 5.218  ns/op
+Main.threadLocal_get:threadLocal_get·p0.00    sample             4456.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.50    sample             4496.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.90    sample             4536.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.95    sample             8992.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.99    sample            16080.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.999   sample            40448.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.9999  sample            71936.000          ns/op
+Main.threadLocal_get:threadLocal_get·p1.00    sample           247296.000          ns/op
+
  */
 @State(Scope.Thread)
 public class Main {
