@@ -29,38 +29,38 @@ public class SystemTimeProviderTest {
     @Test
     public void currentTimeMicros() throws Exception {
         @NotNull TimeProvider tp = SystemTimeProvider.INSTANCE;
-        long start = System.currentTimeMillis();
-        long minDiff = Long.MAX_VALUE;
-        long maxDiff = Long.MIN_VALUE;
-        long lastTimeMicros = 0;
-        // mini-warmup.
-        warmup(tp);
+        long minDiff = 0;
+        long maxDiff = 0;
+        long lastTimeMicros;
+        long start;
 
-        while (System.currentTimeMillis() < start + 500) {
-            long now0 = tp.currentTimeMillis();
-            long time2 = tp.currentTimeMicros();
-            long now1 = tp.currentTimeMillis();
-            if (now1 - now0 > 1) {
-                System.out.println("jump: " + (now1 - now0));
-                continue;
-            }
+        for (int i = 0; i < 2; i++) {
+            minDiff = Long.MAX_VALUE;
+            maxDiff = Long.MIN_VALUE;
+            lastTimeMicros = 0;
+            start = System.currentTimeMillis();
 
-            long now = now1 * 1000;
-            long diff = time2 - now;
-            if (minDiff > diff) minDiff = diff;
-            if (maxDiff < diff) maxDiff = diff;
-            Thread.yield();
-            assertTrue(time2 >= lastTimeMicros);
-            lastTimeMicros = time2;
+            do {
+                long now0 = tp.currentTimeMillis();
+                long time2 = tp.currentTimeMicros();
+                long now1 = tp.currentTimeMillis();
+                if (now1 - now0 > 1) {
+                    System.out.println("jump: " + (now1 - now0));
+                    continue;
+                }
+
+                long now = now1 * 1000;
+                long diff = time2 - now;
+                if (minDiff > diff) minDiff = diff;
+                if (maxDiff < diff) maxDiff = diff;
+                Thread.yield();
+                assertTrue(time2 >= lastTimeMicros);
+                lastTimeMicros = time2;
+            } while (System.currentTimeMillis() < start + 500);
         }
+
         System.out.println("minDiff: " + minDiff + ", maxDiff: " + maxDiff);
         assertEquals(-45, minDiff, 50);
         assertEquals(1000, maxDiff, 50);
-    }
-
-    private void warmup(TimeProvider tp) {
-        for (int i = 0; i < 500000; i++)
-            tp.currentTimeMillis();
-        Thread.yield();
     }
 }
