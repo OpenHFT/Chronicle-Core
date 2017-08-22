@@ -16,11 +16,15 @@
 
 package net.openhft.chronicle.core.time;
 
+import java.util.concurrent.atomic.AtomicReference;
+
 /*
  * Created by Peter Lawrey on 10/03/16.
  */
 public enum SystemTimeProvider implements TimeProvider {
     INSTANCE;
+
+    static final AtomicReference<TimeProvider> TIME_PROVIDER = new AtomicReference<>(INSTANCE);
 
     static {
         // warmUp()

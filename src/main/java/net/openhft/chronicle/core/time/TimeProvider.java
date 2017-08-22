@@ -16,10 +16,17 @@
 
 package net.openhft.chronicle.core.time;
 
+import static net.openhft.chronicle.core.time.SystemTimeProvider.TIME_PROVIDER;
+
 /*
  * Created by Peter Lawrey on 10/03/16.
  */
 public interface TimeProvider {
+
+    static TimeProvider get() {
+        return TIME_PROVIDER.get();
+    }
+
     long currentTimeMillis();
 
     default long currentTimeMicros() {
