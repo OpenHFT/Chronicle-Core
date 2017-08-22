@@ -33,6 +33,63 @@ import java.util.concurrent.TimeUnit;
 
 /*
  * Created by Peter Lawrey on 11/08/15.
+ *
+ * Windows 10
+
+ Benchmark                                       Mode      Cnt      Score   Error  Units
+Main.systemNanoTime                           sample  1071824     24.531 ± 0.566  ns/op
+Main.systemNanoTime:systemNanoTime·p0.00      sample                 ≈ 0          ns/op
+Main.systemNanoTime:systemNanoTime·p0.50      sample                 ≈ 0          ns/op
+Main.systemNanoTime:systemNanoTime·p0.90      sample                 ≈ 0          ns/op
+Main.systemNanoTime:systemNanoTime·p0.95      sample             284.000          ns/op
+Main.systemNanoTime:systemNanoTime·p0.99      sample             285.000          ns/op
+Main.systemNanoTime:systemNanoTime·p0.999     sample             285.000          ns/op
+Main.systemNanoTime:systemNanoTime·p0.9999    sample            1422.000          ns/op
+Main.systemNanoTime:systemNanoTime·p1.00      sample           73088.000          ns/op
+Main.threadLocal_get                          sample  1267035     19.575 ± 0.365  ns/op
+Main.threadLocal_get:threadLocal_get·p0.00    sample                 ≈ 0          ns/op
+Main.threadLocal_get:threadLocal_get·p0.50    sample                 ≈ 0          ns/op
+Main.threadLocal_get:threadLocal_get·p0.90    sample                 ≈ 0          ns/op
+Main.threadLocal_get:threadLocal_get·p0.95    sample             284.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.99    sample             285.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.999   sample             285.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.9999  sample             285.000          ns/op
+Main.threadLocal_get:threadLocal_get·p1.00    sample           16480.000          ns/op
+
+ * Centos 7, Linux 3.10.0-514.26.2.el7.x86_64, due to Firmware bug relating to the X299 chipset.
+ *
+Benchmark                                       Mode      Cnt       Score    Error  Units
+Main.systemNanoTime                           sample  1202315   10292.618 ± 13.440  ns/op
+Main.systemNanoTime:systemNanoTime·p0.00      sample             8944.000           ns/op
+Main.systemNanoTime:systemNanoTime·p0.50      sample             8992.000           ns/op
+Main.systemNanoTime:systemNanoTime·p0.90      sample            13488.000           ns/op
+Main.systemNanoTime:systemNanoTime·p0.95      sample            17984.000           ns/op
+Main.systemNanoTime:systemNanoTime·p0.99      sample            35968.000           ns/op
+Main.systemNanoTime:systemNanoTime·p0.999     sample            54955.776           ns/op
+Main.systemNanoTime:systemNanoTime·p0.9999    sample            72832.000           ns/op
+Main.systemNanoTime:systemNanoTime·p1.00      sample           180736.000           ns/op
+Main.threadLocal_get                          sample  1502246    5126.690 ±  7.549  ns/op
+Main.threadLocal_get:threadLocal_get·p0.00    sample             4456.000           ns/op
+Main.threadLocal_get:threadLocal_get·p0.50    sample             4496.000           ns/op
+Main.threadLocal_get:threadLocal_get·p0.90    sample             4536.000           ns/op
+Main.threadLocal_get:threadLocal_get·p0.95    sample             8992.000           ns/op
+Main.threadLocal_get:threadLocal_get·p0.99    sample            13488.000           ns/op
+Main.threadLocal_get:threadLocal_get·p0.999   sample            40448.000           ns/op
+Main.threadLocal_get:threadLocal_get·p0.9999  sample            55168.000           ns/op
+Main.threadLocal_get:threadLocal_get·p1.00    sample           103552.000           ns/op
+
+* Centos 7, Linux 4.12.8-1.el7.elrepo.x86_64
+
+* Benchmark                                       Mode      Cnt      Score   Error  Units
+Main.threadLocal_get                          sample  1747321     28.047 ± 0.400  ns/op
+Main.threadLocal_get:threadLocal_get·p0.00    sample              17.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.50    sample              24.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.90    sample              34.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.95    sample              36.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.99    sample              38.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.999   sample              43.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.9999  sample           10544.000          ns/op
+Main.threadLocal_get:threadLocal_get·p1.00    sample           17184.000          ns/op
  */
 @State(Scope.Thread)
 public class Main {
@@ -52,9 +109,9 @@ public class Main {
             System.out.println("measurementTime: " + time + " secs");
             Options opt = new OptionsBuilder()
                     .include(Main.class.getSimpleName())
-//                    .warmupIterations(5)
+                    .warmupIterations(5)
                     .measurementIterations(5)
-                    .forks(10)
+                    .forks(5)
                     .mode(Mode.SampleTime)
                     .measurementTime(TimeValue.seconds(time))
                     .timeUnit(TimeUnit.NANOSECONDS)
@@ -77,6 +134,11 @@ public class Main {
     @Benchmark
     public Object threadLocal_get() {
         return threadLocal.get();
+    }
+
+    //    @Benchmark
+    public long systemNanoTime() {
+        return System.nanoTime();
     }
 }
 
