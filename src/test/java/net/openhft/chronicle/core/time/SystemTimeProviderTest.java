@@ -19,6 +19,8 @@ package net.openhft.chronicle.core.time;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -27,7 +29,7 @@ import static org.junit.Assert.assertTrue;
  */
 public class SystemTimeProviderTest {
     @Test
-    public void currentTimeMicros() throws Exception {
+    public void currentTimeMicros() {
         @NotNull TimeProvider tp = SystemTimeProvider.INSTANCE;
         long minDiff = 0;
         long maxDiff = 0;
@@ -62,5 +64,17 @@ public class SystemTimeProviderTest {
         System.out.println("minDiff: " + minDiff + ", maxDiff: " + maxDiff);
         assertEquals(-45, minDiff, 50);
         assertEquals(1000, maxDiff, 50);
+    }
+
+    @Test
+    public void currentTime() {
+        SystemTimeProvider tp = SystemTimeProvider.INSTANCE;
+        long time1 = tp.currentTime(TimeUnit.SECONDS);
+        long time2 = tp.currentTimeMillis();
+        assertEquals(time1, time2 / 1000 + 1, 1);
+        long time3 = tp.currentTimeMicros();
+        assertEquals(time2, time3 / 1000 + 10, 10);
+        long time4 = tp.currentTimeNanos();
+        assertEquals(time3, time4 / 1000 + 5000, 10000);
     }
 }

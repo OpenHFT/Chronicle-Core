@@ -41,16 +41,23 @@ public enum SystemTimeProvider implements TimeProvider {
 
     @Override
     public long currentTimeMicros() {
+        return currentTimeNanos() / 1000;
+    }
+
+    @Override
+    public long currentTimeNanos() {
         long n0 = System.nanoTime();
-        long nowMS = currentTimeMillis() * 1000;
-        long nowUS = n0 / 1000;
-        long estimate = nowUS + delta;
+        long nowMS = currentTimeMillis() * 1000000;
+        long nowNS = n0;
+        long estimate = nowNS + delta;
+
         if (estimate < nowMS) {
-            delta = nowMS - nowUS;
+            delta = nowMS - nowNS;
             return nowMS;
-        } else if (estimate > nowMS + 1000) {
-            nowMS += 1000;
-            delta = nowMS - nowUS;
+
+        } else if (estimate > nowMS + 1000000) {
+            nowMS += 1000000;
+            delta = nowMS - nowNS;
             return nowMS;
         }
         return estimate;

@@ -16,6 +16,8 @@
 
 package net.openhft.chronicle.core.time;
 
+import java.util.concurrent.TimeUnit;
+
 import static net.openhft.chronicle.core.time.SystemTimeProvider.TIME_PROVIDER;
 
 /*
@@ -31,5 +33,15 @@ public interface TimeProvider {
 
     default long currentTimeMicros() {
         return currentTimeMillis() * 1000;
+    }
+
+    default long currentTimeNanos() {
+        return currentTimeMillis() * 1000000;
+    }
+
+    default long currentTime(TimeUnit timeUnit) {
+        return timeUnit == TimeUnit.MILLISECONDS
+                ? currentTimeMillis()
+                : timeUnit.convert(currentTimeNanos(), TimeUnit.NANOSECONDS);
     }
 }
