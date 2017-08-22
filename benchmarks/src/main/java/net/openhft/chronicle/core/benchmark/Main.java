@@ -56,34 +56,40 @@ Main.threadLocal_get:threadLocal_get·p0.999   sample             285.000       
 Main.threadLocal_get:threadLocal_get·p0.9999  sample             285.000          ns/op
 Main.threadLocal_get:threadLocal_get·p1.00    sample           16480.000          ns/op
 
- * Centos 7
+ * Centos 7, Linux 3.10.0-514.26.2.el7.x86_64, due to Firmware bug relating to the X299 chipset.
  *
-   Percentiles, ns/op:
-      p(0.0000) =   4456.000 ns/op
-     p(50.0000) =   4496.000 ns/op
-     p(90.0000) =   4536.000 ns/op
-     p(95.0000) =   8992.000 ns/op
-     p(99.0000) =  16080.000 ns/op
-     p(99.9000) =  40448.000 ns/op
-     p(99.9900) =  71936.000 ns/op
-     p(99.9990) = 126117.797 ns/op
-     p(99.9999) = 190711.637 ns/op
-    p(100.0000) = 247296.000 ns/op
+Benchmark                                       Mode      Cnt       Score    Error  Units
+Main.systemNanoTime                           sample  1202315   10292.618 ± 13.440  ns/op
+Main.systemNanoTime:systemNanoTime·p0.00      sample             8944.000           ns/op
+Main.systemNanoTime:systemNanoTime·p0.50      sample             8992.000           ns/op
+Main.systemNanoTime:systemNanoTime·p0.90      sample            13488.000           ns/op
+Main.systemNanoTime:systemNanoTime·p0.95      sample            17984.000           ns/op
+Main.systemNanoTime:systemNanoTime·p0.99      sample            35968.000           ns/op
+Main.systemNanoTime:systemNanoTime·p0.999     sample            54955.776           ns/op
+Main.systemNanoTime:systemNanoTime·p0.9999    sample            72832.000           ns/op
+Main.systemNanoTime:systemNanoTime·p1.00      sample           180736.000           ns/op
+Main.threadLocal_get                          sample  1502246    5126.690 ±  7.549  ns/op
+Main.threadLocal_get:threadLocal_get·p0.00    sample             4456.000           ns/op
+Main.threadLocal_get:threadLocal_get·p0.50    sample             4496.000           ns/op
+Main.threadLocal_get:threadLocal_get·p0.90    sample             4536.000           ns/op
+Main.threadLocal_get:threadLocal_get·p0.95    sample             8992.000           ns/op
+Main.threadLocal_get:threadLocal_get·p0.99    sample            13488.000           ns/op
+Main.threadLocal_get:threadLocal_get·p0.999   sample            40448.000           ns/op
+Main.threadLocal_get:threadLocal_get·p0.9999  sample            55168.000           ns/op
+Main.threadLocal_get:threadLocal_get·p1.00    sample           103552.000           ns/op
 
+* Centos 7, Linux 4.12.8-1.el7.elrepo.x86_64
 
-# Run complete. Total time: 00:05:09
-
-Benchmark                                       Mode      Cnt       Score   Error  Units
-Main.threadLocal_get                          sample  3590156    5126.819 ± 5.218  ns/op
-Main.threadLocal_get:threadLocal_get·p0.00    sample             4456.000          ns/op
-Main.threadLocal_get:threadLocal_get·p0.50    sample             4496.000          ns/op
-Main.threadLocal_get:threadLocal_get·p0.90    sample             4536.000          ns/op
-Main.threadLocal_get:threadLocal_get·p0.95    sample             8992.000          ns/op
-Main.threadLocal_get:threadLocal_get·p0.99    sample            16080.000          ns/op
-Main.threadLocal_get:threadLocal_get·p0.999   sample            40448.000          ns/op
-Main.threadLocal_get:threadLocal_get·p0.9999  sample            71936.000          ns/op
-Main.threadLocal_get:threadLocal_get·p1.00    sample           247296.000          ns/op
-
+* Benchmark                                       Mode      Cnt      Score   Error  Units
+Main.threadLocal_get                          sample  1747321     28.047 ± 0.400  ns/op
+Main.threadLocal_get:threadLocal_get·p0.00    sample              17.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.50    sample              24.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.90    sample              34.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.95    sample              36.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.99    sample              38.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.999   sample              43.000          ns/op
+Main.threadLocal_get:threadLocal_get·p0.9999  sample           10544.000          ns/op
+Main.threadLocal_get:threadLocal_get·p1.00    sample           17184.000          ns/op
  */
 @State(Scope.Thread)
 public class Main {
@@ -130,7 +136,7 @@ public class Main {
         return threadLocal.get();
     }
 
-    @Benchmark
+    //    @Benchmark
     public long systemNanoTime() {
         return System.nanoTime();
     }
