@@ -15,6 +15,8 @@ public class BackgroundTimeProviderMain {
                 nowMS = System.currentTimeMillis();
             }
             long diff = nowNS - nowMS * 1000000;
+            if (diff < -1e5 || diff > 11e5)
+                System.out.println("diff: " + diff);
             if (diff < 0) {
                 under += 1 + (diff / -1e4);
             }
