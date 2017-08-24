@@ -28,6 +28,7 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 /*
@@ -62,12 +63,19 @@ public enum Mocker {
     }
 
     @NotNull
-    public static <T> T intercepting(@NotNull Class<T> tClass, String description, @NotNull Consumer<String> consumer, T t) {
+    public static <T> T intercepting(@NotNull Class<T> tClass, @NotNull final String description, @NotNull Consumer<String> consumer, T t) {
+        return intercepting(tClass,
+                (name, args) -> consumer.accept(description + name + (args == null ? "()" : Arrays.toString(args))),
+                t);
+    }
+
+    @NotNull
+    public static <T> T intercepting(@NotNull Class<T> tClass, @NotNull BiConsumer<String, Object[]> consumer, T t) {
         //noinspection unchecked
         return (T) Proxy.newProxyInstance(tClass.getClassLoader(), new Class[]{tClass}, new AbstractInvocationHandler(ConcurrentHashMap::new) {
             @Override
             protected Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
-                consumer.accept(description + method.getName() + (args == null ? "()" : Arrays.toString(args)));
+                consumer.accept(method.getName(), args);
                 if (t != null)
                     method.invoke(t, args);
                 return null;
