@@ -16,8 +16,8 @@
 
 package net.openhft.chronicle.core.threads;
 
-/**
- * Created by peter on 25/06/15.
+/*
+ * Created by Peter Lawrey on 25/06/15.
  */
 public class InvalidEventHandlerException extends Exception {
     public InvalidEventHandlerException(String message) {

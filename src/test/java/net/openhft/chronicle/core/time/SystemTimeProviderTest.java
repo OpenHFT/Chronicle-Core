@@ -19,28 +19,62 @@ package net.openhft.chronicle.core.time;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import java.util.concurrent.TimeUnit;
 
-/**
- * Created by peter on 08/12/16.
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+/*
+ * Created by Peter Lawrey on 08/12/16.
  */
 public class SystemTimeProviderTest {
     @Test
-    public void currentTimeMicros() throws Exception {
+    public void currentTimeMicros() {
         @NotNull TimeProvider tp = SystemTimeProvider.INSTANCE;
-        long start = System.currentTimeMillis();
-        long minDiff = Long.MAX_VALUE;
-        long maxDiff = Long.MIN_VALUE;
-        while (System.currentTimeMillis() < start + 500) {
-            long time2 = tp.currentTimeMicros();
-            long now = System.currentTimeMillis() * 1000;
-            long diff = time2 - now;
-            if (minDiff > diff) minDiff = diff;
-            if (maxDiff < diff) maxDiff = diff;
-            Thread.yield();
+        long minDiff = 0;
+        long maxDiff = 0;
+        long lastTimeMicros;
+        long start;
+
+        for (int i = 0; i < 2; i++) {
+            minDiff = Long.MAX_VALUE;
+            maxDiff = Long.MIN_VALUE;
+            lastTimeMicros = 0;
+            start = System.currentTimeMillis();
+
+            do {
+                long now0 = tp.currentTimeMillis();
+                long time2 = tp.currentTimeMicros();
+                long now1 = tp.currentTimeMillis();
+                if (now1 - now0 > 1) {
+                    System.out.println("jump: " + (now1 - now0));
+                    continue;
+                }
+
+                long now = now1 * 1000;
+                long diff = time2 - now;
+                if (minDiff > diff) minDiff = diff;
+                if (maxDiff < diff) maxDiff = diff;
+                Thread.yield();
+                assertTrue(time2 >= lastTimeMicros);
+                lastTimeMicros = time2;
+            } while (System.currentTimeMillis() < start + 500);
         }
+
         System.out.println("minDiff: " + minDiff + ", maxDiff: " + maxDiff);
-        assertEquals(0, minDiff, 50);
+        assertEquals(-45, minDiff, 50);
         assertEquals(1000, maxDiff, 50);
+    }
+
+    @Test
+    public void currentTime() {
+        SystemTimeProvider tp = SystemTimeProvider.INSTANCE;
+        long time1 = tp.currentTime(TimeUnit.SECONDS);
+        long time2 = tp.currentTimeMillis();
+        assertEquals(time1, time2 / 1000 + 1, 1);
+        long time3 = tp.currentTimeMicros();
+        assertEquals(time2, time3 / 1000 + 10, 10);
+        long time4 = tp.currentTimeNanos();
+        assertEquals(time3, time4 / 1000 + 5000, 10000);
     }
 }

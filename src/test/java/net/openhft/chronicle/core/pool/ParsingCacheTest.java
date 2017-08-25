@@ -24,8 +24,8 @@ import java.math.BigDecimal;
 
 import static org.junit.Assert.*;
 
-/**
- * Created by peter on 20/12/16.
+/*
+ * Created by Peter Lawrey on 20/12/16.
  */
 public class ParsingCacheTest {
     @Test

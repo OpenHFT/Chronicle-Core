@@ -31,17 +31,17 @@ public class EnumInterner<E extends Enum<E>> {
     private final E[] interner;
 
     private final int mask;
-    private final Class<E> eClass;
+    private final EnumCache<E> enumCache;
 
     public EnumInterner(Class<E> eClass) {
         this(eClass, 64);
     }
 
     public EnumInterner(Class<E> eClass, int capacity) {
-        this.eClass = eClass;
         int n = Maths.nextPower2(capacity, 16);
         interner = (E[]) new Enum[n];
         mask = n - 1;
+        enumCache = EnumCache.of(eClass);
     }
 
     // bridging method to fix the types.
@@ -58,8 +58,8 @@ public class EnumInterner<E extends Enum<E>> {
         if (e != null && StringUtils.isEqual(e.name(), cs))
             return e;
         @NotNull String s2 = cs.toString();
-        interner[h] = Enum.valueOf(eClass, s2);
-
+        E value = enumCache.valueOf(s2);
+        interner[h] = value;
         return interner[h];
     }
 }

@@ -16,6 +16,7 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.util.ThrowingFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -23,6 +24,8 @@ import org.slf4j.LoggerFactory;
 import sun.nio.ch.FileChannelImpl;
 
 import java.io.*;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
@@ -61,18 +64,14 @@ public enum OS {
     private static final Method UNMAPP0;
     private static final AtomicLong memoryMapped = new AtomicLong();
 
-    /**
-     * Unmap a region of memory.
-     *
-     * @param address of the start of the mapping.
-     * @param size    of the region mapped.
-     * @throws IOException if the unmap fails.
-     */
+    private static MethodHandle UNMAPP0_MH;
+
     static {
         try {
             UNMAPP0 = FileChannelImpl.class.getDeclaredMethod("unmap0", long.class, long.class);
             UNMAPP0.setAccessible(true);
-        } catch (NoSuchMethodException e) {
+            UNMAPP0_MH = MethodHandles.lookup().unreflect(UNMAPP0);
+        } catch (NoSuchMethodException | IllegalAccessException e) {
             throw new AssertionError(e);
         }
     }
@@ -98,6 +97,7 @@ public enum OS {
 
     /**
      * Search a list of directories to find a path which is the last element.
+     *
      * @param path of directories to use if found, the last path is always appended.
      * @return the resulting File path.
      */
@@ -111,7 +111,6 @@ public enum OS {
         }
         return new File(dir, path[path.length - 1]);
     }
-
 
     public static String getHostName() {
         return HOST_NAME;
@@ -309,42 +308,71 @@ public enum OS {
             throws IOException, IllegalArgumentException {
         if (isWindows() && size > 4L << 30)
             throw new IllegalArgumentException("Mapping more than 4096 MiB is unusable on Windows, size = " + (size >> 20) + " MiB");
+        return map0(fileChannel, imodeFor(mode), mapAlign(start), pageAlign(size));
+    }
+
+    static final ClassLocal<MethodHandle> MAP0_MH = ClassLocal.withInitial(c -> {
         try {
-            return map0(fileChannel, imodeFor(mode), mapAlign(start), pageAlign(size));
-        } catch (@NotNull NoSuchMethodException | IllegalAccessException e) {
+            Method map0 = c.getDeclaredMethod("map0", int.class, long.class, long.class);
+            map0.setAccessible(true);
+            return MethodHandles.lookup().unreflect(map0);
+        } catch (NoSuchMethodException e) {
+            throw new AssertionError("Method map0 is not available", e);
+        } catch (IllegalAccessException e) {
             throw new AssertionError(e);
-        } catch (InvocationTargetException e) {
-            throw asAnIOException(e);
         }
-    }
+    });
 
-    static long map0(@NotNull FileChannel fileChannel, int imode, long start, long size)
-            throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IllegalArgumentException {
-        Method map0 = fileChannel.getClass().getDeclaredMethod("map0", int.class, long.class, long.class);
-        map0.setAccessible(true);
-        final long invoke;
+
+    private static long invokeFileChannelMap0(@NotNull MethodHandle map0, @NotNull FileChannel fileChannel, int imode, long start, long size,
+                                              @NotNull ThrowingFunction<OutOfMemoryError, Long, IOException> errorHandler) throws IOException {
         try {
-            try {
-                invoke = (Long) map0.invoke(fileChannel, imode, start, size);
-            } catch (InvocationTargetException e) {
-                throw Jvm.rethrow(e.getCause());
+            return (long) map0.invokeExact((FileChannelImpl) fileChannel, imode, start, size);
+        } catch (IllegalAccessException e) {
+            throw new AssertionError("Method map0 is not accessible", e);
+        } catch (Throwable e) {
+            if (e instanceof OutOfMemoryError) {
+                return errorHandler.apply((OutOfMemoryError) e);
+            } else if (e instanceof IOException) {
+                throw (IOException) e;
+            } else {
+                throw new IOException(e);
             }
-        } catch (OutOfMemoryError oome) {
-            if (oome.getMessage().startsWith("Map failed") && !is64Bit()) {
-                throw new OutOfMemoryError("Ran out of virtual memory on a 32-bit JVM, either use a 64-bit JVM or *reduce* your heap size");
-            }
-            throw oome;
         }
-        memoryMapped.addAndGet(size);
-        return invoke;
     }
 
+    static long map0(@NotNull FileChannel fileChannel, int imode, long start, long size) throws IOException {
+        MethodHandle map0 = MAP0_MH.computeValue(fileChannel.getClass());
+        final long address = invokeFileChannelMap0(map0, fileChannel, imode, start, size, oome1 -> {
+            System.gc();
+
+            try {
+                Thread.sleep(100L);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+
+            return invokeFileChannelMap0(map0, fileChannel, imode, start, size, oome2 -> {
+                throw new IOException("Map failed", oome2);
+            });
+        });
+        memoryMapped.addAndGet(size);
+        return address;
+    }
+
+    /**
+     * Unmap a region of memory.
+     *
+     * @param address of the start of the mapping.
+     * @param size    of the region mapped.
+     * @throws IOException if the unmap fails.
+     */
     public static void unmap(long address, long size) throws IOException {
         try {
             final long size2 = pageAlign(size);
-            UNMAPP0.invoke(null, address, size2);
+            int n = (int) UNMAPP0_MH.invokeExact(address, size2);
             memoryMapped.addAndGet(-size2);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw asAnIOException(e);
         }
     }
@@ -426,6 +454,7 @@ public enum OS {
             this.size = size;
         }
 
+        @Override
         public void run() {
             if (address == 0)
                 return;

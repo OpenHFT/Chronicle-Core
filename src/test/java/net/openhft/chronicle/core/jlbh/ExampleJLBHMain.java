@@ -19,7 +19,7 @@ package net.openhft.chronicle.core.jlbh;
 import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.NotNull;
 
-/**
+/*
  * Created by daniel on 08/03/2016.
  */
 public class ExampleJLBHMain implements JLBHTask {

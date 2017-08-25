@@ -16,13 +16,22 @@
 
 package net.openhft.chronicle.core.io;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 @FunctionalInterface
 public interface Closeable extends java.io.Closeable {
-    static void closeQuietly(Object o) {
+
+    static void closeQuietly(@NotNull Object... closables) {
+        for (Object o : closables) {
+            closeQuietly(o);
+        }
+    }
+
+    static void closeQuietly(@Nullable Object o) {
         if (o instanceof Object[]) {
             for (Object o2 : (Object[]) o) {
                 closeQuietly(o2);
@@ -39,6 +48,7 @@ public interface Closeable extends java.io.Closeable {
     /**
      * Doesn't throw a checked exception.
      */
+    @Override
     void close();
 
     default void notifyClosing() {

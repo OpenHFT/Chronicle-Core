@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class ClassAliasPool implements ClassLookup {
     public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool(null).defaultAliases();
-    static final ThreadLocal<CAPKey> CAP_KEY_TL = ThreadLocal.withInitial(CAPKey::new);
+    static final ThreadLocal<CAPKey> CAP_KEY_TL = ThreadLocal.withInitial(() -> new CAPKey(null));
     private final ClassLookup parent;
     private final ClassLoader classLoader;
     private final Map<CAPKey, Class> stringClassMap = new ConcurrentHashMap<>();
@@ -43,7 +43,7 @@ public class ClassAliasPool implements ClassLookup {
 
     ClassAliasPool(ClassLookup parent) {
         this.parent = parent;
-        this.classLoader = Thread.currentThread().getContextClassLoader();
+        this.classLoader = getClass().getClassLoader();
     }
 
     @NotNull
@@ -109,7 +109,7 @@ public class ClassAliasPool implements ClassLookup {
         return forName0(key);
     }
 
-    private synchronized Class forName0(CAPKey key) {
+    private synchronized Class forName0(@NotNull CAPKey key) {
         //noinspection SuspiciousMethodCalls
         Class clazz = stringClassMap2.get(key);
         if (clazz != null) return clazz;
@@ -118,6 +118,7 @@ public class ClassAliasPool implements ClassLookup {
 
         try {
             clazz = Class.forName(name0, true, classLoader);
+
         } catch (ClassNotFoundException e) {
             if (parent != null) {
                 try {
@@ -143,17 +144,16 @@ public class ClassAliasPool implements ClassLookup {
     }
 
     private String nameFor0(Class clazz) {
-        return classStringMap.computeIfAbsent(clazz, (aClass) -> {
-            if (Enum.class.isAssignableFrom(aClass)) {
-                Class clazz2 = aClass.getSuperclass();
-                if (clazz2 != null && clazz2 != Enum.class && Enum.class.isAssignableFrom(clazz2)) {
-                    aClass = clazz2;
-                    String alias = classStringMap.get(clazz2);
-                    if (alias != null) return alias;
-                }
+        if (Enum.class.isAssignableFrom(clazz)) {
+            Class clazz2 = clazz.getSuperclass();
+            if (clazz2 != null && clazz2 != Enum.class && Enum.class.isAssignableFrom(clazz2)) {
+                String alias = classStringMap.get(clazz2);
+                return alias != null
+                        ? classStringMap.putIfAbsent(clazz, alias)
+                        : clazz2.getName();
             }
-            return aClass.getName();
-        });
+        }
+        return clazz.getName();
     }
 
     @Override
@@ -185,9 +185,6 @@ public class ClassAliasPool implements ClassLookup {
     static class CAPKey implements CharSequence {
         CharSequence value;
 
-        CAPKey() {
-        }
-
         CAPKey(String name) {
             value = name;
         }
@@ -202,11 +199,13 @@ public class ClassAliasPool implements ClassLookup {
             return value.charAt(index);
         }
 
+        @NotNull
         @Override
         public CharSequence subSequence(int start, int end) {
             throw new UnsupportedOperationException();
         }
 
+        @NotNull
         @Override
         public String toString() {
             return value.toString();

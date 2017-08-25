@@ -20,12 +20,12 @@
     <parent>
         <groupId>net.openhft</groupId>
         <artifactId>java-parent-pom</artifactId>
-        <version>1.1.10</version>
+        <version>1.1.12</version>
         <relativePath />
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>chronicle-core</artifactId>
-    <version>1.7.15-SNAPSHOT</version>
+    <version>1.9.5-SNAPSHOT</version>
     <name>OpenHFT/Chronicle-Core</name>
     <description>Chronicle-Core</description>
     <packaging>bundle</packaging>
@@ -34,9 +34,9 @@
         <dependencies>
             <dependency>
                 <groupId>net.openhft</groupId>
-                <artifactId>third-party-bom</artifactId>
+                  <artifactId>third-party-bom</artifactId> <!-- PLEASE DON'T LEAVE THIS ON A SNAPSHOT because they get missed in a release  -->
                 <type>pom</type>
-                <version>3.5.7</version>
+                <version>3.6.0</version>
                 <scope>import</scope>
             </dependency>
             <dependency>
@@ -102,6 +102,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.6.2</version>
                 <configuration>
                     <compilerArgument>-Xlint:deprecation</compilerArgument>
                     <source>1.8</source>

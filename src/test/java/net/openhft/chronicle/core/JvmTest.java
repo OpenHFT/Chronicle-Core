@@ -27,8 +27,8 @@ import java.nio.ByteBuffer;
 
 import static org.junit.Assert.*;
 
-/**
- * Created by peter on 26/02/2016.
+/*
+ * Created by Peter Lawrey on 26/02/2016.
  */
 public class JvmTest {
 

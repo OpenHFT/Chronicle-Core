@@ -17,14 +17,20 @@
 
 package net.openhft.chronicle.core.threads;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.util.concurrent.locks.LockSupport;
 
-/**
- * Created by peter on 04/02/17.
+/*
+ * Created by Peter Lawrey on 04/02/17.
  */
 public class StackSampler {
+    @NotNull
     private final Thread sampler;
+    @Nullable
     private volatile Thread thread = null;
+    @Nullable
     private volatile StackTraceElement[] stack = null;
 
     public StackSampler() {
@@ -53,6 +59,7 @@ public class StackSampler {
         this.thread = thread;
     }
 
+    @Nullable
     public StackTraceElement[] getAndReset() {
         StackTraceElement[] stack = this.stack;
         thread = null;

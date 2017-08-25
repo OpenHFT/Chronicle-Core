@@ -25,8 +25,8 @@ import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- * Created by peter on 29/11/16.
+/*
+ * Created by Peter Lawrey on 29/11/16.
  */
 @RunWith(Parameterized.class)
 public class ObjectUtilsConvertToTest {

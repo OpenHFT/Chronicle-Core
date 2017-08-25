@@ -21,8 +21,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-/**
- * Created by Peter on 13/06/2016.
+/*
+ * Created by Peter Lawrey on 13/06/2016.
  */
 public class RecordingExceptionHandler implements ExceptionHandler {
     private final LogLevel level;

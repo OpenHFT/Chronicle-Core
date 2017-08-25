@@ -19,6 +19,7 @@ package net.openhft.chronicle.core.util;
 import net.openhft.chronicle.core.ClassLocal;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
+import net.openhft.chronicle.core.pool.EnumCache;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,8 +36,8 @@ import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
 import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.MAYBE;
 import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
 
-/**
- * Created by peter on 23/06/15.
+/*
+ * Created by Peter Lawrey on 23/06/15.
  */
 public enum ObjectUtils {
     ;
@@ -77,6 +78,8 @@ public enum ObjectUtils {
             throw new IllegalArgumentException("interface: " + c.getName());
         if (Modifier.isAbstract(c.getModifiers()))
             throw new IllegalArgumentException("abstract class: " + c.getName());
+        if (c.isEnum())
+            throw new IllegalArgumentException("enum class: " + c.getName());
         try {
             Constructor constructor = c.getDeclaredConstructor();
             constructor.setAccessible(true);
@@ -157,8 +160,19 @@ public enum ObjectUtils {
     @NotNull
     public static <E extends Enum<E>> E valueOfIgnoreCase(@NotNull Class<E> eClass, @NotNull String name) {
         final Map<String, Enum> map = CASE_IGNORE_LOOKUP.get(eClass);
+        if (name.startsWith("{") && name.endsWith("}"))
+            return getSingletonForEnum(eClass);
         @NotNull final E anEnum = (E) map.get(name);
-        return anEnum == null ? Enum.valueOf(eClass, name) : anEnum;
+        return anEnum == null ? EnumCache.of(eClass).valueOf(name) : anEnum;
+    }
+
+    public static <E extends Enum<E>> E getSingletonForEnum(Class<E> eClass) {
+        E[] enumConstants = eClass.getEnumConstants();
+        if (enumConstants.length == 0)
+            throw new IllegalStateException("Cannot convert marshallable to " + eClass + " as it doesn't have any instances");
+        if (enumConstants.length > 1)
+            Jvm.warn().on(ObjectUtils.class, eClass + " has multiple INSTANCEs, picking the first one");
+        return enumConstants[0];
     }
 
     static <E> E convertTo0(Class<E> eClass, @Nullable Object o)
@@ -310,7 +324,7 @@ public enum ObjectUtils {
     }
 
     @NotNull
-    public static <T> T newInstance(Class<T> clazz) {
+    public static <T> T newInstance(@NotNull Class<T> clazz) {
         Supplier cons = SUPPLIER_CLASS_LOCAL.get(clazz);
         return (T) cons.get();
     }
@@ -327,6 +341,11 @@ public enum ObjectUtils {
             interfaces = objs.toArray((T[]) Array.newInstance(first.getClass(), objs.size()));
         }
         return interfaces;
+    }
+
+    public static boolean matchingClass(@NotNull Class base, @NotNull Class toMatch) {
+        return base == toMatch ||
+                Enum.class.isAssignableFrom(toMatch) && base.equals(toMatch.getEnclosingClass());
     }
 
     @NotNull
@@ -382,7 +401,7 @@ public enum ObjectUtils {
         return (tClass.getModifiers() & (Modifier.ABSTRACT | Modifier.INTERFACE)) == 0;
     }
 
-    public static Object readResolve(Object o) {
+    public static Object readResolve(@NotNull Object o) {
         Method readResove = READ_RESOLVE.get(o.getClass());
         if (readResove == null)
             return o;
@@ -433,7 +452,7 @@ public enum ObjectUtils {
             try {
                 Constructor constructor = c.getDeclaredConstructor(String.class);
                 constructor.setAccessible(true);
-                return s -> constructor.newInstance(s);
+                return constructor::newInstance;
             } catch (Exception e) {
                 throw asCCE(e);
             }

@@ -16,13 +16,32 @@
 
 package net.openhft.chronicle.core.time;
 
-/**
- * Created by peter on 10/03/16.
+import java.util.concurrent.TimeUnit;
+
+import static net.openhft.chronicle.core.time.SystemTimeProvider.TIME_PROVIDER;
+
+/*
+ * Created by Peter Lawrey on 10/03/16.
  */
 public interface TimeProvider {
+
+    static TimeProvider get() {
+        return TIME_PROVIDER.get();
+    }
+
     long currentTimeMillis();
 
     default long currentTimeMicros() {
         return currentTimeMillis() * 1000;
+    }
+
+    default long currentTimeNanos() {
+        return currentTimeMillis() * 1000000;
+    }
+
+    default long currentTime(TimeUnit timeUnit) {
+        return timeUnit == TimeUnit.MILLISECONDS
+                ? currentTimeMillis()
+                : timeUnit.convert(currentTimeNanos(), TimeUnit.NANOSECONDS);
     }
 }

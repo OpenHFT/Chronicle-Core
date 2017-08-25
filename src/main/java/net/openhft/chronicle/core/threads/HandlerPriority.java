@@ -16,7 +16,7 @@
 
 package net.openhft.chronicle.core.threads;
 
-/**
+/*
  * Created by peter.lawrey on 22/01/15.
  */
 public enum HandlerPriority {
@@ -55,5 +55,5 @@ public enum HandlerPriority {
     /**
      * A task which can be performed concurrently especially as it might block for some time.
      */
-    CONCURRENT;
+    CONCURRENT
 }
