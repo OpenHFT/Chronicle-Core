@@ -98,7 +98,6 @@ public class ClassAliasPool implements ClassLookup {
     @Override
     public Class forName(@NotNull CharSequence name) throws ClassNotFoundException {
         Objects.requireNonNull(name);
-
         CAPKey key = CAP_KEY_TL.get();
         key.value = name;
         Class clazz = stringClassMap.get(key);
@@ -148,9 +147,11 @@ public class ClassAliasPool implements ClassLookup {
             Class clazz2 = clazz.getSuperclass();
             if (clazz2 != null && clazz2 != Enum.class && Enum.class.isAssignableFrom(clazz2)) {
                 String alias = classStringMap.get(clazz2);
-                return alias != null
-                        ? classStringMap.putIfAbsent(clazz, alias)
-                        : clazz2.getName();
+                if (alias != null) {
+                    classStringMap.putIfAbsent(clazz, alias);
+                    return alias;
+                }
+                return clazz2.getName();
             }
         }
         return clazz.getName();
