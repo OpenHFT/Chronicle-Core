@@ -21,10 +21,15 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
+
 /**
  * @author Rob Austin.
  */
-public class StringUtilsTest extends TestCase {
+public class StringUtilsTest {
+    @Test
     public void testFirstLowerCase() throws Exception {
         assertEquals("", StringUtils.firstLowerCase(""));
         assertEquals("99", StringUtils.firstLowerCase("99"));
@@ -34,6 +39,7 @@ public class StringUtilsTest extends TestCase {
         assertEquals("aa", StringUtils.firstLowerCase("Aa"));
     }
 
+    @Test
     public void testToTitleCase() throws Exception {
         assertEquals("", StringUtils.toTitleCase(""));
         assertEquals("99", StringUtils.toTitleCase("99"));
@@ -54,6 +60,12 @@ public class StringUtilsTest extends TestCase {
         assertEquals("AA_AA", StringUtils.toTitleCase("AaAa"));
         assertEquals("A_AAA", StringUtils.toTitleCase("AAaa"));
         assertEquals("AAAA", StringUtils.toTitleCase("Aaaa"));
+    }
+
+    @Test
+    public void shouldCreateNewStringFromChars() throws Exception {
+        final char[] chars = {'A', 'B', 'C'};
+        assertThat(new String(chars), is(StringUtils.newString(chars)));
     }
 
     @Test

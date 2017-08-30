@@ -66,6 +66,7 @@ public enum Jvm {
 
     private static final long MAX_DIRECT_MEMORY = maxDirectMemory0();
     private static final int JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
+    private static final boolean IS_JAVA_9_PLUS = JVM_JAVA_MAJOR_VERSION > 8;
 
     static {
         try {
@@ -98,8 +99,12 @@ public enum Jvm {
         return COMPILE_THRESHOLD;
     }
 
-    public static int getMajorVersion() {
+    public static int majorVersion() {
         return JVM_JAVA_MAJOR_VERSION;
+    }
+
+    public static boolean isJava9Plus() {
+        return IS_JAVA_9_PLUS;
     }
 
     private static boolean is64bit0() {

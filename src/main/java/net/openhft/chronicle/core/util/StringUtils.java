@@ -123,7 +123,7 @@ public enum StringUtils {
     }
 
     public static char[] extractChars(StringBuilder sb) {
-        if (Jvm.getMajorVersion() > 8) {
+        if (Jvm.isJava9Plus()) {
             final Object data = OS.memory().getObject(sb, SB_VALUE_OFFSET);
             if (data instanceof byte[]) {
                 final byte[] dataBytes = (byte[]) data;
@@ -141,7 +141,7 @@ public enum StringUtils {
     }
 
     public static char[] extractChars(String s) {
-        if (Jvm.getMajorVersion() > 8) {
+        if (Jvm.isJava9Plus()) {
             final Object data = OS.memory().getObject(s, S_VALUE_OFFSET);
             if (data instanceof byte[]) {
                 final byte[] dataBytes = (byte[]) data;
@@ -164,6 +164,9 @@ public enum StringUtils {
 
     @NotNull
     public static String newString(char[] chars) {
+        if (Jvm.isJava9Plus()) {
+            return new String(chars);
+        }
         //noinspection RedundantStringConstructorCall
         @NotNull String str = new String();
         try {

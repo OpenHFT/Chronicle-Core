@@ -54,7 +54,7 @@ public enum IOTools {
         final Class<?> cleanerClass;
         try {
             final MethodHandles.Lookup lookup = MethodHandles.lookup();
-            if (Jvm.getMajorVersion() > 8) {
+            if (Jvm.isJava9Plus()) {
                 cleanerClass = Class.forName("jdk.internal.ref.Cleaner");
                 GET_CALLER_CLASS_METHOD_HANDLE = lookup.
                         findStatic(Class.forName("jdk.internal.reflect.Reflection"), "getCallerClass",
