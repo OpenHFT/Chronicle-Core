@@ -137,7 +137,13 @@ public enum StringUtils {
 
             return (char[]) data;
         }
-        return OS.memory().getObject(sb, SB_VALUE_OFFSET);
+        final char[] chars = OS.memory().getObject(sb, SB_VALUE_OFFSET);
+        if (chars.length == sb.length()) {
+            return chars;
+        }
+        final char[] actualData = new char[sb.length()];
+        System.arraycopy(chars, 0, actualData, 0, sb.length());
+        return actualData;
     }
 
     public static char[] extractChars(String s) {

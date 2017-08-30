@@ -282,7 +282,6 @@ public class MathsTest {
         assertFalse(Maths.same(Float.NaN, 1));
     }
 
-    @Ignore("fails pre-java9")
     @Test
     public void shouldGetCharsOfStringBuilder() throws Exception {
         final StringBuilder sb = new StringBuilder("foobar_nine");
