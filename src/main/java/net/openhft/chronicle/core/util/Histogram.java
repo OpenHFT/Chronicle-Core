@@ -18,11 +18,12 @@ package net.openhft.chronicle.core.util;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.function.DoubleFunction;
 
-/**
- * Created by peter on 10/07/15.
+/*
+ * Created by Peter Lawrey on 10/07/15.
  */
 // TODO add a dummy histogram.
 public class Histogram implements NanoSampler {
@@ -269,11 +270,15 @@ public class Histogram implements NanoSampler {
                 p(toMicros.apply(percentile(1)));
     }
 
+    static final DecimalFormat F3 = new DecimalFormat("0.000");
+    static final DecimalFormat F2 = new DecimalFormat("0.00");
+    static final DecimalFormat F1 = new DecimalFormat("0.0");
+
     @NotNull
     private String p(double v) {
-        return v < 0.1 ? String.format("%.3f", v) :
-                v < 1 ? String.format("%.2f", v) :
-                        v < 10 ? String.format("%.1f", v) :
+        return v < 0.1 ? F3.format(v) :
+                v < 1 ? F2.format(v) :
+                        v < 10 ? F1.format(v) :
                                 v < 1000 ? Long.toString(Math.round(v)) :
                                         String.format("%,d", Math.round(v / 10) * 10);
     }

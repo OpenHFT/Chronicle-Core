@@ -39,8 +39,8 @@ import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-/**
- * Created by peter on 26/08/15.
+/*
+ * Created by Peter Lawrey on 26/08/15.
  * A collection of CONCURRENT utility tools
  */
 public enum IOTools {
@@ -109,17 +109,19 @@ public enum IOTools {
         return dir.delete();
     }
 
+    @Deprecated
     public static URL urlFor(String name) throws FileNotFoundException {
-        ClassLoader classLoader;
-        try {
-            if (Jvm.getMajorVersion() > 8) {
-                classLoader = ((Class) GET_CALLER_CLASS_METHOD_HANDLE.invoke(1)).getClassLoader();
-            } else {
-                classLoader = ((Class) GET_CALLER_CLASS_METHOD_HANDLE.invoke(null)).getClassLoader();
-            }
-        } catch (Throwable e) {
-            classLoader = Thread.currentThread().getContextClassLoader();
-        }
+        // use the callers class loader not the default one if possible.
+        return urlFor(Thread.currentThread().getContextClassLoader(), name);
+    }
+
+    @NotNull
+    public static URL urlFor(Class clazz, String name) throws FileNotFoundException {
+        return urlFor(clazz.getClassLoader(), name);
+    }
+
+    @NotNull
+    public static URL urlFor(ClassLoader classLoader, String name) throws FileNotFoundException {
         URL url = classLoader.getResource(name);
         if (url == null && name.startsWith("/"))
             url = classLoader.getResource(name.substring(1));
@@ -155,20 +157,33 @@ public enum IOTools {
         return readAsBytes(is);
     }
 
+    public static byte[] readFile(Class clazz, @NotNull String name) throws IOException {
+        URL url = urlFor(clazz, name);
+        InputStream is = open(url);
+
+        return readAsBytes(is);
+    }
+
     public static byte[] readAsBytes(InputStream is) throws IOException {
-        @NotNull ByteArrayOutputStream out = new ByteArrayOutputStream(Math.min(512, is.available()));
-        @NotNull byte[] bytes = new byte[1024];
-        for (int len; (len = is.read(bytes)) > 0; )
-            out.write(bytes, 0, len);
-        return out.toByteArray();
+        try {
+            @NotNull ByteArrayOutputStream out = new ByteArrayOutputStream(Math.min(512, is.available()));
+            @NotNull byte[] bytes = new byte[1024];
+            for (int len; (len = is.read(bytes)) > 0; )
+                out.write(bytes, 0, len);
+            return out.toByteArray();
+        } finally {
+            Closeable.closeQuietly(is);
+        }
     }
 
     public static void writeFile(@NotNull String filename, @NotNull byte[] bytes) throws IOException {
-        @NotNull OutputStream out = new FileOutputStream(filename);
-        if (filename.endsWith(".gz"))
-            out = new GZIPOutputStream(out);
-        out.write(bytes);
-        out.close();
+        try (@NotNull OutputStream out0 = new FileOutputStream(filename)) {
+            OutputStream out = out0;
+            if (filename.endsWith(".gz"))
+                out = new GZIPOutputStream(out);
+            out.write(bytes);
+            out.close();
+        }
     }
 
     @NotNull

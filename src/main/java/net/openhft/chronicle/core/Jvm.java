@@ -22,6 +22,7 @@ import net.openhft.chronicle.core.onoes.LogLevel;
 import net.openhft.chronicle.core.onoes.NullExceptionHandler;
 import net.openhft.chronicle.core.onoes.RecordingExceptionHandler;
 import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
+import net.openhft.chronicle.core.onoes.ThreadLocalisedExceptionHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -57,11 +58,12 @@ public enum Jvm {
     private static final DirectMemoryInspector DIRECT_MEMORY_INSPECTOR;
     private static final boolean IS_64BIT = is64bit0();
     @NotNull
-    private static ExceptionHandler FATAL = Slf4jExceptionHandler.FATAL;
+    private static final ThreadLocalisedExceptionHandler FATAL = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.FATAL);
     @NotNull
-    private static ExceptionHandler WARN = Slf4jExceptionHandler.WARN;
+    private static final ThreadLocalisedExceptionHandler WARN = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.WARN);
     @NotNull
-    private static ExceptionHandler DEBUG = Slf4jExceptionHandler.DEBUG;
+    private static final ThreadLocalisedExceptionHandler DEBUG = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.DEBUG);
+
     private static final long MAX_DIRECT_MEMORY = maxDirectMemory0();
     private static final int JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
 
@@ -295,9 +297,13 @@ public enum Jvm {
     }
 
     public static void resetExceptionHandlers() {
-        FATAL = Slf4jExceptionHandler.FATAL;
-        WARN = Slf4jExceptionHandler.WARN;
-        DEBUG = Slf4jExceptionHandler.DEBUG;
+        FATAL.defaultHandler(Slf4jExceptionHandler.FATAL).resetThreadLocalHandler();
+        WARN.defaultHandler(Slf4jExceptionHandler.WARN).resetThreadLocalHandler();
+        DEBUG.defaultHandler(Slf4jExceptionHandler.DEBUG).resetThreadLocalHandler();
+    }
+
+    public static void disableDebugHandler() {
+        DEBUG.defaultHandler(null).resetThreadLocalHandler();
     }
 
     @NotNull
@@ -308,9 +314,9 @@ public enum Jvm {
     @NotNull
     public static Map<ExceptionKey, Integer> recordExceptions(boolean debug) {
         @NotNull Map<ExceptionKey, Integer> map = Collections.synchronizedMap(new LinkedHashMap<>());
-        FATAL = new RecordingExceptionHandler(LogLevel.FATAL, map);
-        WARN = new RecordingExceptionHandler(LogLevel.WARN, map);
-        DEBUG = debug ? new RecordingExceptionHandler(LogLevel.DEBUG, map) : NullExceptionHandler.NOTHING;
+        FATAL.defaultHandler(new RecordingExceptionHandler(LogLevel.FATAL, map));
+        WARN.defaultHandler(new RecordingExceptionHandler(LogLevel.WARN, map));
+        DEBUG.defaultHandler(debug ? new RecordingExceptionHandler(LogLevel.DEBUG, map) : NullExceptionHandler.NOTHING);
         return map;
     }
 
@@ -318,35 +324,22 @@ public enum Jvm {
         return exceptions.keySet().stream().anyMatch(k -> k.throwable != null && k.level != LogLevel.DEBUG);
     }
 
-    @Deprecated
-    public static void setExceptionsHandlers(@Nullable ExceptionHandler fatal,
-                                             @Nullable ExceptionHandler warn,
-                                             @Nullable ExceptionHandler debug) {
-        setExceptionHandlers(fatal, warn, debug);
-    }
-
     public static void setExceptionHandlers(@Nullable ExceptionHandler fatal,
                                              @Nullable ExceptionHandler warn,
                                              @Nullable ExceptionHandler debug) {
 
-        if (fatal == null)
-            FATAL = NullExceptionHandler.NOTHING;
-        else
-            FATAL = fatal;
-
-        if (warn == null)
-            WARN = NullExceptionHandler.NOTHING;
-        else
-            WARN = warn;
-
-        if (debug == null)
-            disableDebugHandler();
-        else
-            DEBUG = debug;
+        FATAL.defaultHandler(fatal);
+        WARN.defaultHandler(warn);
+        DEBUG.defaultHandler(debug);
     }
 
-    public static void disableDebugHandler() {
-        DEBUG = NullExceptionHandler.NOTHING;
+    public static void setThreadLocalExceptionHandlers(@Nullable ExceptionHandler fatal,
+                                                       @Nullable ExceptionHandler warn,
+                                                       @Nullable ExceptionHandler debug) {
+
+        FATAL.threadLocalHandler(fatal);
+        WARN.threadLocalHandler(warn);
+        DEBUG.threadLocalHandler(debug);
     }
 
     @NotNull

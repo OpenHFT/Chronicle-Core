@@ -26,7 +26,7 @@ import java.lang.reflect.Field;
 
 import static java.lang.Character.toLowerCase;
 
-/**
+/*
  * Created by Rob Austin
  */
 public enum StringUtils {

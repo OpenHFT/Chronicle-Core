@@ -21,6 +21,7 @@ import net.openhft.chronicle.core.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -65,6 +66,6 @@ public class StringInterner {
     }
 
     public int valueCount() {
-        return (int) Stream.of(interner).filter(s -> s != null).count();
+        return (int) Stream.of(interner).filter(Objects::nonNull).count();
     }
 }

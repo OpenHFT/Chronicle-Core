@@ -172,10 +172,12 @@ public interface Memory {
     long addLong(Object object, long offset, long increment);
 
     @NotNull
-    <E> E allocateInstance(Class<E> clazz) throws InstantiationException;
+    <E> E allocateInstance(Class<? extends E> clazz) throws InstantiationException;
 
     long getFieldOffset(Field field);
 
+    /** @deprecated Redundant to {@link #writeInt(Object,long,int)}. */
+    @Deprecated
     void setInt(Object o, long offset, int value);
 
     @NotNull

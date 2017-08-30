@@ -19,8 +19,8 @@ package net.openhft.chronicle.core.util;
 
 import org.jetbrains.annotations.NotNull;
 
-/**
- * Created by Peter on 13/06/2016.
+/*
+ * Created by Peter Lawrey on 13/06/2016.
  */
 @FunctionalInterface
 public interface ThrowingCallable<R, T extends Throwable> {

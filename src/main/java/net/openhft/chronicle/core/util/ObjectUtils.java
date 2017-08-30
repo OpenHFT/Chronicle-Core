@@ -19,6 +19,7 @@ package net.openhft.chronicle.core.util;
 import net.openhft.chronicle.core.ClassLocal;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
+import net.openhft.chronicle.core.pool.EnumCache;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,8 +36,8 @@ import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
 import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.MAYBE;
 import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
 
-/**
- * Created by peter on 23/06/15.
+/*
+ * Created by Peter Lawrey on 23/06/15.
  */
 public enum ObjectUtils {
     ;
@@ -162,7 +163,7 @@ public enum ObjectUtils {
         if (name.startsWith("{") && name.endsWith("}"))
             return getSingletonForEnum(eClass);
         @NotNull final E anEnum = (E) map.get(name);
-        return anEnum == null ? Enum.valueOf(eClass, name) : anEnum;
+        return anEnum == null ? EnumCache.of(eClass).valueOf(name) : anEnum;
     }
 
     public static <E extends Enum<E>> E getSingletonForEnum(Class<E> eClass) {
@@ -451,7 +452,7 @@ public enum ObjectUtils {
             try {
                 Constructor constructor = c.getDeclaredConstructor(String.class);
                 constructor.setAccessible(true);
-                return s -> constructor.newInstance(s);
+                return constructor::newInstance;
             } catch (Exception e) {
                 throw asCCE(e);
             }

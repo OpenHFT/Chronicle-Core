@@ -20,8 +20,8 @@ package net.openhft.chronicle.core.onoes;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 
-/**
- * Created by Peter on 13/06/2016.
+/*
+ * Created by Peter Lawrey on 13/06/2016.
  */
 public enum Slf4jExceptionHandler implements ExceptionHandler {
     FATAL {

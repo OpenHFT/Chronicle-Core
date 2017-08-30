@@ -28,8 +28,8 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.Properties;
 
-/**
- * Created by Peter on 07/04/2016.
+/*
+ * Created by Peter Lawrey on 07/04/2016.
  */
 public class WebExceptionHandler implements ExceptionHandler {
     private final Properties properties = new Properties();
