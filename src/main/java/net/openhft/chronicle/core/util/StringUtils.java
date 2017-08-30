@@ -124,42 +124,23 @@ public enum StringUtils {
 
     public static char[] extractChars(StringBuilder sb) {
         if (Jvm.isJava9Plus()) {
-            final Object data = OS.memory().getObject(sb, SB_VALUE_OFFSET);
-            if (data instanceof byte[]) {
-                final byte[] dataBytes = (byte[]) data;
-                final char[] copy = new char[sb.length()];
-                for (int i = 0; i < copy.length; i++) {
-                    copy[i] = (char) dataBytes[i];
-                }
-
-                return copy;
-            }
-
-            return (char[]) data;
+            final char[] data = new char[sb.length()];
+            sb.getChars(0, sb.length(), data, 0);
+            return data;
         }
+
         final char[] chars = OS.memory().getObject(sb, SB_VALUE_OFFSET);
         if (chars.length == sb.length()) {
             return chars;
         }
         final char[] actualData = new char[sb.length()];
-        System.arraycopy(chars, 0, actualData, 0, sb.length());
+        sb.getChars(0, sb.length(), actualData, 0);
         return actualData;
     }
 
     public static char[] extractChars(String s) {
         if (Jvm.isJava9Plus()) {
-            final Object data = OS.memory().getObject(s, S_VALUE_OFFSET);
-            if (data instanceof byte[]) {
-                final byte[] dataBytes = (byte[]) data;
-                final char[] copy = new char[dataBytes.length];
-                for (int i = 0; i < dataBytes.length; i++) {
-                    copy[i] = (char) dataBytes[i];
-                }
-
-                return copy;
-            }
-
-            return (char[]) data;
+            return s.toCharArray();
         }
         return OS.memory().getObject(s, S_VALUE_OFFSET);
     }

@@ -48,7 +48,6 @@ public enum IOTools {
 
     private static MethodHandle DIRECT_BUFFER_CLEANER_METHOD_HANDLE;
     private static MethodHandle CLEANER_CLEAN_METHOD_HANDLE;
-    private static MethodHandle GET_CALLER_CLASS_METHOD_HANDLE;
 
     static {
         final Class<?> cleanerClass;
@@ -56,14 +55,8 @@ public enum IOTools {
             final MethodHandles.Lookup lookup = MethodHandles.lookup();
             if (Jvm.isJava9Plus()) {
                 cleanerClass = Class.forName("jdk.internal.ref.Cleaner");
-                GET_CALLER_CLASS_METHOD_HANDLE = lookup.
-                        findStatic(Class.forName("jdk.internal.reflect.Reflection"), "getCallerClass",
-                                MethodType.methodType(Class.class, int.class));
             } else {
                 cleanerClass = Class.forName("sun.misc.Cleaner");
-                GET_CALLER_CLASS_METHOD_HANDLE = lookup.
-                        findStatic(Class.forName("sun.reflect.Reflection"), "getCallerClass",
-                                MethodType.methodType(Class.class));
             }
 
             DIRECT_BUFFER_CLEANER_METHOD_HANDLE = lookup.findVirtual(DirectBuffer.class, "cleaner",
