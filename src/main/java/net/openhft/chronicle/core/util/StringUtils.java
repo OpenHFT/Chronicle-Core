@@ -191,6 +191,20 @@ public enum StringUtils {
         }
     }
 
+    @Java9
+    @NotNull
+    public static String newStringFromBytes(byte[] bytes) {
+        ensureJava9Plus();
+        //noinspection RedundantStringConstructorCall
+        @NotNull String str = new String();
+        try {
+            S_VALUE.set(str, bytes);
+            return str;
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+    }
+
     @Nullable
     public static String firstLowerCase(@Nullable String str) {
         if (str == null || str.isEmpty())

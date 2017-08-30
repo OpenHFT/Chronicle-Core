@@ -87,6 +87,14 @@ public class StringUtilsTest {
     }
 
     @Test
+    public void shouldCreateNewStringFromBytes() throws Exception {
+        assumeTrue(Jvm.isJava9Plus());
+
+        final byte[] bytes = {'A', 'B', 'C'};
+        assertThat(new String(bytes), is(StringUtils.newStringFromBytes(bytes)));
+    }
+
+    @Test
     public void testParseDouble() throws IOException {
         for (double d : new double[]{Double.NaN, Double.NEGATIVE_INFINITY, Double
                 .POSITIVE_INFINITY, 0.0, -1.0, 1.0, 9999.0}) {
