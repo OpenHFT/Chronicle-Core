@@ -19,6 +19,7 @@ package net.openhft.chronicle.core.util;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.annotation.ForceInline;
+import net.openhft.chronicle.core.annotation.Java9;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -138,11 +139,37 @@ public enum StringUtils {
         return actualData;
     }
 
+    @Java9
+    public static byte[] extractBytes(StringBuilder sb) {
+        ensureJava9Plus();
+
+        final byte[] bytes = OS.memory().getObject(sb, SB_VALUE_OFFSET);
+        if (bytes.length == sb.length()) {
+            return bytes;
+        }
+        final byte[] actualData = new byte[sb.length()];
+        System.arraycopy(bytes, 0, actualData, 0, sb.length());
+        return actualData;
+    }
+
     public static char[] extractChars(String s) {
         if (Jvm.isJava9Plus()) {
             return s.toCharArray();
         }
         return OS.memory().getObject(s, S_VALUE_OFFSET);
+    }
+
+    @Java9
+    public static byte[] extractBytes(String s) {
+        ensureJava9Plus();
+
+        return OS.memory().getObject(s, S_VALUE_OFFSET);
+    }
+
+    private static void ensureJava9Plus() {
+        if (!Jvm.isJava9Plus()) {
+            throw new UnsupportedOperationException("This method is only supported on Java9+ runtimes");
+        }
     }
 
     public static void setCount(StringBuilder sb, int count) {

@@ -16,14 +16,16 @@
 
 package net.openhft.chronicle.core.util;
 
-import junit.framework.TestCase;
+import net.openhft.chronicle.core.Jvm;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assume.assumeTrue;
 
 /**
  * @author Rob Austin.
@@ -60,6 +62,22 @@ public class StringUtilsTest {
         assertEquals("AA_AA", StringUtils.toTitleCase("AaAa"));
         assertEquals("A_AAA", StringUtils.toTitleCase("AAaa"));
         assertEquals("AAAA", StringUtils.toTitleCase("Aaaa"));
+    }
+
+    @Test
+    public void shouldExtractBytesFromString() throws Exception {
+        assumeTrue(Jvm.isJava9Plus());
+
+        assertThat("Is this test running on JDK9 with compact strings disabled?",
+                StringUtils.extractBytes("foobar"), is("foobar".getBytes(StandardCharsets.US_ASCII)));
+    }
+
+    @Test
+    public void shouldExtractBytesFromStringBuilder() throws Exception {
+        assumeTrue(Jvm.isJava9Plus());
+
+        assertThat("Is this test running on JDK9 with compact strings disabled?",
+                StringUtils.extractBytes(new StringBuilder("foobar")), is("foobar".getBytes(StandardCharsets.US_ASCII)));
     }
 
     @Test
