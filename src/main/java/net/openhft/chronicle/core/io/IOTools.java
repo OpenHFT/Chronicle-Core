@@ -62,7 +62,7 @@ public enum IOTools {
             DIRECT_BUFFER_CLEANER_METHOD_HANDLE = lookup.findVirtual(DirectBuffer.class, "cleaner",
                     MethodType.methodType(cleanerClass));
             CLEANER_CLEAN_METHOD_HANDLE = lookup.findVirtual(cleanerClass, "clean",
-                    MethodType.methodType(Void.class));
+                    MethodType.methodType(void.class));
         } catch (NoSuchMethodException | IllegalAccessException | ClassNotFoundException e) {
             Jvm.warn().on(IOTools.class, "Failed to load method handles for JDK 9 compatibility", e);
         }
