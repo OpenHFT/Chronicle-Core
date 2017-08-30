@@ -159,7 +159,7 @@ public enum StringUtils {
     }
 
     public static void setCount(StringBuilder sb, int count) {
-        OS.memory().setInt(sb, SB_COUNT_OFFSET, count);
+        OS.memory().writeInt(sb, SB_COUNT_OFFSET, count);
     }
 
     @NotNull
