@@ -25,6 +25,8 @@ import java.nio.charset.StandardCharsets;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assume.assumeTrue;
 
 /**
@@ -105,5 +107,34 @@ public class StringUtilsTest {
         assertEquals(0.0, StringUtils.parseDouble("-0"), 0);
         assertEquals(123.0, StringUtils.parseDouble("123"), 0);
         assertEquals(-1.0, StringUtils.parseDouble("-1"), 0);
+    }
+
+    @Test
+    public void testIsEqual() throws Exception {
+
+        // The same instances
+        StringBuilder emptySb = new StringBuilder().append("");
+        assertTrue(StringUtils.isEqual(emptySb, emptySb));
+
+        // Null cases
+        assertTrue(StringUtils.isEqual(null,null));
+        assertFalse(StringUtils.isEqual(emptySb,null));
+        assertFalse(StringUtils.isEqual(null,emptySb));
+
+        // Different lengths
+        assertFalse(StringUtils.isEqual(new StringBuilder().append(""), "a"));
+
+        // Same lengths & ASCII
+        assertFalse(StringUtils.isEqual(new StringBuilder().append("a"), "b"));
+        assertFalse(StringUtils.isEqual(new StringBuilder().append("test"), "Test"));
+        assertTrue(StringUtils.isEqual(new StringBuilder().append("TheSame"), "TheSame"));
+
+        // Same lengths & UTF-8
+        assertFalse(StringUtils.isEqual(new StringBuilder().append("Δ"), "Γ"));
+        assertFalse(StringUtils.isEqual(new StringBuilder().append("ΔΔΔΔΔ"), "ΔΔ€ΔΔ"));
+        assertTrue(StringUtils.isEqual(new StringBuilder().append("ΔΔΔΔΔ"), "ΔΔΔΔΔ"));
+
+        // Empty strings
+        assertTrue(StringUtils.isEqual(new StringBuilder(), ""));
     }
 }

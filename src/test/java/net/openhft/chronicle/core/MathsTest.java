@@ -34,6 +34,7 @@ import java.util.stream.DoubleStream;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
@@ -316,5 +317,47 @@ public class MathsTest {
         StringUtils.set(sb, intern2);
         final long actual2 = Maths.hash64(sb);
         assertEquals(hash, actual2);
+    }
+
+    @Test
+    public void testHash64ForString() throws Exception {
+        // Empty
+        String e1 = "";
+        long eh1 = Maths.hash64(e1);
+
+        assertEquals(0, eh1);
+
+        // ASCII & Equality test
+        String a1 = "Test";
+        long ah1 = Maths.hash64(a1);
+
+        String a2 = new StringBuilder().append("T").append("e").toString() + "st";
+        long ah2 = Maths.hash64(a2);
+
+        assertEquals(ah1, ah2);
+
+        // UTF8 & Equality test
+        String u1 = "€";
+        long uh1 = Maths.hash64(u1);
+        if (Jvm.isJava9Plus()) {
+            assertEquals(-11958288497246124L, uh1);
+        } else {
+            assertEquals(1177128352603971756L, uh1);
+        }
+
+        String u2 = "€€".substring(0, 1);
+        long uh2 = Maths.hash64(u2);
+
+        assertEquals(uh1, uh2);
+
+        // Mixed
+        StringBuilder mixedSb = new StringBuilder().append("€");
+        mixedSb.setLength(0);
+        mixedSb.append("X");
+
+        assertEquals(Maths.hash64("X"), Maths.hash64(mixedSb.toString()));
+
+        // UT8 & Not-equal hashes
+        assertNotEquals(Maths.hash64("Δ"), Maths.hash64("Γ"));
     }
 }
