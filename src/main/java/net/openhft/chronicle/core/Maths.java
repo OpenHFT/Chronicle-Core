@@ -285,17 +285,31 @@ public enum Maths {
 
     public static long hash64(@NotNull String s) {
         long hash = 0;
-        final char[] chars = StringUtils.extractChars(s);
-        for (int i = 0, len = s.length(); i < len; i++)
-            hash = hash * 841248317 + chars[i];
+
+        if (Jvm.isJava9Plus()) {
+            final byte[] bytes = StringUtils.extractBytes(s);
+            for (int i = 0, len = s.length(); i < len; i++)
+                hash = hash * 841248317 + bytes[i];
+        } else {
+            final char[] chars = StringUtils.extractChars(s);
+            for (int i = 0, len = s.length(); i < len; i++)
+                hash = hash * 841248317 + chars[i];
+        }
         return agitate(hash);
     }
 
     public static long hash64(@NotNull StringBuilder s) {
         long hash = 0;
-        final char[] chars = StringUtils.extractChars(s);
-        for (int i = 0, len = s.length(); i < len; i++)
-            hash = hash * 841248317 + chars[i];
+
+        if (Jvm.isJava9Plus()) {
+            final byte[] bytes = StringUtils.extractBytes(s);
+            for (int i = 0, len = s.length(); i < len; i++)
+                hash = hash * 841248317 + bytes[i];
+        } else {
+            final char[] chars = StringUtils.extractChars(s);
+            for (int i = 0, len = s.length(); i < len; i++)
+                hash = hash * 841248317 + chars[i];
+        }
         return agitate(hash);
     }
 
