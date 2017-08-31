@@ -25,6 +25,18 @@ public class WeakReferenceCleanerTest {
     }
 
     @Test
+    public void shouldRunOnceWhenRequested() throws Exception {
+        final Container foo = allocate("foo");
+        assertThat(processedCount.get(), is(0));
+
+        foo.cleaner.clean();
+        assertThat(processedCount.get(), is(1));
+
+        foo.cleaner.clean();
+        assertThat(processedCount.get(), is(1));
+    }
+
+    @Test
     public void shouldRunThunkAfterReferenceIsProcessed() throws Exception {
         Container a = allocate("a");
         Container b = allocate("b");
@@ -84,7 +96,7 @@ public class WeakReferenceCleanerTest {
     }
 
     private final class Container {
-        private WeakReferenceCleaner cleaner;
+        private final WeakReferenceCleaner cleaner;
         private final String data;
 
         Container(final String data) {

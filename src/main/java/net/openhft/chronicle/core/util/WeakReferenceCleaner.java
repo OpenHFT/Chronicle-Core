@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 /**
  * Intended as a replacement for usage of sun.misc.Cleaner/jdk.internal.ref.Cleaner
@@ -19,12 +20,22 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
     private static final ReferenceQueue<Object> REFERENCE_QUEUE = new ReferenceQueue<>();
     private static final Map<WeakReferenceCleaner, Boolean> REFERENCE_MAP = new ConcurrentHashMap<>();
     private static final AtomicBoolean REFERENCE_PROCESSOR_STARTED = new AtomicBoolean(false);
+    private static final AtomicIntegerFieldUpdater<WeakReferenceCleaner> CLEANED_FLAG =
+            AtomicIntegerFieldUpdater.newUpdater(WeakReferenceCleaner.class, "cleaned");
 
     private final Runnable thunk;
+    @SuppressWarnings("unused")
+    private volatile int cleaned = 0;
 
     private WeakReferenceCleaner(final Object referent, final Runnable thunk) {
         super(referent, REFERENCE_QUEUE);
         this.thunk = thunk;
+    }
+
+    public void clean() {
+        if (CLEANED_FLAG.compareAndSet(this, 0, 1)) {
+            thunk.run();
+        }
     }
 
     public static WeakReferenceCleaner newCleaner(final Object referent, final Runnable thunk) {
