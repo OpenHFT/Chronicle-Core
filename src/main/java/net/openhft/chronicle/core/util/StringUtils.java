@@ -99,11 +99,20 @@ public enum StringUtils {
         if (cs == null) return false;
         int length = cs.length();
         if (s.length() != length) return false;
-        char[] chars = StringUtils.extractChars(s);
-        for (int i = 0; i < length; i++)
-            if (chars[i] != cs.charAt(i))
-                return false;
-        return true;
+
+        if (Jvm.isJava9Plus()) {
+            for (int i = 0; i < length; i++)
+                // This is not as fast as it could be.
+                if (s.charAt(i) != cs.charAt(i))
+                    return false;
+            return true;
+        } else {
+            char[] chars = StringUtils.extractChars(s);
+            for (int i = 0; i < length; i++)
+                if (chars[i] != cs.charAt(i))
+                    return false;
+            return true;
+        }
     }
 
     @ForceInline
@@ -137,6 +146,31 @@ public enum StringUtils {
         final char[] actualData = new char[sb.length()];
         sb.getChars(0, sb.length(), actualData, 0);
         return actualData;
+    }
+
+    @Java9
+    public static byte getStringCoder(String str) {
+        return getStringCoderForStringOrStringBuilder(str);
+    }
+
+    @Java9
+    public static byte getStringCoder(StringBuilder str) {
+        return getStringCoderForStringOrStringBuilder(str);
+    }
+
+    @Java9
+    private static byte getStringCoderForStringOrStringBuilder(CharSequence charSequence) {
+        byte coder;
+
+        try {
+            Field f = charSequence.getClass().getDeclaredField("coder");
+            f.setAccessible(true);
+            coder = f.getByte(charSequence);
+        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e) {
+            throw new AssertionError(e);
+        }
+
+        return coder;
     }
 
     @Java9
