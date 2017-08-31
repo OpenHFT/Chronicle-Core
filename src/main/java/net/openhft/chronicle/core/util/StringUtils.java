@@ -160,17 +160,11 @@ public enum StringUtils {
 
     @Java9
     private static byte getStringCoderForStringOrStringBuilder(CharSequence charSequence) {
-        byte coder;
-
         try {
-            Field f = charSequence.getClass().getDeclaredField("coder");
-            f.setAccessible(true);
-            coder = f.getByte(charSequence);
-        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e) {
+            return Jvm.getField(charSequence.getClass(), "coder").getByte(charSequence);
+        } catch (IllegalArgumentException | IllegalAccessException e) {
             throw new AssertionError(e);
         }
-
-        return coder;
     }
 
     @Java9
