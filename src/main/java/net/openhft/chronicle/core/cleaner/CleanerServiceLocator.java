@@ -1,5 +1,6 @@
 package net.openhft.chronicle.core.cleaner;
 
+import net.openhft.chronicle.core.cleaner.impl.reflect.ReflectionBasedByteBufferCleanerService;
 import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,8 @@ public final class CleanerServiceLocator {
             }
 
             if (cleanerService == null) {
-                throw new IllegalStateException("Unable to locate ByteBufferCleanerService");
+                cleanerService = new ReflectionBasedByteBufferCleanerService();
+                LOGGER.warn("Unable to find suitable cleaner service, falling back to using reflection");
             }
 
             instance = cleanerService;

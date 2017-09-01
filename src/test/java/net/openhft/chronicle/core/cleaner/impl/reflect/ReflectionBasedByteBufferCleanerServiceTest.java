@@ -1,4 +1,4 @@
-package net.openhft.chronicle.core.cleaner.impl.jdk8;
+package net.openhft.chronicle.core.cleaner.impl.reflect;
 
 import net.openhft.chronicle.core.Jvm;
 import org.junit.Test;
