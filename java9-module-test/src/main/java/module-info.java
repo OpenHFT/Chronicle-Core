@@ -1,4 +1,4 @@
-module java9.module.test {
+module java_nine.module.test {
     requires chronicle.core;
     requires net.openhft.chronicle.core;
 }

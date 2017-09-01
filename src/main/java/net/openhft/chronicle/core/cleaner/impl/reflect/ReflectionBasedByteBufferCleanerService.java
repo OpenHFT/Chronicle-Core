@@ -17,27 +17,20 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
 
     @Override
     public void clean(final ByteBuffer buffer) {
-        final Method cleanerMethod;
         try {
-            cleanerMethod = DirectBuffer.class.getDeclaredMethod("cleaner");
-            log("cleaner method: %s%n", cleanerMethod);
-            final Object cleaner = cleanerMethod.invoke(buffer);
-            log("cleaner: %s%n", cleaner);
-            final String cleanerClassname = Jvm.isJava9Plus() ? JDK9_CLEANER_CLASS_NAME : JDK8_CLEANER_CLASS_NAME;
-
-            log("cleaner class name: %s%n", cleanerClassname);
-            final Method cleanMethod = Class.forName(cleanerClassname).getDeclaredMethod("clean");
-            log("clean method: %s%n", cleanMethod);
-
+            final Method cleanerMethod;
+            cleanerMethod = DirectBuffer.class.
+                    getDeclaredMethod("cleaner");
+            final Object cleaner =
+                    cleanerMethod.invoke(buffer);
+            final String cleanerClassname = Jvm.isJava9Plus() ?
+                    JDK9_CLEANER_CLASS_NAME : JDK8_CLEANER_CLASS_NAME;
+            final Method cleanMethod = Class.forName(cleanerClassname).
+                    getDeclaredMethod("clean");
             cleanMethod.invoke(cleaner);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
             LOGGER.warn("Failed to clean buffer", e);
         }
-    }
-
-    private void log(final String fmt, final Object arg) {
-        System.out.printf(fmt, arg);
-        LOGGER.warn(String.format(fmt, arg));
     }
 
     @Override

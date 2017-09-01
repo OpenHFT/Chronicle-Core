@@ -76,21 +76,6 @@
                 </configuration>
             </plugin>
 
-<!--            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-scm-publish-plugin</artifactId>
-                <configuration>
-                    <checkoutDirectory>${project.build.directory}/scmpublish/javadoc
-                    </checkoutDirectory>
-                    <checkinComment>Publishing javadoc for ${project.artifactId}:${project.version}
-                    </checkinComment>
-                    <content>${project.reporting.outputDirectory}</content>
-                    <skipDeletedFiles>true</skipDeletedFiles>
-                    <pubScmUrl>scm:git:git@github.com:OpenHFT/Chronicle-Core</pubScmUrl>
-                    <scmBranch>gh-pages</scmBranch>
-                </configuration>
-            </plugin>
--->
             <!-- used to allow getClass().getPackage().getImplementationVersion() -->
 
             <plugin>
@@ -133,39 +118,6 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <!--<plugin>-->
-                <!--<groupId>org.apache.felix</groupId>-->
-                <!--<artifactId>maven-bundle-plugin</artifactId>-->
-                <!--<version>3.3.0</version>-->
-                <!--<extensions>true</extensions>-->
-                <!--<configuration>-->
-                    <!--<instructions>-->
-                        <!--<Bundle-SymbolicName>${project.groupId}.${project.artifactId}-->
-                        <!--</Bundle-SymbolicName>-->
-                        <!--<Bundle-Name>OpenHFT :: ${project.artifactId}</Bundle-Name>-->
-                        <!--<Bundle-Version>${project.version}</Bundle-Version>-->
-                        <!--<Export-Package>-->
-                            <!--net.openhft.chronicle.core.*;-noimport:=true-->
-                        <!--</Export-Package>-->
-                        <!--<Import-Package>-->
-                            <!--software.chronicle.enterprise.core;resolution:=optional,-->
-                            <!--*-->
-                        <!--</Import-Package>-->
-                    <!--</instructions>-->
-                <!--</configuration>-->
-                <!--<executions>-->
-                    <!--&lt;!&ndash;-->
-                      <!--This execution makes sure that the manifest is available-->
-                      <!--when the tests are executed-->
-                    <!--&ndash;&gt;-->
-                    <!--<execution>-->
-                        <!--<goals>-->
-                            <!--<goal>manifest</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-            <!--</plugin>-->
 
         </plugins>
     </build>
