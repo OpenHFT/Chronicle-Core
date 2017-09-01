@@ -19,6 +19,7 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import sun.misc.Cleaner;
 import sun.nio.ch.DirectBuffer;
 
 import java.io.ByteArrayOutputStream;
@@ -28,9 +29,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
@@ -45,28 +43,6 @@ import java.util.zip.GZIPOutputStream;
  */
 public enum IOTools {
     ;
-
-    private static MethodHandle DIRECT_BUFFER_CLEANER_METHOD_HANDLE;
-    private static MethodHandle CLEANER_CLEAN_METHOD_HANDLE;
-
-    static {
-        final Class<?> cleanerClass;
-        try {
-            final MethodHandles.Lookup lookup = MethodHandles.lookup();
-            if (Jvm.isJava9Plus()) {
-                cleanerClass = Class.forName("jdk.internal.ref.Cleaner");
-            } else {
-                cleanerClass = Class.forName("sun.misc.Cleaner");
-            }
-
-            DIRECT_BUFFER_CLEANER_METHOD_HANDLE = lookup.findVirtual(DirectBuffer.class, "cleaner",
-                    MethodType.methodType(cleanerClass));
-            CLEANER_CLEAN_METHOD_HANDLE = lookup.findVirtual(cleanerClass, "clean",
-                    MethodType.methodType(void.class));
-        } catch (NoSuchMethodException | IllegalAccessException | ClassNotFoundException e) {
-            Jvm.warn().on(IOTools.class, "Failed to load method handles for JDK 9 compatibility", e);
-        }
-    }
 
     public static boolean shallowDeleteDirWithFiles(@NotNull String directory) throws IORuntimeException {
         return shallowDeleteDirWithFiles(new File(directory));
@@ -189,19 +165,10 @@ public enum IOTools {
     }
 
     public static void clean(ByteBuffer bb) {
-        if (bb instanceof DirectBuffer &&
-                DIRECT_BUFFER_CLEANER_METHOD_HANDLE != null &&
-                CLEANER_CLEAN_METHOD_HANDLE != null) {
-            try {
-                final Object cleaner = DIRECT_BUFFER_CLEANER_METHOD_HANDLE.invoke((DirectBuffer) bb);
-
-
-                if (cleaner != null) {
-                    CLEANER_CLEAN_METHOD_HANDLE.invoke(cleaner);
-                }
-            } catch (Throwable t) {
-                Jvm.warn().on(IOTools.class, "Failed to invoke cleaner on DirectBuffer", t);
-            }
+        if (bb instanceof DirectBuffer) {
+            Cleaner cl = ((DirectBuffer) bb).cleaner();
+            if (cl != null)
+                cl.clean();
         }
     }
 }
