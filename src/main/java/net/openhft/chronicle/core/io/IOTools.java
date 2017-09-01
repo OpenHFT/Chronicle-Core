@@ -17,10 +17,9 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.cleaner.CleanerServiceLocator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import sun.misc.Cleaner;
-import sun.nio.ch.DirectBuffer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -165,10 +164,6 @@ public enum IOTools {
     }
 
     public static void clean(ByteBuffer bb) {
-        if (bb instanceof DirectBuffer) {
-            Cleaner cl = ((DirectBuffer) bb).cleaner();
-            if (cl != null)
-                cl.clean();
-        }
+        CleanerServiceLocator.cleanerService().clean(bb);
     }
 }
