@@ -7,7 +7,6 @@ import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Optional;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
@@ -26,12 +25,8 @@ public final class CleanerServiceLocator {
 
             try {
                 for (final ByteBufferCleanerService next : available) {
-
-                    log("Candidate: %s%n", next.getClass().getName());
-
                     if (isAllowedInThisMajorVersion(next) &&
                             (cleanerService == null || next.impact() < cleanerService.impact())) {
-                        log("Accepting %s%n", next.getClass().getSimpleName());
                         cleanerService = next;
                     }
                 }
@@ -51,15 +46,8 @@ public final class CleanerServiceLocator {
         return instance;
     }
 
-    private static void log(final String format, final Object... args) {
-        System.out.printf(format, args);
-    }
-
     private static boolean isAllowedInThisMajorVersion(final ByteBufferCleanerService svc) {
         final TargetMajorVersion version = svc.getClass().getDeclaredAnnotation(TargetMajorVersion.class);
-
-        log("Checking annotation on %s, got version: %s%n", svc.getClass().getSimpleName(),
-                Optional.ofNullable(version).map(TargetMajorVersion::majorVersion).map(i -> Integer.toString(i)).orElse("NULL"));
 
         return version == null ||
                 version.majorVersion() == TargetMajorVersion.ANY_VERSION ||
