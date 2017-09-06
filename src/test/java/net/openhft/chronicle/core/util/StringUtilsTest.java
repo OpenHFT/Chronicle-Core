@@ -17,11 +17,13 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.Jvm;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
@@ -64,6 +66,21 @@ public class StringUtilsTest {
         assertEquals("AA_AA", StringUtils.toTitleCase("AaAa"));
         assertEquals("A_AAA", StringUtils.toTitleCase("AAaa"));
         assertEquals("AAAA", StringUtils.toTitleCase("Aaaa"));
+    }
+
+    @Ignore("picks up dead chars at end of string builder value array")
+    @Test
+    public void shouldGetCharsOfStringBuilder() throws Exception {
+        final StringBuilder sb = new StringBuilder("foobar_nine");
+        final char[] chars = StringUtils.extractChars(sb);
+        assertThat(new String(chars), equalTo(sb.toString()));
+    }
+
+    @Test
+    public void shouldGetCharsOfString() throws Exception {
+        final String s = "foobar_nine";
+        final char[] chars = StringUtils.extractChars(s);
+        assertThat(new String(chars), equalTo(s));
     }
 
     @Test

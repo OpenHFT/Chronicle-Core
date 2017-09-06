@@ -284,20 +284,6 @@ public class MathsTest {
     }
 
     @Test
-    public void shouldGetCharsOfStringBuilder() throws Exception {
-        final StringBuilder sb = new StringBuilder("foobar_nine");
-        final char[] chars = StringUtils.extractChars(sb);
-        assertThat(new String(chars), equalTo(sb.toString()));
-    }
-
-    @Test
-    public void shouldGetCharsOfString() throws Exception {
-        final String s = "foobar_nine";
-        final char[] chars = StringUtils.extractChars(s);
-        assertThat(new String(chars), equalTo(s));
-    }
-
-    @Test
     public void testHashStringBuilderFromInterner() throws Exception {
         @NotNull StringInterner interner = new StringInterner(16);
 

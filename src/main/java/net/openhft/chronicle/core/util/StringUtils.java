@@ -139,13 +139,7 @@ public enum StringUtils {
             return data;
         }
 
-        final char[] chars = OS.memory().getObject(sb, SB_VALUE_OFFSET);
-        if (chars.length == sb.length()) {
-            return chars;
-        }
-        final char[] actualData = new char[sb.length()];
-        sb.getChars(0, sb.length(), actualData, 0);
-        return actualData;
+        return OS.memory().getObject(sb, SB_VALUE_OFFSET);
     }
 
     @Java9
@@ -171,13 +165,7 @@ public enum StringUtils {
     public static byte[] extractBytes(StringBuilder sb) {
         ensureJava9Plus();
 
-        final byte[] bytes = OS.memory().getObject(sb, SB_VALUE_OFFSET);
-        if (bytes.length == sb.length()) {
-            return bytes;
-        }
-        final byte[] actualData = new byte[sb.length()];
-        System.arraycopy(bytes, 0, actualData, 0, sb.length());
-        return actualData;
+        return OS.memory().getObject(sb, SB_VALUE_OFFSET);
     }
 
     public static char[] extractChars(String s) {
@@ -192,12 +180,6 @@ public enum StringUtils {
         ensureJava9Plus();
 
         return OS.memory().getObject(s, S_VALUE_OFFSET);
-    }
-
-    private static void ensureJava9Plus() {
-        if (!Jvm.isJava9Plus()) {
-            throw new UnsupportedOperationException("This method is only supported on Java9+ runtimes");
-        }
     }
 
     public static void setCount(StringBuilder sb, int count) {
@@ -290,6 +272,12 @@ public enum StringUtils {
         }
 
         return asDouble(value, exp, negative, decimalPlaces);
+    }
+
+    private static void ensureJava9Plus() {
+        if (!Jvm.isJava9Plus()) {
+            throw new UnsupportedOperationException("This method is only supported on Java9+ runtimes");
+        }
     }
 
     private static boolean compareRest(@NotNull @net.openhft.chronicle.core.annotation.NotNull CharSequence in,
