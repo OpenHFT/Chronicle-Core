@@ -71,10 +71,10 @@ public class SystemTimeProviderTest {
         SystemTimeProvider tp = SystemTimeProvider.INSTANCE;
         long time1 = tp.currentTime(TimeUnit.SECONDS);
         long time2 = tp.currentTimeMillis();
-        assertEquals(time1, time2 / 1000 + 1, 1);
         long time3 = tp.currentTimeMicros();
-        assertEquals(time2, time3 / 1000 + 10, 10);
         long time4 = tp.currentTimeNanos();
+        assertEquals(time1, time2 / 1000 + 1, 1);
+        assertEquals(time2, time3 / 1000 + 10, 10);
         assertEquals(time3, time4 / 1000 + 5000, 10000);
     }
 }
