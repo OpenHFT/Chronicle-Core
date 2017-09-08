@@ -16,13 +16,7 @@
 
 package net.openhft.chronicle.core;
 
-import net.openhft.chronicle.core.onoes.ExceptionHandler;
-import net.openhft.chronicle.core.onoes.ExceptionKey;
-import net.openhft.chronicle.core.onoes.LogLevel;
-import net.openhft.chronicle.core.onoes.NullExceptionHandler;
-import net.openhft.chronicle.core.onoes.RecordingExceptionHandler;
-import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
-import net.openhft.chronicle.core.onoes.ThreadLocalisedExceptionHandler;
+import net.openhft.chronicle.core.onoes.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -329,9 +323,16 @@ public enum Jvm {
         return exceptions.keySet().stream().anyMatch(k -> k.throwable != null && k.level != LogLevel.DEBUG);
     }
 
-    public static void setExceptionHandlers(@Nullable ExceptionHandler fatal,
+    @Deprecated
+    public static void setExceptionsHandlers(@Nullable ExceptionHandler fatal,
                                              @Nullable ExceptionHandler warn,
                                              @Nullable ExceptionHandler debug) {
+        setExceptionHandlers(fatal, warn, debug);
+    }
+
+    public static void setExceptionHandlers(@Nullable ExceptionHandler fatal,
+                                            @Nullable ExceptionHandler warn,
+                                            @Nullable ExceptionHandler debug) {
 
         FATAL.defaultHandler(fatal);
         WARN.defaultHandler(warn);
