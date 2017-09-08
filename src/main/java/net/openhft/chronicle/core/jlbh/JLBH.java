@@ -318,18 +318,22 @@ public class JLBH implements NanoSampler {
             }
 
             try {
-                long lastTime = System.nanoTime();
+                long lastTime = System.nanoTime(), start = lastTime;
                 while (true) {
-                    if (reset.get()) {
-                        reset.set(false);
-                        osJitterHistogram.reset();
-                        lastTime = System.nanoTime();
+                    for (int i = 0; i < 10000; i++) {
+                        if (reset.get()) {
+                            reset.set(false);
+                            osJitterHistogram.reset();
+                            lastTime = System.nanoTime();
+                        }
+                        long time = System.nanoTime();
+                        if (time - lastTime > jlbhOptions.recordJitterGreaterThanNs) {
+                            osJitterHistogram.sample(time - lastTime);
+                        }
+                        lastTime = time;
                     }
-                    long time = System.nanoTime();
-                    if (time - lastTime > jlbhOptions.recordJitterGreaterThanNs) {
-                        osJitterHistogram.sample(time - lastTime);
-                    }
-                    lastTime = time;
+                    if (lastTime > start + 60e9)
+                        Jvm.pause(1);
                 }
             } finally {
                 if (affinityLock != null)
