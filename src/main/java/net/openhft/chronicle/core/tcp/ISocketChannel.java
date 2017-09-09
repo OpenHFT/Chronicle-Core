@@ -1,6 +1,8 @@
 package net.openhft.chronicle.core.tcp;
 
 
+import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.annotation.NotNull;
 import net.openhft.chronicle.core.io.IORuntimeException;
 
@@ -13,10 +15,18 @@ import java.nio.channels.SocketChannel;
 
 public interface ISocketChannel extends Closeable {
 
+    boolean FAST_JAVA8_IO = isFastJava8IO();
+
+    static boolean isFastJava8IO() {
+        boolean fastJava8IO = Boolean.getBoolean("fastJava8IO") && !Jvm.isJava9Plus() && OS.isLinux();
+        if (fastJava8IO) System.out.println("FastJava8IO: " + fastJava8IO);
+        return fastJava8IO;
+    }
+
     @NotNull
     static ISocketChannel wrap(SocketChannel sc) {
         assert sc != null;
-        return new VanillaSocketChannel(sc);
+        return FAST_JAVA8_IO ? new FastJ8SocketChannel(sc) : new VanillaSocketChannel(sc);
     }
 
     @NotNull

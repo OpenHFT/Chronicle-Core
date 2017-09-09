@@ -61,17 +61,22 @@ public enum OS {
     private static final boolean IS_WIN = OS.startsWith("win");
     private static final boolean IS_WIN10 = OS.equals("windows 10");
     private static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : pageSize();
-    private static final Method UNMAPP0;
     private static final AtomicLong memoryMapped = new AtomicLong();
 
     private static MethodHandle UNMAPP0_MH;
+    private static MethodHandle READ0_MH;
 
     static {
         try {
-            UNMAPP0 = FileChannelImpl.class.getDeclaredMethod("unmap0", long.class, long.class);
-            UNMAPP0.setAccessible(true);
-            UNMAPP0_MH = MethodHandles.lookup().unreflect(UNMAPP0);
-        } catch (NoSuchMethodException | IllegalAccessException e) {
+            Method unmap0 = FileChannelImpl.class.getDeclaredMethod("unmap0", long.class, long.class);
+            unmap0.setAccessible(true);
+            UNMAPP0_MH = MethodHandles.lookup().unreflect(unmap0);
+
+            Method read0 = Class.forName("sun.nio.ch.FileDispatcherImpl").getDeclaredMethod("read0", FileDescriptor.class, long.class, int.class);
+            read0.setAccessible(true);
+            READ0_MH = MethodHandles.lookup().unreflect(read0);
+
+        } catch (NoSuchMethodException | IllegalAccessException | ClassNotFoundException e) {
             throw new AssertionError(e);
         }
     }
@@ -466,6 +471,16 @@ public enum OS {
             } catch (@NotNull IOException | IllegalStateException e) {
                 Jvm.warn().on(OS.class, "Error on unmap and release", e);
             }
+        }
+    }
+
+    public static int read0(FileDescriptor fd, long address, int len) throws IOException {
+        try {
+            return (int) READ0_MH.invokeExact(fd, address, len);
+        } catch (IOException ioe) {
+            throw ioe;
+        } catch (Throwable e) {
+            throw new IOException(e);
         }
     }
 }

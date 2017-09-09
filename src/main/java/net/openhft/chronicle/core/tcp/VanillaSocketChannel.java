@@ -9,7 +9,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
 public class VanillaSocketChannel implements ISocketChannel {
-    private final SocketChannel socketChannel;
+    protected final SocketChannel socketChannel;
 
     VanillaSocketChannel(SocketChannel socketChannel) {
         this.socketChannel = socketChannel;

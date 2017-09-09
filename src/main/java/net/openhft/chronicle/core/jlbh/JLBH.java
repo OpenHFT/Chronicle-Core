@@ -320,12 +320,11 @@ public class JLBH implements NanoSampler {
             try {
                 long lastTime = System.nanoTime(), start = lastTime;
                 while (true) {
-                    for (int i = 0; i < 10000; i++) {
-                        if (reset.get()) {
-                            reset.set(false);
-                            osJitterHistogram.reset();
-                            lastTime = System.nanoTime();
-                        }
+                    if (reset.compareAndSet(true, false)) {
+                        osJitterHistogram.reset();
+                        lastTime = System.nanoTime();
+                    }
+                    for (int i = 0; i < 1000; i++) {
                         long time = System.nanoTime();
                         if (time - lastTime > jlbhOptions.recordJitterGreaterThanNs) {
                             osJitterHistogram.sample(time - lastTime);
