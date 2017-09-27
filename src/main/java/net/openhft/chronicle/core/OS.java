@@ -33,6 +33,7 @@ import java.net.UnknownHostException;
 import java.nio.channels.FileChannel;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
@@ -52,7 +53,7 @@ public enum OS {
     private static final int MAP_RW = 1;
     private static final int MAP_PV = 2;
     private static final boolean IS64BIT = is64Bit0();
-    private static final int PROCESS_ID = getProcessId0();
+    private static final AtomicInteger PROCESS_ID = new AtomicInteger();
     @Nullable
     private static final Memory MEMORY = getMemory();
     private static final String OS = System.getProperty("os.name").toLowerCase();
@@ -230,7 +231,12 @@ public enum OS {
     }
 
     public static int getProcessId() {
-        return PROCESS_ID;
+        // getting the process id is slow if the reserve DNS is not setup correctly.
+        // which is frustrating since we don't actually use the hostname.
+        int id = PROCESS_ID.get();
+        if (id == 0)
+            PROCESS_ID.set(id = getProcessId0());
+        return id;
     }
 
     private static int getProcessId0() throws NumberFormatException {
