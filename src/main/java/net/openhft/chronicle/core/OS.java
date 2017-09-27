@@ -31,8 +31,8 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.channels.FileChannel;
-import java.util.Random;
 import java.util.Scanner;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -251,7 +251,7 @@ public enum OS {
         if (pid == null)
             pid = getRuntimeMXBean().getName().split("@", 0)[0];
         if (pid == null) {
-            int rpid = new Random().nextInt(1 << 16);
+            int rpid = ThreadLocalRandom.current().nextInt(2, 1 << 16);
             Jvm.warn().on(OS.class, "Unable to determine PID, picked a random number=" + rpid);
             return rpid;
 
