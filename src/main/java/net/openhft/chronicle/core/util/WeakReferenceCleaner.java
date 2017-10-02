@@ -9,6 +9,7 @@ import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
@@ -39,6 +40,13 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
     }
 
     public static WeakReferenceCleaner newCleaner(final Object referent, final Runnable thunk) {
+        startReferenceProcessor(Executors.newSingleThreadExecutor(r -> {
+            final Thread t = new Thread(r);
+            t.setName("chronicle-weak-reference-cleaner");
+            t.setDaemon(true);
+            return t;
+        }));
+
         final WeakReferenceCleaner cleaner = new WeakReferenceCleaner(referent, thunk);
         REFERENCE_MAP.put(cleaner, Boolean.TRUE);
         return cleaner;
