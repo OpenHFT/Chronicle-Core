@@ -21,7 +21,7 @@ public class WeakReferenceCleanerTest {
 
     @Before
     public void setUp() throws Exception {
-        WeakReferenceCleaner.startReferenceProcessor(executorService);
+        WeakReferenceCleaner.startReferenceProcessor(() -> executorService);
     }
 
     @Test
