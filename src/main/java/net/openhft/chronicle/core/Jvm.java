@@ -58,11 +58,15 @@ public enum Jvm {
     @NotNull
     private static final ThreadLocalisedExceptionHandler DEBUG = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.DEBUG);
 
-    private static final long MAX_DIRECT_MEMORY = maxDirectMemory0();
-    private static final int JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
-    private static final boolean IS_JAVA_9_PLUS = JVM_JAVA_MAJOR_VERSION > 8;
+    private static final int JVM_JAVA_MAJOR_VERSION;
+    private static final boolean IS_JAVA_9_PLUS;
+    private static final long MAX_DIRECT_MEMORY;
 
     static {
+        JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
+        IS_JAVA_9_PLUS = JVM_JAVA_MAJOR_VERSION > 8; // IS_JAVA_9_PLUS value is used in maxDirectMemory0 method.
+        MAX_DIRECT_MEMORY = maxDirectMemory0();
+
         try {
             bitsClass = Class.forName("java.nio.Bits");
             reservedMemory = bitsClass.getDeclaredField("reservedMemory");
@@ -406,7 +410,14 @@ public enum Jvm {
 
     private static long maxDirectMemory0() {
         try {
-            Class<?> clz = Class.forName("sun.misc.VM");
+            Class<?> clz;
+
+            if (IS_JAVA_9_PLUS) {
+                clz = Class.forName("jdk.internal.misc.VM");
+            } else {
+                clz = Class.forName("sun.misc.VM");
+            }
+
             final Method method = clz.getDeclaredMethod("maxDirectMemory");
             return ((Long) method.invoke(null)).longValue();
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
