@@ -119,7 +119,6 @@ public class JvmTest {
 
     @Test
     public void testMaxDirectMemory() {
-        assumeThat(Jvm.majorVersion() < 9, is(true));
         long maxDirectMemory = Jvm.maxDirectMemory();
         assertTrue(maxDirectMemory > 0);
     }
