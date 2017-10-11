@@ -16,18 +16,93 @@
 
 package net.openhft.chronicle.core.time;
 
-/*
- * Created by Peter Lawrey on 10/03/16.
- */
-public class SetTimeProvider implements TimeProvider {
-    private long currentTimeMillis;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
-    public void currentTimeMillis(long currentTimeMillis) {
-        this.currentTimeMillis = currentTimeMillis;
+/**
+ * TimeProvider whose value can be explicitly set and advanced for testing purposes.  Supports time values in milliseconds, microseconds and nanoseconds.
+ *
+ * Created by Peter Lawrey on 10/03/16.
+ **/
+public class SetTimeProvider implements TimeProvider {
+
+    private final AtomicLong nanoTime;
+
+    public SetTimeProvider() {
+        this(0L);
+    }
+
+    public SetTimeProvider(long initialNanos) {
+        nanoTime = new AtomicLong(initialNanos);
+    }
+
+    /**
+     * Set the current time in milliseconds.
+     * @param millis New time value in milliseconds since the epoch. May not be less than the previous value.
+     */
+    public void currentTimeMillis(long millis) {
+        currentTimeNanos(TimeUnit.MILLISECONDS.toNanos(millis));
     }
 
     @Override
     public long currentTimeMillis() {
-        return currentTimeMillis;
+        return TimeUnit.NANOSECONDS.toMillis(nanoTime.get());
     }
+
+    /**
+     * Set the current time in microseconds.
+     * @param micros New time value in microseconds since the epoch. May not be less than the previous value.
+     */
+    public void currentTimeMicros(long micros) {
+        currentTimeNanos(TimeUnit.MICROSECONDS.toNanos(micros));
+    }
+
+    @Override
+    public long currentTimeMicros() {
+        return TimeUnit.NANOSECONDS.toMicros(nanoTime.get());
+    }
+
+    /**
+     * Set the current time in nanoseconds.
+     * @param nanos New time value in nanoseconds since the epoch. May not be less than the previous value.
+     */
+    public void currentTimeNanos(long nanos) {
+        if (nanos < nanoTime.get()) throw new IllegalStateException("Cannot go back in time!");
+        nanoTime.set(nanos);
+    }
+
+    @Override
+    public long currentTimeNanos() {
+        return nanoTime.get();
+    }
+
+    @Override
+    public long currentTime(TimeUnit unit) {
+        return unit.convert(nanoTime.get(), TimeUnit.NANOSECONDS);
+    }
+
+    /**
+     * Advances time in milliseconds.
+     * @param millis duration.
+     */
+    public void advanceMillis(long millis) {
+        nanoTime.addAndGet(TimeUnit.MILLISECONDS.toNanos(millis));
+    }
+
+    /**
+     * Advances time in microseconds.
+     * @param micros duration.
+     */
+    public void advanceMicros(long micros) {
+        nanoTime.addAndGet(TimeUnit.MICROSECONDS.toNanos(micros));
+    }
+
+    /**
+     * Advances time in nanoseconds.
+     * @param nanos duration.
+     */
+    public void advanceNanos(long nanos) {
+        nanoTime.addAndGet(nanos);
+    }
+
 }
