@@ -67,7 +67,7 @@ public class SetTimeProvider implements TimeProvider {
      * @param nanos New time value in nanoseconds since the epoch. May not be less than the previous value.
      */
     public void currentTimeNanos(long nanos) {
-        if (nanos < nanoTime.get()) throw new IllegalStateException("Cannot go back in time!");
+        if (nanos < nanoTime.get()) throw new IllegalArgumentException("Cannot go back in time!");
         nanoTime.set(nanos);
     }
 
@@ -85,24 +85,27 @@ public class SetTimeProvider implements TimeProvider {
      * Advances time in milliseconds.
      * @param millis duration.
      */
-    public void advanceMillis(long millis) {
+    public SetTimeProvider advanceMillis(long millis) {
         nanoTime.addAndGet(TimeUnit.MILLISECONDS.toNanos(millis));
+        return this;
     }
 
     /**
      * Advances time in microseconds.
      * @param micros duration.
      */
-    public void advanceMicros(long micros) {
+    public SetTimeProvider advanceMicros(long micros) {
         nanoTime.addAndGet(TimeUnit.MICROSECONDS.toNanos(micros));
+        return this;
     }
 
     /**
      * Advances time in nanoseconds.
      * @param nanos duration.
      */
-    public void advanceNanos(long nanos) {
+    public SetTimeProvider advanceNanos(long nanos) {
         nanoTime.addAndGet(nanos);
+        return this;
     }
 
 }
