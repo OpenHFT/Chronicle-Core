@@ -22,6 +22,7 @@ package net.openhft.chronicle.core.time;
  * Date: 05/08/13
  * Time: 19:06
  */
+@FunctionalInterface
 interface Differencer {
     long sample(long startTime, long endTime);
 }

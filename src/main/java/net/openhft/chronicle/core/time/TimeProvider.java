@@ -23,6 +23,7 @@ import static net.openhft.chronicle.core.time.SystemTimeProvider.TIME_PROVIDER;
 /*
  * Created by Peter Lawrey on 10/03/16.
  */
+@FunctionalInterface
 public interface TimeProvider {
 
     static TimeProvider get() {

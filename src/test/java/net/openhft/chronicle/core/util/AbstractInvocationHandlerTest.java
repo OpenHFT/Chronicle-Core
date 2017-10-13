@@ -25,6 +25,7 @@ public class AbstractInvocationHandlerTest {
         assertEquals("method2[]", messages.get(1));
     }
 
+    @FunctionalInterface
     public interface CallMe {
         void method1();
         default void method2() {

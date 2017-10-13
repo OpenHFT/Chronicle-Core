@@ -23,6 +23,7 @@ import java.io.Serializable;
 /*
  * Created by Peter Lawrey on 23/06/15.
  */
+@FunctionalInterface
 public interface ReadResolvable<T> {
     @SuppressWarnings("unchecked")
     static <T> T readResolve(Object o) {

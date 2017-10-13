@@ -19,6 +19,7 @@ package net.openhft.chronicle.core.util;
 /*
  * Created by daniel on 09/03/2016.
  */
+@FunctionalInterface
 public interface NanoSampler {
     void sampleNanos(long nanos);
 }
