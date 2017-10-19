@@ -26,6 +26,7 @@ import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
 public class ClassAliasPool implements ClassLookup {
     public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool(null).defaultAliases();
@@ -66,6 +67,7 @@ public class ClassAliasPool implements ClassLookup {
         addAlias(LocalDateTime.class, "DateTime");
         addAlias(LocalTime.class, "Time");
         addAlias(ZonedDateTime.class, "ZonedDateTime");
+        addAlias(TimeUnit.class, "TimeUnit");
         addAlias(String[].class, "String[]");
         for (@NotNull Class prim : new Class[]{boolean.class, byte.class, short.class, char.class, int.class, long.class, float.class, double.class})
             addAlias(Array.newInstance(prim, 0).getClass(), prim.getName() + "[]");
