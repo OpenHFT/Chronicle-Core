@@ -19,6 +19,8 @@ package net.openhft.chronicle.core;
 import net.openhft.chronicle.core.onoes.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import sun.misc.Signal;
+import sun.misc.SignalHandler;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -433,11 +435,33 @@ public enum Jvm {
             if (method != null) {
                 final Object version = method.invoke(Runtime.getRuntime());
                 final Class<?> clz = Class.forName("java.lang.Runtime$Version");
-                return ((Integer) clz.getDeclaredMethod("major").invoke(version)).intValue();
+                return (Integer) clz.getDeclaredMethod("major").invoke(version);
             }
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
             // ignore and fall back to pre-jdk9
         }
         return Integer.parseInt(Runtime.class.getPackage().getSpecificationVersion().split("\\.")[1]);
+    }
+
+    /**
+     * Helper method for setting the default signals
+     *
+     * @param signalHandler to call on a signal
+     */
+    public static void signalHandler(SignalHandler signalHandler) {
+        SignalHandler signalHandler2 = signal -> {
+            Jvm.warn().on(signalHandler.getClass(), "Signal " + signal.getName() + " triggered");
+            signalHandler.handle(signal);
+        };
+        try {
+            Signal.handle(new Signal("HUP"), signalHandler2);
+            Signal.handle(new Signal("INT"), signalHandler2);
+            Signal.handle(new Signal("TERM"), signalHandler2);
+        } catch (IllegalArgumentException e) {
+            // When -Xrs is specified the user is responsible for
+            // ensuring that shutdown hooks are run by calling
+            // System.exit()
+            Jvm.warn().on(signalHandler.getClass(), "Unable add a signal handler", e);
+        }
     }
 }
