@@ -421,7 +421,7 @@ public enum Jvm {
             }
 
             final Method method = clz.getDeclaredMethod("maxDirectMemory");
-            return ((Long) method.invoke(null)).longValue();
+            return (Long) method.invoke(null);
         } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
             // ignore
         }
