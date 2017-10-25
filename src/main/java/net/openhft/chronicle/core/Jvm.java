@@ -450,7 +450,7 @@ public enum Jvm {
      */
     public static void signalHandler(SignalHandler signalHandler) {
         SignalHandler signalHandler2 = signal -> {
-            Slf4jExceptionHandler.WARN.on(signalHandler.getClass(), "Signal " + signal.getName() + " triggered");
+            Jvm.warn().on(signalHandler.getClass(), "Signal " + signal.getName() + " triggered");
             signalHandler.handle(signal);
         };
         try {
