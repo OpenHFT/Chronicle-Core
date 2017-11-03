@@ -88,12 +88,14 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     public void setInt(Object o, long offset, int value) {
+        o.getClass(); // fast null check as getObject crashes the JVM.
         UNSAFE.putInt(o, offset, value);
     }
 
     @NotNull
     @Override
     public <T> T getObject(Object o, long offset) {
+        o.getClass(); // fast null check as getObject crashes the JVM.
         return (T) UNSAFE.getObject(o, offset);
     }
 
@@ -149,12 +151,14 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void writeByte(Object object, long offset, byte b) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         UNSAFE.putByte(object, offset, b);
     }
 
     @Override
     @ForceInline
     public byte readByte(Object object, long offset) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         return UNSAFE.getByte(object, offset);
     }
 
@@ -173,6 +177,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void writeShort(Object object, long offset, short i16) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         UNSAFE.putShort(object, offset, i16);
     }
 
@@ -185,6 +190,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public short readShort(Object object, long offset) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         return UNSAFE.getShort(object, offset);
     }
 
@@ -197,6 +203,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void writeInt(Object object, long offset, int i32) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         UNSAFE.putInt(object, offset, i32);
     }
 
@@ -210,6 +217,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void writeOrderedInt(Object object, long offset, int i32) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         UNSAFE.putOrderedInt(object, offset, i32);
     }
 
@@ -222,6 +230,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public int readInt(Object object, long offset) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         return UNSAFE.getInt(object, offset);
     }
 
@@ -234,6 +243,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void writeLong(Object object, long offset, long i64) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         UNSAFE.putLong(object, offset, i64);
     }
 
@@ -246,6 +256,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public long readLong(Object object, long offset) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         return UNSAFE.getLong(object, offset);
     }
 
@@ -258,6 +269,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void writeFloat(Object object, long offset, float f) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         UNSAFE.putFloat(object, offset, f);
     }
 
@@ -270,6 +282,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public float readFloat(Object object, long offset) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         return UNSAFE.getFloat(object, offset);
     }
 
@@ -282,6 +295,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void writeDouble(Object object, long offset, double d) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         UNSAFE.putDouble(object, offset, d);
     }
 
@@ -294,6 +308,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public double readDouble(Object object, long offset) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         return UNSAFE.getDouble(object, offset);
     }
 
@@ -358,6 +373,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void writeOrderedLong(Object object, long offset, long i) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         UNSAFE.putOrderedLong(object, offset, i);
     }
 
@@ -371,6 +387,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public boolean compareAndSwapInt(Object object, long offset, int expected, int value) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         return UNSAFE.compareAndSwapInt(object, offset, expected, value);
     }
 
@@ -384,6 +401,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public boolean compareAndSwapLong(Object object, long offset, long expected, long value) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         return UNSAFE.compareAndSwapLong(object, offset, expected, value);
     }
 
@@ -401,6 +419,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public byte readVolatileByte(Object object, long offset) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         return UNSAFE.getByteVolatile(object, offset);
     }
 
@@ -414,6 +433,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public short readVolatileShort(Object object, long offset) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         return UNSAFE.getShortVolatile(object, offset);
     }
 
@@ -432,6 +452,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public int readVolatileInt(Object object, long offset) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         return UNSAFE.getIntVolatile(object, offset);
     }
 
@@ -445,6 +466,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public float readVolatileFloat(Object object, long offset) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         return UNSAFE.getFloatVolatile(object, offset);
     }
 
@@ -461,6 +483,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public long readVolatileLong(Object object, long offset) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         return UNSAFE.getLongVolatile(object, offset);
     }
 
@@ -474,6 +497,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public double readVolatileDouble(Object object, long offset) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         return UNSAFE.getDoubleVolatile(object, offset);
     }
 
@@ -486,6 +510,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void writeVolatileByte(Object object, long offset, byte b) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         UNSAFE.putByteVolatile(object, offset, b);
     }
 
@@ -498,6 +523,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void writeVolatileShort(Object object, long offset, short i16) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         UNSAFE.putShortVolatile(object, offset, i16);
     }
 
@@ -511,6 +537,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void writeVolatileInt(Object object, long offset, int i32) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         UNSAFE.putIntVolatile(object, offset, i32);
     }
 
@@ -524,6 +551,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void writeVolatileFloat(Object object, long offset, float f) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         UNSAFE.putFloatVolatile(object, offset, f);
     }
 
@@ -537,6 +565,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void writeVolatileLong(Object object, long offset, long i64) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         UNSAFE.putLongVolatile(object, offset, i64);
     }
 
@@ -551,6 +580,7 @@ public enum UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void writeVolatileDouble(Object object, long offset, double d) {
+        object.getClass(); // fast null check as getObject crashes the JVM.
         UNSAFE.putDoubleVolatile(object, offset, d);
     }
 
@@ -565,6 +595,7 @@ public enum UnsafeMemory implements Memory {
     @ForceInline
     public int addInt(Object object, long offset, int increment) {
 //        assert (offset & 0x3) == 0;
+        object.getClass(); // fast null check as getObject crashes the JVM.
         return UNSAFE.getAndAddInt(object, offset, increment) + increment;
     }
 
@@ -579,6 +610,7 @@ public enum UnsafeMemory implements Memory {
     @ForceInline
     public long addLong(Object object, long offset, long increment) {
 //        assert (offset & 0x7) == 0;
+        object.getClass(); // fast null check as getObject crashes the JVM.
         return UNSAFE.getAndAddLong(object, offset, increment) + increment;
     }
 }
