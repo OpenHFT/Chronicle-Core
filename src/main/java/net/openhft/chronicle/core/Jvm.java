@@ -454,7 +454,8 @@ public enum Jvm {
             signalHandler.handle(signal);
         };
         try {
-            Signal.handle(new Signal("HUP"), signalHandler2);
+            if (!OS.isWindows()) // no available on windows.
+                Signal.handle(new Signal("HUP"), signalHandler2);
             Signal.handle(new Signal("INT"), signalHandler2);
             Signal.handle(new Signal("TERM"), signalHandler2);
         } catch (IllegalArgumentException e) {
