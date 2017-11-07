@@ -27,7 +27,6 @@ import java.nio.ByteBuffer;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
-import static org.junit.Assume.assumeThat;
 
 /*
  * Created by Peter Lawrey on 26/02/2016.
@@ -121,5 +120,10 @@ public class JvmTest {
     public void testMaxDirectMemory() {
         long maxDirectMemory = Jvm.maxDirectMemory();
         assertTrue(maxDirectMemory > 0);
+    }
+
+    @Test
+    public void enableSignals() {
+        Jvm.signalHandler(signal -> System.out.println(signal + " occurred"));
     }
 }

@@ -453,11 +453,16 @@ public enum Jvm {
             Jvm.warn().on(signalHandler.getClass(), "Signal " + signal.getName() + " triggered");
             signalHandler.handle(signal);
         };
+        if (!OS.isWindows()) // no available on windows.
+            addSignalHandler("HUP", signalHandler2);
+        addSignalHandler("INT", signalHandler2);
+        addSignalHandler("TERM", signalHandler2);
+    }
+
+    private static void addSignalHandler(String sig, SignalHandler signalHandler) {
         try {
-            if (!OS.isWindows()) // no available on windows.
-                Signal.handle(new Signal("HUP"), signalHandler2);
-            Signal.handle(new Signal("INT"), signalHandler2);
-            Signal.handle(new Signal("TERM"), signalHandler2);
+            Signal.handle(new Signal(sig), signalHandler);
+
         } catch (IllegalArgumentException e) {
             // When -Xrs is specified the user is responsible for
             // ensuring that shutdown hooks are run by calling
