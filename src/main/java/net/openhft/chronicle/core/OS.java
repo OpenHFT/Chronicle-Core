@@ -239,7 +239,7 @@ public enum OS {
         return id;
     }
 
-    private static int getProcessId0() throws NumberFormatException {
+    private static int getProcessId0() {
         @Nullable String pid = null;
         @NotNull final File self = new File("/proc/self");
         try {
@@ -250,14 +250,16 @@ public enum OS {
         }
         if (pid == null)
             pid = getRuntimeMXBean().getName().split("@", 0)[0];
-        if (pid == null) {
-            int rpid = ThreadLocalRandom.current().nextInt(2, 1 << 16);
-            Jvm.warn().on(OS.class, "Unable to determine PID, picked a random number=" + rpid);
-            return rpid;
-
-        } else {
-            return Integer.parseInt(pid);
+        if (pid != null) {
+            try {
+                return Integer.parseInt(pid);
+            } catch (NumberFormatException e) {
+                // ignored
+            }
         }
+        int rpid = ThreadLocalRandom.current().nextInt(2, 1 << 16);
+        Jvm.warn().on(OS.class, "Unable to determine PID, picked a random number=" + rpid);
+        return rpid;
     }
 
     /**
@@ -296,6 +298,8 @@ public enum OS {
                     return Maths.nextPower2(new Scanner(file).nextLong(), 1);
                 } catch (FileNotFoundException e) {
                     Jvm.debug().on(OS.class, e);
+                } catch (IllegalArgumentException e) {
+                    throw new AssertionError(e);
                 }
         } else if (isMacOSX()) {
             return 1L << 24;
@@ -474,7 +478,7 @@ public enum OS {
                 unmap(address, size);
                 address = 0;
 
-            } catch (@NotNull IOException | IllegalStateException e) {
+            } catch (@NotNull IOException e) {
                 Jvm.warn().on(OS.class, "Error on unmap and release", e);
             }
         }

@@ -198,7 +198,7 @@ public class ClassAliasPool implements ClassLookup {
         }
 
         @Override
-        public char charAt(int index) {
+        public char charAt(int index) throws IndexOutOfBoundsException {
             return value.charAt(index);
         }
 
@@ -219,8 +219,12 @@ public class ClassAliasPool implements ClassLookup {
             if (value instanceof String)
                 return value.hashCode();
             int h = 0;
-            for (int i = 0; i < value.length(); i++) {
-                h = 31 * h + charAt(i);
+            try {
+                for (int i = 0; i < value.length(); i++) {
+                    h = 31 * h + charAt(i);
+                }
+            } catch (IndexOutOfBoundsException e) {
+                throw new AssertionError(e);
             }
             return h;
         }
@@ -233,9 +237,13 @@ public class ClassAliasPool implements ClassLookup {
             CharSequence cs = (CharSequence) obj;
             if (length() != cs.length())
                 return false;
-            for (int i = 0; i < length(); i++)
-                if (charAt(i) != cs.charAt(i))
-                    return false;
+            try {
+                for (int i = 0; i < length(); i++)
+                    if (charAt(i) != cs.charAt(i))
+                        return false;
+            } catch (IndexOutOfBoundsException e) {
+                throw new AssertionError(e);
+            }
             return true;
         }
     }

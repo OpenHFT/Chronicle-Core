@@ -349,7 +349,7 @@ public enum ObjectUtils {
     }
 
     @NotNull
-    public static <T> T printAll(@NotNull Class<T> tClass, Class... additional) {
+    public static <T> T printAll(@NotNull Class<T> tClass, Class... additional) throws IllegalArgumentException {
         return onMethodCall((method, args) -> {
             @NotNull String argsStr = args == null ? "()" : Arrays.toString(args);
             System.out.println(method.getName() + " " + argsStr);
@@ -362,7 +362,7 @@ public enum ObjectUtils {
     }
 
     @NotNull
-    public static <T> T onMethodCall(@NotNull BiFunction<Method, Object[], Object> biFunction, @NotNull Class<T> tClass, Class... additional) {
+    public static <T> T onMethodCall(@NotNull BiFunction<Method, Object[], Object> biFunction, @NotNull Class<T> tClass, Class... additional) throws IllegalArgumentException {
         Class[] interfaces = addAll(tClass, additional);
         //noinspection unchecked
         return (T) Proxy.newProxyInstance(tClass.getClassLoader(), interfaces, new InvocationHandler() {
