@@ -17,7 +17,6 @@
 package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.annotation.ForceInline;
-import net.openhft.chronicle.core.util.StringUtils;
 
 public class StringBuilderPool {
     private final ThreadLocal<StringBuilder> sbtl = new ThreadLocal<>();
@@ -26,10 +25,10 @@ public class StringBuilderPool {
     public StringBuilder acquireStringBuilder() {
         StringBuilder sb = sbtl.get();
         if (sb == null) {
-            sb = new StringBuilder(1024);
+            sb = new StringBuilder(128);
             sbtl.set(sb);
         }
-        StringUtils.setCount(sb, 0);
+        sb.setLength(0);
         return sb;
     }
 }
