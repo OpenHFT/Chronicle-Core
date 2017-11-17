@@ -42,5 +42,10 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
         public void on(@NotNull Class clazz, String message, Throwable thrown) {
             LoggerFactory.getLogger(clazz).debug(message, thrown);
         }
+
+        @Override
+        public boolean isEnabled(Class clazz) {
+            return LoggerFactory.getLogger(clazz).isDebugEnabled();
+        }
     }
 }

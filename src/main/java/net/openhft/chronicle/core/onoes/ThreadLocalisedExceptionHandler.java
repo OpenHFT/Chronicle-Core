@@ -14,12 +14,17 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
 
     @Override
     public void on(Class clazz, String message, Throwable thrown) {
-        ExceptionHandler exceptionHandler = handlerTL.get();
-        if (exceptionHandler == null)
-            exceptionHandler = defaultHandler;
+        ExceptionHandler exceptionHandler = exceptionHandler();
         if (exceptionHandler == null)
             return;
         exceptionHandler.on(clazz, message, thrown);
+    }
+
+    private ExceptionHandler exceptionHandler() {
+        ExceptionHandler exceptionHandler = handlerTL.get();
+        if (exceptionHandler == null)
+            exceptionHandler = defaultHandler;
+        return exceptionHandler;
     }
 
     public ExceptionHandler defaultHandler() {
@@ -43,5 +48,13 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
 
     public void resetThreadLocalHandler() {
         handlerTL = new InheritableThreadLocal<>();
+    }
+
+    @Override
+    public boolean isEnabled(Class aClass) {
+        ExceptionHandler exceptionHandler = exceptionHandler();
+        if (exceptionHandler == null)
+            return true;
+        return exceptionHandler.isEnabled(aClass);
     }
 }
