@@ -17,7 +17,7 @@
 package net.openhft.chronicle.core.values;
 
 /**
- * User: peter.lawrey Date: 10/10/13 Time: 07:11
+ * User: peter.lawrey Date: 18/11/17
  */
 public interface TwoLongValue extends LongValue {
     long getValue2();
