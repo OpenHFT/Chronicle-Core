@@ -22,16 +22,17 @@ import org.jetbrains.annotations.Nullable;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
 
+import java.io.File;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
 
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 
@@ -53,6 +54,7 @@ public enum Jvm {
     @NotNull
     private static final DirectMemoryInspector DIRECT_MEMORY_INSPECTOR;
     private static final boolean IS_64BIT = is64bit0();
+    private static final int PROCESS_ID = getProcessId0();
     @NotNull
     private static final ThreadLocalisedExceptionHandler FATAL = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.FATAL);
     @NotNull
@@ -119,6 +121,33 @@ public enum Jvm {
         }
         systemProp = System.getProperty("java.vm.version");
         return systemProp != null && systemProp.contains("_64");
+    }
+
+    public static int getProcessId() {
+        return PROCESS_ID;
+    }
+
+    private static int getProcessId0() {
+        String pid = null;
+        final File self = new File("/proc/self");
+        try {
+            if (self.exists()) {
+                pid = self.getCanonicalFile().getName();
+            }
+        } catch (IOException ignored) {
+        }
+
+        if (pid == null) {
+            pid = getRuntimeMXBean().getName().split("@", 0)[0];
+        }
+
+        if (pid == null) {
+            int rpid = new Random().nextInt(1 << 16);
+            System.err.println(Jvm.class.getName() + ": Unable to determine PID, picked a random number=" + rpid);
+            return rpid;
+        } else {
+            return Integer.parseInt(pid);
+        }
     }
 
     /**
