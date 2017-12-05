@@ -65,6 +65,7 @@ public enum Jvm {
     private static final int JVM_JAVA_MAJOR_VERSION;
     private static final boolean IS_JAVA_9_PLUS;
     private static final long MAX_DIRECT_MEMORY;
+    private static SignalHandler signalHandlerGlobal;
 
     static {
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
@@ -478,14 +479,16 @@ public enum Jvm {
      * @param signalHandler to call on a signal
      */
     public static void signalHandler(SignalHandler signalHandler) {
-        SignalHandler signalHandler2 = signal -> {
+        if (signalHandlerGlobal != null)
+            Jvm.warn().on(signalHandler.getClass(), "Overriding existing signalHandler");
+        signalHandlerGlobal = signal -> {
             Jvm.warn().on(signalHandler.getClass(), "Signal " + signal.getName() + " triggered");
             signalHandler.handle(signal);
         };
         if (!OS.isWindows()) // no available on windows.
-            addSignalHandler("HUP", signalHandler2);
-        addSignalHandler("INT", signalHandler2);
-        addSignalHandler("TERM", signalHandler2);
+            addSignalHandler("HUP", signalHandlerGlobal);
+        addSignalHandler("INT", signalHandlerGlobal);
+        addSignalHandler("TERM", signalHandlerGlobal);
     }
 
     private static void addSignalHandler(String sig, SignalHandler signalHandler) {
