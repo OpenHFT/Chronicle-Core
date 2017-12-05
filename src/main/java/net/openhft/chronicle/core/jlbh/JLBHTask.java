@@ -38,6 +38,11 @@ public interface JLBHTask {
     void run(long startTimeNS);
 
     /**
+     * Notify that warmup phase is over
+     */
+    default void warmedUp(){}
+
+    /**
      * This method is used for any clean up that might be required by the benchmark.
      */
     default void complete(){}

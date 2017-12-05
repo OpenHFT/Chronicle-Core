@@ -110,6 +110,7 @@ public class JLBH implements NanoSampler {
                             System.out.println("Pausing after warmup for " + jlbhOptions.pauseAfterWarmupMS + "ms");
                             Jvm.pause(jlbhOptions.pauseAfterWarmupMS);
                         }
+                        jlbhOptions.jlbhTask.warmedUp();
                         runStart = System.currentTimeMillis();
                         startTimeNs = System.nanoTime();
                     } else if (jlbhOptions.accountForCoordinatedOmission) {
