@@ -473,7 +473,7 @@ public enum Jvm {
     }
 
     /**
-     * Helper method for setting the default signals
+     * Helper method for setting the default signals. Every signal handler you register with this method will be called.
      *
      * @param signalHandler to call on a signal
      */
