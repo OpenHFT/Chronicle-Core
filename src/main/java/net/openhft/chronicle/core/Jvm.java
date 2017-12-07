@@ -24,7 +24,6 @@ import sun.misc.SignalHandler;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.management.ManagementFactory;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -32,7 +31,6 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Level;
 
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 
@@ -65,7 +63,7 @@ public enum Jvm {
     private static final int JVM_JAVA_MAJOR_VERSION;
     private static final boolean IS_JAVA_9_PLUS;
     private static final long MAX_DIRECT_MEMORY;
-    private static SignalHandler signalHandlerGlobal;
+    private static final ChainedSignalHandler signalHandlerGlobal;
 
     static {
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
@@ -83,6 +81,7 @@ public enum Jvm {
                 reservedMemoryAtomicLong = null;
                 DIRECT_MEMORY_INSPECTOR = DirectMemoryInspector.Reflect;
             }
+            signalHandlerGlobal = new ChainedSignalHandler();
         } catch (Exception e) {
             throw new AssertionError(e);
         }
@@ -479,16 +478,17 @@ public enum Jvm {
      * @param signalHandler to call on a signal
      */
     public static void signalHandler(SignalHandler signalHandler) {
-        if (signalHandlerGlobal != null)
-            Jvm.warn().on(signalHandler.getClass(), "Overriding existing signalHandler");
-        signalHandlerGlobal = signal -> {
+        if (signalHandlerGlobal.handlers.isEmpty()) {
+            if (!OS.isWindows()) // not available on windows.
+                addSignalHandler("HUP", signalHandlerGlobal);
+            addSignalHandler("INT", signalHandlerGlobal);
+            addSignalHandler("TERM", signalHandlerGlobal);
+        }
+        SignalHandler signalHandler2 = signal -> {
             Jvm.warn().on(signalHandler.getClass(), "Signal " + signal.getName() + " triggered");
             signalHandler.handle(signal);
         };
-        if (!OS.isWindows()) // no available on windows.
-            addSignalHandler("HUP", signalHandlerGlobal);
-        addSignalHandler("INT", signalHandlerGlobal);
-        addSignalHandler("TERM", signalHandlerGlobal);
+        signalHandlerGlobal.handlers.add(signalHandler2);
     }
 
     private static void addSignalHandler(String sig, SignalHandler signalHandler) {
@@ -500,6 +500,21 @@ public enum Jvm {
             // ensuring that shutdown hooks are run by calling
             // System.exit()
             Jvm.warn().on(signalHandler.getClass(), "Unable add a signal handler", e);
+        }
+    }
+
+    private static class ChainedSignalHandler implements SignalHandler {
+        final List<SignalHandler> handlers = new ArrayList<>();
+
+        @Override
+        public void handle(Signal signal) {
+            for (SignalHandler handler : handlers) {
+                try {
+                    handler.handle(signal);
+                } catch (Throwable t) {
+                    Jvm.warn().on(this.getClass(),"Problem handling signal", t);
+                }
+            }
         }
     }
 }
