@@ -24,13 +24,13 @@ import net.openhft.chronicle.core.util.NanoSampler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 /**
  * Java Latency Benchmark Harness
@@ -49,6 +49,7 @@ public class JLBH implements NanoSampler {
     private final JLBHOptions jlbhOptions;
     @NotNull
     private final PrintStream printStream;
+    private final Consumer<JLBHResult> resultConsumer;
     @NotNull
     private Histogram endToEndHistogram = new Histogram();
     @NotNull
@@ -63,16 +64,23 @@ public class JLBH implements NanoSampler {
      * @param jlbhOptions Options to run the benchmark
      */
     public JLBH(@NotNull JLBHOptions jlbhOptions) {
-        this(jlbhOptions, System.out);
+        this(jlbhOptions, System.out, null);
     }
 
     /**
+     * Use this constructor if you want to test the latencies in more automated fashion.
+     * The result is passed to the result consumer after the JLBH::start method returns.
+     * You can create you own consumer, or use provided JLBHResultConsumer::newThreadSafeInstance()
+     * that allows you to retrieve the result even if the JLBH has been executed in a different thread.
+     *
      * @param jlbhOptions Options to run the benchmark
-     * @param printStream Used to print text output
+     * @param printStream Used to print text output. Use System.out to show the result on you standard out (e.g. screen)
+     * @param resultConsumer If provided, accepts the result data to be retrieved after the latencies have been measured
      */
-    JLBH(@NotNull JLBHOptions jlbhOptions, @NotNull PrintStream printStream) {
+    public JLBH(@NotNull JLBHOptions jlbhOptions, @NotNull PrintStream printStream, Consumer<JLBHResult> resultConsumer) {
         this.jlbhOptions = jlbhOptions;
         this.printStream = printStream;
+        this.resultConsumer = resultConsumer;
         if (jlbhOptions.jlbhTask == null) throw new IllegalStateException("jlbhTask must be set");
         latencyBetweenTasks = jlbhOptions.throughputTimeUnit.toNanos(1) / jlbhOptions.throughput;
     }
@@ -194,7 +202,22 @@ public class JLBH implements NanoSampler {
         if (additionalPercentileRuns.size() > 0) {
             additionalPercentileRuns.entrySet().forEach(e -> printPercentilesSummary(e.getKey(), e.getValue()));
         }
+
+        consumeResults(percentileRuns, additionalPercentileRuns);
+
         jlbhOptions.jlbhTask.complete();
+    }
+
+    private void consumeResults(List<double[]> percentileRuns, Map<String, List<double[]>> additionalPercentileRuns) {
+        if (resultConsumer != null) {
+            final JLBHResult.ProbeResult endToEndProbeResult = new ImmutableProbeResult(percentileRuns);
+            final Map<String, ImmutableProbeResult> additionalProbeResults = additionalPercentileRuns.entrySet()
+                    .stream()
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            probe -> new ImmutableProbeResult(probe.getValue())));
+            resultConsumer.accept(new ImmutableJLBHResult(endToEndProbeResult, additionalProbeResults));
+        }
     }
 
     private void printPercentilesSummary(String label, @NotNull List<double[]> percentileRuns) {

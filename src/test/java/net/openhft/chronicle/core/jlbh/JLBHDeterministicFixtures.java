@@ -6,7 +6,7 @@ public class JLBHDeterministicFixtures {
 
   static final int WARM_UP_ITERATIONS = 500;
   static final int ITERATIONS = 9_000;
-  static final int THROUGHPUT = 100_000;
+  static final int THROUGHPUT = 1_000_000;
   static final int RUNS = 3;
 
   static JLBHOptions options() {
@@ -59,11 +59,41 @@ public class JLBHDeterministicFixtures {
     }
   }
 
+  static class FixedLatencyJLBHTask implements JLBHTask {
+
+    private final int latency;
+    private JLBH lth;
+    private NanoSampler additionalSamplerA;
+    private NanoSampler additionalSamplerB;
+
+    public FixedLatencyJLBHTask(int latency) {
+      this.latency = latency;
+    }
+
+    @Override
+    public void run(long startTimeNS) {
+      lth.sample(latency);
+      additionalSamplerA.sampleNanos(latency);
+      additionalSamplerB.sampleNanos(latency);
+    }
+
+    @Override
+    public void init(JLBH lth) {
+      this.lth = lth;
+      this.additionalSamplerA = lth.addProbe("A");
+      this.additionalSamplerB = lth.addProbe("B");
+    }
+
+    @Override
+    public void complete() {
+    }
+  }
+
   private final static String expectedOutput = "Warm up complete (500 iterations took 0.092s)\n" +
           "-------------------------------- BENCHMARK RESULTS (RUN 1) --------------------------------------------------------\n" +
           "Run time: 0.09s\n" +
           "Correcting for co-ordinated:true\n" +
-          "Target throughput:100000/s = 1 message every 10us\n" +
+          "Target throughput:1000000/s = 1 message every 1us\n" +
           "End to End: (9,000)                             50/90 99/99.9 99.99 - worst was 8.1 / 12  13 / 13  13 - 13\n" +
           "A (9,001)                                       50/90 99/99.9 99.99 - worst was 7.0 / 10  12 / 12  12 - 12\n" +
           "B (9,001)                                       50/90 99/99.9 99.99 - worst was 0.10 / 0.10  0.10 / 0.10  0.10 - 0.10\n" +
@@ -72,7 +102,7 @@ public class JLBHDeterministicFixtures {
           "-------------------------------- BENCHMARK RESULTS (RUN 2) --------------------------------------------------------\n" +
           "Run time: 0.09s\n" +
           "Correcting for co-ordinated:true\n" +
-          "Target throughput:100000/s = 1 message every 10us\n" +
+          "Target throughput:1000000/s = 1 message every 1us\n" +
           "End to End: (9,000)                             50/90 99/99.9 99.99 - worst was 8.1 / 12  13 / 13  13 - 13\n" +
           "A (9,000)                                       50/90 99/99.9 99.99 - worst was 7.0 / 10  12 / 12  12 - 12\n" +
           "B (9,000)                                       50/90 99/99.9 99.99 - worst was 0.10 / 0.10  0.10 / 0.10  0.10 - 0.10\n" +
@@ -81,7 +111,7 @@ public class JLBHDeterministicFixtures {
           "-------------------------------- BENCHMARK RESULTS (RUN 3) --------------------------------------------------------\n" +
           "Run time: 0.09s\n" +
           "Correcting for co-ordinated:true\n" +
-          "Target throughput:100000/s = 1 message every 10us\n" +
+          "Target throughput:1000000/s = 1 message every 1us\n" +
           "End to End: (9,000)                             50/90 99/99.9 99.99 - worst was 6.0 / 9.5  10 / 10  10 - 10\n" +
           "A (9,000)                                       50/90 99/99.9 99.99 - worst was 5.0 / 9.0  9.5 / 9.5  9.5 - 9.5\n" +
           "B (9,000)                                       50/90 99/99.9 99.99 - worst was 0.10 / 0.10  0.10 / 0.10  0.10 - 0.10\n" +
