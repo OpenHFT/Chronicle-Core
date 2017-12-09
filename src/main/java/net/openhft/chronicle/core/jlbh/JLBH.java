@@ -24,10 +24,13 @@ import net.openhft.chronicle.core.util.NanoSampler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Consumer;
 
 /**
  * Java Latency Benchmark Harness
@@ -45,6 +48,8 @@ public class JLBH implements NanoSampler {
     @NotNull
     private final JLBHOptions jlbhOptions;
     @NotNull
+    private final PrintStream printStream;
+    @NotNull
     private Histogram endToEndHistogram = new Histogram();
     @NotNull
     private Histogram osJitterHistogram = new Histogram();
@@ -58,7 +63,16 @@ public class JLBH implements NanoSampler {
      * @param jlbhOptions Options to run the benchmark
      */
     public JLBH(@NotNull JLBHOptions jlbhOptions) {
+        this(jlbhOptions, System.out);
+    }
+
+    /**
+     * @param jlbhOptions Options to run the benchmark
+     * @param printStream Used to print text output
+     */
+    JLBH(@NotNull JLBHOptions jlbhOptions, @NotNull PrintStream printStream) {
         this.jlbhOptions = jlbhOptions;
+        this.printStream = printStream;
         if (jlbhOptions.jlbhTask == null) throw new IllegalStateException("jlbhTask must be set");
         latencyBetweenTasks = jlbhOptions.throughputTimeUnit.toNanos(1) / jlbhOptions.throughput;
     }
@@ -102,12 +116,12 @@ public class JLBH implements NanoSampler {
                     if (i == 0 && run == 0) {
                         while (!warmUpComplete.get()) {
                             Jvm.pause(2000);
-                            System.out.println("Complete: " + noResultsReturned);
+                            printStream.println("Complete: " + noResultsReturned);
                         }
-                        System.out.println("Warm up complete (" + jlbhOptions.warmUpIterations + " iterations took " +
+                        printStream.println("Warm up complete (" + jlbhOptions.warmUpIterations + " iterations took " +
                                 ((System.currentTimeMillis() - warmupStart) / 1000.0) + "s)");
                         if (jlbhOptions.pauseAfterWarmupMS != 0) {
-                            System.out.println("Pausing after warmup for " + jlbhOptions.pauseAfterWarmupMS + "ms");
+                            printStream.println("Pausing after warmup for " + jlbhOptions.pauseAfterWarmupMS + "ms");
                             Jvm.pause(jlbhOptions.pauseAfterWarmupMS);
                         }
                         jlbhOptions.jlbhTask.warmedUp();
@@ -143,27 +157,27 @@ public class JLBH implements NanoSampler {
 
                 percentileRuns.add(endToEndHistogram.getPercentiles());
 
-                System.out.println("-------------------------------- BENCHMARK RESULTS (RUN " + (run + 1) + ") --------------------------------------------------------");
-                System.out.println("Run time: " + totalRunTime / 1000.0 + "s");
-                System.out.println("Correcting for co-ordinated:" + jlbhOptions.accountForCoordinatedOmission);
-                System.out.println("Target throughput:" + jlbhOptions.throughput + "/" + timeUnitToString(jlbhOptions.throughputTimeUnit) + " = 1 message every " + (latencyBetweenTasks / 1000) + "us");
-                System.out.printf("%-48s", String.format("End to End: (%,d)", endToEndHistogram.totalCount()));
-                System.out.println(endToEndHistogram.toMicrosFormat());
+                printStream.println("-------------------------------- BENCHMARK RESULTS (RUN " + (run + 1) + ") --------------------------------------------------------");
+                printStream.println("Run time: " + totalRunTime / 1000.0 + "s");
+                printStream.println("Correcting for co-ordinated:" + jlbhOptions.accountForCoordinatedOmission);
+                printStream.println("Target throughput:" + jlbhOptions.throughput + "/" + timeUnitToString(jlbhOptions.throughputTimeUnit) + " = 1 message every " + (latencyBetweenTasks / 1000) + "us");
+                printStream.printf("%-48s", String.format("End to End: (%,d)", endToEndHistogram.totalCount()));
+                printStream.println(endToEndHistogram.toMicrosFormat());
 
                 if (additionHistograms.size() > 0) {
                     additionHistograms.entrySet().forEach(e -> {
                         List<double[]> ds = additionalPercentileRuns.computeIfAbsent(e.getKey(),
                                 i -> new ArrayList<>());
                         ds.add(e.getValue().getPercentiles());
-                        System.out.printf("%-48s", String.format("%s (%,d) ", e.getKey(), e.getValue().totalCount()));
-                        System.out.println(e.getValue().toMicrosFormat());
+                        printStream.printf("%-48s", String.format("%s (%,d) ", e.getKey(), e.getValue().totalCount()));
+                        printStream.println(e.getValue().toMicrosFormat());
                     });
                 }
                 if (jlbhOptions.recordOSJitter) {
-                    System.out.printf("%-48s", String.format("OS Jitter (%,d)", osJitterHistogram.totalCount()));
-                    System.out.println(osJitterHistogram.toMicrosFormat());
+                    printStream.printf("%-48s", String.format("OS Jitter (%,d)", osJitterHistogram.totalCount()));
+                    printStream.println(osJitterHistogram.toMicrosFormat());
                 }
-                System.out.println("-------------------------------------------------------------------------------------------------------------------");
+                printStream.println("-------------------------------------------------------------------------------------------------------------------");
 
                 noResultsReturned = 0;
                 endToEndHistogram.reset();
@@ -184,7 +198,7 @@ public class JLBH implements NanoSampler {
     }
 
     private void printPercentilesSummary(String label, @NotNull List<double[]> percentileRuns) {
-        System.out.println("-------------------------------- SUMMARY (" + label + ")------------------------------------------------------------");
+        printStream.println("-------------------------------- SUMMARY (" + label + ")------------------------------------------------------------");
         @NotNull List<Double> consistencies = new ArrayList<>();
         double maxValue = Double.MIN_VALUE;
         double minValue = Double.MAX_VALUE;
@@ -223,7 +237,7 @@ public class JLBH implements NanoSampler {
 
         @NotNull StringBuilder sb = new StringBuilder();
         addHeaderToPrint(sb, jlbhOptions.runs);
-        System.out.println(sb.toString());
+        printStream.println(sb.toString());
 
         sb = new StringBuilder();
         addPrToPrint(sb, "50:     ", jlbhOptions.runs);
@@ -237,8 +251,8 @@ public class JLBH implements NanoSampler {
             addPrToPrint(sb, "99.9999:", jlbhOptions.runs);
         addPrToPrint(sb, "worst:  ", jlbhOptions.runs);
 
-        System.out.printf(sb.toString(), summary.toArray(NO_DOUBLES));
-        System.out.println("-------------------------------------------------------------------------------------------------------------------");
+        printStream.printf(sb.toString(), summary.toArray(NO_DOUBLES));
+        printStream.println("-------------------------------------------------------------------------------------------------------------------");
     }
 
     private void addPrToPrint(@NotNull StringBuilder sb, String pr, int runs) {
@@ -314,7 +328,7 @@ public class JLBH implements NanoSampler {
             Affinity.setAffinity(AffinityLock.BASE_AFFINITY);
             @Nullable AffinityLock affinityLock = null;
             if (jlbhOptions.jitterAffinity) {
-                System.out.println("Jitter thread running with affinity.");
+                printStream.println("Jitter thread running with affinity.");
                 affinityLock = AffinityLock.acquireLock();
             }
 
