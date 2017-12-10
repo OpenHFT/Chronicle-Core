@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-interface JLBHResult {
+public interface JLBHResult {
 
   @NotNull
   ProbeResult endToEnd();
