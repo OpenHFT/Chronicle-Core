@@ -43,7 +43,7 @@
             <dependency>
                 <groupId>net.openhft</groupId>
                 <artifactId>affinity</artifactId>
-                <version>3.0.4</version>
+                <version>3.1.2</version>
             </dependency>
         </dependencies>
 
@@ -235,9 +235,6 @@
                         <version>2.20</version>
                         <configuration>
                             <argLine>--add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-exports java.base/jdk.internal.misc=ALL-UNNAMED --add-exports java.base/sun.nio.ch=ALL-UNNAMED</argLine>
-                            <excludes>
-                                <exclude>**/JLBH*Test*</exclude>
-                            </excludes>
                         </configuration>
                     </plugin>
                 </plugins>
