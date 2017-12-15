@@ -21,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Collection;
 
 @FunctionalInterface
 public interface Closeable extends java.io.Closeable {
@@ -32,6 +33,9 @@ public interface Closeable extends java.io.Closeable {
     }
 
     static void closeQuietly(@Nullable Object o) {
+        if (o instanceof Collection) {
+            ((Collection) o).forEach(Closeable::closeQuietly);
+        }
         if (o instanceof Object[]) {
             for (Object o2 : (Object[]) o) {
                 closeQuietly(o2);
