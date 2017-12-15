@@ -20,6 +20,9 @@ package net.openhft.chronicle.core.onoes;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+import java.util.List;
+
 /*
  * Created by Peter Lawrey on 13/06/2016.
  */
@@ -28,7 +31,9 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
         @Override
         public void on(@NotNull Class clazz, String message, Throwable thrown) {
             LoggerFactory.getLogger(clazz).error("FATAL error " + message, thrown);
-            System.exit(-1);
+            if (!Slf4jExceptionHandler.isJUnitTest()) {
+                System.exit(-1);
+            }
         }
     },
     WARN {
@@ -47,5 +52,19 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
         public boolean isEnabled(Class clazz) {
             return LoggerFactory.getLogger(clazz).isDebugEnabled();
         }
+    };
+
+    private static boolean isJUnitTest() {
+
+        for (StackTraceElement[] stackTrace : Thread.getAllStackTraces().values()) {
+
+            List<StackTraceElement> list = Arrays.asList(stackTrace);
+            for (StackTraceElement element : list) {
+                if (element.getClassName().contains(".junit")) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
