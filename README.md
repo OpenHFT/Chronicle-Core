@@ -1,6 +1,7 @@
 Chronicle Core
 ==============
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-core)
 
 This library wraps up low level access to
 
