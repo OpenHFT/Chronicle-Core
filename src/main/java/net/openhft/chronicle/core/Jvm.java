@@ -347,10 +347,15 @@ public enum Jvm {
 
     @NotNull
     public static Map<ExceptionKey, Integer> recordExceptions(boolean debug) {
+        return recordExceptions(debug, false);
+    }
+
+    @NotNull
+    public static Map<ExceptionKey, Integer> recordExceptions(boolean debug, boolean exceptionsOnly) {
         @NotNull Map<ExceptionKey, Integer> map = Collections.synchronizedMap(new LinkedHashMap<>());
-        FATAL.defaultHandler(new RecordingExceptionHandler(LogLevel.FATAL, map));
-        WARN.defaultHandler(new RecordingExceptionHandler(LogLevel.WARN, map));
-        DEBUG.defaultHandler(debug ? new RecordingExceptionHandler(LogLevel.DEBUG, map) : NullExceptionHandler.NOTHING);
+        FATAL.defaultHandler(new RecordingExceptionHandler(LogLevel.FATAL, map, exceptionsOnly));
+        WARN.defaultHandler(new RecordingExceptionHandler(LogLevel.WARN, map, exceptionsOnly));
+        DEBUG.defaultHandler(debug ? new RecordingExceptionHandler(LogLevel.DEBUG, map, exceptionsOnly) : NullExceptionHandler.NOTHING);
         return map;
     }
 
