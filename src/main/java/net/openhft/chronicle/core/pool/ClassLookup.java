@@ -21,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 /*
  * Created by Peter Lawrey on 15/02/16.
  */
-@Deprecated
 public interface ClassLookup {
 
     @NotNull
