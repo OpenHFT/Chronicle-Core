@@ -54,7 +54,7 @@ public enum OS {
     private static final int MAP_PV = 2;
     private static final boolean IS64BIT = is64Bit0();
     private static final AtomicInteger PROCESS_ID = new AtomicInteger();
-    @Nullable
+    @NotNull
     private static final Memory MEMORY = getMemory();
     private static final String OS = System.getProperty("os.name").toLowerCase();
     private static final boolean IS_LINUX = OS.startsWith("linux");
@@ -138,7 +138,7 @@ public enum OS {
         }
     }
 
-    @Nullable
+    @NotNull
     private static Memory getMemory() {
         @Nullable Memory memory = null;
         try {
@@ -161,7 +161,7 @@ public enum OS {
     /**
      * @return native memory accessor class
      */
-    @Nullable
+    @NotNull
     public static Memory memory() {
         return MEMORY;
     }
