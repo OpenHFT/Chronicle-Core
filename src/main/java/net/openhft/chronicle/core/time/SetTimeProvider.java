@@ -46,7 +46,7 @@ public class SetTimeProvider implements TimeProvider {
 
     @Override
     public long currentTimeMillis() {
-        return TimeUnit.NANOSECONDS.toMillis(nanoTime.get());
+        return TimeUnit.NANOSECONDS.toMillis(currentTimeNanos());
     }
 
     /**
@@ -59,7 +59,7 @@ public class SetTimeProvider implements TimeProvider {
 
     @Override
     public long currentTimeMicros() {
-        return TimeUnit.NANOSECONDS.toMicros(nanoTime.get());
+        return TimeUnit.NANOSECONDS.toMicros(currentTimeNanos());
     }
 
     /**
@@ -78,7 +78,7 @@ public class SetTimeProvider implements TimeProvider {
 
     @Override
     public long currentTime(TimeUnit unit) {
-        return unit.convert(nanoTime.get(), TimeUnit.NANOSECONDS);
+        return unit.convert(currentTimeNanos(), TimeUnit.NANOSECONDS);
     }
 
     /**
@@ -86,7 +86,7 @@ public class SetTimeProvider implements TimeProvider {
      * @param millis duration.
      */
     public SetTimeProvider advanceMillis(long millis) {
-        nanoTime.addAndGet(TimeUnit.MILLISECONDS.toNanos(millis));
+        advanceNanos(TimeUnit.MILLISECONDS.toNanos(millis));
         return this;
     }
 
@@ -95,7 +95,7 @@ public class SetTimeProvider implements TimeProvider {
      * @param micros duration.
      */
     public SetTimeProvider advanceMicros(long micros) {
-        nanoTime.addAndGet(TimeUnit.MICROSECONDS.toNanos(micros));
+        advanceNanos(TimeUnit.MICROSECONDS.toNanos(micros));
         return this;
     }
 

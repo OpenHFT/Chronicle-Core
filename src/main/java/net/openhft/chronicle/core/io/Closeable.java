@@ -27,16 +27,13 @@ import java.util.Collection;
 public interface Closeable extends java.io.Closeable {
 
     static void closeQuietly(@NotNull Object... closables) {
-        for (Object o : closables) {
-            closeQuietly(o);
-        }
+        closeQuietly((Object)closables);
     }
 
     static void closeQuietly(@Nullable Object o) {
         if (o instanceof Collection) {
             ((Collection) o).forEach(Closeable::closeQuietly);
-        }
-        if (o instanceof Object[]) {
+        } else if (o instanceof Object[]) {
             for (Object o2 : (Object[]) o) {
                 closeQuietly(o2);
             }
