@@ -140,5 +140,15 @@ public class Main {
     public long systemNanoTime() {
         return System.nanoTime();
     }
+
+    @Benchmark
+    public boolean nullCheck() {
+        return threadLocal != null;
+    }
+
+    @Benchmark
+    public Class nullCheck2() {
+        return threadLocal.getClass();
+    }
 }
 
