@@ -17,10 +17,8 @@
 package net.openhft.chronicle.core.benchmark;
 
 import net.openhft.chronicle.core.Jvm;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.infra.Blackhole;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -95,6 +93,8 @@ Main.threadLocal_get:threadLocal_get·p1.00    sample           17184.000       
 public class Main {
 
     ThreadLocal threadLocal = ThreadLocal.withInitial(Object::new);
+    Object ob = getClass();
+    Object oc = System.getenv();
 
     public static void main(String... args) throws RunnerException, InvocationTargetException, IllegalAccessException {
         if (Jvm.isDebug()) {
@@ -105,7 +105,7 @@ public class Main {
                 }
             }
         } else {
-            int time = Boolean.getBoolean("longTest") ? 30 : 2;
+            int time = Boolean.getBoolean("longTest") ? 30 : 1;
             System.out.println("measurementTime: " + time + " secs");
             Options opt = new OptionsBuilder()
                     .include(Main.class.getSimpleName())
@@ -131,7 +131,7 @@ public class Main {
         return Thread.currentThread().getId();
     }
 
-    @Benchmark
+    //@Benchmark
     public Object threadLocal_get() {
         return threadLocal.get();
     }
@@ -142,13 +142,19 @@ public class Main {
     }
 
     @Benchmark
-    public boolean nullCheck() {
-        return threadLocal != null;
+    @BenchmarkMode({Mode.SampleTime, Mode.Throughput})
+    public void nullCheck() {
+        if (threadLocal == null) throw new NullPointerException();
+        if (ob == null) throw new NullPointerException();
+        if (oc == null) throw new NullPointerException();
     }
 
     @Benchmark
-    public Class nullCheck2() {
-        return threadLocal.getClass();
+    @BenchmarkMode({Mode.SampleTime, Mode.Throughput})
+    public void nullCheck2(Blackhole bc) {
+        bc.consume(threadLocal.getClass());
+        bc.consume(ob.getClass());
+        bc.consume(oc.getClass());
     }
 }
 
