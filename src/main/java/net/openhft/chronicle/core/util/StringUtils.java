@@ -80,12 +80,17 @@ public enum StringUtils {
 
     @ForceInline
     public static boolean isEqual(@Nullable CharSequence s, @Nullable CharSequence cs) {
+        if (s instanceof StringBuilder) {
+            return isEqual((StringBuilder) s, cs);
+        }
         if (s == cs)
             return true;
         if (s == null) return false;
         if (cs == null) return false;
-        if (s.length() != cs.length()) return false;
-        for (int i = 0; i < cs.length(); i++)
+        int sLength = s.length();
+        int csLength = cs.length();
+        if (sLength != csLength) return false;
+        for (int i = 0; i < csLength; i++)
             if (s.charAt(i) != cs.charAt(i))
                 return false;
         return true;

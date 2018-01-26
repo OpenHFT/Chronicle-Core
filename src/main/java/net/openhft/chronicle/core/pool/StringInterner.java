@@ -49,11 +49,11 @@ public class StringInterner {
         int hash = Maths.hash32(cs);
         int h = hash & mask;
         String s = interner[h];
-        if (StringUtils.isEqual(s, cs))
+        if (StringUtils.isEqual(cs, s))
             return s;
         int h2 = (hash >> shift) & mask;
         String s2 = interner[h2];
-        if (StringUtils.isEqual(s2, cs))
+        if (StringUtils.isEqual(cs, s2))
             return s2;
         @NotNull String s3 = cs.toString();
         interner[s == null || (s2 != null && toggle()) ? h : h2] = s3;
