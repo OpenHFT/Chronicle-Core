@@ -152,9 +152,9 @@ public class Main {
     @Benchmark
     @BenchmarkMode({Mode.SampleTime, Mode.Throughput})
     public void nullCheck2(Blackhole bc) {
-        bc.consume(threadLocal.getClass());
-        bc.consume(ob.getClass());
-        bc.consume(oc.getClass());
+        threadLocal.getClass();
+        ob.getClass();
+        oc.getClass();
     }
 }
 
