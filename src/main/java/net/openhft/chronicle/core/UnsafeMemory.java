@@ -88,7 +88,7 @@ public enum UnsafeMemory implements Memory {
     }
 
     @Override
-    public void setInt(Object object, long offset, int value) {
+    public void setInt(@NotNull Object object, long offset, int value) {
         if (object == null)
             throw new NullPointerException();
         UNSAFE.putInt(object, offset, value);
@@ -96,7 +96,7 @@ public enum UnsafeMemory implements Memory {
 
     @NotNull
     @Override
-    public <T> T getObject(Object object, long offset) {
+    public <T> T getObject(@NotNull Object object, long offset) {
         if (object == null)
             throw new NullPointerException();
         return (T) UNSAFE.getObject(object, offset);
@@ -153,7 +153,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeByte(Object object, long offset, byte b) {
+    public void writeByte(@NotNull Object object, long offset, byte b) {
         if (object == null)
             throw new NullPointerException();
         UNSAFE.putByte(object, offset, b);
@@ -161,7 +161,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public byte readByte(Object object, long offset) {
+    public byte readByte(@NotNull Object object, long offset) {
         if (object == null)
             throw new NullPointerException();
         return UNSAFE.getByte(object, offset);
@@ -181,7 +181,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeShort(Object object, long offset, short i16) {
+    public void writeShort(@NotNull Object object, long offset, short i16) {
         if (object == null)
             throw new NullPointerException();
         UNSAFE.putShort(object, offset, i16);
@@ -195,7 +195,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public short readShort(Object object, long offset) {
+    public short readShort(@NotNull Object object, long offset) {
         if (object == null)
             throw new NullPointerException();
         return UNSAFE.getShort(object, offset);
@@ -209,7 +209,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeInt(Object object, long offset, int i32) {
+    public void writeInt(@NotNull Object object, long offset, int i32) {
         if (object == null)
             throw new NullPointerException();
         UNSAFE.putInt(object, offset, i32);
@@ -224,7 +224,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeOrderedInt(Object object, long offset, int i32) {
+    public void writeOrderedInt(@NotNull Object object, long offset, int i32) {
         if (object == null)
             throw new NullPointerException();
         UNSAFE.putOrderedInt(object, offset, i32);
@@ -238,7 +238,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public int readInt(Object object, long offset) {
+    public int readInt(@NotNull Object object, long offset) {
         if (object == null)
             throw new NullPointerException();
         return UNSAFE.getInt(object, offset);
@@ -252,7 +252,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeLong(Object object, long offset, long i64) {
+    public void writeLong(@NotNull Object object, long offset, long i64) {
         if (object == null)
             throw new NullPointerException();
         UNSAFE.putLong(object, offset, i64);
@@ -266,7 +266,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public long readLong(Object object, long offset) {
+    public long readLong(@NotNull Object object, long offset) {
         if (object == null)
             throw new NullPointerException();
         return UNSAFE.getLong(object, offset);
@@ -280,7 +280,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeFloat(Object object, long offset, float f) {
+    public void writeFloat(@NotNull Object object, long offset, float f) {
         if (object == null)
             throw new NullPointerException();
         UNSAFE.putFloat(object, offset, f);
@@ -294,7 +294,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public float readFloat(Object object, long offset) {
+    public float readFloat(@NotNull Object object, long offset) {
         if (object == null)
             throw new NullPointerException();
         return UNSAFE.getFloat(object, offset);
@@ -308,7 +308,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeDouble(Object object, long offset, double d) {
+    public void writeDouble(@NotNull Object object, long offset, double d) {
         if (object == null)
             throw new NullPointerException();
         UNSAFE.putDouble(object, offset, d);
@@ -322,7 +322,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public double readDouble(Object object, long offset) {
+    public double readDouble(@NotNull Object object, long offset) {
         if (object == null)
             throw new NullPointerException();
         return UNSAFE.getDouble(object, offset);
@@ -388,7 +388,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeOrderedLong(Object object, long offset, long i) {
+    public void writeOrderedLong(@NotNull Object object, long offset, long i) {
         if (object == null)
             throw new NullPointerException();
         UNSAFE.putOrderedLong(object, offset, i);
@@ -403,7 +403,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public boolean compareAndSwapInt(Object object, long offset, int expected, int value) {
+    public boolean compareAndSwapInt(@NotNull Object object, long offset, int expected, int value) {
         if (object == null)
             throw new NullPointerException();
         return UNSAFE.compareAndSwapInt(object, offset, expected, value);
@@ -418,7 +418,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public boolean compareAndSwapLong(Object object, long offset, long expected, long value) {
+    public boolean compareAndSwapLong(@NotNull Object object, long offset, long expected, long value) {
         if (object == null)
             throw new NullPointerException();
         return UNSAFE.compareAndSwapLong(object, offset, expected, value);
@@ -437,7 +437,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public byte readVolatileByte(Object object, long offset) {
+    public byte readVolatileByte(@NotNull Object object, long offset) {
         if (object == null)
             throw new NullPointerException();
         return UNSAFE.getByteVolatile(object, offset);
@@ -452,7 +452,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public short readVolatileShort(Object object, long offset) {
+    public short readVolatileShort(@NotNull Object object, long offset) {
         if (object == null)
             throw new NullPointerException();
         return UNSAFE.getShortVolatile(object, offset);
@@ -472,7 +472,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public int readVolatileInt(Object object, long offset) {
+    public int readVolatileInt(@NotNull Object object, long offset) {
         if (object == null)
             throw new NullPointerException();
         return UNSAFE.getIntVolatile(object, offset);
@@ -487,7 +487,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public float readVolatileFloat(Object object, long offset) {
+    public float readVolatileFloat(@NotNull Object object, long offset) {
         if (object == null)
             throw new NullPointerException();
         return UNSAFE.getFloatVolatile(object, offset);
@@ -505,7 +505,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public long readVolatileLong(Object object, long offset) {
+    public long readVolatileLong(@NotNull Object object, long offset) {
         if (object == null)
             throw new NullPointerException();
         return UNSAFE.getLongVolatile(object, offset);
@@ -520,7 +520,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public double readVolatileDouble(Object object, long offset) {
+    public double readVolatileDouble(@NotNull Object object, long offset) {
         if (object == null)
             throw new NullPointerException();
         return UNSAFE.getDoubleVolatile(object, offset);
@@ -534,7 +534,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeVolatileByte(Object object, long offset, byte b) {
+    public void writeVolatileByte(@NotNull Object object, long offset, byte b) {
         if (object == null)
             throw new NullPointerException();
         UNSAFE.putByteVolatile(object, offset, b);
@@ -548,7 +548,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeVolatileShort(Object object, long offset, short i16) {
+    public void writeVolatileShort(@NotNull Object object, long offset, short i16) {
         if (object == null)
             throw new NullPointerException();
         UNSAFE.putShortVolatile(object, offset, i16);
@@ -563,7 +563,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeVolatileInt(Object object, long offset, int i32) {
+    public void writeVolatileInt(@NotNull Object object, long offset, int i32) {
         if (object == null)
             throw new NullPointerException();
         UNSAFE.putIntVolatile(object, offset, i32);
@@ -578,7 +578,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeVolatileFloat(Object object, long offset, float f) {
+    public void writeVolatileFloat(@NotNull Object object, long offset, float f) {
         if (object == null)
             throw new NullPointerException();
         UNSAFE.putFloatVolatile(object, offset, f);
@@ -593,7 +593,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeVolatileLong(Object object, long offset, long i64) {
+    public void writeVolatileLong(@NotNull Object object, long offset, long i64) {
         if (object == null)
             throw new NullPointerException();
         UNSAFE.putLongVolatile(object, offset, i64);
@@ -609,7 +609,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeVolatileDouble(Object object, long offset, double d) {
+    public void writeVolatileDouble(@NotNull Object object, long offset, double d) {
         if (object == null)
             throw new NullPointerException();
         UNSAFE.putDoubleVolatile(object, offset, d);
@@ -624,7 +624,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public int addInt(Object object, long offset, int increment) {
+    public int addInt(@NotNull Object object, long offset, int increment) {
 //        assert (offset & 0x3) == 0;
         if (object == null)
             throw new NullPointerException();
@@ -640,7 +640,7 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public long addLong(Object object, long offset, long increment) {
+    public long addLong(@NotNull Object object, long offset, long increment) {
 //        assert (offset & 0x7) == 0;
         if (object == null)
             throw new NullPointerException();
