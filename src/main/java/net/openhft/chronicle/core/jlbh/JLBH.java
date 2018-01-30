@@ -114,7 +114,7 @@ public class JLBH implements NanoSampler {
             jlbhOptions.jlbhTask.run(System.nanoTime());
         }
 
-        AffinityLock lock = Affinity.acquireLock();
+        AffinityLock lock = jlbhOptions.acquireLock.get();
         try {
             for (int run = 0; run < jlbhOptions.runs; run++) {
                 long runStart = System.currentTimeMillis();
