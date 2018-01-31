@@ -28,7 +28,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.PrintStream;
 import java.util.*;
@@ -243,7 +242,7 @@ public class JLBH implements NanoSampler {
 
     public void initEventLoop() {
         if (! jlbhOptions.accountForCoordinatedOmission)
-            throw new NotImplementedException();
+            throw new UnsupportedOperationException();
         long warmupStart = initStartOSJitterMonitorWarmup();
         warmupComplete(warmupStart);
         eventLoop.addHandler(new JLBHEventHandler());
