@@ -19,10 +19,16 @@ package net.openhft.chronicle.core.jlbh;
 import net.openhft.affinity.Affinity;
 import net.openhft.affinity.AffinityLock;
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.threads.EventHandler;
+import net.openhft.chronicle.core.threads.EventLoop;
+import net.openhft.chronicle.core.threads.InvalidEventHandlerException;
 import net.openhft.chronicle.core.util.Histogram;
 import net.openhft.chronicle.core.util.NanoSampler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.PrintStream;
 import java.util.*;
@@ -65,6 +71,7 @@ public class JLBH implements NanoSampler {
     private final Map<String, List<double[]>> additionalPercentileRuns;
     @NotNull
     private final OSJitterMonitor osJitterMonitor = new OSJitterMonitor();
+    private EventLoop eventLoop;
 
     /**
      * @param jlbhOptions Options to run the benchmark
@@ -118,17 +125,7 @@ public class JLBH implements NanoSampler {
                 for (int i = 0; i < jlbhOptions.iterations; i++) {
 
                     if (i == 0 && run == 0) {
-                        while (!warmUpComplete.get()) {
-                            Jvm.pause(2000);
-                            printStream.println("Complete: " + noResultsReturned);
-                        }
-                        printStream.println("Warm up complete (" + jlbhOptions.warmUpIterations + " iterations took " +
-                                ((System.currentTimeMillis() - warmupStart) / 1000.0) + "s)");
-                        if (jlbhOptions.pauseAfterWarmupMS != 0) {
-                            printStream.println("Pausing after warmup for " + jlbhOptions.pauseAfterWarmupMS + "ms");
-                            Jvm.pause(jlbhOptions.pauseAfterWarmupMS);
-                        }
-                        jlbhOptions.jlbhTask.warmedUp();
+                        warmupComplete(warmupStart);
                         runStart = System.currentTimeMillis();
                         startTimeNs = System.nanoTime();
                     } else if (jlbhOptions.accountForCoordinatedOmission) {
@@ -163,6 +160,20 @@ public class JLBH implements NanoSampler {
         }
 
         endOfAllRuns();
+    }
+
+    private void warmupComplete(long warmupStart) {
+        while (!warmUpComplete.get()) {
+            Jvm.pause(2000);
+            printStream.println("Complete: " + noResultsReturned);
+        }
+        printStream.println("Warm up complete (" + jlbhOptions.warmUpIterations + " iterations took " +
+                ((System.currentTimeMillis() - warmupStart) / 1000.0) + "s)");
+        if (jlbhOptions.pauseAfterWarmupMS != 0) {
+            printStream.println("Pausing after warmup for " + jlbhOptions.pauseAfterWarmupMS + "ms");
+            Jvm.pause(jlbhOptions.pauseAfterWarmupMS);
+        }
+        jlbhOptions.jlbhTask.warmedUp();
     }
 
     private long initStartOSJitterMonitorWarmup() {
@@ -224,6 +235,18 @@ public class JLBH implements NanoSampler {
         endToEndHistogram.reset();
         additionHistograms.values().forEach(Histogram::reset);
         osJitterMonitor.reset();
+    }
+
+    public void eventLoop(EventLoop eventLoop) {
+        this.eventLoop = eventLoop;
+    }
+
+    public void initEventLoop() {
+        if (! jlbhOptions.accountForCoordinatedOmission)
+            throw new NotImplementedException();
+        long warmupStart = initStartOSJitterMonitorWarmup();
+        warmupComplete(warmupStart);
+        eventLoop.addHandler(new JLBHEventHandler());
     }
 
     private void consumeResults() {
@@ -398,6 +421,65 @@ public class JLBH implements NanoSampler {
 
         void reset() {
             reset.set(true);
+        }
+    }
+
+    private class JLBHEventHandler implements EventHandler {
+        private Logger LOG = LoggerFactory.getLogger(JLBHEventHandler.class);
+        private int iteration;
+        private long runStart;
+        private long nextInvokeTime;
+        private boolean waitingForEndOfRun = false;
+
+        JLBHEventHandler() {
+            resetTime();
+        }
+
+        private void resetTime() {
+            runStart = System.currentTimeMillis();
+            nextInvokeTime = System.nanoTime() + latencyBetweenTasks;
+            LOG.debug("resetTime");
+        }
+
+        @Override
+        public boolean action() throws InvalidEventHandlerException, InterruptedException {
+            boolean busy = false;
+
+            int run = iteration / jlbhOptions.iterations;
+            int i = iteration % jlbhOptions.iterations;
+
+            // temporary logging
+            LOG.debug("action run={} i={} iteration={} waitingForEndOfRun={}", run, i, iteration, waitingForEndOfRun);
+            if (! waitingForEndOfRun) {
+                long now = System.nanoTime();
+                if (now >= nextInvokeTime) {
+                    LOG.debug("invoking {}", now - nextInvokeTime);
+                    jlbhOptions.jlbhTask.run(nextInvokeTime);
+                    nextInvokeTime += latencyBetweenTasks;
+                    busy = true;
+                    ++iteration;
+                }
+            }
+
+            if (i == jlbhOptions.iterations - 1) {
+                // we have reached end of run
+                waitingForEndOfRun = true;
+            }
+
+            if (waitingForEndOfRun) {
+                LOG.debug("waitingForEndOfRun {} {}", endToEndHistogram.totalCount(), jlbhOptions.iterations);
+                // TODO: there is an off by one error here. Sometimes totalCount is iterations-1
+                if (endToEndHistogram.totalCount() >= jlbhOptions.iterations) {
+                    endOfRun(run - 1, runStart);
+                    resetTime();
+                    waitingForEndOfRun = false;
+                    LOG.debug("check runs {} {}", run, jlbhOptions.runs);
+                    if (run == jlbhOptions.runs)
+                        endOfAllRuns();
+                }
+            }
+
+            return busy;
         }
     }
 }
