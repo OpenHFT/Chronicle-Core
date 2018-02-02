@@ -17,10 +17,13 @@
 
 package net.openhft.chronicle.core.jlbh;
 
+import net.openhft.affinity.Affinity;
+import net.openhft.affinity.AffinityLock;
 import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 
 /**
  * Data structure to store the options to pass into the JLBH constructor
@@ -39,6 +42,7 @@ public class JLBHOptions {
     @NotNull
     SKIP_FIRST_RUN skipFirstRun = SKIP_FIRST_RUN.NOT_SET;
     boolean jitterAffinity;
+    Supplier<AffinityLock> acquireLock = () -> Affinity.acquireLock();
 
     /**
      * Number of iterations per second to be pushed through the benchmark
@@ -175,6 +179,11 @@ public class JLBHOptions {
     @NotNull
     public JLBHOptions jitterAffinity(boolean jitterAffinity) {
         this.jitterAffinity = jitterAffinity;
+        return this;
+    }
+
+    public JLBHOptions acquireLock(Supplier<AffinityLock> acquireLock) {
+        this.acquireLock = acquireLock;
         return this;
     }
 

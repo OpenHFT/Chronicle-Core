@@ -118,7 +118,6 @@ public enum ObjectUtils {
         return immutability;
     }
 
-    @NotNull
     public static boolean isTrue(CharSequence s) {
         return StringUtils.equalsCaseIgnore(s, "true") ||
                 StringUtils.equalsCaseIgnore(s, "y") ||

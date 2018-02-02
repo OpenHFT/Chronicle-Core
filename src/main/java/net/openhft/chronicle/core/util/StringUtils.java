@@ -53,7 +53,7 @@ public enum StringUtils {
         }
     }
 
-    public static void setLength(StringBuilder sb, int length) {
+    public static void setLength(@NotNull StringBuilder sb, int length) {
         try {
             SB_COUNT.set(sb, length);
         } catch (IllegalAccessException e) {
@@ -148,17 +148,17 @@ public enum StringUtils {
     }
 
     @Java9
-    public static byte getStringCoder(String str) {
+    public static byte getStringCoder(@NotNull String str) {
         return getStringCoderForStringOrStringBuilder(str);
     }
 
     @Java9
-    public static byte getStringCoder(StringBuilder str) {
+    public static byte getStringCoder(@NotNull StringBuilder str) {
         return getStringCoderForStringOrStringBuilder(str);
     }
 
     @Java9
-    private static byte getStringCoderForStringOrStringBuilder(CharSequence charSequence) {
+    private static byte getStringCoderForStringOrStringBuilder(@NotNull CharSequence charSequence) {
         try {
             return Jvm.getField(charSequence.getClass(), "coder").getByte(charSequence);
         } catch (IllegalArgumentException | IllegalAccessException e) {
@@ -167,13 +167,13 @@ public enum StringUtils {
     }
 
     @Java9
-    public static byte[] extractBytes(StringBuilder sb) {
+    public static byte[] extractBytes(@NotNull StringBuilder sb) {
         ensureJava9Plus();
 
         return OS.memory().getObject(sb, SB_VALUE_OFFSET);
     }
 
-    public static char[] extractChars(String s) {
+    public static char[] extractChars(@NotNull String s) {
         if (Jvm.isJava9Plus()) {
             return s.toCharArray();
         }
@@ -181,18 +181,18 @@ public enum StringUtils {
     }
 
     @Java9
-    public static byte[] extractBytes(String s) {
+    public static byte[] extractBytes(@NotNull String s) {
         ensureJava9Plus();
 
         return OS.memory().getObject(s, S_VALUE_OFFSET);
     }
 
-    public static void setCount(StringBuilder sb, int count) {
+    public static void setCount(@NotNull StringBuilder sb, int count) {
         OS.memory().writeInt(sb, SB_COUNT_OFFSET, count);
     }
 
     @NotNull
-    public static String newString(char[] chars) {
+    public static String newString(@NotNull char[] chars) {
         if (Jvm.isJava9Plus()) {
             return new String(chars);
         }
@@ -208,7 +208,7 @@ public enum StringUtils {
 
     @Java9
     @NotNull
-    public static String newStringFromBytes(byte[] bytes) {
+    public static String newStringFromBytes(@NotNull byte[] bytes) {
         ensureJava9Plus();
         //noinspection RedundantStringConstructorCall
         @NotNull String str = new String();
