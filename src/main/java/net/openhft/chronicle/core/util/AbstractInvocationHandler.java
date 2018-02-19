@@ -89,6 +89,8 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
             args = NO_ARGS;
 
         Object o = doInvoke(proxy, method, args);
+        if (o == null && method.getReturnType().isInstance(proxy))
+            return proxy; // assume it's a chained method.
 
         return o == null ? ObjectUtils.defaultValue(method.getReturnType()) : o;
     }
