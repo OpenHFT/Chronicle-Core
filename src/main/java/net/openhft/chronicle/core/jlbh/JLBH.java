@@ -444,17 +444,15 @@ public class JLBH implements NanoSampler {
             if (! waitingForEndOfRun) {
                 long now = System.nanoTime();
                 if (now >= nextInvokeTime) {
-                    jlbhOptions.jlbhTask.run(nextInvokeTime);
                     nextInvokeTime += latencyBetweenTasks;
+                    jlbhOptions.jlbhTask.run(nextInvokeTime);
                     busy = true;
                     ++iteration;
 
                     if (i == jlbhOptions.iterations - 1)
                         waitingForEndOfRun = true;
                 }
-            }
-
-            if (waitingForEndOfRun) {
+            } else {
                 if (endToEndHistogram.totalCount() >= jlbhOptions.iterations) {
                     endOfRun(run - 1, runStart);
                     resetTime();
