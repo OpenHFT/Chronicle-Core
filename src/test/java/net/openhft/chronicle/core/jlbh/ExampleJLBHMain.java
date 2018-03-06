@@ -44,7 +44,7 @@ public class ExampleJLBHMain implements JLBHTask {
     @Override
     public void run(long startTimeNS) {
         count++;
-        if(count==160_000) {
+        if (count == 160_000) {
             System.out.println("PAUSE");
             //long now = System.nanoTime();
             Jvm.pause(100);
@@ -55,7 +55,7 @@ public class ExampleJLBHMain implements JLBHTask {
         sin = Math.sin(count);
         //nanoSamplerSin.sampleNanos(System.nanoTime()-now);
 
-        lth.sample(System.nanoTime()-startTimeNS);
+        lth.sample(System.nanoTime() - startTimeNS);
     }
 
     @Override
