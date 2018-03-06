@@ -36,6 +36,8 @@ public interface ISocketChannel extends Closeable {
 
     int write(ByteBuffer byteBuffer) throws IOException;
 
+    long write(ByteBuffer[] byteBuffer) throws IOException;
+
     @NotNull
     Socket socket();
 

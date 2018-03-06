@@ -31,6 +31,11 @@ public class VanillaSocketChannel implements ISocketChannel {
     }
 
     @Override
+    public long write(ByteBuffer[] byteBuffer) throws IOException {
+        return socketChannel.write(byteBuffer);
+    }
+
+    @Override
     public Socket socket() {
         return socketChannel.socket();
     }
