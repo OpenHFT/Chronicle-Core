@@ -21,7 +21,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.concurrent.locks.LockSupport;
 
 /**
- * A timer for timeouts which is resilient to pauses in the JVM.
+ * A timer for timeouts which is resilient to pauses in the JVM, tickTime can only increase if the JVM hasn't been paused.
+ * <p>
+ * For this to work, currentTimeMillis (or one of the methods that calls it) must be called more frequently than
+ * every millisecond; the EventLoop implementations in chronicle-threads do this.
+ * </p>
  */
 public enum Time {
     ;
