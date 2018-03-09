@@ -29,7 +29,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
@@ -220,16 +219,17 @@ public enum Jvm {
      * @param millis to sleep for.
      */
     public static void pause(long millis) {
-        long timeNanos = millis * 1000000;
-        if (timeNanos > 10e6) {
-            try {
-                Thread.sleep(millis);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        } else {
-            LockSupport.parkNanos(timeNanos);
+        // LockSupport.parkNanos is wildly unreliable on Windows.
+//        long timeNanos = millis * 1000000;
+//        if (timeNanos > 10e6) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
+//        } else {
+//            LockSupport.parkNanos(timeNanos);
+//        }
     }
 
     /**
@@ -517,7 +517,7 @@ public enum Jvm {
                 try {
                     handler.handle(signal);
                 } catch (Throwable t) {
-                    Jvm.warn().on(this.getClass(),"Problem handling signal", t);
+                    Jvm.warn().on(this.getClass(), "Problem handling signal", t);
                 }
             }
         }
