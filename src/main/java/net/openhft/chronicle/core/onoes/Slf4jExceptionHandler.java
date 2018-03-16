@@ -54,6 +54,14 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
         }
     };
 
+    public static Slf4jExceptionHandler valueOf(LogLevel logLevel) {
+        if (logLevel == LogLevel.FATAL)
+            return FATAL;
+        if (logLevel == LogLevel.WARN)
+            return WARN;
+        return DEBUG;
+    }
+
     private static boolean isJUnitTest() {
 
         for (StackTraceElement[] stackTrace : Thread.getAllStackTraces().values()) {

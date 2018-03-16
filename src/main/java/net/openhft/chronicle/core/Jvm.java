@@ -352,11 +352,23 @@ public enum Jvm {
 
     @NotNull
     public static Map<ExceptionKey, Integer> recordExceptions(boolean debug, boolean exceptionsOnly) {
+        return recordExceptions(debug, exceptionsOnly, false);
+    }
+
+    @NotNull
+    public static Map<ExceptionKey, Integer> recordExceptions(boolean debug, boolean exceptionsOnly, boolean logToSlf4j) {
         @NotNull Map<ExceptionKey, Integer> map = Collections.synchronizedMap(new LinkedHashMap<>());
-        FATAL.defaultHandler(new RecordingExceptionHandler(LogLevel.FATAL, map, exceptionsOnly));
-        WARN.defaultHandler(new RecordingExceptionHandler(LogLevel.WARN, map, exceptionsOnly));
-        DEBUG.defaultHandler(debug ? new RecordingExceptionHandler(LogLevel.DEBUG, map, exceptionsOnly) : NullExceptionHandler.NOTHING);
+        FATAL.defaultHandler(recordingExceptionHandler(LogLevel.FATAL, map, exceptionsOnly, logToSlf4j));
+        WARN.defaultHandler(recordingExceptionHandler(LogLevel.WARN, map, exceptionsOnly, logToSlf4j));
+        DEBUG.defaultHandler(debug ? recordingExceptionHandler(LogLevel.DEBUG, map, exceptionsOnly, logToSlf4j) : logToSlf4j ? Slf4jExceptionHandler.DEBUG : NullExceptionHandler.NOTHING);
         return map;
+    }
+
+    private static ExceptionHandler recordingExceptionHandler(LogLevel logLevel, Map<ExceptionKey, Integer> map, boolean exceptionsOnly, boolean logToSlf4j) {
+        ExceptionHandler eh = new RecordingExceptionHandler(LogLevel.FATAL, map, exceptionsOnly);
+        if (logToSlf4j)
+            eh = new ChainedExceptionHandler(eh, Slf4jExceptionHandler.valueOf(logLevel));
+        return eh;
     }
 
     public static boolean hasException(@NotNull Map<ExceptionKey, Integer> exceptions) {
