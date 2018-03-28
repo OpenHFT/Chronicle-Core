@@ -25,7 +25,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>chronicle-core</artifactId>
-    <version>1.11.5-SNAPSHOT</version>
+    <version>1.11.5</version>
     <name>OpenHFT/Chronicle-Core</name>
     <description>Chronicle-Core</description>
     <packaging>bundle</packaging>
@@ -248,7 +248,7 @@
         <connection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</connection>
         <developerConnection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git
         </developerConnection>
-        <tag>master</tag>
+        <tag>chronicle-core-1.11.5</tag>
     </scm>
 
 </project>
