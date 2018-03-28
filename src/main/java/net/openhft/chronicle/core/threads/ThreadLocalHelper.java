@@ -25,13 +25,10 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/*
- * Created by Peter Lawrey on 04/11/16.
- */
 public enum ThreadLocalHelper {
     ;
 
-    @Nullable
+    @NotNull
     public static <T> T getTL(@NotNull ThreadLocal<WeakReference<T>> threadLocal, @NotNull Supplier<T> supplier) {
         @Nullable WeakReference<T> ref = threadLocal.get();
         @Nullable T ret = null;
@@ -44,18 +41,18 @@ public enum ThreadLocalHelper {
         return ret;
     }
 
-    @Nullable
+    @NotNull
     public static <T, A> T getTL(@NotNull ThreadLocal<WeakReference<T>> threadLocal, A a, @NotNull Function<A, T> function) {
         return getTL(threadLocal, a, function, null, null);
     }
 
-    @Nullable
+    @NotNull
     public static <T, A> T getTL(@NotNull final ThreadLocal<WeakReference<T>> threadLocal, final A a,
                                  @NotNull final Function<A, T> function,
                                  @Nullable final ReferenceQueue<T> referenceQueue,
                                  @Nullable final Consumer<WeakReference<T>> refConsumer) {
         @Nullable WeakReference<T> ref = threadLocal.get();
-        @Nullable T ret = null;
+        T ret = null;
         if (ref != null) ret = ref.get();
         if (ret == null) {
             ret = function.apply(a);
