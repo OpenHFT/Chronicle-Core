@@ -365,7 +365,7 @@ public enum Jvm {
     }
 
     private static ExceptionHandler recordingExceptionHandler(LogLevel logLevel, Map<ExceptionKey, Integer> map, boolean exceptionsOnly, boolean logToSlf4j) {
-        ExceptionHandler eh = new RecordingExceptionHandler(LogLevel.FATAL, map, exceptionsOnly);
+        ExceptionHandler eh = new RecordingExceptionHandler(logLevel, map, exceptionsOnly);
         if (logToSlf4j)
             eh = new ChainedExceptionHandler(eh, Slf4jExceptionHandler.valueOf(logLevel));
         return eh;
