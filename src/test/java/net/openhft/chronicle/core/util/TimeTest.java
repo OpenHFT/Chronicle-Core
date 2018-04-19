@@ -20,6 +20,7 @@ import net.openhft.chronicle.core.Jvm;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /*
  * Created by Peter Lawrey on 10/07/15.
@@ -28,23 +29,55 @@ public class TimeTest {
 
     @Test
     public void testTickTime() throws InterruptedException {
+        long startReal = System.currentTimeMillis();
         long start = Time.tickTime();
         for (int i = 0; i < 10; i++) {
             Jvm.pause(10);
             Time.tickTime();
         }
         long last = Time.tickTime();
-        assertEquals(11, last - start, 1);
+        // 100ms have passed in real world but tickTime says 11ms
+        long ticksElapsed = last - start;
+        assertEquals(11, ticksElapsed, 1);
+        long realTimeElapsed = System.currentTimeMillis() - startReal;
+        System.out.println("tickTimeElapsed "+ticksElapsed+" realTimeElapsed "+realTimeElapsed);
+        assertTrue("tickTime should progress slower than real time", ticksElapsed < realTimeElapsed);
     }
 
     @Test
     public void testFastTime() throws InterruptedException {
+        long startReal = System.currentTimeMillis();
         long start = Time.tickTime();
         for (int i = 0; i < 100; i++) {
             Jvm.pause(1);
             Time.tickTime();
         }
         long last = Time.tickTime();
-        assertEquals(102, last - start, 2);
+        long ticksElapsed = last - start;
+        assertEquals(102, ticksElapsed, 2);
+        long realTimeElapsed = System.currentTimeMillis() - startReal;
+        System.out.println("tickTimeElapsed "+ticksElapsed+" realTimeElapsed "+realTimeElapsed);
+        assertTrue("tickTime should progress slower than real time", ticksElapsed < realTimeElapsed);
+    }
+
+    @Test
+    public void testFasterTime() throws InterruptedException {
+        long startReal = System.currentTimeMillis();
+        long start = Time.tickTime();
+        for (int i = 0; i < 100; i++) {
+            Jvm.pause(1);
+            // wait for System.currentTimeMillis() to change
+            for (long ctm = System.currentTimeMillis(); ctm == System.currentTimeMillis(); )
+                ;
+            // these should all be called in the same ms
+            for (int j=0; j<66; j++)
+                Time.tickTime();
+        }
+        long last = Time.tickTime();
+        long ticksElapsed = last - start;
+        assertEquals(102, ticksElapsed, 2);
+        long realTimeElapsed = System.currentTimeMillis() - startReal;
+        System.out.println("tickTimeElapsed "+ticksElapsed+" realTimeElapsed "+realTimeElapsed);
+        assertTrue("tickTime should progress slower than real time", ticksElapsed < realTimeElapsed);
     }
 }
