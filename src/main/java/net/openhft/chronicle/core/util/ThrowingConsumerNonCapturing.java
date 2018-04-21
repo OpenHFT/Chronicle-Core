@@ -21,7 +21,7 @@ package net.openhft.chronicle.core.util;
  * @param <T> the type of Throwable thrown
  */
 
-public interface ThrowingConsumerNonCapturing<I, T extends Throwable,U> {
+public interface ThrowingConsumerNonCapturing<I, T extends Throwable, U> {
 
     /**
      * Performs this operation on the given argument.

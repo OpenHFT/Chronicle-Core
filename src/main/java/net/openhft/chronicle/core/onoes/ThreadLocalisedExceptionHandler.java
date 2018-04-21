@@ -40,7 +40,6 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
         return handlerTL.get();
     }
 
-
     public ThreadLocalisedExceptionHandler threadLocalHandler(ExceptionHandler handler) {
         handlerTL.set(handler);
         return this;

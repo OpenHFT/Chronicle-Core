@@ -58,7 +58,7 @@ public class JLBHOptions {
     /**
      * Number of iterations per time unit to be pushed through the benchmark
      *
-     * @param throughput defaults to 10,000
+     * @param throughput         defaults to 10,000
      * @param throughputTimeUnit defaults to <code>TimeUnit.SECOND</code>
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
@@ -73,6 +73,7 @@ public class JLBHOptions {
      * Determines whether the start time is the time the event was supposed to have happened
      * (i.e. accounting for co-ordinated omission) or whether the the start time is just
      * the a factor of the throughput (i.e. not accounting for co-ordinated omission).
+     *
      * @param accountForCoordinatedOmmission defaults to true
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
@@ -84,6 +85,7 @@ public class JLBHOptions {
 
     /**
      * Determines how much jitter to record.
+     *
      * @param recordJitterGreaterThanNs Defaults to 1000
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
@@ -95,6 +97,7 @@ public class JLBHOptions {
 
     /**
      * Determines whether or not to record jitter
+     *
      * @param recordOSJitter Defaults to true
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
@@ -107,6 +110,7 @@ public class JLBHOptions {
     /**
      * Determines how many warmup iterations to perform.
      * Note: warmup iterations are continuous.
+     *
      * @param warmUp Defaults to 10,000
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
@@ -118,6 +122,7 @@ public class JLBHOptions {
 
     /**
      * Number of runs of the benchmark
+     *
      * @param runs Defaults to 3
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
@@ -129,6 +134,7 @@ public class JLBHOptions {
 
     /**
      * Number of iterations of the benchmark not including warmup.
+     *
      * @param iterations Defaults to 100,000
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
@@ -140,6 +146,7 @@ public class JLBHOptions {
 
     /**
      * The latency benchmark to be run.
+     *
      * @param JLBHTask
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
@@ -151,6 +158,7 @@ public class JLBHOptions {
 
     /**
      * Option to set a pause after the warmup is complete
+     *
      * @param pauseMS pause in ms default to 0
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
@@ -162,6 +170,7 @@ public class JLBHOptions {
 
     /**
      * Option to skip first run from being included in the variation statistics.
+     *
      * @param skip default to true if runs greater than 3
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
@@ -173,6 +182,7 @@ public class JLBHOptions {
 
     /**
      * Should the jitter thread set affinity or not
+     *
      * @param jitterAffinity default is false
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */

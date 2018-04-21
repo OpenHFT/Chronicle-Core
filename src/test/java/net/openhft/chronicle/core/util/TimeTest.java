@@ -40,7 +40,7 @@ public class TimeTest {
         long ticksElapsed = last - start;
         assertEquals(11, ticksElapsed, 1);
         long realTimeElapsed = System.currentTimeMillis() - startReal;
-        System.out.println("tickTimeElapsed "+ticksElapsed+" realTimeElapsed "+realTimeElapsed);
+        System.out.println("tickTimeElapsed " + ticksElapsed + " realTimeElapsed " + realTimeElapsed);
         assertTrue("tickTime should progress slower than real time", ticksElapsed < realTimeElapsed);
     }
 
@@ -56,7 +56,7 @@ public class TimeTest {
         long ticksElapsed = last - start;
         assertEquals(102, ticksElapsed, 2);
         long realTimeElapsed = System.currentTimeMillis() - startReal;
-        System.out.println("tickTimeElapsed "+ticksElapsed+" realTimeElapsed "+realTimeElapsed);
+        System.out.println("tickTimeElapsed " + ticksElapsed + " realTimeElapsed " + realTimeElapsed);
         assertTrue("tickTime should progress slower than real time", ticksElapsed < realTimeElapsed);
     }
 
@@ -70,14 +70,14 @@ public class TimeTest {
             for (long ctm = System.currentTimeMillis(); ctm == System.currentTimeMillis(); )
                 ;
             // these should all be called in the same ms
-            for (int j=0; j<66; j++)
+            for (int j = 0; j < 66; j++)
                 Time.tickTime();
         }
         long last = Time.tickTime();
         long ticksElapsed = last - start;
         assertEquals(102, ticksElapsed, 2);
         long realTimeElapsed = System.currentTimeMillis() - startReal;
-        System.out.println("tickTimeElapsed "+ticksElapsed+" realTimeElapsed "+realTimeElapsed);
+        System.out.println("tickTimeElapsed " + ticksElapsed + " realTimeElapsed " + realTimeElapsed);
         assertTrue("tickTime should progress slower than real time", ticksElapsed < realTimeElapsed);
     }
 }

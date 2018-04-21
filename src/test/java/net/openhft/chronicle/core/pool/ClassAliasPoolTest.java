@@ -49,6 +49,7 @@ public class ClassAliasPoolTest {
         StringBuilder sb = new StringBuilder(simpleName);
         assertEquals(ClassAliasPoolTest.class, CLASS_ALIASES.forName(sb));
     }
+
     @Test
     public void testClean() {
         assertEquals("String", CLASS_ALIASES.nameFor(String.class));
@@ -74,6 +75,7 @@ public class ClassAliasPoolTest {
         },
         BAR;
 
-        void foo() {}
+        void foo() {
+        }
     }
 }

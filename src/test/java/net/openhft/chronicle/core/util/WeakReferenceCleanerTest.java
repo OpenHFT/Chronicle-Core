@@ -19,6 +19,12 @@ public class WeakReferenceCleanerTest {
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final AtomicInteger processedCount = new AtomicInteger(0);
 
+    private static void referToObject(final Container container) {
+        if ("This is unexpected".equals(container.toString())) {
+            fail("This is unexpected");
+        }
+    }
+
     @Before
     public void setUp() throws Exception {
         WeakReferenceCleaner.startReferenceProcessor(() -> executorService);
@@ -69,12 +75,6 @@ public class WeakReferenceCleanerTest {
     @After
     public void tearDown() throws Exception {
         executorService.shutdownNow();
-    }
-
-    private static void referToObject(final Container container) {
-        if("This is unexpected".equals(container.toString())) {
-            fail("This is unexpected");
-        }
     }
 
     @NotNull

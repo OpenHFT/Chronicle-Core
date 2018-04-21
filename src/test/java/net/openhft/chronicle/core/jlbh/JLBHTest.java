@@ -112,11 +112,9 @@ public class JLBHTest {
         new JLBH(optionsA, printStream(), resultConsumerA).start();
         new JLBH(optionsB, printStream(), resultConsumerB).start();
 
-
         // when
         final JLBHResult.RunResult summaryA = resultConsumerA.get().endToEnd().summaryOfLastRun();
         final JLBHResult.RunResult summaryB = resultConsumerB.get().endToEnd().summaryOfLastRun();
-
 
         // then
         assertNotNull(summaryA.percentiles().get(PERCENTILE_99_99TH));

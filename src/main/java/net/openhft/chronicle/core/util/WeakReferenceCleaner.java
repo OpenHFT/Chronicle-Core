@@ -34,12 +34,6 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
         this.thunk = thunk;
     }
 
-    public void clean() {
-        if (CLEANED_FLAG.compareAndSet(this, 0, 1)) {
-            thunk.run();
-        }
-    }
-
     public static WeakReferenceCleaner newCleaner(final Object referent, final Runnable thunk) {
         startReferenceProcessor(WeakReferenceCleaner::referenceCleanerExecutor);
 
@@ -53,6 +47,21 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
             if (REFERENCE_PROCESSOR_STARTED.compareAndSet(false, true)) {
                 executorSupplier.get().execute(new ReferenceProcessor());
             }
+        }
+    }
+
+    private static Executor referenceCleanerExecutor() {
+        return Executors.newSingleThreadExecutor(r -> {
+            final Thread t = new Thread(r);
+            t.setName("chronicle-weak-reference-cleaner");
+            t.setDaemon(true);
+            return t;
+        });
+    }
+
+    public void clean() {
+        if (CLEANED_FLAG.compareAndSet(this, 0, 1)) {
+            thunk.run();
         }
     }
 
@@ -80,14 +89,5 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
                 }
             }
         }
-    }
-
-    private static Executor referenceCleanerExecutor() {
-        return Executors.newSingleThreadExecutor(r -> {
-            final Thread t = new Thread(r);
-            t.setName("chronicle-weak-reference-cleaner");
-            t.setDaemon(true);
-            return t;
-        });
     }
 }

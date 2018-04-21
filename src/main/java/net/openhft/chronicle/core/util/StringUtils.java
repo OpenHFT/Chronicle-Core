@@ -230,7 +230,7 @@ public enum StringUtils {
     }
 
     public static double parseDouble(@NotNull @net.openhft.chronicle.core.annotation.NotNull
-                                     CharSequence in) {
+                                             CharSequence in) {
         long value = 0;
         int exp = 0;
         boolean negative = false;
@@ -364,7 +364,7 @@ public enum StringUtils {
         boolean wasUnder = false;
         for (int i = 1; i < name.length(); i++) {
             char ch0 = name.charAt(i);
-            char ch1 = i+1 < name.length() ? name.charAt(i+1) : ' ';
+            char ch1 = i + 1 < name.length() ? name.charAt(i + 1) : ' ';
             if (Character.isLowerCase(ch0)) {
                 sb.append(Character.toUpperCase(ch0));
                 if (Character.isUpperCase(ch1)) {

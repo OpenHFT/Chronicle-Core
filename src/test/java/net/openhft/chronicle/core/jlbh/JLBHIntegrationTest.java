@@ -51,7 +51,6 @@ public class JLBHIntegrationTest {
         assertThat(actual, equalTo(expected));
     }
 
-
     private void redirectSystemOut() {
         System.setOut(new PrintStream(outContent));
         System.setErr(new PrintStream(errContent));

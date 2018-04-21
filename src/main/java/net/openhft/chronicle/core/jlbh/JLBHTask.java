@@ -23,6 +23,7 @@ public interface JLBHTask {
     /**
      * This method is called before the benchmark is started.
      * It gives the task a chance to do initialisation.
+     *
      * @param jlbh A reference to the JLBH which is needed so that <code>jlbh.sample()</>
      *             can be invoked when the benchmark is complete. It can also be used to
      *             create more probes into the benchamrk.
@@ -33,6 +34,7 @@ public interface JLBHTask {
      * This method is called for each iteration of the benchmark.
      * The timestamp passed into the method is not the same as <code>System.nanoTime()</>.
      * It is the calculated time that the test is supposed to have started.
+     *
      * @param startTimeNS The time that should be used as the start time for the sample.
      */
     void run(long startTimeNS);
@@ -40,10 +42,12 @@ public interface JLBHTask {
     /**
      * Notify that warmup phase is over
      */
-    default void warmedUp(){}
+    default void warmedUp() {
+    }
 
     /**
      * This method is used for any clean up that might be required by the benchmark.
      */
-    default void complete(){}
+    default void complete() {
+    }
 }

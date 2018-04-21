@@ -46,6 +46,17 @@ public enum OS {
     public static final String TMP = System.getProperty("java.io.tmpdir");
     public static final String TARGET = System.getProperty("project.build.directory", findTarget());
     public static final String USER_DIR = System.getProperty("user.dir");
+    static final ClassLocal<MethodHandle> MAP0_MH = ClassLocal.withInitial(c -> {
+        try {
+            Method map0 = c.getDeclaredMethod("map0", int.class, long.class, long.class);
+            map0.setAccessible(true);
+            return MethodHandles.lookup().unreflect(map0);
+        } catch (NoSuchMethodException e) {
+            throw new AssertionError("Method map0 is not available", e);
+        } catch (IllegalAccessException e) {
+            throw new AssertionError(e);
+        }
+    });
     private static final String HOST_NAME = getHostName0();
     private static final String USER_NAME = System.getProperty("user.name");
     private static final Logger LOG = LoggerFactory.getLogger(OS.class);
@@ -63,7 +74,6 @@ public enum OS {
     private static final boolean IS_WIN10 = OS.equals("windows 10");
     private static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : pageSize();
     private static final AtomicLong memoryMapped = new AtomicLong();
-
     private static MethodHandle UNMAPP0_MH;
     private static MethodHandle READ0_MH;
 
@@ -326,19 +336,6 @@ public enum OS {
         return map0(fileChannel, imodeFor(mode), mapAlign(start), pageAlign(size));
     }
 
-    static final ClassLocal<MethodHandle> MAP0_MH = ClassLocal.withInitial(c -> {
-        try {
-            Method map0 = c.getDeclaredMethod("map0", int.class, long.class, long.class);
-            map0.setAccessible(true);
-            return MethodHandles.lookup().unreflect(map0);
-        } catch (NoSuchMethodException e) {
-            throw new AssertionError("Method map0 is not available", e);
-        } catch (IllegalAccessException e) {
-            throw new AssertionError(e);
-        }
-    });
-
-
     private static long invokeFileChannelMap0(@NotNull MethodHandle map0, @NotNull FileChannel fileChannel, int imode, long start, long size,
                                               @NotNull ThrowingFunction<OutOfMemoryError, Long, IOException> errorHandler) throws IOException {
         try {
@@ -457,6 +454,16 @@ public enum OS {
         return USER_DIR;
     }
 
+    public static int read0(FileDescriptor fd, long address, int len) throws IOException {
+        try {
+            return (int) READ0_MH.invokeExact(fd, address, len);
+        } catch (IOException ioe) {
+            throw ioe;
+        } catch (Throwable e) {
+            throw new IOException(e);
+        }
+    }
+
     public static class Unmapper implements Runnable {
         private final long size;
 
@@ -481,16 +488,6 @@ public enum OS {
             } catch (@NotNull IOException e) {
                 Jvm.warn().on(OS.class, "Error on unmap and release", e);
             }
-        }
-    }
-
-    public static int read0(FileDescriptor fd, long address, int len) throws IOException {
-        try {
-            return (int) READ0_MH.invokeExact(fd, address, len);
-        } catch (IOException ioe) {
-            throw ioe;
-        } catch (Throwable e) {
-            throw new IOException(e);
         }
     }
 }

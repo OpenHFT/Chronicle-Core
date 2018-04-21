@@ -1,6 +1,5 @@
 package net.openhft.chronicle.core.tcp;
 
-
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.annotation.NotNull;

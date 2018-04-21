@@ -27,6 +27,9 @@ import java.util.function.DoubleFunction;
  */
 // TODO add a dummy histogram.
 public class Histogram implements NanoSampler {
+    static final DecimalFormat F3 = new DecimalFormat("0.000");
+    static final DecimalFormat F2 = new DecimalFormat("0.00");
+    static final DecimalFormat F1 = new DecimalFormat("0.0");
     private int fractionBits;
     private int powersOf2;
     private long overRange;
@@ -269,10 +272,6 @@ public class Histogram implements NanoSampler {
                 p(toMicros.apply(percentile(0.999999))) + " - " +
                 p(toMicros.apply(percentile(1)));
     }
-
-    static final DecimalFormat F3 = new DecimalFormat("0.000");
-    static final DecimalFormat F2 = new DecimalFormat("0.00");
-    static final DecimalFormat F1 = new DecimalFormat("0.0");
 
     @NotNull
     private String p(double v) {

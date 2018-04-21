@@ -27,7 +27,7 @@ import java.util.Objects;
  * Represents an operation that accepts a single {@code short}-valued argument and returns no result.  This is the
  * primitive type specialization of {@link java.util.function.Consumer} for {@code short}.  Unlike most other functional
  * interfaces, {@code ShortConsumer} is expected to operate via side-effects.
- *
+ * <p>
  * <p>This is a <a href="package-summary.html">functional interface</a> whose functional method is {@link
  * #accept(short)}.
  *

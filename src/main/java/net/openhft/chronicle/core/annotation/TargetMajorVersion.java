@@ -9,5 +9,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface TargetMajorVersion {
     int ANY_VERSION = 0;
+
     int majorVersion() default ANY_VERSION;
 }

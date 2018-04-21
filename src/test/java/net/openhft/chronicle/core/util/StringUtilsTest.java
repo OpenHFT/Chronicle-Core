@@ -25,10 +25,7 @@ import java.nio.charset.StandardCharsets;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
 /**
@@ -135,9 +132,9 @@ public class StringUtilsTest {
         assertTrue(StringUtils.isEqual(emptySb, emptySb));
 
         // Null cases
-        assertTrue(StringUtils.isEqual(null,null));
-        assertFalse(StringUtils.isEqual(emptySb,null));
-        assertFalse(StringUtils.isEqual(null,emptySb));
+        assertTrue(StringUtils.isEqual(null, null));
+        assertFalse(StringUtils.isEqual(emptySb, null));
+        assertFalse(StringUtils.isEqual(null, emptySb));
 
         // Different lengths
         assertFalse(StringUtils.isEqual(new StringBuilder().append(""), "a"));

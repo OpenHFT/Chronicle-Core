@@ -28,6 +28,7 @@ public class AbstractInvocationHandlerTest {
     @FunctionalInterface
     public interface CallMe {
         void method1();
+
         default void method2() {
             throw new AssertionError("Don't call me");
         }

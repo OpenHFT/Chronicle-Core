@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * TimeProvider whose value can be explicitly set and advanced for testing purposes.  Supports time values in milliseconds, microseconds and nanoseconds.
- *
+ * <p>
  * Created by Peter Lawrey on 10/03/16.
  **/
 public class SetTimeProvider implements TimeProvider {
@@ -38,6 +38,7 @@ public class SetTimeProvider implements TimeProvider {
 
     /**
      * Set the current time in milliseconds.
+     *
      * @param millis New time value in milliseconds since the epoch. May not be less than the previous value.
      */
     public void currentTimeMillis(long millis) {
@@ -51,6 +52,7 @@ public class SetTimeProvider implements TimeProvider {
 
     /**
      * Set the current time in microseconds.
+     *
      * @param micros New time value in microseconds since the epoch. May not be less than the previous value.
      */
     public void currentTimeMicros(long micros) {
@@ -64,6 +66,7 @@ public class SetTimeProvider implements TimeProvider {
 
     /**
      * Set the current time in nanoseconds.
+     *
      * @param nanos New time value in nanoseconds since the epoch. May not be less than the previous value.
      */
     public void currentTimeNanos(long nanos) {
@@ -83,6 +86,7 @@ public class SetTimeProvider implements TimeProvider {
 
     /**
      * Advances time in milliseconds.
+     *
      * @param millis duration.
      */
     public SetTimeProvider advanceMillis(long millis) {
@@ -92,6 +96,7 @@ public class SetTimeProvider implements TimeProvider {
 
     /**
      * Advances time in microseconds.
+     *
      * @param micros duration.
      */
     public SetTimeProvider advanceMicros(long micros) {
@@ -101,6 +106,7 @@ public class SetTimeProvider implements TimeProvider {
 
     /**
      * Advances time in nanoseconds.
+     *
      * @param nanos duration.
      */
     public SetTimeProvider advanceNanos(long nanos) {

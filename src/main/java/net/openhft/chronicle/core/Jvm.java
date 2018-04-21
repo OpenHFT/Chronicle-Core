@@ -433,29 +433,6 @@ public enum Jvm {
         return DEBUG.isEnabled(aClass) || isDebug();
     }
 
-    enum DirectMemoryInspector {
-        Reflect {
-            @Override
-            public long usedDirectMemory() {
-                try {
-                    synchronized (bitsClass) {
-                        return reservedMemory.getLong(null);
-                    }
-                } catch (IllegalAccessException e) {
-                    throw new AssertionError(e);
-                }
-            }
-        },
-        AtomicLong {
-            @Override
-            public long usedDirectMemory() {
-                return reservedMemoryAtomicLong.get();
-            }
-        };
-
-        public abstract long usedDirectMemory();
-    }
-
     private static long maxDirectMemory0() {
         try {
             Class<?> clz;
@@ -518,6 +495,29 @@ public enum Jvm {
             // System.exit()
             Jvm.warn().on(signalHandler.getClass(), "Unable add a signal handler", e);
         }
+    }
+
+    enum DirectMemoryInspector {
+        Reflect {
+            @Override
+            public long usedDirectMemory() {
+                try {
+                    synchronized (bitsClass) {
+                        return reservedMemory.getLong(null);
+                    }
+                } catch (IllegalAccessException e) {
+                    throw new AssertionError(e);
+                }
+            }
+        },
+        AtomicLong {
+            @Override
+            public long usedDirectMemory() {
+                return reservedMemoryAtomicLong.get();
+            }
+        };
+
+        public abstract long usedDirectMemory();
     }
 
     private static class ChainedSignalHandler implements SignalHandler {

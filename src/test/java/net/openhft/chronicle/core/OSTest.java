@@ -38,10 +38,9 @@ import static org.junit.Assert.assertEquals;
 
 public class OSTest {
 
-    private ThreadDump threadDump;
-
     @Rule
     public final TestName testName = new TestName();
+    private ThreadDump threadDump;
 
     @Before
     public void threadDump() {
@@ -63,7 +62,9 @@ public class OSTest {
         System.out.println("pid = " + OS.getProcessId());
     }
 
-    /** tests that windows supports page mapping granularity */
+    /**
+     * tests that windows supports page mapping granularity
+     */
     @Test
     //@Ignore("Failing on TC (linux agent) for unknown reason, anyway the goal of this test is to " +
     //        "test mapping granularity on windows")

@@ -27,7 +27,7 @@ import java.util.Collection;
 public interface Closeable extends java.io.Closeable {
 
     static void closeQuietly(@NotNull Object... closables) {
-        closeQuietly((Object)closables);
+        closeQuietly((Object) closables);
     }
 
     static void closeQuietly(@Nullable Object o) {

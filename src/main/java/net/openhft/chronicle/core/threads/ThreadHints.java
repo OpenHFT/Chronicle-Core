@@ -47,6 +47,9 @@ public final class ThreadHints {
         ON_SPIN_WAIT_METHOD_HANDLE = methodHandle;
     }
 
+    private ThreadHints() {
+    }
+
     /**
      * Indicates that the caller is momentarily unable to progress, until the
      * occurrence of one or more actions on the part of other activities.  By
@@ -63,8 +66,5 @@ public final class ThreadHints {
             } catch (@NotNull final Throwable ignore) {
             }
         }
-    }
-
-    private ThreadHints() {
     }
 }

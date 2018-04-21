@@ -57,7 +57,7 @@ public class StringInterner {
             return s2;
         @NotNull String s3 = cs.toString();
         interner[s == null || (s2 != null && toggle()) ? h : h2] = s3;
-        
+
         return s3;
     }
 

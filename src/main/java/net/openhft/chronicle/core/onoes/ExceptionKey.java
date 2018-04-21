@@ -53,7 +53,7 @@ public class ExceptionKey {
     public String toString() {
         @NotNull StringWriter sw = new StringWriter();
         if (throwable != null)
-        throwable.printStackTrace(new PrintWriter(sw));
+            throwable.printStackTrace(new PrintWriter(sw));
         return "ExceptionKey{" +
                 "level=" + level +
                 ", clazz=" + clazz +

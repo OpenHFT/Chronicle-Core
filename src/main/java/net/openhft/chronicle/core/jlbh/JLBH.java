@@ -53,6 +53,12 @@ public class JLBH implements NanoSampler {
     private final PrintStream printStream;
     private final Consumer<JLBHResult> resultConsumer;
     @NotNull
+    private final List<double[]> percentileRuns;
+    @NotNull
+    private final Map<String, List<double[]>> additionalPercentileRuns;
+    @NotNull
+    private final OSJitterMonitor osJitterMonitor = new OSJitterMonitor();
+    @NotNull
     private Histogram endToEndHistogram = new Histogram();
     @NotNull
     private Histogram osJitterHistogram = new Histogram();
@@ -61,12 +67,6 @@ public class JLBH implements NanoSampler {
     private AtomicBoolean warmUpComplete = new AtomicBoolean(false);
     //Use non-atomic when so thread synchronisation is necessary
     private boolean warmedUp;
-    @NotNull
-    private final List<double[]> percentileRuns;
-    @NotNull
-    private final Map<String, List<double[]>> additionalPercentileRuns;
-    @NotNull
-    private final OSJitterMonitor osJitterMonitor = new OSJitterMonitor();
 
     /**
      * @param jlbhOptions Options to run the benchmark
@@ -81,8 +81,8 @@ public class JLBH implements NanoSampler {
      * You can create you own consumer, or use provided JLBHResultConsumer::newThreadSafeInstance()
      * that allows you to retrieve the result even if the JLBH has been executed in a different thread.
      *
-     * @param jlbhOptions Options to run the benchmark
-     * @param printStream Used to print text output. Use System.out to show the result on you standard out (e.g. screen)
+     * @param jlbhOptions    Options to run the benchmark
+     * @param printStream    Used to print text output. Use System.out to show the result on you standard out (e.g. screen)
      * @param resultConsumer If provided, accepts the result data to be retrieved after the latencies have been measured
      */
     public JLBH(@NotNull JLBHOptions jlbhOptions, @NotNull PrintStream printStream, Consumer<JLBHResult> resultConsumer) {
@@ -234,10 +234,11 @@ public class JLBH implements NanoSampler {
 
     /**
      * Call this instead of start if you want to install JLBH as a handler on your event loop thread
+     *
      * @return
      */
     public JLBHEventHandler eventLoopHandler() {
-        if (! jlbhOptions.accountForCoordinatedOmission)
+        if (!jlbhOptions.accountForCoordinatedOmission)
             throw new UnsupportedOperationException();
         long warmupStart = initStartOSJitterMonitorWarmup();
         warmupComplete(warmupStart);
@@ -441,7 +442,7 @@ public class JLBH implements NanoSampler {
             int run = iteration / jlbhOptions.iterations;
             int i = iteration % jlbhOptions.iterations;
 
-            if (! waitingForEndOfRun) {
+            if (!waitingForEndOfRun) {
                 long now = System.nanoTime();
                 if (now >= nextInvokeTime) {
                     nextInvokeTime += latencyBetweenTasks;
