@@ -32,18 +32,15 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
     private static final Object[] NO_ARGS = {};
     // called when close() is called.
     private Closeable closeable;
-    // cache the proxy to MethodHandler lookup.
-    private Map<Object, Function<Method, MethodHandle>> proxyToLambda;
-    private Map<Method, MethodHandle> defaultMethod;
 
     /**
      * @param mapSupplier ConcurrentHashMap::new for thread safe, HashMap::new for single thread, Collections::emptyMap to turn off.
      */
     protected AbstractInvocationHandler(Supplier<Map> mapSupplier) {
         //noinspection unchecked
-        proxyToLambda = mapSupplier.get();
+        Map<Object, Function<Method, MethodHandle>> proxyToLambda = mapSupplier.get();
         //noinspection unchecked
-        defaultMethod = mapSupplier.get();
+        Map<Method, MethodHandle> defaultMethod = mapSupplier.get();
     }
 
     private static MethodHandles.Lookup acquireLookup(Class<?> c) {
@@ -78,11 +75,6 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
             Closeable.closeQuietly(closeable);
             return null;
 
-//        } else if (method.isDefault()) {
-//            // this will call the default impl. of the method, not the proxy's impl.
-//            Function<Method, MethodHandle> function = proxyToLambda.computeIfAbsent(proxy, p -> m -> methodHandleForProxy(p, m));
-//            MethodHandle methodHandle = defaultMethod.computeIfAbsent(method, function);
-//            return methodHandle.invokeWithArguments(args);
         }
 
         if (args == null)

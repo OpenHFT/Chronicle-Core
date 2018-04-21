@@ -188,7 +188,7 @@ public class JLBH implements NanoSampler {
     private void endOfAllRuns() {
         printPercentilesSummary("end to end", percentileRuns);
         if (additionalPercentileRuns.size() > 0) {
-            additionalPercentileRuns.entrySet().forEach(e -> printPercentilesSummary(e.getKey(), e.getValue()));
+            additionalPercentileRuns.forEach(this::printPercentilesSummary);
         }
 
         consumeResults();
@@ -212,12 +212,12 @@ public class JLBH implements NanoSampler {
         printStream.println(endToEndHistogram.toMicrosFormat());
 
         if (additionHistograms.size() > 0) {
-            additionHistograms.entrySet().forEach(e -> {
-                List<double[]> ds = additionalPercentileRuns.computeIfAbsent(e.getKey(),
+            additionHistograms.forEach((key, value) -> {
+                List<double[]> ds = additionalPercentileRuns.computeIfAbsent(key,
                         i -> new ArrayList<>());
-                ds.add(e.getValue().getPercentiles());
-                printStream.printf("%-48s", String.format("%s (%,d) ", e.getKey(), e.getValue().totalCount()));
-                printStream.println(e.getValue().toMicrosFormat());
+                ds.add(value.getPercentiles());
+                printStream.printf("%-48s", String.format("%s (%,d) ", key, value.totalCount()));
+                printStream.println(value.toMicrosFormat());
             });
         }
         if (jlbhOptions.recordOSJitter) {
@@ -235,7 +235,6 @@ public class JLBH implements NanoSampler {
     /**
      * Call this instead of start if you want to install JLBH as a handler on your event loop thread
      *
-     * @return
      */
     public JLBHEventHandler eventLoopHandler() {
         if (!jlbhOptions.accountForCoordinatedOmission)

@@ -80,20 +80,19 @@ public class FastJ8SocketChannel extends VanillaSocketChannel {
                     return -1;
             }
 
-            for (; ; ) {
-                int n = OS.read0(fd, ((DirectBuffer) buf).address() + buf.position(), buf.remaining());
-                if ((n == IOStatus.INTERRUPTED) && isOpen()) {
-                    // The system call was interrupted but the channel
-                    // is still open, so retry
-                    return 0;
-                }
-                int ret = IOStatus.normalize(n);
-                if (ret > 0)
-                    buf.position(buf.position() + ret);
-                else if (ret < 0)
-                    open = false;
-                return ret;
+            int n = OS.read0(fd, ((DirectBuffer) buf).address() + buf.position(), buf.remaining());
+            if ((n == IOStatus.INTERRUPTED) && isOpen()) {
+                // The system call was interrupted but the channel
+                // is still open, so retry
+                return 0;
             }
+            int ret = IOStatus.normalize(n);
+            if (ret > 0)
+                buf.position(buf.position() + ret);
+            else if (ret < 0)
+                open = false;
+            return ret;
+
         } finally {
             readLock.compareAndSet(true, false);
         }

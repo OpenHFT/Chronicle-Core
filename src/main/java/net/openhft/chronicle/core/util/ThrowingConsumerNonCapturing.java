@@ -27,7 +27,6 @@ public interface ThrowingConsumerNonCapturing<I, T extends Throwable, U> {
      * Performs this operation on the given argument.
      *
      * @param in the input argument
-     * @param sb
      */
     void accept(I in, CharSequence sb, U toBytes) throws T;
 }

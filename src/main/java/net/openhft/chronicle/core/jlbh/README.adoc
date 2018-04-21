@@ -35,7 +35,7 @@ http://www.rationaljava.com/2016/04/jlbh-examples-4-benchmarking-quickfix.html[B
 - Observing how QuickFix latencies degrade through the percentiles
 - Comparing QuickFIX with Chronicle FIX
 
-## Using JLBH as part of automated performance/performance regression testing
+=== Using JLBH as part of automated performance/performance regression testing
 
 The net.openhft.chronicle.core.jlbh.JLBHTest::shouldProvideResultData
 test shows how the latency percentiles can be extracted

@@ -83,7 +83,7 @@ public enum ObjectUtils {
         try {
             Constructor constructor = c.getDeclaredConstructor();
             constructor.setAccessible(true);
-            return ThrowingSupplier.asSupplier((ThrowingSupplier<Object, ReflectiveOperationException>) constructor::newInstance);
+            return ThrowingSupplier.asSupplier(constructor::newInstance);
 
         } catch (Exception e) {
             return () -> {

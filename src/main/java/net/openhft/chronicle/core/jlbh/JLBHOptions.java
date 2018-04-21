@@ -42,7 +42,7 @@ public class JLBHOptions {
     @NotNull
     SKIP_FIRST_RUN skipFirstRun = SKIP_FIRST_RUN.NOT_SET;
     boolean jitterAffinity;
-    Supplier<AffinityLock> acquireLock = () -> Affinity.acquireLock();
+    Supplier<AffinityLock> acquireLock = Affinity::acquireLock;
 
     /**
      * Number of iterations per second to be pushed through the benchmark
@@ -147,7 +147,6 @@ public class JLBHOptions {
     /**
      * The latency benchmark to be run.
      *
-     * @param JLBHTask
      * @return Instance of the JLBHOptions to be used in the builder pattern.
      */
     @NotNull

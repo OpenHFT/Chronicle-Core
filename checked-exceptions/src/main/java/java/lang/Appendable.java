@@ -58,7 +58,6 @@ public interface Appendable {
      * @throws IndexOutOfBoundsException If <tt>start</tt> or <tt>end</tt> are negative, <tt>start</tt>
      *                                   is greater than <tt>end</tt>, or <tt>end</tt> is greater than
      *                                   <tt>csq.length()</tt>
-     * @throws IOException               If an I/O error occurs
      */
     Appendable append(CharSequence csq, int start, int end) throws IndexOutOfBoundsException;
 
@@ -67,7 +66,6 @@ public interface Appendable {
      *
      * @param c The character to append
      * @return A reference to this <tt>Appendable</tt>
-     * @throws IOException If an I/O error occurs
      */
     Appendable append(char c);
 }

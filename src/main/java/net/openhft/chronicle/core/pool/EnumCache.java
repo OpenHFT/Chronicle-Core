@@ -20,5 +20,5 @@ public abstract class EnumCache<E extends Enum<E>> {
         return ENUM_CACHE_CL.get(eClass);
     }
 
-    public abstract <E extends Enum<E>> E valueOf(String name);
+    public abstract E valueOf(String name);
 }
