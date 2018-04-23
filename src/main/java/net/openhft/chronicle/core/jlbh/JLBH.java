@@ -59,9 +59,9 @@ public class JLBH implements NanoSampler {
     @NotNull
     private final OSJitterMonitor osJitterMonitor = new OSJitterMonitor();
     @NotNull
-    private Histogram endToEndHistogram = new Histogram();
+    private Histogram endToEndHistogram = createHistogram();
     @NotNull
-    private Histogram osJitterHistogram = new Histogram();
+    private Histogram osJitterHistogram = createHistogram();
     private long noResultsReturned;
     @NotNull
     private AtomicBoolean warmUpComplete = new AtomicBoolean(false);
@@ -103,7 +103,7 @@ public class JLBH implements NanoSampler {
      * @return NanoSampler
      */
     public NanoSampler addProbe(String name) {
-        return additionHistograms.computeIfAbsent(name, n -> new Histogram());
+        return additionHistograms.computeIfAbsent(name, n -> createHistogram());
     }
 
     /**
@@ -378,6 +378,11 @@ public class JLBH implements NanoSampler {
         endToEndHistogram.sample(nanoTime);
     }
 
+    @NotNull
+    protected Histogram createHistogram() {
+        return new Histogram(32, 10);
+    }
+
     private class OSJitterMonitor extends Thread {
         final AtomicBoolean reset = new AtomicBoolean(false);
 
@@ -465,4 +470,5 @@ public class JLBH implements NanoSampler {
             return busy;
         }
     }
+
 }
