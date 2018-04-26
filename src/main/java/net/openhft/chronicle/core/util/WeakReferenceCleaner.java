@@ -8,6 +8,7 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -20,6 +21,7 @@ import java.util.function.Supplier;
 public final class WeakReferenceCleaner extends WeakReference<Object> {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeakReferenceCleaner.class);
     private static final ReferenceQueue<Object> REFERENCE_QUEUE = new ReferenceQueue<>();
+    private static final ConcurrentLinkedQueue<WeakReferenceCleaner> SCHEDULED_CLEAN = new ConcurrentLinkedQueue<>();
     private static final Map<WeakReferenceCleaner, Boolean> REFERENCE_MAP = new ConcurrentHashMap<>();
     private static final AtomicBoolean REFERENCE_PROCESSOR_STARTED = new AtomicBoolean(false);
     private static final AtomicIntegerFieldUpdater<WeakReferenceCleaner> CLEANED_FLAG =
@@ -65,17 +67,27 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
         }
     }
 
+    public void scheduleForClean() {
+        SCHEDULED_CLEAN.add(this);
+    }
+
     private static final class ReferenceProcessor implements Runnable {
         @Override
         public void run() {
             while (!Thread.currentThread().isInterrupted()) {
                 final Reference<?> reference;
                 try {
+                    // prioritise scheduled cleaners
+                    WeakReferenceCleaner wrc;
+                    while ((wrc = SCHEDULED_CLEAN.poll()) != null) {
+                        wrc.clean();
+                    }
+
                     reference = REFERENCE_QUEUE.remove(100L);
                     if (reference != null) {
                         final WeakReferenceCleaner cleaner = (WeakReferenceCleaner) reference;
                         try {
-                            cleaner.thunk.run();
+                            cleaner.clean();
                         } finally {
                             REFERENCE_MAP.remove(cleaner);
                         }

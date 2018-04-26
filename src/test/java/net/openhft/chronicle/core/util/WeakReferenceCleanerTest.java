@@ -1,8 +1,8 @@
 package net.openhft.chronicle.core.util;
 
 import org.jetbrains.annotations.NotNull;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.AfterClass;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.util.concurrent.ExecutorService;
@@ -16,7 +16,7 @@ import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 public class WeakReferenceCleanerTest {
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private final AtomicInteger processedCount = new AtomicInteger(0);
 
     private static void referToObject(final Container container) {
@@ -25,8 +25,8 @@ public class WeakReferenceCleanerTest {
         }
     }
 
-    @Before
-    public void setUp() throws Exception {
+    @BeforeClass
+    public static void setUp() throws Exception {
         WeakReferenceCleaner.startReferenceProcessor(() -> executorService);
     }
 
@@ -36,6 +36,19 @@ public class WeakReferenceCleanerTest {
         assertThat(processedCount.get(), is(0));
 
         foo.cleaner.clean();
+        assertThat(processedCount.get(), is(1));
+
+        foo.cleaner.clean();
+        assertThat(processedCount.get(), is(1));
+    }
+
+    @Test
+    public void shouldRunOnceWhenRequestedScheduled() throws Exception {
+        final Container foo = allocate("foo");
+        assertThat(processedCount.get(), is(0));
+
+        foo.cleaner.scheduleForClean();
+        waitForProcessedCount(1);
         assertThat(processedCount.get(), is(1));
 
         foo.cleaner.clean();
@@ -72,8 +85,8 @@ public class WeakReferenceCleanerTest {
         waitForProcessedCount(3);
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterClass
+    public static void tearDown() throws Exception {
         executorService.shutdownNow();
     }
 
