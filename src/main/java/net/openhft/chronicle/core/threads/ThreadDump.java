@@ -55,7 +55,7 @@ public class ThreadDump {
             allStackTraces.keySet().removeAll(threads);
             if (allStackTraces.isEmpty())
                 return;
-            allStackTraces.keySet().removeIf(next -> ignored.contains(next.getName()));
+            allStackTraces.keySet().removeIf(next -> ignored.stream().anyMatch(item -> next.getName().contains(item)));
             if (allStackTraces.isEmpty())
                 return;
             for (@NotNull Map.Entry<Thread, StackTraceElement[]> threadEntry : allStackTraces.entrySet()) {
