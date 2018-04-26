@@ -380,7 +380,7 @@ public class JLBH implements NanoSampler {
 
     @NotNull
     protected Histogram createHistogram() {
-        return new Histogram(32, 10);
+        return new Histogram();
     }
 
     private class OSJitterMonitor extends Thread {

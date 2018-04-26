@@ -19,7 +19,6 @@ import static org.junit.Assert.*;
 
 public class JLBHTest {
 
-    @Ignore("ignore for now - failing")
     @Test
     public void shouldWriteResultToTheOutputProvided() throws Exception {
         // given
@@ -37,7 +36,6 @@ public class JLBHTest {
         assertThat(withoutNonDeterministicFields(result), equalTo(withoutNonDeterministicFields(predictableTaskExpectedResult())));
     }
 
-    @Ignore("ignore for now - failing")
     @Test
     /**
      * To understand the data, please go to JLBHDeterministicFixtures
