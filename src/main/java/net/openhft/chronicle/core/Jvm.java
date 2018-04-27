@@ -28,6 +28,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -521,13 +522,14 @@ public enum Jvm {
     }
 
     private static class ChainedSignalHandler implements SignalHandler {
-        final List<SignalHandler> handlers = new ArrayList<>();
+        final List<SignalHandler> handlers = new CopyOnWriteArrayList<>();
 
         @Override
         public void handle(Signal signal) {
             for (SignalHandler handler : handlers) {
                 try {
-                    handler.handle(signal);
+                    if (handler != null)
+                        handler.handle(signal);
                 } catch (Throwable t) {
                     Jvm.warn().on(this.getClass(), "Problem handling signal", t);
                 }
