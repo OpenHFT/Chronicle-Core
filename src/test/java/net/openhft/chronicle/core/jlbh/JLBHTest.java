@@ -51,12 +51,12 @@ public class JLBHTest {
 
         // then
         final JLBHResult.RunResult lastRunSummary = resultConsumer.get().endToEnd().summaryOfLastRun();
-        assertThat(lastRunSummary.get50thPercentile().toNanos(), equalTo(6_016L));
-        assertThat(lastRunSummary.get90thPercentile().toNanos(), equalTo(9_472L));
-        assertThat(lastRunSummary.get99thPercentile().toNanos(), equalTo(10_496L));
-        assertThat(lastRunSummary.get999thPercentile().toNanos(), equalTo(10_496L));
-        assertThat(lastRunSummary.get9999thPercentile().toNanos(), equalTo(10_496L));
-        assertThat(lastRunSummary.getWorst().toNanos(), equalTo(10_496L));
+        assertThat(lastRunSummary.get50thPercentile().toNanos(), equalTo(6_106L));
+        assertThat(lastRunSummary.get90thPercentile().toNanos(), equalTo(9_708L));
+        assertThat(lastRunSummary.get99thPercentile().toNanos(), equalTo(10_516L));
+        assertThat(lastRunSummary.get999thPercentile().toNanos(), equalTo(10_596L));
+        assertThat(lastRunSummary.get9999thPercentile().toNanos(), equalTo(10_604L));
+        assertThat(lastRunSummary.getWorst().toNanos(), equalTo(10_604L));
         assertThat(lastRunSummary.percentiles().get(PERCENTILE_50TH), equalTo(lastRunSummary.get50thPercentile()));
         assertThat(lastRunSummary.percentiles().get(PERCENTILE_90TH), equalTo(lastRunSummary.get90thPercentile()));
         assertThat(lastRunSummary.percentiles().get(PERCENTILE_99TH), equalTo(lastRunSummary.get99thPercentile()));
@@ -78,12 +78,12 @@ public class JLBHTest {
         assertThat(resultConsumer.get().probe("C").isPresent(), equalTo(false));
 
         final JLBHResult.RunResult probeALastRunSummary = resultConsumer.get().probe("A").get().summaryOfLastRun();
-        assertThat(probeALastRunSummary.get50thPercentile().toNanos(), equalTo(4_992L));
-        assertThat(probeALastRunSummary.get90thPercentile().toNanos(), equalTo(8_960L));
-        assertThat(probeALastRunSummary.get99thPercentile().toNanos(), equalTo(9_472L));
-        assertThat(probeALastRunSummary.get999thPercentile().toNanos(), equalTo(9_472L));
-        assertThat(probeALastRunSummary.get9999thPercentile().toNanos(), equalTo(9_472L));
-        assertThat(probeALastRunSummary.getWorst().toNanos(), equalTo(9_472L));
+        assertThat(probeALastRunSummary.get50thPercentile().toNanos(), equalTo(5_106L));
+        assertThat(probeALastRunSummary.get90thPercentile().toNanos(), equalTo(8_708L));
+        assertThat(probeALastRunSummary.get99thPercentile().toNanos(), equalTo(9_516L));
+        assertThat(probeALastRunSummary.get999thPercentile().toNanos(), equalTo(9_596L));
+        assertThat(probeALastRunSummary.get9999thPercentile().toNanos(), equalTo(9_604L));
+        assertThat(probeALastRunSummary.getWorst().toNanos(), equalTo(9_604L));
         assertThat(probeALastRunSummary.percentiles().get(PERCENTILE_50TH), equalTo(probeALastRunSummary.get50thPercentile()));
         assertThat(probeALastRunSummary.percentiles().get(PERCENTILE_90TH), equalTo(probeALastRunSummary.get90thPercentile()));
         assertThat(probeALastRunSummary.percentiles().get(PERCENTILE_99TH), equalTo(probeALastRunSummary.get99thPercentile()));
