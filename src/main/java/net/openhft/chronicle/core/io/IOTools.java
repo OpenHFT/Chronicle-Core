@@ -24,8 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.*;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
+import java.nio.file.*;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -160,4 +159,22 @@ public enum IOTools {
     public static void clean(ByteBuffer bb) {
         CleanerServiceLocator.cleanerService().clean(bb);
     }
+
+    public static void createDirectories(Path dir) throws IOException {
+        if (dir == null || dir.getNameCount() == 0 || Files.isDirectory(dir))
+            return;
+        createDirectories(dir.getParent());
+        try {
+            Files.createDirectory(dir);
+        } catch (FileAlreadyExistsException e) {
+            if (Files.isSymbolicLink(dir))
+                throw new IOException("Symbolic link from " + dir + " to " + Files.readSymbolicLink(dir) + " is broken", e);
+            if (Files.isRegularFile(dir))
+                throw new IOException("Cannot create a directory with the same name as a file " + dir, e);
+        } catch (AccessDeniedException e) {
+            if (!dir.toFile().canWrite())
+                throw new IOException("Cannot write to " + dir, e);
+        }
+    }
+
 }
