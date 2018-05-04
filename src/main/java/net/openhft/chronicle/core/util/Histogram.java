@@ -19,8 +19,11 @@ package net.openhft.chronicle.core.util;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.function.DoubleFunction;
+import java.util.stream.DoubleStream;
 
 /*
  * Created by Peter Lawrey on 10/07/15.
@@ -155,41 +158,35 @@ public class Histogram implements NanoSampler {
         return 1;
     }
 
+    public static double[] percentilesFor(long count) {
+        List<Double> values = new ArrayList<>();
+        values.add(50 / 100.0);
+        values.add(90 / 100.0);
+        values.add(99 / 100.0);
+        if (count > 10_000) {
+            values.add(99.7 / 100.0);
+            if (count > 100_000) {
+                values.add(99.9 / 100.0);
+                if (count > 1_000_000) {
+                    values.add(99.97 / 100.0);
+                    if (count > 10_000_000) {
+                        values.add(99.99 / 100.0);
+                    }
+                }
+            }
+        }
+        values.add(100 / 100.0);
+        return values.stream().mapToDouble(d -> d).toArray();
+    }
+
     @NotNull
     public double[] getPercentiles() {
-        if (totalCount < 1_000_000) {
-            return new double[]{
-                    percentile(0.5),
-                    percentile(0.9),
-                    percentile(0.99),
-                    percentile(0.999),
-                    percentile(0.9999),
-                    percentile(1)
-            };
-        }
+        return getPercentiles(percentilesFor(totalCount));
+    }
 
-        if (totalCount < 10_000_000) {
-            return new double[]{
-                    percentile(0.5),
-                    percentile(0.9),
-                    percentile(0.99),
-                    percentile(0.999),
-                    percentile(0.9999),
-                    percentile(0.99999),
-                    percentile(1)
-            };
-        }
-
-        return new double[]{
-                percentile(0.5),
-                percentile(0.9),
-                percentile(0.99),
-                percentile(0.999),
-                percentile(0.9999),
-                percentile(0.99999),
-                percentile(0.999999),
-                percentile(1)
-        };
+    @NotNull
+    public double[] getPercentiles(double[] percentileFor) {
+        return DoubleStream.of(percentileFor).map(this::percentile).toArray();
     }
 
     @NotNull

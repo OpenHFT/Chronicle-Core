@@ -234,7 +234,6 @@ public class JLBH implements NanoSampler {
 
     /**
      * Call this instead of start if you want to install JLBH as a handler on your event loop thread
-     *
      */
     public JLBHEventHandler eventLoopHandler() {
         if (!jlbhOptions.accountForCoordinatedOmission)
@@ -299,16 +298,19 @@ public class JLBH implements NanoSampler {
         printStream.println(sb.toString());
 
         sb = new StringBuilder();
-        addPrToPrint(sb, "50:     ", jlbhOptions.runs);
-        addPrToPrint(sb, "90:     ", jlbhOptions.runs);
-        addPrToPrint(sb, "99:     ", jlbhOptions.runs);
-        addPrToPrint(sb, "99.9:   ", jlbhOptions.runs);
-        addPrToPrint(sb, "99.99:  ", jlbhOptions.runs);
-        if (jlbhOptions.iterations > 1_000_000)
-            addPrToPrint(sb, "99.999: ", jlbhOptions.runs);
-        if (jlbhOptions.iterations > 10_000_000)
-            addPrToPrint(sb, "99.9999:", jlbhOptions.runs);
-        addPrToPrint(sb, "worst:  ", jlbhOptions.runs);
+        double[] percentFor = Histogram.percentilesFor(jlbhOptions.iterations);
+        for (double p : percentFor) {
+            String s;
+            if (p == 1) {
+                s = "worst";
+            } else {
+                double p2 = p * 100;
+                s = (long) p2 == p2 ? Long.toString((long) p2) : Double.toString(p2);
+            }
+            s += ":     ";
+            s = s.substring(0, 8);
+            addPrToPrint(sb, s, jlbhOptions.runs);
+        }
 
         printStream.printf(sb.toString(), summary.toArray(NO_DOUBLES));
         printStream.println("-------------------------------------------------------------------------------------------------------------------");
