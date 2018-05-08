@@ -24,7 +24,9 @@ class ImmutableRunResult implements JLBHResult.RunResult {
         data.put(PERCENTILE_90TH, durationOf(percentiles[1]));
         data.put(PERCENTILE_99TH, durationOf(percentiles[2]));
         data.put(PERCENTILE_99_9TH, durationOf(percentiles[3]));
-        data.put(PERCENTILE_99_99TH, durationOf(percentiles[4]));
+        if (percentiles.length > 5) {
+            data.put(PERCENTILE_99_99TH, durationOf(percentiles[4]));
+        }
         if (percentiles.length > 6) {
             data.put(PERCENTILE_99_999TH, durationOf(percentiles[5]));
         }
