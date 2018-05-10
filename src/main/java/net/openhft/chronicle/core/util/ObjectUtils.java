@@ -119,9 +119,31 @@ public enum ObjectUtils {
     }
 
     public static boolean isTrue(CharSequence s) {
-        return StringUtils.equalsCaseIgnore(s, "true") ||
-                StringUtils.equalsCaseIgnore(s, "y") ||
-                StringUtils.equalsCaseIgnore(s, "yes");
+        switch (s.length()) {
+            case 1:
+                char ch = Character.toLowerCase(s.charAt(0));
+                return ch == 't' || ch == 'y';
+            case 3:
+                return StringUtils.equalsCaseIgnore(s, "yes");
+            case 4:
+                return StringUtils.equalsCaseIgnore(s, "true");
+            default:
+                return false;
+        }
+    }
+
+    public static boolean isFalse(CharSequence s) {
+        switch (s.length()) {
+            case 1:
+                char ch = Character.toLowerCase(s.charAt(0));
+                return ch == 'f' || ch == 'n';
+            case 2:
+                return StringUtils.equalsCaseIgnore(s, "no");
+            case 5:
+                return StringUtils.equalsCaseIgnore(s, "false");
+            default:
+                return false;
+        }
     }
 
     /**
