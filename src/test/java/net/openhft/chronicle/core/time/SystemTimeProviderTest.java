@@ -36,7 +36,7 @@ public class SystemTimeProviderTest {
         long lastTimeMicros;
         long start;
 
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 3; i++) {
             minDiff = Long.MAX_VALUE;
             maxDiff = Long.MIN_VALUE;
             lastTimeMicros = 0;
