@@ -439,13 +439,27 @@ public enum ObjectUtils {
         YES, NO, MAYBE
     }
 
+    private static Boolean toBoolean(String s) {
+        if (s == null)
+            return null;
+        s = s.trim();
+        if (isTrue(s))
+            return Boolean.TRUE;
+        if (isFalse(s))
+            return Boolean.FALSE;
+        if (s.isEmpty())
+            return null;
+        Jvm.debug().on(ObjectUtils.class, "Treating '" + s + "' as false");
+        return Boolean.FALSE;
+    }
+
     private static class ConversionFunction implements Function<Class<?>, ThrowingFunction<String, Object, Exception>> {
         @Override
         public ThrowingFunction<String, Object, Exception> apply(@NotNull Class<?> c) {
             if (c == Class.class)
                 return CLASS_ALIASES::forName;
             if (c == Boolean.class)
-                return ObjectUtils::isTrue;
+                return ObjectUtils::toBoolean;
             try {
                 Method valueOf = c.getDeclaredMethod("valueOf", String.class);
                 valueOf.setAccessible(true);
