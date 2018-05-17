@@ -539,7 +539,13 @@ public enum Jvm {
     }
 
     public static void safepoint() {
-        Thread.holdsLock("");
+        // no safepoint
+        // System.identityHashCode("");
+//        byte.class.getModifiers();
+
+//        "".intern(); 50 ns
+//        Thread.holdsLock("");
+        Compiler.enable();
     }
 
     public static void optionalSafepoint() {

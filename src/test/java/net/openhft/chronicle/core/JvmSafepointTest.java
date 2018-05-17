@@ -48,7 +48,7 @@ public class JvmSafepointTest {
             if (t > 1) {
                 long avg = time / count;
                 System.out.println("avg: " + avg);
-                assertTrue("avg: " + avg, 10 < avg && avg < 200);
+                assertTrue("avg: " + avg, 2 < avg && avg < 200);
             }
             Jvm.pause(5);
         }
