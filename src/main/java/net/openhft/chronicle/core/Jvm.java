@@ -64,6 +64,7 @@ public enum Jvm {
     private static final boolean IS_JAVA_9_PLUS;
     private static final long MAX_DIRECT_MEMORY;
     private static final ChainedSignalHandler signalHandlerGlobal;
+    static final boolean SAVEPOINT_ENABLED = Boolean.getBoolean("jvm.safepoint.enabled");
 
     static {
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
@@ -535,5 +536,14 @@ public enum Jvm {
                 }
             }
         }
+    }
+
+    public static void safepoint() {
+        Thread.holdsLock("");
+    }
+
+    public static void optionalSafepoint() {
+        if (SAVEPOINT_ENABLED)
+            Thread.holdsLock("");
     }
 }
