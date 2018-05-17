@@ -550,6 +550,6 @@ public enum Jvm {
 
     public static void optionalSafepoint() {
         if (SAVEPOINT_ENABLED)
-            Thread.holdsLock("");
+            Compiler.enable();
     }
 }
