@@ -7,7 +7,6 @@ import static junit.framework.TestCase.assertTrue;
 public class JvmSafepointTest {
     @Test
     public void testSafepoint() {
-
         @SuppressWarnings("AnonymousHasLambdaAlternative")
         Thread t = new Thread() {
             public void run() {
