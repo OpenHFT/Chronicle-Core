@@ -374,7 +374,15 @@ public enum Jvm {
     }
 
     public static boolean hasException(@NotNull Map<ExceptionKey, Integer> exceptions) {
-        return exceptions.keySet().stream().anyMatch(k -> k.throwable != null && k.level != LogLevel.DEBUG);
+
+        Iterator<ExceptionKey> iterator = exceptions.keySet().iterator();
+        while (iterator.hasNext()) {
+            ExceptionKey k = iterator.next();
+            if (k.throwable != null && k.level != LogLevel.DEBUG)
+                return true;
+        }
+
+        return false;
     }
 
     @Deprecated
