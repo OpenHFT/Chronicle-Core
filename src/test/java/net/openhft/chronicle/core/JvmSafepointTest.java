@@ -1,13 +1,12 @@
 package net.openhft.chronicle.core;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertTrue;
 
 public class JvmSafepointTest {
 
-    @Ignore("failed on TC - see https://github.com/OpenHFT/Chronicle-Core/issues/61")
+    //    @Ignore("failed on TC - see https://github.com/OpenHFT/Chronicle-Core/issues/61")
     @Test
     public void testSafepoint() {
         @SuppressWarnings("AnonymousHasLambdaAlternative")
