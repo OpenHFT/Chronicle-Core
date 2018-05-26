@@ -529,6 +529,10 @@ public enum Jvm {
                 Compiler.enable();
     }
 
+    public static boolean areOptionalSafepointsEnabled() {
+        return SAVEPOINT_ENABLED;
+    }
+
     enum DirectMemoryInspector {
         Reflect {
             @Override
