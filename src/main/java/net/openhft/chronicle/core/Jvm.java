@@ -64,7 +64,7 @@ public enum Jvm {
     private static final boolean IS_JAVA_9_PLUS;
     private static final long MAX_DIRECT_MEMORY;
     private static final ChainedSignalHandler signalHandlerGlobal;
-    static final boolean SAVEPOINT_ENABLED = Boolean.getBoolean("jvm.safepoint.enabled");
+    private static final boolean SAVEPOINT_ENABLED = Boolean.getBoolean("jvm.safepoint.enabled");
 
     static {
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
@@ -179,6 +179,8 @@ public enum Jvm {
     }
 
     static int trimFirst(@NotNull StackTraceElement[] stes) {
+        if (stes.length > 2 && stes[1].getMethodName().endsWith("afepoint"))
+            return 2;
         int first = 0;
         for (; first < stes.length; first++)
             if (!isInternal(stes[first].getClassName()))
@@ -507,6 +509,26 @@ public enum Jvm {
         }
     }
 
+    public static void safepoint() {
+        // no safepoint
+        // System.identityHashCode("");
+//        byte.class.getModifiers();
+
+//        "".intern(); 50 ns
+        if (IS_JAVA_9_PLUS)
+            Thread.holdsLock(""); // 100 ns on Java 11
+        else
+            Compiler.enable(); // 5 ns on Java 8
+    }
+
+    public static void optionalSafepoint() {
+        if (SAVEPOINT_ENABLED)
+            if (IS_JAVA_9_PLUS)
+                Thread.holdsLock("");
+            else
+                Compiler.enable();
+    }
+
     enum DirectMemoryInspector {
         Reflect {
             @Override
@@ -544,20 +566,5 @@ public enum Jvm {
                 }
             }
         }
-    }
-
-    public static void safepoint() {
-        // no safepoint
-        // System.identityHashCode("");
-//        byte.class.getModifiers();
-
-//        "".intern(); 50 ns
-//        Thread.holdsLock("");
-        Compiler.enable();
-    }
-
-    public static void optionalSafepoint() {
-        if (SAVEPOINT_ENABLED)
-            Compiler.enable();
     }
 }
