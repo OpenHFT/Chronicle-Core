@@ -1,13 +1,12 @@
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.Jvm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -22,7 +21,7 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeakReferenceCleaner.class);
     private static final ReferenceQueue<Object> REFERENCE_QUEUE = new ReferenceQueue<>();
     private static final ConcurrentLinkedQueue<WeakReferenceCleaner> SCHEDULED_CLEAN = new ConcurrentLinkedQueue<>();
-    private static final Map<WeakReferenceCleaner, Boolean> REFERENCE_MAP = new ConcurrentHashMap<>();
+    //    private static final Map<WeakReferenceCleaner, Boolean> REFERENCE_MAP = new ConcurrentHashMap<>();
     private static final AtomicBoolean REFERENCE_PROCESSOR_STARTED = new AtomicBoolean(false);
     private static final AtomicIntegerFieldUpdater<WeakReferenceCleaner> CLEANED_FLAG =
             AtomicIntegerFieldUpdater.newUpdater(WeakReferenceCleaner.class, "cleaned");
@@ -37,10 +36,11 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
     }
 
     public static WeakReferenceCleaner newCleaner(final Object referent, final Runnable thunk) {
+        Jvm.safepoint();
         startReferenceProcessor(WeakReferenceCleaner::referenceCleanerExecutor);
 
         final WeakReferenceCleaner cleaner = new WeakReferenceCleaner(referent, thunk);
-        REFERENCE_MAP.put(cleaner, Boolean.TRUE);
+//        REFERENCE_MAP.put(cleaner, Boolean.TRUE);
         return cleaner;
     }
 
@@ -89,7 +89,7 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
                         try {
                             cleaner.clean();
                         } finally {
-                            REFERENCE_MAP.remove(cleaner);
+//                            REFERENCE_MAP.remove(cleaner);
                         }
                     }
                 } catch (InterruptedException e) {
