@@ -273,11 +273,15 @@ public class JLBH implements NanoSampler {
                     skipFirst = false;
                     continue;
                 }
-                double v = percentileRun[i];
-                if (v > maxValue)
-                    maxValue = v;
-                if (v < minValue)
-                    minValue = v;
+                try {
+                    double v = percentileRun[i];
+                    if (v > maxValue)
+                        maxValue = v;
+                    if (v < minValue)
+                        minValue = v;
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    throw new IllegalStateException(label + " percentileRun is out of bounds: " + Arrays.toString(percentileRun), e);
+                }
             }
             consistencies.add(100 * (maxValue - minValue) / (maxValue + minValue / 2));
 
