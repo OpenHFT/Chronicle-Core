@@ -26,12 +26,17 @@ public class WeakReferenceCleanerTest {
     }
 
     @BeforeClass
-    public static void setUp() throws Exception {
+    public static void setUp() {
         WeakReferenceCleaner.startReferenceProcessor(() -> executorService);
     }
 
+    @AfterClass
+    public static void tearDown() {
+        executorService.shutdownNow();
+    }
+
     @Test
-    public void shouldRunOnceWhenRequested() throws Exception {
+    public void shouldRunOnceWhenRequested() {
         final Container foo = allocate("foo");
         assertThat(processedCount.get(), is(0));
 
@@ -43,7 +48,7 @@ public class WeakReferenceCleanerTest {
     }
 
     @Test
-    public void shouldRunOnceWhenRequestedScheduled() throws Exception {
+    public void shouldRunOnceWhenRequestedScheduled() {
         final Container foo = allocate("foo");
         assertThat(processedCount.get(), is(0));
 
@@ -56,13 +61,11 @@ public class WeakReferenceCleanerTest {
     }
 
     @Test
-    public void shouldRunThunkAfterReferenceIsProcessed() throws Exception {
+    public void shouldRunThunkAfterReferenceIsProcessed() {
         Container a = allocate("a");
         Container b = allocate("b");
         Container c = allocate("c");
 
-        System.gc();
-        System.gc();
         waitForProcessedCount(0);
 
         referToObject(a);
@@ -71,8 +74,6 @@ public class WeakReferenceCleanerTest {
         assertThat(processedCount.get(), is(0));
         a = null;
 
-        System.gc();
-        System.gc();
         waitForProcessedCount(1);
 
         referToObject(b);
@@ -80,14 +81,7 @@ public class WeakReferenceCleanerTest {
         b = null;
         c = null;
 
-        System.gc();
-        System.gc();
         waitForProcessedCount(3);
-    }
-
-    @AfterClass
-    public static void tearDown() throws Exception {
-        executorService.shutdownNow();
     }
 
     @NotNull
@@ -98,11 +92,11 @@ public class WeakReferenceCleanerTest {
     private void waitForProcessedCount(final int expectedCount) {
         final long timeoutAt = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(45L);
         while (System.currentTimeMillis() < timeoutAt) {
-            if (expectedCount == processedCount.get()) {
-                return;
-            }
-            LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(1L));
             System.gc();
+            if (expectedCount == processedCount.get())
+                return;
+
+            LockSupport.parkNanos(TimeUnit.SECONDS.toNanos(1L));
         }
 
         fail(String.format("Processed count did not reach %d, was %d", expectedCount, processedCount.get()));
