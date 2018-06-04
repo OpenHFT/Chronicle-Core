@@ -44,7 +44,11 @@ public class ClassLocal<V> extends ClassValue<V> {
         return new ClassLocal<>(classVFunction);
     }
 
+    /**
+     * WARNING Do not call this directly
+     */
     @Override
+    @Deprecated
     protected V computeValue(Class<?> type) {
         return classVFunction.apply(type);
     }

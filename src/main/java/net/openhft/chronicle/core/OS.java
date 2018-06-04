@@ -72,8 +72,9 @@ public enum OS {
     private static final boolean IS_MAC = OS.contains("mac");
     private static final boolean IS_WIN = OS.startsWith("win");
     private static final boolean IS_WIN10 = OS.equals("windows 10");
-    private static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : pageSize();
     private static final AtomicLong memoryMapped = new AtomicLong();
+    private static final int PAGE_SIZE = MEMORY.pageSize();
+    private static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : PAGE_SIZE;
     private static MethodHandle UNMAPP0_MH;
     private static MethodHandle READ0_MH;
 
@@ -193,7 +194,7 @@ public enum OS {
      * @see #pageAlign(long)
      */
     public static int pageSize() {
-        return memory().pageSize();
+        return PAGE_SIZE;
     }
 
     /**
@@ -354,7 +355,7 @@ public enum OS {
     }
 
     static long map0(@NotNull FileChannel fileChannel, int imode, long start, long size) throws IOException {
-        MethodHandle map0 = MAP0_MH.computeValue(fileChannel.getClass());
+        MethodHandle map0 = MAP0_MH.get(fileChannel.getClass());
         final long address = invokeFileChannelMap0(map0, fileChannel, imode, start, size, oome1 -> {
             System.gc();
 
