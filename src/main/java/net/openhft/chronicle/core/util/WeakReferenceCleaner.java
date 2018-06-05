@@ -1,5 +1,6 @@
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.Jvm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +24,9 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeakReferenceCleaner.class);
     private static final ReferenceQueue<Object> REFERENCE_QUEUE = new ReferenceQueue<>();
     private static final ConcurrentLinkedQueue<WeakReferenceCleaner> SCHEDULED_CLEAN = new ConcurrentLinkedQueue<>();
-    private static final Map<WeakReferenceCleaner, Boolean> REFERENCE_MAP = Collections.synchronizedMap(new HashMap<>());
+    private static final Map<WeakReferenceCleaner, Boolean> REFERENCE_MAP =
+            Collections.synchronizedMap(
+                    new HashMap<>(128));
     private static final AtomicBoolean REFERENCE_PROCESSOR_STARTED = new AtomicBoolean(false);
     private static final AtomicIntegerFieldUpdater<WeakReferenceCleaner> CLEANED_FLAG =
             AtomicIntegerFieldUpdater.newUpdater(WeakReferenceCleaner.class, "cleaned");
@@ -53,13 +56,17 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
         }
     }
 
-    private static Executor referenceCleanerExecutor() {
+    static Executor referenceCleanerExecutor() {
         return Executors.newSingleThreadExecutor(r -> {
             final Thread t = new Thread(r);
             t.setName("chronicle-weak-reference-cleaner");
             t.setDaemon(true);
             return t;
         });
+    }
+
+    public static int referenceCount() {
+        return REFERENCE_MAP.size();
     }
 
     public void clean() {
@@ -70,14 +77,14 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
 
     public void scheduleForClean() {
         SCHEDULED_CLEAN.add(this);
+        REFERENCE_MAP.remove(this);
     }
 
-    private static final class ReferenceProcessor implements Runnable {
+    static final class ReferenceProcessor implements Runnable {
         @Override
         public void run() {
             Thread thread = Thread.currentThread();
             while (!thread.isInterrupted()) {
-                final Reference<?> reference;
                 try {
                     // prioritise scheduled cleaners
                     WeakReferenceCleaner wrc;
@@ -85,20 +92,18 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
                         wrc.clean();
                     }
 
-                    reference = REFERENCE_QUEUE.remove(100L);
-                    if (reference != null) {
+                    Reference<?> reference;
+                    while ((reference = REFERENCE_QUEUE.remove(50L)) != null) {
                         final WeakReferenceCleaner cleaner = (WeakReferenceCleaner) reference;
-                        try {
-                            cleaner.clean();
-                        } finally {
-                            REFERENCE_MAP.remove(cleaner);
-                        }
+
+                        cleaner.clean();
                     }
+
                 } catch (InterruptedException e) {
                     LOGGER.warn("Interrupted while trying to retrieve reference, exiting.", e);
                     thread.interrupt();
                     return;
-                } catch (RuntimeException e) {
+                } catch (Throwable e) {
                     LOGGER.warn("Exception while trying to process reference.", e);
                 }
             }
