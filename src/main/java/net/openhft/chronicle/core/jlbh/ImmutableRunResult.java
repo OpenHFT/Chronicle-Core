@@ -21,9 +21,11 @@ class ImmutableRunResult implements JLBHResult.RunResult {
     private static Map<Percentile, Duration> asMap(double[] percentiles) {
         final Map<Percentile, Duration> data = new EnumMap<>(Percentile.class);
         data.put(PERCENTILE_50TH, durationOf(percentiles[0]));
-        data.put(PERCENTILE_90TH, durationOf(percentiles[1]));
+        data.put(PERCENTILE_90TH, durationOf(percentiles[1]));// 99.97?
         data.put(PERCENTILE_99TH, durationOf(percentiles[2]));
-        data.put(PERCENTILE_99_9TH, durationOf(percentiles[3]));
+        if (percentiles.length > 4) {
+            data.put(PERCENTILE_99_9TH, durationOf(percentiles[3]));
+        }
         if (percentiles.length > 5) {
             data.put(PERCENTILE_99_99TH, durationOf(percentiles[4]));
         }

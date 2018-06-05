@@ -216,7 +216,9 @@ public class JLBH implements NanoSampler {
                 List<double[]> ds = additionalPercentileRuns.computeIfAbsent(key,
                         i -> new ArrayList<>());
                 ds.add(value.getPercentiles());
-                printStream.printf("%-48s", String.format("%s (%,d) ", key, value.totalCount()));
+//                if (value.totalCount() != jlbhOptions.iterations)
+//                    warning = " WARNING " + value.totalCount() + "!=" + jlbhOptions.iterations;
+                printStream.printf("%-48s", String.format("%s (%,d)", key, value.totalCount()));
                 printStream.println(value.toMicrosFormat());
             });
         }
@@ -260,7 +262,8 @@ public class JLBH implements NanoSampler {
         @NotNull List<Double> consistencies = new ArrayList<>();
         double maxValue = Double.MIN_VALUE;
         double minValue = Double.MAX_VALUE;
-        int length = percentileRuns.get(0).length;
+        double[] percentFor = Histogram.percentilesFor(jlbhOptions.iterations);
+        int length = percentFor.length;
         for (int i = 0; i < length; i++) {
             boolean skipFirst = length > 3;
             if (jlbhOptions.skipFirstRun == JLBHOptions.SKIP_FIRST_RUN.SKIP) {
@@ -273,14 +276,13 @@ public class JLBH implements NanoSampler {
                     skipFirst = false;
                     continue;
                 }
-                try {
+                // not all measures may have got the same number of samples
+                if (i < percentileRun.length) {
                     double v = percentileRun[i];
                     if (v > maxValue)
                         maxValue = v;
                     if (v < minValue)
                         minValue = v;
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    throw new IllegalStateException(label + " percentileRun is out of bounds: " + Arrays.toString(percentileRun), e);
                 }
             }
             consistencies.add(100 * (maxValue - minValue) / (maxValue + minValue / 2));
@@ -292,7 +294,10 @@ public class JLBH implements NanoSampler {
         @NotNull List<Double> summary = new ArrayList<>();
         for (int i = 0; i < length; i++) {
             for (double[] percentileRun : percentileRuns) {
-                summary.add(percentileRun[i] / 1e3);
+                if (i < percentileRun.length)
+                    summary.add(percentileRun[i] / 1e3);
+                else
+                    summary.add(Double.POSITIVE_INFINITY);
             }
             summary.add(consistencies.get(i));
         }
@@ -302,7 +307,6 @@ public class JLBH implements NanoSampler {
         printStream.println(sb.toString());
 
         sb = new StringBuilder();
-        double[] percentFor = Histogram.percentilesFor(jlbhOptions.iterations);
         for (double p : percentFor) {
             String s;
             if (p == 1) {

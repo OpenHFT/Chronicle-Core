@@ -83,7 +83,7 @@ public class JLBHDeterministicFixtures {
 
     static class PredictableJLBHTask implements JLBHTask {
 
-        private int nanoTime = 1_000_000;
+        protected int nanoTime = 1_000_000;
         private int latency;
         private JLBH lth;
         private NanoSampler additionalSamplerA;
@@ -94,7 +94,8 @@ public class JLBHDeterministicFixtures {
             latency = 1000 + (++this.nanoTime % 11567);
             lth.sample(latency);
             additionalSamplerA.sampleNanos(latency - 1000);
-            additionalSamplerB.sampleNanos(100);
+            if (sampleB())
+                additionalSamplerB.sampleNanos(100);
         }
 
         @Override
@@ -106,6 +107,17 @@ public class JLBHDeterministicFixtures {
 
         @Override
         public void complete() {
+        }
+
+        protected boolean sampleB() {
+            return true;
+        }
+    }
+
+    static class PredictableJLBHTaskDifferentShape extends PredictableJLBHTask {
+        @Override
+        protected boolean sampleB() {
+            return nanoTime % 10 == 0;
         }
     }
 

@@ -102,6 +102,24 @@ public class JLBHTest {
     }
 
     @Test
+    public void shouldProvideResultDataEvenIfProbesDoNotProvideSameShapedData() throws Exception {
+        // given
+        final JLBHResultConsumer resultConsumer = resultConsumer();
+        JLBHOptions jlbhOptions = options().jlbhTask(new PredictableJLBHTaskDifferentShape()).iterations(ITERATIONS * 2);
+        final JLBH jlbh = new JLBH(jlbhOptions, printStream(), resultConsumer);
+
+        // when
+        jlbh.start();
+
+        // then
+        final JLBHResult.RunResult probeALastRunSummary = resultConsumer.get().probe("A").get().summaryOfLastRun();
+        assertThat(probeALastRunSummary.percentiles().size(), equalTo(5));
+
+        final JLBHResult.RunResult probeBLastRunSummary = resultConsumer.get().probe("B").get().summaryOfLastRun();
+        assertThat(probeBLastRunSummary.percentiles().size(), equalTo(4));
+    }
+
+    @Test
     @Ignore("Test passes but takes ~10s to run, so ignored not to slow down the build")
     public void shouldProvideHigherPercentilesIfEnoughSamples() throws Exception {
         // given
