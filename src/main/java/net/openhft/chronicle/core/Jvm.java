@@ -73,7 +73,14 @@ public enum Jvm {
 
         try {
             bitsClass = Class.forName("java.nio.Bits");
-            reservedMemory = bitsClass.getDeclaredField("reservedMemory");
+            Field f;
+            try {
+                f = bitsClass.getDeclaredField("reservedMemory");
+            }
+            catch (NoSuchFieldException e) {
+                f = bitsClass.getDeclaredField("RESERVED_MEMORY");
+            }
+            reservedMemory = f;
             reservedMemory.setAccessible(true);
             if (reservedMemory.getType() == AtomicLong.class) {
                 reservedMemoryAtomicLong = (AtomicLong) reservedMemory.get(null);
