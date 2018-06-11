@@ -32,7 +32,7 @@ public class ReferenceCounter {
 
     private ReferenceCounter(Runnable onRelease) {
         this.onRelease = onRelease;
-//        assert newRefCountHistory();
+       assert newRefCountHistory();
     }
 
     @NotNull
@@ -51,12 +51,12 @@ public class ReferenceCounter {
 
             long v = value.get();
             if (v <= 0) {
-//                assert recordResevation(v);
-//                assert logReferenceCountHistory();
+                assert recordResevation(v);
+                assert logReferenceCountHistory();
                 throw new IllegalStateException("Released");
             }
             if (value.compareAndSet(v, v + 1)) {
-//                assert recordResevation(v + 1);
+                assert recordResevation(v + 1);
                 break;
             }
         }
@@ -71,12 +71,12 @@ public class ReferenceCounter {
         for (; ; ) {
             long v = value.get();
             if (v <= 0) {
-//                assert recordRelease(v);
-//                assert logReferenceCountHistory();
+                assert recordRelease(v);
+                assert logReferenceCountHistory();
                 throw new IllegalStateException("Released");
             }
             if (value.compareAndSet(v, v - 1)) {
-//                assert recordRelease(v - 1);
+                assert recordRelease(v - 1);
                 if (v == 1)
                     onRelease.run();
                 break;
