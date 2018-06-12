@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
@@ -57,12 +58,16 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
     }
 
     static Executor referenceCleanerExecutor() {
-        return Executors.newSingleThreadExecutor(r -> {
+        ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
             final Thread t = new Thread(r);
             t.setName("chronicle-weak-reference-cleaner");
             t.setDaemon(true);
             return t;
         });
+
+        Runtime.getRuntime().addShutdownHook(new Thread(executor::shutdown));
+
+        return executor;
     }
 
     public static int referenceCount() {
@@ -100,7 +105,7 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
                     }
 
                 } catch (InterruptedException e) {
-                    LOGGER.warn("Interrupted while trying to retrieve reference, exiting.", e);
+                    LOGGER.debug("Interrupted while trying to retrieve reference, exiting.", e);
                     thread.interrupt();
                     return;
                 } catch (Throwable e) {
