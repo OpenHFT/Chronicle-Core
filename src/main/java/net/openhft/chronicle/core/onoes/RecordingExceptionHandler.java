@@ -39,6 +39,9 @@ public class RecordingExceptionHandler implements ExceptionHandler {
     public void on(Class clazz, String message, Throwable thrown) {
         if (exceptionsOnly && thrown == null)
             return;
+        // assume it is profiling or stack tracing.
+        if (thrown != null && thrown.getClass() == Throwable.class)
+            return;
         synchronized (exceptionKeyCountMap) {
             @NotNull ExceptionKey key = new ExceptionKey(level, clazz, message, thrown);
             exceptionKeyCountMap.merge(key, 1, (p, v) -> p == null ? v : p + v);
