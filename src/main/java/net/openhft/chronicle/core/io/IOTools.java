@@ -44,8 +44,15 @@ public enum IOTools {
         return deleteDirWithFiles(dir, 1);
     }
 
+    public static boolean deleteDirWithFiles(@NotNull String dir) throws IORuntimeException {
+        return deleteDirWithFiles(dir, 20);
+    }
     public static boolean deleteDirWithFiles(@NotNull String dir, int maxDepth) throws IORuntimeException {
         return deleteDirWithFiles(new File(dir), maxDepth);
+    }
+
+    public static boolean deleteDirWithFiles(@NotNull File dir) throws IORuntimeException {
+        return deleteDirWithFiles(dir, 20);
     }
 
     public static boolean deleteDirWithFiles(@NotNull File dir, int maxDepth) throws IORuntimeException {
