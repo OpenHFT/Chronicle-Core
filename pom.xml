@@ -222,7 +222,7 @@
 
     <profiles>
         <profile>
-            <id>java9</id>
+            <id>java11</id>
             <build>
                 <plugins>
                     <plugin>
@@ -244,8 +244,8 @@
                         <artifactId>maven-compiler-plugin</artifactId>
                         <version>3.6.2</version>
                         <configuration>
-                            <source>1.9</source>
-                            <target>1.9</target>
+                            <source>11</source>
+                            <target>11</target>
                             <compilerArgs>
                                 <arg>--add-exports=java.base/jdk.internal.ref=ALL-UNNAMED</arg>
                                 <arg>--add-exports=java.base/sun.nio.ch=ALL-UNNAMED</arg>
@@ -253,6 +253,7 @@
                             <excludes>
                                 <exclude>**/jdk8/**</exclude>
                                 <exclude>**/META-INF/services/**</exclude>
+                                <exclude>net/openhft/chronicle/core/ClassLoading.java</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
