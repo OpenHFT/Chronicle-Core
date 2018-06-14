@@ -46,11 +46,9 @@
                 <version>3.1.2</version>
             </dependency>
         </dependencies>
-
     </dependencyManagement>
-
+    
     <dependencies>
-
         <dependency>
             <groupId>net.openhft</groupId>
             <artifactId>affinity</artifactId>
