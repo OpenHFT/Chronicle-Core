@@ -493,4 +493,40 @@ public enum ObjectUtils {
             }
         }
     }
+
+    public static Class<?>[] getAllInterfaces(Object o) {
+        Set<Class<?>> results = new HashSet<>();
+        getAllInterfaces(o, results::add);
+        return results.toArray(new Class<?>[results.size()]);
+    }
+
+    public static void getAllInterfaces(Object o, Function<Class<?>, Boolean> accumulator) {
+        if (null == o)
+            return;
+
+        if(null == accumulator)
+            throw new IllegalArgumentException("Accumulator cannot be null");
+
+        if(o instanceof Class){
+            Class clazz = (Class) o;
+
+            if(clazz.isInterface()) {
+                if(accumulator.apply((Class) o))
+                {
+                    for (Class aClass : clazz.getInterfaces()) {
+                        getAllInterfaces(aClass, accumulator);
+                    }
+                }
+            } else {
+                if(null != clazz.getSuperclass())
+                    getAllInterfaces(clazz.getSuperclass(), accumulator);
+
+                for (Class aClass : clazz.getInterfaces()) {
+                    getAllInterfaces(aClass, accumulator);
+                }
+            }
+        } else {
+            getAllInterfaces(o.getClass(), accumulator);
+        }
+    }
 }
