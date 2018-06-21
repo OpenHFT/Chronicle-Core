@@ -251,7 +251,6 @@
                             <excludes>
                                 <exclude>**/jdk8/**</exclude>
                                 <exclude>**/META-INF/services/**</exclude>
-                                <exclude>net/openhft/chronicle/core/ClassLoading.java</exclude>
                             </excludes>
                         </configuration>
                     </plugin>
