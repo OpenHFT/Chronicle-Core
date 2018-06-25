@@ -40,7 +40,7 @@ public interface Closeable extends java.io.Closeable {
         } else if (o instanceof java.io.Closeable) {
             try {
                 ((java.io.Closeable) o).close();
-            } catch (IOException e) {
+            } catch (IOException | IllegalStateException e) {
                 LoggerFactory.getLogger(Closeable.class).debug("", e);
             }
         }
