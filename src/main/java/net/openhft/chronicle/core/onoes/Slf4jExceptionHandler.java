@@ -42,6 +42,12 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
             LoggerFactory.getLogger(clazz).warn(message, thrown);
         }
     },
+    PERF {
+        @Override
+        public void on(@NotNull Class clazz, String message, Throwable thrown) {
+            LoggerFactory.getLogger(clazz).warn(message, thrown);
+        }
+    },
     DEBUG {
         @Override
         public void on(@NotNull Class clazz, String message, Throwable thrown) {
