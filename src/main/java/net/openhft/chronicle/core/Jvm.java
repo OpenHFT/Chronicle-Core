@@ -57,6 +57,9 @@ public enum Jvm {
     private static final ThreadLocalisedExceptionHandler FATAL = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.FATAL);
     @NotNull
     private static final ThreadLocalisedExceptionHandler WARN = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.WARN);
+
+    @NotNull
+    private static final ThreadLocalisedExceptionHandler PERF = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.PERF);
     @NotNull
     private static final ThreadLocalisedExceptionHandler DEBUG = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.DEBUG);
 
@@ -345,6 +348,7 @@ public enum Jvm {
         FATAL.defaultHandler(Slf4jExceptionHandler.FATAL).resetThreadLocalHandler();
         WARN.defaultHandler(Slf4jExceptionHandler.WARN).resetThreadLocalHandler();
         DEBUG.defaultHandler(Slf4jExceptionHandler.DEBUG).resetThreadLocalHandler();
+        PERF.defaultHandler(Slf4jExceptionHandler.DEBUG).resetThreadLocalHandler();
     }
 
     public static void disableDebugHandler() {
@@ -408,6 +412,16 @@ public enum Jvm {
         FATAL.defaultHandler(fatal);
         WARN.defaultHandler(warn);
         DEBUG.defaultHandler(debug);
+
+    }
+
+
+    public static void setExceptionHandlers(@Nullable ExceptionHandler fatal,
+                                            @Nullable ExceptionHandler warn,
+                                            @Nullable ExceptionHandler debug,
+                                            @Nullable ExceptionHandler perf) {
+        setExceptionHandlers(fatal, warn, debug);
+        PERF.defaultHandler(perf);
     }
 
     public static void setThreadLocalExceptionHandlers(@Nullable ExceptionHandler fatal,
@@ -419,6 +433,15 @@ public enum Jvm {
         DEBUG.threadLocalHandler(debug);
     }
 
+    public static void setThreadLocalExceptionHandlers(@Nullable ExceptionHandler fatal,
+                                                       @Nullable ExceptionHandler warn,
+                                                       @Nullable ExceptionHandler debug,
+                                                       @Nullable ExceptionHandler perf) {
+
+        setThreadLocalExceptionHandlers(fatal, warn, debug);
+        PERF.threadLocalHandler(debug);
+    }
+
     @NotNull
     public static ExceptionHandler fatal() {
         return FATAL;
@@ -428,6 +451,12 @@ public enum Jvm {
     public static ExceptionHandler warn() {
         return WARN;
     }
+
+    @NotNull
+    public static ExceptionHandler perf() {
+        return PERF;
+    }
+
 
     @NotNull
     public static ExceptionHandler debug() {
