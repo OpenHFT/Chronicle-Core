@@ -86,12 +86,12 @@ public enum OS {
             read0.setAccessible(true);
             READ0_MH = MethodHandles.lookup().unreflect(read0);
 
-            if (IS_LINUX) {
+            if (IS_WIN) {
+                WRITE0_MH = null;
+            } else {
                 Method write0 = Class.forName("sun.nio.ch.FileDispatcherImpl").getDeclaredMethod("write0", FileDescriptor.class, long.class, int.class);
                 write0.setAccessible(true);
                 WRITE0_MH = MethodHandles.lookup().unreflect(write0);
-            } else {
-                WRITE0_MH = null;
             }
 
         } catch (NoSuchMethodException | IllegalAccessException | ClassNotFoundException e) {
