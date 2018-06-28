@@ -77,6 +77,7 @@ public enum OS {
     private static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : PAGE_SIZE;
     private static MethodHandle UNMAPP0_MH;
     private static MethodHandle READ0_MH;
+    private static MethodHandle WRITE0_MH;
 
     static {
         try {
@@ -87,6 +88,10 @@ public enum OS {
             Method read0 = Class.forName("sun.nio.ch.FileDispatcherImpl").getDeclaredMethod("read0", FileDescriptor.class, long.class, int.class);
             read0.setAccessible(true);
             READ0_MH = MethodHandles.lookup().unreflect(read0);
+
+            Method write0 = Class.forName("sun.nio.ch.FileDispatcherImpl").getDeclaredMethod("write0", FileDescriptor.class, long.class, int.class);
+            write0.setAccessible(true);
+            WRITE0_MH = MethodHandles.lookup().unreflect(write0);
 
         } catch (NoSuchMethodException | IllegalAccessException | ClassNotFoundException e) {
             throw new AssertionError(e);
@@ -458,6 +463,16 @@ public enum OS {
     public static int read0(FileDescriptor fd, long address, int len) throws IOException {
         try {
             return (int) READ0_MH.invokeExact(fd, address, len);
+        } catch (IOException ioe) {
+            throw ioe;
+        } catch (Throwable e) {
+            throw new IOException(e);
+        }
+    }
+
+    public static int write0(FileDescriptor fd, long address, int len) throws IOException {
+        try {
+            return (int) WRITE0_MH.invokeExact(fd, address, len);
         } catch (IOException ioe) {
             throw ioe;
         } catch (Throwable e) {
