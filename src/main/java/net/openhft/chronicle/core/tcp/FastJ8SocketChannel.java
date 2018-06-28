@@ -13,8 +13,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FastJ8SocketChannel extends VanillaSocketChannel {
     final FileDescriptor fd;
-    private final AtomicBoolean readLock = new AtomicBoolean();
     volatile boolean open;
+    private final AtomicBoolean readLock = new AtomicBoolean();
     private volatile boolean blocking;
 
     FastJ8SocketChannel(SocketChannel socketChannel) {
@@ -87,7 +87,7 @@ public class FastJ8SocketChannel extends VanillaSocketChannel {
 
     int readInternal(ByteBuffer buf) throws IOException {
         int n = OS.read0(fd, ((DirectBuffer) buf).address() + buf.position(), buf.remaining());
-        if ((n == IOStatus.INTERRUPTED) && isOpen()) {
+        if ((n == IOStatus.INTERRUPTED) && socketChannel.isOpen()) {
             // The system call was interrupted but the channel
             // is still open, so retry
             return 0;
