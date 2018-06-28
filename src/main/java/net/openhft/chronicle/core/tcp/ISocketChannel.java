@@ -29,6 +29,12 @@ public interface ISocketChannel extends Closeable {
     }
 
     @NotNull
+    static ISocketChannel wrapUnsafe(SocketChannel sc) {
+        assert sc != null;
+        return FAST_JAVA8_IO ? new UnsafeFastJ8SocketChannel(sc) : new VanillaSocketChannel(sc);
+    }
+
+    @NotNull
     SocketChannel socketChannel();
 
     int read(ByteBuffer byteBuffer) throws IOException;
