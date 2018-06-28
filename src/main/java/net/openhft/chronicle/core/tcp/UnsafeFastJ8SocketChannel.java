@@ -23,6 +23,7 @@ import sun.nio.ch.IOStatus;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.AsynchronousCloseException;
 import java.nio.channels.SocketChannel;
 
 /**
@@ -35,6 +36,8 @@ public class UnsafeFastJ8SocketChannel extends FastJ8SocketChannel {
 
     @Override
     int read0(ByteBuffer buf) throws IOException {
+        if (!isOpen())
+            return -1;
         return readInternal(buf);
     }
 
@@ -46,6 +49,9 @@ public class UnsafeFastJ8SocketChannel extends FastJ8SocketChannel {
         if (isBlocking() || !isOpen() || !(buf instanceof DirectBuffer))
             return super.write(buf);
 
+        if (!isOpen())
+            return -1;
+
         return writeInternal(buf);
     }
 
@@ -56,7 +62,7 @@ public class UnsafeFastJ8SocketChannel extends FastJ8SocketChannel {
         int res = OS.write0(fd, ((DirectBuffer) buf).address() + pos, len);
         if (res > 0)
             buf.position(pos + res);
-        if ((res == IOStatus.INTERRUPTED) && isOpen()) {
+        if ((res == IOStatus.INTERRUPTED) && socketChannel.isOpen()) {
             // The system call was interrupted but the channel
             // is still open, so retry
             return 0;
@@ -64,6 +70,9 @@ public class UnsafeFastJ8SocketChannel extends FastJ8SocketChannel {
         res = IOStatus.normalize(res);
         if (res < 0)
             open = false;
-        return 0;
+        if (res <= 0 && !socketChannel.isOpen())
+            throw new AsynchronousCloseException();
+
+        return res;
     }
 }

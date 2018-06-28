@@ -19,8 +19,6 @@ package net.openhft.chronicle.core;
 import net.openhft.chronicle.core.util.ThrowingFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import sun.nio.ch.FileChannelImpl;
 
 import java.io.*;
@@ -59,7 +57,6 @@ public enum OS {
     });
     private static final String HOST_NAME = getHostName0();
     private static final String USER_NAME = System.getProperty("user.name");
-    private static final Logger LOG = LoggerFactory.getLogger(OS.class);
     private static final int MAP_RO = 0;
     private static final int MAP_RW = 1;
     private static final int MAP_PV = 2;
@@ -89,9 +86,13 @@ public enum OS {
             read0.setAccessible(true);
             READ0_MH = MethodHandles.lookup().unreflect(read0);
 
-            Method write0 = Class.forName("sun.nio.ch.FileDispatcherImpl").getDeclaredMethod("write0", FileDescriptor.class, long.class, int.class);
-            write0.setAccessible(true);
-            WRITE0_MH = MethodHandles.lookup().unreflect(write0);
+            if (IS_LINUX) {
+                Method write0 = Class.forName("sun.nio.ch.FileDispatcherImpl").getDeclaredMethod("write0", FileDescriptor.class, long.class, int.class);
+                write0.setAccessible(true);
+                WRITE0_MH = MethodHandles.lookup().unreflect(write0);
+            } else {
+                WRITE0_MH = null;
+            }
 
         } catch (NoSuchMethodException | IllegalAccessException | ClassNotFoundException e) {
             throw new AssertionError(e);
