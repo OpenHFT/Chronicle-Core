@@ -20,20 +20,21 @@ class ImmutableRunResult implements JLBHResult.RunResult {
 
     private static Map<Percentile, Duration> asMap(double[] percentiles) {
         final Map<Percentile, Duration> data = new EnumMap<>(Percentile.class);
+        // TODO: duplicate of knowledge with Histogram.percentilesFor()
         data.put(PERCENTILE_50TH, durationOf(percentiles[0]));
-        data.put(PERCENTILE_90TH, durationOf(percentiles[1]));// 99.97?
+        data.put(PERCENTILE_90TH, durationOf(percentiles[1]));
         data.put(PERCENTILE_99TH, durationOf(percentiles[2]));
         if (percentiles.length > 4) {
-            data.put(PERCENTILE_99_9TH, durationOf(percentiles[3]));
+            data.put(PERCENTILE_99_7TH, durationOf(percentiles[3]));
         }
         if (percentiles.length > 5) {
-            data.put(PERCENTILE_99_99TH, durationOf(percentiles[4]));
+            data.put(PERCENTILE_99_9TH, durationOf(percentiles[4]));
         }
         if (percentiles.length > 6) {
-            data.put(PERCENTILE_99_999TH, durationOf(percentiles[5]));
+            data.put(PERCENTILE_99_97TH, durationOf(percentiles[5]));
         }
         if (percentiles.length > 7) {
-            data.put(PERCENTILE_99_9999TH, durationOf(percentiles[6]));
+            data.put(PERCENTILE_99_99TH, durationOf(percentiles[6]));
         }
         data.put(WORST, durationOf(percentiles[percentiles.length - 1]));
         return unmodifiableMap(data);

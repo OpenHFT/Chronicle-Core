@@ -51,10 +51,11 @@ public interface JLBHResult {
             PERCENTILE_50TH,
             PERCENTILE_90TH,
             PERCENTILE_99TH,
+            PERCENTILE_99_7TH,
             PERCENTILE_99_9TH,
+            PERCENTILE_99_97TH,
             PERCENTILE_99_99TH,
             PERCENTILE_99_999TH,
-            PERCENTILE_99_9999TH,
             WORST
         }
     }
