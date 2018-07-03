@@ -61,8 +61,6 @@ public class JLBHTest {
         assertThat(lastRunSummary.percentiles().get(PERCENTILE_99_9TH), equalTo(lastRunSummary.get999thPercentile()));
         assertThat(lastRunSummary.percentiles().get(PERCENTILE_99_99TH), equalTo(lastRunSummary.get9999thPercentile()));
         assertNull(lastRunSummary.percentiles().get(PERCENTILE_99_999TH));
-        assertNull(lastRunSummary.percentiles().get(PERCENTILE_99_9999TH));
-        assertNull(lastRunSummary.percentiles().get(PERCENTILE_99_9999TH));
         assertThat(lastRunSummary.percentiles().get(WORST), equalTo(lastRunSummary.getWorst()));
 
         final List<JLBHResult.RunResult> summaryOfEachRun = resultConsumer.get().endToEnd().eachRunSummary();
@@ -87,8 +85,6 @@ public class JLBHTest {
         assertThat(probeALastRunSummary.percentiles().get(PERCENTILE_99_9TH), equalTo(probeALastRunSummary.get999thPercentile()));
         assertThat(probeALastRunSummary.percentiles().get(PERCENTILE_99_99TH), equalTo(probeALastRunSummary.get9999thPercentile()));
         assertNull(probeALastRunSummary.percentiles().get(PERCENTILE_99_999TH));
-        assertNull(probeALastRunSummary.percentiles().get(PERCENTILE_99_9999TH));
-        assertNull(probeALastRunSummary.percentiles().get(PERCENTILE_99_9999TH));
         assertThat(probeALastRunSummary.percentiles().get(WORST), equalTo(probeALastRunSummary.getWorst()));
 
         final List<JLBHResult.RunResult> summaryOfProbeAEachRun = resultConsumer.get().probe("A").get().eachRunSummary();
@@ -134,11 +130,9 @@ public class JLBHTest {
         // then
         assertNotNull(summaryA.percentiles().get(PERCENTILE_99_99TH));
         assertNotNull(summaryA.percentiles().get(PERCENTILE_99_999TH));
-        assertNull(summaryA.percentiles().get(PERCENTILE_99_9999TH));
 
         assertNotNull(summaryA.percentiles().get(PERCENTILE_99_99TH));
         assertNotNull(summaryB.percentiles().get(PERCENTILE_99_999TH));
-        assertNotNull(summaryB.percentiles().get(PERCENTILE_99_9999TH));
 
         assertThat(percentilesUniqueLatenciesIn(summaryA).size(), equalTo(1));
         assertThat(percentilesUniqueLatenciesIn(summaryB).size(), equalTo(1));

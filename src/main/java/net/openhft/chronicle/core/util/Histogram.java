@@ -227,6 +227,11 @@ public class Histogram implements NanoSampler {
     }
 
     @NotNull
+    public String toLongMicrosFormat() {
+        return toLongMicrosFormat(t -> t / 1e3);
+    }
+
+    @NotNull
     public String toLongMicrosFormat(@NotNull DoubleFunction<Double> toMicros) {
         if (totalCount < 1_000_000)
             return "50/90 97/99 99.7/99.9 99.97/99.99 - worst was " +
