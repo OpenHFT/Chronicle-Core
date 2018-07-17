@@ -1,7 +1,6 @@
 package net.openhft.chronicle.core.jlbh;
 
 import org.jetbrains.annotations.NotNull;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -20,7 +19,7 @@ import static org.junit.Assert.*;
 public class JLBHTest {
 
     @Test
-    public void shouldWriteResultToTheOutputProvided() throws Exception {
+    public void shouldWriteResultToTheOutputProvided() {
         // given
         final OutputStream outputStream = new ByteArrayOutputStream();
         final JLBH jlbh = new JLBH(options(), new PrintStream(outputStream), resultConsumer());
@@ -37,11 +36,11 @@ public class JLBHTest {
     }
 
     @Test
-    /**
+    /*
      * To understand the data, please go to JLBHDeterministicFixtures
      * and JLBHDeterministicFixtures::expectedOutput in particular
      */
-    public void shouldProvideResultData() throws Exception {
+    public void shouldProvideResultData() {
         // given
         final JLBHResultConsumer resultConsumer = resultConsumer();
         final JLBH jlbh = new JLBH(options(), printStream(), resultConsumer);
@@ -95,7 +94,7 @@ public class JLBHTest {
     }
 
     @Test
-    public void shouldProvideResultDataEvenIfProbesDoNotProvideSameShapedData() throws Exception {
+    public void shouldProvideResultDataEvenIfProbesDoNotProvideSameShapedData() {
         // given
         final JLBHResultConsumer resultConsumer = resultConsumer();
         JLBHOptions jlbhOptions = options().jlbhTask(new PredictableJLBHTaskDifferentShape()).iterations(ITERATIONS * 2);
@@ -110,32 +109,6 @@ public class JLBHTest {
 
         final JLBHResult.RunResult probeBLastRunSummary = resultConsumer.get().probe("B").get().summaryOfLastRun();
         assertThat(probeBLastRunSummary.percentiles().size(), equalTo(4));
-    }
-
-    @Test
-    @Ignore("Test passes but takes ~10s to run, so ignored not to slow down the build")
-    public void shouldProvideHigherPercentilesIfEnoughSamples() throws Exception {
-        // given
-        final JLBHOptions optionsA = options().runs(1).jlbhTask(new FixedLatencyJLBHTask(777)).iterations(1_000_000);
-        final JLBHOptions optionsB = options().runs(1).jlbhTask(new FixedLatencyJLBHTask(777)).iterations(10_000_000);
-        final JLBHResultConsumer resultConsumerA = resultConsumer();
-        final JLBHResultConsumer resultConsumerB = resultConsumer();
-        new JLBH(optionsA, printStream(), resultConsumerA).start();
-        new JLBH(optionsB, printStream(), resultConsumerB).start();
-
-        // when
-        final JLBHResult.RunResult summaryA = resultConsumerA.get().endToEnd().summaryOfLastRun();
-        final JLBHResult.RunResult summaryB = resultConsumerB.get().endToEnd().summaryOfLastRun();
-
-        // then
-        assertNotNull(summaryA.percentiles().get(PERCENTILE_99_99TH));
-        assertNotNull(summaryA.percentiles().get(PERCENTILE_99_999TH));
-
-        assertNotNull(summaryA.percentiles().get(PERCENTILE_99_99TH));
-        assertNotNull(summaryB.percentiles().get(PERCENTILE_99_999TH));
-
-        assertThat(percentilesUniqueLatenciesIn(summaryA).size(), equalTo(1));
-        assertThat(percentilesUniqueLatenciesIn(summaryB).size(), equalTo(1));
     }
 
     private Set<Duration> percentilesUniqueLatenciesIn(JLBHResult.RunResult summaryA) {
