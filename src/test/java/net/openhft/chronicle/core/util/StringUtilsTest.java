@@ -33,7 +33,7 @@ import static org.junit.Assume.assumeTrue;
  */
 public class StringUtilsTest {
     @Test
-    public void testFirstLowerCase() throws Exception {
+    public void testFirstLowerCase() {
         assertEquals("", StringUtils.firstLowerCase(""));
         assertEquals("99", StringUtils.firstLowerCase("99"));
         assertEquals("a", StringUtils.firstLowerCase("A"));
@@ -43,7 +43,7 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testToTitleCase() throws Exception {
+    public void testToTitleCase() {
         assertEquals("", StringUtils.toTitleCase(""));
         assertEquals("99", StringUtils.toTitleCase("99"));
         assertEquals("A", StringUtils.toTitleCase("A"));
@@ -65,23 +65,22 @@ public class StringUtilsTest {
         assertEquals("AAAA", StringUtils.toTitleCase("Aaaa"));
     }
 
-    @Ignore("picks up dead chars at end of string builder value array")
     @Test
-    public void shouldGetCharsOfStringBuilder() throws Exception {
-        final StringBuilder sb = new StringBuilder("foobar_nine");
+    public void shouldGetCharsOfStringBuilder() {
+        final StringBuilder sb = new StringBuilder(11).append("foobar_nine");
         final char[] chars = StringUtils.extractChars(sb);
         assertThat(new String(chars), equalTo(sb.toString()));
     }
 
     @Test
-    public void shouldGetCharsOfString() throws Exception {
+    public void shouldGetCharsOfString() {
         final String s = "foobar_nine";
         final char[] chars = StringUtils.extractChars(s);
         assertThat(new String(chars), equalTo(s));
     }
 
     @Test
-    public void shouldExtractBytesFromString() throws Exception {
+    public void shouldExtractBytesFromString() {
         assumeTrue(Jvm.isJava9Plus());
 
         assertThat("Is this test running on JDK9 with compact strings disabled?",
@@ -90,7 +89,7 @@ public class StringUtilsTest {
 
     @Ignore("picks up dead chars at end of string builder value array")
     @Test
-    public void shouldExtractBytesFromStringBuilder() throws Exception {
+    public void shouldExtractBytesFromStringBuilder() {
         assumeTrue(Jvm.isJava9Plus());
 
         assertThat("Is this test running on JDK9 with compact strings disabled?",
@@ -98,13 +97,13 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void shouldCreateNewStringFromChars() throws Exception {
+    public void shouldCreateNewStringFromChars() {
         final char[] chars = {'A', 'B', 'C'};
         assertThat(new String(chars), is(StringUtils.newString(chars)));
     }
 
     @Test
-    public void shouldCreateNewStringFromBytes() throws Exception {
+    public void shouldCreateNewStringFromBytes() {
         assumeTrue(Jvm.isJava9Plus());
 
         final byte[] bytes = {'A', 'B', 'C'};
@@ -112,7 +111,7 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testParseDouble() throws IOException {
+    public void testParseDouble() {
         for (double d : new double[]{Double.NaN, Double.NEGATIVE_INFINITY, Double
                 .POSITIVE_INFINITY, 0.0, -1.0, 1.0, 9999.0}) {
             assertEquals(d, StringUtils.parseDouble(Double.toString(d)), 0);
@@ -125,7 +124,7 @@ public class StringUtilsTest {
     }
 
     @Test
-    public void testIsEqual() throws Exception {
+    public void testIsEqual() {
 
         // The same instances
         StringBuilder emptySb = new StringBuilder().append("");
