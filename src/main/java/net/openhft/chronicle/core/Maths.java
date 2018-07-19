@@ -51,7 +51,7 @@ public enum Maths {
      */
     public static double roundN(double d, int digits) {
         final long factor = roundingFactor(digits);
-        return -WHOLE_NUMBER / factor <= d && d <= WHOLE_NUMBER / factor
+        return Math.abs(d) < WHOLE_NUMBER / factor
                 ? (double) (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor : d;
     }
 
@@ -87,34 +87,34 @@ public enum Maths {
     public static double ceilN(double d, int digits) {
         final long factor = roundingFactor(digits + 8);
         final long factor2 = roundingFactor(digits);
-        return -WHOLE_NUMBER / factor <= d && d <= WHOLE_NUMBER / factor
+        return Math.abs(d) < WHOLE_NUMBER / factor
                 ? Math.ceil(Math.round(d * factor) / 1e8) / factor2 : d;
     }
 
     public static double floorN(double d, int digits) {
         final long factor = roundingFactor(digits + 8);
         final long factor2 = roundingFactor(digits);
-        return -WHOLE_NUMBER / factor <= d && d <= WHOLE_NUMBER / factor
+        return Math.abs(d) < WHOLE_NUMBER / factor
                 ? Math.floor(Math.round(d * factor) / 1e8) / factor2 : d;
     }
 
     public static double roundN(double d, double digits) {
         final long factor = roundingFactor(digits);
-        return -WHOLE_NUMBER / factor <= d && d <= WHOLE_NUMBER / factor
+        return Math.abs(d) < WHOLE_NUMBER / factor
                 ? (double) (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor : d;
     }
 
     public static double ceilN(double d, double digits) {
         final long factor = roundingFactor(digits + 8);
         final long factor2 = roundingFactor(digits);
-        return -WHOLE_NUMBER / factor <= d && d <= WHOLE_NUMBER / factor
+        return Math.abs(d) < WHOLE_NUMBER / factor
                 ? Math.ceil(Math.round(d * factor) / 1e8) / factor2 : d;
     }
 
     public static double floorN(double d, double digits) {
         final long factor = roundingFactor(digits + 8);
         final long factor2 = roundingFactor(digits);
-        return -WHOLE_NUMBER / factor <= d && d <= WHOLE_NUMBER / factor
+        return Math.abs(d) < WHOLE_NUMBER / factor
                 ? Math.floor(Math.round(d * factor) / 1e8) / factor2 : d;
     }
 
@@ -128,7 +128,7 @@ public enum Maths {
      */
     public static double round1(double d) {
         final double factor = 1e1;
-        return -WHOLE_NUMBER / factor <= d && d <= WHOLE_NUMBER / factor
+        return Math.abs(d) < WHOLE_NUMBER / factor
                 ? (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor : d;
     }
 
@@ -142,7 +142,7 @@ public enum Maths {
      */
     public static double round2(double d) {
         final double factor = 1e2;
-        return -WHOLE_NUMBER / factor <= d && d <= WHOLE_NUMBER / factor
+        return Math.abs(d) < WHOLE_NUMBER / factor
                 ? (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor : d;
     }
 
@@ -156,7 +156,7 @@ public enum Maths {
      */
     public static double round3(double d) {
         final double factor = 1e3;
-        return -WHOLE_NUMBER / factor <= d && d <= WHOLE_NUMBER / factor
+        return Math.abs(d) < WHOLE_NUMBER / factor
                 ? (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor : d;
     }
 
@@ -170,7 +170,7 @@ public enum Maths {
      */
     public static double round4(double d) {
         final double factor = 1e4;
-        return -WHOLE_NUMBER / factor <= d && d <= WHOLE_NUMBER / factor
+        return Math.abs(d) < WHOLE_NUMBER / factor
                 ? (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor : d;
     }
 
@@ -184,7 +184,7 @@ public enum Maths {
      */
     public static double round5(double d) {
         final double factor = 1e5;
-        return -WHOLE_NUMBER / factor <= d && d <= WHOLE_NUMBER / factor
+        return Math.abs(d) < WHOLE_NUMBER / factor
                 ? (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor : d;
     }
 
@@ -198,7 +198,7 @@ public enum Maths {
      */
     public static double round6(double d) {
         final double factor = 1e6;
-        return -WHOLE_NUMBER / factor <= d && d <= WHOLE_NUMBER / factor
+        return Math.abs(d) < WHOLE_NUMBER / factor
                 ? (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor : d;
     }
 
@@ -212,7 +212,7 @@ public enum Maths {
      */
     public static double round7(double d) {
         final double factor = 1e7;
-        return -WHOLE_NUMBER / factor <= d && d <= WHOLE_NUMBER / factor
+        return Math.abs(d) < WHOLE_NUMBER / factor
                 ? (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor : d;
     }
 
@@ -226,7 +226,7 @@ public enum Maths {
      */
     public static double round8(double d) {
         final double factor = 1e8;
-        return -WHOLE_NUMBER / factor <= d && d <= WHOLE_NUMBER / factor
+        return Math.abs(d) < WHOLE_NUMBER / factor
                 ? (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor : d;
     }
 
