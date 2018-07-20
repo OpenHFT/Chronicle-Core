@@ -41,8 +41,6 @@ public class FastJ8SocketChannel extends VanillaSocketChannel {
                     break;
                 if (Thread.interrupted())
                     throw new IOException(new InterruptedException());
-                if (!isOpen())
-                    return -1;
             }
             return readInternal(buf);
         } finally {
