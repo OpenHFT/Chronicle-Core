@@ -36,8 +36,6 @@ public class UnsafeFastJ8SocketChannel extends FastJ8SocketChannel {
 
     @Override
     int read0(ByteBuffer buf) throws IOException {
-        if (!isOpen())
-            return -1;
         return readInternal(buf);
     }
 
@@ -48,9 +46,6 @@ public class UnsafeFastJ8SocketChannel extends FastJ8SocketChannel {
 
         if (isBlocking() || !isOpen() || !(buf instanceof DirectBuffer))
             return super.write(buf);
-
-        if (!isOpen())
-            return -1;
 
         return writeInternal(buf);
     }
