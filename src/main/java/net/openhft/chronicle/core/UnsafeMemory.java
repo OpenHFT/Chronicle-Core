@@ -37,9 +37,10 @@ public enum UnsafeMemory implements Memory {
 
     static {
         try {
-            Field theUnsafe = Jvm.getField(Unsafe.class, "theUnsafe");
+            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+            theUnsafe.setAccessible(true);
             UNSAFE = (Unsafe) theUnsafe.get(null);
-        } catch (@NotNull IllegalAccessException | IllegalArgumentException e) {
+        } catch (@NotNull NoSuchFieldException | IllegalAccessException | IllegalArgumentException e) {
             throw new AssertionError(e);
         }
     }
