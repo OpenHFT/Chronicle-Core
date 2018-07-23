@@ -42,7 +42,6 @@ import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
 public enum ObjectUtils {
     ;
 
-    public static final Object[] NO_OBJECTS = {};
     static final Map<Class, Class> primMap = new LinkedHashMap<Class, Class>() {{
         put(boolean.class, Boolean.class);
         put(byte.class, Byte.class);
@@ -60,7 +59,7 @@ public enum ObjectUtils {
     static final ClassValue<Method> READ_RESOLVE = ClassLocal.withInitial(c -> {
         try {
             Method m = c.getDeclaredMethod("readResolve");
-            m.setAccessible(true);
+            Jvm.setAccessible(m);
             return m;
         } catch (NoSuchMethodException expected) {
             return null;
@@ -462,31 +461,31 @@ public enum ObjectUtils {
                 return ObjectUtils::toBoolean;
             try {
                 Method valueOf = c.getDeclaredMethod("valueOf", String.class);
-                valueOf.setAccessible(true);
+                Jvm.setAccessible(valueOf);
                 return s -> valueOf.invoke(null, s);
             } catch (NoSuchMethodException e) {
                 // ignored
             }
 
             try {
-                Method valueOf = c.getDeclaredMethod("parse", CharSequence.class);
-                valueOf.setAccessible(true);
-                return s -> valueOf.invoke(null, s);
+                Method parse = c.getDeclaredMethod("parse", CharSequence.class);
+                Jvm.setAccessible(parse);
+                return s -> parse.invoke(null, s);
 
             } catch (NoSuchMethodException e) {
                 // ignored
             }
             try {
-                Method valueOf = c.getDeclaredMethod("fromString", String.class);
-                valueOf.setAccessible(true);
-                return s -> valueOf.invoke(null, s);
+                Method fromString = c.getDeclaredMethod("fromString", String.class);
+                Jvm.setAccessible(fromString);
+                return s -> fromString.invoke(null, s);
 
             } catch (NoSuchMethodException e) {
                 // ignored
             }
             try {
                 Constructor constructor = c.getDeclaredConstructor(String.class);
-                constructor.setAccessible(true);
+                Jvm.setAccessible(constructor);
                 return constructor::newInstance;
             } catch (Exception e) {
                 throw asCCE(e);
