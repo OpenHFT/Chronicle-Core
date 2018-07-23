@@ -26,6 +26,7 @@ import net.openhft.chronicle.core.util.NanoSampler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -191,9 +192,9 @@ public class JLBH implements NanoSampler {
     }
 
     private void endOfAllRuns() {
-        printPercentilesSummary("end to end", percentileRuns);
+        printPercentilesSummary("end to end", percentileRuns, printStream);
         if (additionalPercentileRuns.size() > 0) {
-            additionalPercentileRuns.forEach(this::printPercentilesSummary);
+            additionalPercentileRuns.forEach((label, percentileRuns1) -> printPercentilesSummary(label, percentileRuns1, printStream));
         }
 
         consumeResults();
@@ -266,71 +267,78 @@ public class JLBH implements NanoSampler {
         }
     }
 
-    private void printPercentilesSummary(String label, @NotNull List<double[]> percentileRuns) {
-        printStream.println("-------------------------------- SUMMARY (" + label + ")------------------------------------------------------------");
-        @NotNull List<Double> consistencies = new ArrayList<>();
-        double maxValue = Double.MIN_VALUE;
-        double minValue = Double.MAX_VALUE;
-        double[] percentFor = Histogram.percentilesFor(jlbhOptions.iterations);
-        int length = percentFor.length;
-        for (int i = 0; i < length; i++) {
-            boolean skipFirst = length > 3;
-            if (jlbhOptions.skipFirstRun == JLBHOptions.SKIP_FIRST_RUN.SKIP) {
-                skipFirst = true;
-            } else if (jlbhOptions.skipFirstRun == JLBHOptions.SKIP_FIRST_RUN.NO_SKIP) {
-                skipFirst = false;
-            }
-            for (double[] percentileRun : percentileRuns) {
-                if (skipFirst) {
+    public void printPercentilesSummary(String label, @NotNull List<double[]>
+            percentileRuns, Appendable appendable) {
+        try {
+            appendable.append("-------------------------------- SUMMARY (" + label + ")" +
+                    "------------------------------------------------------------\n");
+            @NotNull List<Double> consistencies = new ArrayList<>();
+            double maxValue = Double.MIN_VALUE;
+            double minValue = Double.MAX_VALUE;
+            double[] percentFor = Histogram.percentilesFor(jlbhOptions.iterations);
+            int length = percentFor.length;
+            for (int i = 0; i < length; i++) {
+                boolean skipFirst = length > 3;
+                if (jlbhOptions.skipFirstRun == JLBHOptions.SKIP_FIRST_RUN.SKIP) {
+                    skipFirst = true;
+                } else if (jlbhOptions.skipFirstRun == JLBHOptions.SKIP_FIRST_RUN.NO_SKIP) {
                     skipFirst = false;
-                    continue;
                 }
-                // not all measures may have got the same number of samples
-                if (i < percentileRun.length) {
-                    double v = percentileRun[i];
-                    if (v > maxValue)
-                        maxValue = v;
-                    if (v < minValue)
-                        minValue = v;
+                for (double[] percentileRun : percentileRuns) {
+                    if (skipFirst) {
+                        skipFirst = false;
+                        continue;
+                    }
+                    // not all measures may have got the same number of samples
+                    if (i < percentileRun.length) {
+                        double v = percentileRun[i];
+                        if (v > maxValue)
+                            maxValue = v;
+                        if (v < minValue)
+                            minValue = v;
+                    }
                 }
+                consistencies.add(100 * (maxValue - minValue) / (maxValue + minValue / 2));
+
+                maxValue = Double.MIN_VALUE;
+                minValue = Double.MAX_VALUE;
             }
-            consistencies.add(100 * (maxValue - minValue) / (maxValue + minValue / 2));
 
-            maxValue = Double.MIN_VALUE;
-            minValue = Double.MAX_VALUE;
-        }
-
-        @NotNull List<Double> summary = new ArrayList<>();
-        for (int i = 0; i < length; i++) {
-            for (double[] percentileRun : percentileRuns) {
-                if (i < percentileRun.length)
-                    summary.add(percentileRun[i] / 1e3);
-                else
-                    summary.add(Double.POSITIVE_INFINITY);
+            @NotNull List<Double> summary = new ArrayList<>();
+            for (int i = 0; i < length; i++) {
+                for (double[] percentileRun : percentileRuns) {
+                    if (i < percentileRun.length)
+                        summary.add(percentileRun[i] / 1e3);
+                    else
+                        summary.add(Double.POSITIVE_INFINITY);
+                }
+                summary.add(consistencies.get(i));
             }
-            summary.add(consistencies.get(i));
-        }
 
-        @NotNull StringBuilder sb = new StringBuilder();
-        addHeaderToPrint(sb, jlbhOptions.runs);
-        printStream.println(sb.toString());
+            @NotNull StringBuilder sb = new StringBuilder();
+            addHeaderToPrint(sb, jlbhOptions.runs);
+            appendable.append(sb.toString() + "\n");
 
-        sb = new StringBuilder();
-        for (double p : percentFor) {
-            String s;
-            if (p == 1) {
-                s = "worst";
-            } else {
-                double p2 = p * 100;
-                s = (long) p2 == p2 ? Long.toString((long) p2) : Double.toString(p2);
+            sb = new StringBuilder();
+            for (double p : percentFor) {
+                String s;
+                if (p == 1) {
+                    s = "worst";
+                } else {
+                    double p2 = p * 100;
+                    s = (long) p2 == p2 ? Long.toString((long) p2) : Double.toString(p2);
+                }
+                s += ":     ";
+                s = s.substring(0, 8);
+                addPrToPrint(sb, s, jlbhOptions.runs);
             }
-            s += ":     ";
-            s = s.substring(0, 8);
-            addPrToPrint(sb, s, jlbhOptions.runs);
-        }
 
-        printStream.printf(sb.toString(), summary.toArray(NO_DOUBLES));
-        printStream.println("-------------------------------------------------------------------------------------------------------------------");
+            appendable.append(String.format(sb.toString(), summary.toArray(NO_DOUBLES)));
+            appendable.append
+                    ("-------------------------------------------------------------------------------------------------------------------\n");
+        } catch (IOException e) {
+            throw Jvm.rethrow(e);
+        }
     }
 
     private void addPrToPrint(@NotNull StringBuilder sb, String pr, int runs) {
