@@ -24,6 +24,7 @@ import sun.misc.SignalHandler;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -33,6 +34,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
+import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 
 /**
  * Utility class to access information in the JVM.
@@ -78,9 +80,9 @@ public enum Jvm {
             catch (NoSuchFieldException e) {
                 f = bitsClass.getDeclaredField("RESERVED_MEMORY");
             }
-            long offset = UnsafeMemory.UNSAFE.staticFieldOffset(f);
-            Object base = UnsafeMemory.UNSAFE.staticFieldBase(f);
-            reservedMemory = (AtomicLong) UnsafeMemory.UNSAFE.getObject(base, offset);
+            long offset = UNSAFE.staticFieldOffset(f);
+            Object base = UNSAFE.staticFieldBase(f);
+            reservedMemory = (AtomicLong) UNSAFE.getObject(base, offset);
 
             signalHandlerGlobal = new ChainedSignalHandler();
         } catch (Exception e) {
@@ -267,7 +269,7 @@ public enum Jvm {
     public static Field getField(@NotNull Class clazz, @NotNull String name) {
         try {
             Field field = clazz.getDeclaredField(name);
-            field.setAccessible(true);
+            setAccessible(field);
             return field;
 
         } catch (NoSuchFieldException e) {
@@ -277,6 +279,33 @@ public enum Jvm {
                     return getField(superclass, name);
                 } catch (Exception ignored) {
                 }
+            throw new AssertionError(e);
+        }
+    }
+
+    public static Method getMethod(@NotNull Class clazz, @NotNull String name, Class... args) {
+        try {
+            Method field = clazz.getDeclaredMethod(name, args);
+            setAccessible(field);
+            return field;
+
+        } catch (NoSuchMethodException e) {
+            Class superclass = clazz.getSuperclass();
+            if (superclass != null)
+                try {
+                    return getMethod(superclass, name);
+                } catch (Exception ignored) {
+                }
+            throw new AssertionError(e);
+        }
+    }
+
+    public static void setAccessible(AccessibleObject h) {
+        try {
+            Field f = AccessibleObject.class.getDeclaredField("override");
+            long offset = UNSAFE.objectFieldOffset(f);
+            UNSAFE.putBoolean(h, offset, true);
+        } catch (NoSuchFieldException e) {
             throw new AssertionError(e);
         }
     }
@@ -482,10 +511,10 @@ public enum Jvm {
             }
 
             final Field f = clz.getDeclaredField("directMemory");
-            long offset = UnsafeMemory.UNSAFE.staticFieldOffset(f);
-            Object base = UnsafeMemory.UNSAFE.staticFieldBase(f);
+            long offset = UNSAFE.staticFieldOffset(f);
+            Object base = UNSAFE.staticFieldBase(f);
 
-            return UnsafeMemory.UNSAFE.getLong(base, offset);
+            return UNSAFE.getLong(base, offset);
         } catch (Exception e) {
             // ignore
         }
