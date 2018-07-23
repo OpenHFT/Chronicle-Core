@@ -24,6 +24,7 @@ import sun.misc.SignalHandler;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -33,6 +34,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
+import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 
 /**
  * Utility class to access information in the JVM.
@@ -43,14 +45,10 @@ public enum Jvm {
     private static final List<String> INPUT_ARGUMENTS = getRuntimeMXBean().getInputArguments();
     private static final int COMPILE_THRESHOLD = getCompileThreshold0(INPUT_ARGUMENTS);
     private static final boolean IS_DEBUG = INPUT_ARGUMENTS.toString().contains("jdwp") || Boolean.getBoolean("debug");
-    private static final boolean IS_FLIGHT_RECORDER = (" " + getRuntimeMXBean().getInputArguments()).contains(" -XX:+FlightRecorder") || Boolean.getBoolean("jfr");
-    private static final Class bitsClass;
+
     // e.g-verbose:gc  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=dumponexit=true,filename=myrecording.jfr,settings=profile -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints
-    private static final Field reservedMemory;
-    @Nullable
-    private static final AtomicLong reservedMemoryAtomicLong;
-    @NotNull
-    private static final DirectMemoryInspector DIRECT_MEMORY_INSPECTOR;
+    private static final boolean IS_FLIGHT_RECORDER = (" " + getRuntimeMXBean().getInputArguments()).contains(" -XX:+FlightRecorder") || Boolean.getBoolean("jfr");
+    private static final AtomicLong reservedMemory;
     private static final boolean IS_64BIT = is64bit0();
     private static final int PROCESS_ID = getProcessId0();
     @NotNull
@@ -74,7 +72,7 @@ public enum Jvm {
         MAX_DIRECT_MEMORY = maxDirectMemory0();
 
         try {
-            bitsClass = Class.forName("java.nio.Bits");
+            final Class bitsClass = Class.forName("java.nio.Bits");
             Field f;
             try {
                 f = bitsClass.getDeclaredField("reservedMemory");
@@ -82,15 +80,10 @@ public enum Jvm {
             catch (NoSuchFieldException e) {
                 f = bitsClass.getDeclaredField("RESERVED_MEMORY");
             }
-            reservedMemory = f;
-            reservedMemory.setAccessible(true);
-            if (reservedMemory.getType() == AtomicLong.class) {
-                reservedMemoryAtomicLong = (AtomicLong) reservedMemory.get(null);
-                DIRECT_MEMORY_INSPECTOR = DirectMemoryInspector.AtomicLong;
-            } else {
-                reservedMemoryAtomicLong = null;
-                DIRECT_MEMORY_INSPECTOR = DirectMemoryInspector.Reflect;
-            }
+            long offset = UNSAFE.staticFieldOffset(f);
+            Object base = UNSAFE.staticFieldBase(f);
+            reservedMemory = (AtomicLong) UNSAFE.getObject(base, offset);
+
             signalHandlerGlobal = new ChainedSignalHandler();
         } catch (Exception e) {
             throw new AssertionError(e);
@@ -276,7 +269,7 @@ public enum Jvm {
     public static Field getField(@NotNull Class clazz, @NotNull String name) {
         try {
             Field field = clazz.getDeclaredField(name);
-            field.setAccessible(true);
+            setAccessible(field);
             return field;
 
         } catch (NoSuchFieldException e) {
@@ -286,6 +279,33 @@ public enum Jvm {
                     return getField(superclass, name);
                 } catch (Exception ignored) {
                 }
+            throw new AssertionError(e);
+        }
+    }
+
+    public static Method getMethod(@NotNull Class clazz, @NotNull String name, Class... args) {
+        try {
+            Method field = clazz.getDeclaredMethod(name, args);
+            setAccessible(field);
+            return field;
+
+        } catch (NoSuchMethodException e) {
+            Class superclass = clazz.getSuperclass();
+            if (superclass != null)
+                try {
+                    return getMethod(superclass, name);
+                } catch (Exception ignored) {
+                }
+            throw new AssertionError(e);
+        }
+    }
+
+    public static void setAccessible(AccessibleObject h) {
+        try {
+            Field f = AccessibleObject.class.getDeclaredField("override");
+            long offset = UNSAFE.objectFieldOffset(f);
+            UNSAFE.putBoolean(h, offset, true);
+        } catch (NoSuchFieldException e) {
             throw new AssertionError(e);
         }
     }
@@ -325,7 +345,7 @@ public enum Jvm {
      * @return The size of memory used by direct ByteBuffers i.e. ByteBuffer.allocateDirect()
      */
     public static long usedDirectMemory() {
-        return DIRECT_MEMORY_INSPECTOR.usedDirectMemory();
+        return reservedMemory.get();
     }
 
     /**
@@ -490,9 +510,12 @@ public enum Jvm {
                 clz = Class.forName("sun.misc.VM");
             }
 
-            final Method method = clz.getDeclaredMethod("maxDirectMemory");
-            return (Long) method.invoke(null);
-        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            final Field f = clz.getDeclaredField("directMemory");
+            long offset = UNSAFE.staticFieldOffset(f);
+            Object base = UNSAFE.staticFieldBase(f);
+
+            return UNSAFE.getLong(base, offset);
+        } catch (Exception e) {
             // ignore
         }
         System.err.println(Jvm.class.getName() + ": Unable to determine max direct memory");
@@ -566,29 +589,6 @@ public enum Jvm {
 
     public static boolean areOptionalSafepointsEnabled() {
         return SAVEPOINT_ENABLED;
-    }
-
-    enum DirectMemoryInspector {
-        Reflect {
-            @Override
-            public long usedDirectMemory() {
-                try {
-                    synchronized (bitsClass) {
-                        return reservedMemory.getLong(null);
-                    }
-                } catch (IllegalAccessException e) {
-                    throw new AssertionError(e);
-                }
-            }
-        },
-        AtomicLong {
-            @Override
-            public long usedDirectMemory() {
-                return reservedMemoryAtomicLong.get();
-            }
-        };
-
-        public abstract long usedDirectMemory();
     }
 
     private static class ChainedSignalHandler implements SignalHandler {

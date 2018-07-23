@@ -46,11 +46,8 @@ public enum OS {
     public static final String USER_DIR = System.getProperty("user.dir");
     static final ClassLocal<MethodHandle> MAP0_MH = ClassLocal.withInitial(c -> {
         try {
-            Method map0 = c.getDeclaredMethod("map0", int.class, long.class, long.class);
-            map0.setAccessible(true);
+            Method map0 = Jvm.getMethod(c, "map0", int.class, long.class, long.class);
             return MethodHandles.lookup().unreflect(map0);
-        } catch (NoSuchMethodException e) {
-            throw new AssertionError("Method map0 is not available", e);
         } catch (IllegalAccessException e) {
             throw new AssertionError(e);
         }
@@ -78,23 +75,23 @@ public enum OS {
 
     static {
         try {
-            Method unmap0 = FileChannelImpl.class.getDeclaredMethod("unmap0", long.class, long.class);
+            Method unmap0 = Jvm.getMethod(FileChannelImpl.class, "unmap0", long.class, long.class);
             unmap0.setAccessible(true);
             UNMAPP0_MH = MethodHandles.lookup().unreflect(unmap0);
 
-            Method read0 = Class.forName("sun.nio.ch.FileDispatcherImpl").getDeclaredMethod("read0", FileDescriptor.class, long.class, int.class);
+            Method read0 = Jvm.getMethod(Class.forName("sun.nio.ch.FileDispatcherImpl"), "read0", FileDescriptor.class, long.class, int.class);
             read0.setAccessible(true);
             READ0_MH = MethodHandles.lookup().unreflect(read0);
 
             if (IS_WIN) {
                 WRITE0_MH = null;
             } else {
-                Method write0 = Class.forName("sun.nio.ch.FileDispatcherImpl").getDeclaredMethod("write0", FileDescriptor.class, long.class, int.class);
+                Method write0 = Jvm.getMethod(Class.forName("sun.nio.ch.FileDispatcherImpl"), "write0", FileDescriptor.class, long.class, int.class);
                 write0.setAccessible(true);
                 WRITE0_MH = MethodHandles.lookup().unreflect(write0);
             }
 
-        } catch (NoSuchMethodException | IllegalAccessException | ClassNotFoundException e) {
+        } catch ( IllegalAccessException | ClassNotFoundException e) {
             throw new AssertionError(e);
         }
     }
