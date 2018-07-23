@@ -106,6 +106,11 @@ public class JLBH implements NanoSampler {
         return additionHistograms.computeIfAbsent(name, n -> createHistogram());
     }
 
+    @NotNull
+    public Map<String, List<double[]>> additionalPercentileRuns() {
+        return additionalPercentileRuns;
+    }
+
     /**
      * Start benchmark
      */
@@ -194,6 +199,10 @@ public class JLBH implements NanoSampler {
         consumeResults();
 
         jlbhOptions.jlbhTask.complete();
+    }
+
+    public List<double[]> percentileRuns() {
+        return percentileRuns;
     }
 
     private void endOfRun(int run, long runStart) {
