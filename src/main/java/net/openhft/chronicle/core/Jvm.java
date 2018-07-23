@@ -43,9 +43,9 @@ public enum Jvm {
     private static final List<String> INPUT_ARGUMENTS = getRuntimeMXBean().getInputArguments();
     private static final int COMPILE_THRESHOLD = getCompileThreshold0(INPUT_ARGUMENTS);
     private static final boolean IS_DEBUG = INPUT_ARGUMENTS.toString().contains("jdwp") || Boolean.getBoolean("debug");
-    private static final boolean IS_FLIGHT_RECORDER = (" " + getRuntimeMXBean().getInputArguments()).contains(" -XX:+FlightRecorder") || Boolean.getBoolean("jfr");
-    private static final Class bitsClass;
+
     // e.g-verbose:gc  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=dumponexit=true,filename=myrecording.jfr,settings=profile -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints
+    private static final boolean IS_FLIGHT_RECORDER = (" " + getRuntimeMXBean().getInputArguments()).contains(" -XX:+FlightRecorder") || Boolean.getBoolean("jfr");
     private static final AtomicLong reservedMemory;
     private static final boolean IS_64BIT = is64bit0();
     private static final int PROCESS_ID = getProcessId0();
@@ -70,8 +70,14 @@ public enum Jvm {
         MAX_DIRECT_MEMORY = maxDirectMemory0();
 
         try {
-            bitsClass = Class.forName("java.nio.Bits");
-            Field f = bitsClass.getDeclaredField("reservedMemory");
+            final Class bitsClass = Class.forName("java.nio.Bits");
+            Field f;
+            try {
+                f = bitsClass.getDeclaredField("reservedMemory");
+            }
+            catch (NoSuchFieldException e) {
+                f = bitsClass.getDeclaredField("RESERVED_MEMORY");
+            }
             long offset = UnsafeMemory.UNSAFE.staticFieldOffset(f);
             Object base = UnsafeMemory.UNSAFE.staticFieldBase(f);
             reservedMemory = (AtomicLong) UnsafeMemory.UNSAFE.getObject(base, offset);
