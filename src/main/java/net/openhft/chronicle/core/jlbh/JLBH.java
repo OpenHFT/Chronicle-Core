@@ -270,9 +270,8 @@ public class JLBH implements NanoSampler {
     public void printPercentilesSummary(String label, @NotNull List<double[]>
             percentileRuns, Appendable appendable) {
         try {
-            appendable.append("\n-------------------------------- SUMMARY (" + label + ")" +
-                    "------------------------------------------------------------");
-
+            appendable.append("-------------------------------- SUMMARY (" + label + ")" +
+                    "------------------------------------------------------------\n");
             @NotNull List<Double> consistencies = new ArrayList<>();
             double maxValue = Double.MIN_VALUE;
             double minValue = Double.MAX_VALUE;
@@ -318,7 +317,7 @@ public class JLBH implements NanoSampler {
 
             @NotNull StringBuilder sb = new StringBuilder();
             addHeaderToPrint(sb, jlbhOptions.runs);
-            this.printStream.println(sb.toString());
+            appendable.append(sb.toString() + "\n");
 
             sb = new StringBuilder();
             for (double p : percentFor) {
@@ -335,7 +334,8 @@ public class JLBH implements NanoSampler {
             }
 
             appendable.append(String.format(sb.toString(), summary.toArray(NO_DOUBLES)));
-            appendable.append("\n-------------------------------------------------------------------------------------------------------------------");
+            appendable.append
+                    ("-------------------------------------------------------------------------------------------------------------------\n");
         } catch (IOException e) {
             throw Jvm.rethrow(e);
         }
