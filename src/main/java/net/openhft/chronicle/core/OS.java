@@ -76,18 +76,15 @@ public enum OS {
     static {
         try {
             Method unmap0 = Jvm.getMethod(FileChannelImpl.class, "unmap0", long.class, long.class);
-            unmap0.setAccessible(true);
             UNMAPP0_MH = MethodHandles.lookup().unreflect(unmap0);
 
             Method read0 = Jvm.getMethod(Class.forName("sun.nio.ch.FileDispatcherImpl"), "read0", FileDescriptor.class, long.class, int.class);
-            read0.setAccessible(true);
             READ0_MH = MethodHandles.lookup().unreflect(read0);
 
             if (IS_WIN) {
                 WRITE0_MH = null;
             } else {
                 Method write0 = Jvm.getMethod(Class.forName("sun.nio.ch.FileDispatcherImpl"), "write0", FileDescriptor.class, long.class, int.class);
-                write0.setAccessible(true);
                 WRITE0_MH = MethodHandles.lookup().unreflect(write0);
             }
 

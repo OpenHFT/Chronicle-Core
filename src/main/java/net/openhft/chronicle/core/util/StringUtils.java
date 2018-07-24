@@ -40,13 +40,13 @@ public enum StringUtils {
     static {
         try {
             S_VALUE = String.class.getDeclaredField("value");
-            S_VALUE.setAccessible(true);
+            Jvm.setAccessible(S_VALUE);
             S_VALUE_OFFSET = OS.memory().getFieldOffset(S_VALUE);
             SB_VALUE = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField("value");
-            SB_VALUE.setAccessible(true);
+            Jvm.setAccessible(SB_VALUE);
             SB_VALUE_OFFSET = OS.memory().getFieldOffset(SB_VALUE);
             SB_COUNT = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField("count");
-            SB_COUNT.setAccessible(true);
+            Jvm.setAccessible(SB_COUNT);
             SB_COUNT_OFFSET = OS.memory().getFieldOffset(SB_COUNT);
         } catch (Exception e) {
             throw new AssertionError(e);
