@@ -21,6 +21,7 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
             final Method cleanerMethod;
             cleanerMethod = DirectBuffer.class.
                     getDeclaredMethod("cleaner");
+            Jvm.setAccessible(cleanerMethod);
             final Object cleaner =
                     cleanerMethod.invoke(buffer);
             final String cleanerClassname = Jvm.isJava9Plus() ?
