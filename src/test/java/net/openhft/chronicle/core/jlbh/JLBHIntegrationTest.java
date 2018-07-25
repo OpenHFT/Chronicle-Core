@@ -48,6 +48,7 @@ public class JLBHIntegrationTest {
         assertThat(stdOut, containsString("Run time: "));
         String actual = withoutNonDeterministicFields(stdOut);
         String expected = withoutNonDeterministicFields(predictableTaskExpectedResult());
+        //Assert.assertEquals(expected,actual);
         assertThat(actual, equalTo(expected));
     }
 

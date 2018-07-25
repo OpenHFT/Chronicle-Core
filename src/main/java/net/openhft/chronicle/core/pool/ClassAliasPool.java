@@ -50,6 +50,7 @@ public class ClassAliasPool implements ClassLookup {
     @NotNull
     private ClassAliasPool defaultAliases() {
         addAlias(Set.class, "!set");
+        addAlias(BitSet.class, "!bitset");
         addAlias(SortedSet.class, "!oset");
         addAlias(List.class, "!seq");
         addAlias(Map.class, "!map");
