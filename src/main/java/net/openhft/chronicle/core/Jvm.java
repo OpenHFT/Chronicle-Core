@@ -32,6 +32,7 @@ import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Supplier;
 
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
@@ -48,7 +49,8 @@ public enum Jvm {
 
     // e.g-verbose:gc  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=dumponexit=true,filename=myrecording.jfr,settings=profile -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints
     private static final boolean IS_FLIGHT_RECORDER = (" " + getRuntimeMXBean().getInputArguments()).contains(" -XX:+FlightRecorder") || Boolean.getBoolean("jfr");
-    private static final AtomicLong reservedMemory;
+    ;
+    private static final Supplier<Long> reservedMemory;
     private static final boolean IS_64BIT = is64bit0();
     private static final int PROCESS_ID = getProcessId0();
     @NotNull
@@ -71,6 +73,7 @@ public enum Jvm {
         IS_JAVA_9_PLUS = JVM_JAVA_MAJOR_VERSION > 8; // IS_JAVA_9_PLUS value is used in maxDirectMemory0 method.
         MAX_DIRECT_MEMORY = maxDirectMemory0();
 
+        Supplier<Long> reservedMemoryGetter;
         try {
             final Class bitsClass = Class.forName("java.nio.Bits");
             Field f;
@@ -82,12 +85,19 @@ public enum Jvm {
             }
             long offset = UNSAFE.staticFieldOffset(f);
             Object base = UNSAFE.staticFieldBase(f);
-            reservedMemory = (AtomicLong) UNSAFE.getObject(base, offset);
-
-            signalHandlerGlobal = new ChainedSignalHandler();
+            if (f.getType() == AtomicLong.class) {
+                AtomicLong reservedMemory = (AtomicLong) UNSAFE.getObject(base, offset);
+                reservedMemoryGetter = reservedMemory::get;
+            } else {
+                reservedMemoryGetter = () -> (Long) UNSAFE.getObject(base, offset);
+            }
         } catch (Exception e) {
-            throw new AssertionError(e);
+            //throw new AssertionError(e);
+            System.err.println(Jvm.class.getName() + ": Unable to determine the reservedMemory value, will always report 0");
+            reservedMemoryGetter = () -> 0L;
         }
+        reservedMemory = reservedMemoryGetter;
+        signalHandlerGlobal = new ChainedSignalHandler();
     }
 
     private static int getCompileThreshold0(@NotNull List<String> inputArguments) {
