@@ -89,10 +89,9 @@ public enum Jvm {
                 AtomicLong reservedMemory = (AtomicLong) UNSAFE.getObject(base, offset);
                 reservedMemoryGetter = reservedMemory::get;
             } else {
-                reservedMemoryGetter = () -> (Long) UNSAFE.getObject(base, offset);
+                reservedMemoryGetter = () -> UNSAFE.getLong(base, offset);
             }
         } catch (Exception e) {
-            //throw new AssertionError(e);
             System.err.println(Jvm.class.getName() + ": Unable to determine the reservedMemory value, will always report 0");
             reservedMemoryGetter = () -> 0L;
         }
