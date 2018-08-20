@@ -16,6 +16,10 @@
 
 package net.openhft.chronicle.core.time;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoField;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -33,6 +37,14 @@ public class SetTimeProvider implements TimeProvider {
     }
 
     public SetTimeProvider(long initialNanos) {
+        nanoTime = new AtomicLong(initialNanos);
+    }
+
+    public SetTimeProvider(String timestamp) {
+        Instant dateTime = LocalDateTime.parse(timestamp).toInstant(ZoneOffset.UTC);
+        long initialNanos = dateTime.getEpochSecond() * 1_000_000_000L;
+        if (dateTime.isSupported(ChronoField.NANO_OF_SECOND))
+            initialNanos += dateTime.getLong(ChronoField.NANO_OF_SECOND);
         nanoTime = new AtomicLong(initialNanos);
     }
 

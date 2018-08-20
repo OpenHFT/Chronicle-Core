@@ -62,4 +62,13 @@ public class SetTimeProviderTest {
         tp.currentTimeMillis(99_999L);
     }
 
+    @Test
+    public void withTimestamp() {
+        SetTimeProvider tp = new SetTimeProvider("2018-08-20T12:53:04.075");
+        assertEquals(1534769584075L, tp.currentTimeMillis());
+        assertEquals(1534769584075000L, tp.currentTimeMicros());
+        SetTimeProvider tp2 = new SetTimeProvider("2018-08-20T12:53:04.075123");
+        assertEquals(1534769584075L, tp2.currentTimeMillis());
+        assertEquals(1534769584075123L, tp2.currentTimeMicros());
+    }
 }
