@@ -42,7 +42,7 @@ public class ReferenceCounter {
 
     private boolean newRefCountHistory() {
         referenceCountHistory = new ConcurrentLinkedQueue<>();
-        referenceCountHistory.add(new Throwable(Integer.toHexString(onRelease.hashCode()) + '-' + Thread.currentThread().getName() + " creation ref-count=" + 1));
+        referenceCountHistory.add(new StackTrace(Integer.toHexString(onRelease.hashCode()) + '-' + Thread.currentThread().getName() + " creation ref-count=" + 1));
         return true;
     }
 
@@ -63,7 +63,7 @@ public class ReferenceCounter {
     }
 
     private boolean recordResevation(long v) {
-        referenceCountHistory.add(new Throwable(Integer.toHexString(onRelease.hashCode()) + '-' + Thread.currentThread().getName() + " Reserve ref-count=" + v));
+        referenceCountHistory.add(new StackTrace(Integer.toHexString(onRelease.hashCode()) + '-' + Thread.currentThread().getName() + " Reserve ref-count=" + v));
         return true;
     }
 
@@ -85,7 +85,7 @@ public class ReferenceCounter {
     }
 
     private boolean recordRelease(long v) {
-        referenceCountHistory.add(new Throwable(Integer.toHexString(onRelease.hashCode()) + '-' + Thread.currentThread().getName() + " Release ref-count=" + v));
+        referenceCountHistory.add(new StackTrace(Integer.toHexString(onRelease.hashCode()) + '-' + Thread.currentThread().getName() + " Release ref-count=" + v));
         return true;
     }
 
