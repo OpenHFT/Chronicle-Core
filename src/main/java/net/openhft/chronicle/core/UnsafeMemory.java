@@ -170,6 +170,22 @@ public enum UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
+    public void writeBytes(long address, byte[] b, int offset, int length) {
+        if (offset + length > b.length)
+            throw new IllegalArgumentException("Invalid offset or length, array's length is " + b.length);
+        UnsafeMemory.UNSAFE.copyMemory(b, Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, null, address, length);
+    }
+
+    @Override
+    @ForceInline
+    public void readBytes(long address, byte[] b, long offset, int length) {
+        if (offset + length > b.length)
+            throw new IllegalArgumentException("Invalid offset or length, array's length is " + b.length);
+        UnsafeMemory.UNSAFE.copyMemory(null, address, b, Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, length);
+    }
+
+    @Override
+    @ForceInline
     public byte readByte(long address) {
         return UNSAFE.getByte(address);
     }
