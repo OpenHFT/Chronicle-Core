@@ -47,6 +47,10 @@ public interface Memory {
 
     byte readByte(Object object, long offset);
 
+    void writeBytes(long address, byte[] b, int offset, int length);
+
+    void readBytes(long address, byte[] b, long offset, int length);
+
     byte readByte(long address);
 
     void writeShort(long address, short i16);
