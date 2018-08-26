@@ -31,6 +31,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class SetTimeProvider implements TimeProvider {
 
     private final AtomicLong nanoTime;
+    private long autoIncrement = 0;
 
     public SetTimeProvider() {
         this(0L);
@@ -46,6 +47,11 @@ public class SetTimeProvider implements TimeProvider {
         if (dateTime.isSupported(ChronoField.NANO_OF_SECOND))
             initialNanos += dateTime.getLong(ChronoField.NANO_OF_SECOND);
         nanoTime = new AtomicLong(initialNanos);
+    }
+
+    public SetTimeProvider autoIncrement(long autoIncrement, TimeUnit timeUnit) {
+        this.autoIncrement = timeUnit.toNanos(autoIncrement);
+        return this;
     }
 
     /**
@@ -82,7 +88,7 @@ public class SetTimeProvider implements TimeProvider {
      * @param nanos New time value in nanoseconds since the epoch. May not be less than the previous value.
      */
     public void currentTimeNanos(long nanos) {
-        if (nanos < nanoTime.get()) throw new IllegalArgumentException("Cannot go back in time!");
+        if (nanos < nanoTime.getAndAdd(autoIncrement)) throw new IllegalArgumentException("Cannot go back in time!");
         nanoTime.set(nanos);
     }
 
