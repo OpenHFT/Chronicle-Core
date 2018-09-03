@@ -62,6 +62,19 @@ public class ReferenceCounter {
         }
     }
 
+    public boolean tryReserve() {
+        for (; ; ) {
+            long v = value.get();
+            if (v <= 0)
+                return false;
+
+            if (value.compareAndSet(v, v + 1)) {
+                assert recordResevation(v + 1);
+                return true;
+            }
+        }
+    }
+
     private boolean recordResevation(long v) {
         referenceCountHistory.add(new Throwable(Integer.toHexString(onRelease.hashCode()) + '-' + Thread.currentThread().getName() + " Reserve ref-count=" + v));
         return true;
@@ -102,5 +115,4 @@ public class ReferenceCounter {
     public String toString() {
         return Long.toString(value.get());
     }
-
 }
