@@ -71,4 +71,15 @@ public class SetTimeProviderTest {
         assertEquals(1534769584075L, tp2.currentTimeMillis());
         assertEquals(1534769584075123L, tp2.currentTimeMicros());
     }
+
+    @Test
+    public void autoIncrement() {
+        SetTimeProvider tp = new SetTimeProvider("2018-08-20T12:53:04.075")
+                .autoIncrement(1, TimeUnit.MILLISECONDS);
+        assertEquals(1534769584075L, tp.currentTimeMillis());
+        assertEquals(1534769584076L, tp.currentTimeMillis());
+        assertEquals(1534769584077L, tp.currentTimeMillis());
+
+
+    }
 }

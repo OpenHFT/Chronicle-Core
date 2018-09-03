@@ -88,13 +88,13 @@ public class SetTimeProvider implements TimeProvider {
      * @param nanos New time value in nanoseconds since the epoch. May not be less than the previous value.
      */
     public void currentTimeNanos(long nanos) {
-        if (nanos < nanoTime.getAndAdd(autoIncrement)) throw new IllegalArgumentException("Cannot go back in time!");
+        if (nanos < nanoTime.get()) throw new IllegalArgumentException("Cannot go back in time!");
         nanoTime.set(nanos);
     }
 
     @Override
     public long currentTimeNanos() {
-        return nanoTime.get();
+        return nanoTime.getAndAdd(autoIncrement);
     }
 
     @Override
