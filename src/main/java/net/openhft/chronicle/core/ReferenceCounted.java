@@ -75,17 +75,5 @@ public interface ReferenceCounted {
 
     long refCount();
 
-    default boolean tryReserve() {
-        try {
-            if (refCount() > 0) {
-                reserve();
-                return true;
-            }
-
-        } catch (IllegalStateException ignored) {
-            // expected
-        }
-
-        return false;
-    }
+    boolean tryReserve();
 }
