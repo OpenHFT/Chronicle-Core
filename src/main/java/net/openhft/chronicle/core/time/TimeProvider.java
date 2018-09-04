@@ -37,12 +37,19 @@ public interface TimeProvider {
     }
 
     default long currentTimeNanos() {
-        return currentTimeMillis() * 1000000;
+        return currentTimeMicros() * 1000;
     }
 
     default long currentTime(TimeUnit timeUnit) {
-        return timeUnit == TimeUnit.MILLISECONDS
-                ? currentTimeMillis()
-                : timeUnit.convert(currentTimeNanos(), TimeUnit.NANOSECONDS);
+        switch (timeUnit) {
+            case NANOSECONDS:
+                return currentTimeNanos();
+            case MICROSECONDS:
+                return currentTimeMicros();
+            case MILLISECONDS:
+                return currentTimeMillis();
+            default:
+                return timeUnit.convert(currentTimeMillis(), TimeUnit.MILLISECONDS);
+        }
     }
 }
