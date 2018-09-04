@@ -32,7 +32,7 @@ public class ReferenceCounter {
 
     private ReferenceCounter(Runnable onRelease) {
         this.onRelease = onRelease;
-//        assert newRefCountHistory();
+        assert newRefCountHistory();
     }
 
     @NotNull
