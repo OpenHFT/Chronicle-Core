@@ -9,13 +9,14 @@ package net.openhft.chronicle.core;
  */
 public class StackTrace extends Throwable {
     public StackTrace() {
+        this(null);
     }
 
     public StackTrace(String message) {
-        super(message);
+        this(message, null);
     }
 
     public StackTrace(String message, Throwable cause) {
-        super(message, cause);
+        super(message, cause, false, false);
     }
 }
