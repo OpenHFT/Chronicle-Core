@@ -18,17 +18,11 @@ package net.openhft.chronicle.core.time;
 
 import java.util.concurrent.TimeUnit;
 
-import static net.openhft.chronicle.core.time.SystemTimeProvider.TIME_PROVIDER;
-
 /*
  * Created by Peter Lawrey on 10/03/16.
  */
 @FunctionalInterface
 public interface TimeProvider {
-
-    static TimeProvider get() {
-        return TIME_PROVIDER.get();
-    }
 
     long currentTimeMillis();
 
