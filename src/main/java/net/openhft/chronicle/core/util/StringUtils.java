@@ -386,4 +386,14 @@ public enum StringUtils {
         }
         return sb.toString();
     }
+
+    public static void reverse(StringBuilder text, int start) {
+        int end = text.length() - 1;
+        int mid = (start + end + 1) / 2;
+        for (int i = 0; i < mid - start; i++) {
+            char ch = text.charAt(start + i);
+            text.setCharAt(start + i, text.charAt(end - i));
+            text.setCharAt(end - i, ch);
+        }
+    }
 }
