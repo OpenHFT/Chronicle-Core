@@ -17,6 +17,6 @@ public class StackTrace extends Throwable {
     }
 
     public StackTrace(String message, Throwable cause) {
-        super(message, cause, false, false);
+        super(message, cause);
     }
 }
