@@ -66,7 +66,7 @@ public enum Jvm {
     private static final boolean IS_JAVA_9_PLUS;
     private static final long MAX_DIRECT_MEMORY;
     private static final ChainedSignalHandler signalHandlerGlobal;
-    private static final boolean SAVEPOINT_ENABLED = Boolean.getBoolean("jvm.safepoint.enabled");
+    private static final boolean SAFEPOINT_ENABLED = Boolean.getBoolean("jvm.safepoint.enabled");
 
     static {
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
@@ -589,7 +589,7 @@ public enum Jvm {
     }
 
     public static void optionalSafepoint() {
-        if (SAVEPOINT_ENABLED)
+        if (SAFEPOINT_ENABLED)
             if (IS_JAVA_9_PLUS)
                 Thread.holdsLock("");
             else
@@ -597,7 +597,7 @@ public enum Jvm {
     }
 
     public static boolean areOptionalSafepointsEnabled() {
-        return SAVEPOINT_ENABLED;
+        return SAFEPOINT_ENABLED;
     }
 
     private static class ChainedSignalHandler implements SignalHandler {
