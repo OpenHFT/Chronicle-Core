@@ -79,8 +79,7 @@ public enum Jvm {
             Field f;
             try {
                 f = bitsClass.getDeclaredField("reservedMemory");
-            }
-            catch (NoSuchFieldException e) {
+            } catch (NoSuchFieldException e) {
                 f = bitsClass.getDeclaredField("RESERVED_MEMORY");
             }
             long offset = UNSAFE.staticFieldOffset(f);
@@ -598,6 +597,14 @@ public enum Jvm {
 
     public static boolean areOptionalSafepointsEnabled() {
         return SAFEPOINT_ENABLED;
+    }
+
+    public static boolean stackTraceEndsWith(String endsWith, int n) {
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        for (int i = n + 2; i < stackTrace.length; i++)
+            if (stackTrace[i].getClassName().endsWith(endsWith))
+                return true;
+        return false;
     }
 
     private static class ChainedSignalHandler implements SignalHandler {
