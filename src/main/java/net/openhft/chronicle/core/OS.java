@@ -71,24 +71,29 @@ public enum OS {
     private static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : PAGE_SIZE;
     private static MethodHandle UNMAPP0_MH;
     private static MethodHandle READ0_MH;
-    private static MethodHandle WRITE0_MH;
+    private static MethodHandle WRITE0_MH, WRITE0_MH2;
 
     static {
         try {
             Method unmap0 = Jvm.getMethod(FileChannelImpl.class, "unmap0", long.class, long.class);
             UNMAPP0_MH = MethodHandles.lookup().unreflect(unmap0);
 
-            Method read0 = Jvm.getMethod(Class.forName("sun.nio.ch.FileDispatcherImpl"), "read0", FileDescriptor.class, long.class, int.class);
+            Class<?> fdi = Class.forName("sun.nio.ch.FileDispatcherImpl");
+            Method read0 = Jvm.getMethod(fdi, "read0", FileDescriptor.class, long.class, int.class);
             READ0_MH = MethodHandles.lookup().unreflect(read0);
 
-            if (IS_WIN) {
-                WRITE0_MH = null;
-            } else {
-                Method write0 = Jvm.getMethod(Class.forName("sun.nio.ch.FileDispatcherImpl"), "write0", FileDescriptor.class, long.class, int.class);
-                WRITE0_MH = MethodHandles.lookup().unreflect(write0);
+            MethodHandle write0Mh = null, write0Mh2 = null;
+            try {
+                Method write0 = Jvm.getMethod(fdi, "write0", FileDescriptor.class, long.class, int.class);
+                write0Mh = MethodHandles.lookup().unreflect(write0);
+            } catch (AssertionError ae) {
+                Method write0 = Jvm.getMethod(fdi, "write0", FileDescriptor.class, long.class, int.class, boolean.class);
+                write0Mh2 = MethodHandles.lookup().unreflect(write0);
             }
+            WRITE0_MH = write0Mh;
+            WRITE0_MH2 = write0Mh2;
 
-        } catch ( IllegalAccessException | ClassNotFoundException e) {
+        } catch (IllegalAccessException | ClassNotFoundException e) {
             throw new AssertionError(e);
         }
     }
@@ -467,7 +472,10 @@ public enum OS {
 
     public static int write0(FileDescriptor fd, long address, int len) throws IOException {
         try {
-            return (int) WRITE0_MH.invokeExact(fd, address, len);
+            if (WRITE0_MH2 == null)
+                return (int) WRITE0_MH.invokeExact(fd, address, len);
+            else
+                return (int) WRITE0_MH2.invokeExact(fd, address, len, false);
         } catch (IOException ioe) {
             throw ioe;
         } catch (Throwable e) {

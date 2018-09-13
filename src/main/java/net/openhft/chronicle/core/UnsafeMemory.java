@@ -412,6 +412,14 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
+    public void testAndSwapInt(long address, long offset, int expected, int value) {
+        if (UNSAFE.compareAndSwapInt(null, address, expected, value))
+            return;
+        int actual = UNSAFE.getIntVolatile(null, address);
+        throw new IllegalStateException("Cannot change at " + offset + " expected " + expected + " was " + actual);
+    }
+
+    @Override
     @ForceInline
     public boolean compareAndSwapInt(long address, int expected, int value) {
 //        assert (address & 0x3) == 0;
@@ -790,6 +798,26 @@ public class UnsafeMemory implements Memory {
             if ((offset & 0x3) == 0)
                 return super.compareAndSwapInt(object, offset, expected, value);
             throw new IllegalArgumentException("mis-aligned");
+        }
+
+        @Override
+        public void testAndSwapInt(long address, long offset, int expected, int value) {
+            if ((address & ~0x3) == 0) {
+                if (UNSAFE.compareAndSwapInt(null, address, expected, value)) {
+                    return;
+                }
+                int actual = UNSAFE.getIntVolatile(null, address);
+                throw new IllegalStateException("Cannot change at " + offset + " expected " + expected + " was " + actual);
+            } else {
+                UNSAFE.loadFence();
+                int actual = UNSAFE.getInt(address);
+                if (actual == expected) {
+                    UNSAFE.putInt(address, value);
+                    UNSAFE.storeFence();
+                    return;
+                }
+                throw new IllegalStateException("Cannot perform thread safe operation at " + offset + " as mis-aligned");
+            }
         }
 
         @Override
