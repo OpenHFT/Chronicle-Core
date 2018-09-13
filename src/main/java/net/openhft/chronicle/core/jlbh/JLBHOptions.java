@@ -43,6 +43,7 @@ public class JLBHOptions {
     SKIP_FIRST_RUN skipFirstRun = SKIP_FIRST_RUN.NOT_SET;
     boolean jitterAffinity;
     Supplier<AffinityLock> acquireLock = Affinity::acquireLock;
+    long timeout;
 
     /**
      * Number of iterations per second to be pushed through the benchmark
@@ -193,6 +194,11 @@ public class JLBHOptions {
 
     public JLBHOptions acquireLock(Supplier<AffinityLock> acquireLock) {
         this.acquireLock = acquireLock;
+        return this;
+    }
+
+    public JLBHOptions timeout(long timeout) {
+        this.timeout = timeout;
         return this;
     }
 
