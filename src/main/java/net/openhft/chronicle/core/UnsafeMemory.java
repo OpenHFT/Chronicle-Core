@@ -24,8 +24,8 @@ import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicLong;
 
 @SuppressWarnings("unchecked")
-public enum UnsafeMemory implements Memory {
-    INSTANCE;
+public class UnsafeMemory implements Memory {
+    public static final UnsafeMemory INSTANCE = Jvm.isArm() ? new ARMMemory() : new UnsafeMemory();
 
     @NotNull
     public static final Unsafe UNSAFE;
@@ -662,5 +662,150 @@ public enum UnsafeMemory implements Memory {
         if (object == null)
             throw new NullPointerException();
         return UNSAFE.getAndAddLong(object, offset, increment) + increment;
+    }
+
+    // https://github.com/OpenHFT/OpenHFT/issues/23
+    static class ARMMemory extends UnsafeMemory {
+        @Override
+        public short readVolatileShort(long address) {
+            if ((address & 0x1) == 0)
+                return super.readVolatileShort(address);
+            throw new IllegalArgumentException("mis-aligned");
+        }
+
+        @Override
+        public void writeVolatileShort(long address, short i16) {
+            if ((address & 0x1) == 0)
+                super.writeVolatileShort(address, i16);
+            else
+                throw new IllegalArgumentException("mis-aligned");
+        }
+
+        @Override
+        public void writeFloat(long address, float f) {
+            if ((address & 0x3) == 0)
+                super.writeFloat(address, f);
+            else
+                super.writeInt(address, Float.floatToRawIntBits(f));
+        }
+
+        @Override
+        public float readFloat(long address) {
+            if ((address & 0x3) == 0)
+                return super.readFloat(address);
+            return Float.intBitsToFloat(super.readInt(address));
+        }
+
+        @Override
+        public int readVolatileInt(long address) {
+            if ((address & 0x3) == 0)
+                return super.readVolatileInt(address);
+            throw new IllegalArgumentException("mis-aligned");
+        }
+
+        @Override
+        public float readVolatileFloat(long address) {
+            if ((address & 0x3) == 0)
+                return super.readVolatileFloat(address);
+            throw new IllegalArgumentException("mis-aligned");
+        }
+
+        @Override
+        public void writeVolatileInt(long address, int i32) {
+            if ((address & 0x3) == 0)
+                super.writeVolatileInt(address, i32);
+            else
+                throw new IllegalArgumentException("mis-aligned");
+        }
+
+        @Override
+        public void writeVolatileFloat(long address, float f) {
+            if ((address & 0x3) == 0)
+                super.writeVolatileFloat(address, f);
+            else
+                throw new IllegalArgumentException("mis-aligned");
+        }
+
+        @Override
+        public int addInt(long address, int increment) {
+            if ((address & 0x3) == 0)
+                return super.addInt(address, increment);
+            throw new IllegalArgumentException("mis-aligned");
+        }
+
+        @Override
+        public boolean compareAndSwapInt(long address, int expected, int value) {
+            if ((address & 0x3) == 0)
+                return super.compareAndSwapInt(address, expected, value);
+            throw new IllegalArgumentException("mis-aligned");
+        }
+
+
+        @Override
+        public void writeDouble(long address, double d) {
+            if ((address & 0x7) == 0)
+                super.writeDouble(address, d);
+            else
+                super.writeLong(address, Double.doubleToRawLongBits(d));
+        }
+
+        @Override
+        public double readDouble(long address) {
+            if ((address & 0x7) == 0)
+                return super.readDouble(address);
+            return Double.longBitsToDouble(super.readLong(address));
+        }
+
+        @Override
+        public void writeOrderedLong(long address, long i) {
+            if ((address & 0x7) == 0)
+                super.writeOrderedLong(address, i);
+            else
+                throw new IllegalArgumentException("mis-aligned");
+        }
+
+        @Override
+        public long readVolatileLong(long address) {
+            if ((address & 0x7) == 0)
+                return super.readVolatileLong(address);
+            throw new IllegalArgumentException("mis-aligned");
+        }
+
+        @Override
+        public double readVolatileDouble(long address) {
+            if ((address & 0x7) == 0)
+                return super.readVolatileDouble(address);
+            throw new IllegalArgumentException("mis-aligned");
+        }
+
+        @Override
+        public void writeVolatileLong(long address, long i64) {
+            if ((address & 0x7) == 0)
+                super.writeVolatileLong(address, i64);
+            else
+                throw new IllegalArgumentException("mis-aligned");
+        }
+
+        @Override
+        public void writeVolatileDouble(long address, double d) {
+            if ((address & 0x7) == 0)
+                super.writeVolatileDouble(address, d);
+            else
+                throw new IllegalArgumentException("mis-aligned");
+        }
+
+        @Override
+        public long addLong(long address, long increment) {
+            if ((address & 0x7) == 0)
+                return super.addLong(address, increment);
+            throw new IllegalArgumentException("mis-aligned");
+        }
+
+        @Override
+        public boolean compareAndSwapLong(long address, long expected, long value) {
+            if ((address & 0x7) == 0)
+                return super.compareAndSwapLong(address, expected, value);
+            throw new IllegalArgumentException("mis-aligned");
+        }
     }
 }

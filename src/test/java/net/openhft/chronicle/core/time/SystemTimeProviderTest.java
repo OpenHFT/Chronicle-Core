@@ -36,7 +36,7 @@ public class SystemTimeProviderTest {
         long lastTimeMicros;
         long start;
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 10; i >= 0; i--) {
             minDiff = Long.MAX_VALUE;
             maxDiff = Long.MIN_VALUE;
             lastTimeMicros = 0;
@@ -59,11 +59,17 @@ public class SystemTimeProviderTest {
                 assertTrue(time2 >= lastTimeMicros);
                 lastTimeMicros = time2;
             } while (System.currentTimeMillis() < start + 500);
+            System.out.println("minDiff: " + minDiff + ", maxDiff: " + maxDiff);
+            if (-20 < minDiff && minDiff < 1)
+                if (990 < maxDiff && maxDiff < 1010) {
+                    System.out.println("minDiff: " + minDiff + ", maxDiff: " + maxDiff);
+                    return;
+                }
+            if (i == 0) {
+                assertEquals(-10, minDiff, 10);
+                assertEquals(1000, maxDiff, 10);
+            }
         }
-
-        System.out.println("minDiff: " + minDiff + ", maxDiff: " + maxDiff);
-        assertEquals(-45, minDiff, 50);
-        assertEquals(1000, maxDiff, 50);
     }
 
     @Test

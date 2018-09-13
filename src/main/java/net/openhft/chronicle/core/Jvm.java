@@ -67,6 +67,7 @@ public enum Jvm {
     private static final long MAX_DIRECT_MEMORY;
     private static final ChainedSignalHandler signalHandlerGlobal;
     private static final boolean SAFEPOINT_ENABLED = Boolean.getBoolean("jvm.safepoint.enabled");
+    private static final boolean IS_ARM = System.getProperty("os.arch", "?").startsWith("arm");
 
     static {
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
@@ -621,5 +622,9 @@ public enum Jvm {
                 }
             }
         }
+    }
+
+    public static boolean isArm() {
+        return IS_ARM;
     }
 }
