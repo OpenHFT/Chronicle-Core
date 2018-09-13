@@ -758,8 +758,9 @@ public class UnsafeMemory implements Memory {
 
         @Override
         public boolean compareAndSwapInt(long address, int expected, int value) {
-            switch ((int) address & 0x3) {
+            switch ((int) address & 0x7) {
                 case 0:
+                case 4:
                     return super.compareAndSwapInt(address, expected, value);
                 case 1:
                     return compareAndSwapInt0(address, expected, value, 0xFFFFFFFF00L, 8);
@@ -768,7 +769,7 @@ public class UnsafeMemory implements Memory {
                 case 3:
                     return compareAndSwapInt0(address, expected, value, 0xFFFFFFFF000000L, 24);
                 default:
-                    throw new AssertionError();
+                    throw new IllegalArgumentException("mis-aligned");
             }
         }
 
