@@ -63,11 +63,14 @@ public class JLBH implements NanoSampler {
     private Histogram endToEndHistogram = createHistogram();
     @NotNull
     private Histogram osJitterHistogram = createHistogram();
-    private long noResultsReturned;
+    private volatile long noResultsReturned;
     @NotNull
     private AtomicBoolean warmUpComplete = new AtomicBoolean(false);
     //Use non-atomic when so thread synchronisation is necessary
     private boolean warmedUp;
+    private AtomicBoolean abortTestRun = new AtomicBoolean();
+    private volatile Thread testThread;
+    private Thread sampleTimeoutChecker;
 
     /**
      * @param jlbhOptions Options to run the benchmark
@@ -94,7 +97,6 @@ public class JLBH implements NanoSampler {
         latencyBetweenTasks = jlbhOptions.throughputTimeUnit.toNanos(1) / jlbhOptions.throughput;
         percentileRuns = new ArrayList<>();
         additionalPercentileRuns = new TreeMap<>();
-
     }
 
     /**
@@ -112,17 +114,29 @@ public class JLBH implements NanoSampler {
         return additionalPercentileRuns;
     }
 
+    public void abort()
+    {
+        abortTestRun.set(true);
+        testThread.interrupt();
+    }
+
     /**
      * Start benchmark
      */
     public void start() {
-        long warmupStart = initStartOSJitterMonitorWarmup();
+        startTimeoutCheckerIfRequired();
 
+        this.testThread = Thread.currentThread();
+        long warmupStart = initStartOSJitterMonitorWarmup();
+        int interruptCheckThrottle = 0;
+        int interruptCheckThrottleMask = 1024 - 1;
         AffinityLock lock = jlbhOptions.acquireLock.get();
         try {
-            for (int run = 0; run < jlbhOptions.runs; run++) {
+            for (int run = 0; run < jlbhOptions.runs && !abortTestRun.get(); run++) {
+
                 long runStart = System.currentTimeMillis();
                 long startTimeNs = System.nanoTime();
+
                 for (int i = 0; i < jlbhOptions.iterations; i++) {
 
                     if (i == 0 && run == 0) {
@@ -149,12 +163,18 @@ public class JLBH implements NanoSampler {
                         startTimeNs = System.nanoTime();
                     }
 
+                    if((interruptCheckThrottle = (interruptCheckThrottle + 1) & interruptCheckThrottleMask) == 0
+                            && testThread.isInterrupted()){
+                        break;
+                    }
+
                     jlbhOptions.jlbhTask.run(startTimeNs);
                 }
 
                 endOfRun(run, runStart);
             }
         } finally {
+            Thread.interrupted(); // Reset thread interrupted status.
             Jvm.pause(5);
             lock.release();
             Jvm.pause(5);
@@ -163,10 +183,22 @@ public class JLBH implements NanoSampler {
         endOfAllRuns();
     }
 
-    private void warmupComplete(long warmupStart) {
+    private void startTimeoutCheckerIfRequired() {
+        if(jlbhOptions.timeout > 0)
+        {
+            sampleTimeoutChecker = new Thread(this::checkSampleTimeout);
+            sampleTimeoutChecker.setDaemon(true);
+            sampleTimeoutChecker.start();
+        }
+    }
+
+    private boolean warmupComplete(long warmupStart) {
         while (!warmUpComplete.get()) {
             Jvm.pause(2000);
             printStream.println("Complete: " + noResultsReturned);
+            if(testThread.isInterrupted()){
+                return true;
+            }
         }
         printStream.println("Warm up complete (" + jlbhOptions.warmUpIterations + " iterations took " +
                 ((System.currentTimeMillis() - warmupStart) / 1000.0) + "s)");
@@ -175,6 +207,7 @@ public class JLBH implements NanoSampler {
             Jvm.pause(jlbhOptions.pauseAfterWarmupMS);
         }
         jlbhOptions.jlbhTask.warmedUp();
+        return false;
     }
 
     private long initStartOSJitterMonitorWarmup() {
@@ -207,9 +240,10 @@ public class JLBH implements NanoSampler {
     }
 
     private void endOfRun(int run, long runStart) {
-        while (endToEndHistogram.totalCount() < jlbhOptions.iterations) {
+        while (!abortTestRun.get() && endToEndHistogram.totalCount() < jlbhOptions.iterations) {
             Thread.yield();
         }
+
         long totalRunTime = System.currentTimeMillis() - runStart;
 
         percentileRuns.add(endToEndHistogram.getPercentiles());
@@ -242,6 +276,27 @@ public class JLBH implements NanoSampler {
         endToEndHistogram.reset();
         additionHistograms.values().forEach(Histogram::reset);
         osJitterMonitor.reset();
+    }
+
+    private void checkSampleTimeout()
+    {
+        long previousSampleCount = 0;
+        long previousSampleTime = 0;
+
+        while(true) {
+            Jvm.pause(TimeUnit.SECONDS.toMillis(10));
+
+            if(previousSampleCount < noResultsReturned){
+                previousSampleCount = noResultsReturned;
+                previousSampleTime = System.currentTimeMillis();
+            } else {
+                if (previousSampleTime < (System.currentTimeMillis() - jlbhOptions.timeout)) {
+                    printStream.println("Sample timed out. Aborting test...");
+                    abort();
+                    break;
+                }
+            }
+        }
     }
 
     /**
@@ -333,7 +388,13 @@ public class JLBH implements NanoSampler {
                 addPrToPrint(sb, s, jlbhOptions.runs);
             }
 
-            appendable.append(String.format(sb.toString(), summary.toArray(NO_DOUBLES)));
+            try {
+                Double[] args = summary.toArray(NO_DOUBLES);
+                appendable.append(String.format(sb.toString(), args));
+            } catch(Exception e)
+            {
+                appendable.append(e.getMessage());
+            }
             appendable.append
                     ("-------------------------------------------------------------------------------------------------------------------\n");
         } catch (IOException e) {
