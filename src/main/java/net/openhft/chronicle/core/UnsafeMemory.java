@@ -670,15 +670,18 @@ public class UnsafeMemory implements Memory {
         public short readVolatileShort(long address) {
             if ((address & 0x1) == 0)
                 return super.readVolatileShort(address);
-            throw new IllegalArgumentException("mis-aligned");
+            UNSAFE.loadFence();
+            return super.readShort(address);
         }
 
         @Override
         public void writeVolatileShort(long address, short i16) {
-            if ((address & 0x1) == 0)
+            if ((address & 0x1) == 0) {
                 super.writeVolatileShort(address, i16);
-            else
-                throw new IllegalArgumentException("mis-aligned");
+            } else {
+                super.writeShort(address, i16);
+                UNSAFE.storeFence();
+            }
         }
 
         @Override
@@ -697,25 +700,45 @@ public class UnsafeMemory implements Memory {
         }
 
         @Override
+        public void writeFloat(@NotNull Object object, long offset, float f) {
+            if ((offset & 0x3) == 0)
+                super.writeFloat(object, offset, f);
+            else
+                super.writeInt(object, offset, Float.floatToRawIntBits(f));
+
+        }
+
+        @Override
+        public float readFloat(@NotNull Object object, long offset) {
+            if ((offset & 0x3) == 0)
+                return super.readFloat(object, offset);
+            return Float.intBitsToFloat(super.readInt(object, offset));
+        }
+
+        @Override
         public int readVolatileInt(long address) {
             if ((address & 0x3) == 0)
                 return super.readVolatileInt(address);
-            throw new IllegalArgumentException("mis-aligned");
+            UNSAFE.loadFence();
+            return super.readInt(address);
         }
 
         @Override
         public float readVolatileFloat(long address) {
             if ((address & 0x3) == 0)
                 return super.readVolatileFloat(address);
-            throw new IllegalArgumentException("mis-aligned");
+            UNSAFE.loadFence();
+            return readFloat(address);
         }
 
         @Override
         public void writeVolatileInt(long address, int i32) {
-            if ((address & 0x3) == 0)
+            if ((address & 0x3) == 0) {
                 super.writeVolatileInt(address, i32);
-            else
-                throw new IllegalArgumentException("mis-aligned");
+            } else {
+                writeInt(address, i32);
+                UNSAFE.storeFence();
+            }
         }
 
         @Override
@@ -723,7 +746,7 @@ public class UnsafeMemory implements Memory {
             if ((address & 0x3) == 0)
                 super.writeVolatileFloat(address, f);
             else
-                throw new IllegalArgumentException("mis-aligned");
+                writeVolatileInt(address, Float.floatToRawIntBits(f));
         }
 
         @Override
@@ -735,11 +758,38 @@ public class UnsafeMemory implements Memory {
 
         @Override
         public boolean compareAndSwapInt(long address, int expected, int value) {
-            if ((address & 0x3) == 0)
-                return super.compareAndSwapInt(address, expected, value);
-            throw new IllegalArgumentException("mis-aligned");
+            switch ((int) address & 0x3) {
+                case 0:
+                    return super.compareAndSwapInt(address, expected, value);
+                case 1:
+                    return compareAndSwapInt0(address, expected, value, 0xFFFFFFFF00L, 8);
+                case 2:
+                    return compareAndSwapInt0(address, expected, value, 0xFFFFFFFF0000L, 16);
+                case 3:
+                    return compareAndSwapInt0(address, expected, value, 0xFFFFFFFF000000L, 24);
+                default:
+                    throw new AssertionError();
+            }
         }
 
+        private boolean compareAndSwapInt0(long address, int expected, int value, long mask, int shift) {
+            long value2 = (long) value << shift;
+            long address2 = address & ~0x7;
+            if ((address2 & 63) == 60)
+                throw new IllegalArgumentException("mis-aligned");
+            long prev = super.readVolatileLong(address2);
+            if ((int) (prev >>> shift) != expected)
+                return false;
+            long next = (prev & ~mask) | value2;
+            return super.compareAndSwapLong(address2, prev, next);
+        }
+
+        @Override
+        public boolean compareAndSwapInt(@NotNull Object object, long offset, int expected, int value) {
+            if ((offset & 0x3) == 0)
+                return super.compareAndSwapInt(object, offset, expected, value);
+            throw new IllegalArgumentException("mis-aligned");
+        }
 
         @Override
         public void writeDouble(long address, double d) {
@@ -757,33 +807,75 @@ public class UnsafeMemory implements Memory {
         }
 
         @Override
+        public void writeDouble(@NotNull Object object, long offset, double d) {
+            if ((offset & 0x7) == 0) super.writeDouble(object, offset, d);
+            else
+                super.writeLong(object, offset, Double.doubleToRawLongBits(d));
+        }
+
+        @Override
+        public double readDouble(@NotNull Object object, long offset) {
+            if ((offset & 0x7) == 0) return super.readDouble(object, offset);
+            return Double.longBitsToDouble(super.readLong(object, offset));
+        }
+
+        @Override
         public void writeOrderedLong(long address, long i) {
             if ((address & 0x7) == 0)
                 super.writeOrderedLong(address, i);
             else
-                throw new IllegalArgumentException("mis-aligned");
+                writeVolatileLong(address, i);
         }
 
         @Override
         public long readVolatileLong(long address) {
             if ((address & 0x7) == 0)
                 return super.readVolatileLong(address);
-            throw new IllegalArgumentException("mis-aligned");
+            UNSAFE.loadFence();
+            return readLong(address);
+        }
+
+        @Override
+        public void writeOrderedLong(@NotNull Object object, long offset, long i) {
+            if ((offset & 0x7) == 0)
+                super.writeOrderedLong(object, offset, i);
+            else
+                writeVolatileLong(object, offset, i);
+        }
+
+        @Override
+        public long readVolatileLong(@NotNull Object object, long offset) {
+            if ((offset & 0x7) == 0) return super.readVolatileLong(object, offset);
+            UNSAFE.loadFence();
+            return readLong(object, offset);
         }
 
         @Override
         public double readVolatileDouble(long address) {
             if ((address & 0x7) == 0)
                 return super.readVolatileDouble(address);
-            throw new IllegalArgumentException("mis-aligned");
+            UNSAFE.loadFence();
+            return readDouble(address);
+        }
+
+        @Override
+        public void writeVolatileLong(@NotNull Object object, long offset, long i64) {
+            if ((offset & 0x7) == 0) {
+                super.writeVolatileLong(object, offset, i64);
+            } else {
+                writeLong(object, offset, i64);
+                UNSAFE.storeFence();
+            }
         }
 
         @Override
         public void writeVolatileLong(long address, long i64) {
-            if ((address & 0x7) == 0)
+            if ((address & 0x7) == 0) {
                 super.writeVolatileLong(address, i64);
-            else
-                throw new IllegalArgumentException("mis-aligned");
+            } else {
+                writeLong(address, i64);
+                UNSAFE.storeFence();
+            }
         }
 
         @Override
@@ -791,13 +883,20 @@ public class UnsafeMemory implements Memory {
             if ((address & 0x7) == 0)
                 super.writeVolatileDouble(address, d);
             else
-                throw new IllegalArgumentException("mis-aligned");
+                writeLong(address, Double.doubleToRawLongBits(d));
         }
 
         @Override
         public long addLong(long address, long increment) {
             if ((address & 0x7) == 0)
                 return super.addLong(address, increment);
+            throw new IllegalArgumentException("mis-aligned");
+        }
+
+        @Override
+        public boolean compareAndSwapLong(@NotNull Object object, long offset, long expected, long value) {
+            if ((offset & 0x7) == 0)
+                return super.compareAndSwapLong(object, offset, expected, value);
             throw new IllegalArgumentException("mis-aligned");
         }
 

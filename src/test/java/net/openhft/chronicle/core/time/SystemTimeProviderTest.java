@@ -59,7 +59,7 @@ public class SystemTimeProviderTest {
                 assertTrue(time2 >= lastTimeMicros);
                 lastTimeMicros = time2;
             } while (System.currentTimeMillis() < start + 500);
-            System.out.println("minDiff: " + minDiff + ", maxDiff: " + maxDiff);
+
             if (-20 < minDiff && minDiff < 1)
                 if (990 < maxDiff && maxDiff < 1010) {
                     System.out.println("minDiff: " + minDiff + ", maxDiff: " + maxDiff);
