@@ -67,6 +67,8 @@ public enum Jvm {
     private static final long MAX_DIRECT_MEMORY;
     private static final ChainedSignalHandler signalHandlerGlobal;
     private static final boolean SAFEPOINT_ENABLED = Boolean.getBoolean("jvm.safepoint.enabled");
+    private static final boolean IS_ARM = Boolean.getBoolean("jvm.isarm") ||
+            System.getProperty("os.arch", "?").startsWith("arm");
 
     static {
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
@@ -292,6 +294,10 @@ public enum Jvm {
     }
 
     public static Method getMethod(@NotNull Class clazz, @NotNull String name, Class... args) {
+        return getMethod0(clazz, name, args, true);
+    }
+
+    private static Method getMethod0(@NotNull Class clazz, @NotNull String name, Class[] args, boolean first) {
         try {
             Method field = clazz.getDeclaredMethod(name, args);
             setAccessible(field);
@@ -301,10 +307,14 @@ public enum Jvm {
             Class superclass = clazz.getSuperclass();
             if (superclass != null)
                 try {
-                    return getMethod(superclass, name);
+                    Method m = getMethod0(superclass, name, args, false);
+                    if (m != null)
+                        return m;
                 } catch (Exception ignored) {
                 }
-            throw new AssertionError(e);
+            if (first)
+                throw new AssertionError(e);
+            return null;
         }
     }
 
@@ -621,5 +631,9 @@ public enum Jvm {
                 }
             }
         }
+    }
+
+    public static boolean isArm() {
+        return IS_ARM;
     }
 }

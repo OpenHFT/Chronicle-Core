@@ -24,8 +24,8 @@ import java.lang.reflect.Field;
 import java.util.concurrent.atomic.AtomicLong;
 
 @SuppressWarnings("unchecked")
-public enum UnsafeMemory implements Memory {
-    INSTANCE;
+public class UnsafeMemory implements Memory {
+    public static final UnsafeMemory INSTANCE = Jvm.isArm() ? new ARMMemory() : new UnsafeMemory();
 
     @NotNull
     public static final Unsafe UNSAFE;
@@ -412,6 +412,14 @@ public enum UnsafeMemory implements Memory {
     }
 
     @Override
+    public void testAndSwapInt(long address, long offset, int expected, int value) {
+        if (UNSAFE.compareAndSwapInt(null, address, expected, value))
+            return;
+        int actual = UNSAFE.getIntVolatile(null, address);
+        throw new IllegalStateException("Cannot change at " + offset + " expected " + expected + " was " + actual);
+    }
+
+    @Override
     @ForceInline
     public boolean compareAndSwapInt(long address, int expected, int value) {
 //        assert (address & 0x3) == 0;
@@ -662,5 +670,270 @@ public enum UnsafeMemory implements Memory {
         if (object == null)
             throw new NullPointerException();
         return UNSAFE.getAndAddLong(object, offset, increment) + increment;
+    }
+
+    // https://github.com/OpenHFT/OpenHFT/issues/23
+    static class ARMMemory extends UnsafeMemory {
+        @Override
+        public short readVolatileShort(long address) {
+            if ((address & 0x1) == 0)
+                return super.readVolatileShort(address);
+            UNSAFE.loadFence();
+            return super.readShort(address);
+        }
+
+        @Override
+        public void writeVolatileShort(long address, short i16) {
+            if ((address & 0x1) == 0) {
+                super.writeVolatileShort(address, i16);
+            } else {
+                super.writeShort(address, i16);
+                UNSAFE.storeFence();
+            }
+        }
+
+        @Override
+        public void writeFloat(long address, float f) {
+            if ((address & 0x3) == 0)
+                super.writeFloat(address, f);
+            else
+                super.writeInt(address, Float.floatToRawIntBits(f));
+        }
+
+        @Override
+        public float readFloat(long address) {
+            if ((address & 0x3) == 0)
+                return super.readFloat(address);
+            return Float.intBitsToFloat(super.readInt(address));
+        }
+
+        @Override
+        public void writeFloat(@NotNull Object object, long offset, float f) {
+            if ((offset & 0x3) == 0)
+                super.writeFloat(object, offset, f);
+            else
+                super.writeInt(object, offset, Float.floatToRawIntBits(f));
+
+        }
+
+        @Override
+        public float readFloat(@NotNull Object object, long offset) {
+            if ((offset & 0x3) == 0)
+                return super.readFloat(object, offset);
+            return Float.intBitsToFloat(super.readInt(object, offset));
+        }
+
+        @Override
+        public int readVolatileInt(long address) {
+            if ((address & 0x3) == 0)
+                return super.readVolatileInt(address);
+            UNSAFE.loadFence();
+            return super.readInt(address);
+        }
+
+        @Override
+        public float readVolatileFloat(long address) {
+            if ((address & 0x3) == 0)
+                return super.readVolatileFloat(address);
+            UNSAFE.loadFence();
+            return readFloat(address);
+        }
+
+        @Override
+        public void writeVolatileInt(long address, int i32) {
+            if ((address & 0x3) == 0) {
+                super.writeVolatileInt(address, i32);
+            } else {
+                writeInt(address, i32);
+                UNSAFE.storeFence();
+            }
+        }
+
+        @Override
+        public void writeVolatileFloat(long address, float f) {
+            if ((address & 0x3) == 0)
+                super.writeVolatileFloat(address, f);
+            else
+                writeVolatileInt(address, Float.floatToRawIntBits(f));
+        }
+
+        @Override
+        public int addInt(long address, int increment) {
+            if ((address & 0x3) == 0)
+                return super.addInt(address, increment);
+            throw new IllegalArgumentException("mis-aligned");
+        }
+
+        @Override
+        public boolean compareAndSwapInt(long address, int expected, int value) {
+            switch ((int) address & 0x7) {
+                case 0:
+                case 4:
+                    return super.compareAndSwapInt(address, expected, value);
+                case 1:
+                    return compareAndSwapInt0(address, expected, value, 0xFFFFFFFF00L, 8);
+                case 2:
+                    return compareAndSwapInt0(address, expected, value, 0xFFFFFFFF0000L, 16);
+                case 3:
+                    return compareAndSwapInt0(address, expected, value, 0xFFFFFFFF000000L, 24);
+                default:
+                    throw new IllegalArgumentException("mis-aligned");
+            }
+        }
+
+        private boolean compareAndSwapInt0(long address, int expected, int value, long mask, int shift) {
+            long value2 = (long) value << shift;
+            long address2 = address & ~0x7;
+            if ((address2 & 63) == 60)
+                throw new IllegalArgumentException("mis-aligned");
+            long prev = super.readVolatileLong(address2);
+            if ((int) (prev >>> shift) != expected)
+                return false;
+            long next = (prev & ~mask) | value2;
+            return super.compareAndSwapLong(address2, prev, next);
+        }
+
+        @Override
+        public boolean compareAndSwapInt(@NotNull Object object, long offset, int expected, int value) {
+            if ((offset & 0x3) == 0)
+                return super.compareAndSwapInt(object, offset, expected, value);
+            throw new IllegalArgumentException("mis-aligned");
+        }
+
+        @Override
+        public void testAndSwapInt(long address, long offset, int expected, int value) {
+            if ((address & ~0x3) == 0) {
+                if (UNSAFE.compareAndSwapInt(null, address, expected, value)) {
+                    return;
+                }
+                int actual = UNSAFE.getIntVolatile(null, address);
+                throw new IllegalStateException("Cannot change at " + offset + " expected " + expected + " was " + actual);
+            } else {
+                UNSAFE.loadFence();
+                int actual = UNSAFE.getInt(address);
+                if (actual == expected) {
+                    UNSAFE.putInt(address, value);
+                    UNSAFE.storeFence();
+                    return;
+                }
+                throw new IllegalStateException("Cannot perform thread safe operation at " + offset + " as mis-aligned");
+            }
+        }
+
+        @Override
+        public void writeDouble(long address, double d) {
+            if ((address & 0x7) == 0)
+                super.writeDouble(address, d);
+            else
+                super.writeLong(address, Double.doubleToRawLongBits(d));
+        }
+
+        @Override
+        public double readDouble(long address) {
+            if ((address & 0x7) == 0)
+                return super.readDouble(address);
+            return Double.longBitsToDouble(super.readLong(address));
+        }
+
+        @Override
+        public void writeDouble(@NotNull Object object, long offset, double d) {
+            if ((offset & 0x7) == 0) super.writeDouble(object, offset, d);
+            else
+                super.writeLong(object, offset, Double.doubleToRawLongBits(d));
+        }
+
+        @Override
+        public double readDouble(@NotNull Object object, long offset) {
+            if ((offset & 0x7) == 0) return super.readDouble(object, offset);
+            return Double.longBitsToDouble(super.readLong(object, offset));
+        }
+
+        @Override
+        public void writeOrderedLong(long address, long i) {
+            if ((address & 0x7) == 0)
+                super.writeOrderedLong(address, i);
+            else
+                writeVolatileLong(address, i);
+        }
+
+        @Override
+        public long readVolatileLong(long address) {
+            if ((address & 0x7) == 0)
+                return super.readVolatileLong(address);
+            UNSAFE.loadFence();
+            return readLong(address);
+        }
+
+        @Override
+        public void writeOrderedLong(@NotNull Object object, long offset, long i) {
+            if ((offset & 0x7) == 0)
+                super.writeOrderedLong(object, offset, i);
+            else
+                writeVolatileLong(object, offset, i);
+        }
+
+        @Override
+        public long readVolatileLong(@NotNull Object object, long offset) {
+            if ((offset & 0x7) == 0) return super.readVolatileLong(object, offset);
+            UNSAFE.loadFence();
+            return readLong(object, offset);
+        }
+
+        @Override
+        public double readVolatileDouble(long address) {
+            if ((address & 0x7) == 0)
+                return super.readVolatileDouble(address);
+            UNSAFE.loadFence();
+            return readDouble(address);
+        }
+
+        @Override
+        public void writeVolatileLong(@NotNull Object object, long offset, long i64) {
+            if ((offset & 0x7) == 0) {
+                super.writeVolatileLong(object, offset, i64);
+            } else {
+                writeLong(object, offset, i64);
+                UNSAFE.storeFence();
+            }
+        }
+
+        @Override
+        public void writeVolatileLong(long address, long i64) {
+            if ((address & 0x7) == 0) {
+                super.writeVolatileLong(address, i64);
+            } else {
+                writeLong(address, i64);
+                UNSAFE.storeFence();
+            }
+        }
+
+        @Override
+        public void writeVolatileDouble(long address, double d) {
+            if ((address & 0x7) == 0)
+                super.writeVolatileDouble(address, d);
+            else
+                writeLong(address, Double.doubleToRawLongBits(d));
+        }
+
+        @Override
+        public long addLong(long address, long increment) {
+            if ((address & 0x7) == 0)
+                return super.addLong(address, increment);
+            throw new IllegalArgumentException("mis-aligned");
+        }
+
+        @Override
+        public boolean compareAndSwapLong(@NotNull Object object, long offset, long expected, long value) {
+            if ((offset & 0x7) == 0)
+                return super.compareAndSwapLong(object, offset, expected, value);
+            throw new IllegalArgumentException("mis-aligned");
+        }
+
+        @Override
+        public boolean compareAndSwapLong(long address, long expected, long value) {
+            if ((address & 0x7) == 0)
+                return super.compareAndSwapLong(address, expected, value);
+            throw new IllegalArgumentException("mis-aligned");
+        }
     }
 }
