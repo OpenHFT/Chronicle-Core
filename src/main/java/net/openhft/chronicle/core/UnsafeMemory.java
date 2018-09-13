@@ -412,11 +412,19 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    public void testAndSwapInt(long address, long offset, int expected, int value) {
+    public void testAndSetInt(long address, long offset, int expected, int value) {
         if (UNSAFE.compareAndSwapInt(null, address, expected, value))
             return;
         int actual = UNSAFE.getIntVolatile(null, address);
         throw new IllegalStateException("Cannot change at " + offset + " expected " + expected + " was " + actual);
+    }
+
+    @Override
+    public void testAndSetInt(Object object, long offset, int expected, int value) {
+        if (UNSAFE.compareAndSwapInt(object, offset, expected, value))
+            return;
+        int actual = UNSAFE.getIntVolatile(object, offset);
+        throw new IllegalStateException("Cannot change " + object.getClass().getSimpleName() + " at " + offset + " expected " + expected + " was " + actual);
     }
 
     @Override
@@ -801,7 +809,7 @@ public class UnsafeMemory implements Memory {
         }
 
         @Override
-        public void testAndSwapInt(long address, long offset, int expected, int value) {
+        public void testAndSetInt(long address, long offset, int expected, int value) {
             if ((address & ~0x3) == 0) {
                 if (UNSAFE.compareAndSwapInt(null, address, expected, value)) {
                     return;
@@ -817,6 +825,26 @@ public class UnsafeMemory implements Memory {
                     return;
                 }
                 throw new IllegalStateException("Cannot perform thread safe operation at " + offset + " as mis-aligned");
+            }
+        }
+
+        @Override
+        public void testAndSetInt(Object object, long offset, int expected, int value) {
+            if ((offset & ~0x3) == 0) {
+                if (UNSAFE.compareAndSwapInt(object, offset, expected, value)) {
+                    return;
+                }
+                int actual = UNSAFE.getIntVolatile(object, offset);
+                throw new IllegalStateException("Cannot change " + object.getClass().getSimpleName() + " at " + offset + " expected " + expected + " was " + actual);
+            } else {
+                UNSAFE.loadFence();
+                int actual = UNSAFE.getInt(object, offset);
+                if (actual == expected) {
+                    UNSAFE.putInt(object, offset, value);
+                    UNSAFE.storeFence();
+                    return;
+                }
+                throw new IllegalStateException("Cannot perform thread safe operation on " + object.getClass().getSimpleName() + " at " + offset + " as mis-aligned");
             }
         }
 

@@ -109,7 +109,9 @@ public interface Memory {
 
     void writeOrderedLong(Object object, long offset, long i);
 
-    void testAndSwapInt(long address, long offset, int expected, int value);
+    void testAndSetInt(long address, long offset, int expected, int value);
+
+    void testAndSetInt(Object object, long offset, int expected, int value);
 
     boolean compareAndSwapInt(long address, int expected, int value);
 
