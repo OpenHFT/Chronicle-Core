@@ -25,7 +25,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 @SuppressWarnings("unchecked")
 public class UnsafeMemory implements Memory {
-    public static final UnsafeMemory INSTANCE = Jvm.isArm() ? new ARMMemory() : new UnsafeMemory();
 
     @NotNull
     public static final Unsafe UNSAFE;
@@ -35,6 +34,8 @@ public class UnsafeMemory implements Memory {
     // during a large copy
     static final long UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
 
+    public static final UnsafeMemory INSTANCE;
+
     static {
         try {
             Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
@@ -43,6 +44,7 @@ public class UnsafeMemory implements Memory {
         } catch (@NotNull NoSuchFieldException | IllegalAccessException | IllegalArgumentException e) {
             throw new AssertionError(e);
         }
+        INSTANCE = Jvm.isArm() ? new ARMMemory() : new UnsafeMemory();
     }
 
     private final AtomicLong nativeMemoryUsed = new AtomicLong();
