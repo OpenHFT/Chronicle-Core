@@ -24,11 +24,9 @@ import sun.misc.SignalHandler;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
@@ -635,5 +633,60 @@ public enum Jvm {
 
     public static boolean isArm() {
         return IS_ARM;
+    }
+
+    private static final Map<Class, ClassMetrics> CLASS_METRICS_MAP =
+            new ConcurrentHashMap<>();
+    private static Map<Class, Integer> PRIMITIVE_SIZE = new HashMap<Class, Integer>() {{
+        put(boolean.class, 1);
+        put(byte.class, 1);
+        put(char.class, 2);
+        put(short.class, 2);
+        put(int.class, 4);
+        put(float.class, 4);
+        put(long.class, 8);
+        put(double.class, 8);
+    }};
+
+    public static ClassMetrics classMetrics(Class c) throws IllegalArgumentException {
+        return CLASS_METRICS_MAP.computeIfAbsent(c, Jvm::getClassMetrics);
+    }
+
+    private static ClassMetrics getClassMetrics(Class c) {
+        Class superclass = c.getSuperclass();
+        int start = Integer.MAX_VALUE, end = 0;
+        for (Field f : c.getDeclaredFields()) {
+            if ((f.getModifiers() & (Modifier.STATIC | Modifier.TRANSIENT)) != 0)
+                continue;
+            if (!f.getType().isPrimitive())
+                continue;
+            int start0 = Math.toIntExact(UnsafeMemory.UNSAFE.objectFieldOffset(f));
+            int size = PRIMITIVE_SIZE.get(f.getType());
+            start = Math.min(start0, start);
+            end = Math.max(start0 + size, end);
+        }
+        if (superclass != null && superclass != Object.class) {
+            ClassMetrics cm0 = getClassMetrics(superclass);
+            start = Math.min(cm0.offset(), start);
+            end = Math.max(cm0.offset() + cm0.length(), end);
+            validateClassMetrics(superclass, start, end);
+        }
+
+        validateClassMetrics(c, start, end);
+
+        return new ClassMetrics(start, end - start);
+    }
+
+    private static void validateClassMetrics(Class c, int start, int end) {
+        for (Field f : c.getDeclaredFields()) {
+            if ((f.getModifiers() & Modifier.STATIC) != 0)
+                continue;
+            if (f.getType().isPrimitive())
+                continue;
+            int start0 = Math.toIntExact(UnsafeMemory.UNSAFE.objectFieldOffset(f));
+            if (start <= start0 && start0 < end) {
+                throw new IllegalArgumentException(c + " is not suitable for raw copies due to " + f);
+            }
+        }
     }
 }
