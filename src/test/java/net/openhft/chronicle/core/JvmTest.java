@@ -126,4 +126,40 @@ public class JvmTest {
     public void enableSignals() {
         Jvm.signalHandler(signal -> System.out.println(signal + " occurred"));
     }
+
+    @Test
+    public void classMetrics() {
+        assertEquals("ClassMetrics{offset=12, length=16}",
+                Jvm.classMetrics(ClassA.class).toString());
+        assertEquals("ClassMetrics{offset=12, length=16}",
+                Jvm.classMetrics(ClassB.class).toString());
+        assertEquals("ClassMetrics{offset=12, length=16}",
+                Jvm.classMetrics(ClassC.class).toString());
+        try {
+            Jvm.classMetrics(ClassD.class);
+            fail();
+        } catch (IllegalArgumentException expected) {
+            // ignored
+        }
+    }
+
+    static class ClassA {
+        long l;
+        int i;
+        short s;
+        byte b;
+        boolean flag;
+    }
+
+    static class ClassB extends ClassA {
+        String text;
+    }
+
+    static class ClassC extends ClassB {
+        String hi;
+    }
+
+    static class ClassD extends ClassC {
+        byte x;
+    }
 }
