@@ -81,7 +81,7 @@ public enum ObjectUtils {
             throw new IllegalArgumentException("enum class: " + c.getName());
         try {
             Constructor constructor = c.getDeclaredConstructor();
-            constructor.setAccessible(true);
+            Jvm.setAccessible(constructor);
             return ThrowingSupplier.asSupplier(constructor::newInstance);
 
         } catch (Exception e) {
