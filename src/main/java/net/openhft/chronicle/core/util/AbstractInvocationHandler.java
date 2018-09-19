@@ -17,6 +17,7 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.ClassLocal;
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.Closeable;
 
 import java.lang.invoke.MethodHandle;
@@ -49,7 +50,7 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
             Constructor<MethodHandles.Lookup> lookupConstructor =
                     MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, Integer.TYPE);
             if (!lookupConstructor.isAccessible()) {
-                lookupConstructor.setAccessible(true);
+                Jvm.setAccessible(lookupConstructor);
             }
             return lookupConstructor.newInstance(c, MethodHandles.Lookup.PRIVATE);
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ignored) {
@@ -57,7 +58,7 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
         try {
             // Try to grab an internal one,
             final Field field = MethodHandles.Lookup.class.getDeclaredField("IMPL_LOOKUP");
-            field.setAccessible(true);
+            Jvm.setAccessible(field);
             return (MethodHandles.Lookup) field.get(null);
         } catch (Exception e) {
             // use the default to produce an error message.
