@@ -66,9 +66,10 @@ public enum Jvm {
     private static final ChainedSignalHandler signalHandlerGlobal;
     private static final boolean SAFEPOINT_ENABLED = Boolean.getBoolean("jvm.safepoint.enabled");
     private static final boolean IS_ARM = Boolean.getBoolean("jvm.isarm") ||
-            System.getProperty("os.arch", "?").startsWith("arm");
+            System.getProperty("os.arch", "?").startsWith("arm") || System.getProperty("os.arch", "?").startsWith("aarch");
 
     static {
+
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
         IS_JAVA_9_PLUS = JVM_JAVA_MAJOR_VERSION > 8; // IS_JAVA_9_PLUS value is used in maxDirectMemory0 method.
         MAX_DIRECT_MEMORY = maxDirectMemory0();
