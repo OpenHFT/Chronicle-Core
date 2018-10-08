@@ -760,6 +760,22 @@ public class UnsafeMemory implements Memory {
         }
 
         @Override
+        public void writeOrderedInt(long address, int i32) {
+            if ((address & 0x3) == 0)
+                super.writeOrderedInt(address, i32);
+            else
+                writeVolatileInt(address, i32);
+        }
+
+        @Override
+        public void writeOrderedInt(@NotNull Object object, long offset, int i32) {
+            if ((offset & 0x3) == 0)
+                super.writeOrderedInt(object, offset, i32);
+            else
+                super.writeVolatileInt(object, offset, i32);
+        }
+
+        @Override
         public void writeVolatileFloat(long address, float f) {
             if ((address & 0x3) == 0)
                 super.writeVolatileFloat(address, f);
