@@ -80,6 +80,7 @@
 
     <build>
         <plugins>
+            
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -219,7 +220,7 @@
 
     <profiles>
         <profile>
-            <id>java9</id>
+            <id>java11</id>
             <build>
                 <plugins>
                     <plugin>
@@ -241,8 +242,8 @@
                         <artifactId>maven-compiler-plugin</artifactId>
                         <version>3.6.2</version>
                         <configuration>
-                            <source>1.9</source>
-                            <target>1.9</target>
+                            <source>11</source>
+                            <target>11</target>
                             <compilerArgs>
                                 <arg>--add-exports=java.base/jdk.internal.ref=ALL-UNNAMED</arg>
                                 <arg>--add-exports=java.base/sun.nio.ch=ALL-UNNAMED</arg>
@@ -251,16 +252,6 @@
                                 <exclude>**/jdk8/**</exclude>
                                 <exclude>**/META-INF/services/**</exclude>
                             </excludes>
-                        </configuration>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-surefire-plugin</artifactId>
-                        <version>2.21.0</version>
-                        <configuration>
-                            <argLine>--add-exports java.base/jdk.internal.ref=ALL-UNNAMED --add-exports
-                                java.base/jdk.internal.misc=ALL-UNNAMED --add-exports java.base/sun.nio.ch=ALL-UNNAMED
-                            </argLine>
                         </configuration>
                     </plugin>
                 </plugins>
