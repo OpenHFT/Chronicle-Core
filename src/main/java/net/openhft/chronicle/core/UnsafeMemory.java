@@ -792,31 +792,9 @@ public class UnsafeMemory implements Memory {
 
         @Override
         public boolean compareAndSwapInt(long address, int expected, int value) {
-            switch ((int) address & 0x7) {
-                case 0:
-                case 4:
-                    return super.compareAndSwapInt(address, expected, value);
-                case 1:
-                    return compareAndSwapInt0(address, expected, value, 0xFFFFFFFF00L, 8);
-                case 2:
-                    return compareAndSwapInt0(address, expected, value, 0xFFFFFFFF0000L, 16);
-                case 3:
-                    return compareAndSwapInt0(address, expected, value, 0xFFFFFFFF000000L, 24);
-                default:
-                    throw new IllegalArgumentException("mis-aligned");
-            }
-        }
-
-        private boolean compareAndSwapInt0(long address, int expected, int value, long mask, int shift) {
-            long value2 = (long) value << shift;
-            long address2 = address & ~0x7;
-            if ((address2 & 63) == 60)
-                throw new IllegalArgumentException("mis-aligned");
-            long prev = super.readVolatileLong(address2);
-            if ((int) (prev >>> shift) != expected)
-                return false;
-            long next = (prev & ~mask) | value2;
-            return super.compareAndSwapLong(address2, prev, next);
+            if ((address & 0x3) == 0)
+                return super.compareAndSwapInt(address, expected, value);
+            throw new IllegalArgumentException("mis-aligned");
         }
 
         @Override
