@@ -33,8 +33,8 @@ import static java.lang.Character.toLowerCase;
 public enum StringUtils {
     ;
 
-    private static final Field S_VALUE, SB_VALUE, SB_COUNT;
-    private static final long S_VALUE_OFFSET, SB_VALUE_OFFSET, SB_COUNT_OFFSET;
+    private static final Field S_VALUE, SB_COUNT;
+    private static final long S_VALUE_OFFSET, SB_VALUE_OFFSET, SB_COUNT_OFFSET, S_COUNT_OFFSET;
     private static final long MAX_VALUE_DIVIDE_10 = Long.MAX_VALUE / 10;
 
     static {
@@ -42,12 +42,43 @@ public enum StringUtils {
             S_VALUE = String.class.getDeclaredField("value");
             Jvm.setAccessible(S_VALUE);
             S_VALUE_OFFSET = OS.memory().getFieldOffset(S_VALUE);
-            SB_VALUE = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField("value");
-            Jvm.setAccessible(SB_VALUE);
-            SB_VALUE_OFFSET = OS.memory().getFieldOffset(SB_VALUE);
-            SB_COUNT = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField("count");
-            Jvm.setAccessible(SB_COUNT);
-            SB_COUNT_OFFSET = OS.memory().getFieldOffset(SB_COUNT);
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+
+        long sCountOffset = -1;
+        try {
+            Field sCount = String.class.getDeclaredField("count");
+            Jvm.setAccessible(sCount);
+            sCountOffset = OS.memory().getFieldOffset(sCount);
+        } catch (Exception ignored) {
+        }
+        S_COUNT_OFFSET = sCountOffset;
+
+        try {
+            Field sbValue;
+            long sbValOffset;
+            Field sbCount;
+            long sbCountOffset;
+            try {
+                sbValue = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField("value");
+                Jvm.setAccessible(sbValue);
+                sbValOffset = OS.memory().getFieldOffset(sbValue);
+                sbCount = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField("count");
+                Jvm.setAccessible(sbCount);
+                sbCountOffset = OS.memory().getFieldOffset(sbCount);
+            } catch (NoSuchFieldException e) {
+                sbValue = Class.forName("java.lang.StringBuilder").getDeclaredField("value");
+                Jvm.setAccessible(sbValue);
+                sbValOffset = OS.memory().getFieldOffset(sbValue);
+                sbCount = Class.forName("java.lang.StringBuilder").getDeclaredField("count");
+                Jvm.setAccessible(sbCount);
+                sbCountOffset = OS.memory().getFieldOffset(sbCount);
+            }
+
+            SB_COUNT = sbCount;
+            SB_VALUE_OFFSET = sbValOffset;
+            SB_COUNT_OFFSET = sbCountOffset;
         } catch (Exception e) {
             throw new AssertionError(e);
         }
@@ -200,6 +231,8 @@ public enum StringUtils {
         @NotNull String str = new String();
         try {
             S_VALUE.set(str, chars);
+            if (S_COUNT_OFFSET > -1)
+                OS.memory().writeInt(str, S_COUNT_OFFSET, chars.length);
             return str;
         } catch (Exception e) {
             throw new AssertionError(e);

@@ -99,7 +99,7 @@ public class StringUtilsTest {
     @Test
     public void shouldCreateNewStringFromChars() {
         final char[] chars = {'A', 'B', 'C'};
-        assertThat(new String(chars), is(StringUtils.newString(chars)));
+        assertEquals(new String(chars), StringUtils.newString(chars));
     }
 
     @Test
@@ -127,7 +127,7 @@ public class StringUtilsTest {
     public void testIsEqual() {
 
         // The same instances
-        StringBuilder emptySb = new StringBuilder().append("");
+        StringBuilder emptySb = new StringBuilder();
         assertTrue(StringUtils.isEqual(emptySb, emptySb));
 
         // Null cases
@@ -136,7 +136,7 @@ public class StringUtilsTest {
         assertFalse(StringUtils.isEqual(null, emptySb));
 
         // Different lengths
-        assertFalse(StringUtils.isEqual(new StringBuilder().append(""), "a"));
+        assertFalse(StringUtils.isEqual(new StringBuilder(), "a"));
 
         // Same lengths & ASCII
         assertFalse(StringUtils.isEqual(new StringBuilder().append("a"), "b"));
