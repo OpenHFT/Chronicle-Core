@@ -18,6 +18,7 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.threads.ThreadDump;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import sun.nio.ch.DirectBuffer;
@@ -25,8 +26,10 @@ import sun.nio.ch.DirectBuffer;
 import javax.naming.ConfigurationException;
 import java.nio.ByteBuffer;
 
+import static net.openhft.chronicle.core.Jvm.isArm;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeFalse;
 
 /*
  * Created by Peter Lawrey on 26/02/2016.
@@ -51,7 +54,7 @@ public class JvmTest {
     }
 
     @Test
-    public void shouldGetMajorVersion() throws Exception {
+    public void shouldGetMajorVersion() {
         assertThat(Jvm.majorVersion() > 0, is(true));
     }
 
@@ -129,6 +132,7 @@ public class JvmTest {
 
     @Test
     public void classMetrics() {
+        assumeFalse(isArm());
         assertEquals("ClassMetrics{offset=12, length=16}",
                 Jvm.classMetrics(ClassA.class).toString());
         assertEquals("ClassMetrics{offset=12, length=16}",
