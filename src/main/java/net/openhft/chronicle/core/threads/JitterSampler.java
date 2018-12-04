@@ -35,7 +35,9 @@ public enum JitterSampler {
         if (stes.length < 1)
             return null;
         StringBuilder sb = new StringBuilder();
-        sb.append(PROFILE_OF_THE_THREAD).append(" ").append(thread.getName()).append(" at ").append(desc).append("\n");
+        sb.append(PROFILE_OF_THE_THREAD)
+                .append(" ").append(thread.getName())
+                .append(" at ").append(desc).append("\n");
         for (StackTraceElement ste : stes) {
             sb.append("\tat ").append(ste).append("\n");
         }
