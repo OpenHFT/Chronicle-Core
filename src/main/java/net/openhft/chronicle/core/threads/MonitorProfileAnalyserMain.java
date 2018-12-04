@@ -15,6 +15,9 @@ public class MonitorProfileAnalyserMain {
     public static final String PROFILE_OF_THE_THREAD = "profile of the thread";
     public static final String THREAD_HAS_BLOCKED_FOR = "thread has blocked for";
 
+    /**
+     * Reads one or more log files and looks for thread profiles to summarise
+     */
     public static void main(String[] args) throws IOException {
         if (args.length == 0)
             System.err.println("No input file(s) provided");

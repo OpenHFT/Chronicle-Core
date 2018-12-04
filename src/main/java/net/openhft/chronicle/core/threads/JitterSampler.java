@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 public enum JitterSampler {
     ;
     public static final String PROFILE_OF_THE_THREAD = "profile of the thread";
+    public static final String THREAD_HAS_BLOCKED_FOR = "thread has blocked for";
 
     static final long JITTER_THRESHOLD =
             TimeUnit.MILLISECONDS.toNanos(
@@ -25,7 +26,8 @@ public enum JitterSampler {
 
     public static String takeSnapshot(long threshold) {
         long time = JitterSampler.time;
-        if (time > System.nanoTime() - threshold)
+        long now = System.nanoTime();
+        if (time > now - threshold)
             return null;
         Thread thread = JitterSampler.thread;
         String desc = JitterSampler.desc;
@@ -37,7 +39,9 @@ public enum JitterSampler {
         StringBuilder sb = new StringBuilder();
         sb.append(PROFILE_OF_THE_THREAD)
                 .append(' ').append(thread.getName())
-                .append(" at ").append(desc).append('\n');
+                .append(' ').append(desc)
+                .append(" " + THREAD_HAS_BLOCKED_FOR + " ").append((now - time) / 1000_000)
+                .append(" ms\n");
         for (StackTraceElement ste : stes) {
             sb.append("\tat ").append(ste).append('\n');
         }
