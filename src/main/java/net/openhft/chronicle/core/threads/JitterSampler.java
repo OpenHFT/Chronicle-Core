@@ -47,4 +47,12 @@ public enum JitterSampler {
         desc = null;
         time = Long.MAX_VALUE;
     }
+
+    public static void sleepSilently(int millis) {
+        try {
+            Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
 }
