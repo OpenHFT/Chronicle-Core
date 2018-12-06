@@ -2,8 +2,8 @@ package net.openhft.chronicle.core.threads;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 public class JitterSamplerTest {
 
@@ -13,18 +13,21 @@ public class JitterSamplerTest {
             JitterSampler.atStage("started");
             JitterSampler.sleepSilently(60);
             JitterSampler.atStage("finishing");
-            JitterSampler.sleepSilently(20);
+            JitterSampler.sleepSilently(60);
             JitterSampler.finished();
         });
         t.start();
-        JitterSampler.sleepSilently(20);
+
         for (int i = 0; i < 10; i++) {
             JitterSampler.sleepSilently(10);
             String s = JitterSampler.takeSnapshot(10_000_000);
             System.out.println(s);
-            assertNotNull(s);
-            if (s.contains("finish"))
-                break;
+            if ("finishing".equals(JitterSampler.desc)) {
+                if (s != null && s.contains("finish"))
+                    break;
+            } else
+                assertTrue("started".equals(JitterSampler.desc));
+
         }
         t.join();
         String s = JitterSampler.takeSnapshot(10_000_000);
