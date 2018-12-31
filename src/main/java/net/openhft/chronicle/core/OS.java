@@ -101,9 +101,12 @@ public enum OS {
     @NotNull
     private static String findTarget() {
         for (File dir = new File(System.getProperty("user.dir")); dir != null; dir = dir.getParentFile()) {
-            @NotNull File target = new File(dir, "target");
-            if (target.exists())
-                return target.getAbsolutePath();
+            @NotNull File mavenTarget = new File(dir, "target");
+            if (mavenTarget.exists())
+                return mavenTarget.getAbsolutePath();
+            @NotNull File gradleTarget = new File(dir, "build");
+            if (gradleTarget.exists())
+                return gradleTarget.getAbsolutePath();
         }
         return TMP + "/target";
     }
