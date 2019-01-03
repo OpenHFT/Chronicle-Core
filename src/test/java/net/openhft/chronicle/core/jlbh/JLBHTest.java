@@ -14,7 +14,8 @@ import java.util.stream.Collectors;
 import static net.openhft.chronicle.core.jlbh.JLBHDeterministicFixtures.*;
 import static net.openhft.chronicle.core.jlbh.JLBHResult.RunResult.Percentile.*;
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertThat;
 
 public class JLBHTest {
 

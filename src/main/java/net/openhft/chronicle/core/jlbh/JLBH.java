@@ -114,8 +114,7 @@ public class JLBH implements NanoSampler {
         return additionalPercentileRuns;
     }
 
-    public void abort()
-    {
+    public void abort() {
         abortTestRun.set(true);
         testThread.interrupt();
     }
@@ -163,8 +162,8 @@ public class JLBH implements NanoSampler {
                         startTimeNs = System.nanoTime();
                     }
 
-                    if((interruptCheckThrottle = (interruptCheckThrottle + 1) & interruptCheckThrottleMask) == 0
-                            && testThread.isInterrupted()){
+                    if ((interruptCheckThrottle = (interruptCheckThrottle + 1) & interruptCheckThrottleMask) == 0
+                            && testThread.isInterrupted()) {
                         break;
                     }
 
@@ -184,8 +183,7 @@ public class JLBH implements NanoSampler {
     }
 
     private void startTimeoutCheckerIfRequired() {
-        if(jlbhOptions.timeout > 0)
-        {
+        if (jlbhOptions.timeout > 0) {
             sampleTimeoutChecker = new Thread(this::checkSampleTimeout);
             sampleTimeoutChecker.setDaemon(true);
             sampleTimeoutChecker.start();
@@ -196,7 +194,7 @@ public class JLBH implements NanoSampler {
         while (!warmUpComplete.get()) {
             Jvm.pause(2000);
             printStream.println("Complete: " + noResultsReturned);
-            if(testThread.isInterrupted()){
+            if (testThread.isInterrupted()) {
                 return true;
             }
         }
@@ -278,15 +276,14 @@ public class JLBH implements NanoSampler {
         osJitterMonitor.reset();
     }
 
-    private void checkSampleTimeout()
-    {
+    private void checkSampleTimeout() {
         long previousSampleCount = 0;
         long previousSampleTime = 0;
 
-        while(true) {
+        while (true) {
             Jvm.pause(TimeUnit.SECONDS.toMillis(10));
 
-            if(previousSampleCount < noResultsReturned){
+            if (previousSampleCount < noResultsReturned) {
                 previousSampleCount = noResultsReturned;
                 previousSampleTime = System.currentTimeMillis();
             } else {
@@ -391,8 +388,7 @@ public class JLBH implements NanoSampler {
             try {
                 Double[] args = summary.toArray(NO_DOUBLES);
                 appendable.append(String.format(sb.toString(), args));
-            } catch(Exception e)
-            {
+            } catch (Exception e) {
                 appendable.append(e.getMessage());
             }
             appendable.append

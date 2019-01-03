@@ -28,13 +28,12 @@ public class UnsafeMemory implements Memory {
 
     @NotNull
     public static final Unsafe UNSAFE;
+    public static final UnsafeMemory INSTANCE;
     // see java.nio.Bits.copyMemory
     // This number limits the number of bytes to copy per call to Unsafe's
     // copyMemory method. A limit is imposed to allow for safepoint polling
     // during a large copy
     static final long UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
-
-    public static final UnsafeMemory INSTANCE;
 
     static {
         try {

@@ -18,7 +18,6 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.threads.ThreadDump;
 import org.junit.After;
-import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 import sun.nio.ch.DirectBuffer;

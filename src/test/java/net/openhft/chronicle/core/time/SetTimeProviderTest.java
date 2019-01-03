@@ -80,6 +80,5 @@ public class SetTimeProviderTest {
         assertEquals(1534769584076L, tp.currentTimeMillis());
         assertEquals(1534769584077L, tp.currentTimeMillis());
 
-
     }
 }

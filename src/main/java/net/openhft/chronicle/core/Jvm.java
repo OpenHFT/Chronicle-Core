@@ -67,6 +67,18 @@ public enum Jvm {
     private static final boolean SAFEPOINT_ENABLED = Boolean.getBoolean("jvm.safepoint.enabled");
     private static final boolean IS_ARM = Boolean.getBoolean("jvm.isarm") ||
             System.getProperty("os.arch", "?").startsWith("arm") || System.getProperty("os.arch", "?").startsWith("aarch");
+    private static final Map<Class, ClassMetrics> CLASS_METRICS_MAP =
+            new ConcurrentHashMap<>();
+    private static Map<Class, Integer> PRIMITIVE_SIZE = new HashMap<Class, Integer>() {{
+        put(boolean.class, 1);
+        put(byte.class, 1);
+        put(char.class, 2);
+        put(short.class, 2);
+        put(int.class, 4);
+        put(float.class, 4);
+        put(long.class, 8);
+        put(double.class, 8);
+    }};
 
     static {
 
@@ -451,7 +463,6 @@ public enum Jvm {
 
     }
 
-
     public static void setExceptionHandlers(@Nullable ExceptionHandler fatal,
                                             @Nullable ExceptionHandler warn,
                                             @Nullable ExceptionHandler debug,
@@ -492,7 +503,6 @@ public enum Jvm {
     public static ExceptionHandler perf() {
         return PERF;
     }
-
 
     @NotNull
     public static ExceptionHandler debug() {
@@ -616,38 +626,9 @@ public enum Jvm {
         return false;
     }
 
-    private static class ChainedSignalHandler implements SignalHandler {
-        final List<SignalHandler> handlers = new CopyOnWriteArrayList<>();
-
-        @Override
-        public void handle(Signal signal) {
-            for (SignalHandler handler : handlers) {
-                try {
-                    if (handler != null)
-                        handler.handle(signal);
-                } catch (Throwable t) {
-                    Jvm.warn().on(this.getClass(), "Problem handling signal", t);
-                }
-            }
-        }
-    }
-
     public static boolean isArm() {
         return IS_ARM;
     }
-
-    private static final Map<Class, ClassMetrics> CLASS_METRICS_MAP =
-            new ConcurrentHashMap<>();
-    private static Map<Class, Integer> PRIMITIVE_SIZE = new HashMap<Class, Integer>() {{
-        put(boolean.class, 1);
-        put(byte.class, 1);
-        put(char.class, 2);
-        put(short.class, 2);
-        put(int.class, 4);
-        put(float.class, 4);
-        put(long.class, 8);
-        put(double.class, 8);
-    }};
 
     public static ClassMetrics classMetrics(Class c) throws IllegalArgumentException {
         return CLASS_METRICS_MAP.computeIfAbsent(c, Jvm::getClassMetrics);
@@ -687,6 +668,22 @@ public enum Jvm {
             int start0 = Math.toIntExact(UnsafeMemory.UNSAFE.objectFieldOffset(f));
             if (start <= start0 && start0 < end) {
                 throw new IllegalArgumentException(c + " is not suitable for raw copies due to " + f);
+            }
+        }
+    }
+
+    private static class ChainedSignalHandler implements SignalHandler {
+        final List<SignalHandler> handlers = new CopyOnWriteArrayList<>();
+
+        @Override
+        public void handle(Signal signal) {
+            for (SignalHandler handler : handlers) {
+                try {
+                    if (handler != null)
+                        handler.handle(signal);
+                } catch (Throwable t) {
+                    Jvm.warn().on(this.getClass(), "Problem handling signal", t);
+                }
             }
         }
     }

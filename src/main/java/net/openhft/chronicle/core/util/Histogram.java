@@ -63,6 +63,27 @@ public class Histogram implements NanoSampler {
         return new Histogram(22 /* 4 seconds */, 3 /* 2 decimal places */, 1000.0 /* nano-seconds */);
     }
 
+    public static double[] percentilesFor(long count) {
+        List<Double> values = new ArrayList<>();
+        values.add(50 / 100.0);
+        values.add(90 / 100.0);
+        values.add(99 / 100.0);
+        if (count > 10_000) {
+            values.add(99.7 / 100.0);
+            if (count > 100_000) {
+                values.add(99.9 / 100.0);
+                if (count > 1_000_000) {
+                    values.add(99.97 / 100.0);
+                    if (count > 2_000_000) {
+                        values.add(99.99 / 100.0);
+                    }
+                }
+            }
+        }
+        values.add(100 / 100.0);
+        return values.stream().mapToDouble(d -> d).toArray();
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Histogram))
@@ -156,27 +177,6 @@ public class Histogram implements NanoSampler {
             }
         }
         return 1;
-    }
-
-    public static double[] percentilesFor(long count) {
-        List<Double> values = new ArrayList<>();
-        values.add(50 / 100.0);
-        values.add(90 / 100.0);
-        values.add(99 / 100.0);
-        if (count > 10_000) {
-            values.add(99.7 / 100.0);
-            if (count > 100_000) {
-                values.add(99.9 / 100.0);
-                if (count > 1_000_000) {
-                    values.add(99.97 / 100.0);
-                    if (count > 2_000_000) {
-                        values.add(99.99 / 100.0);
-                    }
-                }
-            }
-        }
-        values.add(100 / 100.0);
-        return values.stream().mapToDouble(d -> d).toArray();
     }
 
     @NotNull

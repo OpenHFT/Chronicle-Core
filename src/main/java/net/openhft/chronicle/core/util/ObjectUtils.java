@@ -434,10 +434,6 @@ public enum ObjectUtils {
         }
     }
 
-    public enum Immutability {
-        YES, NO, MAYBE
-    }
-
     private static Boolean toBoolean(String s) {
         if (s == null)
             return null;
@@ -450,6 +446,45 @@ public enum ObjectUtils {
             return null;
         Jvm.debug().on(ObjectUtils.class, "Treating '" + s + "' as false");
         return Boolean.FALSE;
+    }
+
+    public static Class<?>[] getAllInterfaces(Object o) {
+        Set<Class<?>> results = new HashSet<>();
+        getAllInterfaces(o, results::add);
+        return results.toArray(new Class<?>[results.size()]);
+    }
+
+    public static void getAllInterfaces(Object o, Function<Class<?>, Boolean> accumulator) {
+        if (null == o)
+            return;
+
+        if (null == accumulator)
+            throw new IllegalArgumentException("Accumulator cannot be null");
+
+        if (o instanceof Class) {
+            Class clazz = (Class) o;
+
+            if (clazz.isInterface()) {
+                if (accumulator.apply((Class) o)) {
+                    for (Class aClass : clazz.getInterfaces()) {
+                        getAllInterfaces(aClass, accumulator);
+                    }
+                }
+            } else {
+                if (null != clazz.getSuperclass())
+                    getAllInterfaces(clazz.getSuperclass(), accumulator);
+
+                for (Class aClass : clazz.getInterfaces()) {
+                    getAllInterfaces(aClass, accumulator);
+                }
+            }
+        } else {
+            getAllInterfaces(o.getClass(), accumulator);
+        }
+    }
+
+    public enum Immutability {
+        YES, NO, MAYBE
     }
 
     private static class ConversionFunction implements Function<Class<?>, ThrowingFunction<String, Object, Exception>> {
@@ -490,42 +525,6 @@ public enum ObjectUtils {
             } catch (Exception e) {
                 throw asCCE(e);
             }
-        }
-    }
-
-    public static Class<?>[] getAllInterfaces(Object o) {
-        Set<Class<?>> results = new HashSet<>();
-        getAllInterfaces(o, results::add);
-        return results.toArray(new Class<?>[results.size()]);
-    }
-
-    public static void getAllInterfaces(Object o, Function<Class<?>, Boolean> accumulator) {
-        if (null == o)
-            return;
-
-        if(null == accumulator)
-            throw new IllegalArgumentException("Accumulator cannot be null");
-
-        if(o instanceof Class){
-            Class clazz = (Class) o;
-
-            if(clazz.isInterface()) {
-                if(accumulator.apply((Class) o))
-                {
-                    for (Class aClass : clazz.getInterfaces()) {
-                        getAllInterfaces(aClass, accumulator);
-                    }
-                }
-            } else {
-                if(null != clazz.getSuperclass())
-                    getAllInterfaces(clazz.getSuperclass(), accumulator);
-
-                for (Class aClass : clazz.getInterfaces()) {
-                    getAllInterfaces(aClass, accumulator);
-                }
-            }
-        } else {
-            getAllInterfaces(o.getClass(), accumulator);
         }
     }
 }

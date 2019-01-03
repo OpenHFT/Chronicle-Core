@@ -13,8 +13,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FastJ8SocketChannel extends VanillaSocketChannel {
     final FileDescriptor fd;
-    volatile boolean open;
     private final AtomicBoolean readLock = new AtomicBoolean();
+    volatile boolean open;
     private volatile boolean blocking;
 
     FastJ8SocketChannel(SocketChannel socketChannel) {

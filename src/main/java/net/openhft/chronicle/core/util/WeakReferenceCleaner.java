@@ -1,6 +1,5 @@
 package net.openhft.chronicle.core.util;
 
-import net.openhft.chronicle.core.Jvm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
