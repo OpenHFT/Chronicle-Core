@@ -32,7 +32,7 @@ public enum Maths {
     private static final int M2 = 0x7a646e19;
     private static final int M3 = 0x855dd4db;
     @NotNull
-    static long[] TENS = new long[18];
+    static long[] TENS = new long[19];
 
     static {
         TENS[0] = 1;
