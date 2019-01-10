@@ -33,11 +33,15 @@ public enum Maths {
     private static final int M3 = 0x855dd4db;
     @NotNull
     static long[] TENS = new long[19];
+    @NotNull
+    static long[] FIVES = new long[28];
 
     static {
-        TENS[0] = 1;
+        TENS[0] = FIVES[0] = 1;
         for (int i = 1; i < TENS.length; i++)
             TENS[i] = 10 * TENS[i - 1];
+        for (int i = 1; i < FIVES.length; i++)
+            FIVES[i] = 5 * FIVES[i - 1];
     }
 
     /**
@@ -424,6 +428,10 @@ public enum Maths {
 
     public static long tens(int decimalPlaces) {
         return TENS[decimalPlaces];
+    }
+
+    public static long fives(int decimalPlaces) {
+        return FIVES[decimalPlaces];
     }
 
     public static boolean same(double a, double b) {
