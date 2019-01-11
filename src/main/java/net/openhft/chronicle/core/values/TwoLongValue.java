@@ -60,10 +60,10 @@ public interface TwoLongValue extends LongValue {
     }
 
     default void getValues(long[] values) {
-        long value1 = getVolatileValue2();
+        long value1 = getVolatileValue();
         long value2 = getValue2();
         while (true) {
-            long value1b = getVolatileValue2();
+            long value1b = getVolatileValue();
             long value2b = getValue2();
             if (value1 == value1b && value2 == value2b) {
                 values[0] = value1;
