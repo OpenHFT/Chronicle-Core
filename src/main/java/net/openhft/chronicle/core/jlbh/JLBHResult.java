@@ -1,6 +1,6 @@
 package net.openhft.chronicle.core.jlbh;
 
-import net.openhft.chronicle.core.annotation.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 import java.time.Duration;
 import java.util.List;

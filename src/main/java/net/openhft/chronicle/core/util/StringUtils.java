@@ -262,8 +262,7 @@ public enum StringUtils {
         return ch == c2 ? str : c2 + str.substring(1);
     }
 
-    public static double parseDouble(@NotNull @net.openhft.chronicle.core.annotation.NotNull
-                                             CharSequence in) {
+    public static double parseDouble(@NotNull CharSequence in) {
         long value = 0;
         int exp = 0;
         boolean negative = false;
@@ -318,8 +317,8 @@ public enum StringUtils {
         }
     }
 
-    private static boolean compareRest(@NotNull @net.openhft.chronicle.core.annotation.NotNull CharSequence in,
-                                       int pos, @NotNull @net.openhft.chronicle.core.annotation.NotNull String s) {
+    private static boolean compareRest(@NotNull CharSequence in,
+                                       int pos, @NotNull String s) {
 
         if (s.length() > in.length() - pos)
             return false;
