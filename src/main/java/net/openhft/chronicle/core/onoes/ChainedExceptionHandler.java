@@ -17,7 +17,7 @@
 
 package net.openhft.chronicle.core.onoes;
 
-import net.openhft.chronicle.core.annotation.NotNull;
+import org.jetbrains.annotations.NotNull;
 
 /*
  * Created by Jerry Shea on 16/03/2018.
