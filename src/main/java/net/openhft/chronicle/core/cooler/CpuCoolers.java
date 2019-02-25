@@ -52,10 +52,10 @@ public enum CpuCoolers implements CpuCooler {
             Thread.yield();
         }
     },
-    BUSY1 {
+    BUSY {
         @Override
         public void disturb() {
-            busyWait(1e6);
+            busyWait(100e3);
         }
     },
     BUSY10 {
