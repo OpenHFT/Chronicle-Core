@@ -18,8 +18,16 @@ static long blackhole;
                 CpuCoolers.BUSY100
         })
 //                .add("noop", () -> null)
-                .add("coolerAppendBase10 (long)", () -> {
-                    blackhole = RawText.appendBase10(address, (long) Integer.MAX_VALUE);
+                .add("1d", () -> {
+                    blackhole = RawText.appendBase10(address, 1);
+                    return null;
+                })
+                .add("2d", () -> {
+                    blackhole = RawText.appendBase10(address, 11);
+                    return null;
+                })
+                .add("9d", () -> {
+                    blackhole = RawText.appendBase10(address, Integer.MAX_VALUE);
                     return null;
                 })
                 .runTimeMS(10000)

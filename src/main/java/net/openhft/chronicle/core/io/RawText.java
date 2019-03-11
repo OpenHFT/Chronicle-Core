@@ -1,7 +1,5 @@
 package net.openhft.chronicle.core.io;
 
-import net.openhft.chronicle.core.Maths;
-
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 
 public enum RawText {
@@ -18,17 +16,19 @@ public enum RawText {
         } else {
             return append8bit(address, MIN_VALUE_STRING);
         }
-//        int digits = Maths.digits(num);
+
         long start = address;
         do {
-            UNSAFE.putByte(address++, (byte) ('0' + num % 10));
-            num /= 10;
+            long div = num / 10;
+            long mod = num % 10;
+            UNSAFE.putByte(address++, (byte) ('0' + mod));
+            num = div;
         } while (num > 0);
         // reverse the order
-        int half = (int) ((address - start) >> 1);
-        for (int i = 0; i < half; i++) {
-            long a1 = address - i - 1;
-            long a2 = start + i;
+        int end = (int) (address - start) - 1;
+        for (int i = 0; i < end; i++, end--) {
+            long a1 = start + i;
+            long a2 = start + end;
             byte b1 = UNSAFE.getByte(a1);
             byte b2 = UNSAFE.getByte(a2);
             UNSAFE.putByte(a2, b1);
