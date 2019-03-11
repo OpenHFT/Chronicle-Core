@@ -64,6 +64,30 @@ public enum CpuCoolers implements CpuCooler {
             busyWait(10e6);
         }
     },
+    BUSY25 {
+        @Override
+        public void disturb() {
+            busyWait(25e6);
+        }
+    },
+    BUSY35 {
+        @Override
+        public void disturb() {
+            busyWait(35e6);
+        }
+    },
+    BUSY50 {
+        @Override
+        public void disturb() {
+            busyWait(50e6);
+        }
+    },
+    BUSY70 {
+        @Override
+        public void disturb() {
+            busyWait(50e6);
+        }
+    },
     BUSY100 {
         @Override
         public void disturb() {

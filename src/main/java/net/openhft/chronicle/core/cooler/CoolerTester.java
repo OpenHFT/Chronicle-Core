@@ -7,8 +7,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
+
 public class CoolerTester {
-    static volatile Object blackhole;
+    static Object blackhole;
     private final List<CpuCooler> disturbers = new ArrayList<>();
     private final List<Histogram> histograms = new ArrayList<>();
     private final List<String> testNames = new ArrayList<>();
@@ -31,6 +33,32 @@ public class CoolerTester {
     public CoolerTester(CpuCooler disturber, Callable... tests) {
         this.disturbers.add(disturber);
         Collections.addAll(this.tests, tests);
+    }
+
+    static void innerloop0(Callable tested, CpuCooler disturber, Histogram histogram, long start, int count, int minCount, int runTimeMS, int maxCount) throws Exception {
+        do {
+            innerLoop2(tested, histogram);
+            count++;
+        }
+        while (count < minCount || (System.currentTimeMillis() - start <= runTimeMS && count < maxCount));
+    }
+
+    static void innerloop1(Callable tested, CpuCooler disturber, Histogram histogram, long start, int count, int minCount, int runTimeMS, int maxCount) throws Exception {
+        do {
+            disturber.disturb();
+            innerLoop2(tested, histogram);
+            count++;
+        }
+        while (count < minCount || (System.currentTimeMillis() - start <= runTimeMS && count < maxCount));
+    }
+
+    private static void innerLoop2(Callable tested, Histogram histogram) throws Exception {
+        UNSAFE.fullFence();
+        long start0 = System.nanoTime();
+        blackhole = tested.call();
+//            UNSAFE.fullFence();
+        long time0 = System.nanoTime() - start0;
+        histogram.sample(time0);
     }
 
     public CoolerTester add(String name, Callable test) {
@@ -96,16 +124,10 @@ public class CoolerTester {
 
                         long start = System.currentTimeMillis();
                         int count = 0;
-                        do {
-                            if (t > 0)
-                                disturber.disturb();
-                            long start0 = System.nanoTime();
-                            blackhole = tested.call();
-                            long time0 = System.nanoTime() - start0;
-                            histogram.sample(time0);
-                            count++;
-                        }
-                        while (count < minCount || (System.currentTimeMillis() - start <= runTimeMS && count < maxCount));
+                        if (t > 0)
+                            innerloop1(tested, disturber, histogram, start, count, minCount, runTimeMS, maxCount);
+                        else
+                            innerloop0(tested, disturber, histogram, start, count, minCount, runTimeMS, maxCount);
                         if (tests.size() > 1)
                             System.out.print(testNames.get(j) + " ");
                         System.out.print(disturber);

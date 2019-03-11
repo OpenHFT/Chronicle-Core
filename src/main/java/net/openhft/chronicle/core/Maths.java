@@ -19,6 +19,8 @@ package net.openhft.chronicle.core;
 import net.openhft.chronicle.core.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+
 public enum Maths {
     ;
 
@@ -428,6 +430,11 @@ public enum Maths {
 
     public static long tens(int decimalPlaces) {
         return TENS[decimalPlaces];
+    }
+
+    public static int digits(long num) {
+        int index = Arrays.binarySearch(TENS, num);
+        return index < -1 ? -1-index : index >= 0 ? index+1 : 1;
     }
 
     public static long fives(int decimalPlaces) {
