@@ -2,10 +2,8 @@ package net.openhft.chronicle.core.io;
 
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 
-public enum RawText {
+public enum UnsafeText {
     ;
-
-    public static final String MIN_VALUE_STRING = "" + Long.MIN_VALUE;
 
     public static long appendBase10(long address, long num) {
         if (num >= 0) {
@@ -14,7 +12,7 @@ public enum RawText {
             UNSAFE.putByte(address++, (byte) '-');
             num = -num;
         } else {
-            return append8bit(address, MIN_VALUE_STRING);
+            return appendBase10(appendBase10(address, Long.MIN_VALUE / 10), 8);
         }
 
         long start = address;
@@ -35,10 +33,5 @@ public enum RawText {
             UNSAFE.putByte(a1, b2);
         }
         return address;
-    }
-
-
-    private static long append8bit(long address, String s) {
-        throw new UnsupportedOperationException();
     }
 }

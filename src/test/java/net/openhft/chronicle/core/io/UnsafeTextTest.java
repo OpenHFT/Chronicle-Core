@@ -7,7 +7,7 @@ import org.junit.Test;
 
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 
-public class RawTextTest {
+public class UnsafeTextTest {
 
 static long blackhole;
     @Test
@@ -19,15 +19,15 @@ static long blackhole;
         })
 //                .add("noop", () -> null)
                 .add("1d", () -> {
-                    blackhole = RawText.appendBase10(address, 1);
+                    blackhole = UnsafeText.appendBase10(address, 1);
                     return null;
                 })
                 .add("2d", () -> {
-                    blackhole = RawText.appendBase10(address, 11);
+                    blackhole = UnsafeText.appendBase10(address, 11);
                     return null;
                 })
                 .add("9d", () -> {
-                    blackhole = RawText.appendBase10(address, Integer.MAX_VALUE);
+                    blackhole = UnsafeText.appendBase10(address, Integer.MAX_VALUE);
                     return null;
                 })
                 .runTimeMS(10000)
