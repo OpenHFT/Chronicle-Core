@@ -52,9 +52,9 @@ public enum UnsafeText {
             UNSAFE.putByte(address++, (byte) '-');
         }
         if (exp == 0 && mantissa == 0) {
-            UNSAFE.putByte(address++, (byte) '0');
-            UNSAFE.putByte(address++, (byte) '.');
-            UNSAFE.putByte(address++, (byte) '0');
+            UNSAFE.putByte(address, (byte) '0');
+            UNSAFE.putShort(address + 1, (short) ('.' + ('0' << 8)));
+            address += 3;
             return address;
 
         } else if (exp == 2047) {
@@ -68,79 +68,17 @@ public enum UnsafeText {
         if (shift > 0) {
             // integer and faction
             if (shift < 53) {
-                long intValue = mantissa >> shift;
-                address = appendBase10(address, intValue);
-                mantissa -= intValue << shift;
-                if (mantissa > 0) {
-                    UNSAFE.putByte(address++, (byte) '.');
-                    mantissa <<= 1;
-                    mantissa++;
-                    int precision = shift + 1;
-                    long error = 1;
-
-                    long value = intValue;
-                    int decimalPlaces = 0;
-                    while (mantissa > error) {
-                        // times 5*2 = 10
-                        mantissa *= 5;
-                        error *= 5;
-                        precision--;
-                        long num = (mantissa >> precision);
-                        value = value * 10 + num;
-                        UNSAFE.putByte(address++, (byte) ('0' + num));
-                        mantissa -= num << precision;
-
-                        final double parsedValue = asDouble(value, 0, sign != 0, ++decimalPlaces);
-                        if (parsedValue == d)
-                            break;
-                    }
-                } else {
-                    UNSAFE.putByte(address++, (byte) '.');
-                    UNSAFE.putByte(address++, (byte) '0');
-                }
-                return address;
+                return appendIntegerAndFraction(address, d, sign, mantissa, shift);
 
             } else {
-                // faction.
-                UNSAFE.putByte(address++, (byte) '0');
-                UNSAFE.putByte(address++, (byte) '.');
-                mantissa <<= 6;
-                mantissa += (1 << 5);
-                int precision = shift + 6;
-
-                long error = (1 << 5);
-
-                long value = 0;
-                int decimalPlaces = 0;
-                while (mantissa > error) {
-                    while (mantissa > MAX_VALUE_DIVIDE_5) {
-                        mantissa >>>= 1;
-                        error = (error + 1) >>> 1;
-                        precision--;
-                    }
-                    // times 5*2 = 10
-                    mantissa *= 5;
-                    error *= 5;
-                    precision--;
-                    if (precision >= 64) {
-                        decimalPlaces++;
-                        UNSAFE.putByte(address++, (byte) '0');
-                        continue;
-                    }
-                    long num = (mantissa >>> precision);
-                    value = value * 10 + num;
-                    final char c = (char) ('0' + num);
-                    assert !(c < '0' || c > '9');
-                    UNSAFE.putByte(address++, (byte) c);
-                    mantissa -= num << precision;
-                    final double parsedValue = asDouble(value, 0, sign != 0, ++decimalPlaces);
-                    if (parsedValue == d)
-                        break;
-                }
-                return address;
+                return appendFraction(address, d, sign, mantissa, shift);
             }
         }
         // large number
+        return appendLargeNumber(address, mantissa, shift);
+    }
+
+    protected static long appendLargeNumber(long address, long mantissa, int shift) {
         mantissa <<= 10;
         int precision = -10 - shift;
         int digits = 0;
@@ -162,6 +100,80 @@ public enum UnsafeText {
         address = appendBase10(address, val2);
         for (int i = 0; i < digits; i++)
             UNSAFE.putByte(address++, (byte) '0');
+        return address;
+    }
+
+    protected static long appendFraction(long address, double d, int sign, long mantissa, int shift) {
+        // fraction.
+        UNSAFE.putShort(address, (short) ('0' + ('.' << 8)));
+        address += 2;
+        mantissa <<= 6;
+        mantissa += (1 << 5);
+        int precision = shift + 6;
+
+        long error = (1 << 5);
+
+        long value = 0;
+        int decimalPlaces = 0;
+        while (mantissa > error) {
+            while (mantissa > MAX_VALUE_DIVIDE_5) {
+                mantissa >>>= 1;
+                error = (error + 1) >>> 1;
+                precision--;
+            }
+            // times 5*2 = 10
+            mantissa *= 5;
+            error *= 5;
+            precision--;
+            if (precision >= 64) {
+                decimalPlaces++;
+                UNSAFE.putByte(address++, (byte) '0');
+                continue;
+            }
+            long num = (mantissa >>> precision);
+            value = value * 10 + num;
+            final char c = (char) ('0' + num);
+//                    assert !(c < '0' || c > '9');
+            UNSAFE.putByte(address++, (byte) c);
+            mantissa -= num << precision;
+            final double parsedValue = asDouble(value, 0, sign != 0, ++decimalPlaces);
+            if (parsedValue == d)
+                break;
+        }
+        return address;
+    }
+
+    protected static long appendIntegerAndFraction(long address, double d, int sign, long mantissa, int shift) {
+        long intValue = mantissa >> shift;
+        address = appendBase10(address, intValue);
+        mantissa -= intValue << shift;
+        if (mantissa > 0) {
+            UNSAFE.putByte(address++, (byte) '.');
+            mantissa <<= 1;
+            mantissa++;
+            int precision = shift + 1;
+            long error = 1;
+
+            long value = intValue;
+            int decimalPlaces = 0;
+            while (mantissa > error) {
+                // times 5*2 = 10
+                mantissa *= 5;
+                error *= 5;
+                precision--;
+                long num = (mantissa >> precision);
+                value = value * 10 + num;
+                UNSAFE.putByte(address++, (byte) ('0' + num));
+                mantissa -= num << precision;
+
+                final double parsedValue = asDouble(value, 0, sign != 0, ++decimalPlaces);
+                if (parsedValue == d)
+                    break;
+            }
+        } else {
+            UNSAFE.putShort(address, (short) ('.' + ('0' << 8)));
+            address += 2;
+        }
         return address;
     }
 
