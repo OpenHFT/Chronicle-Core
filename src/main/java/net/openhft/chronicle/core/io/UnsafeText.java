@@ -30,6 +30,10 @@ public enum UnsafeText {
             num = div;
         } while (num > 0);
         // reverse the order
+        return reverseTheOrder(address, start);
+    }
+
+    protected static long reverseTheOrder(long address, long start) {
         int end = (int) (address - start) - 1;
         for (int i = 0; i < end; i++, end--) {
             long a1 = start + i;
@@ -40,6 +44,41 @@ public enum UnsafeText {
             UNSAFE.putByte(a1, b2);
         }
         return address;
+    }
+
+
+    public static long appendBase10(long address, double num, int digits) {
+        long tens = Maths.tens(digits);
+        double mag = num * tens;
+        if (Math.abs(mag) <= Long.MAX_VALUE) {
+            long num2 = Math.round(mag);
+            return appendBase10d(address, num2, digits);
+        } else {
+            return appendDouble(address, num);
+        }
+    }
+
+    public static long appendBase10d(long address, long num, int decimal) {
+        if (num >= 0) {
+            // nothing
+        } else if (num > Long.MIN_VALUE) {
+            UNSAFE.putByte(address++, (byte) '-');
+            num = -num;
+        } else {
+            throw new AssertionError();
+        }
+
+        long start = address;
+        do {
+            long div = num / 10;
+            long mod = num % 10;
+            UNSAFE.putByte(address++, (byte) ('0' + mod));
+            if (--decimal < 0)
+                UNSAFE.putByte(address++, (byte) '.');
+            num = div;
+        } while (num > 0);
+        // reverse the order
+        return reverseTheOrder(address, start);
     }
 
     public static long appendDouble(long address, double d)
