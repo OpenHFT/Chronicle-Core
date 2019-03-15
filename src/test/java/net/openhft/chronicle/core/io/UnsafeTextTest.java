@@ -22,7 +22,7 @@ public class UnsafeTextTest {
         })
 //                .add("noop", () -> null)
                 .add("20d", () -> {
-                    blackhole = UnsafeText.appendBase10(address, -Integer.MAX_VALUE);
+                    blackhole = UnsafeText.appendFixed(address, -Integer.MAX_VALUE);
                     return null;
                 })
                 .runTimeMS(10000)

@@ -12,7 +12,7 @@ public enum UnsafeText {
     private static final long MAX_VALUE_DIVIDE_5 = Long.MAX_VALUE / 5;
     private static final String MIN_VALUE_STR = "" + Long.MIN_VALUE;
 
-    public static long appendBase10(long address, long num) {
+    public static long appendFixed(long address, long num) {
         if (num >= 0) {
             // nothing
         } else if (num > Long.MIN_VALUE) {
@@ -47,10 +47,10 @@ public enum UnsafeText {
     }
 
 
-    public static long appendBase10(long address, double num, int digits) {
+    public static long appendFixed(long address, double num, int digits) {
         long tens = Maths.tens(digits);
         double mag = num * tens;
-        if (Math.abs(mag) <= Long.MAX_VALUE) {
+        if (Math.abs(mag) < 1L << 53) {
             long num2 = Math.round(mag);
             return appendBase10d(address, num2, digits);
         } else {
@@ -73,10 +73,10 @@ public enum UnsafeText {
             long div = num / 10;
             long mod = num % 10;
             UNSAFE.putByte(address++, (byte) ('0' + mod));
-            if (--decimal < 0)
+            if (--decimal == 0)
                 UNSAFE.putByte(address++, (byte) '.');
             num = div;
-        } while (num > 0);
+        } while (num > 0 || decimal >= 0);
         // reverse the order
         return reverseTheOrder(address, start);
     }
@@ -136,7 +136,7 @@ public enum UnsafeText {
         }
         long val2 = precision > 0 ? mantissa << precision : mantissa >>> -precision;
 
-        address = appendBase10(address, val2);
+        address = appendFixed(address, val2);
         for (int i = 0; i < digits; i++)
             UNSAFE.putByte(address++, (byte) '0');
         return address;
@@ -184,7 +184,7 @@ public enum UnsafeText {
 
     protected static long appendIntegerAndFraction(long address, double d, int sign, long mantissa, int shift) {
         long intValue = mantissa >> shift;
-        address = appendBase10(address, intValue);
+        address = appendFixed(address, intValue);
         mantissa -= intValue << shift;
         if (mantissa > 0) {
             UNSAFE.putByte(address++, (byte) '.');
