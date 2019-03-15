@@ -30,10 +30,11 @@ public enum UnsafeText {
             num = div;
         } while (num > 0);
         // reverse the order
-        return reverseTheOrder(address, start);
+        reverseTheOrder(address, start);
+        return address;
     }
 
-    protected static long reverseTheOrder(long address, long start) {
+    protected static void reverseTheOrder(long address, long start) {
         int end = (int) (address - start) - 1;
         for (int i = 0; i < end; i++, end--) {
             long a1 = start + i;
@@ -43,7 +44,6 @@ public enum UnsafeText {
             UNSAFE.putByte(a2, b1);
             UNSAFE.putByte(a1, b2);
         }
-        return address;
     }
 
 
@@ -78,7 +78,8 @@ public enum UnsafeText {
             num = div;
         } while (num > 0 || decimal >= 0);
         // reverse the order
-        return reverseTheOrder(address, start);
+        reverseTheOrder(address, start);
+        return address;
     }
 
     public static long appendDouble(long address, double d)
