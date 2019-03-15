@@ -10,6 +10,7 @@ public enum UnsafeText {
     ;
 
     private static final long MAX_VALUE_DIVIDE_5 = Long.MAX_VALUE / 5;
+    private static final String MIN_VALUE_STR = "" + Long.MIN_VALUE;
 
     public static long appendBase10(long address, long num) {
         if (num >= 0) {
@@ -18,7 +19,7 @@ public enum UnsafeText {
             UNSAFE.putByte(address++, (byte) '-');
             num = -num;
         } else {
-            return appendBase10(appendBase10(address, Long.MIN_VALUE / 10), 8);
+            return appendText(address, MIN_VALUE_STR);
         }
 
         long start = address;
@@ -57,12 +58,8 @@ public enum UnsafeText {
             return address;
 
         } else if (exp == 2047) {
-            if (mantissa == 0) {
-                return appendText(address, "Infinity");
-
-            } else {
-                return appendText(address, "NaN");
-            }
+            return appendText(address,
+                    mantissa == 0 ? "Infinity" : "NaN");
 
         } else if (exp > 0) {
             mantissa += 1L << 52;
@@ -168,8 +165,11 @@ public enum UnsafeText {
         return address;
     }
 
-    private static long appendText(long address, String infinity) {
-        throw new UnsupportedOperationException();
+    private static long appendText(long address, String s) {
+        for (int i = 0; i < s.length(); i++) {
+            UNSAFE.putByte(address++, (byte) s.charAt(i));
+        }
+        return address;
     }
 
     private static double asDouble(long value, int exp, boolean negative, int deci) {
