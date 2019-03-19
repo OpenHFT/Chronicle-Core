@@ -1,5 +1,6 @@
 package net.openhft.chronicle.core.cooler;
 
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.util.Histogram;
 
 import java.util.ArrayList;
@@ -35,12 +36,12 @@ public class CoolerTester {
         Collections.addAll(this.tests, tests);
     }
 
-    static void innerloop0(Callable tested, CpuCooler disturber, Histogram histogram, long start, int count, int minCount, int runTimeMS, int maxCount) throws Exception {
+    static void innerloop0(Callable tested, Histogram histogram, long start, int count, int minCount, int runTimeMS, int maxCount) throws Exception {
         do {
             innerLoop2(tested, histogram);
             count++;
         }
-        while (count < minCount || (System.currentTimeMillis() - start <= runTimeMS && count < maxCount));
+        while (count < minCount || (System.currentTimeMillis() - start <= runTimeMS && count < maxCount * 10));
     }
 
     static void innerloop1(Callable tested, CpuCooler disturber, Histogram histogram, long start, int count, int minCount, int runTimeMS, int maxCount) throws Exception {
@@ -127,7 +128,7 @@ public class CoolerTester {
                         if (t > 0)
                             innerloop1(tested, disturber, histogram, start, count, minCount, runTimeMS, maxCount);
                         else
-                            innerloop0(tested, disturber, histogram, start, count, minCount, runTimeMS, maxCount);
+                            innerloop0(tested, histogram, start, count, minCount, runTimeMS, maxCount);
                         if (tests.size() > 1)
                             System.out.print(testNames.get(j) + " ");
                         System.out.print(disturber);
@@ -135,6 +136,8 @@ public class CoolerTester {
                         if (t == 0)
                             histogram.reset();
                     }
+                    if (t == 0)
+                        Jvm.pause(500);
                 }
             }
         } catch (Exception e) {
