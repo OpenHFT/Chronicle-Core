@@ -50,7 +50,7 @@ public class ObjectUtilsConvertToTest {
     }
 
     @Test
-    public void convertTo() throws Exception {
+    public void convertTo() {
         assertEquals(converted, ObjectUtils.convertTo(converted.getClass(), input));
     }
 
