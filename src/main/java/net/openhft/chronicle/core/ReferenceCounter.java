@@ -115,4 +115,11 @@ public class ReferenceCounter {
     public String toString() {
         return Long.toString(value.get());
     }
+
+    public boolean checkRefCount() {
+        if (value.get() < 1) {
+            throw new IllegalStateException("released", referenceCountHistory.peek());
+        }
+        return true; // can be used with assert
+    }
 }
