@@ -62,6 +62,7 @@ public enum Jvm {
 
     private static final int JVM_JAVA_MAJOR_VERSION;
     private static final boolean IS_JAVA_9_PLUS;
+    private static final boolean IS_JAVA_12_PLUS;
     private static final long MAX_DIRECT_MEMORY;
     private static final ChainedSignalHandler signalHandlerGlobal;
     private static final boolean SAFEPOINT_ENABLED = Boolean.getBoolean("jvm.safepoint.enabled");
@@ -84,6 +85,7 @@ public enum Jvm {
 
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
         IS_JAVA_9_PLUS = JVM_JAVA_MAJOR_VERSION > 8; // IS_JAVA_9_PLUS value is used in maxDirectMemory0 method.
+        IS_JAVA_12_PLUS = JVM_JAVA_MAJOR_VERSION > 11;
         MAX_DIRECT_MEMORY = maxDirectMemory0();
 
         Supplier<Long> reservedMemoryGetter;
@@ -131,6 +133,10 @@ public enum Jvm {
 
     public static boolean isJava9Plus() {
         return IS_JAVA_9_PLUS;
+    }
+
+    public static boolean isJava12Plus() {
+        return IS_JAVA_12_PLUS;
     }
 
     private static boolean is64bit0() {
@@ -310,9 +316,11 @@ public enum Jvm {
 
     private static Method getMethod0(@NotNull Class clazz, @NotNull String name, Class[] args, boolean first) {
         try {
-            Method field = clazz.getDeclaredMethod(name, args);
-            setAccessible(field);
-            return field;
+            Method method = clazz.getDeclaredMethod(name, args);
+            if (!Modifier.isPublic(method.getModifiers()) ||
+                    !Modifier.isPublic(method.getDeclaringClass().getModifiers()))
+                setAccessible(method);
+            return method;
 
         } catch (NoSuchMethodException e) {
             Class superclass = clazz.getSuperclass();
@@ -330,12 +338,17 @@ public enum Jvm {
     }
 
     public static void setAccessible(AccessibleObject h) {
+        if (!IS_JAVA_9_PLUS || IS_JAVA_12_PLUS) {
+            h.setAccessible(true);
+            return;
+        }
         try {
+            // doesn't work in Java 12+
             Field f = AccessibleObject.class.getDeclaredField("override");
             long offset = UNSAFE.objectFieldOffset(f);
             UNSAFE.putBoolean(h, offset, true);
-        } catch (NoSuchFieldException e) {
-            throw new AssertionError(e);
+        } catch (NoSuchFieldException e2) {
+            // ignored, throws an error later if private.
         }
     }
 

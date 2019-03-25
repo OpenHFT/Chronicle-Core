@@ -256,10 +256,11 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public int readInt(@NotNull Object object, long offset) {
-        if (object == null)
-            throw new NullPointerException();
-        return UNSAFE.getInt(object, offset);
+    public int readInt(Object object, long offset) {
+        if (object != null) {
+            return UNSAFE.getInt(object, offset);
+        }
+        throw new NullPointerException();
     }
 
     @Override
@@ -270,24 +271,28 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeLong(@NotNull Object object, long offset, long i64) {
-        if (object == null)
+    public void writeLong(Object object, long offset, long i64) {
+        if (object != null) {
+            UNSAFE.putLong(object, offset, i64);
+        } else {
             throw new NullPointerException();
-        UNSAFE.putLong(object, offset, i64);
+        }
     }
 
     @Override
     @ForceInline
     public long readLong(long address) {
-        return UNSAFE.getLong(address);
+        if ((address & ~0x3fff) != 0)
+            return UNSAFE.getLong(address);
+        throw new IllegalArgumentException("address: " + address);
     }
 
     @Override
     @ForceInline
-    public long readLong(@NotNull Object object, long offset) {
-        if (object == null)
-            throw new NullPointerException();
-        return UNSAFE.getLong(object, offset);
+    public long readLong(Object object, long offset) {
+        if (object != null)
+            return UNSAFE.getLong(object, offset);
+        throw new NullPointerException();
     }
 
     @Override
@@ -298,10 +303,12 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeFloat(@NotNull Object object, long offset, float f) {
-        if (object == null)
+    public void writeFloat(Object object, long offset, float f) {
+        if (object != null) {
+            UNSAFE.putFloat(object, offset, f);
+        } else {
             throw new NullPointerException();
-        UNSAFE.putFloat(object, offset, f);
+        }
     }
 
     @Override
@@ -312,10 +319,11 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public float readFloat(@NotNull Object object, long offset) {
-        if (object == null)
-            throw new NullPointerException();
-        return UNSAFE.getFloat(object, offset);
+    public float readFloat(Object object, long offset) {
+        if (object != null) {
+            return UNSAFE.getFloat(object, offset);
+        }
+        throw new NullPointerException();
     }
 
     @Override
@@ -326,10 +334,12 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeDouble(@NotNull Object object, long offset, double d) {
-        if (object == null)
+    public void writeDouble(Object object, long offset, double d) {
+        if (object != null) {
+            UNSAFE.putDouble(object, offset, d);
+        } else {
             throw new NullPointerException();
-        UNSAFE.putDouble(object, offset, d);
+        }
     }
 
     @Override
@@ -340,10 +350,11 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public double readDouble(@NotNull Object object, long offset) {
-        if (object == null)
-            throw new NullPointerException();
-        return UNSAFE.getDouble(object, offset);
+    public double readDouble(Object object, long offset) {
+        if (object != null) {
+            return UNSAFE.getDouble(object, offset);
+        }
+        throw new NullPointerException();
     }
 
     @Override
@@ -406,10 +417,12 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeOrderedLong(@NotNull Object object, long offset, long i) {
-        if (object == null)
+    public void writeOrderedLong(Object object, long offset, long i) {
+        if (object != null) {
+            UNSAFE.putOrderedLong(object, offset, i);
+        } else {
             throw new NullPointerException();
-        UNSAFE.putOrderedLong(object, offset, i);
+        }
     }
 
     @Override
@@ -437,10 +450,11 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public boolean compareAndSwapInt(@NotNull Object object, long offset, int expected, int value) {
-        if (object == null)
-            throw new NullPointerException();
-        return UNSAFE.compareAndSwapInt(object, offset, expected, value);
+    public boolean compareAndSwapInt(Object object, long offset, int expected, int value) {
+        if (object != null) {
+            return UNSAFE.compareAndSwapInt(object, offset, expected, value);
+        }
+        throw new NullPointerException();
     }
 
     @Override
@@ -452,10 +466,11 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public boolean compareAndSwapLong(@NotNull Object object, long offset, long expected, long value) {
-        if (object == null)
-            throw new NullPointerException();
-        return UNSAFE.compareAndSwapLong(object, offset, expected, value);
+    public boolean compareAndSwapLong(Object object, long offset, long expected, long value) {
+        if (object != null) {
+            return UNSAFE.compareAndSwapLong(object, offset, expected, value);
+        }
+        throw new NullPointerException();
     }
 
     @Override
@@ -471,10 +486,11 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public byte readVolatileByte(@NotNull Object object, long offset) {
-        if (object == null)
-            throw new NullPointerException();
-        return UNSAFE.getByteVolatile(object, offset);
+    public byte readVolatileByte(Object object, long offset) {
+        if (object != null) {
+            return UNSAFE.getByteVolatile(object, offset);
+        }
+        throw new NullPointerException();
     }
 
     @Override
@@ -486,10 +502,11 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public short readVolatileShort(@NotNull Object object, long offset) {
-        if (object == null)
-            throw new NullPointerException();
-        return UNSAFE.getShortVolatile(object, offset);
+    public short readVolatileShort(Object object, long offset) {
+        if (object != null) {
+            return UNSAFE.getShortVolatile(object, offset);
+        }
+        throw new NullPointerException();
     }
 
     @Override
@@ -506,9 +523,10 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public int readVolatileInt(@NotNull Object object, long offset) {
-        if (object == null)
+    public int readVolatileInt(Object object, long offset) {
+        if (object == null) {
             throw new NullPointerException();
+        }
         return UNSAFE.getIntVolatile(object, offset);
     }
 
@@ -521,10 +539,11 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public float readVolatileFloat(@NotNull Object object, long offset) {
-        if (object == null)
-            throw new NullPointerException();
-        return UNSAFE.getFloatVolatile(object, offset);
+    public float readVolatileFloat(Object object, long offset) {
+        if (object != null) {
+            return UNSAFE.getFloatVolatile(object, offset);
+        }
+        throw new NullPointerException();
     }
 
     @Override
@@ -539,10 +558,11 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public long readVolatileLong(@NotNull Object object, long offset) {
-        if (object == null)
-            throw new NullPointerException();
-        return UNSAFE.getLongVolatile(object, offset);
+    public long readVolatileLong(Object object, long offset) {
+        if (object != null) {
+            return UNSAFE.getLongVolatile(object, offset);
+        }
+        throw new NullPointerException();
     }
 
     @Override
@@ -554,10 +574,11 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public double readVolatileDouble(@NotNull Object object, long offset) {
-        if (object == null)
-            throw new NullPointerException();
-        return UNSAFE.getDoubleVolatile(object, offset);
+    public double readVolatileDouble(Object object, long offset) {
+        if (object != null) {
+            return UNSAFE.getDoubleVolatile(object, offset);
+        }
+        throw new NullPointerException();
     }
 
     @Override
@@ -568,10 +589,12 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeVolatileByte(@NotNull Object object, long offset, byte b) {
-        if (object == null)
+    public void writeVolatileByte(Object object, long offset, byte b) {
+        if (object != null) {
+            UNSAFE.putByteVolatile(object, offset, b);
+        } else {
             throw new NullPointerException();
-        UNSAFE.putByteVolatile(object, offset, b);
+        }
     }
 
     @Override
@@ -582,7 +605,7 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeVolatileShort(@NotNull Object object, long offset, short i16) {
+    public void writeVolatileShort(Object object, long offset, short i16) {
         if (object == null)
             throw new NullPointerException();
         UNSAFE.putShortVolatile(object, offset, i16);
@@ -597,10 +620,12 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeVolatileInt(@NotNull Object object, long offset, int i32) {
-        if (object == null)
+    public void writeVolatileInt(Object object, long offset, int i32) {
+        if (object != null) {
+            UNSAFE.putIntVolatile(object, offset, i32);
+        } else {
             throw new NullPointerException();
-        UNSAFE.putIntVolatile(object, offset, i32);
+        }
     }
 
     @Override
@@ -612,10 +637,12 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeVolatileFloat(@NotNull Object object, long offset, float f) {
-        if (object == null)
+    public void writeVolatileFloat(Object object, long offset, float f) {
+        if (object != null) {
+            UNSAFE.putFloatVolatile(object, offset, f);
+        } else {
             throw new NullPointerException();
-        UNSAFE.putFloatVolatile(object, offset, f);
+        }
     }
 
     @Override
@@ -627,10 +654,12 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeVolatileLong(@NotNull Object object, long offset, long i64) {
-        if (object == null)
+    public void writeVolatileLong(Object object, long offset, long i64) {
+        if (object != null) {
+            UNSAFE.putLongVolatile(object, offset, i64);
+        } else {
             throw new NullPointerException();
-        UNSAFE.putLongVolatile(object, offset, i64);
+        }
     }
 
     @Override
@@ -643,10 +672,12 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeVolatileDouble(@NotNull Object object, long offset, double d) {
-        if (object == null)
+    public void writeVolatileDouble(Object object, long offset, double d) {
+        if (object != null) {
+            UNSAFE.putDoubleVolatile(object, offset, d);
+        } else {
             throw new NullPointerException();
-        UNSAFE.putDoubleVolatile(object, offset, d);
+        }
     }
 
     @Override
@@ -658,11 +689,12 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public int addInt(@NotNull Object object, long offset, int increment) {
+    public int addInt(Object object, long offset, int increment) {
 //        assert (offset & 0x3) == 0;
-        if (object == null)
-            throw new NullPointerException();
-        return UNSAFE.getAndAddInt(object, offset, increment) + increment;
+        if (object != null) {
+            return UNSAFE.getAndAddInt(object, offset, increment) + increment;
+        }
+        throw new NullPointerException();
     }
 
     @Override
@@ -674,11 +706,12 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public long addLong(@NotNull Object object, long offset, long increment) {
+    public long addLong(Object object, long offset, long increment) {
 //        assert (offset & 0x7) == 0;
-        if (object == null)
-            throw new NullPointerException();
-        return UNSAFE.getAndAddLong(object, offset, increment) + increment;
+        if (object != null) {
+            return UNSAFE.getAndAddLong(object, offset, increment) + increment;
+        }
+        throw new NullPointerException();
     }
 
     // https://github.com/OpenHFT/OpenHFT/issues/23
