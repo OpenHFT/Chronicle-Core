@@ -1,11 +1,16 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Maths;
+import sun.misc.Unsafe;
 
 import java.nio.BufferOverflowException;
 
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 
+/**
+ * These are fast, unsafe ways to render text.
+ * NOTE: The caller has to ensure there is always plenty of memory to perform this operation.
+ */
 public enum UnsafeText {
     ;
 
@@ -260,5 +265,21 @@ public enum UnsafeText {
 
         double scalb = Math.scalb(d, exp - deci - scale2);
         return negative ? -scalb : scalb;
+    }
+
+    public static long append8bit(long address, byte[] bytes) {
+        int len = bytes.length, i;
+        for (i = 0; i < len - 7; i += 8)
+            UNSAFE.putLong(address + i, UNSAFE.getLong(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET + (long) i));
+        for (; i < len; i++)
+            UNSAFE.putByte(address + i, UNSAFE.getByte(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET + (long) i));
+        return address + len;
+    }
+
+    public static long append8bit(long address, char[] chars) {
+        int len = chars.length, i;
+        for (i = 0; i < len; i++)
+            UNSAFE.putByte(address + i, (byte) chars[i]);
+        return address + len;
     }
 }
