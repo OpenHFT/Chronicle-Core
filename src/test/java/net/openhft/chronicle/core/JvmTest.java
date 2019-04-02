@@ -146,6 +146,19 @@ public class JvmTest {
         }
     }
 
+    @Test
+    public void microPause() {
+        for (int t = 0; t < 4; t++) {
+            long start = System.nanoTime();
+            int count = 1000_000;
+            for (int i = 0; i < count; i++)
+                Jvm.nanoPause();
+            long time = System.nanoTime() - start;
+            long avg = time / count;
+            System.out.println("Took " + avg + " ns to nanoPause()");
+        }
+    }
+
     static class ClassA {
         long l;
         int i;

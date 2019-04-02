@@ -148,7 +148,7 @@ public enum CpuCoolers implements CpuCooler {
     public static void busyWait(double nanos) {
         long start = System.nanoTime();
         while (System.nanoTime() - start < nanos) {
-            // busy
+            Jvm.nanoPause();
         }
     }
 }
