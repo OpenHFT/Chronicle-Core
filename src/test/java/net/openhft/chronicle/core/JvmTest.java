@@ -155,7 +155,8 @@ public class JvmTest {
                 Jvm.nanoPause();
             long time = System.nanoTime() - start;
             long avg = time / count;
-            System.out.println("Took " + avg + " ns to nanoPause()");
+            if (t > 0)
+                System.out.println("Took " + avg + " ns to nanoPause()");
         }
     }
 
