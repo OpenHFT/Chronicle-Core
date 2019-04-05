@@ -46,6 +46,12 @@ public enum CpuCoolers implements CpuCooler {
             Jvm.pause(100);
         }
     },
+    PAUSE1000 {
+        @Override
+        public void disturb() {
+            Jvm.pause(1000);
+        }
+    },
     YIELD {
         @Override
         public void disturb() {
@@ -55,7 +61,25 @@ public enum CpuCoolers implements CpuCooler {
     BUSY {
         @Override
         public void disturb() {
-            busyWait(100e3);
+            busyWait(0.1e6);
+        }
+    },
+    BUSY_3 {
+        @Override
+        public void disturb() {
+            busyWait(0.3e6);
+        }
+    },
+    BUSY1 {
+        @Override
+        public void disturb() {
+            busyWait(1e6);
+        }
+    },
+    BUSY3 {
+        @Override
+        public void disturb() {
+            busyWait(3e6);
         }
     },
     BUSY10 {
@@ -64,28 +88,10 @@ public enum CpuCoolers implements CpuCooler {
             busyWait(10e6);
         }
     },
-    BUSY25 {
+    BUSY30 {
         @Override
         public void disturb() {
-            busyWait(25e6);
-        }
-    },
-    BUSY35 {
-        @Override
-        public void disturb() {
-            busyWait(35e6);
-        }
-    },
-    BUSY50 {
-        @Override
-        public void disturb() {
-            busyWait(50e6);
-        }
-    },
-    BUSY70 {
-        @Override
-        public void disturb() {
-            busyWait(50e6);
+            busyWait(30e6);
         }
     },
     BUSY100 {
@@ -147,8 +153,15 @@ public enum CpuCoolers implements CpuCooler {
 
     public static void busyWait(double nanos) {
         long start = System.nanoTime();
-        while (System.nanoTime() - start < nanos) {
-            Jvm.nanoPause();
+        if (Jvm.isJava9Plus()) {
+            while (System.nanoTime() - start < nanos) {
+                Thread.holdsLock("");
+            }
+
+        } else {
+            while (System.nanoTime() - start < nanos) {
+                Compiler.enable();
+            }
         }
     }
 }
