@@ -19,13 +19,15 @@ package net.openhft.chronicle.core;
 import net.openhft.chronicle.core.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
+
 public enum Maths {
     ;
 
     /**
      * Numbers larger than this are whole numbers due to representation error.
      */
-    private static final double WHOLE_NUMBER = 1L << 53;
+    private static final double WHOLE_NUMBER = 1L << 52;
     private static final int K0 = 0x6d0f27bd;
     private static final int M0 = 0x5bc80bad;
     private static final int M1 = 0xea7585d7;
@@ -428,6 +430,11 @@ public enum Maths {
 
     public static long tens(int decimalPlaces) {
         return TENS[decimalPlaces];
+    }
+
+    public static int digits(long num) {
+        int index = Arrays.binarySearch(TENS, num);
+        return index < -1 ? -1-index : index >= 0 ? index+1 : 1;
     }
 
     public static long fives(int decimalPlaces) {

@@ -43,7 +43,16 @@ public class MathsTest {
     private ThreadDump threadDump;
 
     @Test
-    public void roundN() throws Exception {
+    public void digits() {
+        assertEquals(1, Maths.digits(0));
+        assertEquals(1, Maths.digits(1));
+        assertEquals(1, Maths.digits(9));
+        assertEquals(2, Maths.digits(10));
+        assertEquals(2, Maths.digits(99));
+        assertEquals(3, Maths.digits(100));
+    }
+    @Test
+    public void roundN() {
         assertEquals(1.5, Maths.roundN(1 + 0.25, 0.3f), 0.0);
         assertEquals(1, Maths.roundN(1 + 0.4999999, 0), 0.0);
         assertEquals(2.0, Maths.roundN(1 + 0.5, 0), 0.0);

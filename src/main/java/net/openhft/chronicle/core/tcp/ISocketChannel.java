@@ -2,7 +2,7 @@ package net.openhft.chronicle.core.tcp;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
-import net.openhft.chronicle.core.annotation.NotNull;
+import org.jetbrains.annotations.NotNull;
 import net.openhft.chronicle.core.io.IORuntimeException;
 
 import java.io.Closeable;

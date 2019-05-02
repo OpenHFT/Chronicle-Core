@@ -24,6 +24,9 @@ import sun.misc.SignalHandler;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,6 +65,7 @@ public enum Jvm {
 
     private static final int JVM_JAVA_MAJOR_VERSION;
     private static final boolean IS_JAVA_9_PLUS;
+    private static final boolean IS_JAVA_12_PLUS;
     private static final long MAX_DIRECT_MEMORY;
     private static final ChainedSignalHandler signalHandlerGlobal;
     private static final boolean SAFEPOINT_ENABLED = Boolean.getBoolean("jvm.safepoint.enabled");
@@ -69,6 +73,7 @@ public enum Jvm {
             System.getProperty("os.arch", "?").startsWith("arm") || System.getProperty("os.arch", "?").startsWith("aarch");
     private static final Map<Class, ClassMetrics> CLASS_METRICS_MAP =
             new ConcurrentHashMap<>();
+    private static final MethodHandle ON_SPIN_WAIT;
     private static Map<Class, Integer> PRIMITIVE_SIZE = new HashMap<Class, Integer>() {{
         put(boolean.class, 1);
         put(byte.class, 1);
@@ -81,9 +86,9 @@ public enum Jvm {
     }};
 
     static {
-
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
         IS_JAVA_9_PLUS = JVM_JAVA_MAJOR_VERSION > 8; // IS_JAVA_9_PLUS value is used in maxDirectMemory0 method.
+        IS_JAVA_12_PLUS = JVM_JAVA_MAJOR_VERSION > 11;
         MAX_DIRECT_MEMORY = maxDirectMemory0();
 
         Supplier<Long> reservedMemoryGetter;
@@ -109,6 +114,17 @@ public enum Jvm {
         }
         reservedMemory = reservedMemoryGetter;
         signalHandlerGlobal = new ChainedSignalHandler();
+
+        MethodHandle onSpinWait = null;
+        if (isJava9Plus()) {
+            try {
+                onSpinWait = MethodHandles.lookup()
+                        .findStatic(Thread.class, "onSpinWait", MethodType.methodType(Void.TYPE));
+            } catch (Exception ignored) {
+                onSpinWait = null;
+            }
+        }
+        ON_SPIN_WAIT = onSpinWait;
     }
 
     private static int getCompileThreshold0(@NotNull List<String> inputArguments) {
@@ -131,6 +147,10 @@ public enum Jvm {
 
     public static boolean isJava9Plus() {
         return IS_JAVA_9_PLUS;
+    }
+
+    public static boolean isJava12Plus() {
+        return IS_JAVA_12_PLUS;
     }
 
     private static boolean is64bit0() {
@@ -260,6 +280,21 @@ public enum Jvm {
     }
 
     /**
+     * Pause in a busy loop for a very short time.
+     */
+    public static void nanoPause() {
+        if (ON_SPIN_WAIT == null) {
+            safepoint();
+        } else {
+            try {
+                ON_SPIN_WAIT.invokeExact();
+            } catch (Throwable throwable) {
+                throw new AssertionError(throwable);
+            }
+        }
+    }
+
+    /**
      * This method is designed to be used when the time to be
      * waited is very small, typically under a millisecond.
      *
@@ -277,6 +312,7 @@ public enum Jvm {
      */
     public static void busyWaitUntil(long waitUntil) {
         while (waitUntil > System.nanoTime()) {
+            Jvm.nanoPause();
         }
     }
 
@@ -310,9 +346,11 @@ public enum Jvm {
 
     private static Method getMethod0(@NotNull Class clazz, @NotNull String name, Class[] args, boolean first) {
         try {
-            Method field = clazz.getDeclaredMethod(name, args);
-            setAccessible(field);
-            return field;
+            Method method = clazz.getDeclaredMethod(name, args);
+            if (!Modifier.isPublic(method.getModifiers()) ||
+                    !Modifier.isPublic(method.getDeclaringClass().getModifiers()))
+                setAccessible(method);
+            return method;
 
         } catch (NoSuchMethodException e) {
             Class superclass = clazz.getSuperclass();
@@ -330,12 +368,17 @@ public enum Jvm {
     }
 
     public static void setAccessible(AccessibleObject h) {
+        if (!IS_JAVA_9_PLUS || IS_JAVA_12_PLUS) {
+            h.setAccessible(true);
+            return;
+        }
         try {
+            // doesn't work in Java 12+
             Field f = AccessibleObject.class.getDeclaredField("override");
             long offset = UNSAFE.objectFieldOffset(f);
             UNSAFE.putBoolean(h, offset, true);
-        } catch (NoSuchFieldException e) {
-            throw new AssertionError(e);
+        } catch (NoSuchFieldException e2) {
+            // ignored, throws an error later if private.
         }
     }
 
@@ -419,7 +462,8 @@ public enum Jvm {
     }
 
     @NotNull
-    public static Map<ExceptionKey, Integer> recordExceptions(boolean debug, boolean exceptionsOnly, boolean logToSlf4j) {
+    public static Map<ExceptionKey, Integer> recordExceptions(boolean debug, boolean exceptionsOnly,
+                                                              boolean logToSlf4j) {
         @NotNull Map<ExceptionKey, Integer> map = Collections.synchronizedMap(new LinkedHashMap<>());
         FATAL.defaultHandler(recordingExceptionHandler(LogLevel.FATAL, map, exceptionsOnly, logToSlf4j));
         WARN.defaultHandler(recordingExceptionHandler(LogLevel.WARN, map, exceptionsOnly, logToSlf4j));
@@ -427,7 +471,8 @@ public enum Jvm {
         return map;
     }
 
-    private static ExceptionHandler recordingExceptionHandler(LogLevel logLevel, Map<ExceptionKey, Integer> map, boolean exceptionsOnly, boolean logToSlf4j) {
+    private static ExceptionHandler recordingExceptionHandler(LogLevel logLevel, Map<ExceptionKey, Integer> map,
+                                                              boolean exceptionsOnly, boolean logToSlf4j) {
         ExceptionHandler eh = new RecordingExceptionHandler(logLevel, map, exceptionsOnly);
         if (logToSlf4j)
             eh = new ChainedExceptionHandler(eh, Slf4jExceptionHandler.valueOf(logLevel));
@@ -600,10 +645,12 @@ public enum Jvm {
 //        byte.class.getModifiers();
 
 //        "".intern(); 50 ns
-        if (IS_JAVA_9_PLUS)
-            Thread.holdsLock(""); // 100 ns on Java 11
-        else
+        if (!IS_JAVA_9_PLUS) {
             Compiler.enable(); // 5 ns on Java 8
+        } else {
+            Thread.holdsLock(""); // 100 ns on Java 11
+        }
+
     }
 
     public static void optionalSafepoint() {

@@ -434,7 +434,7 @@ public enum ObjectUtils {
         }
     }
 
-    private static Boolean toBoolean(String s) {
+    static Boolean toBoolean(String s) {
         if (s == null)
             return null;
         s = s.trim();
