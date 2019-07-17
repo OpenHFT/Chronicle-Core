@@ -6,9 +6,7 @@ import org.slf4j.LoggerFactory;
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -24,9 +22,11 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeakReferenceCleaner.class);
     private static final ReferenceQueue<Object> REFERENCE_QUEUE = new ReferenceQueue<>();
     private static final ConcurrentLinkedQueue<WeakReferenceCleaner> SCHEDULED_CLEAN = new ConcurrentLinkedQueue<>();
-    private static final Map<WeakReferenceCleaner, Boolean> REFERENCE_MAP =
-            Collections.synchronizedMap(
-                    new HashMap<>(128));
+    /*
+     * This set is used to hold a STRONG reference to the WeakReferenceCleaner object, to avoid it being collected
+     * before GC added it to the reference queue
+     */
+    private static final Set<WeakReferenceCleaner> REFERENCE_SET = Collections.synchronizedSet(new HashSet<>(128));
     private static final AtomicBoolean REFERENCE_PROCESSOR_STARTED = new AtomicBoolean(false);
     private static final AtomicIntegerFieldUpdater<WeakReferenceCleaner> CLEANED_FLAG =
             AtomicIntegerFieldUpdater.newUpdater(WeakReferenceCleaner.class, "cleaned");
@@ -44,16 +44,13 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
         startReferenceProcessor(WeakReferenceCleaner::referenceCleanerExecutor);
 
         final WeakReferenceCleaner cleaner = new WeakReferenceCleaner(referent, thunk);
-        REFERENCE_MAP.put(cleaner, Boolean.TRUE);
+        REFERENCE_SET.add(cleaner);
         return cleaner;
     }
 
     public static void startReferenceProcessor(final Supplier<Executor> executorSupplier) {
-        if (!REFERENCE_PROCESSOR_STARTED.get()) {
-            if (REFERENCE_PROCESSOR_STARTED.compareAndSet(false, true)) {
+        if (!REFERENCE_PROCESSOR_STARTED.get() && REFERENCE_PROCESSOR_STARTED.compareAndSet(false, true))
                 executorSupplier.get().execute(new ReferenceProcessor());
-            }
-        }
     }
 
     static Executor referenceCleanerExecutor() {
@@ -69,10 +66,6 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
         return executor;
     }
 
-    public static int referenceCount() {
-        return REFERENCE_MAP.size();
-    }
-
     public void clean() {
         if (CLEANED_FLAG.compareAndSet(this, 0, 1)) {
             thunk.run();
@@ -81,7 +74,7 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
 
     public void scheduleForClean() {
         SCHEDULED_CLEAN.add(this);
-        REFERENCE_MAP.remove(this);
+        REFERENCE_SET.remove(this);
     }
 
     static final class ReferenceProcessor implements Runnable {
@@ -99,7 +92,7 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
                     Reference<?> reference;
                     while ((reference = REFERENCE_QUEUE.remove(50L)) != null) {
                         final WeakReferenceCleaner cleaner = (WeakReferenceCleaner) reference;
-
+                        REFERENCE_SET.remove(cleaner);
                         cleaner.clean();
                     }
 
