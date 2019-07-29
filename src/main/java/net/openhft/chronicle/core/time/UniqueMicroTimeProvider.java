@@ -5,11 +5,17 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * Timestamps are unique across threads for a single process.
  */
-public enum UniqueMicroTimeProvider implements TimeProvider {
-    INSTANCE;
+public class UniqueMicroTimeProvider implements TimeProvider {
+    public static final UniqueMicroTimeProvider INSTANCE = new UniqueMicroTimeProvider();
 
     private final AtomicLong lastTime = new AtomicLong();
     private TimeProvider provider = SystemTimeProvider.INSTANCE;
+
+    /**
+     * Create new instances for testing purposes as it is stateful
+     */
+    public UniqueMicroTimeProvider() {
+    }
 
     public UniqueMicroTimeProvider provider(TimeProvider provider) {
         this.provider = provider;
