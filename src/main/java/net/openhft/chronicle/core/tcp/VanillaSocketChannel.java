@@ -77,4 +77,11 @@ public class VanillaSocketChannel implements ISocketChannel {
     public void close() throws IOException {
         socketChannel.close();
     }
+
+    @Override
+    public String toString() {
+        return "VanillaSocketChannel{" +
+                "socketChannel=" + socketChannel +
+                '}';
+    }
 }
