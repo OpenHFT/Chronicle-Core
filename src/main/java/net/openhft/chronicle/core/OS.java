@@ -94,6 +94,7 @@ public enum OS {
             }
             WRITE0_MH = write0Mh;
             WRITE0_MH2 = write0Mh2;
+            TIME_LIMIT.setStackTrace(new StackTraceElement[0]);
 
         } catch (IllegalAccessException | ClassNotFoundException e) {
             throw new AssertionError(e);
