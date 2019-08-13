@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import sun.nio.ch.FileChannelImpl;
 
+import javax.naming.TimeLimitExceededException;
 import java.io.*;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -72,6 +73,7 @@ public enum OS {
     private static MethodHandle UNMAPP0_MH;
     private static MethodHandle READ0_MH;
     private static MethodHandle WRITE0_MH, WRITE0_MH2;
+    public static final Exception TIME_LIMIT = new TimeLimitExceededException();
 
     static {
         try {
