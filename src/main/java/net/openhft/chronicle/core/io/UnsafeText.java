@@ -51,7 +51,6 @@ public enum UnsafeText {
         }
     }
 
-
     public static long appendFixed(long address, double num, int digits) {
         long tens = Maths.tens(digits);
         double mag = num * tens;
