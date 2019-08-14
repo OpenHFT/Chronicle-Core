@@ -23,7 +23,9 @@ import sun.misc.Signal;
 import sun.misc.SignalHandler;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -125,6 +127,32 @@ public enum Jvm {
             }
         }
         ON_SPIN_WAIT = onSpinWait;
+
+        loadSystemProperties("system.properties");
+    }
+
+    private static void loadSystemProperties(String name) {
+        try {
+            InputStream is0 = Jvm.class.getClassLoader().getResourceAsStream(name);
+            if (is0 == null) {
+                File file = new File(name);
+                if (file.exists())
+                    is0 = new FileInputStream(file);
+            }
+            try (InputStream is = is0) {
+                if (is == null) {
+                    Slf4jExceptionHandler.DEBUG.on(Jvm.class, "No system.properties file found");
+
+                } else {
+                    Properties prop = new Properties();
+                    prop.load(is);
+                    System.getProperties().putAll(prop);
+                    Slf4jExceptionHandler.DEBUG.on(Jvm.class, "Loaded system.properties with " + prop);
+                }
+            }
+        } catch (IOException e) {
+            Slf4jExceptionHandler.WARN.on(Jvm.class, "Error loading system.properties");
+        }
     }
 
     private static int getCompileThreshold0(@NotNull List<String> inputArguments) {
