@@ -23,6 +23,9 @@ import java.lang.annotation.Target;
 import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
+/**
+ * This member is either used via reflection, or must be public for tests to work.
+ */
 @Documented
 @Retention(CLASS)
 @Target({METHOD, FIELD, CONSTRUCTOR, TYPE})
