@@ -2,10 +2,9 @@
  * Copyright (c) 2016-2019 Chronicle Software Ltd
  */
 
-package net.openhft.chronicle.core.util;
+package net.openhft.chronicle.core;
 
 import junit.framework.TestCase;
-import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
 import org.junit.After;
 import org.junit.Test;
@@ -13,10 +12,10 @@ import org.junit.Test;
 import javax.naming.TimeLimitExceededException;
 import java.util.Map;
 
-import static net.openhft.chronicle.core.util.LicenseCheck.CHRONICLE_LICENSE;
+import static net.openhft.chronicle.core.LicenceCheck.CHRONICLE_LICENSE;
 import static org.junit.Assert.*;
 
-public class LicenseCheckTest {
+public class LicenceCheckTest {
 
     @After
     public void tearDown() {
@@ -28,7 +27,7 @@ public class LicenseCheckTest {
     public void checkEval() {
         Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
         // Evaluation license
-        LicenseCheck.check("test", LicenseCheck.class);
+        LicenceCheck.check("test", LicenceCheck.class);
         assertEquals("{ExceptionKey{level=WARN, clazz=class net.openhft.chronicle.core.util.LicenseCheck, message='Evaluation version expires in 92 days', throwable=}=1}", map.toString());
     }
 
@@ -37,7 +36,7 @@ public class LicenseCheckTest {
         Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
         // Evaluation license
         try {
-            LicenseCheck.check("test", TestCase.class);
+            LicenceCheck.check("test", TestCase.class);
             fail();
         } catch (AssertionError e) {
             assertEquals(TimeLimitExceededException.class, e.getCause().getClass());
@@ -51,7 +50,7 @@ public class LicenseCheckTest {
 
         Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
         // licensed
-        LicenseCheck.check("test", null);
+        LicenceCheck.check("test", null);
         System.out.println(map);
         assertTrue(map.toString().contains("License for Test Unit expires in 29"));
     }
@@ -63,7 +62,7 @@ public class LicenseCheckTest {
         Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
         // licensed
         try {
-            LicenseCheck.check("test", null);
+            LicenceCheck.check("test", null);
             fail();
         } catch (AssertionError e) {
             assertEquals(TimeLimitExceededException.class, e.getCause().getClass());
