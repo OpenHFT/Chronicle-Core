@@ -17,8 +17,6 @@
 
 package net.openhft.chronicle.core;
 
-import net.openhft.chronicle.core.util.LicenseCheck;
-
 import javax.naming.TimeLimitExceededException;
 import java.io.File;
 import java.io.IOException;
@@ -39,7 +37,7 @@ public interface LicenceCheck {
     static void check(String product, Class caller) {
         Jvm.debug(); // make sure this was loaded firs.
         String key = System.getProperty(CHRONICLE_LICENSE);
-        if (key == null || !key.contains("product=" + product + ",")) {
+        if (key == null || !key.contains(product + '.')) {
             try {
                 URL location = caller.getProtectionDomain().getCodeSource().getLocation();
                 String path = location.getPath();
@@ -62,12 +60,12 @@ public interface LicenceCheck {
                 }
                 long time = date - System.currentTimeMillis();
                 long days = time / 86400000 + 92;
-                Jvm.warn().on(LicenseCheck.class, "Evaluation version expires in " + days + " days");
+                Jvm.warn().on(LicenceCheck.class, "Evaluation version expires in " + days + " days");
                 if (days < 0)
                     throw new AssertionError(new TimeLimitExceededException());
 
             } catch (IOException e) {
-                Jvm.warn().on(LicenseCheck.class, "Evaluation version expires in 1 day");
+                Jvm.warn().on(LicenceCheck.class, "Evaluation version expires in 1 day");
             }
         } else {
             int start = key.indexOf("expires=") + 8;
@@ -77,7 +75,7 @@ public interface LicenceCheck {
             int end2 = key.indexOf(",", start2);
             String owner = key.substring(start2, end2);
             long days = date.toEpochDay() - System.currentTimeMillis() / 86400000;
-            Jvm.warn().on(LicenseCheck.class, "License for " + owner + " expires in " + days + " days");
+            Jvm.warn().on(LicenceCheck.class, "License for " + owner + " expires in " + days + " days");
             if (days < 0)
                 throw new AssertionError(new TimeLimitExceededException());
         }
