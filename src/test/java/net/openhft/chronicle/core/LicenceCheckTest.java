@@ -28,7 +28,7 @@ public class LicenceCheckTest {
         Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
         // Evaluation license
         LicenceCheck.check("test", LicenceCheck.class);
-        assertEquals("{ExceptionKey{level=WARN, clazz=class net.openhft.chronicle.core.util.LicenseCheck, message='Evaluation version expires in 92 days', throwable=}=1}", map.toString());
+        assertEquals("{ExceptionKey{level=WARN, clazz=interface net.openhft.chronicle.core.LicenceCheck, message='Evaluation version expires in 92 days', throwable=}=1}", map.toString());
     }
 
     @Test
@@ -46,7 +46,7 @@ public class LicenceCheckTest {
 
     @Test
     public void checkLicense() {
-        System.setProperty(CHRONICLE_LICENSE, "product=test,owner=Test Unit,expires=9999-01-01,code=123456789");
+        System.setProperty(CHRONICLE_LICENSE, "product=test.,owner=Test Unit,expires=9999-01-01,code=123456789");
 
         Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
         // licensed
@@ -57,7 +57,7 @@ public class LicenceCheckTest {
 
     @Test
     public void checkLicenseExpired() {
-        System.setProperty(CHRONICLE_LICENSE, "product=test,owner=Test Unit,expires=2019-01-01,code=123456789");
+        System.setProperty(CHRONICLE_LICENSE, "product=test.,owner=Test Unit,expires=2019-01-01,code=123456789");
 
         Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
         // licensed
