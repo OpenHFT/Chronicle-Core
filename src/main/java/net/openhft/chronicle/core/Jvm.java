@@ -678,7 +678,6 @@ public enum Jvm {
         } else {
             Thread.holdsLock(""); // 100 ns on Java 11
         }
-
     }
 
     public static void optionalSafepoint() {

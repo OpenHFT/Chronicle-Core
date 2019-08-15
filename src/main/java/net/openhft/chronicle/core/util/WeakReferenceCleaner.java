@@ -95,7 +95,6 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
                         REFERENCE_SET.remove(cleaner);
                         cleaner.clean();
                     }
-
                 } catch (InterruptedException e) {
                     LOGGER.debug("Interrupted while trying to retrieve reference, exiting.", e);
                     thread.interrupt();

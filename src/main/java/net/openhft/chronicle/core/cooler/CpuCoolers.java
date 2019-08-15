@@ -157,7 +157,6 @@ public enum CpuCoolers implements CpuCooler {
             while (System.nanoTime() - start < nanos) {
                 Thread.holdsLock("");
             }
-
         } else {
             while (System.nanoTime() - start < nanos) {
                 Compiler.enable();
