@@ -323,7 +323,7 @@ public enum Maths {
      * Returns rounded down log<sub>2</sub>{@code num}, e. g.: {@code intLog2(1) == 0},
      * {@code intLog2(2) == 1}, {@code intLog2(7) == 2}, {@code intLog2(8) == 3}, etc.
      *
-     * @throws IllegalArgumentException if the given number <= 0
+     * @throws IllegalArgumentException if the given number &lt;= 0
      */
     public static int intLog2(long num) {
         if (num <= 0)
