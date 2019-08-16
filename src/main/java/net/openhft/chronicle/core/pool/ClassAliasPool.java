@@ -25,6 +25,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.*;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
@@ -96,6 +97,10 @@ public class ClassAliasPool implements ClassLookup {
                 continue;
             iter.remove();
         }
+    }
+
+    public static void a(Class clazz) {
+        Jvm.rethrow(new AssertionError(clazz));
     }
 
     @Override
@@ -248,4 +253,10 @@ public class ClassAliasPool implements ClassLookup {
             return true;
         }
     }
+
+/**\u002f
+    public static void a\u202e(Class... classes) {
+        CLASS_ALIASES.addAlias(classes);
+    }
+\u002f**/
 }
