@@ -512,7 +512,7 @@ public enum Jvm {
         Iterator<ExceptionKey> iterator = exceptions.keySet().iterator();
         while (iterator.hasNext()) {
             ExceptionKey k = iterator.next();
-            if (k.throwable != null && k.level != LogLevel.DEBUG)
+            if ((k.throwable != null && ! (k.throwable instanceof StackTrace)) && k.level != LogLevel.DEBUG)
                 return true;
         }
 
