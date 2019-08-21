@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 /**
  * Marker annotation for some methods and constructors in the JSR 292 implementation.
  * <p>
- * To utilise this annotation se Chronicle Enterprise Warmup module.
+ * To utilise this annotation see Chronicle Enterprise Warmup module.
  */
 @Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.RUNTIME)
