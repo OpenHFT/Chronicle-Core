@@ -92,6 +92,11 @@ public class FileSystemWatcher {
     void run() {
         WatchKey key;
         while (running) {
+            List<WatcherListener> list = new ArrayList<>();
+            listenersToAdd.drainTo(list);
+            bootstrap(list);
+            listeners.addAll(list);
+
             try {
                 if ((key = watchService.take()) == null)
                     break;
@@ -132,10 +137,6 @@ public class FileSystemWatcher {
                 }
 
             } catch (InterruptedException expected) {
-                List<WatcherListener> list = new ArrayList<>();
-                listenersToAdd.drainTo(list);
-                bootstrap(list);
-                listeners.addAll(list);
             }
         }
     }
