@@ -16,8 +16,6 @@
 
 package net.openhft.chronicle.core.util;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.concurrent.locks.LockSupport;
 
 /**
@@ -47,14 +45,6 @@ public enum Time {
         return tickTime;
     }
 
-    public static void wait(@NotNull Object o, long waitTimeMS) throws InterruptedException, IllegalArgumentException {
-        if ((int) waitTimeMS != waitTimeMS)
-            throw new IllegalArgumentException("waitTimeMS: " + waitTimeMS);
-        long end = tickTime() + waitTimeMS;
-        for (long remaining; (remaining = end - tickTime()) > 0; )
-            o.wait(remaining);
-    }
-
     public static void parkNanos(long nanos) {
         long millis = nanos / 1000000;
         if (millis > 0) {
@@ -70,5 +60,19 @@ public enum Time {
             LockSupport.parkNanos(nanos);
             currentTimeMillis();
         }
+    }
+
+    /**
+     * Sleeps in such a way that any long pause of the JVM, e.g. GC, will make it wait much longer to prevent timeouts being busted.
+     *
+     * @param sleepMS to pause for at least.
+     * @throws IllegalArgumentException
+     */
+    public static void sleep(long sleepMS) {
+        long sleepNS = sleepMS * 1_000_000;
+        long pauseTimeNS = sleepNS / 16 + 1;
+        int count = (int) (sleepNS / pauseTimeNS);
+        for (int i = 0; i < count; i++)
+            LockSupport.parkNanos(pauseTimeNS);
     }
 }
