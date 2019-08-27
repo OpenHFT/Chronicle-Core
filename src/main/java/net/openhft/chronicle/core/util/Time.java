@@ -16,6 +16,7 @@
 
 package net.openhft.chronicle.core.util;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
 /**
@@ -68,11 +69,11 @@ public enum Time {
      * @param sleepMS to pause for at least.
      * @throws IllegalArgumentException
      */
-    public static void sleep(long sleepMS) {
-        long sleepNS = sleepMS * 1_000_000;
-        long pauseTimeNS = sleepNS / 16 + 1;
-        int count = (int) (sleepNS / pauseTimeNS);
-        for (int i = 0; i < count; i++)
-            LockSupport.parkNanos(pauseTimeNS);
+    public static void sleep(long count, TimeUnit timeUnit) {
+        int millis = (int) timeUnit.convert(count, TimeUnit.MILLISECONDS);
+        for (int i = 0; i < millis; i++) {
+            currentTimeMillis();
+            LockSupport.parkNanos(1_000_000);
+        }
     }
 }
