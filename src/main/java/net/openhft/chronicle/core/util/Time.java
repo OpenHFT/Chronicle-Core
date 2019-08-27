@@ -67,8 +67,7 @@ public enum Time {
      * Sleeps in such a way that any long pause of the JVM, e.g. GC, will make it wait much longer to prevent timeouts being busted.
      *
      * @param time to pause for at least.
-     * @param timeUnit the time unit 
-     * @throws IllegalArgumentException
+     * @param timeUnit the time unit
      */
     public static void sleep(long time, TimeUnit timeUnit) {
         int millis = (int) timeUnit.convert(time, TimeUnit.MILLISECONDS);
