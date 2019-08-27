@@ -66,11 +66,12 @@ public enum Time {
     /**
      * Sleeps in such a way that any long pause of the JVM, e.g. GC, will make it wait much longer to prevent timeouts being busted.
      *
-     * @param sleepMS to pause for at least.
+     * @param time to pause for at least.
+     * @param timeUnit the time unit 
      * @throws IllegalArgumentException
      */
-    public static void sleep(long count, TimeUnit timeUnit) {
-        int millis = (int) timeUnit.convert(count, TimeUnit.MILLISECONDS);
+    public static void sleep(long time, TimeUnit timeUnit) {
+        int millis = (int) timeUnit.convert(time, TimeUnit.MILLISECONDS);
         for (int i = 0; i < millis; i++) {
             currentTimeMillis();
             LockSupport.parkNanos(1_000_000);
