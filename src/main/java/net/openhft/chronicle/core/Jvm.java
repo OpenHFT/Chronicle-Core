@@ -512,7 +512,7 @@ public enum Jvm {
         Iterator<ExceptionKey> iterator = exceptions.keySet().iterator();
         while (iterator.hasNext()) {
             ExceptionKey k = iterator.next();
-            if ((k.throwable != null && ! (k.throwable instanceof StackTrace)) && k.level != LogLevel.DEBUG)
+            if ((k.throwable != null && !(k.throwable instanceof StackTrace)) && k.level != LogLevel.DEBUG)
                 return true;
         }
 
@@ -744,6 +744,10 @@ public enum Jvm {
                 throw new IllegalArgumentException(c + " is not suitable for raw copies due to " + f);
             }
         }
+    }
+
+    public static String userHome() {
+        return System.getProperty("user.home", ".");
     }
 
     private static class ChainedSignalHandler implements SignalHandler {
