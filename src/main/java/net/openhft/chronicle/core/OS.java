@@ -60,22 +60,22 @@ public enum OS {
     private static final int MAP_PV = 2;
     private static final boolean IS64BIT = is64Bit0();
     private static final AtomicInteger PROCESS_ID = new AtomicInteger();
-    @NotNull
-    private static final Memory MEMORY = getMemory();
     private static final String OS = System.getProperty("os.name").toLowerCase();
     private static final boolean IS_LINUX = OS.startsWith("linux");
     private static final boolean IS_MAC = OS.contains("mac");
     private static final boolean IS_WIN = OS.startsWith("win");
     private static final boolean IS_WIN10 = OS.equals("windows 10");
     private static final AtomicLong memoryMapped = new AtomicLong();
-    private static final int PAGE_SIZE = MEMORY.pageSize();
-    private static final int MAP_ALIGNMENT = isWindows() ? 64 << 10 : PAGE_SIZE;
     private static MethodHandle UNMAPP0_MH;
     private static MethodHandle READ0_MH;
     private static MethodHandle WRITE0_MH, WRITE0_MH2;
     public static final Exception TIME_LIMIT = new TimeLimitExceededException();
+    private static int PAGE_SIZE; // avoid circular initialisation
+    private static int MAP_ALIGNMENT;
 
     static {
+        // make sure it is initialised first.
+        Jvm.debug();
         try {
             Method unmap0 = Jvm.getMethod(FileChannelImpl.class, "unmap0", long.class, long.class);
             UNMAPP0_MH = MethodHandles.lookup().unreflect(unmap0);
@@ -160,32 +160,12 @@ public enum OS {
         }
     }
 
-    @NotNull
-    private static Memory getMemory() {
-        @Nullable Memory memory = null;
-        try {
-            Class<? extends Memory> java9MemoryClass = Class
-                    .forName("software.chronicle.enterprise.core.Java9Memory")
-                    .asSubclass(Memory.class);
-            Method create = java9MemoryClass.getMethod("create");
-            memory = (Memory) create.invoke(null);
-        } catch (ClassNotFoundException expected) {
-            // expected
-        } catch (@NotNull NoSuchMethodException | InvocationTargetException
-                | IllegalAccessException | IllegalArgumentException e) {
-            Jvm.warn().on(OS.class, "Unable to load Java9MemoryClass", e);
-        }
-        if (memory == null)
-            memory = UnsafeMemory.INSTANCE;
-        return memory;
-    }
-
     /**
      * @return native memory accessor class
      */
     @NotNull
     public static Memory memory() {
-        return MEMORY;
+        return UnsafeMemory.INSTANCE;
     }
 
     /**
@@ -205,6 +185,8 @@ public enum OS {
      * @see #pageAlign(long)
      */
     public static int pageSize() {
+        if (PAGE_SIZE == 0)
+            PAGE_SIZE = memory().pageSize();
         return PAGE_SIZE;
     }
 
@@ -216,7 +198,7 @@ public enum OS {
      * @see #mapAlignment()
      */
     public static long mapAlign(long offset) {
-        int chunkMultiple = MAP_ALIGNMENT;
+        int chunkMultiple = (int) mapAlignment();
         return (offset + chunkMultiple - 1) / chunkMultiple * chunkMultiple;
     }
 
@@ -228,6 +210,8 @@ public enum OS {
      * @see #mapAlign(long)
      */
     public static long mapAlignment() {
+        if (MAP_ALIGNMENT == 0)
+            MAP_ALIGNMENT = isWindows() ? 64 << 10 : PAGE_SIZE;
         return MAP_ALIGNMENT;
     }
 
