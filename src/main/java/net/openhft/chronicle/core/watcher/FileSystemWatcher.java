@@ -5,6 +5,7 @@
 package net.openhft.chronicle.core.watcher;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.io.Closeable;
 
 import java.io.IOException;
@@ -89,6 +90,10 @@ public class FileSystemWatcher {
         return s.equals(filename) || s.startsWith(filename + "/");
     }
 
+    private static String p(String path) {
+        return OS.isWindows() ? path.replace('\\', '/') : path;
+    }
+
     void run() {
         WatchKey key;
         while (running) {
@@ -116,12 +121,12 @@ public class FileSystemWatcher {
                             String fullRelative = (base.relativePath.isEmpty() ? "" : base.relativePath + "/") + event2.context();
                             String filename = base.basePath + "/" + fullRelative;
                             if (event.kind() == ENTRY_CREATE) {
-                                listener.onExists(base.basePath, fullRelative, false);
+                                listener.onExists(p(base.basePath), p(fullRelative), false);
                                 addPath(base.basePath, fullRelative);
                             } else if (event.kind() == ENTRY_MODIFY) {
-                                listener.onExists(base.basePath, fullRelative, true);
+                                listener.onExists(p(base.basePath), p(fullRelative), true);
                             } else if (event.kind() == ENTRY_DELETE) {
-                                listener.onRemoved(base.basePath, fullRelative);
+                                listener.onRemoved(p(base.basePath), p(fullRelative));
                                 removePath(filename);
                             }
 
@@ -163,7 +168,7 @@ public class FileSystemWatcher {
                         continue;
                     String filename = pToString.substring(base.length() + 1);
                     try {
-                        listener.onExists(base, filename, null);
+                        listener.onExists(p(base), p(filename), null);
                     } catch (IllegalStateException ise) {
                         iterator.remove();
                     }
