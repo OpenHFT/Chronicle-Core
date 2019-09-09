@@ -33,7 +33,7 @@ import static java.lang.Character.toLowerCase;
 public enum StringUtils {
     ;
 
-    private static final Field S_VALUE, SB_COUNT;
+    private static final Field S_VALUE, SB_COUNT, S_CODER, SB_CODER;
     private static final long S_VALUE_OFFSET, SB_VALUE_OFFSET, SB_COUNT_OFFSET, S_COUNT_OFFSET;
     private static final long MAX_VALUE_DIVIDE_10 = Long.MAX_VALUE / 10;
 
@@ -42,6 +42,13 @@ public enum StringUtils {
             S_VALUE = String.class.getDeclaredField("value");
             Jvm.setAccessible(S_VALUE);
             S_VALUE_OFFSET = OS.memory().getFieldOffset(S_VALUE);
+            if (Jvm.isJava9Plus()) {
+                SB_CODER = Jvm.getField(StringBuilder.class.getSuperclass(), "coder");
+                S_CODER = Jvm.getField(String.class, "coder");
+            } else {
+                S_CODER = null;
+                SB_CODER = null;
+            }
         } catch (Exception e) {
             throw new AssertionError(e);
         }
@@ -191,7 +198,9 @@ public enum StringUtils {
     @Java9
     private static byte getStringCoderForStringOrStringBuilder(@NotNull CharSequence charSequence) {
         try {
-            return Jvm.getField(charSequence.getClass(), "coder").getByte(charSequence);
+            if (charSequence instanceof String) return S_CODER.getByte(charSequence);
+            else if (charSequence instanceof StringBuilder) return SB_CODER.getByte(charSequence);
+            else return Jvm.getField(charSequence.getClass(), "coder").getByte(charSequence);
         } catch (IllegalArgumentException | IllegalAccessException e) {
             throw new AssertionError(e);
         }
@@ -554,6 +563,5 @@ public enum StringUtils {
         return negative ? result : -result;
     }
 
-    
 
 }
