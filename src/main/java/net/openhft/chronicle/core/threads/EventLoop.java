@@ -46,7 +46,7 @@ public interface EventLoop extends Closeable {
     boolean isAlive();
 
     /**
-     * Wait until the event loop has terminated.
+     * Wait until the event loop has terminated (after close has been called)
      */
     void awaitTermination();
 }

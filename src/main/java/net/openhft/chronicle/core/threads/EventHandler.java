@@ -16,7 +16,6 @@
 
 package net.openhft.chronicle.core.threads;
 
-import net.openhft.chronicle.core.io.Closeable;
 import org.jetbrains.annotations.NotNull;
 
 /*
@@ -27,24 +26,16 @@ public interface EventHandler extends VanillaEventHandler {
     default void eventLoop(EventLoop eventLoop) {
     }
 
+    /**
+     * Notify handler that the eventLoop's loop has terminated and the handler's action method
+     * will not be called again. This is called before the eventLoop calls close.
+     */
+    default void loopFinished() {
+    }
+
     @NotNull
     default HandlerPriority priority() {
         return HandlerPriority.MEDIUM;
-    }
-
-    /**
-     * When closing a handler, allow it to clean up in its action method
-     * @see <a href="https://github.com/OpenHFT/Chronicle-Network/issues/45">issue 45</a>
-     * @param handler to close
-     */
-    static void closeHandler(EventHandler handler) {
-        Closeable.closeQuietly(handler);
-        try {
-            // so it can close off resources.
-            handler.action();
-        } catch (Exception ignored) {
-            // ignored
-        }
     }
 }
 
