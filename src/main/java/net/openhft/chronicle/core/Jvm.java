@@ -411,8 +411,9 @@ public enum Jvm {
     }
 
     public static <V> V getValue(@NotNull Object obj, @NotNull String name) {
+        Class<?> aClass = obj.getClass();
         for (String n : name.split("/")) {
-            Field f = getField(obj.getClass(), n);
+            Field f = getField(aClass, n);
             try {
                 obj = f.get(obj);
                 if (obj == null)
