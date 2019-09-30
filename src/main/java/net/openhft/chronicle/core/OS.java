@@ -211,7 +211,7 @@ public enum OS {
      */
     public static long mapAlignment() {
         if (MAP_ALIGNMENT == 0)
-            MAP_ALIGNMENT = isWindows() ? 64 << 10 : PAGE_SIZE;
+            MAP_ALIGNMENT = isWindows() ? 64 << 10 : pageSize();
         return MAP_ALIGNMENT;
     }
 
