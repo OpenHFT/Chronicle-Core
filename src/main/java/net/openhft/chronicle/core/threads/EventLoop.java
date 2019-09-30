@@ -24,7 +24,10 @@ import org.jetbrains.annotations.NotNull;
  */
 public interface EventLoop extends Closeable {
 
-    void addHandler(boolean dontAttemptToRunImmediatelyInCurrentThread, @NotNull EventHandler handler);
+    @Deprecated
+    default void addHandler(boolean dontAttemptToRunImmediatelyInCurrentThread, @NotNull EventHandler handler) {
+        throw new UnsupportedOperationException("dontAttemptToRunImmediatelyInCurrentThread is always true now");
+    }
 
     void addHandler(EventHandler handler);
 
