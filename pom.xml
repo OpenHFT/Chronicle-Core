@@ -61,7 +61,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.jetbrains</groupId>
+            <groupId>com.intellij</groupId>
             <artifactId>annotations</artifactId>
         </dependency>
 
