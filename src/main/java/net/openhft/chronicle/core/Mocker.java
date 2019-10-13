@@ -77,7 +77,7 @@ public enum Mocker {
             protected Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
                 consumer.accept(method.getName(), args);
                 if (t != null)
-                    method.invoke(t, args);
+                    return method.invoke(t, args);
                 return null;
             }
         });
