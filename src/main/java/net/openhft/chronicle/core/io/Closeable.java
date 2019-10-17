@@ -16,9 +16,9 @@
 
 package net.openhft.chronicle.core.io;
 
+import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -41,7 +41,7 @@ public interface Closeable extends java.io.Closeable {
             try {
                 ((java.io.Closeable) o).close();
             } catch (IOException | IllegalStateException e) {
-                LoggerFactory.getLogger(Closeable.class).debug("", e);
+                Jvm.debug().on(Closeable.class, e);
             }
         }
     }
