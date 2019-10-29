@@ -179,10 +179,4 @@ System.out.println(h.toLongMicrosFormat(instance::toMicros));
 
 JLBH
 ==============
-Java Latency Benchmark Harness is a tool that allows you to benchmark your code 
-running in context, rather than in a microbenchmark. An excellent introduction can be found in 
-[this series of articles.](http://www.rationaljava.com/2016/04/a-series-of-posts-on-jlbh-java-latency.html)
-
-Since those articles were written the main change has been to allow JLBH to be installed  to an event loop, 
-rather than it running in its own thread. To do this, use
-the JLBH.eventLoopHandler method rather than JLBH.start.
+JLBH has moved home and now lives in its own project, see [JLBH](https://github.com/OpenHFT/JLBH).
