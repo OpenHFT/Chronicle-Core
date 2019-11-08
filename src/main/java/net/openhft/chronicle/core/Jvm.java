@@ -421,6 +421,7 @@ public enum Jvm {
             } catch (IllegalAccessException e) {
                 throw new AssertionError(e);
             }
+            aClass = obj.getClass();
         }
         return (V) obj;
     }
