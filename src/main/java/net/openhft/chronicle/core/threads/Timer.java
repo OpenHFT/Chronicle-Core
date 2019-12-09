@@ -106,6 +106,11 @@ public class Timer {
         public HandlerPriority priority() {
             return HandlerPriority.TIMER;
         }
+
+        @Override
+        public String toString() {
+            return "ScheduledEventHandler<" + eventHandler + '>';
+        }
     }
 }
 
