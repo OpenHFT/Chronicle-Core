@@ -50,10 +50,24 @@ public enum HandlerPriority {
     /***
      * used for replication, ensures that the replication runs on its own thread
      */
-    REPLICATION,
+    REPLICATION {
+        @Override
+        public HandlerPriority alias() {
+            return MEDIUM;
+        }
+    },
 
     /**
      * A task which can be performed concurrently especially as it might block for some time.
      */
-    CONCURRENT
+    CONCURRENT {
+        @Override
+        public HandlerPriority alias() {
+            return MEDIUM;
+        }
+    };
+
+    public HandlerPriority alias() {
+        return this;
+    }
 }

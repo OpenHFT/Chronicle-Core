@@ -23,6 +23,9 @@ import org.jetbrains.annotations.NotNull;
  * Created by peter.lawrey on 22/01/15.
  */
 public interface EventLoop extends Closeable {
+    boolean DEBUG_ADDING_HANDLERS = Boolean.getBoolean("debug.adding.handlers");
+
+    String name();
 
     @Deprecated
     default void addHandler(boolean dontAttemptToRunImmediatelyInCurrentThread, @NotNull EventHandler handler) {
