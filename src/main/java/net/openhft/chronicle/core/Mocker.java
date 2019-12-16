@@ -90,6 +90,8 @@ public enum Mocker {
     }
 
     private static <T> void addInterface(Set<Class> classes, Class<T> tClass) {
+        if (tClass.getName().endsWith(".DocumentContext"))
+            return;
         if (classes.contains(tClass))
             return;
         classes.add(tClass);
