@@ -75,7 +75,6 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
         } else if (declaringClass == Closeable.class && method.getName().equals("close")) {
             Closeable.closeQuietly(closeable);
             return null;
-
         }
 
         if (args == null)

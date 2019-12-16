@@ -26,6 +26,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
@@ -36,6 +38,8 @@ import java.util.function.Consumer;
  */
 public enum Mocker {
     ;
+
+    private static final Class[] NO_CLASSES = new Class[0];
 
     @NotNull
     public static <T> T logging(@NotNull Class<T> tClass, String description, @NotNull PrintStream out) {
@@ -71,8 +75,10 @@ public enum Mocker {
 
     @NotNull
     public static <T> T intercepting(@NotNull Class<T> tClass, @NotNull BiConsumer<String, Object[]> consumer, T t) {
+        Set<Class> classes = new LinkedHashSet<>();
+        addInterface(classes, tClass);
         //noinspection unchecked
-        return (T) Proxy.newProxyInstance(tClass.getClassLoader(), new Class[]{tClass}, new AbstractInvocationHandler(ConcurrentHashMap::new) {
+        return (T) Proxy.newProxyInstance(tClass.getClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler(ConcurrentHashMap::new) {
             @Override
             protected Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
                 consumer.accept(method.getName(), args);
@@ -83,10 +89,23 @@ public enum Mocker {
         });
     }
 
+    private static <T> void addInterface(Set<Class> classes, Class<T> tClass) {
+        if (classes.contains(tClass))
+            return;
+        classes.add(tClass);
+        for (Method method : tClass.getMethods()) {
+            Class<?> returnType = method.getReturnType();
+            if (returnType.isInterface())
+                addInterface(classes, returnType);
+        }
+    }
+
     @NotNull
     public static <T> T ignored(@NotNull Class<T> tClass) {
+        Set<Class> classes = new LinkedHashSet<>();
+        addInterface(classes, tClass);
         //noinspection unchecked
-        return (T) Proxy.newProxyInstance(tClass.getClassLoader(), new Class[]{tClass}, new AbstractInvocationHandler(ConcurrentHashMap::new) {
+        return (T) Proxy.newProxyInstance(tClass.getClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler(ConcurrentHashMap::new) {
             @Override
             protected Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
                 return null;
