@@ -90,7 +90,7 @@ public enum Mocker {
     }
 
     private static <T> void addInterface(Set<Class> classes, Class<T> tClass) {
-        if (tClass.getName().endsWith(".DocumentContext"))
+        if (Jvm.dontChain(tClass))
             return;
         if (classes.contains(tClass))
             return;

@@ -16,6 +16,7 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.annotation.DontChain;
 import net.openhft.chronicle.core.onoes.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -750,6 +751,10 @@ public enum Jvm {
 
     public static String userHome() {
         return System.getProperty("user.home", ".");
+    }
+
+    public static boolean dontChain(Class tClass) {
+        return tClass.getAnnotation(DontChain.class) != null || tClass.getName().startsWith("java");
     }
 
     private static class ChainedSignalHandler implements SignalHandler {
