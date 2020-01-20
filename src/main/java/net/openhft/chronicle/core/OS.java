@@ -45,6 +45,7 @@ public enum OS {
     public static final String TMP = System.getProperty("java.io.tmpdir");
     public static final String TARGET = System.getProperty("project.build.directory", findTarget());
     public static final String USER_DIR = System.getProperty("user.dir");
+    public static final String USER_HOME = System.getProperty("user.home");
     static final ClassLocal<MethodHandle> MAP0_MH = ClassLocal.withInitial(c -> {
         try {
             Method map0 = Jvm.getMethod(c, "map0", int.class, long.class, long.class);
