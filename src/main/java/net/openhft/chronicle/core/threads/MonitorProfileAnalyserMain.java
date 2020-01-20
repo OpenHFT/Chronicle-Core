@@ -12,8 +12,8 @@ import java.util.stream.Collectors;
 
 public class MonitorProfileAnalyserMain {
 
-    public static final String PROFILE_OF_THE_THREAD = "profile of the thread";
-    public static final String THREAD_HAS_BLOCKED_FOR = "thread has blocked for";
+    private static final String PROFILE_OF_THE_THREAD = "profile of the thread";
+    private static final String THREAD_HAS_BLOCKED_FOR = "thread has blocked for";
 
     /**
      * Reads one or more log files and looks for thread profiles to summarise
@@ -53,7 +53,7 @@ public class MonitorProfileAnalyserMain {
                         lineCount = 0;
                         sb.setLength(0);
 
-                    } else if (line.startsWith("\tat") && lineCount >= 0) {
+                    } else if (partOfStackTrace(line) && lineCount >= 0) {
                         if (++lineCount <= 8) {
                             sb.append(line).append("\n");
                         }
@@ -90,7 +90,11 @@ public class MonitorProfileAnalyserMain {
                         .limit(20)
                         .collect(Collectors.toList());
         methodSortedByCount
-                .stream()
                 .forEach(e -> System.out.println(e.getValue() + e.getKey()));
+    }
+
+    private static boolean partOfStackTrace(String line) {
+        // make this more robust in the face of copy/pasting etc.
+        return line.startsWith("\tat ") || line.matches("\\s+at .*");
     }
 }
