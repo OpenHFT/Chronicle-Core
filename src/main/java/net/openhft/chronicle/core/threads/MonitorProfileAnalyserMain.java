@@ -4,14 +4,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class MonitorProfileAnalyserMain {
 
+    private static final int MAX_LINES = Integer.getInteger("st.maxlines", 8);
     private static final String PROFILE_OF_THE_THREAD = "profile of the thread";
     private static final String THREAD_HAS_BLOCKED_FOR = "thread has blocked for";
 
@@ -22,19 +20,20 @@ public class MonitorProfileAnalyserMain {
         if (args.length == 0)
             System.err.println("No input file(s) provided");
 
+        List<String> ignoreSubStrings = Arrays.asList(System.getProperty("st.ignore", "").split(","));
         int interval = Integer.getInteger("interval", 0);
         if (interval <= 0) {
-            main0(args);
+            main0(ignoreSubStrings, args);
         } else {
             for (; ; ) {
-                main0(args);
+                main0(ignoreSubStrings, args);
                 JitterSampler.sleepSilently(interval * 1000);
                 System.out.println("\n---\n");
             }
         }
     }
 
-    public static void main0(String[] args) throws IOException {
+    public static void main0(List<String> ignoreSubStrings, String[] args) throws IOException {
         System.out.println("Grouped by line");
         Map<String, Integer> stackCount = new LinkedHashMap<>();
 
@@ -47,19 +46,17 @@ public class MonitorProfileAnalyserMain {
                 for (String line; (line = br.readLine()) != null; ) {
                     if (line.contains(PROFILE_OF_THE_THREAD) || line.contains(THREAD_HAS_BLOCKED_FOR)) {
                         if (sb.length() > 0) {
-                            String lines = sb.toString();
-                            stackCount.compute(lines, (k, v) -> v == null ? 1 : v + 1);
+                            addToStackCount(ignoreSubStrings, stackCount, sb);
                         }
                         lineCount = 0;
                         sb.setLength(0);
 
                     } else if (partOfStackTrace(line) && lineCount >= 0) {
-                        if (++lineCount <= 8) {
+                        if (++lineCount <= MAX_LINES) {
                             sb.append(line).append("\n");
                         }
                     } else if (sb.length() > 0) {
-                        String lines = sb.toString();
-                        stackCount.compute(lines, (k, v) -> v == null ? 1 : v + 1);
+                        addToStackCount(ignoreSubStrings, stackCount, sb);
                         sb.setLength(0);
                     }
                 }
@@ -91,6 +88,14 @@ public class MonitorProfileAnalyserMain {
                         .collect(Collectors.toList());
         methodSortedByCount
                 .forEach(e -> System.out.println(e.getValue() + e.getKey()));
+    }
+
+    private static void addToStackCount(List<String> ignoreSubStrings, Map<String, Integer> stackCount, StringBuilder sb) {
+        String lines = sb.toString();
+        for (String ss : ignoreSubStrings)
+            if (lines.contains(ss))
+                return;
+        stackCount.compute(lines, (k, v) -> v == null ? 1 : v + 1);
     }
 
     private static boolean partOfStackTrace(String line) {
