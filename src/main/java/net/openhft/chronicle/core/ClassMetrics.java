@@ -1,5 +1,11 @@
 package net.openhft.chronicle.core;
 
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class ClassMetrics {
@@ -40,4 +46,22 @@ public class ClassMetrics {
                 ", length=" + length +
                 '}';
     }
+
+    public static void updateJar(final String jarToUpdate, String sourceFile, String fileNameInJar) throws IOException {
+        Map<String, String> env = new HashMap<>();
+        env.put("create", "true");
+
+        URI uri = URI.create("jar:" + new File(jarToUpdate).toURI());
+
+        try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
+            Path externalFile = new File(sourceFile).toPath();
+            Path pathInZipfile = zipfs.getPath(fileNameInJar);
+            // copy a file into the zip file
+            Files.copy(externalFile, pathInZipfile,
+                    StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+
+
 }
