@@ -80,7 +80,4 @@ public interface LicenceCheck {
 
     boolean isAvailable();
 
-    public static void main(String[] args) {
-        check("cqe", LicenceCheck.class);
-    }
 }
