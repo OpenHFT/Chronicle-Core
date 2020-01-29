@@ -17,15 +17,14 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.io.IOTools;
+
 import javax.naming.TimeLimitExceededException;
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.file.attribute.FileTime;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.Enumeration;
-import java.util.jar.JarEntry;
-import java.util.jar.JarFile;
+import java.util.Date;
+
+import static net.openhft.chronicle.core.Jvm.warn;
 
 /**
  * @author Rob Austin.
@@ -35,37 +34,29 @@ public interface LicenceCheck {
     String CHRONICLE_LICENSE = "chronicle.license";
 
     static void check(String product, Class caller) {
-        Jvm.debug(); // make sure this was loaded firs.
+        Jvm.debug(); // make sure this was loaded first.
         String key = System.getProperty(CHRONICLE_LICENSE);
         if (key == null || !key.contains(product + '.')) {
-            try {
-                URL location = caller.getProtectionDomain().getCodeSource().getLocation();
-                String path = location.getPath();
-                long date;
-                if (path.endsWith(".jar")) {
-                    try (JarFile jarFile = new JarFile(path)) {
-                        final Enumeration<JarEntry> entries = jarFile.entries();
-                        FileTime fileTime = null;
-                        while (entries.hasMoreElements()) {
-                            final JarEntry entry = entries.nextElement();
-                            fileTime = entry.getLastModifiedTime();
-                            if (fileTime != null)
-                                break;
-                        }
-                        date = fileTime.toMillis();
-                    }
-                } else {
-                    File file = new File(path + caller.getName().replace(".", "/") + ".class");
-                    date = file.lastModified();
-                }
-                long time = date - System.currentTimeMillis();
-                long days = time / 86400000 + 92;
-                Jvm.warn().on(LicenceCheck.class, "Evaluation version expires in " + days + " days");
-                if (days < 0)
-                    throw new AssertionError(new TimeLimitExceededException());
+            String expiryDateFile = product + ".expiry-date";
 
-            } catch (IOException e) {
-                Jvm.warn().on(LicenceCheck.class, "Evaluation version expires in 1 day");
+            try {
+
+                String source = new String(IOTools.readFile(expiryDateFile));
+                Date expriyDate = new SimpleDateFormat("yyyy-MM-dd").parse(source);
+                long days = (expriyDate.getTime() - System.currentTimeMillis()) / 86400000;
+
+                if (days < 0)
+                    throw new AssertionError(new TimeLimitExceededException("Failed to read '" + expiryDateFile) + "'");
+
+                String message = days <= 1 ? "The license expires in 1 day" : "The license expires in " + days + " days";
+
+                if (days > 500)
+                    message = "The license expires about " + (days / 365) + " years";
+
+                warn().on(LicenceCheck.class, message + ". At which point, this produce will stop working, if you wish to renew this licence please contact sales@chronicle.software");
+
+            } catch (Throwable t) {
+                throw new AssertionError(new TimeLimitExceededException("Failed to read expiry date, from '" + expiryDateFile + "'"));
             }
         } else {
             int start = key.indexOf("expires=") + 8;
@@ -74,7 +65,7 @@ public interface LicenceCheck {
             int start2 = key.indexOf("owner=") + 6;
             int end2 = key.indexOf(",", start2);
             String owner = key.substring(start2, end2);
-            long days = date.toEpochDay() - System.currentTimeMillis() / 86400000;
+            long days = (date.toEpochDay() - System.currentTimeMillis()) / 86400000;
             Jvm.warn().on(LicenceCheck.class, "License for " + owner + " expires in " + days + " days");
             if (days < 0)
                 throw new AssertionError(new TimeLimitExceededException());
@@ -88,4 +79,8 @@ public interface LicenceCheck {
     void licenceCheck();
 
     boolean isAvailable();
+
+    public static void main(String[] args) {
+        check("cqe", LicenceCheck.class);
+    }
 }
