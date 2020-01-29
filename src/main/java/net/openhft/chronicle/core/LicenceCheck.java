@@ -46,7 +46,7 @@ public interface LicenceCheck {
                 long days = (expriyDate.getTime() - System.currentTimeMillis()) / 86400000;
 
                 if (days < 0)
-                    throw new AssertionError(new TimeLimitExceededException("Failed to read '" + expiryDateFile) + "'");
+                    Jvm.rethrow(new TimeLimitExceededException("Failed to read '" + expiryDateFile));
 
                 String message = days <= 1 ? "The license expires in 1 day" : "The license expires in " + days + " days";
 
@@ -56,7 +56,7 @@ public interface LicenceCheck {
                 warn().on(LicenceCheck.class, message + ". At which point, this produce will stop working, if you wish to renew this licence please contact sales@chronicle.software");
 
             } catch (Throwable t) {
-                throw new AssertionError(new TimeLimitExceededException("Failed to read expiry date, from '" + expiryDateFile + "'"));
+                Jvm.rethrow(new TimeLimitExceededException("Failed to read expiry date, from '" + expiryDateFile + "'"));
             }
         } else {
             int start = key.indexOf("expires=") + 8;
@@ -65,10 +65,10 @@ public interface LicenceCheck {
             int start2 = key.indexOf("owner=") + 6;
             int end2 = key.indexOf(",", start2);
             String owner = key.substring(start2, end2);
-            long days = (date.toEpochDay() - System.currentTimeMillis()) / 86400000;
+            long days = date.toEpochDay() - System.currentTimeMillis() / 86400000;
             Jvm.warn().on(LicenceCheck.class, "License for " + owner + " expires in " + days + " days");
             if (days < 0)
-                throw new AssertionError(new TimeLimitExceededException());
+                Jvm.rethrow(new TimeLimitExceededException());
         }
     }
 

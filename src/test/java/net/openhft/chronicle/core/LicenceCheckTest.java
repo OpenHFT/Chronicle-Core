@@ -10,10 +10,12 @@ import org.junit.After;
 import org.junit.Test;
 
 import javax.naming.TimeLimitExceededException;
+import java.io.IOException;
 import java.util.Map;
 
 import static net.openhft.chronicle.core.LicenceCheck.CHRONICLE_LICENSE;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class LicenceCheckTest {
 
@@ -23,25 +25,18 @@ public class LicenceCheckTest {
         Jvm.resetExceptionHandlers();
     }
 
-    @Test
-    public void checkEval() {
+    @Test(expected = TimeLimitExceededException.class)
+    public void checkIfNoExpiryFile() {
         Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
         // Evaluation license
+
         LicenceCheck.check("test", LicenceCheck.class);
-        assertEquals("{ExceptionKey{level=WARN, clazz=interface net.openhft.chronicle.core.LicenceCheck, message='Evaluation version expires in 92 days', throwable=}=1}", map.toString());
+        fail("should have got an AssertionError");
     }
 
-    @Test
-    public void checkEvalExpired() {
-        Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
-        // Evaluation license
-        try {
+    @Test(expected = TimeLimitExceededException.class)
+    public void checkEvalExpired() throws IOException {
             LicenceCheck.check("test", TestCase.class);
-            fail();
-        } catch (AssertionError e) {
-            assertEquals(TimeLimitExceededException.class, e.getCause().getClass());
-        }
-        assertTrue(map.toString().contains("Evaluation version expires in -"));
     }
 
     @Test
@@ -55,18 +50,10 @@ public class LicenceCheckTest {
         assertTrue(map.toString().contains("License for Test Unit expires in 29"));
     }
 
-    @Test
+    @Test(expected = TimeLimitExceededException.class)
     public void checkLicenseExpired() {
         System.setProperty(CHRONICLE_LICENSE, "product=test.,owner=Test Unit,expires=2019-01-01,code=123456789");
-
-        Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
-        // licensed
-        try {
-            LicenceCheck.check("test", null);
-            fail();
-        } catch (AssertionError e) {
-            assertEquals(TimeLimitExceededException.class, e.getCause().getClass());
-        }
-        assertTrue(map.toString().contains("License for Test Unit expires in -"));
+        LicenceCheck.check("test", null);
     }
+
 }
