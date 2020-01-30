@@ -20,7 +20,8 @@ public class MonitorProfileAnalyserMain {
         if (args.length == 0)
             System.err.println("No input file(s) provided");
 
-        List<String> ignoreSubStrings = Arrays.asList(System.getProperty("st.ignore", "").split(","));
+        final String stIgnore = System.getProperty("st.ignore");
+        List<String> ignoreSubStrings = stIgnore != null ? Arrays.asList(stIgnore.split(",")) : Collections.emptyList();
         int interval = Integer.getInteger("interval", 0);
         if (interval <= 0) {
             main0(ignoreSubStrings, args);
