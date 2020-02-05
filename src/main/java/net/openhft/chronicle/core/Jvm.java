@@ -134,7 +134,8 @@ public enum Jvm {
 
     private static void loadSystemProperties(String name) {
         try {
-            InputStream is0 = Jvm.class.getClassLoader().getResourceAsStream(name);
+            ClassLoader classLoader = Jvm.class.getClassLoader();
+            InputStream is0 = classLoader == null ? null : classLoader.getResourceAsStream(name);
             if (is0 == null) {
                 File file = new File(name);
                 if (file.exists())
