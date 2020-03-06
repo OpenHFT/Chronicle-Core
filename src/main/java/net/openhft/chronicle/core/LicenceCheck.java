@@ -26,9 +26,6 @@ import java.util.Date;
 
 import static net.openhft.chronicle.core.Jvm.warn;
 
-/**
- * @author Rob Austin.
- */
 public interface LicenceCheck {
 
     String CHRONICLE_LICENSE = "chronicle.license";
