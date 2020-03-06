@@ -29,7 +29,6 @@ import static net.openhft.chronicle.core.Jvm.warn;
 public interface LicenceCheck {
 
     String CHRONICLE_LICENSE = "chronicle.license";
-
     static void check(String product, Class caller) {
         Jvm.debug(); // make sure this was loaded first.
         String key = System.getProperty(CHRONICLE_LICENSE);
