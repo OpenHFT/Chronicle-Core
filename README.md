@@ -13,6 +13,7 @@ This library wraps up low level access to
  - [Class Local Caching](#class-local-caching)
  - [Maths Functions](#maths-functions) for casting types, rounding double, faster hashing.
  - [Serializable Lambdas](#serializable-lambdas)
+ - [System properties](#system-properties) 
  - [Histogram](#histogram) A high performance wide range histogram.
  - [JLBH](#jlbh) Java Latency Benchmarking Harness.
  
@@ -161,6 +162,12 @@ default <R> R applyToKey(K key, @NotNull SerializableFunction<E, R> function) {
 String fullename = map.applyToKey("u:123223", u -> u.getFullName());
 ```
 
+System properties
+=================
+The Jvm class in its static initialiser will load system properties from a file called "system.properties"
+if it can find this file in the current directory. This is a useful feature if you want to de-clutter your command line.
+
+
 Histogram
 =================
 A high dynamic range histogram with tunable accuracy.
@@ -181,7 +188,8 @@ JLBH
 ==============
 JLBH has moved home and now lives in its own project, see [JLBH](https://github.com/OpenHFT/JLBH).
 
-## Summarise the Thread Stack Traces
+Loop Block Monitor tool
+==============
 
 The tool to summarise the thread stack traces is here.
 
