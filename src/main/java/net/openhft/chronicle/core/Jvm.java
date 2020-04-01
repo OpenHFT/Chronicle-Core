@@ -132,6 +132,10 @@ public enum Jvm {
         loadSystemProperties("system.properties");
     }
 
+    public static void init() {
+        // force static initialisation
+    }
+
     private static void loadSystemProperties(String name) {
         try {
             ClassLoader classLoader = Jvm.class.getClassLoader();
