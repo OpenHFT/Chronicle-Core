@@ -21,6 +21,9 @@ This library wraps up low level access to
 System properties from file
 ================
 
+The Jvm class in its static initialiser will load system properties from a file called `system.properties`
+if it can find this file in the current directory. This is a useful feature if you want to de-clutter your command line.
+
 Chronicle Core class `Jvm` loads the file `system.properties` into the `System`'s properties.
 To ensure it is loaded early enough, add the following code to your `Main`
 
@@ -179,12 +182,6 @@ default <R> R applyToKey(K key, @NotNull SerializableFunction<E, R> function) {
 
 String fullename = map.applyToKey("u:123223", u -> u.getFullName());
 ```
-
-System properties
-=================
-The Jvm class in its static initialiser will load system properties from a file called "system.properties"
-if it can find this file in the current directory. This is a useful feature if you want to de-clutter your command line.
-
 
 Histogram
 =================
