@@ -129,7 +129,8 @@ public enum Jvm {
         }
         ON_SPIN_WAIT = onSpinWait;
 
-        loadSystemProperties("system.properties");
+        String systemProperties = System.getProperty("system.properties", "system.properties");
+        loadSystemProperties(systemProperties);
     }
 
     public static void init() {
@@ -147,17 +148,17 @@ public enum Jvm {
             }
             try (InputStream is = is0) {
                 if (is == null) {
-                    Slf4jExceptionHandler.DEBUG.on(Jvm.class, "No system.properties file found");
+                    Slf4jExceptionHandler.DEBUG.on(Jvm.class, "No " + name + " file found");
 
                 } else {
                     Properties prop = new Properties();
                     prop.load(is);
                     System.getProperties().putAll(prop);
-                    Slf4jExceptionHandler.DEBUG.on(Jvm.class, "Loaded system.properties with " + prop);
+                    Slf4jExceptionHandler.DEBUG.on(Jvm.class, "Loaded " + name + " with " + prop);
                 }
             }
-        } catch (IOException e) {
-            Slf4jExceptionHandler.WARN.on(Jvm.class, "Error loading system.properties");
+        } catch (Exception e) {
+            Slf4jExceptionHandler.WARN.on(Jvm.class, "Error loading " + name, e);
         }
     }
 
