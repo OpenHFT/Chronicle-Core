@@ -14,7 +14,6 @@ This library wraps up low level access to
  - [Class Local Caching](#class-local-caching)
  - [Maths Functions](#maths-functions) for casting types, rounding double, faster hashing.
  - [Serializable Lambdas](#serializable-lambdas)
- - [System properties](#system-properties) 
  - [Histogram](#histogram) A high performance wide range histogram.
  - [JLBH](#jlbh) Java Latency Benchmarking Harness.
 
