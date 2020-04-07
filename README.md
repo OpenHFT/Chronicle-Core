@@ -5,6 +5,7 @@ Chronicle Core
 
 This library wraps up low level access to
 
+- [System properties from a file](#system-properties-from-file)
  - [Off Heap Memory Access](#off-heap-memory-access)
  - [JVM Access Methods](#jvm-access-methods)
  - [OS Calls](#os-calls)
@@ -15,7 +16,27 @@ This library wraps up low level access to
  - [Serializable Lambdas](#serializable-lambdas)
  - [Histogram](#histogram) A high performance wide range histogram.
  - [JLBH](#jlbh) Java Latency Benchmarking Harness.
- 
+
+System properties from file
+================
+
+The Jvm class in its static initialiser will load system properties from a file called `system.properties`
+if it can find this file in the current directory. This is a useful feature if you want to de-clutter your command line.
+
+Chronicle Core class `Jvm` loads the file `system.properties` into the `System`'s properties.
+To ensure it is loaded early enough, add the following code to your `Main`
+
+```java
+static {
+    Jvm.init();
+}
+```
+
+The choice of file to load can be overridden on the command line with `-Dsystem.properties=my.properties`
+
+See `Jvm.Main` in the `src/test` as an example.
+
+
 Off Heap Memory Access
 =================
 This allows you to access native memory using primitives and some thread safe operations.
@@ -181,7 +202,8 @@ JLBH
 ==============
 JLBH has moved home and now lives in its own project, see [JLBH](https://github.com/OpenHFT/JLBH).
 
-## Summarise the Thread Stack Traces
+Loop Block Monitor tool
+==============
 
 The tool to summarise the thread stack traces is here.
 
