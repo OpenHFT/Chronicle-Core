@@ -69,6 +69,7 @@ public enum Jvm {
     private static final int JVM_JAVA_MAJOR_VERSION;
     private static final boolean IS_JAVA_9_PLUS;
     private static final boolean IS_JAVA_12_PLUS;
+    private static final boolean IS_JAVA_14_PLUS;
     private static final long MAX_DIRECT_MEMORY;
     private static final ChainedSignalHandler signalHandlerGlobal;
     private static final boolean SAFEPOINT_ENABLED = Boolean.getBoolean("jvm.safepoint.enabled");
@@ -92,6 +93,7 @@ public enum Jvm {
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
         IS_JAVA_9_PLUS = JVM_JAVA_MAJOR_VERSION > 8; // IS_JAVA_9_PLUS value is used in maxDirectMemory0 method.
         IS_JAVA_12_PLUS = JVM_JAVA_MAJOR_VERSION > 11;
+        IS_JAVA_14_PLUS = JVM_JAVA_MAJOR_VERSION > 13;
         MAX_DIRECT_MEMORY = maxDirectMemory0();
 
         Supplier<Long> reservedMemoryGetter;
@@ -186,6 +188,10 @@ public enum Jvm {
 
     public static boolean isJava12Plus() {
         return IS_JAVA_12_PLUS;
+    }
+
+    public static boolean isJava14Plus() {
+        return IS_JAVA_14_PLUS;
     }
 
     private static boolean is64bit0() {
