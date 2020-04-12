@@ -48,7 +48,9 @@ public enum OS {
     public static final String USER_HOME = System.getProperty("user.home");
     static final ClassLocal<MethodHandle> MAP0_MH = ClassLocal.withInitial(c -> {
         try {
-            Method map0 = Jvm.getMethod(c, "map0", int.class, long.class, long.class);
+            Method map0 = Jvm.isJava14Plus() ?
+                    Jvm.getMethod(c, "map0", int.class, long.class, long.class, boolean.class):
+                    Jvm.getMethod(c, "map0", int.class, long.class, long.class);
             return MethodHandles.lookup().unreflect(map0);
         } catch (IllegalAccessException e) {
             throw new AssertionError(e);
@@ -336,7 +338,11 @@ public enum OS {
     private static long invokeFileChannelMap0(@NotNull MethodHandle map0, @NotNull FileChannel fileChannel, int imode, long start, long size,
                                               @NotNull ThrowingFunction<OutOfMemoryError, Long, IOException> errorHandler) throws IOException {
         try {
-            return (long) map0.invokeExact((FileChannelImpl) fileChannel, imode, start, size);
+            if (Jvm.isJava14Plus()) {
+                return (long) map0.invokeExact((FileChannelImpl) fileChannel, imode, start, size, false);
+            } else {
+                return (long) map0.invokeExact((FileChannelImpl) fileChannel, imode, start, size);
+            }
         } catch (IllegalAccessException e) {
             throw new AssertionError("Method map0 is not accessible", e);
         } catch (Throwable e) {
