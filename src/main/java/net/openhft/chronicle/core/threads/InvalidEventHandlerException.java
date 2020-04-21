@@ -20,6 +20,9 @@ package net.openhft.chronicle.core.threads;
  * Created by Peter Lawrey on 25/06/15.
  */
 public class InvalidEventHandlerException extends Exception {
+
+    private static final InvalidEventHandlerException STATIC = new ReusableInvalidEventHandlerException();
+
     public InvalidEventHandlerException(String message) {
         super(message);
     }
@@ -30,4 +33,39 @@ public class InvalidEventHandlerException extends Exception {
     public InvalidEventHandlerException(Throwable cause) {
         super(cause);
     }
+
+    /**
+     * Returns a reusable, pre-created, InvalidEventHandlerException that is
+     * unmodifiable and contains no stack trace.
+     * <p>
+     * This is useful for situations where throwing an InvalidEventHandlerException
+     * is used strictly for flow-control (e.g. removing an EventHandler from
+     * an EventLoop when the former has completed with no errors).
+     *
+     * @return a reusable, pre-created, InvalidEventHandlerException that is
+     *         unmodifiable and contains no stack trace
+     */
+    public static InvalidEventHandlerException reusable() {
+        return STATIC;
+    }
+
+    private static final class ReusableInvalidEventHandlerException extends InvalidEventHandlerException {
+
+        public ReusableInvalidEventHandlerException() {
+            super("Reusable InvalidEventHandlerException with no stack trace.");
+            setStackTrace(new StackTraceElement[0]);
+        }
+
+        @Override
+        public synchronized Throwable initCause(Throwable cause) {
+            return this;
+        }
+
+        @Override
+        public void setStackTrace(StackTraceElement[] stackTrace) {
+            if (stackTrace.length == 0)
+                super.setStackTrace(stackTrace);
+        }
+    }
+
 }
