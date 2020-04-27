@@ -22,7 +22,10 @@ package net.openhft.chronicle.core.threads;
 public enum HandlerPriority {
     /**
      * Critical task run in a tight loop
+     *
+     * @Deprecated Use MEDIUM instead
      */
+    @Deprecated
     HIGH,
     /**
      * Less critical tasks called 10% of the time
