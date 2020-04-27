@@ -12,9 +12,9 @@ import java.nio.ByteBuffer;
 
 @TargetMajorVersion(majorVersion = 9)
 public final class Jdk9ByteBufferCleanerService implements ByteBufferCleanerService {
-    private static final MethodHandle handle = getHandle();
+    private static final MethodHandle invokeCleanerMethod = getInvokeCleanerMethod();
 
-    private static MethodHandle getHandle() {
+    private static MethodHandle getInvokeCleanerMethod() {
         MethodType signature = MethodType.methodType(void.class, ByteBuffer.class);
         try {
             return MethodHandles.publicLookup().findVirtual(UnsafeMemory.UNSAFE.getClass(), "invokeCleaner", signature);
@@ -29,7 +29,7 @@ public final class Jdk9ByteBufferCleanerService implements ByteBufferCleanerServ
     @Override
     public void clean(final ByteBuffer buffer) {
         try {
-            handle.invokeExact(UnsafeMemory.UNSAFE, buffer);
+            invokeCleanerMethod.invokeExact(UnsafeMemory.UNSAFE, buffer);
         } catch (Throwable throwable) {
             Jvm.rethrow(throwable);
         }

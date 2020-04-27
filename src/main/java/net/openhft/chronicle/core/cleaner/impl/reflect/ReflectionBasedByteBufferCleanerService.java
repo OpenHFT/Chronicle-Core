@@ -2,34 +2,39 @@ package net.openhft.chronicle.core.cleaner.impl.reflect;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import sun.misc.Cleaner;
 import sun.nio.ch.DirectBuffer;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.nio.ByteBuffer;
 
 public final class ReflectionBasedByteBufferCleanerService implements ByteBufferCleanerService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ReflectionBasedByteBufferCleanerService.class);
     private static final String JDK8_CLEANER_CLASS_NAME = "sun.misc.Cleaner";
     private static final String JDK9_CLEANER_CLASS_NAME = "jdk.internal.ref.Cleaner";
+
+    private static final MethodHandle cleanerMethod, cleanMethod;
+
+    static {
+        MethodHandles.Lookup lookup = MethodHandles.lookup();
+        final String cleanerClassname = Jvm.isJava9Plus() ?
+                JDK9_CLEANER_CLASS_NAME : JDK8_CLEANER_CLASS_NAME;
+        try {
+            cleanerMethod = lookup.findVirtual(DirectBuffer.class, "cleaner", MethodType.methodType(Cleaner.class));
+            cleanMethod = lookup.findVirtual(Class.forName(cleanerClassname), "clean", MethodType.methodType(void.class));
+        } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
 
     @Override
     public void clean(final ByteBuffer buffer) {
         try {
-            final Method cleanerMethod;
-            cleanerMethod = DirectBuffer.class.
-                    getDeclaredMethod("cleaner");
-            Jvm.setAccessible(cleanerMethod);
-            final Object cleaner =
-                    cleanerMethod.invoke(buffer);
-            final String cleanerClassname = Jvm.isJava9Plus() ?
-                    JDK9_CLEANER_CLASS_NAME : JDK8_CLEANER_CLASS_NAME;
-            final Method cleanMethod = Jvm.getMethod(Class.forName(cleanerClassname), "clean");
+            Object cleaner = cleanerMethod.invoke((DirectBuffer) buffer);
             cleanMethod.invoke(cleaner);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
-            LOGGER.warn("Failed to clean buffer", e);
+        } catch (Throwable throwable) {
+            Jvm.rethrow(throwable);
         }
     }
 
