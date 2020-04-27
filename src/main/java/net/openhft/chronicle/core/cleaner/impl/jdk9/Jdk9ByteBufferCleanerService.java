@@ -12,24 +12,25 @@ import java.nio.ByteBuffer;
 
 @TargetMajorVersion(majorVersion = 9)
 public final class Jdk9ByteBufferCleanerService implements ByteBufferCleanerService {
-    private static final MethodHandle invokeCleanerMethod = getInvokeCleanerMethod();
+    private static final MethodHandle invokeCleaner_Method = get_invokeCleaner_Method();
 
-    private static MethodHandle getInvokeCleanerMethod() {
+    private static MethodHandle get_invokeCleaner_Method() {
+        if (!Jvm.isJava9Plus()) {
+            return null;
+        }
+        // Access invokeCleaner() reflectively to support compilation with JDK 8
         MethodType signature = MethodType.methodType(void.class, ByteBuffer.class);
         try {
             return MethodHandles.publicLookup().findVirtual(UnsafeMemory.UNSAFE.getClass(), "invokeCleaner", signature);
         } catch (NoSuchMethodException | IllegalAccessException e) {
-            if (Jvm.isJava9Plus()) {
-                throw new ExceptionInInitializerError(e);
-            }
-            return null;
+            throw new ExceptionInInitializerError(e);
         }
     }
 
     @Override
     public void clean(final ByteBuffer buffer) {
         try {
-            invokeCleanerMethod.invokeExact(UnsafeMemory.UNSAFE, buffer);
+            invokeCleaner_Method.invokeExact(UnsafeMemory.UNSAFE, buffer);
         } catch (Throwable throwable) {
             Jvm.rethrow(throwable);
         }
@@ -37,7 +38,7 @@ public final class Jdk9ByteBufferCleanerService implements ByteBufferCleanerServ
 
     @Override
     public int impact() {
-        // invokeExact() + `static final` method handle = inlined to vanilla method call
+        // invokeExact() on `static final` method handle is inlined to vanilla method call
         return NO_IMPACT;
     }
 }
