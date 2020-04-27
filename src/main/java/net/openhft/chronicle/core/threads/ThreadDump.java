@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /*
  * Created by Peter Lawrey on 09/04/16.
@@ -47,9 +48,25 @@ public class ThreadDump {
         ignored.add(threadName);
     }
 
+    /**
+     * Waits for all new threads to finish execution, up for 50ms.
+     * <p>
+     * Then, prints 3 warnings after 0ms, 200ms and 650ms. Then, throws an exception after 800ms.
+     */
     public void assertNoNewThreads() {
+        assertNoNewThreads(0, TimeUnit.NANOSECONDS);
+    }
+
+    /**
+     * Waits for all new threads to finish execution, up for the specified amount of time ± 50ms.
+     * <p>
+     * Then, prints 3 warnings after 0ms, 200ms and 650ms. Then, throws an exception after 800ms.
+     */
+    public void assertNoNewThreads(int delay, @NotNull TimeUnit delayUnit) {
+        long start = System.nanoTime();
+        long delayNanos = delayUnit.toNanos(delay);
         @Nullable Map<Thread, StackTraceElement[]> allStackTraces = null;
-        for (int i = 1; i < 5; i++) {
+        for (int i = 1; i < 5; ) {
             Jvm.pause(i * i * 50);
             allStackTraces = Thread.getAllStackTraces();
             allStackTraces.keySet().removeAll(threads);
@@ -58,6 +75,10 @@ public class ThreadDump {
             allStackTraces.keySet().removeIf(next -> ignored.stream().anyMatch(item -> next.getName().contains(item)));
             if (allStackTraces.isEmpty())
                 return;
+            if (i == 1 && System.nanoTime() - start < delayNanos) {
+                continue;
+            }
+            i++;
             for (@NotNull Map.Entry<Thread, StackTraceElement[]> threadEntry : allStackTraces.entrySet()) {
                 @NotNull StringBuilder sb = new StringBuilder();
                 sb.append("Thread still running ").append(threadEntry.getKey());
