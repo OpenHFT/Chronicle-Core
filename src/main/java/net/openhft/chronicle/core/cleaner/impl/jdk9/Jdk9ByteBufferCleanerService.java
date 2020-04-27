@@ -37,6 +37,7 @@ public final class Jdk9ByteBufferCleanerService implements ByteBufferCleanerServ
 
     @Override
     public int impact() {
-        return LITTLE_IMPACT;
+        // invokeExact() + `static final` method handle = inlined to vanilla method call
+        return NO_IMPACT;
     }
 }
