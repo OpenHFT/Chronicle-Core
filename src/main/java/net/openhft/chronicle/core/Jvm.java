@@ -89,6 +89,23 @@ public enum Jvm {
         put(double.class, 8);
     }};
 
+    private static final MethodHandle setAccessible0_Method = get_setAccessible0_Method();
+
+    private static MethodHandle get_setAccessible0_Method() {
+        if (!IS_JAVA_9_PLUS) {
+            return null;
+        }
+        MethodType signature = MethodType.methodType(boolean.class, boolean.class);
+        try {
+            // Access privateLookupIn() reflectively to support compilation with JDK 8
+            Method privateLookupIn = MethodHandles.class.getDeclaredMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
+            MethodHandles.Lookup lookup = (MethodHandles.Lookup) privateLookupIn.invoke(null, AccessibleObject.class, MethodHandles.lookup());
+            return lookup.findVirtual(AccessibleObject.class, "setAccessible0", signature);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new ExceptionInInitializerError(e);
+        }
+    }
+
     static {
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
         IS_JAVA_9_PLUS = JVM_JAVA_MAJOR_VERSION > 8; // IS_JAVA_9_PLUS value is used in maxDirectMemory0 method.
@@ -409,17 +426,15 @@ public enum Jvm {
     }
 
     public static void setAccessible(AccessibleObject h) {
-        if (!IS_JAVA_9_PLUS || IS_JAVA_12_PLUS) {
+        if (IS_JAVA_9_PLUS) {
+            try {
+                boolean newFlag = (boolean) setAccessible0_Method.invokeExact(h, true);
+                assert newFlag;
+            } catch (Throwable throwable) {
+                Jvm.rethrow(throwable);
+            }
+        } else {
             h.setAccessible(true);
-            return;
-        }
-        try {
-            // doesn't work in Java 12+
-            Field f = AccessibleObject.class.getDeclaredField("override");
-            long offset = UNSAFE.objectFieldOffset(f);
-            UNSAFE.putBoolean(h, offset, true);
-        } catch (NoSuchFieldException e2) {
-            // ignored, throws an error later if private.
         }
     }
 
