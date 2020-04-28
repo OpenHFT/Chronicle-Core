@@ -10,7 +10,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.nio.ByteBuffer;
 
-@TargetMajorVersion(majorVersion = 9)
+@TargetMajorVersion(majorVersion = 9, includeNewer = true)
 public final class Jdk9ByteBufferCleanerService implements ByteBufferCleanerService {
     private static final MethodHandle invokeCleaner_Method = get_invokeCleaner_Method();
 

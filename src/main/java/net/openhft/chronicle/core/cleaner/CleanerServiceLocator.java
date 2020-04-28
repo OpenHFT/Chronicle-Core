@@ -51,6 +51,8 @@ public final class CleanerServiceLocator {
 
         return version == null ||
                 version.majorVersion() == TargetMajorVersion.ANY_VERSION ||
-                version.majorVersion() == Jvm.majorVersion();
+                version.majorVersion() == Jvm.majorVersion() ||
+                (version.includeNewer() && Jvm.majorVersion() > version.majorVersion()) ||
+                (version.includeOlder() && Jvm.majorVersion() < version.majorVersion());
     }
 }
