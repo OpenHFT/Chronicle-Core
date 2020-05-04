@@ -41,7 +41,7 @@ public class Histogram implements NanoSampler {
     private int[] sampleCount;
 
     public Histogram() {
-        this(42, 4);
+        this(42, 7);
     }
 
     public Histogram(int powersOf2, int fractionBits) {
@@ -164,7 +164,28 @@ public class Histogram implements NanoSampler {
         return bucket;
     }
 
+    public double min() {
+        return percentile(0.0);
+    }
+
+    public double typical() {
+        return percentile(0.5);
+    }
+
+    public double max() {
+        return percentile(1.0);
+    }
+
     public double percentile(double fraction) {
+        if (fraction <= 0) {
+            for (int i = 0; i < sampleCount.length; i++) {
+                if (sampleCount[i] <= 0)
+                    continue;
+                long bits = ((((i + floor) << 1) + 1) << (51 - fractionBits));
+                return Double.longBitsToDouble(bits);
+            }
+            return 1;
+        }
         long value = (long) (totalCount * (1 - fraction));
         value -= overRange;
         if (value < 0)
