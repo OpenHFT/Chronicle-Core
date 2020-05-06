@@ -21,8 +21,9 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
         final String cleanerClassname = Jvm.isJava9Plus() ?
                 JDK9_CLEANER_CLASS_NAME : JDK8_CLEANER_CLASS_NAME;
         try {
-            cleanerMethod = lookup.findVirtual(DirectBuffer.class, "cleaner", MethodType.methodType(Cleaner.class));
-            cleanMethod = lookup.findVirtual(Class.forName(cleanerClassname), "clean", MethodType.methodType(void.class));
+            final Class<?> cleanerClass = Class.forName(cleanerClassname);
+            cleanerMethod = lookup.findVirtual(DirectBuffer.class, "cleaner", MethodType.methodType(cleanerClass));
+            cleanMethod = lookup.findVirtual(cleanerClass, "clean", MethodType.methodType(void.class));
         } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException e) {
             throw new ExceptionInInitializerError(e);
         }
