@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 higherfrequencytrading.com
+ * Copyright 2016-2020 https://chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ public enum Jvm {
     ;
 
     private static final List<String> INPUT_ARGUMENTS = getRuntimeMXBean().getInputArguments();
-    private static final int COMPILE_THRESHOLD = getCompileThreshold0(INPUT_ARGUMENTS);
+    private static final int COMPILE_THRESHOLD = getCompileThreshold0();
     private static final boolean IS_DEBUG = INPUT_ARGUMENTS.toString().contains("jdwp") || Boolean.getBoolean("debug");
 
     // e.g-verbose:gc  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=dumponexit=true,filename=myrecording.jfr,settings=profile -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints
@@ -71,14 +71,12 @@ public enum Jvm {
     private static final boolean IS_JAVA_12_PLUS;
     private static final boolean IS_JAVA_14_PLUS;
     private static final long MAX_DIRECT_MEMORY;
-    private static final ChainedSignalHandler signalHandlerGlobal;
     private static final boolean SAFEPOINT_ENABLED = Boolean.getBoolean("jvm.safepoint.enabled");
     private static final boolean IS_ARM = Boolean.getBoolean("jvm.isarm") ||
             System.getProperty("os.arch", "?").startsWith("arm") || System.getProperty("os.arch", "?").startsWith("aarch");
     private static final Map<Class, ClassMetrics> CLASS_METRICS_MAP =
             new ConcurrentHashMap<>();
-    private static final MethodHandle ON_SPIN_WAIT;
-    private static Map<Class, Integer> PRIMITIVE_SIZE = new HashMap<Class, Integer>() {{
+    private static final Map<Class, Integer> PRIMITIVE_SIZE = new HashMap<Class, Integer>() {{
         put(boolean.class, 1);
         put(byte.class, 1);
         put(char.class, 2);
@@ -89,22 +87,9 @@ public enum Jvm {
         put(double.class, 8);
     }};
 
-    private static final MethodHandle setAccessible0_Method = get_setAccessible0_Method();
-
-    private static MethodHandle get_setAccessible0_Method() {
-        if (!IS_JAVA_9_PLUS) {
-            return null;
-        }
-        MethodType signature = MethodType.methodType(boolean.class, boolean.class);
-        try {
-            // Access privateLookupIn() reflectively to support compilation with JDK 8
-            Method privateLookupIn = MethodHandles.class.getDeclaredMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
-            MethodHandles.Lookup lookup = (MethodHandles.Lookup) privateLookupIn.invoke(null, AccessibleObject.class, MethodHandles.lookup());
-            return lookup.findVirtual(AccessibleObject.class, "setAccessible0", signature);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new ExceptionInInitializerError(e);
-        }
-    }
+    private static final MethodHandle setAccessible0_Method;
+    private static final MethodHandle onSpinWaitMH;
+    private static final ChainedSignalHandler signalHandlerGlobal;
 
     static {
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
@@ -115,7 +100,7 @@ public enum Jvm {
 
         Supplier<Long> reservedMemoryGetter;
         try {
-            final Class bitsClass = Class.forName("java.nio.Bits");
+            final Class<?> bitsClass = Class.forName("java.nio.Bits");
             Field f;
             try {
                 f = bitsClass.getDeclaredField("reservedMemory");
@@ -138,18 +123,33 @@ public enum Jvm {
         signalHandlerGlobal = new ChainedSignalHandler();
 
         MethodHandle onSpinWait = null;
-        if (isJava9Plus()) {
+        if (IS_JAVA_9_PLUS) {
             try {
                 onSpinWait = MethodHandles.lookup()
                         .findStatic(Thread.class, "onSpinWait", MethodType.methodType(Void.TYPE));
             } catch (Exception ignored) {
-                onSpinWait = null;
             }
         }
-        ON_SPIN_WAIT = onSpinWait;
+        onSpinWaitMH = onSpinWait;
+        setAccessible0_Method = get_setAccessible0_Method();
 
         String systemProperties = System.getProperty("system.properties", "system.properties");
         loadSystemProperties(systemProperties);
+    }
+
+    private static MethodHandle get_setAccessible0_Method() {
+        if (!IS_JAVA_9_PLUS) {
+            return null;
+        }
+        MethodType signature = MethodType.methodType(boolean.class, boolean.class);
+        try {
+            // Access privateLookupIn() reflectively to support compilation with JDK 8
+            Method privateLookupIn = MethodHandles.class.getDeclaredMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
+            MethodHandles.Lookup lookup = (MethodHandles.Lookup) privateLookupIn.invoke(null, AccessibleObject.class, MethodHandles.lookup());
+            return lookup.findVirtual(AccessibleObject.class, "setAccessible0", signature);
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            throw new ExceptionInInitializerError(e);
+        }
     }
 
     public static void init() {
@@ -181,8 +181,8 @@ public enum Jvm {
         }
     }
 
-    private static int getCompileThreshold0(@NotNull List<String> inputArguments) {
-        for (@NotNull String inputArgument : inputArguments) {
+    private static int getCompileThreshold0() {
+        for (@NotNull String inputArgument : INPUT_ARGUMENTS) {
             @NotNull String prefix = "-XX:CompileThreshold=";
             if (inputArgument.startsWith(prefix)) {
                 return Integer.parseInt(inputArgument.substring(prefix.length()));
@@ -341,11 +341,11 @@ public enum Jvm {
      * Pause in a busy loop for a very short time.
      */
     public static void nanoPause() {
-        if (ON_SPIN_WAIT == null) {
+        if (onSpinWaitMH == null) {
             safepoint();
         } else {
             try {
-                ON_SPIN_WAIT.invokeExact();
+                onSpinWaitMH.invokeExact();
             } catch (Throwable throwable) {
                 throw new AssertionError(throwable);
             }
@@ -426,16 +426,15 @@ public enum Jvm {
     }
 
     public static void setAccessible(AccessibleObject h) {
-        if (IS_JAVA_9_PLUS) {
+        if (IS_JAVA_9_PLUS)
             try {
                 boolean newFlag = (boolean) setAccessible0_Method.invokeExact(h, true);
                 assert newFlag;
             } catch (Throwable throwable) {
                 Jvm.rethrow(throwable);
             }
-        } else {
+        else
             h.setAccessible(true);
-        }
     }
 
     public static <V> V getValue(@NotNull Object obj, @NotNull String name) {
