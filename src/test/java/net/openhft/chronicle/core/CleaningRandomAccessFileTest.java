@@ -7,13 +7,18 @@ package net.openhft.chronicle.core;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
 public class CleaningRandomAccessFileTest {
+
     static int getFDs() {
         if (!OS.isLinux())
             return -1;
@@ -40,6 +45,22 @@ public class CleaningRandomAccessFileTest {
             System.gc();
             Jvm.pause(10);
         }
+    }
+
+    /*
+     * This example only leaks resources on a GC.
+     */
+    final Map<String, WeakReference<RandomAccessFile>> fileCache = new HashMap<>();
+
+    public RandomAccessFile fileFor(String name) throws FileNotFoundException {
+        WeakReference<RandomAccessFile> reference = fileCache.get(name);
+        RandomAccessFile file = reference == null ? null : reference.get();
+        if (file == null) {
+            file = new RandomAccessFile(name, "rw");
+            reference = new WeakReference<>(file);
+            fileCache.put(name, reference);
+        }
+        return reference.get();
     }
 
 }
