@@ -7,10 +7,7 @@ import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.*;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 import java.util.function.Supplier;
@@ -20,6 +17,7 @@ import java.util.function.Supplier;
  */
 public final class WeakReferenceCleaner extends WeakReference<Object> {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeakReferenceCleaner.class);
+    private static final String THREAD_NAME = "chronicle-weak-reference-cleaner";
     private static final ReferenceQueue<Object> REFERENCE_QUEUE = new ReferenceQueue<>();
     private static final ConcurrentLinkedQueue<WeakReferenceCleaner> SCHEDULED_CLEAN = new ConcurrentLinkedQueue<>();
     /*
@@ -30,6 +28,7 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
     private static final AtomicBoolean REFERENCE_PROCESSOR_STARTED = new AtomicBoolean(false);
     private static final AtomicIntegerFieldUpdater<WeakReferenceCleaner> CLEANED_FLAG =
             AtomicIntegerFieldUpdater.newUpdater(WeakReferenceCleaner.class, "cleaned");
+    static final AtomicBoolean THREAD_SHUTTING_DOWN = new AtomicBoolean();
 
     private final Runnable thunk;
     @SuppressWarnings("unused")
@@ -41,56 +40,58 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
     }
 
     public static WeakReferenceCleaner newCleaner(final Object referent, final Runnable thunk) {
-        startReferenceProcessor(WeakReferenceCleaner::referenceCleanerExecutor);
+        startCleanerThreadIfNotStarted();
 
         final WeakReferenceCleaner cleaner = new WeakReferenceCleaner(referent, thunk);
         REFERENCE_SET.add(cleaner);
         return cleaner;
     }
 
-    public static void startReferenceProcessor(final Supplier<Executor> executorSupplier) {
-        if (!REFERENCE_PROCESSOR_STARTED.get() && REFERENCE_PROCESSOR_STARTED.compareAndSet(false, true))
-                executorSupplier.get().execute(new ReferenceProcessor());
-    }
-
-    static Executor referenceCleanerExecutor() {
-        ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
-            final Thread t = new Thread(r);
-            t.setName("chronicle-weak-reference-cleaner");
-            t.setDaemon(true);
-            return t;
-        });
-
-        Runtime.getRuntime().addShutdownHook(new Thread(executor::shutdown));
-
-        return executor;
-    }
-
-    public void clean() {
-        if (CLEANED_FLAG.compareAndSet(this, 0, 1)) {
-            thunk.run();
+    static void startCleanerThreadIfNotStarted() {
+        if (REFERENCE_PROCESSOR_STARTED.compareAndSet(false, true)) {
+            final Thread thread = new Thread(new ReferenceProcessor(), THREAD_NAME);
+            thread.setDaemon(true);
+            thread.start();
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> THREAD_SHUTTING_DOWN.set(true), THREAD_NAME+"-shutdown-hook"));
         }
     }
 
+    /**
+     * Runs the cleaner associated with the referent.
+     */
+    public void clean() {
+        if (CLEANED_FLAG.compareAndSet(this, 0, 1))
+            thunk.run();
+    }
+
+    /**
+     * Schedules this WeakReferenceCleaner for cleaning
+     * regardless if the associated referent is referenced or not.
+     * <p>
+     * Cleaning is performed by another thread at some unspecified
+     * later time.
+     */
     public void scheduleForClean() {
         SCHEDULED_CLEAN.add(this);
         REFERENCE_SET.remove(this);
     }
 
-    static final class ReferenceProcessor implements Runnable {
+    private static final class ReferenceProcessor implements Runnable {
+
+        public static final long TIMEOUT_MS = 50L; // 20 Hz
+
         @Override
         public void run() {
-            Thread thread = Thread.currentThread();
-            while (!thread.isInterrupted()) {
+            final Thread thread = Thread.currentThread();
+            while (!(THREAD_SHUTTING_DOWN.get() || thread.isInterrupted())) {
                 try {
                     // prioritise scheduled cleaners
                     WeakReferenceCleaner wrc;
-                    while ((wrc = SCHEDULED_CLEAN.poll()) != null) {
+                    while ((wrc = SCHEDULED_CLEAN.poll()) != null)
                         wrc.clean();
-                    }
 
                     Reference<?> reference;
-                    while ((reference = REFERENCE_QUEUE.remove(50L)) != null) {
+                    while ((reference = REFERENCE_QUEUE.remove(TIMEOUT_MS)) != null) {
                         final WeakReferenceCleaner cleaner = (WeakReferenceCleaner) reference;
                         REFERENCE_SET.remove(cleaner);
                         cleaner.clean();
@@ -103,6 +104,7 @@ public final class WeakReferenceCleaner extends WeakReference<Object> {
                     LOGGER.warn("Exception while trying to process reference.", e);
                 }
             }
+            LOGGER.debug("Shut down, exiting.");
         }
     }
 }

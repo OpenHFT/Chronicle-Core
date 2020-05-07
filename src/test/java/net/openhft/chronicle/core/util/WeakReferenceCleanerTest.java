@@ -5,18 +5,20 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.LockSupport;
 
+import static net.openhft.chronicle.core.util.WeakReferenceCleaner.THREAD_SHUTTING_DOWN;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 
 public class WeakReferenceCleanerTest {
-    private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
     private final AtomicInteger processedCount = new AtomicInteger(0);
 
     private static void referToObject(final Container container) {
@@ -27,12 +29,12 @@ public class WeakReferenceCleanerTest {
 
     @BeforeClass
     public static void setUp() {
-        WeakReferenceCleaner.startReferenceProcessor(() -> executorService);
+        WeakReferenceCleaner.startCleanerThreadIfNotStarted();
     }
 
     @AfterClass
     public static void tearDown() {
-        executorService.shutdownNow();
+        THREAD_SHUTTING_DOWN.set(true);
     }
 
     @Test
