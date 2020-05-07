@@ -12,7 +12,7 @@ import java.io.RandomAccessFile;
 
 /**
  * A RandomAccessFile must be explicitly close or cause a resources leak.
- * <p/>
+ * <p>
  * Weak references RAF can result in a resource leak when GC'ed which doesn't appear if the GC isn't running.
  */
 

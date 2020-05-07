@@ -96,7 +96,7 @@ String targetDir = OS.getTarget(); // where is the target directory during build
 
 Memory mapped files
 ```java
-FileChannel fc = new RandomAccessFile(fileName, "rw").getChannel();
+FileChannel fc = new CleaningRandomAccessFile(fileName, "rw").getChannel();
 // map in 64 KiB
 long address = OS.map(fc, MapMode.READ_WRITE, 0, 64 << 10);
 // use address
