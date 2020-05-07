@@ -32,7 +32,9 @@ public interface EventHandler extends VanillaEventHandler {
      * <p>This is called either when the event loop is terminating, or if this EventHandler s being
      * removed from the event loop.
      * <p>If this implements {@link Closeable} then the event loop will close this after
-     * loopFinished has been called.
+     * loopFinished has been called. close should be called once only.
+     * <p>Exceptions thrown by loopFinished or close are caught and logged (at debug level)
+     * and cleanup continues
      */
     default void loopFinished() {
     }
