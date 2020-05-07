@@ -51,12 +51,12 @@ public class ReferenceCounter {
 
             long v = value.get();
             if (v <= 0) {
-                assert recordResevation(v);
+                assert recordReservation(v);
                 assert logReferenceCountHistory();
                 throw new IllegalStateException("Released");
             }
             if (value.compareAndSet(v, v + 1)) {
-                assert recordResevation(v + 1);
+                assert recordReservation(v + 1);
                 break;
             }
         }
@@ -69,13 +69,13 @@ public class ReferenceCounter {
                 return false;
 
             if (value.compareAndSet(v, v + 1)) {
-                assert recordResevation(v + 1);
+                assert recordReservation(v + 1);
                 return true;
             }
         }
     }
 
-    private boolean recordResevation(long v) {
+    private boolean recordReservation(long v) {
         referenceCountHistory.add(new StackTrace(Integer.toHexString(onRelease.hashCode()) + '-' + Thread.currentThread().getName() + " Reserve ref-count=" + v));
         return true;
     }
@@ -103,6 +103,7 @@ public class ReferenceCounter {
     }
 
     private boolean logReferenceCountHistory() {
+        System.err.println("Reference count history stack traces (" + referenceCountHistory.size() + "):");
         referenceCountHistory.forEach(Throwable::printStackTrace);
         return true;
     }
