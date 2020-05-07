@@ -17,16 +17,15 @@
 
 package net.openhft.chronicle.core.threads;
 
-/**
- * @author Rob Austin.
- */
 @FunctionalInterface
 public interface VanillaEventHandler {
     /**
      * perform all tasks once and return ASAP.
+     * Called from the event loop's execution thread.
      *
      * @return true if you expect more work very soon.
      * @throws InvalidEventHandlerException when it is not longer valid.
+     * Recommended to throw this if your event handler is closed
      */
     boolean action() throws InvalidEventHandlerException, InterruptedException;
 }

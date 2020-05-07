@@ -18,17 +18,21 @@ package net.openhft.chronicle.core.threads;
 
 import org.jetbrains.annotations.NotNull;
 
-/*
- * Created by peter.lawrey on 22/01/15.
- */
+import java.io.Closeable;
+
 @FunctionalInterface
 public interface EventHandler extends VanillaEventHandler {
     default void eventLoop(EventLoop eventLoop) {
     }
 
     /**
-     * Notify handler that the eventLoop's loop has terminated and the handler's action method
-     * will not be called again. This is called before the eventLoop calls close.
+     * Notify handler that the event the handler's action method
+     * will not be called again. Should be called once only. Should be called from the event
+     * loop's execution thread.
+     * <p>This is called either when the event loop is terminating, or if this EventHandler s being
+     * removed from the event loop.
+     * <p>If this implements {@link Closeable} then the event loop will close this after
+     * loopFinished has been called.
      */
     default void loopFinished() {
     }

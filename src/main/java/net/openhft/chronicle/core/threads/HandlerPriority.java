@@ -28,7 +28,7 @@ public enum HandlerPriority {
     @Deprecated
     HIGH,
     /**
-     * Less critical tasks called 10% of the time
+     * Less critical tasks 1/4 as often as HIGH
      */
     MEDIUM,
     /**
