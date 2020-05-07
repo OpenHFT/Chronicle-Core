@@ -72,18 +72,20 @@ public class OSTest {
         File file = new File(OS.TARGET, getClass().getName() + "." + testName.getMethodName() + ".deleteme");
         file.deleteOnExit();
 
-        FileChannel fc = new RandomAccessFile(file, "rw").getChannel();
+        try (RandomAccessFile rw = new RandomAccessFile(file, "rw")) {
+            FileChannel fc = rw.getChannel();
 
-        long length = OS.pageSize();
-        MappedByteBuffer anchor = fc.map(MapMode.READ_WRITE, 0, length);
-        anchor.order(ByteOrder.nativeOrder());
+            long length = OS.pageSize();
+            MappedByteBuffer anchor = fc.map(MapMode.READ_WRITE, 0, length);
+            anchor.order(ByteOrder.nativeOrder());
 
-        long address = OS.map0(fc, OS.imodeFor(FileChannel.MapMode.READ_WRITE), 0, length);
+            long address = OS.map0(fc, OS.imodeFor(FileChannel.MapMode.READ_WRITE), 0, length);
 
-        OS.memory().writeLong(address, 0);
-        OS.unmap(address, length);
+            OS.memory().writeLong(address, 0);
+            OS.unmap(address, length);
 
-        assertEquals(length, file.length());
+            assertEquals(length, file.length());
+        }
     }
 
     @Test
@@ -92,35 +94,37 @@ public class OSTest {
         File file = new File(OS.TARGET, getClass().getName() + "." + testName.getMethodName() + ".deleteme");
         file.deleteOnExit();
 
-        FileChannel fc = new RandomAccessFile(file, "rw").getChannel();
+        try (RandomAccessFile rw = new RandomAccessFile(file, "rw")) {
+            FileChannel fc = rw.getChannel();
 
-        // crashes the JVM.
-        // long length = (4L << 30L) + (64 << 10);
-        // doesn't crash the JVM, but takes 3s
-        // long length = (4L << 30);
-        // doesn't crash the JVM and runs fast
-        long length = (4L << 25);
+            // crashes the JVM.
+            // long length = (4L << 30L) + (64 << 10);
+            // doesn't crash the JVM, but takes 3s
+            // long length = (4L << 30);
+            // doesn't crash the JVM and runs fast
+            long length = (4L << 25);
 
-        long anchorSize = 0x4000_0000L;
-        int anchorCount = (int) ((length + anchorSize - 1) / anchorSize);
-        List<MappedByteBuffer> anchors = new ArrayList<>();
-        long anchorTotalRemain = length;
-        for (int i = 0; i < anchorCount; i++) {
-            MappedByteBuffer anchor = fc.map(MapMode.READ_WRITE, i * anchorSize, Math.min(anchorTotalRemain, anchorSize));
-            anchor.order(ByteOrder.nativeOrder());
-            anchors.add(anchor);
-            anchorTotalRemain -= anchorSize;
+            long anchorSize = 0x4000_0000L;
+            int anchorCount = (int) ((length + anchorSize - 1) / anchorSize);
+            List<MappedByteBuffer> anchors = new ArrayList<>();
+            long anchorTotalRemain = length;
+            for (int i = 0; i < anchorCount; i++) {
+                MappedByteBuffer anchor = fc.map(MapMode.READ_WRITE, i * anchorSize, Math.min(anchorTotalRemain, anchorSize));
+                anchor.order(ByteOrder.nativeOrder());
+                anchors.add(anchor);
+                anchorTotalRemain -= anchorSize;
+            }
+
+            long address = OS.map0(fc, OS.imodeFor(FileChannel.MapMode.READ_WRITE), 0, length);
+            for (long offset = 0; offset < length; offset += OS.pageSize()) {
+                OS.memory().writeLong(address + offset, offset);
+            }
+            for (long offset = 0; offset < length; offset += OS.pageSize()) {
+                assertEquals(offset, OS.memory().readLong(address + offset));
+            }
+
+            OS.unmap(address, length);
         }
-
-        long address = OS.map0(fc, OS.imodeFor(FileChannel.MapMode.READ_WRITE), 0, length);
-        for (long offset = 0; offset < length; offset += OS.pageSize()) {
-            OS.memory().writeLong(address + offset, offset);
-        }
-        for (long offset = 0; offset < length; offset += OS.pageSize()) {
-            assertEquals(offset, OS.memory().readLong(address + offset));
-        }
-
-        OS.unmap(address, length);
     }
 
     @Test
@@ -128,23 +132,25 @@ public class OSTest {
         File file = new File(OS.TARGET, getClass().getName() + "." + testName.getMethodName() + ".deleteme");
         file.deleteOnExit();
 
-        FileChannel fc = new RandomAccessFile(file, "rw").getChannel();
+        try (RandomAccessFile rw = new RandomAccessFile(file, "rw")) {
+            FileChannel fc = rw.getChannel();
 
-        long length = Long.BYTES;
-        MappedByteBuffer anchor = fc.map(MapMode.READ_WRITE, 0, length);
-        anchor.order(ByteOrder.nativeOrder());
+            long length = Long.BYTES;
+            MappedByteBuffer anchor = fc.map(MapMode.READ_WRITE, 0, length);
+            anchor.order(ByteOrder.nativeOrder());
 
-        long address = OS.map0(fc, OS.imodeFor(FileChannel.MapMode.READ_WRITE), 0, length);
+            long address = OS.map0(fc, OS.imodeFor(FileChannel.MapMode.READ_WRITE), 0, length);
 
-        long value = System.currentTimeMillis();
-        value ^= (value << 32);
+            long value = System.currentTimeMillis();
+            value ^= (value << 32);
 
-        OS.memory().writeLong(address, value);
+            OS.memory().writeLong(address, value);
 
-        assertEquals(value, OS.memory().readLong(address));
-        assertEquals(value, anchor.getLong(0));
+            assertEquals(value, OS.memory().readLong(address));
+            assertEquals(value, anchor.getLong(0));
 
-        OS.unmap(address, length);
+            OS.unmap(address, length);
+        }
     }
 
 }
