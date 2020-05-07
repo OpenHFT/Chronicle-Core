@@ -21,6 +21,7 @@ public class RandomAccessFileCleanupMain {
             System.out.println("File descriptors " + files);
             ByteBuffer bb = ByteBuffer.allocateDirect(64);
             for (int i = 0; i < 100; i++) {
+//                RandomAccessFile file = new CleaningRandomAccessFile(tempDir + "/file" + i, "rw");
                 RandomAccessFile file = new RandomAccessFile(tempDir + "/file" + i, "rw");
                 bb.clear();
                 file.getChannel().write(bb);
