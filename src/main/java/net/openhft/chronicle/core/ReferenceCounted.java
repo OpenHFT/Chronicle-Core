@@ -28,7 +28,48 @@ import java.util.List;
  * A resource which is reference counted and freed when the refCount drop to 0.
  */
 public interface ReferenceCounted {
-    static void releaseAll(@NotNull List<WeakReference<ReferenceCounted>> refCounts) {
+
+    /**
+     * Reserves a resource or throws an Exception.
+     * <p>
+     * Each invocation of this method increases the reference count by one.
+     *
+     * @throws IllegalStateException if the resource has already been freed.
+     *         I.e. its reference counter has as some point reached zero.
+     */
+    void reserve();
+
+     /**
+     * Tries to reserve a resource and returns if the resource could
+     *  be successfully reserved.
+     * <p>
+     * Each invocation of this method increases the reference count by one.
+     *
+     * @throws IllegalStateException if the resource has already been freed.
+     *         I.e. its reference counter has as some point reached zero.
+     */
+
+    boolean tryReserve();
+
+    /**
+     * Releases a resource.
+     * <p>
+     * Each invocation of this method decreases the reference count by one.
+     *
+     * @throws IllegalStateException if the resource has already been freed.
+     *         I.e. its reference counter has as some point reached zero.
+     */
+    void release();
+
+    /**
+     * Returns the reference count for this resource.
+     *
+     * @return the reference count for this resource
+     */
+    long refCount();
+
+
+    static void releaseAll(@NotNull List<WeakReference<? extends ReferenceCounted>> refCounts) {
         for (@Nullable WeakReference<? extends ReferenceCounted> refCountRef : refCounts) {
             if (refCountRef == null)
                 continue;
@@ -44,11 +85,11 @@ public interface ReferenceCounted {
     }
 
     /**
-     * release a reference counted object
+     * Releases a reference counted object if it is ReferenceCounted.
      *
      * @param o to release if ReferenceCounted
      */
-    static void release(Object o) {
+    static void release(final Object o) {
         if (o instanceof ReferenceCounted) {
             @NotNull ReferenceCounted rc = (ReferenceCounted) o;
             try {
@@ -59,21 +100,4 @@ public interface ReferenceCounted {
         }
     }
 
-    /**
-     * reserve a resource
-     *
-     * @throws IllegalStateException if the resource has already been freed.
-     */
-    void reserve() throws IllegalStateException;
-
-    /**
-     * release a resource
-     *
-     * @throws IllegalStateException if the resource has already been freed.
-     */
-    void release() throws IllegalStateException;
-
-    long refCount();
-
-    boolean tryReserve();
 }

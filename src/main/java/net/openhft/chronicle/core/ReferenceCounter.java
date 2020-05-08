@@ -22,7 +22,8 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
-public class ReferenceCounter {
+public final class ReferenceCounter implements ReferenceCounted {
+
     private final AtomicLong value = new AtomicLong(1);
     private final Runnable onRelease;
 
@@ -30,23 +31,18 @@ public class ReferenceCounter {
     // only used for debugging and only active when assertions are turned on
     private Queue<Throwable> referenceCountHistory;
 
-    private ReferenceCounter(Runnable onRelease) {
+    private ReferenceCounter(final Runnable onRelease) {
         this.onRelease = onRelease;
         assert newRefCountHistory();
     }
 
     @NotNull
-    public static ReferenceCounter onReleased(Runnable onRelease) {
+    public static ReferenceCounter onReleased(final Runnable onRelease) {
         return new ReferenceCounter(onRelease);
     }
 
-    private boolean newRefCountHistory() {
-        referenceCountHistory = new ConcurrentLinkedQueue<>();
-        referenceCountHistory.add(new StackTrace(Integer.toHexString(onRelease.hashCode()) + '-' + Thread.currentThread().getName() + " creation ref-count=" + 1));
-        return true;
-    }
-
-    public void reserve() throws IllegalStateException {
+    @Override
+    public void reserve() {
         for (; ; ) {
 
             long v = value.get();
@@ -62,6 +58,7 @@ public class ReferenceCounter {
         }
     }
 
+    @Override
     public boolean tryReserve() {
         for (; ; ) {
             long v = value.get();
@@ -75,12 +72,8 @@ public class ReferenceCounter {
         }
     }
 
-    private boolean recordReservation(long v) {
-        referenceCountHistory.add(new StackTrace(Integer.toHexString(onRelease.hashCode()) + '-' + Thread.currentThread().getName() + " Reserve ref-count=" + v));
-        return true;
-    }
-
-    public void release() throws IllegalStateException {
+    @Override
+    public void release() {
         for (; ; ) {
             long v = value.get();
             if (v <= 0) {
@@ -97,6 +90,38 @@ public class ReferenceCounter {
         }
     }
 
+    @Override
+    public long refCount() {
+        return value.get();
+    }
+
+    /**
+     * Use refCount() instead.
+     *
+     * @return the reference counter
+     */
+    @Deprecated // For removal
+    public long get() {
+        return value.get();
+    }
+
+    public boolean checkRefCount() {
+        if (value.get() < 1) {
+            throw new IllegalStateException("released", referenceCountHistory.peek());
+        }
+        return true; // can be used with assert
+    }
+
+    @NotNull
+    public String toString() {
+        return Long.toString(value.get());
+    }
+
+    private boolean recordReservation(long v) {
+        referenceCountHistory.add(new StackTrace(Integer.toHexString(onRelease.hashCode()) + '-' + Thread.currentThread().getName() + " Reserve ref-count=" + v));
+        return true;
+    }
+
     private boolean recordRelease(long v) {
         referenceCountHistory.add(new StackTrace(Integer.toHexString(onRelease.hashCode()) + '-' + Thread.currentThread().getName() + " Release ref-count=" + v));
         return true;
@@ -108,19 +133,10 @@ public class ReferenceCounter {
         return true;
     }
 
-    public long get() {
-        return value.get();
+    private boolean newRefCountHistory() {
+        referenceCountHistory = new ConcurrentLinkedQueue<>();
+        referenceCountHistory.add(new StackTrace(Integer.toHexString(onRelease.hashCode()) + '-' + Thread.currentThread().getName() + " creation ref-count=" + 1));
+        return true;
     }
 
-    @NotNull
-    public String toString() {
-        return Long.toString(value.get());
-    }
-
-    public boolean checkRefCount() {
-        if (value.get() < 1) {
-            throw new IllegalStateException("released", referenceCountHistory.peek());
-        }
-        return true; // can be used with assert
-    }
 }
