@@ -47,23 +47,25 @@ public enum ThreadLocalHelper {
     }
 
     @NotNull
-    public static <T, A> T getTL(@NotNull final ThreadLocal<WeakReference<T>> threadLocal, final A a,
-                                 @NotNull final Function<A, T> function,
+    public static <T, A> T getTL(@NotNull final ThreadLocal<WeakReference<T>> threadLocal,
+                                 @NotNull final A supplyingEntity,
+                                 @NotNull final Function<A, T> constructor,
                                  @Nullable final ReferenceQueue<T> referenceQueue,
-                                 @Nullable final Consumer<WeakReference<T>> refConsumer) {
+                                 @Nullable final Consumer<WeakReference<T>> registrar) {
         @Nullable WeakReference<T> ref = threadLocal.get();
-        T ret = null;
-        if (ref != null) ret = ref.get();
-        if (ret == null) {
-            ret = function.apply(a);
-            if (referenceQueue != null && refConsumer != null) {
-                ref = new WeakReference<>(ret, referenceQueue);
-                refConsumer.accept(ref);
+        T result = null;
+        if (ref != null)
+            result = ref.get();
+        if (result == null) {
+            result = constructor.apply(supplyingEntity);
+            if (referenceQueue != null && registrar != null) {
+                ref = new WeakReference<>(result, referenceQueue);
+                registrar.accept(ref);
             } else {
-                ref = new WeakReference<>(ret);
+                ref = new WeakReference<>(result);
             }
             threadLocal.set(ref);
         }
-        return ret;
+        return result;
     }
 }
