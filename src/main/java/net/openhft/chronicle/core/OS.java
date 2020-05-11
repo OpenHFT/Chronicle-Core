@@ -481,8 +481,9 @@ public enum OS {
         }
     }
 
-    public static class Unmapper implements Runnable {
+    public static final class Unmapper implements Runnable {
         private final long size;
+        private final ReferenceCounted owner;
 
         private volatile long address;
 
@@ -491,6 +492,7 @@ public enum OS {
             assert (address != 0);
             this.address = address;
             this.size = size;
+            this.owner = owner;
         }
 
         @Override
@@ -500,6 +502,7 @@ public enum OS {
 
             try {
                 unmap(address, size);
+                owner.release();
                 address = 0;
 
             } catch (@NotNull IOException e) {
