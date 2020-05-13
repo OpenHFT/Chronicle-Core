@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 higherfrequencytrading.com
+ * Copyright 2016-2020 https://chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,14 @@
 
 package net.openhft.chronicle.core.values;
 
-/**
- * User: peter.lawrey Date: 10/10/13 Time: 07:11
- */
 public interface LongValue {
     long getValue();
 
     void setValue(long value);
 
     long getVolatileValue();
+
+    void setVolatileValue(long value);
 
     void setOrderedValue(long value);
 
