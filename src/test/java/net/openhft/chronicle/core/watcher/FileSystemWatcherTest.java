@@ -41,6 +41,20 @@ public class FileSystemWatcherTest {
 
     @Test
     public void bootstrapAndUpdate() throws IOException {
+        /*
+        This test fails on Windows and may also fail on MmcOS.
+
+        The issue appears to be that the NIO file-watching service is very platform dependent.
+
+        Eg. Linux does not produce events when a directory-entry is updated, WIndows does.
+        Eg. Windows does not produce events when a file is opened for write - Linux does.
+
+        This makes the results of this particular test heavily dependent on the platform.
+
+        A practical solution would be to modify the test and framework so that only major events are generated (file created, modified etc) and filter out the unhelpful events (if possible ;-)
+
+        In the meantime, this test has been ignored for Windows.
+        */
         Assume.assumeTrue(OS.isLinux());
 
         SortedMap<String, String> events = new ConcurrentSkipListMap<>();
