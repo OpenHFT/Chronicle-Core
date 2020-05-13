@@ -2,7 +2,6 @@ package net.openhft.chronicle.core.cleaner.impl.reflect;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;
-import sun.misc.Cleaner;
 import sun.nio.ch.DirectBuffer;
 
 import java.lang.invoke.MethodHandle;
@@ -14,7 +13,8 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
     private static final String JDK8_CLEANER_CLASS_NAME = "sun.misc.Cleaner";
     private static final String JDK9_CLEANER_CLASS_NAME = "jdk.internal.ref.Cleaner";
 
-    private static final MethodHandle cleanerMethod, cleanMethod;
+    private static final MethodHandle CLEANER_METHOD;
+    private static final MethodHandle CLEAN_METHOD;
 
     static {
         MethodHandles.Lookup lookup = MethodHandles.lookup();
@@ -22,9 +22,10 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
                 JDK9_CLEANER_CLASS_NAME : JDK8_CLEANER_CLASS_NAME;
         try {
             final Class<?> cleanerClass = Class.forName(cleanerClassname);
-            cleanerMethod = lookup.findVirtual(DirectBuffer.class, "cleaner", MethodType.methodType(cleanerClass));
-            cleanMethod = lookup.findVirtual(cleanerClass, "clean", MethodType.methodType(void.class));
+            CLEANER_METHOD = lookup.findVirtual(DirectBuffer.class, "cleaner", MethodType.methodType(cleanerClass));
+            CLEAN_METHOD = lookup.findVirtual(cleanerClass, "clean", MethodType.methodType(void.class));
         } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException e) {
+            Jvm.fatal().on(ReflectionBasedByteBufferCleanerService.class, "Make sure you have set the command line option \"--illegal-access=permit --add-exports java.base/jdk.internal.ref=ALL-UNNAMED\"");
             throw new ExceptionInInitializerError(e);
         }
     }
@@ -32,8 +33,8 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
     @Override
     public void clean(final ByteBuffer buffer) {
         try {
-            Object cleaner = cleanerMethod.invoke((DirectBuffer) buffer);
-            cleanMethod.invoke(cleaner);
+            final Object cleaner = CLEANER_METHOD.invoke((DirectBuffer) buffer);
+            CLEAN_METHOD.invoke(cleaner);
         } catch (Throwable throwable) {
             Jvm.rethrow(throwable);
         }
