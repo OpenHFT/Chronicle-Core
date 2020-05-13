@@ -8,6 +8,7 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.io.IOTools;
 import org.junit.After;
+import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -37,8 +38,11 @@ public class FileSystemWatcherTest {
         IOTools.deleteDirWithFiles(base);
     }
 
+
     @Test
     public void bootstrapAndUpdate() throws IOException {
+        Assume.assumeTrue(OS.isLinux());
+
         SortedMap<String, String> events = new ConcurrentSkipListMap<>();
 
         WatcherListener listener = new WatcherListener() {
