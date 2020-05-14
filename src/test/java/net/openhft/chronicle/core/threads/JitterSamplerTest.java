@@ -1,10 +1,12 @@
 package net.openhft.chronicle.core.threads;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+@Ignore("flaky test - https://github.com/OpenHFT/Chronicle-Core/issues/114")
 public class JitterSamplerTest {
 
     @Test
