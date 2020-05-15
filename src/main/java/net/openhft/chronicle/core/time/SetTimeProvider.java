@@ -132,4 +132,11 @@ public class SetTimeProvider implements TimeProvider {
         return this;
     }
 
+    @Override
+    public String toString() {
+        return "SetTimeProvider{" +
+                "autoIncrement=" + autoIncrement +
+                ", nanoTime=" + nanoTime +
+                '}';
+    }
 }
