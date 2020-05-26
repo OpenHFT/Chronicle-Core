@@ -16,9 +16,6 @@
 
 package java.lang;
 
-/*
- * Created by Peter Lawrey on 01/09/15.
- */
 public class IndexOutOfBoundsException extends Exception {
     public IndexOutOfBoundsException(String message) {
         super(message);

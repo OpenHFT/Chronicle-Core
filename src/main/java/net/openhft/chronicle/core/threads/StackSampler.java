@@ -1,5 +1,7 @@
 /*
- * Copyright 2016 higherfrequencytrading.com
+ * Copyright 2016-2020 Chronicle Software
+ *
+ * https://chronicle.software
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,9 +24,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.locks.LockSupport;
 
-/*
- * Created by Peter Lawrey on 04/02/17.
- */
 public class StackSampler {
     @NotNull
     private final Thread sampler;

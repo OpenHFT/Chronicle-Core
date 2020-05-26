@@ -1,5 +1,7 @@
 /*
- * Copyright 2016 higherfrequencytrading.com
+ * Copyright 2016-2020 Chronicle Software
+ *
+ * https://chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,9 +22,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.Serializable;
 
-/*
- * Created by Peter Lawrey on 23/06/15.
- */
 @FunctionalInterface
 public interface ReadResolvable<T> {
     @SuppressWarnings("unchecked")

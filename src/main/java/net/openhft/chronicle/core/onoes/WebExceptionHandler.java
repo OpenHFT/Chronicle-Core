@@ -1,5 +1,7 @@
 /*
- * Copyright 2016 higherfrequencytrading.com
+ * Copyright 2016-2020 Chronicle Software
+ *
+ * https://chronicle.software
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -28,9 +30,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.Properties;
 
-/*
- * Created by Peter Lawrey on 07/04/2016.
- */
 public class WebExceptionHandler implements ExceptionHandler {
     private final Properties properties = new Properties();
 

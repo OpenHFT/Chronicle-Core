@@ -1,5 +1,7 @@
 /*
- * Copyright 2016 higherfrequencytrading.com
+ * Copyright 2016-2020 Chronicle Software
+ *
+ * https://chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +27,6 @@ import java.util.List;
 import java.util.function.DoubleFunction;
 import java.util.stream.DoubleStream;
 
-/*
- * Created by Peter Lawrey on 10/07/15.
- */
 // TODO add a dummy histogram.
 public class Histogram implements NanoSampler {
     static final DecimalFormat F3 = new DecimalFormat("0.000");

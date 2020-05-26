@@ -1,5 +1,7 @@
 /*
- * Copyright 2016 higherfrequencytrading.com
+ * Copyright 2016-2020 Chronicle Software
+ *
+ * https://chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,10 +16,6 @@
  * limitations under the License.
  */
 package net.openhft.chronicle.core.util;
-
-/*
- * Created by peter.lawrey on 16/01/15.
- */
 
 import org.jetbrains.annotations.NotNull;
 

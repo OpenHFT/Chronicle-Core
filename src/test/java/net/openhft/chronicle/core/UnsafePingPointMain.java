@@ -1,5 +1,7 @@
 /*
- * Copyright 2016 higherfrequencytrading.com
+ * Copyright 2016-2020 Chronicle Software
+ *
+ * https://chronicle.software
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -22,9 +24,6 @@ import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
 
-/*
- * Created by Peter Lawrey on 14/07/16.
- */
 public class UnsafePingPointMain implements Runnable {
     private final Unsafe unsafe;
     private final long addrA;

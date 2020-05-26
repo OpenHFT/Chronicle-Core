@@ -4,9 +4,6 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-/*
- * Created by peter.lawrey@chronicle.software on 28/07/2017
- */
 public class DynamicEnumClassTest {
     @Test
     public void additionalEnum() {
