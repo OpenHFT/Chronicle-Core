@@ -7,20 +7,10 @@ import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 
 public abstract class AbstractCloseable implements Closeable {
     private static final long CLOSED_OFFSET;
-    private static final boolean RESOURCE_TRACING;
 
     static {
         try {
             CLOSED_OFFSET = UNSAFE.objectFieldOffset(AbstractCloseable.class.getField("closed"));
-            // TODO move to Jvm
-            String resourceTracing = System.getProperty("jvm.resource.tracing");
-            if (resourceTracing == null) {
-                boolean assertOn = false;
-                assert assertOn = true;
-                RESOURCE_TRACING = Jvm.isDebug() || assertOn;
-            } else {
-                RESOURCE_TRACING = resourceTracing.isEmpty() || Boolean.parseBoolean(resourceTracing);
-            }
 
         } catch (NoSuchFieldException e) {
             throw new AssertionError(e);
@@ -32,11 +22,7 @@ public abstract class AbstractCloseable implements Closeable {
     private transient volatile StackTrace closedHere;
 
     protected AbstractCloseable() {
-        createdHere = isResourceTracing() ? new StackTrace("Created Here") : null;
-    }
-
-    static boolean isResourceTracing() {
-        return RESOURCE_TRACING;
+        createdHere = Jvm.isResourceTracing() ? new StackTrace("Created Here") : null;
     }
 
     /**
@@ -47,7 +33,7 @@ public abstract class AbstractCloseable implements Closeable {
         if (UNSAFE.getAndSetInt(this, CLOSED_OFFSET, 1) != 0) {
             return;
         }
-        closedHere = isResourceTracing() ? new StackTrace() : null;
+        closedHere = Jvm.isResourceTracing() ? new StackTrace() : null;
         performClose();
     }
 

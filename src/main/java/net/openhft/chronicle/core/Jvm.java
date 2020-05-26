@@ -90,6 +90,7 @@ public enum Jvm {
     private static final MethodHandle setAccessible0_Method;
     private static final MethodHandle onSpinWaitMH;
     private static final ChainedSignalHandler signalHandlerGlobal;
+    private static final boolean RESOURCE_TRACING;
 
     static {
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
@@ -135,6 +136,16 @@ public enum Jvm {
 
         String systemProperties = System.getProperty("system.properties", "system.properties");
         loadSystemProperties(systemProperties);
+
+        String resourceTracing = System.getProperty("jvm.resource.tracing");
+        if (resourceTracing == null) {
+            boolean assertOn = false;
+            assert assertOn = true;
+            RESOURCE_TRACING = Jvm.isDebug() || assertOn;
+        } else {
+            RESOURCE_TRACING = resourceTracing.isEmpty() || Boolean.parseBoolean(resourceTracing);
+        }
+
     }
 
     private static MethodHandle get_setAccessible0_Method() {
@@ -781,6 +792,10 @@ public enum Jvm {
 
     public static boolean dontChain(Class tClass) {
         return tClass.getAnnotation(DontChain.class) != null || tClass.getName().startsWith("java");
+    }
+
+    public static boolean isResourceTracing() {
+        return RESOURCE_TRACING;
     }
 
     private static class ChainedSignalHandler implements SignalHandler {
