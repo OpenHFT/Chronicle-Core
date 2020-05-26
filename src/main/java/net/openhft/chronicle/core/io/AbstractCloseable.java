@@ -26,12 +26,7 @@ public abstract class AbstractCloseable implements Closeable {
     private static final long CLOSED_OFFSET;
 
     static {
-        try {
-            CLOSED_OFFSET = UNSAFE.objectFieldOffset(AbstractCloseable.class.getField("closed"));
-
-        } catch (NoSuchFieldException e) {
-            throw new AssertionError(e);
-        }
+        CLOSED_OFFSET = UNSAFE.objectFieldOffset(Jvm.getField(AbstractCloseable.class, "closed"));
     }
 
     private transient volatile int closed = 0;
