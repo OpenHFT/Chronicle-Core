@@ -23,9 +23,6 @@ import net.openhft.chronicle.core.Maths;
 import net.openhft.chronicle.core.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * @author peter.lawrey
- */
 public class EnumInterner<E extends Enum<E>> {
     public static final ClassLocal<EnumInterner> ENUM_INTERNER = ClassLocal.withInitial(EnumInterner::create);
 

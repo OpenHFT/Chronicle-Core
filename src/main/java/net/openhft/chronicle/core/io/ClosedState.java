@@ -19,10 +19,6 @@
 
 package net.openhft.chronicle.core.io;
 
-/**
- * @author Rob Austin.
- */
-
 @FunctionalInterface
 public interface ClosedState {
     boolean isClosed();

@@ -32,7 +32,6 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 /*
- * Created by Peter Lawrey on 26/08/15.
  * A collection of CONCURRENT utility tools
  */
 public enum IOTools {

@@ -9,9 +9,6 @@ import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
 
-/**
- * Created by jerry on 21/08/17.
- */
 public class AbstractInvocationHandlerTest {
     @Test
     public void testInvoke() {

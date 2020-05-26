@@ -22,9 +22,6 @@ package net.openhft.chronicle.core.threads;
 import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.NotNull;
 
-/**
- * @author Rob Austin.
- */
 public class Timer {
 
     @NotNull
