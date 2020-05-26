@@ -33,7 +33,7 @@ public abstract class AbstractCloseable implements Closeable {
         if (UNSAFE.getAndSetInt(this, CLOSED_OFFSET, 1) != 0) {
             return;
         }
-        closedHere = Jvm.isResourceTracing() ? new StackTrace() : null;
+        closedHere = Jvm.isResourceTracing() ? new StackTrace("Closed here") : null;
         performClose();
     }
 
