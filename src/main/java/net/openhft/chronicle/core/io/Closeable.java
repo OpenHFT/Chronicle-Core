@@ -23,11 +23,10 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.util.Collection;
 
-@FunctionalInterface
 public interface Closeable extends java.io.Closeable {
 
-    static void closeQuietly(@NotNull Object... closables) {
-        closeQuietly((Object) closables);
+    static void closeQuietly(@NotNull Object... closeables) {
+        closeQuietly((Object) closeables);
     }
 
     static void closeQuietly(@Nullable Object o) {
@@ -52,11 +51,10 @@ public interface Closeable extends java.io.Closeable {
     @Override
     void close();
 
+    @Deprecated
     default void notifyClosing() {
         // take an action before everything else closes.
     }
 
-    default boolean isClosed() {
-        throw new UnsupportedOperationException("todo");
-    }
+    boolean isClosed();
 }
