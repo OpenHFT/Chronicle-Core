@@ -111,11 +111,16 @@ public class AbstractReferenceCountedTest {
     }
 
     @Test
-    public void isClosed() {
-    }
-
-    @Test
     public void throwExceptionIfClosed() {
+        MyReferenceCounted rc = new MyReferenceCounted();
+        rc.throwExceptionIfClosed();
+        rc.closeable.close();
+        try {
+            rc.throwExceptionIfClosed();
+            fail();
+        } catch (IllegalStateException ignored) {
+
+        }
     }
 
     static class MyReferenceCounted extends AbstractReferenceCounted {
