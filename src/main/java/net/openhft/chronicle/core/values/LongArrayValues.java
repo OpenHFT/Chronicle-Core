@@ -18,13 +18,15 @@
 
 package net.openhft.chronicle.core.values;
 
+import net.openhft.chronicle.core.io.Closeable;
+
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 
 /**
  * User: peter.lawrey Date: 10/10/13 Time: 07:11
  */
-public interface LongArrayValues {
+public interface LongArrayValues extends Closeable {
     long getCapacity();
 
     long getUsed();
