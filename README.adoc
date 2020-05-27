@@ -114,9 +114,213 @@ OS.memory().writeLong(1024L, 0x1234567890ABCDEFL);
 OS.unmap(address, 64 << 10);
 ----
 
-== Resource Reference Counting
+== Deterministic Resource Management
+
+Component which are closeable or reference counted can be released deterministically without waiting for a GC.
+
+=== Closeable Resources
+
+A `Closeable` resources has a simple lifecycle.
+It is open when created, and cannot be used once closed.
+
+[source,Java]
+----
+public class AbstractCloseableTest {
+
+    @Test
+    public void close() {
+        MyCloseable mc = new MyCloseable();
+        assertFalse(mc.isClosed());
+        assertEquals(0, mc.performClose);
+
+        mc.throwExceptionIfClosed();
+
+        mc.close();
+        assertTrue(mc.isClosed());
+        assertEquals(1, mc.performClose);
+
+        mc.close();
+        assertTrue(mc.isClosed());
+        assertEquals(1, mc.performClose);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void throwExceptionIfClosed() {
+        MyCloseable mc = new MyCloseable();
+        mc.close();
+        mc.throwExceptionIfClosed();
+    }
+
+    @Test
+    public void warnIfNotClosed() {
+        Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
+        MyCloseable mc = new MyCloseable();
+        mc.warnIfNotClosed();
+        Jvm.resetExceptionHandlers();
+        assertEquals("Discarded without closing\n" +
+                        "java.lang.IllegalStateException: net.openhft.chronicle.core.StackTrace: Created Here",
+                map.keySet().stream()
+                        .map(e -> e.message + "\n" + e.throwable)
+                        .collect(Collectors.joining(", ")));
+    }
+
+    static class MyCloseable extends AbstractCloseable {
+        int performClose;
+
+        @Override
+        protected void performClose() {
+            performClose++;
+        }
+    }
+}
+----
+
+=== Resource Reference Counting
 
 Use reference counting to deterministically release resources.
+
+A reference counted resource can add reservations until closed.
+
+[source,Java]
+----
+public class AbstractReferenceCountedTest {
+
+    @Test
+    public void reserve() {
+        assertTrue(Jvm.isResourceTracing());
+        MyReferenceCounted rc = new MyReferenceCounted();
+        assertEquals(1, rc.refCount());
+
+        ReferenceOwner a = ReferenceOwner.temporary("a");
+        rc.reserve(a);
+        assertEquals(2, rc.refCount());
+
+        ReferenceOwner b = ReferenceOwner.temporary("b");
+        rc.reserve(b);
+        assertEquals(3, rc.refCount());
+
+        try {
+            rc.reserve(a);
+            fail();
+        } catch (IllegalStateException ignored) {
+        }
+        assertEquals(3, rc.refCount());
+
+        rc.release(b);
+        assertEquals(2, rc.refCount());
+
+        rc.release(a);
+        assertEquals(1, rc.refCount());
+        assertEquals(0, rc.performRelease);
+
+        rc.releaseLast();
+        assertEquals(0, rc.refCount());
+        assertEquals(1, rc.performRelease);
+    }
+
+
+    @Test
+    public void reserveWhenClosed() {
+        MyReferenceCounted rc = new MyReferenceCounted();
+        assertEquals(1, rc.refCount());
+
+        ReferenceOwner a = ReferenceOwner.temporary("a");
+        rc.reserve(a);
+        assertEquals(2, rc.refCount());
+
+        assertFalse(rc.isClosed());
+
+        rc.closeable.close();
+
+        assertEquals(2, rc.refCount());
+        assertTrue(rc.isClosed());
+
+        ReferenceOwner b = ReferenceOwner.temporary("b");
+        try {
+            rc.reserve(b);
+            fail();
+        } catch (IllegalStateException ignored) {
+        }
+        assertEquals(2, rc.refCount());
+
+        assertFalse(rc.tryReserve(b));
+        assertEquals(2, rc.refCount());
+
+        rc.release(a);
+        assertEquals(1, rc.refCount());
+        assertEquals(0, rc.performRelease);
+
+        rc.throwExceptionIfReleased();
+
+        rc.releaseLast();
+        assertEquals(0, rc.refCount());
+        assertEquals(1, rc.performRelease);
+
+        rc.throwExceptionBadResourceOwner();
+        try {
+            rc.throwExceptionIfClosed();
+            fail();
+        } catch (IllegalStateException ignored) {
+
+        }
+        try {
+            rc.throwExceptionIfReleased();
+            fail();
+        } catch (IllegalStateException ignored) {
+
+        }
+    }
+
+    @Test
+    public void throwExceptionBadResourceOwner() {
+        MyReferenceCounted rc = new MyReferenceCounted();
+        MyReferenceCounted rc2 = new MyReferenceCounted();
+        rc.reserve(rc2);
+        rc.throwExceptionBadResourceOwner();
+
+        rc2.closeable.close();
+        try {
+            rc.throwExceptionBadResourceOwner();
+            fail();
+        } catch (IllegalStateException ignored) {
+        }
+        rc.release(rc2);
+        rc.releaseLast();
+    }
+
+    @Test
+    public void throwExceptionIfClosed() {
+        MyReferenceCounted rc = new MyReferenceCounted();
+        rc.throwExceptionIfClosed();
+        rc.closeable.close();
+        try {
+            rc.throwExceptionIfClosed();
+            fail();
+        } catch (IllegalStateException ignored) {
+
+        }
+    }
+
+    static class MyReferenceCounted extends AbstractReferenceCounted {
+        final AbstractCloseable closeable;
+        int performRelease;
+
+        public MyReferenceCounted() {
+            this(new AbstractCloseableTest.MyCloseable());
+        }
+
+        public MyReferenceCounted(AbstractCloseable abstractCloseable) {
+            super(abstractCloseable);
+            closeable = abstractCloseable;
+        }
+
+        @Override
+        protected void performRelease() {
+            performRelease++;
+        }
+    }
+}
+----
 
 [source,java]
 ----
