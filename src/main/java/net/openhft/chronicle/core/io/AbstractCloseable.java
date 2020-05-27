@@ -51,8 +51,10 @@ public abstract class AbstractCloseable implements Closeable {
 
     /**
      * Called when a resources needs to be open to use it.
+     *
+     * @throws IllegalStateException if closed
      */
-    protected void throwExceptionIfClosed() {
+    protected void throwExceptionIfClosed() throws IllegalStateException {
         if (isClosed())
             throw new IllegalStateException("Closed", closedHere);
     }

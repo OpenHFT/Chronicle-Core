@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.util.Collection;
 
-public interface Closeable extends java.io.Closeable {
+public interface Closeable extends java.io.Closeable, QueryCloseable {
 
     static void closeQuietly(@NotNull Object... closeables) {
         closeQuietly((Object) closeables);
@@ -57,6 +57,4 @@ public interface Closeable extends java.io.Closeable {
     default void notifyClosing() {
         // take an action before everything else closes.
     }
-
-    boolean isClosed();
 }
