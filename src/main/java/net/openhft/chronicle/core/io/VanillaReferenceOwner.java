@@ -1,8 +1,6 @@
 package net.openhft.chronicle.core.io;
 
-import net.openhft.chronicle.core.annotation.UsedViaReflection;
-
-public class VanillaReferenceOwner implements ReferenceOwner {
+public class VanillaReferenceOwner implements ReferenceOwner, QueryCloseable {
     private final String name;
 
     public VanillaReferenceOwner(String name) {
@@ -16,7 +14,7 @@ public class VanillaReferenceOwner implements ReferenceOwner {
                 '}';
     }
 
-    @UsedViaReflection
+    @Override
     public boolean isClosed() {
         return false;
     }

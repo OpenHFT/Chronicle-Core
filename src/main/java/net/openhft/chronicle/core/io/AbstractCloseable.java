@@ -54,7 +54,7 @@ public abstract class AbstractCloseable implements Closeable, ReferenceOwner {
      *
      * @throws IllegalStateException if closed
      */
-    protected void throwExceptionIfClosed() throws IllegalStateException {
+    public void throwExceptionIfClosed() throws IllegalStateException {
         if (isClosed())
             throw new IllegalStateException("Closed", closedHere);
     }
@@ -64,7 +64,7 @@ public abstract class AbstractCloseable implements Closeable, ReferenceOwner {
      */
     protected void warnIfNotClosed() {
         if (!isClosed()) {
-            Jvm.warn().on(getClass(), "Discarded without closing", createdHere);
+            Jvm.warn().on(getClass(), "Discarded without closing", new IllegalStateException(createdHere));
             close();
         }
     }
