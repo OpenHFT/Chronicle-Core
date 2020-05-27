@@ -22,7 +22,7 @@ import net.openhft.chronicle.core.StackTrace;
 
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 
-public abstract class AbstractCloseable implements Closeable {
+public abstract class AbstractCloseable implements Closeable, ReferenceOwner {
     private static final long CLOSED_OFFSET;
 
     static {

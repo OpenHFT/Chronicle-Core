@@ -24,6 +24,9 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * @deprecated Use net.openhft.chronicle.core.io.ReferenceCounter
+ */
 public final class ReferenceCounter implements ReferenceCounted {
 
     private final AtomicLong value = new AtomicLong(1);

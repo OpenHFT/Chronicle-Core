@@ -28,6 +28,8 @@ import java.util.List;
 
 /**
  * A resource which is reference counted and freed when the refCount drop to 0.
+ *
+ * @deprecated Use net.openhft.chronicle.core.io.ReferenceCounted
  */
 public interface ReferenceCounted {
 
