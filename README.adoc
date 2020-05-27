@@ -1,47 +1,48 @@
-Chronicle Core
-==============
+= Chronicle Core
 
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-core/badge.svg)](https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-core)
+image:https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-core/badge.svg[Maven Central,link=https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-core]
 
 This library wraps up low level access to
 
-- [System properties from a file](#system-properties-from-file)
- - [Off Heap Memory Access](#off-heap-memory-access)
- - [JVM Access Methods](#jvm-access-methods)
- - [OS Calls](#os-calls)
- - [Resource Reference Counting](#resource-reference-counting)
- - [Object Pools](#object-pools)
- - [Class Local Caching](#class-local-caching)
- - [Maths Functions](#maths-functions) for casting types, rounding double, faster hashing.
- - [Serializable Lambdas](#serializable-lambdas)
- - [Histogram](#histogram) A high performance wide range histogram.
- - [JLBH](#jlbh) Java Latency Benchmarking Harness.
+* <<_system_properties_from_file,System properties from a file>>
+* <<_off_heap_memory_access,Off Heap Memory Access>>
+* <<_jvm_access_methods,JVM Access Methods>>
+* <<_os_calls,OS Calls>>
+* <<_resource_reference_counting,Resource Reference Counting>>
+* <<_object_pools,Object Pools>>
+* <<_class_local_caching,Class Local Caching>>
+* <<_maths_functions,Maths Functions>> for casting types, rounding double, faster hashing.
+* <<_serializable_lambdas,Serializable Lambdas>>
+* <<_histogram,Histogram>> A high performance wide range histogram.
+* <<_jlbh,JLBH>> Java Latency Benchmarking Harness.
 
-System properties from file
-================
+== System properties from file
 
 The Jvm class in its static initialiser will load system properties from a file called `system.properties`
-if it can find this file in the current directory. This is a useful feature if you want to de-clutter your command line.
+if it can find this file in the current directory.
+This is a useful feature if you want to de-clutter your command line.
 
 Chronicle Core class `Jvm` loads the file `system.properties` into the `System`'s properties.
 To ensure it is loaded early enough, add the following code to your `Main`
 
-```java
+[source,java]
+----
 static {
     Jvm.init();
 }
-```
+
+----
 
 The choice of file to load can be overridden on the command line with `-Dsystem.properties=my.properties`
 
 See `Jvm.Main` in the `src/test` as an example.
 
+== Off Heap Memory Access
 
-Off Heap Memory Access
-=================
 This allows you to access native memory using primitives and some thread safe operations.
 
-```java
+[source,java]
+----
 Memory memory = OS.memory();
 long address = memory.allocate(1024);
 try {
@@ -53,37 +54,43 @@ try {
 } finally {
     memory.freeMemory(address, 1024);
 }
-```
+----
 
-JVM Access Methods
-=================
+== JVM Access Methods
+
 Check the JVM is running in debug mode
-```java
+
+[source,java]
+----
 if (Jvm.isDebug()) {
    // running in debug.
-```
+----
 
 Rethrow a checked exception as an unchecked one.
 
-```java
+[source,java]
+----
 try {
     // IO operation
 } catch (IOException ioe) {
     throw Jvm.rethrow(ioe);
 }
-```
+----
 
 Get a Field for a Class by name
 
-```java
+[source,java]
+----
 Field theUnsafe = Jvm.getField(Unsafe.class, "theUnsafe");
 Unsafe unsafe = (Unsafe) theUnsafe.get(null);
-```
+----
 
-OS Calls
-=================
-Access to system calls 
-```java
+== OS Calls
+
+Access to system calls
+
+[source,java]
+----
 int processId = OS.getProcessId();
 int maxProcessId = OS.getMaxProcessId();
 int pageSize = OS.getPageSize();
@@ -92,10 +99,12 @@ boolean is64bit = OS.is64Bit();
 String hostname = OS.getHostName();
 String username = OS.getUserName();
 String targetDir = OS.getTarget(); // where is the target directory during builds.
-```
+----
 
 Memory mapped files
-```java
+
+[source,java]
+----
 FileChannel fc = new CleaningRandomAccessFile(fileName, "rw").getChannel();
 // map in 64 KiB
 long address = OS.map(fc, MapMode.READ_WRITE, 0, 64 << 10);
@@ -103,12 +112,14 @@ long address = OS.map(fc, MapMode.READ_WRITE, 0, 64 << 10);
 OS.memory().writeLong(1024L, 0x1234567890ABCDEFL);
 // unmap memory region
 OS.unmap(address, 64 << 10);
-```
+----
 
-Resource Reference Counting
-=================
+== Resource Reference Counting
+
 Use reference counting to deterministically release resources.
-```java
+
+[source,java]
+----
 MappedFile mf = MappedFile.mappedFile(tmp, chunkSize, 0);
 MappedBytesStore bs = mf.acquireByteStore(chunkSize + (1 << 10));
 
@@ -126,12 +137,14 @@ bs.release();
 assertEquals(0, bs.refCount());
 assertEquals(0, mf.refCount());
 assertEquals("refCount: 0, 0, 0", mf.referenceCounts());
-```
- 
-Object Pools
-=================
+----
+
+== Object Pools
+
 There is String and Enum object pools to turn a CharSequence into a String.
-```java
+
+[source,java]
+----
 Bytes b = Bytes.from("Hello World");
 b.readSkip(6);
 
@@ -140,53 +153,59 @@ String s = si.intern(b);
 String s2 = si.intern(b);
 assertEquals("World", s);
 assertSame(s, s2);
-```
+----
 
-Class Local Caching
-=================
+== Class Local Caching
+
 Add caching of a data structure for each class using a lambda
-```java
+
+[source,java]
+----
 public static final ClassLocal<EnumInterner> ENUM_INTERNER = 
         ClassLocal.withInitial(c -> new EnumInterner<>(c));
         
 E enumValue = ENUM_INTERNER.get(enumClass).intern(stringBuilder);
-```
+----
 
-Maths Functions
-=================
+== Maths Functions
+
 Maths functions to support rounds
 
-```java
+[source,java]
+----
 double a = 0.1;
 double b = 0.3;
 double c= Maths.round2(b - a); // 0.2 rounded to 2 decimal places
-```
+----
 
 Checking type conversions
 
-```java
+[source,java]
+----
 int i = Maths.toInt32(longValue);
-```
+----
 
-Serializable Lambdas
-=================
+== Serializable Lambdas
+
 There is a number of FunctionalInterfaces you can utilise as method arguments.
 This allows implicitly making a lambda Serializable.
 
-```java
+[source,java]
+----
 // in KeyedVisitable
 default <R> R applyToKey(K key, @NotNull SerializableFunction<E, R> function) {
 
 // in code
 
 String fullename = map.applyToKey("u:123223", u -> u.getFullName());
-```
+----
 
-Histogram
-=================
+== Histogram
+
 A high dynamic range histogram with tunable accuracy.
 
-```java
+[source,java]
+----
 Histogram h = new Histogram(32, 4);
 long start = instance.ticks(), prev = start;
 for (int i = 0; i <= 1000_000_000; i++) {
@@ -196,15 +215,14 @@ for (int i = 0; i <= 1000_000_000; i++) {
     prev = now;
 }
 System.out.println(h.toLongMicrosFormat(instance::toMicros));
-```
+----
 
-JLBH
-==============
-JLBH has moved home and now lives in its own project, see [JLBH](https://github.com/OpenHFT/JLBH).
+== JLBH
 
-Loop Block Monitor tool
-==============
+JLBH has moved home and now lives in its own project, see https://github.com/OpenHFT/JLBH[JLBH].
+
+== Loop Block Monitor tool
 
 The tool to summarise the thread stack traces is here.
 
-net.openhft.chronicle.core.threads.MonitorProfileAnalyserMain
+`net.openhft.chronicle.core.threads.MonitorProfileAnalyserMain`
