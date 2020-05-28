@@ -73,7 +73,7 @@ public enum Jvm {
     private static final boolean IS_JAVA_12_PLUS;
     private static final boolean IS_JAVA_14_PLUS;
     private static final long MAX_DIRECT_MEMORY;
-    private static final boolean SAFEPOINT_ENABLED = Boolean.getBoolean("jvm.safepoint.enabled");
+    private static final boolean SAFEPOINT_ENABLED;
     private static final boolean IS_ARM = Boolean.getBoolean("jvm.isarm") ||
             System.getProperty("os.arch", "?").startsWith("arm") || System.getProperty("os.arch", "?").startsWith("aarch");
     private static final Map<Class, ClassMetrics> CLASS_METRICS_MAP =
@@ -139,15 +139,11 @@ public enum Jvm {
         String systemProperties = System.getProperty("system.properties", "system.properties");
         loadSystemProperties(systemProperties);
 
-        String resourceTracing = System.getProperty("jvm.resource.tracing");
-        if (resourceTracing == null) {
-            boolean assertOn = false;
-            assert assertOn = true;
-            RESOURCE_TRACING = Jvm.isDebug() || assertOn;
-        } else {
-            RESOURCE_TRACING = resourceTracing.isEmpty() || Boolean.parseBoolean(resourceTracing);
-        }
+        SAFEPOINT_ENABLED = Boolean.getBoolean("jvm.safepoint.enabled");
 
+        String resourceTracing = System.getProperty("jvm.resource.tracing");
+        RESOURCE_TRACING = resourceTracing != null &&
+                (resourceTracing.isEmpty() || Boolean.parseBoolean(resourceTracing));
     }
 
     private static MethodHandle get_setAccessible0_Method() {

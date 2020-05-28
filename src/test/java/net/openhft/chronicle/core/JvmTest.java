@@ -56,43 +56,9 @@ public class JvmTest {
     }
 
     @Test
-    public void testTrimStackTrace() {
-        // TODO: 26/02/2016
-    }
-
-    @Test
-    public void testTrimFirst() {
-        // TODO: 26/02/2016
-
-    }
-
-    @Test
-    public void testTrimLast() {
-        // TODO: 26/02/2016
-
-    }
-
-    @Test
     public void testIsInternal() {
         assertTrue(Jvm.isInternal(String.class.getName()));
         assertFalse(Jvm.isInternal(getClass().getName()));
-    }
-
-    @Test
-    public void testPause() {
-        // TODO: 26/02/2016
-
-    }
-
-    @Test
-    public void testBusyWaitMicros() {
-        // TODO: 26/02/2016
-    }
-
-    @Test
-    public void testGetField() {
-        // TODO: 26/02/2016
-
     }
 
     @Test
@@ -100,12 +66,6 @@ public class JvmTest {
         ByteBuffer bb = ByteBuffer.allocateDirect(128);
         long address = Jvm.getValue(bb, "address");
         assertEquals(((DirectBuffer) bb).address(), address);
-
-    }
-
-    @Test
-    public void testLockWithStack() {
-        // TODO: 26/02/2016
 
     }
 
@@ -176,5 +136,10 @@ public class JvmTest {
 
     static class ClassD extends ClassC {
         byte x;
+    }
+
+    @Test
+    public void loadSystemProperties() {
+        assertTrue(Jvm.isResourceTracing());
     }
 }
