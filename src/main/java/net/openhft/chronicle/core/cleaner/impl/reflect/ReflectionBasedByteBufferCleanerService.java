@@ -46,7 +46,7 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
             cleaner = lookup.findVirtual(DirectBuffer.class, "cleaner", MethodType.methodType(cleanerClass));
             clean = lookup.findVirtual(cleanerClass, "clean", MethodType.methodType(void.class));
         } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException e) {
-            Jvm.fatal().on(ReflectionBasedByteBufferCleanerService.class, "Make sure you have set the command line option \"--illegal-access=permit --add-exports java.base/jdk.internal.ref=ALL-UNNAMED\"");
+            Jvm.debug().on(ReflectionBasedByteBufferCleanerService.class, "Make sure you have set the command line option \"--illegal-access=permit --add-exports java.base/jdk.internal.ref=ALL-UNNAMED\"");
             impact = Impact.UNAVAILABLE;
         }
         CLEAN_METHOD = clean;
