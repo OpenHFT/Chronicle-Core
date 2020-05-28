@@ -99,7 +99,8 @@ public abstract class AbstractCloseable implements Closeable, ReferenceOwner {
      */
     protected void warnIfNotClosed() {
         if (!isClosed()) {
-            Jvm.warn().on(getClass(), "Discarded without closing", new IllegalStateException(createdHere));
+            if (Jvm.isResourceTracing())
+                Jvm.warn().on(getClass(), "Discarded without closing", new IllegalStateException(createdHere));
             close();
         }
     }
