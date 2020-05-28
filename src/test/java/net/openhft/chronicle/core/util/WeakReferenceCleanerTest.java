@@ -5,16 +5,12 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.lang.ref.WeakReference;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.LockSupport;
 
 import static net.openhft.chronicle.core.util.WeakReferenceCleaner.THREAD_SHUTTING_DOWN;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class WeakReferenceCleanerTest {
@@ -40,26 +36,26 @@ public class WeakReferenceCleanerTest {
     @Test
     public void shouldRunOnceWhenRequested() {
         final Container foo = allocate("foo");
-        assertThat(processedCount.get(), is(0));
+        assertEquals(0, processedCount.get());
 
         foo.cleaner.clean();
-        assertThat(processedCount.get(), is(1));
+        assertEquals(1, processedCount.get());
 
         foo.cleaner.clean();
-        assertThat(processedCount.get(), is(1));
+        assertEquals(1, processedCount.get());
     }
 
     @Test
     public void shouldRunOnceWhenRequestedScheduled() {
         final Container foo = allocate("foo");
-        assertThat(processedCount.get(), is(0));
+        assertEquals(0, processedCount.get());
 
         foo.cleaner.scheduleForClean();
         waitForProcessedCount(1);
-        assertThat(processedCount.get(), is(1));
+        assertEquals(1, processedCount.get());
 
         foo.cleaner.clean();
-        assertThat(processedCount.get(), is(1));
+        assertEquals(1, processedCount.get());
     }
 
     @Test
@@ -73,7 +69,7 @@ public class WeakReferenceCleanerTest {
         referToObject(a);
         referToObject(b);
         referToObject(c);
-        assertThat(processedCount.get(), is(0));
+        assertEquals(0, processedCount.get());
         a = null;
 
         waitForProcessedCount(1);

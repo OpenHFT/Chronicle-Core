@@ -28,7 +28,6 @@ import javax.naming.ConfigurationException;
 import java.nio.ByteBuffer;
 
 import static net.openhft.chronicle.core.Jvm.isArm;
-import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
 
@@ -53,7 +52,7 @@ public class JvmTest {
 
     @Test
     public void shouldGetMajorVersion() {
-        assertThat(Jvm.majorVersion() > 0, is(true));
+        assertTrue(Jvm.majorVersion() > 0);
     }
 
     @Test

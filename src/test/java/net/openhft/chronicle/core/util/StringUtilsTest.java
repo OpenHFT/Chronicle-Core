@@ -105,7 +105,7 @@ public class StringUtilsTest {
         assumeTrue(Jvm.isJava9Plus());
 
         final byte[] bytes = {'A', 'B', 'C'};
-        assertThat(new String(bytes), is(StringUtils.newStringFromBytes(bytes)));
+        assertEquals(StringUtils.newStringFromBytes(bytes), new String(bytes));
     }
 
     @Test
