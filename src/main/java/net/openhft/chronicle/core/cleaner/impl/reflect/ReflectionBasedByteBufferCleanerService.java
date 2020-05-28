@@ -25,6 +25,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.nio.ByteBuffer;
+import java.util.logging.Logger;
 
 public final class ReflectionBasedByteBufferCleanerService implements ByteBufferCleanerService {
     private static final String JDK8_CLEANER_CLASS_NAME = "sun.misc.Cleaner";
@@ -46,7 +47,9 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
             cleaner = lookup.findVirtual(DirectBuffer.class, "cleaner", MethodType.methodType(cleanerClass));
             clean = lookup.findVirtual(cleanerClass, "clean", MethodType.methodType(void.class));
         } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException e) {
-            Jvm.debug().on(ReflectionBasedByteBufferCleanerService.class, "Make sure you have set the command line option \"--illegal-access=permit --add-exports java.base/jdk.internal.ref=ALL-UNNAMED\"");
+            // Don't want to record this in tests so just send to slf4j
+            Logger.getLogger(ReflectionBasedByteBufferCleanerService.class.getName())
+                    .info("Make sure you have set the command line option \"--illegal-access=permit --add-exports java.base/jdk.internal.ref=ALL-UNNAMED\"");
             impact = Impact.UNAVAILABLE;
         }
         CLEAN_METHOD = clean;
