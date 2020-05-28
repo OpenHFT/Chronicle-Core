@@ -1,5 +1,6 @@
 package net.openhft.chronicle.core.threads;
 
+import net.openhft.chronicle.core.Jvm;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -17,7 +18,7 @@ public class JitterSamplerTest {
             JitterSampler.finished();
         });
         t.start();
-
+        Jvm.pause(20);
         for (int i = 0; i < 10; i++) {
             JitterSampler.sleepSilently(10);
             String s = JitterSampler.takeSnapshot(10_000_000);
@@ -25,9 +26,9 @@ public class JitterSamplerTest {
             if ("finishing".equals(JitterSampler.desc)) {
                 if (s != null && s.contains("finish"))
                     break;
-            } else
+            } else {
                 assertEquals("started", JitterSampler.desc);
-
+            }
         }
         t.join();
         String s = JitterSampler.takeSnapshot(10_000_000);
