@@ -20,10 +20,15 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
 
+import java.util.Collections;
+import java.util.Map;
+import java.util.WeakHashMap;
+
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 
 public abstract class AbstractCloseable implements Closeable, ReferenceOwner {
     private static final long CLOSED_OFFSET;
+    static Map<AbstractCloseable, StackTrace> CLOSEABLE_STACK_TRACE_MAP = Collections.synchronizedMap(new WeakHashMap<>());
 
     static {
         CLOSED_OFFSET = UNSAFE.objectFieldOffset(Jvm.getField(AbstractCloseable.class, "closed"));
@@ -35,6 +40,36 @@ public abstract class AbstractCloseable implements Closeable, ReferenceOwner {
 
     protected AbstractCloseable() {
         createdHere = Jvm.isResourceTracing() ? new StackTrace("Created Here") : null;
+
+        Map<AbstractCloseable, StackTrace> map = CLOSEABLE_STACK_TRACE_MAP;
+        if (map != null)
+            map.put(this, new StackTrace("Created here"));
+    }
+
+    public static void enableCloseableTracing() {
+        CLOSEABLE_STACK_TRACE_MAP = Collections.synchronizedMap(new WeakHashMap<>());
+    }
+
+    public static void disableCloseableTracing() {
+        CLOSEABLE_STACK_TRACE_MAP = null;
+    }
+
+    public static void assertCloseablesClosed() {
+        Map<AbstractCloseable, StackTrace> traceMap = CLOSEABLE_STACK_TRACE_MAP;
+        if (traceMap == null) {
+            Jvm.warn().on(AbstractCloseable.class, "closable tracing disabled");
+            return;
+        }
+        AssertionError openFiles = new AssertionError("Closeables still open");
+        synchronized (traceMap) {
+            for (Map.Entry<AbstractCloseable, StackTrace> entry : traceMap.entrySet()) {
+                if (!entry.getKey().isClosed())
+                    openFiles.addSuppressed(entry.getValue());
+                Closeable.closeQuietly(entry.getKey());
+            }
+        }
+        if (openFiles.getSuppressed().length > 0)
+            throw openFiles;
     }
 
     /**
