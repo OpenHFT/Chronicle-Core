@@ -66,6 +66,6 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
 
     @Override
     public Impact impact() {
-        return Impact.SOME_IMPACT;
+        return IMPACT;
     }
 }
