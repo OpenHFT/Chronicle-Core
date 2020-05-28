@@ -33,7 +33,7 @@ public final class Jdk8ByteBufferCleanerService implements ByteBufferCleanerServ
     }
 
     @Override
-    public int impact() {
-        return NO_IMPACT;
+    public Impact impact() {
+        return Impact.NO_IMPACT;
     }
 }

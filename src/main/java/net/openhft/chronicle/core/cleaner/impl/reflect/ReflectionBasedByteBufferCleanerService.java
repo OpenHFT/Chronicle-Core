@@ -32,19 +32,26 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
 
     private static final MethodHandle CLEANER_METHOD;
     private static final MethodHandle CLEAN_METHOD;
+    private static final Impact IMPACT;
 
     static {
         MethodHandles.Lookup lookup = MethodHandles.lookup();
         final String cleanerClassname = Jvm.isJava9Plus() ?
                 JDK9_CLEANER_CLASS_NAME : JDK8_CLEANER_CLASS_NAME;
+        MethodHandle cleaner = null;
+        MethodHandle clean = null;
+        Impact impact = Impact.SOME_IMPACT;
         try {
             final Class<?> cleanerClass = Class.forName(cleanerClassname);
-            CLEANER_METHOD = lookup.findVirtual(DirectBuffer.class, "cleaner", MethodType.methodType(cleanerClass));
-            CLEAN_METHOD = lookup.findVirtual(cleanerClass, "clean", MethodType.methodType(void.class));
+            cleaner = lookup.findVirtual(DirectBuffer.class, "cleaner", MethodType.methodType(cleanerClass));
+            clean = lookup.findVirtual(cleanerClass, "clean", MethodType.methodType(void.class));
         } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException e) {
             Jvm.fatal().on(ReflectionBasedByteBufferCleanerService.class, "Make sure you have set the command line option \"--illegal-access=permit --add-exports java.base/jdk.internal.ref=ALL-UNNAMED\"");
-            throw new ExceptionInInitializerError(e);
+            impact = Impact.UNAVAILABLE;
         }
+        CLEAN_METHOD = clean;
+        CLEANER_METHOD = cleaner;
+        IMPACT = impact;
     }
 
     @Override
@@ -58,7 +65,7 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
     }
 
     @Override
-    public int impact() {
-        return SOME_IMPACT;
+    public Impact impact() {
+        return Impact.SOME_IMPACT;
     }
 }

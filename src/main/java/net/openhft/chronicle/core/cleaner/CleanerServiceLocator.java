@@ -43,7 +43,7 @@ public final class CleanerServiceLocator {
             try {
                 for (final ByteBufferCleanerService next : available) {
                     if (isAllowedInThisMajorVersion(next) &&
-                            (cleanerService == null || next.impact() < cleanerService.impact())) {
+                            (cleanerService == null || next.impact().compareTo(cleanerService.impact()) < 0)) {
                         cleanerService = next;
                     }
                 }
