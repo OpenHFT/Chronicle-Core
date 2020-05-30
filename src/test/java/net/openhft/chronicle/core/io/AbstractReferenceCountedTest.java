@@ -8,7 +8,7 @@ import static org.junit.Assert.*;
 public class AbstractReferenceCountedTest {
 
     @Test
-    public void reserve() {
+    public void reserve() throws IllegalStateException {
         assertTrue(Jvm.isResourceTracing());
         MyReferenceCounted rc = new MyReferenceCounted();
         assertEquals(1, rc.refCount());
@@ -42,7 +42,7 @@ public class AbstractReferenceCountedTest {
 
 
     @Test
-    public void reserveWhenClosed() {
+    public void reserveWhenClosed() throws IllegalStateException {
         MyReferenceCounted rc = new MyReferenceCounted();
         assertEquals(1, rc.refCount());
 
@@ -94,7 +94,7 @@ public class AbstractReferenceCountedTest {
     }
 
     @Test
-    public void throwExceptionBadResourceOwner() {
+    public void throwExceptionBadResourceOwner() throws IllegalStateException {
         MyReferenceCounted rc = new MyReferenceCounted();
         MyReferenceCounted rc2 = new MyReferenceCounted();
         rc.reserve(rc2);
@@ -111,7 +111,7 @@ public class AbstractReferenceCountedTest {
     }
 
     @Test
-    public void throwExceptionIfClosed() {
+    public void throwExceptionIfClosed() throws IllegalStateException {
         MyReferenceCounted rc = new MyReferenceCounted();
         rc.throwExceptionIfClosed();
         rc.closeable.close();

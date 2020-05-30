@@ -49,7 +49,7 @@ public class ObjectUtilsConvertToTest {
     }
 
     @Test
-    public void convertTo() {
+    public void convertTo() throws IllegalStateException {
         assertEquals(converted, ObjectUtils.convertTo(converted.getClass(), input));
     }
 

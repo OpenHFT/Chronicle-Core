@@ -111,9 +111,9 @@ public interface Memory {
 
     void writeOrderedLong(Object object, long offset, long i);
 
-    void testAndSetInt(long address, long offset, int expected, int value);
+    void testAndSetInt(long address, long offset, int expected, int value) throws IllegalStateException;
 
-    void testAndSetInt(Object object, long offset, int expected, int value);
+    void testAndSetInt(Object object, long offset, int expected, int value) throws IllegalStateException;
 
     boolean compareAndSwapInt(long address, int expected, int value);
 

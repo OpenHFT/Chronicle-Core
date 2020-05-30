@@ -39,21 +39,21 @@ public interface ReferenceCounted {
      * Each invocation of this method increases the reference count by one.
      *
      * @throws IllegalStateException if the resource has already been freed.
-     *         I.e. its reference counter has as some point reached zero.
+     *                               I.e. its reference counter has as some point reached zero.
      */
-    void reserve();
+    void reserve() throws IllegalStateException;
 
-     /**
+    /**
      * Tries to reserve a resource and returns if the resource could
-     *  be successfully reserved.
+     * be successfully reserved.
      * <p>
      * Each invocation of this method increases the reference count by one.
      *
      * @throws IllegalStateException if the resource has already been freed.
-     *         I.e. its reference counter has as some point reached zero.
+     *                               I.e. its reference counter has as some point reached zero.
      */
 
-    boolean tryReserve();
+    boolean tryReserve() throws IllegalStateException;
 
     /**
      * Releases a resource.
@@ -61,9 +61,9 @@ public interface ReferenceCounted {
      * Each invocation of this method decreases the reference count by one.
      *
      * @throws IllegalStateException if the resource has already been freed.
-     *         I.e. its reference counter has as some point reached zero.
+     *                               I.e. its reference counter has as some point reached zero.
      */
-    void release();
+    void release() throws IllegalStateException;
 
     /**
      * Returns the reference count for this resource.

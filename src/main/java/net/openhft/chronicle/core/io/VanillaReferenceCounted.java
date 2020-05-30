@@ -39,7 +39,7 @@ public final class VanillaReferenceCounted implements ReferenceCounted {
     }
 
     @Override
-    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) {
+    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException {
         throwExceptionIfReleased();
     }
 

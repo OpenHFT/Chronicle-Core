@@ -26,12 +26,12 @@ public abstract class AbstractReferenceCounted implements ReferenceCounted, Refe
     }
 
     @Override
-    public void releaseLast(ReferenceOwner id) {
+    public void releaseLast(ReferenceOwner id) throws IllegalStateException {
         referenceCounted.releaseLast(id);
     }
 
     @Override
-    public boolean tryReserve(ReferenceOwner id) {
+    public boolean tryReserve(ReferenceOwner id) throws IllegalStateException {
         return !queryCloseable.isClosed() && referenceCounted.tryReserve(id);
     }
 
@@ -41,7 +41,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCounted, Refe
     }
 
     @Override
-    public void throwExceptionBadResourceOwner() {
+    public void throwExceptionBadResourceOwner() throws IllegalStateException {
         referenceCounted.throwExceptionBadResourceOwner();
     }
 

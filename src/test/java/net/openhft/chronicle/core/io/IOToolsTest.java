@@ -18,7 +18,7 @@ public class IOToolsTest {
     }
 
     @Test
-    public void createDirectoriesWithBrokenLink() throws IOException {
+    public void createDirectoriesWithBrokenLink() throws IOException, IllegalStateException {
         if (!OS.isLinux()) return;
 
         String path = OS.getTarget();
@@ -45,7 +45,7 @@ public class IOToolsTest {
     }
 
     @Test
-    public void createDirectoriesReadOnly() throws IOException {
+    public void createDirectoriesReadOnly() throws IOException, IllegalStateException {
         if (!OS.isLinux()) return;
 
         String path = OS.getTarget();

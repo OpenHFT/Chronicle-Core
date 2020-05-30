@@ -47,7 +47,7 @@ public final class ReferenceCounter implements ReferenceCounted {
     }
 
     @Override
-    public void reserve() {
+    public void reserve() throws IllegalStateException {
         for (; ; ) {
 
             long v = value.get();
@@ -78,7 +78,7 @@ public final class ReferenceCounter implements ReferenceCounted {
     }
 
     @Override
-    public void release() {
+    public void release() throws IllegalStateException {
         for (; ; ) {
             long v = value.get();
             if (v <= 0) {
@@ -110,7 +110,7 @@ public final class ReferenceCounter implements ReferenceCounted {
         return value.get();
     }
 
-    public boolean checkRefCount() {
+    public boolean checkRefCount() throws IllegalStateException {
         if (value.get() < 1) {
             throw new IllegalStateException("released", referenceCountHistory.peek());
         }

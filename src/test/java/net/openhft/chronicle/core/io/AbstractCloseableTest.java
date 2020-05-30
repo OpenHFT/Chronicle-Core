@@ -12,7 +12,7 @@ import static org.junit.Assert.*;
 public class AbstractCloseableTest {
 
     @Test
-    public void close() {
+    public void close() throws IllegalStateException {
         MyCloseable mc = new MyCloseable();
         assertFalse(mc.isClosed());
         assertEquals(0, mc.performClose);
@@ -29,7 +29,7 @@ public class AbstractCloseableTest {
     }
 
     @Test(expected = IllegalStateException.class)
-    public void throwExceptionIfClosed() {
+    public void throwExceptionIfClosed() throws IllegalStateException {
         MyCloseable mc = new MyCloseable();
         mc.close();
         mc.throwExceptionIfClosed();

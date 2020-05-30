@@ -188,7 +188,7 @@ public enum ObjectUtils {
     public static <E extends Enum<E>> E getSingletonForEnum(Class<E> eClass) {
         E[] enumConstants = eClass.getEnumConstants();
         if (enumConstants.length == 0)
-            throw new IllegalStateException("Cannot convert marshallable to " + eClass + " as it doesn't have any instances");
+            throw new AssertionError("Cannot convert marshallable to " + eClass + " as it doesn't have any instances");
         if (enumConstants.length > 1)
             Jvm.warn().on(ObjectUtils.class, eClass + " has multiple INSTANCEs, picking the first one");
         return enumConstants[0];
