@@ -88,6 +88,21 @@ public enum IOTools {
         return dir.delete();
     }
 
+    public static void deleteDirWithFilesOrThrow(@NotNull String dir) throws IORuntimeException {
+        deleteDirWithFilesOrThrow(new File(dir));
+    }
+
+    /**
+     * Canonical usage is to call this *before* your test so you fail fast if you can't delete
+     * @param dir dir
+     * @throws IORuntimeException
+     */
+    public static void deleteDirWithFilesOrThrow(@NotNull File dir) throws IORuntimeException {
+        if (! deleteDirWithFiles(dir))
+            if (dir.exists())
+                throw new AssertionError("Could not delete " + dir);
+    }
+
     @Deprecated
     public static URL urlFor(String name) throws FileNotFoundException {
         // use the callers class loader not the default one if possible.
