@@ -18,11 +18,12 @@
 
 package net.openhft.chronicle.core.threads;
 
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.Closeable;
 import org.jetbrains.annotations.NotNull;
 
 public interface EventLoop extends Closeable {
-    boolean DEBUG_ADDING_HANDLERS = Boolean.getBoolean("debug.adding.handlers");
+    boolean DEBUG_ADDING_HANDLERS = Jvm.getBoolean("debug.adding.handlers");
 
     String name();
 
