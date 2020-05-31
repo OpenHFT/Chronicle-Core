@@ -20,6 +20,7 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.annotation.DontChain;
 import net.openhft.chronicle.core.onoes.*;
+import net.openhft.chronicle.core.util.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import sun.misc.Signal;
@@ -794,6 +795,38 @@ public enum Jvm {
 
     public static boolean isResourceTracing() {
         return RESOURCE_TRACING;
+    }
+
+    /**
+     * A more permissive boolean System property flag.
+     * <code>-Dflag</code><code>-Dflag=true</code><code>-Dflag=yes</code>
+     * are all accepted
+     *
+     * @param property name to lookup
+     * @return if true or set
+     */
+    public static boolean getBoolean(String property) {
+        return getBoolean(property, false);
+    }
+
+    /**
+     * A more permissive boolean System property flag.
+     * <code>-Dflag</code><code>-Dflag=true</code><code>-Dflag=yes</code>
+     * are all accepted
+     *
+     * @param property     name to lookup
+     * @param defaultValue value to be used if unknown
+     * @return if true or set
+     */
+    public static boolean getBoolean(String property, boolean defaultValue) {
+        String value = System.getProperty(property);
+        if (value == null)
+            return defaultValue;
+        if (value.isEmpty())
+            return true;
+        return defaultValue
+                ? !ObjectUtils.isFalse(value)
+                : !ObjectUtils.isTrue(value);
     }
 
     private static class ChainedSignalHandler implements SignalHandler {
