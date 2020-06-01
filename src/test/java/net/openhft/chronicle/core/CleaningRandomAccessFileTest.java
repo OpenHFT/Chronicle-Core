@@ -8,13 +8,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.lang.ref.WeakReference;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
@@ -45,7 +41,6 @@ public class CleaningRandomAccessFileTest {
             ByteBuffer bb = ByteBuffer.allocateDirect(64);
             for (int i = 0; i < 200; i++) {
                 RandomAccessFile file = new CleaningRandomAccessFile(tempDir + "/file" + i, "rw");
-//                RandomAccessFile file = new RandomAccessFile(tempDir + "/file" + i, "rw");
                 bb.clear();
                 file.getChannel().write(bb);
             }
@@ -53,21 +48,4 @@ public class CleaningRandomAccessFileTest {
             Jvm.pause(10);
         }
     }
-
-    /*
-     * This example only leaks resources on a GC.
-     */
-    final Map<String, WeakReference<RandomAccessFile>> fileCache = new HashMap<>();
-
-    public RandomAccessFile fileFor(String name) throws FileNotFoundException {
-        WeakReference<RandomAccessFile> reference = fileCache.get(name);
-        RandomAccessFile file = reference == null ? null : reference.get();
-        if (file == null) {
-            file = new RandomAccessFile(name, "rw");
-            reference = new WeakReference<>(file);
-            fileCache.put(name, reference);
-        }
-        return reference.get();
-    }
-
 }
