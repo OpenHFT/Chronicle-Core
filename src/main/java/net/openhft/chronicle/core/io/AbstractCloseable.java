@@ -73,6 +73,11 @@ public abstract class AbstractCloseable implements Closeable, ReferenceOwner {
             throw openFiles;
     }
 
+    public static void unmonitor(AbstractCloseable closeable) {
+        if (CLOSEABLE_STACK_TRACE_MAP != null)
+            CLOSEABLE_STACK_TRACE_MAP.remove(closeable);
+    }
+
     /**
      * Close a resource so it cannot be used again.
      */
