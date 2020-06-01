@@ -27,6 +27,7 @@ import java.io.*;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.*;
+import java.util.Arrays;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -43,10 +44,6 @@ public enum IOTools {
 
     public static boolean shallowDeleteDirWithFiles(@NotNull File dir) throws IORuntimeException {
         return deleteDirWithFiles(dir, 1);
-    }
-
-    public static boolean deleteDirWithFiles(@NotNull String dir) throws IORuntimeException {
-        return deleteDirWithFiles(dir, 20);
     }
 
     public static boolean deleteDirWithFiles(@NotNull String... dirs) throws IORuntimeException {
@@ -88,19 +85,21 @@ public enum IOTools {
         return dir.delete();
     }
 
-    public static void deleteDirWithFilesOrThrow(@NotNull String dir) throws IORuntimeException {
-        deleteDirWithFilesOrThrow(new File(dir));
+    public static void deleteDirWithFilesOrThrow(@NotNull String... dirs) throws IORuntimeException {
+        final File[] files = Arrays.stream(dirs).map(File::new).toArray(File[]::new);
+        deleteDirWithFilesOrThrow(files);
     }
 
     /**
      * Canonical usage is to call this *before* your test so you fail fast if you can't delete
-     * @param dir dir
+     * @param dirs dirs
      * @throws IORuntimeException
      */
-    public static void deleteDirWithFilesOrThrow(@NotNull File dir) throws IORuntimeException {
-        if (! deleteDirWithFiles(dir))
-            if (dir.exists())
-                throw new AssertionError("Could not delete " + dir);
+    public static void deleteDirWithFilesOrThrow(@NotNull File... dirs) throws IORuntimeException {
+        for (File dir : dirs)
+            if (! deleteDirWithFiles(dir))
+                if (dir.exists())
+                    throw new AssertionError("Could not delete " + dir);
     }
 
     @Deprecated
