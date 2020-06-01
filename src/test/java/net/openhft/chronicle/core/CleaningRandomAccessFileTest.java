@@ -4,6 +4,7 @@
 
 package net.openhft.chronicle.core;
 
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -23,6 +24,12 @@ public class CleaningRandomAccessFileTest {
         if (!OS.isLinux())
             return -1;
         return new File("/proc/self/fd").list().length;
+    }
+
+    @Before
+    public void cleanUp() {
+        System.gc();
+        Jvm.pause(100);
     }
 
     @Test
