@@ -27,8 +27,8 @@ public enum JitterSampler {
     static final long JITTER_THRESHOLD =
             TimeUnit.MILLISECONDS.toNanos(
                     Long.getLong("chronicle.jitter.threshold", 10));
-    static String desc;
-    static Thread thread;
+    static volatile String desc;
+    static volatile Thread thread;
     static volatile long time = Long.MAX_VALUE;
 
     public static void atStage(String desc) {
