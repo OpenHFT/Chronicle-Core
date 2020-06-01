@@ -334,17 +334,15 @@ public enum Jvm {
      * @param millis to sleep for.
      */
     public static void pause(long millis) {
-        // LockSupport.parkNanos is wildly unreliable on Windows.
-//        long timeNanos = millis * 1000000;
-//        if (timeNanos > 10e6) {
+        if (millis <= 0) {
+            Thread.yield();
+            return;
+        }
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
-//        } else {
-//            LockSupport.parkNanos(timeNanos);
-//        }
     }
 
     /**
