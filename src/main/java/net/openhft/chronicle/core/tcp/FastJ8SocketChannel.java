@@ -82,8 +82,8 @@ public class FastJ8SocketChannel extends VanillaSocketChannel {
     }
 
     @Override
-    public void close() throws IOException {
-        super.close();
+    protected void performClose() {
+        super.performClose();
         open = super.isOpen();
     }
 

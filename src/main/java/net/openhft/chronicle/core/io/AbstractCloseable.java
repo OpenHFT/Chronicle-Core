@@ -19,18 +19,19 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
+import net.openhft.chronicle.core.util.WeakIdentityHashMap;
 
 import java.util.Collections;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 
 public abstract class AbstractCloseable implements Closeable, ReferenceOwner {
     private static final long CLOSED_OFFSET;
-    static Map<AbstractCloseable, StackTrace> CLOSEABLE_STACK_TRACE_MAP = Collections.synchronizedMap(new WeakHashMap<>());
+    static volatile Map<AbstractCloseable, StackTrace> CLOSEABLE_STACK_TRACE_MAP;
 
     static {
+        enableCloseableTracing();
         CLOSED_OFFSET = UNSAFE.objectFieldOffset(Jvm.getField(AbstractCloseable.class, "closed"));
     }
 
@@ -47,7 +48,7 @@ public abstract class AbstractCloseable implements Closeable, ReferenceOwner {
     }
 
     public static void enableCloseableTracing() {
-        CLOSEABLE_STACK_TRACE_MAP = Collections.synchronizedMap(new WeakHashMap<>());
+        CLOSEABLE_STACK_TRACE_MAP = Collections.synchronizedMap(new WeakIdentityHashMap<>());
     }
 
     public static void disableCloseableTracing() {

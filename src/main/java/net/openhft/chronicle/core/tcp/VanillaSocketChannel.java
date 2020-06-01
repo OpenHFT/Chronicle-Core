@@ -17,6 +17,8 @@
  */
 package net.openhft.chronicle.core.tcp;
 
+import net.openhft.chronicle.core.io.AbstractCloseable;
+import net.openhft.chronicle.core.io.Closeable;
 import net.openhft.chronicle.core.io.IORuntimeException;
 
 import java.io.IOException;
@@ -25,7 +27,7 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 
-public class VanillaSocketChannel implements ISocketChannel {
+public class VanillaSocketChannel extends AbstractCloseable implements ISocketChannel {
     protected final SocketChannel socketChannel;
 
     VanillaSocketChannel(SocketChannel socketChannel) {
@@ -91,8 +93,8 @@ public class VanillaSocketChannel implements ISocketChannel {
     }
 
     @Override
-    public void close() throws IOException {
-        socketChannel.close();
+    protected void performClose() {
+        Closeable.closeQuietly(socketChannel);
     }
 
     @Override
