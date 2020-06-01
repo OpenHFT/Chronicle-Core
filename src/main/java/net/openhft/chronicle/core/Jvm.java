@@ -822,9 +822,7 @@ public enum Jvm {
             return defaultValue;
         if (value.isEmpty())
             return true;
-        return defaultValue
-                ? !ObjectUtils.isFalse(value)
-                : !ObjectUtils.isTrue(value);
+        return ObjectUtils.isTrue(value);
     }
 
     private static class ChainedSignalHandler implements SignalHandler {
