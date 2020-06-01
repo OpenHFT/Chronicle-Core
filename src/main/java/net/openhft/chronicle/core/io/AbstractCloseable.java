@@ -64,9 +64,10 @@ public abstract class AbstractCloseable implements Closeable, ReferenceOwner {
         AssertionError openFiles = new AssertionError("Closeables still open");
         synchronized (traceMap) {
             for (Map.Entry<AbstractCloseable, StackTrace> entry : traceMap.entrySet()) {
-                if (!entry.getKey().isClosed())
+                AbstractCloseable key = entry.getKey();
+                if (key != null && !key.isClosed())
                     openFiles.addSuppressed(entry.getValue());
-                Closeable.closeQuietly(entry.getKey());
+                Closeable.closeQuietly(key);
             }
         }
         if (openFiles.getSuppressed().length > 0)
