@@ -489,6 +489,10 @@ public enum OS {
         private volatile long address;
 
         public Unmapper(long address, long size, ReferenceCounted owner) throws IllegalStateException {
+            this(address, size);
+        }
+
+        public Unmapper(long address, long size) throws IllegalStateException {
 
             assert (address != 0);
             this.address = address;
