@@ -16,12 +16,15 @@
 
 package net.openhft.chronicle.core.threads;
 
+import net.openhft.chronicle.core.Jvm;
+import org.junit.Assume;
 import org.junit.Test;
 
 public class ThreadHintsTest {
 
     @Test
     public void testOnSpinWait() {
+        Assume.assumeTrue(!Jvm.isArm());
         for (int i = 0; i < 100; i++) {
             ThreadHints.onSpinWait();
         }
