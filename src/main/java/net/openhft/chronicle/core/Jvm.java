@@ -137,14 +137,29 @@ public enum Jvm {
         onSpinWaitMH = onSpinWait;
         setAccessible0_Method = get_setAccessible0_Method();
 
-        String systemProperties = System.getProperty("system.properties", "system.properties");
-        loadSystemProperties(systemProperties);
+        findAndLoadSystemProperties();
 
         SAFEPOINT_ENABLED = Boolean.getBoolean("jvm.safepoint.enabled");
 
         String resourceTracing = System.getProperty("jvm.resource.tracing");
         RESOURCE_TRACING = resourceTracing != null &&
                 (resourceTracing.isEmpty() || Boolean.parseBoolean(resourceTracing));
+    }
+
+    private static void findAndLoadSystemProperties() {
+        String systemProperties = System.getProperty("system.properties");
+        boolean wasSet = true;
+        if (systemProperties == null) {
+            if (new File("system.properties").exists())
+                systemProperties = "system.properties";
+            else if (new File("../system.properties").exists())
+                systemProperties = "../system.properties";
+            else {
+                systemProperties = "system.properties";
+                wasSet = false;
+            }
+        }
+        loadSystemProperties(systemProperties, wasSet);
     }
 
     private static MethodHandle get_setAccessible0_Method() {
@@ -166,7 +181,7 @@ public enum Jvm {
         // force static initialisation
     }
 
-    private static void loadSystemProperties(String name) {
+    private static void loadSystemProperties(String name, boolean wasSet) {
         try {
             ClassLoader classLoader = Jvm.class.getClassLoader();
             InputStream is0 = classLoader == null ? null : classLoader.getResourceAsStream(name);
@@ -177,7 +192,8 @@ public enum Jvm {
             }
             try (InputStream is = is0) {
                 if (is == null) {
-                    Slf4jExceptionHandler.DEBUG.on(Jvm.class, "No " + name + " file found");
+                    (wasSet ? Slf4jExceptionHandler.WARN : Slf4jExceptionHandler.DEBUG)
+                            .on(Jvm.class, "No " + name + " file found");
 
                 } else {
                     Properties prop = new Properties();
