@@ -36,7 +36,9 @@ public abstract class SimpleCloseable implements Closeable, ReferenceOwner {
     /**
      * Call close() to ensure this is called exactly once.
      */
-    protected abstract void performClose();
+    protected void performClose() {
+        // might be nothing.
+    }
 
     @Override
     public boolean isClosed() {
