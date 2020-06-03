@@ -1,11 +1,12 @@
 package net.openhft.chronicle.core.io;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class AbstractReferenceCountedTest {
+public class AbstractReferenceCountedTest extends CoreTestCommon {
 
     @Test
     public void reserve() throws IllegalStateException {
@@ -139,6 +140,7 @@ public class AbstractReferenceCountedTest {
         @Override
         protected void performRelease() {
             performRelease++;
+            closeable.close();
         }
     }
 }

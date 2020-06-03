@@ -1,5 +1,6 @@
 package net.openhft.chronicle.core.io;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
 import org.junit.Test;
@@ -9,7 +10,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
-public class AbstractCloseableTest {
+public class AbstractCloseableTest extends CoreTestCommon {
 
     @Test
     public void close() throws IllegalStateException {

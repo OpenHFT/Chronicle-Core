@@ -1,7 +1,7 @@
 package net.openhft.chronicle.core.io;
 
 public abstract class AbstractReferenceCounted implements ReferenceCounted, ReferenceOwner, QueryCloseable {
-    private final ReferenceCounted referenceCounted = ReferenceCounted.onReleased(this::performRelease);
+    private final ReferenceCounted referenceCounted;
     private final QueryCloseable queryCloseable;
 
     protected AbstractReferenceCounted() {
@@ -10,6 +10,18 @@ public abstract class AbstractReferenceCounted implements ReferenceCounted, Refe
 
     protected AbstractReferenceCounted(QueryCloseable queryCloseable) {
         this.queryCloseable = queryCloseable;
+        Runnable performRelease = performReleaseInBackground()
+                ? this::backgroundPerformRelease
+                : this::performRelease;
+        referenceCounted = ReferenceCounted.onReleased(performRelease);
+    }
+
+    private void backgroundPerformRelease() {
+        BackgroundResourceReleaser.release(this);
+    }
+
+    protected boolean performReleaseInBackground() {
+        return false;
     }
 
     protected abstract void performRelease();

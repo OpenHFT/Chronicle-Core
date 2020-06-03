@@ -61,6 +61,9 @@ public abstract class AbstractCloseable implements Closeable, ReferenceOwner {
             Jvm.warn().on(AbstractCloseable.class, "closable tracing disabled");
             return;
         }
+
+        BackgroundResourceReleaser.releasePendingResource();
+
         AssertionError openFiles = new AssertionError("Closeables still open");
         synchronized (traceMap) {
             for (Map.Entry<AbstractCloseable, StackTrace> entry : traceMap.entrySet()) {
@@ -88,7 +91,10 @@ public abstract class AbstractCloseable implements Closeable, ReferenceOwner {
             return;
         }
         closedHere = Jvm.isResourceTracing() ? new StackTrace("Closed here") : null;
-        performClose();
+        if (performCloseInBackground())
+            BackgroundResourceReleaser.release(this);
+        else
+            performClose();
     }
 
     /**
@@ -120,5 +126,9 @@ public abstract class AbstractCloseable implements Closeable, ReferenceOwner {
     @Override
     public boolean isClosed() {
         return closed != 0;
+    }
+
+    protected boolean performCloseInBackground() {
+        return false;
     }
 }

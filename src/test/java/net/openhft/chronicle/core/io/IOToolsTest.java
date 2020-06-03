@@ -1,5 +1,6 @@
 package net.openhft.chronicle.core.io;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.OS;
 import org.junit.Test;
 
@@ -11,7 +12,7 @@ import java.nio.file.Paths;
 
 import static org.junit.Assert.*;
 
-public class IOToolsTest {
+public class IOToolsTest extends CoreTestCommon {
     @Test
     public void shouldCleanDirectBuffer() throws Exception {
         IOTools.clean(ByteBuffer.allocateDirect(64));

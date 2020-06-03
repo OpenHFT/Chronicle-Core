@@ -39,6 +39,7 @@ public class ThreadDump {
         ignored.add("Attach Listener");
         ignored.add("process reaper");
         ignored.add("chronicle-weak-reference-cleaner");
+        ignored.add("background-resource-releaser");
         for (int i = 0, max = Runtime.getRuntime().availableProcessors(); i < max; i++)
             ignored.add("ForkJoinPool.commonPool-worker-" + i);
     }
