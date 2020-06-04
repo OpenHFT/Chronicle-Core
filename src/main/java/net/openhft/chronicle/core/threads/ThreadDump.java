@@ -20,6 +20,7 @@
 package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.StackTrace;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -66,7 +67,9 @@ public class ThreadDump {
         long start = System.nanoTime();
         long delayNanos = delayUnit.toNanos(delay);
         @Nullable Map<Thread, StackTraceElement[]> allStackTraces = null;
-        for (int i = 1; i < 5; ) {
+        AssertionError ae = null;
+        int last = 4;
+        for (int i = 1; i <= last; ) {
             Jvm.pause(i * i * 50);
             allStackTraces = Thread.getAllStackTraces();
             allStackTraces.keySet().removeAll(threads);
@@ -79,13 +82,20 @@ public class ThreadDump {
                 continue;
             }
             i++;
+            if (i == last)
+                ae = new AssertionError("Threads still running " + allStackTraces.keySet());
             for (@NotNull Map.Entry<Thread, StackTraceElement[]> threadEntry : allStackTraces.entrySet()) {
                 @NotNull StringBuilder sb = new StringBuilder();
                 sb.append("Thread still running ").append(threadEntry.getKey());
                 Jvm.trimStackTrace(sb, threadEntry.getValue());
                 System.err.println(sb);
+                if (i == last) {
+                    StackTrace st = new StackTrace(threadEntry.getKey().toString());
+                    st.setStackTrace(threadEntry.getValue());
+                    ae.addSuppressed(st);
+                }
             }
         }
-        throw new AssertionError("Threads still running " + allStackTraces.keySet());
+        throw ae;
     }
 }
