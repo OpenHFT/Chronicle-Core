@@ -6,7 +6,16 @@ public enum FlakyTestRunner {
     ;
 
     static boolean IN_RUN = false;
+
     public static <T extends Throwable> void run(RunnableThrows<T> rt) throws T {
+        run(true, rt);
+    }
+
+    public static <T extends Throwable> void run(boolean flakyOnThisArch, RunnableThrows<T> rt) throws T {
+        if (!flakyOnThisArch) {
+            rt.run();
+            return;
+        }
         try {
             // stop accidental call back to self.
             if (IN_RUN)
