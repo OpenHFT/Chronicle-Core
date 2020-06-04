@@ -1,5 +1,9 @@
 package net.openhft.chronicle.core.io;
 
+import net.openhft.chronicle.core.Jvm;
+
+import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEASER;
+
 public abstract class AbstractReferenceCounted implements ReferenceCounted, ReferenceOwner, QueryCloseable {
     private final ReferenceCounted referenceCounted;
     private final QueryCloseable queryCloseable;
@@ -10,14 +14,22 @@ public abstract class AbstractReferenceCounted implements ReferenceCounted, Refe
 
     protected AbstractReferenceCounted(QueryCloseable queryCloseable) {
         this.queryCloseable = queryCloseable;
-        Runnable performRelease = performReleaseInBackground()
+        Runnable performRelease = BG_RELEASER && performReleaseInBackground()
                 ? this::backgroundPerformRelease
-                : this::performRelease;
+                : this::inThreadPerformRelease;
         referenceCounted = ReferenceCounted.onReleased(performRelease);
     }
 
-    private void backgroundPerformRelease() {
+    void backgroundPerformRelease() {
         BackgroundResourceReleaser.release(this);
+    }
+
+    void inThreadPerformRelease() {
+        long start = System.nanoTime();
+        performRelease();
+        long time = System.nanoTime() - start;
+        if (time >= 2_000_000)
+            Jvm.warn().on(getClass(), "Took " + time / 100_000 / 10.0 + " ms to performRelease");
     }
 
     protected boolean performReleaseInBackground() {

@@ -28,7 +28,6 @@ import java.util.concurrent.atomic.AtomicLong;
  * @deprecated Use net.openhft.chronicle.core.io.ReferenceCounter
  */
 public final class ReferenceCounter implements ReferenceCounted {
-
     private final AtomicLong value = new AtomicLong(1);
     private final Runnable onRelease;
 
@@ -123,7 +122,7 @@ public final class ReferenceCounter implements ReferenceCounted {
     }
 
     private boolean recordReservation(long v) {
-        referenceCountHistory.add(new StackTrace(Integer.toHexString(onRelease.hashCode()) + '-' + Thread.currentThread().getName() + " Reserve ref-count=" + v));
+            referenceCountHistory.add(new StackTrace(Integer.toHexString(onRelease.hashCode()) + '-' + Thread.currentThread().getName() + " Reserve ref-count=" + v));
         return true;
     }
 

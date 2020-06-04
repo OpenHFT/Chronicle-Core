@@ -93,6 +93,11 @@ public class VanillaSocketChannel extends AbstractCloseable implements ISocketCh
     }
 
     @Override
+    protected boolean performCloseInBackground() {
+        return true;
+    }
+
+    @Override
     protected void performClose() {
         Closeable.closeQuietly(socketChannel);
     }

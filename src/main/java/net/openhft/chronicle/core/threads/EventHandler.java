@@ -38,6 +38,7 @@ public interface EventHandler extends VanillaEventHandler {
      * <p>Exceptions thrown by loopFinished or close are caught and logged (at debug level)
      * and cleanup continues
      */
+    // TODO Replace this with close() only.
     default void loopFinished() {
     }
 

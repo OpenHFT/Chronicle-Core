@@ -19,12 +19,14 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
+import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 import net.openhft.chronicle.core.util.WeakIdentityHashMap;
 
 import java.util.Collections;
 import java.util.Map;
 
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
+import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEASER;
 
 public abstract class AbstractCloseable implements Closeable, ReferenceOwner {
     private static final long CLOSED_OFFSET;
@@ -62,7 +64,7 @@ public abstract class AbstractCloseable implements Closeable, ReferenceOwner {
             return;
         }
 
-        BackgroundResourceReleaser.releasePendingResource();
+        BackgroundResourceReleaser.releasePendingResources();
 
         AssertionError openFiles = new AssertionError("Closeables still open");
         synchronized (traceMap) {
@@ -91,10 +93,15 @@ public abstract class AbstractCloseable implements Closeable, ReferenceOwner {
             return;
         }
         closedHere = Jvm.isResourceTracing() ? new StackTrace("Closed here") : null;
-        if (performCloseInBackground())
+        if (BG_RELEASER && performCloseInBackground()) {
             BackgroundResourceReleaser.release(this);
-        else
+        } else {
+            long start = System.nanoTime();
             performClose();
+            long time = System.nanoTime() - start;
+            if (time >= 2_000_000)
+                Jvm.warn().on(getClass(), "Took " + time / 100_000 / 10.0 + " ms to performClose");
+        }
     }
 
     /**
@@ -113,7 +120,7 @@ public abstract class AbstractCloseable implements Closeable, ReferenceOwner {
     protected void warnIfNotClosed() {
         if (!isClosed()) {
             if (Jvm.isResourceTracing())
-                Jvm.warn().on(getClass(), "Discarded without closing", new IllegalStateException(createdHere));
+                Slf4jExceptionHandler.WARN.on(getClass(), "Discarded without closing", new IllegalStateException(createdHere));
             close();
         }
     }

@@ -1,13 +1,14 @@
 package net.openhft.chronicle.core;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertTrue;
 
+/*
 @Ignore("see TC - https://github.com/OpenHFT/Chronicle-Core/issues/63, failing on release build " +
         "http://teamcity.higherfrequencytrading" +
         ".com:8111/repository/download/OpenHFT_ReleaseJob_ReleaseByArtifact/257026:id/ReleaseAutomation/projects/chronicle-core-runTests-1527606961685.log")
+*/
 public class JvmSafepointTest {
 
     @Test

@@ -4,10 +4,14 @@ import net.openhft.chronicle.core.Jvm;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public enum BackgroundResourceReleaser {
     ;
+    static final boolean BG_RELEASER = Jvm.getBoolean("background.releaser", false);
+
     private static final BlockingQueue<Object> RESOURCES = new ArrayBlockingQueue<>(128);
+    private static transient long COUNT = 0;
     private static final Thread RELEASER = new Thread(BackgroundResourceReleaser::runReleaseResources,
             "background-resource-releaser");
 
@@ -20,7 +24,9 @@ public enum BackgroundResourceReleaser {
         try {
             for (; ; ) {
                 Object o = RESOURCES.take();
+                COUNT++;
                 performRelease(o);
+                COUNT++;
             }
         } catch (InterruptedException e) {
             Jvm.warn().on(BackgroundResourceReleaser.class, "Died on interrupt");
@@ -37,12 +43,21 @@ public enum BackgroundResourceReleaser {
         performRelease(o);
     }
 
-    public static void releasePendingResource() {
-        for (; ; ) {
-            Object o = RESOURCES.poll();
-            if (o == null)
-                return;
-            performRelease(o);
+    public static void releasePendingResources() {
+        try {
+            for (; ; ) {
+                long count = COUNT;
+                Object o = RESOURCES.poll(1, TimeUnit.MILLISECONDS);
+                if (o == null) {
+                    long count2 = COUNT;
+                    if (count != count2 || (count2 & 1) == 1)
+                        continue;
+                    return;
+                }
+                performRelease(o);
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
         }
     }
 

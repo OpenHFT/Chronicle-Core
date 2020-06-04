@@ -6,6 +6,7 @@ import org.junit.Test;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assume.assumeTrue;
 
 public class BackgroundResourceReleaserTest {
     static final AtomicLong closed = new AtomicLong();
@@ -13,6 +14,7 @@ public class BackgroundResourceReleaserTest {
 
     @Test
     public void testResourcesCleanedUp() {
+        assumeTrue(BackgroundResourceReleaser.BG_RELEASER);
         int count = 10;
         for (int i = 0; i < count; i++) {
             new BGCloseable().close();
@@ -21,7 +23,7 @@ public class BackgroundResourceReleaserTest {
         assertEquals(1, closed.get(), 1);
         assertEquals(1, released.get(), 1);
         long start = System.currentTimeMillis();
-        BackgroundResourceReleaser.releasePendingResource();
+        BackgroundResourceReleaser.releasePendingResources();
         long time = System.currentTimeMillis() - start;
         assertEquals(count * 10 + 20, time, 30);
         assertEquals(count, closed.get());

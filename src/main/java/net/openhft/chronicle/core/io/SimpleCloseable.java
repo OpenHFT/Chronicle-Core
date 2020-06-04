@@ -30,6 +30,7 @@ public abstract class SimpleCloseable implements Closeable, ReferenceOwner {
     public final void close() {
         if (closed)
             return;
+        closed = true;
         performClose();
     }
 
