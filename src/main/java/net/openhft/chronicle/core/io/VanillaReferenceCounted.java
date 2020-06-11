@@ -1,12 +1,15 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.StackTrace;
 import net.openhft.chronicle.core.UnsafeMemory;
 import net.openhft.chronicle.core.annotation.UsedViaReflection;
+import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
+import static net.openhft.chronicle.core.io.TracingReferenceCounted.asString;
 
-public final class VanillaReferenceCounted implements ReferenceCounted {
+public final class VanillaReferenceCounted implements ReferenceCountedTracer {
 
     private static final long VALUE;
 
@@ -15,13 +18,24 @@ public final class VanillaReferenceCounted implements ReferenceCounted {
     }
 
     private final Runnable onRelease;
-    private final boolean releaseOnOne;
     @UsedViaReflection
-    private volatile int value;
+    private volatile int value = 1;
 
-    VanillaReferenceCounted(final Runnable onRelease, boolean releaseOnOne) {
+    VanillaReferenceCounted(final Runnable onRelease) {
         this.onRelease = onRelease;
-        this.releaseOnOne = releaseOnOne;
+    }
+
+    @Override
+    public StackTrace createdHere() {
+        return null;
+    }
+
+    @Override
+    public boolean reservedBy(ReferenceOwner owner) {
+        if (refCount() <= 0)
+            throw new IllegalStateException("No reservations for " + asString(owner));
+        // otherwise not sure.
+        return true;
     }
 
     @Override
@@ -71,8 +85,6 @@ public final class VanillaReferenceCounted implements ReferenceCounted {
             if (valueCompareAndSet(v, count)) {
                 if (count == 0)
                     onRelease.run();
-                else if (releaseOnOne && count == 1)
-                    releaseLast(INIT);
                 break;
             }
         }
@@ -105,7 +117,16 @@ public final class VanillaReferenceCounted implements ReferenceCounted {
     }
 
     @Override
-    public void throwExceptionBadResourceOwner() {
-        // no tracing enabled.
+    public void throwExceptionIfNotReleased() {
+        if (refCount() > 0)
+            throw new IllegalStateException("Still reserved, count=" + refCount());
+    }
+
+    @Override
+    public void warnAndReleaseIfNotReleased() {
+        if (refCount() > 0) {
+            Slf4jExceptionHandler.WARN.on(getClass(), "Discarded without being released");
+            onRelease.run();
+        }
     }
 }

@@ -1,23 +1,91 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.StackTrace;
+import net.openhft.chronicle.core.util.WeakIdentityHashMap;
+
+import java.util.Collections;
+import java.util.Set;
 
 import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEASER;
 
-public abstract class AbstractReferenceCounted implements ReferenceCounted, ReferenceOwner, QueryCloseable {
-    private final ReferenceCounted referenceCounted;
-    private final QueryCloseable queryCloseable;
+public abstract class AbstractReferenceCounted implements ReferenceCountedTracer, ReferenceOwner {
+    static volatile Set<AbstractReferenceCounted> REFERENCE_COUNTED_SET;
+
+    protected final ReferenceCountedTracer referenceCounted;
+    private final int referenceId;
 
     protected AbstractReferenceCounted() {
-        this(QueryCloseables.NEVER_CLOSED);
+        this(true);
     }
 
-    protected AbstractReferenceCounted(QueryCloseable queryCloseable) {
-        this.queryCloseable = queryCloseable;
+    protected AbstractReferenceCounted(boolean monitored) {
         Runnable performRelease = BG_RELEASER && performReleaseInBackground()
                 ? this::backgroundPerformRelease
                 : this::inThreadPerformRelease;
-        referenceCounted = ReferenceCounted.onReleased(performRelease);
+        referenceId = IOTools.counter(getClass()).incrementAndGet();
+        referenceCounted = ReferenceCountedTracer.onReleased(performRelease, referenceName());
+
+        Set<AbstractReferenceCounted> set = REFERENCE_COUNTED_SET;
+        if (monitored && set != null)
+            set.add(this);
+    }
+
+    public static void enableReferenceTracing() {
+        AbstractCloseable.enableCloseableTracing();
+        REFERENCE_COUNTED_SET = Collections.synchronizedSet(
+                Collections.newSetFromMap(
+                        new WeakIdentityHashMap<>()));
+    }
+
+    public static void disableReferenceTracing() {
+        AbstractCloseable.disableCloseableTracing();
+        REFERENCE_COUNTED_SET = null;
+    }
+
+    public static void assertReferencesReleased() {
+        Set<AbstractReferenceCounted> traceSet = REFERENCE_COUNTED_SET;
+        if (traceSet == null) {
+            Jvm.warn().on(AbstractReferenceCounted.class, "reference tracing disabled");
+            return;
+        }
+
+        AbstractCloseable.assertCloseablesClosed();
+
+        AssertionError openFiles = new AssertionError("Reference counted not released");
+        synchronized (traceSet) {
+            for (AbstractReferenceCounted key : traceSet) {
+                if (key == null)
+                    continue;
+
+                try {
+                    key.throwExceptionIfNotReleased();
+                } catch (Exception e) {
+                    openFiles.addSuppressed(e);
+                }
+            }
+        }
+        if (openFiles.getSuppressed().length > 0)
+            throw openFiles;
+    }
+
+    public static void unmonitor(ReferenceCounted counted) {
+        if (REFERENCE_COUNTED_SET != null)
+            REFERENCE_COUNTED_SET.remove(counted);
+    }
+
+    @Override
+    public int referenceId() {
+        return referenceId;
+    }
+
+    @Override
+    public StackTrace createdHere() {
+        return referenceCounted.createdHere();
+    }
+
+    public void throwExceptionIfNotReleased() {
+        referenceCounted.throwExceptionIfNotReleased();
     }
 
     void backgroundPerformRelease() {
@@ -40,7 +108,6 @@ public abstract class AbstractReferenceCounted implements ReferenceCounted, Refe
 
     @Override
     public void reserve(ReferenceOwner id) throws IllegalStateException {
-        queryCloseable.throwExceptionIfClosed();
         referenceCounted.reserve(id);
     }
 
@@ -56,7 +123,12 @@ public abstract class AbstractReferenceCounted implements ReferenceCounted, Refe
 
     @Override
     public boolean tryReserve(ReferenceOwner id) throws IllegalStateException {
-        return !queryCloseable.isClosed() && referenceCounted.tryReserve(id);
+        return referenceCounted.tryReserve(id);
+    }
+
+    @Override
+    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException {
+        referenceCounted.reserveTransfer(from, to);
     }
 
     @Override
@@ -65,17 +137,16 @@ public abstract class AbstractReferenceCounted implements ReferenceCounted, Refe
     }
 
     @Override
-    public void throwExceptionBadResourceOwner() throws IllegalStateException {
-        referenceCounted.throwExceptionBadResourceOwner();
+    public void throwExceptionIfReleased() throws IllegalStateException {
+        referenceCounted.throwExceptionIfReleased();
     }
 
     @Override
-    public boolean isClosed() {
-        return queryCloseable.isClosed();
+    public void warnAndReleaseIfNotReleased() {
+        referenceCounted.warnAndReleaseIfNotReleased();
     }
 
-    @Override
-    public void throwExceptionIfClosed() throws IllegalStateException {
-        queryCloseable.throwExceptionIfClosed();
+    public boolean reservedBy(ReferenceOwner owner) {
+        return referenceCounted.reservedBy(owner);
     }
 }

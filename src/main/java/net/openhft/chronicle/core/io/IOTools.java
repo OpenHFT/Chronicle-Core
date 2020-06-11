@@ -28,6 +28,9 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.*;
 import java.util.Arrays;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -37,6 +40,8 @@ import java.util.zip.GZIPOutputStream;
  */
 public enum IOTools {
     ;
+
+    static volatile Map<Class, AtomicInteger> COUNTER_MAP = new ConcurrentHashMap<>();
 
     public static boolean shallowDeleteDirWithFiles(@NotNull String directory) throws IORuntimeException {
         return shallowDeleteDirWithFiles(new File(directory));
@@ -209,4 +214,7 @@ public enum IOTools {
         }
     }
 
+    static AtomicInteger counter(Class type) {
+        return COUNTER_MAP.computeIfAbsent(type, k -> new AtomicInteger());
+    }
 }

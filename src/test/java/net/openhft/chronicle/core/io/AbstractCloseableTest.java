@@ -6,6 +6,7 @@ import net.openhft.chronicle.core.onoes.ExceptionKey;
 import org.junit.Test;
 
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -36,19 +37,18 @@ public class AbstractCloseableTest extends CoreTestCommon {
     }
 
     @Test
-    public void warnIfNotClosed() {
+    public void warnAndCloseIfNotClosed() {
         Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
         MyCloseable mc = new MyCloseable();
         // not recorded for now.
-        mc.warnIfNotClosed();
+        mc.warnAndCloseIfNotClosed();
+        assertTrue(mc.isClosed());
         Jvm.resetExceptionHandlers();
-/*
         assertEquals("Discarded without closing\n" +
                         "java.lang.IllegalStateException: net.openhft.chronicle.core.StackTrace: Created Here",
                 map.keySet().stream()
                         .map(e -> e.message + "\n" + e.throwable)
                         .collect(Collectors.joining(", ")));
-*/
     }
 
     static class MyCloseable extends AbstractCloseable {

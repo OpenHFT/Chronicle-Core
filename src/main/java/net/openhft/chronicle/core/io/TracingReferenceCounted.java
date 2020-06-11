@@ -6,64 +6,78 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
+import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 import org.jetbrains.annotations.NotNull;
 
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public final class TracingReferenceCounted implements ReferenceCounted {
+public final class TracingReferenceCounted implements ReferenceCountedTracer {
     private final Map<ReferenceOwner, StackTrace> references = Collections.synchronizedMap(new IdentityHashMap<>());
     private final Map<ReferenceOwner, StackTrace> releases = Collections.synchronizedMap(new IdentityHashMap<>());
     private final Runnable onRelease;
-    private final StackTrace init;
-    private final boolean releaseOnOne;
+    private final String uniqueId;
+    private final StackTrace createdHere;
+    private StackTrace releasedHere;
 
-    TracingReferenceCounted(final Runnable onRelease, boolean releaseOnOne) {
+    TracingReferenceCounted(final Runnable onRelease, String uniqueId) {
         this.onRelease = onRelease;
-        init = stackTrace("init", INIT);
-        references.put(INIT, init);
-        this.releaseOnOne = releaseOnOne;
+        this.uniqueId = uniqueId;
+        createdHere = stackTrace("init", INIT);
+        references.put(INIT, createdHere);
+    }
+
+    static String asString(Object id) {
+        return id == INIT ? "INIT"
+                : id instanceof ReferenceOwner
+                ? ((ReferenceOwner) id).referenceName()
+                : id.getClass().getSimpleName() + "@" + Integer.toHexString(System.identityHashCode(id));
+    }
+
+    @Override
+    public StackTrace createdHere() {
+        return createdHere;
+    }
+
+    @Override
+    public boolean reservedBy(ReferenceOwner owner) {
+        if (references.containsKey(owner))
+            return true;
+        StackTrace stackTrace = releases.get(owner);
+        if (stackTrace == null)
+            throw new IllegalStateException("Never reserved by " + asString(owner));
+        throw new IllegalStateException("No longer reserved by " + asString(owner), stackTrace);
     }
 
     @Override
     public void reserve(ReferenceOwner id) throws IllegalStateException {
+        tryReserve(id, true);
+    }
+
+    @Override
+    public boolean tryReserve(ReferenceOwner id) {
+        return tryReserve(id, false);
+    }
+
+    private boolean tryReserve(ReferenceOwner id, boolean must) {
         if (id == this)
             throw new IllegalArgumentException("The counter cannot reserve itself");
         if (Jvm.isDebug())
-            System.out.println(Thread.currentThread().getName() + " " + uniqueId() + " - reserve " + asString(id));
+            System.out.println(Thread.currentThread().getName() + " " + uniqueId + " - tryReserve " + asString(id));
         synchronized (references) {
             if (references.isEmpty()) {
-                throw new IllegalStateException("Cannot reserve freed resource", init);
+                if (must)
+                    throw new IllegalStateException("Cannot reserve freed resource", createdHere);
+                return false;
             }
             StackTrace stackTrace = references.get(id);
             if (stackTrace == null)
                 references.putIfAbsent(id, stackTrace("reserve", id));
             else
-                throw new IllegalStateException("Already reserved resource by " + id + " here", stackTrace);
-        }
-        releases.remove(id);
-    }
-
-    private String asString(ReferenceOwner id) {
-        return id == INIT ? "INIT"
-                : id instanceof VanillaReferenceOwner
-                ? id.toString()
-                : id.getClass().getSimpleName() + "@" + Integer.toHexString(System.identityHashCode(id));
-    }
-
-    @Override
-    public boolean tryReserve(ReferenceOwner id) {
-        if (Jvm.isDebug())
-            System.out.println(Thread.currentThread().getName() + " " + uniqueId() + " - tryReserve " + asString(id));
-        synchronized (references) {
-            if (references.isEmpty()) {
-                return false;
-            }
-            references.put(id, stackTrace("reserve", id));
+                throw new IllegalStateException("Already reserved resource by " + asString(id) + " here", stackTrace);
         }
         releases.remove(id);
         return true;
@@ -72,15 +86,13 @@ public final class TracingReferenceCounted implements ReferenceCounted {
     @Override
     public void release(ReferenceOwner id) throws IllegalStateException {
         if (Jvm.isDebug())
-            System.out.println(Thread.currentThread().getName() + " " + uniqueId() + " - release " + asString(id));
+            System.out.println(Thread.currentThread().getName() + " " + uniqueId + " - release " + asString(id));
+
         synchronized (references) {
-            if (releaseOnOne && id == INIT && references.containsKey(INIT) && references.size() > 1) {
-                throw new IllegalStateException("INIT has to be the last release for releaseOnOne");
-            }
             if (references.remove(id) == null) {
                 StackTrace stackTrace = releases.get(id);
                 if (stackTrace == null) {
-                    Throwable cause = init;
+                    Throwable cause = createdHere;
                     if (!references.isEmpty()) {
                         StackTrace ste = references.values().iterator().next();
                         cause = new IllegalStateException("Reserved by " + referencesAsString(), ste);
@@ -92,17 +104,20 @@ public final class TracingReferenceCounted implements ReferenceCounted {
             }
             releases.put(id, stackTrace("release", id));
             if (references.isEmpty()) {
+                releasedHere = new StackTrace("release here");
                 // prevent this being called more than once.
                 onRelease.run();
-            } else if (releaseOnOne && references.size() == 1) {
-                releaseLast(INIT);
             }
         }
     }
 
     @NotNull
     public List<String> referencesAsString() {
-        return references.keySet().stream().map(this::asString).collect(Collectors.toList());
+        synchronized (references) {
+            return references.keySet().stream()
+                    .map(TracingReferenceCounted::asString)
+                    .collect(Collectors.toList());
+        }
     }
 
     @Override
@@ -111,12 +126,16 @@ public final class TracingReferenceCounted implements ReferenceCounted {
             if (references.size() <= 1) {
                 release(id);
             } else {
+                Exception e0 = null;
                 try {
                     release(id);
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    e0 = e;
                 }
-                IllegalStateException ise = new IllegalStateException("Still reserved " + referencesAsString(), init);
+                IllegalStateException ise = new IllegalStateException("Still reserved " + referencesAsString(), createdHere);
                 references.values().forEach(ise::addSuppressed);
+                if (e0 != null)
+                    ise.addSuppressed(e0);
                 throw ise;
             }
         }
@@ -129,12 +148,7 @@ public final class TracingReferenceCounted implements ReferenceCounted {
 
     @NotNull
     public String toString() {
-        return uniqueId() + " - " + referencesAsString();
-    }
-
-    private String uniqueId() {
-        // somewhat unique
-        return Integer.toHexString(System.identityHashCode(this));
+        return uniqueId + " - " + referencesAsString();
     }
 
     @NotNull
@@ -146,10 +160,13 @@ public final class TracingReferenceCounted implements ReferenceCounted {
     }
 
     @Override
-    public void throwExceptionBadResourceOwner() throws IllegalStateException {
+    public void throwExceptionIfNotReleased() throws IllegalStateException {
         IllegalStateException ise = new IllegalStateException("Retained reference closed");
 
-        for (ReferenceOwner referenceOwner : references.keySet()) {
+        for (Map.Entry<ReferenceOwner, StackTrace> entry : references.entrySet()) {
+            ReferenceOwner referenceOwner = entry.getKey();
+            StackTrace reservedHere = entry.getValue();
+            ise.addSuppressed(new IllegalStateException("Reserved by " + asString(referenceOwner), reservedHere));
             if (referenceOwner instanceof AbstractCloseable) {
                 AbstractCloseable ac = (AbstractCloseable) referenceOwner;
                 try {
@@ -159,24 +176,27 @@ public final class TracingReferenceCounted implements ReferenceCounted {
                 }
             } else if (referenceOwner instanceof QueryCloseable) {
                 try {
-                    boolean closed = ((QueryCloseable) referenceOwner).isClosed();
-                    if (closed)
-                        ise.addSuppressed(new IllegalStateException("Closed " + asString(referenceOwner)));
+                    ((QueryCloseable) referenceOwner).throwExceptionIfClosed();
                 } catch (Throwable t) {
-                    ise.addSuppressed(new IllegalStateException("Closed unknown " + asString(referenceOwner), t));
-                }
-            } else {
-                try {
-                    Method isClosed = referenceOwner.getClass().getDeclaredMethod("isClosed");
-                    boolean closed = (Boolean) isClosed.invoke(referenceOwner);
-                    if (closed)
-                        ise.addSuppressed(new IllegalStateException("Closed " + asString(referenceOwner)));
-                } catch (Exception e) {
-                    ise.addSuppressed(new IllegalStateException("Closed status unknown " + asString(referenceOwner), e));
+                    ise.addSuppressed(new IllegalStateException("Closed " + asString(referenceOwner), t));
                 }
             }
         }
         if (ise.getSuppressed().length > 0)
             throw ise;
+    }
+
+    @Override
+    public void throwExceptionIfReleased() throws IllegalStateException {
+        if (refCount() <= 0)
+            throw new IllegalStateException("Released", releasedHere);
+    }
+
+    @Override
+    public void warnAndReleaseIfNotReleased() {
+        if (refCount() > 0) {
+            Slf4jExceptionHandler.WARN.on(getClass(), "Discarded without being released", createdHere);
+            onRelease.run();
+        }
     }
 }

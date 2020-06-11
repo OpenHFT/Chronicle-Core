@@ -152,10 +152,10 @@ public class AbstractCloseableTest {
     }
 
     @Test
-    public void warnIfNotClosed() {
+    public void warnAndCloseIfNotClosed() {
         Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
         MyCloseable mc = new MyCloseable();
-        mc.warnIfNotClosed();
+        mc.warnAndCloseIfNotClosed();
         Jvm.resetExceptionHandlers();
         assertEquals("Discarded without closing\n" +
                         "java.lang.IllegalStateException: net.openhft.chronicle.core.StackTrace: Created Here",

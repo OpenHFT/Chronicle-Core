@@ -1,24 +1,9 @@
 package net.openhft.chronicle.core.io;
 
-import net.openhft.chronicle.core.Jvm;
-import org.jetbrains.annotations.NotNull;
-
 /**
  * A resource which is reference counted and freed when the refCount drop to 0.
  */
 public interface ReferenceCounted extends ReferenceOwner {
-
-    @NotNull
-    static ReferenceCounted onReleased(final Runnable onRelease) {
-        return onReleased(onRelease, false);
-    }
-
-    @NotNull
-    static ReferenceCounted onReleased(final Runnable onRelease, boolean releaseOnOne) {
-        return Jvm.isResourceTracing()
-                ? new TracingReferenceCounted(onRelease, releaseOnOne)
-                : new VanillaReferenceCounted(onRelease, releaseOnOne);
-    }
 
     /**
      * Reserves a resource or throws an Exception.
@@ -48,6 +33,15 @@ public interface ReferenceCounted extends ReferenceOwner {
      */
     boolean tryReserve(ReferenceOwner id) throws IllegalStateException;
 
+
+    /**
+     * Best effort check the owner has reserved it. Returns true if not sure.
+     *
+     * @param owner to check
+     * @return false if the owner definitely doesn't own it.
+     */
+    boolean reservedBy(ReferenceOwner owner);
+
     /**
      * Releases a resource.
      * <p>
@@ -70,6 +64,11 @@ public interface ReferenceCounted extends ReferenceOwner {
      */
     void releaseLast(ReferenceOwner id) throws IllegalStateException;
 
+    @Deprecated
+    default void release() {
+        releaseLast();
+    }
+
     default void releaseLast() throws IllegalStateException {
         releaseLast(INIT);
     }
@@ -80,11 +79,4 @@ public interface ReferenceCounted extends ReferenceOwner {
      * @return the reference count for this resource
      */
     int refCount();
-
-    void throwExceptionBadResourceOwner() throws IllegalStateException;
-
-    default void throwExceptionIfReleased() throws IllegalStateException {
-        if (refCount() <= 0)
-            throw new IllegalStateException("Released");
-    }
 }

@@ -8,4 +8,12 @@ public interface ReferenceOwner {
     static ReferenceOwner temporary(String name) {
         return Jvm.isResourceTracing() ? new VanillaReferenceOwner(name) : INIT;
     }
+
+    default int referenceId() {
+        return System.identityHashCode(this);
+    }
+
+    default String referenceName() {
+        return getClass().getSimpleName() + "@" + Integer.toHexString(referenceId());
+    }
 }

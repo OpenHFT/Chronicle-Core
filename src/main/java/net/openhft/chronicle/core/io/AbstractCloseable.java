@@ -19,18 +19,20 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
+import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 import net.openhft.chronicle.core.util.WeakIdentityHashMap;
 
 import java.util.Collections;
-import java.util.Map;
+import java.util.Set;
 
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEASER;
+import static net.openhft.chronicle.core.io.TracingReferenceCounted.asString;
 
-public abstract class AbstractCloseable implements Closeable, ReferenceOwner {
+public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwner {
     private static final long CLOSED_OFFSET;
-    static volatile Map<AbstractCloseable, StackTrace> CLOSEABLE_STACK_TRACE_MAP;
+    static volatile Set<CloseableTracer> CLOSEABLE_SET;
 
     static {
         enableCloseableTracing();
@@ -40,26 +42,31 @@ public abstract class AbstractCloseable implements Closeable, ReferenceOwner {
     private transient volatile int closed = 0;
     private transient volatile StackTrace createdHere;
     private transient volatile StackTrace closedHere;
+    private final int referenceId;
 
     protected AbstractCloseable() {
         createdHere = Jvm.isResourceTracing() ? new StackTrace("Created Here") : null;
 
-        Map<AbstractCloseable, StackTrace> map = CLOSEABLE_STACK_TRACE_MAP;
-        if (map != null)
-            map.put(this, new StackTrace("Created here"));
+        Set<CloseableTracer> set = CLOSEABLE_SET;
+        if (set != null)
+            set.add(this);
+        referenceId = IOTools.counter(getClass()).incrementAndGet();
     }
 
     public static void enableCloseableTracing() {
-        CLOSEABLE_STACK_TRACE_MAP = Collections.synchronizedMap(new WeakIdentityHashMap<>());
+        CLOSEABLE_SET =
+                Collections.synchronizedSet(
+                        Collections.newSetFromMap(
+                                new WeakIdentityHashMap<>()));
     }
 
     public static void disableCloseableTracing() {
-        CLOSEABLE_STACK_TRACE_MAP = null;
+        CLOSEABLE_SET = null;
     }
 
     public static void assertCloseablesClosed() {
-        Map<AbstractCloseable, StackTrace> traceMap = CLOSEABLE_STACK_TRACE_MAP;
-        if (traceMap == null) {
+        Set<CloseableTracer> traceSet = CLOSEABLE_SET;
+        if (traceSet == null) {
             Jvm.warn().on(AbstractCloseable.class, "closable tracing disabled");
             return;
         }
@@ -67,21 +74,40 @@ public abstract class AbstractCloseable implements Closeable, ReferenceOwner {
         BackgroundResourceReleaser.releasePendingResources();
 
         AssertionError openFiles = new AssertionError("Closeables still open");
-        synchronized (traceMap) {
-            for (Map.Entry<AbstractCloseable, StackTrace> entry : traceMap.entrySet()) {
-                AbstractCloseable key = entry.getKey();
-                if (key != null && !key.isClosed())
-                    openFiles.addSuppressed(entry.getValue());
-                Closeable.closeQuietly(key);
+        synchronized (traceSet) {
+            for (CloseableTracer key : traceSet) {
+                if (key != null && !key.isClosed()) {
+                    Throwable t;
+                    try {
+                        if (key instanceof ReferenceCountedTracer) {
+                            ((ReferenceCountedTracer) key).throwExceptionIfNotReleased();
+                        }
+                        t = key.createdHere();
+                    } catch (IllegalStateException e) {
+                        t = e;
+                    }
+                    openFiles.addSuppressed(new IllegalStateException("Not closed " + asString(key), t));
+                    key.close();
+                }
             }
         }
         if (openFiles.getSuppressed().length > 0)
             throw openFiles;
     }
 
-    public static void unmonitor(AbstractCloseable closeable) {
-        if (CLOSEABLE_STACK_TRACE_MAP != null)
-            CLOSEABLE_STACK_TRACE_MAP.remove(closeable);
+    public static void unmonitor(Closeable closeable) {
+        if (CLOSEABLE_SET != null)
+            CLOSEABLE_SET.remove(closeable);
+    }
+
+    @Override
+    public int referenceId() {
+        return referenceId;
+    }
+
+    @Override
+    public StackTrace createdHere() {
+        return createdHere;
     }
 
     /**
@@ -117,10 +143,12 @@ public abstract class AbstractCloseable implements Closeable, ReferenceOwner {
     /**
      * Called from finalise() implementations.
      */
-    protected void warnIfNotClosed() {
+    protected void warnAndCloseIfNotClosed() {
         if (!isClosed()) {
-            if (Jvm.isResourceTracing())
-                Slf4jExceptionHandler.WARN.on(getClass(), "Discarded without closing", new IllegalStateException(createdHere));
+            if (Jvm.isResourceTracing()) {
+                ExceptionHandler warn = Jvm.getBoolean("warnAndCloseIfNotClosed") ? Jvm.warn() : Slf4jExceptionHandler.WARN;
+                warn.on(getClass(), "Discarded without closing", new IllegalStateException(createdHere));
+            }
             close();
         }
     }

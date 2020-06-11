@@ -21,15 +21,19 @@ package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
+import net.openhft.chronicle.core.util.WeakIdentityHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class ThreadDump {
+    static final Map<Thread, StackTrace> THREAD_STACK_TRACE_MAP =
+            Collections.synchronizedMap(new WeakIdentityHashMap<>());
     @NotNull
     final Set<Thread> threads;
     final Set<String> ignored = new HashSet<>();
@@ -45,6 +49,11 @@ public class ThreadDump {
             ignored.add("ForkJoinPool.commonPool-worker-" + i);
     }
 
+    public static void add(Thread t, StackTrace stackTrace) {
+        if (Jvm.isResourceTracing())
+            THREAD_STACK_TRACE_MAP.put(t, stackTrace);
+    }
+
     public void ignore(String threadName) {
         ignored.add(threadName);
     }
@@ -56,6 +65,10 @@ public class ThreadDump {
      */
     public void assertNoNewThreads() {
         assertNoNewThreads(0, TimeUnit.NANOSECONDS);
+    }
+
+    public static StackTrace createdHereFor(Thread thread) {
+        return THREAD_STACK_TRACE_MAP.get(thread);
     }
 
     /**
@@ -86,11 +99,13 @@ public class ThreadDump {
                 ae = new AssertionError("Threads still running " + allStackTraces.keySet());
             for (@NotNull Map.Entry<Thread, StackTraceElement[]> threadEntry : allStackTraces.entrySet()) {
                 @NotNull StringBuilder sb = new StringBuilder();
-                sb.append("Thread still running ").append(threadEntry.getKey());
+                Thread thread = threadEntry.getKey();
+                sb.append("Thread still running ").append(thread);
                 Jvm.trimStackTrace(sb, threadEntry.getValue());
                 System.err.println(sb);
                 if (i == last) {
-                    StackTrace st = new StackTrace(threadEntry.getKey().toString());
+                    StackTrace stackTrace = ThreadDump.createdHereFor(thread);
+                    StackTrace st = new StackTrace(thread.toString(), stackTrace);
                     st.setStackTrace(threadEntry.getValue());
                     ae.addSuppressed(st);
                 }

@@ -8,6 +8,11 @@ public class VanillaReferenceOwner implements ReferenceOwner, QueryCloseable {
     }
 
     @Override
+    public String referenceName() {
+        return toString();
+    }
+
+    @Override
     public String toString() {
         return "VanillaReferenceOwner{" +
                 "name='" + name + '\'' +
