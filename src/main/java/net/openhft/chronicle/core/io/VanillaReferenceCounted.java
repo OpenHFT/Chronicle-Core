@@ -20,6 +20,7 @@ public final class VanillaReferenceCounted implements ReferenceCountedTracer {
     private final Runnable onRelease;
     @UsedViaReflection
     private volatile int value = 1;
+    private volatile boolean released = false;
 
     VanillaReferenceCounted(final Runnable onRelease) {
         this.onRelease = onRelease;
@@ -83,11 +84,19 @@ public final class VanillaReferenceCounted implements ReferenceCountedTracer {
             }
             int count = v - 1;
             if (valueCompareAndSet(v, count)) {
-                if (count == 0)
-                    onRelease.run();
+                if (count == 0) {
+                    callOnRelease();
+                }
                 break;
             }
         }
+    }
+
+    public void callOnRelease() {
+        if (released)
+            throw new IllegalStateException("Already released");
+        released = true;
+        onRelease.run();
     }
 
     @Override
@@ -101,7 +110,7 @@ public final class VanillaReferenceCounted implements ReferenceCountedTracer {
                 throw new IllegalStateException("Not the last released");
             }
             if (valueCompareAndSet(1, 0)) {
-                onRelease.run();
+                callOnRelease();
                 break;
             }
         }
@@ -126,7 +135,7 @@ public final class VanillaReferenceCounted implements ReferenceCountedTracer {
     public void warnAndReleaseIfNotReleased() {
         if (refCount() > 0) {
             Slf4jExceptionHandler.WARN.on(getClass(), "Discarded without being released");
-            onRelease.run();
+            callOnRelease();
         }
     }
 }

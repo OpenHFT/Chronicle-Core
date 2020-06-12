@@ -21,7 +21,7 @@ public final class TracingReferenceCounted implements ReferenceCountedTracer {
     private final Runnable onRelease;
     private final String uniqueId;
     private final StackTrace createdHere;
-    private StackTrace releasedHere;
+    private volatile StackTrace releasedHere;
 
     TracingReferenceCounted(final Runnable onRelease, String uniqueId) {
         this.onRelease = onRelease;
@@ -104,6 +104,9 @@ public final class TracingReferenceCounted implements ReferenceCountedTracer {
             }
             releases.put(id, stackTrace("release", id));
             if (references.isEmpty()) {
+                if (releasedHere != null) {
+                    throw new IllegalStateException("Already released", releasedHere);
+                }
                 releasedHere = new StackTrace("release here");
                 // prevent this being called more than once.
                 onRelease.run();
