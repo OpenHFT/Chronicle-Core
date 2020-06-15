@@ -186,4 +186,8 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     public void resetUsedByThread() {
         usedByThread = Thread.currentThread();
     }
+
+    public void clearUsedByThread() {
+        usedByThread = null;
+    }
 }
