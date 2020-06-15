@@ -164,29 +164,32 @@ public final class TracingReferenceCounted implements ReferenceCountedTracer {
 
     @Override
     public void throwExceptionIfNotReleased() throws IllegalStateException {
-        IllegalStateException ise = new IllegalStateException("Retained reference closed");
-
-        for (Map.Entry<ReferenceOwner, StackTrace> entry : references.entrySet()) {
-            ReferenceOwner referenceOwner = entry.getKey();
-            StackTrace reservedHere = entry.getValue();
-            ise.addSuppressed(new IllegalStateException("Reserved by " + asString(referenceOwner), reservedHere));
-            if (referenceOwner instanceof AbstractCloseable) {
-                AbstractCloseable ac = (AbstractCloseable) referenceOwner;
-                try {
-                    ac.throwExceptionIfClosed();
-                } catch (IllegalStateException e) {
-                    ise.addSuppressed(e);
-                }
-            } else if (referenceOwner instanceof QueryCloseable) {
-                try {
-                    ((QueryCloseable) referenceOwner).throwExceptionIfClosed();
-                } catch (Throwable t) {
-                    ise.addSuppressed(new IllegalStateException("Closed " + asString(referenceOwner), t));
+        synchronized (references) {
+            if (references.isEmpty())
+                return;
+            IllegalStateException ise = new IllegalStateException("Retained reference closed");
+            for (Map.Entry<ReferenceOwner, StackTrace> entry : references.entrySet()) {
+                ReferenceOwner referenceOwner = entry.getKey();
+                StackTrace reservedHere = entry.getValue();
+                ise.addSuppressed(new IllegalStateException("Reserved by " + asString(referenceOwner), reservedHere));
+                if (referenceOwner instanceof AbstractCloseable) {
+                    AbstractCloseable ac = (AbstractCloseable) referenceOwner;
+                    try {
+                        ac.throwExceptionIfClosed();
+                    } catch (IllegalStateException e) {
+                        ise.addSuppressed(e);
+                    }
+                } else if (referenceOwner instanceof QueryCloseable) {
+                    try {
+                        ((QueryCloseable) referenceOwner).throwExceptionIfClosed();
+                    } catch (Throwable t) {
+                        ise.addSuppressed(new IllegalStateException("Closed " + asString(referenceOwner), t));
+                    }
                 }
             }
+            if (ise.getSuppressed().length > 0)
+                throw ise;
         }
-        if (ise.getSuppressed().length > 0)
-            throw ise;
     }
 
     @Override
