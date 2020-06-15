@@ -22,6 +22,7 @@ import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.ref.Reference;
 import java.util.Collection;
 
 public interface Closeable extends java.io.Closeable, QueryCloseable {
@@ -43,6 +44,8 @@ public interface Closeable extends java.io.Closeable, QueryCloseable {
             } catch (Exception e) {
                 Jvm.debug().on(Closeable.class, e);
             }
+        } else if (o instanceof Reference) {
+            closeQuietly(((Reference) o).get());
         }
     }
 
