@@ -42,6 +42,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     private transient volatile int closed = 0;
     private transient volatile StackTrace createdHere;
     private transient volatile StackTrace closedHere;
+    private transient volatile Thread usedByThread;
     private final int referenceId;
 
     protected AbstractCloseable() {
@@ -142,6 +143,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     public void throwExceptionIfClosed() throws IllegalStateException {
         if (isClosed())
             throw new IllegalStateException("Closed", closedHere);
+        assert threadSafetyCheck();
     }
 
     /**
@@ -169,5 +171,15 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
 
     protected boolean performCloseInBackground() {
         return false;
+    }
+
+    protected boolean threadSafetyCheck() {
+        Thread currentThread = Thread.currentThread();
+        if (usedByThread == null || !usedByThread.isAlive()) {
+            usedByThread = currentThread;
+        } else if (usedByThread != currentThread) {
+            throw new IllegalStateException("Component which is not thread safes used by " + usedByThread + " and " + currentThread);
+        }
+        return true;
     }
 }

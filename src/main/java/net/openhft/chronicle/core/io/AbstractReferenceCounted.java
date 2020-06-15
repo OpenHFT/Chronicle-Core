@@ -12,7 +12,8 @@ import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEAS
 public abstract class AbstractReferenceCounted implements ReferenceCountedTracer, ReferenceOwner {
     static volatile Set<AbstractReferenceCounted> REFERENCE_COUNTED_SET;
 
-    protected final ReferenceCountedTracer referenceCounted;
+    private transient volatile Thread usedByThread;
+    private transient final ReferenceCountedTracer referenceCounted;
     private final int referenceId;
 
     protected AbstractReferenceCounted() {
@@ -139,6 +140,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     @Override
     public void throwExceptionIfReleased() throws IllegalStateException {
         referenceCounted.throwExceptionIfReleased();
+        assert threadSafetyCheck();
     }
 
     @Override
@@ -148,5 +150,15 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
 
     public boolean reservedBy(ReferenceOwner owner) {
         return referenceCounted.reservedBy(owner);
+    }
+
+    protected boolean threadSafetyCheck() {
+        Thread currentThread = Thread.currentThread();
+        if (usedByThread == null || !usedByThread.isAlive()) {
+            usedByThread = currentThread;
+        } else if (usedByThread != currentThread) {
+            throw new IllegalStateException("Component which is not thread safes used by " + usedByThread + " and " + currentThread);
+        }
+        return true;
     }
 }

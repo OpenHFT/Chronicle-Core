@@ -11,7 +11,7 @@ public abstract class AbstractCloseableReferenceCounted
         extends AbstractReferenceCounted
         implements CloseableTracer {
 
-    protected transient volatile boolean closed;
+    private transient volatile boolean closed;
     private transient volatile StackTrace closedHere;
     private boolean initReleased;
 
@@ -69,10 +69,12 @@ public abstract class AbstractCloseableReferenceCounted
         if (closed)
             throw new IllegalStateException("Closed", closedHere);
         throwExceptionIfReleased();
+        assert threadSafetyCheck();
     }
 
     @Override
     public boolean isClosed() {
         return refCount() <= 0 || closed;
     }
+
 }
