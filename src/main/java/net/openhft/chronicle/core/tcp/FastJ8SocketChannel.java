@@ -43,6 +43,7 @@ public class FastJ8SocketChannel extends VanillaSocketChannel {
 
     @Override
     public int read(ByteBuffer buf) throws IOException {
+        throwExceptionIfClosed();
         if (buf == null)
             throw new NullPointerException();
 
@@ -67,6 +68,7 @@ public class FastJ8SocketChannel extends VanillaSocketChannel {
 
     @Override
     public void configureBlocking(boolean blocking) throws IOException {
+        throwExceptionIfClosed();
         super.configureBlocking(blocking);
         this.blocking = super.isBlocking();
     }
@@ -89,6 +91,7 @@ public class FastJ8SocketChannel extends VanillaSocketChannel {
 
     @Override
     public int write(ByteBuffer byteBuffer) throws IOException {
+        throwExceptionIfClosed();
         try {
             int write = super.write(byteBuffer);
             open &= write >= 0;

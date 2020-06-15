@@ -33,22 +33,26 @@ public class OnDemandEventLoop implements EventLoop {
 
     @Override
     public void addHandler(EventHandler handler) {
+        throwExceptionIfClosed();
         eventLoop().addHandler(handler);
     }
 
     @Override
     public void start() {
+        throwExceptionIfClosed();
         eventLoop().start();
     }
 
     @Override
     public void unpause() {
+        throwExceptionIfClosed();
         if (hasEventLoop())
             eventLoop().unpause();
     }
 
     @Override
     public void stop() {
+        throwExceptionIfClosed();
         if (hasEventLoop())
             eventLoop().stop();
     }

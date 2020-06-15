@@ -36,21 +36,25 @@ public class VanillaSocketChannel extends AbstractCloseable implements ISocketCh
 
     @Override
     public SocketChannel socketChannel() {
+        throwExceptionIfClosed();
         return socketChannel;
     }
 
     @Override
     public int read(ByteBuffer byteBuffer) throws IOException {
+        throwExceptionIfClosed();
         return socketChannel.read(byteBuffer);
     }
 
     @Override
     public int write(ByteBuffer byteBuffer) throws IOException {
+        throwExceptionIfClosed();
         return socketChannel.write(byteBuffer);
     }
 
     @Override
     public long write(ByteBuffer[] byteBuffer) throws IOException {
+        throwExceptionIfClosed();
         return socketChannel.write(byteBuffer);
     }
 
@@ -61,11 +65,13 @@ public class VanillaSocketChannel extends AbstractCloseable implements ISocketCh
 
     @Override
     public void configureBlocking(boolean blocking) throws IOException {
+        throwExceptionIfClosed();
         socketChannel.configureBlocking(blocking);
     }
 
     @Override
     public InetSocketAddress getRemoteAddress() throws IORuntimeException {
+        throwExceptionIfClosed();
         try {
             return (InetSocketAddress) socketChannel.getRemoteAddress();
         } catch (IOException e) {
@@ -75,6 +81,7 @@ public class VanillaSocketChannel extends AbstractCloseable implements ISocketCh
 
     @Override
     public InetSocketAddress getLocalAddress() throws IORuntimeException {
+        throwExceptionIfClosed();
         try {
             return (InetSocketAddress) socketChannel.getLocalAddress();
         } catch (IOException e) {

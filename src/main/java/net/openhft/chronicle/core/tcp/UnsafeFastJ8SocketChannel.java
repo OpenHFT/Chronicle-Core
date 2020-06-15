@@ -41,6 +41,7 @@ public class UnsafeFastJ8SocketChannel extends FastJ8SocketChannel {
 
     @Override
     public int write(ByteBuffer buf) throws IOException {
+        throwExceptionIfClosed();
         if (buf == null)
             throw new NullPointerException();
 

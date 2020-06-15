@@ -123,7 +123,11 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
             BackgroundResourceReleaser.release(this);
         } else {
             long start = System.nanoTime();
-            performClose();
+            try {
+                performClose();
+            } catch (Throwable e) {
+                Jvm.debug().on(getClass(), "Exception thrown on performClose", e);
+            }
             long time = System.nanoTime() - start;
             if (time >= 2_000_000)
                 Jvm.warn().on(getClass(), "Took " + time / 100_000 / 10.0 + " ms to performClose");
