@@ -539,7 +539,7 @@ public enum Jvm {
 
     @NotNull
     public static Map<ExceptionKey, Integer> recordExceptions(boolean debug, boolean exceptionsOnly) {
-        return recordExceptions(debug, exceptionsOnly, false);
+        return recordExceptions(debug, exceptionsOnly, true);
     }
 
     @NotNull
