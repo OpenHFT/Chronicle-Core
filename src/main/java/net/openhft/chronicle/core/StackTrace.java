@@ -26,7 +26,7 @@ package net.openhft.chronicle.core;
  */
 public class StackTrace extends Throwable {
     public StackTrace() {
-        this(null);
+        this("");
     }
 
     public StackTrace(String message) {
@@ -34,6 +34,6 @@ public class StackTrace extends Throwable {
     }
 
     public StackTrace(String message, Throwable cause) {
-        super(message, cause);
+        super(message + " on " + Thread.currentThread().getName(), cause);
     }
 }
