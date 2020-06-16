@@ -152,7 +152,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     protected void warnAndCloseIfNotClosed() {
         if (!isClosed()) {
             if (Jvm.isResourceTracing()) {
-                ExceptionHandler warn = Slf4jExceptionHandler.WARN;
+                ExceptionHandler warn = Jvm.getBoolean("warnAndCloseIfNotClosed") ? Jvm.warn() : Slf4jExceptionHandler.WARN;
                 warn.on(getClass(), "Discarded without closing", new IllegalStateException(createdHere));
             }
             close();
