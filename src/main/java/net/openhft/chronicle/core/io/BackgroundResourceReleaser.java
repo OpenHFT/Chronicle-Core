@@ -13,7 +13,7 @@ public enum BackgroundResourceReleaser {
     private static final BlockingQueue<Object> RESOURCES = new ArrayBlockingQueue<>(128);
     private static transient long COUNT = 0;
     private static final Thread RELEASER = new Thread(BackgroundResourceReleaser::runReleaseResources,
-            "background-resource-releaser");
+            "background~resource~releaser");
 
     static {
         RELEASER.setDaemon(true);

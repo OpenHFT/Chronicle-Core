@@ -34,6 +34,7 @@ import java.util.concurrent.TimeUnit;
 public class ThreadDump {
     static final Map<Thread, StackTrace> THREAD_STACK_TRACE_MAP =
             Collections.synchronizedMap(new WeakIdentityHashMap<>());
+    public static final String IGNORE_THREAD_IF_IN_NAME = "~";
     @NotNull
     final Set<Thread> threads;
     final Set<String> ignored = new HashSet<>();
@@ -43,8 +44,6 @@ public class ThreadDump {
         ignored.add("Time-limited test");
         ignored.add("Attach Listener");
         ignored.add("process reaper");
-        ignored.add("chronicle-weak-reference-cleaner");
-        ignored.add("background-resource-releaser");
         for (int i = 0, max = Runtime.getRuntime().availableProcessors(); i < max; i++)
             ignored.add("ForkJoinPool.commonPool-worker-" + i);
     }
@@ -88,7 +87,10 @@ public class ThreadDump {
             allStackTraces.keySet().removeAll(threads);
             if (allStackTraces.isEmpty())
                 return;
-            allStackTraces.keySet().removeIf(next -> ignored.stream().anyMatch(item -> next.getName().contains(item)));
+            allStackTraces.keySet()
+                    .removeIf(next -> ignored.stream().anyMatch(item -> next.getName().contains(item)));
+            allStackTraces.keySet()
+                    .removeIf(next -> next.getName().contains(IGNORE_THREAD_IF_IN_NAME));
             if (allStackTraces.isEmpty())
                 return;
             if (i == 1 && System.nanoTime() - start < delayNanos) {
