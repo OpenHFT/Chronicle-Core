@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 
 public enum BackgroundResourceReleaser {
     ;
-    static final boolean BG_RELEASER = Jvm.getBoolean("background.releaser", false);
+    static final boolean BG_RELEASER = Jvm.getBoolean("background.releaser", true);
 
     private static final BlockingQueue<Object> RESOURCES = new ArrayBlockingQueue<>(128);
     private static transient long COUNT = 0;
