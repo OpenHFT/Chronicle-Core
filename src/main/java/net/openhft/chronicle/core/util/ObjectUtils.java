@@ -122,9 +122,9 @@ public enum ObjectUtils {
                 char ch = Character.toLowerCase(s.charAt(0));
                 return ch == 't' || ch == 'y';
             case 3:
-                return StringUtils.equalsCaseIgnore(s, "yes");
+                return equalsCaseIgnore(s, "yes");
             case 4:
-                return StringUtils.equalsCaseIgnore(s, "true");
+                return equalsCaseIgnore(s, "true");
             default:
                 return false;
         }
@@ -136,12 +136,18 @@ public enum ObjectUtils {
                 char ch = Character.toLowerCase(s.charAt(0));
                 return ch == 'f' || ch == 'n';
             case 2:
-                return StringUtils.equalsCaseIgnore(s, "no");
+                return equalsCaseIgnore(s, "no");
             case 5:
-                return StringUtils.equalsCaseIgnore(s, "false");
+                return equalsCaseIgnore(s, "false");
             default:
                 return false;
         }
+    }
+
+    private static boolean equalsCaseIgnore(CharSequence cs, String s) {
+        if (cs instanceof String)
+            return ((String) cs).equalsIgnoreCase(s);
+        return StringUtils.equalsCaseIgnore(cs, s);
     }
 
     /**
