@@ -36,4 +36,10 @@ public class StackTrace extends Throwable {
     public StackTrace(String message, Throwable cause) {
         super(message + " on " + Thread.currentThread().getName(), cause);
     }
+
+    public static StackTrace forThread(Thread t) {
+        StackTrace st = new StackTrace(t.toString());
+        st.setStackTrace(t.getStackTrace());
+        return st;
+    }
 }
