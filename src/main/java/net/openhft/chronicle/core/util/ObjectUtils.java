@@ -499,6 +499,8 @@ public enum ObjectUtils {
                 return CLASS_ALIASES::forName;
             if (c == Boolean.class)
                 return ObjectUtils::toBoolean;
+            if (c == UUID.class)
+                return UUID::fromString;
             try {
                 Method valueOf = c.getDeclaredMethod("valueOf", String.class);
                 Jvm.setAccessible(valueOf);
@@ -511,14 +513,6 @@ public enum ObjectUtils {
                 Method parse = c.getDeclaredMethod("parse", CharSequence.class);
                 Jvm.setAccessible(parse);
                 return s -> parse.invoke(null, s);
-
-            } catch (NoSuchMethodException e) {
-                // ignored
-            }
-            try {
-                Method fromString = c.getDeclaredMethod("fromString", String.class);
-                Jvm.setAccessible(fromString);
-                return s -> fromString.invoke(null, s);
 
             } catch (NoSuchMethodException e) {
                 // ignored
