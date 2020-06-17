@@ -839,7 +839,7 @@ public enum Jvm {
         String trim = value.trim();
         return defaultValue
                 ? !ObjectUtils.isFalse(trim)
-                : !ObjectUtils.isTrue(trim);
+                : ObjectUtils.isTrue(trim);
     }
 
     private static class ChainedSignalHandler implements SignalHandler {
