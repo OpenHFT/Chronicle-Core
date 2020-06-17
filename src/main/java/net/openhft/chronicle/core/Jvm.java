@@ -52,10 +52,10 @@ public enum Jvm {
 
     private static final List<String> INPUT_ARGUMENTS = getRuntimeMXBean().getInputArguments();
     private static final int COMPILE_THRESHOLD = getCompileThreshold0();
-    private static final boolean IS_DEBUG = INPUT_ARGUMENTS.toString().contains("jdwp") || Boolean.getBoolean("debug");
+    private static final boolean IS_DEBUG = INPUT_ARGUMENTS.toString().contains("jdwp") || Jvm.getBoolean("debug");
 
     // e.g-verbose:gc  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=dumponexit=true,filename=myrecording.jfr,settings=profile -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints
-    private static final boolean IS_FLIGHT_RECORDER = (" " + getRuntimeMXBean().getInputArguments()).contains(" -XX:+FlightRecorder") || Boolean.getBoolean("jfr");
+    private static final boolean IS_FLIGHT_RECORDER = (" " + getRuntimeMXBean().getInputArguments()).contains(" -XX:+FlightRecorder") || Jvm.getBoolean("jfr");
     ;
     private static final Supplier<Long> reservedMemory;
     private static final boolean IS_64BIT = is64bit0();
@@ -75,7 +75,7 @@ public enum Jvm {
     private static final boolean IS_JAVA_14_PLUS;
     private static final long MAX_DIRECT_MEMORY;
     private static final boolean SAFEPOINT_ENABLED;
-    private static final boolean IS_ARM = Boolean.getBoolean("jvm.isarm") ||
+    private static final boolean IS_ARM = Jvm.getBoolean("jvm.isarm") ||
             System.getProperty("os.arch", "?").startsWith("arm") || System.getProperty("os.arch", "?").startsWith("aarch");
     private static final Map<Class, ClassMetrics> CLASS_METRICS_MAP =
             new ConcurrentHashMap<>();
@@ -139,11 +139,9 @@ public enum Jvm {
 
         findAndLoadSystemProperties();
 
-        SAFEPOINT_ENABLED = Boolean.getBoolean("jvm.safepoint.enabled");
+        SAFEPOINT_ENABLED = Jvm.getBoolean("jvm.safepoint.enabled");
 
-        String resourceTracing = System.getProperty("jvm.resource.tracing");
-        RESOURCE_TRACING = resourceTracing != null &&
-                (resourceTracing.isEmpty() || Boolean.parseBoolean(resourceTracing));
+        RESOURCE_TRACING = Jvm.getBoolean("jvm.resource.tracing");
     }
 
     private static void findAndLoadSystemProperties() {
@@ -838,7 +836,10 @@ public enum Jvm {
             return defaultValue;
         if (value.isEmpty())
             return true;
-        return ObjectUtils.isTrue(value);
+        String trim = value.trim();
+        return defaultValue
+                ? !ObjectUtils.isFalse(trim)
+                : !ObjectUtils.isTrue(trim);
     }
 
     private static class ChainedSignalHandler implements SignalHandler {

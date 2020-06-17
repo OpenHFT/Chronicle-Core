@@ -105,7 +105,7 @@ public class Main {
                 }
             }
         } else {
-            int time = Boolean.getBoolean("longTest") ? 30 : 1;
+            int time = Jvm.getBoolean("longTest") ? 30 : 1;
             System.out.println("measurementTime: " + time + " secs");
             Options opt = new OptionsBuilder()
                     .include(Main.class.getSimpleName())
