@@ -25,6 +25,10 @@ public interface LongValue {
 
     long getVolatileValue();
 
+    default long getVolatileValue(long closedValue) {
+        return getVolatileValue();
+    }
+
     void setVolatileValue(long value);
 
     void setOrderedValue(long value);
