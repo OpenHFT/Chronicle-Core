@@ -25,6 +25,9 @@ public interface LongValue {
 
     long getVolatileValue();
 
+    /**
+     * Value to return if the underlying resource isn't available.
+     */
     default long getVolatileValue(long closedValue) {
         return getVolatileValue();
     }
