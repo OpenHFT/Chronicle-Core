@@ -142,7 +142,6 @@ public class FileSystemWatcher {
                                 listener.onRemoved(p(base.basePath), p(fullRelative));
                                 removePath(filename);
                             }
-
                         } catch (IllegalStateException ise) {
                             iterator.remove();
                         }
@@ -153,7 +152,6 @@ public class FileSystemWatcher {
                     watchKeyToPathMap.remove(key);
                     watchKeysToRemove.remove(key);
                 }
-
             } catch (InterruptedException expected) {
             }
         }
@@ -167,7 +165,6 @@ public class FileSystemWatcher {
                 Jvm.warn().on(getClass(), "Failed to walk " + pathInfo, e);
             }
         }
-
     }
 
     private void bootstrapPath(List<WatcherListener> list, String base, String relative) throws IOException {
