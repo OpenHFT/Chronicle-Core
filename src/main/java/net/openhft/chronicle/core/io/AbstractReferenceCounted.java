@@ -57,7 +57,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         AssertionError openFiles = new AssertionError("Reference counted not released");
         synchronized (traceSet) {
             for (AbstractReferenceCounted key : traceSet) {
-                if (key == null)
+                if (key == null || key.refCount() == 0)
                     continue;
 
                 try {
