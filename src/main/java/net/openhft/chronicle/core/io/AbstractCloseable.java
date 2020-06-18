@@ -65,7 +65,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     }
 
     public static void assertCloseablesClosed() {
-        Set<CloseableTracer> traceSet = CLOSEABLE_SET;
+        final Set<CloseableTracer> traceSet = CLOSEABLE_SET;
         if (traceSet == null) {
             Jvm.warn().on(AbstractCloseable.class, "closable tracing disabled");
             return;

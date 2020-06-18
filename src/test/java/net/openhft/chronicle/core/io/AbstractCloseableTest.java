@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 
 public class AbstractCloseableTest extends CoreTestCommon {
 
@@ -39,6 +40,8 @@ public class AbstractCloseableTest extends CoreTestCommon {
 
     @Test
     public void warnAndCloseIfNotClosed() {
+        assumeTrue(Jvm.isResourceTracing());
+
         Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
         MyCloseable mc = new MyCloseable();
         // not recorded for now.

@@ -4,13 +4,16 @@ import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 public class AbstractReferenceCountedTest extends CoreTestCommon {
 
     @Test
     public void reserve() throws IllegalStateException {
-        assertTrue(Jvm.isResourceTracing());
+        assumeTrue(Jvm.isResourceTracing());
+
         MyReferenceCounted rc = new MyReferenceCounted();
         assertEquals(1, rc.refCount());
 

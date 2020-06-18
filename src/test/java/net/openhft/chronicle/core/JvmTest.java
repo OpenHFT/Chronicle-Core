@@ -30,6 +30,7 @@ import java.nio.ByteBuffer;
 import static net.openhft.chronicle.core.Jvm.isArm;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeTrue;
 
 public class JvmTest {
 
@@ -140,6 +141,6 @@ public class JvmTest {
 
     @Test
     public void loadSystemProperties() {
-        assertTrue(Jvm.isResourceTracing());
+        assumeTrue(Jvm.isResourceTracing());
     }
 }
