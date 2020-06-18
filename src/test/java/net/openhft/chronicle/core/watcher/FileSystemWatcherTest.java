@@ -38,8 +38,7 @@ public class FileSystemWatcherTest {
         IOTools.deleteDirWithFiles(base);
     }
 
-
-    @Test
+@Test
     public void bootstrapAndUpdate() throws IOException {
         /*
         This test fails on Windows and may also fail on MmcOS.

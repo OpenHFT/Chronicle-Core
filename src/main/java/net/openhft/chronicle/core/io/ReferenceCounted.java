@@ -33,8 +33,7 @@ public interface ReferenceCounted extends ReferenceOwner {
      */
     boolean tryReserve(ReferenceOwner id) throws IllegalStateException;
 
-
-    /**
+/**
      * Best effort check the owner has reserved it. Returns true if not sure.
      *
      * @param owner to check

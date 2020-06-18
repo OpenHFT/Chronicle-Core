@@ -41,8 +41,7 @@ public class AbstractCloseableReferenceCountedTest extends CoreTestCommon {
         assertEquals(1, rc.performRelease);
     }
 
-
-    @Test
+@Test
     public void reserveWhenClosed() throws IllegalStateException {
         MyCloseableReferenceCounted rc = new MyCloseableReferenceCounted();
         assertEquals(1, rc.refCount());
@@ -82,7 +81,6 @@ public class AbstractCloseableReferenceCountedTest extends CoreTestCommon {
 
         public MyCloseableReferenceCounted() {
         }
-
 
         @Override
         protected void performRelease() {

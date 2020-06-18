@@ -19,6 +19,7 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.cleaner.CleanerServiceLocator;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -163,6 +164,15 @@ public enum IOTools {
     }
 
     public static byte[] readAsBytes(InputStream is) throws IOException {
+        if (is instanceof FileInputStream) {
+            try (FileInputStream fis = (FileInputStream) is) {
+                byte[] bytes = new byte[fis.available()];
+                int read = fis.read(bytes);
+                if (read != bytes.length)
+                    throw new AssertionError();
+                return bytes;
+            }
+        }
         try {
             @NotNull ByteArrayOutputStream out = new ByteArrayOutputStream(Math.min(512, is.available()));
             @NotNull byte[] bytes = new byte[1024];
@@ -216,5 +226,16 @@ public enum IOTools {
 
     static AtomicInteger counter(Class type) {
         return COUNTER_MAP.computeIfAbsent(type, k -> new AtomicInteger());
+    }
+
+    public static File createTempFile(String s) {
+        File file = createTempDirectory(s).toFile();
+        file.deleteOnExit();
+        return file;
+    }
+
+    public static Path createTempDirectory(String s) {
+        new File(OS.TARGET).mkdir();
+        return Paths.get(OS.TARGET, s + "-" + Long.toString(System.nanoTime(), 36) + ".tmp");
     }
 }

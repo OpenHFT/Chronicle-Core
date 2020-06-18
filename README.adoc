@@ -135,7 +135,7 @@ public class AbstractCloseableTest {
 
         mc.throwExceptionIfClosed();
 
-        mc.close();
+ mc.close();
         assertTrue(mc.isClosed());
         assertEquals(1, mc.performClose);
 
@@ -149,7 +149,8 @@ public class AbstractCloseableTest {
         MyCloseable mc = new MyCloseable();
         mc.close();
         mc.throwExceptionIfClosed();
-    }
+
+ }
 
     @Test
     public void warnAndCloseIfNotClosed() {
@@ -218,8 +219,7 @@ public class AbstractReferenceCountedTest {
         assertEquals(1, rc.performRelease);
     }
 
-
-    @Test
+@Test
     public void reserveWhenClosed() {
         MyReferenceCounted rc = new MyReferenceCounted();
         assertEquals(1, rc.refCount());
@@ -259,7 +259,8 @@ public class AbstractReferenceCountedTest {
         rc.throwExceptionBadResourceOwner();
         try {
             rc.throwExceptionIfClosed();
-            fail();
+
+ fail();
         } catch (IllegalStateException ignored) {
 
         }
@@ -292,10 +293,12 @@ public class AbstractReferenceCountedTest {
     public void throwExceptionIfClosed() {
         MyReferenceCounted rc = new MyReferenceCounted();
         rc.throwExceptionIfClosed();
-        rc.closeable.close();
+
+ rc.closeable.close();
         try {
             rc.throwExceptionIfClosed();
-            fail();
+
+ fail();
         } catch (IllegalStateException ignored) {
 
         }

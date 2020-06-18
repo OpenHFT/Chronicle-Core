@@ -30,9 +30,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * <p>
  * Created by Peter Lawrey on 10/03/16.
  **/
-public class SetTimeProvider implements TimeProvider {
+public class SetTimeProvider extends AtomicLong implements TimeProvider {
 
-    private final AtomicLong nanoTime;
     private long autoIncrement = 0;
 
     public SetTimeProvider() {
@@ -40,15 +39,19 @@ public class SetTimeProvider implements TimeProvider {
     }
 
     public SetTimeProvider(long initialNanos) {
-        nanoTime = new AtomicLong(initialNanos);
+        super(initialNanos);
     }
 
     public SetTimeProvider(String timestamp) {
+        super(initialNanos(timestamp));
+    }
+
+    static long initialNanos(String timestamp) {
         Instant dateTime = LocalDateTime.parse(timestamp).toInstant(ZoneOffset.UTC);
         long initialNanos = dateTime.getEpochSecond() * 1_000_000_000L;
         if (dateTime.isSupported(ChronoField.NANO_OF_SECOND))
             initialNanos += dateTime.getLong(ChronoField.NANO_OF_SECOND);
-        nanoTime = new AtomicLong(initialNanos);
+        return initialNanos;
     }
 
     public SetTimeProvider autoIncrement(long autoIncrement, TimeUnit timeUnit) {
@@ -67,7 +70,8 @@ public class SetTimeProvider implements TimeProvider {
 
     @Override
     public long currentTimeMillis() {
-        return TimeUnit.NANOSECONDS.toMillis(currentTimeNanos());
+//        return TimeUnit.NANOSECONDS.toMillis(currentTimeNanos());
+        return currentTimeNanos() / 1_000_000;
     }
 
     /**
@@ -81,7 +85,8 @@ public class SetTimeProvider implements TimeProvider {
 
     @Override
     public long currentTimeMicros() {
-        return TimeUnit.NANOSECONDS.toMicros(currentTimeNanos());
+//        return TimeUnit.NANOSECONDS.toMicros(currentTimeNanos());
+        return currentTimeNanos() / 1_000;
     }
 
     /**
@@ -90,13 +95,13 @@ public class SetTimeProvider implements TimeProvider {
      * @param nanos New time value in nanoseconds since the epoch. May not be less than the previous value.
      */
     public void currentTimeNanos(long nanos) {
-        if (nanos < nanoTime.get()) throw new IllegalArgumentException("Cannot go back in time!");
-        nanoTime.set(nanos);
+        if (nanos < get()) throw new IllegalArgumentException("Cannot go back in time!");
+        set(nanos);
     }
 
     @Override
     public long currentTimeNanos() {
-        return nanoTime.getAndAdd(autoIncrement);
+        return getAndAdd(autoIncrement);
     }
 
     @Override
@@ -130,7 +135,7 @@ public class SetTimeProvider implements TimeProvider {
      * @param nanos duration.
      */
     public SetTimeProvider advanceNanos(long nanos) {
-        nanoTime.addAndGet(nanos);
+        addAndGet(nanos);
         return this;
     }
 
@@ -138,7 +143,7 @@ public class SetTimeProvider implements TimeProvider {
     public String toString() {
         return "SetTimeProvider{" +
                 "autoIncrement=" + autoIncrement +
-                ", nanoTime=" + nanoTime +
+                ", nanoTime=" + get() +
                 '}';
     }
 }

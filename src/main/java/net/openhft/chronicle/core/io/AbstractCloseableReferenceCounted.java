@@ -24,12 +24,14 @@ public abstract class AbstractCloseableReferenceCounted
     @Override
     public void reserve(ReferenceOwner id) throws IllegalStateException {
         throwExceptionIfClosed();
+
         super.reserve(id);
     }
 
     @Override
     public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException {
         throwExceptionIfClosed();
+
         super.reserveTransfer(from, to);
         if (from == INIT) initReleased = true;
         if (to == INIT) initReleased = false;

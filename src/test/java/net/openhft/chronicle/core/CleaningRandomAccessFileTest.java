@@ -4,6 +4,7 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.io.IOTools;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,7 +31,7 @@ public class CleaningRandomAccessFileTest {
 
     @Test
     public void resourceLeak() throws IOException {
-        File tempDir = new File(OS.TMP, "raf-" + System.nanoTime());
+        File tempDir = IOTools.createTempFile("resourceLeak");
         tempDir.mkdir();
         for (int j = 0; j < 50; j++) {
             int files = getFDs();

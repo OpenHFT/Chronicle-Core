@@ -562,5 +562,4 @@ public enum StringUtils {
         return negative ? result : -result;
     }
 
-
 }

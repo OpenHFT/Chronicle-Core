@@ -4,10 +4,12 @@ import net.openhft.chronicle.core.StackTrace;
 
 public class DualReferenceCounted implements ReferenceCountedTracer {
     private final ReferenceCountedTracer a, b;
+    private volatile int refCount;
 
     public DualReferenceCounted(ReferenceCountedTracer a, ReferenceCountedTracer b) {
         this.a = a;
         this.b = b;
+        this.refCount = a.refCount();
     }
 
     @Override
@@ -34,8 +36,9 @@ public class DualReferenceCounted implements ReferenceCountedTracer {
     public synchronized void reserve(ReferenceOwner id) throws IllegalStateException {
         a.reserve(id);
         b.reserve(id);
-        if (a.refCount() != b.refCount())
-            throw new AssertionError(a.refCount() + " != " + b.refCount());
+        this.refCount = a.refCount();
+        if (refCount != b.refCount())
+            throw new AssertionError(refCount + " != " + b.refCount());
     }
 
     @Override
@@ -43,8 +46,9 @@ public class DualReferenceCounted implements ReferenceCountedTracer {
         boolean aa = a.tryReserve(id);
         boolean bb = b.tryReserve(id);
         assert aa == bb;
-        if (a.refCount() != b.refCount())
-            throw new AssertionError(a.refCount() + " != " + b.refCount());
+        this.refCount = a.refCount();
+        if (refCount != b.refCount())
+            throw new AssertionError(refCount + " != " + b.refCount());
 
         return aa;
     }
@@ -53,23 +57,23 @@ public class DualReferenceCounted implements ReferenceCountedTracer {
     public synchronized void release(ReferenceOwner id) throws IllegalStateException {
         a.release(id);
         b.release(id);
-        if (a.refCount() != b.refCount())
-            throw new AssertionError(a.refCount() + " != " + b.refCount());
+        this.refCount = a.refCount();
+        if (refCount != b.refCount())
+            throw new AssertionError(refCount + " != " + b.refCount());
     }
 
     @Override
     public synchronized void releaseLast(ReferenceOwner id) throws IllegalStateException {
         a.releaseLast(id);
         b.releaseLast(id);
-        if (a.refCount() != b.refCount())
-            throw new AssertionError(a.refCount() + " != " + b.refCount());
+        this.refCount = a.refCount();
+        if (refCount != b.refCount())
+            throw new AssertionError(refCount + " != " + b.refCount());
     }
 
     @Override
-    public synchronized int refCount() {
-        if (a.refCount() != b.refCount())
-            throw new AssertionError(a.refCount() + " != " + b.refCount());
-        return a.refCount();
+    public int refCount() {
+        return refCount;
     }
 
     @Override
@@ -81,8 +85,9 @@ public class DualReferenceCounted implements ReferenceCountedTracer {
     public synchronized void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException {
         a.reserveTransfer(from, to);
         b.reserveTransfer(from, to);
-        if (a.refCount() != b.refCount())
-            throw new AssertionError(a.refCount() + " != " + b.refCount());
+        this.refCount = a.refCount();
+        if (refCount != b.refCount())
+            throw new AssertionError(refCount + " != " + b.refCount());
 
     }
 

@@ -176,12 +176,14 @@ public final class TracingReferenceCounted implements ReferenceCountedTracer {
                     AbstractCloseable ac = (AbstractCloseable) referenceOwner;
                     try {
                         ac.throwExceptionIfClosed();
+
                     } catch (IllegalStateException e) {
                         ise.addSuppressed(e);
                     }
                 } else if (referenceOwner instanceof QueryCloseable) {
                     try {
                         ((QueryCloseable) referenceOwner).throwExceptionIfClosed();
+
                     } catch (Throwable t) {
                         ise.addSuppressed(new IllegalStateException("Closed " + asString(referenceOwner), t));
                     }

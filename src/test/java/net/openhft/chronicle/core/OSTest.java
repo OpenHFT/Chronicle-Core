@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.io.IOTools;
 import net.openhft.chronicle.core.threads.ThreadDump;
 import org.junit.After;
 import org.junit.Before;
@@ -71,8 +72,7 @@ public class OSTest {
     //@Ignore("Failing on TC (linux agent) for unknown reason, anyway the goal of this test is to " +
     //        "test mapping granularity on windows")
     public void testMapGranularity() throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        File file = new File(OS.TARGET, getClass().getName() + "." + testName.getMethodName() + ".deleteme");
-        file.deleteOnExit();
+        File file = IOTools.createTempFile(getClass().getName() + "." + testName.getMethodName());
 
         try (RandomAccessFile rw = new RandomAccessFile(file, "rw")) {
             FileChannel fc = rw.getChannel();
@@ -93,8 +93,7 @@ public class OSTest {
     @Test
     //@Ignore("Should always pass, or crash the JVM based on length")
     public void testMap() throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        File file = new File(OS.TARGET, getClass().getName() + "." + testName.getMethodName() + ".deleteme");
-        file.deleteOnExit();
+        File file = IOTools.createTempFile(getClass().getName() + "." + testName.getMethodName());
 
         try (RandomAccessFile rw = new RandomAccessFile(file, "rw")) {
             FileChannel fc = rw.getChannel();
@@ -131,8 +130,7 @@ public class OSTest {
 
     @Test
     public void testMapFast() throws Exception {
-        File file = new File(OS.TARGET, getClass().getName() + "." + testName.getMethodName() + ".deleteme");
-        file.deleteOnExit();
+        File file = IOTools.createTempFile(getClass().getName() + "." + testName.getMethodName());
 
         try (RandomAccessFile rw = new RandomAccessFile(file, "rw")) {
             FileChannel fc = rw.getChannel();

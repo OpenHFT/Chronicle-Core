@@ -20,7 +20,7 @@ public class AbstractCloseableTest extends CoreTestCommon {
 
         mc.throwExceptionIfClosed();
 
-        mc.close();
+ mc.close();
         assertTrue(mc.isClosed());
         assertEquals(1, mc.performClose);
 
@@ -34,6 +34,7 @@ public class AbstractCloseableTest extends CoreTestCommon {
         MyCloseable mc = new MyCloseable();
         mc.close();
         mc.throwExceptionIfClosed();
+
     }
 
     @Test

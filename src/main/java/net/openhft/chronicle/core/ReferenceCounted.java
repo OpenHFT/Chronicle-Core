@@ -72,18 +72,17 @@ public interface ReferenceCounted {
      */
     long refCount();
 
-
-    static void releaseAll(@NotNull List<WeakReference<? extends ReferenceCounted>> refCounts) {
-        for (@Nullable WeakReference<? extends ReferenceCounted> refCountRef : refCounts) {
-            if (refCountRef == null)
-                continue;
-            @Nullable ReferenceCounted refCounted = refCountRef.get();
-            if (refCounted != null) {
-                try {
-                    refCounted.release();
-                } catch (IllegalStateException e) {
-                    LoggerFactory.getLogger(Closeable.class).debug("", e);
-                }
+static void releaseAll(@NotNull List<WeakReference<? extends ReferenceCounted>> refCounts) {
+    for (@Nullable WeakReference<? extends ReferenceCounted> refCountRef : refCounts) {
+        if (refCountRef == null)
+            continue;
+        @Nullable ReferenceCounted refCounted = refCountRef.get();
+        if (refCounted != null) {
+            try {
+                refCounted.release();
+            } catch (IllegalStateException e) {
+                LoggerFactory.getLogger(Closeable.class).debug("", e);
+            }
             }
         }
     }

@@ -130,8 +130,8 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
                 Jvm.debug().on(getClass(), "Exception thrown on performClose", e);
             }
             long time = System.nanoTime() - start;
-            if (time >= 2_000_000)
-                Jvm.warn().on(getClass(), "Took " + time / 100_000 / 10.0 + " ms to performClose");
+            if (time >= 10_000_000)
+                Jvm.warn().on(getClass(), "Took " + time / 1000_000 + " ms to performClose");
         }
     }
 
@@ -141,7 +141,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
      * @throws IllegalStateException if closed
      */
     public void throwExceptionIfClosed() throws IllegalStateException {
-        if (isClosed())
+        if (closed != 0)
             throw new IllegalStateException("Closed", closedHere);
         assert threadSafetyCheck();
     }
@@ -175,10 +175,12 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
 
     protected boolean threadSafetyCheck() {
         Thread currentThread = Thread.currentThread();
-        if (usedByThread == null || !usedByThread.isAlive()) {
+        if (usedByThread == null) {
             usedByThread = currentThread;
         } else if (usedByThread != currentThread) {
-            throw new IllegalStateException("Component which is not thread safes used by " + usedByThread + " and " + currentThread);
+            if (usedByThread.isAlive()) // really expensive call.
+                throw new IllegalStateException("Component which is not thread safes used by " + usedByThread + " and " + currentThread);
+            usedByThread = currentThread;
         }
         return true;
     }
