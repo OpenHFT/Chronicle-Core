@@ -63,11 +63,6 @@ public interface ReferenceCounted extends ReferenceOwner {
      */
     void releaseLast(ReferenceOwner id) throws IllegalStateException;
 
-    @Deprecated
-    default void release() {
-        releaseLast();
-    }
-
     default void releaseLast() throws IllegalStateException {
         releaseLast(INIT);
     }
