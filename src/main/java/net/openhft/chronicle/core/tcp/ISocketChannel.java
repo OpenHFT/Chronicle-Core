@@ -84,8 +84,8 @@ public interface ISocketChannel extends Closeable {
      *
      * @return has close been called
      */
-    @Override
-    boolean isClosed();
+//    @Override
+//    boolean isClosed();
 
     boolean isBlocking();
 }
