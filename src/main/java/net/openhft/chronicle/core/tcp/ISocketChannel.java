@@ -19,10 +19,10 @@ package net.openhft.chronicle.core.tcp;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
+import net.openhft.chronicle.core.io.Closeable;
 import net.openhft.chronicle.core.io.IORuntimeException;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
@@ -71,7 +71,21 @@ public interface ISocketChannel extends Closeable {
     @NotNull
     InetSocketAddress getLocalAddress() throws IORuntimeException;
 
+    /**
+     * As this socket can be closed in a background thread it can be both isClosed() and isOpen() if close() has been called but it hasn't actually been closed
+     *
+     * @return is the underlying socket open
+     * @see net.openhft.chronicle.core.io.QueryCloseable
+     */
     boolean isOpen();
+
+    /**
+     * As this socket can be closed in a background thread it can be both isClosed() and isOpen() if close() has been called but it hasn't actually been closed
+     *
+     * @return has close been called
+     */
+    @Override
+    boolean isClosed();
 
     boolean isBlocking();
 }

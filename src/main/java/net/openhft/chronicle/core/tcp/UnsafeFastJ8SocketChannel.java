@@ -46,7 +46,7 @@ public class UnsafeFastJ8SocketChannel extends FastJ8SocketChannel {
         if (buf == null)
             throw new NullPointerException();
 
-        if (isBlocking() || !isOpen() || !(buf instanceof DirectBuffer))
+        if (isBlocking() || isClosed() || !(buf instanceof DirectBuffer))
             return super.write(buf);
 
         return writeInternal(buf);
