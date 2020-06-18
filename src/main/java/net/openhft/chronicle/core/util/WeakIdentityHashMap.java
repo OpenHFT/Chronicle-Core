@@ -15,14 +15,14 @@ public class WeakIdentityHashMap<K, V> implements Map<K, V> {
      * size (16).
      */
     public WeakIdentityHashMap() {
-        map = new LinkedHashMap<>(16);
+        map = Collections.synchronizedMap(new LinkedHashMap<>(16));
     }
 
     /**
      * Constructs a new, empty identity map with the specified initial size.
      */
     public WeakIdentityHashMap(int initialSize) {
-        map = new LinkedHashMap<>(initialSize);
+        map = Collections.synchronizedMap(new LinkedHashMap<>(initialSize));
     }
 
     private Map<WeakKey<K>, V> getMap() {
