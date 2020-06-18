@@ -4,6 +4,7 @@ import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 // Based on Java 1 but using LinkedHashMap
 public class WeakIdentityHashMap<K, V> implements Map<K, V> {
@@ -15,14 +16,14 @@ public class WeakIdentityHashMap<K, V> implements Map<K, V> {
      * size (16).
      */
     public WeakIdentityHashMap() {
-        map = Collections.synchronizedMap(new LinkedHashMap<>(16));
+        map = new ConcurrentHashMap<>(16);
     }
 
     /**
      * Constructs a new, empty identity map with the specified initial size.
      */
     public WeakIdentityHashMap(int initialSize) {
-        map = Collections.synchronizedMap(new LinkedHashMap<>(initialSize));
+        map = new ConcurrentHashMap<>(initialSize);
     }
 
     private Map<WeakKey<K>, V> getMap() {
