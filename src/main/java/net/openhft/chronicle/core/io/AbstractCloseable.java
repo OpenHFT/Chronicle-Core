@@ -56,9 +56,8 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
 
     public static void enableCloseableTracing() {
         CLOSEABLE_SET =
-                Collections.synchronizedSet(
-                        Collections.newSetFromMap(
-                                new WeakIdentityHashMap<>()));
+                Collections.newSetFromMap(
+                        new WeakIdentityHashMap<>());
     }
 
     public static void disableCloseableTracing() {

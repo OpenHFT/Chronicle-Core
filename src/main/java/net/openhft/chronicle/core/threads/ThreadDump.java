@@ -25,7 +25,6 @@ import net.openhft.chronicle.core.util.WeakIdentityHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -33,7 +32,7 @@ import java.util.concurrent.TimeUnit;
 
 public class ThreadDump {
     static final Map<Thread, StackTrace> THREAD_STACK_TRACE_MAP =
-            Collections.synchronizedMap(new WeakIdentityHashMap<>());
+            new WeakIdentityHashMap<>();
     public static final String IGNORE_THREAD_IF_IN_NAME = "~";
     @NotNull
     final Set<Thread> threads;

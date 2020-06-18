@@ -34,9 +34,9 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
 
     public static void enableReferenceTracing() {
         AbstractCloseable.enableCloseableTracing();
-        REFERENCE_COUNTED_SET = Collections.synchronizedSet(
+        REFERENCE_COUNTED_SET =
                 Collections.newSetFromMap(
-                        new WeakIdentityHashMap<>()));
+                        new WeakIdentityHashMap<>());
     }
 
     public static void disableReferenceTracing() {
