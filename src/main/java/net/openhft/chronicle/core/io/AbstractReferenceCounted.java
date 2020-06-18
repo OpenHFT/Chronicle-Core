@@ -2,6 +2,7 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
+import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 import net.openhft.chronicle.core.util.WeakIdentityHashMap;
 
 import java.util.Collections;
@@ -98,7 +99,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         performRelease();
         long time = System.nanoTime() - start;
         if (time >= 2_000_000)
-            Jvm.warn().on(getClass(), "Took " + time / 100_000 / 10.0 + " ms to performRelease");
+            Slf4jExceptionHandler.WARN.on(getClass(), "Took " + time / 100_000 / 10.0 + " ms to performRelease");
     }
 
     protected boolean performReleaseInBackground() {
