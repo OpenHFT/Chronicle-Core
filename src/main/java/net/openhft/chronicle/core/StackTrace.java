@@ -26,7 +26,7 @@ package net.openhft.chronicle.core;
  */
 public class StackTrace extends Throwable {
     public StackTrace() {
-        this("");
+        this("stack trace");
     }
 
     public StackTrace(String message) {
