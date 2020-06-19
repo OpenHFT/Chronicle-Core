@@ -719,11 +719,10 @@ public enum Jvm {
     }
 
     public static void safepoint() {
-        if (IS_JAVA_9_PLUS) {
+        if (IS_JAVA_9_PLUS)
             Thread.holdsLock(""); // 100 ns on Java 11
-        } else {
+        else
             Compiler.enable(); // 5 ns on Java 8
-        }
     }
 
     public static void optionalSafepoint() {
