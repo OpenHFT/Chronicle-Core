@@ -72,4 +72,9 @@ public class UnsafeFastJ8SocketChannel extends FastJ8SocketChannel {
 
         return res;
     }
+
+    @Override
+    protected boolean threadSafetyCheck() {
+        return superThreadSafetyCheck();
+    }
 }
