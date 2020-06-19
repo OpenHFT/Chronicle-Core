@@ -719,15 +719,10 @@ public enum Jvm {
     }
 
     public static void safepoint() {
-        // no safepoint
-        // System.identityHashCode("");
-//        byte.class.getModifiers();
-
-//        "".intern(); 50 ns
-        if (!IS_JAVA_9_PLUS) {
-            Compiler.enable(); // 5 ns on Java 8
-        } else {
+        if (IS_JAVA_9_PLUS) {
             Thread.holdsLock(""); // 100 ns on Java 11
+        } else {
+            Compiler.enable(); // 5 ns on Java 8
         }
     }
 
