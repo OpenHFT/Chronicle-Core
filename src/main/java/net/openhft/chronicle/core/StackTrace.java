@@ -17,6 +17,8 @@
  */
 package net.openhft.chronicle.core;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Throwable created purely for the purposes of reporting a stack trace.
  * <p>
@@ -37,9 +39,16 @@ public class StackTrace extends Throwable {
         super(message + " on " + Thread.currentThread().getName(), cause);
     }
 
+    @Nullable
     public static StackTrace forThread(Thread t) {
+        if (t == null) return null;
         StackTrace st = new StackTrace(t.toString());
-        st.setStackTrace(t.getStackTrace());
+        StackTraceElement[] stackTrace = t.getStackTrace();
+        if (stackTrace.length >= 2) {
+            StackTraceElement[] stackTrace2 = new StackTraceElement[stackTrace.length - 2];
+            System.arraycopy(stackTrace, 2, stackTrace2, 0, stackTrace2.length);
+            st.setStackTrace(stackTrace2);
+        }
         return st;
     }
 }
