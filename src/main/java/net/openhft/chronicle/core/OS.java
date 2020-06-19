@@ -363,12 +363,7 @@ public enum OS {
         MethodHandle map0 = MAP0_MH.get(fileChannel.getClass());
         final long address = invokeFileChannelMap0(map0, fileChannel, imode, start, size, oome1 -> {
             System.gc();
-
-            try {
-                Thread.sleep(100L);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
+            Jvm.pause(100);
 
             return invokeFileChannelMap0(map0, fileChannel, imode, start, size, oome2 -> {
                 throw new IOException("Map failed", oome2);

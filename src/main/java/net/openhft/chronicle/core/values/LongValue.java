@@ -18,6 +18,8 @@
 
 package net.openhft.chronicle.core.values;
 
+import net.openhft.chronicle.core.Jvm;
+
 public interface LongValue {
     long getValue();
 
@@ -49,6 +51,7 @@ public interface LongValue {
                 break;
             if (compareAndSwapValue(pos, value))
                 break;
+            Jvm.nanoPause();
         }
     }
 
@@ -59,6 +62,7 @@ public interface LongValue {
                 break;
             if (compareAndSwapValue(pos, value))
                 break;
+            Jvm.nanoPause();
         }
     }
 }

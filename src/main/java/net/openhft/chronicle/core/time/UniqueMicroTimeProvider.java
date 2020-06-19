@@ -17,6 +17,8 @@
  */
 package net.openhft.chronicle.core.time;
 
+import net.openhft.chronicle.core.Jvm;
+
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -54,6 +56,7 @@ public class UniqueMicroTimeProvider implements TimeProvider {
                 time = time0 + 1;
             if (lastTime.compareAndSet(time0, time))
                 return time;
+            Jvm.nanoPause();
         }
     }
 }
