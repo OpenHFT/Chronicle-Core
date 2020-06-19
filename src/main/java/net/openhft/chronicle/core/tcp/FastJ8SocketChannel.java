@@ -69,8 +69,6 @@ public class FastJ8SocketChannel extends VanillaSocketChannel {
 
     @Override
     public void configureBlocking(boolean blocking) throws IOException {
-        throwExceptionIfClosed();
-
         super.configureBlocking(blocking);
         this.blocking = super.isBlocking();
     }
