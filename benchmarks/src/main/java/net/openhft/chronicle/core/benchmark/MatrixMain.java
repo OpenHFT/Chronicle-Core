@@ -67,13 +67,13 @@ public class MatrixMain {
                 }
             }
         } else {
-            int time = Jvm.getBoolean("longTest") ? 30 : 1;
+            int time = Jvm.getBoolean("longTest") ? 60 : 10;
             System.out.println("measurementTime: " + time + " secs");
             Options opt = new OptionsBuilder()
                     .include(".*" + MatrixMain.class.getSimpleName() + ".*")
                     .warmupIterations(3)
-                    .measurementIterations(3)
-                    .forks(3)
+                    .measurementIterations(6)
+                    .forks(5)
                     .mode(Mode.SampleTime)
                     .measurementTime(TimeValue.seconds(time))
                     .timeUnit(TimeUnit.MICROSECONDS)
