@@ -76,7 +76,7 @@ public class MatrixMain {
                     .forks(3)
                     .mode(Mode.SampleTime)
                     .measurementTime(TimeValue.seconds(time))
-                    .timeUnit(TimeUnit.NANOSECONDS)
+                    .timeUnit(TimeUnit.MICROSECONDS)
                     .build();
 
             new Runner(opt).run();
