@@ -34,47 +34,30 @@ public enum Time {
     static volatile long lastTime = System.currentTimeMillis();
     static volatile long tickTime = 0;
 
+    @Deprecated
     public static long currentTimeMillis() {
-        long now = System.currentTimeMillis();
-        if (now == lastTime)
-            return now;
-        tickTime++;
-        lastTime = now;
-        return lastTime;
+        return System.currentTimeMillis();
     }
 
+    @Deprecated
     public static long tickTime() {
-        currentTimeMillis();
-        return tickTime;
+        return System.currentTimeMillis();
     }
 
     public static void parkNanos(long nanos) {
-        long millis = nanos / 1000000;
-        if (millis > 0) {
-            long start = System.currentTimeMillis();
-            long startTT = tickTime;
-            LockSupport.parkNanos(nanos);
-            long end = System.currentTimeMillis();
-            long endTT = Math.min(end - start, millis) + startTT;
-            if (endTT > tickTime)
-                tickTime = endTT;
-        } else {
-            currentTimeMillis();
-            LockSupport.parkNanos(nanos);
-            currentTimeMillis();
-        }
+        LockSupport.parkNanos(nanos);
     }
 
     /**
      * Sleeps in such a way that any long pause of the JVM, e.g. GC, will make it wait much longer to prevent timeouts being busted.
      *
-     * @param time to pause for at least.
+     * @param time     to pause for at least.
      * @param timeUnit the time unit
      */
     public static void sleep(long time, TimeUnit timeUnit) {
         int millis = (int) timeUnit.convert(time, TimeUnit.MILLISECONDS);
         for (int i = 0; i < millis; i++) {
-            currentTimeMillis();
+            System.currentTimeMillis();
             LockSupport.parkNanos(1_000_000);
         }
     }
