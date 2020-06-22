@@ -31,9 +31,6 @@ import java.util.concurrent.locks.LockSupport;
 public enum Time {
     ;
 
-    static volatile long lastTime = System.currentTimeMillis();
-    static volatile long tickTime = 0;
-
     @Deprecated
     public static long currentTimeMillis() {
         return System.currentTimeMillis();
