@@ -39,12 +39,24 @@ public class ExceptionKey {
 
     @Override
     public int hashCode() {
-        return toString().hashCode();
+        int result = level.hashCode();
+        result = 31 * result + clazz.hashCode();
+        result = 31 * result + (message != null ? message.hashCode() : 0);
+        result = 31 * result + (throwable != null ? throwable.hashCode() : 0);
+        return result;
     }
 
     @Override
-    public boolean equals(@NotNull Object obj) {
-        return obj == this || toString().equals(obj.toString());
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ExceptionKey that = (ExceptionKey) o;
+
+        if (level != that.level) return false;
+        if (!clazz.equals(that.clazz)) return false;
+        if (message != null ? !message.equals(that.message) : that.message != null) return false;
+        return throwable != null ? throwable.equals(that.throwable) : that.throwable == null;
     }
 
     @NotNull

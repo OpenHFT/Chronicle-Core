@@ -43,7 +43,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     private transient volatile StackTrace createdHere;
     private transient volatile StackTrace closedHere;
     private transient volatile Thread usedByThread;
-    private final int referenceId;
+    private int referenceId;
 
     protected AbstractCloseable() {
         createdHere = Jvm.isResourceTracing() ? new StackTrace("Created Here") : null;
@@ -51,7 +51,6 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
         Set<CloseableTracer> set = CLOSEABLE_SET;
         if (set != null)
             set.add(this);
-        referenceId = IOTools.counter(getClass()).incrementAndGet();
     }
 
     public static void enableCloseableTracing() {
@@ -102,6 +101,8 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
 
     @Override
     public int referenceId() {
+        if (referenceId == 0)
+            referenceId = IOTools.counter(getClass()).incrementAndGet();
         return referenceId;
     }
 
