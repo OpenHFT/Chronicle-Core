@@ -720,7 +720,7 @@ public enum Jvm {
 
     public static void safepoint() {
         if (IS_JAVA_9_PLUS)
-            Safepoint.force();
+            Safepoint.force(); // 1 ns on Java 11
         else
             Compiler.enable(); // 5 ns on Java 8
     }
@@ -731,16 +731,6 @@ public enum Jvm {
                 Safepoint.force();
             else
                 Compiler.enable();
-    }
-
-    // from https://stackoverflow.com/questions/62550828/is-there-a-lightweight-method-which-adds-a-safepoint-in-java-9
-    static class Safepoint {
-        private static volatile int one = 1;
-
-        public static void force() {
-            // trick only works from Java 9+
-            for (int i = 0; i < one; i++) ;
-        }
     }
 
     public static boolean areOptionalSafepointsEnabled() {
@@ -844,6 +834,16 @@ public enum Jvm {
         return defaultValue
                 ? !ObjectUtils.isFalse(trim)
                 : ObjectUtils.isTrue(trim);
+    }
+
+    // from https://stackoverflow.com/questions/62550828/is-there-a-lightweight-method-which-adds-a-safepoint-in-java-9
+    static class Safepoint {
+        private static volatile int one = 1;
+
+        public static void force() {
+            // trick only works from Java 9+
+            for (int i = 0; i < one; i++) ;
+        }
     }
 
     private static class ChainedSignalHandler implements SignalHandler {
