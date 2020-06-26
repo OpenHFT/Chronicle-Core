@@ -200,7 +200,7 @@ public enum UnsafeText {
             mantissa -= num << precision;
             ++decimalPlaces;
             final double parsedValue = asDouble(value, 0, sign != 0, decimalPlaces);
-            final double parsedValue2 = asDouble(value, 0, sign != 0, decimalPlaces);
+//            final double parsedValue2 = asDouble(value, 0, sign != 0, decimalPlaces);
             if (parsedValue == d)
                 break;
         }
