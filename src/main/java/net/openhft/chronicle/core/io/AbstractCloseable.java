@@ -73,6 +73,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
         BackgroundResourceReleaser.releasePendingResources();
 
         AssertionError openFiles = new AssertionError("Closeables still open");
+
         synchronized (traceSet) {
             for (CloseableTracer key : traceSet) {
                 if (key != null && !key.isClosed()) {
@@ -85,13 +86,17 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
                     } catch (IllegalStateException e) {
                         t = e;
                     }
-                    openFiles.addSuppressed(new IllegalStateException("Not closed " + asString(key), t));
+                    IllegalStateException exception = new IllegalStateException("Not closed " + asString(key), t);
+                    exception.printStackTrace();
+                    openFiles.addSuppressed(exception);
                     key.close();
                 }
             }
         }
-        if (openFiles.getSuppressed().length > 0)
+
+        if (openFiles.getSuppressed().length > 0) {
             throw openFiles;
+        }
     }
 
     public static void unmonitor(Closeable closeable) {
