@@ -47,16 +47,17 @@ public enum BackgroundResourceReleaser {
         try {
             for (; ; ) {
                 Object o = RESOURCES.poll(1, TimeUnit.MILLISECONDS);
-                if (o == null) {
-                    for (int i = 0; i < 1000 && COUNTER.get() > 0; i++)
-                        Jvm.pause(1);
-                    long left = COUNTER.get();
-                    if (left != 0)
-                        Jvm.warn().on(BackgroundResourceReleaser.class, "Still got " + left + " resources to clean");
-                    return;
-                }
+                if (o == null)
+                    break;
                 performRelease(o);
             }
+
+            for (int i = 0; i < 1000 && COUNTER.get() > 0; i++)
+                Jvm.pause(1);
+            long left = COUNTER.get();
+            if (left != 0)
+                Jvm.warn().on(BackgroundResourceReleaser.class, "Still got " + left + " resources to clean");
+
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
