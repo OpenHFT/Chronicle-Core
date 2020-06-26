@@ -354,6 +354,15 @@ public enum ObjectUtils {
         return (T) cons.get();
     }
 
+    @Nullable
+    public static Object newInstanceOrNull(Class type) {
+        try {
+            return newInstance(type);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public static <T> T[] addAll(@NotNull T first, @NotNull T... additional) {
         T[] interfaces;
         if (additional.length == 0) {
