@@ -375,8 +375,7 @@ public enum Jvm {
     }
 
     /**
-     * This method is designed to be used when the time to be
-     * waited is very small, typically under a millisecond.
+     * This method is designed to be used when the time to be waited is very small, typically under a millisecond.
      *
      * @param micros Time in micros
      */
@@ -385,8 +384,7 @@ public enum Jvm {
     }
 
     /**
-     * This method is designed to be used when the time to be
-     * waited is very small, typically under a millisecond.
+     * This method is designed to be used when the time to be waited is very small, typically under a millisecond.
      *
      * @param waitUntil nanosecond precision counter value to await.
      */
@@ -719,7 +717,7 @@ public enum Jvm {
     }
 
     public static void safepoint() {
-        if (IS_JAVA_9_PLUS)
+        if (isArm() || IS_JAVA_9_PLUS)
             Safepoint.force(); // 1 ns on Java 11
         else
             Compiler.enable(); // 5 ns on Java 8
