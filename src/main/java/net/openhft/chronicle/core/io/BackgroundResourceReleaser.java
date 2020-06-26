@@ -11,7 +11,6 @@ public enum BackgroundResourceReleaser {
     static final boolean BG_RELEASER = Jvm.getBoolean("background.releaser", true);
 
     private static final BlockingQueue<Object> RESOURCES = new ArrayBlockingQueue<>(128);
-    private static transient long COUNT = 0;
     private static final Thread RELEASER = new Thread(BackgroundResourceReleaser::runReleaseResources,
             "background~resource~releaser");
 
@@ -24,9 +23,9 @@ public enum BackgroundResourceReleaser {
         try {
             for (; ; ) {
                 Object o = RESOURCES.take();
-                COUNT++;
-                performRelease(o);
-                COUNT++;
+                synchronized (BackgroundResourceReleaser.class) {
+                    performRelease(o);
+                }
             }
         } catch (InterruptedException e) {
             Jvm.warn().on(BackgroundResourceReleaser.class, "Died on interrupt");
@@ -46,13 +45,11 @@ public enum BackgroundResourceReleaser {
     public static void releasePendingResources() {
         try {
             for (; ; ) {
-                long count = COUNT;
                 Object o = RESOURCES.poll(1, TimeUnit.MILLISECONDS);
                 if (o == null) {
-                    long count2 = COUNT;
-                    if (count != count2 || (count2 & 1) == 1)
-                        continue;
-                    return;
+                    synchronized (BackgroundResourceReleaser.class) {
+                        return;
+                    }
                 }
                 performRelease(o);
             }
