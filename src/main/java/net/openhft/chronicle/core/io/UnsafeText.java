@@ -126,6 +126,7 @@ public enum UnsafeText {
             mantissa += 1L << 52;
         }
         final int shift = (1023 + 52) - exp;
+
         if (shift > 0) {
             // integer and faction
             if (shift < 53) {
@@ -168,18 +169,18 @@ public enum UnsafeText {
         // fraction.
         UNSAFE.putShort(address, (short) ('0' + ('.' << 8)));
         address += 2;
-        mantissa <<= 6;
-        mantissa += (1 << 5);
-        int precision = shift + 6;
-
-        long error = (1 << 5);
+        final int shift2 = 10;
+        mantissa <<= shift2;
+        long error = (1 << (shift2 - 1));
+        mantissa += error;
+        int precision = shift + shift2;
 
         long value = 0;
         int decimalPlaces = 0;
         while (mantissa > error) {
             while (mantissa > MAX_VALUE_DIVIDE_5) {
-                mantissa >>>= 1;
-                error = (error + 1) >>> 1;
+                mantissa = (mantissa + 1) >>> 1;
+                error = ((error + 1) >>> 1);
                 precision--;
             }
             // times 5*2 = 10
@@ -197,7 +198,9 @@ public enum UnsafeText {
 //                    assert !(c < '0' || c > '9');
             UNSAFE.putByte(address++, (byte) c);
             mantissa -= num << precision;
-            final double parsedValue = asDouble(value, 0, sign != 0, ++decimalPlaces);
+            ++decimalPlaces;
+            final double parsedValue = asDouble(value, 0, sign != 0, decimalPlaces);
+            final double parsedValue2 = asDouble(value, 0, sign != 0, decimalPlaces);
             if (parsedValue == d)
                 break;
         }
@@ -247,11 +250,7 @@ public enum UnsafeText {
 
     private static double asDouble(long value, int exp, boolean negative, int deci) {
         // these numbers were determined empirically.
-        int leading = 11;
-        if (value >= 1L << 53)
-            leading = Long.numberOfLeadingZeros(value) - 1;
-        else if (value >= 1L << 49)
-            leading = 10;
+        int leading = 10; //Long.numberOfLeadingZeros(value) - 48;
 
         int scale2 = 0;
         if (leading > 0) {
