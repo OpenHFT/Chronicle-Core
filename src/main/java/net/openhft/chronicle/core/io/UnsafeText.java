@@ -200,7 +200,7 @@ public enum UnsafeText {
             mantissa -= num << precision;
             ++decimalPlaces;
             final double parsedValue = asDouble(value, 0, sign != 0, decimalPlaces);
-//            final double parsedValue2 = asDouble(value, 0, sign != 0, decimalPlaces);
+            final double parsedValue2 = asDouble(value, 0, sign != 0, decimalPlaces);
             if (parsedValue == d)
                 break;
         }
@@ -249,14 +249,7 @@ public enum UnsafeText {
     }
 
     private static double asDouble(long value, int exp, boolean negative, int deci) {
-        // these numbers were determined empirically.
-        int leading = 10; //Long.numberOfLeadingZeros(value) - 48;
-
         int scale2 = 0;
-        if (leading > 0) {
-            scale2 = leading;
-            value <<= scale2;
-        }
         double d;
         if (deci > 29) {
             d = value / Math.pow(5, -deci);
