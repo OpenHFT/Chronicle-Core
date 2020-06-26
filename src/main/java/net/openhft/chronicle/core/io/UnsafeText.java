@@ -200,7 +200,6 @@ public enum UnsafeText {
             mantissa -= num << precision;
             ++decimalPlaces;
             final double parsedValue = asDouble(value, 0, sign != 0, decimalPlaces);
-            final double parsedValue2 = asDouble(value, 0, sign != 0, decimalPlaces);
             if (parsedValue == d)
                 break;
         }
@@ -255,6 +254,8 @@ public enum UnsafeText {
             d = value / Math.pow(5, -deci);
 
         } else if (deci > 0) {
+            scale2 = Long.numberOfLeadingZeros(value) - 1;
+            value <<= scale2;
             long fives = Maths.fives(deci);
             long whole = value / fives;
             long rem = value % fives;
