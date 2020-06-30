@@ -29,9 +29,9 @@ import java.util.stream.DoubleStream;
 
 // TODO add a dummy histogram.
 public class Histogram implements NanoSampler {
-    static final DecimalFormat F3 = new DecimalFormat("0.000");
-    static final DecimalFormat F2 = new DecimalFormat("0.00");
-    static final DecimalFormat F1 = new DecimalFormat("0.0");
+    private static final DecimalFormat F3 = new DecimalFormat("0.000");
+    private static final DecimalFormat F2 = new DecimalFormat("0.00");
+    private static final DecimalFormat F1 = new DecimalFormat("0.0");
     private int fractionBits;
     private int powersOf2;
     private long overRange;
@@ -298,11 +298,14 @@ public class Histogram implements NanoSampler {
     @NotNull
     private String p(double v) {
         double v2 = v * 100 / (1 << fractionBits);
-        return v2 < 1 ? F3.format(v) :
-                v2 < 10 ? F2.format(v) :
-                        v2 < 100 ? F1.format(v) :
-                                v2 < 1000 ? Long.toString(Math.round(v)) :
-                                        String.format("%,d", Math.round(v / 10) * 10);
+        // Uses non thread safe static fields.
+        synchronized (Histogram.class) {
+            return v2 < 1 ? F3.format(v) :
+                    v2 < 10 ? F2.format(v) :
+                            v2 < 100 ? F1.format(v) :
+                                    v2 < 1000 ? Long.toString(Math.round(v)) :
+                                            String.format("%,d", Math.round(v / 10) * 10);
+        }
     }
 
     public long totalCount() {
