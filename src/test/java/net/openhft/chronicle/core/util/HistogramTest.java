@@ -21,6 +21,11 @@ package net.openhft.chronicle.core.util;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
 import static org.junit.Assert.assertEquals;
 
 public class HistogramTest {
@@ -80,4 +85,18 @@ public class HistogramTest {
         }
 //        }
     }*/
+
+    public static void main(String[] args) throws IOException {
+        Histogram hist = new Histogram(32, 7);
+        for (File f : new File(args[0]).listFiles()) {
+            if (f.getName().endsWith(".png"))
+                continue;
+            try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+                for (String line; (line = br.readLine()) != null; ) {
+                    hist.sampleNanos(Long.parseLong(line));
+                }
+            }
+        }
+        System.out.println(hist.toLongMicrosFormat());
+    }
 }
