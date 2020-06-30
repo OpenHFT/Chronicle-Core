@@ -297,10 +297,11 @@ public class Histogram implements NanoSampler {
 
     @NotNull
     private String p(double v) {
-        return v < 0.1 ? F3.format(v) :
-                v < 1 ? F2.format(v) :
-                        v < 10 ? F1.format(v) :
-                                v < 1000 ? Long.toString(Math.round(v)) :
+        double v2 = v * 100 / (1 << fractionBits);
+        return v2 < 1 ? F3.format(v) :
+                v2 < 10 ? F2.format(v) :
+                        v2 < 100 ? F1.format(v) :
+                                v2 < 1000 ? Long.toString(Math.round(v)) :
                                         String.format("%,d", Math.round(v / 10) * 10);
     }
 
