@@ -717,18 +717,16 @@ public enum Jvm {
     }
 
     public static void safepoint() {
-        if (IS_JAVA_9_PLUS)
-            Safepoint.force(); // 1 ns on Java 11
-        else
-            Compiler.enable(); // 5 ns on Java 8
-    }
-
-    public static void optionalSafepoint() {
         if (SAFEPOINT_ENABLED)
             if (IS_JAVA_9_PLUS)
-                Safepoint.force();
+                Safepoint.force(); // 1 ns on Java 11
             else
-                Compiler.enable();
+                Compiler.enable(); // 5 ns on Java 8
+    }
+
+    @Deprecated
+    public static void optionalSafepoint() {
+        safepoint();
     }
 
     public static boolean areOptionalSafepointsEnabled() {

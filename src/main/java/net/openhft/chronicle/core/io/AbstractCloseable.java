@@ -27,6 +27,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
+import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BACKGROUND_RESOURCE_RELEASER;
 import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEASER;
 import static net.openhft.chronicle.core.io.TracingReferenceCounted.asString;
 
@@ -137,7 +138,8 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
                 Jvm.debug().on(getClass(), "Exception thrown on performClose", e);
             }
             long time = System.nanoTime() - start;
-            if (time >= 10_000_000)
+            if (time >= 10_000_000 &&
+                    !Thread.currentThread().getName().equals(BACKGROUND_RESOURCE_RELEASER))
                 Jvm.warn().on(getClass(), "Took " + time / 1000_000 + " ms to performClose");
         }
     }
@@ -150,7 +152,14 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     public void throwExceptionIfClosed() throws IllegalStateException {
         if (closed != 0)
             throw new IllegalStateException("Closed", closedHere);
-        assert !CHECK_THREAD_SAFETY || threadSafetyCheck();
+        assert !CHECK_THREAD_SAFETY || threadSafetyCheck(true);
+    }
+
+    public void throwExceptionIfClosedInSetter() throws IllegalStateException {
+        if (closed != 0)
+            throw new IllegalStateException("Closed", closedHere);
+        // only check it if this has been used.
+        assert !CHECK_THREAD_SAFETY || threadSafetyCheck(false);
     }
 
     /**
@@ -180,9 +189,12 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
         return false;
     }
 
-    protected boolean threadSafetyCheck() {
+    protected boolean threadSafetyCheck(boolean isUsed) {
         if (!CHECK_THREAD_SAFETY)
             return true;
+        if (usedByThread == null && !isUsed)
+            return true;
+
         Thread currentThread = Thread.currentThread();
         if (usedByThread == null) {
             usedByThread = currentThread;

@@ -24,6 +24,6 @@ public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
 
     @Override
     public E valueOf(String name) {
-        return Enum.valueOf(eClass, name);
+        return name == null || name.isEmpty() ? null : Enum.valueOf(eClass, name);
     }
 }

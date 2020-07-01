@@ -13,8 +13,9 @@ public enum BackgroundResourceReleaser {
 
     private static final BlockingQueue<Object> RESOURCES = new ArrayBlockingQueue<>(128);
     private static final AtomicLong COUNTER = new AtomicLong();
+    public static final String BACKGROUND_RESOURCE_RELEASER = "background~resource~releaser";
     private static final Thread RELEASER = new Thread(BackgroundResourceReleaser::runReleaseResources,
-            "background~resource~releaser");
+            BACKGROUND_RESOURCE_RELEASER);
 
     static {
         RELEASER.setDaemon(true);

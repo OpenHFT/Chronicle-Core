@@ -141,7 +141,6 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     @Override
     public void throwExceptionIfReleased() throws IllegalStateException {
         referenceCounted.throwExceptionIfReleased();
-        assert threadSafetyCheck();
     }
 
     @Override
@@ -153,7 +152,12 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         return referenceCounted.reservedBy(owner);
     }
 
-    protected boolean threadSafetyCheck() {
+    protected boolean threadSafetyCheck(boolean isUsed) {
+        if (!AbstractCloseable.CHECK_THREAD_SAFETY)
+            return true;
+        if (usedByThread == null && !isUsed)
+            return true;
+
         Thread currentThread = Thread.currentThread();
         if (usedByThread == null || !usedByThread.isAlive()) {
             usedByThread = currentThread;

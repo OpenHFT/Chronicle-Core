@@ -20,7 +20,7 @@ public class JvmSafepointTest {
                 while (System.currentTimeMillis() < start + 500) {
                     for (int i = 0; i < 100; i++)
                         if (Jvm.areOptionalSafepointsEnabled())
-                            Jvm.optionalSafepoint();
+                            Jvm.safepoint();
                         else
                             Jvm.safepoint();
                 }

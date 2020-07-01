@@ -109,12 +109,12 @@ public class VanillaSocketChannel extends AbstractCloseable implements ISocketCh
                 '}';
     }
 
-    protected boolean superThreadSafetyCheck() {
-        return super.threadSafetyCheck();
+    protected boolean superThreadSafetyCheck(boolean isUsed) {
+        return super.threadSafetyCheck(isUsed);
     }
 
     @Override
-    protected boolean threadSafetyCheck() {
+    protected boolean threadSafetyCheck(boolean isUsed) {
         return true;
     }
 }
