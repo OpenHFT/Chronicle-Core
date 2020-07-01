@@ -46,36 +46,19 @@ public class JvmSafepointTest {
     @Test
     public void safePointPerf() {
 
-        if (Jvm.isArm()) {
-            for (int t = 0; t < 8; t++) {
-                long start = System.nanoTime();
+        for (int t = 0; t < 5; t++) {
+            long start = System.nanoTime();
 
-                int count = 2_000_000;
-                for (int i = 0; i < count; i++)
-                    Jvm.safepoint();
-                long time = System.nanoTime() - start;
-                if (t > 1) {
-                    long avg = time / count;
-                    System.out.println("avg: " + avg);
-                    assertTrue("avg: " + avg, 2 < avg && avg < 200);
-                }
-                Jvm.pause(5);
+            int count = 10_000;
+            for (int i = 0; i < count; i++)
+                Jvm.safepoint();
+            long time = System.nanoTime() - start;
+            if (t > 2) {
+                long avg = time / count;
+                System.out.println("avg: " + avg);
+                assertTrue("avg: " + avg, 1 <= avg && avg < 200);
             }
-        } else {
-            for (int t = 0; t < 8; t++) {
-                long start = System.nanoTime();
-
-                int count = 100_000;
-                for (int i = 0; i < count; i++)
-                    Jvm.safepoint();
-                long time = System.nanoTime() - start;
-                if (t > 1) {
-                    long avg = time / count;
-                    System.out.println("avg: " + avg);
-                    assertTrue("avg: " + avg, 1 <= avg && avg < 200);
-                }
-                Jvm.pause(5);
-            }
+            Jvm.pause(5);
         }
     }
 }
