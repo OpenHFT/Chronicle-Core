@@ -24,7 +24,6 @@ import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
 
-import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
@@ -67,14 +66,14 @@ public class StringUtilsTest {
     public void shouldGetCharsOfStringBuilder() {
         final StringBuilder sb = new StringBuilder(11).append("foobar_nine");
         final char[] chars = StringUtils.extractChars(sb);
-        assertThat(new String(chars), equalTo(sb.toString()));
+        assertEquals(sb.toString(), new String(chars));
     }
 
     @Test
     public void shouldGetCharsOfString() {
         final String s = "foobar_nine";
         final char[] chars = StringUtils.extractChars(s);
-        assertThat(new String(chars), equalTo(s));
+        assertEquals(s, new String(chars));
     }
 
     @Test
