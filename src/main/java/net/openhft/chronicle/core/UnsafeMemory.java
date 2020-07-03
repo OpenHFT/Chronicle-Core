@@ -171,6 +171,83 @@ public class UnsafeMemory implements Memory {
             unsafePutByte(to++, unsafeGetByte(from++));
     }
 
+    public static void unsafePutBoolean(Object obj, long offset, boolean value) {
+        UNSAFE.putBoolean(obj, offset, value);
+    }
+
+    public static boolean unsafeGetBoolean(Object obj, long offset) {
+        return UNSAFE.getBoolean(obj, offset);
+    }
+
+    public static void unsafePutByte(Object obj, long offset, byte value) {
+        UNSAFE.putByte(obj, offset, value);
+    }
+
+    public static byte unsafeGetByte(Object obj, long offset) {
+        return UNSAFE.getByte(obj, offset);
+    }
+
+    public static void unsafePutChar(Object obj, long offset, char value) {
+        UNSAFE.putChar(obj, offset, value);
+    }
+
+    public static char unsafeGetChar(Object obj, long offset) {
+        return UNSAFE.getChar(obj, offset);
+    }
+
+    public static void unsafePutShort(Object obj, long offset, short value) {
+        UNSAFE.putShort(obj, offset, value);
+    }
+
+    public static short unsafeGetShort(Object obj, long offset) {
+        return UNSAFE.getShort(obj, offset);
+    }
+
+    public static void unsafePutInt(Object obj, long offset, int value) {
+        UNSAFE.putInt(obj, offset, value);
+    }
+
+    public static int unsafeGetInt(Object obj, long offset) {
+        return UNSAFE.getInt(obj, offset);
+    }
+
+    public static void unsafePutFloat(Object obj, long offset, float value) {
+        UNSAFE.putFloat(obj, offset, value);
+    }
+
+    public static float unsafeGetFloat(Object obj, long offset) {
+        return UNSAFE.getFloat(obj, offset);
+    }
+
+    public static void unsafePutLong(Object obj, long offset, long value) {
+        UNSAFE.putLong(obj, offset, value);
+    }
+
+    public static long unsafeGetLong(Object obj, long offset) {
+        return UNSAFE.getLong(obj, offset);
+    }
+
+    public static void unsafePutDouble(Object obj, long offset, double value) {
+        UNSAFE.putDouble(obj, offset, value);
+    }
+
+    public static double unsafeGetDouble(Object obj, long offset) {
+        return UNSAFE.getDouble(obj, offset);
+    }
+
+
+    public static void unsafePutObject(Object obj, long offset, Object value) {
+        UNSAFE.putObject(obj, offset, value);
+    }
+
+    public static <T> T unsafeGetObject(Object obj, long offset) {
+        return (T) UNSAFE.getObject(obj, offset);
+    }
+
+    public static long unsafeObjectFieldOffset(Field field) {
+        return UNSAFE.objectFieldOffset(field);
+    }
+
     @Override
     @ForceInline
     public void storeFence() {
