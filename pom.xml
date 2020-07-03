@@ -226,7 +226,6 @@
                 <updatePolicy>never</updatePolicy>
             </releases>
         </repository>
-
         <repository>
             <id>chronicle-enterprise-snapshots</id>
             <name>Snapshot Repository</name>
