@@ -25,7 +25,9 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
+import sun.misc.Unsafe;
 import sun.nio.ch.DirectBuffer;
+import sun.nio.ch.Interruptible;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -36,6 +38,8 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.*;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.channels.spi.AbstractInterruptibleChannel;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -862,5 +866,48 @@ public enum Jvm {
 
     public static long address(ByteBuffer bb) {
         return ((DirectBuffer) bb).address();
+    }
+
+    public static int arrayByteBaseOffset() {
+        return Unsafe.ARRAY_BYTE_BASE_OFFSET;
+    }
+
+
+    public static void doNotCloseOnInterrupt(Class clazz, FileChannel fc) {
+        if (Jvm.isJava9Plus())
+            doNotCloseOnInterrupt9(clazz, fc);
+        else
+            doNotCloseOnInterrupt8(clazz, fc);
+    }
+
+    private static void doNotCloseOnInterrupt8(Class clazz, FileChannel fc) {
+        try {
+            final Field field = AbstractInterruptibleChannel.class
+                    .getDeclaredField("interruptor");
+            Jvm.setAccessible(field);
+            field.set(fc, (Interruptible) thread
+                    -> System.err.println(clazz.getName() + " - " + fc + " not closed on interrupt"));
+        } catch (Throwable e) {
+            Jvm.warn().on(clazz, "Couldn't disable close on interrupt", e);
+        }
+    }
+
+    // based on a solution by https://stackoverflow.com/users/9199167/max-vollmer
+    // https://stackoverflow.com/a/52262779/57695
+    private static void doNotCloseOnInterrupt9(Class clazz, final FileChannel fc) {
+        try {
+            final Field field = AbstractInterruptibleChannel.class.getDeclaredField("interruptor");
+            final Class<?> interruptibleClass = field.getType();
+            Jvm.setAccessible(field);
+            field.set(fc, Proxy.newProxyInstance(
+                    interruptibleClass.getClassLoader(),
+                    new Class[]{interruptibleClass},
+                    (p, m, a) -> {
+                        System.err.println(clazz.getName() + " - " + fc + " not closed on interrupt");
+                        return null;
+                    }));
+        } catch (Throwable e) {
+            Jvm.warn().on(clazz, "Couldn't disable close on interrupt", e);
+        }
     }
 }

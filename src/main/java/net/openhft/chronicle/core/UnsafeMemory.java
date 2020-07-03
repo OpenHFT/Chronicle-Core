@@ -23,6 +23,8 @@ import org.jetbrains.annotations.NotNull;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
+import java.nio.BufferOverflowException;
+import java.nio.BufferUnderflowException;
 import java.util.concurrent.atomic.AtomicLong;
 
 @SuppressWarnings("unchecked")
@@ -79,6 +81,12 @@ public class UnsafeMemory implements Memory {
         return value;
     }
 
+    public static void putInt(byte[] bytes, int offset, int value) {
+        UnsafeMemory.UNSAFE.putInt(bytes,
+                (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset,
+                value);
+    }
+
     @NotNull
     @Override
     public <E> E allocateInstance(Class<? extends E> clazz) throws InstantiationException {
@@ -105,6 +113,62 @@ public class UnsafeMemory implements Memory {
         if (object == null)
             throw new NullPointerException();
         return (T) UNSAFE.getObject(object, offset);
+    }
+
+    public static void unsafeStoreFence() {
+        UNSAFE.storeFence();
+    }
+
+    public static void unsafeLoadFence() {
+        UNSAFE.loadFence();
+    }
+
+    public static long unsafeGetLong(long address) {
+        return UNSAFE.getLong(address);
+    }
+
+    public static int unsafeGetInt(long address) {
+        return UNSAFE.getInt(address);
+    }
+
+    public static byte unsafeGetByte(long address) {
+        return UNSAFE.getByte(address);
+    }
+
+    public static void unsafePutLong(long address, long value) {
+        UNSAFE.putLong(address, value);
+    }
+
+    public static void unsafePutInt(long address, int value) {
+        UNSAFE.putInt(address, value);
+    }
+
+    public static void unsafePutByte(long address, byte value) {
+        UNSAFE.putByte(address, value);
+    }
+
+    public static void unsafePutLong(byte[] bytes, int offset, long value) {
+        UNSAFE.putLong(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, value);
+    }
+
+    public static void unsafePutInt(byte[] bytes, int offset, int value) {
+        UNSAFE.putInt(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, value);
+    }
+
+    public static void unsafePutByte(byte[] bytes, int offset, byte value) {
+        UNSAFE.putByte(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, value);
+    }
+
+    public static void copyMemory(long from, long to, int length)
+            throws BufferUnderflowException, BufferOverflowException {
+        long i = 0;
+        for (; i < length - 7; i += 8) {
+            unsafePutLong(to, unsafeGetLong(from));
+            from += 8;
+            to += 8;
+        }
+        for (; i < length; i++)
+            unsafePutByte(to++, unsafeGetByte(from++));
     }
 
     @Override

@@ -25,7 +25,11 @@ import org.junit.Test;
 import sun.nio.ch.DirectBuffer;
 
 import javax.naming.ConfigurationException;
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 
 import static net.openhft.chronicle.core.Jvm.isArm;
 import static org.junit.Assert.*;
@@ -153,6 +157,24 @@ public class JvmTest {
             fail();
         } catch (Exception e) {
             // expected.
+        }
+    }
+
+    @Test
+    public void arrayByteBaseOffset() {
+        byte[] bytes = {0};
+        UnsafeMemory.UNSAFE.putByte(bytes, (long) Jvm.arrayByteBaseOffset(), (byte) 1);
+        assertEquals(1, bytes[0]);
+    }
+
+    @Test
+    public void doNotCloseOnInterrupt() throws IOException {
+        try (FileChannel fc = FileChannel.open(
+                Paths.get(OS.TARGET, "doNotCloseOnInterrupt.tmp"),
+                StandardOpenOption.APPEND,
+                StandardOpenOption.CREATE_NEW,
+                StandardOpenOption.DELETE_ON_CLOSE)) {
+            Jvm.doNotCloseOnInterrupt(getClass(), fc);
         }
     }
 }
