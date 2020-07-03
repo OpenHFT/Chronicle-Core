@@ -25,6 +25,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
+import sun.nio.ch.DirectBuffer;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,6 +35,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.*;
+import java.nio.ByteBuffer;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -856,5 +858,9 @@ public enum Jvm {
                 }
             }
         }
+    }
+
+    public static long address(ByteBuffer bb) {
+        return ((DirectBuffer) bb).address();
     }
 }

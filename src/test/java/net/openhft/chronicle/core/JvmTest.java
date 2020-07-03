@@ -143,4 +143,16 @@ public class JvmTest {
     public void loadSystemProperties() {
         assumeTrue(Jvm.isResourceTracing());
     }
+
+    @Test
+    public void address() {
+        ByteBuffer bb = ByteBuffer.allocateDirect(64);
+        assertTrue(Jvm.address(bb) != 0);
+        try {
+            Jvm.address(ByteBuffer.allocate(64));
+            fail();
+        } catch (Exception e) {
+            // expected.
+        }
+    }
 }
