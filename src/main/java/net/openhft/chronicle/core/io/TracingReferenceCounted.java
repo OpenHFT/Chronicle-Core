@@ -4,7 +4,6 @@
 
 package net.openhft.chronicle.core.io;
 
-import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
 import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 import org.jetbrains.annotations.NotNull;
@@ -65,8 +64,8 @@ public final class TracingReferenceCounted implements ReferenceCountedTracer {
     private boolean tryReserve(ReferenceOwner id, boolean must) {
         if (id == this)
             throw new IllegalArgumentException("The counter cannot reserve itself");
-        if (Jvm.isDebug())
-            System.out.println(Thread.currentThread().getName() + " " + uniqueId + " - tryReserve " + asString(id));
+//        if (Jvm.isDebug())
+//            System.out.println(Thread.currentThread().getName() + " " + uniqueId + " - tryReserve " + asString(id));
         synchronized (references) {
             if (references.isEmpty()) {
                 if (must)
@@ -85,8 +84,8 @@ public final class TracingReferenceCounted implements ReferenceCountedTracer {
 
     @Override
     public void release(ReferenceOwner id) throws IllegalStateException {
-        if (Jvm.isDebug())
-            System.out.println(Thread.currentThread().getName() + " " + uniqueId + " - release " + asString(id));
+//        if (Jvm.isDebug())
+//            System.out.println(Thread.currentThread().getName() + " " + uniqueId + " - release " + asString(id));
 
         synchronized (references) {
             if (references.remove(id) == null) {
