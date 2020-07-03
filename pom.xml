@@ -15,7 +15,8 @@
   ~ limitations under the License.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -23,7 +24,7 @@
         <groupId>net.openhft</groupId>
         <artifactId>java-parent-pom</artifactId>
         <version>1.1.23</version>
-        <relativePath />
+        <relativePath/>
     </parent>
 
     <artifactId>chronicle-core</artifactId>
@@ -115,11 +116,15 @@
                 <executions>
                     <execution>
                         <id>java8</id>
-                        <goals><goal>compile</goal></goals>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
                     </execution>
                     <execution>
                         <id>java11</id>
-                        <goals><goal>compile</goal></goals>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
                         <configuration>
                             <compileSourceRoots>${project.basedir}/src/main/java11</compileSourceRoots>
                             <outputDirectory>${project.build.outputDirectory}/META-INF/versions/11</outputDirectory>
@@ -219,6 +224,26 @@
             <releases>
                 <enabled>false</enabled>
                 <updatePolicy>never</updatePolicy>
+            </releases>
+        </repository>
+
+        <repository>
+            <id>chronicle-enterprise-snapshots</id>
+            <name>Snapshot Repository</name>
+            <url>
+                https://nexus.chronicle.software/content/repositories/snapshots
+            </url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>chronicle-enterprise-release</id>
+            <url>
+                https://nexus.chronicle.software/content/repositories/releases
+            </url>
+            <releases>
+                <enabled>true</enabled>
             </releases>
         </repository>
     </repositories>
