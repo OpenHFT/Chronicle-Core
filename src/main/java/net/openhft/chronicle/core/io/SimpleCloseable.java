@@ -18,7 +18,7 @@
 package net.openhft.chronicle.core.io;
 
 public abstract class SimpleCloseable implements Closeable, ReferenceOwner {
-    private transient boolean closed;
+    private transient volatile boolean closed;
 
     protected SimpleCloseable() {
     }
