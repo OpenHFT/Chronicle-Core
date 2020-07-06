@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.time;
 
+import net.openhft.chronicle.core.FlakyTestRunner;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
@@ -35,7 +36,7 @@ public class SystemTimeProviderTest {
         long lastTimeMicros;
         long start;
 
-        for (int i = 10; i >= 0; i--) {
+        for (int i = 0; i <= 10; i++) {
             minDiff = Long.MAX_VALUE;
             maxDiff = Long.MIN_VALUE;
             lastTimeMicros = 0;
@@ -59,27 +60,28 @@ public class SystemTimeProviderTest {
                 lastTimeMicros = time2;
             } while (System.currentTimeMillis() < start + 500);
 
-            if (-20 < minDiff && minDiff < 1)
-                if (990 < maxDiff && maxDiff < 1010) {
+            if (-2 <= minDiff && minDiff < 0) {
+                if (999 <= maxDiff && maxDiff <= 1001) {
                     System.out.println("minDiff: " + minDiff + ", maxDiff: " + maxDiff);
                     return;
                 }
-            if (i == 0) {
-                assertEquals(-10, minDiff, 10);
-                assertEquals(1000, maxDiff, 10);
             }
         }
+        assertEquals(-10, minDiff, 10);
+        assertEquals(1000, maxDiff, 10);
     }
 
     @Test
     public void currentTime() {
-        SystemTimeProvider tp = SystemTimeProvider.INSTANCE;
-        long time1 = tp.currentTime(TimeUnit.SECONDS);
-        long time2 = tp.currentTimeMillis();
-        long time3 = tp.currentTimeMicros();
-        long time4 = tp.currentTimeNanos();
-        assertEquals(time1, time2 / 1000 + 1, 1);
-        assertEquals(time2, time3 / 1000 + 10, 10);
-        assertEquals(time3, time4 / 1000 + 5000, 10000);
+        FlakyTestRunner.run(() -> {
+            SystemTimeProvider tp = SystemTimeProvider.INSTANCE;
+            long time1 = tp.currentTime(TimeUnit.SECONDS);
+            long time2 = tp.currentTimeMillis();
+            long time3 = tp.currentTimeMicros();
+            long time4 = tp.currentTimeNanos();
+            assertEquals(time1, time2 / 1000 + 1, 1);
+            assertEquals(time2, time3 / 1000 + 10, 10);
+            assertEquals(time3, time4 / 1000 + 5000, 10000);
+        });
     }
 }
