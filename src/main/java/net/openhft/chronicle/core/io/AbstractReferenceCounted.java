@@ -166,4 +166,9 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return referenceName();
+    }
 }

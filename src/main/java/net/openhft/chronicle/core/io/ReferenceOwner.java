@@ -14,6 +14,6 @@ public interface ReferenceOwner {
     }
 
     default String referenceName() {
-        return getClass().getSimpleName() + "@" + Integer.toHexString(referenceId());
+        return getClass().getSimpleName() + "@" + Integer.toString(referenceId(), 36);
     }
 }
