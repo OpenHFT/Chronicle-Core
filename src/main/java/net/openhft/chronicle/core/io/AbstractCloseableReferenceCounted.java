@@ -63,7 +63,7 @@ public abstract class AbstractCloseableReferenceCounted
 
     protected void setClosed() {
         closed = true;
-        closedHere = Jvm.isResourceTracing() ? new StackTrace("Closed here") : null;
+        closedHere = Jvm.isResourceTracing() ? new StackTrace(getClass() + " - Closed here") : null;
     }
 
     @Override

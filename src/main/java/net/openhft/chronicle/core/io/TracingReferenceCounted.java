@@ -30,10 +30,15 @@ public final class TracingReferenceCounted implements ReferenceCountedTracer {
     }
 
     static String asString(Object id) {
-        return id == INIT ? "INIT"
-                : id instanceof ReferenceOwner
+        if (id == INIT) return "INIT";
+        String s = id instanceof ReferenceOwner
                 ? ((ReferenceOwner) id).referenceName()
                 : id.getClass().getSimpleName() + "@" + Integer.toHexString(System.identityHashCode(id));
+        if (id instanceof ReferenceCounted)
+            s += " refCount=" + ((ReferenceCounted) id).refCount();
+        if (id instanceof Closeable)
+            s += " closed=" + ((Closeable) id).isClosed();
+        return s;
     }
 
     @Override
@@ -106,7 +111,7 @@ public final class TracingReferenceCounted implements ReferenceCountedTracer {
                 if (releasedHere != null) {
                     throw new IllegalStateException("Already released", releasedHere);
                 }
-                releasedHere = new StackTrace("release here");
+                releasedHere = new StackTrace(getClass() + " - Release here");
                 // prevent this being called more than once.
                 onRelease.run();
             }
@@ -170,7 +175,21 @@ public final class TracingReferenceCounted implements ReferenceCountedTracer {
             for (Map.Entry<ReferenceOwner, StackTrace> entry : references.entrySet()) {
                 ReferenceOwner referenceOwner = entry.getKey();
                 StackTrace reservedHere = entry.getValue();
-                ise.addSuppressed(new IllegalStateException("Reserved by " + asString(referenceOwner), reservedHere));
+                IllegalStateException ise2 = new IllegalStateException("Reserved by " + asString(referenceOwner), reservedHere);
+                if (referenceOwner instanceof Closeable) {
+                    try {
+                        ((Closeable) referenceOwner).throwExceptionIfClosed();
+                    } catch (IllegalStateException ise3) {
+                        ise2.addSuppressed(ise3);
+                    }
+                } else if (referenceOwner instanceof AbstractReferenceCounted) {
+                    try {
+                        ((AbstractReferenceCounted) referenceOwner).throwExceptionIfReleased();
+                    } catch (IllegalStateException ise3) {
+                        ise2.addSuppressed(ise3);
+                    }
+                }
+                ise.addSuppressed(ise2);
                 if (referenceOwner instanceof AbstractCloseable) {
                     AbstractCloseable ac = (AbstractCloseable) referenceOwner;
                     try {

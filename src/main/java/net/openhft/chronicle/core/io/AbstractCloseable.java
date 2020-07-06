@@ -50,7 +50,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     private int referenceId;
 
     protected AbstractCloseable() {
-        createdHere = Jvm.isResourceTracing() ? new StackTrace("Created Here") : null;
+        createdHere = Jvm.isResourceTracing() ? new StackTrace(getClass() + " - Created Here") : null;
 
         Set<CloseableTracer> set = CLOSEABLE_SET;
         if (set != null)
@@ -91,6 +91,11 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
                         t = e;
                     }
                     IllegalStateException exception = new IllegalStateException("Not closed " + asString(key), t);
+                    Thread.yield();
+                    if (key.isClosed()) {
+                        System.out.println(exception.getMessage() + " is now closed...");
+                        continue;
+                    }
                     exception.printStackTrace();
                     openFiles.addSuppressed(exception);
                     key.close();
@@ -128,7 +133,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
         if (UNSAFE.getAndSetInt(this, CLOSED_OFFSET, 1) != 0) {
             return;
         }
-        closedHere = Jvm.isResourceTracing() ? new StackTrace("Closed here") : null;
+        closedHere = Jvm.isResourceTracing() ? new StackTrace(getClass() + " - Closed here") : null;
         if (BG_RELEASER && performCloseInBackground()) {
             BackgroundResourceReleaser.release(this);
         } else {

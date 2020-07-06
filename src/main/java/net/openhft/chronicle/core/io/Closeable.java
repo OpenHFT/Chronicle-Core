@@ -43,6 +43,8 @@ public interface Closeable extends java.io.Closeable, QueryCloseable {
                 ((java.io.Closeable) o).close();
             } catch (Exception e) {
                 Jvm.debug().on(Closeable.class, e);
+            } catch (Throwable e) {
+                Jvm.warn().on(Closeable.class, e);
             }
         } else if (o instanceof Reference) {
             closeQuietly(((Reference) o).get());

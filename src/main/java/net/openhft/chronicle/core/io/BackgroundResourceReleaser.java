@@ -9,11 +9,10 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public enum BackgroundResourceReleaser {
     ;
+    public static final String BACKGROUND_RESOURCE_RELEASER = "background~resource~releaser";
     static final boolean BG_RELEASER = Jvm.getBoolean("background.releaser", true);
-
     private static final BlockingQueue<Object> RESOURCES = new ArrayBlockingQueue<>(128);
     private static final AtomicLong COUNTER = new AtomicLong();
-    public static final String BACKGROUND_RESOURCE_RELEASER = "background~resource~releaser";
     private static final Thread RELEASER = new Thread(BackgroundResourceReleaser::runReleaseResources,
             BACKGROUND_RESOURCE_RELEASER);
 
@@ -35,6 +34,14 @@ public enum BackgroundResourceReleaser {
 
     public static void release(AbstractCloseable closeable) {
         release0(closeable);
+    }
+
+    public static void release(AbstractReferenceCounted referenceCounted) {
+        release0(referenceCounted);
+    }
+
+    public static void run(Runnable runnable) {
+        release0(runnable);
     }
 
     private static void release0(Object o) {
@@ -64,16 +71,14 @@ public enum BackgroundResourceReleaser {
         }
     }
 
-    public static void release(AbstractReferenceCounted referenceCounted) {
-        release0(referenceCounted);
-    }
-
     private static void performRelease(Object o) {
         try {
             if (o instanceof AbstractCloseable)
                 ((AbstractCloseable) o).performClose();
             else if (o instanceof AbstractReferenceCounted)
                 ((AbstractReferenceCounted) o).performRelease();
+            else if (o instanceof Runnable)
+                ((Runnable) o).run();
             else
                 Jvm.warn().on(BackgroundResourceReleaser.class, "Don't know how to release a " + o.getClass());
         } catch (Throwable e) {
