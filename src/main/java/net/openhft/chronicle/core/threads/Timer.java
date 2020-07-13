@@ -39,7 +39,7 @@ public class Timer {
      * called back is best efforts, but if the thread is busy that call back maybe delayed
      *
      * @param eventHandler   the handler to be called back
-     * @param initialDelayMs how log in milliseconds to wait before being called back
+     * @param initialDelayMs how long in milliseconds to wait before being called back
      * @param periodMs       the poll interval of being called
      */
     public void scheduleAtFixedRate(@NotNull VanillaEventHandler eventHandler,

@@ -5,7 +5,7 @@ import net.openhft.chronicle.core.Jvm;
 import java.lang.ref.WeakReference;
 
 /**
- * This will clean up any Clean
+ * This will clean up any {@link CleaningThreadLocal}
  */
 public class CleaningThread extends Thread {
     public CleaningThread(Runnable target) {
