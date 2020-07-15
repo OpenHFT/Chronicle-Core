@@ -117,6 +117,8 @@ public enum ObjectUtils {
     }
 
     public static boolean isTrue(CharSequence s) {
+        if (s == null)
+            return false;
         switch (s.length()) {
             case 1:
                 char ch = Character.toLowerCase(s.charAt(0));
@@ -131,6 +133,8 @@ public enum ObjectUtils {
     }
 
     public static boolean isFalse(CharSequence s) {
+        if (s == null)
+            return false;
         switch (s.length()) {
             case 1:
                 char ch = Character.toLowerCase(s.charAt(0));
@@ -448,7 +452,7 @@ public enum ObjectUtils {
         }
     }
 
-    static Boolean toBoolean(String s) {
+    public static Boolean toBoolean(String s) {
         if (s == null)
             return null;
         s = s.trim();
