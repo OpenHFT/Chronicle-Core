@@ -35,8 +35,8 @@ public enum Maths {
     private static final int M1 = 0xea7585d7;
     private static final int M2 = 0x7a646e19;
     private static final int M3 = 0x855dd4db;
-    private static long[] TENS = new long[19];
-    private static long[] FIVES = new long[28];
+    private static final long[] TENS = new long[19];
+    private static final long[] FIVES = new long[28];
 
     static {
         TENS[0] = FIVES[0] = 1;
