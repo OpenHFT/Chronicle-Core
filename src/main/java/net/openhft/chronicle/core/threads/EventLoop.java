@@ -32,6 +32,11 @@ public interface EventLoop extends Closeable {
         throw new UnsupportedOperationException("dontAttemptToRunImmediatelyInCurrentThread is always true now");
     }
 
+    /**
+     * Add handler to event loop to be executed. Event loops should execute handlers in order of priority.
+     * Handlers with same priority have no guarantee of execution order.
+     * @param handler handler
+     */
     void addHandler(EventHandler handler);
 
     void start();
