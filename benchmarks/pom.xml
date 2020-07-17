@@ -102,18 +102,18 @@
                         <goals>
                             <goal>exec</goal>
                         </goals>
-                        <configuration>
-                            <classpathScope>test</classpathScope>
-                            <executable>java</executable>
-                            <arguments>
-                                <argument>-classpath</argument>
-                                <classpath/>
-                                <argument>org.openjdk.jmh.Main</argument>
-                                <argument>.*</argument>
-                            </arguments>
-                        </configuration>
                     </execution>
                 </executions>
+                <configuration>
+                    <classpathScope>test</classpathScope>
+                    <executable>java</executable>
+                    <arguments>
+                        <argument>-classpath</argument>
+                        <classpath/>
+                        <argument>org.openjdk.jmh.Main</argument>
+                        <argument>.*</argument>
+                    </arguments>
+                </configuration>
             </plugin>
 
             <plugin>
