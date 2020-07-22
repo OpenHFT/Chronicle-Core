@@ -53,10 +53,10 @@ public enum IOTools {
     }
 
     public static boolean deleteDirWithFiles(@NotNull String... dirs) throws IORuntimeException {
-        boolean result = false;
+        boolean result = true;
         for (String dir : dirs) {
             boolean r = deleteDirWithFiles(dir, 20);
-            result |= r;
+            result &= r;
         }
         return result;
     }
