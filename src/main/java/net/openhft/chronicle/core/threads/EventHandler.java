@@ -30,7 +30,7 @@ public interface EventHandler extends VanillaEventHandler {
     /**
      * Notify handler that the event the handler's action method
      * will not be called again. This is an appropriate place to perform cleanup.
-     * Should be called once only, from the event loop's execution thread.
+     * Event loop implementations call this once only, from the event loop's execution thread.
      * <p>This is called either when the event loop is terminating, or if this EventHandler is being
      * removed from the event loop.
      * <p>If this implements {@link Closeable} then the event loop will call close (once only) on this after
@@ -39,7 +39,7 @@ public interface EventHandler extends VanillaEventHandler {
      * calls close then it is expected that this will throw {@link InvalidEventHandlerException} next time
      * {@link #action()} is called. This will then allow the event loop to call loopFinished (and close) on this.
      * If this use case is required it is strongly recommend that this event handler guards against close
-     * being called more than once, and ignores subsequent calls.
+     * being called more than once (and ignores subsequent calls).
      * <p>Exceptions thrown by loopFinished or close are caught and logged (at debug level)
      * and cleanup continues.
      */
