@@ -17,6 +17,7 @@
  */
 package net.openhft.chronicle.core.pool;
 
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.Maths;
 
 public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
@@ -41,7 +42,7 @@ public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
                     conflicts++;
             }
             if (conflicts > 0) {
-                System.out.println(eClass + " EnumCache " + initialSize + " conflicts " + conflicts);
+                Jvm.debug().on(eClass, "EnumCache " + initialSize + " conflicts " + conflicts);
                 initialSize *= 2;
             }
         }
