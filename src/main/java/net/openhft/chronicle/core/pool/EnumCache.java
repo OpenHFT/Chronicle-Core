@@ -35,4 +35,6 @@ public abstract class EnumCache<E extends Enum<E>> {
     }
 
     public abstract E valueOf(String name);
+
+    public abstract int initialSize();
 }

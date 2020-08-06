@@ -58,4 +58,9 @@ public class DynamicEnumClass<E extends Enum<E>> extends EnumCache<E> {
             throw new AssertionError(e1);
         }
     }
+
+    @Override
+    public int initialSize() {
+        return 64;
+    }
 }

@@ -283,9 +283,11 @@ public enum Maths {
     }
 
     public static long hash64(@NotNull CharSequence cs) {
+        if (cs instanceof String)
+            return hash64((String) cs);
         long hash = 0;
         for (int i = 0, len = cs.length(); i < len; i++)
-            hash = hash * 841248317 + cs.charAt(i);
+            hash = hash * 0x32246e3d + cs.charAt(i);
         return agitate(hash);
     }
 
@@ -295,11 +297,11 @@ public enum Maths {
         if (Jvm.isJava9Plus()) {
             final byte[] bytes = StringUtils.extractBytes(s);
             for (int i = 0, len = s.length(); i < len; i++)
-                hash = hash * 841248317 + bytes[i];
+                hash = hash * 0x32246e3d + bytes[i];
         } else {
             final char[] chars = StringUtils.extractChars(s);
             for (int i = 0, len = s.length(); i < len; i++)
-                hash = hash * 841248317 + chars[i];
+                hash = hash * 0x32246e3d + chars[i];
         }
         return agitate(hash);
     }
@@ -310,11 +312,11 @@ public enum Maths {
         if (Jvm.isJava9Plus()) {
             final byte[] bytes = StringUtils.extractBytes(s);
             for (int i = 0, len = s.length(); i < len; i++)
-                hash = hash * 841248317 + bytes[i];
+                hash = hash * 0x32246e3d + bytes[i];
         } else {
             final char[] chars = StringUtils.extractChars(s);
             for (int i = 0, len = s.length(); i < len; i++)
-                hash = hash * 841248317 + chars[i];
+                hash = hash * 0x32246e3d + chars[i];
         }
         return agitate(hash);
     }

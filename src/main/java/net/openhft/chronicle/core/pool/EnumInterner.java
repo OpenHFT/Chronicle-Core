@@ -37,10 +37,11 @@ public class EnumInterner<E extends Enum<E>> {
     }
 
     public EnumInterner(Class<E> eClass, int capacity) {
-        int n = Maths.nextPower2(capacity, 16);
+        enumCache = EnumCache.of(eClass);
+        int initialSize = enumCache.initialSize();
+        int n = Maths.nextPower2(Math.max(initialSize, capacity), 16);
         interner = (E[]) new Enum[n];
         mask = n - 1;
-        enumCache = EnumCache.of(eClass);
     }
 
     // bridging method to fix the types.
