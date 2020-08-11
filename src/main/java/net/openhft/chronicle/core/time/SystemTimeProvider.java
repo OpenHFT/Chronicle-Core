@@ -21,6 +21,9 @@ package net.openhft.chronicle.core.time;
 public enum SystemTimeProvider implements TimeProvider {
     INSTANCE;
 
+    // Can be overridden for testing purposes.
+    public static TimeProvider CLOCK = INSTANCE;
+
     static {
         // warmUp()
         for (int i = 0; i < 1000; i++)
