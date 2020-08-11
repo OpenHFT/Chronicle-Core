@@ -19,6 +19,7 @@
 package net.openhft.chronicle.core.time;
 
 import net.openhft.chronicle.core.FlakyTestRunner;
+import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
@@ -30,6 +31,10 @@ import static org.junit.Assert.assertTrue;
 public class SystemTimeProviderTest {
     @Test
     public void currentTimeMicros() {
+        FlakyTestRunner.run(Jvm.isArm(), this::doCurrentTimeMicros);
+    }
+
+    public void doCurrentTimeMicros() {
         @NotNull TimeProvider tp = SystemTimeProvider.INSTANCE;
         long minDiff = 0;
         long maxDiff = 0;
