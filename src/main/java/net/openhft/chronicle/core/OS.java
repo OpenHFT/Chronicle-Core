@@ -71,9 +71,9 @@ public enum OS {
     private static final boolean IS_WIN = OS.startsWith("win");
     private static final boolean IS_WIN10 = OS.equals("windows 10");
     private static final AtomicLong memoryMapped = new AtomicLong();
-    private static MethodHandle UNMAPP0_MH;
-    private static MethodHandle READ0_MH;
-    private static MethodHandle WRITE0_MH, WRITE0_MH2;
+    private static final MethodHandle UNMAPP0_MH;
+    private static final MethodHandle READ0_MH;
+    private static final MethodHandle WRITE0_MH, WRITE0_MH2;
     public static final Exception TIME_LIMIT = new TimeLimitExceededException();
     private static int PAGE_SIZE; // avoid circular initialisation
     private static int MAP_ALIGNMENT;
