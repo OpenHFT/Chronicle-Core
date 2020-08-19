@@ -20,6 +20,7 @@ package net.openhft.chronicle.core.time;
 
 import net.openhft.chronicle.core.FlakyTestRunner;
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.util.Histogram;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
@@ -95,5 +96,20 @@ public class SystemTimeProviderTest {
             assertEquals(time2, time3 / 1000 + 10, 10);
             assertEquals(time3, time4 / 1000 + 5000, 10000);
         });
+    }
+
+    @Test
+    public void resolution() {
+        for (int j = 0; j < 3; j++) {
+            Histogram h = new Histogram(32, 10, 1);
+            long last = SystemTimeProvider.INSTANCE.currentTimeNanos();
+            for (int i = 0; i < 5000000; i++) {
+                long next = SystemTimeProvider.INSTANCE.currentTimeNanos();
+                h.sampleNanos(next - last);
+
+                last = next;
+            }
+            System.out.println(h.toMicrosFormat());
+        }
     }
 }
