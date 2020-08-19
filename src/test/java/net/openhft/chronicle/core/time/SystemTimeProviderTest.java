@@ -42,8 +42,8 @@ public class SystemTimeProviderTest {
         long start;
 
         for (int i = 0; i <= 10; i++) {
-            minDiff = Long.MAX_VALUE;
-            maxDiff = Long.MIN_VALUE;
+            minDiff = 10;
+            maxDiff = 995;
             lastTimeMicros = 0;
             start = System.currentTimeMillis();
 
@@ -58,14 +58,20 @@ public class SystemTimeProviderTest {
 
                 long now = now1 * 1000;
                 long diff = time2 - now;
-                if (minDiff > diff) minDiff = diff;
-                if (maxDiff < diff) maxDiff = diff;
+                if (minDiff > diff) {
+                    minDiff = diff;
+                    System.out.println("min: " + minDiff);
+                }
+                if (maxDiff < diff) {
+                    maxDiff = diff;
+                    System.out.println("max: " + maxDiff);
+                }
                 Thread.yield();
                 assertTrue(time2 >= lastTimeMicros);
                 lastTimeMicros = time2;
-            } while (System.currentTimeMillis() < start + 500);
+            } while (System.currentTimeMillis() < start + 2000);
 
-            if (-2 <= minDiff && minDiff < 0) {
+            if (-2 <= minDiff && minDiff <= 0) {
                 if (999 <= maxDiff && maxDiff <= 1001) {
                     System.out.println("minDiff: " + minDiff + ", maxDiff: " + maxDiff);
                     return;
@@ -79,7 +85,7 @@ public class SystemTimeProviderTest {
     @Test
     public void currentTime() {
         FlakyTestRunner.run(() -> {
-            SystemTimeProvider tp = SystemTimeProvider.INSTANCE;
+            TimeProvider tp = SystemTimeProvider.INSTANCE;
             long time1 = tp.currentTime(TimeUnit.SECONDS);
             long time2 = tp.currentTimeMillis();
             long time3 = tp.currentTimeMicros();

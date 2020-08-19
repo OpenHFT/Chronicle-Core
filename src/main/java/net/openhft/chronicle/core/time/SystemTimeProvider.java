@@ -18,19 +18,27 @@
 
 package net.openhft.chronicle.core.time;
 
+import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.UnsafeMemory;
+
 public enum SystemTimeProvider implements TimeProvider {
     INSTANCE;
 
+    private static final long LAST_NANOS;
     // Can be overridden for testing purposes.
     public static TimeProvider CLOCK = INSTANCE;
 
     static {
         // warmUp()
-        for (int i = 0; i < 1000; i++)
-            INSTANCE.currentTimeMicros();
+        long start = System.currentTimeMillis();
+        while (System.currentTimeMillis() < start + 3)
+            INSTANCE.currentTimeNanos2(System.nanoTime());
+        LAST_NANOS = UnsafeMemory.UNSAFE.objectFieldOffset(Jvm.getField(SystemTimeProvider.class, "lastNanos"));
     }
 
-    long delta = 0;
+    private long delta = 0;
+    private long calibrateNanos;
+    private volatile long lastNanos;
 
     @Override
     public long currentTimeMillis() {
@@ -44,9 +52,26 @@ public enum SystemTimeProvider implements TimeProvider {
 
     @Override
     public long currentTimeNanos() {
-        long n0 = System.nanoTime();
+        long timeNanos2 = currentTimeNanos1();
+        while (true) {
+            long last = this.lastNanos;
+            if (timeNanos2 <= last)
+                timeNanos2 = last + 1;
+            if (UnsafeMemory.UNSAFE.compareAndSwapLong(this, LAST_NANOS, last, timeNanos2))
+                return timeNanos2;
+        }
+    }
+
+    protected long currentTimeNanos1() {
+        long nowNS = System.nanoTime();
+        if (nowNS - calibrateNanos < 128_000_000_000L)
+            return nowNS + delta;
+        return currentTimeNanos2(nowNS);
+    }
+
+    protected long currentTimeNanos2(long nowNS) {
+        calibrateNanos = nowNS;
         long nowMS = currentTimeMillis() * 1000000;
-        long nowNS = n0;
         long estimate = nowNS + delta;
 
         if (estimate < nowMS) {
