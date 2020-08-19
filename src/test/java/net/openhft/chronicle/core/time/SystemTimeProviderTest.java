@@ -41,7 +41,7 @@ public class SystemTimeProviderTest {
         long lastTimeMicros;
         long start;
 
-        for (int i = 0; i <= 10; i++) {
+        for (int i = 0; i <= 20; i++) {
             minDiff = 10;
             maxDiff = 995;
             lastTimeMicros = 0;
@@ -51,8 +51,9 @@ public class SystemTimeProviderTest {
                 long now0 = tp.currentTimeMillis();
                 long time2 = tp.currentTimeMicros();
                 long now1 = tp.currentTimeMillis();
-                if (now1 - now0 > 1) {
-                    System.out.println("jump: " + (now1 - now0));
+                if (now1 - now0 > 0) {
+                    if (now1 - now0 > 1)
+                        System.out.println("jump: " + (now1 - now0));
                     continue;
                 }
 
@@ -69,7 +70,7 @@ public class SystemTimeProviderTest {
                 Thread.yield();
                 assertTrue(time2 >= lastTimeMicros);
                 lastTimeMicros = time2;
-            } while (System.currentTimeMillis() < start + 2000);
+            } while (System.currentTimeMillis() < start + 500);
 
             if (-2 <= minDiff && minDiff <= 0) {
                 if (999 <= maxDiff && maxDiff <= 1001) {

@@ -19,6 +19,7 @@
 package net.openhft.chronicle.core.time;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.UnsafeMemory;
 
 public enum SystemTimeProvider implements TimeProvider {
@@ -64,7 +65,7 @@ public enum SystemTimeProvider implements TimeProvider {
 
     protected long currentTimeNanos1() {
         long nowNS = System.nanoTime();
-        if (nowNS - calibrateNanos < 128_000_000_000L)
+        if (OS.isLinux() && nowNS - calibrateNanos < 128_000_000L)
             return nowNS + delta;
         return currentTimeNanos2(nowNS);
     }
