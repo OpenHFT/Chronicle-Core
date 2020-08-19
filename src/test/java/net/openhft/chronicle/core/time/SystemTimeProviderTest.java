@@ -52,9 +52,8 @@ public class SystemTimeProviderTest {
                 long now0 = tp.currentTimeMillis();
                 long time2 = tp.currentTimeMicros();
                 long now1 = tp.currentTimeMillis();
-                if (now1 - now0 > 0) {
-                    if (now1 - now0 > 1)
-                        System.out.println("jump: " + (now1 - now0));
+                if (now1 - now0 > 1) {
+                    System.out.println("jump: " + (now1 - now0));
                     continue;
                 }
 
