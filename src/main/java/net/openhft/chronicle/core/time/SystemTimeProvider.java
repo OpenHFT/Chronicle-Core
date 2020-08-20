@@ -32,14 +32,16 @@ public enum SystemTimeProvider implements TimeProvider {
     static {
         // warmUp()
         long start = System.currentTimeMillis();
-        while (System.currentTimeMillis() < start + 3)
+        while (System.currentTimeMillis() < start + 3) {
             INSTANCE.currentTimeNanos1();
-        LAST_NANOS = UnsafeMemory.UNSAFE.objectFieldOffset(Jvm.getField(SystemTimeProvider.class, "lastNanos"));
+            Jvm.nanoPause();
+        }
+        LAST_NANOS = UnsafeMemory.UNSAFE.objectFieldOffset(Jvm.getField(SystemTimeProvider.class, "lastNanos5"));
     }
 
     private long delta = 0;
     @UsedViaReflection
-    private volatile long lastNanos;
+    private volatile long lastNanos5;
 
     @Override
     public long currentTimeMillis() {
@@ -53,13 +55,16 @@ public enum SystemTimeProvider implements TimeProvider {
 
     @Override
     public long currentTimeNanos() {
-        long timeNanos2 = currentTimeNanos1();
+        long timeNanos = currentTimeNanos1();
         while (true) {
-            long last = this.lastNanos;
-            if (timeNanos2 <= last)
-                timeNanos2 = last + 1;
-            if (UnsafeMemory.UNSAFE.compareAndSwapLong(this, LAST_NANOS, last, timeNanos2))
-                return timeNanos2;
+            long last5 = this.lastNanos5;
+            long timeNanos5 = timeNanos >>> 5;
+            if (timeNanos5 <= last5) {
+                timeNanos5 = last5 + 1;
+                timeNanos = timeNanos5 << 5;
+            }
+            if (UnsafeMemory.UNSAFE.compareAndSwapLong(this, LAST_NANOS, last5, timeNanos5))
+                return timeNanos;
         }
     }
 

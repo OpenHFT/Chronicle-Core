@@ -67,20 +67,22 @@ public class SystemTimeProviderTest {
                     maxDiff = diff;
                     System.out.println("max: " + maxDiff);
                 }
-                Thread.yield();
+                long ns = System.nanoTime();
+                while (System.nanoTime() < ns + 100)
+                    Jvm.nanoPause();
                 assertTrue(time2 >= lastTimeMicros);
                 lastTimeMicros = time2;
             } while (System.currentTimeMillis() < start + 500);
 
-            if (-2 <= minDiff && minDiff <= 0) {
-                if (999 <= maxDiff && maxDiff <= 1001) {
+            if (-50 <= minDiff && minDiff <= 0) {
+                if (999 <= maxDiff && maxDiff <= 1100) {
                     System.out.println("minDiff: " + minDiff + ", maxDiff: " + maxDiff);
                     return;
                 }
             }
         }
-        assertEquals(-10, minDiff, 10);
-        assertEquals(1000, maxDiff, 10);
+        assertEquals(-50, minDiff, 50);
+        assertEquals(1140, maxDiff, 150);
     }
 
     @Test
@@ -105,6 +107,7 @@ public class SystemTimeProviderTest {
             for (int i = 0; i < 5000000; i++) {
                 long next = SystemTimeProvider.INSTANCE.currentTimeNanos();
                 h.sampleNanos(next - last);
+                Jvm.nanoPause();
 
                 last = next;
             }
