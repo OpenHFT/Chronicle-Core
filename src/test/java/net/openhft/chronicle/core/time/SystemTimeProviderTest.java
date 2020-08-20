@@ -20,6 +20,7 @@ package net.openhft.chronicle.core.time;
 
 import net.openhft.chronicle.core.FlakyTestRunner;
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.Histogram;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
@@ -42,6 +43,7 @@ public class SystemTimeProviderTest {
         long lastTimeMicros;
         long start;
 
+        int error = OS.isWindows() ? 10 : 1;
         for (int i = 0; i <= 20; i++) {
             minDiff = 10;
             maxDiff = 995;
@@ -74,15 +76,15 @@ public class SystemTimeProviderTest {
                 lastTimeMicros = time2;
             } while (System.currentTimeMillis() < start + 500);
 
-            if (-50 <= minDiff && minDiff <= 0) {
-                if (999 <= maxDiff && maxDiff <= 1100) {
+            if (-5 * error <= minDiff && minDiff <= 0) {
+                if (999 <= maxDiff && maxDiff <= 1010 + 10 * error) {
                     System.out.println("minDiff: " + minDiff + ", maxDiff: " + maxDiff);
                     return;
                 }
             }
         }
-        assertEquals(-50, minDiff, 50);
-        assertEquals(1140, maxDiff, 150);
+        assertEquals(-5 * error, minDiff, 5 * error);
+        assertEquals(990 + 15 * error, maxDiff, 15 * error);
     }
 
     @Test
