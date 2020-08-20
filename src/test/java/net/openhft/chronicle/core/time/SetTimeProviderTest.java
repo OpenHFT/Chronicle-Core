@@ -23,25 +23,25 @@ public class SetTimeProviderTest {
 
     @Test
     public void testNanosConstructor() {
-        final SetTimeProvider tp = new SetTimeProvider(99_999_999_999L);
-        assertEquals(99_999_999_999L, tp.currentTimeNanos());
-        assertEquals(99_999_999L, tp.currentTimeMicros());
-        assertEquals(99_999L, tp.currentTimeMillis());
-        assertEquals(99, tp.currentTime(TimeUnit.SECONDS));
+        final SetTimeProvider tp = new SetTimeProvider(99_999_999_999_000_000L);
+        assertEquals(99_999_999_999_000_000L, tp.currentTimeNanos());
+        assertEquals(99_999_999_999_000L, tp.currentTimeMicros());
+        assertEquals(99_999_999_999L, tp.currentTimeMillis());
+        assertEquals(99_999_999, tp.currentTime(TimeUnit.SECONDS));
 
-        tp.currentTimeMicros(100_000_000L);
-        assertEquals(100_000_000_000L, tp.currentTimeNanos());
-        assertEquals(100_000_000L, tp.currentTimeMicros());
-        assertEquals(100_000L, tp.currentTimeMillis());
-        assertEquals(100, tp.currentTime(TimeUnit.SECONDS));
+        tp.currentTimeMicros(100_000_000_000_000L);
+        assertEquals(100_000_000_000_000_000L, tp.currentTimeNanos());
+        assertEquals(100_000_000_000_000L, tp.currentTimeMicros());
+        assertEquals(100_000_000_000L, tp.currentTimeMillis());
+        assertEquals(100_000_000, tp.currentTime(TimeUnit.SECONDS));
 
-        tp.currentTimeMillis(101_987L);
-        assertEquals(101_987_000_000L, tp.currentTimeNanos());
-        assertEquals(101_987_000L, tp.currentTimeMicros());
-        assertEquals(101_987L, tp.currentTimeMillis());
-        assertEquals(101, tp.currentTime(TimeUnit.SECONDS));
+        tp.currentTimeMillis(101_987_000_000L);
+        assertEquals(101_987_000_000_000_000L, tp.currentTimeNanos());
+        assertEquals(101_987_000_000_000L, tp.currentTimeMicros());
+        assertEquals(101_987_000_000L, tp.currentTimeMillis());
+        assertEquals(101_987_000, tp.currentTime(TimeUnit.SECONDS));
         tp.advanceMillis(1_011).advanceMicros(1_211).advanceNanos(789_123);
-        assertEquals(103_000_000_123L, tp.currentTimeNanos());
+        assertEquals(101_987_001_013_000_123L, tp.currentTimeNanos());
     }
 
     @Test(expected = IllegalArgumentException.class)
