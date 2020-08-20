@@ -53,6 +53,9 @@ public enum SystemTimeProvider implements TimeProvider {
         return currentTimeNanos() / 1000;
     }
 
+    /**
+     * @return a nano second time stamp which is monotonically increasing and the top 59 bits are unique. i.e. 32 ns resolution.
+     */
     @Override
     public long currentTimeNanos() {
         long timeNanos = currentTimeNanos1();
