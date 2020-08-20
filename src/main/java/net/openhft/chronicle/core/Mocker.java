@@ -102,9 +102,12 @@ public enum Mocker {
     }
 
     @NotNull
-    public static <T> T ignored(@NotNull Class<T> tClass) {
+    public static <T> T ignored(@NotNull Class<T> tClass, Class... additional) {
         Set<Class> classes = new LinkedHashSet<>();
         addInterface(classes, tClass);
+        for (Class aClass : additional) {
+            addInterface(classes, aClass);
+        }
         //noinspection unchecked
         return (T) Proxy.newProxyInstance(tClass.getClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler(ConcurrentHashMap::new) {
             @Override
