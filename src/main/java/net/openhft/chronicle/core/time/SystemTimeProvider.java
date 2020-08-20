@@ -19,8 +19,8 @@
 package net.openhft.chronicle.core.time;
 
 import net.openhft.chronicle.core.Jvm;
-import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.UnsafeMemory;
+import net.openhft.chronicle.core.annotation.UsedViaReflection;
 
 public enum SystemTimeProvider implements TimeProvider {
     INSTANCE;
@@ -33,12 +33,12 @@ public enum SystemTimeProvider implements TimeProvider {
         // warmUp()
         long start = System.currentTimeMillis();
         while (System.currentTimeMillis() < start + 3)
-            INSTANCE.currentTimeNanos2(System.nanoTime());
+            INSTANCE.currentTimeNanos1();
         LAST_NANOS = UnsafeMemory.UNSAFE.objectFieldOffset(Jvm.getField(SystemTimeProvider.class, "lastNanos"));
     }
 
     private long delta = 0;
-    private long calibrateNanos;
+    @UsedViaReflection
     private volatile long lastNanos;
 
     @Override
@@ -65,13 +65,6 @@ public enum SystemTimeProvider implements TimeProvider {
 
     protected long currentTimeNanos1() {
         long nowNS = System.nanoTime();
-        if (OS.isLinux() && nowNS - calibrateNanos < 1_000_000L)
-            return nowNS + delta;
-        return currentTimeNanos2(nowNS);
-    }
-
-    protected long currentTimeNanos2(long nowNS) {
-        calibrateNanos = nowNS;
         long nowMS = currentTimeMillis() * 1000000;
         long estimate = nowNS + delta;
 
