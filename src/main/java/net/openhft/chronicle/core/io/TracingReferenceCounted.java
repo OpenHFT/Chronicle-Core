@@ -74,7 +74,7 @@ public final class TracingReferenceCounted implements ReferenceCountedTracer {
         synchronized (references) {
             if (references.isEmpty()) {
                 if (must)
-                    throw new IllegalStateException("Cannot reserve freed resource", createdHere);
+                    throw new ClosedIllegalStateException("Cannot reserve freed resource", createdHere);
                 return false;
             }
             StackTrace stackTrace = references.get(id);
@@ -103,7 +103,7 @@ public final class TracingReferenceCounted implements ReferenceCountedTracer {
                     }
                     throw new IllegalStateException("Not reserved by " + asString(id), cause);
                 } else {
-                    throw new IllegalStateException("Already released " + asString(id) + " location ", stackTrace);
+                    throw new ClosedIllegalStateException("Already released " + asString(id) + " location ", stackTrace);
                 }
             }
             releases.put(id, stackTrace("release", id));
@@ -171,7 +171,7 @@ public final class TracingReferenceCounted implements ReferenceCountedTracer {
         synchronized (references) {
             if (references.isEmpty())
                 return;
-            IllegalStateException ise = new IllegalStateException("Retained reference closed");
+            IllegalStateException ise = new ClosedIllegalStateException("Retained reference closed");
             for (Map.Entry<ReferenceOwner, StackTrace> entry : references.entrySet()) {
                 ReferenceOwner referenceOwner = entry.getKey();
                 StackTrace reservedHere = entry.getValue();
@@ -203,7 +203,7 @@ public final class TracingReferenceCounted implements ReferenceCountedTracer {
                         ((QueryCloseable) referenceOwner).throwExceptionIfClosed();
 
                     } catch (Throwable t) {
-                        ise.addSuppressed(new IllegalStateException("Closed " + asString(referenceOwner), t));
+                        ise.addSuppressed(new ClosedIllegalStateException("Closed " + asString(referenceOwner), t));
                     }
                 }
             }
@@ -215,7 +215,7 @@ public final class TracingReferenceCounted implements ReferenceCountedTracer {
     @Override
     public void throwExceptionIfReleased() throws IllegalStateException {
         if (refCount() <= 0)
-            throw new IllegalStateException("Released", releasedHere);
+            throw new ClosedIllegalStateException("Released", releasedHere);
     }
 
     @Override

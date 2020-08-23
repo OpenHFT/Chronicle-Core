@@ -45,7 +45,7 @@ public final class VanillaReferenceCounted implements ReferenceCountedTracer {
 
             int v = value;
             if (v <= 0) {
-                throw new IllegalStateException("Released");
+                throw new ClosedIllegalStateException("Released");
             }
             if (valueCompareAndSet(v, v + 1)) {
                 break;
@@ -80,7 +80,7 @@ public final class VanillaReferenceCounted implements ReferenceCountedTracer {
         for (; ; ) {
             int v = value;
             if (v <= 0) {
-                throw new IllegalStateException("Released");
+                throw new ClosedIllegalStateException("Released");
             }
             int count = v - 1;
             if (valueCompareAndSet(v, count)) {
@@ -94,7 +94,7 @@ public final class VanillaReferenceCounted implements ReferenceCountedTracer {
 
     public void callOnRelease() {
         if (released)
-            throw new IllegalStateException("Already released");
+            throw new ClosedIllegalStateException("Already released");
         released = true;
         onRelease.run();
     }
@@ -104,7 +104,7 @@ public final class VanillaReferenceCounted implements ReferenceCountedTracer {
         for (; ; ) {
             int v = value;
             if (v <= 0) {
-                throw new IllegalStateException("Released");
+                throw new ClosedIllegalStateException("Released");
             }
             if (v > 1) {
                 throw new IllegalStateException("Not the last released");

@@ -17,7 +17,7 @@ public interface ReferenceCountedTracer extends ReferenceCounted {
 
     default void throwExceptionIfReleased() throws IllegalStateException {
         if (refCount() <= 0)
-            throw new IllegalStateException("Released");
+            throw new ClosedIllegalStateException("Released");
     }
 
     void warnAndReleaseIfNotReleased();

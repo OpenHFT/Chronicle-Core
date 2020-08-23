@@ -9,6 +9,6 @@ public interface QueryCloseable {
 
     default void throwExceptionIfClosed() throws IllegalStateException {
         if (isClosed())
-            throw new IllegalStateException("Closed");
+            throw new ClosedIllegalStateException("Closed");
     }
 }

@@ -157,13 +157,13 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
      */
     public void throwExceptionIfClosed() throws IllegalStateException {
         if (closed != 0)
-            throw new IllegalStateException("Closed", closedHere);
+            throw new ClosedIllegalStateException("Closed", closedHere);
         assert !CHECK_THREAD_SAFETY || threadSafetyCheck(true);
     }
 
     public void throwExceptionIfClosedInSetter() throws IllegalStateException {
         if (closed != 0)
-            throw new IllegalStateException("Closed", closedHere);
+            throw new ClosedIllegalStateException("Closed", closedHere);
         // only check it if this has been used.
         assert !CHECK_THREAD_SAFETY || threadSafetyCheck(false);
     }

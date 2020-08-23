@@ -69,14 +69,14 @@ public abstract class AbstractCloseableReferenceCounted
     @Override
     public void throwExceptionIfClosed() throws IllegalStateException {
         if (closed)
-            throw new IllegalStateException("Closed", closedHere);
+            throw new ClosedIllegalStateException("Closed", closedHere);
         throwExceptionIfReleased();
         assert threadSafetyCheck(true);
     }
 
     protected void throwExceptionIfClosedInSetter() throws IllegalStateException {
         if (closed)
-            throw new IllegalStateException("Closed", closedHere);
+            throw new ClosedIllegalStateException("Closed", closedHere);
         throwExceptionIfReleased();
         assert threadSafetyCheck(false);
     }
