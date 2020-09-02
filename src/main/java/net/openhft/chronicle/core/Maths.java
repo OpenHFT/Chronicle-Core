@@ -436,7 +436,7 @@ public enum Maths {
 
     public static int digits(long num) {
         int index = Arrays.binarySearch(TENS, num);
-        return index < -1 ? -1-index : index >= 0 ? index+1 : 1;
+        return index < -1 ? -1 - index : index >= 0 ? index + 1 : 1;
     }
 
     public static long fives(int decimalPlaces) {
@@ -449,5 +449,25 @@ public enum Maths {
 
     public static boolean same(float a, float b) {
         return Float.isNaN(a) ? Float.isNaN(b) : a == b;
+    }
+
+    public static int hash(Object o) {
+        return o == null ? 0 : o.hashCode();
+    }
+
+    public static int hash(Object o1, Object o2) {
+        return hash(o1) * M0 + hash(o2);
+    }
+
+    public static int hash(Object o1, Object o2, Object o3) {
+        return hash(o1, o2) * M0 + hash(o3);
+    }
+
+    public static int hash(Object o1, Object o2, Object o3, Object o4) {
+        return hash(o1, o2, o3) * M0 + hash(o4);
+    }
+
+    public static int hash(Object o1, Object o2, Object o3, Object o4, Object o5) {
+        return hash(o1, o2, o3, o4) * M0 + hash(o5);
     }
 }

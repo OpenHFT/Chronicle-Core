@@ -24,7 +24,6 @@ import java.net.URI;
 import java.nio.file.*;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class ClassMetrics {
     private final int offset;
@@ -54,7 +53,7 @@ public class ClassMetrics {
 
     @Override
     public int hashCode() {
-        return Objects.hash(offset, length);
+        return Maths.hash(offset, length);
     }
 
     @Override
