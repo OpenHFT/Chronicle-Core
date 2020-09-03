@@ -47,7 +47,7 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
     }
 
     static long initialNanos(String timestamp) {
-        Instant dateTime = LocalDateTime.parse(timestamp).toInstant(ZoneOffset.UTC);
+        Instant dateTime = LocalDateTime.parse(timestamp.replace("/", "-")).toInstant(ZoneOffset.UTC);
         long initialNanos = dateTime.getEpochSecond() * 1_000_000_000L;
         if (dateTime.isSupported(ChronoField.NANO_OF_SECOND))
             initialNanos += dateTime.getLong(ChronoField.NANO_OF_SECOND);
