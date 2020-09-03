@@ -32,7 +32,7 @@ import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEAS
 import static net.openhft.chronicle.core.io.TracingReferenceCounted.asString;
 
 public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwner {
-    static final boolean CHECK_THREAD_SAFETY = Jvm.getBoolean("check.thread.safety", false);
+    protected static final boolean CHECK_THREAD_SAFETY = Jvm.getBoolean("check.thread.safety", false);
 
     private static final long CLOSED_OFFSET;
     static volatile Set<CloseableTracer> CLOSEABLE_SET;
@@ -158,14 +158,16 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     public void throwExceptionIfClosed() throws IllegalStateException {
         if (closed != 0)
             throw new ClosedIllegalStateException("Closed", closedHere);
-        assert !CHECK_THREAD_SAFETY || threadSafetyCheck(true);
+        if (CHECK_THREAD_SAFETY)
+            threadSafetyCheck(true);
     }
 
     public void throwExceptionIfClosedInSetter() throws IllegalStateException {
         if (closed != 0)
             throw new ClosedIllegalStateException("Closed", closedHere);
         // only check it if this has been used.
-        assert !CHECK_THREAD_SAFETY || threadSafetyCheck(false);
+        if (CHECK_THREAD_SAFETY)
+            threadSafetyCheck(false);
     }
 
     /**
