@@ -2,6 +2,7 @@ package net.openhft.chronicle.core.time;
 
 import org.junit.Test;
 
+import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
@@ -68,6 +69,16 @@ public class SetTimeProviderTest {
         assertEquals(1534769584075L, tp.currentTimeMillis());
         assertEquals(1534769584075000L, tp.currentTimeMicros());
         SetTimeProvider tp2 = new SetTimeProvider("2018-08-20T12:53:04.075123");
+        assertEquals(1534769584075L, tp2.currentTimeMillis());
+        assertEquals(1534769584075123L, tp2.currentTimeMicros());
+    }
+
+    @Test
+    public void withInstant() {
+        SetTimeProvider tp = new SetTimeProvider(Instant.parse("2018-08-20T12:53:04.075Z"));
+        assertEquals(1534769584075L, tp.currentTimeMillis());
+        assertEquals(1534769584075000L, tp.currentTimeMicros());
+        SetTimeProvider tp2 = new SetTimeProvider(Instant.parse("2018-08-20T12:53:04.075123Z"));
         assertEquals(1534769584075L, tp2.currentTimeMillis());
         assertEquals(1534769584075123L, tp2.currentTimeMicros());
     }
