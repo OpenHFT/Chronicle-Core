@@ -21,7 +21,7 @@ import net.openhft.chronicle.core.ClassLocal;
 
 public abstract class EnumCache<E extends Enum<E>> {
     private static final ClassLocal<EnumCache> ENUM_CACHE_CL = ClassLocal.withInitial(
-            eClass -> DynamicEnum.class.isAssignableFrom(eClass)
+            eClass -> DynamicEnumPooled.class.isAssignableFrom(eClass)
                     ? new DynamicEnumClass(eClass)
                     : new StaticEnumClass(eClass));
     protected final Class<E> eClass;

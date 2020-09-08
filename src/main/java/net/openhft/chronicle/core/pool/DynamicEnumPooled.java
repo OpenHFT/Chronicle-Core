@@ -17,5 +17,5 @@
  */
 package net.openhft.chronicle.core.pool;
 
-public interface DynamicEnum {
+public interface DynamicEnumPooled {
 }

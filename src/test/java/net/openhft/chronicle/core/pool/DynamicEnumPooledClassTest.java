@@ -4,7 +4,7 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class DynamicEnumClassTest {
+public class DynamicEnumPooledClassTest {
     @Test
     public void additionalEnum() {
         EnumCache<YesNo> yesNoEnumCache = EnumCache.of(YesNo.class);
@@ -19,5 +19,4 @@ public class DynamicEnumClassTest {
         assertEquals("Unknown", unknown.name());
         assertEquals(3, unknown.ordinal());
     }
-
 }
