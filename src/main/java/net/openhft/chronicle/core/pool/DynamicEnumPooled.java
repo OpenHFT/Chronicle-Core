@@ -18,4 +18,5 @@
 package net.openhft.chronicle.core.pool;
 
 public interface DynamicEnumPooled {
+    String name();
 }

@@ -19,7 +19,7 @@ package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.ClassLocal;
 
-public abstract class EnumCache<E extends Enum<E>> {
+public abstract class EnumCache<E> {
     private static final ClassLocal<EnumCache> ENUM_CACHE_CL = ClassLocal.withInitial(
             eClass -> DynamicEnumPooled.class.isAssignableFrom(eClass)
                     ? new DynamicEnumClass(eClass)
@@ -30,8 +30,12 @@ public abstract class EnumCache<E extends Enum<E>> {
         this.eClass = eClass;
     }
 
-    public static <E extends Enum<E>> EnumCache<E> of(Class<E> eClass) {
+    public static <E> EnumCache<E> of(Class<E> eClass) {
         return ENUM_CACHE_CL.get(eClass);
+    }
+
+    public E get(String name) {
+        return valueOf(name);
     }
 
     public abstract E valueOf(String name);

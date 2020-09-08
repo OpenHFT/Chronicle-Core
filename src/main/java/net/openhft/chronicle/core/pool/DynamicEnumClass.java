@@ -18,15 +18,15 @@
 package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.Maths;
 import net.openhft.chronicle.core.OS;
 
 import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.lang.reflect.Modifier;
+import java.util.*;
 import java.util.function.Function;
 
-public class DynamicEnumClass<E extends Enum<E>> extends EnumCache<E> {
+public class DynamicEnumClass<E extends DynamicEnumPooled> extends EnumCache<E> {
     final Map<String, E> eMap = Collections.synchronizedMap(new LinkedHashMap<>());
     private final Field nameField;
     private final Field ordinalField;
@@ -34,11 +34,34 @@ public class DynamicEnumClass<E extends Enum<E>> extends EnumCache<E> {
 
     DynamicEnumClass(Class<E> eClass) {
         super(eClass);
-        for (E e : eClass.getEnumConstants()) {
+        E[] enumConstants = eClass.isEnum() ? eClass.getEnumConstants() : getStaticConstants(eClass);
+        for (E e : enumConstants) {
             eMap.put(e.name(), e);
         }
         nameField = Jvm.getField(eClass, "name");
-        ordinalField = Jvm.getField(eClass, "ordinal");
+        ordinalField = Enum.class.isAssignableFrom(eClass) ? Jvm.getField(eClass, "ordinal") : null;
+    }
+
+    private E[] getStaticConstants(Class<E> eClass) {
+        List<E> eList = new ArrayList<>();
+        Field[] fields = eClass.getDeclaredFields();
+        for (Field field : fields) {
+            if (Modifier.isStatic(field.getModifiers()) && field.getType() == eClass) {
+                try {
+                    field.setAccessible(true);
+                    Object o = field.get(null);
+                    eList.add((E) o);
+                } catch (IllegalAccessException e) {
+                    Jvm.warn().on(getClass(), e.toString());
+                }
+            }
+        }
+        return (E[]) eList.toArray(new DynamicEnumPooled[eList.size()]);
+    }
+
+    @Override
+    public E get(String name) {
+        return eMap.get(name);
     }
 
     @Override
@@ -51,7 +74,8 @@ public class DynamicEnumClass<E extends Enum<E>> extends EnumCache<E> {
         try {
             E e = OS.memory().allocateInstance(eClass);
             nameField.set(e, name);
-            ordinalField.set(e, eMap.size());
+            if (ordinalField != null)
+                ordinalField.set(e, eMap.size());
             return e;
 
         } catch (Exception e1) {
@@ -61,6 +85,6 @@ public class DynamicEnumClass<E extends Enum<E>> extends EnumCache<E> {
 
     @Override
     public int initialSize() {
-        return 64;
+        return Maths.nextPower2(eMap.size(), 64);
     }
 }
