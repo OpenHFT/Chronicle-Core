@@ -99,7 +99,13 @@ public enum ObjectUtils {
         if (Modifier.isAbstract(c.getModifiers()))
             throw new IllegalArgumentException("abstract class: " + c.getName());
         if (c.isEnum())
-            throw new IllegalArgumentException("enum class: " + c.getName());
+            return () -> {
+                try {
+                    return OS.memory().allocateInstance(c);
+                } catch (Exception e) {
+                    throw new AssertionError(e);
+                }
+            };
         try {
             Constructor constructor = c.getDeclaredConstructor();
             Jvm.setAccessible(constructor);
