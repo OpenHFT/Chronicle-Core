@@ -37,6 +37,8 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.*;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.spi.AbstractInterruptibleChannel;
@@ -56,13 +58,13 @@ import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 public enum Jvm {
     ;
 
+    public static final String JAVA_CLASS_PATH = "java.class.path";
     private static final List<String> INPUT_ARGUMENTS = getRuntimeMXBean().getInputArguments();
     private static final int COMPILE_THRESHOLD = getCompileThreshold0();
     private static final boolean IS_DEBUG = INPUT_ARGUMENTS.toString().contains("jdwp") || Jvm.getBoolean("debug");
-
+    ;
     // e.g-verbose:gc  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=dumponexit=true,filename=myrecording.jfr,settings=profile -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints
     private static final boolean IS_FLIGHT_RECORDER = (" " + getRuntimeMXBean().getInputArguments()).contains(" -XX:+FlightRecorder") || Jvm.getBoolean("jfr");
-    ;
     private static final Supplier<Long> reservedMemory;
     private static final boolean IS_64BIT = is64bit0();
     private static final int PROCESS_ID = getProcessId0();
@@ -74,7 +76,6 @@ public enum Jvm {
     private static final ThreadLocalisedExceptionHandler PERF = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.PERF);
     @NotNull
     private static final ThreadLocalisedExceptionHandler DEBUG = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.DEBUG);
-
     private static final int JVM_JAVA_MAJOR_VERSION;
     private static final boolean IS_JAVA_9_PLUS;
     private static final boolean IS_JAVA_12_PLUS;
@@ -95,7 +96,6 @@ public enum Jvm {
         put(long.class, 8);
         put(double.class, 8);
     }};
-
     private static final MethodHandle setAccessible0_Method;
     private static final MethodHandle onSpinWaitMH;
     private static final ChainedSignalHandler signalHandlerGlobal;
@@ -838,32 +838,6 @@ public enum Jvm {
                 : ObjectUtils.isTrue(trim);
     }
 
-    // from https://stackoverflow.com/questions/62550828/is-there-a-lightweight-method-which-adds-a-safepoint-in-java-9
-    static class Safepoint {
-        private static volatile int one = 1;
-
-        public static void force() {
-            // trick only works from Java 9+
-            for (int i = 0; i < one; i++) ;
-        }
-    }
-
-    private static class ChainedSignalHandler implements SignalHandler {
-        final List<SignalHandler> handlers = new CopyOnWriteArrayList<>();
-
-        @Override
-        public void handle(Signal signal) {
-            for (SignalHandler handler : handlers) {
-                try {
-                    if (handler != null)
-                        handler.handle(signal);
-                } catch (Throwable t) {
-                    Jvm.warn().on(this.getClass(), "Problem handling signal", t);
-                }
-            }
-        }
-    }
-
     public static long address(ByteBuffer bb) {
         return ((DirectBuffer) bb).address();
     }
@@ -871,7 +845,6 @@ public enum Jvm {
     public static int arrayByteBaseOffset() {
         return Unsafe.ARRAY_BYTE_BASE_OFFSET;
     }
-
 
     public static void doNotCloseOnInterrupt(Class clazz, FileChannel fc) {
         if (Jvm.isJava9Plus())
@@ -908,6 +881,56 @@ public enum Jvm {
                     }));
         } catch (Throwable e) {
             Jvm.warn().on(clazz, "Couldn't disable close on interrupt", e);
+        }
+    }
+
+    /**
+     * Makes sure all the jars etc in the current class loader have been added to the class path.
+     *
+     * @param clazz to use as a template.
+     */
+    public static void addToClassPath(Class clazz) {
+        ClassLoader cl = clazz.getClassLoader();
+        if (!(cl instanceof URLClassLoader))
+            return;
+        String property = System.getProperty(JAVA_CLASS_PATH);
+        List<String> jcp = Arrays.asList(property.split(File.pathSeparator));
+        URLClassLoader ucl = (URLClassLoader) cl;
+        StringBuilder classpath = new StringBuilder(property);
+        for (URL url : ucl.getURLs()) {
+            String path = url.getPath();
+            if (!jcp.contains(path)) {
+                if (isDebugEnabled(Jvm.class))
+                    Jvm.debug().on(Jvm.class, "Adding " + path + " to the classpath");
+                classpath.append(File.pathSeparator).append(path);
+            }
+        }
+        System.setProperty(JAVA_CLASS_PATH, classpath.toString());
+    }
+
+    // from https://stackoverflow.com/questions/62550828/is-there-a-lightweight-method-which-adds-a-safepoint-in-java-9
+    static class Safepoint {
+        private static volatile int one = 1;
+
+        public static void force() {
+            // trick only works from Java 9+
+            for (int i = 0; i < one; i++) ;
+        }
+    }
+
+    static class ChainedSignalHandler implements SignalHandler {
+        final List<SignalHandler> handlers = new CopyOnWriteArrayList<>();
+
+        @Override
+        public void handle(Signal signal) {
+            for (SignalHandler handler : handlers) {
+                try {
+                    if (handler != null)
+                        handler.handle(signal);
+                } catch (Throwable t) {
+                    Jvm.warn().on(this.getClass(), "Problem handling signal", t);
+                }
+            }
         }
     }
 }
