@@ -67,13 +67,35 @@ public enum ObjectUtils {
         }
     });
     private static final Map<Class, Immutability> immutabilityMap = new ConcurrentHashMap<>();
-    private static final ClassLocal<Supplier> SUPPLIER_CLASS_LOCAL = ClassLocal.withInitial(c -> {
+
+    // these should only ever be changed on startup.
+    private static volatile ClassLocal<Class> interfaceToDefaultClass = ClassLocal.withInitial(c -> c);
+    private static volatile ClassLocal<Supplier> supplierClassLocal = ClassLocal.withInitial(ObjectUtils::supplierForClass);
+
+    static {
+        DEFAULT_MAP.put(boolean.class, false);
+        DEFAULT_MAP.put(byte.class, (byte) 0);
+        DEFAULT_MAP.put(short.class, (short) 0);
+        DEFAULT_MAP.put(char.class, (char) 0);
+        DEFAULT_MAP.put(int.class, 0);
+        DEFAULT_MAP.put(long.class, 0L);
+        DEFAULT_MAP.put(float.class, 0.0f);
+        DEFAULT_MAP.put(double.class, 0.0);
+    }
+
+    private static Supplier supplierForClass(Class<?> c) {
         if (c == null)
             throw new NullPointerException();
         if (c.isPrimitive())
             throw new IllegalArgumentException("primitive: " + c.getName());
-        if (c.isInterface())
-            throw new IllegalArgumentException("interface: " + c.getName());
+        if (c.isInterface()) {
+            return () -> {
+                Class aClass = ObjectUtils.interfaceToDefaultClass.get(c);
+                if (aClass == null)
+                    throw new IllegalArgumentException("interface: " + c.getName());
+                return supplierForClass(aClass);
+            };
+        }
         if (Modifier.isAbstract(c.getModifiers()))
             throw new IllegalArgumentException("abstract class: " + c.getName());
         if (c.isEnum())
@@ -92,17 +114,6 @@ public enum ObjectUtils {
                 }
             };
         }
-    });
-
-    static {
-        DEFAULT_MAP.put(boolean.class, false);
-        DEFAULT_MAP.put(byte.class, (byte) 0);
-        DEFAULT_MAP.put(short.class, (short) 0);
-        DEFAULT_MAP.put(char.class, (char) 0);
-        DEFAULT_MAP.put(int.class, 0);
-        DEFAULT_MAP.put(long.class, 0L);
-        DEFAULT_MAP.put(float.class, 0.0f);
-        DEFAULT_MAP.put(double.class, 0.0);
     }
 
     public static void immutabile(Class clazz, boolean isImmutable) {
@@ -354,7 +365,7 @@ public enum ObjectUtils {
 
     @NotNull
     public static <T> T newInstance(@NotNull Class<T> clazz) {
-        Supplier cons = SUPPLIER_CLASS_LOCAL.get(clazz);
+        Supplier cons = supplierClassLocal.get(clazz);
         return (T) cons.get();
     }
 
@@ -382,9 +393,11 @@ public enum ObjectUtils {
     }
 
     public static boolean matchingClass(@NotNull Class base, @NotNull Class toMatch) {
-        return base == toMatch ||
-                Enum.class.isAssignableFrom(toMatch) && base.equals(toMatch.getEnclosingClass());
+        return base == toMatch
+                || base.isInterface() && interfaceToDefaultClass.get(base) == toMatch
+                || Enum.class.isAssignableFrom(toMatch) && base.equals(toMatch.getEnclosingClass());
     }
+
 
     @NotNull
     public static <T> T printAll(@NotNull Class<T> tClass, Class... additional) throws IllegalArgumentException {
@@ -501,6 +514,28 @@ public enum ObjectUtils {
         }
     }
 
+    public static synchronized void defaultObjectForInterface(ThrowingFunction<Class, Class, ClassNotFoundException> defaultObjectForInterface) {
+        interfaceToDefaultClass = ClassLocal.withInitial(c -> {
+            try {
+                return defaultObjectForInterface.apply(c);
+            } catch (ClassNotFoundException cne) {
+                cne.printStackTrace();
+                return c;
+            }
+        });
+        // need to reset any cached suppliers.
+        supplierClassLocal = ClassLocal.withInitial(ObjectUtils::supplierForClass);
+    }
+
+    public static <T> Class<T> implementationToUse(Class<T> tClass) {
+        if (tClass.isInterface()) {
+            Class class2 = interfaceToDefaultClass.get(tClass);
+            if (class2 != null)
+                return class2;
+        }
+        return tClass;
+    }
+
     public enum Immutability {
         YES, NO, MAYBE
     }
@@ -539,5 +574,4 @@ public enum ObjectUtils {
             }
         }
     }
-
 }
