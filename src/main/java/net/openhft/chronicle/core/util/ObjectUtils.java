@@ -525,7 +525,7 @@ public enum ObjectUtils {
             try {
                 return defaultObjectForInterface.apply(c);
             } catch (ClassNotFoundException cne) {
-                cne.printStackTrace();
+                Jvm.warn().on(ObjectUtils.class, "Unable to find aliss for " + c + " " + cne);
                 return c;
             }
         });
