@@ -69,7 +69,7 @@ public enum ObjectUtils {
     private static final Map<Class, Immutability> immutabilityMap = new ConcurrentHashMap<>();
 
     // these should only ever be changed on startup.
-    private static volatile ClassLocal<Class> interfaceToDefaultClass = ClassLocal.withInitial(c -> c);
+    private static volatile ClassLocal<Class> interfaceToDefaultClass = ClassLocal.withInitial(c -> lookForImplEnum(c));
     private static volatile ClassLocal<Supplier> supplierClassLocal = ClassLocal.withInitial(ObjectUtils::supplierForClass);
 
     static {
@@ -522,15 +522,31 @@ public enum ObjectUtils {
 
     public static synchronized void defaultObjectForInterface(ThrowingFunction<Class, Class, ClassNotFoundException> defaultObjectForInterface) {
         interfaceToDefaultClass = ClassLocal.withInitial(c -> {
+            Class c2;
             try {
-                return defaultObjectForInterface.apply(c);
+                c2 = defaultObjectForInterface.apply(c);
             } catch (ClassNotFoundException cne) {
-                Jvm.warn().on(ObjectUtils.class, "Unable to find aliss for " + c + " " + cne);
-                return c;
+                Jvm.warn().on(ObjectUtils.class, "Unable to find alias for " + c + " " + cne);
+                c2 = c;
             }
+            return lookForImplEnum(c2);
         });
         // need to reset any cached suppliers.
         supplierClassLocal = ClassLocal.withInitial(ObjectUtils::supplierForClass);
+    }
+
+    @NotNull
+    protected static Class lookForImplEnum(Class c2) {
+        if (c2.isInterface()) {
+            try {
+                Class c3 = Class.forName(c2.getName() + "s");
+                if (c2.isAssignableFrom(c3))
+                    return c3;
+            } catch (ClassNotFoundException cne) {
+                // ignored
+            }
+        }
+        return c2;
     }
 
     public static <T> Class<T> implementationToUse(Class<T> tClass) {
