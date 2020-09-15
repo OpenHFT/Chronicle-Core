@@ -43,7 +43,7 @@ public class SystemTimeProviderTest {
         long lastTimeMicros;
         long start;
 
-        int error = OS.isWindows() ? 10 : 1;
+        int error = OS.isWindows() ? 20 : 1;
         for (int i = 0; i <= 20; i++) {
             minDiff = 10;
             maxDiff = 995;
