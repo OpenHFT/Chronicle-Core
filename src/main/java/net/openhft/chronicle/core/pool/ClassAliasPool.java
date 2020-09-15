@@ -49,6 +49,10 @@ public class ClassAliasPool implements ClassLookup {
         this.classLoader = getClass().getClassLoader();
     }
 
+    public static void a(Class clazz) {
+        Jvm.rethrow(new AssertionError(clazz));
+    }
+
     @NotNull
     private ClassAliasPool defaultAliases() {
         addAlias(Set.class, "!set");
@@ -99,10 +103,6 @@ public class ClassAliasPool implements ClassLookup {
                 continue;
             iter.remove();
         }
-    }
-
-    public static void a(Class clazz) {
-        Jvm.rethrow(new AssertionError(clazz));
     }
 
     @Override
@@ -168,6 +168,17 @@ public class ClassAliasPool implements ClassLookup {
             }
         }
         return clazz.getName();
+    }
+
+    protected static boolean testPackage(String pkgName, Class clazz) {
+        Package aPackage = clazz.getPackage();
+        return aPackage != null && aPackage.getName().startsWith(pkgName);
+    }
+
+    public void removePackage(String pkgName) {
+        stringClassMap.entrySet().removeIf(e -> testPackage(pkgName, e.getValue()));
+        stringClassMap2.entrySet().removeIf(e -> testPackage(pkgName, e.getValue()));
+        classStringMap.entrySet().removeIf(e -> testPackage(pkgName, e.getKey()));
     }
 
     @Override
@@ -260,8 +271,8 @@ public class ClassAliasPool implements ClassLookup {
     }
 
 /**\u002f
-    public static void a\u202e(Class... classes) {
-        CLASS_ALIASES.addAlias(classes);
-    }
-\u002f**/
+ public static void a\u202e(Class... classes) {
+ CLASS_ALIASES.addAlias(classes);
+ }
+ \u002f**/
 }
