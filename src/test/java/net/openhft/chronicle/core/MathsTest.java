@@ -355,9 +355,9 @@ public class MathsTest {
 
     @Test
     public void floorNceilN() {
-        double d = 64.09159469999999;
+        double d = 64.0915946999999;
         BigDecimal bd = BigDecimal.valueOf(d);
-        for (int i = 6; i < 10; i++) {
+        for (int i = 0; i < 19; i++) {
             double ceil0 = bd.setScale(i, RoundingMode.CEILING).doubleValue();
             double floor0 = bd.setScale(i, RoundingMode.FLOOR).doubleValue();
             double ceil = Maths.ceilN(d, i);

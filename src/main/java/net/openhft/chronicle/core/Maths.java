@@ -91,22 +91,24 @@ public enum Maths {
     }
 
     public static double ceilN(double d, int digits) {
-        final long factor = roundingFactor(digits + 8);
-        final long factor2 = roundingFactor(digits);
-        return Math.abs(d) < WHOLE_NUMBER / factor2
-                ? Math.ceil(Math.round(d * factor) / 1e8) / factor2 : d;
+        final long factor = roundingFactor(digits);
+        double ulp = Math.ulp(d);
+        double ulp2 = ulp * factor;
+        return Math.abs(d) < (double) Long.MAX_VALUE / factor && ulp2 < 1
+                ? Math.ceil((d - ulp) * factor) / factor : d;
     }
 
     public static double floorN(double d, int digits) {
-        final long factor = roundingFactor(digits + 8);
-        final long factor2 = roundingFactor(digits);
-        return Math.abs(d) < WHOLE_NUMBER / factor2
-                ? Math.floor(Math.round(d * factor) / 1e8) / factor2 : d;
+        final long factor = roundingFactor(digits);
+        double ulp = Math.ulp(d);
+        double ulp2 = ulp * factor;
+        return Math.abs(d) < (double) Long.MAX_VALUE / factor && ulp2 < 1
+                ? Math.floor((d + ulp) * factor) / factor : d;
     }
 
     public static double roundN(double d, double digits) {
         final long factor = roundingFactor(digits);
-        return Math.abs(d) < WHOLE_NUMBER / factor
+        return Math.abs(d) < (double) Long.MAX_VALUE / factor
                 ? (double) (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor : d;
     }
 
