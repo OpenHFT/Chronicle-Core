@@ -93,14 +93,14 @@ public enum Maths {
     public static double ceilN(double d, int digits) {
         final long factor = roundingFactor(digits + 8);
         final long factor2 = roundingFactor(digits);
-        return Math.abs(d) < WHOLE_NUMBER / factor
+        return Math.abs(d) < WHOLE_NUMBER / factor2
                 ? Math.ceil(Math.round(d * factor) / 1e8) / factor2 : d;
     }
 
     public static double floorN(double d, int digits) {
         final long factor = roundingFactor(digits + 8);
         final long factor2 = roundingFactor(digits);
-        return Math.abs(d) < WHOLE_NUMBER / factor
+        return Math.abs(d) < WHOLE_NUMBER / factor2
                 ? Math.floor(Math.round(d * factor) / 1e8) / factor2 : d;
     }
 

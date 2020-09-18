@@ -29,6 +29,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.security.SecureRandom;
 import java.util.Random;
 import java.util.stream.DoubleStream;
@@ -53,6 +54,7 @@ public class MathsTest {
         assertEquals(2, Maths.digits(99));
         assertEquals(3, Maths.digits(100));
     }
+
     @Test
     public void roundN() {
         assertEquals(1.5, Maths.roundN(1 + 0.25, 0.3f), 0.0);
@@ -349,5 +351,19 @@ public class MathsTest {
 
         // UT8 & Not-equal hashes
         assertNotEquals(Maths.hash64("Δ"), Maths.hash64("Γ"));
+    }
+
+    @Test
+    public void floorNceilN() {
+        double d = 64.09159469999999;
+        BigDecimal bd = BigDecimal.valueOf(d);
+        for (int i = 6; i < 10; i++) {
+            double ceil0 = bd.setScale(i, RoundingMode.CEILING).doubleValue();
+            double floor0 = bd.setScale(i, RoundingMode.FLOOR).doubleValue();
+            double ceil = Maths.ceilN(d, i);
+            double floor = Maths.floorN(d, i);
+            assertEquals("i: " + i, ceil0, ceil, 0);
+            assertEquals("i: " + i, floor0, floor, 0);
+        }
     }
 }
