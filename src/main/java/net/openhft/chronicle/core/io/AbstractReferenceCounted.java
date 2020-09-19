@@ -12,6 +12,7 @@ import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEAS
 
 public abstract class AbstractReferenceCounted implements ReferenceCountedTracer, ReferenceOwner {
     static volatile Set<AbstractReferenceCounted> REFERENCE_COUNTED_SET;
+    protected static final long WARN_NS = (long) (Jvm.getDouble("reference.warn.secs", 0.003) * 1e9);
 
     private transient volatile Thread usedByThread;
     private transient final ReferenceCountedTracer referenceCounted;
@@ -98,7 +99,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         long start = System.nanoTime();
         performRelease();
         long time = System.nanoTime() - start;
-        if (time >= 3_000_000)
+        if (time >= WARN_NS)
             Slf4jExceptionHandler.WARN.on(getClass(), "Took " + time / 100_000 / 10.0 + " ms to performRelease");
     }
 

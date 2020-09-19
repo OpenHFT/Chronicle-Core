@@ -908,6 +908,17 @@ public enum Jvm {
         System.setProperty(JAVA_CLASS_PATH, classpath.toString());
     }
 
+    public static double getDouble(String property, double defaultValue) {
+        String value = System.getProperty(property);
+        if (value != null)
+            try {
+                return Double.parseDouble(value);
+            } catch (NumberFormatException e) {
+                Jvm.debug().on(Jvm.class, "Unable to parse property " + property + " as a double " + e);
+            }
+        return defaultValue;
+    }
+
     // from https://stackoverflow.com/questions/62550828/is-there-a-lightweight-method-which-adds-a-safepoint-in-java-9
     static class Safepoint {
         private static volatile int one = 1;

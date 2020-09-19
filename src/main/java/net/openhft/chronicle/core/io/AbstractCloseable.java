@@ -33,6 +33,7 @@ import static net.openhft.chronicle.core.io.TracingReferenceCounted.asString;
 
 public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwner {
     protected static final boolean CHECK_THREAD_SAFETY = Jvm.getBoolean("check.thread.safety", false);
+    protected static final long WARN_NS = (long) (Jvm.getDouble("closeable.warn.secs", 0.02) * 1e9);
 
     private static final long CLOSED_OFFSET;
     static volatile Set<CloseableTracer> CLOSEABLE_SET;
@@ -144,7 +145,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
                 Jvm.debug().on(getClass(), "Exception thrown on performClose", e);
             }
             long time = System.nanoTime() - start;
-            if (time >= 20_000_000 &&
+            if (time >= WARN_NS &&
                     !Thread.currentThread().getName().equals(BACKGROUND_RESOURCE_RELEASER))
                 Jvm.warn().on(getClass(), "Took " + time / 1000_000 + " ms to performClose");
         }
