@@ -20,6 +20,7 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.threads.ThreadDump;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import sun.nio.ch.DirectBuffer;
@@ -31,6 +32,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
+import static net.openhft.chronicle.core.Jvm.getProcessId;
 import static net.openhft.chronicle.core.Jvm.isArm;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
@@ -177,4 +179,15 @@ public class JvmTest {
             Jvm.doNotCloseOnInterrupt(getClass(), fc);
         }
     }
+
+    /**
+     * tests that the process is still running
+     */
+    @Test
+    public void isProcessAliveTest() {
+        long pid = getProcessId();
+        Assert.assertTrue(Jvm.isProcessAlive(pid));
+        Assert.assertFalse(Jvm.isProcessAlive(-1));
+    }
+
 }

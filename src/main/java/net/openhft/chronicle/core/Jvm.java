@@ -29,10 +29,7 @@ import sun.misc.Unsafe;
 import sun.nio.ch.DirectBuffer;
 import sun.nio.ch.Interruptible;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -49,7 +46,9 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 
+import static java.lang.Runtime.getRuntime;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
+import static net.openhft.chronicle.core.OS.*;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 
 /**
@@ -681,7 +680,7 @@ public enum Jvm {
         try {
             final Method method = Runtime.class.getDeclaredMethod("version");
             if (method != null) {
-                final Object version = method.invoke(Runtime.getRuntime());
+                final Object version = method.invoke(getRuntime());
                 final Class<?> clz = Class.forName("java.lang.Runtime$Version");
                 return (Integer) clz.getDeclaredMethod("major").invoke(version);
             }
@@ -942,6 +941,47 @@ public enum Jvm {
                     Jvm.warn().on(this.getClass(), "Problem handling signal", t);
                 }
             }
+        }
+    }
+
+    /**
+     * checks if a process is still alive
+     *
+     * @param pid
+     * @return true if the process is still alive
+     */
+    public static boolean isProcessAlive(long pid) {
+        String command = null;
+        if (isWindows()) {
+            command = "cmd /c tasklist /FI \"PID eq " + pid + "\"";
+            return isProcessAlive0(pid, command);
+        }
+        if (isLinux() || isMacOSX()) {
+            command = "ps -p " + pid;
+            return isProcessAlive0(pid, command);
+        }
+
+        return false;
+
+    }
+
+    private static boolean isProcessAlive0(long pid, String command) {
+
+        try {
+            InputStreamReader isReader = new InputStreamReader(
+                    getRuntime().exec(command).getInputStream());
+
+            BufferedReader bReader = new BufferedReader(isReader);
+            String strLine;
+            while ((strLine = bReader.readLine()) != null) {
+                if (strLine.contains(" " + pid + " ") || strLine.startsWith(pid + " ")) {
+                    return true;
+                }
+            }
+
+            return false;
+        } catch (Exception ex) {
+            return true;
         }
     }
 }
