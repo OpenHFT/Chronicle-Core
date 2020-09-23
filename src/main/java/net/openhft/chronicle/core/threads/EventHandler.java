@@ -24,7 +24,21 @@ import java.io.Closeable;
 
 @FunctionalInterface
 public interface EventHandler extends VanillaEventHandler {
+    /**
+     * This method is called once when it is added to an eventLoop, which might be before the EventLoop has started
+     * This could be called in any thread.
+     *
+     * @param eventLoop the handler has been added to.
+     */
     default void eventLoop(EventLoop eventLoop) {
+    }
+
+    /**
+     * This handler has been added to an EventLoop or when the EventLoop starts.
+     * This is always called in the EventLoop thread.
+     * This is called after the first called to eventLoop() to make it clearer.
+     */
+    default void loopStarted() {
     }
 
     /**
