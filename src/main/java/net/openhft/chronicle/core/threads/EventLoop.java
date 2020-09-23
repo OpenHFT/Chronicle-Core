@@ -34,15 +34,25 @@ public interface EventLoop extends Closeable {
 
     /**
      * Add handler to event loop to be executed. Event loops should execute handlers in order of priority.
-     * Handlers with same priority have no guarantee of execution order.
+     * Handlers with same priority have no guarantee of execution order. Handlers will not be executed before
+     * {@link #start()} has been called.
      * @param handler handler
      */
     void addHandler(EventHandler handler);
 
+    /**
+     * Start the event loop
+     */
     void start();
 
+    /**
+     * Typical implementation will unpause the event loop's Pauser
+     */
     void unpause();
 
+    /**
+     * Notify event loop to stop executing handlers. It is not expected that event loops can then be restarted
+     */
     void stop();
 
     /**
