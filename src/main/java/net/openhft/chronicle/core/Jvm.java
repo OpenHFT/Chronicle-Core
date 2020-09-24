@@ -99,6 +99,7 @@ public enum Jvm {
     private static final MethodHandle onSpinWaitMH;
     private static final ChainedSignalHandler signalHandlerGlobal;
     private static final boolean RESOURCE_TRACING;
+    private static final boolean PROC_EXISTS = new File("/proc").exists();
 
     static {
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
@@ -918,6 +919,49 @@ public enum Jvm {
         return defaultValue;
     }
 
+    /**
+     * checks if a process is still alive
+     *
+     * @param pid
+     * @return true if the process is still alive
+     */
+    public static boolean isProcessAlive(long pid) {
+        if (isWindows()) {
+            String command = "cmd /c tasklist /FI \"PID eq " + pid + "\"";
+            return isProcessAlive0(pid, command);
+        }
+        if (isLinux() && PROC_EXISTS) {
+            return new File("/proc/" + pid).exists();
+        }
+        if (isMacOSX() || isLinux()) {
+            String command = "ps -p " + pid;
+            return isProcessAlive0(pid, command);
+        }
+
+        throw new UnsupportedOperationException("Not supported on this OS");
+    }
+
+
+    private static boolean isProcessAlive0(long pid, String command) {
+
+        try {
+            InputStreamReader isReader = new InputStreamReader(
+                    getRuntime().exec(command).getInputStream());
+
+            BufferedReader bReader = new BufferedReader(isReader);
+            String strLine;
+            while ((strLine = bReader.readLine()) != null) {
+                if (strLine.contains(" " + pid + " ") || strLine.startsWith(pid + " ")) {
+                    return true;
+                }
+            }
+
+            return false;
+        } catch (Exception ex) {
+            return true;
+        }
+    }
+
     // from https://stackoverflow.com/questions/62550828/is-there-a-lightweight-method-which-adds-a-safepoint-in-java-9
     static class Safepoint {
         private static volatile int one = 1;
@@ -941,47 +985,6 @@ public enum Jvm {
                     Jvm.warn().on(this.getClass(), "Problem handling signal", t);
                 }
             }
-        }
-    }
-
-    /**
-     * checks if a process is still alive
-     *
-     * @param pid
-     * @return true if the process is still alive
-     */
-    public static boolean isProcessAlive(long pid) {
-        String command = null;
-        if (isWindows()) {
-            command = "cmd /c tasklist /FI \"PID eq " + pid + "\"";
-            return isProcessAlive0(pid, command);
-        }
-        if (isLinux() || isMacOSX()) {
-            command = "ps -p " + pid;
-            return isProcessAlive0(pid, command);
-        }
-
-        return false;
-
-    }
-
-    private static boolean isProcessAlive0(long pid, String command) {
-
-        try {
-            InputStreamReader isReader = new InputStreamReader(
-                    getRuntime().exec(command).getInputStream());
-
-            BufferedReader bReader = new BufferedReader(isReader);
-            String strLine;
-            while ((strLine = bReader.readLine()) != null) {
-                if (strLine.contains(" " + pid + " ") || strLine.startsWith(pid + " ")) {
-                    return true;
-                }
-            }
-
-            return false;
-        } catch (Exception ex) {
-            return true;
         }
     }
 }

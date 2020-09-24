@@ -125,26 +125,6 @@ public class JvmTest {
         }
     }
 
-    static class ClassA {
-        long l;
-        int i;
-        short s;
-        byte b;
-        boolean flag;
-    }
-
-    static class ClassB extends ClassA {
-        String text;
-    }
-
-    static class ClassC extends ClassB {
-        String hi;
-    }
-
-    static class ClassD extends ClassC {
-        byte x;
-    }
-
     @Test
     public void loadSystemProperties() {
         assumeTrue(Jvm.isResourceTracing());
@@ -187,7 +167,29 @@ public class JvmTest {
     public void isProcessAliveTest() {
         long pid = getProcessId();
         Assert.assertTrue(Jvm.isProcessAlive(pid));
+        if (OS.isLinux())
+            Assert.assertTrue(Jvm.isProcessAlive(1)); // the kernel
         Assert.assertFalse(Jvm.isProcessAlive(-1));
+    }
+
+    static class ClassA {
+        long l;
+        int i;
+        short s;
+        byte b;
+        boolean flag;
+    }
+
+    static class ClassB extends ClassA {
+        String text;
+    }
+
+    static class ClassC extends ClassB {
+        String hi;
+    }
+
+    static class ClassD extends ClassC {
+        byte x;
     }
 
 }
