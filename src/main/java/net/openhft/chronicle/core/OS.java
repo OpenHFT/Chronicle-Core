@@ -45,7 +45,6 @@ import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 public enum OS {
     ;
     public static final String TMP = System.getProperty("java.io.tmpdir");
-    public static final String TARGET = System.getProperty("project.build.directory", findTarget());
     public static final String USER_DIR = System.getProperty("user.dir");
     public static final String USER_HOME = System.getProperty("user.home");
     static final ClassLocal<MethodHandle> MAP0_MH = ClassLocal.withInitial(c -> {
@@ -75,6 +74,7 @@ public enum OS {
     private static final MethodHandle READ0_MH;
     private static final MethodHandle WRITE0_MH, WRITE0_MH2;
     public static final Exception TIME_LIMIT = new TimeLimitExceededException();
+    private static String TARGET = System.getProperty("project.build.directory");
     private static int PAGE_SIZE; // avoid circular initialisation
     private static int MAP_ALIGNMENT;
 
@@ -154,6 +154,8 @@ public enum OS {
     }
 
     public static String getTarget() {
+        if (TARGET == null)
+            TARGET = findTarget();
         return TARGET;
     }
 

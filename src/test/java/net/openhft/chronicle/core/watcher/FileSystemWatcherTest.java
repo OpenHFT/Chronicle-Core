@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class FileSystemWatcherTest {
-    static String base = OS.TARGET + "/FileSystemWatcherTest";
+    static String base = OS.getTarget() + "/FileSystemWatcherTest";
 
     @Before
     public void setup() {

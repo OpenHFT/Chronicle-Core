@@ -235,7 +235,7 @@ public enum IOTools {
     }
 
     public static Path createTempDirectory(String s) {
-        new File(OS.TARGET).mkdir();
-        return Paths.get(OS.TARGET, s + "-" + Long.toString(System.nanoTime(), 36) + ".tmp");
+        new File(OS.getTarget()).mkdir();
+        return Paths.get(OS.getTarget(), s + "-" + Long.toString(System.nanoTime(), 36) + ".tmp");
     }
 }
