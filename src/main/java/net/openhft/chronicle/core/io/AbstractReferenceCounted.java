@@ -4,6 +4,7 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
 import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 import net.openhft.chronicle.core.util.WeakIdentityHashMap;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.Set;
@@ -169,6 +170,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     }
 
     @Override
+    @NotNull
     public String toString() {
         return referenceName();
     }

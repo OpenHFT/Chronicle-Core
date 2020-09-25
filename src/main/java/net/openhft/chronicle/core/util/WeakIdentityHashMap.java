@@ -1,5 +1,7 @@
 package net.openhft.chronicle.core.util;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.ref.Reference;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
@@ -80,9 +82,11 @@ public class WeakIdentityHashMap<K, V> implements Map<K, V> {
         getMap().clear();
     }
 
+    @NotNull
     @Override
     public Set<K> keySet() {
         return new AbstractSet<K>() {
+            @NotNull
             @Override
             public Iterator<K> iterator() {
                 return new Iterator<K>() {
@@ -118,14 +122,17 @@ public class WeakIdentityHashMap<K, V> implements Map<K, V> {
         };
     }
 
+    @NotNull
     @Override
     public Collection<V> values() {
         return getMap().values();
     }
 
+    @NotNull
     @Override
     public Set<Entry<K, V>> entrySet() {
         return new AbstractSet<Entry<K, V>>() {
+            @NotNull
             @Override
             public Iterator<Entry<K, V>> iterator() {
                 final Iterator<Entry<WeakKey<K>, V>> iterator = getMap().entrySet().iterator();

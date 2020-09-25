@@ -471,6 +471,7 @@ public enum ObjectUtils {
         }
     }
 
+    @NotNull
     public static Boolean toBoolean(String s) {
         if (s == null)
             return null;

@@ -1,5 +1,7 @@
 package net.openhft.chronicle.core.threads;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -81,16 +83,19 @@ public class ThreadLocalProperties extends Properties {
         return tl.get().toString();
     }
 
+    @NotNull
     @Override
     public Set<Object> keySet() {
         return tl.get().keySet();
     }
 
+    @NotNull
     @Override
     public Set<Map.Entry<Object, Object>> entrySet() {
         return tl.get().entrySet();
     }
 
+    @NotNull
     @Override
     public Collection<Object> values() {
         return tl.get().values();
