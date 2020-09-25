@@ -36,9 +36,10 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
     private static final Impact IMPACT;
 
     static {
-        MethodHandles.Lookup lookup = MethodHandles.lookup();
-        final String cleanerClassname = Jvm.isJava9Plus() ?
-                JDK9_CLEANER_CLASS_NAME : JDK8_CLEANER_CLASS_NAME;
+        final MethodHandles.Lookup lookup = MethodHandles.lookup();
+        final String cleanerClassname = Jvm.isJava9Plus()
+                ? JDK9_CLEANER_CLASS_NAME
+                : JDK8_CLEANER_CLASS_NAME;
         MethodHandle cleaner = null;
         MethodHandle clean = null;
         Impact impact = Impact.SOME_IMPACT;
@@ -49,7 +50,9 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
         } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException e) {
             // Don't want to record this in tests so just send to slf4j
             Logger.getLogger(ReflectionBasedByteBufferCleanerService.class.getName())
-                    .info("Make sure you have set the command line option \"--illegal-access=permit --add-exports java.base/jdk.internal.ref=ALL-UNNAMED\"");
+                    .warning("Make sure you have set the command line option " +
+                            "\"--illegal-access=permit --add-exports java.base/jdk.internal.ref=ALL-UNNAMED\" " +
+                            "to enable " + ReflectionBasedByteBufferCleanerService.class.getSimpleName());
             impact = Impact.UNAVAILABLE;
         }
         CLEAN_METHOD = clean;
