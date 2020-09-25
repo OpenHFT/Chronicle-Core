@@ -74,7 +74,7 @@ public enum OS {
     private static final MethodHandle READ0_MH;
     private static final MethodHandle WRITE0_MH, WRITE0_MH2;
     public static final Exception TIME_LIMIT = new TimeLimitExceededException();
-    // can't make it private until all libraries have been updated. Use getTarget()
+    // can't make it private until all libraries have been updated to x.20.60, Use getTarget() instead.
     @Deprecated
     public static final String TARGET = findTarget();
     private static int PAGE_SIZE; // avoid circular initialisation
