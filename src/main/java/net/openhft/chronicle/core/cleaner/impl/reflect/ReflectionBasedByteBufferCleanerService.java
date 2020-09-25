@@ -62,11 +62,19 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
 
     @Override
     public void clean(final ByteBuffer buffer) {
-        try {
-            final Object cleaner = CLEANER_METHOD.invoke((DirectBuffer) buffer);
-            CLEAN_METHOD.invoke(cleaner);
-        } catch (Throwable throwable) {
-            Jvm.rethrow(throwable);
+        if (IMPACT == Impact.UNAVAILABLE) {
+            // There might not be a cleaner after all.
+            // See https://github.com/OpenHFT/Chronicle-Core/issues/140
+            Logger.getLogger(ReflectionBasedByteBufferCleanerService.class.getName())
+                    .warning("Cleaning is not available. The ByteBuffer 0x" + Integer.toHexString(System.identityHashCode(buffer)) +
+                            " could not be explicitly cleaned and will thus linger until the next GC.");
+        } else {
+            try {
+                final Object cleaner = CLEANER_METHOD.invoke((DirectBuffer) buffer);
+                CLEAN_METHOD.invoke(cleaner);
+            } catch (Throwable throwable) {
+                Jvm.rethrow(throwable);
+            }
         }
     }
 
