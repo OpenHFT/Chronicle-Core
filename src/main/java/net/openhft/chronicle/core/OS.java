@@ -74,7 +74,9 @@ public enum OS {
     private static final MethodHandle READ0_MH;
     private static final MethodHandle WRITE0_MH, WRITE0_MH2;
     public static final Exception TIME_LIMIT = new TimeLimitExceededException();
-    private static String TARGET = System.getProperty("project.build.directory");
+    // can't make it private until all libraries have been updated. Use getTarget()
+    @Deprecated
+    public static final String TARGET = findTarget();
     private static int PAGE_SIZE; // avoid circular initialisation
     private static int MAP_ALIGNMENT;
 
@@ -108,6 +110,9 @@ public enum OS {
 
     @NotNull
     private static String findTarget() {
+        String target = System.getProperty("project.build.directory");
+        if (target != null)
+            return target;
         for (File dir = new File(System.getProperty("user.dir")); dir != null; dir = dir.getParentFile()) {
             @NotNull File mavenTarget = new File(dir, "target");
             if (mavenTarget.exists())
@@ -154,8 +159,6 @@ public enum OS {
     }
 
     public static String getTarget() {
-        if (TARGET == null)
-            TARGET = findTarget();
         return TARGET;
     }
 
