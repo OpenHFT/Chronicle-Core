@@ -19,7 +19,6 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.Reference;
@@ -27,7 +26,9 @@ import java.util.Collection;
 
 public interface Closeable extends java.io.Closeable, QueryCloseable {
 
-    static void closeQuietly(@NotNull Object... closeables) {
+    static void closeQuietly(@Nullable Object... closeables) {
+        if (closeables == null)
+            return;
         closeQuietly((Object) closeables);
     }
 
