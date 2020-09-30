@@ -31,6 +31,7 @@ public class DynamicEnumClass<E extends DynamicEnumPooled> extends EnumCache<E> 
     private final Field nameField;
     private final Field ordinalField;
     private final Function<String, E> create = this::create;
+    private final int initialSize;
 
     DynamicEnumClass(Class<E> eClass) {
         super(eClass);
@@ -39,7 +40,13 @@ public class DynamicEnumClass<E extends DynamicEnumPooled> extends EnumCache<E> 
             eMap.put(e.name(), e);
         }
         nameField = Jvm.getField(eClass, "name");
-        ordinalField = Enum.class.isAssignableFrom(eClass) ? Jvm.getField(eClass, "ordinal") : null;
+        if (Enum.class.isAssignableFrom(eClass) ) {
+            ordinalField = Jvm.getField(eClass, "ordinal");
+            initialSize = guessInitialSize((Class<? extends Enum>) eClass);
+        } else {
+            ordinalField = null;
+            initialSize = Maths.nextPower2(eMap.size(), 64);
+        }
     }
 
     private E[] getStaticConstants(Class<E> eClass) {
@@ -85,6 +92,6 @@ public class DynamicEnumClass<E extends DynamicEnumPooled> extends EnumCache<E> 
 
     @Override
     public int initialSize() {
-        return Maths.nextPower2(eMap.size(), 64);
+        return initialSize;
     }
 }

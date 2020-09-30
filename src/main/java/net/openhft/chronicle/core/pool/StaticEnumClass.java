@@ -17,36 +17,12 @@
  */
 package net.openhft.chronicle.core.pool;
 
-import net.openhft.chronicle.core.Jvm;
-import net.openhft.chronicle.core.Maths;
-
 public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
     private final int initialSize;
 
     StaticEnumClass(Class<E> eClass) {
         super(eClass);
         this.initialSize = guessInitialSize(eClass);
-    }
-
-    private static int guessInitialSize(Class<? extends Enum> eClass) {
-        Enum[] enumConstants = eClass.getEnumConstants();
-        int initialSize = Maths.nextPower2(enumConstants.length * 2, 16);
-        for (int i = 0; i < 3; i++) {
-            Enum[] cache = new Enum[initialSize];
-            int conflicts = 0;
-            for (Enum enumConstant : enumConstants) {
-                int n = Maths.hash32(enumConstant.name()) & (initialSize - 1);
-                if (cache[n] == null)
-                    cache[n] = enumConstant;
-                else
-                    conflicts++;
-            }
-            if (conflicts > 0) {
-                Jvm.debug().on(eClass, "EnumCache " + initialSize + " conflicts " + conflicts);
-                initialSize *= 2;
-            }
-        }
-        return initialSize;
     }
 
     @Override

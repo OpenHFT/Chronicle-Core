@@ -18,6 +18,8 @@
 package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.ClassLocal;
+import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.Maths;
 
 public abstract class EnumCache<E> {
     private static final ClassLocal<EnumCache> ENUM_CACHE_CL = ClassLocal.withInitial(
@@ -41,4 +43,35 @@ public abstract class EnumCache<E> {
     public abstract E valueOf(String name);
 
     public abstract int initialSize();
+
+    /**
+     * Makes an attempt to determine size of an array with no hash collisions
+     * @param eClass enum
+     * @return estimate
+     */
+    protected static int guessInitialSize(Class<? extends Enum> eClass) {
+        Enum[] enumConstants = eClass.getEnumConstants();
+        int initialSize = Maths.nextPower2(enumConstants.length * 2, 16);
+        final int max = 3;
+        for (int i = 0; i < max; i++) {
+            Enum[] cache = new Enum[initialSize];
+            int conflicts = 0;
+            for (Enum enumConstant : enumConstants) {
+                int n = Maths.hash32(enumConstant.name()) & (initialSize - 1);
+                if (cache[n] == null)
+                    cache[n] = enumConstant;
+                else
+                    conflicts++;
+            }
+            if (conflicts > 0) {
+                final String msg = "EnumCache " + initialSize + " conflicts " + conflicts;
+                if (i < max - 1) {
+                    Jvm.debug().on(eClass, msg);
+                    initialSize *= 2;
+                } else
+                    Jvm.warn().on(eClass, msg);
+            }
+        }
+        return initialSize;
+    }
 }

@@ -19,4 +19,10 @@ public class DynamicEnumPooledClassTest {
         assertEquals("Unknown", unknown.name());
         assertEquals(3, unknown.ordinal());
     }
+
+    @Test
+    public void testInitialSize() {
+        EnumCache<EcnDynamic> ecnEnumCache = EnumCache.of(EcnDynamic.class);
+        assertEquals(128, ecnEnumCache.initialSize());
+    }
 }
