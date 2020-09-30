@@ -198,6 +198,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
         return false;
     }
 
+    // this should throw IllegalStateException or return true
     protected boolean threadSafetyCheck(boolean isUsed) {
         if (!CHECK_THREAD_SAFETY)
             return true;
