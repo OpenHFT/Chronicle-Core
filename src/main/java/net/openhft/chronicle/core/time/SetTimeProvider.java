@@ -38,8 +38,8 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
         this(0L);
     }
 
-    public SetTimeProvider(long initialTime) {
-        super(LongTime.toNanos(initialTime));
+    public SetTimeProvider(long initialNanos) {
+        super(initialNanos);
     }
 
     public SetTimeProvider(String timestamp) {
