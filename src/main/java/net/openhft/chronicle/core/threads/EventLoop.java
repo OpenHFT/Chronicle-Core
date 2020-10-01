@@ -20,17 +20,11 @@ package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.Closeable;
-import org.jetbrains.annotations.NotNull;
 
 public interface EventLoop extends Closeable {
     boolean DEBUG_ADDING_HANDLERS = Jvm.getBoolean("debug.adding.handlers");
 
     String name();
-
-    @Deprecated
-    default void addHandler(boolean dontAttemptToRunImmediatelyInCurrentThread, @NotNull EventHandler handler) {
-        throw new UnsupportedOperationException("dontAttemptToRunImmediatelyInCurrentThread is always true now");
-    }
 
     /**
      * Add handler to event loop to be executed. Event loops should execute handlers in order of priority.
