@@ -20,36 +20,30 @@ package net.openhft.chronicle.core.pool;
 import net.openhft.chronicle.core.ClassLocal;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.Maths;
+import net.openhft.chronicle.core.util.CoreDynamicEnum;
 
 public abstract class EnumCache<E> {
     private static final ClassLocal<EnumCache> ENUM_CACHE_CL = ClassLocal.withInitial(
-            eClass -> DynamicEnumPooled.class.isAssignableFrom(eClass)
+            eClass -> CoreDynamicEnum.class.isAssignableFrom(eClass)
                     ? new DynamicEnumClass(eClass)
                     : new StaticEnumClass(eClass));
-    protected final Class<E> eClass;
+    protected final Class<E> type;
 
-    protected EnumCache(Class<E> eClass) {
-        this.eClass = eClass;
+    protected EnumCache(Class<E> type) {
+        this.type = type;
     }
 
     public static <E> EnumCache<E> of(Class<E> eClass) {
         return ENUM_CACHE_CL.get(eClass);
     }
 
-    public E get(String name) {
-        return valueOf(name);
-    }
-
-    public abstract E valueOf(String name);
-
-    public abstract int initialSize();
-
     /**
      * Makes an attempt to determine size of an array with no hash collisions
+     *
      * @param eClass enum
      * @return estimate
      */
-    protected static int guessInitialSize(Class<? extends Enum> eClass) {
+    protected static long guessInitialSize(Class<? extends Enum> eClass) {
         Enum[] enumConstants = eClass.getEnumConstants();
         int initialSize = Maths.nextPower2(enumConstants.length * 2, 16);
         final int max = 3;
@@ -72,6 +66,20 @@ public abstract class EnumCache<E> {
                     Jvm.warn().on(eClass, msg);
             }
         }
-        return initialSize;
+        return ((long) enumConstants.length << 32) + initialSize;
     }
+
+    public E get(String name) {
+        return valueOf(name);
+    }
+
+    public abstract E valueOf(String name);
+
+    public abstract int size();
+
+    public Class<?> type() {
+        return type;
+    }
+
+    public abstract E forIndex(int index);
 }

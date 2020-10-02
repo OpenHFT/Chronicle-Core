@@ -1,6 +1,8 @@
 package net.openhft.chronicle.core.pool;
 
-public enum EcnDynamic implements DynamicEnumPooled {
+import net.openhft.chronicle.core.util.CoreDynamicEnum;
+
+public enum EcnDynamic implements CoreDynamicEnum {
 
     EBS_LIVE_NYK,
     RFX,

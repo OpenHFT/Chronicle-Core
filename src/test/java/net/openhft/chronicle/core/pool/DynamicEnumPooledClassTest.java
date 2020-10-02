@@ -1,5 +1,6 @@
 package net.openhft.chronicle.core.pool;
 
+import net.openhft.chronicle.core.Maths;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -23,6 +24,6 @@ public class DynamicEnumPooledClassTest {
     @Test
     public void testInitialSize() {
         EnumCache<EcnDynamic> ecnEnumCache = EnumCache.of(EcnDynamic.class);
-        assertEquals(128, ecnEnumCache.initialSize());
+        assertEquals(32, Maths.nextPower2(ecnEnumCache.size(), 1));
     }
 }

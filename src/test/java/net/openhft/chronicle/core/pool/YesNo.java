@@ -1,5 +1,7 @@
 package net.openhft.chronicle.core.pool;
 
-public enum YesNo implements DynamicEnumPooled {
+import net.openhft.chronicle.core.util.CoreDynamicEnum;
+
+public enum YesNo implements CoreDynamicEnum<YesNo> {
     Yes, No
 }

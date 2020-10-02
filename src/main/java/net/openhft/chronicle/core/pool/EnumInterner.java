@@ -38,7 +38,7 @@ public class EnumInterner<E extends Enum<E>> {
 
     public EnumInterner(Class<E> eClass, int capacity) {
         enumCache = EnumCache.of(eClass);
-        int initialSize = enumCache.initialSize();
+        int initialSize = enumCache.size() * 3 / 2;
         int n = Maths.nextPower2(Math.max(initialSize, capacity), 16);
         interner = (E[]) new Enum[n];
         mask = n - 1;

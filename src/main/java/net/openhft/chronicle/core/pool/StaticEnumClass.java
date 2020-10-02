@@ -18,20 +18,25 @@
 package net.openhft.chronicle.core.pool;
 
 public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
-    private final int initialSize;
+    private final E[] values;
 
     StaticEnumClass(Class<E> eClass) {
         super(eClass);
-        this.initialSize = guessInitialSize(eClass);
+        this.values = eClass.getEnumConstants();
     }
 
     @Override
     public E valueOf(String name) {
-        return name == null || name.isEmpty() ? null : Enum.valueOf(eClass, name);
+        return name == null || name.isEmpty() ? null : Enum.valueOf(type, name);
     }
 
     @Override
-    public int initialSize() {
-        return initialSize;
+    public int size() {
+        return values.length;
+    }
+
+    @Override
+    public E forIndex(int index) {
+        return values[index];
     }
 }
