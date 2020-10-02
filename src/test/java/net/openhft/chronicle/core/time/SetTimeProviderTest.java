@@ -45,6 +45,13 @@ public class SetTimeProviderTest {
         assertEquals(101_987_001_013_000_123L, tp.currentTimeNanos());
     }
 
+    @Test
+    public void testNanosConstructorLowNumber() {
+        // many customers use "wrong" values
+        final SetTimeProvider tp = new SetTimeProvider(1_000L);
+        assertEquals(1_000L, tp.currentTimeNanos());
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void testAttemptToGoBackwardsNanos() {
         final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
