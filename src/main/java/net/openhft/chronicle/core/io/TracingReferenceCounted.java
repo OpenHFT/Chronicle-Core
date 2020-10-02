@@ -12,6 +12,7 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public final class TracingReferenceCounted implements ReferenceCountedTracer {
@@ -20,6 +21,7 @@ public final class TracingReferenceCounted implements ReferenceCountedTracer {
     private final Runnable onRelease;
     private final String uniqueId;
     private final StackTrace createdHere;
+    private final AtomicInteger onReleaseCount = new AtomicInteger();
     private volatile StackTrace releasedHere;
 
     TracingReferenceCounted(final Runnable onRelease, String uniqueId) {
@@ -92,6 +94,7 @@ public final class TracingReferenceCounted implements ReferenceCountedTracer {
 //        if (Jvm.isDebug())
 //            System.out.println(Thread.currentThread().getName() + " " + uniqueId + " - release " + asString(id));
 
+        boolean doOnRelease = false;
         synchronized (references) {
             if (references.remove(id) == null) {
                 StackTrace stackTrace = releases.get(id);
@@ -113,9 +116,12 @@ public final class TracingReferenceCounted implements ReferenceCountedTracer {
                 }
                 releasedHere = new StackTrace(getClass() + " - Release here");
                 // prevent this being called more than once.
-                onRelease.run();
+                doOnRelease = true;
             }
         }
+        // needs to be called outside synchronized block above to avoid deadlock.
+        if (doOnRelease && onReleaseCount.getAndIncrement() == 0)
+            onRelease.run();
     }
 
     @NotNull
@@ -129,22 +135,22 @@ public final class TracingReferenceCounted implements ReferenceCountedTracer {
 
     @Override
     public void releaseLast(ReferenceOwner id) throws IllegalStateException {
-        synchronized (references) {
-            if (references.size() <= 1) {
+        if (references.size() <= 1) {
+            release(id);
+        } else {
+            Exception e0 = null;
+            try {
                 release(id);
-            } else {
-                Exception e0 = null;
-                try {
-                    release(id);
-                } catch (Exception e) {
-                    e0 = e;
-                }
-                IllegalStateException ise = new IllegalStateException("Still reserved " + referencesAsString(), createdHere);
-                references.values().forEach(ise::addSuppressed);
-                if (e0 != null)
-                    ise.addSuppressed(e0);
-                throw ise;
+            } catch (Exception e) {
+                e0 = e;
             }
+            IllegalStateException ise = new IllegalStateException("Still reserved " + referencesAsString(), createdHere);
+            synchronized (references) {
+                references.values().forEach(ise::addSuppressed);
+            }
+            if (e0 != null)
+                ise.addSuppressed(e0);
+            throw ise;
         }
     }
 
