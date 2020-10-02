@@ -12,9 +12,9 @@ import java.util.Set;
 import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEASER;
 
 public abstract class AbstractReferenceCounted implements ReferenceCountedTracer, ReferenceOwner {
-    static volatile Set<AbstractReferenceCounted> REFERENCE_COUNTED_SET;
     protected static final long WARN_NS = (long) (Jvm.getDouble("reference.warn.secs", 0.003) * 1e9);
-
+    protected static final int WARN_COUNT = Integer.getInteger("reference.warn.count", Integer.MAX_VALUE);
+    static volatile Set<AbstractReferenceCounted> REFERENCE_COUNTED_SET;
     private transient volatile Thread usedByThread;
     private transient final ReferenceCountedTracer referenceCounted;
     private final int referenceId;
@@ -112,6 +112,8 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
 
     @Override
     public void reserve(ReferenceOwner id) throws IllegalStateException {
+        if (WARN_COUNT < Integer.MAX_VALUE && referenceCounted.refCount() >= WARN_COUNT)
+            Jvm.warn().on(getClass(), "high reserve count for " + referenceName(), new StackTrace("reserved here"));
         referenceCounted.reserve(id);
     }
 
