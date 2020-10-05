@@ -82,4 +82,6 @@ public abstract class EnumCache<E> {
     }
 
     public abstract E forIndex(int index);
+
+    public abstract E[] asArray();
 }

@@ -29,6 +29,7 @@ import java.util.function.Function;
 public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E> {
     final Map<String, E> eMap = Collections.synchronizedMap(new LinkedHashMap<>());
     final List<E> eList = new ArrayList<>();
+    E[] values = null;
     private final Field nameField;
     private final Field ordinalField;
     private final Function<String, E> create = this::create;
@@ -41,11 +42,7 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
             eList.add(e);
         }
         nameField = Jvm.getField(eClass, "name");
-        if (Enum.class.isAssignableFrom(eClass)) {
-            ordinalField = Jvm.getField(eClass, "ordinal");
-        } else {
-            ordinalField = null;
-        }
+        ordinalField = Jvm.getFieldOrNull(eClass, "ordinal");
     }
 
     private E[] getStaticConstants(Class<E> eClass) {
@@ -83,6 +80,7 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
             if (ordinalField != null) {
                 ordinalField.set(e, eMap.size());
                 eList.add(e);
+                values = null;
             }
             return e;
 
@@ -99,5 +97,12 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
     @Override
     public E forIndex(int index) {
         return eList.get(index);
+    }
+
+    @Override
+    public E[] asArray() {
+        if (values != null)
+            return values;
+        return values = this.eList.toArray((E[]) new CoreDynamicEnum[eList.size()]);
     }
 }

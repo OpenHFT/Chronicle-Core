@@ -17,7 +17,9 @@
  */
 package net.openhft.chronicle.core.pool;
 
-public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
+import net.openhft.chronicle.core.util.CoreDynamicEnum;
+
+public class StaticEnumClass<E extends Enum<E> & CoreDynamicEnum<E>> extends EnumCache<E> {
     private final E[] values;
 
     StaticEnumClass(Class<E> eClass) {
@@ -38,5 +40,10 @@ public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
     @Override
     public E forIndex(int index) {
         return values[index];
+    }
+
+    @Override
+    public E[] asArray() {
+        return values;
     }
 }

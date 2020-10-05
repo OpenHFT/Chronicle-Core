@@ -408,6 +408,10 @@ public enum Jvm {
      * @return the Field.
      */
     public static Field getField(@NotNull Class clazz, @NotNull String name) {
+        return getField0(clazz, name, true);
+    }
+
+    static Field getField0(@NotNull Class clazz, @NotNull String name, boolean error) {
         try {
             Field field = clazz.getDeclaredField(name);
             setAccessible(field);
@@ -415,12 +419,23 @@ public enum Jvm {
 
         } catch (NoSuchFieldException e) {
             Class superclass = clazz.getSuperclass();
-            if (superclass != null)
-                try {
-                    return getField(superclass, name);
-                } catch (Exception ignored) {
-                }
-            throw new AssertionError(e);
+            if (superclass != null) {
+                Field field = getField0(superclass, name, false);
+                if (field != null)
+                    return field;
+            }
+            if (error)
+                throw new AssertionError(e);
+            return null;
+        }
+    }
+
+    public static Field getFieldOrNull(@NotNull Class clazz, @NotNull String name) {
+        try {
+            return getField(clazz, name);
+
+        } catch (AssertionError e) {
+            return null;
         }
     }
 
