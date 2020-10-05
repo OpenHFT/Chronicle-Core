@@ -4,6 +4,7 @@ import net.openhft.chronicle.core.pool.EnumCache;
 import org.junit.Test;
 
 import java.util.EnumSet;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -17,10 +18,22 @@ public class DynamicEnumSetTest {
 */
 
     @Test
-    public void allOf() {
+    public void test0() {
         doTest(Test0.class, false);
+    }
+
+    @Test
+    public void test0b() {
         doTest(Test0b.class, true);
+    }
+
+    @Test
+    public void test63() {
         doTest(Test63.class, false);
+    }
+
+    @Test
+    public void test255() {
         doTest(Test255.class, false);
     }
 
@@ -32,8 +45,14 @@ public class DynamicEnumSetTest {
             set = DynamicEnumSet.complementOf(DynamicEnumSet.noneOf(testClass));
         else
             set = DynamicEnumSet.allOf(testClass);
+        doTest2(testClass, set);
+    }
+
+    private <E extends CoreDynamicEnum<E>> void doTest2(Class testClass, Set<E> set) {
+        EnumCache<E> cache = EnumCache.of(testClass);
+        int size = cache.size();
         assertEquals(size, set.size());
-        assertEquals(EnumSet.allOf((Class) testClass).toString(),
+        assertEquals(EnumSet.allOf(testClass).toString(),
                 set.toString());
         DynamicEnumSet<E> set2 = DynamicEnumSet.complementOf(set);
         assertEquals(0, set2.size());

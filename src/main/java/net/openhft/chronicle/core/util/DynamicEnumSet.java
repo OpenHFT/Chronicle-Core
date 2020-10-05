@@ -25,14 +25,14 @@ public class DynamicEnumSet<E extends CoreDynamicEnum<E>> extends AbstractSet<E>
     /**
      * Creates an empty enum set with the specified element type.
      *
-     * @param <E>      The class of the elements in the set
-     * @param universe the class object of the element type for this enum
-     *                 set
+     * @param <E>    The class of the elements in the set
+     * @param eClass the class object of the element type for this enum
+     *               set
      * @return An empty enum set of the specified type.
-     * @throws NullPointerException if <tt>universe</tt> is null
+     * @throws NullPointerException if <tt>eClass</tt> is null
      */
-    public static <E extends CoreDynamicEnum<E>> DynamicEnumSet<E> noneOf(Class<E> universe) {
-        return new DynamicEnumSet<>(universe);
+    public static <E extends CoreDynamicEnum<E>> DynamicEnumSet<E> noneOf(Class<E> eClass) {
+        return new DynamicEnumSet<>(eClass);
     }
 
     /**
@@ -40,13 +40,13 @@ public class DynamicEnumSet<E extends CoreDynamicEnum<E>> extends AbstractSet<E>
      * element type.
      *
      * @param <E>      The class of the elements in the set
-     * @param universe the class object of the element type for this enum
+     * @param eClass the class object of the element type for this enum
      *                 set
      * @return An enum set containing all the elements in the specified type.
-     * @throws NullPointerException if <tt>universe</tt> is null
+     * @throws NullPointerException if <tt>eClass</tt> is null
      */
-    public static <E extends CoreDynamicEnum<E>> DynamicEnumSet<E> allOf(Class<E> universe) {
-        DynamicEnumSet<E> result = noneOf(universe);
+    public static <E extends CoreDynamicEnum<E>> DynamicEnumSet<E> allOf(Class<E> eClass) {
+        DynamicEnumSet<E> result = noneOf(eClass);
         result.allOf = true;
         return result;
     }
@@ -103,7 +103,7 @@ public class DynamicEnumSet<E extends CoreDynamicEnum<E>> extends AbstractSet<E>
      * @return The complement of the specified set in this set
      * @throws NullPointerException if <tt>s</tt> is null
      */
-    public static <E extends CoreDynamicEnum<E>> DynamicEnumSet<E> complementOf(DynamicEnumSet<E> s) {
+    public static <E extends CoreDynamicEnum<E>> DynamicEnumSet<E> complementOf(Collection<E> s) {
         DynamicEnumSet<E> result = copyOf(s);
         result.complement();
         return result;
@@ -247,8 +247,7 @@ public class DynamicEnumSet<E extends CoreDynamicEnum<E>> extends AbstractSet<E>
     public static <E extends CoreDynamicEnum<E>> DynamicEnumSet<E> of(E first, E... rest) {
         DynamicEnumSet<E> result = noneOf((Class) first.getClass());
         result.add(first);
-        for (E e : rest)
-            result.add(e);
+        Collections.addAll(result, rest);
         return result;
     }
 

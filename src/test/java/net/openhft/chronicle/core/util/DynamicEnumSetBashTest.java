@@ -12,6 +12,7 @@ import net.openhft.chronicle.core.pool.EnumCache;
 import org.junit.Test;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -20,24 +21,28 @@ public class DynamicEnumSetBashTest {
     static Random rnd = new Random(1);
 
     static <T extends CoreDynamicEnum<T>> void bash(Class<T> enumClass) {
+        bash2(enumClass, () -> DynamicEnumSet.noneOf(enumClass));
+    }
+
+    static <T extends CoreDynamicEnum<T>> void bash2(Class<T> enumClass, Supplier<Set<T>> supplier) {
         CoreDynamicEnum[] universe = EnumCache.of(enumClass).asArray();
         rnd.setSeed(universe.length);
         int len1 = universe.length + 1;
         int numItr = Math.min(len1 * len1, 1000);
 
         for (int i = 0; i < numItr; i++) {
-            DynamicEnumSet<T> s1 = DynamicEnumSet.noneOf(enumClass);
-            DynamicEnumSet<T> s2 = clone(s1, enumClass);
+            Set<T> s1 = supplier.get();
+            Set<T> s2 = clone(s1, enumClass);
             addRandoms(s1, universe);
             addRandoms(s2, universe);
 
-            DynamicEnumSet<T> intersection = clone(s1, enumClass);
+            Set<T> intersection = clone(s1, enumClass);
             intersection.retainAll(s2);
-            DynamicEnumSet<T> diff1 = clone(s1, enumClass);
+            Set<T> diff1 = clone(s1, enumClass);
             diff1.removeAll(s2);
-            DynamicEnumSet<T> diff2 = clone(s2, enumClass);
+            Set<T> diff2 = clone(s2, enumClass);
             diff2.removeAll(s1);
-            DynamicEnumSet<T> union = clone(s1, enumClass);
+            Set<T> union = clone(s1, enumClass);
             union.addAll(s2);
 
             if (diff1.removeAll(diff2))
@@ -88,34 +93,35 @@ public class DynamicEnumSetBashTest {
     }
 
     // Done inefficiently so as to exercise various functions
-    static <E extends CoreDynamicEnum<E>> DynamicEnumSet<E> clone(DynamicEnumSet<E> s, Class<E> cl) {
+    static <E extends CoreDynamicEnum<E>> Set<E> clone(Set<E> s, Class<E> cl) {
         DynamicEnumSet<E> clone = null;
-        int method = rnd.nextInt(5);
+        int method = rnd.nextInt(4);
         switch (method) {
             case 0:
-                clone = s.clone();
-                break;
+                if (s instanceof DynamicEnumSet) {
+                    clone = ((DynamicEnumSet<E>) s).clone();
+                    break;
+                }
+                // fall through.
             case 1:
                 clone = DynamicEnumSet.noneOf(cl);
-                Collection arrayList = (Collection) Arrays.asList(s.toArray());
+                Collection arrayList = Arrays.asList(s.toArray());
                 clone.addAll((Collection<E>) arrayList);
                 break;
             case 2:
-                clone = DynamicEnumSet.copyOf(s);
+                if (s.isEmpty())
+                    clone = DynamicEnumSet.noneOf(cl);
+                else
+                    clone = DynamicEnumSet.copyOf((Collection<E>) s);
                 break;
             case 3:
-                clone = DynamicEnumSet.copyOf((Collection<E>) s);
-                break;
-            case 4:
                 if (s.isEmpty())
-                    clone = DynamicEnumSet.copyOf((Collection<E>) s);
+                    clone = DynamicEnumSet.noneOf(cl);
                 else
                     clone = DynamicEnumSet.copyOf(
                             (Collection<E>) (Collection)
                                     Arrays.asList(s.toArray()));
                 break;
-            case 5:
-//                clone = deepCopy(s);
         }
         if (!s.equals(clone))
             fail("Set not equal to copy. " + method);
@@ -128,7 +134,7 @@ public class DynamicEnumSetBashTest {
         return clone;
     }
 
-    static <T extends CoreDynamicEnum<T>> void addRandoms(DynamicEnumSet<T> s, CoreDynamicEnum[] universe) {
+    static <T extends CoreDynamicEnum<T>> void addRandoms(Set<T> s, CoreDynamicEnum[] universe) {
         int size = 0;
         for (int i = 0; i < universe.length * 2 / 3; i++) {
             T e = (T) universe[rnd.nextInt(universe.length)];
@@ -156,6 +162,18 @@ public class DynamicEnumSetBashTest {
         if (range.size() != e1.ordinal() - e0.ordinal() + 1)
             throw new RuntimeException(range.size() + " != " +
                     (e1.ordinal() - e0.ordinal() + 1));
+    }
+
+    @Test
+    public void testMap63() {
+        bash2(DynamicEnumSetTest.Test63.class, () ->
+                Collections.newSetFromMap(new DynamicEnumMap<>(DynamicEnumSetTest.Test63.class)));
+    }
+
+    @Test
+    public void testMap255() {
+        bash2(DynamicEnumSetTest.Test255.class, () ->
+                Collections.newSetFromMap(new DynamicEnumMap<>(DynamicEnumSetTest.Test255.class)));
     }
 
     @Test
