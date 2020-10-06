@@ -19,10 +19,11 @@ This library wraps up low level access to
 == System properties from file
 
 The Jvm class in its static initialiser will load system properties from a file called `system.properties`
-if it can find this file in the current directory.
+if it can find this file in the current directory. If it can't find this file in current directory it will
+look in `..` too.
 This is a useful feature if you want to de-clutter your command line.
 
-Chronicle Core class `Jvm` loads the file `system.properties` into the `System`'s properties.
+Chronicle Core class `Jvm` loads the file `system.properties` into the System's properties.
 To ensure it is loaded early enough, add the following code to your `Main`
 
 [source,java]
