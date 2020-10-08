@@ -1,5 +1,6 @@
 package net.openhft.chronicle.core.threads;
 
+import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -8,6 +9,7 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 
 public class ThreadLocalProperties extends Properties {
+    static final boolean THREAD_LOCAL_PROPERTIES = Jvm.getBoolean("threadLocal.properties");
     final ThreadLocal<Properties> tl = ThreadLocal.withInitial(() -> new Properties(defaults));
 
     public ThreadLocalProperties(Properties defaults) {
@@ -15,6 +17,8 @@ public class ThreadLocalProperties extends Properties {
     }
 
     public static void forSystemProperties() {
+        if (!THREAD_LOCAL_PROPERTIES)
+            return;
         synchronized (System.class) {
             Properties properties = System.getProperties();
             if (properties instanceof ThreadLocalProperties)

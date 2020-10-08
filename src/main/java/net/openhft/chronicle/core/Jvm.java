@@ -45,6 +45,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import static java.lang.Runtime.getRuntime;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
@@ -909,7 +910,12 @@ public enum Jvm {
         if (!(cl instanceof URLClassLoader))
             return;
         String property = System.getProperty(JAVA_CLASS_PATH);
-        List<String> jcp = Arrays.asList(property.split(File.pathSeparator));
+        Set<String> jcp = new LinkedHashSet<>();
+        Collections.addAll(jcp, property.split(File.pathSeparator));
+        jcp.addAll(jcp.stream()
+                .map(f -> new File(f).getAbsolutePath())
+                .collect(Collectors.toList()));
+
         URLClassLoader ucl = (URLClassLoader) cl;
         StringBuilder classpath = new StringBuilder(property);
         for (URL url : ucl.getURLs()) {
