@@ -33,7 +33,7 @@ public class ThreadLocalPropertiesTest extends CoreTestCommon {
         properties.setProperty("b", "none");
         System.setProperties(properties);
 
-        ThreadLocalProperties.forSystemProperties();
+        ThreadLocalProperties.forSystemProperties(true);
         ExecutorService es1 = Executors.newSingleThreadExecutor();
         ExecutorService es2 = Executors.newSingleThreadExecutor();
         ExecutorService es3 = Executors.newSingleThreadExecutor();

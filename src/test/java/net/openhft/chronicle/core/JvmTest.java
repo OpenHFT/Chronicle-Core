@@ -52,6 +52,11 @@ public class JvmTest {
         threadDump.assertNoNewThreads();
     }
 
+    @Test
+    public void addToClassPath() {
+        Jvm.addToClassPath(JvmTest.class);
+    }
+
     @Test(expected = ConfigurationException.class)
     public void testRethrow() {
         Jvm.rethrow(new ConfigurationException());

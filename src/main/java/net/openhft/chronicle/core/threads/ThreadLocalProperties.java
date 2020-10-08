@@ -17,7 +17,11 @@ public class ThreadLocalProperties extends Properties {
     }
 
     public static void forSystemProperties() {
-        if (!THREAD_LOCAL_PROPERTIES)
+        forSystemProperties(THREAD_LOCAL_PROPERTIES);
+    }
+
+    public static void forSystemProperties(boolean enabled) {
+        if (!enabled)
             return;
         synchronized (System.class) {
             Properties properties = System.getProperties();
