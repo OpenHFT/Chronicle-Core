@@ -64,7 +64,7 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
                 cleanup.accept(value);
             this.cleanup = null;
         } catch (Exception e) {
-            Jvm.warn().on(getClass(), "Exception cleaning up " + value.getClass(), e);
+            Jvm.debug().on(getClass(), "Exception cleaning up " + value.getClass(), e);
         }
     }
 }
