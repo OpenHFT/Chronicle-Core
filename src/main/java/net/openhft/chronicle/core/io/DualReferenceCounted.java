@@ -58,8 +58,9 @@ public class DualReferenceCounted implements ReferenceCountedTracer {
         a.release(id);
         b.release(id);
         this.refCount = a.refCount();
-        if (refCount != b.refCount())
-            throw new AssertionError(refCount + " != " + b.refCount());
+        int refCountB = b.refCount();
+        if (this.refCount != refCountB)
+            throw new AssertionError(this.refCount + " != " + refCountB);
     }
 
     @Override
