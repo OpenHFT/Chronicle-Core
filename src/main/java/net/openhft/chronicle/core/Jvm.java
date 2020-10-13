@@ -823,7 +823,7 @@ public enum Jvm {
 
     /**
      * A more permissive boolean System property flag.
-     * <code>-Dflag</code><code>-Dflag=true</code><code>-Dflag=yes</code>
+     * <code>-Dflag</code <code>-Dflag=true</code> <code>-Dflag=yes</code>
      * are all accepted
      *
      * @param property name to lookup
@@ -835,7 +835,7 @@ public enum Jvm {
 
     /**
      * A more permissive boolean System property flag.
-     * <code>-Dflag</code><code>-Dflag=true</code><code>-Dflag=yes</code>
+     * <code>-Dflag</code> <code>-Dflag=true</code> <code>-Dflag=yes</code>
      * are all accepted
      *
      * @param property     name to lookup
