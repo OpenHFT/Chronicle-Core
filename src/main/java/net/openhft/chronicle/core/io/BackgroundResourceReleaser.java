@@ -74,7 +74,7 @@ public enum BackgroundResourceReleaser {
     private static void performRelease(Object o) {
         try {
             if (o instanceof AbstractCloseable)
-                ((AbstractCloseable) o).performClose();
+                ((AbstractCloseable) o).callPerformClose();
             else if (o instanceof AbstractReferenceCounted)
                 ((AbstractReferenceCounted) o).performRelease();
             else if (o instanceof Runnable)

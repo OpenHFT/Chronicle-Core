@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
 public class AbstractCloseableTest extends CoreTestCommon {
@@ -21,7 +22,7 @@ public class AbstractCloseableTest extends CoreTestCommon {
 
         mc.throwExceptionIfClosed();
 
- mc.close();
+        mc.close();
         assertTrue(mc.isClosed());
         assertEquals(1, mc.performClose);
 
@@ -46,7 +47,8 @@ public class AbstractCloseableTest extends CoreTestCommon {
         MyCloseable mc = new MyCloseable();
 
         // not recorded for now.
-      mc.warnAndCloseIfNotClosed();
+        System.err.println("!!! The following warning is expected !!!");
+        mc.warnAndCloseIfNotClosed();
 
         assertTrue(mc.isClosed());
         Jvm.resetExceptionHandlers();
@@ -62,6 +64,8 @@ public class AbstractCloseableTest extends CoreTestCommon {
 
         @Override
         protected void performClose() {
+            assumeTrue(isClosing());
+            assumeFalse(isClosed());
             performClose++;
         }
     }

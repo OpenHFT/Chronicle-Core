@@ -5,6 +5,10 @@
 package net.openhft.chronicle.core.io;
 
 public interface QueryCloseable {
+    default boolean isClosing() {
+        return isClosed();
+    }
+
     boolean isClosed();
 
     default void throwExceptionIfClosed() throws IllegalStateException {

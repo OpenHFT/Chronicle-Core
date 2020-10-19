@@ -36,6 +36,9 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     protected static final long WARN_NS = (long) (Jvm.getDouble("closeable.warn.secs", 0.02) * 1e9);
 
     private static final long CLOSED_OFFSET;
+    private static final int STATE_NOT_CLOSED = 0;
+    private static final int STATE_CLOSING = ~0;
+    private static final int STATE_CLOSED = 1;
     static volatile Set<CloseableTracer> CLOSEABLE_SET;
 
     static {
@@ -81,7 +84,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
 
         synchronized (traceSet) {
             for (CloseableTracer key : traceSet) {
-                if (key != null && !key.isClosed()) {
+                if (key != null && !key.isClosing()) {
                     Throwable t;
                     try {
                         if (key instanceof ReferenceCountedTracer) {
@@ -131,23 +134,33 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
      */
     @Override
     public final void close() {
-        if (UNSAFE.getAndSetInt(this, CLOSED_OFFSET, 1) != 0) {
+        if (!UNSAFE.compareAndSwapInt(this, CLOSED_OFFSET, STATE_NOT_CLOSED, STATE_CLOSING)) {
+            if (BG_RELEASER && performCloseInBackground())
+                waitForClosed();
             return;
         }
         closedHere = Jvm.isResourceTracing() ? new StackTrace(getClass() + " - Closed here") : null;
         if (BG_RELEASER && performCloseInBackground()) {
             BackgroundResourceReleaser.release(this);
-        } else {
-            long start = System.nanoTime();
-            try {
-                performClose();
-            } catch (Throwable e) {
-                Jvm.debug().on(getClass(), "Exception thrown on performClose", e);
+            return;
+        }
+
+        long start = System.nanoTime();
+        callPerformClose();
+        long time = System.nanoTime() - start;
+        if (time >= WARN_NS &&
+                !Thread.currentThread().getName().equals(BACKGROUND_RESOURCE_RELEASER))
+            Jvm.warn().on(getClass(), "Took " + time / 1000_000 + " ms to performClose");
+    }
+
+    protected void waitForClosed() {
+        long start = System.currentTimeMillis();
+        while (closed != STATE_CLOSED) {
+            if (System.currentTimeMillis() > start + 10_000) {
+                Jvm.warn().on(getClass(), "Aborting close()ing object " + referenceId + " after " + (System.currentTimeMillis() - start) / 1e3 + " secs");
+                break;
             }
-            long time = System.nanoTime() - start;
-            if (time >= WARN_NS &&
-                    !Thread.currentThread().getName().equals(BACKGROUND_RESOURCE_RELEASER))
-                Jvm.warn().on(getClass(), "Took " + time / 1000_000 + " ms to performClose");
+            Jvm.pause(1);
         }
     }
 
@@ -175,7 +188,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
      * Called from finalise() implementations.
      */
     protected void warnAndCloseIfNotClosed() {
-        if (!isClosed()) {
+        if (!isClosing()) {
             if (Jvm.isResourceTracing()) {
                 ExceptionHandler warn = Jvm.getBoolean("warnAndCloseIfNotClosed") ? Jvm.warn() : Slf4jExceptionHandler.WARN;
                 warn.on(getClass(), "Discarded without closing", new IllegalStateException(createdHere));
@@ -189,16 +202,31 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
      */
     protected abstract void performClose();
 
+    void callPerformClose() {
+        try {
+            performClose();
+        } catch (Throwable t) {
+            Jvm.debug().on(getClass(), t);
+        } finally {
+            closed = STATE_CLOSED;
+        }
+    }
+
+    @Override
+    public boolean isClosing() {
+        return closed != STATE_NOT_CLOSED;
+    }
+
     @Override
     public boolean isClosed() {
-        return closed != 0;
+        return closed == STATE_CLOSED;
     }
 
     protected boolean performCloseInBackground() {
         return false;
     }
-
     // this should throw IllegalStateException or return true
+
     protected boolean threadSafetyCheck(boolean isUsed) {
         if (!CHECK_THREAD_SAFETY)
             return true;
