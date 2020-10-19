@@ -96,8 +96,6 @@ public enum ObjectUtils {
                 return supplierForClass(aClass);
             };
         }
-        if (Modifier.isAbstract(c.getModifiers()))
-            throw new IllegalArgumentException("abstract class: " + c.getName());
         if (c.isEnum())
             return () -> {
                 try {
@@ -106,6 +104,8 @@ public enum ObjectUtils {
                     throw new AssertionError(e);
                 }
             };
+        if (Modifier.isAbstract(c.getModifiers()))
+            throw new IllegalArgumentException("abstract class: " + c.getName());
         try {
             Constructor constructor = c.getDeclaredConstructor();
             Jvm.setAccessible(constructor);
