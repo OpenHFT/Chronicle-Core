@@ -166,7 +166,7 @@ public final class TracingReferenceCounted implements ReferenceCountedTracer {
 
     @NotNull
     private StackTrace stackTrace(String oper, ReferenceOwner ro) {
-        return new StackTrace(toString() + " "
+        return new StackTrace(uniqueId + " "
                 + Thread.currentThread().getName() + " "
                 + oper + " "
                 + asString(ro));
