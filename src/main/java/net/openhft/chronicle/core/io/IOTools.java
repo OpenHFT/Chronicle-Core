@@ -268,7 +268,13 @@ public enum IOTools {
                 continue;
             if (Modifier.isStatic(field.getModifiers()))
                 continue;
-            field.setAccessible(true);
+            try {
+                field.setAccessible(true);
+            } catch (Exception e) {
+                if (!Jvm.isJava9Plus())
+                    Jvm.warn().on(IOTools.class, e);
+                continue;
+            }
             try {
                 Object o = field.get(t);
                 if (o != null)
