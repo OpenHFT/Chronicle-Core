@@ -2,7 +2,7 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.StackTrace;
 
-public class DualReferenceCounted implements ReferenceCountedTracer {
+public class DualReferenceCounted implements MonitorReferenceCounted {
     private final ReferenceCountedTracer a, b;
     private volatile int refCount;
 

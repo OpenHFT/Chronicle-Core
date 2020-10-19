@@ -25,6 +25,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.*;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.*;
@@ -98,12 +100,13 @@ public enum IOTools {
 
     /**
      * Canonical usage is to call this *before* your test so you fail fast if you can't delete
+     *
      * @param dirs dirs
      * @throws IORuntimeException
      */
     public static void deleteDirWithFilesOrThrow(@NotNull File... dirs) throws IORuntimeException {
         for (File dir : dirs)
-            if (! deleteDirWithFiles(dir))
+            if (!deleteDirWithFiles(dir))
                 if (dir.exists())
                     throw new AssertionError("Could not delete " + dir);
     }
@@ -237,5 +240,42 @@ public enum IOTools {
     public static Path createTempDirectory(String s) {
         new File(OS.getTarget()).mkdir();
         return Paths.get(OS.getTarget(), s + "-" + Long.toString(System.nanoTime(), 36) + ".tmp");
+    }
+
+    public static void unmonitor(final Object t) {
+        unmonitor(t, 4);
+    }
+
+    private static void unmonitor(final Object t, int depth) {
+        if (t == null)
+            return;
+        if (t instanceof Serializable || t instanceof MonitorReferenceCounted) // old school.
+            return;
+        if (t instanceof Closeable)
+            AbstractCloseable.unmonitor((Closeable) t);
+        if (t instanceof ReferenceCounted)
+            AbstractReferenceCounted.unmonitor((ReferenceCounted) t);
+        if (depth > 0)
+            unmonitor(t.getClass(), t, depth - 1);
+    }
+
+    private static <T> void unmonitor(Class aClass, Object t, int depth) {
+        if (aClass == null || aClass == Object.class)
+            return;
+        unmonitor(aClass.getSuperclass(), t, depth);
+        for (Field field : aClass.getDeclaredFields()) {
+            if (field.getType().isPrimitive())
+                continue;
+            if (Modifier.isStatic(field.getModifiers()))
+                continue;
+            field.setAccessible(true);
+            try {
+                Object o = field.get(t);
+                if (o != null)
+                    unmonitor(o, depth);
+            } catch (IllegalAccessException e) {
+                Jvm.warn().on(IOTools.class, e);
+            }
+        }
     }
 }

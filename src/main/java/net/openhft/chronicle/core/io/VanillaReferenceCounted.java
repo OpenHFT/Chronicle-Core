@@ -9,7 +9,7 @@ import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 import static net.openhft.chronicle.core.io.TracingReferenceCounted.asString;
 
-public final class VanillaReferenceCounted implements ReferenceCountedTracer {
+public final class VanillaReferenceCounted implements MonitorReferenceCounted {
 
     private static final long VALUE;
 

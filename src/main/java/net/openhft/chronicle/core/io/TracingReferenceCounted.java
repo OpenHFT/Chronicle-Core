@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-public final class TracingReferenceCounted implements ReferenceCountedTracer {
+public final class TracingReferenceCounted implements MonitorReferenceCounted {
     private final Map<ReferenceOwner, StackTrace> references = Collections.synchronizedMap(new IdentityHashMap<>());
     private final Map<ReferenceOwner, StackTrace> releases = Collections.synchronizedMap(new IdentityHashMap<>());
     private final Runnable onRelease;
