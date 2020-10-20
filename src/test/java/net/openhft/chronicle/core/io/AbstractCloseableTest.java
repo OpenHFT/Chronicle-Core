@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
-import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
 public class AbstractCloseableTest extends CoreTestCommon {
@@ -64,8 +63,8 @@ public class AbstractCloseableTest extends CoreTestCommon {
 
         @Override
         protected void performClose() {
-            assumeTrue(isClosing());
-            assumeFalse(isClosed());
+            assertTrue(isClosing());
+            assertFalse(isClosed());
             performClose++;
         }
     }
