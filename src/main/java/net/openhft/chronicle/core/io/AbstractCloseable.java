@@ -135,7 +135,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     @Override
     public final void close() {
         if (!UNSAFE.compareAndSwapInt(this, CLOSED_OFFSET, STATE_NOT_CLOSED, STATE_CLOSING)) {
-            if (BG_RELEASER && performCloseInBackground())
+            if (!(BG_RELEASER && performCloseInBackground()))
                 waitForClosed();
             return;
         }
