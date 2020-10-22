@@ -135,12 +135,15 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     @Override
     public final void close() {
         if (!UNSAFE.compareAndSwapInt(this, CLOSED_OFFSET, STATE_NOT_CLOSED, STATE_CLOSING)) {
-            if (!(BG_RELEASER && performCloseInBackground()))
+            if (shouldWaitForClosed() &&
+                    (!BG_RELEASER || !performCloseInBackground())
+                    && isInUserThread()) {
                 waitForClosed();
+            }
             return;
         }
         closedHere = Jvm.isResourceTracing() ? new StackTrace(getClass() + " - Closed here") : null;
-        if (BG_RELEASER && performCloseInBackground()) {
+        if (BG_RELEASER && shouldPerformCloseInBackground()) {
             BackgroundResourceReleaser.release(this);
             return;
         }
@@ -153,11 +156,16 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
             Jvm.warn().on(getClass(), "Took " + time / 1000_000 + " ms to performClose");
     }
 
+    protected boolean isInUserThread() {
+        return Thread.currentThread().getName().indexOf('~') < 0;
+    }
+
     protected void waitForClosed() {
         long start = System.currentTimeMillis();
         while (closed != STATE_CLOSED) {
             if (System.currentTimeMillis() > start + 10_000) {
-                Jvm.warn().on(getClass(), "Aborting close()ing object " + referenceId + " after " + (System.currentTimeMillis() - start) / 1e3 + " secs");
+                Jvm.warn().on(getClass(), "Aborting close()ing object " + referenceId +
+                        " after " + (System.currentTimeMillis() - start) / 1e3 + " secs", new StackTrace("waiting here", closedHere));
                 break;
             }
             Jvm.pause(1);
@@ -222,11 +230,27 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
         return closed == STATE_CLOSED;
     }
 
+    /**
+     * @return whether this component should be closed in the background or not
+     */
+    protected boolean shouldPerformCloseInBackground() {
+        return performCloseInBackground();
+    }
+
+    // TODO Rename this method to be less confusing. e.g. shouldPerformCloseInBackground
+    @Deprecated
     protected boolean performCloseInBackground() {
         return false;
     }
-    // this should throw IllegalStateException or return true
 
+    /**
+     * @return whether this component should be wait for closed to complete
+     */
+    protected boolean shouldWaitForClosed() {
+        return shouldPerformCloseInBackground();
+    }
+
+    // this should throw IllegalStateException or return true
     protected boolean threadSafetyCheck(boolean isUsed) {
         if (!CHECK_THREAD_SAFETY)
             return true;
