@@ -27,7 +27,7 @@
     </parent>
 
     <artifactId>chronicle-core</artifactId>
-    <version>2.20.103-SNAPSHOT</version>
+    <version>2.20.104-SNAPSHOT</version>
     <name>OpenHFT/Chronicle-Core</name>
     <description>Chronicle-Core</description>
     <packaging>bundle</packaging>
