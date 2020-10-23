@@ -12,7 +12,7 @@ public interface QueryCloseable {
     boolean isClosed();
 
     default void throwExceptionIfClosed() throws IllegalStateException {
-        if (isClosed())
-            throw new ClosedIllegalStateException("Closed");
+        if (isClosing())
+            throw new ClosedIllegalStateException(isClosed() ? "Closed" : "Closing");
     }
 }
