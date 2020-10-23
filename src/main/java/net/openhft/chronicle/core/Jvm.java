@@ -355,7 +355,7 @@ public enum Jvm {
     /**
      * @return is the JVM running in code coverage
      */
-    public static boolean isCoverage() {
+    public static boolean isCodeCoverage() {
         return IS_COVERAGE;
     }
 
