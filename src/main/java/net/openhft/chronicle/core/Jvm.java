@@ -60,11 +60,13 @@ public enum Jvm {
 
     public static final String JAVA_CLASS_PATH = "java.class.path";
     private static final List<String> INPUT_ARGUMENTS = getRuntimeMXBean().getInputArguments();
+    private static final String INPUT_ARGUMENTS2 = " " + String.join(" ", INPUT_ARGUMENTS);
     private static final int COMPILE_THRESHOLD = getCompileThreshold0();
-    private static final boolean IS_DEBUG = INPUT_ARGUMENTS.toString().contains("jdwp") || Jvm.getBoolean("debug");
+    private static final boolean IS_DEBUG = INPUT_ARGUMENTS2.contains("jdwp") || Jvm.getBoolean("debug");
     ;
     // e.g-verbose:gc  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=dumponexit=true,filename=myrecording.jfr,settings=profile -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints
-    private static final boolean IS_FLIGHT_RECORDER = (" " + getRuntimeMXBean().getInputArguments()).contains(" -XX:+FlightRecorder") || Jvm.getBoolean("jfr");
+    private static final boolean IS_FLIGHT_RECORDER = INPUT_ARGUMENTS2.contains(" -XX:+FlightRecorder") || Jvm.getBoolean("jfr");
+    private static final boolean IS_COVERAGE = INPUT_ARGUMENTS2.contains("coverage");
     private static final Supplier<Long> reservedMemory;
     private static final boolean IS_64BIT = is64bit0();
     private static final int PROCESS_ID = getProcessId0();
@@ -149,6 +151,7 @@ public enum Jvm {
         SAFEPOINT_ENABLED = Jvm.getBoolean("jvm.safepoint.enabled");
 
         RESOURCE_TRACING = Jvm.getBoolean("jvm.resource.tracing");
+
     }
 
     private static void findAndLoadSystemProperties() {
@@ -347,6 +350,13 @@ public enum Jvm {
     @SuppressWarnings("SameReturnValue")
     public static boolean isFlightRecorder() {
         return IS_FLIGHT_RECORDER;
+    }
+
+    /**
+     * @return is the JVM running in code coverage
+     */
+    public static boolean isCoverage() {
+        return IS_COVERAGE;
     }
 
     /**
