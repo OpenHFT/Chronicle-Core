@@ -135,9 +135,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     @Override
     public final void close() {
         if (!UNSAFE.compareAndSwapInt(this, CLOSED_OFFSET, STATE_NOT_CLOSED, STATE_CLOSING)) {
-            if (shouldWaitForClosed() &&
-                    (!BG_RELEASER || !performCloseInBackground())
-                    && isInUserThread()) {
+            if (shouldWaitForClosed() && isInUserThread()) {
                 waitForClosed();
             }
             return;
@@ -247,7 +245,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
      * @return whether this component should be wait for closed to complete
      */
     protected boolean shouldWaitForClosed() {
-        return shouldPerformCloseInBackground();
+        return false;
     }
 
     // this should throw IllegalStateException or return true
