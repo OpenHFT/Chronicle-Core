@@ -5,8 +5,6 @@ import net.openhft.chronicle.core.Jvm;
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
-import static java.lang.Boolean.*;
-
 /**
  * This will clean up any {@link CleaningThreadLocal}
  */
@@ -14,19 +12,11 @@ public class CleaningThread extends Thread {
     private static final Field THREAD_LOCALS;
     private static final Field TABLE;
     private static final Field VALUE;
-    private static final boolean DUMP_STACK_ON_INTERRUPT = getBoolean("dumpStack.on.interrupt");
 
     static {
         THREAD_LOCALS = Jvm.getField(Thread.class, "threadLocals");
         TABLE = Jvm.getField(THREAD_LOCALS.getType(), "table");
         VALUE = Jvm.getField(TABLE.getType().getComponentType(), "value");
-    }
-
-    @Override
-    public void interrupt() {
-        if (DUMP_STACK_ON_INTERRUPT)
-            new Exception("*** interrupt ***").printStackTrace();
-        super.interrupt();
     }
 
     public CleaningThread(Runnable target) {
