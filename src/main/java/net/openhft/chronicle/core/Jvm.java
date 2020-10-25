@@ -23,6 +23,7 @@ import net.openhft.chronicle.core.onoes.*;
 import net.openhft.chronicle.core.util.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.LoggerFactory;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
 import sun.misc.Unsafe;
@@ -152,6 +153,7 @@ public enum Jvm {
 
         RESOURCE_TRACING = Jvm.getBoolean("jvm.resource.tracing");
 
+        LoggerFactory.getLogger(Jvm.class).info("Chronicle core loaded from " + Jvm.class.getProtectionDomain().getCodeSource().getLocation());
     }
 
     private static void findAndLoadSystemProperties() {
