@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 Chronicle Software
+ * Copyright 2016-2020 chronicle.software
  *
  * https://chronicle.software
  *
@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 package net.openhft.chronicle.core.watcher;
-
-import net.openhft.chronicle.core.annotation.UsedViaReflection;
 
 @SuppressWarnings("unused")
 public interface PlainFileManagerMBean {
