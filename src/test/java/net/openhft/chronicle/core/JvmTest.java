@@ -59,7 +59,7 @@ public class JvmTest {
 
     @Test(expected = ConfigurationException.class)
     public void testRethrow() {
-        Jvm.rethrow(new ConfigurationException());
+        throw Jvm.rethrow(new ConfigurationException());
     }
 
     @Test

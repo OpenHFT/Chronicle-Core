@@ -485,7 +485,7 @@ public enum Jvm {
                 boolean newFlag = (boolean) setAccessible0_Method.invokeExact(h, true);
                 assert newFlag;
             } catch (Throwable throwable) {
-                Jvm.rethrow(throwable);
+                throw Jvm.rethrow(throwable);
             }
         else
             h.setAccessible(true);

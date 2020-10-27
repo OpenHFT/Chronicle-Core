@@ -50,7 +50,7 @@ public class ClassAliasPool implements ClassLookup {
     }
 
     public static void a(Class clazz) {
-        Jvm.rethrow(new AssertionError(clazz));
+        throw Jvm.rethrow(new AssertionError(clazz));
     }
 
     @NotNull
