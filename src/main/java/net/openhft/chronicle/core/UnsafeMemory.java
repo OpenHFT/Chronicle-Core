@@ -235,10 +235,9 @@ public class UnsafeMemory implements Memory {
         return UNSAFE.getDouble(obj, offset);
     }
 
-
-    public static void unsafePutObject(Object obj, long offset, Object value) {
-        UNSAFE.putObject(obj, offset, value);
-    }
+public static void unsafePutObject(Object obj, long offset, Object value) {
+    UNSAFE.putObject(obj, offset, value);
+}
 
     public static <T> T unsafeGetObject(Object obj, long offset) {
         return (T) UNSAFE.getObject(obj, offset);

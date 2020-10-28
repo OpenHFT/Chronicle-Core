@@ -404,8 +404,7 @@ public enum ObjectUtils {
                 || Enum.class.isAssignableFrom(toMatch) && base.equals(toMatch.getEnclosingClass());
     }
 
-
-    @NotNull
+@NotNull
     public static <T> T printAll(@NotNull Class<T> tClass, Class... additional) throws IllegalArgumentException {
         return onMethodCall((method, args) -> {
             @NotNull String argsStr = args == null ? "()" : Arrays.toString(args);
