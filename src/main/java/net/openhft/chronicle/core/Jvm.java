@@ -35,11 +35,13 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.*;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.spi.AbstractInterruptibleChannel;
+import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -930,13 +932,18 @@ public enum Jvm {
 
         URLClassLoader ucl = (URLClassLoader) cl;
         StringBuilder classpath = new StringBuilder(property);
-        for (URL url : ucl.getURLs()) {
-            String path = url.getPath();
-            if (!jcp.contains(path)) {
-                if (isDebugEnabled(Jvm.class))
-                    Jvm.debug().on(Jvm.class, "Adding " + path + " to the classpath");
-                classpath.append(File.pathSeparator).append(path);
+        try {
+            for (URL url : ucl.getURLs()) {
+                String path = null;
+                path = Paths.get(url.toURI()).toString();
+                if (!jcp.contains(path)) {
+                    if (isDebugEnabled(Jvm.class))
+                        Jvm.debug().on(Jvm.class, "Adding " + path + " to the classpath");
+                    classpath.append(File.pathSeparator).append(path);
+                }
             }
+        } catch (URISyntaxException e) {
+            throw Jvm.rethrow(e);
         }
         System.setProperty(JAVA_CLASS_PATH, classpath.toString());
     }
