@@ -31,4 +31,23 @@ public class UnsafeTextTest {
 
         UNSAFE.freeMemory(address);
     }
+
+    @Test
+    public void coolerAppendBase10quick() {
+        long address = UNSAFE.allocateMemory(32);
+        new CoolerTester(new CpuCooler[]{
+                CpuCoolers.PAUSE1,
+                CpuCoolers.BUSY1
+        })
+//                .add("noop", () -> null)
+                .add("20d", () -> {
+                    blackhole = UnsafeText.appendFixed(address, -Integer.MAX_VALUE);
+                    return null;
+                })
+                .runTimeMS(100)
+                .repeat(3)
+                .run();
+
+        UNSAFE.freeMemory(address);
+    }
 }
