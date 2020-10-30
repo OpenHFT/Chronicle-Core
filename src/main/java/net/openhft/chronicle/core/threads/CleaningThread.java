@@ -42,18 +42,18 @@ public class CleaningThread extends Thread {
             return;
 
         for (WeakReference reference : table) {
-            Object key = reference != null ? reference.get() : null;
-            if (!(key instanceof CleaningThreadLocal))
-                continue;
-
             try {
+                Object key = reference != null ? reference.get() : null;
+                if (!(key instanceof CleaningThreadLocal))
+                    continue;
+
                 Object value = VALUE.get(reference);
                 if (value == null)
                     continue;
 
                 CleaningThreadLocal ctl = (CleaningThreadLocal) key;
                 ctl.cleanup(value);
-            } catch (IllegalAccessException e) {
+            } catch (Throwable e) {
                 Jvm.debug().on(CleaningThreadLocal.class, e.toString());
             }
         }
