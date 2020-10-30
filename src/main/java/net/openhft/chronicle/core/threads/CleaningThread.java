@@ -53,8 +53,10 @@ public class CleaningThread extends Thread {
 
                 CleaningThreadLocal ctl = (CleaningThreadLocal) key;
                 ctl.cleanup(value);
-            } catch (Throwable e) {
+            } catch (IllegalAccessException e) {
                 Jvm.debug().on(CleaningThreadLocal.class, e.toString());
+            } catch (Throwable e) {
+                Jvm.debug().on(CleaningThreadLocal.class, e);
             }
         }
     }
