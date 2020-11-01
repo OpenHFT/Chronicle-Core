@@ -59,4 +59,20 @@ public class UniqueMicroTimeProvider implements TimeProvider {
             Jvm.nanoPause();
         }
     }
+
+    @Override
+    public long currentTimeNanos() {
+        long time = provider.currentTimeNanos();
+        long timeUS = time / 1000;
+        while (true) {
+            long time0 = lastTime.get();
+            if (time0 >= time / 1000) {
+                timeUS = time0 + 1;
+                time = timeUS * 1000;
+            }
+            if (lastTime.compareAndSet(time0, timeUS))
+                return time;
+            Jvm.nanoPause();
+        }
+    }
 }

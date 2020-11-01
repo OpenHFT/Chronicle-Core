@@ -8,8 +8,8 @@ import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-// Based on Java 1 but using LinkedHashMap
-public class WeakIdentityHashMap<K, V> implements Map<K, V> {
+// Based WeakHashMap but using identity
+public class WeakIdentityHashMap<K, V> extends AbstractMap<K, V> {
     private final Map<WeakKey<K>, V> map;
     private final transient ReferenceQueue<K> queue = new ReferenceQueue<K>();
 
@@ -24,6 +24,7 @@ public class WeakIdentityHashMap<K, V> implements Map<K, V> {
     /**
      * Constructs a new, empty identity map with the specified initial size.
      */
+    @Deprecated(/* remove in x.21*/)
     public WeakIdentityHashMap(int initialSize) {
         map = new ConcurrentHashMap<>(initialSize);
     }
@@ -36,23 +37,8 @@ public class WeakIdentityHashMap<K, V> implements Map<K, V> {
     }
 
     @Override
-    public int size() {
-        return getMap().size();
-    }
-
-    @Override
     public boolean isEmpty() {
         return getMap().isEmpty();
-    }
-
-    @Override
-    public boolean containsKey(Object key) {
-        return getMap().containsKey(new WeakKey<>(key, null));
-    }
-
-    @Override
-    public boolean containsValue(Object value) {
-        return getMap().containsValue(value);
     }
 
     @Override
@@ -70,18 +56,6 @@ public class WeakIdentityHashMap<K, V> implements Map<K, V> {
         return getMap().remove(new WeakKey<>(key, null));
     }
 
-    @Override
-    public void putAll(Map<? extends K, ? extends V> m) {
-        for (Entry<? extends K, ? extends V> entry : m.entrySet()) {
-            put(entry.getKey(), entry.getValue());
-        }
-    }
-
-    @Override
-    public void clear() {
-        getMap().clear();
-    }
-
     @NotNull
     @Override
     public Set<K> keySet() {
@@ -92,6 +66,11 @@ public class WeakIdentityHashMap<K, V> implements Map<K, V> {
                 return new Iterator<K>() {
                     private K next;
                     Iterator<WeakKey<K>> iterator = getMap().keySet().iterator();
+
+                    @Override
+                    public void remove() {
+                        iterator.remove();
+                    }
 
                     @Override
                     public boolean hasNext() {
@@ -124,12 +103,6 @@ public class WeakIdentityHashMap<K, V> implements Map<K, V> {
 
     @NotNull
     @Override
-    public Collection<V> values() {
-        return getMap().values();
-    }
-
-    @NotNull
-    @Override
     public Set<Entry<K, V>> entrySet() {
         return new AbstractSet<Entry<K, V>>() {
             @NotNull
@@ -140,6 +113,11 @@ public class WeakIdentityHashMap<K, V> implements Map<K, V> {
                     @Override
                     public boolean hasNext() {
                         return iterator.hasNext();
+                    }
+
+                    @Override
+                    public void remove() {
+                        iterator.remove();
                     }
 
                     @Override

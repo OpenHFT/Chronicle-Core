@@ -8,13 +8,29 @@ public class UniqueMicroTimeProviderTest {
 
     @Test
     public void currentTimeMicros() {
-        TimeProvider tp = UniqueMicroTimeProvider.INSTANCE;
+        UniqueMicroTimeProvider tp = new UniqueMicroTimeProvider();
+        SetTimeProvider stp = new SetTimeProvider();
+        tp.provider(stp);
         long last = 0;
-        for (int i = 0; i < 100_000; i++) {
+        for (int i = 0; i < 4_000; i++) {
+            stp.advanceNanos(i);
             long time = tp.currentTimeMicros();
             assertTrue(time > last);
             last = time;
         }
     }
 
+    @Test
+    public void currentTimeNanos() {
+        UniqueMicroTimeProvider tp = new UniqueMicroTimeProvider();
+        SetTimeProvider stp = new SetTimeProvider();
+        tp.provider(stp);
+        long last = 0;
+        for (int i = 0; i < 4_000; i++) {
+            stp.advanceNanos(i);
+            long time = tp.currentTimeNanos();
+            assertTrue(time / 1000 > last);
+            last = time / 1000;
+        }
+    }
 }

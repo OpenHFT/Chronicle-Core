@@ -64,6 +64,7 @@ public class ClassMetrics {
                 '}';
     }
 
+    @Deprecated(/* remove in x.21*/)
     public static void updateJar(final String jarToUpdate, String sourceFile, String fileNameInJar) throws IOException {
         Map<String, String> env = new HashMap<>();
         env.put("create", "true");
@@ -78,5 +79,4 @@ public class ClassMetrics {
                     StandardCopyOption.REPLACE_EXISTING);
         }
     }
-
 }

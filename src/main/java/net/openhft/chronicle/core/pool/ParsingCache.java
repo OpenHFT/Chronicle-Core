@@ -28,7 +28,6 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 public class ParsingCache<E> {
-    @NotNull
     protected final ParsedData<E>[] interner;
     protected final int mask, shift;
     private final Function<String, E> eFunction;

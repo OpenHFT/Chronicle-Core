@@ -42,7 +42,7 @@ public interface TimeProvider {
             case MILLISECONDS:
                 return currentTimeMillis();
             default:
-                return timeUnit.convert(currentTimeMillis(), TimeUnit.MILLISECONDS);
+                return timeUnit.convert(currentTimeNanos(), TimeUnit.NANOSECONDS);
         }
     }
 }

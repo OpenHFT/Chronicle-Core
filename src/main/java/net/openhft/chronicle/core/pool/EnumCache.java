@@ -43,6 +43,7 @@ public abstract class EnumCache<E> {
      * @param eClass enum
      * @return estimate
      */
+    @Deprecated(/* remove in x.21*/)
     protected static long guessInitialSize(Class<? extends Enum> eClass) {
         Enum[] enumConstants = eClass.getEnumConstants();
         int initialSize = Maths.nextPower2(enumConstants.length * 2, 16);

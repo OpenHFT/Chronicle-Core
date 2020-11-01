@@ -34,7 +34,7 @@ public class JitterSamplerTest {
             }
         }
         t.join();
-        String s = JitterSampler.takeSnapshot(10_000_000);
+        String s = JitterSampler.takeSnapshot();
         assertNull(s);
     }
 }

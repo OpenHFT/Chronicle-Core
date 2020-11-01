@@ -31,12 +31,12 @@ import java.util.concurrent.locks.LockSupport;
 public enum Time {
     ;
 
-    @Deprecated
+    @Deprecated(/* Still widely used */)
     public static long currentTimeMillis() {
         return System.currentTimeMillis();
     }
 
-    @Deprecated
+    @Deprecated(/* remove in x.21*/)
     public static long tickTime() {
         return System.currentTimeMillis();
     }

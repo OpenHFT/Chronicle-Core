@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.concurrent.locks.LockSupport;
 
+// TODO Needs a test
 public class StackSampler {
     @NotNull
     private final Thread sampler;

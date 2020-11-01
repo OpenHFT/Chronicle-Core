@@ -34,6 +34,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * Created by daniel on 06/07/2015. A class to measure how much allocation there has been on a
  * thread. Useful in tests to make sure there has been little or even zero allocation.
  */
+@Deprecated(/* move to test area in x.21*/)
 public class AllocationMeasure {
 
     private static final Logger LOG = LoggerFactory.getLogger(AllocationMeasure.class);

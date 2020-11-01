@@ -2,6 +2,7 @@ package net.openhft.chronicle.core.util;
 
 import java.security.SecureRandom;
 
+@Deprecated(/* remove in x.21*/)
 public class ThreadLocalSecureRandom {
     static final ThreadLocal<SecureRandom> SECURE_RANDOM_TL = new ThreadLocal<>();
 
