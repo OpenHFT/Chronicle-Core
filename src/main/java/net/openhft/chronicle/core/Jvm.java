@@ -981,17 +981,17 @@ public enum Jvm {
         throw new UnsupportedOperationException("Not supported on this OS");
     }
 
-private static boolean isProcessAlive0(long pid, String command) {
+    private static boolean isProcessAlive0(long pid, String command) {
 
-    try {
-        InputStreamReader isReader = new InputStreamReader(
-                getRuntime().exec(command).getInputStream());
+        try {
+            InputStreamReader isReader = new InputStreamReader(
+                    getRuntime().exec(command).getInputStream());
 
-        BufferedReader bReader = new BufferedReader(isReader);
-        String strLine;
-        while ((strLine = bReader.readLine()) != null) {
-            if (strLine.contains(" " + pid + " ") || strLine.startsWith(pid + " ")) {
-                return true;
+            BufferedReader bReader = new BufferedReader(isReader);
+            String strLine;
+            while ((strLine = bReader.readLine()) != null) {
+                if (strLine.contains(" " + pid + " ") || strLine.startsWith(pid + " ")) {
+                    return true;
                 }
             }
 
