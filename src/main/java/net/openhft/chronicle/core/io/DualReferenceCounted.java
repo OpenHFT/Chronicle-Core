@@ -37,8 +37,9 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
         a.reserve(id);
         b.reserve(id);
         this.refCount = a.refCount();
-        if (refCount != b.refCount())
-            throw new AssertionError(refCount + " != " + b.refCount());
+        int bRefCount = b.refCount();
+        if (this.refCount != bRefCount)
+            throw new AssertionError(this.refCount + " != " + bRefCount);
     }
 
     @Override
