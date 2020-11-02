@@ -66,7 +66,6 @@ public enum Jvm {
     private static final String INPUT_ARGUMENTS2 = " " + String.join(" ", INPUT_ARGUMENTS);
     private static final int COMPILE_THRESHOLD = getCompileThreshold0();
     private static final boolean IS_DEBUG = INPUT_ARGUMENTS2.contains("jdwp") || Jvm.getBoolean("debug");
-    ;
     // e.g-verbose:gc  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=dumponexit=true,filename=myrecording.jfr,settings=profile -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints
     private static final boolean IS_FLIGHT_RECORDER = INPUT_ARGUMENTS2.contains(" -XX:+FlightRecorder") || Jvm.getBoolean("jfr");
     private static final boolean IS_COVERAGE = INPUT_ARGUMENTS2.contains("coverage");
@@ -1003,7 +1002,7 @@ public enum Jvm {
 
     // from https://stackoverflow.com/questions/62550828/is-there-a-lightweight-method-which-adds-a-safepoint-in-java-9
     static class Safepoint {
-        private static volatile int one = 1;
+        private static final int one = 1;
 
         public static void force() {
             // trick only works from Java 9+

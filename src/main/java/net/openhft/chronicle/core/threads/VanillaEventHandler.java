@@ -27,7 +27,7 @@ public interface VanillaEventHandler {
      *
      * @return true if you expect more work very soon.
      * @throws InvalidEventHandlerException when it is not longer valid.
-     * Recommended to throw this if your event handler is closed
+     *                                      Recommended to throw this if your event handler is closed
      */
     boolean action() throws InvalidEventHandlerException, InterruptedException;
 }

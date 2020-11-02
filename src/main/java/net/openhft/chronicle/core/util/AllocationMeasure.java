@@ -47,9 +47,9 @@ public class AllocationMeasure {
     @Nullable
     private ObjectName name = null;
     @NotNull
-    private AtomicLong allocated = new AtomicLong();
+    private final AtomicLong allocated = new AtomicLong();
     private long BYTES_USED_TO_MEASURE = 336;
-    private long tid;
+    private final long tid;
 
     public AllocationMeasure() throws IllegalStateException {
         tid = Thread.currentThread().getId();

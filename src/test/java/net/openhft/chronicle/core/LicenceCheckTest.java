@@ -36,7 +36,7 @@ public class LicenceCheckTest {
 
     @Test(expected = TimeLimitExceededException.class)
     public void checkEvalExpired() throws IOException {
-            LicenceCheck.check("test", TestCase.class);
+        LicenceCheck.check("test", TestCase.class);
     }
 
     @Test

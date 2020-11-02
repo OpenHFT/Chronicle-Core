@@ -47,6 +47,10 @@ public enum OS {
     public static final String TMP = System.getProperty("java.io.tmpdir");
     public static final String USER_DIR = System.getProperty("user.dir");
     public static final String USER_HOME = System.getProperty("user.home");
+    public static final Exception TIME_LIMIT = new TimeLimitExceededException();
+    // can't make it private until all libraries have been updated to x.20.60, Use getTarget() instead.
+    @Deprecated
+    public static final String TARGET = findTarget();
     static final ClassLocal<MethodHandle> MAP0_MH = ClassLocal.withInitial(c -> {
         try {
             Method map0;
@@ -73,10 +77,6 @@ public enum OS {
     private static final MethodHandle UNMAPP0_MH;
     private static final MethodHandle READ0_MH;
     private static final MethodHandle WRITE0_MH, WRITE0_MH2;
-    public static final Exception TIME_LIMIT = new TimeLimitExceededException();
-    // can't make it private until all libraries have been updated to x.20.60, Use getTarget() instead.
-    @Deprecated
-    public static final String TARGET = findTarget();
     private static int PAGE_SIZE; // avoid circular initialisation
     private static int MAP_ALIGNMENT;
 

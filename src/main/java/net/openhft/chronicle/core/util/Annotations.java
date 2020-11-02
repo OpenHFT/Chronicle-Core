@@ -54,8 +54,6 @@ public enum Annotations {
         A methodId = method.getAnnotation(annotationClass);
         if (methodId == null) {
             methodId = findAnnotation(annotationClass, method.getDeclaringClass(), method.getName(), method.getParameterTypes());
-            if (methodId == null)
-                return null;
         }
         return methodId;
     }

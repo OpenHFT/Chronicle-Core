@@ -30,6 +30,20 @@ import static org.junit.Assert.assertEquals;
 
 public class HistogramTest {
 
+    public static void main(String[] args) throws IOException {
+        Histogram hist = new Histogram(32, 7);
+        for (File f : new File(args[0]).listFiles()) {
+            if (f.getName().endsWith(".png"))
+                continue;
+            try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+                for (String line; (line = br.readLine()) != null; ) {
+                    hist.sampleNanos(Long.parseLong(line));
+                }
+            }
+        }
+        System.out.println(hist.toLongMicrosFormat());
+    }
+
     @Test
     public void testSampleRange() {
         @NotNull Histogram h = new Histogram(40, 2);
@@ -43,24 +57,6 @@ public class HistogramTest {
             base *= 2;
         }
 //        System.out.println(base);
-    }
-
-    @Test
-    public void testSamples() {
-        @NotNull Histogram h = new Histogram(7, 5);
-        for (int i = 1; i <= 100; i++)
-            h.sample(i);
-        assertEquals(101, h.percentile(1), 0);
-        assertEquals(95, h.percentile(0.95), 0);
-        assertEquals(91, h.percentile(0.90), 0);
-        assertEquals(85, h.percentile(0.85), 0);
-        assertEquals(81, h.percentile(0.80), 0);
-        assertEquals(71, h.percentile(0.71), 0);
-        assertEquals(62, (long) h.percentile(0.62), 0);
-        assertEquals(50, (long) h.percentile(0.50), 0);
-        assertEquals(40, (long) h.percentile(0.40), 0);
-        assertEquals(30, (long) h.percentile(0.30), 0);
-        assertEquals(1, (long) h.percentile(0.0), 0);
     }
 
 /*    @Test
@@ -86,17 +82,21 @@ public class HistogramTest {
 //        }
     }*/
 
-    public static void main(String[] args) throws IOException {
-        Histogram hist = new Histogram(32, 7);
-        for (File f : new File(args[0]).listFiles()) {
-            if (f.getName().endsWith(".png"))
-                continue;
-            try (BufferedReader br = new BufferedReader(new FileReader(f))) {
-                for (String line; (line = br.readLine()) != null; ) {
-                    hist.sampleNanos(Long.parseLong(line));
-                }
-            }
-        }
-        System.out.println(hist.toLongMicrosFormat());
+    @Test
+    public void testSamples() {
+        @NotNull Histogram h = new Histogram(7, 5);
+        for (int i = 1; i <= 100; i++)
+            h.sample(i);
+        assertEquals(101, h.percentile(1), 0);
+        assertEquals(95, h.percentile(0.95), 0);
+        assertEquals(91, h.percentile(0.90), 0);
+        assertEquals(85, h.percentile(0.85), 0);
+        assertEquals(81, h.percentile(0.80), 0);
+        assertEquals(71, h.percentile(0.71), 0);
+        assertEquals(62, (long) h.percentile(0.62), 0);
+        assertEquals(50, (long) h.percentile(0.50), 0);
+        assertEquals(40, (long) h.percentile(0.40), 0);
+        assertEquals(30, (long) h.percentile(0.30), 0);
+        assertEquals(1, (long) h.percentile(0.0), 0);
     }
 }

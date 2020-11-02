@@ -28,12 +28,13 @@ import java.util.function.Supplier;
  * <p>
  * Represents a supplier of results which might throw an Exception
  * </p><p>
- *     There is no requirement that a new or distinct result be returned each
+ * There is no requirement that a new or distinct result be returned each
  * time the supplier is invoked.
  * </p><p>
- *     This is a <a href="package-summary.html">functional interface</a>
+ * This is a <a href="package-summary.html">functional interface</a>
  * whose functional method is {@link #get()}.
  * </p>
+ *
  * @param <V> the type of results supplied by this supplier
  * @param <T> the type of exception thrown by this supplier
  */

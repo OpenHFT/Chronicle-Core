@@ -34,24 +34,27 @@ import static java.nio.file.StandardWatchEventKinds.*;
 
 public class FileSystemWatcher {
     private final WatchService watchService;
-    private final Thread thread = new Thread(this::run, "watcher");
-
     // shared
     private final Map<WatchKey, PathInfo> watchKeyToPathMap = new ConcurrentHashMap<>();
     private final Set<WatchKey> watchKeysToRemove = new CopyOnWriteArraySet<>();
     private final BlockingQueue<WatcherListener> listenersToAdd = new LinkedBlockingQueue<>();
     private volatile boolean running = true;
-
     // only used by the watcher thread.
     private final List<WatcherListener> listeners = new ArrayList<>();
+    private final Thread thread = new Thread(this::run, "watcher");
 
     public FileSystemWatcher() throws IOException {
         watchService = FileSystems.getDefault().newWatchService();
     }
 
+    private static String p(String path) {
+        return OS.isWindows() ? path.replace('\\', '/') : path;
+    }
+
     public void addPath(String directory) {
         addPath(directory, "");
     }
+
     public void addPath(String base, String relative) {
         Path base0 = Paths.get(base);
         Path base2 = base0.resolve(relative);
@@ -101,10 +104,6 @@ public class FileSystemWatcher {
     private boolean matches(PathInfo path, String filename) {
         String s = path.full;
         return s.equals(filename) || s.startsWith(filename + "/");
-    }
-
-    private static String p(String path) {
-        return OS.isWindows() ? path.replace('\\', '/') : path;
     }
 
     void run() {
@@ -210,7 +209,7 @@ public class FileSystemWatcher {
         public PathInfo(String basePath, String full) {
             this.basePath = basePath;
             this.full = full;
-            this.relativePath = basePath.equals(full) ? "" : full.substring(basePath.length()+1);
+            this.relativePath = basePath.equals(full) ? "" : full.substring(basePath.length() + 1);
         }
     }
 }

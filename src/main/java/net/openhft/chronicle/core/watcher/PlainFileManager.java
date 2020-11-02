@@ -24,14 +24,14 @@ import java.nio.file.Path;
 class PlainFileManager extends JMXFileManager implements PlainFileManagerMBean {
     private final Path path;
 
-    @Override
-    protected String type() {
-        return "files";
-    }
-
     public PlainFileManager(String base, String relative, Path path) {
         super(base, relative);
         this.path = path;
+    }
+
+    @Override
+    protected String type() {
+        return "files";
     }
 
     @Override

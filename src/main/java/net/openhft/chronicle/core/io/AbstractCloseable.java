@@ -47,7 +47,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     }
 
     private transient volatile int closed = 0;
-    private transient volatile StackTrace createdHere;
+    private final transient StackTrace createdHere;
     private transient volatile StackTrace closedHere;
     private transient volatile Thread usedByThread;
     private transient volatile StackTrace usedByThreadHere;

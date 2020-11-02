@@ -31,9 +31,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class ThreadDump {
+    public static final String IGNORE_THREAD_IF_IN_NAME = "~";
     static final Map<Thread, StackTrace> THREAD_STACK_TRACE_MAP =
             new WeakIdentityHashMap<>();
-    public static final String IGNORE_THREAD_IF_IN_NAME = "~";
     @NotNull
     final Set<Thread> threads;
     final Set<String> ignored = new HashSet<>();
@@ -52,6 +52,10 @@ public class ThreadDump {
             THREAD_STACK_TRACE_MAP.put(t, stackTrace);
     }
 
+    public static StackTrace createdHereFor(Thread thread) {
+        return THREAD_STACK_TRACE_MAP.get(thread);
+    }
+
     public void ignore(String threadName) {
         ignored.add(threadName);
     }
@@ -63,10 +67,6 @@ public class ThreadDump {
      */
     public void assertNoNewThreads() {
         assertNoNewThreads(0, TimeUnit.NANOSECONDS);
-    }
-
-    public static StackTrace createdHereFor(Thread thread) {
-        return THREAD_STACK_TRACE_MAP.get(thread);
     }
 
     /**

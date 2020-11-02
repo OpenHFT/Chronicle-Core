@@ -239,7 +239,7 @@ public enum Maths {
     }
 
     public static int nextPower2(int n, int min) throws IllegalArgumentException {
-        return (int) Math.min(1 << 30, nextPower2((long) n, (long) min));
+        return (int) Math.min(1 << 30, nextPower2(n, (long) min));
     }
 
     public static long nextPower2(long n, long min) throws IllegalArgumentException {

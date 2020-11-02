@@ -53,6 +53,11 @@ public class ClassAliasPool implements ClassLookup {
         throw Jvm.rethrow(new AssertionError(clazz));
     }
 
+    protected static boolean testPackage(String pkgName, Class clazz) {
+        Package aPackage = clazz.getPackage();
+        return aPackage != null && aPackage.getName().startsWith(pkgName);
+    }
+
     @NotNull
     private ClassAliasPool defaultAliases() {
         addAlias(Set.class, "!set");
@@ -168,11 +173,6 @@ public class ClassAliasPool implements ClassLookup {
             }
         }
         return clazz.getName();
-    }
-
-    protected static boolean testPackage(String pkgName, Class clazz) {
-        Package aPackage = clazz.getPackage();
-        return aPackage != null && aPackage.getName().startsWith(pkgName);
     }
 
     public void removePackage(String pkgName) {

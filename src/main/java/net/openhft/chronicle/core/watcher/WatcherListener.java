@@ -20,6 +20,7 @@ package net.openhft.chronicle.core.watcher;
 public interface WatcherListener {
     /**
      * When a file or directory is added or modified.
+     *
      * @param filename of the
      * @param modified false is created, true if modified, null if bootstrapping.
      * @throws IllegalStateException when this listener is no longer valid
@@ -28,6 +29,7 @@ public interface WatcherListener {
 
     /**
      * Notify that a file or directory was removed.
+     *
      * @param filename removed.
      * @throws IllegalStateException when this listener is no longer valid
      */

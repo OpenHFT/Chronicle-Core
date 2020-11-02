@@ -150,8 +150,8 @@ public enum CpuCoolers implements CpuCooler {
         }
     },
     MEMORY_COPY {
-        long[] from = new long[8 << 20];
-        long[] to = new long[8 << 20];
+        final long[] from = new long[8 << 20];
+        final long[] to = new long[8 << 20];
 
         @Override
         public void disturb() {

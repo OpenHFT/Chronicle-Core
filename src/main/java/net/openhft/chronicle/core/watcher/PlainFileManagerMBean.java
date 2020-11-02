@@ -20,5 +20,6 @@ package net.openhft.chronicle.core.watcher;
 @SuppressWarnings("unused")
 public interface PlainFileManagerMBean {
     String getFileSize();
+
     String getContentType();
 }

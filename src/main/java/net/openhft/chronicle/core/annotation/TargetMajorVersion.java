@@ -30,5 +30,6 @@ public @interface TargetMajorVersion {
     int majorVersion() default ANY_VERSION;
 
     boolean includeOlder() default false;
+
     boolean includeNewer() default false;
 }

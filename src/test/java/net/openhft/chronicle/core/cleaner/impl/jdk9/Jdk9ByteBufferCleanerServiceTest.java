@@ -5,7 +5,7 @@ import org.junit.Test;
 
 import java.nio.ByteBuffer;
 
-import static org.junit.Assume.*;
+import static org.junit.Assume.assumeTrue;
 
 public class Jdk9ByteBufferCleanerServiceTest {
     @Test

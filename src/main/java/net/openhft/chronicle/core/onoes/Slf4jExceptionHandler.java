@@ -22,9 +22,6 @@ package net.openhft.chronicle.core.onoes;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
-import java.util.List;
-
 public enum Slf4jExceptionHandler implements ExceptionHandler {
     FATAL {
         @Override
@@ -71,7 +68,7 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
 
         for (StackTraceElement[] stackTrace : Thread.getAllStackTraces().values()) {
 
-            List<StackTraceElement> list = Arrays.asList(stackTrace);
+            StackTraceElement[] list = stackTrace;
             for (StackTraceElement element : list) {
                 if (element.getClassName().contains(".junit")) {
                     return true;

@@ -39,7 +39,7 @@ public class FileSystemWatcherTest {
         IOTools.deleteDirWithFiles(base);
     }
 
-@Test
+    @Test
     public void bootstrapAndUpdate() throws IOException {
         /*
         This test fails on Windows and may also fail on MmcOS.
@@ -94,27 +94,27 @@ public class FileSystemWatcherTest {
 
         retryAssertEquals(
                 "dir1=modified: null\n" +
-                "dir1/file11=modified: true\n" +
-                "dir1/file12=modified: null\n" +
-                "dir2=modified: null\n" +
-                "dir2/file20=removed: true\n" +
-                "dir2/file21=modified: false\n" +
-                "dir3=modified: false\n" +
-                "dir3/dir30=modified: null\n" +
-                "dir3/dir30/file301=modified: null", events);
+                        "dir1/file11=modified: true\n" +
+                        "dir1/file12=modified: null\n" +
+                        "dir2=modified: null\n" +
+                        "dir2/file20=removed: true\n" +
+                        "dir2/file21=modified: false\n" +
+                        "dir3=modified: false\n" +
+                        "dir3/dir30=modified: null\n" +
+                        "dir3/dir30/file301=modified: null", events);
 
         IOTools.deleteDirWithFiles(base + "/dir2", 2);
 
         retryAssertEquals(
                 "dir1=modified: null\n" +
-                "dir1/file11=modified: true\n" +
-                "dir1/file12=modified: null\n" +
-                "dir2=removed: true\n" +
-                "dir2/file20=removed: true\n" +
-                "dir2/file21=removed: true\n" +
-                "dir3=modified: false\n" +
-                "dir3/dir30=modified: null\n" +
-                "dir3/dir30/file301=modified: null", events);
+                        "dir1/file11=modified: true\n" +
+                        "dir1/file12=modified: null\n" +
+                        "dir2=removed: true\n" +
+                        "dir2/file20=removed: true\n" +
+                        "dir2/file21=removed: true\n" +
+                        "dir3=modified: false\n" +
+                        "dir3/dir30=modified: null\n" +
+                        "dir3/dir30/file301=modified: null", events);
 
         watcher.stop();
     }

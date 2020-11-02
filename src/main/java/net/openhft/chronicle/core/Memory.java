@@ -181,8 +181,7 @@ public interface Memory {
 
     long addLong(Object object, long offset, long increment);
 
-    @NotNull
-    <E> E allocateInstance(Class<? extends E> clazz) throws InstantiationException;
+    @NotNull <E> E allocateInstance(Class<? extends E> clazz) throws InstantiationException;
 
     long getFieldOffset(Field field);
 
@@ -192,6 +191,5 @@ public interface Memory {
     @Deprecated
     void setInt(Object o, long offset, int value);
 
-    @NotNull
-    <T> T getObject(Object o, long offset);
+    @NotNull <T> T getObject(Object o, long offset);
 }

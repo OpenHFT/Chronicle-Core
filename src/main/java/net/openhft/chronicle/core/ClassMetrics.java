@@ -34,6 +34,22 @@ public class ClassMetrics {
         this.length = length;
     }
 
+    @Deprecated(/* remove in x.21*/)
+    public static void updateJar(final String jarToUpdate, String sourceFile, String fileNameInJar) throws IOException {
+        Map<String, String> env = new HashMap<>();
+        env.put("create", "true");
+
+        URI uri = URI.create("jar:" + new File(jarToUpdate).toURI());
+
+        try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
+            Path externalFile = new File(sourceFile).toPath();
+            Path pathInZipfile = zipfs.getPath(fileNameInJar);
+            // copy a file into the zip file
+            Files.copy(externalFile, pathInZipfile,
+                    StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
     public int offset() {
         return offset;
     }
@@ -62,21 +78,5 @@ public class ClassMetrics {
                 "offset=" + offset +
                 ", length=" + length +
                 '}';
-    }
-
-    @Deprecated(/* remove in x.21*/)
-    public static void updateJar(final String jarToUpdate, String sourceFile, String fileNameInJar) throws IOException {
-        Map<String, String> env = new HashMap<>();
-        env.put("create", "true");
-
-        URI uri = URI.create("jar:" + new File(jarToUpdate).toURI());
-
-        try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
-            Path externalFile = new File(sourceFile).toPath();
-            Path pathInZipfile = zipfs.getPath(fileNameInJar);
-            // copy a file into the zip file
-            Files.copy(externalFile, pathInZipfile,
-                    StandardCopyOption.REPLACE_EXISTING);
-        }
     }
 }

@@ -27,14 +27,14 @@ public interface LongValue {
 
     long getVolatileValue();
 
+    void setVolatileValue(long value);
+
     /**
      * Value to return if the underlying resource isn't available.
      */
     default long getVolatileValue(long closedValue) {
         return getVolatileValue();
     }
-
-    void setVolatileValue(long value);
 
     void setOrderedValue(long value);
 

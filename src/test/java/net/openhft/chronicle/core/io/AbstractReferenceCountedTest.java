@@ -50,7 +50,7 @@ public class AbstractReferenceCountedTest extends CoreTestCommon {
         public MyReferenceCounted() {
         }
 
-@Override
+        @Override
         protected void performRelease() {
             performRelease++;
         }

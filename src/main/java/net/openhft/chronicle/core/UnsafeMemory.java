@@ -87,34 +87,6 @@ public class UnsafeMemory implements Memory {
                 value);
     }
 
-    @NotNull
-    @Override
-    public <E> E allocateInstance(Class<? extends E> clazz) throws InstantiationException {
-        @NotNull
-        E e = (E) UNSAFE.allocateInstance(clazz);
-        return e;
-    }
-
-    @Override
-    public long getFieldOffset(Field field) {
-        return UNSAFE.objectFieldOffset(field);
-    }
-
-    @Override
-    public void setInt(@NotNull Object object, long offset, int value) {
-        if (object == null)
-            throw new NullPointerException();
-        UNSAFE.putInt(object, offset, value);
-    }
-
-    @NotNull
-    @Override
-    public <T> T getObject(@NotNull Object object, long offset) {
-        if (object == null)
-            throw new NullPointerException();
-        return (T) UNSAFE.getObject(object, offset);
-    }
-
     public static void unsafeStoreFence() {
         UNSAFE.storeFence();
     }
@@ -245,6 +217,34 @@ public class UnsafeMemory implements Memory {
 
     public static long unsafeObjectFieldOffset(Field field) {
         return UNSAFE.objectFieldOffset(field);
+    }
+
+    @NotNull
+    @Override
+    public <E> E allocateInstance(Class<? extends E> clazz) throws InstantiationException {
+        @NotNull
+        E e = (E) UNSAFE.allocateInstance(clazz);
+        return e;
+    }
+
+    @Override
+    public long getFieldOffset(Field field) {
+        return UNSAFE.objectFieldOffset(field);
+    }
+
+    @Override
+    public void setInt(@NotNull Object object, long offset, int value) {
+        if (object == null)
+            throw new NullPointerException();
+        UNSAFE.putInt(object, offset, value);
+    }
+
+    @NotNull
+    @Override
+    public <T> T getObject(@NotNull Object object, long offset) {
+        if (object == null)
+            throw new NullPointerException();
+        return (T) UNSAFE.getObject(object, offset);
     }
 
     @Override
@@ -525,7 +525,7 @@ public class UnsafeMemory implements Memory {
     @ForceInline
     public void copyMemory(byte[] bytes, int offset, Object obj2, long offset2, int length) {
         if (length < UNSAFE_COPY_THRESHOLD) {
-            UNSAFE.copyMemory(bytes, (long) (Unsafe.ARRAY_BYTE_BASE_OFFSET + offset), obj2, offset2, length);
+            UNSAFE.copyMemory(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, obj2, offset2, length);
 
         } else {
             copyMemory0(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, obj2, offset2, length);

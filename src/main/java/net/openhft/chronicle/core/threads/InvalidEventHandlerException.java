@@ -42,7 +42,7 @@ public class InvalidEventHandlerException extends Exception {
      * an EventLoop when the former has completed with no errors).
      *
      * @return a reusable, pre-created, InvalidEventHandlerException that is
-     *         unmodifiable and contains no stack trace
+     * unmodifiable and contains no stack trace
      */
     public static InvalidEventHandlerException reusable() {
         return STATIC;

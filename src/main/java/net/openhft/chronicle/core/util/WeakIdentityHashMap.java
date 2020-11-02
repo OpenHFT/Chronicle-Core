@@ -65,7 +65,7 @@ public class WeakIdentityHashMap<K, V> extends AbstractMap<K, V> {
             public Iterator<K> iterator() {
                 return new Iterator<K>() {
                     private K next;
-                    Iterator<WeakKey<K>> iterator = getMap().keySet().iterator();
+                    final Iterator<WeakKey<K>> iterator = getMap().keySet().iterator();
 
                     @Override
                     public void remove() {
@@ -123,7 +123,7 @@ public class WeakIdentityHashMap<K, V> extends AbstractMap<K, V> {
                     @Override
                     public Entry<K, V> next() {
                         return new Entry<K, V>() {
-                            Entry<WeakKey<K>, V> entry = iterator.next();
+                            final Entry<WeakKey<K>, V> entry = iterator.next();
 
                             @Override
                             public K getKey() {
