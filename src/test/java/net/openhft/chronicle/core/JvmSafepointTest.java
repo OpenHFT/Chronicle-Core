@@ -19,17 +19,14 @@ public class JvmSafepointTest {
                 long start = System.currentTimeMillis();
                 while (System.currentTimeMillis() < start + 500) {
                     for (int i = 0; i < 100; i++)
-                        if (Jvm.areOptionalSafepointsEnabled())
-                            Jvm.safepoint();
-                        else
-                            Jvm.safepoint();
+                        Jvm.safepoint();
                 }
             }
         };
         t.start();
         Jvm.pause(100);
         int counter = 0;
-        while (t.isAlive()) {
+        while (t.isAlive() && counter <= 200) {
             StackTraceElement[] stackTrace = t.getStackTrace();
             if (stackTrace.length > 1) {
                 String s = stackTrace[1].toString();
