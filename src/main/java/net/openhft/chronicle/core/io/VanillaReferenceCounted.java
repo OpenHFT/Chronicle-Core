@@ -18,6 +18,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     }
 
     private final Runnable onRelease;
+    // must be volatile
     @UsedViaReflection
     private volatile int value = 1;
     private volatile boolean released = false;

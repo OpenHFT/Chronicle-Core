@@ -1002,7 +1002,8 @@ public enum Jvm {
 
     // from https://stackoverflow.com/questions/62550828/is-there-a-lightweight-method-which-adds-a-safepoint-in-java-9
     static class Safepoint {
-        private static final int one = 1;
+        // must be volatile
+        private static volatile int one = 1;
 
         public static void force() {
             // trick only works from Java 9+
