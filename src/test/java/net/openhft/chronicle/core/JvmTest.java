@@ -19,6 +19,7 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.threads.ThreadDump;
+import net.openhft.chronicle.core.util.Time;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -157,7 +158,7 @@ public class JvmTest {
     @Test
     public void doNotCloseOnInterrupt() throws IOException {
         try (FileChannel fc = FileChannel.open(
-                Paths.get(OS.getTarget(), "doNotCloseOnInterrupt.tmp"),
+                Paths.get(OS.getTarget(), "doNotCloseOnInterrupt-" + Time.uniqueId() + ".tmp"),
                 StandardOpenOption.APPEND,
                 StandardOpenOption.CREATE_NEW,
                 StandardOpenOption.DELETE_ON_CLOSE)) {

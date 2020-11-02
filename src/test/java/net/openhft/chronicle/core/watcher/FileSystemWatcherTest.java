@@ -7,6 +7,7 @@ package net.openhft.chronicle.core.watcher;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.io.IOTools;
+import net.openhft.chronicle.core.util.Time;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
@@ -24,7 +25,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class FileSystemWatcherTest {
-    static String base = OS.getTarget() + "/FileSystemWatcherTest";
+    static String base = OS.getTarget() + "/FileSystemWatcherTest-" + Time.uniqueId();
 
     @Before
     public void setup() {

@@ -18,6 +18,8 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.time.UniqueMicroTimeProvider;
+
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
@@ -39,6 +41,10 @@ public enum Time {
     @Deprecated(/* remove in x.21*/)
     public static long tickTime() {
         return System.currentTimeMillis();
+    }
+
+    public static String uniqueId() {
+        return Long.toString(UniqueMicroTimeProvider.INSTANCE.currentTimeMicros(), 36);
     }
 
     public static void parkNanos(long nanos) {

@@ -21,6 +21,7 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.cleaner.CleanerServiceLocator;
+import net.openhft.chronicle.core.util.Time;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -239,7 +240,7 @@ public enum IOTools {
 
     public static Path createTempDirectory(String s) {
         new File(OS.getTarget()).mkdir();
-        return Paths.get(OS.getTarget(), s + "-" + Long.toString(System.nanoTime(), 36) + ".tmp");
+        return Paths.get(OS.getTarget(), s + "-" + Time.uniqueId() + ".tmp");
     }
 
     public static void unmonitor(final Object t) {

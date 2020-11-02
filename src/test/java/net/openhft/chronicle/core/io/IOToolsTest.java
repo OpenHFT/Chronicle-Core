@@ -2,6 +2,7 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.OS;
+import net.openhft.chronicle.core.util.Time;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -23,8 +24,8 @@ public class IOToolsTest extends CoreTestCommon {
         if (!OS.isLinux()) return;
 
         String path = OS.getTarget();
-        Path link = Paths.get(path, "link2nowhere");
-        Path nowhere = Paths.get(path, "nowhere");
+        Path link = Paths.get(path, "link2nowhere" + Time.uniqueId());
+        Path nowhere = Paths.get(path, "nowhere" + Time.uniqueId());
         if (Files.isSymbolicLink(link)) {
             Files.delete(link);
             if (Files.isSymbolicLink(link)) {
@@ -34,7 +35,7 @@ public class IOToolsTest extends CoreTestCommon {
         Files.createSymbolicLink(link, nowhere);
 
         try {
-            IOTools.createDirectories(Paths.get(link.toString(), "subdir"));
+            IOTools.createDirectories(Paths.get(link.toString(), "subdir" + Time.uniqueId()));
             fail();
         } catch (IOException ioe) {
             assertSame(IOException.class, ioe.getClass());
@@ -50,13 +51,13 @@ public class IOToolsTest extends CoreTestCommon {
         if (!OS.isLinux()) return;
 
         String path = OS.getTarget();
-        Path ro = Paths.get(path, "read-only");
+        Path ro = Paths.get(path, "read-only" + Time.uniqueId());
         IOTools.createDirectories(ro);
         if (!ro.toFile().setWritable(false))
             throw new IllegalStateException("Cannot make read-only");
         assertFalse(ro.toFile().canWrite());
         try {
-            IOTools.createDirectories(Paths.get(ro.toString(), "subdir"));
+            IOTools.createDirectories(Paths.get(ro.toString(), "subdir" + Time.uniqueId()));
         } catch (IOException ioe) {
             assertSame(IOException.class, ioe.getClass());
             assertTrue(ioe.getMessage().startsWith("Cannot write to "));
@@ -73,12 +74,12 @@ public class IOToolsTest extends CoreTestCommon {
         if (!OS.isLinux()) return;
 
         String path = OS.getTarget();
-        Path file = Paths.get(path, "test-file");
+        Path file = Paths.get(path, "test-file" + Time.uniqueId());
         file.toFile().delete();
         file.toFile().deleteOnExit();
         assertTrue(file.toFile().createNewFile());
         try {
-            IOTools.createDirectories(Paths.get(file.toString(), "subdir"));
+            IOTools.createDirectories(Paths.get(file.toString(), "subdir" + Time.uniqueId()));
         } catch (IOException ioe) {
             assertSame(IOException.class, ioe.getClass());
             assertTrue(ioe.getMessage().startsWith("Cannot create a directory with the same name as a file "));
