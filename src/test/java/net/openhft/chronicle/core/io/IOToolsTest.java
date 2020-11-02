@@ -25,7 +25,7 @@ public class IOToolsTest extends CoreTestCommon {
 
         String path = OS.getTarget();
         Path link = Paths.get(path, "link2nowhere" + Time.uniqueId());
-        Path nowhere = Paths.get(path, "nowhere" + Time.uniqueId());
+        Path nowhere = Paths.get(path, "nowhere");
         if (Files.isSymbolicLink(link)) {
             Files.delete(link);
             if (Files.isSymbolicLink(link)) {
