@@ -35,7 +35,6 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.*;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
@@ -931,18 +930,21 @@ public enum Jvm {
 
         URLClassLoader ucl = (URLClassLoader) cl;
         StringBuilder classpath = new StringBuilder(property);
-        try {
-            for (URL url : ucl.getURLs()) {
-                String path = null;
-                path = Paths.get(url.toURI()).toString();
+        for (URL url : ucl.getURLs()) {
+            try {
+                String path = Paths.get(url.toURI()).toString();
                 if (!jcp.contains(path)) {
                     if (isDebugEnabled(Jvm.class))
-                        Jvm.debug().on(Jvm.class, "Adding " + path + " to the classpath");
+                        debug().on(Jvm.class, "Adding " + path + " to the classpath");
                     classpath.append(File.pathSeparator).append(path);
                 }
+            } catch (Throwable e) {
+                final String msg = "Could not add URL " + url + "to classpath";
+                if (isDebugEnabled(Jvm.class))
+                    debug().on(Jvm.class, msg, e);
+                else
+                    warn().on(Jvm.class, msg);
             }
-        } catch (URISyntaxException e) {
-            throw Jvm.rethrow(e);
         }
         System.setProperty(JAVA_CLASS_PATH, classpath.toString());
     }
