@@ -939,11 +939,7 @@ public enum Jvm {
                     classpath.append(File.pathSeparator).append(path);
                 }
             } catch (Throwable e) {
-                final String msg = "Could not add URL " + url + "to classpath";
-                if (isDebugEnabled(Jvm.class))
-                    debug().on(Jvm.class, msg, e);
-                else
-                    warn().on(Jvm.class, msg);
+                debug().on(Jvm.class, "Could not add URL " + url + " to classpath");
             }
         }
         System.setProperty(JAVA_CLASS_PATH, classpath.toString());
