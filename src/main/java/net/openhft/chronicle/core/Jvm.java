@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.analytics.Analytics;
 import net.openhft.chronicle.core.annotation.DontChain;
 import net.openhft.chronicle.core.onoes.*;
 import net.openhft.chronicle.core.util.ObjectUtils;
@@ -154,6 +155,11 @@ public enum Jvm {
         RESOURCE_TRACING = Jvm.getBoolean("jvm.resource.tracing");
 
         LoggerFactory.getLogger(Jvm.class).info("Chronicle core loaded from " + Jvm.class.getProtectionDomain().getCodeSource().getLocation());
+    }
+
+    static {
+        final Analytics analytics = Analytics.acquire("core", "2.20.113-SNAPSHOT");
+        analytics.onStart();
     }
 
     private static void findAndLoadSystemProperties() {
