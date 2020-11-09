@@ -1,4 +1,4 @@
-package net.openhft.chronicle.core.internal.analytics.ga;
+package net.openhft.chronicle.core.internal.analytics.google;
 
 
 import net.openhft.chronicle.core.Jvm;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
-import static net.openhft.chronicle.core.internal.analytics.ga.GoogleAnalytics.Account.create;
+import static net.openhft.chronicle.core.internal.analytics.google.GoogleAnalytics.Account.create;
 
 public final class GoogleAnalytics implements Analytics {
 
@@ -112,6 +112,7 @@ public final class GoogleAnalytics implements Analytics {
                 entryFor("os.name"),
                 entryFor("os.arch"),
                 entryFor("os.version"),
+                entry("timezone_default", TimeZone.getDefault().getID()),
                 entry("available_processors", Integer.toString(Runtime.getRuntime().availableProcessors())), // Must be strings...
                 entry("max_memory", Long.toString(Runtime.getRuntime().maxMemory()))
         )

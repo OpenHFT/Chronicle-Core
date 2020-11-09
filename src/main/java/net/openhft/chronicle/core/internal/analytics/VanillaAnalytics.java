@@ -1,7 +1,7 @@
 package net.openhft.chronicle.core.internal.analytics;
 
 import net.openhft.chronicle.core.analytics.Analytics;
-import net.openhft.chronicle.core.internal.analytics.ga.GoogleAnalytics;
+import net.openhft.chronicle.core.internal.analytics.google.GoogleAnalytics;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;

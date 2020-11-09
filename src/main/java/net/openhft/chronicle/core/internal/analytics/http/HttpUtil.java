@@ -34,7 +34,8 @@ public enum HttpUtil {;
                 final URL url = new URL(urlString);
                 final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type", "application/json; utf-8");
+                //conn.setRequestProperty("Content-Type", "application/json; utf-8"); // For some reason, this does not work...
+                conn.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
                 conn.setRequestProperty("Accept", "application/json");
                 conn.setDoOutput(true);
                 try (OutputStream os = conn.getOutputStream()) {
