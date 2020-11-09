@@ -53,7 +53,7 @@ public final class GoogleAnalytics implements Analytics {
 
     private void httpSend(@NotNull String eventName) {
         if (account != null) {
-            final String url = ENDPOINT_URL + "&measurement_id=" + urlEncode(account.measurmentId()) + "?api_secret=" + urlEncode(account.apiSectret());
+            final String url = ENDPOINT_URL + "?measurement_id=" + urlEncode(account.measurmentId()) + "&api_secret=" + urlEncode(account.apiSectret());
             final String json = jsonFor(eventName, userProperties());
             HttpUtil.send(url, json);
         }
