@@ -5,6 +5,7 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.analytics.Analytics;
 import net.openhft.chronicle.core.internal.analytics.http.HttpUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -18,24 +19,26 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
+import static net.openhft.chronicle.core.internal.analytics.ga.GoogleAnalytics.Account.create;
 
 public final class GoogleAnalytics implements Analytics {
 
     private final String COOKIE_FILE_NAME = "software.chronicle.client.id";
     private static final String ENDPOINT_URL = "https://www.google-analytics.com/mp/collect";
-    private static final String API_SECRET = "IeQiD0YvRCaKRZ52vUV79A";
-    private static final String START_EVENT_NAME = "start";
+    private static final String START_EVENT_NAME = "started";
 
     private final String libraryName;
     private final String version;
     private final String clientId;
-    private final String measurementId;
+    //private final String measurementId;
+    private final Account account;
 
     public GoogleAnalytics(@NotNull final String libraryName, @NotNull final String version) {
         this.libraryName = libraryName;
         this.version = version;
         this.clientId = acquireClientId();
-        this.measurementId = measurementId(libraryName);
+        //this.measurementId = measurementId(libraryName);
+        this.account = account(libraryName);
     }
 
     @Override
@@ -49,20 +52,23 @@ public final class GoogleAnalytics implements Analytics {
     }
 
     private void httpSend(@NotNull String eventName) {
-        final String url = ENDPOINT_URL + "&measurement_id=" + urlEncode(measurementId) + "?api_secret=" + urlEncode(API_SECRET);
-        final String json = jsonFor(eventName, userProperties());
-        HttpUtil.send(url, json);
+        if (account != null) {
+            final String url = ENDPOINT_URL + "&measurement_id=" + urlEncode(account.measurmentId()) + "?api_secret=" + urlEncode(account.apiSectret());
+            final String json = jsonFor(eventName, userProperties());
+            HttpUtil.send(url, json);
+        }
     }
 
     private String jsonFor(@NotNull final String eventName, @NotNull final Map<String, Object> additionalProperties) {
         return Stream.of(
                 "{",
                 jsonElement(" ", "clientId", clientId) + ",",
+                jsonElement(" ", "userId", clientId) + ",",
                 jsonElement(" ", "nonPersonalizedAds", true) + ",",
                 " " + asElement("events") + ": [{",
                 jsonElement("  ", "name", eventName) + ",",
                 "  " + asElement("params") + ": {",
-                jsonElement("   ", "version", version),
+                jsonElement("   ", "app_version", version),
                 "  }",
                 " }],",
                 " " + asElement("userProperties") + ": {",
@@ -106,18 +112,18 @@ public final class GoogleAnalytics implements Analytics {
                 entryFor("os.name"),
                 entryFor("os.arch"),
                 entryFor("os.version"),
-                entry("available.processors", Runtime.getRuntime().availableProcessors()),
-                entry("max.memory", Runtime.getRuntime().maxMemory())
+                entry("available_processors", Integer.toString(Runtime.getRuntime().availableProcessors())), // Must be strings...
+                entry("max_memory", Long.toString(Runtime.getRuntime().maxMemory()))
         )
                 .filter(e -> e.getValue() != null)
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b, LinkedHashMap::new));
     }
 
-    private static Map.Entry<String, String> entryFor(final String systemProperty) {
-        return new AbstractMap.SimpleImmutableEntry<>(systemProperty, System.getProperty(systemProperty));
+    private static Map.Entry<String, String> entryFor(@NotNull final String systemProperty) {
+        return new AbstractMap.SimpleImmutableEntry<>(systemProperty.replace('.', '_'), System.getProperty(systemProperty));
     }
 
-    private static Map.Entry<String, Object> entry(final String key, final Object value) {
+    private static Map.Entry<String, Object> entry(@NotNull final String key, @Nullable final Object value) {
         return new AbstractMap.SimpleImmutableEntry<>(key, value);
     }
 
@@ -144,20 +150,90 @@ public final class GoogleAnalytics implements Analytics {
         return clientId;
     }
 
-    private String measurementId(final String libraryName) {
+    private Account account(final String libraryName) {
         switch (libraryName) {
+            // OSS
             case "map":
-                return "G-E0S89S7N6Z";
-            case "core":
-                return "G-E0S89S7N6Z";
+                return create("G-TDTJG5CT6G", "J8qsWGHgQP6CLs43mQ10KQ");
+            case "queue":
+                return create("G-RLL8BHTN1F", "QDg5-erVRauK9P1lX1yz0w");
+            case "queue-demo":
+                return create("G-E0S89S7N6Z", "IeQiD0YvRCaKRZ52vUV79A");
+            case "decentred":
+                return create("G-E0S89S7N6Z", "IeQiD0YvRCaKRZ52vUV79A");
+            case "websocket":
+                return create("G-E0S89S7N6Z", "IeQiD0YvRCaKRZ52vUV79A");
+
+            // Enterprise
+            case "wire-enterprise":
+                return null;
+            case "network-enterprise":
+                return null;
+            case "services":
+                return null;
+            case "services-demo":
+                return null;
+            case "fix":
+                return null;
+            case "fix-demo":
+                return null;
+            case "queue-enterprise":
+                return null;
+            case "queue-enterprise-demo":
+                return null;
+            case "queue-zero":
+                return null;
+            case "map-enterprise":
+                return null;
+            case "ring":
+                return null;
+            case "datagrid":
+                return null;
+            case "datagrid-demo":
+                return null;
+            case "mdd":
+                return null;
+            case "mdd-demo":
+                return null;
+            case "efx":
+                return null;
+
         }
         // Unknown library
-        return "G-E0S89S7N6Z";
+        return null;
     }
 
     private String nl() {
         return String.format("%n");
     }
 
+    interface Account {
+        String measurmentId();
+
+        String apiSectret();
+
+        static Account create(@NotNull final String measurementId, @NotNull final String apiSecret) {
+            return new Account() {
+                @Override
+                public String measurmentId() {
+                    return measurementId;
+                }
+
+                @Override
+                public String apiSectret() {
+                    return apiSecret;
+                }
+
+                @Override
+                public String toString() {
+                    return "(" + measurementId + ", " + apiSecret + ")";
+                }
+            };
+        }
+    }
+
+    private static String replaceDotsWithUnderscore(@NotNull final String s) {
+        return s.replace('.', '_');
+    }
 
 }

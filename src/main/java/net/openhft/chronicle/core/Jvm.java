@@ -157,11 +157,6 @@ public enum Jvm {
         LoggerFactory.getLogger(Jvm.class).info("Chronicle core loaded from " + Jvm.class.getProtectionDomain().getCodeSource().getLocation());
     }
 
-    static {
-        final Analytics analytics = Analytics.acquire("core", "2.20.113-SNAPSHOT");
-        analytics.onStart();
-    }
-
     private static void findAndLoadSystemProperties() {
         String systemProperties = System.getProperty("system.properties");
         boolean wasSet = true;
