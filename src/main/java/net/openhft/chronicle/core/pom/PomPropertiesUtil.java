@@ -13,7 +13,8 @@ public final class PomPropertiesUtil {
      * Creates and returns a new instance of Properties for the provided {@code libraryName}.
      * <p>
      * The provided {@code libraryName} is used to pick up properties from a resource named
-     * {@code /${libraryName}.pom.properties } e.g. "/queue.pom.properties"
+     * {@code /${libraryName}.pom.properties } e.g. "/queue.pom.properties". If no such resource
+     * exist, an empty Properties instance is returned.
      *
      * @param libraryName name of the library (e.g. queue)
      * @return a new instance of Properties for the provided {@code libraryName}.
