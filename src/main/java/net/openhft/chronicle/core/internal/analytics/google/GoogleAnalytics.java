@@ -112,16 +112,16 @@ public final class GoogleAnalytics implements Analytics {
                 entryFor("os.name"),
                 entryFor("os.arch"),
                 entryFor("os.version"),
-                entry("timezone_default", TimeZone.getDefault().getID()),
-                entry("available_processors", Integer.toString(Runtime.getRuntime().availableProcessors())), // Must be strings...
-                entry("max_memory", Long.toString(Runtime.getRuntime().maxMemory()))
+                entry(replaceDotsWithUnderscore("timezone.default"), TimeZone.getDefault().getID()),
+                entry(replaceDotsWithUnderscore("available.processors"), Integer.toString(Runtime.getRuntime().availableProcessors())), // Must be strings...
+                entry(replaceDotsWithUnderscore("max.memory"), Long.toString(Runtime.getRuntime().maxMemory()))
         )
                 .filter(e -> e.getValue() != null)
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b, LinkedHashMap::new));
     }
 
     private static Map.Entry<String, String> entryFor(@NotNull final String systemProperty) {
-        return new AbstractMap.SimpleImmutableEntry<>(systemProperty.replace('.', '_'), System.getProperty(systemProperty));
+        return new AbstractMap.SimpleImmutableEntry<>(replaceDotsWithUnderscore(systemProperty), System.getProperty(systemProperty));
     }
 
     private static Map.Entry<String, Object> entry(@NotNull final String key, @Nullable final Object value) {
