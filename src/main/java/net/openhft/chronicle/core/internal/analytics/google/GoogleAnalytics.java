@@ -42,24 +42,26 @@ public final class GoogleAnalytics implements Analytics {
     }
 
     @Override
-    public void onStart() {
-        httpSend(START_EVENT_NAME);
+    public void onStart(@NotNull final Map<String, String> eventParameters) {
+        httpSend(START_EVENT_NAME, eventParameters);
     }
 
     @Override
-    public void onFeature(@NotNull final String id) {
-        httpSend(id);
+    public void onFeature(@NotNull final String id, Map<String, String> eventParameters) {
+        httpSend(id, eventParameters);
     }
 
-    private void httpSend(@NotNull String eventName) {
+    private void httpSend(@NotNull String eventName, Map<String, String> eventParameters) {
         if (account != null) {
             final String url = ENDPOINT_URL + "?measurement_id=" + urlEncode(account.measurmentId()) + "&api_secret=" + urlEncode(account.apiSectret());
-            final String json = jsonFor(eventName, userProperties());
+            final String json = jsonFor(eventName, eventParameters, userProperties());
             HttpUtil.send(url, json);
         }
     }
 
-    private String jsonFor(@NotNull final String eventName, @NotNull final Map<String, Object> additionalProperties) {
+    private String jsonFor(@NotNull final String eventName,
+                           @NotNull final Map<String, String> eventParameters,
+                           @NotNull final Map<String, Object> userProperties) {
         return Stream.of(
                 "{",
                 jsonElement(" ", "clientId", clientId) + ",",
@@ -68,11 +70,12 @@ public final class GoogleAnalytics implements Analytics {
                 " " + asElement("events") + ": [{",
                 jsonElement("  ", "name", eventName) + ",",
                 "  " + asElement("params") + ": {",
-                jsonElement("   ", "app_version", version),
+                jsonElement("   ", "app_version", version) + (eventParameters.isEmpty() ? "" : String.format(",%n")),
+                eventParameters.entrySet().stream().map(e -> jsonElement("   ", e.getKey(), e.getValue())).collect(Collectors.joining(String.format(",%n"))),
                 "  }",
                 " }],",
                 " " + asElement("userProperties") + ": {",
-                additionalProperties.entrySet().stream().map(this::userProperty).collect(Collectors.joining(String.format(",%n"))),
+                userProperties.entrySet().stream().map(this::userProperty).collect(Collectors.joining(String.format(",%n"))),
                 " }",
                 "}"
         ).collect(Collectors.joining(nl()));

@@ -5,33 +5,28 @@ import net.openhft.chronicle.core.internal.analytics.google.GoogleAnalytics;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Adds filtering of unique events per JVM/class-loader
+ * Adds filtering of events per JVM/class-loader
  */
 final class VanillaAnalytics implements Analytics {
 
+    private static final boolean DISABLE_FILTERING = true;
+
     private final Analytics delegate;
-    private final Set<String> reportedFeatures = Collections.newSetFromMap(new ConcurrentHashMap<>());
-    private final AtomicBoolean started = new AtomicBoolean();
+    private final Set<Long> reportedFeatures = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     public VanillaAnalytics(@NotNull final String libraryName, @NotNull final String version) {
         delegate = new GoogleAnalytics(libraryName, version);
     }
 
     @Override
-    public void onStart() {
-        if (started.compareAndSet(false, true)) {
-            delegate.onStart();
-        }
-    }
-
-    @Override
-    public void onFeature(@NotNull final String id) {
-        if (reportedFeatures.add(id)) {
+    public void onFeature(@NotNull final String id, @NotNull final Map<String, String> eventParameters) {
+        final long hash = 31 * id.hashCode() + eventParameters.hashCode();
+        if (DISABLE_FILTERING || reportedFeatures.add(hash)) {
             delegate.onFeature(id);
         }
     }

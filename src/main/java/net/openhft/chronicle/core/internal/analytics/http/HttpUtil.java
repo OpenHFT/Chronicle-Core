@@ -9,13 +9,20 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public enum HttpUtil {;
 
-    public static void send(@NotNull final String urlString, @NotNull final String json) {
-        final Thread thread = new Thread(new Sender(urlString, json), "http-client-" + urlString);
+    private static final Executor EXECUTOR = Executors.newSingleThreadExecutor(runnable -> {
+        final Thread thread = new Thread(runnable,"analytics-http-client");
         thread.setDaemon(true);
-        thread.start();
+        return thread;
+    });
+
+
+    public static void send(@NotNull final String urlString, @NotNull final String json) {
+        EXECUTOR.execute(new Sender(urlString, json));
     }
 
     private static final class Sender implements Runnable {
