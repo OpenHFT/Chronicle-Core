@@ -70,7 +70,7 @@ public final class GoogleAnalytics implements Analytics {
                 " " + asElement("events") + ": [{",
                 jsonElement("  ", "name", eventName) + ",",
                 "  " + asElement("params") + ": {",
-                jsonElement("   ", "app_version", version) + (eventParameters.isEmpty() ? "" : String.format(",%n")),
+                jsonElement("   ", "app_version", version) + (eventParameters.isEmpty() ? "" : ","),
                 eventParameters.entrySet().stream().map(e -> jsonElement("   ", e.getKey(), e.getValue())).collect(Collectors.joining(String.format(",%n"))),
                 "  }",
                 " }],",
@@ -162,46 +162,44 @@ public final class GoogleAnalytics implements Analytics {
             case "queue":
                 return create("G-RLL8BHTN1F", "QDg5-erVRauK9P1lX1yz0w");
             case "queue-demo":
-                return create("G-E0S89S7N6Z", "IeQiD0YvRCaKRZ52vUV79A");
+                return create("G-Q699PK0278", "YDkgw-3DR6yMIcGsCGxrBg");
             case "decentred":
-                return create("G-E0S89S7N6Z", "IeQiD0YvRCaKRZ52vUV79A");
+                return create("G-MHNQF60609", "lwahZLwuR62lmlhWQO_XYA");
             case "websocket":
-                return create("G-E0S89S7N6Z", "IeQiD0YvRCaKRZ52vUV79A");
-
+                return create("G-664QLSXFND", "CI402HSGRN-ou20YMSTV9Q");
             // Enterprise
             case "wire-enterprise":
-                return null;
+                return create("G-FLEY5Z3PTV", "w4HxPDbzR2We_8XoF79BRA");
             case "network-enterprise":
-                return null;
+                return create("G-TVNVZ37HC0", "ymz2OTZgQtSUAHEV_fxVjw");
             case "services":
-                return null;
+                return create("G-7QVV85K3RG", "u-ED1zpYRPqq4WwuuD25RQ");
             case "services-demo":
-                return null;
+                return create("G-4H93Z95F9S", "VmiM3ElBRbaJXl6fskAOqw");
             case "fix":
-                return null;
+                return create("G-V9N5NL07WJ", "iCo8d19UQG26zZKHDi5M5A");
             case "fix-demo":
-                return null;
+                return create("G-1QJ7EZKQEZ", "HxiuHF85QKyZAJ9dWEHJZQ");
             case "queue-enterprise":
-                return null;
+                return create("G-BP94BVC2ZS", "iPRHY5a2TbeBP8GuWaK0rA");
             case "queue-enterprise-demo":
-                return null;
+                return create("G-XXR6JRVS5V", "Fz9YiKtmQ1ukSunPIwxfQw");
             case "queue-zero":
-                return null;
+                return create("G-H50N0NLQ7C", "2NgRCqTtQx-aR6gwZVpshg");
             case "map-enterprise":
-                return null;
+                return create("G-TKNRN0Y813", "SKYi5vinTDGgLuiMKU2UXA");
             case "ring":
-                return null;
+                return create("G-C1WV1K8P3C", "MqQm60ViRkO385xUs1zQ9Q");
             case "datagrid":
-                return null;
+                return create("G-H0VN4G0ZYL","-hftABXXRB-Z4hL8KrMOPw");
             case "datagrid-demo":
-                return null;
+                return create("G-N8NLPDX36X", "BdyxSG6iT6Cc8nWz5YxzrA");
             case "mdd":
-                return null;
+                return create("G-FR9BRC8NSW", "FC8RHQpLROOGCCRFiXiKjg");
             case "mdd-demo":
-                return null;
+                return create("G-RPPKNQD1PR", "4vpBLpK4QuOd6_3lDfL8sw");
             case "efx":
-                return null;
-
+                return create("G-PK6BJZNRD9", "c6ujn9xNQQqMfu07p8zPhw");
         }
         // Unknown library
         return null;

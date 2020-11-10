@@ -1,5 +1,6 @@
 package net.openhft.chronicle.core.internal.analytics.http;
 
+import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
@@ -12,10 +13,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-public enum HttpUtil {;
+public enum HttpUtil {
+    ;
+
+    private static final boolean OUTPUT = Jvm.getBoolean("chronicle.analytics.output");
 
     private static final Executor EXECUTOR = Executors.newSingleThreadExecutor(runnable -> {
-        final Thread thread = new Thread(runnable,"analytics-http-client");
+        final Thread thread = new Thread(runnable, "analytics-http-client");
         thread.setDaemon(true);
         return thread;
     });
@@ -57,11 +61,13 @@ public enum HttpUtil {;
                     while ((responseLine = br.readLine()) != null) {
                         response.append(responseLine.trim());
                     }
-                    System.out.println(response.toString());
+                    if (OUTPUT)
+                        System.out.println(response.toString());
                 }
 
-            } catch (IOException ignore) {
-                // Silently ignore
+            } catch (IOException ioe) {
+                if (OUTPUT)
+                    Jvm.warn().on(HttpUtil.class, ioe);
             }
         }
     }

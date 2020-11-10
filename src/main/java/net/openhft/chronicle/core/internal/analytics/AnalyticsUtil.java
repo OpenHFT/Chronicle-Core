@@ -17,7 +17,7 @@ public enum AnalyticsUtil {;
 
     @NotNull
     public static Analytics acquire(@NotNull final String libraryName, @NotNull final String libraryVersion) {
-        if (DISABLE_ANALYTICS || INSTANCES.size() >= MAX_LIBRARIES) {
+        if (libraryVersion.endsWith("SNAPSHOT") || DISABLE_ANALYTICS || INSTANCES.size() >= MAX_LIBRARIES) {
             return MuteAnalytics.INSTANCE;
         }
         return INSTANCES
