@@ -23,6 +23,7 @@ import static net.openhft.chronicle.core.internal.analytics.google.GoogleAnalyti
 
 public final class GoogleAnalytics implements Analytics {
 
+    private final long GIB = 1024 * 1024;
     private final String COOKIE_FILE_NAME = "software.chronicle.client.id";
     private static final String ENDPOINT_URL = "https://www.google-analytics.com/mp/collect";
     private static final String START_EVENT_NAME = "started";
@@ -117,7 +118,9 @@ public final class GoogleAnalytics implements Analytics {
                 entryFor("os.version"),
                 entry(replaceDotsWithUnderscore("timezone.default"), TimeZone.getDefault().getID()),
                 entry(replaceDotsWithUnderscore("available.processors"), Integer.toString(Runtime.getRuntime().availableProcessors())), // Must be strings...
-                entry(replaceDotsWithUnderscore("max.memory"), Long.toString(Runtime.getRuntime().maxMemory()))
+                entry(replaceDotsWithUnderscore("max.memory.gib"), Long.toString(Runtime.getRuntime().maxMemory() / GIB)),
+                entry(replaceDotsWithUnderscore("java.major.version"), Long.toString(Jvm.majorVersion())),
+                entry(replaceDotsWithUnderscore("max.direct.memory.gib"), Long.toString(Jvm.maxDirectMemory() / GIB))
         )
                 .filter(e -> e.getValue() != null)
                 .collect(toMap(Map.Entry::getKey, Map.Entry::getValue, (a, b) -> b, LinkedHashMap::new));
@@ -191,7 +194,7 @@ public final class GoogleAnalytics implements Analytics {
             case "ring":
                 return create("G-C1WV1K8P3C", "MqQm60ViRkO385xUs1zQ9Q");
             case "datagrid":
-                return create("G-H0VN4G0ZYL","-hftABXXRB-Z4hL8KrMOPw");
+                return create("G-H0VN4G0ZYL", "-hftABXXRB-Z4hL8KrMOPw");
             case "datagrid-demo":
                 return create("G-N8NLPDX36X", "BdyxSG6iT6Cc8nWz5YxzrA");
             case "mdd":

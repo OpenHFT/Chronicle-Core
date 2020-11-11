@@ -18,7 +18,6 @@
 
 package net.openhft.chronicle.core;
 
-import net.openhft.chronicle.core.analytics.Analytics;
 import net.openhft.chronicle.core.annotation.DontChain;
 import net.openhft.chronicle.core.onoes.*;
 import net.openhft.chronicle.core.util.ObjectUtils;
