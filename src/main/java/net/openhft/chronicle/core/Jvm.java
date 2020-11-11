@@ -959,7 +959,7 @@ public enum Jvm {
     /**
      * checks if a process is still alive
      *
-     * @param pid
+     * @param pid the pid of the process you wish to check
      * @return true if the process is still alive
      */
     public static boolean isProcessAlive(long pid) {
