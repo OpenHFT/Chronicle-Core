@@ -2,11 +2,8 @@ package net.openhft.chronicle.core.internal.pom;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -37,7 +34,6 @@ public final class InternalPomPropertiesUtil {
 
     private static String resourceName(@NotNull final String groupId, @NotNull final String artifactId) {
          return "/META-INF/maven/" + groupId + "/" + artifactId + "/pom.properties";
-        //return "/META-INF/maven/" + groupId + "/" + artifactId + "/pom.properties";
     }
 
     private static String extractVersionOrUnknown(@NotNull final String groupId, @NotNull final String artifactId) {
