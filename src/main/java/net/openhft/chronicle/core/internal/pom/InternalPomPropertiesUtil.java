@@ -20,12 +20,7 @@ public final class InternalPomPropertiesUtil {
         try {
             final String resourceName = resourceName(groupId, artifactId);
             try (InputStream inputStream = InternalPomPropertiesUtil.class.getResourceAsStream(resourceName)) {
-            //try (InputStream inputStream = new FileInputStream(resourceName)) {
                 if (inputStream != null) {
-/*                    final byte[] bytes = new byte[2000];
-                    inputStream.read(bytes);
-                    String contents = new String(bytes);
-                    System.out.println("contents = " + contents);*/
                     properties.load(inputStream);
                 }
             }
