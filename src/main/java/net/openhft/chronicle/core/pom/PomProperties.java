@@ -5,9 +5,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Properties;
 
-public final class PomPropertiesUtil {
+public final class PomProperties {
 
-    private PomPropertiesUtil() {}
+    private PomProperties() {}
 
     /**
      * Creates and returns a new instance of Properties for the provided parameters.
