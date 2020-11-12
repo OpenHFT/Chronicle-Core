@@ -2,7 +2,9 @@ package net.openhft.chronicle.core.internal.pom;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
@@ -13,23 +15,38 @@ public final class InternalPomPropertiesUtil {
     private static final Map<String, String> VERSION_CACHE = new ConcurrentHashMap<>();
 
     @NotNull
-    public static Properties create(@NotNull final String libraryName) {
+    public static Properties create(@NotNull final String groupId, @NotNull final String artifactId) {
         final Properties properties = new Properties();
         try {
-            properties.load(InternalPomPropertiesUtil.class.getResourceAsStream("/" + libraryName + ".pom.properties"));
+            final String resourceName = resourceName(groupId, artifactId);
+            try (InputStream inputStream = InternalPomPropertiesUtil.class.getResourceAsStream(resourceName)) {
+            //try (InputStream inputStream = new FileInputStream(resourceName)) {
+                if (inputStream != null) {
+/*                    final byte[] bytes = new byte[2000];
+                    inputStream.read(bytes);
+                    String contents = new String(bytes);
+                    System.out.println("contents = " + contents);*/
+                    properties.load(inputStream);
+                }
+            }
         } catch (Exception ignore) {
+            ignore.printStackTrace();
             // Returns an empty set of properties if we fail.
         }
         return properties;
     }
 
-    public static String version(@NotNull final String libraryName) {
-        return VERSION_CACHE.computeIfAbsent(libraryName, InternalPomPropertiesUtil::extractVersionOrUnknown);
+    public static String version(@NotNull final String groupId, @NotNull final String artifactId) {
+        return VERSION_CACHE.computeIfAbsent(groupId + ":" + artifactId, unused -> InternalPomPropertiesUtil.extractVersionOrUnknown(groupId, artifactId));
     }
 
-    private static String extractVersionOrUnknown(String libraryName) {
-        return Optional.ofNullable(create(libraryName).getProperty("version"))
-                .orElse("unknown");
+    private static String resourceName(@NotNull final String groupId, @NotNull final String artifactId) {
+         return "/META-INF/maven/" + groupId + "/" + artifactId + "/pom.properties";
+        //return "/META-INF/maven/" + groupId + "/" + artifactId + "/pom.properties";
+    }
+
+    private static String extractVersionOrUnknown(@NotNull final String groupId, @NotNull final String artifactId) {
+        return create(groupId, artifactId).getProperty("version", "unknown");
     }
 
 }

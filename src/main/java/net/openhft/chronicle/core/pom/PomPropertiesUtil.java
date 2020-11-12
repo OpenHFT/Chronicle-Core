@@ -10,33 +10,38 @@ public final class PomPropertiesUtil {
     private PomPropertiesUtil() {}
 
     /**
-     * Creates and returns a new instance of Properties for the provided {@code libraryName}.
+     * Creates and returns a new instance of Properties for the provided parameters.
      * <p>
      * The provided {@code libraryName} is used to pick up properties from a resource named
-     * {@code /${libraryName}.pom.properties } e.g. "/queue.pom.properties". If no such resource
+     * {@code /META-INF/maven/${groupId}/${artifactId}/pom.properties }
+     * e.g. "/META-INF/maven/net.openhft/chronicle-queue/pom.properties". If no such resource
      * exist, an empty Properties instance is returned.
      *
-     * @param libraryName name of the library (e.g. queue)
-     * @return a new instance of Properties for the provided {@code libraryName}.
+      * @param groupId name of the group (e.g. net.openhft)
+      * @param artifactId name of the library (e.g. chronicle-queue)
+     * @return a new instance of Properties for the provided parameters.
      */
     @NotNull
-    public static Properties create(@NotNull final String libraryName) {
-        return InternalPomPropertiesUtil.create(libraryName);
+    public static Properties create(@NotNull final String groupId, @NotNull final String artifactId) {
+        return InternalPomPropertiesUtil.create(groupId, artifactId);
     }
 
     /**
-     * Returns the GAV version for the provided {@code libraryName}.
+     * Returns the GAV version for the provided parameters, or "unknown" if
+     * the version cannot be determined.
      * <p>
      * The provided {@code libraryName} is used the same way as for
-     * {@link #create(String)}.
+     * {@link #create(String, String)}.
      *
-     * @param libraryName name of the library (e.g. queue)
-     * @return the GAV version for the provided {@code libraryName}.
+     * @param groupId name of the group (e.g. net.openhft)
+     * @param artifactId name of the library (e.g. chronicle-queue)
+     * @return the GAV version for the provided parameters, or "unknown" if
+     *         the version cannot be determined
      * 
-     * @see #create(String)
+     * @see #create(String, String)
      */
-    public static String version(@NotNull final String libraryName) {
-        return InternalPomPropertiesUtil.version(libraryName);
+    public static String version(@NotNull final String groupId, @NotNull final String artifactId) {
+        return InternalPomPropertiesUtil.version(groupId, artifactId);
     }
 
 }
