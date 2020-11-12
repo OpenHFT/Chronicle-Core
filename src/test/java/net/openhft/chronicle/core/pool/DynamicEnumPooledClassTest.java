@@ -3,6 +3,8 @@ package net.openhft.chronicle.core.pool;
 import net.openhft.chronicle.core.Maths;
 import org.junit.Test;
 
+import java.util.Arrays;
+
 import static org.junit.Assert.assertEquals;
 
 public class DynamicEnumPooledClassTest {
@@ -11,14 +13,17 @@ public class DynamicEnumPooledClassTest {
         EnumCache<YesNo> yesNoEnumCache = EnumCache.of(YesNo.class);
         assertEquals(YesNo.Yes, yesNoEnumCache.valueOf("Yes"));
         assertEquals(YesNo.No, yesNoEnumCache.valueOf("No"));
+        assertEquals("[Yes, No]", Arrays.toString(yesNoEnumCache.asArray()));
 
         YesNo maybe = yesNoEnumCache.valueOf("Maybe");
         assertEquals("Maybe", maybe.name());
         assertEquals(2, maybe.ordinal());
+        assertEquals("[Yes, No, Maybe]", Arrays.toString(yesNoEnumCache.asArray()));
 
         YesNo unknown = yesNoEnumCache.valueOf("Unknown");
         assertEquals("Unknown", unknown.name());
         assertEquals(3, unknown.ordinal());
+        assertEquals("[Yes, No, Maybe, Unknown]", Arrays.toString(yesNoEnumCache.asArray()));
     }
 
     @Test
