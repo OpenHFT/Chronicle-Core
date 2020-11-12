@@ -163,7 +163,7 @@ public final class GoogleAnalytics implements Analytics {
             case "chronicle-map":
                 return create("G-TDTJG5CT6G", "J8qsWGHgQP6CLs43mQ10KQ");
             case "chronicle-queue":
-                return create("G-RLL8BHTN1F", "QDg5-erVRauK9P1lX1yz0w");
+                return create("G-4K5MBLGPLE", "k1hK3x2qQaKk4F5gL-PBhQ");
             case "chronicle-queue-demo":
                 return create("G-Q699PK0278", "YDkgw-3DR6yMIcGsCGxrBg");
             case "chronicle-decentred":
