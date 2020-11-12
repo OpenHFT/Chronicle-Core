@@ -154,6 +154,8 @@ public enum Jvm {
         RESOURCE_TRACING = Jvm.getBoolean("jvm.resource.tracing");
 
         LoggerFactory.getLogger(Jvm.class).info("Chronicle core loaded from " + Jvm.class.getProtectionDomain().getCodeSource().getLocation());
+        if (RESOURCE_TRACING)
+            LoggerFactory.getLogger(Jvm.class).info("Resource tracing is turned on. If you are performance testing or running in PROD you probably don't want this");
     }
 
     private static void findAndLoadSystemProperties() {
