@@ -10,5 +10,5 @@ enum MuteAnalytics implements Analytics {
     INSTANCE;
 
     @Override
-    public void onFeature(@NotNull String id, Map<String, String> eventParameters) {}
+    public void onFeature(@NotNull String id, @NotNull Map<String, String> eventParameters) {}
 }

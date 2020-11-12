@@ -39,7 +39,7 @@ public interface Analytics {
      * send a limited number of upstream events per time unit.
      * <p>
      */
-    default void onStart(Map<String, String> eventParameters) {
+    default void onStart(@NotNull Map<String, String> eventParameters) {
         onFeature("started", eventParameters);
     }
 
@@ -64,7 +64,7 @@ public interface Analytics {
      * sent upstream. For example, some implementations may
      * send a limited number of upstream events per time unit.
      */
-    void onFeature(@NotNull String id, Map<String, String> eventParameters);
+    void onFeature(@NotNull String id, @NotNull Map<String, String> eventParameters);
 
     /**
      * Returns an existing Analytics instance for the provided {@code libraryName} and

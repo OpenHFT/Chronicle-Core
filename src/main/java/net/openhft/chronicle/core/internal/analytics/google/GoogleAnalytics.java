@@ -48,11 +48,11 @@ public final class GoogleAnalytics implements Analytics {
     }
 
     @Override
-    public void onFeature(@NotNull final String id, Map<String, String> eventParameters) {
+    public void onFeature(@NotNull final String id, @NotNull final Map<String, String> eventParameters) {
         httpSend(id, eventParameters);
     }
 
-    private void httpSend(@NotNull String eventName, Map<String, String> eventParameters) {
+    private void httpSend(@NotNull String eventName, @NotNull final Map<String, String> eventParameters) {
         if (account != null) {
             final String url = ENDPOINT_URL + "?measurement_id=" + urlEncode(account.measurmentId()) + "&api_secret=" + urlEncode(account.apiSectret());
             final String json = jsonFor(eventName, eventParameters, userProperties());
