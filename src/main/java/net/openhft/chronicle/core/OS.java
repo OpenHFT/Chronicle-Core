@@ -77,6 +77,7 @@ public enum OS {
     private static final MethodHandle UNMAPP0_MH;
     private static final MethodHandle READ0_MH;
     private static final MethodHandle WRITE0_MH, WRITE0_MH2;
+    public static final int SAFE_PAGE_SIZE = 64 << 10;
     private static int PAGE_SIZE; // avoid circular initialisation
     private static int MAP_ALIGNMENT;
 
@@ -221,7 +222,10 @@ public enum OS {
      */
     public static long mapAlignment() {
         if (MAP_ALIGNMENT == 0)
-            MAP_ALIGNMENT = isWindows() ? 64 << 10 : pageSize();
+            // Windows 10 produces this error for alignment of less than 64K
+            // java.io.IOException: The base address or the file offset specified does not have the proper alignment
+            // c.f. https://docs.microsoft.com/en-us/windows/win32/memory/creating-a-view-within-a-file
+            MAP_ALIGNMENT = isWindows() ? SAFE_PAGE_SIZE : pageSize();
         return MAP_ALIGNMENT;
     }
 

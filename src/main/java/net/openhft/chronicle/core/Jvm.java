@@ -154,6 +154,8 @@ public enum Jvm {
         RESOURCE_TRACING = Jvm.getBoolean("jvm.resource.tracing");
 
         LoggerFactory.getLogger(Jvm.class).info("Chronicle core loaded from " + Jvm.class.getProtectionDomain().getCodeSource().getLocation());
+        if (RESOURCE_TRACING)
+            LoggerFactory.getLogger(Jvm.class).warn("Resource tracing is turned on. If you are performance testing or running in PROD you probably don't want this");
     }
 
     private static void findAndLoadSystemProperties() {
@@ -959,7 +961,7 @@ public enum Jvm {
     /**
      * checks if a process is still alive
      *
-     * @param pid
+     * @param pid the pid of the process you wish to check
      * @return true if the process is still alive
      */
     public static boolean isProcessAlive(long pid) {
