@@ -19,10 +19,12 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.annotation.DontChain;
+import net.openhft.chronicle.core.announcer.Announcer;
 import net.openhft.chronicle.core.onoes.*;
 import net.openhft.chronicle.core.util.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
@@ -153,7 +155,10 @@ public enum Jvm {
 
         RESOURCE_TRACING = Jvm.getBoolean("jvm.resource.tracing");
 
-        LoggerFactory.getLogger(Jvm.class).info("Chronicle core loaded from " + Jvm.class.getProtectionDomain().getCodeSource().getLocation());
+        Logger logger = LoggerFactory.getLogger(Jvm.class);
+        logger.info("Chronicle core loaded from " + Jvm.class.getProtectionDomain().getCodeSource().getLocation());
+        if (RESOURCE_TRACING)
+            logger.warn("Resource tracing is turned on. If you are performance testing or running in PROD you probably don't want this");
     }
 
     private static void findAndLoadSystemProperties() {
@@ -959,7 +964,7 @@ public enum Jvm {
     /**
      * checks if a process is still alive
      *
-     * @param pid
+     * @param pid the pid of the process you wish to check
      * @return true if the process is still alive
      */
     public static boolean isProcessAlive(long pid) {
