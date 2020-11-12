@@ -19,6 +19,7 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.annotation.DontChain;
+import net.openhft.chronicle.core.announcer.Announcer;
 import net.openhft.chronicle.core.onoes.*;
 import net.openhft.chronicle.core.util.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
@@ -156,6 +157,9 @@ public enum Jvm {
         LoggerFactory.getLogger(Jvm.class).info("Chronicle core loaded from " + Jvm.class.getProtectionDomain().getCodeSource().getLocation());
         if (RESOURCE_TRACING)
             LoggerFactory.getLogger(Jvm.class).warn("Resource tracing is turned on. If you are performance testing or running in PROD you probably don't want this");
+
+        // Disabled as it creates too much clutter during testing.
+        // Announcer.announce("net.openhft","chronicle-core");
     }
 
     private static void findAndLoadSystemProperties() {
