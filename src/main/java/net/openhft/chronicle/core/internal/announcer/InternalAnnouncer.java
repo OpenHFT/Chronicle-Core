@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 public enum InternalAnnouncer {
     ;
 
-    private static final boolean DISABLE_ANNOUNCEMENT = Optional.ofNullable(System.getProperty("chronicle.announcement.disable")).filter("true"::equals).isPresent();
+    private static final boolean DISABLE_ANNOUNCEMENT = Optional.ofNullable(System.getProperty("chronicle.announcer.disable")).filter("true"::equals).isPresent();
     private static final Consumer<String> LINE_PRINTER = DISABLE_ANNOUNCEMENT ? s -> {} : System.out::println;
     private static final AtomicBoolean JVM_ANNOUNCED = new AtomicBoolean();
     private static final Map<String, Set<String>> ANNOUNCED_GROUP_IDS = new ConcurrentHashMap<>();

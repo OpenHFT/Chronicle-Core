@@ -10,7 +10,7 @@ import java.util.Map;
  * Provides means for libraries to announce themselves.
  * <p>
  * Announcements can be turned off buy setting the system property
- * "chronicle.announcement.disable=true" prior to making any announcements.
+ * "chronicle.announcer.disable=true" prior to making any announcements.
  */
 public final class Announcer {
 
