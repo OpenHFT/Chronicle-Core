@@ -208,7 +208,8 @@
                 </executions>
             </plugin>
 
-<!--            <plugin>
+<!--        Enable once https://github.com/osundblad/intellij-annotations-instrumenter-maven-plugin/issues/53  has been fixed
+            <plugin>
                 <groupId>se.eris</groupId>
                 <artifactId>notnull-instrumenter-maven-plugin</artifactId>
                 <executions>
@@ -228,7 +229,8 @@
                 </dependencies>
             </plugin>-->
 
-<!-- Enable again once TC works           <plugin>
+<!--        Enable again once TC works
+            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.6</version>
