@@ -25,7 +25,7 @@ final class VanillaAnalytics implements Analytics {
 
     @Override
     public void onFeature(@NotNull final String id, @NotNull final Map<String, String> eventParameters) {
-        final long hash = 31 * id.hashCode() + eventParameters.hashCode();
+        final long hash = 31L * id.hashCode() + eventParameters.hashCode();
         if (DISABLE_FILTERING || reportedFeatures.add(hash)) {
             delegate.onFeature(id, eventParameters);
         }
