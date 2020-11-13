@@ -140,6 +140,7 @@
                     <archive>
                         <manifestEntries>
                             <Multi-Release>true</Multi-Release>
+                            <Automatic-Module-Name>chronicle.core</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
