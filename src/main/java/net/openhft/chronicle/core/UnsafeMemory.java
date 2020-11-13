@@ -39,6 +39,7 @@ public class UnsafeMemory implements Memory {
     // copyMemory method. A limit is imposed to allow for safepoint polling
     // during a large copy
     static final long UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
+    private static final String MIS_ALIGNED = "mis-aligned";
 
     static {
         try {
@@ -966,21 +967,21 @@ public class UnsafeMemory implements Memory {
         public int addInt(long address, int increment) {
             if ((address & 0x3) == 0)
                 return super.addInt(address, increment);
-            throw new IllegalArgumentException("mis-aligned");
+            throw new IllegalArgumentException(MIS_ALIGNED);
         }
 
         @Override
         public boolean compareAndSwapInt(long address, int expected, int value) {
             if ((address & 0x3) == 0)
                 return super.compareAndSwapInt(address, expected, value);
-            throw new IllegalArgumentException("mis-aligned");
+            throw new IllegalArgumentException(MIS_ALIGNED);
         }
 
         @Override
         public boolean compareAndSwapInt(@NotNull Object object, long offset, int expected, int value) {
             if ((offset & 0x3) == 0)
                 return super.compareAndSwapInt(object, offset, expected, value);
-            throw new IllegalArgumentException("mis-aligned");
+            throw new IllegalArgumentException(MIS_ALIGNED);
         }
 
         @Override
@@ -1122,21 +1123,21 @@ public class UnsafeMemory implements Memory {
         public long addLong(long address, long increment) {
             if ((address & 0x7) == 0)
                 return super.addLong(address, increment);
-            throw new IllegalArgumentException("mis-aligned");
+            throw new IllegalArgumentException(MIS_ALIGNED);
         }
 
         @Override
         public boolean compareAndSwapLong(@NotNull Object object, long offset, long expected, long value) {
             if ((offset & 0x7) == 0)
                 return super.compareAndSwapLong(object, offset, expected, value);
-            throw new IllegalArgumentException("mis-aligned");
+            throw new IllegalArgumentException(MIS_ALIGNED);
         }
 
         @Override
         public boolean compareAndSwapLong(long address, long expected, long value) {
             if ((address & 0x7) == 0)
                 return super.compareAndSwapLong(address, expected, value);
-            throw new IllegalArgumentException("mis-aligned");
+            throw new IllegalArgumentException(MIS_ALIGNED);
         }
     }
 }

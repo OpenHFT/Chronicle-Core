@@ -106,6 +106,7 @@ public enum Jvm {
     private static final ChainedSignalHandler signalHandlerGlobal;
     private static final boolean RESOURCE_TRACING;
     private static final boolean PROC_EXISTS = new File("/proc").exists();
+    public static final String SYSTEM_PROPERTIES = "system.properties";
 
     static {
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
@@ -162,15 +163,15 @@ public enum Jvm {
     }
 
     private static void findAndLoadSystemProperties() {
-        String systemProperties = System.getProperty("system.properties");
+        String systemProperties = System.getProperty(SYSTEM_PROPERTIES);
         boolean wasSet = true;
         if (systemProperties == null) {
-            if (new File("system.properties").exists())
-                systemProperties = "system.properties";
-            else if (new File("../system.properties").exists())
-                systemProperties = "../system.properties";
+            if (new File(SYSTEM_PROPERTIES).exists())
+                systemProperties = SYSTEM_PROPERTIES;
+            else if (new File("../" + SYSTEM_PROPERTIES).exists())
+                systemProperties = "../" + SYSTEM_PROPERTIES;
             else {
-                systemProperties = "system.properties";
+                systemProperties = SYSTEM_PROPERTIES;
                 wasSet = false;
             }
         }

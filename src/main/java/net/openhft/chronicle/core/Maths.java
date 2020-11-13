@@ -37,6 +37,7 @@ public enum Maths {
     private static final int M3 = 0x855dd4db;
     private static final long[] TENS = new long[19];
     private static final long[] FIVES = new long[28];
+    private static final String OUT_OF_RANGE = " out of range";
 
     static {
         TENS[0] = FIVES[0] = 1;
@@ -338,13 +339,13 @@ public enum Maths {
     public static byte toInt8(long x) throws IllegalArgumentException {
         if ((byte) x == x)
             return (byte) x;
-        throw new IllegalArgumentException("Byte " + x + " out of range");
+        throw new IllegalArgumentException("Byte " + x + OUT_OF_RANGE);
     }
 
     public static short toInt16(long x) throws IllegalArgumentException {
         if ((short) x == x)
             return (short) x;
-        throw new IllegalArgumentException("Short " + x + " out of range");
+        throw new IllegalArgumentException("Short " + x + OUT_OF_RANGE);
     }
 
     public static int toInt32(long x, @NotNull String msg) throws IllegalArgumentException {
@@ -356,31 +357,31 @@ public enum Maths {
     public static int toInt32(long x) throws IllegalArgumentException {
         if ((int) x == x)
             return (int) x;
-        throw new IllegalArgumentException("Int " + x + " out of range");
+        throw new IllegalArgumentException("Int " + x + OUT_OF_RANGE);
     }
 
     public static short toUInt8(long x) throws IllegalArgumentException {
         if ((x & 0xFF) == x)
             return (short) x;
-        throw new IllegalArgumentException("Unsigned Byte " + x + " out of range");
+        throw new IllegalArgumentException("Unsigned Byte " + x + OUT_OF_RANGE);
     }
 
     public static int toUInt16(long x) throws IllegalArgumentException {
         if ((x & 0xFFFF) == x)
             return (int) x;
-        throw new IllegalArgumentException("Unsigned Short " + x + " out of range");
+        throw new IllegalArgumentException("Unsigned Short " + x + OUT_OF_RANGE);
     }
 
     public static int toUInt31(long x) throws IllegalArgumentException {
         if ((x & 0x7FFFFFFFL) == x)
             return (int) x;
-        throw new IllegalArgumentException("Unsigned Int 31-bit " + x + " out of range");
+        throw new IllegalArgumentException("Unsigned Int 31-bit " + x + OUT_OF_RANGE);
     }
 
     public static long toUInt32(long x) throws IllegalArgumentException {
         if ((x & 0xFFFFFFFFL) == x)
             return x;
-        throw new IllegalArgumentException("Unsigned Int " + x + " out of range");
+        throw new IllegalArgumentException("Unsigned Int " + x + OUT_OF_RANGE);
     }
 
     public static long agitate(long l) {
