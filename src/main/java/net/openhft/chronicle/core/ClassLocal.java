@@ -48,6 +48,7 @@ public class ClassLocal<V> extends ClassValue<V> {
 
     /**
      * WARNING Do not call this directly
+     * @deprecated do not call this directly
      */
     @Override
     @Deprecated

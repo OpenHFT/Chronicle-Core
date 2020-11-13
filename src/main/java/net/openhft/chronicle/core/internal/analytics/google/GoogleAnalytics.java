@@ -23,7 +23,7 @@ import static net.openhft.chronicle.core.internal.analytics.google.GoogleAnalyti
 
 public final class GoogleAnalytics implements Analytics {
 
-    private final long GIB = 1024 * 1024;
+    private final long GIB = 1024L * 1024L;
     private final String COOKIE_FILE_NAME = "software.chronicle.client.id";
     private static final String ENDPOINT_URL = "https://www.google-analytics.com/mp/collect";
     private static final String START_EVENT_NAME = "started";
