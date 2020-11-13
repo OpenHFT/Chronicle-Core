@@ -226,7 +226,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
 
             <plugin>
                 <groupId>org.sonarsource.scanner.maven</groupId>
