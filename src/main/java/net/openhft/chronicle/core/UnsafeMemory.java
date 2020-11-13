@@ -318,7 +318,7 @@ public class UnsafeMemory implements Memory {
     public void writeBytes(long address, byte[] b, int offset, int length) {
         if (offset + length > b.length)
             throw new IllegalArgumentException("Invalid offset or length, array's length is " + b.length);
-        UnsafeMemory.UNSAFE.copyMemory(b, Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, null, address, length);
+        UnsafeMemory.UNSAFE.copyMemory(b, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, null, address, length);
     }
 
     @Override
@@ -526,10 +526,9 @@ public class UnsafeMemory implements Memory {
     @ForceInline
     public void copyMemory(byte[] bytes, int offset, Object obj2, long offset2, int length) {
         if (length < UNSAFE_COPY_THRESHOLD) {
-            UNSAFE.copyMemory(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, obj2, offset2, length);
-
+            UNSAFE.copyMemory(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, obj2, offset2, length);
         } else {
-            copyMemory0(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, obj2, offset2, length);
+            copyMemory0(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, obj2, offset2, length);
         }
     }
 

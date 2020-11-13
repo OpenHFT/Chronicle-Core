@@ -81,7 +81,7 @@ public class ThreadDump {
         AssertionError ae = null;
         int last = 4;
         for (int i = 1; i <= last; ) {
-            Jvm.pause(i * i * 50);
+            Jvm.pause(i * i * 50L);
             allStackTraces = Thread.getAllStackTraces();
             allStackTraces.keySet().removeAll(threads);
             if (allStackTraces.isEmpty())
