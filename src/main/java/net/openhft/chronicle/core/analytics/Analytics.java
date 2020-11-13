@@ -67,17 +67,17 @@ public interface Analytics {
     void onFeature(@NotNull String id, @NotNull Map<String, String> eventParameters);
 
     /**
-     * Returns an existing Analytics instance for the provided {@code libraryName} and
-     * the provided {@code libraryVersion}. If no such instance exists, one will be created.
+     * Returns an existing Analytics instance for the provided {@code artifactId} and
+     * the provided {@code version}. If no such instance exists, one will be created.
      *
-     * @param libraryName name of the library
-     * @param libraryVersion version of the library
-     * @return an Analytics instance for the provided {@code libraryName} and
-     *         the provided {@code libraryVersion}
+     * @param artifactId of the library (e.g. chronicle-queue)
+     * @param version of the library (e.g. 5.20.111)
+     * @return an Analytics instance for the provided {@code artifactId} and
+     *         the provided {@code version}
      */
     @NotNull
-    static Analytics acquire(@NotNull final String libraryName, @NotNull final String libraryVersion) {
-        return AnalyticsUtil.acquire(libraryName, libraryVersion);
+    static Analytics acquire(@NotNull final String artifactId, @NotNull final String version) {
+        return AnalyticsUtil.acquire(artifactId, version);
     }
 
 }
