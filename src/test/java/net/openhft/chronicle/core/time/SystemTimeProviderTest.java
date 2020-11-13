@@ -33,7 +33,7 @@ import static org.junit.Assert.assertTrue;
 public class SystemTimeProviderTest {
     @Test
     public void currentTimeMicros() {
-        FlakyTestRunner.run(Jvm.isArm() || OS.isWindows(), this::doCurrentTimeMicros);
+        FlakyTestRunner.run(Jvm.isArm() || OS.isWindows() || OS.isMacOSX(), this::doCurrentTimeMicros);
     }
 
     public void doCurrentTimeMicros() {
