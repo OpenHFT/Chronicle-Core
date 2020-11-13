@@ -187,7 +187,7 @@ public enum OS {
      * @see #pageSize()
      */
     public static long pageAlign(long size) {
-        long mask = pageSize() - 1;
+        final long mask = pageSize() - 1L;
         return (size + mask) & ~mask;
     }
 
@@ -315,7 +315,9 @@ public enum OS {
             @NotNull File file = new File("/proc/sys/kernel/pid_max");
             if (file.canRead())
                 try {
-                    return Maths.nextPower2(new Scanner(file).nextLong(), 1);
+                    try (Scanner scanner = new Scanner(file)) {
+                        return Maths.nextPower2(scanner.nextLong(), 1);
+                    }
                 } catch (FileNotFoundException e) {
                     Jvm.debug().on(OS.class, e);
                 } catch (IllegalArgumentException e) {
