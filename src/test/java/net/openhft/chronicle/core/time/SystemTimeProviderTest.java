@@ -36,7 +36,7 @@ public class SystemTimeProviderTest {
         FlakyTestRunner.run(Jvm.isArm() || OS.isWindows() || OS.isMacOSX(), this::doCurrentTimeMicros);
     }
 
-    public void doCurrentTimeMicros() {
+    private void doCurrentTimeMicros() {
         @NotNull TimeProvider tp = SystemTimeProvider.INSTANCE;
         long minDiff = 0;
         long maxDiff = 0;

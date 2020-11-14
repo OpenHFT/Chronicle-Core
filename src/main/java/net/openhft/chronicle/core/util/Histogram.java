@@ -83,6 +83,7 @@ public class Histogram implements NanoSampler {
         return values.stream().mapToDouble(d -> d).toArray();
     }
 
+    @SuppressWarnings("EqualsHashCode") // we don't expect to put these in HashMaps
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Histogram))
