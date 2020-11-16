@@ -2,8 +2,7 @@ package net.openhft.chronicle.core.internal.analytics.google;
 
 
 import net.openhft.chronicle.core.Jvm;
-import net.openhft.chronicle.core.analytics.Analytics;
-import net.openhft.chronicle.core.internal.analytics.http.HttpUtil;
+import net.openhft.chronicle.core.analytics.AnalyticsFacade;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,44 +20,19 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.toMap;
 import static net.openhft.chronicle.core.internal.analytics.google.GoogleAnalytics.Account.create;
 
-public final class GoogleAnalytics implements Analytics {
+public final class GoogleAnalytics  {
 
     private final long GIB = 1024L * 1024L;
     private final String COOKIE_FILE_NAME = "software.chronicle.client.id";
     private static final String ENDPOINT_URL = "https://www.google-analytics.com/mp/collect";
     private static final String START_EVENT_NAME = "started";
 
-    private final String libraryName;
-    private final String version;
-    private final String clientId;
-    //private final String measurementId;
-    private final Account account;
+    private  String libraryName;
+    private  String version;
+    private  String clientId;
 
-    public GoogleAnalytics(@NotNull final String libraryName, @NotNull final String version) {
-        this.libraryName = libraryName;
-        this.version = version;
-        this.clientId = acquireClientId();
-        //this.measurementId = measurementId(libraryName);
-        this.account = account(libraryName);
-    }
+    private  Account account;
 
-    @Override
-    public void onStart(@NotNull final Map<String, String> eventParameters) {
-        httpSend(START_EVENT_NAME, eventParameters);
-    }
-
-    @Override
-    public void onFeature(@NotNull final String id, @NotNull final Map<String, String> eventParameters) {
-        httpSend(id, eventParameters);
-    }
-
-    private void httpSend(@NotNull String eventName, @NotNull final Map<String, String> eventParameters) {
-        if (account != null) {
-            final String url = ENDPOINT_URL + "?measurement_id=" + urlEncode(account.measurmentId()) + "&api_secret=" + urlEncode(account.apiSectret());
-            final String json = jsonFor(eventName, eventParameters, userProperties());
-            HttpUtil.send(url, json);
-        }
-    }
 
     private String jsonFor(@NotNull final String eventName,
                            @NotNull final Map<String, String> eventParameters,

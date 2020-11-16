@@ -1,6 +1,6 @@
 package net.openhft.chronicle.core.internal.analytics;
 
-import net.openhft.chronicle.core.analytics.Analytics;
+import net.openhft.chronicle.core.analytics.AnalyticsFacade;
 import net.openhft.chronicle.core.internal.analytics.google.GoogleAnalytics;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,11 +12,12 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Adds filtering of events per JVM/class-loader
  */
-final class VanillaAnalytics implements Analytics {
+final class VanillaAnalytics implements AnalyticsFacade {
 
+/*
     private static final boolean DISABLE_FILTERING = true;
 
-    private final Analytics delegate;
+    private final AnalyticsFacade delegate;
     private final Set<Long> reportedFeatures = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     public VanillaAnalytics(@NotNull final String libraryName, @NotNull final String version) {
@@ -29,6 +30,11 @@ final class VanillaAnalytics implements Analytics {
         if (DISABLE_FILTERING || reportedFeatures.add(hash)) {
             delegate.onFeature(id, eventParameters);
         }
-    }
+    }*/
 
+
+    @Override
+    public void sendEvent(@NotNull String name, @NotNull Map<String, String> additionalEventParameters) {
+
+    }
 }
