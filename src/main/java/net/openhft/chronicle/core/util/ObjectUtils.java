@@ -69,7 +69,7 @@ public enum ObjectUtils {
     private static final Map<Class, Immutability> immutabilityMap = new ConcurrentHashMap<>();
 
     // these should only ever be changed on startup.
-    private static volatile ClassLocal<Class> interfaceToDefaultClass = ClassLocal.withInitial(c -> lookForImplEnum(c));
+    private static volatile ClassLocal<Class> interfaceToDefaultClass = ClassLocal.withInitial(ObjectUtils::lookForImplEnum);
     private static volatile ClassLocal<Supplier> supplierClassLocal = ClassLocal.withInitial(ObjectUtils::supplierForClass);
 
     static {
