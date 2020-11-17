@@ -75,8 +75,6 @@ public class AnalyticsFacadeTest {
                 // Await reporting thread
             }
 
-            System.out.println("debugResponses = " + debugResponses);
-
             assertTrue(errorResponses.isEmpty());
             assertTrue(debugResponses.stream().anyMatch(TEST_RESPONSE::equals));
         } finally {
