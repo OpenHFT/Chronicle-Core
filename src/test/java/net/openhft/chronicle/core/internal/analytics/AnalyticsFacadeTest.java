@@ -71,7 +71,7 @@ public class AnalyticsFacadeTest {
 
             analyticsFacade.sendEvent("test");
 
-            while (!debugResponses.stream().anyMatch(TEST_RESPONSE::equals)) {
+            while (debugResponses.stream().noneMatch(TEST_RESPONSE::equals)) {
                 // Await reporting thread
             }
 
