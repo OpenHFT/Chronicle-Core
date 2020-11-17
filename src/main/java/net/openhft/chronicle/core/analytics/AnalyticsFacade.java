@@ -70,23 +70,25 @@ public interface AnalyticsFacade {
     }
 
     /**
-     * Creates and returns a new Builder that can be used to create an Analytic instance
-     * preconfigured as per {@link #standardEventParameters(String)} and {@link #standardUserProperties()}.
+     * Creates and returns a new Builder that can be used to create an Analytic instance with
+     * standard Chronicle settings including pre-configuration as per
+     * {@link #standardEventParameters(String)} and {@link #standardUserProperties()}.
      * <p>
      * The builder can only create one single Analytic instance.
      *
      * @param measurementId to use for reporting
      * @param apiSecret     to use for reporting
      * @param appVersion    to add to the event parameters
-     * @return a new Builder that can be used to create an Analytic instance
-     * preconfigured as per {@link #standardEventParameters(String)} and {@link #standardUserProperties()}
+     * @return a new Builder that can be used to create an Analytic instance with
+     * standard Chronicle settings including pre-configuration as per
+     * {@link #standardEventParameters(String)} and {@link #standardUserProperties()}
      * @see #standardEventParameters(String) ()
      * @see #standardUserProperties()
      */
     @NotNull
-    static Builder builderWithStandard(@NotNull final String measurementId,
-                                       @NotNull final String apiSecret,
-                                       @NotNull final String appVersion) {
+    static Builder standardBuilder(@NotNull final String measurementId,
+                                   @NotNull final String apiSecret,
+                                   @NotNull final String appVersion) {
         final Builder builder = builder(measurementId, apiSecret);
         standardEventParameters(appVersion).forEach(builder::putEventParameter);
         standardUserProperties().forEach(builder::putUserProperty);
