@@ -4,6 +4,7 @@ import net.openhft.chronicle.core.internal.analytics.MuteBuilder;
 import net.openhft.chronicle.core.internal.analytics.ReflectionUtil;
 import net.openhft.chronicle.core.internal.analytics.ReflectiveBuilder;
 import net.openhft.chronicle.core.internal.analytics.StandardMaps;
+import net.openhft.chronicle.core.util.Time;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -89,6 +90,7 @@ public interface AnalyticsFacade {
         final Builder builder = builder(measurementId, apiSecret);
         standardEventParameters(appVersion).forEach(builder::putEventParameter);
         standardUserProperties().forEach(builder::putUserProperty);
+        builder.withFrequencyLimit(1, TimeUnit.HOURS); // Let's be gentle
         return builder;
     }
 
