@@ -45,6 +45,15 @@ public interface AnalyticsFacade {
      */
     void sendEvent(@NotNull String name, @NotNull Map<String, String> additionalEventParameters);
 
+    /**
+     * Creates and returns a new empty Builder that can be used to create an Analytic instance.
+     * <p>
+     * The builder can only create one single Analytic instance.
+     *
+     * @param measurementId to use for reporting
+     * @param apiSecret     to use for reporting
+     * @return a new empty Builder that can be used to create an Analytic instance
+     */
     @NotNull
     static Builder builder(@NotNull final String measurementId, @NotNull final String apiSecret) {
         if (ReflectionUtil.analyticsPresent()) {
@@ -60,17 +69,42 @@ public interface AnalyticsFacade {
     }
 
     /**
+     * Creates and returns a new Builder that can be used to create an Analytic instance
+     * preconfigured as per {@link #standardEventParameters(String)} and {@link #standardUserProperties()}.
+     * <p>
+     * The builder can only create one single Analytic instance.
+     *
+     * @param measurementId to use for reporting
+     * @param apiSecret     to use for reporting
+     * @param appVersion    to add to the event parameters
+     * @return a new Builder that can be used to create an Analytic instance
+     * preconfigured as per {@link #standardEventParameters(String)} and {@link #standardUserProperties()}
+     * @see #standardEventParameters(String) ()
+     * @see #standardUserProperties()
+     */
+    @NotNull
+    static Builder builderWithStandard(@NotNull final String measurementId,
+                                       @NotNull final String apiSecret,
+                                       @NotNull final String appVersion) {
+        final Builder builder = builder(measurementId, apiSecret);
+        standardEventParameters(appVersion).forEach(builder::putEventParameter);
+        standardUserProperties().forEach(builder::putUserProperty);
+        return builder;
+    }
+
+    /**
      * Creates and returns a new map of standard event parameters.
      * The map may contain properties like:
      * <ul>
      *     <li>app_version</li>
      * </ul>
+     *
      * @param appVersion to include in the map
      * @return a new map of standard event parameters
      */
     @NotNull
     static Map<String, String> standardEventParameters(@NotNull final String appVersion) {
-       return StandardMaps.standardEventParameters(appVersion);
+        return StandardMaps.standardEventParameters(appVersion);
     }
 
     /**
