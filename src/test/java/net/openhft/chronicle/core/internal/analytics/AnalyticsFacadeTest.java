@@ -1,11 +1,13 @@
 package net.openhft.chronicle.core.internal.analytics;
 
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.analytics.AnalyticsFacade;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -38,6 +40,13 @@ public class AnalyticsFacadeTest {
     @Test(timeout = 10_000L)
     public void analyticsWithRealWebServer() throws IOException {
 
+        final String clientIdFileName = "client_id_file_name.txt";
+
+        // this makes sure the client id file is pre-created
+        final AnalyticsFacade dummyFacade = AnalyticsFacade.builder("measurementId", "apiSecret")
+                .withClientIdFileName(clientIdFileName)
+                .build();
+
         final List<String> debugResponses = new CopyOnWriteArrayList<>();
         final List<String> errorResponses = new CopyOnWriteArrayList<>();
 
@@ -51,7 +60,7 @@ public class AnalyticsFacadeTest {
             final AnalyticsFacade.Builder builder = AnalyticsFacade.builder("measurementId", "apiSecret")
                     .putEventParameter("e", "1")
                     .putUserProperty("u","2")
-                    .withClientIdFileName("file_name")
+                    .withClientIdFileName(clientIdFileName)
                     .withDebugLogger(debugResponses::add)
                     .withErrorLogger(errorResponses::add)
                     .withUrl(url.url().toString())
@@ -62,16 +71,17 @@ public class AnalyticsFacadeTest {
 
             analyticsFacade.sendEvent("test");
 
-            while (debugResponses.isEmpty()) {
+            while (!debugResponses.stream().anyMatch(TEST_RESPONSE::equals)) {
                 // Await reporting thread
             }
 
             System.out.println("debugResponses = " + debugResponses);
 
             assertTrue(errorResponses.isEmpty());
-            assertEquals(TEST_RESPONSE, debugResponses.get(0));
+            assertTrue(debugResponses.stream().anyMatch(TEST_RESPONSE::equals));
         } finally {
             server.shutdown();
+            new File(clientIdFileName).delete();
         }
     }
 }
