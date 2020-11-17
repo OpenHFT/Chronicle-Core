@@ -1,6 +1,7 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.OS;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -36,7 +37,7 @@ public class BackgroundResourceReleaserTest {
         new Thread(wc::close).start();
         wc.close();
         long time0 = System.currentTimeMillis() - start0;
-        int error = Jvm.isArm() ? 15 : 5;
+        int error = Jvm.isArm() || OS.isWindows() ? 15 : 5;
         assertEquals(10 + error, time0, error);
 
         long start = System.currentTimeMillis();
