@@ -9,8 +9,12 @@ enum MuteAnalytics implements AnalyticsFacade {
 
     INSTANCE;
 
+    // Used for testing only
+    int invocationCounter;
+
     @Override
     public void sendEvent(@NotNull String name, @NotNull Map<String, String> additionalEventParameters) {
         // Ignore the call as this instance is mute
+        invocationCounter++;
     }
 }

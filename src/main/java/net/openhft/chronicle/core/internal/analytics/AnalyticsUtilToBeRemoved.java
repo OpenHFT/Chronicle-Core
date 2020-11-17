@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-public enum AnalyticsUtil {;
+public enum AnalyticsUtilToBeRemoved {;
 
 /*
     private static final boolean DISABLE_ANALYTICS = Optional.ofNullable(System.getProperty("chronicle.analytics.disable")).filter("true"::equals).isPresent();

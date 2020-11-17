@@ -2,7 +2,6 @@ package net.openhft.chronicle.core.internal.analytics.google;
 
 
 import net.openhft.chronicle.core.Jvm;
-import net.openhft.chronicle.core.analytics.AnalyticsFacade;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,9 +17,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
-import static net.openhft.chronicle.core.internal.analytics.google.GoogleAnalytics.Account.create;
+import static net.openhft.chronicle.core.internal.analytics.google.GoogleAnalyticsToBeRemoved.Account.create;
 
-public final class GoogleAnalytics  {
+public final class GoogleAnalyticsToBeRemoved {
 
     private final long GIB = 1024L * 1024L;
     private final String COOKIE_FILE_NAME = "software.chronicle.client.id";

@@ -3,6 +3,7 @@ package net.openhft.chronicle.core.analytics;
 import net.openhft.chronicle.core.internal.analytics.MuteBuilder;
 import net.openhft.chronicle.core.internal.analytics.ReflectionUtil;
 import net.openhft.chronicle.core.internal.analytics.ReflectiveBuilder;
+import net.openhft.chronicle.core.internal.analytics.StandardMaps;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -22,7 +23,6 @@ import java.util.function.Consumer;
  * instances.
  */
 public interface AnalyticsFacade {
-
 
     /**
      * Sends an event to Google Analytics as identified by the provided event {@code name}.
@@ -48,10 +48,53 @@ public interface AnalyticsFacade {
     @NotNull
     static Builder builder(@NotNull final String measurementId, @NotNull final String apiSecret) {
         if (ReflectionUtil.analyticsPresent()) {
+            /*
+            Todo: Make this work instead
+            final Object analyticsBuilder = ReflectionUtil.analyticsBuilder(measurementId, apiSecret);
+            return ReflectionUtil.reflectiveProxy(Builder.class, analyticsBuilder, true);
+            */
             return new ReflectiveBuilder(measurementId, apiSecret);
         } else {
             return MuteBuilder.INSTANCE;
         }
+    }
+
+    /**
+     * Creates and returns a new map of standard event parameters.
+     * The map may contain properties like:
+     * <ul>
+     *     <li>app_version</li>
+     * </ul>
+     * @param appVersion to include in the map
+     * @return a new map of standard event parameters
+     */
+    @NotNull
+    static Map<String, String> standardEventParameters(@NotNull final String appVersion) {
+       return StandardMaps.standardEventParameters(appVersion);
+    }
+
+    /**
+     * Creates and returns a new map of standard user properties.
+     * <p>
+     * The map may contain properties like:
+     * <ul>
+     *     <li>java_runtime_name</li>
+     *     <li>java_runtime_version</li>
+     *     <li>os_name</li>
+     *     <li>os_arch</li>
+     *     <li>os_version</li>
+     *     <li>timezone_default</li>
+     *     <li>available_processors</li>
+     *     <li>max_memory_gib</li>
+     *     <li>java_major_version</li>
+     *     <li>max_direct_memory_gib</li>
+     * </ul>
+     *
+     * @return a new map of standard user properties
+     */
+    @NotNull
+    static Map<String, String> standardUserProperties() {
+        return StandardMaps.standardUserProperties();
     }
 
     interface Builder {
