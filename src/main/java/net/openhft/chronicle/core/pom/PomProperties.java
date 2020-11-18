@@ -1,6 +1,6 @@
 package net.openhft.chronicle.core.pom;
 
-import net.openhft.chronicle.core.internal.pom.InternalPomPropertiesUtil;
+import net.openhft.chronicle.core.internal.pom.InternalPomProperties;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Properties;
@@ -23,7 +23,7 @@ public final class PomProperties {
      */
     @NotNull
     public static Properties create(@NotNull final String groupId, @NotNull final String artifactId) {
-        return InternalPomPropertiesUtil.create(groupId, artifactId);
+        return InternalPomProperties.create(groupId, artifactId);
     }
 
     /**
@@ -41,7 +41,7 @@ public final class PomProperties {
      * @see #create(String, String)
      */
     public static String version(@NotNull final String groupId, @NotNull final String artifactId) {
-        return InternalPomPropertiesUtil.version(groupId, artifactId);
+        return InternalPomProperties.version(groupId, artifactId);
     }
 
 }
