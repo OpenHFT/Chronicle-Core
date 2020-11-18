@@ -458,6 +458,14 @@ public enum Jvm {
         }
     }
 
+    /**
+     * get method for class if it exists or throws {@link AssertionError}. This will not detect a default
+     * method unless the class explicitly overrides it
+     * @param clazz class
+     * @param name name
+     * @param args args
+     * @return method
+     */
     public static Method getMethod(@NotNull Class clazz, @NotNull String name, Class... args) {
         return getMethod0(clazz, name, args, true);
     }

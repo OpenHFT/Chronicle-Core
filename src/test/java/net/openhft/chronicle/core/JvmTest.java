@@ -178,6 +178,16 @@ public class JvmTest {
         Assert.assertFalse(Jvm.isProcessAlive(-1));
     }
 
+    @Test
+    public void testGetMethod() {
+        Assert.assertNotNull(Jvm.getMethod(ClassIWDM.class, "hello", CharSequence.class));
+        try {
+            Jvm.getMethod(ClassIWDM.class, "helloDefault", CharSequence.class);
+            Assert.fail();
+        } catch (Throwable ignored) {
+        }
+    }
+
     static class ClassA {
         long l;
         int i;
@@ -198,4 +208,16 @@ public class JvmTest {
         byte x;
     }
 
+    interface InterfaceWithDefaultMethod {
+        void hello(CharSequence ignored);
+        default void helloDefault(CharSequence cs) {
+            hello(cs);
+        }
+    }
+
+    static class ClassIWDM implements InterfaceWithDefaultMethod {
+        @Override
+        public void hello(CharSequence ignored) {
+        }
+    }
 }
