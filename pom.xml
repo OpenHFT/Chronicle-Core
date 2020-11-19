@@ -46,10 +46,12 @@
                 <artifactId>affinity</artifactId>
                 <version>3.20.0</version>
             </dependency>
+
+            <!--Todo: remove-->
             <dependency>
                 <groupId>net.openhft</groupId>
                 <artifactId>chronicle-analytics</artifactId>
-                <version>2.20.1</version>
+                <version>2.20.2-SNAPSHOT</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -17,7 +17,7 @@ public enum MuteBuilder implements AnalyticsFacade.Builder {
     public AnalyticsFacade.@NotNull Builder putEventParameter(@NotNull String key, @NotNull String value) { return this; }
 
     @Override
-    public AnalyticsFacade.@NotNull Builder withFrequencyLimit(long duration, @NotNull TimeUnit timeUnit) { return this; }
+    public AnalyticsFacade.@NotNull Builder withFrequencyLimit(int messages, long duration, @NotNull TimeUnit timeUnit) { return this; }
 
     @Override
     public AnalyticsFacade.@NotNull Builder withErrorLogger(@NotNull Consumer<String> errorLogger) { return this; }
