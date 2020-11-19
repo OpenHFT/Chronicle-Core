@@ -4,6 +4,7 @@ import net.openhft.chronicle.core.analytics.AnalyticsFacade;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -17,6 +18,24 @@ import static org.junit.Assert.assertTrue;
 public class AnalyticsFacadeTest {
 
     private static final String TEST_RESPONSE = "A";
+
+    @Before
+    public void setSystemProp() {
+        System.setProperty("chronicle.analytics.enable", "true");
+    }
+
+    // Todo: remove this test once the system property is removed
+    @Test
+    public void systemProp() {
+        System.clearProperty("chronicle.analytics.enable");
+        final AnalyticsFacade facade = AnalyticsFacade.builder("measurementId", "apiSecret")
+                .withReportDespiteJUnit()
+                .build();
+
+        assertTrue(facade instanceof MuteAnalytics);
+
+    }
+
 
     @Test
     public void analytics() {
