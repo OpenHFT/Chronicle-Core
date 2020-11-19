@@ -191,7 +191,7 @@ public interface AnalyticsFacade {
          * Specifies a custom logger that will receive error messages.
          * For example, failed HTTP communications.
          * <p>
-         * The default logger is {@link System#err::println}, i.e. messages will be
+         * The default logger is {@link System#err System.err::println}, i.e. messages will be
          * output to the error console.
          * <p>
          * The actual messages sent to the error logger are unspecified
