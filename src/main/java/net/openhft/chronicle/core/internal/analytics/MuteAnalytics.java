@@ -1,14 +1,20 @@
 package net.openhft.chronicle.core.internal.analytics;
 
-import net.openhft.chronicle.core.analytics.Analytics;
+import net.openhft.chronicle.core.analytics.AnalyticsFacade;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-enum MuteAnalytics implements Analytics {
+enum MuteAnalytics implements AnalyticsFacade {
 
     INSTANCE;
 
+    // Used for testing only
+    int invocationCounter;
+
     @Override
-    public void onFeature(@NotNull String id, @NotNull Map<String, String> eventParameters) {}
+    public void sendEvent(@NotNull String name, @NotNull Map<String, String> additionalEventParameters) {
+        // Ignore the call as this instance is mute
+        invocationCounter++;
+    }
 }

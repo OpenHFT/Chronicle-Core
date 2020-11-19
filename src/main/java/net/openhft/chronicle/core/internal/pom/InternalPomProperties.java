@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class InternalPomPropertiesUtil {
+public enum InternalPomProperties {;
 
     private static final Map<String, String> VERSION_CACHE = new ConcurrentHashMap<>();
 
@@ -16,7 +16,7 @@ public final class InternalPomPropertiesUtil {
         final Properties properties = new Properties();
         try {
             final String resourceName = resourceName(groupId, artifactId);
-            try (InputStream inputStream = InternalPomPropertiesUtil.class.getResourceAsStream(resourceName)) {
+            try (InputStream inputStream = InternalPomProperties.class.getResourceAsStream(resourceName)) {
                 if (inputStream != null) {
                     properties.load(inputStream);
                 }
@@ -29,7 +29,7 @@ public final class InternalPomPropertiesUtil {
     }
 
     public static String version(@NotNull final String groupId, @NotNull final String artifactId) {
-        return VERSION_CACHE.computeIfAbsent(groupId + ":" + artifactId, unused -> InternalPomPropertiesUtil.extractVersionOrUnknown(groupId, artifactId));
+        return VERSION_CACHE.computeIfAbsent(groupId + ":" + artifactId, unused -> InternalPomProperties.extractVersionOrUnknown(groupId, artifactId));
     }
 
     private static String resourceName(@NotNull final String groupId, @NotNull final String artifactId) {
