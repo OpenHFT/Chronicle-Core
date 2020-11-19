@@ -84,15 +84,11 @@ public interface AnalyticsFacade {
     static Builder standardBuilder(@NotNull final String measurementId,
                                    @NotNull final String apiSecret,
                                    @NotNull final String appVersion) {
-        if (ReflectionUtil.analyticsPresent() && Jvm.getBoolean("chronicle.analytics.enable")) {
-            final Builder builder = builder(measurementId, apiSecret);
-            standardEventParameters(appVersion).forEach(builder::putEventParameter);
-            standardUserProperties().forEach(builder::putUserProperty);
-            builder.withFrequencyLimit(4, 1, TimeUnit.HOURS); // Let's be gentle
-            return builder;
-        } else {
-            return MuteBuilder.INSTANCE;
-        }
+        final Builder builder = builder(measurementId, apiSecret);
+        standardEventParameters(appVersion).forEach(builder::putEventParameter);
+        standardUserProperties().forEach(builder::putUserProperty);
+        builder.withFrequencyLimit(4, 1, TimeUnit.HOURS); // Let's be gentle
+        return builder;
     }
 
     /**
