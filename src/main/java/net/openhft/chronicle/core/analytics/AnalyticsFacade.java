@@ -1,5 +1,6 @@
 package net.openhft.chronicle.core.analytics;
 
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.internal.analytics.MuteBuilder;
 import net.openhft.chronicle.core.internal.analytics.ReflectionUtil;
 import net.openhft.chronicle.core.internal.analytics.ReflectiveBuilder;
@@ -57,12 +58,7 @@ public interface AnalyticsFacade {
      */
     @NotNull
     static Builder builder(@NotNull final String measurementId, @NotNull final String apiSecret) {
-        if (ReflectionUtil.analyticsPresent()) {
-            /*
-            Todo: Make this work instead
-            final Object analyticsBuilder = ReflectionUtil.analyticsBuilder(measurementId, apiSecret);
-            return ReflectionUtil.reflectiveProxy(Builder.class, analyticsBuilder, true);
-            */
+        if (ReflectionUtil.analyticsPresent() && Jvm.getBoolean("chronicle.analytics.enable")) {
             return new ReflectiveBuilder(measurementId, apiSecret);
         } else {
             return MuteBuilder.INSTANCE;
