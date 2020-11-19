@@ -1,6 +1,5 @@
 package net.openhft.chronicle.core.internal.analytics;
 
-import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.analytics.AnalyticsFacade;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
@@ -13,7 +12,6 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class AnalyticsFacadeTest {
@@ -30,7 +28,7 @@ public class AnalyticsFacadeTest {
                 .withErrorLogger(System.err::println)
                 .withUrl("url")
                 // .withReportDespiteJUnit() Not using this will produce a mute logger in test contexts
-                .withFrequencyLimit(1, TimeUnit.SECONDS);
+                .withFrequencyLimit(1, 1, TimeUnit.SECONDS);
 
         final AnalyticsFacade analyticsFacade = builder.build();
 
@@ -65,7 +63,7 @@ public class AnalyticsFacadeTest {
                     .withErrorLogger(errorResponses::add)
                     .withUrl(url.url().toString())
                     .withReportDespiteJUnit() // Run the real thing even though we are in test mode.
-                    .withFrequencyLimit(1, TimeUnit.SECONDS);
+                    .withFrequencyLimit(1, 1, TimeUnit.SECONDS);
 
             final AnalyticsFacade analyticsFacade = builder.build();
 

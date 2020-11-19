@@ -32,9 +32,9 @@ public final class ReflectiveBuilder implements AnalyticsFacade.Builder {
     }
 
     @Override
-    public AnalyticsFacade.@NotNull Builder withFrequencyLimit(long duration, @NotNull TimeUnit timeUnit) {
-        final Method m = ReflectionUtil.methodOrThrow(CLASS_NAME, "withFrequencyLimit", long.class, TimeUnit.class);
-        ReflectionUtil.invokeOrThrow(m, delegate, duration, timeUnit);
+    public AnalyticsFacade.@NotNull Builder withFrequencyLimit(int messages, long duration, @NotNull TimeUnit timeUnit) {
+        final Method m = ReflectionUtil.methodOrThrow(CLASS_NAME, "withFrequencyLimit", int.class, long.class, TimeUnit.class);
+        ReflectionUtil.invokeOrThrow(m, delegate, messages, duration, timeUnit);
         return this;
     }
 
