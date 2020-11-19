@@ -92,7 +92,7 @@ public interface AnalyticsFacade {
         final Builder builder = builder(measurementId, apiSecret);
         standardEventParameters(appVersion).forEach(builder::putEventParameter);
         standardUserProperties().forEach(builder::putUserProperty);
-        builder.withFrequencyLimit(1, TimeUnit.HOURS); // Let's be gentle
+        builder.withFrequencyLimit(4, 1, TimeUnit.HOURS); // Let's be gentle
         return builder;
     }
 
