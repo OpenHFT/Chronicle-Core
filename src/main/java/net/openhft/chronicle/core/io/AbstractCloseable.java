@@ -19,6 +19,7 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
+import net.openhft.chronicle.core.UnsafeMemory;
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 import net.openhft.chronicle.core.util.WeakIdentityHashMap;
@@ -26,7 +27,6 @@ import net.openhft.chronicle.core.util.WeakIdentityHashMap;
 import java.util.Collections;
 import java.util.Set;
 
-import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BACKGROUND_RESOURCE_RELEASER;
 import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEASER;
 import static net.openhft.chronicle.core.io.TracingReferenceCounted.asString;
@@ -43,7 +43,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
 
     static {
         enableCloseableTracing();
-        CLOSED_OFFSET = UNSAFE.objectFieldOffset(Jvm.getField(AbstractCloseable.class, "closed"));
+        CLOSED_OFFSET = UnsafeMemory.unsafeObjectFieldOffset(Jvm.getField(AbstractCloseable.class, "closed"));
     }
 
     private transient volatile int closed = 0;
@@ -134,7 +134,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
      */
     @Override
     public final void close() {
-        if (!UNSAFE.compareAndSwapInt(this, CLOSED_OFFSET, STATE_NOT_CLOSED, STATE_CLOSING)) {
+        if (!UnsafeMemory.INSTANCE.compareAndSwapInt(this, CLOSED_OFFSET, STATE_NOT_CLOSED, STATE_CLOSING)) {
             if (shouldWaitForClosed() && isInUserThread()) {
                 waitForClosed();
             }

@@ -6,7 +6,6 @@ import net.openhft.chronicle.core.UnsafeMemory;
 import net.openhft.chronicle.core.annotation.UsedViaReflection;
 import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 
-import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 import static net.openhft.chronicle.core.io.TracingReferenceCounted.asString;
 
 public final class VanillaReferenceCounted implements MonitorReferenceCounted {
@@ -14,7 +13,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     private static final long VALUE;
 
     static {
-        VALUE = UNSAFE.objectFieldOffset(Jvm.getField(VanillaReferenceCounted.class, "value"));
+        VALUE = UnsafeMemory.unsafeObjectFieldOffset(Jvm.getField(VanillaReferenceCounted.class, "value"));
     }
 
     private final Runnable onRelease;
@@ -73,7 +72,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     }
 
     private boolean valueCompareAndSet(int from, int to) {
-        return UnsafeMemory.UNSAFE.compareAndSwapInt(this, VALUE, from, to);
+        return UnsafeMemory.INSTANCE.compareAndSwapInt(this, VALUE, from, to);
     }
 
     @Override

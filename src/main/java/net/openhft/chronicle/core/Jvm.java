@@ -19,7 +19,6 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.annotation.DontChain;
-import net.openhft.chronicle.core.announcer.Announcer;
 import net.openhft.chronicle.core.onoes.*;
 import net.openhft.chronicle.core.util.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
@@ -127,10 +126,10 @@ public enum Jvm {
             long offset = UNSAFE.staticFieldOffset(f);
             Object base = UNSAFE.staticFieldBase(f);
             if (f.getType() == AtomicLong.class) {
-                AtomicLong reservedMemory = (AtomicLong) UNSAFE.getObject(base, offset);
+                AtomicLong reservedMemory = UnsafeMemory.unsafeGetObject(base, offset);
                 reservedMemoryGetter = reservedMemory::get;
             } else {
-                reservedMemoryGetter = () -> UNSAFE.getLong(base, offset);
+                reservedMemoryGetter = () -> UnsafeMemory.INSTANCE.readLong(base, offset);
             }
         } catch (Exception e) {
             System.err.println(Jvm.class.getName() + ": Unable to determine the reservedMemory value, will always report 0");
@@ -711,7 +710,7 @@ public enum Jvm {
             long offset = UNSAFE.staticFieldOffset(f);
             Object base = UNSAFE.staticFieldBase(f);
 
-            return UNSAFE.getLong(base, offset);
+            return UnsafeMemory.INSTANCE.readLong(base, offset);
         } catch (Exception e) {
             // ignore
         }
@@ -805,7 +804,7 @@ public enum Jvm {
                 continue;
             if (!f.getType().isPrimitive())
                 continue;
-            int start0 = Math.toIntExact(UnsafeMemory.UNSAFE.objectFieldOffset(f));
+            int start0 = Math.toIntExact(UnsafeMemory.unsafeObjectFieldOffset(f));
             int size = PRIMITIVE_SIZE.get(f.getType());
             start = Math.min(start0, start);
             end = Math.max(start0 + size, end);
@@ -828,7 +827,7 @@ public enum Jvm {
                 continue;
             if (f.getType().isPrimitive())
                 continue;
-            int start0 = Math.toIntExact(UnsafeMemory.UNSAFE.objectFieldOffset(f));
+            int start0 = Math.toIntExact(UnsafeMemory.unsafeObjectFieldOffset(f));
             if (start <= start0 && start0 < end) {
                 throw new IllegalArgumentException(c + " is not suitable for raw copies due to " + f);
             }

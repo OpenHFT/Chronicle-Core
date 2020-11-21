@@ -36,7 +36,7 @@ public enum SystemTimeProvider implements TimeProvider {
             INSTANCE.currentTimeNanos1();
             Jvm.nanoPause();
         }
-        LAST_NANOS = UnsafeMemory.UNSAFE.objectFieldOffset(Jvm.getField(SystemTimeProvider.class, "lastNanos5"));
+        LAST_NANOS = UnsafeMemory.unsafeObjectFieldOffset(Jvm.getField(SystemTimeProvider.class, "lastNanos5"));
     }
 
     private long delta = 0;
@@ -66,7 +66,7 @@ public enum SystemTimeProvider implements TimeProvider {
                 timeNanos5 = last5 + 1;
                 timeNanos = timeNanos5 << 5;
             }
-            if (UnsafeMemory.UNSAFE.compareAndSwapLong(this, LAST_NANOS, last5, timeNanos5))
+            if (UnsafeMemory.INSTANCE.compareAndSwapLong(this, LAST_NANOS, last5, timeNanos5))
                 return timeNanos;
         }
     }
