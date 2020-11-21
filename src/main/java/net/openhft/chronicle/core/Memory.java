@@ -45,9 +45,9 @@ public interface Memory {
 
     void writeByte(long address, byte i8);
 
-    void writeByte(Object object, long offset, byte b);
+    void writeByte(@NotNull Object object, long offset, byte b);
 
-    byte readByte(Object object, long offset);
+    byte readByte(@NotNull Object object, long offset);
 
     void writeBytes(long address, byte[] b, int offset, int length);
 
@@ -57,47 +57,47 @@ public interface Memory {
 
     void writeShort(long address, short i16);
 
-    void writeShort(Object object, long offset, short i16);
+    void writeShort(@NotNull Object object, long offset, short i16);
 
     short readShort(long address);
 
-    short readShort(Object object, long offset);
+    short readShort(@NotNull Object object, long offset);
 
     void writeInt(long address, int i32);
 
-    void writeInt(Object object, long offset, int i32);
+    void writeInt(@NotNull Object object, long offset, int i32);
 
     void writeOrderedInt(long offset, int i32);
 
-    void writeOrderedInt(Object object, long offset, int i32);
+    void writeOrderedInt(@NotNull Object object, long offset, int i32);
 
     int readInt(long address);
 
-    int readInt(Object object, long offset);
+    int readInt(@NotNull Object object, long offset);
 
     void writeLong(long address, long i64);
 
-    void writeLong(Object object, long offset, long i64);
+    void writeLong(@NotNull Object object, long offset, long i64);
 
     long readLong(long address);
 
-    long readLong(Object object, long offset);
+    long readLong(@NotNull Object object, long offset);
 
     void writeFloat(long address, float f);
 
-    void writeFloat(Object object, long offset, float f);
+    void writeFloat(@NotNull Object object, long offset, float f);
 
     float readFloat(long address);
 
-    float readFloat(Object object, long offset);
+    float readFloat(@NotNull Object object, long offset);
 
     void writeDouble(long address, double d);
 
-    void writeDouble(Object object, long offset, double d);
+    void writeDouble(@NotNull Object object, long offset, double d);
 
     double readDouble(long address);
 
-    double readDouble(Object object, long offset);
+    double readDouble(@NotNull Object object, long offset);
 
     void copyMemory(byte[] bytes, int offset, long address, int length);
 
@@ -109,77 +109,77 @@ public interface Memory {
 
     void writeOrderedLong(long address, long i);
 
-    void writeOrderedLong(Object object, long offset, long i);
+    void writeOrderedLong(@NotNull Object object, long offset, long i);
 
     void testAndSetInt(long address, long offset, int expected, int value) throws IllegalStateException;
 
-    void testAndSetInt(Object object, long offset, int expected, int value) throws IllegalStateException;
+    void testAndSetInt(@NotNull Object object, long offset, int expected, int value) throws IllegalStateException;
 
     boolean compareAndSwapInt(long address, int expected, int value);
 
-    boolean compareAndSwapInt(Object object, long offset, int expected, int value);
+    boolean compareAndSwapInt(@NotNull Object object, long offset, int expected, int value);
 
     boolean compareAndSwapLong(long address, long expected, long value);
 
-    boolean compareAndSwapLong(Object object, long offset, long expected, long value);
+    boolean compareAndSwapLong(@NotNull Object object, long offset, long expected, long value);
 
     int pageSize();
 
     byte readVolatileByte(long address);
 
-    byte readVolatileByte(Object object, long offset);
+    byte readVolatileByte(@NotNull Object object, long offset);
 
     short readVolatileShort(long address);
 
-    short readVolatileShort(Object object, long offset);
+    short readVolatileShort(@NotNull Object object, long offset);
 
     int readVolatileInt(long address);
 
-    int readVolatileInt(Object object, long offset);
+    int readVolatileInt(@NotNull Object object, long offset);
 
     float readVolatileFloat(long address);
 
-    float readVolatileFloat(Object object, long offset);
+    float readVolatileFloat(@NotNull Object object, long offset);
 
     long readVolatileLong(long address);
 
-    long readVolatileLong(Object object, long offset);
+    long readVolatileLong(@NotNull Object object, long offset);
 
     double readVolatileDouble(long address);
 
-    double readVolatileDouble(Object object, long offset);
+    double readVolatileDouble(@NotNull Object object, long offset);
 
     void writeVolatileByte(long address, byte b);
 
-    void writeVolatileByte(Object object, long offset, byte b);
+    void writeVolatileByte(@NotNull Object object, long offset, byte b);
 
     void writeVolatileShort(long address, short i16);
 
-    void writeVolatileShort(Object object, long offset, short i16);
+    void writeVolatileShort(@NotNull Object object, long offset, short i16);
 
     void writeVolatileInt(long address, int i32);
 
-    void writeVolatileInt(Object object, long offset, int i32);
+    void writeVolatileInt(@NotNull Object object, long offset, int i32);
 
     void writeVolatileFloat(long address, float f);
 
-    void writeVolatileFloat(Object object, long offset, float f);
+    void writeVolatileFloat(@NotNull Object object, long offset, float f);
 
     void writeVolatileLong(long address, long i64);
 
-    void writeVolatileLong(Object object, long offset, long i64);
+    void writeVolatileLong(@NotNull Object object, long offset, long i64);
 
     void writeVolatileDouble(long address, double d);
 
-    void writeVolatileDouble(Object object, long offset, double d);
+    void writeVolatileDouble(@NotNull Object object, long offset, double d);
 
     int addInt(long address, int increment);
 
-    int addInt(Object object, long offset, int increment);
+    int addInt(@NotNull Object object, long offset, int increment);
 
     long addLong(long address, long increment);
 
-    long addLong(Object object, long offset, long increment);
+    long addLong(@NotNull Object object, long offset, long increment);
 
     @NotNull <E> E allocateInstance(Class<? extends E> clazz) throws InstantiationException;
 
@@ -189,7 +189,7 @@ public interface Memory {
      * @deprecated Redundant to {@link #writeInt(Object, long, int)}.
      */
     @Deprecated
-    void setInt(Object o, long offset, int value);
+    void setInt(@NotNull Object o, long offset, int value);
 
-    @NotNull <T> T getObject(Object o, long offset);
+    @NotNull <T> T getObject(@NotNull Object o, long offset);
 }

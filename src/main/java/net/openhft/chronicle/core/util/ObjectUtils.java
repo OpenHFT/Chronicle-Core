@@ -21,6 +21,7 @@ package net.openhft.chronicle.core.util;
 import net.openhft.chronicle.core.ClassLocal;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
+import net.openhft.chronicle.core.annotation.ForceInline;
 import net.openhft.chronicle.core.pool.EnumCache;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -595,5 +596,20 @@ public enum ObjectUtils {
                 throw asCCE(e);
             }
         }
+    }
+
+    /**
+     * Standard mechanism to determine objects as not null. Same method contract as {@link Objects#requireNonNull(Object)}
+     * and also decorated with {@link NotNull} so that IntelliJ and other static anslysis tools can work their magic.
+     * @param o reference to check for nullity
+     * @throws NullPointerException if o is null
+     */
+    @ForceInline
+    @SuppressWarnings("UnusedReturnValue")
+    public static <T> T requireNonNull(@NotNull T o) {
+        // see https://stackoverflow.com/questions/43115645/in-java-lambdas-why-is-getclass-called-on-a-captured-variable
+        // Maybe calling Objects.requireNonNull is just as optimisable/intrinisfiable but I didn't do the research
+        o.getClass();
+        return o;
     }
 }
