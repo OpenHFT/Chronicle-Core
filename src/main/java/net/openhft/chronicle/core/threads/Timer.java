@@ -55,7 +55,7 @@ public class Timer {
         }, initialDelayMs, 0));
     }
 
-    private class ScheduledEventHandler implements EventHandler {
+    private static class ScheduledEventHandler implements EventHandler {
 
         @NotNull
         private final VanillaEventHandler eventHandler;

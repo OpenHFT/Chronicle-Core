@@ -15,13 +15,7 @@
  */
 package net.openhft.chronicle.core.threads;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-
-import static java.lang.invoke.MethodType.methodType;
+import net.openhft.chronicle.core.Jvm;
 
 /**
  * This class captures possible hints that may be used by some
@@ -31,20 +25,6 @@ import static java.lang.invoke.MethodType.methodType;
  * versions.
  */
 public final class ThreadHints {
-    @Nullable
-    private static final MethodHandle ON_SPIN_WAIT_METHOD_HANDLE;
-
-    static {
-        final MethodHandles.Lookup lookup = MethodHandles.lookup();
-
-        MethodHandle methodHandle = null;
-        try {
-            methodHandle = lookup.findStatic(Thread.class, "onSpinWait", methodType(void.class));
-        } catch (@NotNull final Exception ignore) {
-        }
-
-        ON_SPIN_WAIT_METHOD_HANDLE = methodHandle;
-    }
 
     private ThreadHints() {
     }
@@ -57,13 +37,6 @@ public final class ThreadHints {
      * may take action to improve the performance of invoking spin-wait loop constructions.
      */
     public static void onSpinWait() {
-        // Call java.lang.Thread.onSpinWait() on Java SE versions that support it. Do nothing otherwise.
-        // This should optimize away to either nothing or to an inlining of java.lang.Thread.onSpinWait()
-        if (null != ON_SPIN_WAIT_METHOD_HANDLE) {
-            try {
-                ON_SPIN_WAIT_METHOD_HANDLE.invokeExact();
-            } catch (@NotNull final Throwable ignore) {
-            }
-        }
+        Jvm.nanoPause();
     }
 }
