@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 public final class TracingReferenceCounted implements MonitorReferenceCounted {
@@ -21,7 +20,6 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     private final Runnable onRelease;
     private final String uniqueId;
     private final StackTrace createdHere;
-    private final AtomicInteger onReleaseCount = new AtomicInteger();
     private volatile StackTrace releasedHere;
 
     TracingReferenceCounted(final Runnable onRelease, String uniqueId) {
@@ -111,17 +109,18 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
             }
             releases.put(id, stackTrace("release", id));
             if (references.isEmpty()) {
-                if (releasedHere != null) {
-                    throw new IllegalStateException("Already released", releasedHere);
-                }
-                releasedHere = new StackTrace(getClass() + " - Release here");
                 // prevent this being called more than once.
                 doOnRelease = true;
             }
         }
         // needs to be called outside synchronized block above to avoid deadlock.
-        if (doOnRelease && onReleaseCount.getAndIncrement() == 0)
+        if (doOnRelease) {
+            if (releasedHere != null) {
+                throw new IllegalStateException("Already released", releasedHere);
+            }
             onRelease.run();
+            releasedHere = new StackTrace(getClass() + " - Released here");
+        }
     }
 
     @NotNull
