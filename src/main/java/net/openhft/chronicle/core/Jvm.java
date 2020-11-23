@@ -125,7 +125,7 @@ public enum Jvm {
             }
             long offset = UNSAFE.staticFieldOffset(f);
             Object base = UNSAFE.staticFieldBase(f);
-            if (f.getType() == AtomicLong.class) {
+            if (f.getType()==AtomicLong.class) {
                 AtomicLong reservedMemory = UnsafeMemory.unsafeGetObject(base, offset);
                 reservedMemoryGetter = reservedMemory::get;
             } else {
@@ -164,7 +164,7 @@ public enum Jvm {
     private static void findAndLoadSystemProperties() {
         String systemProperties = System.getProperty(SYSTEM_PROPERTIES);
         boolean wasSet = true;
-        if (systemProperties == null) {
+        if (systemProperties==null) {
             if (new File(SYSTEM_PROPERTIES).exists())
                 systemProperties = SYSTEM_PROPERTIES;
             else if (new File("../" + SYSTEM_PROPERTIES).exists())
@@ -199,15 +199,15 @@ public enum Jvm {
     private static void loadSystemProperties(String name, boolean wasSet) {
         try {
             ClassLoader classLoader = Jvm.class.getClassLoader();
-            InputStream is0 = classLoader == null ? null : classLoader.getResourceAsStream(name);
-            if (is0 == null) {
+            InputStream is0 = classLoader==null ? null:classLoader.getResourceAsStream(name);
+            if (is0==null) {
                 File file = new File(name);
                 if (file.exists())
                     is0 = new FileInputStream(file);
             }
             try (InputStream is = is0) {
-                if (is == null) {
-                    (wasSet ? Slf4jExceptionHandler.WARN : Slf4jExceptionHandler.DEBUG)
+                if (is==null) {
+                    (wasSet ? Slf4jExceptionHandler.WARN:Slf4jExceptionHandler.DEBUG)
                             .on(Jvm.class, "No " + name + " file found");
 
                 } else {
@@ -255,15 +255,15 @@ public enum Jvm {
     private static boolean is64bit0() {
         String systemProp;
         systemProp = System.getProperty("com.ibm.vm.bitmode");
-        if (systemProp != null) {
+        if (systemProp!=null) {
             return "64".equals(systemProp);
         }
         systemProp = System.getProperty("sun.arch.data.model");
-        if (systemProp != null) {
+        if (systemProp!=null) {
             return "64".equals(systemProp);
         }
         systemProp = System.getProperty("java.vm.version");
-        return systemProp != null && systemProp.contains("_64");
+        return systemProp!=null && systemProp.contains("_64");
     }
 
     public static int getProcessId() {
@@ -280,11 +280,11 @@ public enum Jvm {
         } catch (IOException ignored) {
         }
 
-        if (pid == null) {
+        if (pid==null) {
             pid = getRuntimeMXBean().getName().split("@", 0)[0];
         }
 
-        if (pid == null) {
+        if (pid==null) {
             int rpid = new Random().nextInt(1 << 16);
             System.err.println(Jvm.class.getName() + ": Unable to determine PID, picked a random number=" + rpid);
             return rpid;
@@ -387,7 +387,7 @@ public enum Jvm {
      * Pause in a busy loop for a very short time.
      */
     public static void nanoPause() {
-        if (onSpinWaitMH == null) {
+        if (onSpinWaitMH==null) {
             safepoint();
         } else {
             try {
@@ -437,9 +437,9 @@ public enum Jvm {
 
         } catch (NoSuchFieldException e) {
             Class superclass = clazz.getSuperclass();
-            if (superclass != null) {
+            if (superclass!=null) {
                 Field field = getField0(superclass, name, false);
-                if (field != null)
+                if (field!=null)
                     return field;
             }
             if (error)
@@ -461,8 +461,8 @@ public enum Jvm {
      * get method for class if it exists or throws {@link AssertionError}. This will not detect a default
      * method unless the class explicitly overrides it
      * @param clazz class
-     * @param name name
-     * @param args args
+     * @param name  name
+     * @param args  args
      * @return method
      */
     public static Method getMethod(@NotNull Class clazz, @NotNull String name, Class... args) {
@@ -479,10 +479,10 @@ public enum Jvm {
 
         } catch (NoSuchMethodException e) {
             Class superclass = clazz.getSuperclass();
-            if (superclass != null)
+            if (superclass!=null)
                 try {
                     Method m = getMethod0(superclass, name, args, false);
-                    if (m != null)
+                    if (m!=null)
                         return m;
                 } catch (Exception ignored) {
                 }
@@ -510,7 +510,7 @@ public enum Jvm {
             Field f = getField(aClass, n);
             try {
                 obj = f.get(obj);
-                if (obj == null)
+                if (obj==null)
                     return null;
             } catch (IllegalAccessException e) {
                 throw new AssertionError(e);
@@ -528,7 +528,7 @@ public enum Jvm {
      */
     public static String lockWithStack(@NotNull ReentrantLock lock) {
         @Nullable Thread t = getValue(lock, "sync/exclusiveOwnerThread");
-        if (t == null) {
+        if (t==null) {
             return lock.toString();
         }
         @NotNull StringBuilder ret = new StringBuilder();
@@ -591,7 +591,7 @@ public enum Jvm {
         @NotNull Map<ExceptionKey, Integer> map = Collections.synchronizedMap(new LinkedHashMap<>());
         FATAL.defaultHandler(recordingExceptionHandler(LogLevel.FATAL, map, exceptionsOnly, logToSlf4j));
         WARN.defaultHandler(recordingExceptionHandler(LogLevel.WARN, map, exceptionsOnly, logToSlf4j));
-        DEBUG.defaultHandler(debug ? recordingExceptionHandler(LogLevel.DEBUG, map, exceptionsOnly, logToSlf4j) : logToSlf4j ? Slf4jExceptionHandler.DEBUG : NullExceptionHandler.NOTHING);
+        DEBUG.defaultHandler(debug ? recordingExceptionHandler(LogLevel.DEBUG, map, exceptionsOnly, logToSlf4j):logToSlf4j ? Slf4jExceptionHandler.DEBUG:NullExceptionHandler.NOTHING);
         return map;
     }
 
@@ -608,7 +608,7 @@ public enum Jvm {
         Iterator<ExceptionKey> iterator = exceptions.keySet().iterator();
         while (iterator.hasNext()) {
             ExceptionKey k = iterator.next();
-            if ((k.throwable != null && !(k.throwable instanceof StackTrace)) && k.level != LogLevel.DEBUG)
+            if ((k.throwable!=null && !(k.throwable instanceof StackTrace)) && k.level!=LogLevel.DEBUG)
                 return true;
         }
 
@@ -683,7 +683,7 @@ public enum Jvm {
         for (@NotNull Map.Entry<ExceptionKey, Integer> entry : exceptions.entrySet()) {
             ExceptionKey key = entry.getKey();
             System.err.println(key.level + " " + key.clazz.getSimpleName() + " " + key.message);
-            if (key.throwable != null)
+            if (key.throwable!=null)
                 key.throwable.printStackTrace();
             Integer value = entry.getValue();
             if (value > 1)
@@ -721,7 +721,7 @@ public enum Jvm {
     private static int getMajorVersion0() {
         try {
             final Method method = Runtime.class.getDeclaredMethod("version");
-            if (method != null) {
+            if (method!=null) {
                 final Object version = method.invoke(getRuntime());
                 final Class<?> clz = Class.forName("java.lang.Runtime$Version");
                 return (Integer) clz.getDeclaredMethod("major").invoke(version);
@@ -800,7 +800,7 @@ public enum Jvm {
         Class superclass = c.getSuperclass();
         int start = Integer.MAX_VALUE, end = 0;
         for (Field f : c.getDeclaredFields()) {
-            if ((f.getModifiers() & (Modifier.STATIC | Modifier.TRANSIENT)) != 0)
+            if ((f.getModifiers() & (Modifier.STATIC | Modifier.TRANSIENT))!=0)
                 continue;
             if (!f.getType().isPrimitive())
                 continue;
@@ -809,7 +809,7 @@ public enum Jvm {
             start = Math.min(start0, start);
             end = Math.max(start0 + size, end);
         }
-        if (superclass != null && superclass != Object.class) {
+        if (superclass!=null && superclass!=Object.class) {
             ClassMetrics cm0 = getClassMetrics(superclass);
             start = Math.min(cm0.offset(), start);
             end = Math.max(cm0.offset() + cm0.length(), end);
@@ -823,7 +823,7 @@ public enum Jvm {
 
     private static void validateClassMetrics(Class c, int start, int end) {
         for (Field f : c.getDeclaredFields()) {
-            if ((f.getModifiers() & Modifier.STATIC) != 0)
+            if ((f.getModifiers() & Modifier.STATIC)!=0)
                 continue;
             if (f.getType().isPrimitive())
                 continue;
@@ -839,7 +839,7 @@ public enum Jvm {
     }
 
     public static boolean dontChain(Class tClass) {
-        return tClass.getAnnotation(DontChain.class) != null || tClass.getName().startsWith("java");
+        return tClass.getAnnotation(DontChain.class)!=null || tClass.getName().startsWith("java");
     }
 
     public static boolean isResourceTracing() {
@@ -869,14 +869,14 @@ public enum Jvm {
      */
     public static boolean getBoolean(String property, boolean defaultValue) {
         String value = System.getProperty(property);
-        if (value == null)
+        if (value==null)
             return defaultValue;
         if (value.isEmpty())
             return true;
         String trim = value.trim();
         return defaultValue
                 ? !ObjectUtils.isFalse(trim)
-                : ObjectUtils.isTrue(trim);
+                :ObjectUtils.isTrue(trim);
     }
 
     public static long address(ByteBuffer bb) {
@@ -899,8 +899,14 @@ public enum Jvm {
             final Field field = AbstractInterruptibleChannel.class
                     .getDeclaredField("interruptor");
             Jvm.setAccessible(field);
-            field.set(fc, (Interruptible) thread
-                    -> System.err.println(clazz.getName() + " - " + fc + " not closed on interrupt"));
+            field.set(fc, new Interruptible() {
+                @Override
+                public void interrupt(final Thread thread) {
+                    assert Thread.currentThread().isInterrupted();
+                    if (Jvm.isDebugEnabled(getClass()))
+                        Jvm.debug().on(getClass(),clazz.getName() + " - " + fc + " not closed on interrupt");
+                }
+            });
         } catch (Throwable e) {
             Jvm.warn().on(clazz, "Couldn't disable close on interrupt", e);
         }
@@ -960,7 +966,7 @@ public enum Jvm {
 
     public static double getDouble(String property, double defaultValue) {
         String value = System.getProperty(property);
-        if (value != null)
+        if (value!=null)
             try {
                 return Double.parseDouble(value);
             } catch (NumberFormatException e) {
@@ -999,7 +1005,7 @@ public enum Jvm {
 
             BufferedReader bReader = new BufferedReader(isReader);
             String strLine;
-            while ((strLine = bReader.readLine()) != null) {
+            while ((strLine = bReader.readLine())!=null) {
                 if (strLine.contains(" " + pid + " ") || strLine.startsWith(pid + " ")) {
                     return true;
                 }
@@ -1029,7 +1035,7 @@ public enum Jvm {
         public void handle(Signal signal) {
             for (SignalHandler handler : handlers) {
                 try {
-                    if (handler != null)
+                    if (handler!=null)
                         handler.handle(signal);
                 } catch (Throwable t) {
                     Jvm.warn().on(this.getClass(), "Problem handling signal", t);
