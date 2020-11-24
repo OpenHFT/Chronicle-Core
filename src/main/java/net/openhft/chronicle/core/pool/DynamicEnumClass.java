@@ -21,6 +21,7 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.CoreDynamicEnum;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -103,6 +104,6 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
     public E[] asArray() {
         if (values != null)
             return values;
-        return values = this.eList.toArray((E[]) new CoreDynamicEnum[eList.size()]);
+        return values = eList.toArray((E[])Array.newInstance(type, eList.size()));
     }
 }

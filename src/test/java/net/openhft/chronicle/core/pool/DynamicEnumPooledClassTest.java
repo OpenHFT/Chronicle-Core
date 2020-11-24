@@ -24,6 +24,10 @@ public class DynamicEnumPooledClassTest {
         assertEquals("Unknown", unknown.name());
         assertEquals(3, unknown.ordinal());
         assertEquals("[Yes, No, Maybe, Unknown]", Arrays.toString(yesNoEnumCache.asArray()));
+
+        // check that asArray returns YesNo instances
+        for (YesNo yesNo : yesNoEnumCache.asArray())
+            assertEquals(yesNo.name(), yesNo.toString());
     }
 
     @Test
