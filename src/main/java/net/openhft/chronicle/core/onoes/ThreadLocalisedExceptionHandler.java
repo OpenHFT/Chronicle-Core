@@ -31,7 +31,13 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
         ExceptionHandler exceptionHandler = exceptionHandler();
         if (exceptionHandler == null)
             return;
-        exceptionHandler.on(clazz, message, thrown);
+        boolean interrupted = Thread.interrupted();
+        try {
+            exceptionHandler.on(clazz, message, thrown);
+        } finally {
+            if (interrupted)
+                Thread.currentThread().interrupt();
+        }
     }
 
     private ExceptionHandler exceptionHandler() {
