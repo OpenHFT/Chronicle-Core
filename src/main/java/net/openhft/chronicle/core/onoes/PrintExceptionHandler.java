@@ -42,13 +42,18 @@ public enum PrintExceptionHandler implements ExceptionHandler {
     public static final PrintExceptionHandler WARN = ERR, DEBUG = OUT;
 
     private static void printLog(@NotNull Class clazz, String message, @Nullable Throwable thrown, PrintStream stream) {
+        boolean interrupted = Thread.interrupted();
+        try {
         synchronized (stream) {
-            System.err.print(LocalDateTime.now() + " " + Thread.currentThread().getName() + " " + clazz.getSimpleName() + " " + message);
+            stream.print(LocalDateTime.now() + " " + Thread.currentThread().getName() + " " + clazz.getSimpleName() + " " + message);
             if (thrown != null)
-                thrown.printStackTrace(System.err);
+                thrown.printStackTrace(stream);
             else
-                System.err.println();
-
+                stream.println();
+        }
+        } finally {
+            if (interrupted)
+                Thread.currentThread().interrupt();
         }
     }
 }
