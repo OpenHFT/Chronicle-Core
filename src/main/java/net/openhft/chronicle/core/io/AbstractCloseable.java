@@ -151,7 +151,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
         long time = System.nanoTime() - start;
         if (time >= WARN_NS &&
                 !Thread.currentThread().getName().equals(BACKGROUND_RESOURCE_RELEASER))
-            Jvm.warn().on(getClass(), "Took " + time / 1000_000 + " ms to performClose");
+            Jvm.perf().on(getClass(), "Took " + time / 1000_000 + " ms to performClose");
     }
 
     protected boolean isInUserThread() {

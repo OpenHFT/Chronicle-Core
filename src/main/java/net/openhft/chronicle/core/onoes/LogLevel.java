@@ -22,5 +22,6 @@ package net.openhft.chronicle.core.onoes;
 public enum LogLevel {
     FATAL,
     WARN,
+    PERF,
     DEBUG
 }

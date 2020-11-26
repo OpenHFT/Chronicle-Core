@@ -518,7 +518,7 @@ public class UnsafeMemory implements Memory {
         if (length > 128 << 10) {
             long time = System.nanoTime() - start;
             if (time > 100_000)
-                Jvm.warn().on(getClass(), "Took " + time / 1000 / 1e3 + " ms to copy " + length / 1024 + " KB");
+                Jvm.perf().on(getClass(), "Took " + time / 1000 / 1e3 + " ms to copy " + length / 1024 + " KB");
         }
     }
 
