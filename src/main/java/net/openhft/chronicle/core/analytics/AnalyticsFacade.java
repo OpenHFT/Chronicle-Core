@@ -130,6 +130,15 @@ public interface AnalyticsFacade {
         return StandardMaps.standardUserProperties();
     }
 
+    /**
+     * Creates and returns a new map of standard user properties.
+     * <p>
+     * The map may contain package names.
+     */
+    static Map<String, String> standardAdditionalProperties() {
+        return StandardMaps.standardAdditionalEventParameters();
+    }
+
     interface Builder {
 
         /**
