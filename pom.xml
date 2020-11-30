@@ -98,7 +98,19 @@
 
     <build>
         <plugins>
-
+            <plugin>
+                <groupId>net.openhft</groupId>
+                <artifactId>binary-compatibility-enforcer-plugin</artifactId>
+                <version>1.0.2</version>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>enforcer</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
