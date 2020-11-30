@@ -108,6 +108,9 @@
                         <goals>
                             <goal>enforcer</goal>
                         </goals>
+                        <configuration>
+                            <referenceVersion>5.20.3</referenceVersion>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
