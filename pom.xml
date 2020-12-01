@@ -101,7 +101,7 @@
             <plugin>
                 <groupId>net.openhft</groupId>
                 <artifactId>binary-compatibility-enforcer-plugin</artifactId>
-                <version>1.0.2</version>
+                <version>1.0.3</version>
                 <executions>
                     <execution>
                         <phase>verify</phase>
@@ -110,6 +110,7 @@
                         </goals>
                         <configuration>
                             <referenceVersion>2.20.120</referenceVersion>
+                            <artifactsURI>https://teamcity.chronicle.software/repository/download</artifactsURI>
                         </configuration>
                     </execution>
                 </executions>
