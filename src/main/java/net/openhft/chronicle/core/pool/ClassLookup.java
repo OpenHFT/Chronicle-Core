@@ -22,25 +22,25 @@ import org.jetbrains.annotations.NotNull;
 
 public interface ClassLookup {
 
-    @Deprecated
+    @Deprecated(/* to be removed in x.22 */)
     @NotNull
     static ClassLookup create(ClassLoader loader) {
         return ClassAliasPool.CLASS_ALIASES.wrap(loader);
     }
 
-    @Deprecated
+    @Deprecated(/* to be removed in x.22 */)
     @NotNull
     static ClassLookup create() {
         return ClassAliasPool.CLASS_ALIASES.wrap();
     }
 
-    @Deprecated
+    @Deprecated(/* to be removed in x.22 */)
     @NotNull
     default ClassLookup wrap(ClassLoader loader) {
         return new ClassAliasPool(this, loader);
     }
 
-    @Deprecated
+    @Deprecated(/* to be removed in x.22 */)
     @NotNull
     default ClassLookup wrap() {
         return new ClassAliasPool(this);

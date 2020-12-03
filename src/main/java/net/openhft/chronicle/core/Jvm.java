@@ -622,7 +622,7 @@ public enum Jvm {
         return false;
     }
 
-    @Deprecated
+    @Deprecated(/* to be removed in x.22 */)
     public static void setExceptionsHandlers(@Nullable ExceptionHandler fatal,
                                              @Nullable ExceptionHandler warn,
                                              @Nullable ExceptionHandler debug) {
@@ -778,7 +778,7 @@ public enum Jvm {
                 Compiler.enable(); // 5 ns on Java 8
     }
 
-    @Deprecated
+    @Deprecated(/* to be removed in x.22 */)
     public static void optionalSafepoint() {
         safepoint();
     }

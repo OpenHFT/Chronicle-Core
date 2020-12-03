@@ -58,7 +58,7 @@ public interface Closeable extends java.io.Closeable, QueryCloseable {
     @Override
     void close();
 
-    @Deprecated
+    @Deprecated(/* to be removed in x.22 */)
     default void notifyClosing() {
         // take an action before everything else closes.
     }

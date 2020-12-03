@@ -236,7 +236,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     }
 
     // TODO Rename this method to be less confusing. e.g. shouldPerformCloseInBackground
-    @Deprecated
+    @Deprecated(/* to be removed in x.22 */)
     protected boolean performCloseInBackground() {
         return false;
     }

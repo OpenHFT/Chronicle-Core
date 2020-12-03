@@ -49,7 +49,7 @@ public enum OS {
     public static final String USER_HOME = System.getProperty("user.home");
     public static final Exception TIME_LIMIT = new TimeLimitExceededException();
     // can't make it private until all libraries have been updated to x.20.60, Use getTarget() instead.
-    @Deprecated
+    @Deprecated(/* to be removed in x.22 */)
     public static final String TARGET = findTarget();
     static final ClassLocal<MethodHandle> MAP0_MH = ClassLocal.withInitial(c -> {
         try {

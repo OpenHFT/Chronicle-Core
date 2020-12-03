@@ -188,7 +188,7 @@ public interface Memory {
     /**
      * @deprecated Redundant to {@link #writeInt(Object, long, int)}.
      */
-    @Deprecated
+    @Deprecated(/* to be removed in x.22 */)
     void setInt(@NotNull Object o, long offset, int value);
 
     @NotNull <T> T getObject(@NotNull Object o, long offset);
