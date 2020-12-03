@@ -23,14 +23,20 @@ public enum StandardMaps {
             "java.lang",
             "sun.reflect",
             "java.lang.reflect",
-            "net.openhft.chronicle"
+            "net.openhft.chronicle",
+            "org.apache.maven"
     ).collect(toSet());
 
     // This is more expensive because we are using startsWith() with
     // these package names.
     private static final Set<String> OTHER_KNOWN_PACKAGE_NAMES = Stream.of(
             "software.chronicle", // Enterprise packages
-            "org.junit"
+            "org.junit",
+            "net.openhft",
+            "java",
+            "jdk",
+            "sun"
+            // Add third party libs
     ).collect(toSet());
 
 

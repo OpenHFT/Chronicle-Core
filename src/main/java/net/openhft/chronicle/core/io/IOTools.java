@@ -112,7 +112,7 @@ public enum IOTools {
                     throw new AssertionError("Could not delete " + dir);
     }
 
-    @Deprecated
+    @Deprecated(/* to be removed in x.22 */)
     public static URL urlFor(String name) throws FileNotFoundException {
         // use the callers class loader not the default one if possible.
         return urlFor(Thread.currentThread().getContextClassLoader(), name);
