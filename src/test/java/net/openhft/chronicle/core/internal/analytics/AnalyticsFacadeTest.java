@@ -21,13 +21,12 @@ public class AnalyticsFacadeTest {
 
     @Before
     public void setSystemProp() {
-        System.setProperty("chronicle.analytics.enable", "true");
+        System.clearProperty("chronicle.analytics.disable");
     }
 
-    // Todo: remove this test once the system property is removed
     @Test
     public void systemProp() {
-        System.clearProperty("chronicle.analytics.enable");
+        System.setProperty("chronicle.analytics.disable", "true");
         final AnalyticsFacade facade = AnalyticsFacade.builder("measurementId", "apiSecret")
                 .withReportDespiteJUnit()
                 .build();
