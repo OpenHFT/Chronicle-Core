@@ -16,7 +16,7 @@ import static java.util.stream.Collectors.toSet;
 public enum StandardMaps {
     ;
 
-    private static final long GIB = 1024L * 1024L;
+    private static final long GIB = 1L << 30;
 
     // Exact match of package names of length 1 to 3. O(1) lookup performance.
     private static final Set<String> KNOWN_PACKAGE_NAMES_OF_MAX_DEPTH_3 = Stream.of(
