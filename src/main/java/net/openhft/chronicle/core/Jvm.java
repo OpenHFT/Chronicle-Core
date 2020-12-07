@@ -676,6 +676,12 @@ public enum Jvm {
     }
 
     @NotNull
+    public static ExceptionHandler startup() {
+        // TODO, add a startup level?
+        return PERF;
+    }
+
+    @NotNull
     public static ExceptionHandler perf() {
         return PERF;
     }
