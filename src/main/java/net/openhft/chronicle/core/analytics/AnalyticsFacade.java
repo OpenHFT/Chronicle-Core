@@ -57,7 +57,7 @@ public interface AnalyticsFacade {
      */
     @NotNull
     static Builder builder(@NotNull final String measurementId, @NotNull final String apiSecret) {
-        if (ReflectionUtil.analyticsPresent() && Jvm.getBoolean("chronicle.analytics.enable")) {
+        if (ReflectionUtil.analyticsPresent() && !Jvm.getBoolean("chronicle.analytics.disable")) {
             return new ReflectiveBuilder(measurementId, apiSecret);
         } else {
             return MuteBuilder.INSTANCE;
