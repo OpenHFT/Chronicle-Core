@@ -101,7 +101,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         performRelease();
         long time = System.nanoTime() - start;
         if (time >= WARN_NS)
-            Slf4jExceptionHandler.WARN.on(getClass(), "Took " + time / 100_000 / 10.0 + " ms to performRelease");
+            Slf4jExceptionHandler.PERF.on(getClass(), "Took " + time / 100_000 / 10.0 + " ms to performRelease");
     }
 
     protected boolean performReleaseInBackground() {
