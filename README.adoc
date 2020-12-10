@@ -3,7 +3,6 @@
 image:https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-core/badge.svg[Maven Central,link=https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-core]
 image:https://javadoc.io/badge2/net.openhft/chronicle-core/javadoc.svg[link="https://www.javadoc.io/doc/net.openhft/chronicle-core/latest/index.html"]
 
-
 This library wraps up low level access to
 
 * <<_system_properties_from_file,System properties from a file>>
