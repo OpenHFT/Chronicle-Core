@@ -63,11 +63,11 @@ public class SystemTimeProviderTest {
                 long diff = time2 - now;
                 if (minDiff > diff) {
                     minDiff = diff;
-                    System.out.println("min: " + minDiff);
+//                    System.out.println("min: " + minDiff);
                 }
                 if (maxDiff < diff) {
                     maxDiff = diff;
-                    System.out.println("max: " + maxDiff);
+//                    System.out.println("max: " + maxDiff);
                 }
                 long ns = System.nanoTime();
                 while (System.nanoTime() < ns + 100)
@@ -78,7 +78,7 @@ public class SystemTimeProviderTest {
 
             if (-5 * error <= minDiff && minDiff <= 0) {
                 if (999 <= maxDiff && maxDiff <= 1010 + 10 * error) {
-                    System.out.println("minDiff: " + minDiff + ", maxDiff: " + maxDiff);
+//                    System.out.println("minDiff: " + minDiff + ", maxDiff: " + maxDiff);
                     return;
                 }
             }

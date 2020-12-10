@@ -10,7 +10,7 @@ public class ClassLocalTest {
     public void computeValue() {
         long[] count = {0};
         ClassLocal<String> toString = ClassLocal.withInitial(aClass -> {
-            System.out.println(aClass);
+//            System.out.println(aClass);
             count[0]++;
             return aClass.toGenericString();
         });

@@ -28,7 +28,7 @@ public class ThreadIndexAssigner {
         for (int i = 0; i < size * 2; i++) {
             int value = values.getVolatileValueAt(index);
             boolean processAlive = Jvm.isProcessAlive(value);
-            System.out.println("index: " + index + ", value: " + value + ", alive: " + processAlive);
+//            System.out.println("index: " + index + ", value: " + value + ", alive: " + processAlive);
             if (value == 0 || !processAlive)
                 if (values.compareAndSet(index, value, threadId))
                     return index;

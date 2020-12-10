@@ -81,8 +81,8 @@ public class AllocationMeasure {
 
             long mark1 = allocationMeasure.markAllocations();
 
-            if (mark1 > 0)
-                System.out.println("m1:" + mark1);
+//            if (mark1 > 0)
+//                System.out.println("m1:" + mark1);
         }
         allocationMeasure.printAllocations(TEST);
     }

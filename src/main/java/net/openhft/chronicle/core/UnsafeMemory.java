@@ -35,6 +35,7 @@ public class UnsafeMemory implements Memory {
     @NotNull
     public static final Unsafe UNSAFE;
     public static final UnsafeMemory INSTANCE;
+    @Deprecated(/* to be removed in .x21 */)
     public static final boolean tracing = false;
     // see java.nio.Bits.copyMemory
     // This number limits the number of bytes to copy per call to Unsafe's
@@ -330,8 +331,8 @@ public class UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public byte readByte(long address) {
-        if (tracing)
-            System.out.println("Read " + Long.toHexString(address));
+//        if (tracing)
+//            System.out.println("Read " + Long.toHexString(address));
         return UNSAFE.getByte(address);
     }
 
@@ -391,8 +392,8 @@ public class UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public int readInt(long address) {
-        if (tracing)
-            System.out.println("Read int " + Long.toHexString(address));
+//        if (tracing)
+//            System.out.println("Read int " + Long.toHexString(address));
         return UNSAFE.getInt(address);
     }
 
@@ -419,8 +420,8 @@ public class UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public long readLong(long address) {
-        if (tracing)
-            System.out.println("Read long " + Long.toHexString(address));
+//        if (tracing)
+//            System.out.println("Read long " + Long.toHexString(address));
         return UNSAFE.getLong(address);
     }
 

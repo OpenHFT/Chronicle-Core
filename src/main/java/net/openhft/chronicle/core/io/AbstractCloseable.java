@@ -97,7 +97,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
                     IllegalStateException exception = new IllegalStateException("Not closed " + asString(key), t);
                     Thread.yield();
                     if (key.isClosed()) {
-                        System.out.println(exception.getMessage() + " is now closed...");
+//                        System.out.println(exception.getMessage() + " is now closed...");
                         continue;
                     }
                     exception.printStackTrace();
