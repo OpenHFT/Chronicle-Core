@@ -119,13 +119,11 @@ public enum IOTools {
         return urlFor(Thread.currentThread().getContextClassLoader(), name);
     }
 
-    // TODO remove in x.21 the throws FileNotFoundException
     @NotNull
     public static URL urlFor(Class clazz, String name) throws FileNotFoundException {
         return urlFor(clazz.getClassLoader(), name);
     }
 
-    // TODO remove in x.21 the throws FileNotFoundException
     @NotNull
     public static URL urlFor(ClassLoader classLoader, String name) throws FileNotFoundException {
         URL url = classLoader.getResource(name);
@@ -137,8 +135,12 @@ public enum IOTools {
             try {
                 url = new URL("file", "", new File(name).getAbsolutePath());
             } catch (MalformedURLException e) {
-                // ignored
+                FileNotFoundException fnfe = new FileNotFoundException(name);
+                fnfe.initCause(e);
+                throw fnfe;
             }
+        if (url == null)
+            throw new FileNotFoundException(name);
         return url;
     }
 
