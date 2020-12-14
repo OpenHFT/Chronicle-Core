@@ -31,6 +31,9 @@ public class StandardMapsTest {
                 "b.Foo",
                 java.lang.reflect.Method.class.getName(),
                 "w.x.y.z.Foo",
+                "jdk.internal.reflect",
+                "java.util.concurrent",
+                "org.apache.maven",
                 java.util.List.class.getName()
         )
                 .map(s -> new StackTraceElement(s, "m", "m.java", 1))
