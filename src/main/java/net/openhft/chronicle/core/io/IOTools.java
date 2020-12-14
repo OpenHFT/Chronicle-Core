@@ -119,13 +119,15 @@ public enum IOTools {
         return urlFor(Thread.currentThread().getContextClassLoader(), name);
     }
 
+    // TODO remove in x.21 the throws FileNotFoundException
     @NotNull
-    public static URL urlFor(Class clazz, String name) {
+    public static URL urlFor(Class clazz, String name) throws FileNotFoundException {
         return urlFor(clazz.getClassLoader(), name);
     }
 
+    // TODO remove in x.21 the throws FileNotFoundException
     @NotNull
-    public static URL urlFor(ClassLoader classLoader, String name) {
+    public static URL urlFor(ClassLoader classLoader, String name) throws FileNotFoundException {
         URL url = classLoader.getResource(name);
         if (url == null && name.startsWith("/"))
             url = classLoader.getResource(name.substring(1));
