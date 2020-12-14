@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.*;
@@ -119,19 +120,23 @@ public enum IOTools {
     }
 
     @NotNull
-    public static URL urlFor(Class clazz, String name) throws FileNotFoundException {
+    public static URL urlFor(Class clazz, String name) {
         return urlFor(clazz.getClassLoader(), name);
     }
 
     @NotNull
-    public static URL urlFor(ClassLoader classLoader, String name) throws FileNotFoundException {
+    public static URL urlFor(ClassLoader classLoader, String name) {
         URL url = classLoader.getResource(name);
         if (url == null && name.startsWith("/"))
             url = classLoader.getResource(name.substring(1));
         if (url == null)
             url = classLoader.getResource(name + ".gz");
-        if (url == null)
-            throw new FileNotFoundException(name);
+        if (url == null && new File(name).exists())
+            try {
+                url = new URL("file", "", new File(name).getAbsolutePath());
+            } catch (MalformedURLException e) {
+                // ignored
+            }
         return url;
     }
 
@@ -154,14 +159,13 @@ public enum IOTools {
      * @throws IOException FileNotFoundException thrown if file is not found
      */
     public static byte[] readFile(@NotNull String name) throws IOException {
-        URL url = urlFor(name);
-        InputStream is = open(url);
+        InputStream is = open(urlFor(name));
 
         return readAsBytes(is);
     }
 
     public static byte[] readFile(Class clazz, @NotNull String name) throws IOException {
-        URL url = urlFor(clazz, name);
+        URL url = urlFor(clazz.getClassLoader(), name);
         InputStream is = open(url);
 
         return readAsBytes(is);
