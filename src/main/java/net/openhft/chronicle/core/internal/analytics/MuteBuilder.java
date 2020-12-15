@@ -35,13 +35,13 @@ public enum MuteBuilder implements AnalyticsFacade.Builder {
     }
 
     @Override
-    public AnalyticsFacade.@NotNull Builder withErrorLogger(@NotNull final Consumer<String> errorLogger) {
+    public AnalyticsFacade.@NotNull Builder withErrorLogger(@NotNull final Consumer<? super String> errorLogger) {
         requireNonNull(errorLogger);
         return this;
     }
 
     @Override
-    public AnalyticsFacade.@NotNull Builder withDebugLogger(@NotNull final Consumer<String> debugLogger) {
+    public AnalyticsFacade.@NotNull Builder withDebugLogger(@NotNull final Consumer<? super String> debugLogger) {
         requireNonNull(debugLogger);
         return this;
     }

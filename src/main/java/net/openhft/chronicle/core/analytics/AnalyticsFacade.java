@@ -228,7 +228,7 @@ public interface AnalyticsFacade {
          * @return this builder
          */
         @NotNull
-        Builder withErrorLogger(@NotNull Consumer<String> errorLogger);
+        Builder withErrorLogger(@NotNull Consumer<? super String> errorLogger);
 
         /**
          * Specifies a custom logger that will receive debug messages.
@@ -244,7 +244,7 @@ public interface AnalyticsFacade {
          * @return this builder
          */
         @NotNull
-        Builder withDebugLogger(@NotNull Consumer<String> debugLogger);
+        Builder withDebugLogger(@NotNull Consumer<? super String> debugLogger);
 
         /**
          * Specifies a custom file name to use when storing a persistent client id

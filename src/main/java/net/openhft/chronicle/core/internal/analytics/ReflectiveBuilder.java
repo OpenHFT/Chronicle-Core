@@ -50,7 +50,7 @@ public final class ReflectiveBuilder implements AnalyticsFacade.Builder {
     }
 
     @Override
-    public AnalyticsFacade.@NotNull Builder withErrorLogger(@NotNull final Consumer<String> errorLogger) {
+    public AnalyticsFacade.@NotNull Builder withErrorLogger(@NotNull final Consumer<? super String> errorLogger) {
         requireNonNull(errorLogger);
         final Method m = ReflectionUtil.methodOrThrow(CLASS_NAME, "withErrorLogger", Consumer.class);
         ReflectionUtil.invokeOrThrow(m, delegate, errorLogger);
@@ -58,7 +58,7 @@ public final class ReflectiveBuilder implements AnalyticsFacade.Builder {
     }
 
     @Override
-    public AnalyticsFacade.@NotNull Builder withDebugLogger(@NotNull Consumer<String> debugLogger) {
+    public AnalyticsFacade.@NotNull Builder withDebugLogger(@NotNull Consumer<? super String> debugLogger) {
         requireNonNull(debugLogger);
         final Method m = ReflectionUtil.methodOrThrow(CLASS_NAME, "withDebugLogger", Consumer.class);
         ReflectionUtil.invokeOrThrow(m, delegate, debugLogger);
