@@ -5,6 +5,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
+import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
+
 enum MuteAnalytics implements AnalyticsFacade {
 
     INSTANCE;
@@ -14,6 +16,9 @@ enum MuteAnalytics implements AnalyticsFacade {
 
     @Override
     public void sendEvent(@NotNull String name, @NotNull Map<String, String> additionalEventParameters) {
+        requireNonNull(name);
+        requireNonNull(additionalEventParameters);
+
         // Ignore the call as this instance is mute
         invocationCounter++;
     }

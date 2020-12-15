@@ -9,6 +9,8 @@ import java.lang.reflect.Proxy;
 import java.util.Arrays;
 import java.util.stream.Stream;
 
+import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
+
 public final class ReflectionUtil {
 
     private static final String ANALYTICS_NAME = "net.openhft.chronicle.analytics.Analytics";
@@ -24,6 +26,8 @@ public final class ReflectionUtil {
 
     @NotNull
     public static Object analyticsBuilder(@NotNull final String measurementId, @NotNull final String apiSecret) {
+        requireNonNull(measurementId);
+        requireNonNull(apiSecret);
         try {
             final Method method = methodOrThrow(ANALYTICS_NAME, "builder", String.class, String.class);
             return method.invoke(null, measurementId, apiSecret);
@@ -37,21 +41,25 @@ public final class ReflectionUtil {
     public static Method methodOrThrow(@NotNull final String className,
                                        @NotNull final String methodName,
                                        final Class<?>... parameterTypes) {
+        requireNonNull(className);
+        requireNonNull(methodName);
         try {
             final Class<?> analyticsClass = Class.forName(className);
-            final Method method = analyticsClass.getMethod(methodName, parameterTypes);
-            return method;
+            return analyticsClass.getMethod(methodName, parameterTypes);
         } catch (ReflectiveOperationException e) {
             Jvm.rethrow(e);
             return null;
         }
     }
 
-    public static Object invokeOrThrow(@NotNull final Method m,
+    public static Object invokeOrThrow(@NotNull final Method method,
                                        @NotNull final Object target,
                                        Object... params) {
+        requireNonNull(method);
+        requireNonNull(target);
+
         try {
-            return m.invoke(target, params);
+            return method.invoke(target, params);
         } catch (ReflectiveOperationException e) {
             Jvm.rethrow(e);
             return null;
@@ -61,6 +69,8 @@ public final class ReflectionUtil {
     @SuppressWarnings("unchecked")
     @NotNull
     public static <T> T reflectiveProxy(@NotNull final Class<T> interf, @NotNull final Object delegate) {
+        requireNonNull(interf);
+        requireNonNull(delegate);
         return (T) Proxy.newProxyInstance(delegate.getClass().getClassLoader(), new Class[]{interf}, new ReflectiveInvocationHandler(delegate, false));
     }
 
@@ -69,6 +79,8 @@ public final class ReflectionUtil {
     public static <T> T reflectiveProxy(@NotNull final Class<T> interf,
                                         @NotNull final Object delegate,
                                         final boolean returnProxy) {
+        requireNonNull(interf);
+        requireNonNull(delegate);
         return (T) Proxy.newProxyInstance(delegate.getClass().getClassLoader(), new Class[]{interf}, new ReflectiveInvocationHandler(delegate, returnProxy));
     }
 
@@ -78,8 +90,8 @@ public final class ReflectionUtil {
         private final boolean returnProxy;
 
         public ReflectiveInvocationHandler(@NotNull final Object delegate, final boolean returnProxy) {
-            this.delegate = delegate;
-            this.returnProxy = returnProxy;
+            this.delegate = requireNonNull(delegate);
+            this.returnProxy = requireNonNull(returnProxy);
         }
 
         @Override
@@ -95,9 +107,6 @@ public final class ReflectionUtil {
                         .toArray(Class[]::new);
 
             final Method delegateMethod = delegate.getClass().getMethod(method.getName(), parameterTypes);
-            if (delegateMethod == null) {
-                throw new RuntimeException(String.format("Class %s does not have a method %s(%s)", delegate.getClass(), method.getName(), Arrays.toString(parameterTypes)));
-            }
             final Object result = delegateMethod.invoke(delegate, args);
             if (returnProxy && !"build".equals(method.getName())) {
                 return proxy;

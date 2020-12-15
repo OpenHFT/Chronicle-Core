@@ -12,6 +12,7 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 public enum StandardMaps {
     ;
@@ -41,6 +42,7 @@ public enum StandardMaps {
 
 
     public static Map<String, String> standardEventParameters(@NotNull final String appVersion) {
+        requireNonNull(appVersion);
         return Stream.of(
                 entry("app_version", appVersion)
         )
@@ -69,7 +71,8 @@ public enum StandardMaps {
                 .collect(toOrderedMap());
     }
 
-    static Map<String, String> standardAdditionalEventParameters(final StackTraceElement[] stackTraceElements) {
+    static Map<String, String> standardAdditionalEventParameters(@NotNull final StackTraceElement[] stackTraceElements) {
+        requireNonNull(stackTraceElements);
         final AtomicInteger cnt = new AtomicInteger();
         return Stream.of(stackTraceElements)
                 .map(StackTraceElement::getClassName)

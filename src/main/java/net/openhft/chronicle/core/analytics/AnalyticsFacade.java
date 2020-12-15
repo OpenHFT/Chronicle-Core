@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
+
 
 /**
  * Provides means for libraries to report analytics to an upstream receiver.
@@ -68,6 +70,8 @@ public interface AnalyticsFacade {
      */
     @NotNull
     static Builder builder(@NotNull final String measurementId, @NotNull final String apiSecret) {
+        requireNonNull(measurementId);
+        requireNonNull(apiSecret);
         if (isEnabled()) {
             return new ReflectiveBuilder(measurementId, apiSecret);
         } else {
@@ -95,6 +99,9 @@ public interface AnalyticsFacade {
     static Builder standardBuilder(@NotNull final String measurementId,
                                    @NotNull final String apiSecret,
                                    @NotNull final String appVersion) {
+        requireNonNull(measurementId);
+        requireNonNull(apiSecret);
+        requireNonNull(appVersion);
         final Builder builder = builder(measurementId, apiSecret);
         standardEventParameters(appVersion).forEach(builder::putEventParameter);
         standardUserProperties().forEach(builder::putUserProperty);
@@ -114,6 +121,7 @@ public interface AnalyticsFacade {
      */
     @NotNull
     static Map<String, String> standardEventParameters(@NotNull final String appVersion) {
+        requireNonNull(appVersion);
         return StandardMaps.standardEventParameters(appVersion);
     }
 
