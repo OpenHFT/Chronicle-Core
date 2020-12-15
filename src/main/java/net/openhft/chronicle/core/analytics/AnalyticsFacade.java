@@ -47,9 +47,20 @@ public interface AnalyticsFacade {
     void sendEvent(@NotNull String name, @NotNull Map<String, String> additionalEventParameters);
 
     /**
+     * Returns if Analytics is enabled.
+     *
+     * @return if Analytics is enabled
+     */
+    static boolean isEnabled() {
+        return ReflectionUtil.analyticsPresent() && !Jvm.getBoolean("chronicle.analytics.disable");
+    }
+
+    /**
      * Creates and returns a new empty Builder that can be used to create an Analytic instance.
      * <p>
      * The builder can only create one single Analytic instance.
+     * <p>
+     * If {@link #isEnabled()} returns false, then a NOP builder is returned.
      *
      * @param measurementId to use for reporting
      * @param apiSecret     to use for reporting
@@ -57,7 +68,7 @@ public interface AnalyticsFacade {
      */
     @NotNull
     static Builder builder(@NotNull final String measurementId, @NotNull final String apiSecret) {
-        if (ReflectionUtil.analyticsPresent() && !Jvm.getBoolean("chronicle.analytics.disable")) {
+        if (isEnabled()) {
             return new ReflectiveBuilder(measurementId, apiSecret);
         } else {
             return MuteBuilder.INSTANCE;
