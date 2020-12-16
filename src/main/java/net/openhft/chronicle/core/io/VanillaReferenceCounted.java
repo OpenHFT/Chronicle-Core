@@ -21,9 +21,11 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     @UsedViaReflection
     private volatile int value = 1;
     private volatile boolean released = false;
+    private final Class type;
 
-    VanillaReferenceCounted(final Runnable onRelease) {
+    VanillaReferenceCounted(final Runnable onRelease, Class type) {
         this.onRelease = onRelease;
+        this.type = type;
     }
 
     @Override
@@ -34,7 +36,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     @Override
     public boolean reservedBy(ReferenceOwner owner) {
         if (refCount() <= 0)
-            throw new IllegalStateException("No reservations for " + asString(owner));
+            throw new IllegalStateException(type.getName() + " no reservations for " + asString(owner));
         // otherwise not sure.
         return true;
     }
@@ -45,7 +47,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
 
             int v = value;
             if (v <= 0) {
-                throw new ClosedIllegalStateException("Released");
+                throw new ClosedIllegalStateException(type.getName() + " released");
             }
             if (valueCompareAndSet(v, v + 1)) {
                 break;
@@ -80,7 +82,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         for (; ; ) {
             int v = value;
             if (v <= 0) {
-                throw new ClosedIllegalStateException("Released");
+                throw new ClosedIllegalStateException(type.getName() + " released");
             }
             int count = v - 1;
             if (valueCompareAndSet(v, count)) {
@@ -94,7 +96,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
 
     public void callOnRelease() {
         if (released)
-            throw new ClosedIllegalStateException("Already released");
+            throw new ClosedIllegalStateException(type.getName() + " already released");
         released = true;
         onRelease.run();
     }
@@ -104,10 +106,10 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         for (; ; ) {
             int v = value;
             if (v <= 0) {
-                throw new ClosedIllegalStateException("Released");
+                throw new ClosedIllegalStateException(type.getName() + " released");
             }
             if (v > 1) {
-                throw new IllegalStateException("Not the last released");
+                throw new IllegalStateException(type.getName() + " not the last released");
             }
             if (valueCompareAndSet(1, 0)) {
                 callOnRelease();
@@ -128,13 +130,13 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     @Override
     public void throwExceptionIfNotReleased() {
         if (refCount() > 0)
-            throw new IllegalStateException("Still reserved, count=" + refCount());
+            throw new IllegalStateException(type.getName() + " still reserved, count=" + refCount());
     }
 
     @Override
     public void warnAndReleaseIfNotReleased() {
         if (refCount() > 0) {
-            Slf4jExceptionHandler.WARN.on(getClass(), "Discarded without being released");
+            Slf4jExceptionHandler.WARN.on(type, "Discarded without being released");
             callOnRelease();
         }
     }

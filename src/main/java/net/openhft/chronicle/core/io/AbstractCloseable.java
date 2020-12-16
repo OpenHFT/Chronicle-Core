@@ -54,7 +54,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     private int referenceId;
 
     protected AbstractCloseable() {
-        createdHere = Jvm.isResourceTracing() ? new StackTrace(getClass() + " - Created Here") : null;
+        createdHere = Jvm.isResourceTracing() ? new StackTrace(getClass().getName() + " created here") : null;
 
         Set<CloseableTracer> set = CLOSEABLE_SET;
         if (set != null)
@@ -140,7 +140,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
             }
             return;
         }
-        closedHere = Jvm.isResourceTracing() ? new StackTrace(getClass() + " - Closed here") : null;
+        closedHere = Jvm.isResourceTracing() ? new StackTrace(getClass().getName() + " closed here") : null;
         if (BG_RELEASER && shouldPerformCloseInBackground()) {
             BackgroundResourceReleaser.release(this);
             return;
@@ -177,14 +177,14 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
      */
     public void throwExceptionIfClosed() throws IllegalStateException {
         if (isClosed())
-            throw new ClosedIllegalStateException("Closed", closedHere);
+            throw new ClosedIllegalStateException(getClass().getName() + " closed", closedHere);
         if (CHECK_THREAD_SAFETY)
             threadSafetyCheck(true);
     }
 
     public void throwExceptionIfClosedInSetter() throws IllegalStateException {
         if (isClosed())
-            throw new ClosedIllegalStateException("Closed", closedHere);
+            throw new ClosedIllegalStateException(getClass().getName() + " closed", closedHere);
         // only check it if this has been used.
         if (CHECK_THREAD_SAFETY)
             threadSafetyCheck(false);
@@ -259,10 +259,10 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
         if (usedByThread == null) {
             usedByThread = currentThread;
             if (Jvm.isResourceTracing())
-                usedByThreadHere = new StackTrace("Used here");
+                usedByThreadHere = new StackTrace(getClass().getName() + " used here");
         } else if (usedByThread != currentThread) {
             if (usedByThread.isAlive()) // really expensive call.
-                throw new IllegalStateException("Component which is not thread safes used by " + usedByThread + " and " + currentThread, usedByThreadHere);
+                throw new IllegalStateException(getClass().getName() + " component which is not thread safes used by " + usedByThread + " and " + currentThread, usedByThreadHere);
             usedByThread = currentThread;
         }
         return true;
@@ -270,7 +270,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
 
     public void resetUsedByThread() {
         usedByThread = Thread.currentThread();
-        usedByThreadHere = new StackTrace("Used here");
+        usedByThreadHere = new StackTrace(getClass().getName() + " used here");
     }
 
     public void clearUsedByThread() {

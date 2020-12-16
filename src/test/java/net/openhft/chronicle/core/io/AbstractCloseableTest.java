@@ -52,7 +52,7 @@ public class AbstractCloseableTest extends CoreTestCommon {
         assertTrue(mc.isClosed());
         Jvm.resetExceptionHandlers();
         assertEquals("Discarded without closing\n" +
-                        "java.lang.IllegalStateException: net.openhft.chronicle.core.StackTrace: class net.openhft.chronicle.core.io.AbstractCloseableTest$MyCloseable - Created Here on main",
+                        "java.lang.IllegalStateException: net.openhft.chronicle.core.StackTrace: net.openhft.chronicle.core.io.AbstractCloseableTest$MyCloseable created here on main",
                 map.keySet().stream()
                         .map(e -> e.message + "\n" + e.throwable)
                         .collect(Collectors.joining(", ")));

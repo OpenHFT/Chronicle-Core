@@ -19,12 +19,14 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     private final Map<ReferenceOwner, StackTrace> releases = Collections.synchronizedMap(new IdentityHashMap<>());
     private final Runnable onRelease;
     private final String uniqueId;
+    private final Class type;
     private final StackTrace createdHere;
     private volatile StackTrace releasedHere;
 
-    TracingReferenceCounted(final Runnable onRelease, String uniqueId) {
+    TracingReferenceCounted(final Runnable onRelease, String uniqueId, Class type) {
         this.onRelease = onRelease;
         this.uniqueId = uniqueId;
+        this.type = type;
         createdHere = stackTrace("init", INIT);
         references.put(INIT, createdHere);
     }
@@ -52,8 +54,8 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
             return true;
         StackTrace stackTrace = releases.get(owner);
         if (stackTrace == null)
-            throw new IllegalStateException("Never reserved by " + asString(owner));
-        throw new IllegalStateException("No longer reserved by " + asString(owner), stackTrace);
+            throw new IllegalStateException(type.getName() + " never reserved by " + asString(owner));
+        throw new IllegalStateException(type.getName() + " no longer reserved by " + asString(owner), stackTrace);
     }
 
     @Override
@@ -68,20 +70,20 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
 
     private boolean tryReserve(ReferenceOwner id, boolean must) {
         if (id == this)
-            throw new IllegalArgumentException("The counter cannot reserve itself");
+            throw new IllegalArgumentException(type.getName() + " the counter cannot reserve itself");
 //        if (Jvm.isDebug())
 //            System.out.println(Thread.currentThread().getName() + " " + uniqueId + " - tryReserve " + asString(id));
         synchronized (references) {
             if (references.isEmpty()) {
                 if (must)
-                    throw new ClosedIllegalStateException("Cannot reserve freed resource", createdHere);
+                    throw new ClosedIllegalStateException(type.getName() + " cannot reserve freed resource", createdHere);
                 return false;
             }
             StackTrace stackTrace = references.get(id);
             if (stackTrace == null)
                 references.putIfAbsent(id, stackTrace("reserve", id));
             else
-                throw new IllegalStateException("Already reserved resource by " + asString(id) + " here", stackTrace);
+                throw new IllegalStateException(type.getName() + " already reserved resource by " + asString(id) + " here", stackTrace);
         }
         releases.remove(id);
         return true;
@@ -100,11 +102,11 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
                     Throwable cause = createdHere;
                     if (!references.isEmpty()) {
                         StackTrace ste = references.values().iterator().next();
-                        cause = new IllegalStateException("Reserved by " + referencesAsString(), ste);
+                        cause = new IllegalStateException(type.getName() + " reserved by " + referencesAsString(), ste);
                     }
-                    throw new IllegalStateException("Not reserved by " + asString(id), cause);
+                    throw new IllegalStateException(type.getName() + " not reserved by " + asString(id), cause);
                 } else {
-                    throw new ClosedIllegalStateException("Already released " + asString(id) + " location ", stackTrace);
+                    throw new ClosedIllegalStateException(type.getName() + " already released " + asString(id) + " location ", stackTrace);
                 }
             }
             releases.put(id, stackTrace("release", id));
@@ -116,10 +118,10 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
         // needs to be called outside synchronized block above to avoid deadlock.
         if (doOnRelease) {
             if (releasedHere != null) {
-                throw new IllegalStateException("Already released", releasedHere);
+                throw new IllegalStateException(type.getName() + " already released", releasedHere);
             }
             onRelease.run();
-            releasedHere = new StackTrace(getClass() + " - Released here");
+            releasedHere = new StackTrace(type.getName() + " released here");
         }
     }
 
@@ -143,7 +145,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
             } catch (Exception e) {
                 e0 = e;
             }
-            IllegalStateException ise = new IllegalStateException("Still reserved " + referencesAsString(), createdHere);
+            IllegalStateException ise = new IllegalStateException(type.getName() + " still reserved " + referencesAsString(), createdHere);
             synchronized (references) {
                 references.values().forEach(ise::addSuppressed);
             }
@@ -176,11 +178,11 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
         synchronized (references) {
             if (references.isEmpty())
                 return;
-            IllegalStateException ise = new ClosedIllegalStateException("Retained reference closed");
+            IllegalStateException ise = new ClosedIllegalStateException(type.getName() + " retained reference closed");
             for (Map.Entry<ReferenceOwner, StackTrace> entry : references.entrySet()) {
                 ReferenceOwner referenceOwner = entry.getKey();
                 StackTrace reservedHere = entry.getValue();
-                IllegalStateException ise2 = new IllegalStateException("Reserved by " + asString(referenceOwner), reservedHere);
+                IllegalStateException ise2 = new IllegalStateException(type.getName() + "reserved by " + asString(referenceOwner), reservedHere);
                 if (referenceOwner instanceof Closeable) {
                     try {
                         ((Closeable) referenceOwner).throwExceptionIfClosed();
@@ -208,7 +210,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
                         ((QueryCloseable) referenceOwner).throwExceptionIfClosed();
 
                     } catch (Throwable t) {
-                        ise.addSuppressed(new ClosedIllegalStateException("Closed " + asString(referenceOwner), t));
+                        ise.addSuppressed(new ClosedIllegalStateException(type.getName() + " closed " + asString(referenceOwner), t));
                     }
                 }
             }
@@ -220,13 +222,13 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     @Override
     public void throwExceptionIfReleased() throws IllegalStateException {
         if (refCount() <= 0)
-            throw new ClosedIllegalStateException("Released", releasedHere);
+            throw new ClosedIllegalStateException(type.getName() + " released", releasedHere);
     }
 
     @Override
     public void warnAndReleaseIfNotReleased() {
         if (refCount() > 0) {
-            Slf4jExceptionHandler.WARN.on(getClass(), "Discarded without being released by " + referencesAsString(), createdHere);
+            Slf4jExceptionHandler.WARN.on(type, "Discarded without being released by " + referencesAsString(), createdHere);
             onRelease.run();
         }
     }
