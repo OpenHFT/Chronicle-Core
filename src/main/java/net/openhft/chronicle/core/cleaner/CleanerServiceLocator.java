@@ -53,7 +53,7 @@ public final class CleanerServiceLocator {
 
             if (cleanerService == null) {
                 cleanerService = new ReflectionBasedByteBufferCleanerService();
-                LOGGER.warn("Unable to find suitable cleaner service, falling back to using reflection");
+                LOGGER.info("Unable to find suitable cleaner service, falling back to using reflection");
             }
 
             instance = cleanerService;
