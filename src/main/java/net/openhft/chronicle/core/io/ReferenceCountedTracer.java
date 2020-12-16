@@ -5,14 +5,20 @@ import net.openhft.chronicle.core.StackTrace;
 import org.jetbrains.annotations.NotNull;
 
 public interface ReferenceCountedTracer extends ReferenceCounted {
+    @Deprecated(/* to be removed in x.22 */)
     @NotNull
     static ReferenceCountedTracer onReleased(final Runnable onRelease, String uniqueId) {
+        return onReleased(onRelease, uniqueId, ReferenceCountedTracer.class);
+    }
+
+    @NotNull
+    static ReferenceCountedTracer onReleased(final Runnable onRelease, String uniqueId, Class type) {
         return Jvm.isResourceTracing()
                 ? new DualReferenceCounted(
-                new TracingReferenceCounted(onRelease, uniqueId),
+                new TracingReferenceCounted(onRelease, uniqueId, type),
                 new VanillaReferenceCounted(() -> {
-                }))
-                : new VanillaReferenceCounted(onRelease);
+                }, type))
+                : new VanillaReferenceCounted(onRelease, type);
     }
 
     default void throwExceptionIfReleased() throws IllegalStateException {

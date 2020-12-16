@@ -27,7 +27,7 @@
     </parent>
 
     <artifactId>chronicle-core</artifactId>
-    <version>2.20.122-SNAPSHOT</version>
+    <version>2.20.125-SNAPSHOT</version>
     <name>OpenHFT/Chronicle-Core</name>
     <description>Chronicle-Core</description>
     <packaging>bundle</packaging>
@@ -101,7 +101,7 @@
             <plugin>
                 <groupId>net.openhft</groupId>
                 <artifactId>binary-compatibility-enforcer-plugin</artifactId>
-                <version>1.0.3</version>
+                <version>1.0.4</version>
                 <executions>
                     <execution>
                         <phase>verify</phase>
@@ -110,7 +110,6 @@
                         </goals>
                         <configuration>
                             <referenceVersion>2.20.120</referenceVersion>
-                            <artifactsURI>https://teamcity.chronicle.software/repository/download</artifactsURI>
                         </configuration>
                     </execution>
                 </executions>

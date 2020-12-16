@@ -63,7 +63,7 @@ public class ThreadDump {
     /**
      * Waits for all new threads to finish execution, up for 50ms.
      * <p>
-     * Then, prints 3 warnings after 0ms, 200ms and 650ms. Then, throws an exception after 800ms.
+     * Then, prints 3 warnings after 0ms, 200ms and 650ms. Then, throws an exception after 1450ms.
      */
     public void assertNoNewThreads() {
         assertNoNewThreads(0, TimeUnit.NANOSECONDS);
@@ -72,7 +72,7 @@ public class ThreadDump {
     /**
      * Waits for all new threads to finish execution, up for the specified amount of time ± 50ms.
      * <p>
-     * Then, prints 3 warnings after 0ms, 200ms and 650ms. Then, throws an exception after 800ms.
+     * Then, prints 3 warnings after 0ms, 200ms and 650ms. Then, throws an exception after 1450ms.
      */
     public void assertNoNewThreads(int delay, @NotNull TimeUnit delayUnit) {
         long start = System.nanoTime();

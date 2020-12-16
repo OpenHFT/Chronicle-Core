@@ -1,19 +1,54 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.CoreTestCommon;
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.Time;
 import org.junit.Test;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.stream.IntStream;
 
 import static org.junit.Assert.*;
 
 public class IOToolsTest extends CoreTestCommon {
+
+    @Test
+    public void readFileManyTimesByPath() throws IOException {
+        IntStream.range(0, 10000)
+                .parallel()
+                .forEach(i -> {
+                    try {
+                        IOTools.readFile("readFileManyTimes.txt");
+                    } catch (IOException ioe) {
+                        Jvm.rethrow(ioe);
+                    }
+                });
+    }
+
+    @Test
+    public void readFileManyTimesByFile() throws IOException {
+        String file = OS.getTarget() + "/readFileManyTimes.txt";
+        try (FileOutputStream fos = new FileOutputStream(file)) {
+            fos.write("Delete me\n".getBytes(StandardCharsets.UTF_8));
+        }
+        IntStream.range(0, 10000)
+                .parallel()
+                .forEach(i -> {
+                    try {
+                        IOTools.readFile(file);
+                    } catch (IOException ioe) {
+                        Jvm.rethrow(ioe);
+                    }
+                });
+    }
+
     @Test
     public void shouldCleanDirectBuffer() throws Exception {
         IOTools.clean(ByteBuffer.allocateDirect(64));

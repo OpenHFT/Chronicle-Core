@@ -6,6 +6,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 import java.util.Map;
 
+import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
+
 /**
  * Provides means for libraries to announce themselves.
  * <p>
@@ -37,6 +39,8 @@ public final class Announcer {
      * @param artifactId name of the library (e.g. chronicle-queue)
      */
     public static void announce(@NotNull final String groupId, @NotNull final String artifactId) {
+        requireNonNull(groupId);
+        requireNonNull(artifactId);
         InternalAnnouncer.announce(groupId, artifactId, Collections.emptyMap());
     }
 
@@ -57,6 +61,9 @@ public final class Announcer {
     public static void announce(@NotNull final String groupId,
                                 @NotNull final String artifactId,
                                 @NotNull final Map<String, String> properties) {
+        requireNonNull(groupId);
+        requireNonNull(artifactId);
+        requireNonNull(properties);
         InternalAnnouncer.announce(groupId, artifactId, properties);
     }
 

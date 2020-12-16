@@ -16,6 +16,8 @@ import org.junit.Test;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -28,10 +30,9 @@ public class FileSystemWatcherTest {
     static String base = OS.getTarget() + "/FileSystemWatcherTest-" + Time.uniqueId();
 
     @Before
-    public void setup() {
+    public void setup() throws IOException {
         tearDown();
-
-        new File(base).mkdirs();
+        Files.createDirectories(Paths.get(base));
     }
 
     @After

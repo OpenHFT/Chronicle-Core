@@ -36,7 +36,7 @@ public class JvmSafepointTest {
                     System.out.println(s);
             }
         }
-        System.out.println("counter: " + counter);
+//        System.out.println("counter: " + counter);
         assertTrue("counter: " + counter, counter > 200);
     }
 

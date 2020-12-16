@@ -63,20 +63,20 @@ public abstract class AbstractCloseableReferenceCounted
 
     protected void setClosed() {
         closed = true;
-        closedHere = Jvm.isResourceTracing() ? new StackTrace(getClass() + " - Closed here") : null;
+        closedHere = Jvm.isResourceTracing() ? new StackTrace(getClass().getName() + " closed here") : null;
     }
 
     @Override
     public void throwExceptionIfClosed() throws IllegalStateException {
         if (closed)
-            throw new ClosedIllegalStateException("Closed", closedHere);
+            throw new ClosedIllegalStateException(getClass().getName() + " closed", closedHere);
         throwExceptionIfReleased();
         assert threadSafetyCheck(true);
     }
 
     protected void throwExceptionIfClosedInSetter() throws IllegalStateException {
         if (closed)
-            throw new ClosedIllegalStateException("Closed", closedHere);
+            throw new ClosedIllegalStateException(getClass().getName() + " closed", closedHere);
         throwExceptionIfReleased();
         assert threadSafetyCheck(false);
     }

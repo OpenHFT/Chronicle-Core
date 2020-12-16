@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
+import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
+
 
 /**
  * Provides means for libraries to report analytics to an upstream receiver.
@@ -47,9 +49,20 @@ public interface AnalyticsFacade {
     void sendEvent(@NotNull String name, @NotNull Map<String, String> additionalEventParameters);
 
     /**
+     * Returns if Analytics is enabled.
+     *
+     * @return if Analytics is enabled
+     */
+    static boolean isEnabled() {
+        return ReflectionUtil.analyticsPresent() && !Jvm.getBoolean("chronicle.analytics.disable");
+    }
+
+    /**
      * Creates and returns a new empty Builder that can be used to create an Analytic instance.
      * <p>
      * The builder can only create one single Analytic instance.
+     * <p>
+     * If {@link #isEnabled()} returns false, then a NOP builder is returned.
      *
      * @param measurementId to use for reporting
      * @param apiSecret     to use for reporting
@@ -57,7 +70,9 @@ public interface AnalyticsFacade {
      */
     @NotNull
     static Builder builder(@NotNull final String measurementId, @NotNull final String apiSecret) {
-        if (ReflectionUtil.analyticsPresent() && Jvm.getBoolean("chronicle.analytics.enable")) {
+        requireNonNull(measurementId);
+        requireNonNull(apiSecret);
+        if (isEnabled()) {
             return new ReflectiveBuilder(measurementId, apiSecret);
         } else {
             return MuteBuilder.INSTANCE;
@@ -84,6 +99,9 @@ public interface AnalyticsFacade {
     static Builder standardBuilder(@NotNull final String measurementId,
                                    @NotNull final String apiSecret,
                                    @NotNull final String appVersion) {
+        requireNonNull(measurementId);
+        requireNonNull(apiSecret);
+        requireNonNull(appVersion);
         final Builder builder = builder(measurementId, apiSecret);
         standardEventParameters(appVersion).forEach(builder::putEventParameter);
         standardUserProperties().forEach(builder::putUserProperty);
@@ -103,6 +121,7 @@ public interface AnalyticsFacade {
      */
     @NotNull
     static Map<String, String> standardEventParameters(@NotNull final String appVersion) {
+        requireNonNull(appVersion);
         return StandardMaps.standardEventParameters(appVersion);
     }
 
@@ -209,7 +228,7 @@ public interface AnalyticsFacade {
          * @return this builder
          */
         @NotNull
-        Builder withErrorLogger(@NotNull Consumer<String> errorLogger);
+        Builder withErrorLogger(@NotNull Consumer<? super String> errorLogger);
 
         /**
          * Specifies a custom logger that will receive debug messages.
@@ -225,7 +244,7 @@ public interface AnalyticsFacade {
          * @return this builder
          */
         @NotNull
-        Builder withDebugLogger(@NotNull Consumer<String> debugLogger);
+        Builder withDebugLogger(@NotNull Consumer<? super String> debugLogger);
 
         /**
          * Specifies a custom file name to use when storing a persistent client id

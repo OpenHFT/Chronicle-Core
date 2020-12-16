@@ -12,11 +12,12 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
+import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 public enum StandardMaps {
     ;
 
-    private static final long GIB = 1024L * 1024L;
+    private static final long GIB = 1L << 30;
 
     // Exact match of package names of length 1 to 3. O(1) lookup performance.
     private static final Set<String> KNOWN_PACKAGE_NAMES_OF_MAX_DEPTH_3 = Stream.of(
@@ -41,6 +42,7 @@ public enum StandardMaps {
 
 
     public static Map<String, String> standardEventParameters(@NotNull final String appVersion) {
+        requireNonNull(appVersion);
         return Stream.of(
                 entry("app_version", appVersion)
         )
@@ -69,7 +71,8 @@ public enum StandardMaps {
                 .collect(toOrderedMap());
     }
 
-    static Map<String, String> standardAdditionalEventParameters(final StackTraceElement[] stackTraceElements) {
+    static Map<String, String> standardAdditionalEventParameters(@NotNull final StackTraceElement[] stackTraceElements) {
+        requireNonNull(stackTraceElements);
         final AtomicInteger cnt = new AtomicInteger();
         return Stream.of(stackTraceElements)
                 .map(StackTraceElement::getClassName)

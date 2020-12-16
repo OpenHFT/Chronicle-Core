@@ -28,7 +28,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
                 ? this::backgroundPerformRelease
                 : this::inThreadPerformRelease;
         referenceId = IOTools.counter(getClass()).incrementAndGet();
-        referenceCounted = ReferenceCountedTracer.onReleased(performRelease, referenceName());
+        referenceCounted = ReferenceCountedTracer.onReleased(performRelease, referenceName(), getClass());
 
         Set<AbstractReferenceCounted> set = REFERENCE_COUNTED_SET;
         if (monitored && set != null)
@@ -50,7 +50,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     public static void assertReferencesReleased() {
         Set<AbstractReferenceCounted> traceSet = REFERENCE_COUNTED_SET;
         if (traceSet == null) {
-            Jvm.warn().on(AbstractReferenceCounted.class, "reference tracing disabled");
+            Jvm.warn().on(AbstractReferenceCounted.class, "Reference tracing disabled");
             return;
         }
 
@@ -101,7 +101,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         performRelease();
         long time = System.nanoTime() - start;
         if (time >= WARN_NS)
-            Slf4jExceptionHandler.WARN.on(getClass(), "Took " + time / 100_000 / 10.0 + " ms to performRelease");
+            Slf4jExceptionHandler.PERF.on(getClass(), "Took " + time / 100_000 / 10.0 + " ms to performRelease");
     }
 
     protected boolean performReleaseInBackground() {
@@ -167,7 +167,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         if (usedByThread == null || !usedByThread.isAlive()) {
             usedByThread = currentThread;
         } else if (usedByThread != currentThread) {
-            throw new IllegalStateException("Component which is not thread safes used by " + usedByThread + " and " + currentThread);
+            throw new IllegalStateException(getClass().getName() + " component which is not thread safes used by " + usedByThread + " and " + currentThread);
         }
         return true;
     }

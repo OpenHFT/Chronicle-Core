@@ -28,6 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.*;
@@ -130,6 +131,14 @@ public enum IOTools {
             url = classLoader.getResource(name.substring(1));
         if (url == null)
             url = classLoader.getResource(name + ".gz");
+        if (url == null && new File(name).exists())
+            try {
+                url = new URL("file", "", new File(name).getAbsolutePath());
+            } catch (MalformedURLException e) {
+                FileNotFoundException fnfe = new FileNotFoundException(name);
+                fnfe.initCause(e);
+                throw fnfe;
+            }
         if (url == null)
             throw new FileNotFoundException(name);
         return url;
@@ -154,14 +163,13 @@ public enum IOTools {
      * @throws IOException FileNotFoundException thrown if file is not found
      */
     public static byte[] readFile(@NotNull String name) throws IOException {
-        URL url = urlFor(name);
-        InputStream is = open(url);
+        InputStream is = open(urlFor(name));
 
         return readAsBytes(is);
     }
 
     public static byte[] readFile(Class clazz, @NotNull String name) throws IOException {
-        URL url = urlFor(clazz, name);
+        URL url = urlFor(clazz.getClassLoader(), name);
         InputStream is = open(url);
 
         return readAsBytes(is);
