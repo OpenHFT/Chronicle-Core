@@ -59,6 +59,10 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         return getWrapper.apply(super.get());
     }
 
+    /**
+     * Cleanup. Can safely be called more than once - will only perform cleanup the first time.
+     * @param value value to clean up for
+     */
     public synchronized void cleanup(T value) {
         try {
             ThrowingConsumer<T, Exception> cleanup = this.cleanup;

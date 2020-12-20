@@ -6,7 +6,7 @@ import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 
 /**
- * This will clean up any {@link CleaningThreadLocal}
+ * This will clean up any {@link CleaningThreadLocal} when it completes
  */
 public class CleaningThread extends Thread {
     private static final Field THREAD_LOCALS;
@@ -27,6 +27,14 @@ public class CleaningThread extends Thread {
         super(target, name);
     }
 
+    /**
+     * Clean up any {@link CleaningThreadLocal} associated with the passed thread.
+     * <p>
+     * This method uses reflection to find the thread locals for a thread and navigates through a
+     * {@link WeakReference} to get to its destination, so if a GC has occurred then this may not be able
+     * to clean up effectively.
+     * @param thread thread to clean for
+     */
     public static void performCleanup(Thread thread) {
         WeakReference[] table;
         try {
