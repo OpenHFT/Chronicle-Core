@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
 
 public class MemoryTest {
+
     @Test
     public void testHeapUsed() {
         System.out.println("heap used: " + OS.memory().heapUsed());
