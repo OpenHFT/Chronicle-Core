@@ -368,9 +368,8 @@
     <scm>
         <url>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</url>
         <connection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</connection>
-        <developerConnection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git
-        </developerConnection>
-         <tag>ea</tag>
+        <developerConnection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</developerConnection>
+        <tag>ea</tag>
     </scm>
 
 </project>
