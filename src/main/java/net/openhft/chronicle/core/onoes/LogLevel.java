@@ -20,7 +20,12 @@
 package net.openhft.chronicle.core.onoes;
 
 public enum LogLevel {
+    /**
+     * @deprecated use ERROR
+     */
+    @Deprecated(/* remove in x.23*/)
     FATAL,
+    ERROR,
     WARN,
     PERF,
     DEBUG

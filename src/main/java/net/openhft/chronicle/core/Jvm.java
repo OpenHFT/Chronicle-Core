@@ -77,6 +77,8 @@ public enum Jvm {
     @NotNull
     private static final ThreadLocalisedExceptionHandler FATAL = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.FATAL);
     @NotNull
+    private static final ThreadLocalisedExceptionHandler ERROR = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.ERROR);
+    @NotNull
     private static final ThreadLocalisedExceptionHandler WARN = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.WARN);
     @NotNull
     private static final ThreadLocalisedExceptionHandler PERF = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.PERF);
@@ -563,6 +565,7 @@ public enum Jvm {
 
     public static void resetExceptionHandlers() {
         FATAL.defaultHandler(Slf4jExceptionHandler.FATAL).resetThreadLocalHandler();
+        ERROR.defaultHandler(Slf4jExceptionHandler.ERROR).resetThreadLocalHandler();
         WARN.defaultHandler(Slf4jExceptionHandler.WARN).resetThreadLocalHandler();
         DEBUG.defaultHandler(Slf4jExceptionHandler.DEBUG).resetThreadLocalHandler();
         PERF.defaultHandler(Slf4jExceptionHandler.DEBUG).resetThreadLocalHandler();
@@ -592,6 +595,7 @@ public enum Jvm {
                                                               boolean logToSlf4j) {
         @NotNull Map<ExceptionKey, Integer> map = Collections.synchronizedMap(new LinkedHashMap<>());
         FATAL.defaultHandler(recordingExceptionHandler(LogLevel.FATAL, map, exceptionsOnly, logToSlf4j));
+        ERROR.defaultHandler(recordingExceptionHandler(LogLevel.ERROR, map, exceptionsOnly, logToSlf4j));
         WARN.defaultHandler(recordingExceptionHandler(LogLevel.WARN, map, exceptionsOnly, logToSlf4j));
         PERF.defaultHandler(debug
                 ? recordingExceptionHandler(LogLevel.PERF, map, exceptionsOnly, logToSlf4j)
@@ -629,6 +633,7 @@ public enum Jvm {
         setExceptionHandlers(fatal, warn, debug);
     }
 
+    // Note: 'fatal' param will be replaced with 'error' in x.23
     public static void setExceptionHandlers(@Nullable ExceptionHandler fatal,
                                             @Nullable ExceptionHandler warn,
                                             @Nullable ExceptionHandler debug) {
@@ -636,9 +641,9 @@ public enum Jvm {
         FATAL.defaultHandler(fatal);
         WARN.defaultHandler(warn);
         DEBUG.defaultHandler(debug);
-
     }
 
+    // Note: 'fatal' param will be replaced with 'error' in x.23
     public static void setExceptionHandlers(@Nullable ExceptionHandler fatal,
                                             @Nullable ExceptionHandler warn,
                                             @Nullable ExceptionHandler debug,
@@ -647,27 +652,58 @@ public enum Jvm {
         PERF.defaultHandler(perf);
     }
 
+    // Use {@link #setExceptionHandlers(ExceptionHandler, ExceptionHandler, ExceptionHandler, ExceptionHandler)} in x.23
+    public static void setExceptionHandlers(@Nullable ExceptionHandler fatal,
+                                            @Nullable ExceptionHandler error,
+                                            @Nullable ExceptionHandler warn,
+                                            @Nullable ExceptionHandler debug,
+                                            @Nullable ExceptionHandler perf) {
+        setExceptionHandlers(fatal, warn, debug);
+        ERROR.defaultHandler(error);
+        PERF.defaultHandler(perf);
+    }
+
+    // Note: 'fatal' param will be replaced with 'error' in x.23
     public static void setThreadLocalExceptionHandlers(@Nullable ExceptionHandler fatal,
                                                        @Nullable ExceptionHandler warn,
                                                        @Nullable ExceptionHandler debug) {
-
         FATAL.threadLocalHandler(fatal);
         WARN.threadLocalHandler(warn);
         DEBUG.threadLocalHandler(debug);
     }
 
+    // Note: 'fatal' param will be replaced with 'error' in x.23
     public static void setThreadLocalExceptionHandlers(@Nullable ExceptionHandler fatal,
                                                        @Nullable ExceptionHandler warn,
                                                        @Nullable ExceptionHandler debug,
                                                        @Nullable ExceptionHandler perf) {
-
         setThreadLocalExceptionHandlers(fatal, warn, debug);
-        PERF.threadLocalHandler(debug);
+        PERF.threadLocalHandler(perf);
     }
 
+    // Use {@link #setThreadLocalExceptionHandlers(ExceptionHandler, ExceptionHandler, ExceptionHandler, ExceptionHandler)} in x.23
+    public static void setThreadLocalExceptionHandlers(@Nullable ExceptionHandler fatal,
+                                                       @Nullable ExceptionHandler error,
+                                                       @Nullable ExceptionHandler warn,
+                                                       @Nullable ExceptionHandler debug,
+                                                       @Nullable ExceptionHandler perf) {
+        setThreadLocalExceptionHandlers(fatal, warn, debug);
+        ERROR.threadLocalHandler(error);
+        PERF.threadLocalHandler(perf);
+    }
+
+    /**
+     * @deprecated use {@link #error()}
+     */
+    @Deprecated(/* remove in x.23*/)
     @NotNull
     public static ExceptionHandler fatal() {
         return FATAL;
+    }
+
+    @NotNull
+    public static ExceptionHandler error() {
+        return ERROR;
     }
 
     @NotNull
