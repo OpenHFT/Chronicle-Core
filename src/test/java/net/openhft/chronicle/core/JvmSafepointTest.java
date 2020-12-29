@@ -12,32 +12,36 @@ import static junit.framework.TestCase.assertTrue;
 public class JvmSafepointTest {
 
     @Test
-    public void testSafepoint() {
+    public void testSafepoint() throws InterruptedException {
         @SuppressWarnings("AnonymousHasLambdaAlternative")
         Thread t = new Thread() {
             public void run() {
                 long start = System.currentTimeMillis();
-                while (System.currentTimeMillis() < start + 500) {
-                    for (int i = 0; i < 100; i++)
+                while (System.currentTimeMillis() < start + 1000
+                        && !Thread.interrupted()) {
+                    for (int i = 0; i < 10000; i++)
                         Jvm.safepoint();
                 }
             }
         };
         t.start();
-        Jvm.pause(100);
+        Jvm.pause(5);
         int counter = 0;
-        while (t.isAlive() && counter <= 200) {
+        int min = 200;
+        while (t.isAlive() && counter <= min) {
             StackTraceElement[] stackTrace = t.getStackTrace();
             if (stackTrace.length > 1) {
                 String s = stackTrace[1].toString();
                 if (s.contains("safepoint"))
                     counter++;
-                else if (t.isAlive())
+                else if (t.isAlive() && !s.contains("interrupted"))
                     System.out.println(s);
             }
         }
-//        System.out.println("counter: " + counter);
-        assertTrue("counter: " + counter, counter > 200);
+        t.interrupt();
+        t.join();
+        System.out.println("counter: " + counter);
+        assertTrue("counter: " + counter, counter > min);
     }
 
     @Test
