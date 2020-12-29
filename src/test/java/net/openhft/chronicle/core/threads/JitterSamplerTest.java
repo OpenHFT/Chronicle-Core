@@ -1,27 +1,34 @@
 package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.Jvm;
-import org.junit.Assume;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class JitterSamplerTest {
 
     @Test
     public void takeSnapshot() throws InterruptedException {
 
-        Assume.assumeTrue(!Jvm.isArm());
+//        Assume.assumeTrue(!Jvm.isArm());
         Thread t = new Thread(() -> {
             JitterSampler.atStage("started");
-            JitterSampler.sleepSilently(60);
+            int millis = Jvm.isArm() ? 120 : 60;
+            JitterSampler.sleepSilently(millis);
             JitterSampler.atStage("finishing");
-            JitterSampler.sleepSilently(60);
+            JitterSampler.sleepSilently(millis);
             JitterSampler.finished();
         });
         t.start();
-        Jvm.pause(20);
+        STARTED:
+        {
+            for (int j = 20; j >= 0; j--) {
+                Jvm.pause(10);
+                if (JitterSampler.desc != null)
+                    break STARTED;
+            }
+            fail("Not started");
+        }
         for (int i = 0; i < 10; i++) {
             JitterSampler.sleepSilently(10);
             String s = JitterSampler.takeSnapshot(10_000_000);
