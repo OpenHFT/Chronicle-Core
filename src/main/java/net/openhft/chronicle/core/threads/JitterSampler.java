@@ -32,6 +32,7 @@ public enum JitterSampler {
     static volatile long time = Long.MAX_VALUE;
 
     public static void atStage(String desc) {
+        System.out.println("atStage " + desc);
         JitterSampler.desc = desc;
         thread = Thread.currentThread();
         time = System.nanoTime();
@@ -66,8 +67,9 @@ public enum JitterSampler {
     }
 
     public static void finished() {
+        System.out.println("finished");
         thread = null;
-        desc = null;
+        desc = "finished";
         time = Long.MAX_VALUE;
     }
 
