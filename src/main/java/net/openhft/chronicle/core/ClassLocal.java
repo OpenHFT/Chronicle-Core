@@ -48,11 +48,8 @@ public class ClassLocal<V> extends ClassValue<V> {
 
     /**
      * WARNING Do not call this directly
-     *
-     * @deprecated do not call this directly
      */
     @Override
-    @Deprecated(/* to be removed in x.22 */)
     protected V computeValue(Class<?> type) {
         return classVFunction.apply(type);
     }
