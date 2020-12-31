@@ -38,11 +38,6 @@ public enum Time {
         return System.currentTimeMillis();
     }
 
-    @Deprecated(/* remove in x.21*/)
-    public static long tickTime() {
-        return System.currentTimeMillis();
-    }
-
     public static String uniqueId() {
         return Long.toString(UniqueMicroTimeProvider.INSTANCE.currentTimeMicros(), 36);
     }

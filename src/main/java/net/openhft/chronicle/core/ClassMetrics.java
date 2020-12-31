@@ -18,13 +18,6 @@
  */
 package net.openhft.chronicle.core;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.nio.file.*;
-import java.util.HashMap;
-import java.util.Map;
-
 public class ClassMetrics {
     private final int offset;
     private final int length;
@@ -32,22 +25,6 @@ public class ClassMetrics {
     public ClassMetrics(int offset, int length) {
         this.offset = offset;
         this.length = length;
-    }
-
-    @Deprecated(/* remove in x.21*/)
-    public static void updateJar(final String jarToUpdate, String sourceFile, String fileNameInJar) throws IOException {
-        Map<String, String> env = new HashMap<>();
-        env.put("create", "true");
-
-        URI uri = URI.create("jar:" + new File(jarToUpdate).toURI());
-
-        try (FileSystem zipfs = FileSystems.newFileSystem(uri, env)) {
-            Path externalFile = new File(sourceFile).toPath();
-            Path pathInZipfile = zipfs.getPath(fileNameInJar);
-            // copy a file into the zip file
-            Files.copy(externalFile, pathInZipfile,
-                    StandardCopyOption.REPLACE_EXISTING);
-        }
     }
 
     public int offset() {

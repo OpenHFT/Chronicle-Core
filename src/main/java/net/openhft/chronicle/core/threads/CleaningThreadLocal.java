@@ -27,11 +27,6 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         this.getWrapper = getWrapper;
     }
 
-    @Deprecated(/* remove in x.21*/)
-    public static <T> CleaningThreadLocal<T> withCloseQuietly() {
-        return new CleaningThreadLocal<>(() -> null, Closeable::closeQuietly);
-    }
-
     public static <T> CleaningThreadLocal<T> withCloseQuietly(Supplier<T> supplier) {
         return new CleaningThreadLocal<>(supplier, Closeable::closeQuietly);
     }
@@ -44,7 +39,7 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         return new CleaningThreadLocal<>(supplier, cleanup);
     }
 
-    @Deprecated(/* remove in x.21*/)
+    // Used in VanillaSessionHandler
     public static <T> CleaningThreadLocal<T> withCleanup(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup, Function<T, T> getWrapper) {
         return new CleaningThreadLocal<>(supplier, cleanup, getWrapper);
     }

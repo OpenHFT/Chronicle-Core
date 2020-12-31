@@ -21,14 +21,6 @@ public class WeakIdentityHashMap<K, V> extends AbstractMap<K, V> {
         map = new ConcurrentHashMap<>(16);
     }
 
-    /**
-     * Constructs a new, empty identity map with the specified initial size.
-     */
-    @Deprecated(/* remove in x.21*/)
-    public WeakIdentityHashMap(int initialSize) {
-        map = new ConcurrentHashMap<>(initialSize);
-    }
-
     private Map<WeakKey<K>, V> getMap() {
         for (Reference<? extends K> ref; (ref = this.queue.poll()) != null; ) {
             map.remove(ref);
