@@ -22,6 +22,8 @@ package net.openhft.chronicle.core.threads;
 import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.Closeable;
+
 public class Timer {
 
     @NotNull
@@ -55,12 +57,13 @@ public class Timer {
         }, initialDelayMs, 0));
     }
 
-    private static class ScheduledEventHandler implements EventHandler {
+    private static class ScheduledEventHandler implements EventHandler, Closeable {
 
         @NotNull
         private final VanillaEventHandler eventHandler;
         private final long initialDelayMs;
         private final long periodMs;
+        private transient volatile boolean closed;
 
         private boolean isFirstTime = true;
         private long lastTimeRan = System.currentTimeMillis();
@@ -75,6 +78,8 @@ public class Timer {
 
         @Override
         public boolean action() throws InvalidEventHandlerException, InterruptedException {
+            if (closed)
+                throw InvalidEventHandlerException.reusable();
 
             long currentTime = System.currentTimeMillis();
 
@@ -104,6 +109,11 @@ public class Timer {
         @NotNull
         public HandlerPriority priority() {
             return HandlerPriority.TIMER;
+        }
+
+        @Override
+        public void close() {
+            this.closed = true;
         }
 
         @Override
