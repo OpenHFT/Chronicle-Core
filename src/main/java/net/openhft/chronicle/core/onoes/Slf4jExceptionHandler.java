@@ -23,6 +23,10 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.LoggerFactory;
 
 public enum Slf4jExceptionHandler implements ExceptionHandler {
+    /**
+     * @deprecated use ERROR
+     */
+    @Deprecated(/* remove in x.23*/)
     FATAL {
         @Override
         public void on(@NotNull Class clazz, String message, Throwable thrown) {
@@ -30,6 +34,12 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
             if (!Slf4jExceptionHandler.isJUnitTest()) {
                 System.exit(-1);
             }
+        }
+    },
+    ERROR {
+        @Override
+        public void on(@NotNull Class clazz, String message, Throwable thrown) {
+            LoggerFactory.getLogger(clazz).error(message, thrown);
         }
     },
     WARN {
@@ -59,6 +69,8 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
     public static Slf4jExceptionHandler valueOf(LogLevel logLevel) {
         if (logLevel == LogLevel.FATAL)
             return FATAL;
+        if (logLevel == LogLevel.ERROR)
+            return ERROR;
         if (logLevel == LogLevel.WARN)
             return WARN;
         return DEBUG;
@@ -67,9 +79,7 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
     private static boolean isJUnitTest() {
 
         for (StackTraceElement[] stackTrace : Thread.getAllStackTraces().values()) {
-
-            StackTraceElement[] list = stackTrace;
-            for (StackTraceElement element : list) {
+            for (StackTraceElement element : stackTrace) {
                 if (element.getClassName().contains(".junit")) {
                     return true;
                 }
