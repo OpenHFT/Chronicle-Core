@@ -405,16 +405,6 @@ public enum ObjectUtils {
                 || Enum.class.isAssignableFrom(toMatch) && base.equals(toMatch.getEnclosingClass());
     }
 
-    @Deprecated(/* to be removed in x.21 */)
-    @NotNull
-    public static <T> T printAll(@NotNull Class<T> tClass, Class... additional) throws IllegalArgumentException {
-        return onMethodCall((method, args) -> {
-            @NotNull String argsStr = args == null ? "()" : Arrays.toString(args);
-            System.out.println(method.getName() + " " + argsStr);
-            return defaultValue(method.getReturnType());
-        }, tClass, additional);
-    }
-
     public static Object defaultValue(Class<?> type) {
         return DEFAULT_MAP.get(type);
     }
