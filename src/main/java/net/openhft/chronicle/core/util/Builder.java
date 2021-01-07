@@ -1,5 +1,7 @@
 package net.openhft.chronicle.core.util;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.function.Supplier;
 
 /**
@@ -8,9 +10,11 @@ import java.util.function.Supplier;
  * @param <T> Of object created
  */
 public interface Builder<T> extends Supplier<T> {
-    public T build();
+    @NotNull
+    T build();
 
     @Override
+    @NotNull
     default T get() {
         return build();
     }
