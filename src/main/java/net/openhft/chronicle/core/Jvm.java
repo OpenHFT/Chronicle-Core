@@ -759,7 +759,8 @@ public enum Jvm {
             long offset = UNSAFE.staticFieldOffset(f);
             Object base = UNSAFE.staticFieldBase(f);
 
-            return UnsafeMemory.INSTANCE.readLong(base, offset);
+            // calling UNSAFE.getLong and not UnsafeMemory.readLong as the null-check in that method crashes Zing VM
+            return UNSAFE.getLong(base, offset);
         } catch (Exception e) {
             // ignore
         }
