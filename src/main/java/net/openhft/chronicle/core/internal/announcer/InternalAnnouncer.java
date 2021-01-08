@@ -43,7 +43,6 @@ public enum InternalAnnouncer {
                 System.getProperty("java.runtime.name"),
                 System.getProperty("java.runtime.version"),
                 Runtime.getRuntime().availableProcessors()));
-        LINE_PRINTER.accept("Process id: " + Jvm.getProcessId());
     }
 
     private static void announceArtifact(@NotNull final String groupId,
@@ -55,7 +54,7 @@ public enum InternalAnnouncer {
             LINE_PRINTER.accept(logo);
         }
         final String version = PomProperties.version(groupId, artifactId);
-        final String artifactInfo = String.format(":: %s :: (%s)", pretty(artifactId), version);
+        final String artifactInfo = String.format("Process id: %d :: %s (%s)", Jvm.getProcessId(), pretty(artifactId), version);
         LINE_PRINTER.accept(artifactInfo);
 
         final int indent = propertiesCopy.keySet().stream()
