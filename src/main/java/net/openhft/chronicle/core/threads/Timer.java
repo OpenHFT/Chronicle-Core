@@ -77,7 +77,7 @@ public class Timer {
         }
 
         @Override
-        public boolean action() throws InvalidEventHandlerException, InterruptedException {
+        public boolean action() throws InvalidEventHandlerException {
             if (closed)
                 throw InvalidEventHandlerException.reusable();
 
