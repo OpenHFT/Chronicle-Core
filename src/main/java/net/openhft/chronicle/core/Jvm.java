@@ -115,12 +115,14 @@ public enum Jvm {
         IS_JAVA_9_PLUS = JVM_JAVA_MAJOR_VERSION > 8; // IS_JAVA_9_PLUS value is used in maxDirectMemory0 method.
         IS_JAVA_12_PLUS = JVM_JAVA_MAJOR_VERSION > 11;
         IS_JAVA_14_PLUS = JVM_JAVA_MAJOR_VERSION > 13;
+        // get this here before we call getField
+        setAccessible0_Method = get_setAccessible0_Method();
         MAX_DIRECT_MEMORY = maxDirectMemory0();
 
         Supplier<Long> reservedMemoryGetter;
         try {
             final Class<?> bitsClass = Class.forName("java.nio.Bits");
-            final Field firstTry = getField(bitsClass, "reservedMemory");
+            final Field firstTry = getFieldOrNull(bitsClass, "reservedMemory");
             final Field f = firstTry != null ? firstTry : getField(bitsClass, "RESERVED_MEMORY");
             if (f.getType() == AtomicLong.class) {
                 AtomicLong reservedMemory = (AtomicLong) f.get(null);
@@ -144,7 +146,6 @@ public enum Jvm {
             }
         }
         onSpinWaitMH = onSpinWait;
-        setAccessible0_Method = get_setAccessible0_Method();
 
         findAndLoadSystemProperties();
 
