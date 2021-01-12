@@ -21,6 +21,7 @@ package net.openhft.chronicle.core;
 import net.openhft.chronicle.core.annotation.DontChain;
 import net.openhft.chronicle.core.onoes.*;
 import net.openhft.chronicle.core.util.ObjectUtils;
+import net.openhft.chronicle.core.util.ThrowingSupplier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -54,7 +55,6 @@ import java.util.stream.Collectors;
 import static java.lang.Runtime.getRuntime;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 import static net.openhft.chronicle.core.OS.*;
-import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 
 /**
  * Utility class to access information in the JVM.
@@ -120,19 +120,13 @@ public enum Jvm {
         Supplier<Long> reservedMemoryGetter;
         try {
             final Class<?> bitsClass = Class.forName("java.nio.Bits");
-            Field f;
-            try {
-                f = bitsClass.getDeclaredField("reservedMemory");
-            } catch (NoSuchFieldException e) {
-                f = bitsClass.getDeclaredField("RESERVED_MEMORY");
-            }
-            long offset = UNSAFE.staticFieldOffset(f);
-            Object base = UNSAFE.staticFieldBase(f);
+            final Field firstTry = getField(bitsClass, "reservedMemory");
+            final Field f = firstTry != null ? firstTry : getField(bitsClass, "RESERVED_MEMORY");
             if (f.getType() == AtomicLong.class) {
-                AtomicLong reservedMemory = UnsafeMemory.unsafeGetObject(base, offset);
+                AtomicLong reservedMemory = (AtomicLong) f.get(null);
                 reservedMemoryGetter = reservedMemory::get;
             } else {
-                reservedMemoryGetter = () -> UnsafeMemory.INSTANCE.readLong(base, offset);
+                reservedMemoryGetter = ThrowingSupplier.asSupplier(() -> f.getLong(null));
             }
         } catch (Exception e) {
             System.err.println(Jvm.class.getName() + ": Unable to determine the reservedMemory value, will always report 0");
@@ -755,12 +749,8 @@ public enum Jvm {
                 clz = Class.forName("sun.misc.VM");
             }
 
-            final Field f = clz.getDeclaredField("directMemory");
-            long offset = UNSAFE.staticFieldOffset(f);
-            Object base = UNSAFE.staticFieldBase(f);
-
-            // calling UNSAFE.getLong and not UnsafeMemory.readLong as the null-check in that method crashes Zing VM
-            return UNSAFE.getLong(base, offset);
+            final Field f = getField(clz, "directMemory");
+            return f.getLong(null);
         } catch (Exception e) {
             // ignore
         }
