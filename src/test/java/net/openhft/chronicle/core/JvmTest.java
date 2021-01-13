@@ -103,11 +103,14 @@ public class JvmTest {
     @Test
     public void classMetrics() {
         assumeFalse(isArm());
-        assertEquals("ClassMetrics{offset=12, length=16}",
+        String expect = Jvm.isZing() ?
+                "ClassMetrics{offset=8, length=16}" :
+                "ClassMetrics{offset=12, length=16}";
+        assertEquals(expect,
                 Jvm.classMetrics(ClassA.class).toString());
-        assertEquals("ClassMetrics{offset=12, length=16}",
+        assertEquals(expect,
                 Jvm.classMetrics(ClassB.class).toString());
-        assertEquals("ClassMetrics{offset=12, length=16}",
+        assertEquals(expect,
                 Jvm.classMetrics(ClassC.class).toString());
         try {
             Jvm.classMetrics(ClassD.class);

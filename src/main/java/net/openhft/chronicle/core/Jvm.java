@@ -92,6 +92,7 @@ public enum Jvm {
     private static final boolean SAFEPOINT_ENABLED;
     private static final boolean IS_ARM = Jvm.getBoolean("jvm.isarm") ||
             System.getProperty("os.arch", "?").startsWith("arm") || System.getProperty("os.arch", "?").startsWith("aarch");
+    private static final boolean IS_ZING = System.getProperty("java.vm.name").contains("Zing");
     private static final Map<Class, ClassMetrics> CLASS_METRICS_MAP =
             new ConcurrentHashMap<>();
     private static final Map<Class, Integer> PRIMITIVE_SIZE = new HashMap<Class, Integer>() {{
@@ -248,6 +249,10 @@ public enum Jvm {
 
     public static boolean isJava14Plus() {
         return IS_JAVA_14_PLUS;
+    }
+
+    public static boolean isZing() {
+        return IS_ZING;
     }
 
     private static boolean is64bit0() {
