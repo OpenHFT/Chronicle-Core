@@ -37,7 +37,7 @@ public class BackgroundResourceReleaserTest {
         new Thread(wc::close).start();
         wc.close();
         long time0 = System.currentTimeMillis() - start0;
-        int error = Jvm.isArm() || OS.isWindows() ? 15 : 7;
+        int error = Jvm.isArm() || OS.isWindows() || Jvm.isAzulZing() ? 15 : 7;
         assertEquals(10 + error, time0, error);
 
         long start = System.currentTimeMillis();
