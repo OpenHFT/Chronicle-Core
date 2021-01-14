@@ -74,6 +74,13 @@ public enum Jvm {
     private static final Supplier<Long> reservedMemory;
     private static final boolean IS_64BIT = is64bit0();
     private static final int PROCESS_ID = getProcessId0();
+    private static final boolean IS_AZUL_ZING = isAzulZing0();
+
+    private static boolean isAzulZing0() {
+        String vendorVersion = System.getProperty("java.vm.vendor") + System.getProperty("java.vm.version");
+        return vendorVersion.matches("Azul .*zing.*$");
+    }
+
     @NotNull
     private static final ThreadLocalisedExceptionHandler FATAL = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.FATAL);
     @NotNull
@@ -1106,5 +1113,13 @@ public enum Jvm {
                 }
             }
         }
+    }
+
+    public static boolean isAzulZing() {
+        return IS_AZUL_ZING;
+    }
+
+    public static int objectHeaderSize() {
+        return is64bit() && !isAzulZing() ? 12 : 8;
     }
 }
