@@ -10,13 +10,13 @@ import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
 public class BackgroundResourceReleaserTest {
-    static final AtomicLong closed = new AtomicLong();
-    static final AtomicLong released = new AtomicLong();
+    final AtomicLong closed = new AtomicLong();
+    final AtomicLong released = new AtomicLong();
 
     @Test
     public void testResourcesCleanedUp() {
         assumeTrue(BackgroundResourceReleaser.BG_RELEASER);
-        int count = 10;
+        int count = 20;
         for (int i = 1; i < count; i++) {
             new BGCloseable().close();
             new BGReferenceCounted().releaseLast();
@@ -43,23 +43,16 @@ public class BackgroundResourceReleaserTest {
         long start = System.currentTimeMillis();
         BackgroundResourceReleaser.releasePendingResources();
         long time = System.currentTimeMillis() - start;
-        assertEquals(count * 10 + 5, time, 40);
+        assertBetween(count * 4, time, count * 11);
         assertEquals(count, closed.get());
         assertEquals(count, released.get());
         AbstractCloseable.assertCloseablesClosed();
     }
 
-    static class BGCloseable extends AbstractCloseable {
-        @Override
-        protected boolean shouldPerformCloseInBackground() {
-            return true;
-        }
-
-        @Override
-        protected void performClose() {
-            closed.incrementAndGet();
-            Jvm.pause(10);
-        }
+    private void assertBetween(long min, long actual, long max) {
+        if (min <= actual && actual <= max)
+            return;
+        throw new AssertionError("Not in range " + min + " <= " + actual + " <= " + max);
     }
 
     static class WaitingCloseable extends AbstractCloseable {
@@ -74,7 +67,20 @@ public class BackgroundResourceReleaserTest {
         }
     }
 
-    static class BGReferenceCounted extends AbstractReferenceCounted {
+    class BGCloseable extends AbstractCloseable {
+        @Override
+        protected boolean shouldPerformCloseInBackground() {
+            return true;
+        }
+
+        @Override
+        protected void performClose() {
+            closed.incrementAndGet();
+            Jvm.pause(10);
+        }
+    }
+
+    class BGReferenceCounted extends AbstractReferenceCounted {
         @Override
         protected boolean performReleaseInBackground() {
             return true;
