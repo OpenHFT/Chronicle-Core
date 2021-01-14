@@ -46,7 +46,7 @@ public class CleaningRandomAccessFileTest {
                 file.getChannel().write(bb);
             }
             System.gc();
-            Jvm.pause(10);
+            Jvm.pause(Jvm.isAzulZing() ? 100 : 10);
         }
     }
 }
