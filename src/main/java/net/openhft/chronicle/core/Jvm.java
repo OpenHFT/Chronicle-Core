@@ -75,12 +75,6 @@ public enum Jvm {
     private static final boolean IS_64BIT = is64bit0();
     private static final int PROCESS_ID = getProcessId0();
     private static final boolean IS_AZUL_ZING = isAzulZing0();
-
-    private static boolean isAzulZing0() {
-        String vendorVersion = System.getProperty("java.vm.vendor") + System.getProperty("java.vm.version");
-        return vendorVersion.matches("Azul .*zing.*$");
-    }
-
     @NotNull
     private static final ThreadLocalisedExceptionHandler FATAL = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.FATAL);
     @NotNull
@@ -165,6 +159,11 @@ public enum Jvm {
         logger.info("Chronicle core loaded from " + Jvm.class.getProtectionDomain().getCodeSource().getLocation());
         if (RESOURCE_TRACING)
             logger.warn("Resource tracing is turned on. If you are performance testing or running in PROD you probably don't want this");
+    }
+
+    private static boolean isAzulZing0() {
+        String vendorVersion = System.getProperty("java.vm.vendor") + System.getProperty("java.vm.version");
+        return vendorVersion.matches("Azul .*zing.*$");
     }
 
     private static void findAndLoadSystemProperties() {
@@ -256,10 +255,6 @@ public enum Jvm {
 
     public static boolean isJava14Plus() {
         return IS_JAVA_14_PLUS;
-    }
-
-    public static boolean isZing() {
-        return IS_ZING;
     }
 
     private static boolean is64bit0() {
