@@ -37,13 +37,12 @@ public class BackgroundResourceReleaserTest {
         new Thread(wc::close).start();
         wc.close();
         long time0 = System.currentTimeMillis() - start0;
-        int error = Jvm.isArm() || OS.isWindows() || Jvm.isAzulZing() ? 15 : 7;
-        assertEquals(10 + error, time0, error);
+        int error = Jvm.isAzulZing() ? 30 : Jvm.isArm() || OS.isWindows() ? 15 : 7;
+        assertBetween(10, time0, 10 + 2 * error);
 
-        long start = System.currentTimeMillis();
         BackgroundResourceReleaser.releasePendingResources();
-        long time = System.currentTimeMillis() - start;
-        assertBetween(count * 4, time, count * 13);
+        long time = System.currentTimeMillis() - start0;
+        assertBetween(count * 10, time, count * 13);
         assertEquals(count, closed.get());
         assertEquals(count, released.get());
         AbstractCloseable.assertCloseablesClosed();
