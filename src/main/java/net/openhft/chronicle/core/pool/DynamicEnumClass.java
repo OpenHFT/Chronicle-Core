@@ -100,10 +100,23 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
         return eList.get(index);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public E[] asArray() {
         if (values != null)
             return values;
         return values = eList.toArray((E[])Array.newInstance(type, eList.size()));
+    }
+
+    @Override
+    public <T> Map<E, T> createMap() {
+        // needs to be a SortedMap so as to behave as similarly to EnumMap as possible
+        return new TreeMap<>();
+    }
+
+    @Override
+    public Set<E> createSet() {
+        // see comment in createMap
+        return new TreeSet<>();
     }
 }

@@ -19,6 +19,11 @@ package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.util.CoreDynamicEnum;
 
+import java.util.EnumMap;
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.Set;
+
 public class StaticEnumClass<E extends Enum<E> & CoreDynamicEnum<E>> extends EnumCache<E> {
     private final E[] values;
 
@@ -45,5 +50,15 @@ public class StaticEnumClass<E extends Enum<E> & CoreDynamicEnum<E>> extends Enu
     @Override
     public E[] asArray() {
         return values;
+    }
+
+    @Override
+    public <T> Map<E, T> createMap() {
+        return new EnumMap<>(type);
+    }
+
+    @Override
+    public Set<E> createSet() {
+        return EnumSet.noneOf(type);
     }
 }

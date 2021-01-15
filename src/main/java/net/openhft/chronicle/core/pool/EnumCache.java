@@ -20,6 +20,9 @@ package net.openhft.chronicle.core.pool;
 import net.openhft.chronicle.core.ClassLocal;
 import net.openhft.chronicle.core.util.CoreDynamicEnum;
 
+import java.util.Map;
+import java.util.Set;
+
 public abstract class EnumCache<E> {
     private static final ClassLocal<EnumCache> ENUM_CACHE_CL = ClassLocal.withInitial(
             eClass -> CoreDynamicEnum.class.isAssignableFrom(eClass)
@@ -50,4 +53,8 @@ public abstract class EnumCache<E> {
     public abstract E forIndex(int index);
 
     public abstract E[] asArray();
+
+    public abstract <T> Map<E, T> createMap();
+
+    public abstract Set<E> createSet();
 }
