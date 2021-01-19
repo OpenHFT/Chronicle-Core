@@ -42,7 +42,7 @@ public class BackgroundResourceReleaserTest {
 
         BackgroundResourceReleaser.releasePendingResources();
         long time = System.currentTimeMillis() - start0;
-        assertBetween(count * 10, time, count * 13);
+        assertBetween(count * 10, time, count * 14);
         assertEquals(count, closed.get());
         assertEquals(count, released.get());
         AbstractCloseable.assertCloseablesClosed();
