@@ -9,6 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 import java.util.Set;
 
+import static net.openhft.chronicle.core.io.AbstractCloseable.*;
 import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEASER;
 
 public abstract class AbstractReferenceCounted implements ReferenceCountedTracer, ReferenceOwner {
@@ -36,14 +37,14 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     }
 
     public static void enableReferenceTracing() {
-        AbstractCloseable.enableCloseableTracing();
+        enableCloseableTracing();
         REFERENCE_COUNTED_SET =
                 Collections.newSetFromMap(
                         new WeakIdentityHashMap<>());
     }
 
     public static void disableReferenceTracing() {
-        AbstractCloseable.disableCloseableTracing();
+        disableCloseableTracing();
         REFERENCE_COUNTED_SET = null;
     }
 
@@ -54,7 +55,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
             return;
         }
 
-        AbstractCloseable.assertCloseablesClosed();
+        assertCloseablesClosed();
 
         AssertionError openFiles = new AssertionError("Reference counted not released");
         synchronized (traceSet) {
@@ -158,7 +159,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     }
 
     protected boolean threadSafetyCheck(boolean isUsed) {
-        if (!AbstractCloseable.CHECK_THREAD_SAFETY)
+        if (DISABLE_THREAD_SAFETY)
             return true;
         if (usedByThread == null && !isUsed)
             return true;

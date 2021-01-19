@@ -32,7 +32,9 @@ import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEAS
 import static net.openhft.chronicle.core.io.TracingReferenceCounted.asString;
 
 public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwner {
-    protected static final boolean CHECK_THREAD_SAFETY = Jvm.getBoolean("check.thread.safety", false);
+    protected static final boolean DISABLE_THREAD_SAFETY = Jvm.getBoolean("disable.thread.safety", false);
+    @Deprecated(/* remove in x.23 */)
+    protected static final boolean CHECK_THREAD_SAFETY = !DISABLE_THREAD_SAFETY;
     protected static final long WARN_NS = (long) (Jvm.getDouble("closeable.warn.secs", 0.02) * 1e9);
 
     private static final long CLOSED_OFFSET;
@@ -178,7 +180,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     public void throwExceptionIfClosed() throws IllegalStateException {
         if (isClosed())
             throw new ClosedIllegalStateException(getClass().getName() + " closed", closedHere);
-        if (CHECK_THREAD_SAFETY)
+        if (!DISABLE_THREAD_SAFETY)
             threadSafetyCheck(true);
     }
 
@@ -186,7 +188,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
         if (isClosed())
             throw new ClosedIllegalStateException(getClass().getName() + " closed", closedHere);
         // only check it if this has been used.
-        if (CHECK_THREAD_SAFETY)
+        if (!DISABLE_THREAD_SAFETY)
             threadSafetyCheck(false);
     }
 
@@ -250,7 +252,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
 
     // this should throw IllegalStateException or return true
     protected boolean threadSafetyCheck(boolean isUsed) {
-        if (!CHECK_THREAD_SAFETY)
+        if (DISABLE_THREAD_SAFETY)
             return true;
         if (usedByThread == null && !isUsed)
             return true;
