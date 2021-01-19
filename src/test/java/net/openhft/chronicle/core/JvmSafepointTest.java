@@ -27,7 +27,7 @@ public class JvmSafepointTest {
         t.start();
         Jvm.pause(5);
         int counter = 0;
-        int min = Jvm.isAzulZing() ? 5 : 200;
+        int min = Jvm.isAzulZing() ? 0 : 200;
         while (t.isAlive() && counter <= min) {
             StackTraceElement[] stackTrace = t.getStackTrace();
             if (stackTrace.length > 1) {
