@@ -926,6 +926,88 @@ public enum Jvm {
                 : ObjectUtils.isTrue(trim);
     }
 
+    /**
+     * Parse a string as a decimal memory size with an optional scale.
+     * K/k = * 2<sup>10</sup>, M/m = 2<sup>20</sup>, G/g = 2<sup>10</sup>, T/t = 2<sup>40</sup>
+     * <p>
+     * trailing B/b/iB/ib are ignored.
+     *      <table>
+     *         <tr><td>100</td><td>100 bytes</td></tr>
+     *         <tr><td>100b</td><td>100 bytes</td></tr>
+     *         <tr><td>0.5kb</td><td>512 bytes</td></tr>
+     *         <tr><td>0.125MB</td><td>128 KiB</td></tr>
+     *         <tr><td>2M</td><td>2 MiB</td></tr>
+     *         <tr><td>0.75GiB</td><td>768 MiB</td></tr>
+     *         <tr><td>0.001TiB</td><td>1.024 GiB</td></tr>
+     *     </table>
+     * </p>
+     *
+     * @param value size to parse
+     * @return the size
+     * @throws IllegalArgumentException if the string could be parsed
+     */
+    public static long parseSize(String value) throws IllegalArgumentException {
+        long factor = 1;
+
+        if (value.length() > 1) {
+            char last = value.charAt(value.length() - 1);
+            // assume we meant bytes, not bits
+            if (last == 'b' || last == 'B') {
+                value = value.substring(0, value.length() - 1);
+                last = value.charAt(value.length() - 1);
+            }
+            if (last == 'i') {
+                value = value.substring(0, value.length() - 1);
+                last = value.charAt(value.length() - 1);
+            }
+            if (Character.isLetter(last)) {
+                switch (last) {
+                    case 't':
+                    case 'T':
+                        factor = 1L << 40;
+                        break;
+                    case 'g':
+                    case 'G':
+                        factor = 1L << 30;
+                        break;
+                    case 'm': // technically milli, but we will assume mega
+                    case 'M':
+                        factor = 1L << 20;
+                        break;
+                    case 'k':
+                    case 'K':
+                        factor = 1L << 10;
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Unrecognised suffix for size " + value);
+                }
+                value = value.substring(0, value.length() - 1);
+            }
+        }
+        double number = Double.parseDouble(value.trim());
+        factor *= number;
+        return factor;
+    }
+
+    /**
+     * Uses Jvm.parseSize to parse a system property or returns defaultValue if not present, empty or unparseable.
+     *
+     * @param property     to look up
+     * @param defaultValue to use otherwise
+     * @return the size in bytes as a long
+     */
+    public static long getSize(String property, long defaultValue) {
+        String value = System.getProperty(property);
+        if (value == null || value.length() <= 0)
+            return defaultValue;
+        try {
+            return parseSize(value);
+        } catch (IllegalArgumentException iae) {
+            Jvm.warn().on(Jvm.class, "Unable to parse the property " + property + " as a size " + iae.getMessage() + " using " + defaultValue);
+            return defaultValue;
+        }
+    }
+
     public static long address(ByteBuffer bb) {
         return ((DirectBuffer) bb).address();
     }
@@ -1060,6 +1142,14 @@ public enum Jvm {
         }
     }
 
+    public static boolean isAzulZing() {
+        return IS_AZUL_ZING;
+    }
+
+    public static int objectHeaderSize() {
+        return is64bit() && !isAzulZing() ? 12 : 8;
+    }
+
     static class CommonInterruptible {
         static final ThreadLocal<AtomicBoolean> insideTL = ThreadLocal.withInitial(AtomicBoolean::new);
         private final Class clazz;
@@ -1107,13 +1197,5 @@ public enum Jvm {
                 }
             }
         }
-    }
-
-    public static boolean isAzulZing() {
-        return IS_AZUL_ZING;
-    }
-
-    public static int objectHeaderSize() {
-        return is64bit() && !isAzulZing() ? 12 : 8;
     }
 }
