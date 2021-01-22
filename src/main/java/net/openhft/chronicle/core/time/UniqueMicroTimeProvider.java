@@ -52,8 +52,10 @@ public class UniqueMicroTimeProvider implements TimeProvider {
         long time = provider.currentTimeMicros();
         while (true) {
             long time0 = lastTime.get();
-            if (time0 >= time)
+            if (time0 >= time) {
+                assertTime(time, time0);
                 time = time0 + 1;
+            }
             if (lastTime.compareAndSet(time0, time))
                 return time;
             Jvm.nanoPause();
@@ -67,6 +69,7 @@ public class UniqueMicroTimeProvider implements TimeProvider {
         while (true) {
             long time0 = lastTime.get();
             if (time0 >= time / 1000) {
+                assertTime(timeUS, time0);
                 timeUS = time0 + 1;
                 time = timeUS * 1000;
             }
@@ -74,5 +77,9 @@ public class UniqueMicroTimeProvider implements TimeProvider {
                 return time;
             Jvm.nanoPause();
         }
+    }
+
+    private void assertTime(long realTimeUS, long timeUS) {
+        assert (timeUS - realTimeUS) < 1 * 1e6 : "if you call this more than 1 million times a second it will make time go forward";
     }
 }
