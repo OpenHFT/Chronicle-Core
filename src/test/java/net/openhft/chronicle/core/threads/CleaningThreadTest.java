@@ -19,4 +19,13 @@ public class CleaningThreadTest {
         String poll = ints.poll(1, TimeUnit.SECONDS);
         assertEquals(threadName, poll);
     }
+
+    @Test
+    public void testRemove() {
+        int[] counter = {0};
+        CleaningThreadLocal<Integer> ctl = CleaningThreadLocal.withCloseQuietly(() -> counter[0]++);
+        assertEquals(0, (int) ctl.get());
+        CleaningThread.performCleanup(Thread.currentThread());
+        assertEquals(1, (int) ctl.get());
+    }
 }

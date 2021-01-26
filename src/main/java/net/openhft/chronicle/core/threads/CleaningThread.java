@@ -4,6 +4,7 @@ import net.openhft.chronicle.core.Jvm;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /**
  * This will clean up any {@link CleaningThreadLocal} when it completes
@@ -33,12 +34,14 @@ public class CleaningThread extends Thread {
      * This method uses reflection to find the thread locals for a thread and navigates through a
      * {@link WeakReference} to get to its destination, so if a GC has occurred then this may not be able
      * to clean up effectively.
+     *
      * @param thread thread to clean for
      */
     public static void performCleanup(Thread thread) {
         WeakReference[] table;
+        Object o;
         try {
-            Object o = THREAD_LOCALS.get(thread);
+            o = THREAD_LOCALS.get(thread);
             if (o == null)
                 return;
             table = (WeakReference[]) TABLE.get(o);
@@ -49,7 +52,15 @@ public class CleaningThread extends Thread {
         if (table == null)
             return;
 
-        for (WeakReference reference : table) {
+        Method remove;
+        try {
+            remove = o.getClass().getDeclaredMethod("remove", ThreadLocal.class);
+            remove.setAccessible(true);
+        } catch (NoSuchMethodException e) {
+            return;
+        }
+
+        for (WeakReference reference : table.clone()) {
             try {
                 Object key = reference != null ? reference.get() : null;
                 if (!(key instanceof CleaningThreadLocal))
@@ -61,6 +72,8 @@ public class CleaningThread extends Thread {
 
                 CleaningThreadLocal ctl = (CleaningThreadLocal) key;
                 ctl.cleanup(value);
+
+                remove.invoke(o, key);
             } catch (IllegalAccessException e) {
                 Jvm.debug().on(CleaningThreadLocal.class, e.toString());
             } catch (Throwable e) {
