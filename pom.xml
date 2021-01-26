@@ -14,7 +14,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -22,7 +23,7 @@
         <groupId>net.openhft</groupId>
         <artifactId>java-parent-pom</artifactId>
         <version>1.1.24</version>
-        <relativePath />
+        <relativePath/>
     </parent>
 
     <artifactId>chronicle-core</artifactId>
@@ -97,27 +98,27 @@
 
     <build>
         <plugins>
-<!--            <plugin>-->
-<!--                <groupId>net.openhft</groupId>-->
-<!--                <artifactId>binary-compatibility-enforcer-plugin</artifactId>-->
-<!--                <version>1.0.7</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <phase>verify</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>enforcer</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <referenceVersion>2.21ea5</referenceVersion>-->
-<!--                            <artifactsURI>https://teamcity.chronicle.software/repository/download</artifactsURI>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                </executions>-->
-<!--            </plugin>-->
-<!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-javadoc-plugin</artifactId>-->
-<!--            </plugin>-->
+            <!--            <plugin>-->
+            <!--                <groupId>net.openhft</groupId>-->
+            <!--                <artifactId>binary-compatibility-enforcer-plugin</artifactId>-->
+            <!--                <version>1.0.7</version>-->
+            <!--                <executions>-->
+            <!--                    <execution>-->
+            <!--                        <phase>verify</phase>-->
+            <!--                        <goals>-->
+            <!--                            <goal>enforcer</goal>-->
+            <!--                        </goals>-->
+            <!--                        <configuration>-->
+            <!--                            <referenceVersion>2.21ea5</referenceVersion>-->
+            <!--                            <artifactsURI>https://teamcity.chronicle.software/repository/download</artifactsURI>-->
+            <!--                        </configuration>-->
+            <!--                    </execution>-->
+            <!--                </executions>-->
+            <!--            </plugin>-->
+            <!--            <plugin>-->
+            <!--                <groupId>org.apache.maven.plugins</groupId>-->
+            <!--                <artifactId>maven-javadoc-plugin</artifactId>-->
+            <!--            </plugin>-->
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
