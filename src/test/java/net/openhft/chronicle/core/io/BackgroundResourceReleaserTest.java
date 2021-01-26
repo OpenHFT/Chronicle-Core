@@ -48,7 +48,7 @@ public class BackgroundResourceReleaserTest {
         AbstractCloseable.assertCloseablesClosed();
     }
 
-    private void assertBetween(long min, long actual, long max) {
+    static void assertBetween(long min, long actual, long max) {
         if (min <= actual && actual <= max)
             return;
         throw new AssertionError("Not in range " + min + " <= " + actual + " <= " + max);
