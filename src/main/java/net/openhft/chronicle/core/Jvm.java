@@ -110,6 +110,7 @@ public enum Jvm {
     private static final ChainedSignalHandler signalHandlerGlobal;
     private static final boolean RESOURCE_TRACING;
     private static final boolean PROC_EXISTS = new File("/proc").exists();
+    private static final int OBJECT_HEADER_SIZE = (int)UnsafeMemory.INSTANCE.getFieldOffset(ObjectHeaderSizeChecker.class.getFields()[0]);
 
     static {
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
@@ -1147,7 +1148,11 @@ public enum Jvm {
     }
 
     public static int objectHeaderSize() {
-        return is64bit() && !isAzulZing() ? 12 : 8;
+        return OBJECT_HEADER_SIZE;
+    }
+
+    static class ObjectHeaderSizeChecker {
+        public int a;
     }
 
     static class CommonInterruptible {
