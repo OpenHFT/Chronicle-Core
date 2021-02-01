@@ -45,12 +45,10 @@ public class UnsafeMemory implements Memory {
     private static final String MIS_ALIGNED = "mis-aligned";
 
     static {
-//        System.getProperties().entrySet().forEach(System.out::println);
         try {
             Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
             theUnsafe.setAccessible(true);
             UNSAFE = (Unsafe) theUnsafe.get(null);
-            System.out.println("UNSAFE: " + UNSAFE);
         } catch (@NotNull NoSuchFieldException | IllegalAccessException | IllegalArgumentException e) {
             e.printStackTrace();
             throw new AssertionError(e);
