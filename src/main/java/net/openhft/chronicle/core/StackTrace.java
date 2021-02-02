@@ -44,11 +44,18 @@ public class StackTrace extends Throwable {
         if (t == null) return null;
         StackTrace st = new StackTrace(t.toString());
         StackTraceElement[] stackTrace = t.getStackTrace();
-        if (stackTrace.length >= 2) {
-            StackTraceElement[] stackTrace2 = new StackTraceElement[stackTrace.length - 2];
-            System.arraycopy(stackTrace, 2, stackTrace2, 0, stackTrace2.length);
-            st.setStackTrace(stackTrace2);
+        int start = 0;
+        if (stackTrace.length > 2) {
+            if (stackTrace[0].isNativeMethod()) {
+                start++;
+            }
         }
+        if (start > 0) {
+            StackTraceElement[] stackTrace2 = new StackTraceElement[stackTrace.length - start];
+            System.arraycopy(stackTrace, start, stackTrace2, 0, stackTrace2.length);
+            stackTrace = stackTrace2;
+        }
+        st.setStackTrace(stackTrace);
         return st;
     }
 }
