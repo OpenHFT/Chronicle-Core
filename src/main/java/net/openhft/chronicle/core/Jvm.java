@@ -91,8 +91,8 @@ public enum Jvm {
     private static final boolean IS_JAVA_14_PLUS;
     private static final long MAX_DIRECT_MEMORY;
     private static final boolean SAFEPOINT_ENABLED;
-    private static final boolean IS_ARM = Jvm.getBoolean("jvm.isarm") ||
-            System.getProperty("os.arch", "?").startsWith("arm") || System.getProperty("os.arch", "?").startsWith("aarch");
+    private static final boolean IS_ARM = Bootstrap.isArm0();
+
     private static final Map<Class, ClassMetrics> CLASS_METRICS_MAP =
             new ConcurrentHashMap<>();
     private static final Map<Class, Integer> PRIMITIVE_SIZE = new HashMap<Class, Integer>() {{
@@ -110,8 +110,11 @@ public enum Jvm {
     private static final ChainedSignalHandler signalHandlerGlobal;
     private static final boolean RESOURCE_TRACING;
     private static final boolean PROC_EXISTS = new File("/proc").exists();
+    private static final int OBJECT_HEADER_SIZE;
 
     static {
+        Field[] declaredFields = ObjectHeaderSizeChecker.class.getDeclaredFields();
+        OBJECT_HEADER_SIZE = (int) UnsafeMemory.INSTANCE.getFieldOffset(declaredFields[0]);
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
         IS_JAVA_9_PLUS = JVM_JAVA_MAJOR_VERSION > 8; // IS_JAVA_9_PLUS value is used in maxDirectMemory0 method.
         IS_JAVA_12_PLUS = JVM_JAVA_MAJOR_VERSION > 11;
@@ -1147,7 +1150,11 @@ public enum Jvm {
     }
 
     public static int objectHeaderSize() {
-        return is64bit() && !isAzulZing() ? 12 : 8;
+        return OBJECT_HEADER_SIZE;
+    }
+
+    static class ObjectHeaderSizeChecker {
+        public int a;
     }
 
     static class CommonInterruptible {

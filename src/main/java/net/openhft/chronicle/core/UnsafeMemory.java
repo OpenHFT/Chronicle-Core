@@ -50,9 +50,10 @@ public class UnsafeMemory implements Memory {
             theUnsafe.setAccessible(true);
             UNSAFE = (Unsafe) theUnsafe.get(null);
         } catch (@NotNull NoSuchFieldException | IllegalAccessException | IllegalArgumentException e) {
+            e.printStackTrace();
             throw new AssertionError(e);
         }
-        INSTANCE = Jvm.isArm() ? new ARMMemory() : new UnsafeMemory();
+        INSTANCE = Bootstrap.isArm0() ? new ARMMemory() : new UnsafeMemory();
     }
 
     private final AtomicLong nativeMemoryUsed = new AtomicLong();

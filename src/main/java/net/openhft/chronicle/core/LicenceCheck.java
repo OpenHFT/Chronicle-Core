@@ -50,9 +50,10 @@ public interface LicenceCheck {
                 String message = days <= 1 ? "The license expires in 1 day" : "The license expires in " + days + " days";
 
                 if (days > 500)
-                    message = "The license expires about " + (days / 365) + " years";
+                    message = "The license expires in about " + (days / 365) + " years";
 
-                warn().on(LicenceCheck.class, message + ". At which point, this product will stop working, if you wish to renew this licence please contact sales@chronicle.software");
+                if (days < 30)
+                    warn().on(LicenceCheck.class, message + ". At which point, this product will stop working, if you wish to renew this licence please contact sales@chronicle.software");
 
             } catch (Throwable t) {
                 throw Jvm.rethrow(new TimeLimitExceededException("Failed to read expiry date, from '" + expiryDateFile + "'"));
