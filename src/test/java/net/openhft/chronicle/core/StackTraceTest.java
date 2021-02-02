@@ -18,6 +18,6 @@ public class StackTraceTest {
         StackTrace st = StackTrace.forThread(t);
         t.interrupt();
         assertEquals("Thread[background,5,main] on main", st.getMessage());
-        assertEquals("net.openhft.chronicle.core.Jvm.pause", st.getStackTrace()[0].toString().split("\\(")[0]);
+        assertEquals("net.openhft.chronicle.core.Jvm.pause", st.getStackTrace()[0].toString().split("\\(")[0].replaceAll("^app//", ""));
     }
 }
