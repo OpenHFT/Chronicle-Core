@@ -1,14 +1,12 @@
 package net.openhft.chronicle.core;
 
-import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 public class StackTraceTest {
 
-    @NotNull
-    private static void thinking() {
+    static void thinking() {
         Jvm.pause(1000);
     }
 
