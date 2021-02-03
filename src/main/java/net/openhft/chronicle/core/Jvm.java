@@ -239,22 +239,51 @@ public enum Jvm {
         return 10000;
     }
 
+    /**
+     * Returns the compile threshold for the JVM or else an
+     * estimate thereof (e.g. 10_000).
+     * <p>
+     * The compile threshold can be explicitly set using the command
+     * line parameter "-XX:CompileThreshold="
+     *
+     * @return the compile threshold for the JVM or else an
+     *         estimate thereof (e.g. 10_000)
+     */
     public static int compileThreshold() {
         return COMPILE_THRESHOLD;
     }
 
+    /**
+     * Returns the major Java version (e.g. 8, 11 or 17)
+     * @return the major Java version (e.g. 8, 11 or 17)
+     */
     public static int majorVersion() {
         return JVM_JAVA_MAJOR_VERSION;
     }
 
+    /**
+     * Returns if the major Java version is 9 or higher.
+     *
+     * @return if the major Java version is 9 or higher
+     */
     public static boolean isJava9Plus() {
         return IS_JAVA_9_PLUS;
     }
 
+    /**
+     * Returns if the major Java version is 12 or higher.
+     *
+     * @return if the major Java version is 12 or higher
+     */
     public static boolean isJava12Plus() {
         return IS_JAVA_12_PLUS;
     }
 
+    /**
+     * Returns if the major Java version is 14 or higher.
+     *
+     * @return if the major Java version is 14 or higher
+     */
     public static boolean isJava14Plus() {
         return IS_JAVA_14_PLUS;
     }
@@ -273,6 +302,14 @@ public enum Jvm {
         return systemProp != null && systemProp.contains("_64");
     }
 
+    /**
+     * Returns the current process id or, if the process id cannot be determined,
+     * a non-negative random number less than 2^16.
+     *
+     * @return the current process id or, if the process id cannot be determined,
+     *         a non-negative random number less than 2^16
+     */
+    // Todo: Discuss the rational behind the random number. Alternately, 0 could be returned or perhaps -1
     public static int getProcessId() {
         return PROCESS_ID;
     }
@@ -301,7 +338,7 @@ public enum Jvm {
     }
 
     /**
-     * Cast a CheckedException as an unchecked one.
+     * Cast any Throwable (e.g. a checked exception) to a RuntimeException.
      *
      * @param throwable to cast
      * @param <T>       the type of the Throwable
@@ -315,16 +352,16 @@ public enum Jvm {
     }
 
     /**
-     * Append the StackTraceElements to the StringBuilder trimming some internal methods.
+     * Append the provided {@code StackTraceElements} to the provided {@code stringBuilder} trimming some internal methods.
      *
-     * @param sb   to append to
-     * @param stes stack trace elements
+     * @param stringBuilder      to append to
+     * @param stackTraceElements stack trace elements
      */
-    public static void trimStackTrace(@NotNull StringBuilder sb, @NotNull StackTraceElement... stes) {
-        int first = trimFirst(stes);
-        int last = trimLast(first, stes);
+    public static void trimStackTrace(@NotNull StringBuilder stringBuilder, @NotNull StackTraceElement... stackTraceElements) {
+        int first = trimFirst(stackTraceElements);
+        int last = trimLast(first, stackTraceElements);
         for (int i = first; i <= last; i++)
-            sb.append("\n\tat ").append(stes[i]);
+            stringBuilder.append("\n\tat ").append(stackTraceElements[i]);
     }
 
     static int trimFirst(@NotNull StackTraceElement[] stes) {
@@ -351,7 +388,9 @@ public enum Jvm {
     }
 
     /**
-     * @return is the JVM in debug mode.
+     * Returns if the JVM is running in debug mode.
+     *
+     * @return if the JVM is running in debug mode
      */
     @SuppressWarnings("SameReturnValue")
     public static boolean isDebug() {
@@ -359,7 +398,9 @@ public enum Jvm {
     }
 
     /**
-     * @return is the JVM in flight recorder mode.
+     * Returns if the JVM is running in flight recorder mode.
+     *
+     * @return if the JVM is running in flight recorder mode
      */
     @SuppressWarnings("SameReturnValue")
     public static boolean isFlightRecorder() {
@@ -367,24 +408,32 @@ public enum Jvm {
     }
 
     /**
-     * @return is the JVM running in code coverage
+     * Returns if the JVM is running in code coverage mode.
+     *
+     * @return if the JVM is running in code coverage mode
      */
     public static boolean isCodeCoverage() {
         return IS_COVERAGE;
     }
 
     /**
-     * Silently pause for milli seconds.
+     * Silently pause for the provided {@code durationMs} milliseconds.
+     * <p>
+     * If the provided {@code durationMs} is positive, then the
+     * current thread sleeps.
+     * <p>
+     * If the provided {@code durationMs} is zero, then the
+     * current thread yields.
      *
-     * @param millis to sleep for.
+     * @param durationMs to sleep for.
      */
-    public static void pause(long millis) {
-        if (millis <= 0) {
+    public static void pause(long durationMs) {
+        if (durationMs <= 0) {
             Thread.yield();
             return;
         }
         try {
-            Thread.sleep(millis);
+            Thread.sleep(durationMs);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
@@ -406,34 +455,44 @@ public enum Jvm {
     }
 
     /**
-     * This method is designed to be used when the time to be waited is very small, typically under a millisecond.
+     * Pause in a busy loop for the provided {@code durationUs} microseconds.
      *
-     * @param micros Time in micros
+     * This method is designed to be used when the time to be waited is very small,
+     * typically under a millisecond (@{code durationUs < 1_000}).
+     *
+     * @param durationUs Time in durationUs
      */
-    public static void busyWaitMicros(long micros) {
-        busyWaitUntil(System.nanoTime() + (micros * 1_000));
+    public static void busyWaitMicros(long durationUs) {
+        busyWaitUntil(System.nanoTime() + (durationUs * 1_000));
     }
 
     /**
-     * This method is designed to be used when the time to be waited is very small, typically under a millisecond.
+     * Pauses the current thread in a busy loop until the provided {@code waitUntilNs} time is reached.
      *
-     * @param waitUntil nanosecond precision counter value to await.
+     * This method is designed to be used when the time to be waited is very small,
+     * typically under a millisecond (@{code durationNs < 1_000_000}).
+     *
+     * @param waitUntilNs nanosecond precision counter value to await.
      */
-    public static void busyWaitUntil(long waitUntil) {
-        while (waitUntil > System.nanoTime()) {
+    public static void busyWaitUntil(long waitUntilNs) {
+        while (waitUntilNs > System.nanoTime()) {
             Jvm.nanoPause();
         }
     }
 
     /**
-     * Get the Field for a class by name.
+     * Returns the Field for the provided {@code clazz} and the provided {@code fieldName} or
+     * throws an Exception if no such Field exists.
      *
      * @param clazz to get the field for
-     * @param name  of the field
+     * @param fieldName of the field
      * @return the Field.
+     * @throws AssertionError if no such Field exists
      */
-    public static Field getField(@NotNull Class clazz, @NotNull String name) {
-        return getField0(clazz, name, true);
+    // Todo: Should not throw an AssertionError but rather a RuntimeException
+    @NotNull
+    public static Field getField(@NotNull Class clazz, @NotNull String fieldName) {
+        return getField0(clazz, fieldName, true);
     }
 
     static Field getField0(@NotNull Class clazz, @NotNull String name, boolean error) {
@@ -455,9 +514,19 @@ public enum Jvm {
         }
     }
 
-    public static Field getFieldOrNull(@NotNull Class clazz, @NotNull String name) {
+    /**
+     * Returns the Field for the provided {@code clazz} and the provided {@code fieldName} or {@code null}
+     * if no such Field exists.
+     *
+     * @param clazz to get the field for
+     * @param fieldName of the field
+     * @return the Field.
+     * @throws AssertionError if no such Field exists
+     */
+    @Nullable
+    public static Field getFieldOrNull(@NotNull Class clazz, @NotNull String fieldName) {
         try {
-            return getField(clazz, name);
+            return getField(clazz, fieldName);
 
         } catch (AssertionError e) {
             return null;
@@ -465,16 +534,24 @@ public enum Jvm {
     }
 
     /**
-     * get method for class if it exists or throws {@link AssertionError}. This will not detect a default
-     * method unless the class explicitly overrides it
+     * Returns the Method for the provided {@code clazz}, {@code methodName} and
+     * {@code argTypes} or throws an Exception.
+     *
+     * if it exists or throws {@link AssertionError}.
+     * <P>
+     * Default methods are not detected unless the class explicitly overrides it
      *
      * @param clazz class
-     * @param name  name
-     * @param args  args
+     * @param methodName  methodName
+     * @param argTypes argument types
      * @return method
+     * @throws AssertionError if no such Method exists
      */
-    public static Method getMethod(@NotNull Class clazz, @NotNull String name, Class... args) {
-        return getMethod0(clazz, name, args, true);
+
+    // Todo: Should not throw an AssertionError but rather a RuntimeException
+    @NotNull
+    public static Method getMethod(@NotNull Class clazz, @NotNull String methodName, Class... argTypes) {
+        return getMethod0(clazz, methodName, argTypes, true);
     }
 
     private static Method getMethod0(@NotNull Class clazz, @NotNull String name, Class[] args, boolean first) {
@@ -500,32 +577,53 @@ public enum Jvm {
         }
     }
 
-    public static void setAccessible(AccessibleObject h) {
+    /**
+     * Set the accessible flag for the provided {@code accessibleObject} indicating that
+     * the reflected object should suppress Java language access checking when it is used.
+     * <p>
+     * The setting of the accessible flag might be subject to security manager approval.
+     *
+     * @param accessibleObject to modify
+     * @throws SecurityException – if the request is denied.
+     * @see  SecurityManager#checkPermission, RuntimePermission
+     */
+    public static void setAccessible(AccessibleObject accessibleObject) {
         if (IS_JAVA_9_PLUS)
             try {
-                boolean newFlag = (boolean) setAccessible0_Method.invokeExact(h, true);
+                boolean newFlag = (boolean) setAccessible0_Method.invokeExact(accessibleObject, true);
                 assert newFlag;
             } catch (Throwable throwable) {
                 throw Jvm.rethrow(throwable);
             }
         else
-            h.setAccessible(true);
+            accessibleObject.setAccessible(true);
     }
-
-    public static <V> V getValue(@NotNull Object obj, @NotNull String name) {
-        Class<?> aClass = obj.getClass();
-        for (String n : name.split("/")) {
+    /**
+     * Returns the value of the provided {@code fieldName} extracted from the provided {@code target}.
+     * <p>
+     * The provided {@code fieldName} can denote fields of arbitrary depth (e.g. foo.bar.baz, whereby
+     * the foo value will be extracted from the provided {@code target} and then the bar value
+     * will be extracted from the foo value and so on).
+     * @param target used for extraction
+     * @param fieldName denoting the field(s) to extract
+     * @param <V> return type
+     * @return the value of the provided {@code fieldName} extracted from the provided {@code target}
+     */
+    @Nullable
+    public static <V> V getValue(@NotNull Object target, @NotNull String fieldName) {
+        Class<?> aClass = target.getClass();
+        for (String n : fieldName.split("/")) {
             Field f = getField(aClass, n);
             try {
-                obj = f.get(obj);
-                if (obj == null)
+                target = f.get(target);
+                if (target == null)
                     return null;
             } catch (IllegalAccessException e) {
                 throw new AssertionError(e);
             }
-            aClass = obj.getClass();
+            aClass = target.getClass();
         }
-        return (V) obj;
+        return (V) target;
     }
 
     /**
@@ -546,23 +644,44 @@ public enum Jvm {
     }
 
     /**
-     * @return The size of memory used by direct ByteBuffers i.e. ByteBuffer.allocateDirect()
+     * Returns the accumulated amount of memory in bytes used by direct ByteBuffers
+     * or 0 if the value cannot be determined.
+     *<p>
+     * (i.e. ever allocated via ByteBuffer.allocateDirect())
+     *
+     * @return the accumulated amount of memory in bytes used by direct ByteBuffers
+     *         or 0 if the value cannot be determined
      */
     public static long usedDirectMemory() {
         return reservedMemory.get();
     }
 
     /**
-     * @return The size of memory used by UnsafeMemory.allocate()
+     * Returns the accumulated amount of memory used in bytes by UnsafeMemory.allocate().
+     *
+     * @return the accumulated amount of memory used in bytes by UnsafeMemory.allocate()
      */
     public static long usedNativeMemory() {
         return UnsafeMemory.INSTANCE.nativeMemoryUsed();
     }
 
+    /**
+     * Returns the maximum direct memory in bytes that can ever be allocated or 0 if the
+     * value cannot be determined.
+     * (i.e. ever allocated via ByteBuffer.allocateDirect())
+     *
+     * @return the maximum direct memory in bytes that can ever be allocated or 0 if the
+     *         value cannot be determined
+     */
     public static long maxDirectMemory() {
         return MAX_DIRECT_MEMORY;
     }
 
+    /**
+     * Returns if the JVM runs in 64 bit mode.
+     *
+     * @return if the JVM runs in 64 bit mode
+     */
     public static boolean is64bit() {
         return IS_64BIT;
     }
@@ -783,7 +902,10 @@ public enum Jvm {
     }
 
     /**
-     * Helper method for setting the default signals. Every signal handler you register with this method will be called.
+     * Adds the provided {@code signalHandler} to an internal chain of handlers that will be invoked
+     * upon detecting system signals (e.g. HUP, INT, TERM).
+     * <p>
+     * Not all signals are available on all operating systems.
      *
      * @param signalHandler to call on a signal
      */
@@ -813,6 +935,9 @@ public enum Jvm {
         }
     }
 
+    /**
+     * Inserts a low-cost Java safe-point in the code path.
+     */
     public static void safepoint() {
         if (SAFEPOINT_ENABLED)
             if (IS_JAVA_9_PLUS)
@@ -830,23 +955,46 @@ public enum Jvm {
         return SAFEPOINT_ENABLED;
     }
 
-    public static boolean stackTraceEndsWith(String endsWith, int n) {
+    /**
+     * Returns if there is a class name that ends with the provided {@code endsWith} string
+     * when examining the current stack trace of depth at most up to the provided {@code maxDepth}.
+     *
+     * @param endsWith to test against the current stack trace
+     * @param maxDepth to examine
+     * @return if there is a class name that ends with the provided {@code endsWith} string
+     *         when examining the current stack trace of depth at most up to the provided {@code maxDepth}
+     */
+    public static boolean stackTraceEndsWith(String endsWith, int maxDepth) {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        for (int i = n + 2; i < stackTrace.length; i++)
+        for (int i = maxDepth + 2; i < stackTrace.length; i++)
             if (stackTrace[i].getClassName().endsWith(endsWith))
                 return true;
         return false;
     }
 
+    /**
+     * Returns if the JVM runs on a CPU using the ARM architecture.
+     *
+     * @return if the JVM runs on a CPU using the ARM architecture
+     */
     public static boolean isArm() {
         return IS_ARM;
     }
 
-    public static ClassMetrics classMetrics(Class c) throws IllegalArgumentException {
-        return CLASS_METRICS_MAP.computeIfAbsent(c, Jvm::getClassMetrics);
+    /**
+     * Acquires and returns the ClassMetrics for the provided {@code clazz}.
+     *
+     * @param clazz for which ClassMetrics shall be acquired
+     * @return the ClassMetrics for the provided {@code clazz}
+     * @throws IllegalArgumentException if no ClassMetrics can be acquired
+     * @see ClassMetrics
+     */
+    @NotNull
+    public static ClassMetrics classMetrics(Class<?> clazz) throws IllegalArgumentException {
+        return CLASS_METRICS_MAP.computeIfAbsent(clazz, Jvm::getClassMetrics);
     }
 
-    private static ClassMetrics getClassMetrics(Class c) {
+    private static ClassMetrics getClassMetrics(Class<?> c) {
         Class superclass = c.getSuperclass();
         int start = Integer.MAX_VALUE, end = 0;
         for (Field f : c.getDeclaredFields()) {
@@ -884,6 +1032,14 @@ public enum Jvm {
         }
     }
 
+    /**
+     * Returns the user's home directory (e.g. "/home/alice") or "."
+     * if the user's home director cannot be determined.
+     *
+     * @return the user's home directory (e.g. "/home/alice") or "."
+     *         if the user's home director cannot be determined
+     */
+    @NotNull
     public static String userHome() {
         return System.getProperty("user.home", ".");
     }
@@ -892,33 +1048,49 @@ public enum Jvm {
         return tClass.getAnnotation(DontChain.class) != null || tClass.getName().startsWith("java");
     }
 
+    /**
+     * Returns if certain chronicle resources (such as memory regions) are traced.
+     * <p>
+     * Tracing resources incurs slightly less performance but provides a means
+     * of detecting proper release of resources.
+     *
+     * @return if certain chronicle resources (such as memory regions) are traced
+     */
     public static boolean isResourceTracing() {
         return RESOURCE_TRACING;
     }
 
     /**
-     * A more permissive boolean System property flag.
-     * <code>-Dflag</code <code>-Dflag=true</code> <code>-Dflag=yes</code>
-     * are all accepted
+     * Returns if a System Property with the provided {@code systemPropertyKey}
+     * either exists, is set to "yes" or is set to "true".
+     * <p>
+     * This provides a more permissive boolean System systemPropertyKey flag where
+     * {@code -Dflag} {@code -Dflag=true} {@code -Dflag=yes} are all accepted.
      *
-     * @param property name to lookup
-     * @return if true or set
+     * @param systemPropertyKey name to lookup
+     * @return if a System Property with the provided {@code systemPropertyKey}
+     *         either exists, is set to "yes" or is set to "true"
      */
-    public static boolean getBoolean(String property) {
-        return getBoolean(property, false);
+    public static boolean getBoolean(String systemPropertyKey) {
+        return getBoolean(systemPropertyKey, false);
     }
 
     /**
-     * A more permissive boolean System property flag.
-     * <code>-Dflag</code> <code>-Dflag=true</code> <code>-Dflag=yes</code>
-     * are all accepted
+     * Returns if a System Property with the provided {@code systemPropertyKey}
+     * either exists, is set to "yes" or is set to "true" or, if it does not exist,
+     * returns the provided {@code defaultValue}.
+     * <p>
+     * This provides a more permissive boolean System systemPropertyKey flag where
+     * {@code -Dflag} {@code -Dflag=true} {@code -Dflag=yes} are all accepted.
      *
-     * @param property     name to lookup
+     * @param systemPropertyKey     name to lookup
      * @param defaultValue value to be used if unknown
-     * @return if true or set
+     * @return if a System Property with the provided {@code systemPropertyKey}
+     *         either exists, is set to "yes" or is set to "true" or, if it does not exist,
+     *         returns the provided {@code defaultValue}.
      */
-    public static boolean getBoolean(String property, boolean defaultValue) {
-        String value = System.getProperty(property);
+    public static boolean getBoolean(String systemPropertyKey, boolean defaultValue) {
+        String value = System.getProperty(systemPropertyKey);
         if (value == null)
             return defaultValue;
         if (value.isEmpty())
@@ -1011,15 +1183,44 @@ public enum Jvm {
         }
     }
 
-    public static long address(ByteBuffer bb) {
-        return ((DirectBuffer) bb).address();
+    /**
+     * Returns the native address of the provided {@code byteBuffer}.
+     * <p>
+     * <em>Use with caution!</em>. Native address should always be carefully
+     * guarded to prevent unspecified results or even JVM crashes.
+     *
+     * @param byteBuffer from which to extract the native address
+     * @return the native address of the provided {@code byteBuffer}
+     */
+    public static long address(ByteBuffer byteBuffer) {
+        return ((DirectBuffer) byteBuffer).address();
     }
 
+    /**
+     * Returns the array byte base offset used by this JVM.
+     * <p>
+     * The value is the number of bytes that precedes the actual
+     * memory layout of a {@code byte[] } array in a java array object.
+     * <p>
+     * <em>Use with caution!</em>. Native address should always be carefully
+     * guarded to prevent unspecified results or even JVM crashes.
+     *
+     * @return the array byte base offset used by this JVM
+     */
     public static int arrayByteBaseOffset() {
         return Unsafe.ARRAY_BYTE_BASE_OFFSET;
     }
 
-    public static void doNotCloseOnInterrupt(Class clazz, FileChannel fc) {
+    /**
+     * Employs a best-effort of preventing the provided {@code fc } from being automatically closed
+     * whenever the current thread gets interrupted.
+     * <p>
+     * If the effort failed, the provided {@code clazz} is used for logging purposes.
+     *
+     * @param clazz to use for logging should the effort fail.
+     * @param fc to prevent from automatically closing upon interrupt.
+     */
+    public static void doNotCloseOnInterrupt(Class<?> clazz, FileChannel fc) {
         if (Jvm.isJava9Plus())
             doNotCloseOnInterrupt9(clazz, fc);
         else
@@ -1060,11 +1261,12 @@ public enum Jvm {
     }
 
     /**
-     * Makes sure all the jars etc in the current class loader have been added to the class path.
+     * Ensures that all the jars and other resources are added to the class path of the classloader
+     * associated by the provided {@code clazz}.
      *
      * @param clazz to use as a template.
      */
-    public static void addToClassPath(Class clazz) {
+    public static void addToClassPath(Class<?> clazz) {
         ClassLoader cl = clazz.getClassLoader();
         if (!(cl instanceof URLClassLoader))
             return;
@@ -1092,22 +1294,33 @@ public enum Jvm {
         System.setProperty(JAVA_CLASS_PATH, classpath.toString());
     }
 
-    public static double getDouble(String property, double defaultValue) {
-        String value = System.getProperty(property);
+    /**
+     * Returns the System Property associated with the provided {@code systemPropertyKey}
+     * parsed as a {@code double} or, if no such parsable System Property exists,
+     * returns the provided {@code defaultValue}.
+     *
+     * @param systemPropertyKey  to lookup in the System Properties
+     * @param defaultValue       to be used if no parsable key association exists
+     * @return the System Property associated with the provided {@code systemPropertyKey}
+     *         parsed as a {@code double} or, if no such parsable System Property exists,
+     *         returns the provided {@code defaultValue}
+     */
+    public static double getDouble(String systemPropertyKey, double defaultValue) {
+        final String value = System.getProperty(systemPropertyKey);
         if (value != null)
             try {
                 return Double.parseDouble(value);
             } catch (NumberFormatException e) {
-                Jvm.debug().on(Jvm.class, "Unable to parse property " + property + " as a double " + e);
+                Jvm.debug().on(Jvm.class, "Unable to parse property " + systemPropertyKey + " as a double " + e);
             }
         return defaultValue;
     }
 
     /**
-     * checks if a process is still alive
+     * Returns if a process with the provided {@code pid} process id is alive.
      *
-     * @param pid the pid of the process you wish to check
-     * @return true if the process is still alive
+     * @param pid the process id (pid) of the process to check
+     * @return if a process with the provided {@code pid} process id is alive
      */
     public static boolean isProcessAlive(long pid) {
         if (isWindows()) {
