@@ -5,8 +5,9 @@ import net.openhft.chronicle.core.Jvm;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
-public enum ByteBuffers {
-    ;
+public final class ByteBuffers {
+    private ByteBuffers() {}
+
     private static final Field ADDRESS;
     private static final Field CAPACITY;
 

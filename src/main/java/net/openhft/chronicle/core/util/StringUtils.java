@@ -29,8 +29,9 @@ import java.lang.reflect.Field;
 
 import static java.lang.Character.toLowerCase;
 
-public enum StringUtils {
-    ;
+public final class StringUtils {
+    private StringUtils() {
+    }
 
     private static final Field S_VALUE, SB_COUNT, S_CODER, SB_CODER;
     private static final long S_VALUE_OFFSET, SB_VALUE_OFFSET, SB_COUNT_OFFSET, S_COUNT_OFFSET;

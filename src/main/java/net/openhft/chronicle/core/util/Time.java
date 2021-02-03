@@ -30,8 +30,9 @@ import java.util.concurrent.locks.LockSupport;
  * every millisecond; the EventLoop implementations in chronicle-threads do this.
  * </p>
  */
-public enum Time {
-    ;
+public final class Time {
+    private Time() {
+    }
 
     @Deprecated(/* Still widely used */)
     public static long currentTimeMillis() {

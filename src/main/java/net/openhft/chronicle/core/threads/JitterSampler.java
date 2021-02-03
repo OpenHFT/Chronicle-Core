@@ -19,8 +19,10 @@ package net.openhft.chronicle.core.threads;
 
 import java.util.concurrent.TimeUnit;
 
-public enum JitterSampler {
-    ;
+public final class JitterSampler {
+    private JitterSampler() { }
+
+
     public static final String PROFILE_OF_THE_THREAD = "profile of the thread";
     public static final String THREAD_HAS_BLOCKED_FOR = "thread has blocked for";
 

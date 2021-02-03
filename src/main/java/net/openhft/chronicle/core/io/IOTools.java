@@ -43,8 +43,8 @@ import java.util.zip.GZIPOutputStream;
 /*
  * A collection of CONCURRENT utility tools
  */
-public enum IOTools {
-    ;
+public final class IOTools {
+    private IOTools() { }
 
     static volatile Map<Class, AtomicInteger> COUNTER_MAP = new ConcurrentHashMap<>();
 

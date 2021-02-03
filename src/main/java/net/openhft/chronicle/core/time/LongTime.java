@@ -1,7 +1,8 @@
 package net.openhft.chronicle.core.time;
 
-public enum LongTime {
-    ;
+public final class LongTime {
+    private LongTime() {
+    }
 
     public static final long MAX_NANOS = Long.MAX_VALUE; // 2262-04-11T23:47:16.854775807
     public static final long MAX_MICROS = MAX_NANOS / 1000; // 2262-04-11T23:47:16.854775

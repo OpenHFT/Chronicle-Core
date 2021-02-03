@@ -28,8 +28,9 @@ import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
  * These are fast, unsafe ways to render text.
  * NOTE: The caller has to ensure there is always plenty of memory to perform this operation.
  */
-public enum UnsafeText {
-    ;
+public final class UnsafeText {
+    private UnsafeText() {
+    }
 
     private static final long MAX_VALUE_DIVIDE_5 = Long.MAX_VALUE / 5;
     private static final String MIN_VALUE_STR = "" + Long.MIN_VALUE;
