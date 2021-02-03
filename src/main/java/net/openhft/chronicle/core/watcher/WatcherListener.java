@@ -25,7 +25,7 @@ public interface WatcherListener {
      * @param modified false is created, true if modified, null if bootstrapping.
      * @throws IllegalStateException when this listener is no longer valid
      */
-    void onExists(String base, String filename, Boolean modified) throws IllegalStateException;
+    void onExists(String base, String filename, Boolean modified);
 
     /**
      * Notify that a file or directory was removed.
@@ -33,5 +33,5 @@ public interface WatcherListener {
      * @param filename removed.
      * @throws IllegalStateException when this listener is no longer valid
      */
-    void onRemoved(String base, String filename) throws IllegalStateException;
+    void onRemoved(String base, String filename);
 }

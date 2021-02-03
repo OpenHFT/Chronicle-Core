@@ -34,7 +34,7 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public synchronized void reserve(ReferenceOwner id) throws IllegalStateException {
+    public synchronized void reserve(ReferenceOwner id) {
         checkError();
         a.reserve(id);
         b.reserve(id);
@@ -50,7 +50,7 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public synchronized boolean tryReserve(ReferenceOwner id) throws IllegalStateException {
+    public synchronized boolean tryReserve(ReferenceOwner id) {
         checkError();
         boolean aa = a.tryReserve(id);
         boolean bb = b.tryReserve(id);
@@ -63,7 +63,7 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public synchronized void release(ReferenceOwner id) throws IllegalStateException {
+    public synchronized void release(ReferenceOwner id) {
         checkError();
         a.release(id);
         b.release(id);
@@ -74,7 +74,7 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public synchronized void releaseLast(ReferenceOwner id) throws IllegalStateException {
+    public synchronized void releaseLast(ReferenceOwner id) {
         checkError();
         a.releaseLast(id);
         b.releaseLast(id);
@@ -89,13 +89,13 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void throwExceptionIfReleased() throws IllegalStateException {
+    public void throwExceptionIfReleased() {
         checkError();
         a.throwExceptionIfReleased();
     }
 
     @Override
-    public synchronized void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException {
+    public synchronized void reserveTransfer(ReferenceOwner from, ReferenceOwner to) {
         checkError();
         a.reserveTransfer(from, to);
         b.reserveTransfer(from, to);

@@ -33,15 +33,20 @@ public interface IntArrayValues extends Closeable {
 
     void setMaxUsed(long usedAtLeast);
 
-    int getValueAt(long index) throws BufferUnderflowException;
+    //  throws BufferUnderflowException
+    int getValueAt(long index);
 
-    void setValueAt(long index, int value) throws IllegalArgumentException, BufferOverflowException;
+    //  throws IllegalArgumentException, BufferOverflowException
+    void setValueAt(long index, int value);
 
-    int getVolatileValueAt(long index) throws BufferUnderflowException;
+    // throws BufferUnderflowException
+    int getVolatileValueAt(long index);
 
-    void setOrderedValueAt(long index, int value) throws IllegalArgumentException, BufferOverflowException;
+    //  throws IllegalArgumentException, BufferOverflowException
+    void setOrderedValueAt(long index, int value);
 
-    boolean compareAndSet(long index, int expected, int value) throws IllegalArgumentException, BufferOverflowException;
+    //  throws IllegalArgumentException, BufferOverflowException
+    boolean compareAndSet(long index, int expected, int value);
 
     void bindValueAt(long index, IntValue value);
 

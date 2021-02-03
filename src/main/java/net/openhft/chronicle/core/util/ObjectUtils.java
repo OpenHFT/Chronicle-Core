@@ -39,8 +39,10 @@ import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
 import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.MAYBE;
 import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
 
-public enum ObjectUtils {
-    ;
+public final class ObjectUtils {
+    private ObjectUtils() {
+    }
+
 
     static final Map<Class, Class> primMap = new LinkedHashMap<Class, Class>() {{
         put(boolean.class, Boolean.class);
@@ -185,9 +187,9 @@ public enum ObjectUtils {
         return eClass;
     }
 
+    // throws ClassCastException, IllegalArgumentException
     @Nullable
-    public static <E> E convertTo(@Nullable Class<E> eClass, @Nullable Object o)
-            throws ClassCastException, IllegalArgumentException {
+    public static <E> E convertTo(@Nullable Class<E> eClass, @Nullable Object o) {
         // shorter path.
         return eClass == null || o == null || eClass.isInstance(o)
                 ? (E) o
@@ -222,8 +224,8 @@ public enum ObjectUtils {
         return enumConstants[0];
     }
 
-    static <E> E convertTo0(Class<E> eClass, @Nullable Object o)
-            throws ClassCastException, IllegalArgumentException {
+    // throws ClassCastException, IllegalArgumentException
+    static <E> E convertTo0(Class<E> eClass, @Nullable Object o) {
         eClass = primToWrapper(eClass);
         if (eClass.isInstance(o) || o == null) return (E) o;
         if (eClass == Void.class) return null;
@@ -286,9 +288,9 @@ public enum ObjectUtils {
         return cce;
     }
 
+    // throws IllegalArgumentException
     @NotNull
-    private static <E> E convertToArray(@NotNull Class<E> eClass, Object o)
-            throws IllegalArgumentException {
+    private static <E> E convertToArray(@NotNull Class<E> eClass, Object o) {
         int len = sizeOf(o);
         Object array = Array.newInstance(eClass.getComponentType(), len);
         Iterator iter = iteratorFor(o);
@@ -316,7 +318,8 @@ public enum ObjectUtils {
         throw new UnsupportedOperationException();
     }
 
-    private static int sizeOf(Object o) throws IllegalArgumentException {
+    // throws IllegalArgumentException
+    private static int sizeOf(Object o) {
         if (o instanceof Collection)
             return ((Collection) o).size();
         if (o instanceof Map)
@@ -326,8 +329,8 @@ public enum ObjectUtils {
         throw new UnsupportedOperationException();
     }
 
-    private static Number convertToNumber(Class eClass, Object o)
-            throws NumberFormatException {
+    // throws NumberFormatException
+    private static Number convertToNumber(Class eClass, Object o) {
         if (o instanceof Number) {
             @NotNull Number n = (Number) o;
             if (eClass == Double.class)
@@ -409,8 +412,9 @@ public enum ObjectUtils {
         return DEFAULT_MAP.get(type);
     }
 
+    // throws IllegalArgumentException
     @NotNull
-    public static <T> T onMethodCall(@NotNull BiFunction<Method, Object[], Object> biFunction, @NotNull Class<T> tClass, Class... additional) throws IllegalArgumentException {
+    public static <T> T onMethodCall(@NotNull BiFunction<Method, Object[], Object> biFunction, @NotNull Class<T> tClass, Class... additional) {
         Class[] interfaces = addAll(tClass, additional);
         //noinspection unchecked
         return (T) Proxy.newProxyInstance(tClass.getClassLoader(), interfaces, new InvocationHandler() {

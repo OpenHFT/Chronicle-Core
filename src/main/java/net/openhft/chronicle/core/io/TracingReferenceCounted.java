@@ -59,7 +59,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void reserve(ReferenceOwner id) throws IllegalStateException {
+    public void reserve(ReferenceOwner id) {
         tryReserve(id, true);
     }
 
@@ -90,7 +90,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void release(ReferenceOwner id) throws IllegalStateException {
+    public void release(ReferenceOwner id) {
 //        if (Jvm.isDebug())
 //            System.out.println(Thread.currentThread().getName() + " " + uniqueId + " - release " + asString(id));
 
@@ -135,7 +135,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void releaseLast(ReferenceOwner id) throws IllegalStateException {
+    public void releaseLast(ReferenceOwner id) {
         if (references.size() <= 1) {
             release(id);
         } else {
@@ -174,7 +174,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void throwExceptionIfNotReleased() throws IllegalStateException {
+    public void throwExceptionIfNotReleased() {
         synchronized (references) {
             if (references.isEmpty())
                 return;
@@ -220,7 +220,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void throwExceptionIfReleased() throws IllegalStateException {
+    public void throwExceptionIfReleased() {
         if (refCount() <= 0)
             throw new ClosedIllegalStateException(type.getName() + " released", releasedHere);
     }

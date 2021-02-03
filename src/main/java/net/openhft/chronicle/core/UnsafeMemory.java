@@ -136,8 +136,8 @@ public class UnsafeMemory implements Memory {
         UNSAFE.putByte(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, value);
     }
 
-    public static void copyMemory(long from, long to, int length)
-            throws BufferUnderflowException, BufferOverflowException {
+    //      throws BufferUnderflowException, BufferOverflowException
+    public static void copyMemory(long from, long to, int length) {
         long i = 0;
         for (; i < length - 7; i += 8) {
             unsafePutLong(to, unsafeGetLong(from));
@@ -276,7 +276,7 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    public long allocate(long capacity) throws IllegalArgumentException {
+    public long allocate(long capacity) {
         if (capacity <= 0)
             throw new IllegalArgumentException("Invalid capacity: " + capacity);
         long address = UNSAFE.allocateMemory(capacity);
@@ -550,7 +550,7 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    public void testAndSetInt(long address, long offset, int expected, int value) throws IllegalStateException {
+    public void testAndSetInt(long address, long offset, int expected, int value) {
         if (UNSAFE.compareAndSwapInt(null, address, expected, value))
             return;
         int actual = UNSAFE.getIntVolatile(null, address);
@@ -558,7 +558,7 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    public void testAndSetInt(@NotNull Object object, long offset, int expected, int value) throws IllegalStateException {
+    public void testAndSetInt(@NotNull Object object, long offset, int expected, int value) {
         if (UNSAFE.compareAndSwapInt(object, offset, expected, value))
             return;
         int actual = UNSAFE.getIntVolatile(object, offset);
@@ -925,7 +925,7 @@ public class UnsafeMemory implements Memory {
         }
 
         @Override
-        public void testAndSetInt(long address, long offset, int expected, int value) throws IllegalStateException {
+        public void testAndSetInt(long address, long offset, int expected, int value) {
             if ((address & ~0x3) == 0) {
                 if (UNSAFE.compareAndSwapInt(null, address, expected, value)) {
                     return;
@@ -945,7 +945,7 @@ public class UnsafeMemory implements Memory {
         }
 
         @Override
-        public void testAndSetInt(@NotNull Object object, long offset, int expected, int value) throws IllegalStateException {
+        public void testAndSetInt(@NotNull Object object, long offset, int expected, int value) {
             if ((offset & ~0x3) == 0) {
                 if (UNSAFE.compareAndSwapInt(object, offset, expected, value)) {
                     return;

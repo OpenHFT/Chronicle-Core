@@ -112,7 +112,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     protected abstract void performRelease();
 
     @Override
-    public void reserve(ReferenceOwner id) throws IllegalStateException {
+    public void reserve(ReferenceOwner id) {
         if (WARN_COUNT < Integer.MAX_VALUE && referenceCounted.refCount() >= WARN_COUNT)
             if ((referenceCounted.refCount() - WARN_COUNT) % 10 == 0)
                 Jvm.warn().on(getClass(), "high reserve count for " + referenceName() + " was " + referenceCounted.refCount(), new StackTrace("reserved here"));
@@ -120,22 +120,22 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     }
 
     @Override
-    public void release(ReferenceOwner id) throws IllegalStateException {
+    public void release(ReferenceOwner id) {
         referenceCounted.release(id);
     }
 
     @Override
-    public void releaseLast(ReferenceOwner id) throws IllegalStateException {
+    public void releaseLast(ReferenceOwner id) {
         referenceCounted.releaseLast(id);
     }
 
     @Override
-    public boolean tryReserve(ReferenceOwner id) throws IllegalStateException {
+    public boolean tryReserve(ReferenceOwner id) {
         return referenceCounted.tryReserve(id);
     }
 
     @Override
-    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException {
+    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) {
         referenceCounted.reserveTransfer(from, to);
     }
 
@@ -145,7 +145,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     }
 
     @Override
-    public void throwExceptionIfReleased() throws IllegalStateException {
+    public void throwExceptionIfReleased() {
         referenceCounted.throwExceptionIfReleased();
     }
 

@@ -13,7 +13,8 @@ public class ThreadIndexAssigner {
         this.values = values;
     }
 
-    public int getId() throws IllegalStateException {
+    // throws IllegalStateException
+    public int getId() {
         int threadId = Affinity.getThreadId();
         int size = (int) values.getCapacity();
         values.setMaxUsed(size);

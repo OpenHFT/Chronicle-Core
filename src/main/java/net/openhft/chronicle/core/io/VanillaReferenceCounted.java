@@ -42,7 +42,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void reserve(ReferenceOwner id) throws IllegalStateException {
+    public void reserve(ReferenceOwner id) {
         for (; ; ) {
 
             int v = value;
@@ -56,7 +56,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException {
+    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) {
         throwExceptionIfReleased();
     }
 
@@ -78,7 +78,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void release(ReferenceOwner id) throws IllegalStateException {
+    public void release(ReferenceOwner id) {
         for (; ; ) {
             int v = value;
             if (v <= 0) {
@@ -102,7 +102,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void releaseLast(ReferenceOwner id) throws IllegalStateException {
+    public void releaseLast(ReferenceOwner id) {
         for (; ; ) {
             int v = value;
             if (v <= 0) {

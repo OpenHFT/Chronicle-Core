@@ -31,7 +31,7 @@ public class ClassifyingWatcherListener implements WatcherListener {
     final Map<Path, FileManager> fileManagerMap = new TreeMap<>();
 
     @Override
-    public void onExists(String base, String filename, Boolean modified) throws IllegalStateException {
+    public void onExists(String base, String filename, Boolean modified) {
         Path path = Paths.get(base, filename);
         if (fileManagerMap.containsKey(path))
             return;
@@ -46,7 +46,7 @@ public class ClassifyingWatcherListener implements WatcherListener {
     }
 
     @Override
-    public void onRemoved(String base, String filename) throws IllegalStateException {
+    public void onRemoved(String base, String filename) {
         Path path = Paths.get(base, filename);
         FileManager info = fileManagerMap.remove(path);
         if (info != null)

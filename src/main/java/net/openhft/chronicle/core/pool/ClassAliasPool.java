@@ -219,8 +219,9 @@ public class ClassAliasPool implements ClassLookup {
             return value.length();
         }
 
+        // throws IndexOutOfBoundsException
         @Override
-        public char charAt(int index) throws IndexOutOfBoundsException {
+        public char charAt(int index)  {
             return value.charAt(index);
         }
 

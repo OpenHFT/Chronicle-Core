@@ -22,14 +22,14 @@ public abstract class AbstractCloseableReferenceCounted
     }
 
     @Override
-    public void reserve(ReferenceOwner id) throws IllegalStateException {
+    public void reserve(ReferenceOwner id) {
         throwExceptionIfClosed();
 
         super.reserve(id);
     }
 
     @Override
-    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException {
+    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) {
         throwExceptionIfClosed();
 
         super.reserveTransfer(from, to);
@@ -38,19 +38,19 @@ public abstract class AbstractCloseableReferenceCounted
     }
 
     @Override
-    public void release(ReferenceOwner id) throws IllegalStateException {
+    public void release(ReferenceOwner id) {
         super.release(id);
         if (id == INIT) initReleased = true;
     }
 
     @Override
-    public void releaseLast(ReferenceOwner id) throws IllegalStateException {
+    public void releaseLast(ReferenceOwner id) {
         super.releaseLast(id);
         if (id == INIT) initReleased = true;
     }
 
     @Override
-    public boolean tryReserve(ReferenceOwner id) throws IllegalStateException {
+    public boolean tryReserve(ReferenceOwner id) {
         return !closed && super.tryReserve(id);
     }
 
@@ -67,14 +67,15 @@ public abstract class AbstractCloseableReferenceCounted
     }
 
     @Override
-    public void throwExceptionIfClosed() throws IllegalStateException {
+    public void throwExceptionIfClosed() {
         if (closed)
             throw new ClosedIllegalStateException(getClass().getName() + " closed", closedHere);
         throwExceptionIfReleased();
         assert threadSafetyCheck(true);
     }
 
-    protected void throwExceptionIfClosedInSetter() throws IllegalStateException {
+    // throws IllegalStateException
+    protected void throwExceptionIfClosedInSetter() {
         if (closed)
             throw new ClosedIllegalStateException(getClass().getName() + " closed", closedHere);
         throwExceptionIfReleased();

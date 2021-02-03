@@ -103,8 +103,8 @@ public enum UnsafeText {
         return address;
     }
 
-    public static long appendDouble(long address, double d)
-            throws BufferOverflowException, IllegalArgumentException {
+    //      throws BufferOverflowException, IllegalArgumentException
+    public static long appendDouble(long address, double d) {
         long val = Double.doubleToRawLongBits(d);
         int sign = (int) (val >>> 63);
         int exp = (int) ((val >>> 52) & 2047);

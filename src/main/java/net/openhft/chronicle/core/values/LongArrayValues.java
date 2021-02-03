@@ -33,15 +33,20 @@ public interface LongArrayValues extends Closeable {
 
     void setMaxUsed(long usedAtLeast);
 
-    long getValueAt(long index) throws BufferUnderflowException;
+    // throws BufferUnderflowException;
+    long getValueAt(long index);
 
-    void setValueAt(long index, long value) throws IllegalArgumentException, BufferOverflowException;
+    // throws IllegalArgumentException, BufferOverflowException
+    void setValueAt(long index, long value);
 
-    long getVolatileValueAt(long index) throws BufferUnderflowException;
+    // throws BufferUnderflowException
+    long getVolatileValueAt(long index);
 
-    void setOrderedValueAt(long index, long value) throws IllegalArgumentException, BufferOverflowException;
+    //  throws IllegalArgumentException, BufferOverflowException
+    void setOrderedValueAt(long index, long value);
 
-    boolean compareAndSet(long index, long expected, long value) throws IllegalArgumentException, BufferOverflowException;
+    // throws IllegalArgumentException, BufferOverflowException
+    boolean compareAndSet(long index, long expected, long value);
 
     default void bindValueAt(int index, LongValue value) {
         bindValueAt((long) index, value);

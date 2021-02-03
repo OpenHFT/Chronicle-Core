@@ -309,8 +309,11 @@ public enum OS {
 
     /**
      * @return the maximum PID.
+     *
+     * @throws NumberFormatException if ?
+     * @throws AssertionError if ?
      */
-    public static long getPidMax() throws NumberFormatException {
+    public static long getPidMax() {
         if (isLinux()) {
             @NotNull File file = new File("/proc/sys/kernel/pid_max");
             if (file.canRead())

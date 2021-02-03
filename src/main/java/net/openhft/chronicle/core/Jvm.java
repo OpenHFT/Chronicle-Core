@@ -1000,7 +1000,7 @@ public final class Jvm {
      * @see ClassMetrics
      */
     @NotNull
-    public static ClassMetrics classMetrics(final Class<?> clazz) throws IllegalArgumentException {
+    public static ClassMetrics classMetrics(final Class<?> clazz) {
         return CLASS_METRICS_MAP.computeIfAbsent(clazz, Jvm::getClassMetrics);
     }
 

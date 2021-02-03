@@ -33,7 +33,8 @@ public class ParsingCache<E> {
     private final Function<String, E> eFunction;
     protected boolean toggle = false;
 
-    public ParsingCache(int capacity, Function<String, E> eFunction) throws IllegalArgumentException {
+    // throws IllegalArgumentException
+    public ParsingCache(int capacity, Function<String, E> eFunction) {
         this.eFunction = eFunction;
         int n = Maths.nextPower2(capacity, 128);
         shift = Maths.intLog2(n);
