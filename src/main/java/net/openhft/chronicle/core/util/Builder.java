@@ -6,15 +6,15 @@ import java.util.function.Supplier;
 
 /**
  * A Builder of type T is a configurable object that can provide
- * another non-null instance of type T.
+ * another non-null T instance.
  *
  * @param <T> of object provided
  */
 @FunctionalInterface
-public interface Builder<T> extends Supplier<T> {
+public interface Builder<T> {
 
     /**
-     * Builds and returns a non-null instance of type T.
+     * Builds and returns a non-null T instance.
      * <p>
      * The builder always creates a new instance if the
      * instance is mutable. If the instance is immutable,
@@ -32,10 +32,4 @@ public interface Builder<T> extends Supplier<T> {
     @NotNull
     T build();
 
-    @Override
-    @NotNull
-    @Deprecated // For removal now
-    default T get() {
-        return build();
-    }
 }
