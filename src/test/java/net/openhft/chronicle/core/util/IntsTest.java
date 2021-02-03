@@ -1,5 +1,7 @@
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.annotation.Positive;
+import net.openhft.chronicle.core.annotation.Range;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
@@ -66,6 +68,31 @@ public class IntsTest {
         test(0, 17, v -> Ints.requireInRangeClosed(v, 0, 16));
         test(16, -1, v -> Ints.requireInRangeClosed(v, 0, 16));
     }
+
+    @Test
+    public void annotations() {
+        @Positive
+        final int val = Ints.requirePositive(1);
+
+        @Range(from = 8, to = 16, value = "Restricted due to low flying UFOs")
+        final int ranged = Ints.requireInRange(9, 8, 16);
+
+        final Foo foo = new Foo(1);
+        try {
+            new Foo(-1);
+        } catch (IllegalArgumentException ignored) {
+            // Happy path
+        }
+    }
+
+    private static final class Foo {
+        private final int val;
+
+        public Foo(@Positive int val) {
+            this.val = Ints.requirePositive(val);
+        }
+    }
+
 
     private void test(final int happy,
                       final int sad,

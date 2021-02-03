@@ -1,5 +1,7 @@
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.annotation.*;
+
 import static net.openhft.chronicle.core.internal.util.RangeUtil.*;
 
 public final class Ints {
@@ -21,7 +23,7 @@ public final class Ints {
      * @return the provided {@code val} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
-    public static int requirePositive(final int val) {
+    public static int requirePositive(@Positive final int val) {
         if (val < 1)
             throw new IllegalArgumentException(val + IS_NOT_POSITIVE);
         return val;
@@ -42,7 +44,7 @@ public final class Ints {
      * @return the provided {@code val} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
-    public static int requireNegative(final int val) {
+    public static int requireNegative(@Negative final int val) {
         if (val > -1)
             throw new IllegalArgumentException(val + IS_NOT_NEGATIVE);
         return val;
@@ -84,7 +86,7 @@ public final class Ints {
      * @return the provided {@code val} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
-    public static int requireNonPositive(final int val) {
+    public static int requireNonPositive(@NonPositive final int val) {
         if (val > 0)
             throw new IllegalArgumentException(val + IS_POSITIVE);
         return val;
@@ -105,7 +107,7 @@ public final class Ints {
      * @return the provided {@code val} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
-    public static int requireNonNegative(final int val) {
+    public static int requireNonNegative(@NonNegative final int val) {
         if (val < 0)
             throw new IllegalArgumentException(val + IS_NEGATIVE);
         return val;
@@ -175,8 +177,8 @@ public final class Ints {
     }
 
     /**
-     * Checks that the provided {@code val} is between the provided {@code first} (inclusive)
-     * and the provided {@code lastExclusive} (exclusive) (i.e. {@code val ∈ [first, lastExclusive)}).
+     * Checks that the provided {@code val} is between the provided {@code from} (inclusive)
+     * and the provided {@code toExclusive} (exclusive) (i.e. {@code val ∈ [from, toExclusive)}).
      * <p>
      * This method is designed primarily for doing parameter validation in methods
      * and constructors, as demonstrated below:
@@ -190,17 +192,17 @@ public final class Ints {
      * @return the provided {@code val} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
-    public static int requireInRange(final int val,
-                                     final int first,
-                                     final int lastExclusive) {
-        if (val < first || val >= lastExclusive)
-            throw new IllegalArgumentException(val + IS_NOT_IN_THE_RANGE + first + ", " + lastExclusive + ")");
+    public static int requireInRange(@Range final int val,
+                                     final int from,
+                                     final int toExclusive) {
+        if (val < from || val >= toExclusive)
+            throw new IllegalArgumentException(val + IS_NOT_IN_THE_RANGE + from + ", " + toExclusive + ")");
         return val;
     }
 
     /**
-     * Checks that the provided {@code val} is between the provided {@code first} (inclusive)
-     * and the provided {@code lastInclusive} (inclusive) (i.e. {@code val ∈ [first, lastExclusive]).
+     * Checks that the provided {@code val} is between the provided {@code from} (inclusive)
+     * and the provided {@code toInclusive} (inclusive) (i.e. {@code val ∈ [from, lastExclusive]).
      * <p>
      * This method is designed primarily for doing parameter validation in methods
      * and constructors, as demonstrated below:
@@ -214,11 +216,11 @@ public final class Ints {
      * @return the provided {@code val} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
-    public static int requireInRangeClosed(final int val,
-                                           final int first,
-                                           final int lastInclusive) {
-        if (val < first || val > lastInclusive)
-            throw new IllegalArgumentException(val + IS_NOT_IN_THE_RANGE + first + ", " + lastInclusive + "]");
+    public static int requireInRangeClosed(@Range final int val,
+                                           final int from,
+                                           final int toInclusive) {
+        if (val < from || val > toInclusive)
+            throw new IllegalArgumentException(val + IS_NOT_IN_THE_RANGE + from + ", " + toInclusive + "]");
         return val;
     }
 
