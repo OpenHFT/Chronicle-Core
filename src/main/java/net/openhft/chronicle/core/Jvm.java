@@ -59,8 +59,8 @@ import static net.openhft.chronicle.core.OS.*;
 /**
  * Utility class to access information in the JVM.
  */
-public enum Jvm {
-    ;
+public final class Jvm {
+    private Jvm() {}
 
     public static final String JAVA_CLASS_PATH = "java.class.path";
     public static final String SYSTEM_PROPERTIES = "system.properties";
@@ -113,7 +113,7 @@ public enum Jvm {
     private static final int OBJECT_HEADER_SIZE;
 
     static {
-        Field[] declaredFields = ObjectHeaderSizeChecker.class.getDeclaredFields();
+        final Field[] declaredFields = ObjectHeaderSizeChecker.class.getDeclaredFields();
         OBJECT_HEADER_SIZE = (int) UnsafeMemory.INSTANCE.getFieldOffset(declaredFields[0]);
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
         IS_JAVA_9_PLUS = JVM_JAVA_MAJOR_VERSION > 8; // IS_JAVA_9_PLUS value is used in maxDirectMemory0 method.
@@ -164,7 +164,7 @@ public enum Jvm {
     }
 
     private static boolean isAzulZing0() {
-        String vendorVersion = System.getProperty("java.vm.vendor") + System.getProperty("java.vm.version");
+        final String vendorVersion = System.getProperty("java.vm.vendor") + System.getProperty("java.vm.version");
         return vendorVersion.matches("Azul .*zing.*$");
     }
 
@@ -188,7 +188,7 @@ public enum Jvm {
         if (!IS_JAVA_9_PLUS) {
             return null;
         }
-        MethodType signature = MethodType.methodType(boolean.class, boolean.class);
+        final MethodType signature = MethodType.methodType(boolean.class, boolean.class);
         try {
             // Access privateLookupIn() reflectively to support compilation with JDK 8
             Method privateLookupIn = MethodHandles.class.getDeclaredMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
@@ -203,9 +203,9 @@ public enum Jvm {
         // force static initialisation
     }
 
-    private static void loadSystemProperties(String name, boolean wasSet) {
+    private static void loadSystemProperties(final String name, final boolean wasSet) {
         try {
-            ClassLoader classLoader = Jvm.class.getClassLoader();
+            final ClassLoader classLoader = Jvm.class.getClassLoader();
             InputStream is0 = classLoader == null ? null : classLoader.getResourceAsStream(name);
             if (is0 == null) {
                 File file = new File(name);
@@ -218,7 +218,7 @@ public enum Jvm {
                             .on(Jvm.class, "No " + name + " file found");
 
                 } else {
-                    Properties prop = new Properties();
+                    final Properties prop = new Properties();
                     prop.load(is);
                     System.getProperties().putAll(prop);
                     Slf4jExceptionHandler.DEBUG.on(Jvm.class, "Loaded " + name + " with " + prop);
@@ -230,13 +230,13 @@ public enum Jvm {
     }
 
     private static int getCompileThreshold0() {
-        for (@NotNull String inputArgument : INPUT_ARGUMENTS) {
-            @NotNull String prefix = "-XX:CompileThreshold=";
+        for (String inputArgument : INPUT_ARGUMENTS) {
+            final String prefix = "-XX:CompileThreshold=";
             if (inputArgument.startsWith(prefix)) {
                 return Integer.parseInt(inputArgument.substring(prefix.length()));
             }
         }
-        return 10000;
+        return 10_000;
     }
 
     /**
@@ -357,14 +357,14 @@ public enum Jvm {
      * @param stringBuilder      to append to
      * @param stackTraceElements stack trace elements
      */
-    public static void trimStackTrace(@NotNull StringBuilder stringBuilder, @NotNull StackTraceElement... stackTraceElements) {
-        int first = trimFirst(stackTraceElements);
-        int last = trimLast(first, stackTraceElements);
+    public static void trimStackTrace(@NotNull final StringBuilder stringBuilder, @NotNull final StackTraceElement... stackTraceElements) {
+        final int first = trimFirst(stackTraceElements);
+        final int last = trimLast(first, stackTraceElements);
         for (int i = first; i <= last; i++)
             stringBuilder.append("\n\tat ").append(stackTraceElements[i]);
     }
 
-    static int trimFirst(@NotNull StackTraceElement[] stes) {
+    static int trimFirst(@NotNull final StackTraceElement[] stes) {
         if (stes.length > 2 && stes[1].getMethodName().endsWith("afepoint"))
             return 2;
         int first = 0;
@@ -374,7 +374,7 @@ public enum Jvm {
         return Math.max(0, first - 2);
     }
 
-    public static int trimLast(int first, @NotNull StackTraceElement[] stes) {
+    public static int trimLast(final int first, @NotNull final StackTraceElement[] stes) {
         int last = stes.length - 1;
         for (; first < last; last--)
             if (!isInternal(stes[last].getClassName()))
@@ -383,7 +383,7 @@ public enum Jvm {
         return last;
     }
 
-    static boolean isInternal(@NotNull String className) {
+    static boolean isInternal(@NotNull final String className) {
         return className.startsWith("jdk.") || className.startsWith("sun.") || className.startsWith("java.");
     }
 
@@ -427,7 +427,7 @@ public enum Jvm {
      *
      * @param durationMs to sleep for.
      */
-    public static void pause(long durationMs) {
+    public static void pause(final long durationMs) {
         if (durationMs <= 0) {
             Thread.yield();
             return;
@@ -462,7 +462,7 @@ public enum Jvm {
      *
      * @param durationUs Time in durationUs
      */
-    public static void busyWaitMicros(long durationUs) {
+    public static void busyWaitMicros(final long durationUs) {
         busyWaitUntil(System.nanoTime() + (durationUs * 1_000));
     }
 
@@ -474,7 +474,7 @@ public enum Jvm {
      *
      * @param waitUntilNs nanosecond precision counter value to await.
      */
-    public static void busyWaitUntil(long waitUntilNs) {
+    public static void busyWaitUntil(final long waitUntilNs) {
         while (waitUntilNs > System.nanoTime()) {
             Jvm.nanoPause();
         }
@@ -491,20 +491,22 @@ public enum Jvm {
      */
     // Todo: Should not throw an AssertionError but rather a RuntimeException
     @NotNull
-    public static Field getField(@NotNull Class clazz, @NotNull String fieldName) {
+    public static Field getField(@NotNull final Class<?> clazz, @NotNull final String fieldName) {
         return getField0(clazz, fieldName, true);
     }
 
-    static Field getField0(@NotNull Class clazz, @NotNull String name, boolean error) {
+    static Field getField0(@NotNull final Class<?> clazz,
+                           @NotNull final String name,
+                           final boolean error) {
         try {
-            Field field = clazz.getDeclaredField(name);
+            final Field field = clazz.getDeclaredField(name);
             setAccessible(field);
             return field;
 
         } catch (NoSuchFieldException e) {
-            Class superclass = clazz.getSuperclass();
+            final Class<?> superclass = clazz.getSuperclass();
             if (superclass != null) {
-                Field field = getField0(superclass, name, false);
+                final Field field = getField0(superclass, name, false);
                 if (field != null)
                     return field;
             }
@@ -524,7 +526,7 @@ public enum Jvm {
      * @throws AssertionError if no such Field exists
      */
     @Nullable
-    public static Field getFieldOrNull(@NotNull Class clazz, @NotNull String fieldName) {
+    public static Field getFieldOrNull(@NotNull final Class<?> clazz, @NotNull final String fieldName) {
         try {
             return getField(clazz, fieldName);
 
@@ -550,23 +552,28 @@ public enum Jvm {
 
     // Todo: Should not throw an AssertionError but rather a RuntimeException
     @NotNull
-    public static Method getMethod(@NotNull Class clazz, @NotNull String methodName, Class... argTypes) {
+    public static Method getMethod(@NotNull final Class<?> clazz,
+                                   @NotNull final String methodName,
+                                   final Class... argTypes) {
         return getMethod0(clazz, methodName, argTypes, true);
     }
 
-    private static Method getMethod0(@NotNull Class clazz, @NotNull String name, Class[] args, boolean first) {
+    private static Method getMethod0(@NotNull final Class<?> clazz,
+                                     @NotNull final String name,
+                                     final Class[] args,
+                                     final boolean first) {
         try {
-            Method method = clazz.getDeclaredMethod(name, args);
+            final Method method = clazz.getDeclaredMethod(name, args);
             if (!Modifier.isPublic(method.getModifiers()) ||
                     !Modifier.isPublic(method.getDeclaringClass().getModifiers()))
                 setAccessible(method);
             return method;
 
         } catch (NoSuchMethodException e) {
-            Class superclass = clazz.getSuperclass();
+            final Class<?> superclass = clazz.getSuperclass();
             if (superclass != null)
                 try {
-                    Method m = getMethod0(superclass, name, args, false);
+                    final Method m = getMethod0(superclass, name, args, false);
                     if (m != null)
                         return m;
                 } catch (Exception ignored) {
@@ -585,9 +592,10 @@ public enum Jvm {
      *
      * @param accessibleObject to modify
      * @throws SecurityException – if the request is denied.
-     * @see  SecurityManager#checkPermission, RuntimePermission
+     * @see  SecurityManager#checkPermission
+     * @see RuntimePermission
      */
-    public static void setAccessible(AccessibleObject accessibleObject) {
+    public static void setAccessible(@NotNull final AccessibleObject accessibleObject) {
         if (IS_JAVA_9_PLUS)
             try {
                 boolean newFlag = (boolean) setAccessible0_Method.invokeExact(accessibleObject, true);
@@ -610,7 +618,7 @@ public enum Jvm {
      * @return the value of the provided {@code fieldName} extracted from the provided {@code target}
      */
     @Nullable
-    public static <V> V getValue(@NotNull Object target, @NotNull String fieldName) {
+    public static <V> V getValue(@NotNull Object target, @NotNull final String fieldName) {
         Class<?> aClass = target.getClass();
         for (String n : fieldName.split("/")) {
             Field f = getField(aClass, n);
@@ -632,12 +640,12 @@ public enum Jvm {
      * @param lock to log
      * @return the lock.toString plus a stack trace.
      */
-    public static String lockWithStack(@NotNull ReentrantLock lock) {
-        @Nullable Thread t = getValue(lock, "sync/exclusiveOwnerThread");
+    public static String lockWithStack(@NotNull final ReentrantLock lock) {
+        final Thread t = getValue(lock, "sync/exclusiveOwnerThread");
         if (t == null) {
             return lock.toString();
         }
-        @NotNull StringBuilder ret = new StringBuilder();
+        final StringBuilder ret = new StringBuilder();
         ret.append(lock).append(" running at");
         trimStackTrace(ret, t.getStackTrace());
         return ret.toString();
@@ -714,9 +722,10 @@ public enum Jvm {
     }
 
     @NotNull
-    public static Map<ExceptionKey, Integer> recordExceptions(boolean debug, boolean exceptionsOnly,
-                                                              boolean logToSlf4j) {
-        @NotNull Map<ExceptionKey, Integer> map = Collections.synchronizedMap(new LinkedHashMap<>());
+    public static Map<ExceptionKey, Integer> recordExceptions(final boolean debug,
+                                                              final boolean exceptionsOnly,
+                                                              final boolean logToSlf4j) {
+        final Map<ExceptionKey, Integer> map = Collections.synchronizedMap(new LinkedHashMap<>());
         FATAL.defaultHandler(recordingExceptionHandler(LogLevel.FATAL, map, exceptionsOnly, logToSlf4j));
         ERROR.defaultHandler(recordingExceptionHandler(LogLevel.ERROR, map, exceptionsOnly, logToSlf4j));
         WARN.defaultHandler(recordingExceptionHandler(LogLevel.WARN, map, exceptionsOnly, logToSlf4j));
@@ -729,19 +738,21 @@ public enum Jvm {
         return map;
     }
 
-    private static ExceptionHandler recordingExceptionHandler(LogLevel logLevel, Map<ExceptionKey, Integer> map,
-                                                              boolean exceptionsOnly, boolean logToSlf4j) {
-        ExceptionHandler eh = new RecordingExceptionHandler(logLevel, map, exceptionsOnly);
+    private static ExceptionHandler recordingExceptionHandler(final LogLevel logLevel,
+                                                              final Map<ExceptionKey, Integer> map,
+                                                              final boolean exceptionsOnly,
+                                                              final boolean logToSlf4j) {
+        final ExceptionHandler eh = new RecordingExceptionHandler(logLevel, map, exceptionsOnly);
         if (logToSlf4j)
-            eh = new ChainedExceptionHandler(eh, Slf4jExceptionHandler.valueOf(logLevel));
+            return new ChainedExceptionHandler(eh, Slf4jExceptionHandler.valueOf(logLevel));
         return eh;
     }
 
-    public static boolean hasException(@NotNull Map<ExceptionKey, Integer> exceptions) {
+    public static boolean hasException(@NotNull final Map<ExceptionKey, Integer> exceptions) {
 
-        Iterator<ExceptionKey> iterator = exceptions.keySet().iterator();
+        final Iterator<ExceptionKey> iterator = exceptions.keySet().iterator();
         while (iterator.hasNext()) {
-            ExceptionKey k = iterator.next();
+            final ExceptionKey k = iterator.next();
             if ((k.throwable != null && !(k.throwable instanceof StackTrace)) && k.level != LogLevel.DEBUG)
                 return true;
         }
@@ -750,16 +761,16 @@ public enum Jvm {
     }
 
     @Deprecated(/* to be removed in x.22 */)
-    public static void setExceptionsHandlers(@Nullable ExceptionHandler fatal,
-                                             @Nullable ExceptionHandler warn,
-                                             @Nullable ExceptionHandler debug) {
+    public static void setExceptionsHandlers(@Nullable final ExceptionHandler fatal,
+                                             @Nullable final ExceptionHandler warn,
+                                             @Nullable final ExceptionHandler debug) {
         setExceptionHandlers(fatal, warn, debug);
     }
 
     // Note: 'fatal' param will be replaced with 'error' in x.23
-    public static void setExceptionHandlers(@Nullable ExceptionHandler fatal,
-                                            @Nullable ExceptionHandler warn,
-                                            @Nullable ExceptionHandler debug) {
+    public static void setExceptionHandlers(@Nullable final ExceptionHandler fatal,
+                                            @Nullable final ExceptionHandler warn,
+                                            @Nullable final ExceptionHandler debug) {
 
         FATAL.defaultHandler(fatal);
         WARN.defaultHandler(warn);
@@ -767,49 +778,49 @@ public enum Jvm {
     }
 
     // Note: 'fatal' param will be replaced with 'error' in x.23
-    public static void setExceptionHandlers(@Nullable ExceptionHandler fatal,
-                                            @Nullable ExceptionHandler warn,
-                                            @Nullable ExceptionHandler debug,
-                                            @Nullable ExceptionHandler perf) {
+    public static void setExceptionHandlers(@Nullable final ExceptionHandler fatal,
+                                            @Nullable final ExceptionHandler warn,
+                                            @Nullable final ExceptionHandler debug,
+                                            @Nullable final ExceptionHandler perf) {
         setExceptionHandlers(fatal, warn, debug);
         PERF.defaultHandler(perf);
     }
 
     // Use {@link #setExceptionHandlers(ExceptionHandler, ExceptionHandler, ExceptionHandler, ExceptionHandler)} in x.23
-    public static void setExceptionHandlers(@Nullable ExceptionHandler fatal,
-                                            @Nullable ExceptionHandler error,
-                                            @Nullable ExceptionHandler warn,
-                                            @Nullable ExceptionHandler debug,
-                                            @Nullable ExceptionHandler perf) {
+    public static void setExceptionHandlers(@Nullable final ExceptionHandler fatal,
+                                            @Nullable final ExceptionHandler error,
+                                            @Nullable final ExceptionHandler warn,
+                                            @Nullable final ExceptionHandler debug,
+                                            @Nullable final ExceptionHandler perf) {
         setExceptionHandlers(fatal, warn, debug);
         ERROR.defaultHandler(error);
         PERF.defaultHandler(perf);
     }
 
     // Note: 'fatal' param will be replaced with 'error' in x.23
-    public static void setThreadLocalExceptionHandlers(@Nullable ExceptionHandler fatal,
-                                                       @Nullable ExceptionHandler warn,
-                                                       @Nullable ExceptionHandler debug) {
+    public static void setThreadLocalExceptionHandlers(@Nullable final ExceptionHandler fatal,
+                                                       @Nullable final ExceptionHandler warn,
+                                                       @Nullable final ExceptionHandler debug) {
         FATAL.threadLocalHandler(fatal);
         WARN.threadLocalHandler(warn);
         DEBUG.threadLocalHandler(debug);
     }
 
     // Note: 'fatal' param will be replaced with 'error' in x.23
-    public static void setThreadLocalExceptionHandlers(@Nullable ExceptionHandler fatal,
-                                                       @Nullable ExceptionHandler warn,
-                                                       @Nullable ExceptionHandler debug,
-                                                       @Nullable ExceptionHandler perf) {
+    public static void setThreadLocalExceptionHandlers(@Nullable final ExceptionHandler fatal,
+                                                       @Nullable final ExceptionHandler warn,
+                                                       @Nullable final ExceptionHandler debug,
+                                                       @Nullable final ExceptionHandler perf) {
         setThreadLocalExceptionHandlers(fatal, warn, debug);
         PERF.threadLocalHandler(perf);
     }
 
     // Use {@link #setThreadLocalExceptionHandlers(ExceptionHandler, ExceptionHandler, ExceptionHandler, ExceptionHandler)} in x.23
-    public static void setThreadLocalExceptionHandlers(@Nullable ExceptionHandler fatal,
-                                                       @Nullable ExceptionHandler error,
-                                                       @Nullable ExceptionHandler warn,
-                                                       @Nullable ExceptionHandler debug,
-                                                       @Nullable ExceptionHandler perf) {
+    public static void setThreadLocalExceptionHandlers(@Nullable final ExceptionHandler fatal,
+                                                       @Nullable final ExceptionHandler error,
+                                                       @Nullable final ExceptionHandler warn,
+                                                       @Nullable final ExceptionHandler debug,
+                                                       @Nullable final ExceptionHandler perf) {
         setThreadLocalExceptionHandlers(fatal, warn, debug);
         ERROR.threadLocalHandler(error);
         PERF.threadLocalHandler(perf);
@@ -850,28 +861,27 @@ public enum Jvm {
         return DEBUG;
     }
 
-    public static void dumpException(@NotNull Map<ExceptionKey, Integer> exceptions) {
+    public static void dumpException(@NotNull final Map<ExceptionKey, Integer> exceptions) {
         System.out.println("exceptions: " + exceptions.size());
         for (@NotNull Map.Entry<ExceptionKey, Integer> entry : exceptions.entrySet()) {
-            ExceptionKey key = entry.getKey();
+            final ExceptionKey key = entry.getKey();
             System.err.println(key.level + " " + key.clazz.getSimpleName() + " " + key.message);
             if (key.throwable != null)
                 key.throwable.printStackTrace();
-            Integer value = entry.getValue();
+            final Integer value = entry.getValue();
             if (value > 1)
                 System.err.println("Repeated " + value + " times");
         }
         resetExceptionHandlers();
     }
 
-    public static boolean isDebugEnabled(Class aClass) {
+    public static boolean isDebugEnabled(final Class<?> aClass) {
         return DEBUG.isEnabled(aClass) || isDebug();
     }
 
     private static long maxDirectMemory0() {
         try {
-            Class<?> clz;
-
+            final Class<?> clz;
             if (IS_JAVA_9_PLUS) {
                 clz = Class.forName("jdk.internal.misc.VM");
             } else {
@@ -909,21 +919,21 @@ public enum Jvm {
      *
      * @param signalHandler to call on a signal
      */
-    public static void signalHandler(SignalHandler signalHandler) {
+    public static void signalHandler(final SignalHandler signalHandler) {
         if (signalHandlerGlobal.handlers.isEmpty()) {
             if (!OS.isWindows()) // not available on windows.
                 addSignalHandler("HUP", signalHandlerGlobal);
             addSignalHandler("INT", signalHandlerGlobal);
             addSignalHandler("TERM", signalHandlerGlobal);
         }
-        SignalHandler signalHandler2 = signal -> {
+        final SignalHandler signalHandler2 = signal -> {
             Jvm.warn().on(signalHandler.getClass(), "Signal " + signal.getName() + " triggered");
             signalHandler.handle(signal);
         };
         signalHandlerGlobal.handlers.add(signalHandler2);
     }
 
-    private static void addSignalHandler(String sig, SignalHandler signalHandler) {
+    private static void addSignalHandler(final String sig, final SignalHandler signalHandler) {
         try {
             Signal.handle(new Signal(sig), signalHandler);
 
@@ -964,7 +974,7 @@ public enum Jvm {
      * @return if there is a class name that ends with the provided {@code endsWith} string
      *         when examining the current stack trace of depth at most up to the provided {@code maxDepth}
      */
-    public static boolean stackTraceEndsWith(String endsWith, int maxDepth) {
+    public static boolean stackTraceEndsWith(final String endsWith, final int maxDepth) {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         for (int i = maxDepth + 2; i < stackTrace.length; i++)
             if (stackTrace[i].getClassName().endsWith(endsWith))
@@ -990,12 +1000,12 @@ public enum Jvm {
      * @see ClassMetrics
      */
     @NotNull
-    public static ClassMetrics classMetrics(Class<?> clazz) throws IllegalArgumentException {
+    public static ClassMetrics classMetrics(final Class<?> clazz) throws IllegalArgumentException {
         return CLASS_METRICS_MAP.computeIfAbsent(clazz, Jvm::getClassMetrics);
     }
 
-    private static ClassMetrics getClassMetrics(Class<?> c) {
-        Class superclass = c.getSuperclass();
+    private static ClassMetrics getClassMetrics(final Class<?> c) {
+        final Class<?> superclass = c.getSuperclass();
         int start = Integer.MAX_VALUE, end = 0;
         for (Field f : c.getDeclaredFields()) {
             if ((f.getModifiers() & (Modifier.STATIC | Modifier.TRANSIENT)) != 0)
@@ -1008,7 +1018,7 @@ public enum Jvm {
             end = Math.max(start0 + size, end);
         }
         if (superclass != null && superclass != Object.class) {
-            ClassMetrics cm0 = getClassMetrics(superclass);
+            final ClassMetrics cm0 = getClassMetrics(superclass);
             start = Math.min(cm0.offset(), start);
             end = Math.max(cm0.offset() + cm0.length(), end);
             validateClassMetrics(superclass, start, end);
@@ -1019,13 +1029,15 @@ public enum Jvm {
         return new ClassMetrics(start, end - start);
     }
 
-    private static void validateClassMetrics(Class c, int start, int end) {
+    private static void validateClassMetrics(final Class<?> c,
+                                             final int start,
+                                             final int end) {
         for (Field f : c.getDeclaredFields()) {
             if ((f.getModifiers() & Modifier.STATIC) != 0)
                 continue;
             if (f.getType().isPrimitive())
                 continue;
-            int start0 = Math.toIntExact(UnsafeMemory.unsafeObjectFieldOffset(f));
+            final int start0 = Math.toIntExact(UnsafeMemory.unsafeObjectFieldOffset(f));
             if (start <= start0 && start0 < end) {
                 throw new IllegalArgumentException(c + " is not suitable for raw copies due to " + f);
             }
@@ -1044,7 +1056,7 @@ public enum Jvm {
         return System.getProperty("user.home", ".");
     }
 
-    public static boolean dontChain(Class tClass) {
+    public static boolean dontChain(final Class<?> tClass) {
         return tClass.getAnnotation(DontChain.class) != null || tClass.getName().startsWith("java");
     }
 
@@ -1071,7 +1083,7 @@ public enum Jvm {
      * @return if a System Property with the provided {@code systemPropertyKey}
      *         either exists, is set to "yes" or is set to "true"
      */
-    public static boolean getBoolean(String systemPropertyKey) {
+    public static boolean getBoolean(final String systemPropertyKey) {
         return getBoolean(systemPropertyKey, false);
     }
 
@@ -1089,13 +1101,13 @@ public enum Jvm {
      *         either exists, is set to "yes" or is set to "true" or, if it does not exist,
      *         returns the provided {@code defaultValue}.
      */
-    public static boolean getBoolean(String systemPropertyKey, boolean defaultValue) {
-        String value = System.getProperty(systemPropertyKey);
+    public static boolean getBoolean(final String systemPropertyKey, final boolean defaultValue) {
+        final String value = System.getProperty(systemPropertyKey);
         if (value == null)
             return defaultValue;
         if (value.isEmpty())
             return true;
-        String trim = value.trim();
+        final String trim = value.trim();
         return defaultValue
                 ? !ObjectUtils.isFalse(trim)
                 : ObjectUtils.isTrue(trim);
@@ -1121,7 +1133,7 @@ public enum Jvm {
      * @return the size
      * @throws IllegalArgumentException if the string could be parsed
      */
-    public static long parseSize(String value) throws IllegalArgumentException {
+    public static long parseSize(@NotNull String value) throws IllegalArgumentException {
         long factor = 1;
 
         if (value.length() > 1) {
@@ -1171,8 +1183,8 @@ public enum Jvm {
      * @param defaultValue to use otherwise
      * @return the size in bytes as a long
      */
-    public static long getSize(String property, long defaultValue) {
-        String value = System.getProperty(property);
+    public static long getSize(final String property, final long defaultValue) {
+        final String value = System.getProperty(property);
         if (value == null || value.length() <= 0)
             return defaultValue;
         try {
@@ -1192,7 +1204,7 @@ public enum Jvm {
      * @param byteBuffer from which to extract the native address
      * @return the native address of the provided {@code byteBuffer}
      */
-    public static long address(ByteBuffer byteBuffer) {
+    public static long address(@NotNull final ByteBuffer byteBuffer) {
         return ((DirectBuffer) byteBuffer).address();
     }
 
@@ -1220,19 +1232,19 @@ public enum Jvm {
      * @param clazz to use for logging should the effort fail.
      * @param fc to prevent from automatically closing upon interrupt.
      */
-    public static void doNotCloseOnInterrupt(Class<?> clazz, FileChannel fc) {
+    public static void doNotCloseOnInterrupt(final Class<?> clazz, final FileChannel fc) {
         if (Jvm.isJava9Plus())
             doNotCloseOnInterrupt9(clazz, fc);
         else
             doNotCloseOnInterrupt8(clazz, fc);
     }
 
-    private static void doNotCloseOnInterrupt8(Class clazz, FileChannel fc) {
+    private static void doNotCloseOnInterrupt8(final Class<?> clazz, final FileChannel fc) {
         try {
             final Field field = AbstractInterruptibleChannel.class
                     .getDeclaredField("interruptor");
             Jvm.setAccessible(field);
-            CommonInterruptible ci = new CommonInterruptible(clazz, fc);
+            final CommonInterruptible ci = new CommonInterruptible(clazz, fc);
             field.set(fc, (Interruptible) thread -> ci.interrupt());
         } catch (Throwable e) {
             Jvm.warn().on(clazz, "Couldn't disable close on interrupt", e);
@@ -1241,12 +1253,12 @@ public enum Jvm {
 
     // based on a solution by https://stackoverflow.com/users/9199167/max-vollmer
     // https://stackoverflow.com/a/52262779/57695
-    private static void doNotCloseOnInterrupt9(Class clazz, final FileChannel fc) {
+    private static void doNotCloseOnInterrupt9(final Class<?> clazz, final FileChannel fc) {
         try {
             final Field field = AbstractInterruptibleChannel.class.getDeclaredField("interruptor");
             final Class<?> interruptibleClass = field.getType();
             Jvm.setAccessible(field);
-            CommonInterruptible ci = new CommonInterruptible(clazz, fc);
+            final CommonInterruptible ci = new CommonInterruptible(clazz, fc);
             field.set(fc, Proxy.newProxyInstance(
                     interruptibleClass.getClassLoader(),
                     new Class[]{interruptibleClass},
@@ -1266,7 +1278,7 @@ public enum Jvm {
      *
      * @param clazz to use as a template.
      */
-    public static void addToClassPath(Class<?> clazz) {
+    public static void addToClassPath(@NotNull final Class<?> clazz) {
         ClassLoader cl = clazz.getClassLoader();
         if (!(cl instanceof URLClassLoader))
             return;
@@ -1305,7 +1317,7 @@ public enum Jvm {
      *         parsed as a {@code double} or, if no such parsable System Property exists,
      *         returns the provided {@code defaultValue}
      */
-    public static double getDouble(String systemPropertyKey, double defaultValue) {
+    public static double getDouble(final String systemPropertyKey, final double defaultValue) {
         final String value = System.getProperty(systemPropertyKey);
         if (value != null)
             try {
@@ -1324,27 +1336,27 @@ public enum Jvm {
      */
     public static boolean isProcessAlive(long pid) {
         if (isWindows()) {
-            String command = "cmd /c tasklist /FI \"PID eq " + pid + "\"";
+            final String command = "cmd /c tasklist /FI \"PID eq " + pid + "\"";
             return isProcessAlive0(pid, command);
         }
         if (isLinux() && PROC_EXISTS) {
             return new File("/proc/" + pid).exists();
         }
         if (isMacOSX() || isLinux()) {
-            String command = "ps -p " + pid;
+            final String command = "ps -p " + pid;
             return isProcessAlive0(pid, command);
         }
 
         throw new UnsupportedOperationException("Not supported on this OS");
     }
 
-    private static boolean isProcessAlive0(long pid, String command) {
+    private static boolean isProcessAlive0(final long pid, final String command) {
 
         try {
             InputStreamReader isReader = new InputStreamReader(
                     getRuntime().exec(command).getInputStream());
 
-            BufferedReader bReader = new BufferedReader(isReader);
+            final BufferedReader bReader = new BufferedReader(isReader);
             String strLine;
             while ((strLine = bReader.readLine()) != null) {
                 if (strLine.contains(" " + pid + " ") || strLine.startsWith(pid + " ")) {
@@ -1370,18 +1382,18 @@ public enum Jvm {
         public int a;
     }
 
-    static class CommonInterruptible {
+    static final class CommonInterruptible {
         static final ThreadLocal<AtomicBoolean> insideTL = ThreadLocal.withInitial(AtomicBoolean::new);
-        private final Class clazz;
+        private final Class<?> clazz;
         private final FileChannel fc;
 
-        CommonInterruptible(Class clazz, FileChannel fc) {
+        CommonInterruptible(Class<?> clazz, FileChannel fc) {
             this.clazz = clazz;
             this.fc = fc;
         }
 
         public void interrupt() {
-            AtomicBoolean inside = insideTL.get();
+            final AtomicBoolean inside = insideTL.get();
             if (inside.get())
                 return;
             inside.set(true);
@@ -1393,7 +1405,7 @@ public enum Jvm {
     }
 
     // from https://stackoverflow.com/questions/62550828/is-there-a-lightweight-method-which-adds-a-safepoint-in-java-9
-    static class Safepoint {
+    static final class Safepoint {
         // must be volatile
         private static volatile int one = 1;
 
@@ -1403,11 +1415,11 @@ public enum Jvm {
         }
     }
 
-    static class ChainedSignalHandler implements SignalHandler {
+    static final class ChainedSignalHandler implements SignalHandler {
         final List<SignalHandler> handlers = new CopyOnWriteArrayList<>();
 
         @Override
-        public void handle(Signal signal) {
+        public void handle(final Signal signal) {
             for (SignalHandler handler : handlers) {
                 try {
                     if (handler != null)
