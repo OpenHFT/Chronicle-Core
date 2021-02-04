@@ -59,57 +59,8 @@ import static net.openhft.chronicle.core.OS.*;
 /**
  * Utility class to access information in the JVM.
  */
-public final class Jvm {
-    static {
-        final Field[] declaredFields = ObjectHeaderSizeChecker.class.getDeclaredFields();
-        OBJECT_HEADER_SIZE = (int) UnsafeMemory.INSTANCE.getFieldOffset(declaredFields[0]);
-        JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
-        IS_JAVA_9_PLUS = JVM_JAVA_MAJOR_VERSION > 8; // IS_JAVA_9_PLUS value is used in maxDirectMemory0 method.
-        IS_JAVA_12_PLUS = JVM_JAVA_MAJOR_VERSION > 11;
-        IS_JAVA_14_PLUS = JVM_JAVA_MAJOR_VERSION > 13;
-        // get this here before we call getField
-        setAccessible0_Method = get_setAccessible0_Method();
-        MAX_DIRECT_MEMORY = maxDirectMemory0();
-
-        Supplier<Long> reservedMemoryGetter;
-        try {
-            final Class<?> bitsClass = Class.forName("java.nio.Bits");
-            final Field firstTry = getFieldOrNull(bitsClass, "reservedMemory");
-            final Field f = firstTry != null ? firstTry : getField(bitsClass, "RESERVED_MEMORY");
-            if (f.getType() == AtomicLong.class) {
-                AtomicLong reservedMemory = (AtomicLong) f.get(null);
-                reservedMemoryGetter = reservedMemory::get;
-            } else {
-                reservedMemoryGetter = ThrowingSupplier.asSupplier(() -> f.getLong(null));
-            }
-        } catch (Exception e) {
-            System.err.println(Jvm.class.getName() + ": Unable to determine the reservedMemory value, will always report 0");
-            reservedMemoryGetter = () -> 0L;
-        }
-        reservedMemory = reservedMemoryGetter;
-        signalHandlerGlobal = new ChainedSignalHandler();
-
-        MethodHandle onSpinWait = null;
-        if (IS_JAVA_9_PLUS) {
-            try {
-                onSpinWait = MethodHandles.lookup()
-                        .findStatic(Thread.class, "onSpinWait", MethodType.methodType(Void.TYPE));
-            } catch (Exception ignored) {
-            }
-        }
-        onSpinWaitMH = onSpinWait;
-
-        findAndLoadSystemProperties();
-
-        SAFEPOINT_ENABLED = Jvm.getBoolean("jvm.safepoint.enabled");
-
-        RESOURCE_TRACING = Jvm.getBoolean("jvm.resource.tracing");
-
-        Logger logger = LoggerFactory.getLogger(Jvm.class);
-        logger.info("Chronicle core loaded from " + Jvm.class.getProtectionDomain().getCodeSource().getLocation());
-        if (RESOURCE_TRACING)
-            logger.warn("Resource tracing is turned on. If you are performance testing or running in PROD you probably don't want this");
-    }
+public enum Jvm {
+    ;
 
     public static final String JAVA_CLASS_PATH = "java.class.path";
     public static final String SYSTEM_PROPERTIES = "system.properties";
@@ -161,7 +112,55 @@ public final class Jvm {
     private static final boolean PROC_EXISTS = new File("/proc").exists();
     private static final int OBJECT_HEADER_SIZE;
 
-    private Jvm() {
+    static {
+        final Field[] declaredFields = ObjectHeaderSizeChecker.class.getDeclaredFields();
+        OBJECT_HEADER_SIZE = (int) UnsafeMemory.INSTANCE.getFieldOffset(declaredFields[0]);
+        JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
+        IS_JAVA_9_PLUS = JVM_JAVA_MAJOR_VERSION > 8; // IS_JAVA_9_PLUS value is used in maxDirectMemory0 method.
+        IS_JAVA_12_PLUS = JVM_JAVA_MAJOR_VERSION > 11;
+        IS_JAVA_14_PLUS = JVM_JAVA_MAJOR_VERSION > 13;
+        // get this here before we call getField
+        setAccessible0_Method = get_setAccessible0_Method();
+        MAX_DIRECT_MEMORY = maxDirectMemory0();
+
+        Supplier<Long> reservedMemoryGetter;
+        try {
+            final Class<?> bitsClass = Class.forName("java.nio.Bits");
+            final Field firstTry = getFieldOrNull(bitsClass, "reservedMemory");
+            final Field f = firstTry != null ? firstTry : getField(bitsClass, "RESERVED_MEMORY");
+            if (f.getType() == AtomicLong.class) {
+                AtomicLong reservedMemory = (AtomicLong) f.get(null);
+                reservedMemoryGetter = reservedMemory::get;
+            } else {
+                reservedMemoryGetter = ThrowingSupplier.asSupplier(() -> f.getLong(null));
+            }
+        } catch (Exception e) {
+            System.err.println(Jvm.class.getName() + ": Unable to determine the reservedMemory value, will always report 0");
+            reservedMemoryGetter = () -> 0L;
+        }
+        reservedMemory = reservedMemoryGetter;
+        signalHandlerGlobal = new ChainedSignalHandler();
+
+        MethodHandle onSpinWait = null;
+        if (IS_JAVA_9_PLUS) {
+            try {
+                onSpinWait = MethodHandles.lookup()
+                        .findStatic(Thread.class, "onSpinWait", MethodType.methodType(Void.TYPE));
+            } catch (Exception ignored) {
+            }
+        }
+        onSpinWaitMH = onSpinWait;
+
+        findAndLoadSystemProperties();
+
+        SAFEPOINT_ENABLED = Jvm.getBoolean("jvm.safepoint.enabled");
+
+        RESOURCE_TRACING = Jvm.getBoolean("jvm.resource.tracing");
+
+        Logger logger = LoggerFactory.getLogger(Jvm.class);
+        logger.info("Chronicle core loaded from " + Jvm.class.getProtectionDomain().getCodeSource().getLocation());
+        if (RESOURCE_TRACING)
+            logger.warn("Resource tracing is turned on. If you are performance testing or running in PROD you probably don't want this");
     }
 
     private static boolean isAzulZing0() {
