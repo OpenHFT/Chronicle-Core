@@ -241,23 +241,25 @@ public final class Maths {
 
     /**
      * Returns the next power of two.
-     * @param n to find the next power of two from
+     *
+     * @param n   to find the next power of two from
      * @param min if n < min then use min
      * @return the next power of two
      * @throws IllegalArgumentException if the provided {@code min} value is not a power of two.
      */
-    public static int nextPower2(int n, int min) {
+    public static int nextPower2(int n, int min) throws IllegalArgumentException {
         return (int) Math.min(1 << 30, nextPower2(n, (long) min));
     }
 
     /**
      * Returns the next power of two.
-     * @param n to find the next power of two from
+     *
+     * @param n   to find the next power of two from
      * @param min if n < min then use min
      * @return the next power of two
      * @throws IllegalArgumentException if the provided {@code min} value is not a power of two.
      */
-    public static long nextPower2(long n, long min) {
+    public static long nextPower2(long n, long min) throws IllegalArgumentException {
         if (!isPowerOf2(min))
             throw new IllegalArgumentException(min + " must be a power of 2");
         if (n < min) return min;
@@ -302,10 +304,14 @@ public final class Maths {
     public static long hash64(@NotNull CharSequence cs) {
         if (cs instanceof String)
             return hash64((String) cs);
-        long hash = 0;
-        for (int i = 0, len = cs.length(); i < len; i++)
-            hash = hash * 0x32246e3d + cs.charAt(i);
-        return agitate(hash);
+        try {
+            long hash = 0;
+            for (int i = 0, len = cs.length(); i < len; i++)
+                hash = hash * 0x32246e3d + cs.charAt(i);
+            return agitate(hash);
+        } catch (IndexOutOfBoundsException e) {
+            throw new AssertionError(e);
+        }
     }
 
     public static long hash64(@NotNull String s) {
@@ -344,7 +350,7 @@ public final class Maths {
      *
      * @throws IllegalArgumentException if the given number &lt;= 0
      */
-    public static int intLog2(long num) {
+    public static int intLog2(long num) throws IllegalArgumentException {
         if (num <= 0)
             throw new IllegalArgumentException("positive argument expected, " + num + " given");
         return 63 - Long.numberOfLeadingZeros(num);
@@ -356,13 +362,12 @@ public final class Maths {
      *
      * @param value the long value
      * @return the argument as a byte
-     * @throws IllegalArgumentException if the {@code argument} overflows a byte
+     * @throws ArithmeticException if the {@code argument} overflows a byte
      */
-    // Todo: The method should throw an ArithmeticException rather than an IllegalArgumentException. See Math.toIntExact()
-    public static byte toInt8(long value)  {
+    public static byte toInt8(long value) throws ArithmeticException {
         if ((byte) value == value)
             return (byte) value;
-        throw new IllegalArgumentException("Byte " + value + OUT_OF_RANGE);
+        throw new ArithmeticException("Byte " + value + OUT_OF_RANGE);
     }
 
     /**
@@ -371,13 +376,12 @@ public final class Maths {
      *
      * @param value the long value
      * @return the argument as a short
-     * @throws IllegalArgumentException if the {@code argument} overflows a short
+     * @throws ArithmeticException if the {@code argument} overflows a short
      */
-    // Todo: The method should throw an ArithmeticException rather than an IllegalArgumentException. See Math.toIntExact()
-    public static short toInt16(long value) {
+    public static short toInt16(long value) throws ArithmeticException {
         if ((short) value == value)
             return (short) value;
-        throw new IllegalArgumentException("Short " + value + OUT_OF_RANGE);
+        throw new ArithmeticException("Short " + value + OUT_OF_RANGE);
     }
 
     /**
@@ -385,15 +389,14 @@ public final class Maths {
      * throwing an exception if the value overflows an {@code int}.
      *
      * @param value the long value
-     * @param msg to use in a potential exception message
+     * @param msg   to use in a potential exception message
      * @return the argument as an int
-     * @throws IllegalArgumentException if the {@code argument} overflows an int
+     * @throws ArithmeticException if the {@code argument} overflows an int
      */
-    // Todo: The method should throw an ArithmeticException rather than an IllegalArgumentException. See Math.toIntExact()
-    public static int toInt32(long value, @NotNull String msg) {
+    public static int toInt32(long value, @NotNull String msg) throws ArithmeticException {
         if ((int) value == value)
             return (int) value;
-        throw new IllegalArgumentException(String.format(msg, value));
+        throw new ArithmeticException(String.format(msg, value));
     }
 
     /**
@@ -402,13 +405,12 @@ public final class Maths {
      *
      * @param value the long value
      * @return the argument as an int
-     * @throws IllegalArgumentException if the {@code argument} overflows an int
+     * @throws ArithmeticException if the {@code argument} overflows an int
      */
-    // Todo: The method should throw an ArithmeticException rather than an IllegalArgumentException. See Math.toIntExact()
-    public static int toInt32(long value) {
+    public static int toInt32(long value) throws ArithmeticException {
         if ((int) value == value)
             return (int) value;
-        throw new IllegalArgumentException("Int " + value + OUT_OF_RANGE);
+        throw new ArithmeticException("Int " + value + OUT_OF_RANGE);
     }
 
     /**
@@ -417,13 +419,12 @@ public final class Maths {
      *
      * @param value the long value
      * @return the argument as a short
-     * @throws IllegalArgumentException if the {@code argument} overflows an unsigned byte
+     * @throws ArithmeticException if the {@code argument} overflows an unsigned byte
      */
-    // Todo: The method should throw an ArithmeticException rather than an IllegalArgumentException. See Math.toIntExact()
-    public static short toUInt8(long value) {
+    public static short toUInt8(long value) throws ArithmeticException {
         if ((value & 0xFF) == value)
             return (short) value;
-        throw new IllegalArgumentException("Unsigned Byte " + value + OUT_OF_RANGE);
+        throw new ArithmeticException("Unsigned Byte " + value + OUT_OF_RANGE);
     }
 
     /**
@@ -432,13 +433,12 @@ public final class Maths {
      *
      * @param value the long value
      * @return the argument as an int
-     * @throws IllegalArgumentException if the {@code argument} overflows an unsigned short
+     * @throws ArithmeticException if the {@code argument} overflows an unsigned short
      */
-    // Todo: The method should throw an ArithmeticException rather than an IllegalArgumentException. See Math.toIntExact()
-    public static int toUInt16(long value) {
+    public static int toUInt16(long value) throws ArithmeticException {
         if ((value & 0xFFFF) == value)
             return (int) value;
-        throw new IllegalArgumentException("Unsigned Short " + value + OUT_OF_RANGE);
+        throw new ArithmeticException("Unsigned Short " + value + OUT_OF_RANGE);
     }
 
     /**
@@ -447,13 +447,12 @@ public final class Maths {
      *
      * @param value the long value
      * @return the argument as a long
-     * @throws IllegalArgumentException if the {@code argument} overflows an unsigned int
+     * @throws ArithmeticException if the {@code argument} overflows an unsigned int
      */
-    // Todo: The method should throw an ArithmeticException rather than an IllegalArgumentException. See Math.toIntExact()
-    public static int toUInt31(long value) {
+    public static int toUInt31(long value) throws ArithmeticException {
         if ((value & 0x7FFFFFFFL) == value)
             return (int) value;
-        throw new IllegalArgumentException("Unsigned Int 31-bit " + value + OUT_OF_RANGE);
+        throw new ArithmeticException("Unsigned Int 31-bit " + value + OUT_OF_RANGE);
     }
 
     /**
@@ -462,13 +461,12 @@ public final class Maths {
      *
      * @param value the long value
      * @return the argument as a long
-     * @throws IllegalArgumentException if the {@code argument} overflows an unsigned int
+     * @throws ArithmeticException if the {@code argument} overflows an unsigned int
      */
-    // Todo: The method should throw an ArithmeticException rather than an IllegalArgumentException. See Math.toIntExact()
-    public static long toUInt32(long value) {
+    public static long toUInt32(long value) throws ArithmeticException {
         if ((value & 0xFFFFFFFFL) == value)
             return value;
-        throw new IllegalArgumentException("Unsigned Int " + value + OUT_OF_RANGE);
+        throw new ArithmeticException("Unsigned Int " + value + OUT_OF_RANGE);
     }
 
     public static long agitate(long l) {

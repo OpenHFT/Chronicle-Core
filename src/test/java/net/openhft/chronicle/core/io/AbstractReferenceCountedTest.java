@@ -11,7 +11,7 @@ import static org.junit.Assume.assumeTrue;
 public class AbstractReferenceCountedTest extends CoreTestCommon {
 
     @Test
-    public void reserve() throws IllegalStateException {
+    public void reserve() throws IllegalStateException, IllegalArgumentException {
         assumeTrue(Jvm.isResourceTracing());
 
         MyReferenceCounted rc = new MyReferenceCounted();

@@ -22,14 +22,14 @@ public abstract class AbstractCloseableReferenceCounted
     }
 
     @Override
-    public void reserve(ReferenceOwner id) {
+    public void reserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException {
         throwExceptionIfClosed();
 
         super.reserve(id);
     }
 
     @Override
-    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) {
+    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException, IllegalArgumentException {
         throwExceptionIfClosed();
 
         super.reserveTransfer(from, to);
@@ -38,26 +38,30 @@ public abstract class AbstractCloseableReferenceCounted
     }
 
     @Override
-    public void release(ReferenceOwner id) {
+    public void release(ReferenceOwner id) throws IllegalStateException {
         super.release(id);
         if (id == INIT) initReleased = true;
     }
 
     @Override
-    public void releaseLast(ReferenceOwner id) {
+    public void releaseLast(ReferenceOwner id) throws IllegalStateException {
         super.releaseLast(id);
         if (id == INIT) initReleased = true;
     }
 
     @Override
-    public boolean tryReserve(ReferenceOwner id) {
+    public boolean tryReserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException {
         return !closed && super.tryReserve(id);
     }
 
     @Override
     public void close() {
         if (!initReleased)
-            release(INIT);
+            try {
+                release(INIT);
+            } catch (IllegalStateException e) {
+                Jvm.warn().on(getClass(), "Failed to release LAST, closing anyway", e);
+            }
         setClosed();
     }
 
@@ -67,7 +71,7 @@ public abstract class AbstractCloseableReferenceCounted
     }
 
     @Override
-    public void throwExceptionIfClosed() {
+    public void throwExceptionIfClosed() throws IllegalStateException {
         if (closed)
             throw new ClosedIllegalStateException(getClass().getName() + " closed", closedHere);
         throwExceptionIfReleased();
@@ -75,7 +79,7 @@ public abstract class AbstractCloseableReferenceCounted
     }
 
     // throws IllegalStateException
-    protected void throwExceptionIfClosedInSetter() {
+    protected void throwExceptionIfClosedInSetter() throws IllegalStateException {
         if (closed)
             throw new ClosedIllegalStateException(getClass().getName() + " closed", closedHere);
         throwExceptionIfReleased();

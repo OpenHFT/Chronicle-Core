@@ -149,7 +149,7 @@ public class ClassAliasPool implements ClassLookup {
     }
 
     @Override
-    public String nameFor(Class clazz) {
+    public String nameFor(Class clazz) throws IllegalArgumentException {
         if (clazz.getName().contains("$$Lambda$"))
             throw new IllegalArgumentException("Class name for " + clazz + " isn't meaningful.");
         String name = classStringMap.get(clazz);
@@ -219,9 +219,8 @@ public class ClassAliasPool implements ClassLookup {
             return value.length();
         }
 
-        // throws IndexOutOfBoundsException
         @Override
-        public char charAt(int index)  {
+        public char charAt(int index) throws IndexOutOfBoundsException {
             return value.charAt(index);
         }
 

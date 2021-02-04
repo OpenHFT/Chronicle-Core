@@ -288,7 +288,7 @@ public final class IOTools {
                 Object o = field.get(t);
                 if (o != null)
                     unmonitor(o, depth);
-            } catch (IllegalAccessException e) {
+            } catch (IllegalAccessException | IllegalArgumentException e) {
                 Jvm.warn().on(IOTools.class, e);
             }
         }

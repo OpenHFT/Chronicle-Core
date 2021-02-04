@@ -31,7 +31,7 @@ public class DynamicEnumPooledClassTest {
     }
 
     @Test
-    public void testInitialSize() {
+    public void testInitialSize() throws IllegalArgumentException {
         EnumCache<EcnDynamic> ecnEnumCache = EnumCache.of(EcnDynamic.class);
         assertEquals(32, Maths.nextPower2(ecnEnumCache.size(), 1));
     }

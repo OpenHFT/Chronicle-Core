@@ -94,7 +94,7 @@ public final class StringUtils {
     public static void setLength(@NotNull StringBuilder sb, int length) {
         try {
             SB_COUNT.set(sb, length);
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | IllegalArgumentException e) {
             throw new AssertionError(e);
         }
     }
@@ -107,7 +107,7 @@ public final class StringUtils {
     public static boolean endsWith(@NotNull final CharSequence source,
                                    @NotNull final String endsWith) {
         for (int i = 1; i <= endsWith.length(); i++) {
-            if (toLowerCase(source.charAt(source.length() - i)) !=
+            if (toLowerCase(charAt(source, source.length() - i)) !=
                     toLowerCase(endsWith.charAt(endsWith.length() - i))) {
                 return false;
             }
@@ -129,9 +129,17 @@ public final class StringUtils {
         int csLength = cs.length();
         if (sLength != csLength) return false;
         for (int i = 0; i < csLength; i++)
-            if (s.charAt(i) != cs.charAt(i))
+            if (charAt(s, i) != charAt(cs, i))
                 return false;
         return true;
+    }
+
+    private static char charAt(@Nullable CharSequence s, int i) {
+        try {
+            return s.charAt(i);
+        } catch (IndexOutOfBoundsException e) {
+            throw new AssertionError(e);
+        }
     }
 
     @ForceInline
@@ -146,13 +154,13 @@ public final class StringUtils {
         if (Jvm.isJava9Plus()) {
             for (int i = 0; i < length; i++)
                 // This is not as fast as it could be.
-                if (s.charAt(i) != cs.charAt(i))
+                if (s.charAt(i) != charAt(cs, i))
                     return false;
             return true;
         } else {
             char[] chars = StringUtils.extractChars(s);
             for (int i = 0; i < length; i++)
-                if (chars[i] != cs.charAt(i))
+                if (chars[i] != charAt(cs, i))
                     return false;
             return true;
         }
@@ -163,8 +171,8 @@ public final class StringUtils {
         if (s == null) return false;
         if (s.length() != cs.length()) return false;
         for (int i = 0; i < cs.length(); i++)
-            if (Character.toLowerCase(s.charAt(i)) !=
-                    Character.toLowerCase(cs.charAt(i)))
+            if (Character.toLowerCase(charAt(s, i)) !=
+                    Character.toLowerCase(charAt(cs, i)))
                 return false;
         return true;
     }
@@ -277,7 +285,7 @@ public final class StringUtils {
         boolean negative = false;
         int decimalPlaces = Integer.MIN_VALUE;
 
-        int ch = in.charAt(0);
+        int ch = charAt(in, 0);
         int pos = 1;
         switch (ch) {
             case 'N':
@@ -294,7 +302,7 @@ public final class StringUtils {
                 if (compareRest(in, 1, "Infinity"))
                     return Double.NEGATIVE_INFINITY;
                 negative = true;
-                ch = in.charAt(pos++);
+                ch = charAt(in, pos++);
                 break;
         }
         while (true) {
@@ -314,7 +322,7 @@ public final class StringUtils {
             }
             if (pos == in.length())
                 break;
-            ch = in.charAt(pos++);
+            ch = charAt(in, pos++);
         }
 
         return asDouble(value, exp, negative, decimalPlaces);
@@ -333,7 +341,7 @@ public final class StringUtils {
             return false;
 
         for (int i = 0; i < s.length(); i++) {
-            if (in.charAt(i + pos) != s.charAt(i)) {
+            if (charAt(in, i + pos) != s.charAt(i)) {
                 return false;
             }
         }
@@ -468,7 +476,7 @@ public final class StringUtils {
         int digit;
 
         if (len > 0) {
-            char firstChar = s.charAt(0);
+            char firstChar = charAt(s, 0);
             if (firstChar < '0') { // Possible leading "+" or "-"
                 if (firstChar == '-') {
                     negative = true;
@@ -483,7 +491,7 @@ public final class StringUtils {
             multmin = limit / radix;
             while (i < len) {
                 // Accumulating negatively avoids surprises near MAX_VALUE
-                digit = Character.digit(s.charAt(i++), radix);
+                digit = Character.digit(charAt(s, i++), radix);
                 if (digit < 0) {
                     throw forInputString(s);
                 }
@@ -529,7 +537,7 @@ public final class StringUtils {
         int digit;
 
         if (len > 0) {
-            char firstChar = s.charAt(0);
+            char firstChar = charAt(s, 0);
             if (firstChar < '0') { // Possible leading "+" or "-"
                 if (firstChar == '-') {
                     negative = true;
@@ -544,7 +552,7 @@ public final class StringUtils {
             multmin = limit / radix;
             while (i < len) {
                 // Accumulating negatively avoids surprises near MAX_VALUE
-                digit = Character.digit(s.charAt(i++), radix);
+                digit = Character.digit(charAt(s, i++), radix);
                 if (digit < 0) {
                     throw forInputString(s);
                 }

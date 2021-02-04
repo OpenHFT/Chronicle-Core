@@ -24,7 +24,7 @@ public final class Longs {
      * @return the provided {@code val} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
-    public static long requirePositive(@Positive final long val) {
+    public static long requirePositive(@Positive final long val) throws IllegalArgumentException {
         if (val < 1)
             throw new IllegalArgumentException(val + IS_NOT_POSITIVE);
         return val;
@@ -45,7 +45,7 @@ public final class Longs {
      * @return the provided {@code val} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
-    public static long requireNegative(@Negative final long val) {
+    public static long requireNegative(@Negative final long val) throws IllegalArgumentException {
         if (val > -1)
             throw new IllegalArgumentException(val + IS_NOT_NEGATIVE);
         return val;
@@ -66,7 +66,7 @@ public final class Longs {
      * @return the provided {@code val} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
-    public static long requireZero(final long val) {
+    public static long requireZero(final long val) throws IllegalArgumentException {
         if (val != 0)
             throw new IllegalArgumentException(val + IS_NOT_ZERO);
         return val;
@@ -87,7 +87,7 @@ public final class Longs {
      * @return the provided {@code val} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
-    public static long requireNonPositive(@NonPositive final long val) {
+    public static long requireNonPositive(@NonPositive final long val) throws IllegalArgumentException {
         if (val > 0)
             throw new IllegalArgumentException(val + IS_POSITIVE);
         return val;
@@ -108,7 +108,7 @@ public final class Longs {
      * @return the provided {@code val} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
-    public static long requireNonNegative(@NonNegative final long val) {
+    public static long requireNonNegative(@NonNegative final long val) throws IllegalArgumentException {
         if (val < 0)
             throw new IllegalArgumentException(val + IS_NEGATIVE);
         return val;
@@ -129,7 +129,7 @@ public final class Longs {
      * @return the provided {@code val} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
-    public static long requireNonZero(final long val) {
+    public static long requireNonZero(final long val) throws IllegalArgumentException {
         if (val == 0)
             throw new IllegalArgumentException(val + IS_ZERO);
         return val;
@@ -150,7 +150,7 @@ public final class Longs {
      * @return the provided {@code val} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
-    public static long requireEquals(final long val, final long otherVal) {
+    public static long requireEquals(final long val, final long otherVal) throws IllegalArgumentException {
         if (val != otherVal)
             throw new IllegalArgumentException(val + IS_NOT_EQUAL_TO + otherVal);
         return val;
@@ -171,7 +171,7 @@ public final class Longs {
      * @return the provided {@code val} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
-    public static long requireNotEquals(final long val, final long otherVal) {
+    public static long requireNotEquals(final long val, final long otherVal) throws IllegalArgumentException {
         if (val == otherVal)
             throw new IllegalArgumentException(val + IS_EQUAL_TO + otherVal);
         return val;
@@ -195,7 +195,7 @@ public final class Longs {
      */
     public static long requireInRange(@Range final long val,
                                       final long from,
-                                      final long toExclusive) {
+                                      final long toExclusive) throws IllegalArgumentException {
         if (val < from || val >= toExclusive)
             throw new IllegalArgumentException(val + IS_NOT_IN_THE_RANGE + from + ", " + toExclusive + ")");
         return val;
@@ -219,7 +219,7 @@ public final class Longs {
      */
     public static long requireInRangeClosed(@Range final long val,
                                             final long from,
-                                            final long toInclusive) {
+                                            final long toInclusive) throws IllegalArgumentException {
         if (val < from || val > toInclusive)
             throw new IllegalArgumentException(val + IS_NOT_IN_THE_RANGE + from + ", " + toInclusive + "]");
         return val;

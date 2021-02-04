@@ -22,14 +22,14 @@ public interface ReferenceCountedTracer extends ReferenceCounted {
     }
 
     // throws IllegalStateException
-    default void throwExceptionIfReleased() {
+    default void throwExceptionIfReleased() throws ClosedIllegalStateException {
         if (refCount() <= 0)
             throw new ClosedIllegalStateException("Released");
     }
 
-    void warnAndReleaseIfNotReleased();
+    void warnAndReleaseIfNotReleased() throws ClosedIllegalStateException;
 
-    void throwExceptionIfNotReleased();
+    void throwExceptionIfNotReleased() throws IllegalStateException;
 
     StackTrace createdHere();
 }

@@ -33,7 +33,7 @@ public abstract class JMXFileManager implements FileManager, JMXFileManagerMBean
         try {
             objectName = new ObjectName(jmxPath() + ":type=" + type() + ",name=" + relativePath);
         } catch (MalformedObjectNameException e) {
-            throw new IllegalArgumentException(e);
+            throw new AssertionError(e);
         }
     }
 

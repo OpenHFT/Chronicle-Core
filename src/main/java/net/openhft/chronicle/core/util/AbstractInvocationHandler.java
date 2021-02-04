@@ -55,7 +55,7 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
                 Jvm.setAccessible(lookupConstructor);
             }
             return lookupConstructor.newInstance(c, MethodHandles.Lookup.PRIVATE);
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ignored) {
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException | IllegalArgumentException ignored) {
         }
         try {
             // Try to grab an internal one,

@@ -49,7 +49,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public boolean reservedBy(ReferenceOwner owner) {
+    public boolean reservedBy(ReferenceOwner owner) throws IllegalStateException {
         if (references.containsKey(owner))
             return true;
         StackTrace stackTrace = releases.get(owner);
@@ -59,16 +59,16 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void reserve(ReferenceOwner id) {
+    public void reserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException {
         tryReserve(id, true);
     }
 
     @Override
-    public boolean tryReserve(ReferenceOwner id) {
+    public boolean tryReserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException {
         return tryReserve(id, false);
     }
 
-    private boolean tryReserve(ReferenceOwner id, boolean must) {
+    private boolean tryReserve(ReferenceOwner id, boolean must) throws IllegalArgumentException, IllegalStateException {
         if (id == this)
             throw new IllegalArgumentException(type.getName() + " the counter cannot reserve itself");
 //        if (Jvm.isDebug())
@@ -90,7 +90,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void release(ReferenceOwner id) {
+    public void release(ReferenceOwner id) throws IllegalStateException {
 //        if (Jvm.isDebug())
 //            System.out.println(Thread.currentThread().getName() + " " + uniqueId + " - release " + asString(id));
 
@@ -135,7 +135,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void releaseLast(ReferenceOwner id) {
+    public void releaseLast(ReferenceOwner id) throws IllegalStateException {
         if (references.size() <= 1) {
             release(id);
         } else {
@@ -174,7 +174,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void throwExceptionIfNotReleased() {
+    public void throwExceptionIfNotReleased() throws IllegalStateException {
         synchronized (references) {
             if (references.isEmpty())
                 return;
@@ -220,7 +220,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void throwExceptionIfReleased() {
+    public void throwExceptionIfReleased() throws ClosedIllegalStateException {
         if (refCount() <= 0)
             throw new ClosedIllegalStateException(type.getName() + " released", releasedHere);
     }

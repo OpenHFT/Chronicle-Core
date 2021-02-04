@@ -89,7 +89,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         return referenceCounted.createdHere();
     }
 
-    public void throwExceptionIfNotReleased() {
+    public void throwExceptionIfNotReleased() throws IllegalStateException {
         referenceCounted.throwExceptionIfNotReleased();
     }
 
@@ -112,7 +112,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     protected abstract void performRelease();
 
     @Override
-    public void reserve(ReferenceOwner id) {
+    public void reserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException {
         if (WARN_COUNT < Integer.MAX_VALUE && referenceCounted.refCount() >= WARN_COUNT)
             if ((referenceCounted.refCount() - WARN_COUNT) % 10 == 0)
                 Jvm.warn().on(getClass(), "high reserve count for " + referenceName() + " was " + referenceCounted.refCount(), new StackTrace("reserved here"));
@@ -120,22 +120,22 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     }
 
     @Override
-    public void release(ReferenceOwner id) {
+    public void release(ReferenceOwner id) throws IllegalStateException {
         referenceCounted.release(id);
     }
 
     @Override
-    public void releaseLast(ReferenceOwner id) {
+    public void releaseLast(ReferenceOwner id) throws IllegalStateException {
         referenceCounted.releaseLast(id);
     }
 
     @Override
-    public boolean tryReserve(ReferenceOwner id) {
+    public boolean tryReserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException {
         return referenceCounted.tryReserve(id);
     }
 
     @Override
-    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) {
+    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException, IllegalArgumentException {
         referenceCounted.reserveTransfer(from, to);
     }
 
@@ -145,20 +145,20 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     }
 
     @Override
-    public void throwExceptionIfReleased() {
+    public void throwExceptionIfReleased() throws ClosedIllegalStateException {
         referenceCounted.throwExceptionIfReleased();
     }
 
     @Override
-    public void warnAndReleaseIfNotReleased() {
+    public void warnAndReleaseIfNotReleased() throws ClosedIllegalStateException {
         referenceCounted.warnAndReleaseIfNotReleased();
     }
 
-    public boolean reservedBy(ReferenceOwner owner) {
+    public boolean reservedBy(ReferenceOwner owner) throws IllegalStateException {
         return referenceCounted.reservedBy(owner);
     }
 
-    protected boolean threadSafetyCheck(boolean isUsed) {
+    protected boolean threadSafetyCheck(boolean isUsed) throws IllegalStateException {
         if (DISABLE_THREAD_SAFETY)
             return true;
         if (usedByThread == null && !isUsed)

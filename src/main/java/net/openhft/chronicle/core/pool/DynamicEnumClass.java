@@ -55,7 +55,7 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
                     field.setAccessible(true);
                     Object o = field.get(null);
                     eList.add((E) o);
-                } catch (IllegalAccessException e) {
+                } catch (IllegalAccessException | IllegalArgumentException e) {
                     Jvm.warn().on(getClass(), e.toString());
                 }
             }

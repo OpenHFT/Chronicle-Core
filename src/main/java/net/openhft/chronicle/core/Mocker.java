@@ -77,15 +77,23 @@ public enum Mocker {
         Set<Class> classes = new LinkedHashSet<>();
         addInterface(classes, tClass);
         //noinspection unchecked
-        return (T) Proxy.newProxyInstance(tClass.getClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler(ConcurrentHashMap::new) {
-            @Override
-            protected Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
-                consumer.accept(method.getName(), args);
-                if (t != null)
-                    return method.invoke(t, args);
-                return null;
-            }
-        });
+        try {
+            return (T) Proxy.newProxyInstance(tClass.getClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler(ConcurrentHashMap::new) {
+                @Override
+                protected Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
+                    consumer.accept(method.getName(), args);
+                    try {
+                        if (t != null)
+                            return method.invoke(t, args);
+                        return null;
+                    } catch (IllegalArgumentException e) {
+                        throw new AssertionError(e);
+                    }
+                }
+            });
+        } catch (IllegalArgumentException e) {
+            throw new AssertionError(e);
+        }
     }
 
     private static <T> void addInterface(Set<Class> classes, Class<T> tClass) {
@@ -108,12 +116,16 @@ public enum Mocker {
         for (Class aClass : additional) {
             addInterface(classes, aClass);
         }
-        //noinspection unchecked
-        return (T) Proxy.newProxyInstance(tClass.getClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler(ConcurrentHashMap::new) {
-            @Override
-            protected Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
-                return null;
-            }
-        });
+        try {
+            //noinspection unchecked
+            return (T) Proxy.newProxyInstance(tClass.getClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler(ConcurrentHashMap::new) {
+                @Override
+                protected Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
+                    return null;
+                }
+            });
+        } catch (IllegalArgumentException e) {
+            throw new AssertionError(e);
+        }
     }
 }

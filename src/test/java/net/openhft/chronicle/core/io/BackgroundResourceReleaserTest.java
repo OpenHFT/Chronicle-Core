@@ -14,7 +14,7 @@ public class BackgroundResourceReleaserTest {
     final AtomicLong released = new AtomicLong();
 
     @Test
-    public void testResourcesCleanedUp() {
+    public void testResourcesCleanedUp() throws IllegalStateException {
         assumeTrue(BackgroundResourceReleaser.BG_RELEASER);
         int count = 20;
         for (int i = 1; i < count; i++) {

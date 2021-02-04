@@ -10,7 +10,7 @@ import static org.junit.Assume.assumeTrue;
 public class AbstractCloseableReferenceCountedTest extends CoreTestCommon {
 
     @Test
-    public void reserve() throws IllegalStateException {
+    public void reserve() throws IllegalStateException, IllegalArgumentException {
         assumeTrue(Jvm.isResourceTracing());
         MyCloseableReferenceCounted rc = new MyCloseableReferenceCounted();
         assertEquals(1, rc.refCount());
@@ -43,7 +43,7 @@ public class AbstractCloseableReferenceCountedTest extends CoreTestCommon {
     }
 
     @Test
-    public void reserveWhenClosed() throws IllegalStateException {
+    public void reserveWhenClosed() throws IllegalStateException, IllegalArgumentException {
         MyCloseableReferenceCounted rc = new MyCloseableReferenceCounted();
         assertEquals(1, rc.refCount());
 

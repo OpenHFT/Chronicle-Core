@@ -23,8 +23,6 @@ import org.jetbrains.annotations.NotNull;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
-import java.nio.BufferOverflowException;
-import java.nio.BufferUnderflowException;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
@@ -278,7 +276,7 @@ public class UnsafeMemory implements Memory {
     @Override
     public long allocate(long capacity) {
         if (capacity <= 0)
-            throw new IllegalArgumentException("Invalid capacity: " + capacity);
+            throw new AssertionError("Invalid capacity: " + capacity);
         long address = UNSAFE.allocateMemory(capacity);
         if (address == 0)
             throw new OutOfMemoryError("Not enough free native memory, capacity attempted: " + capacity / 1024 + " KiB");
@@ -315,7 +313,7 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void writeBytes(long address, byte[] b, int offset, int length) {
+    public void writeBytes(long address, byte[] b, int offset, int length) throws IllegalArgumentException {
         if (offset + length > b.length)
             throw new IllegalArgumentException("Invalid offset or length, array's length is " + b.length);
         UnsafeMemory.UNSAFE.copyMemory(b, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, null, address, length);
@@ -323,7 +321,7 @@ public class UnsafeMemory implements Memory {
 
     @Override
     @ForceInline
-    public void readBytes(long address, byte[] b, long offset, int length) {
+    public void readBytes(long address, byte[] b, long offset, int length) throws IllegalArgumentException {
         if (offset + length > b.length)
             throw new IllegalArgumentException("Invalid offset or length, array's length is " + b.length);
         UnsafeMemory.UNSAFE.copyMemory(null, address, b, Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, length);
@@ -550,7 +548,7 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    public void testAndSetInt(long address, long offset, int expected, int value) {
+    public void testAndSetInt(long address, long offset, int expected, int value) throws IllegalStateException {
         if (UNSAFE.compareAndSwapInt(null, address, expected, value))
             return;
         int actual = UNSAFE.getIntVolatile(null, address);
@@ -558,7 +556,7 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    public void testAndSetInt(@NotNull Object object, long offset, int expected, int value) {
+    public void testAndSetInt(@NotNull Object object, long offset, int expected, int value) throws IllegalStateException {
         if (UNSAFE.compareAndSwapInt(object, offset, expected, value))
             return;
         int actual = UNSAFE.getIntVolatile(object, offset);
@@ -907,25 +905,25 @@ public class UnsafeMemory implements Memory {
         public int addInt(long address, int increment) {
             if ((address & 0x3) == 0)
                 return super.addInt(address, increment);
-            throw new IllegalArgumentException(MIS_ALIGNED);
+            throw new AssertionError(MIS_ALIGNED);
         }
 
         @Override
         public boolean compareAndSwapInt(long address, int expected, int value) {
             if ((address & 0x3) == 0)
                 return super.compareAndSwapInt(address, expected, value);
-            throw new IllegalArgumentException(MIS_ALIGNED);
+            throw new AssertionError(MIS_ALIGNED);
         }
 
         @Override
         public boolean compareAndSwapInt(@NotNull Object object, long offset, int expected, int value) {
             if ((offset & 0x3) == 0)
                 return super.compareAndSwapInt(object, offset, expected, value);
-            throw new IllegalArgumentException(MIS_ALIGNED);
+            throw new AssertionError(MIS_ALIGNED);
         }
 
         @Override
-        public void testAndSetInt(long address, long offset, int expected, int value) {
+        public void testAndSetInt(long address, long offset, int expected, int value) throws IllegalStateException {
             if ((address & ~0x3) == 0) {
                 if (UNSAFE.compareAndSwapInt(null, address, expected, value)) {
                     return;
@@ -945,7 +943,7 @@ public class UnsafeMemory implements Memory {
         }
 
         @Override
-        public void testAndSetInt(@NotNull Object object, long offset, int expected, int value) {
+        public void testAndSetInt(@NotNull Object object, long offset, int expected, int value) throws IllegalStateException {
             if ((offset & ~0x3) == 0) {
                 if (UNSAFE.compareAndSwapInt(object, offset, expected, value)) {
                     return;
@@ -1063,21 +1061,21 @@ public class UnsafeMemory implements Memory {
         public long addLong(long address, long increment) {
             if ((address & 0x7) == 0)
                 return super.addLong(address, increment);
-            throw new IllegalArgumentException(MIS_ALIGNED);
+            throw new AssertionError(MIS_ALIGNED);
         }
 
         @Override
         public boolean compareAndSwapLong(@NotNull Object object, long offset, long expected, long value) {
             if ((offset & 0x7) == 0)
                 return super.compareAndSwapLong(object, offset, expected, value);
-            throw new IllegalArgumentException(MIS_ALIGNED);
+            throw new AssertionError(MIS_ALIGNED);
         }
 
         @Override
         public boolean compareAndSwapLong(long address, long expected, long value) {
             if ((address & 0x7) == 0)
                 return super.compareAndSwapLong(address, expected, value);
-            throw new IllegalArgumentException(MIS_ALIGNED);
+            throw new AssertionError(MIS_ALIGNED);
         }
     }
 }

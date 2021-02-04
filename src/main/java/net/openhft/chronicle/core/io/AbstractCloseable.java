@@ -175,17 +175,17 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     /**
      * Called when a resources needs to be open to use it.
      *
-     * @throws IllegalStateException if closed
+     * @throws ClosedIllegalStateException if closed
+     * @throws IllegalStateException       if the thread safety check fails
      */
-    public void throwExceptionIfClosed() {
+    public void throwExceptionIfClosed() throws IllegalStateException {
         if (isClosed())
             throw new ClosedIllegalStateException(getClass().getName() + " closed", closedHere);
         if (!DISABLE_THREAD_SAFETY)
             threadSafetyCheck(true);
     }
 
-    // throws IllegalStateException
-    public void throwExceptionIfClosedInSetter()  {
+    public void throwExceptionIfClosedInSetter() throws IllegalStateException {
         if (isClosed())
             throw new ClosedIllegalStateException(getClass().getName() + " closed", closedHere);
         // only check it if this has been used.
@@ -252,7 +252,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     }
 
     // this should throw IllegalStateException or return true
-    protected boolean threadSafetyCheck(boolean isUsed) {
+    protected boolean threadSafetyCheck(boolean isUsed) throws IllegalStateException {
         if (DISABLE_THREAD_SAFETY)
             return true;
         if (usedByThread == null && !isUsed)

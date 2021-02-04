@@ -60,9 +60,9 @@ public interface Memory {
 
     byte readByte(@NotNull Object object, long offset);
 
-    void writeBytes(long address, byte[] b, int offset, int length);
+    void writeBytes(long address, byte[] b, int offset, int length) throws IllegalArgumentException;
 
-    void readBytes(long address, byte[] b, long offset, int length);
+    void readBytes(long address, byte[] b, long offset, int length) throws IllegalArgumentException;
 
     byte readByte(long address);
 
@@ -123,10 +123,10 @@ public interface Memory {
     void writeOrderedLong(@NotNull Object object, long offset, long i);
 
     // Throws IllegalStateException
-    void testAndSetInt(long address, long offset, int expected, int value) ;
+    void testAndSetInt(long address, long offset, int expected, int value) throws IllegalStateException;
 
     // throws IllegalStateException
-    void testAndSetInt(@NotNull Object object, long offset, int expected, int value);
+    void testAndSetInt(@NotNull Object object, long offset, int expected, int value) throws IllegalStateException;
 
     boolean compareAndSwapInt(long address, int expected, int value);
 

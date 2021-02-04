@@ -51,7 +51,7 @@ public class ObjectUtilsTest {
     }
 
     @Test
-    public void testConvert() throws IllegalStateException {
+    public void testConvert() throws IllegalStateException, IllegalArgumentException {
         assertEquals('1', (char) ObjectUtils.convertTo(char.class, 1));
         assertEquals('1', (char) ObjectUtils.convertTo(char.class, 1L));
         assertEquals(1, (int) ObjectUtils.convertTo(int.class, '1'));

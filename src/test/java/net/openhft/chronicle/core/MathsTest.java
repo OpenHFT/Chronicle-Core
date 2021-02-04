@@ -162,7 +162,7 @@ public class MathsTest {
     }
 
     @Test
-    public void testIntLog2() {
+    public void testIntLog2() throws IllegalArgumentException {
         for (int i = 0; i < 63; i++) {
             long l = 1L << i;
             assertEquals(i, Maths.intLog2(l));

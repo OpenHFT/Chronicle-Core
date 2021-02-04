@@ -101,7 +101,7 @@ public class JvmTest {
     }
 
     @Test
-    public void classMetrics() {
+    public void classMetrics() throws IllegalArgumentException {
         assumeFalse(isArm());
         String expect = "ClassMetrics{offset=" + Jvm.objectHeaderSize() + ", length=16}";
         assertEquals(expect,

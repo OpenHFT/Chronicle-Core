@@ -23,7 +23,7 @@ public final class Ints {
      * @return the provided {@code val} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
-    public static int requirePositive(@Positive final int val) {
+    public static int requirePositive(@Positive final int val) throws IllegalArgumentException {
         if (val < 1)
             throw new IllegalArgumentException(val + IS_NOT_POSITIVE);
         return val;
@@ -44,7 +44,7 @@ public final class Ints {
      * @return the provided {@code val} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
-    public static int requireNegative(@Negative final int val) {
+    public static int requireNegative(@Negative final int val) throws IllegalArgumentException {
         if (val > -1)
             throw new IllegalArgumentException(val + IS_NOT_NEGATIVE);
         return val;
@@ -65,7 +65,7 @@ public final class Ints {
      * @return the provided {@code val} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
-    public static int requireZero(final int val) {
+    public static int requireZero(final int val) throws IllegalArgumentException {
         if (val != 0)
             throw new IllegalArgumentException(val + IS_NOT_ZERO);
         return val;
@@ -86,7 +86,7 @@ public final class Ints {
      * @return the provided {@code val} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
-    public static int requireNonPositive(@NonPositive final int val) {
+    public static int requireNonPositive(@NonPositive final int val) throws IllegalArgumentException {
         if (val > 0)
             throw new IllegalArgumentException(val + IS_POSITIVE);
         return val;
@@ -107,7 +107,7 @@ public final class Ints {
      * @return the provided {@code val} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
-    public static int requireNonNegative(@NonNegative final int val) {
+    public static int requireNonNegative(@NonNegative final int val) throws IllegalArgumentException {
         if (val < 0)
             throw new IllegalArgumentException(val + IS_NEGATIVE);
         return val;
@@ -128,7 +128,7 @@ public final class Ints {
      * @return the provided {@code val} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
-    public static int requireNonZero(final int val) {
+    public static int requireNonZero(final int val) throws IllegalArgumentException {
         if (val == 0)
             throw new IllegalArgumentException(val + IS_ZERO);
         return val;
@@ -149,7 +149,7 @@ public final class Ints {
      * @return the provided {@code val} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
-    public static int requireEquals(final int val, final int otherVal) {
+    public static int requireEquals(final int val, final int otherVal) throws IllegalArgumentException {
         if (val != otherVal)
             throw new IllegalArgumentException(val + IS_NOT_EQUAL_TO + otherVal);
         return val;
@@ -170,7 +170,7 @@ public final class Ints {
      * @return the provided {@code val} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
-    public static int requireNotEquals(final int val, final int otherVal) {
+    public static int requireNotEquals(final int val, final int otherVal) throws IllegalArgumentException {
         if (val == otherVal)
             throw new IllegalArgumentException(val + IS_EQUAL_TO + otherVal);
         return val;
@@ -194,7 +194,7 @@ public final class Ints {
      */
     public static int requireInRange(@Range final int val,
                                      final int from,
-                                     final int toExclusive) {
+                                     final int toExclusive) throws IllegalArgumentException {
         if (val < from || val >= toExclusive)
             throw new IllegalArgumentException(val + IS_NOT_IN_THE_RANGE + from + ", " + toExclusive + ")");
         return val;
@@ -218,7 +218,7 @@ public final class Ints {
      */
     public static int requireInRangeClosed(@Range final int val,
                                            final int from,
-                                           final int toInclusive) {
+                                           final int toInclusive) throws IllegalArgumentException {
         if (val < from || val > toInclusive)
             throw new IllegalArgumentException(val + IS_NOT_IN_THE_RANGE + from + ", " + toInclusive + "]");
         return val;

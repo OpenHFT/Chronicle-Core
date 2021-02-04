@@ -14,10 +14,9 @@ public interface ReferenceCounted extends ReferenceOwner {
      * @throws IllegalStateException if the resource has already been freed.
      *                               I.e. its reference counter has as some point reached zero.
      */
-    void reserve(ReferenceOwner id);
+    void reserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException;
 
-    // throws IllegalStateException
-    default void reserveTransfer(ReferenceOwner from, ReferenceOwner to) {
+    default void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException, IllegalArgumentException {
         reserve(to);
         release(from);
     }
@@ -32,7 +31,7 @@ public interface ReferenceCounted extends ReferenceOwner {
      * @throws IllegalStateException if the resource has already been freed.
      *                               I.e. its reference counter has as some point reached zero.
      */
-    boolean tryReserve(ReferenceOwner id);
+    boolean tryReserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException;
 
     /**
      * Best effort check the owner has reserved it. Returns true if not sure.
@@ -40,7 +39,7 @@ public interface ReferenceCounted extends ReferenceOwner {
      * @param owner to check
      * @return false if the owner definitely doesn't own it.
      */
-    boolean reservedBy(ReferenceOwner owner);
+    boolean reservedBy(ReferenceOwner owner) throws IllegalStateException;
 
     /**
      * Releases a resource.
@@ -51,7 +50,7 @@ public interface ReferenceCounted extends ReferenceOwner {
      * @throws IllegalStateException if the resource has already been freed.
      *                               I.e. its reference counter has as some point reached zero.
      */
-    void release(ReferenceOwner id);
+    void release(ReferenceOwner id) throws IllegalStateException;
 
     /**
      * Releases a resource and checks this is the last usage.
@@ -62,9 +61,9 @@ public interface ReferenceCounted extends ReferenceOwner {
      * @throws IllegalStateException if the resource has already been freed.
      *                               I.e. its reference counter has as some point reached zero.
      */
-    void releaseLast(ReferenceOwner id);
+    void releaseLast(ReferenceOwner id) throws IllegalStateException;
 
-    default void releaseLast() {
+    default void releaseLast() throws IllegalStateException {
         releaseLast(INIT);
     }
 

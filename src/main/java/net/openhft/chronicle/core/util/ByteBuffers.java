@@ -22,7 +22,7 @@ public final class ByteBuffers {
         try {
             ADDRESS.setLong(buffer, address);
             CAPACITY.setInt(buffer, cap);
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | IllegalArgumentException e) {
             throw new AssertionError(e);
         }
     }

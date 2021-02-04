@@ -30,7 +30,7 @@ import static org.junit.Assert.assertEquals;
 
 public class HistogramTest {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, NumberFormatException {
         Histogram hist = new Histogram(32, 7);
         for (File f : new File(args[0]).listFiles()) {
             if (f.getName().endsWith(".png"))
