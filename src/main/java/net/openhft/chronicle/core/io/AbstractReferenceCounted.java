@@ -99,7 +99,11 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
 
     void inThreadPerformRelease() {
         long start = System.nanoTime();
-        performRelease();
+        try {
+            performRelease();
+        } catch (Exception e) {
+            Jvm.warn().on(getClass(), e);
+        }
         long time = System.nanoTime() - start;
         if (time >= WARN_NS)
             Slf4jExceptionHandler.PERF.on(getClass(), "Took " + time / 100_000 / 10.0 + " ms to performRelease");
@@ -109,10 +113,10 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         return false;
     }
 
-    protected abstract void performRelease();
+    protected abstract void performRelease() throws IllegalStateException;
 
     @Override
-    public void reserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException {
+    public void reserve(ReferenceOwner id) throws IllegalStateException {
         if (WARN_COUNT < Integer.MAX_VALUE && referenceCounted.refCount() >= WARN_COUNT)
             if ((referenceCounted.refCount() - WARN_COUNT) % 10 == 0)
                 Jvm.warn().on(getClass(), "high reserve count for " + referenceName() + " was " + referenceCounted.refCount(), new StackTrace("reserved here"));
@@ -135,7 +139,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     }
 
     @Override
-    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException, IllegalArgumentException {
+    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException {
         referenceCounted.reserveTransfer(from, to);
     }
 

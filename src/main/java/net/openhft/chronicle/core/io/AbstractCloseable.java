@@ -209,7 +209,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     /**
      * Call close() to ensure this is called exactly once.
      */
-    protected abstract void performClose();
+    protected abstract void performClose() throws IllegalStateException;
 
     void callPerformClose() {
         try {

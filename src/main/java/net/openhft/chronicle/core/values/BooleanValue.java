@@ -18,11 +18,13 @@
 
 package net.openhft.chronicle.core.values;
 
+import java.nio.BufferUnderflowException;
+
 /**
  * User: peter.lawrey Date: 10/10/13 Time: 07:19
  */
 public interface BooleanValue {
-    boolean getValue();
+    boolean getValue() throws IllegalStateException, BufferUnderflowException;
 
-    void setValue(boolean value);
+    void setValue(boolean value) throws IllegalStateException;
 }

@@ -27,36 +27,36 @@ import java.nio.BufferUnderflowException;
  * User: peter.lawrey Date: 10/10/13 Time: 07:11
  */
 public interface LongArrayValues extends Closeable {
-    long getCapacity();
+    long getCapacity() throws IllegalStateException;
 
-    long getUsed();
+    long getUsed() throws IllegalStateException, BufferUnderflowException;
 
-    void setMaxUsed(long usedAtLeast);
+    void setMaxUsed(long usedAtLeast) throws IllegalStateException, BufferUnderflowException;
 
     // throws BufferUnderflowException;
-    long getValueAt(long index);
+    long getValueAt(long index) throws IllegalStateException, BufferUnderflowException;
 
     // throws IllegalArgumentException, BufferOverflowException
-    void setValueAt(long index, long value);
+    void setValueAt(long index, long value) throws IllegalStateException, BufferOverflowException;
 
     // throws BufferUnderflowException
-    long getVolatileValueAt(long index);
+    long getVolatileValueAt(long index) throws IllegalStateException, BufferUnderflowException;
 
     //  throws IllegalArgumentException, BufferOverflowException
-    void setOrderedValueAt(long index, long value);
+    void setOrderedValueAt(long index, long value) throws IllegalStateException, BufferOverflowException;
 
     // throws IllegalArgumentException, BufferOverflowException
-    boolean compareAndSet(long index, long expected, long value);
+    boolean compareAndSet(long index, long expected, long value) throws IllegalStateException, BufferOverflowException;
 
-    default void bindValueAt(int index, LongValue value) {
+    default void bindValueAt(int index, LongValue value) throws IllegalStateException, BufferOverflowException {
         bindValueAt((long) index, value);
     }
 
-    void bindValueAt(long index, LongValue value);
+    void bindValueAt(long index, LongValue value) throws IllegalStateException, BufferOverflowException;
 
-    long sizeInBytes(long capacity);
+    long sizeInBytes(long capacity) throws IllegalStateException;
 
-    boolean isNull();
+    boolean isNull() throws IllegalStateException;
 
-    void reset();
+    void reset() throws IllegalStateException;
 }

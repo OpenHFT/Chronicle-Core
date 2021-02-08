@@ -13,7 +13,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
     }
 
     @Override
-    protected void performClose() {
+    protected void performClose() throws IllegalStateException {
         unsafe = null;
     }
 

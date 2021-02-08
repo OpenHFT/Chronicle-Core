@@ -67,5 +67,5 @@ public interface Appendable {
      * @param c The character to append
      * @return A reference to this <tt>Appendable</tt>
      */
-    Appendable append(char c);
+    Appendable append(char c) throws IllegalStateException;
 }

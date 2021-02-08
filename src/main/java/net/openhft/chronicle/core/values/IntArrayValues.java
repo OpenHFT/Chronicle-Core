@@ -27,32 +27,32 @@ import java.nio.BufferUnderflowException;
  * User: peter.lawrey Date: 10/10/13 Time: 07:11
  */
 public interface IntArrayValues extends Closeable {
-    long getCapacity();
+    long getCapacity() throws IllegalStateException;
 
-    long getUsed();
+    long getUsed() throws IllegalStateException, BufferUnderflowException;
 
-    void setMaxUsed(long usedAtLeast);
+    void setMaxUsed(long usedAtLeast) throws IllegalStateException, BufferUnderflowException;
 
     //  throws BufferUnderflowException
-    int getValueAt(long index);
+    int getValueAt(long index) throws IllegalStateException, BufferUnderflowException;
 
     //  throws IllegalArgumentException, BufferOverflowException
-    void setValueAt(long index, int value);
+    void setValueAt(long index, int value) throws IllegalStateException, BufferOverflowException;
 
     // throws BufferUnderflowException
-    int getVolatileValueAt(long index);
+    int getVolatileValueAt(long index) throws IllegalStateException, BufferUnderflowException;
 
     //  throws IllegalArgumentException, BufferOverflowException
-    void setOrderedValueAt(long index, int value);
+    void setOrderedValueAt(long index, int value) throws IllegalStateException, BufferOverflowException;
 
     //  throws IllegalArgumentException, BufferOverflowException
-    boolean compareAndSet(long index, int expected, int value);
+    boolean compareAndSet(long index, int expected, int value) throws IllegalStateException, BufferOverflowException;
 
-    void bindValueAt(long index, IntValue value);
+    void bindValueAt(long index, IntValue value) throws IllegalStateException, BufferOverflowException, IllegalArgumentException;
 
-    long sizeInBytes(long capacity);
+    long sizeInBytes(long capacity) throws IllegalStateException;
 
-    boolean isNull();
+    boolean isNull() throws IllegalStateException;
 
-    void reset();
+    void reset() throws IllegalStateException;
 }

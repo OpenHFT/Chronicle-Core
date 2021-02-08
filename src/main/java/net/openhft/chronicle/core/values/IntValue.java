@@ -18,21 +18,24 @@
 
 package net.openhft.chronicle.core.values;
 
+import java.nio.BufferOverflowException;
+import java.nio.BufferUnderflowException;
+
 /**
  * User: peter.lawrey Date: 10/10/13 Time: 07:15
  */
 public interface IntValue {
-    int getValue();
+    int getValue() throws IllegalStateException, BufferUnderflowException;
 
-    void setValue(int value);
+    void setValue(int value) throws IllegalStateException, BufferOverflowException;
 
-    int getVolatileValue();
+    int getVolatileValue() throws IllegalStateException, BufferUnderflowException;
 
-    void setOrderedValue(int value);
+    void setOrderedValue(int value) throws IllegalStateException, BufferOverflowException;
 
-    int addValue(int delta);
+    int addValue(int delta) throws IllegalStateException, BufferUnderflowException;
 
-    int addAtomicValue(int delta);
+    int addAtomicValue(int delta) throws IllegalStateException, BufferUnderflowException;
 
-    boolean compareAndSwapValue(int expected, int value);
+    boolean compareAndSwapValue(int expected, int value) throws IllegalStateException, BufferOverflowException;
 }

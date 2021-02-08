@@ -53,5 +53,5 @@ public interface ThrowingConsumer<I, T extends Throwable> {
      *
      * @param in the input argument
      */
-    void accept(I in) throws T;
+    void accept(I in) throws T, IllegalStateException;
 }

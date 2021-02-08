@@ -32,7 +32,7 @@ import static org.junit.Assert.assertTrue;
 
 public class SystemTimeProviderTest {
     @Test
-    public void currentTimeMicros() {
+    public void currentTimeMicros() throws IllegalStateException {
         FlakyTestRunner.run(Jvm.isArm() || OS.isWindows() || OS.isMacOSX(), this::doCurrentTimeMicros);
     }
 
@@ -42,7 +42,7 @@ public class SystemTimeProviderTest {
         throw new AssertionError("Not in range " + min + " <= " + actual + " <= " + max);
     }
 
-    private void doCurrentTimeMicros() {
+    private void doCurrentTimeMicros() throws IllegalStateException {
         @NotNull TimeProvider tp = SystemTimeProvider.INSTANCE;
         long minDiff = 0;
         long maxDiff = 0;
@@ -95,7 +95,7 @@ public class SystemTimeProviderTest {
     }
 
     @Test
-    public void currentTime() {
+    public void currentTime() throws IllegalStateException {
         FlakyTestRunner.run(() -> {
             TimeProvider tp = SystemTimeProvider.INSTANCE;
             long time1 = tp.currentTime(TimeUnit.SECONDS);

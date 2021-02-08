@@ -4,6 +4,8 @@ import net.openhft.affinity.Affinity;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.values.IntArrayValues;
 
+import java.nio.BufferOverflowException;
+import java.nio.BufferUnderflowException;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ThreadIndexAssigner {
@@ -13,8 +15,7 @@ public class ThreadIndexAssigner {
         this.values = values;
     }
 
-    // throws IllegalStateException
-    public int getId() throws IllegalStateException {
+    public int getId() throws IllegalStateException, BufferOverflowException, BufferUnderflowException {
         int threadId = Affinity.getThreadId();
         int size = (int) values.getCapacity();
         values.setMaxUsed(size);

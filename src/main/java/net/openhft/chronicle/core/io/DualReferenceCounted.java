@@ -34,7 +34,7 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public synchronized void reserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException {
+    public synchronized void reserve(ReferenceOwner id) throws IllegalStateException {
         checkError();
         a.reserve(id);
         b.reserve(id);
@@ -95,7 +95,7 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public synchronized void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException, IllegalArgumentException {
+    public synchronized void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException {
         checkError();
         a.reserveTransfer(from, to);
         b.reserveTransfer(from, to);

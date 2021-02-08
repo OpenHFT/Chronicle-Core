@@ -14,9 +14,9 @@ public interface ReferenceCounted extends ReferenceOwner {
      * @throws IllegalStateException if the resource has already been freed.
      *                               I.e. its reference counter has as some point reached zero.
      */
-    void reserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException;
+    void reserve(ReferenceOwner id) throws IllegalStateException;
 
-    default void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException, IllegalArgumentException {
+    default void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException {
         reserve(to);
         release(from);
     }
