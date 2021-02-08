@@ -202,7 +202,7 @@ public final class Ints {
 
     /**
      * Checks that the provided {@code val} is between the provided {@code from} (inclusive)
-     * and the provided {@code toInclusive} (inclusive) (i.e. {@code val ∈ [from, lastExclusive]).
+     * and the provided {@code toInclusive} (inclusive) (i.e. {@code val ∈ [from, lastExclusive]}).
      * <p>
      * This method is designed primarily for doing parameter validation in methods
      * and constructors, as demonstrated below:
