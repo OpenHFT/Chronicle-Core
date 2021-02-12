@@ -98,5 +98,7 @@ public class HistogramTest {
         assertEquals(40, (long) h.percentile(0.40), 0);
         assertEquals(30, (long) h.percentile(0.30), 0);
         assertEquals(1, (long) h.percentile(0.0), 0);
+        for (int i = 1; i <= 100; i++)
+            assertEquals(i, h.percentageLessThan(i), i >> 6);
     }
 }

@@ -26,6 +26,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.DoubleFunction;
 import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
 
 // TODO add a dummy histogram.
 public class Histogram implements NanoSampler {
@@ -200,6 +201,11 @@ public class Histogram implements NanoSampler {
         return 1;
     }
 
+    public double percentageLessThan(double time) {
+        int bucket = (int) ((Double.doubleToRawLongBits(time) >> (52 - fractionBits)) - floor);
+        return 100.0 * IntStream.rangeClosed(0, bucket).mapToLong(i -> sampleCount[i]).sum() / totalCount;
+    }
+
     @NotNull
     public double[] getPercentiles() {
         return getPercentiles(percentilesFor(totalCount));
@@ -256,44 +262,35 @@ public class Histogram implements NanoSampler {
     public String toLongMicrosFormat(@NotNull DoubleFunction<Double> toMicros) {
         if (totalCount < 1_000_000)
             return "50/90 97/99 99.7/99.9 99.97/99.99 - worst was " +
-                    p(toMicros.apply(percentile(0.5))) + " / " +
-                    p(toMicros.apply(percentile(0.9))) + "  " +
-                    p(toMicros.apply(percentile(0.97))) + " / " +
-                    p(toMicros.apply(percentile(0.99))) + "  " +
-                    p(toMicros.apply(percentile(0.997))) + " / " +
-                    p(toMicros.apply(percentile(0.999))) + "  " +
-                    p(toMicros.apply(percentile(0.9997))) + " / " +
-                    p(toMicros.apply(percentile(0.9999))) + " - " +
+                    first4nines(toMicros) + " - " +
                     p(toMicros.apply(percentile(1)));
 
         if (totalCount < 10_000_000)
             return "50/90 97/99 99.7/99.9 99.97/99.99 99.997/99.999 - worst was " +
-                    p(toMicros.apply(percentile(0.5))) + " / " +
-                    p(toMicros.apply(percentile(0.9))) + "  " +
-                    p(toMicros.apply(percentile(0.97))) + " / " +
-                    p(toMicros.apply(percentile(0.99))) + "  " +
-                    p(toMicros.apply(percentile(0.997))) + " / " +
-                    p(toMicros.apply(percentile(0.999))) + "  " +
-                    p(toMicros.apply(percentile(0.9997))) + " / " +
-                    p(toMicros.apply(percentile(0.9999))) + "  " +
+                    first4nines(toMicros) + "  " +
                     p(toMicros.apply(percentile(0.99997))) + " / " +
                     p(toMicros.apply(percentile(0.99999))) + " - " +
                     p(toMicros.apply(percentile(1)));
 
         return "50/90 97/99 99.7/99.9 99.97/99.99 99.997/99.999 99.9997/99.9999 - worst was " +
-                p(toMicros.apply(percentile(0.5))) + " / " +
+                first4nines(toMicros) + "  " +
+                p(toMicros.apply(percentile(0.99997))) + " / " +
+                p(toMicros.apply(percentile(0.99999))) + "  " +
+                p(toMicros.apply(percentile(0.999997))) + " / " +
+                p(toMicros.apply(percentile(0.999999))) + " - " +
+                p(toMicros.apply(percentile(1)));
+    }
+
+    @NotNull
+    private String first4nines(@NotNull DoubleFunction<Double> toMicros) {
+        return p(toMicros.apply(percentile(0.5))) + " / " +
                 p(toMicros.apply(percentile(0.9))) + "  " +
                 p(toMicros.apply(percentile(0.97))) + " / " +
                 p(toMicros.apply(percentile(0.99))) + "  " +
                 p(toMicros.apply(percentile(0.997))) + " / " +
                 p(toMicros.apply(percentile(0.999))) + "  " +
                 p(toMicros.apply(percentile(0.9997))) + " / " +
-                p(toMicros.apply(percentile(0.9999))) + "  " +
-                p(toMicros.apply(percentile(0.99997))) + " / " +
-                p(toMicros.apply(percentile(0.99999))) + "  " +
-                p(toMicros.apply(percentile(0.999997))) + " / " +
-                p(toMicros.apply(percentile(0.999999))) + " - " +
-                p(toMicros.apply(percentile(1)));
+                p(toMicros.apply(percentile(0.9999)));
     }
 
     @NotNull
