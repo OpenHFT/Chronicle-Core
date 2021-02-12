@@ -203,7 +203,8 @@ public class Histogram implements NanoSampler {
 
     public double percentageLessThan(double time) {
         int bucket = (int) ((Double.doubleToRawLongBits(time) >> (52 - fractionBits)) - floor);
-        return 100.0 * IntStream.rangeClosed(0, bucket).mapToLong(i -> sampleCount[i]).sum() / totalCount;
+        long perthousand = 1000L * IntStream.rangeClosed(0, bucket).mapToLong(i -> sampleCount[i]).sum() / totalCount;
+        return perthousand / 10.0;
     }
 
     @NotNull
