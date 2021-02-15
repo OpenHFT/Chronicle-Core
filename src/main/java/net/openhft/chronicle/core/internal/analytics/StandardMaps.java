@@ -42,7 +42,8 @@ public enum StandardMaps {
             )).collect(toSet());
 
     private static final Set<String> WHITE_LIST_CONTAINS = Stream.of(
-            ".demo"
+            ".demo",
+            "run.chronicle"
     ).collect(toSet());
 
     public static Map<String, String> standardEventParameters(@NotNull final String appVersion) {
