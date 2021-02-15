@@ -19,6 +19,12 @@ public enum StandardMaps {
 
     private static final long GIB = 1L << 30;
 
+    // Any package containing these sub-strings will be used
+    private static final Set<String> WHITE_LIST_CONTAINS = Stream.of(
+            ".demo",
+            "run.chronicle"
+    ).collect(toSet());
+
     // Exact match of package names. O(1) lookup performance.
     private static final Set<String> BLACK_LIST_EXACT = Stream.of(
             "java.lang",
@@ -41,10 +47,6 @@ public enum StandardMaps {
                     // Add third party libs
             )).collect(toSet());
 
-    private static final Set<String> WHITE_LIST_CONTAINS = Stream.of(
-            ".demo",
-            "run.chronicle"
-    ).collect(toSet());
 
     public static Map<String, String> standardEventParameters(@NotNull final String appVersion) {
         requireNonNull(appVersion);
