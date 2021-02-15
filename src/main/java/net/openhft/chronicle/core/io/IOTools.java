@@ -43,8 +43,8 @@ import java.util.zip.GZIPOutputStream;
 /*
  * A collection of CONCURRENT utility tools
  */
-public enum IOTools {
-    ;
+public final class IOTools {
+    private IOTools() { }
 
     static volatile Map<Class, AtomicInteger> COUNTER_MAP = new ConcurrentHashMap<>();
 
@@ -288,7 +288,7 @@ public enum IOTools {
                 Object o = field.get(t);
                 if (o != null)
                     unmonitor(o, depth);
-            } catch (IllegalAccessException e) {
+            } catch (IllegalAccessException | IllegalArgumentException e) {
                 Jvm.warn().on(IOTools.class, e);
             }
         }

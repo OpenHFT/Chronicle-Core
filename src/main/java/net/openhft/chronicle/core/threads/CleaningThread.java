@@ -45,7 +45,7 @@ public class CleaningThread extends Thread {
             if (o == null)
                 return;
             table = (WeakReference[]) TABLE.get(o);
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | IllegalArgumentException e) {
             Jvm.debug().on(CleaningThreadLocal.class, e.toString());
             return;
         }

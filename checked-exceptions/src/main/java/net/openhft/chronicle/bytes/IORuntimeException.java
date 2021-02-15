@@ -14,6 +14,7 @@ package net.openhft.chronicle.bytes;/*
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+@Deprecated(/* To be removed in x.23 */)
 public class IORuntimeException extends Exception {
     public IORuntimeException(String message) {
         super(message);

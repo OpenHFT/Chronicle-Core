@@ -10,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 public class SetTimeProviderTest {
 
     @Test
-    public void testNoOpConstructor() {
+    public void testNoOpConstructor() throws IllegalArgumentException {
         final SetTimeProvider tp = new SetTimeProvider();
         assertEquals(0, tp.currentTimeNanos());
         tp.currentTimeNanos(99_123_456_789L);
@@ -23,7 +23,7 @@ public class SetTimeProviderTest {
     }
 
     @Test
-    public void testNanosConstructor() {
+    public void testNanosConstructor() throws IllegalArgumentException {
         final SetTimeProvider tp = new SetTimeProvider(99_999_999_999_000_000L);
         assertEquals(99_999_999_999_000_000L, tp.currentTimeNanos());
         assertEquals(99_999_999_999_000L, tp.currentTimeMicros());
@@ -53,19 +53,19 @@ public class SetTimeProviderTest {
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testAttemptToGoBackwardsNanos() {
+    public void testAttemptToGoBackwardsNanos() throws IllegalArgumentException {
         final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
         tp.currentTimeNanos(99_999_999_999L);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testAttemptToGoBackwardsMicros() {
+    public void testAttemptToGoBackwardsMicros() throws IllegalArgumentException {
         final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
         tp.currentTimeMicros(99_999_999L);
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void testAttemptToGoBackwardsMillis() {
+    public void testAttemptToGoBackwardsMillis() throws IllegalArgumentException {
         final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
         tp.currentTimeMillis(99_999L);
     }

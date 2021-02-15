@@ -48,7 +48,12 @@ public interface ClassLookup {
 
     Class forName(CharSequence name) throws ClassNotFoundException;
 
-    String nameFor(Class clazz);
+    /**
+     * @param clazz to lookup an alias for
+     * @return the alias
+     * @throws IllegalArgumentException if used on a lambda function.
+     */
+    String nameFor(Class clazz) throws IllegalArgumentException;
 
     void addAlias(Class... classes);
 

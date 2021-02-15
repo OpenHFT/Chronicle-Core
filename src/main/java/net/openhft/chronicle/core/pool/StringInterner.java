@@ -45,6 +45,7 @@ public class StringInterner {
     protected final int mask, shift;
     protected boolean toggle = false;
 
+    // throws IllegalArgumentException
     public StringInterner(int capacity) throws IllegalArgumentException {
         int n = Maths.nextPower2(capacity, 128);
         shift = Maths.intLog2(n);

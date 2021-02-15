@@ -22,8 +22,8 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
-public enum Annotations {
-    ;
+public final class Annotations {
+    private Annotations() { }
 
     public static <A extends Annotation> A findAnnotation(Class<A> annoClass, Class<?> aClass, String name, Class<?>[] parameterTypes) {
         A methodId;

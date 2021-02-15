@@ -14,12 +14,12 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void warnAndReleaseIfNotReleased() {
+    public void warnAndReleaseIfNotReleased() throws ClosedIllegalStateException {
         a.warnAndReleaseIfNotReleased();
     }
 
     @Override
-    public void throwExceptionIfNotReleased() {
+    public void throwExceptionIfNotReleased() throws IllegalStateException {
         a.throwExceptionIfNotReleased();
     }
 
@@ -29,7 +29,7 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public boolean reservedBy(ReferenceOwner owner) {
+    public boolean reservedBy(ReferenceOwner owner) throws IllegalStateException {
         return a.reservedBy(owner);
     }
 
@@ -50,7 +50,7 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public synchronized boolean tryReserve(ReferenceOwner id) throws IllegalStateException {
+    public synchronized boolean tryReserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException {
         checkError();
         boolean aa = a.tryReserve(id);
         boolean bb = b.tryReserve(id);
@@ -89,7 +89,7 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void throwExceptionIfReleased() throws IllegalStateException {
+    public void throwExceptionIfReleased() throws ClosedIllegalStateException {
         checkError();
         a.throwExceptionIfReleased();
     }

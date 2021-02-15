@@ -21,13 +21,34 @@ package net.openhft.chronicle.core.threads;
 
 @FunctionalInterface
 public interface VanillaEventHandler {
+
     /**
-     * perform all tasks once and return ASAP.
-     * Called from the event loop's execution thread.
+     * Performs an action corresponding to some amount of work and returns if it is expected that a
+     * subsequent call to this method would result in additional work being carried out.
+     * <p>
+     * This method is called from an event loop's execution thread. Each event loop can services multiple event handlers.
+     * The aggressiveness with which any one handler is serviced is influenced by the handler's priority as well as
+     * other activity on the event loop as a whole.
+     * <p>
+     * If an event handler returns {@code true } from action(), it biases the event loop to service the same
+     * handler again "soon". How soon depends on a variety of factors and the other work the event loop has
+     * to do across the other handlers.
+     * <p>
+     * Returning {@code true } when there is no actual work to do may waste cycles servicing a handler which has nothing
+     * to do, at the expense of stealing cycles away from other handlers.
+     * Conversely, returning false when there is work to do will effectively increase latency as the event loop
+     * will take the "false" as a hint that several other handlers can be serviced ahead of this one.
+     * <p>
+     * As a rule of thumb, an action handler should do a certain amount of work then yield/return
+     * If it knows for sure that there is remaining work to be done at the point of yielding then return {@code true}.
+     * Otherwise return false and the event loop will revisit based on the handler's priority and other work load.
+     * <p>
+     * As with a lot of scheduling approaches there's no single answer and some experimentation under typical loads
+     * would always be recommended. But the above rule of thumb is a good starting point.
      *
      * @return true if you expect more work very soon.
      * @throws InvalidEventHandlerException when it is not longer valid.
-     *                                      Recommended to throw this if your event handler is closed
+     *                                      It is recommended to throw this exception if the event handler is closed
      */
     boolean action() throws InvalidEventHandlerException;
 }

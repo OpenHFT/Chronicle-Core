@@ -45,7 +45,7 @@ public class JvmParseSizeTest {
     }
 
     @Test
-    public void parseSize() {
+    public void parseSize() throws IllegalArgumentException {
         assertEquals(value, Jvm.parseSize(text));
     }
 

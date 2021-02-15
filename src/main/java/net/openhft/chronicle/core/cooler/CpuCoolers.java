@@ -170,14 +170,8 @@ public enum CpuCoolers implements CpuCooler {
 
     public static void busyWait(double nanos) {
         long start = System.nanoTime();
-        if (Jvm.isJava9Plus()) {
-            while (System.nanoTime() - start < nanos) {
-                Thread.holdsLock("");
-            }
-        } else {
-            while (System.nanoTime() - start < nanos) {
-                Compiler.enable();
-            }
+        while (System.nanoTime() - start < nanos) {
+            Jvm.safepoint();
         }
     }
 }

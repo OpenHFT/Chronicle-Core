@@ -34,7 +34,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public boolean reservedBy(ReferenceOwner owner) {
+    public boolean reservedBy(ReferenceOwner owner) throws IllegalStateException {
         if (refCount() <= 0)
             throw new IllegalStateException(type.getName() + " no reservations for " + asString(owner));
         // otherwise not sure.
@@ -42,7 +42,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void reserve(ReferenceOwner id) throws IllegalStateException {
+    public void reserve(ReferenceOwner id) throws ClosedIllegalStateException {
         for (; ; ) {
 
             int v = value;
@@ -56,7 +56,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException {
+    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws ClosedIllegalStateException {
         throwExceptionIfReleased();
     }
 
@@ -78,7 +78,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void release(ReferenceOwner id) throws IllegalStateException {
+    public void release(ReferenceOwner id) throws ClosedIllegalStateException {
         for (; ; ) {
             int v = value;
             if (v <= 0) {
@@ -94,7 +94,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         }
     }
 
-    public void callOnRelease() {
+    public void callOnRelease() throws ClosedIllegalStateException {
         if (released)
             throw new ClosedIllegalStateException(type.getName() + " already released");
         released = true;
@@ -128,13 +128,13 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void throwExceptionIfNotReleased() {
+    public void throwExceptionIfNotReleased() throws IllegalStateException {
         if (refCount() > 0)
             throw new IllegalStateException(type.getName() + " still reserved, count=" + refCount());
     }
 
     @Override
-    public void warnAndReleaseIfNotReleased() {
+    public void warnAndReleaseIfNotReleased() throws ClosedIllegalStateException {
         if (refCount() > 0) {
             Slf4jExceptionHandler.WARN.on(type, "Discarded without being released");
             callOnRelease();

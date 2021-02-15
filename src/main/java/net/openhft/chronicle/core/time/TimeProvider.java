@@ -25,15 +25,15 @@ public interface TimeProvider {
 
     long currentTimeMillis();
 
-    default long currentTimeMicros() {
+    default long currentTimeMicros() throws IllegalStateException {
         return currentTimeMillis() * 1000;
     }
 
-    default long currentTimeNanos() {
+    default long currentTimeNanos() throws IllegalStateException {
         return currentTimeMicros() * 1000;
     }
 
-    default long currentTime(TimeUnit timeUnit) {
+    default long currentTime(TimeUnit timeUnit) throws IllegalStateException {
         switch (timeUnit) {
             case NANOSECONDS:
                 return currentTimeNanos();

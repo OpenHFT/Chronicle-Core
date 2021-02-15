@@ -50,14 +50,14 @@ public class ClassAliasPoolTest {
     }
 
     @Test
-    public void testClean() {
+    public void testClean() throws IllegalArgumentException {
         assertEquals("String", CLASS_ALIASES.nameFor(String.class));
         CLASS_ALIASES.clean();
         assertEquals("String", CLASS_ALIASES.nameFor(String.class));
     }
 
     @Test
-    public void testEnum() {
+    public void testEnum() throws IllegalArgumentException {
         assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum",
                 CLASS_ALIASES.nameFor(TestEnum.class));
         assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum",

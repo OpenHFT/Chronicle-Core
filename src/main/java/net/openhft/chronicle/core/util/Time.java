@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.time.SystemTimeProvider;
 import net.openhft.chronicle.core.time.UniqueMicroTimeProvider;
 
 import java.util.concurrent.TimeUnit;
@@ -30,8 +31,9 @@ import java.util.concurrent.locks.LockSupport;
  * every millisecond; the EventLoop implementations in chronicle-threads do this.
  * </p>
  */
-public enum Time {
-    ;
+public final class Time {
+    private Time() {
+    }
 
     @Deprecated(/* Still widely used */)
     public static long currentTimeMillis() {
@@ -39,7 +41,13 @@ public enum Time {
     }
 
     public static String uniqueId() {
-        return Long.toString(UniqueMicroTimeProvider.INSTANCE.currentTimeMicros(), 36);
+        long l;
+        try {
+            l = UniqueMicroTimeProvider.INSTANCE.currentTimeMicros();
+        } catch (IllegalStateException e) {
+            l = SystemTimeProvider.INSTANCE.currentTimeMicros();
+        }
+        return Long.toString(l, 36);
     }
 
     public static void parkNanos(long nanos) {

@@ -20,23 +20,23 @@ package net.openhft.chronicle.core.values;
 import net.openhft.chronicle.core.Jvm;
 
 public interface TwoLongValue extends LongValue {
-    long getValue2();
+    long getValue2() throws IllegalStateException;
 
-    void setValue2(long value2);
+    void setValue2(long value2) throws IllegalStateException;
 
-    long getVolatileValue2();
+    long getVolatileValue2() throws IllegalStateException;
 
-    void setVolatileValue2(long value);
+    void setVolatileValue2(long value) throws IllegalStateException;
 
-    void setOrderedValue2(long value);
+    void setOrderedValue2(long value) throws IllegalStateException;
 
-    long addValue2(long delta);
+    long addValue2(long delta) throws IllegalStateException;
 
-    long addAtomicValue2(long delta);
+    long addAtomicValue2(long delta) throws IllegalStateException;
 
-    boolean compareAndSwapValue2(long expected, long value);
+    boolean compareAndSwapValue2(long expected, long value) throws IllegalStateException;
 
-    default void setMaxValue2(long value) {
+    default void setMaxValue2(long value) throws IllegalStateException {
         for (; ; ) {
             long pos = getVolatileValue2();
             if (pos >= value)
@@ -47,7 +47,7 @@ public interface TwoLongValue extends LongValue {
         }
     }
 
-    default void setMinValue2(long value) {
+    default void setMinValue2(long value) throws IllegalStateException {
         for (; ; ) {
             long pos = getVolatileValue2();
             if (pos <= value)
@@ -58,12 +58,12 @@ public interface TwoLongValue extends LongValue {
         }
     }
 
-    default void setValues(long value1, long value2) {
+    default void setValues(long value1, long value2) throws IllegalStateException {
         setValue2(value2);
         setOrderedValue(value1);
     }
 
-    default void getValues(long[] values) {
+    default void getValues(long[] values) throws IllegalStateException {
         long value1 = getVolatileValue();
         long value2 = getValue2();
         while (true) {

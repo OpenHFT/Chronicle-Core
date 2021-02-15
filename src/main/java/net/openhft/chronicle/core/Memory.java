@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.annotation.Positive;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Field;
@@ -39,7 +40,17 @@ public interface Memory {
 
     void freeMemory(long address, long size);
 
-    long allocate(long capacity) throws IllegalArgumentException, OutOfMemoryError;
+    /**
+     * Allocates memory and returns the low level base address of the newly allocated
+     * memory region.
+     *
+     * @param capacity to allocate
+     * @return the low level base address of the newly allocated
+     *         memory region
+     * @throws IllegalArgumentException if the capacity is non-positive
+     * @throws OutOfMemoryError if there are not enough memory to allocate
+     */
+    long allocate(@Positive long capacity);
 
     long nativeMemoryUsed();
 
@@ -49,9 +60,9 @@ public interface Memory {
 
     byte readByte(@NotNull Object object, long offset);
 
-    void writeBytes(long address, byte[] b, int offset, int length);
+    void writeBytes(long address, byte[] b, int offset, int length) throws IllegalArgumentException;
 
-    void readBytes(long address, byte[] b, long offset, int length);
+    void readBytes(long address, byte[] b, long offset, int length) throws IllegalArgumentException;
 
     byte readByte(long address);
 
@@ -111,8 +122,10 @@ public interface Memory {
 
     void writeOrderedLong(@NotNull Object object, long offset, long i);
 
+    // Throws IllegalStateException
     void testAndSetInt(long address, long offset, int expected, int value) throws IllegalStateException;
 
+    // throws IllegalStateException
     void testAndSetInt(@NotNull Object object, long offset, int expected, int value) throws IllegalStateException;
 
     boolean compareAndSwapInt(long address, int expected, int value);
