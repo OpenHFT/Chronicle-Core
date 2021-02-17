@@ -33,6 +33,8 @@ import static net.openhft.chronicle.core.io.TracingReferenceCounted.asString;
 
 public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwner {
     protected static final boolean DISABLE_THREAD_SAFETY = Jvm.getBoolean("disable.thread.safety", false);
+    protected static final boolean DISABLE_DISCARD_WARNING = Jvm.getBoolean("disable.discard.warning", false);
+
     @Deprecated(/* remove in x.23 */)
     protected static final boolean CHECK_THREAD_SAFETY = !DISABLE_THREAD_SAFETY;
     protected static final long WARN_NS = (long) (Jvm.getDouble("closeable.warn.secs", 0.02) * 1e9);
@@ -198,7 +200,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
      */
     protected void warnAndCloseIfNotClosed() {
         if (!isClosing()) {
-            if (Jvm.isResourceTracing()) {
+            if (Jvm.isResourceTracing() && !DISABLE_DISCARD_WARNING) {
                 ExceptionHandler warn = Jvm.getBoolean("warnAndCloseIfNotClosed") ? Jvm.warn() : Slf4jExceptionHandler.WARN;
                 warn.on(getClass(), "Discarded without closing", new IllegalStateException(createdHere));
             }

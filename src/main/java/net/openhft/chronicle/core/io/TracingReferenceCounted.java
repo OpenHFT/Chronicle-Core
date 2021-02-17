@@ -228,7 +228,8 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     @Override
     public void warnAndReleaseIfNotReleased() {
         if (refCount() > 0) {
-            Slf4jExceptionHandler.WARN.on(type, "Discarded without being released by " + referencesAsString(), createdHere);
+            if (!AbstractCloseable.DISABLE_DISCARD_WARNING)
+                Slf4jExceptionHandler.WARN.on(type, "Discarded without being released by " + referencesAsString(), createdHere);
             onRelease.run();
         }
     }

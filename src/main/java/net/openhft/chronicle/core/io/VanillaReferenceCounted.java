@@ -136,7 +136,8 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     @Override
     public void warnAndReleaseIfNotReleased() throws ClosedIllegalStateException {
         if (refCount() > 0) {
-            Slf4jExceptionHandler.WARN.on(type, "Discarded without being released");
+            if (!AbstractCloseable.DISABLE_DISCARD_WARNING)
+                Slf4jExceptionHandler.WARN.on(type, "Discarded without being released");
             callOnRelease();
         }
     }
