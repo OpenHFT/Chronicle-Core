@@ -153,6 +153,10 @@ public enum Jvm {
 
         findAndLoadSystemProperties();
 
+        boolean disablePerfInfo = Jvm.getBoolean("disable.perf.info");
+        if (disablePerfInfo)
+            PERF.defaultHandler(NullExceptionHandler.NOTHING);
+
         SAFEPOINT_ENABLED = Jvm.getBoolean("jvm.safepoint.enabled");
 
         RESOURCE_TRACING = Jvm.getBoolean("jvm.resource.tracing");
