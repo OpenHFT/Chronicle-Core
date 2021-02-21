@@ -24,7 +24,9 @@ import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 import net.openhft.chronicle.core.util.WeakIdentityHashMap;
 
+import java.lang.reflect.Field;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
 import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BACKGROUND_RESOURCE_RELEASER;
@@ -34,6 +36,7 @@ import static net.openhft.chronicle.core.io.TracingReferenceCounted.asString;
 public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwner {
     protected static final boolean DISABLE_THREAD_SAFETY = Jvm.getBoolean("disable.thread.safety", false);
     protected static final boolean DISABLE_DISCARD_WARNING = Jvm.getBoolean("disable.discard.warning", false);
+    protected static final boolean STRICT_DISCARD_WARNING = Jvm.getBoolean("strict.discard.warning", false);
 
     @Deprecated(/* remove in x.23 */)
     protected static final boolean CHECK_THREAD_SAFETY = !DISABLE_THREAD_SAFETY;
@@ -87,33 +90,67 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
         AssertionError openFiles = new AssertionError("Closeables still open");
 
         synchronized (traceSet) {
+            traceSet.removeIf(o -> o == null || o.isClosing());
+            Set<CloseableTracer> nested = new HashSet<>();
             for (CloseableTracer key : traceSet) {
-                if (key != null && !key.isClosing()) {
-                    Throwable t;
-                    try {
-                        if (key instanceof ReferenceCountedTracer) {
-                            ((ReferenceCountedTracer) key).throwExceptionIfNotReleased();
-                        }
-                        t = key.createdHere();
-                    } catch (IllegalStateException e) {
-                        t = e;
+                addNested(nested, key, 1);
+            }
+            Set<CloseableTracer> traceSet2 = new HashSet<>(traceSet);
+            traceSet2.removeAll(nested);
+
+            for (CloseableTracer key : traceSet2) {
+                Throwable t;
+                try {
+                    if (key instanceof ReferenceCountedTracer) {
+                        ((ReferenceCountedTracer) key).throwExceptionIfNotReleased();
                     }
-                    IllegalStateException exception = new IllegalStateException("Not closed " + asString(key), t);
-                    Thread.yield();
-                    if (key.isClosed()) {
-//                        System.out.println(exception.getMessage() + " is now closed...");
-                        continue;
-                    }
-                    exception.printStackTrace();
-                    openFiles.addSuppressed(exception);
-                    key.close();
+                    t = key.createdHere();
+                } catch (IllegalStateException e) {
+                    t = e;
                 }
+                IllegalStateException exception = new IllegalStateException("Not closed " + asString(key), t);
+                Thread.yield();
+                if (key.isClosed()) {
+//                        System.out.println(exception.getMessage() + " is now closed...");
+                    continue;
+                }
+                exception.printStackTrace();
+                openFiles.addSuppressed(exception);
+                key.close();
             }
         }
 
         if (openFiles.getSuppressed().length > 0) {
             throw openFiles;
         }
+    }
+
+    private static void addNested(Set<CloseableTracer> nested, CloseableTracer key, int depth) {
+        if (key.isClosing())
+            return;
+        Set<Field> fields = new HashSet<>();
+        Class<? extends CloseableTracer> keyClass = key.getClass();
+        getCloseableFields(keyClass, fields);
+        for (Field field : fields) {
+            try {
+                field.setAccessible(true);
+                CloseableTracer o = (CloseableTracer) field.get(key);
+                if (o != null && nested.add(o))
+                    if (depth > 1)
+                        addNested(nested, o, depth - 1);
+            } catch (IllegalAccessException e) {
+                Jvm.warn().on(keyClass, e);
+            }
+        }
+    }
+
+    private static void getCloseableFields(Class keyClass, Set<Field> fields) {
+        if (keyClass == null || keyClass == Object.class)
+            return;
+        for (Field field : keyClass.getDeclaredFields())
+            if (CloseableTracer.class.isAssignableFrom(field.getType()))
+                fields.add(field);
+        getCloseableFields(keyClass.getSuperclass(), fields);
     }
 
     public static void unmonitor(Closeable closeable) {
@@ -198,7 +235,8 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     /**
      * Called from finalise() implementations.
      */
-    protected void warnAndCloseIfNotClosed() {
+    @Override
+    public void warnAndCloseIfNotClosed() {
         if (!isClosing()) {
             if (Jvm.isResourceTracing() && !DISABLE_DISCARD_WARNING) {
                 ExceptionHandler warn = Jvm.getBoolean("warnAndCloseIfNotClosed") ? Jvm.warn() : Slf4jExceptionHandler.WARN;

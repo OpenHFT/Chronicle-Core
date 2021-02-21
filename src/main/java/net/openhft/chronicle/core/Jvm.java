@@ -163,7 +163,7 @@ public enum Jvm {
 
         Logger logger = LoggerFactory.getLogger(Jvm.class);
         logger.info("Chronicle core loaded from " + Jvm.class.getProtectionDomain().getCodeSource().getLocation());
-        if (RESOURCE_TRACING)
+        if (RESOURCE_TRACING && !Jvm.getBoolean("disable.resource.warning"))
             logger.warn("Resource tracing is turned on. If you are performance testing or running in PROD you probably don't want this");
     }
 
@@ -768,7 +768,7 @@ public enum Jvm {
         final Iterator<ExceptionKey> iterator = exceptions.keySet().iterator();
         while (iterator.hasNext()) {
             final ExceptionKey k = iterator.next();
-            if ((k.throwable != null && !(k.throwable instanceof StackTrace)) && k.level != LogLevel.DEBUG)
+            if (k.level != LogLevel.DEBUG && k.level != LogLevel.PERF)
                 return true;
         }
 

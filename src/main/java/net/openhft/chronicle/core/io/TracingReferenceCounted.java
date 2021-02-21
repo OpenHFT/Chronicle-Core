@@ -4,7 +4,9 @@
 
 package net.openhft.chronicle.core.io;
 
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
+import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 import org.jetbrains.annotations.NotNull;
 
@@ -228,8 +230,10 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     @Override
     public void warnAndReleaseIfNotReleased() {
         if (refCount() > 0) {
-            if (!AbstractCloseable.DISABLE_DISCARD_WARNING)
-                Slf4jExceptionHandler.WARN.on(type, "Discarded without being released by " + referencesAsString(), createdHere);
+            if (!AbstractCloseable.DISABLE_DISCARD_WARNING) {
+                ExceptionHandler warn = AbstractCloseable.STRICT_DISCARD_WARNING ? Jvm.warn() : Slf4jExceptionHandler.WARN;
+                warn.on(type, "Discarded without being released by " + referencesAsString(), createdHere);
+            }
             onRelease.run();
         }
     }

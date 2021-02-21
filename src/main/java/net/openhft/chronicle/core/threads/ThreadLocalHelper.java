@@ -45,6 +45,16 @@ public final class ThreadLocalHelper {
     }
 
     @NotNull
+    public static <T> T getSTL(@NotNull ThreadLocal<T> threadLocal, @NotNull Supplier<T> supplier) {
+        @Nullable T ret = threadLocal.get();
+        if (ret == null) {
+            ret = supplier.get();
+            threadLocal.set(ret);
+        }
+        return ret;
+    }
+
+    @NotNull
     public static <T, A> T getTL(@NotNull ThreadLocal<WeakReference<T>> threadLocal, A a, @NotNull Function<A, T> function) {
         return getTL(threadLocal, a, function, null, null);
     }

@@ -19,7 +19,6 @@
 
 package net.openhft.chronicle.core.onoes;
 
-import net.openhft.chronicle.core.StackTrace;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
@@ -38,9 +37,6 @@ public class RecordingExceptionHandler implements ExceptionHandler {
     @Override
     public void on(Class clazz, String message, Throwable thrown) {
         if (exceptionsOnly && thrown == null)
-            return;
-        // assume it is profiling or stack tracing. TODO: do we still need Throwable.class here?
-        if (thrown != null && (thrown.getClass() == StackTrace.class || thrown.getClass() == Throwable.class))
             return;
         synchronized (exceptionKeyCountMap) {
             @NotNull ExceptionKey key = new ExceptionKey(level, clazz, message, thrown);
