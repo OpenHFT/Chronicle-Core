@@ -78,6 +78,36 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
         CLOSEABLE_SET = null;
     }
 
+    public static boolean waitForCloseablesToClose(long millis) {
+        final Set<CloseableTracer> traceSet = CLOSEABLE_SET;
+        if (traceSet == null) {
+            return true;
+        }
+
+        long end = System.currentTimeMillis() + millis;
+
+        BackgroundResourceReleaser.releasePendingResources();
+
+        toWait:
+        do {
+            synchronized (traceSet) {
+                for (CloseableTracer key : traceSet) {
+                    try {
+                        if (key instanceof ReferenceCountedTracer) {
+                            ((ReferenceCountedTracer) key).throwExceptionIfNotReleased();
+                        }
+                    } catch (IllegalStateException e) {
+                        Jvm.pause(1);
+                        continue toWait;
+                    }
+                }
+            }
+            Jvm.pause(1);
+            return true;
+        } while (System.currentTimeMillis() < end);
+        return false;
+    }
+
     public static void assertCloseablesClosed() {
         final Set<CloseableTracer> traceSet = CLOSEABLE_SET;
         if (traceSet == null) {
