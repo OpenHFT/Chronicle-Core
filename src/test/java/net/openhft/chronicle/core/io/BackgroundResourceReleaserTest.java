@@ -14,7 +14,7 @@ public class BackgroundResourceReleaserTest {
     final AtomicLong released = new AtomicLong();
 
     @Test
-    public void testResourcesCleanedUp() {
+    public void testResourcesCleanedUp() throws IllegalStateException {
         assumeTrue(BackgroundResourceReleaser.BG_RELEASER);
         int count = 20;
         for (int i = 1; i < count; i++) {
@@ -38,7 +38,7 @@ public class BackgroundResourceReleaserTest {
         wc.close();
         long time0 = System.currentTimeMillis() - start0;
         int error = Jvm.isAzulZing() ? 30 : Jvm.isArm() || OS.isWindows() ? 15 : 7;
-        assertBetween(10, time0, 10 + 2 * error);
+        assertBetween(10, time0, 10 + 3 * error);
 
         BackgroundResourceReleaser.releasePendingResources();
         long time = System.currentTimeMillis() - start0;

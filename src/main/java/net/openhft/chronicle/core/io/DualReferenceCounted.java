@@ -1,11 +1,13 @@
 package net.openhft.chronicle.core.io;
 
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
 
 public class DualReferenceCounted implements MonitorReferenceCounted {
     private final ReferenceCountedTracer a, b;
     private volatile int refCount;
-    private volatile AssertionError error;
+    private volatile Throwable error;
+    private int refCountB;
 
     public DualReferenceCounted(ReferenceCountedTracer a, ReferenceCountedTracer b) {
         this.a = a;
@@ -14,12 +16,12 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void warnAndReleaseIfNotReleased() {
+    public void warnAndReleaseIfNotReleased() throws ClosedIllegalStateException {
         a.warnAndReleaseIfNotReleased();
     }
 
     @Override
-    public void throwExceptionIfNotReleased() {
+    public void throwExceptionIfNotReleased() throws IllegalStateException {
         a.throwExceptionIfNotReleased();
     }
 
@@ -29,58 +31,89 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public boolean reservedBy(ReferenceOwner owner) {
+    public boolean reservedBy(ReferenceOwner owner) throws IllegalStateException {
         return a.reservedBy(owner);
     }
 
     @Override
     public synchronized void reserve(ReferenceOwner id) throws IllegalStateException {
         checkError();
-        a.reserve(id);
-        b.reserve(id);
-        this.refCount = a.refCount();
-        int bRefCount = b.refCount();
-        if (this.refCount != bRefCount)
-            throw error = new AssertionError(this.refCount + " != " + bRefCount + " , id= " + id);
+        try {
+            a.reserve(id);
+            b.reserve(id);
+            this.refCount = a.refCount();
+            this.refCountB = b.refCount();
+            if (this.refCount != refCountB)
+                throw new AssertionError(this.refCount + " != " + refCountB + " , id= " + id);
+        } catch (IllegalStateException e) {
+            throw e;
+        } catch (Throwable e) {
+            throw Jvm.rethrow(error = e);
+        }
     }
 
     private void checkError() {
         if (error != null)
             throw new AssertionError("Unable to use this resource due to previous error", error);
+        int aRefCount = a.refCount();
+        int bRefCount = b.refCount();
+        if (aRefCount != bRefCount)
+            throw Jvm.rethrow(error = new AssertionError(aRefCount + " != " + bRefCount, error));
     }
 
     @Override
-    public synchronized boolean tryReserve(ReferenceOwner id) throws IllegalStateException {
+    public synchronized boolean tryReserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException {
         checkError();
-        boolean aa = a.tryReserve(id);
-        boolean bb = b.tryReserve(id);
-        assert aa == bb;
-        this.refCount = a.refCount();
-        if (refCount != b.refCount())
-            throw error = new AssertionError(refCount + " != " + b.refCount() + " , id= " + id, error);
+        try {
+            boolean aa = a.tryReserve(id);
+            boolean bb = b.tryReserve(id);
+            assert aa == bb;
+            this.refCount = a.refCount();
+            this.refCountB = b.refCount();
+            if (this.refCount != refCountB)
+                throw new AssertionError(this.refCount + " != " + refCountB + " , id= " + id);
+            return aa;
+        } catch (IllegalStateException e) {
+            throw e;
+        } catch (Throwable e) {
+            throw Jvm.rethrow(error = e);
+        }
 
-        return aa;
     }
 
     @Override
     public synchronized void release(ReferenceOwner id) throws IllegalStateException {
         checkError();
-        a.release(id);
-        b.release(id);
-        this.refCount = a.refCount();
-        int refCountB = b.refCount();
-        if (this.refCount != refCountB)
-            throw error = new AssertionError(this.refCount + " != " + refCountB + " , id= " + id, error);
+
+        try {
+            a.release(id);
+            b.release(id);
+            this.refCount = a.refCount();
+            this.refCountB = b.refCount();
+            if (this.refCount != refCountB)
+                throw new AssertionError(this.refCount + " != " + refCountB + " , id= " + id);
+        } catch (IllegalStateException e) {
+            throw e;
+        } catch (Throwable e) {
+            throw Jvm.rethrow(error = e);
+        }
     }
 
     @Override
     public synchronized void releaseLast(ReferenceOwner id) throws IllegalStateException {
         checkError();
-        a.releaseLast(id);
-        b.releaseLast(id);
-        this.refCount = a.refCount();
-        if (refCount != b.refCount())
-            throw error = new AssertionError(refCount + " != " + b.refCount() + " , id= " + id, error);
+        try {
+            a.releaseLast(id);
+            b.releaseLast(id);
+            this.refCount = a.refCount();
+            this.refCountB = b.refCount();
+            if (this.refCount != refCountB)
+                throw new AssertionError(this.refCount + " != " + refCountB + " , id= " + id);
+        } catch (IllegalStateException e) {
+            throw e;
+        } catch (Throwable e) {
+            throw Jvm.rethrow(error = e);
+        }
     }
 
     @Override
@@ -89,7 +122,7 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void throwExceptionIfReleased() throws IllegalStateException {
+    public synchronized void throwExceptionIfReleased() throws ClosedIllegalStateException {
         checkError();
         a.throwExceptionIfReleased();
     }
@@ -97,11 +130,18 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
     @Override
     public synchronized void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException {
         checkError();
-        a.reserveTransfer(from, to);
-        b.reserveTransfer(from, to);
-        this.refCount = a.refCount();
-        if (refCount != b.refCount())
-            throw error = new AssertionError(refCount + " != " + b.refCount() + " , from= " + from + ", to=" + to);
+        try {
+            a.reserveTransfer(from, to);
+            b.reserveTransfer(from, to);
+            this.refCount = a.refCount();
+            this.refCountB = b.refCount();
+            if (this.refCount != refCountB)
+                throw new AssertionError(refCount + " != " + refCountB + " , from= " + from + ", to=" + to);
+        } catch (IllegalStateException e) {
+            throw e;
+        } catch (Throwable e) {
+            throw Jvm.rethrow(error = e);
+        }
     }
 
     @Override

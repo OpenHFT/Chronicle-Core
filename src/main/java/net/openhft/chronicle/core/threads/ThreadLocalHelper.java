@@ -27,8 +27,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-public enum ThreadLocalHelper {
-    ;
+public final class ThreadLocalHelper {
+    private ThreadLocalHelper() {
+    }
 
     @NotNull
     public static <T> T getTL(@NotNull ThreadLocal<WeakReference<T>> threadLocal, @NotNull Supplier<T> supplier) {
@@ -39,6 +40,16 @@ public enum ThreadLocalHelper {
             ret = supplier.get();
             ref = new WeakReference<>(ret);
             threadLocal.set(ref);
+        }
+        return ret;
+    }
+
+    @NotNull
+    public static <T> T getSTL(@NotNull ThreadLocal<T> threadLocal, @NotNull Supplier<T> supplier) {
+        @Nullable T ret = threadLocal.get();
+        if (ret == null) {
+            ret = supplier.get();
+            threadLocal.set(ret);
         }
         return ret;
     }

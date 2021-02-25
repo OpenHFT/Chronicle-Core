@@ -19,7 +19,9 @@
 
 package net.openhft.chronicle.core.onoes;
 
+import net.openhft.chronicle.core.ClassLocal;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public enum Slf4jExceptionHandler implements ExceptionHandler {
@@ -30,7 +32,7 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
     FATAL {
         @Override
         public void on(@NotNull Class clazz, String message, Throwable thrown) {
-            LoggerFactory.getLogger(clazz).error("FATAL error " + message, thrown);
+            getLogger(clazz).error("FATAL error " + message, thrown);
             if (!Slf4jExceptionHandler.isJUnitTest()) {
                 System.exit(-1);
             }
@@ -39,32 +41,38 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
     ERROR {
         @Override
         public void on(@NotNull Class clazz, String message, Throwable thrown) {
-            LoggerFactory.getLogger(clazz).error(message, thrown);
+            getLogger(clazz).error(message, thrown);
         }
     },
     WARN {
         @Override
         public void on(@NotNull Class clazz, String message, Throwable thrown) {
-            LoggerFactory.getLogger(clazz).warn(message, thrown);
+            getLogger(clazz).warn(message, thrown);
         }
     },
     PERF {
         @Override
         public void on(@NotNull Class clazz, String message, Throwable thrown) {
-            LoggerFactory.getLogger(clazz).info(message, thrown);
+            getLogger(clazz).info(message, thrown);
         }
     },
     DEBUG {
         @Override
         public void on(@NotNull Class clazz, String message, Throwable thrown) {
-            LoggerFactory.getLogger(clazz).debug(message, thrown);
+            getLogger(clazz).debug(message, thrown);
         }
 
         @Override
         public boolean isEnabled(Class clazz) {
-            return LoggerFactory.getLogger(clazz).isDebugEnabled();
+            return getLogger(clazz).isDebugEnabled();
         }
     };
+
+    static Logger getLogger(Class clazz) {
+        return CLASS_LOGGER.get(clazz);
+    }
+
+    static final ClassLocal<Logger> CLASS_LOGGER = ClassLocal.withInitial(LoggerFactory::getLogger);
 
     public static Slf4jExceptionHandler valueOf(LogLevel logLevel) {
         if (logLevel == LogLevel.FATAL)

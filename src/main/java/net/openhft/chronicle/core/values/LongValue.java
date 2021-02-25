@@ -21,30 +21,30 @@ package net.openhft.chronicle.core.values;
 import net.openhft.chronicle.core.Jvm;
 
 public interface LongValue {
-    long getValue();
+    long getValue() throws IllegalStateException;
 
-    void setValue(long value);
+    void setValue(long value) throws IllegalStateException;
 
-    long getVolatileValue();
+    long getVolatileValue() throws IllegalStateException;
 
-    void setVolatileValue(long value);
+    void setVolatileValue(long value) throws IllegalStateException;
 
     /**
      * Value to return if the underlying resource isn't available.
      */
-    default long getVolatileValue(long closedValue) {
+    default long getVolatileValue(long closedValue) throws IllegalStateException {
         return getVolatileValue();
     }
 
-    void setOrderedValue(long value);
+    void setOrderedValue(long value) throws IllegalStateException;
 
-    long addValue(long delta);
+    long addValue(long delta) throws IllegalStateException;
 
-    long addAtomicValue(long delta);
+    long addAtomicValue(long delta) throws IllegalStateException;
 
-    boolean compareAndSwapValue(long expected, long value);
+    boolean compareAndSwapValue(long expected, long value) throws IllegalStateException;
 
-    default void setMaxValue(long value) {
+    default void setMaxValue(long value) throws IllegalStateException {
         for (; ; ) {
             long pos = getVolatileValue();
             if (pos >= value)
@@ -55,7 +55,7 @@ public interface LongValue {
         }
     }
 
-    default void setMinValue(long value) {
+    default void setMinValue(long value) throws IllegalStateException {
         for (; ; ) {
             long pos = getVolatileValue();
             if (pos <= value)

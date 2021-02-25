@@ -88,12 +88,12 @@ public enum ObjectUtils {
         if (c == null)
             throw new NullPointerException();
         if (c.isPrimitive())
-            throw new IllegalArgumentException("primitive: " + c.getName());
+            Jvm.rethrow(new IllegalArgumentException("primitive: " + c.getName()));
         if (c.isInterface()) {
             return () -> {
                 Class aClass = ObjectUtils.interfaceToDefaultClass.get(c);
                 if (aClass == null)
-                    throw new IllegalArgumentException("interface: " + c.getName());
+                    Jvm.rethrow(new IllegalArgumentException("interface: " + c.getName()));
                 return supplierForClass(aClass);
             };
         }
@@ -106,7 +106,7 @@ public enum ObjectUtils {
                 }
             };
         if (Modifier.isAbstract(c.getModifiers()))
-            throw new IllegalArgumentException("abstract class: " + c.getName());
+            Jvm.rethrow(new IllegalArgumentException("abstract class: " + c.getName()));
         try {
             Constructor constructor = c.getDeclaredConstructor();
             Jvm.setAccessible(constructor);
@@ -139,8 +139,12 @@ public enum ObjectUtils {
             return false;
         switch (s.length()) {
             case 1:
-                char ch = Character.toLowerCase(s.charAt(0));
-                return ch == 't' || ch == 'y';
+                try {
+                    char ch = Character.toLowerCase(s.charAt(0));
+                    return ch == 't' || ch == 'y';
+                } catch (IndexOutOfBoundsException e) {
+                    throw new AssertionError(e);
+                }
             case 3:
                 return equalsCaseIgnore(s, "yes");
             case 4:
@@ -155,8 +159,12 @@ public enum ObjectUtils {
             return false;
         switch (s.length()) {
             case 1:
-                char ch = Character.toLowerCase(s.charAt(0));
-                return ch == 'f' || ch == 'n';
+                try {
+                    char ch = Character.toLowerCase(s.charAt(0));
+                    return ch == 'f' || ch == 'n';
+                } catch (IndexOutOfBoundsException e) {
+                    throw new AssertionError(e);
+                }
             case 2:
                 return equalsCaseIgnore(s, "no");
             case 5:
@@ -186,8 +194,7 @@ public enum ObjectUtils {
     }
 
     @Nullable
-    public static <E> E convertTo(@Nullable Class<E> eClass, @Nullable Object o)
-            throws ClassCastException, IllegalArgumentException {
+    public static <E> E convertTo(@Nullable Class<E> eClass, @Nullable Object o) throws ClassCastException, IllegalArgumentException {
         // shorter path.
         return eClass == null || o == null || eClass.isInstance(o)
                 ? (E) o
@@ -222,8 +229,8 @@ public enum ObjectUtils {
         return enumConstants[0];
     }
 
-    static <E> E convertTo0(Class<E> eClass, @Nullable Object o)
-            throws ClassCastException, IllegalArgumentException {
+    // throws ClassCastException, IllegalArgumentException
+    static <E> E convertTo0(Class<E> eClass, @Nullable Object o) throws NumberFormatException {
         eClass = primToWrapper(eClass);
         if (eClass.isInstance(o) || o == null) return (E) o;
         if (eClass == Void.class) return null;
@@ -235,7 +242,11 @@ public enum ObjectUtils {
             @Nullable CharSequence cs = (CharSequence) o;
             if (Character.class.equals(eClass)) {
                 if (cs.length() > 0)
-                    return (E) (Character) cs.charAt(0);
+                    try {
+                        return (E) (Character) cs.charAt(0);
+                    } catch (IndexOutOfBoundsException e) {
+                        throw new AssertionError(e);
+                    }
                 else
                     return null;
             }
@@ -286,16 +297,20 @@ public enum ObjectUtils {
         return cce;
     }
 
+    // throws IllegalArgumentException
     @NotNull
-    private static <E> E convertToArray(@NotNull Class<E> eClass, Object o)
-            throws IllegalArgumentException {
+    private static <E> E convertToArray(@NotNull Class<E> eClass, Object o) {
         int len = sizeOf(o);
         Object array = Array.newInstance(eClass.getComponentType(), len);
         Iterator iter = iteratorFor(o);
         Class elementType = elementType(eClass);
-        for (int i = 0; i < len; i++) {
-            @Nullable Object value = convertTo(elementType, iter.next());
-            Array.set(array, i, value);
+        try {
+            for (int i = 0; i < len; i++) {
+                @Nullable Object value = convertTo(elementType, iter.next());
+                Array.set(array, i, value);
+            }
+        } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e) {
+            throw new AssertionError(e);
         }
         return (E) array;
     }
@@ -316,18 +331,23 @@ public enum ObjectUtils {
         throw new UnsupportedOperationException();
     }
 
-    private static int sizeOf(Object o) throws IllegalArgumentException {
+    // throws IllegalArgumentException
+    private static int sizeOf(Object o) {
         if (o instanceof Collection)
             return ((Collection) o).size();
         if (o instanceof Map)
             return ((Map) o).size();
-        if (o.getClass().isArray())
-            return Array.getLength(o);
+        try {
+            if (o.getClass().isArray())
+                return Array.getLength(o);
+        } catch (IllegalArgumentException e) {
+            throw new AssertionError(e);
+        }
         throw new UnsupportedOperationException();
     }
 
-    private static Number convertToNumber(Class eClass, Object o)
-            throws NumberFormatException {
+    // throws NumberFormatException
+    private static Number convertToNumber(Class eClass, Object o) throws NumberFormatException {
         if (o instanceof Number) {
             @NotNull Number n = (Number) o;
             if (eClass == Double.class)
@@ -424,13 +444,15 @@ public enum ObjectUtils {
         });
     }
 
+    @Deprecated(/* to be removed in x.23 */)
     @NotNull
-    public static Class getTypeFor(@NotNull Class clazz, @NotNull Class interfaceClass) {
+    public static Class getTypeFor(@NotNull Class clazz, @NotNull Class interfaceClass) throws IllegalArgumentException {
         return getTypeFor(clazz, interfaceClass, 0);
     }
 
+    @Deprecated(/* to be removed in x.23 */)
     @NotNull
-    public static Class getTypeFor(@NotNull Class clazz, @NotNull Class interfaceClass, int index) {
+    public static Class getTypeFor(@NotNull Class clazz, @NotNull Class interfaceClass, int index) throws IllegalArgumentException {
         for (Type type : clazz.getGenericInterfaces()) {
             if (type instanceof ParameterizedType) {
                 @NotNull ParameterizedType ptype = (ParameterizedType) type;
@@ -455,7 +477,7 @@ public enum ObjectUtils {
             return o;
         try {
             return readResove.invoke(o);
-        } catch (IllegalAccessException e) {
+        } catch (IllegalAccessException | IllegalArgumentException e) {
             throw Jvm.rethrow(e);
         } catch (InvocationTargetException e) {
             throw Jvm.rethrow(e.getCause());
@@ -478,12 +500,16 @@ public enum ObjectUtils {
     }
 
     public static Class<?>[] getAllInterfaces(Object o) {
-        Set<Class<?>> results = new HashSet<>();
-        getAllInterfaces(o, results::add);
-        return results.toArray(new Class<?>[results.size()]);
+        try {
+            Set<Class<?>> results = new HashSet<>();
+            getAllInterfaces(o, results::add);
+            return results.toArray(new Class<?>[results.size()]);
+        } catch (IllegalArgumentException e) {
+            throw new AssertionError(e);
+        }
     }
 
-    public static void getAllInterfaces(Object o, Function<Class<?>, Boolean> accumulator) {
+    public static void getAllInterfaces(Object o, Function<Class<?>, Boolean> accumulator) throws IllegalArgumentException {
         if (null == o)
             return;
 
@@ -592,6 +618,7 @@ public enum ObjectUtils {
     /**
      * Standard mechanism to determine objects as not null. Same method contract as {@link Objects#requireNonNull(Object)}
      * and also decorated with {@link NotNull} so that IntelliJ and other static anslysis tools can work their magic.
+     *
      * @param o reference to check for nullity
      * @throws NullPointerException if o is null
      */

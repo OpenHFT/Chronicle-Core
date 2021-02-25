@@ -31,7 +31,7 @@ public interface ReferenceCounted extends ReferenceOwner {
      * @throws IllegalStateException if the resource has already been freed.
      *                               I.e. its reference counter has as some point reached zero.
      */
-    boolean tryReserve(ReferenceOwner id) throws IllegalStateException;
+    boolean tryReserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException;
 
     /**
      * Best effort check the owner has reserved it. Returns true if not sure.
@@ -39,7 +39,7 @@ public interface ReferenceCounted extends ReferenceOwner {
      * @param owner to check
      * @return false if the owner definitely doesn't own it.
      */
-    boolean reservedBy(ReferenceOwner owner);
+    boolean reservedBy(ReferenceOwner owner) throws IllegalStateException;
 
     /**
      * Releases a resource.

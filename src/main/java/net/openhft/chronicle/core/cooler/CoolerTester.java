@@ -149,7 +149,12 @@ public class CoolerTester {
                         if (tests.size() > 1)
                             System.out.print(testNames.get(j) + " ");
                         System.out.print(disturber);
-                        System.out.println(" - " + histogram.toLongMicrosFormat());
+                        System.out.println(",band,<0.1,<1,<10,<100, "
+                                + histogram.percentageLessThan(0.1e3) + ", "
+                                + histogram.percentageLessThan(1e3) + ", "
+                                + histogram.percentageLessThan(10e3) + ", "
+                                + histogram.percentageLessThan(100e3) + ",%iles,"
+                                + histogram.toLongMicrosFormat());
                         if (t == 0)
                             histogram.reset();
                     }

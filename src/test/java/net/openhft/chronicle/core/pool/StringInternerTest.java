@@ -25,7 +25,7 @@ import static org.junit.Assert.assertEquals;
 
 public class StringInternerTest {
     @Test
-    public void testIntern() {
+    public void testIntern() throws IllegalArgumentException {
         @NotNull StringInterner si = new StringInterner(128);
         for (int i = 0; i < 100; i++) {
             si.intern("" + i);

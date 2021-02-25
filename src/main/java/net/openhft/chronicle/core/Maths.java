@@ -23,8 +23,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
-public enum Maths {
-    ;
+public final class Maths {
+    private Maths() { }
 
     /**
      * Numbers larger than this are whole numbers due to representation error.
@@ -239,10 +239,26 @@ public enum Maths {
                 ? (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor : d;
     }
 
+    /**
+     * Returns the next power of two.
+     *
+     * @param n   to find the next power of two from
+     * @param min if n < min then use min
+     * @return the next power of two
+     * @throws IllegalArgumentException if the provided {@code min} value is not a power of two.
+     */
     public static int nextPower2(int n, int min) throws IllegalArgumentException {
         return (int) Math.min(1 << 30, nextPower2(n, (long) min));
     }
 
+    /**
+     * Returns the next power of two.
+     *
+     * @param n   to find the next power of two from
+     * @param min if n < min then use min
+     * @return the next power of two
+     * @throws IllegalArgumentException if the provided {@code min} value is not a power of two.
+     */
     public static long nextPower2(long n, long min) throws IllegalArgumentException {
         if (!isPowerOf2(min))
             throw new IllegalArgumentException(min + " must be a power of 2");
@@ -288,10 +304,14 @@ public enum Maths {
     public static long hash64(@NotNull CharSequence cs) {
         if (cs instanceof String)
             return hash64((String) cs);
-        long hash = 0;
-        for (int i = 0, len = cs.length(); i < len; i++)
-            hash = hash * 0x32246e3d + cs.charAt(i);
-        return agitate(hash);
+        try {
+            long hash = 0;
+            for (int i = 0, len = cs.length(); i < len; i++)
+                hash = hash * 0x32246e3d + cs.charAt(i);
+            return agitate(hash);
+        } catch (IndexOutOfBoundsException e) {
+            throw new AssertionError(e);
+        }
     }
 
     public static long hash64(@NotNull String s) {
@@ -330,58 +350,123 @@ public enum Maths {
      *
      * @throws IllegalArgumentException if the given number &lt;= 0
      */
-    public static int intLog2(long num) {
+    public static int intLog2(long num) throws IllegalArgumentException {
         if (num <= 0)
             throw new IllegalArgumentException("positive argument expected, " + num + " given");
         return 63 - Long.numberOfLeadingZeros(num);
     }
 
-    public static byte toInt8(long x) throws IllegalArgumentException {
-        if ((byte) x == x)
-            return (byte) x;
-        throw new IllegalArgumentException("Byte " + x + OUT_OF_RANGE);
+    /**
+     * Returns the value of the {@code long} argument;
+     * throwing an exception if the value overflows a {@code byte}.
+     *
+     * @param value the long value
+     * @return the argument as a byte
+     * @throws ArithmeticException if the {@code argument} overflows a byte
+     */
+    public static byte toInt8(long value) throws ArithmeticException {
+        if ((byte) value == value)
+            return (byte) value;
+        throw new ArithmeticException("Byte " + value + OUT_OF_RANGE);
     }
 
-    public static short toInt16(long x) throws IllegalArgumentException {
-        if ((short) x == x)
-            return (short) x;
-        throw new IllegalArgumentException("Short " + x + OUT_OF_RANGE);
+    /**
+     * Returns the value of the {@code long} argument;
+     * throwing an exception if the value overflows a {@code short}.
+     *
+     * @param value the long value
+     * @return the argument as a short
+     * @throws ArithmeticException if the {@code argument} overflows a short
+     */
+    public static short toInt16(long value) throws ArithmeticException {
+        if ((short) value == value)
+            return (short) value;
+        throw new ArithmeticException("Short " + value + OUT_OF_RANGE);
     }
 
-    public static int toInt32(long x, @NotNull String msg) throws IllegalArgumentException {
-        if ((int) x == x)
-            return (int) x;
-        throw new IllegalArgumentException(String.format(msg, x));
+    /**
+     * Returns the value of the {@code long} argument;
+     * throwing an exception if the value overflows an {@code int}.
+     *
+     * @param value the long value
+     * @param msg   to use in a potential exception message
+     * @return the argument as an int
+     * @throws ArithmeticException if the {@code argument} overflows an int
+     */
+    public static int toInt32(long value, @NotNull String msg) throws ArithmeticException {
+        if ((int) value == value)
+            return (int) value;
+        throw new ArithmeticException(String.format(msg, value));
     }
 
-    public static int toInt32(long x) throws IllegalArgumentException {
-        if ((int) x == x)
-            return (int) x;
-        throw new IllegalArgumentException("Int " + x + OUT_OF_RANGE);
+    /**
+     * Returns the value of the {@code long} argument;
+     * throwing an exception if the value overflows an {@code int}.
+     *
+     * @param value the long value
+     * @return the argument as an int
+     * @throws ArithmeticException if the {@code argument} overflows an int
+     */
+    public static int toInt32(long value) throws ArithmeticException {
+        if ((int) value == value)
+            return (int) value;
+        throw new ArithmeticException("Int " + value + OUT_OF_RANGE);
     }
 
-    public static short toUInt8(long x) throws IllegalArgumentException {
-        if ((x & 0xFF) == x)
-            return (short) x;
-        throw new IllegalArgumentException("Unsigned Byte " + x + OUT_OF_RANGE);
+    /**
+     * Returns the value of the {@code long} argument;
+     * throwing an exception if the value overflows an unsigned byte (0xFF).
+     *
+     * @param value the long value
+     * @return the argument as a short
+     * @throws ArithmeticException if the {@code argument} overflows an unsigned byte
+     */
+    public static short toUInt8(long value) throws ArithmeticException {
+        if ((value & 0xFF) == value)
+            return (short) value;
+        throw new ArithmeticException("Unsigned Byte " + value + OUT_OF_RANGE);
     }
 
-    public static int toUInt16(long x) throws IllegalArgumentException {
-        if ((x & 0xFFFF) == x)
-            return (int) x;
-        throw new IllegalArgumentException("Unsigned Short " + x + OUT_OF_RANGE);
+    /**
+     * Returns the value of the {@code long} argument;
+     * throwing an exception if the value overflows an unsigned short (0xFFFF).
+     *
+     * @param value the long value
+     * @return the argument as an int
+     * @throws ArithmeticException if the {@code argument} overflows an unsigned short
+     */
+    public static int toUInt16(long value) throws ArithmeticException {
+        if ((value & 0xFFFF) == value)
+            return (int) value;
+        throw new ArithmeticException("Unsigned Short " + value + OUT_OF_RANGE);
     }
 
-    public static int toUInt31(long x) throws IllegalArgumentException {
-        if ((x & 0x7FFFFFFFL) == x)
-            return (int) x;
-        throw new IllegalArgumentException("Unsigned Int 31-bit " + x + OUT_OF_RANGE);
+    /**
+     * Returns the value of the {@code long} argument;
+     * throwing an exception if the value overflows an unsigned 31 bit value (0x7FFFFFFFL).
+     *
+     * @param value the long value
+     * @return the argument as a long
+     * @throws ArithmeticException if the {@code argument} overflows an unsigned int
+     */
+    public static int toUInt31(long value) throws ArithmeticException {
+        if ((value & 0x7FFFFFFFL) == value)
+            return (int) value;
+        throw new ArithmeticException("Unsigned Int 31-bit " + value + OUT_OF_RANGE);
     }
 
-    public static long toUInt32(long x) throws IllegalArgumentException {
-        if ((x & 0xFFFFFFFFL) == x)
-            return x;
-        throw new IllegalArgumentException("Unsigned Int " + x + OUT_OF_RANGE);
+    /**
+     * Returns the value of the {@code long} argument;
+     * throwing an exception if the value overflows an unsigned int (0xFFFFFFFFL).
+     *
+     * @param value the long value
+     * @return the argument as a long
+     * @throws ArithmeticException if the {@code argument} overflows an unsigned int
+     */
+    public static long toUInt32(long value) throws ArithmeticException {
+        if ((value & 0xFFFFFFFFL) == value)
+            return value;
+        throw new ArithmeticException("Unsigned Int " + value + OUT_OF_RANGE);
     }
 
     public static long agitate(long l) {

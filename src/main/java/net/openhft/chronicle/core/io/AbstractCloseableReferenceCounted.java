@@ -50,14 +50,18 @@ public abstract class AbstractCloseableReferenceCounted
     }
 
     @Override
-    public boolean tryReserve(ReferenceOwner id) throws IllegalStateException {
+    public boolean tryReserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException {
         return !closed && super.tryReserve(id);
     }
 
     @Override
     public void close() {
         if (!initReleased)
-            release(INIT);
+            try {
+                release(INIT);
+            } catch (IllegalStateException e) {
+                Jvm.warn().on(getClass(), "Failed to release LAST, closing anyway", e);
+            }
         setClosed();
     }
 
@@ -74,6 +78,7 @@ public abstract class AbstractCloseableReferenceCounted
         assert threadSafetyCheck(true);
     }
 
+    // throws IllegalStateException
     protected void throwExceptionIfClosedInSetter() throws IllegalStateException {
         if (closed)
             throw new ClosedIllegalStateException(getClass().getName() + " closed", closedHere);

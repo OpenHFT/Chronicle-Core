@@ -36,7 +36,7 @@ public class UniqueMicroTimeProvider implements TimeProvider {
     public UniqueMicroTimeProvider() {
     }
 
-    public UniqueMicroTimeProvider provider(TimeProvider provider) {
+    public UniqueMicroTimeProvider provider(TimeProvider provider) throws IllegalStateException {
         this.provider = provider;
         lastTime.set(provider.currentTimeMicros());
         return this;
@@ -48,7 +48,7 @@ public class UniqueMicroTimeProvider implements TimeProvider {
     }
 
     @Override
-    public long currentTimeMicros() {
+    public long currentTimeMicros() throws IllegalStateException {
         long time = provider.currentTimeMicros();
         while (true) {
             long time0 = lastTime.get();
@@ -63,7 +63,7 @@ public class UniqueMicroTimeProvider implements TimeProvider {
     }
 
     @Override
-    public long currentTimeNanos() {
+    public long currentTimeNanos() throws IllegalStateException {
         long time = provider.currentTimeNanos();
         long timeUS = time / 1000;
         while (true) {

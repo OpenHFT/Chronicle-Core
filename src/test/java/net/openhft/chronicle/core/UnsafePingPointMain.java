@@ -41,7 +41,7 @@ public class UnsafePingPointMain implements Runnable {
             Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
             theUnsafe.setAccessible(true);
             return (Unsafe) theUnsafe.get(null);
-        } catch (@NotNull NoSuchFieldException | IllegalAccessException e) {
+        } catch (NoSuchFieldException | IllegalAccessException | IllegalArgumentException e) {
             throw new AssertionError(e);
         }
     }

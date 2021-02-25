@@ -30,7 +30,7 @@ import static org.junit.Assert.assertEquals;
 
 public class HistogramTest {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, NumberFormatException {
         Histogram hist = new Histogram(32, 7);
         for (File f : new File(args[0]).listFiles()) {
             if (f.getName().endsWith(".png"))
@@ -98,5 +98,7 @@ public class HistogramTest {
         assertEquals(40, (long) h.percentile(0.40), 0);
         assertEquals(30, (long) h.percentile(0.30), 0);
         assertEquals(1, (long) h.percentile(0.0), 0);
+        for (int i = 1; i <= 100; i++)
+            assertEquals(i, h.percentageLessThan(i), i >> 6);
     }
 }

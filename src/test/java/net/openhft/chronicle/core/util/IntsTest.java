@@ -5,9 +5,6 @@ import net.openhft.chronicle.core.annotation.Range;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
-import java.util.function.IntUnaryOperator;
-import java.util.function.LongUnaryOperator;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -70,12 +67,10 @@ public class IntsTest {
     }
 
     @Test
-    public void annotations() {
-        @Positive
-        final int val = Ints.requirePositive(1);
+    public void annotations() throws IllegalArgumentException {
+        @Positive final int val = Ints.requirePositive(1);
 
-        @Range(from = 8, to = 16, value = "Restricted due to low flying UFOs")
-        final int ranged = Ints.requireInRange(9, 8, 16);
+        @Range(from = 8, to = 16, value = "Restricted due to low flying UFOs") final int ranged = Ints.requireInRange(9, 8, 16);
 
         final Foo foo = new Foo(1);
         try {
@@ -85,25 +80,33 @@ public class IntsTest {
         }
     }
 
-    private static final class Foo {
-        private final int val;
-
-        public Foo(@Positive int val) {
-            this.val = Ints.requirePositive(val);
-        }
-    }
-
-
     private void test(final int happy,
                       final int sad,
                       @NotNull final IntUnaryOperator mapper) {
-        final long result = mapper.applyAsInt(happy);
-        assertEquals(happy, result);
+        try {
+            final long result = mapper.applyAsInt(happy);
+            assertEquals(happy, result);
+        } catch (IllegalArgumentException e) {
+            throw new AssertionError(e);
+        }
         try {
             final long result2 = mapper.applyAsInt(sad);
             fail(result2 + " is not valid!");
         } catch (IllegalArgumentException ignored) {
             // Happy path
+        }
+    }
+
+
+    interface IntUnaryOperator {
+        long applyAsInt(int happy) throws IllegalArgumentException;
+    }
+
+    private static final class Foo {
+        private final int val;
+
+        public Foo(@Positive int val) throws IllegalArgumentException {
+            this.val = Ints.requirePositive(val);
         }
     }
 

@@ -25,6 +25,8 @@ import net.openhft.chronicle.core.io.Closeable;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.*;
+import java.nio.BufferOverflowException;
+import java.nio.BufferUnderflowException;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -55,7 +57,7 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
                 Jvm.setAccessible(lookupConstructor);
             }
             return lookupConstructor.newInstance(c, MethodHandles.Lookup.PRIVATE);
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException ignored) {
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException | IllegalArgumentException ignored) {
         }
         try {
             // Try to grab an internal one,
@@ -92,7 +94,7 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
     /**
      * Default handler for method call.
      */
-    protected abstract Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException;
+    protected abstract Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException, IllegalStateException, BufferOverflowException, BufferUnderflowException, IllegalArgumentException, ArithmeticException;
 
     @SuppressWarnings("WeakerAccess")
     MethodHandle methodHandleForProxy(Object proxy, Method m) {

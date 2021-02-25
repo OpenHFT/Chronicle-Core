@@ -3,9 +3,8 @@ package net.openhft.chronicle.core.util;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
-import java.util.function.LongUnaryOperator;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class LongsTest {
 
@@ -68,8 +67,12 @@ public class LongsTest {
     private void test(final long happy,
                       final long sad,
                       @NotNull final LongUnaryOperator mapper) {
-        final long result = mapper.applyAsLong(happy);
-        assertEquals(happy, result);
+        try {
+            final long result = mapper.applyAsLong(happy);
+            assertEquals(happy, result);
+        } catch (IllegalArgumentException e) {
+            throw new AssertionError(e);
+        }
         try {
             final long result2 = mapper.applyAsLong(sad);
             fail(result2 + " is not valid!");
@@ -78,4 +81,7 @@ public class LongsTest {
         }
     }
 
+    public interface LongUnaryOperator {
+        long applyAsLong(long var1) throws IllegalArgumentException;
+    }
 }

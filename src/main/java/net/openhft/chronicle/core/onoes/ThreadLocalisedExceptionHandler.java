@@ -52,6 +52,8 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
     }
 
     public ThreadLocalisedExceptionHandler defaultHandler(ExceptionHandler defaultHandler) {
+        if (defaultHandler instanceof ThreadLocalisedExceptionHandler)
+            defaultHandler = ((ThreadLocalisedExceptionHandler) defaultHandler).exceptionHandler();
         this.defaultHandler = defaultHandler == null ? NullExceptionHandler.NOTHING : defaultHandler;
         return this;
     }

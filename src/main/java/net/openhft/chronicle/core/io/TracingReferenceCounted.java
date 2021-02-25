@@ -4,7 +4,9 @@
 
 package net.openhft.chronicle.core.io;
 
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
+import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 import org.jetbrains.annotations.NotNull;
 
@@ -49,7 +51,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public boolean reservedBy(ReferenceOwner owner) {
+    public boolean reservedBy(ReferenceOwner owner) throws IllegalStateException {
         if (references.containsKey(owner))
             return true;
         StackTrace stackTrace = releases.get(owner);
@@ -64,13 +66,13 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public boolean tryReserve(ReferenceOwner id) {
+    public boolean tryReserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException {
         return tryReserve(id, false);
     }
 
-    private boolean tryReserve(ReferenceOwner id, boolean must) {
+    private boolean tryReserve(ReferenceOwner id, boolean must) throws IllegalStateException {
         if (id == this)
-            throw new IllegalArgumentException(type.getName() + " the counter cannot reserve itself");
+            throw new AssertionError(type.getName() + " the counter cannot reserve itself");
 //        if (Jvm.isDebug())
 //            System.out.println(Thread.currentThread().getName() + " " + uniqueId + " - tryReserve " + asString(id));
         synchronized (references) {
@@ -220,7 +222,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void throwExceptionIfReleased() throws IllegalStateException {
+    public void throwExceptionIfReleased() throws ClosedIllegalStateException {
         if (refCount() <= 0)
             throw new ClosedIllegalStateException(type.getName() + " released", releasedHere);
     }
@@ -228,7 +230,10 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     @Override
     public void warnAndReleaseIfNotReleased() {
         if (refCount() > 0) {
-            Slf4jExceptionHandler.WARN.on(type, "Discarded without being released by " + referencesAsString(), createdHere);
+            if (!AbstractCloseable.DISABLE_DISCARD_WARNING) {
+                ExceptionHandler warn = AbstractCloseable.STRICT_DISCARD_WARNING ? Jvm.warn() : Slf4jExceptionHandler.WARN;
+                warn.on(type, "Discarded without being released by " + referencesAsString(), createdHere);
+            }
             onRelease.run();
         }
     }

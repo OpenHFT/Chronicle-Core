@@ -89,7 +89,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         return referenceCounted.createdHere();
     }
 
-    public void throwExceptionIfNotReleased() {
+    public void throwExceptionIfNotReleased() throws IllegalStateException {
         referenceCounted.throwExceptionIfNotReleased();
     }
 
@@ -99,7 +99,11 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
 
     void inThreadPerformRelease() {
         long start = System.nanoTime();
-        performRelease();
+        try {
+            performRelease();
+        } catch (Exception e) {
+            Jvm.warn().on(getClass(), e);
+        }
         long time = System.nanoTime() - start;
         if (time >= WARN_NS)
             Slf4jExceptionHandler.PERF.on(getClass(), "Took " + time / 100_000 / 10.0 + " ms to performRelease");
@@ -109,7 +113,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         return false;
     }
 
-    protected abstract void performRelease();
+    protected abstract void performRelease() throws IllegalStateException;
 
     @Override
     public void reserve(ReferenceOwner id) throws IllegalStateException {
@@ -130,7 +134,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     }
 
     @Override
-    public boolean tryReserve(ReferenceOwner id) throws IllegalStateException {
+    public boolean tryReserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException {
         return referenceCounted.tryReserve(id);
     }
 
@@ -145,20 +149,20 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     }
 
     @Override
-    public void throwExceptionIfReleased() throws IllegalStateException {
+    public void throwExceptionIfReleased() throws ClosedIllegalStateException {
         referenceCounted.throwExceptionIfReleased();
     }
 
     @Override
-    public void warnAndReleaseIfNotReleased() {
+    public void warnAndReleaseIfNotReleased() throws ClosedIllegalStateException {
         referenceCounted.warnAndReleaseIfNotReleased();
     }
 
-    public boolean reservedBy(ReferenceOwner owner) {
+    public boolean reservedBy(ReferenceOwner owner) throws IllegalStateException {
         return referenceCounted.reservedBy(owner);
     }
 
-    protected boolean threadSafetyCheck(boolean isUsed) {
+    protected boolean threadSafetyCheck(boolean isUsed) throws IllegalStateException {
         if (DISABLE_THREAD_SAFETY)
             return true;
         if (usedByThread == null && !isUsed)

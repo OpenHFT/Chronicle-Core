@@ -8,7 +8,7 @@ import static org.junit.Assert.assertTrue;
 public class UniqueMicroTimeProviderTest {
 
     @Test
-    public void currentTimeMicros() {
+    public void currentTimeMicros() throws IllegalStateException {
         UniqueMicroTimeProvider tp = new UniqueMicroTimeProvider();
         SetTimeProvider stp = new SetTimeProvider(SystemTimeProvider.INSTANCE.currentTimeNanos());
         tp.provider(stp);
@@ -23,7 +23,7 @@ public class UniqueMicroTimeProviderTest {
     }
 
     @Test
-    public void currentTimeNanos() {
+    public void currentTimeNanos() throws IllegalStateException {
         UniqueMicroTimeProvider tp = new UniqueMicroTimeProvider();
         SetTimeProvider stp = new SetTimeProvider(SystemTimeProvider.INSTANCE.currentTimeNanos());
         tp.provider(stp);

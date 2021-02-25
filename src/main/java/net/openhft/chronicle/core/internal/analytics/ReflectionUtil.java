@@ -6,7 +6,6 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
-import java.util.Arrays;
 import java.util.stream.Stream;
 
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
@@ -31,9 +30,8 @@ public final class ReflectionUtil {
         try {
             final Method method = methodOrThrow(ANALYTICS_NAME, "builder", String.class, String.class);
             return method.invoke(null, measurementId, apiSecret);
-        } catch (ReflectiveOperationException e) {
-            Jvm.rethrow(e);
-            return null;
+        } catch (ReflectiveOperationException | IllegalArgumentException e) {
+            throw Jvm.rethrow(e);
         }
     }
 
@@ -60,15 +58,14 @@ public final class ReflectionUtil {
 
         try {
             return method.invoke(target, params);
-        } catch (ReflectiveOperationException e) {
-            Jvm.rethrow(e);
-            return null;
+        } catch (ReflectiveOperationException | IllegalArgumentException e) {
+            throw Jvm.rethrow(e);
         }
     }
 
     @SuppressWarnings("unchecked")
     @NotNull
-    public static <T> T reflectiveProxy(@NotNull final Class<T> interf, @NotNull final Object delegate) {
+    public static <T> T reflectiveProxy(@NotNull final Class<T> interf, @NotNull final Object delegate) throws IllegalArgumentException {
         requireNonNull(interf);
         requireNonNull(delegate);
         return (T) Proxy.newProxyInstance(delegate.getClass().getClassLoader(), new Class[]{interf}, new ReflectiveInvocationHandler(delegate, false));
@@ -78,7 +75,7 @@ public final class ReflectionUtil {
     @NotNull
     public static <T> T reflectiveProxy(@NotNull final Class<T> interf,
                                         @NotNull final Object delegate,
-                                        final boolean returnProxy) {
+                                        final boolean returnProxy) throws IllegalArgumentException {
         requireNonNull(interf);
         requireNonNull(delegate);
         return (T) Proxy.newProxyInstance(delegate.getClass().getClassLoader(), new Class[]{interf}, new ReflectiveInvocationHandler(delegate, returnProxy));

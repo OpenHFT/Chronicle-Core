@@ -64,7 +64,7 @@ public enum BackgroundResourceReleaser {
                 Jvm.pause(1);
             long left = COUNTER.get();
             if (left != 0)
-                Jvm.warn().on(BackgroundResourceReleaser.class, "Still got " + left + " resources to clean");
+                Jvm.perf().on(BackgroundResourceReleaser.class, "Still got " + left + " resources to clean");
 
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

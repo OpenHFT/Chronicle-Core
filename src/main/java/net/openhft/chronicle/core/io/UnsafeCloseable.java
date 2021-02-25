@@ -13,11 +13,11 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
     }
 
     @Override
-    protected void performClose() {
+    protected void performClose() throws IllegalStateException {
         unsafe = null;
     }
 
-    public long getLong() {
+    public long getLong() throws IllegalStateException {
         try {
             return unsafe.getLong(address);
         } catch (NullPointerException e) {
@@ -26,7 +26,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
         }
     }
 
-    public void setLong(long value) {
+    public void setLong(long value) throws IllegalStateException {
         try {
             unsafe.putLong(address, value);
         } catch (NullPointerException e) {
@@ -35,7 +35,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
         }
     }
 
-    public long getVolatileLong() {
+    public long getVolatileLong() throws IllegalStateException {
         try {
             return unsafe.getLongVolatile(null, address);
         } catch (NullPointerException e) {
@@ -44,7 +44,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
         }
     }
 
-    public void setVolatileLong(long value) {
+    public void setVolatileLong(long value) throws IllegalStateException {
         try {
             unsafe.putLongVolatile(null, address, value);
         } catch (NullPointerException e) {
@@ -63,7 +63,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
         }
     }
 
-    public void setOrderedLong(long value) {
+    public void setOrderedLong(long value) throws IllegalStateException {
         try {
             unsafe.putOrderedLong(null, address, value);
         } catch (NullPointerException e) {
@@ -72,7 +72,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
         }
     }
 
-    public long addLong(long delta) {
+    public long addLong(long delta) throws IllegalStateException {
         try {
             return unsafe.getAndAddLong(null, address, delta) + delta;
         } catch (NullPointerException e) {
@@ -81,7 +81,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
         }
     }
 
-    public long addAtomicLong(long delta) {
+    public long addAtomicLong(long delta) throws IllegalStateException {
         try {
             return addLong(delta);
         } catch (NullPointerException e) {
@@ -90,7 +90,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
         }
     }
 
-    public boolean compareAndSwapLong(long expected, long value) {
+    public boolean compareAndSwapLong(long expected, long value) throws IllegalStateException {
         try {
             return unsafe.compareAndSwapLong(null, address, expected, value);
         } catch (NullPointerException e) {

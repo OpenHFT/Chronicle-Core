@@ -59,8 +59,8 @@ import static net.openhft.chronicle.core.OS.*;
 /**
  * Utility class to access information in the JVM.
  */
-public final class Jvm {
-    private Jvm() {}
+public enum Jvm {
+    ;
 
     public static final String JAVA_CLASS_PATH = "java.class.path";
     public static final String SYSTEM_PROPERTIES = "system.properties";
@@ -153,13 +153,17 @@ public final class Jvm {
 
         findAndLoadSystemProperties();
 
+        boolean disablePerfInfo = Jvm.getBoolean("disable.perf.info");
+        if (disablePerfInfo)
+            PERF.defaultHandler(NullExceptionHandler.NOTHING);
+
         SAFEPOINT_ENABLED = Jvm.getBoolean("jvm.safepoint.enabled");
 
         RESOURCE_TRACING = Jvm.getBoolean("jvm.resource.tracing");
 
         Logger logger = LoggerFactory.getLogger(Jvm.class);
         logger.info("Chronicle core loaded from " + Jvm.class.getProtectionDomain().getCodeSource().getLocation());
-        if (RESOURCE_TRACING)
+        if (RESOURCE_TRACING && !Jvm.getBoolean("disable.resource.warning"))
             logger.warn("Resource tracing is turned on. If you are performance testing or running in PROD you probably don't want this");
     }
 
@@ -194,7 +198,7 @@ public final class Jvm {
             Method privateLookupIn = MethodHandles.class.getDeclaredMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
             MethodHandles.Lookup lookup = (MethodHandles.Lookup) privateLookupIn.invoke(null, AccessibleObject.class, MethodHandles.lookup());
             return lookup.findVirtual(AccessibleObject.class, "setAccessible0", signature);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
             throw new ExceptionInInitializerError(e);
         }
     }
@@ -233,7 +237,11 @@ public final class Jvm {
         for (String inputArgument : INPUT_ARGUMENTS) {
             final String prefix = "-XX:CompileThreshold=";
             if (inputArgument.startsWith(prefix)) {
-                return Integer.parseInt(inputArgument.substring(prefix.length()));
+                try {
+                    return Integer.parseInt(inputArgument.substring(prefix.length()));
+                } catch (NumberFormatException nfe) {
+                    // ignore
+                }
             }
         }
         return 10_000;
@@ -247,7 +255,7 @@ public final class Jvm {
      * line parameter "-XX:CompileThreshold="
      *
      * @return the compile threshold for the JVM or else an
-     *         estimate thereof (e.g. 10_000)
+     * estimate thereof (e.g. 10_000)
      */
     public static int compileThreshold() {
         return COMPILE_THRESHOLD;
@@ -255,6 +263,7 @@ public final class Jvm {
 
     /**
      * Returns the major Java version (e.g. 8, 11 or 17)
+     *
      * @return the major Java version (e.g. 8, 11 or 17)
      */
     public static int majorVersion() {
@@ -307,7 +316,7 @@ public final class Jvm {
      * a non-negative random number less than 2^16.
      *
      * @return the current process id or, if the process id cannot be determined,
-     *         a non-negative random number less than 2^16
+     * a non-negative random number less than 2^16
      */
     // Todo: Discuss the rational behind the random number. Alternately, 0 could be returned or perhaps -1
     public static int getProcessId() {
@@ -328,13 +337,17 @@ public final class Jvm {
             pid = getRuntimeMXBean().getName().split("@", 0)[0];
         }
 
-        if (pid == null) {
-            int rpid = new Random().nextInt(1 << 16);
-            System.err.println(Jvm.class.getName() + ": Unable to determine PID, picked a random number=" + rpid);
-            return rpid;
-        } else {
-            return Integer.parseInt(pid);
+        if (pid != null) {
+            try {
+                return Integer.parseInt(pid);
+            } catch (NumberFormatException nfe) {
+                // ignore
+            }
         }
+
+        int rpid = new Random().nextInt(1 << 16);
+        System.err.println(Jvm.class.getName() + ": Unable to determine PID, picked a random number=" + rpid);
+        return rpid;
     }
 
     /**
@@ -456,7 +469,7 @@ public final class Jvm {
 
     /**
      * Pause in a busy loop for the provided {@code durationUs} microseconds.
-     *
+     * <p>
      * This method is designed to be used when the time to be waited is very small,
      * typically under a millisecond (@{code durationUs < 1_000}).
      *
@@ -468,7 +481,7 @@ public final class Jvm {
 
     /**
      * Pauses the current thread in a busy loop until the provided {@code waitUntilNs} time is reached.
-     *
+     * <p>
      * This method is designed to be used when the time to be waited is very small,
      * typically under a millisecond (@{code durationNs < 1_000_000}).
      *
@@ -484,7 +497,7 @@ public final class Jvm {
      * Returns the Field for the provided {@code clazz} and the provided {@code fieldName} or
      * throws an Exception if no such Field exists.
      *
-     * @param clazz to get the field for
+     * @param clazz     to get the field for
      * @param fieldName of the field
      * @return the Field.
      * @throws AssertionError if no such Field exists
@@ -520,7 +533,7 @@ public final class Jvm {
      * Returns the Field for the provided {@code clazz} and the provided {@code fieldName} or {@code null}
      * if no such Field exists.
      *
-     * @param clazz to get the field for
+     * @param clazz     to get the field for
      * @param fieldName of the field
      * @return the Field.
      * @throws AssertionError if no such Field exists
@@ -538,14 +551,14 @@ public final class Jvm {
     /**
      * Returns the Method for the provided {@code clazz}, {@code methodName} and
      * {@code argTypes} or throws an Exception.
-     *
+     * <p>
      * if it exists or throws {@link AssertionError}.
-     * <P>
+     * <p>
      * Default methods are not detected unless the class explicitly overrides it
      *
-     * @param clazz class
-     * @param methodName  methodName
-     * @param argTypes argument types
+     * @param clazz      class
+     * @param methodName methodName
+     * @param argTypes   argument types
      * @return method
      * @throws AssertionError if no such Method exists
      */
@@ -592,7 +605,7 @@ public final class Jvm {
      *
      * @param accessibleObject to modify
      * @throws SecurityException – if the request is denied.
-     * @see  SecurityManager#checkPermission
+     * @see SecurityManager#checkPermission
      * @see RuntimePermission
      */
     public static void setAccessible(@NotNull final AccessibleObject accessibleObject) {
@@ -606,15 +619,17 @@ public final class Jvm {
         else
             accessibleObject.setAccessible(true);
     }
+
     /**
      * Returns the value of the provided {@code fieldName} extracted from the provided {@code target}.
      * <p>
      * The provided {@code fieldName} can denote fields of arbitrary depth (e.g. foo.bar.baz, whereby
      * the foo value will be extracted from the provided {@code target} and then the bar value
      * will be extracted from the foo value and so on).
-     * @param target used for extraction
+     *
+     * @param target    used for extraction
      * @param fieldName denoting the field(s) to extract
-     * @param <V> return type
+     * @param <V>       return type
      * @return the value of the provided {@code fieldName} extracted from the provided {@code target}
      */
     @Nullable
@@ -626,7 +641,7 @@ public final class Jvm {
                 target = f.get(target);
                 if (target == null)
                     return null;
-            } catch (IllegalAccessException e) {
+            } catch (IllegalAccessException | IllegalArgumentException e) {
                 throw new AssertionError(e);
             }
             aClass = target.getClass();
@@ -654,11 +669,11 @@ public final class Jvm {
     /**
      * Returns the accumulated amount of memory in bytes used by direct ByteBuffers
      * or 0 if the value cannot be determined.
-     *<p>
+     * <p>
      * (i.e. ever allocated via ByteBuffer.allocateDirect())
      *
      * @return the accumulated amount of memory in bytes used by direct ByteBuffers
-     *         or 0 if the value cannot be determined
+     * or 0 if the value cannot be determined
      */
     public static long usedDirectMemory() {
         return reservedMemory.get();
@@ -679,7 +694,7 @@ public final class Jvm {
      * (i.e. ever allocated via ByteBuffer.allocateDirect())
      *
      * @return the maximum direct memory in bytes that can ever be allocated or 0 if the
-     *         value cannot be determined
+     * value cannot be determined
      */
     public static long maxDirectMemory() {
         return MAX_DIRECT_MEMORY;
@@ -753,7 +768,7 @@ public final class Jvm {
         final Iterator<ExceptionKey> iterator = exceptions.keySet().iterator();
         while (iterator.hasNext()) {
             final ExceptionKey k = iterator.next();
-            if ((k.throwable != null && !(k.throwable instanceof StackTrace)) && k.level != LogLevel.DEBUG)
+            if (k.level != LogLevel.DEBUG && k.level != LogLevel.PERF)
                 return true;
         }
 
@@ -905,10 +920,15 @@ public final class Jvm {
                 final Class<?> clz = Class.forName("java.lang.Runtime$Version");
                 return (Integer) clz.getDeclaredMethod("major").invoke(version);
             }
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException e) {
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException | IllegalArgumentException e) {
             // ignore and fall back to pre-jdk9
         }
-        return Integer.parseInt(Runtime.class.getPackage().getSpecificationVersion().split("\\.")[1]);
+        try {
+            return Integer.parseInt(Runtime.class.getPackage().getSpecificationVersion().split("\\.")[1]);
+        } catch (NumberFormatException nfe) {
+            Jvm.warn().on(Jvm.class, "Unable to get the major version, defaulting to 8 " + nfe);
+            return 8;
+        }
     }
 
     /**
@@ -972,7 +992,7 @@ public final class Jvm {
      * @param endsWith to test against the current stack trace
      * @param maxDepth to examine
      * @return if there is a class name that ends with the provided {@code endsWith} string
-     *         when examining the current stack trace of depth at most up to the provided {@code maxDepth}
+     * when examining the current stack trace of depth at most up to the provided {@code maxDepth}
      */
     public static boolean stackTraceEndsWith(final String endsWith, final int maxDepth) {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
@@ -1039,7 +1059,7 @@ public final class Jvm {
                 continue;
             final int start0 = Math.toIntExact(UnsafeMemory.unsafeObjectFieldOffset(f));
             if (start <= start0 && start0 < end) {
-                throw new IllegalArgumentException(c + " is not suitable for raw copies due to " + f);
+                rethrow(new IllegalArgumentException(c + " is not suitable for raw copies due to " + f));
             }
         }
     }
@@ -1049,7 +1069,7 @@ public final class Jvm {
      * if the user's home director cannot be determined.
      *
      * @return the user's home directory (e.g. "/home/alice") or "."
-     *         if the user's home director cannot be determined
+     * if the user's home director cannot be determined
      */
     @NotNull
     public static String userHome() {
@@ -1081,7 +1101,7 @@ public final class Jvm {
      *
      * @param systemPropertyKey name to lookup
      * @return if a System Property with the provided {@code systemPropertyKey}
-     *         either exists, is set to "yes" or is set to "true"
+     * either exists, is set to "yes" or is set to "true"
      */
     public static boolean getBoolean(final String systemPropertyKey) {
         return getBoolean(systemPropertyKey, false);
@@ -1095,11 +1115,11 @@ public final class Jvm {
      * This provides a more permissive boolean System systemPropertyKey flag where
      * {@code -Dflag} {@code -Dflag=true} {@code -Dflag=yes} are all accepted.
      *
-     * @param systemPropertyKey     name to lookup
-     * @param defaultValue value to be used if unknown
+     * @param systemPropertyKey name to lookup
+     * @param defaultValue      value to be used if unknown
      * @return if a System Property with the provided {@code systemPropertyKey}
-     *         either exists, is set to "yes" or is set to "true" or, if it does not exist,
-     *         returns the provided {@code defaultValue}.
+     * either exists, is set to "yes" or is set to "true" or, if it does not exist,
+     * returns the provided {@code defaultValue}.
      */
     public static boolean getBoolean(final String systemPropertyKey, final boolean defaultValue) {
         final String value = System.getProperty(systemPropertyKey);
@@ -1230,7 +1250,7 @@ public final class Jvm {
      * If the effort failed, the provided {@code clazz} is used for logging purposes.
      *
      * @param clazz to use for logging should the effort fail.
-     * @param fc to prevent from automatically closing upon interrupt.
+     * @param fc    to prevent from automatically closing upon interrupt.
      */
     public static void doNotCloseOnInterrupt(final Class<?> clazz, final FileChannel fc) {
         if (Jvm.isJava9Plus())
@@ -1311,11 +1331,11 @@ public final class Jvm {
      * parsed as a {@code double} or, if no such parsable System Property exists,
      * returns the provided {@code defaultValue}.
      *
-     * @param systemPropertyKey  to lookup in the System Properties
-     * @param defaultValue       to be used if no parsable key association exists
+     * @param systemPropertyKey to lookup in the System Properties
+     * @param defaultValue      to be used if no parsable key association exists
      * @return the System Property associated with the provided {@code systemPropertyKey}
-     *         parsed as a {@code double} or, if no such parsable System Property exists,
-     *         returns the provided {@code defaultValue}
+     * parsed as a {@code double} or, if no such parsable System Property exists,
+     * returns the provided {@code defaultValue}
      */
     public static double getDouble(final String systemPropertyKey, final double defaultValue) {
         final String value = System.getProperty(systemPropertyKey);

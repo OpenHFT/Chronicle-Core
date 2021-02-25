@@ -62,12 +62,12 @@ public class FileSystemWatcherTest {
 
         WatcherListener listener = new WatcherListener() {
             @Override
-            public void onExists(String base, String filename, Boolean modified) throws IllegalStateException {
+            public void onExists(String base, String filename, Boolean modified) {
                 events.put(filename, "modified: " + modified);
             }
 
             @Override
-            public void onRemoved(String base, String filename) throws IllegalStateException {
+            public void onRemoved(String base, String filename) {
                 events.put(filename, "removed: true");
             }
         };

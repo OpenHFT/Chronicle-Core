@@ -32,11 +32,11 @@ public class EnumInterner<E extends Enum<E>> {
     private final int mask;
     private final EnumCache<E> enumCache;
 
-    public EnumInterner(Class<E> eClass) {
+    public EnumInterner(Class<E> eClass) throws IllegalArgumentException {
         this(eClass, 64);
     }
 
-    public EnumInterner(Class<E> eClass, int capacity) {
+    public EnumInterner(Class<E> eClass, int capacity) throws IllegalArgumentException {
         enumCache = EnumCache.of(eClass);
         int initialSize = enumCache.size() * 3 / 2;
         int n = Maths.nextPower2(Math.max(initialSize, capacity), 16);
@@ -49,7 +49,11 @@ public class EnumInterner<E extends Enum<E>> {
     static <V extends Enum<V>> EnumInterner<V> create(Class<?> aClass) {
         @NotNull @SuppressWarnings("unchecked")
         Class<V> vClass = (Class<V>) aClass;
-        return new EnumInterner<>(vClass);
+        try {
+            return new EnumInterner<>(vClass);
+        } catch (IllegalArgumentException e) {
+            throw new AssertionError(e);
+        }
     }
 
     public E intern(@NotNull CharSequence cs) {
