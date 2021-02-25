@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
  * https://github.com/OpenHFT/Chronicle-Core/issues/75
  */
 public class StackTrace extends Throwable {
+    
     public StackTrace() {
         this("stack trace");
     }
