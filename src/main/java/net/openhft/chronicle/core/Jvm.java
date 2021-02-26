@@ -721,6 +721,14 @@ public enum Jvm {
         DEBUG.defaultHandler(null).resetThreadLocalHandler();
     }
 
+    public static void disablePerfHandler() {
+        PERF.defaultHandler(null).resetThreadLocalHandler();
+    }
+
+    public static void disableWarnHandler() {
+        WARN.defaultHandler(null).resetThreadLocalHandler();
+    }
+    
     @NotNull
     public static Map<ExceptionKey, Integer> recordExceptions() {
         return recordExceptions(true);
