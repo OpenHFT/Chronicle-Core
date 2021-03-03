@@ -41,6 +41,11 @@ public interface IntValue extends Closeable {
 
     boolean compareAndSwapValue(int expected, int value) throws IllegalStateException, BufferOverflowException;
 
+    @Override
+    default boolean isClosed() {
+        return false;
+    }
+
     default void close() {
     }
 }

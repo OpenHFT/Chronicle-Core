@@ -68,6 +68,11 @@ public interface LongValue extends Closeable {
     }
 
     @Override
+    default boolean isClosed() {
+        return false;
+    }
+
+    @Override
     default void close() {
     }
 }
