@@ -224,7 +224,8 @@ public enum Jvm {
                 } else {
                     final Properties prop = new Properties();
                     prop.load(is);
-                    System.getProperties().putAll(prop);
+                    // if user has specified a property using -D then don't overwrite it from system.properties
+                    prop.forEach((o, o2) -> System.getProperties().putIfAbsent(o, o2));
                     Slf4jExceptionHandler.DEBUG.on(Jvm.class, "Loaded " + name + " with " + prop);
                 }
             }
