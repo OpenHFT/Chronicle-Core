@@ -19,8 +19,9 @@
 package net.openhft.chronicle.core.values;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.io.Closeable;
 
-public interface LongValue {
+public interface LongValue extends Closeable {
     long getValue() throws IllegalStateException;
 
     void setValue(long value) throws IllegalStateException;
@@ -64,5 +65,9 @@ public interface LongValue {
                 break;
             Jvm.nanoPause();
         }
+    }
+
+    @Override
+    default void close() {
     }
 }

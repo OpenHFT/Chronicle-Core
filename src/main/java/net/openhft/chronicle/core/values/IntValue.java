@@ -18,13 +18,15 @@
 
 package net.openhft.chronicle.core.values;
 
+import net.openhft.chronicle.core.io.Closeable;
+
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 
 /**
  * User: peter.lawrey Date: 10/10/13 Time: 07:15
  */
-public interface IntValue {
+public interface IntValue extends Closeable {
     int getValue() throws IllegalStateException, BufferUnderflowException;
 
     void setValue(int value) throws IllegalStateException, BufferOverflowException;
@@ -38,4 +40,7 @@ public interface IntValue {
     int addAtomicValue(int delta) throws IllegalStateException, BufferUnderflowException;
 
     boolean compareAndSwapValue(int expected, int value) throws IllegalStateException, BufferOverflowException;
+
+    default void close() {
+    }
 }
