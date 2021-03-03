@@ -39,6 +39,9 @@ The choice of file to load can be overridden on the command line with `-Dsystem.
 
 See `Jvm.Main` in the `src/test` as an example.
 
+NOTE: If you specify system properties on the command line then they will override those in the
+`system.properties` file.
+
 == Off Heap Memory Access
 
 This allows you to access native memory using primitives and some thread safe operations.
