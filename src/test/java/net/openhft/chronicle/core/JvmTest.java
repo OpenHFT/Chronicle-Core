@@ -227,11 +227,10 @@ public class JvmTest {
     public void getCpuClass() {
         final String cpuClass = Jvm.getCpuClass();
         System.out.println("cpuClass: " + cpuClass);
-        if (OS.isLinux())
-            if (Jvm.isArm())
-                assertTrue(cpuClass, cpuClass.startsWith("ARMv"));
-            else
-                assertTrue(cpuClass, cpuClass.contains(" CPU @ "));
+        if (Jvm.isArm())
+            assertTrue(cpuClass, cpuClass.startsWith("ARMv"));
+        else if (OS.isLinux() || OS.isWindows())
+            assertTrue(cpuClass, cpuClass.contains(" CPU @ "));
         assertNotNull(cpuClass);
     }
 }

@@ -1481,6 +1481,26 @@ public enum Jvm {
                             .filter(line -> line.startsWith("model name"))
                             .map(line -> line.replaceAll(".*: ", ""))
                             .findFirst().orElse(model);
+                } else if (OS.isWindows()) {
+                    String cmd = "wmic cpu get name";
+                    Process process = new ProcessBuilder(cmd.split(" "))
+                            .redirectErrorStream(true)
+                            .start();
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                        model = reader.lines()
+                                .map(String::trim)
+                                .filter(s -> !"Name".equals(s) && !s.isEmpty())
+                                .findFirst().orElse(model);
+                    }
+                    try {
+                        int ret = process.waitFor();
+                        if (ret != 0)
+                            Jvm.warn().on(CpuClass.class, "process " + cmd + " returned " + ret);
+                    } catch (InterruptedException e) {
+                        Jvm.warn().on(CpuClass.class, "process " + cmd + " waitFor threw ", e);
+                    }
+                    process.destroy();
+
                 }
             } catch (IOException e) {
                 Jvm.debug().on(CpuClass.class, "Unable to read cpuinfo", e);
