@@ -229,9 +229,10 @@ public class JvmTest {
         System.out.println("cpuClass: " + cpuClass);
         if (Jvm.isArm())
             assertTrue(cpuClass, cpuClass.startsWith("ARMv"));
-        else if (OS.isLinux() || OS.isWindows())
+        else
             assertTrue(cpuClass, (cpuClass.startsWith("Intel") && cpuClass.contains(" CPU ") && cpuClass.contains(" @ "))
                     || (cpuClass.startsWith("AMD ")));
+
         assertNotNull(cpuClass);
     }
 }
