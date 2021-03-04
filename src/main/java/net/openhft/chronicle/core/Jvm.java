@@ -42,6 +42,8 @@ import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.spi.AbstractInterruptibleChannel;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -728,7 +730,7 @@ public enum Jvm {
     public static void disableWarnHandler() {
         WARN.defaultHandler(null).resetThreadLocalHandler();
     }
-    
+
     @NotNull
     public static Map<ExceptionKey, Integer> recordExceptions() {
         return recordExceptions(true);
@@ -1456,6 +1458,33 @@ public enum Jvm {
                     Jvm.warn().on(this.getClass(), "Problem handling signal", t);
                 }
             }
+        }
+    }
+
+    /**
+     * @return Obtain the model of CPU on Linux or the os.arch on other OSes.
+     */
+    public static String getCpuClass() {
+        return CpuClass.CPU_MODEL;
+    }
+
+    static final class CpuClass {
+        static final String CPU_MODEL;
+
+        static {
+            String model = System.getProperty("os.arch", "unknown");
+            try {
+                final Path path = Paths.get("/proc/cpuinfo");
+                if (Files.isReadable(path)) {
+                    model = Files.lines(path)
+                            .filter(line -> line.startsWith("model name"))
+                            .map(line -> line.replaceAll(".*: ", ""))
+                            .findFirst().orElse(model);
+                }
+            } catch (IOException e) {
+                Jvm.debug().on(CpuClass.class, "Unable to read cpuinfo", e);
+            }
+            CPU_MODEL = model;
         }
     }
 }

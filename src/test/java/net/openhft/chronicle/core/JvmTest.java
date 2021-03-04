@@ -211,6 +211,7 @@ public class JvmTest {
 
     interface InterfaceWithDefaultMethod {
         void hello(CharSequence ignored);
+
         default void helloDefault(CharSequence cs) {
             hello(cs);
         }
@@ -220,5 +221,14 @@ public class JvmTest {
         @Override
         public void hello(CharSequence ignored) {
         }
+    }
+
+    @Test
+    public void getCpuClass() {
+        final String cpuClass = Jvm.getCpuClass();
+        System.out.println("cpuClass: " + cpuClass);
+        if (OS.isLinux())
+            assertTrue(cpuClass, cpuClass.contains(" CPU @ "));
+        assertNotNull(cpuClass);
     }
 }
