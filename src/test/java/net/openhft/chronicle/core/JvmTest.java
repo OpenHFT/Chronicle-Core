@@ -230,7 +230,7 @@ public class JvmTest {
         if (Jvm.isArm())
             assertTrue(cpuClass, cpuClass.startsWith("ARMv"));
         else if (OS.isLinux() || OS.isWindows())
-            assertTrue(cpuClass, cpuClass.contains(" CPU @ "));
+            assertTrue(cpuClass, cpuClass.contains(" CPU ") && cpuClass.contains(" @ "));
         assertNotNull(cpuClass);
     }
 }
