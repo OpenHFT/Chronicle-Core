@@ -24,6 +24,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     private final Class type;
     private final StackTrace createdHere;
     private volatile StackTrace releasedHere;
+    private boolean unmonitored;
 
     TracingReferenceCounted(final Runnable onRelease, String uniqueId, Class type) {
         this.onRelease = onRelease;
@@ -230,11 +231,16 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     @Override
     public void warnAndReleaseIfNotReleased() {
         if (refCount() > 0) {
-            if (!AbstractCloseable.DISABLE_DISCARD_WARNING) {
+            if (!unmonitored && !AbstractCloseable.DISABLE_DISCARD_WARNING) {
                 ExceptionHandler warn = AbstractCloseable.STRICT_DISCARD_WARNING ? Jvm.warn() : Slf4jExceptionHandler.WARN;
                 warn.on(type, "Discarded without being released by " + referencesAsString(), createdHere);
             }
             onRelease.run();
         }
+    }
+
+    @Override
+    public void unmonitored(boolean unmonitored) {
+        this.unmonitored = unmonitored;
     }
 }

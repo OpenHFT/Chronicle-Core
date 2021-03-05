@@ -22,6 +22,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     private volatile int value = 1;
     private volatile boolean released = false;
     private final Class type;
+    private boolean unmonitored;
 
     VanillaReferenceCounted(final Runnable onRelease, Class type) {
         this.onRelease = onRelease;
@@ -136,9 +137,14 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     @Override
     public void warnAndReleaseIfNotReleased() throws ClosedIllegalStateException {
         if (refCount() > 0) {
-            if (!AbstractCloseable.DISABLE_DISCARD_WARNING)
+            if (!unmonitored && !AbstractCloseable.DISABLE_DISCARD_WARNING)
                 Slf4jExceptionHandler.WARN.on(type, "Discarded without being released");
             callOnRelease();
         }
+    }
+
+    @Override
+    public void unmonitored(boolean unmonitored) {
+        this.unmonitored = unmonitored;
     }
 }

@@ -4,12 +4,12 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
 
 public class DualReferenceCounted implements MonitorReferenceCounted {
-    private final ReferenceCountedTracer a, b;
+    private final MonitorReferenceCounted a, b;
     private volatile int refCount;
     private volatile Throwable error;
     private int refCountB;
 
-    public DualReferenceCounted(ReferenceCountedTracer a, ReferenceCountedTracer b) {
+    public DualReferenceCounted(MonitorReferenceCounted a, MonitorReferenceCounted b) {
         this.a = a;
         this.b = b;
         this.refCount = a.refCount();
@@ -152,5 +152,11 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
     @Override
     public String referenceName() {
         return a.referenceName();
+    }
+
+    @Override
+    public void unmonitored(boolean unmonitored) {
+        a.unmonitored(unmonitored);
+        b.unmonitored(unmonitored);
     }
 }

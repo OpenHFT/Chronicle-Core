@@ -17,7 +17,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     protected static final int WARN_COUNT = Integer.getInteger("reference.warn.count", Integer.MAX_VALUE);
     static volatile Set<AbstractReferenceCounted> REFERENCE_COUNTED_SET;
     private transient volatile Thread usedByThread;
-    private transient final ReferenceCountedTracer referenceCounted;
+    private transient final MonitorReferenceCounted referenceCounted;
     private final int referenceId;
 
     protected AbstractReferenceCounted() {
@@ -29,8 +29,8 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
                 ? this::backgroundPerformRelease
                 : this::inThreadPerformRelease;
         referenceId = IOTools.counter(getClass()).incrementAndGet();
-        referenceCounted = ReferenceCountedTracer.onReleased(performRelease, referenceName(), getClass());
-
+        referenceCounted = (MonitorReferenceCounted) ReferenceCountedTracer.onReleased(performRelease, referenceName(), getClass());
+        referenceCounted.unmonitored(!monitored);
         Set<AbstractReferenceCounted> set = REFERENCE_COUNTED_SET;
         if (monitored && set != null)
             set.add(this);
@@ -77,6 +77,8 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     public static void unmonitor(ReferenceCounted counted) {
         if (REFERENCE_COUNTED_SET != null)
             REFERENCE_COUNTED_SET.remove(counted);
+        if (counted instanceof AbstractReferenceCounted)
+            ((AbstractReferenceCounted) counted).referenceCounted.unmonitored(true);
     }
 
     @Override
