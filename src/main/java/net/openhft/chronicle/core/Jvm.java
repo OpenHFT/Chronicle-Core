@@ -1501,7 +1501,32 @@ public enum Jvm {
                     }
                     process.destroy();
 
+                }  else if (OS.isMacOSX()) {
+
+                    String cmd = "sysctl -a";
+                    Process process = new ProcessBuilder(cmd.split(" "))
+                            .redirectErrorStream(true)
+                            .start();
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                        model = reader.lines()
+                                .map(String::trim)
+                                .filter(s -> s.startsWith("machdep.cpu.brand_string"))
+                                .map(line -> line.replaceAll(".*: ", ""))
+                                .findFirst().orElse(model);
+                    }
+                    try {
+                        int ret = process.waitFor();
+                        if (ret != 0)
+                            Jvm.warn().on(CpuClass.class, "process " + cmd + " returned " + ret);
+                    } catch (InterruptedException e) {
+                        Jvm.warn().on(CpuClass.class, "process " + cmd + " waitFor threw ", e);
+                    }
+                    process.destroy();
+
                 }
+
+
+
             } catch (IOException e) {
                 Jvm.debug().on(CpuClass.class, "Unable to read cpuinfo", e);
             }
