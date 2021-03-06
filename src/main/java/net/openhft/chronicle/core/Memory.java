@@ -118,6 +118,10 @@ public interface Memory {
 
     void copyMemory(long fromAddress, Object obj2, long offset2, int length);
 
+    boolean is7Bit(byte[] bytes, int offset, int length);
+
+    boolean is7Bit(long address, int length);
+
     void writeOrderedLong(long address, long i);
 
     void writeOrderedLong(@NotNull Object object, long offset, long i);

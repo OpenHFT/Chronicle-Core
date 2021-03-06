@@ -534,6 +534,41 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
+    public boolean is7Bit(byte[] bytes, int offset, int length) {
+        long offset2 = (long) offset + Unsafe.ARRAY_BYTE_BASE_OFFSET;
+        int i = 0;
+        for (; i < length - 7; i += 8)
+            if ((UnsafeMemory.UNSAFE.getLong(bytes, offset2 + i) & 0x8080808080808080L) != 0)
+                return false;
+        if (i < length - 3) {
+            if ((UnsafeMemory.UNSAFE.getInt(bytes, offset2 + i) & 0x80808080) != 0)
+                return false;
+            i += 4;
+        }
+        for (; i < length; i++)
+            if (UnsafeMemory.UNSAFE.getByte(bytes, offset2 + i) < 0)
+                return false;
+        return true;
+    }
+
+    @Override
+    public boolean is7Bit(long address, int length) {
+        int i = 0;
+        for (; i < length - 7; i += 8)
+            if ((UnsafeMemory.UNSAFE.getLong(address + i) & 0x8080808080808080L) != 0)
+                return false;
+        if (i < length - 3) {
+            if ((UnsafeMemory.UNSAFE.getInt(address + i) & 0x80808080) != 0)
+                return false;
+            i += 4;
+        }
+        for (; i < length; i++)
+            if (UnsafeMemory.UNSAFE.getByte(address + i) < 0)
+                return false;
+        return true;
+    }
+
+    @Override
     @ForceInline
     public void writeOrderedLong(long address, long i) {
 //        assert (address & 0x7) == 0;
