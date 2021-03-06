@@ -552,6 +552,24 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
+    public boolean is7Bit(char[] chars, int offset, int length) {
+        long offset2 = (long) offset * 2 + Unsafe.ARRAY_CHAR_BASE_OFFSET;
+        int i = 0;
+        for (; i < length - 3; i += 4)
+            if ((UnsafeMemory.UNSAFE.getLong(chars, offset2 + i + i) & 0xFF80FF80FF80FF80L) != 0)
+                return false;
+        if (i < length - 1) {
+            if ((UnsafeMemory.UNSAFE.getInt(chars, offset2 + i + i) & 0xFF80FF80) != 0)
+                return false;
+            i += 2;
+        }
+        for (; i < length; i++)
+            if ((UnsafeMemory.UNSAFE.getChar(chars, offset2 + i + i) & 0xFF80) != 0)
+                return false;
+        return true;
+    }
+
+    @Override
     public boolean is7Bit(long address, int length) {
         int i = 0;
         for (; i < length - 7; i += 8)

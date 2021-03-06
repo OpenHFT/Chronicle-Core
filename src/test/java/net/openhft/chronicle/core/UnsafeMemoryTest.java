@@ -212,6 +212,37 @@ public class UnsafeMemoryTest {
     }
 
     @Test
+    public void is7BitChars() {
+        for (int i = 0; i <= 64; i++) {
+            char[] chars = new char[i];
+            assertTrue(INSTANCE.is7Bit(chars, 0, i));
+            if (i == 0)
+                continue;
+            chars[i - 1] = 0x8000;
+            assertFalse(INSTANCE.is7Bit(chars, 0, i));
+        }
+    }
+
+    @Test
+    public void is7BitChars2() {
+        char[] chars = new char[512];
+        for (int i = 0; i < 512; i++)
+            chars[i] = (char) i;
+        Random rand = new Random();
+        for (int i = 0; i < 1000; i++) {
+            int a = rand.nextInt(512);
+            int b = rand.nextInt(512);
+            int start = Math.min(a, b);
+            int length = Math.abs(a - b);
+            if (length == 0)
+                assertTrue(INSTANCE.is7Bit(chars, start, length));
+            else
+                assertEquals("start: " + start + ", length: " + length, start + length <= 128,
+                        INSTANCE.is7Bit(chars, start, length));
+        }
+    }
+
+    @Test
     public void is7BitAddr() {
         final long addr = UNSAFE.allocateMemory(64);
         assertTrue(INSTANCE.is7Bit(addr, 0));

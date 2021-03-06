@@ -120,6 +120,8 @@ public interface Memory {
 
     boolean is7Bit(byte[] bytes, int offset, int length);
 
+    boolean is7Bit(char[] chars, int offset, int length);
+
     boolean is7Bit(long address, int length);
 
     void writeOrderedLong(long address, long i);
