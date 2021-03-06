@@ -118,6 +118,10 @@ public interface Memory {
 
     void copyMemory(long fromAddress, Object obj2, long offset2, int length);
 
+    int stopBitLength(int i);
+
+    int stopBitLength(long l);
+
     boolean is7Bit(byte[] bytes, int offset, int length);
 
     boolean is7Bit(char[] chars, int offset, int length);

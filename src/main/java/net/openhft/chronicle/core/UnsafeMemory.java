@@ -534,6 +534,34 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
+    public int stopBitLength(int i) {
+        // common case
+        if ((i & ~0x7f) == 0)
+            return 1;
+        return stopBitLength0(i);
+    }
+
+    private int stopBitLength0(int i) {
+        if (i < 0)
+            return 1 + stopBitLength(~i);
+        return (32 + 6 - Integer.numberOfLeadingZeros(i)) / 7;
+    }
+
+    @Override
+    public int stopBitLength(long l) {
+        // common case
+        if ((l & ~0x7fL) == 0)
+            return 1;
+        return stopBitLength0(l);
+    }
+
+    private int stopBitLength0(long l) {
+        if (l < 0)
+            return 1 + stopBitLength(~l);
+        return (64 + 6 - Long.numberOfLeadingZeros(l)) / 7;
+    }
+
+    @Override
     public boolean is7Bit(byte[] bytes, int offset, int length) {
         long offset2 = (long) offset + Unsafe.ARRAY_BYTE_BASE_OFFSET;
         int i = 0;

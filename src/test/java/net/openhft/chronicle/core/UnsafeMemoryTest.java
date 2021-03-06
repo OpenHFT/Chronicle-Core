@@ -181,6 +181,35 @@ public class UnsafeMemoryTest {
     }
 
     @Test
+    public void stopBitLengthInt() {
+        assertEquals(1, INSTANCE.stopBitLength(0));
+        assertEquals(2, INSTANCE.stopBitLength(~0));
+
+        for (int i = 7; i < 32; i += 7) {
+            int j = 1 << i;
+            assertEquals(i / 7, INSTANCE.stopBitLength(j - 1));
+            assertEquals(i / 7 + 1, INSTANCE.stopBitLength(j));
+            assertEquals(i / 7 + 1, INSTANCE.stopBitLength(-j));
+            assertEquals(i / 7 + 2, INSTANCE.stopBitLength(~j));
+        }
+    }
+
+    @Test
+    public void stopBitLengthLong() {
+        assertEquals(1, INSTANCE.stopBitLength(0L));
+        assertEquals(2, INSTANCE.stopBitLength(~0L));
+
+        for (int i = 7; i < 64; i += 7) {
+            long j = 1L << i;
+            assertEquals(i / 7, INSTANCE.stopBitLength(j - 1));
+            assertEquals(i / 7 + 1, INSTANCE.stopBitLength(j));
+            assertEquals(i / 7 + 1, INSTANCE.stopBitLength(-j));
+            if (i < 63)
+                assertEquals(i / 7 + 2, INSTANCE.stopBitLength(~j));
+        }
+    }
+
+    @Test
     public void is7BitBytes() {
         for (int i = 0; i <= 64; i++) {
             byte[] bytes = new byte[i];
