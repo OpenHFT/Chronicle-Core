@@ -17,7 +17,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     protected static final int WARN_COUNT = Integer.getInteger("reference.warn.count", Integer.MAX_VALUE);
     static volatile Set<AbstractReferenceCounted> REFERENCE_COUNTED_SET;
     private transient volatile Thread usedByThread;
-    private transient final MonitorReferenceCounted referenceCounted;
+    protected transient final MonitorReferenceCounted referenceCounted;
     private final int referenceId;
 
     protected AbstractReferenceCounted() {

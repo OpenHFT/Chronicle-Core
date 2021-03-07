@@ -159,4 +159,9 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
         a.unmonitored(unmonitored);
         b.unmonitored(unmonitored);
     }
+
+    @Override
+    public boolean unmonitored() {
+        return a.unmonitored();
+    }
 }
