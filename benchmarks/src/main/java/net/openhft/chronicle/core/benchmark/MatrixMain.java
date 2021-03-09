@@ -146,7 +146,7 @@ public class MatrixMain {
         }
     }
 
-    @Benchmark
+//    @Benchmark
 //    @BenchmarkMode({Mode.SampleTime, Mode.Throughput})
     public BigMatrix BigDecimalMatrix() {
         BigMatrix matrix = new BigMatrixImpl(values);
@@ -154,7 +154,7 @@ public class MatrixMain {
         return matrix.multiply(matrix2);
     }
 
-    @Benchmark
+    //    @Benchmark
 //    @BenchmarkMode({Mode.SampleTime, Mode.Throughput})
     public RealMatrix DoubleMatrix() {
         RealMatrix matrix = new Array2DRowRealMatrix(valuesD);

@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
+import java.nio.ByteOrder;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
@@ -33,6 +34,7 @@ public class UnsafeMemory implements Memory {
     @NotNull
     public static final Unsafe UNSAFE;
     public static final UnsafeMemory INSTANCE;
+    public static final UnsafeMemory MEMORY;
     @Deprecated(/* to be removed in .x21 */)
     public static final boolean tracing = false;
     // see java.nio.Bits.copyMemory
@@ -41,6 +43,8 @@ public class UnsafeMemory implements Memory {
     // during a large copy
     static final long UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
     private static final String MIS_ALIGNED = "mis-aligned";
+    // TODO support big endian
+    public static final boolean IS_LITTLE_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
 
     static {
         try {
@@ -52,6 +56,7 @@ public class UnsafeMemory implements Memory {
             throw new AssertionError(e);
         }
         INSTANCE = Bootstrap.isArm0() ? new ARMMemory() : new UnsafeMemory();
+        MEMORY = INSTANCE;
     }
 
     private final AtomicLong nativeMemoryUsed = new AtomicLong();
@@ -136,14 +141,15 @@ public class UnsafeMemory implements Memory {
 
     //      throws BufferUnderflowException, BufferOverflowException
     public static void copyMemory(long from, long to, int length) {
-        long i = 0;
-        for (; i < length - 7; i += 8) {
-            unsafePutLong(to, unsafeGetLong(from));
-            from += 8;
-            to += 8;
+        int i = 0;
+        for (; i < length - 7; i += 8)
+            unsafePutLong(to + i, unsafeGetLong(from + i));
+        if (i > 3) {
+            unsafePutInt(to + i, unsafeGetInt(from + i));
+            i += 4;
         }
         for (; i < length; i++)
-            unsafePutByte(to++, unsafeGetByte(from++));
+            unsafePutByte(to + i, unsafeGetByte(from + i));
     }
 
     public static void unsafePutBoolean(@NotNull Object obj, long offset, boolean value) {
@@ -486,7 +492,17 @@ public class UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public void copyMemory(byte[] bytes, int offset, long address, int length) {
-        copyMemory(bytes, offset, null, address, length);
+        final long offset2 = (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset;
+        int i = 0;
+        for (; i < length - 7; i += 8)
+            unsafePutLong(address + i, unsafeGetLong(bytes, offset2 + i));
+
+        if (length > 3) {
+            unsafePutInt(address + i, unsafeGetInt(bytes, offset2 + i));
+            i += 4;
+        }
+        for (; i < length; i++)
+            unsafePutByte(address + i, unsafeGetByte(bytes, offset2 + i));
     }
 
     @Override
@@ -562,20 +578,166 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
+    public long partialRead(byte[] bytes, int offset, int length) {
+        switch (length) {
+            case 8:
+                return UNSAFE.getLong(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset);
+            case 4:
+                return UNSAFE.getInt(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset) & 0xFFFF_FFFFL;
+            case 2:
+                return UNSAFE.getShort(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset) & 0xFFFF;
+            case 1:
+                return bytes[offset] & 0xFF;
+            case 0:
+                return 0;
+        }
+        long value = 0;
+        offset += length;
+        if ((length & 4) != 0) {
+            offset -= 4;
+            value = UNSAFE.getInt(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset) & 0xFFFF_FFFFL;
+        }
+        if ((length & 2) != 0) {
+            value <<= 16;
+            offset -= 2;
+            int s = UNSAFE.getShort(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset) & 0xFFFF;
+            value |= s;
+        }
+        if ((length & 1) != 0) {
+            offset -= 1;
+            value <<= 8;
+            int b = bytes[offset] & 0xFF;
+            value |= b;
+        }
+        return value;
+    }
+
+    @Override
+    public long partialRead(long addr, int length) {
+        switch (length) {
+            case 8:
+                return UNSAFE.getLong(addr);
+            case 4:
+                return UNSAFE.getInt(addr) & 0xFFFF_FFFFL;
+            case 2:
+                return UNSAFE.getShort(addr) & 0xFFFF;
+            case 1:
+                return UNSAFE.getByte(addr) & 0xFF;
+            case 0:
+                return 0;
+        }
+        long value = 0;
+        addr += length;
+        if ((length & 4) != 0) {
+            addr -= 4;
+            value = UNSAFE.getInt(addr) & 0xFFFF_FFFFL;
+        }
+        if ((length & 2) != 0) {
+            value <<= 16;
+            addr -= 2;
+            int s = UNSAFE.getShort(addr) & 0xFFFF;
+            value |= s;
+        }
+        if ((length & 1) != 0) {
+            value <<= 8;
+            addr--;
+            int b = UNSAFE.getByte(addr) & 0xFF;
+            value |= b;
+        }
+        return value;
+    }
+
+    @Override
+    public void partialWrite(byte[] bytes, int offset, long value, int length) {
+        switch (length) {
+            case 8:
+                UNSAFE.putLong(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, value);
+                return;
+            case 4:
+                UNSAFE.putInt(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, (int) value);
+                return;
+            case 2:
+                UNSAFE.putShort(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, (short) value);
+                return;
+            case 1:
+                UNSAFE.putByte(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, (byte) value);
+                return;
+            case 0:
+                return;
+        }
+        if ((length & 1) != 0) {
+            UNSAFE.putByte(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, (byte) value);
+            offset += 1;
+            value >>>= 8;
+        }
+        if ((length & 2) != 0) {
+            UNSAFE.putShort(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, (short) value);
+            offset += 2;
+            value >>>= 16;
+        }
+        if ((length & 4) != 0) {
+            UNSAFE.putInt(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, (int) value);
+//            offset += 4;
+//            value >>>= 32;
+        }
+    }
+
+    @Override
+    public void partialWrite(long addr, long value, int length) {
+        switch (length) {
+            case 8:
+                UNSAFE.putLong(addr, value);
+                return;
+            case 4:
+                UNSAFE.putInt(addr, (int) value);
+                return;
+            case 2:
+                UNSAFE.putShort(addr, (short) value);
+                return;
+            case 1:
+                UNSAFE.putByte(addr, (byte) value);
+                return;
+            case 0:
+                return;
+        }
+        if ((length & 1) != 0) {
+            UNSAFE.putByte(addr, (byte) value);
+            addr += 1;
+            value >>>= 8;
+        }
+        if ((length & 2) != 0) {
+            UNSAFE.putShort(addr, (short) value);
+            addr += 2;
+            value >>>= 16;
+        }
+        if ((length & 4) != 0) {
+            UNSAFE.putInt(addr, (int) value);
+//            addr += 4;
+//            value >>>= 32;
+        }
+    }
+
+    @Override
     public boolean is7Bit(byte[] bytes, int offset, int length) {
         long offset2 = (long) offset + Unsafe.ARRAY_BYTE_BASE_OFFSET;
         int i = 0;
         for (; i < length - 7; i += 8)
             if ((UnsafeMemory.UNSAFE.getLong(bytes, offset2 + i) & 0x8080808080808080L) != 0)
                 return false;
+
         if (i < length - 3) {
             if ((UnsafeMemory.UNSAFE.getInt(bytes, offset2 + i) & 0x80808080) != 0)
                 return false;
             i += 4;
         }
-        for (; i < length; i++)
-            if (UnsafeMemory.UNSAFE.getByte(bytes, offset2 + i) < 0)
+        if (i < length - 1) {
+            if ((UnsafeMemory.UNSAFE.getShort(bytes, offset2 + i) & 0x8080) != 0)
                 return false;
+            i += 2;
+        }
+
+        if (i < length)
+            return UnsafeMemory.UNSAFE.getByte(bytes, offset2 + i) >= 0;
         return true;
     }
 
@@ -591,9 +753,8 @@ public class UnsafeMemory implements Memory {
                 return false;
             i += 2;
         }
-        for (; i < length; i++)
-            if ((UnsafeMemory.UNSAFE.getChar(chars, offset2 + i + i) & 0xFF80) != 0)
-                return false;
+        if (i < length)
+            return (UnsafeMemory.UNSAFE.getChar(chars, offset2 + i + i) & 0xFF80) == 0;
         return true;
     }
 
@@ -608,9 +769,13 @@ public class UnsafeMemory implements Memory {
                 return false;
             i += 4;
         }
-        for (; i < length; i++)
-            if (UnsafeMemory.UNSAFE.getByte(address + i) < 0)
+        if (i < length - 1) {
+            if ((UnsafeMemory.UNSAFE.getShort(address + i) & 0x8080) != 0)
                 return false;
+            i += 2;
+        }
+        if (i < length)
+            return UnsafeMemory.UNSAFE.getByte(address + i) >= 0;
         return true;
     }
 
@@ -879,6 +1044,54 @@ public class UnsafeMemory implements Memory {
 //        assert (offset & 0x7) == 0;
         requireNonNull(object);
         return UNSAFE.getAndAddLong(object, offset, increment) + increment;
+    }
+
+    private static final long stringValueOffset;
+
+    static {
+        long offset = 0;
+        try {
+            if (!Jvm.isJava9Plus()) {
+                Field valueField = String.class.getDeclaredField("value");
+                offset = UNSAFE.objectFieldOffset(valueField);
+            }
+        } catch (NoSuchFieldException e) {
+            offset = 0;
+        }
+        stringValueOffset = offset;
+    }
+
+    public void copy8bit(String s, int start, int length, long addr) {
+        if (stringValueOffset == 0) {
+            copy8BitJava9(s, start, length, addr);
+            return;
+        }
+        char[] chars = (char[]) UNSAFE.getObject(s, stringValueOffset);
+        for (int i = 0; i < length; i++)
+            UNSAFE.putByte(addr + i, (byte) chars[start + i]);
+    }
+
+    private void copy8BitJava9(String s, int start, int length, long addr) {
+        for (int i = 0; i < length; i++)
+            UNSAFE.putByte(addr + i, (byte) s.charAt(start + i));
+    }
+
+    public boolean isEqual(long addr, String s, int length) {
+        if (stringValueOffset == 0) {
+            return isEqualJava9(addr, s, length);
+        }
+        char[] chars = (char[]) UNSAFE.getObject(s, stringValueOffset);
+        for (int i = 0; i < length; i++)
+            if (UNSAFE.getByte(addr + i) != chars[i])
+                return false;
+        return true;
+    }
+
+    private boolean isEqualJava9(long addr, String s, int length) {
+        for (int i = 0; i < length; i++)
+            if (UNSAFE.getByte(addr + i) != s.charAt(i))
+                return false;
+        return true;
     }
 
     // https://github.com/OpenHFT/OpenHFT/issues/23

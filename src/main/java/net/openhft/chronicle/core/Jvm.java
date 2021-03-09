@@ -73,6 +73,7 @@ public enum Jvm {
     // e.g-verbose:gc  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=dumponexit=true,filename=myrecording.jfr,settings=profile -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints
     private static final boolean IS_FLIGHT_RECORDER = INPUT_ARGUMENTS2.contains(" -XX:+FlightRecorder") || Jvm.getBoolean("jfr");
     private static final boolean IS_COVERAGE = INPUT_ARGUMENTS2.contains("coverage");
+    private static final boolean REPORT_UNOPTIMISED;
     private static final Supplier<Long> reservedMemory;
     private static final boolean IS_64BIT = is64bit0();
     private static final int PROCESS_ID = getProcessId0();
@@ -167,6 +168,22 @@ public enum Jvm {
         logger.info("Chronicle core loaded from " + Jvm.class.getProtectionDomain().getCodeSource().getLocation());
         if (RESOURCE_TRACING && !Jvm.getBoolean("disable.resource.warning"))
             logger.warn("Resource tracing is turned on. If you are performance testing or running in PROD you probably don't want this");
+        REPORT_UNOPTIMISED = Jvm.getBoolean("report.unoptimised");
+    }
+
+    public static void reportUnoptimised() {
+        if (!REPORT_UNOPTIMISED)
+            return;
+        final StackTraceElement[] stes = Thread.currentThread().getStackTrace();
+        int i = 0;
+        while (i < stes.length)
+            if (stes[i++].getMethodName().equals("reportUnoptimised"))
+                break;
+        while (i < stes.length)
+            if (stes[i++].getMethodName().equals("<clinit>"))
+                break;
+
+        Jvm.warn().on(Jvm.class, "Reporting usage of unoptimised method " + stes[i]);
     }
 
     private static boolean isAzulZing0() {
@@ -1501,7 +1518,7 @@ public enum Jvm {
                     }
                     process.destroy();
 
-                }  else if (OS.isMacOSX()) {
+                } else if (OS.isMacOSX()) {
 
                     String cmd = "sysctl -a";
                     Process process = new ProcessBuilder(cmd.split(" "))
@@ -1524,7 +1541,6 @@ public enum Jvm {
                     process.destroy();
 
                 }
-
 
 
             } catch (IOException e) {

@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.onoes.ExceptionKey;
 import net.openhft.chronicle.core.threads.ThreadDump;
 import net.openhft.chronicle.core.util.Time;
 import org.junit.After;
@@ -32,9 +33,9 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Map;
 
-import static net.openhft.chronicle.core.Jvm.getProcessId;
-import static net.openhft.chronicle.core.Jvm.isArm;
+import static net.openhft.chronicle.core.Jvm.*;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
@@ -50,6 +51,7 @@ public class JvmTest {
 
     @After
     public void checkThreadDump() {
+        resetExceptionHandlers();
         threadDump.assertNoNewThreads();
     }
 
@@ -66,6 +68,24 @@ public class JvmTest {
     @Test
     public void shouldGetMajorVersion() {
         assertTrue(Jvm.majorVersion() > 0);
+    }
+
+    static class ReportUnoptimised {
+        static {
+            Jvm.reportUnoptimised();
+        }
+
+        static void reportOnce() {
+        }
+    }
+
+    @Test
+    public void reportThis() {
+        final Map<ExceptionKey, Integer> map = recordExceptions();
+        ReportUnoptimised.reportOnce();
+
+        final String actual = map.keySet().toString();
+        assertTrue(actual, actual.contains("JvmTest.reportThis(JvmTest.java"));
     }
 
     @Test

@@ -122,6 +122,14 @@ public interface Memory {
 
     int stopBitLength(long l);
 
+    long partialRead(byte[] bytes, int offset, int length);
+
+    long partialRead(long addr, int length);
+
+    void partialWrite(byte[] bytes, int offset, long value, int length);
+
+    void partialWrite(long addr, long value, int length);
+
     boolean is7Bit(byte[] bytes, int offset, int length);
 
     boolean is7Bit(char[] chars, int offset, int length);
