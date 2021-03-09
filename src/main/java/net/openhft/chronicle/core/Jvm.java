@@ -117,7 +117,6 @@ public enum Jvm {
 
     static {
         final Field[] declaredFields = ObjectHeaderSizeChecker.class.getDeclaredFields();
-        OBJECT_HEADER_SIZE = (int) UnsafeMemory.INSTANCE.getFieldOffset(declaredFields[0]);
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
         IS_JAVA_9_PLUS = JVM_JAVA_MAJOR_VERSION > 8; // IS_JAVA_9_PLUS value is used in maxDirectMemory0 method.
         IS_JAVA_12_PLUS = JVM_JAVA_MAJOR_VERSION > 11;
@@ -125,6 +124,7 @@ public enum Jvm {
         // get this here before we call getField
         setAccessible0_Method = get_setAccessible0_Method();
         MAX_DIRECT_MEMORY = maxDirectMemory0();
+        OBJECT_HEADER_SIZE = (int) UnsafeMemory.INSTANCE.getFieldOffset(declaredFields[0]);
 
         Supplier<Long> reservedMemoryGetter;
         try {

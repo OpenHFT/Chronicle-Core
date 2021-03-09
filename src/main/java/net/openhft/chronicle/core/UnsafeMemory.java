@@ -1046,27 +1046,29 @@ public class UnsafeMemory implements Memory {
         return UNSAFE.getAndAddLong(object, offset, increment) + increment;
     }
 
-    private static final long stringValueOffset;
+    static class CachedReflection {
+        private static final long stringValueOffset;
 
-    static {
-        long offset = 0;
-        try {
-            if (!Jvm.isJava9Plus()) {
-                Field valueField = String.class.getDeclaredField("value");
-                offset = UNSAFE.objectFieldOffset(valueField);
+        static {
+            long offset = 0;
+            try {
+                if (!Jvm.isJava9Plus()) {
+                    Field valueField = String.class.getDeclaredField("value");
+                    offset = UNSAFE.objectFieldOffset(valueField);
+                }
+            } catch (NoSuchFieldException e) {
+                offset = 0;
             }
-        } catch (NoSuchFieldException e) {
-            offset = 0;
+            stringValueOffset = offset;
         }
-        stringValueOffset = offset;
     }
 
     public void copy8bit(String s, int start, int length, long addr) {
-        if (stringValueOffset == 0) {
+        if (CachedReflection.stringValueOffset == 0) {
             copy8BitJava9(s, start, length, addr);
             return;
         }
-        char[] chars = (char[]) UNSAFE.getObject(s, stringValueOffset);
+        char[] chars = (char[]) UNSAFE.getObject(s, CachedReflection.stringValueOffset);
         for (int i = 0; i < length; i++)
             UNSAFE.putByte(addr + i, (byte) chars[start + i]);
     }
@@ -1077,10 +1079,10 @@ public class UnsafeMemory implements Memory {
     }
 
     public boolean isEqual(long addr, String s, int length) {
-        if (stringValueOffset == 0) {
+        if (CachedReflection.stringValueOffset == 0) {
             return isEqualJava9(addr, s, length);
         }
-        char[] chars = (char[]) UNSAFE.getObject(s, stringValueOffset);
+        char[] chars = (char[]) UNSAFE.getObject(s, CachedReflection.stringValueOffset);
         for (int i = 0; i < length; i++)
             if (UNSAFE.getByte(addr + i) != chars[i])
                 return false;
