@@ -243,4 +243,9 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     public void unmonitored(boolean unmonitored) {
         this.unmonitored = unmonitored;
     }
+
+    @Override
+    public boolean unmonitored() {
+        return unmonitored;
+    }
 }
