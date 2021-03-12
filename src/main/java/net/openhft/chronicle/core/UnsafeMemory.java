@@ -1047,6 +1047,7 @@ public class UnsafeMemory implements Memory {
     }
 
     static class CachedReflection {
+
         private static final long stringValueOffset;
 
         static {
@@ -1076,6 +1077,21 @@ public class UnsafeMemory implements Memory {
     private void copy8BitJava9(String s, int start, int length, long addr) {
         for (int i = 0; i < length; i++)
             UNSAFE.putByte(addr + i, (byte) s.charAt(start + i));
+    }
+
+    public void write8bit(String s, int start, Object object, long offset, int length) {
+        if (CachedReflection.stringValueOffset == 0) {
+            write8bitJava9(s, start, object, offset, length);
+            return;
+        }
+        char[] chars = (char[]) UNSAFE.getObject(s, CachedReflection.stringValueOffset);
+        for (int i = 0; i < length; i++)
+            UNSAFE.putByte(object, offset + i, (byte) chars[start + i]);
+    }
+
+    private void write8bitJava9(String s, int start, Object object, long offset, int length) {
+        for (int i = 0; i < length; i++)
+            UNSAFE.putByte(object, offset + i, (byte) s.charAt(start + i));
     }
 
     public boolean isEqual(long addr, String s, int length) {
