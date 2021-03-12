@@ -249,7 +249,8 @@ public class JvmTest {
         System.out.println("cpuClass: " + cpuClass);
         if (Jvm.isArm())
             assertTrue(cpuClass, cpuClass.startsWith("ARMv"));
-        else
+
+        else if (!cpuClass.equals("Apple M1"))
             assertTrue(cpuClass, (cpuClass.startsWith("Intel") && cpuClass.contains(" CPU ") && cpuClass.contains(" @ "))
                     || (cpuClass.startsWith("AMD ")));
 
