@@ -248,11 +248,11 @@ public class JvmTest {
     public void getCpuClass() {
         final String cpuClass = Jvm.getCpuClass();
         System.out.println("cpuClass: " + cpuClass);
-        if (Jvm.isArm()) {
-            assertTrue(cpuClass, cpuClass.startsWith("ARMv"));
-
-        } else if (Jvm.isMacArm()) {
+        if (Jvm.isMacArm()) {
             assertTrue(cpuClass, cpuClass.equals("Apple M1"));
+
+        } else if (Jvm.isArm()) {
+            assertTrue(cpuClass, cpuClass.startsWith("ARMv"));
 
         } else {
             assertTrue(cpuClass, (cpuClass.startsWith("Intel") && cpuClass.contains(" CPU ") && cpuClass.contains(" @ "))
