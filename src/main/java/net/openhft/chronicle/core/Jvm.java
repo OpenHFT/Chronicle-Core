@@ -93,6 +93,7 @@ public enum Jvm {
     private static final boolean IS_JAVA_9_PLUS;
     private static final boolean IS_JAVA_12_PLUS;
     private static final boolean IS_JAVA_14_PLUS;
+    private static final boolean IS_JAVA_15_PLUS;
     private static final long MAX_DIRECT_MEMORY;
     private static final boolean SAFEPOINT_ENABLED;
     private static final boolean IS_ARM = Bootstrap.isArm0();
@@ -123,6 +124,7 @@ public enum Jvm {
         IS_JAVA_9_PLUS = JVM_JAVA_MAJOR_VERSION > 8; // IS_JAVA_9_PLUS value is used in maxDirectMemory0 method.
         IS_JAVA_12_PLUS = JVM_JAVA_MAJOR_VERSION > 11;
         IS_JAVA_14_PLUS = JVM_JAVA_MAJOR_VERSION > 13;
+        IS_JAVA_15_PLUS = JVM_JAVA_MAJOR_VERSION > 14;
         // get this here before we call getField
         setAccessible0_Method = get_setAccessible0_Method();
         MAX_DIRECT_MEMORY = maxDirectMemory0();
@@ -312,6 +314,15 @@ public enum Jvm {
      */
     public static boolean isJava14Plus() {
         return IS_JAVA_14_PLUS;
+    }
+
+    /**
+     * Returns if the major Java version is 14 or higher.
+     *
+     * @return if the major Java version is 14 or higher
+     */
+    public static boolean isJava15Plus() {
+        return IS_JAVA_15_PLUS;
     }
 
     private static boolean is64bit0() {
