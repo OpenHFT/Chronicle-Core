@@ -7,8 +7,9 @@ enum Bootstrap {
     ;
 
     public static final String OS_ARCH = System.getProperty("os.arch", "?");
-    public static final String VM_VENDOR = System.getProperty("java.vm.vendor");
-    public static final String VM_VERSION = System.getProperty("java.vm.version");
+    public static final String VM_VENDOR = System.getProperty("java.vm.vendor", "?");
+    public static final String VM_VERSION = System.getProperty("java.vm.version", "?");
+    public static final String VM_NAME = System.getProperty("java.vm.name", "?");
 
     // can't be in Jvm or causes a problem on initialisation.
     static boolean isArm0() {
@@ -22,13 +23,10 @@ enum Bootstrap {
     }
 
     static boolean isAzulZing0() {
-        final String vendorVersion = VM_VENDOR + VM_VERSION;
-        return vendorVersion.matches("Azul .*zing.*$");
+        return VM_VENDOR.startsWith("Azul ") && VM_VERSION.contains("zing");
     }
 
     static boolean isAzulZulu0() {
-        final String vendorVersion = VM_VENDOR + VM_VERSION;
-        System.out.println("vendorVersion: " + vendorVersion);
-        return vendorVersion.matches("Azul .*zulu.*$");
+        return VM_VENDOR.startsWith("Azul ") && (VM_NAME.startsWith("OpenJDK ") || VM_NAME.startsWith("Zulu"));
     }
 }
