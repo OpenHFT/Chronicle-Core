@@ -18,4 +18,14 @@ enum Bootstrap {
         return System.getProperty("os.name", "?").equals("Mac OS X")
                 && OS_ARCH.equals("aarch64");
     }
+
+    static boolean isAzulZing0() {
+        final String vendorVersion = System.getProperty("java.vm.vendor") + System.getProperty("java.vm.version");
+        return vendorVersion.matches("Azul .*zing.*$");
+    }
+
+    static boolean isAzulZulu0() {
+        final String vendorVersion = System.getProperty("java.vm.vendor") + System.getProperty("java.vm.version");
+        return vendorVersion.matches("Azul .*zulu.*$");
+    }
 }
