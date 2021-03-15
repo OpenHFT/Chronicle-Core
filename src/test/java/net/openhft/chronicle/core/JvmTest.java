@@ -34,6 +34,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
+import java.util.TreeMap;
 
 import static net.openhft.chronicle.core.Jvm.*;
 import static org.junit.Assert.*;
@@ -155,6 +156,7 @@ public class JvmTest {
     @Test
     public void loadSystemProperties() {
         assumeTrue(Jvm.isResourceTracing());
+        new TreeMap<>(System.getProperties()).entrySet().forEach(System.out::println);
     }
 
     @Test
