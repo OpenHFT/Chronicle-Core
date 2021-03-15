@@ -6,9 +6,16 @@ package net.openhft.chronicle.core;
 enum Bootstrap {
     ;
 
+    public static final String OS_ARCH = System.getProperty("os.arch", "?");
+
     // can't be in Jvm or causes a problem on initialisation.
     static boolean isArm0() {
         return Boolean.parseBoolean(System.getProperty("jvm.isarm")) ||
-                System.getProperty("os.arch", "?").startsWith("arm") || System.getProperty("os.arch", "?").startsWith("aarch");
+                OS_ARCH.startsWith("arm") || OS_ARCH.startsWith("aarch");
+    }
+
+    static boolean isMacArm0() {
+        return System.getProperty("os.name", "?").equals("Mac OS X")
+                && OS_ARCH.equals("aarch64");
     }
 }

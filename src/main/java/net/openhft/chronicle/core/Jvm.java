@@ -95,6 +95,7 @@ public enum Jvm {
     private static final long MAX_DIRECT_MEMORY;
     private static final boolean SAFEPOINT_ENABLED;
     private static final boolean IS_ARM = Bootstrap.isArm0();
+    private static final boolean IS_MAC_ARM = Bootstrap.isMacArm0();
 
     private static final Map<Class, ClassMetrics> CLASS_METRICS_MAP =
             new ConcurrentHashMap<>();
@@ -1037,6 +1038,15 @@ public enum Jvm {
      */
     public static boolean isArm() {
         return IS_ARM;
+    }
+
+    /**
+     * Returns if the JVM runs on a CPU using a Mac ARM architecture.
+     *
+     * @return if the JVM runs on a CPU using the Mac ARM architecture e.g. Apple M1.
+     */
+    public static boolean isMacArm() {
+        return IS_MAC_ARM;
     }
 
     /**
