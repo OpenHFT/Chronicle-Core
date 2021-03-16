@@ -114,7 +114,10 @@ public interface Memory {
 
     void copyMemory(long fromAddress, long address, long length);
 
+    @Deprecated(/* to be removed in x.23*/)
     void copyMemory(byte[] bytes, int offset, Object obj2, long offset2, int length);
+
+    void copyMemory(Object o, long offset, Object o2, long offset2, int length);
 
     void copyMemory(long fromAddress, Object obj2, long offset2, int length);
 

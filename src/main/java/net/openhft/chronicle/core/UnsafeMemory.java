@@ -517,12 +517,56 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void copyMemory(byte[] bytes, int offset, Object obj2, long offset2, int length) {
-        if (length < UNSAFE_COPY_THRESHOLD) {
-            UNSAFE.copyMemory(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, obj2, offset2, length);
+
+        if (obj2 instanceof byte[]) {
+            copyMemory(bytes, offset, (byte[]) obj2, Math.toIntExact(offset2 - Unsafe.ARRAY_BYTE_BASE_OFFSET), length);
+
         } else {
-            copyMemory0(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, obj2, offset2, length);
+            copyMemoryLoop(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, obj2, offset2, length);
+        }
+    }
+
+    public void copyMemory(byte[] bytes, int offset, byte[] obj2, int offset2, int length) {
+        long offsetB = (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset;
+        long offset2B = (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset2;
+        if (length < UNSAFE_COPY_THRESHOLD) {
+            UNSAFE.copyMemory(bytes, offsetB, obj2, offset2B, length);
+        } else {
+            copyMemory0(bytes, offsetB, obj2, offset2B, length);
+        }
+    }
+
+    @Override
+    public void copyMemory(Object o, long offset, Object o2, long offset2, int length) {
+        if (o instanceof byte[])
+            copyMemory((byte[]) o, Math.toIntExact(offset - Unsafe.ARRAY_BYTE_BASE_OFFSET), o2, offset2, length);
+        else
+            copyMemoryLoop(o, offset, o2, offset2, length);
+    }
+
+    private void copyMemoryLoop(Object o, long offset, Object o2, long offset2, int length) {
+        if (o == o2 && offset < offset2) {
+            backwardCopyMemoryLoop(o, offset, o2, offset2, length);
+            return;
+        }
+        int i = 0;
+        for (; i < length - 7; i += 8)
+            UNSAFE.putLong(o2, offset2 + i, UNSAFE.getLong(o, offset + i));
+        for (; i < length; i++)
+            UNSAFE.putByte(o2, offset2 + i, UNSAFE.getByte(o, offset + i));
+    }
+
+    private void backwardCopyMemoryLoop(Object o, long offset, Object o2, long offset2, int length) {
+        offset += length;
+        offset2 += length;
+        int i = 0;
+        for (; i < length - 7; i += 8)
+            UNSAFE.putLong(o2, offset2 - 8 - i, UNSAFE.getLong(o, offset - 8 - i));
+        for (; i < length; i++) {
+            final byte aByte = UNSAFE.getByte(o, offset - 1 - i);
+            System.out.println((char) aByte);
+            UNSAFE.putByte(o2, offset2 - 1 - i, aByte);
         }
     }
 
