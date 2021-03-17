@@ -33,16 +33,17 @@ public interface Closeable extends java.io.Closeable, QueryCloseable {
     static void closeQuietly(@Nullable Object... closeables) {
         if (closeables == null)
             return;
-        closeQuietly((Object) closeables);
+        for (Object o : closeables)
+            closeQuietly(o);
     }
 
     static void closeQuietly(@Nullable Object o) {
         if (o instanceof Collection) {
             ((Collection) o).forEach(Closeable::closeQuietly);
         } else if (o instanceof Object[]) {
-            for (Object o2 : (Object[]) o) {
+            for (Object o2 : (Object[]) o)
                 closeQuietly(o2);
-            }
+
         } else if (o instanceof java.io.Closeable) {
             try {
                 ((java.io.Closeable) o).close();
@@ -71,7 +72,7 @@ public interface Closeable extends java.io.Closeable, QueryCloseable {
         if (!isClosing()) {
             if (Jvm.isResourceTracing() && !DISABLE_DISCARD_WARNING) {
                 ExceptionHandler warn = Jvm.getBoolean("warnAndCloseIfNotClosed") ? Jvm.warn() : Slf4jExceptionHandler.WARN;
-                warn.on(getClass(), "Discarded without closing "+toString());
+                warn.on(getClass(), "Discarded without closing " + toString());
             }
             Closeable.closeQuietly(this);
         }
