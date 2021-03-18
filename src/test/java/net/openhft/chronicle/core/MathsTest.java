@@ -46,6 +46,97 @@ public class MathsTest {
     private ThreadDump threadDump;
 
     @Test
+    public void round1scan() {
+        final double factor = 1e1;
+        roundEither(factor, Maths::round1);
+        roundUp(factor, Maths::round1up);
+    }
+
+    @Test
+    public void round2scan() {
+        final double factor = 1e2;
+        roundEither(factor, Maths::round2);
+        roundUp(factor, Maths::round2up);
+    }
+
+    @Test
+    public void round3scan() {
+        final double factor = 1e3;
+        roundEither(factor, Maths::round3);
+        roundUp(factor, Maths::round3up);
+    }
+
+    @Test
+    public void round4scan() {
+        final double factor = 1e4;
+        roundEither(factor, Maths::round4);
+        roundUp(factor, Maths::round4up);
+    }
+
+    @Test
+    public void round5scan() {
+        final double factor = 1e5;
+        roundEither(factor, Maths::round5);
+        roundUp(factor, Maths::round5up);
+    }
+
+    @Test
+    public void round6scan() {
+        final double factor = 1e6;
+        roundEither(factor, Maths::round6);
+        roundUp(factor, Maths::round6up);
+    }
+
+    @Test
+    public void round7scan() {
+        final double factor = 1e7;
+        roundEither(factor, Maths::round7);
+        roundUp(factor, Maths::round7up);
+    }
+
+    @Test
+    public void round8scan() {
+        final double factor = 1e8;
+        roundEither(factor, Maths::round8);
+        roundUp(factor, Maths::round8up);
+    }
+
+    public void roundEither(double factor, Rounder rounder) {
+        final double factor2 = 2 * factor;
+        for (int i = 1; i < 20_000_000; i += 2) {
+            double dm = i / factor2;
+            final double ulp = Math.ulp(dm);
+            double d = dm + ulp;
+            double d0 = dm - ulp * 2;
+
+            double e = (i + 1) / factor2;
+            double e0 = (i - 1) / factor2;
+            final String msg = "i: " + i;
+            assertEquals(msg, e, rounder.round(d), 0);
+            assertEquals(msg, e0, rounder.round(d0), 0);
+        }
+    }
+
+    public void roundUp(double factor, Rounder rounder) {
+        final double factor2 = 2 * factor;
+        for (int i = 1; i < 20_000_000; i += 2) {
+            double d = i / factor2;
+            double d0 = d - Math.ulp(d) * 2;
+
+            double e = (i + 1) / factor2;
+            double e0 = (i - 1) / factor2;
+            final String msg = "i: " + i;
+            assertEquals(msg, e, rounder.round(d), 0);
+            assertEquals(msg, e0, rounder.round(d0), 0);
+        }
+    }
+
+    @FunctionalInterface
+    public interface Rounder {
+        double round(double d);
+    }
+
+    @Test
     public void digits() {
         assertEquals(1, Maths.digits(0));
         assertEquals(1, Maths.digits(1));

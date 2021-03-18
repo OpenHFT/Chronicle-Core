@@ -24,7 +24,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 
 public final class Maths {
-    private Maths() { }
+    private Maths() {
+    }
 
     /**
      * Numbers larger than this are whole numbers due to representation error.
@@ -57,9 +58,18 @@ public final class Maths {
      * @return rounded value
      */
     public static double roundN(double d, int digits) {
+        if (d < 0)
+            return -roundN(-d, digits);
         final long factor = roundingFactor(digits);
-        return Math.abs(d) < WHOLE_NUMBER / factor
-                ? (double) (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor : d;
+        if (d >= WHOLE_NUMBER / factor)
+            return d;
+        final double df = d * factor;
+        long ldf = (long) df;
+        final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
+        if (residual >= 0.5)
+            ldf++;
+        final double v = ldf / (double) factor;
+        return v;
     }
 
     public static long roundingFactor(int digits) {
@@ -136,9 +146,25 @@ public final class Maths {
      * @return rounded value
      */
     public static double round1(double d) {
+        if (d < 0)
+            return -round1(-d);
         final double factor = 1e1;
-        return Math.abs(d) < WHOLE_NUMBER / factor
-                ? (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor : d;
+        if (!(d <= WHOLE_NUMBER / factor)) // to handle NaN
+            return d;
+        return (long) (d * factor + 0.5) / factor;
+    }
+
+    /**
+     * Performs a round which is accurate to within 1 ulp.
+     * The value 0.5 should round up however the value one ulp less might round up or down.
+     * This is a pragmatic choice for performance reasons as it is
+     * assumed you are not working on the edge of the precision of double.
+     *
+     * @param d value to round
+     * @return rounded value
+     */
+    public static double round1up(double d) {
+        return round1(d);
     }
 
     /**
@@ -156,6 +182,30 @@ public final class Maths {
     }
 
     /**
+     * Performs a round which is accurate to within 1 ulp.
+     * The value 0.5 should round up however the value one ulp less might round up or down.
+     * This is a pragmatic choice for performance reasons as it is
+     * assumed you are not working on the edge of the precision of double.
+     *
+     * @param d value to round
+     * @return rounded value
+     */
+    public static double round2up(double d) {
+        if (d < 0)
+            return -round2(-d);
+        final double factor = 1e2;
+        if (!(d <= WHOLE_NUMBER / factor)) // to handle NaN
+            return d;
+        final double df = d * factor;
+        long ldf = (long) df;
+        final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
+        if (residual >= 0.5)
+            ldf++;
+        final double v = ldf / factor;
+        return v;
+    }
+
+    /**
      * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
      * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
      * assumed you are not working on the edge of the precision of double.
@@ -167,6 +217,30 @@ public final class Maths {
         final double factor = 1e3;
         return Math.abs(d) < WHOLE_NUMBER / factor
                 ? (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor : d;
+    }
+
+    /**
+     * Performs a round which is accurate to within 1 ulp.
+     * The value 0.5 should round up however the value one ulp less might round up or down.
+     * This is a pragmatic choice for performance reasons as it is
+     * assumed you are not working on the edge of the precision of double.
+     *
+     * @param d value to round
+     * @return rounded value
+     */
+    public static double round3up(double d) {
+        if (d < 0)
+            return -round3(-d);
+        final double factor = 1e3;
+        if (!(d <= WHOLE_NUMBER / factor)) // to handle NaN
+            return d;
+        final double df = d * factor;
+        long ldf = (long) df;
+        final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
+        if (residual >= 0.5)
+            ldf++;
+        final double v = ldf / factor;
+        return v;
     }
 
     /**
@@ -184,6 +258,30 @@ public final class Maths {
     }
 
     /**
+     * Performs a round which is accurate to within 1 ulp.
+     * The value 0.5 should round up however the value one ulp less might round up or down.
+     * This is a pragmatic choice for performance reasons as it is
+     * assumed you are not working on the edge of the precision of double.
+     *
+     * @param d value to round
+     * @return rounded value
+     */
+    public static double round4up(double d) {
+        if (d < 0)
+            return -round4(-d);
+        final double factor = 1e4;
+        if (!(d <= WHOLE_NUMBER / factor)) // to handle NaN
+            return d;
+        final double df = d * factor;
+        long ldf = (long) df;
+        final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
+        if (residual >= 0.5)
+            ldf++;
+        final double v = ldf / factor;
+        return v;
+    }
+
+    /**
      * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
      * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
      * assumed you are not working on the edge of the precision of double.
@@ -198,8 +296,33 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
-     * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
+     * Performs a round which is accurate to within 1 ulp.
+     * The value 0.5 should round up however the value one ulp less might round up or down.
+     * This is a pragmatic choice for performance reasons as it is
+     * assumed you are not working on the edge of the precision of double.
+     *
+     * @param d value to round
+     * @return rounded value
+     */
+    public static double round5up(double d) {
+        if (d < 0)
+            return -round5(-d);
+        final double factor = 1e5;
+        if (!(d <= WHOLE_NUMBER / factor)) // to handle NaN
+            return d;
+        final double df = d * factor;
+        long ldf = (long) df;
+        final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
+        if (residual >= 0.5)
+            ldf++;
+        final double v = ldf / factor;
+        return v;
+    }
+
+    /**
+     * Performs a round which is accurate to within 1 ulp.
+     * The value 0.5 should round up however the value one ulp less might round up or down.
+     * This is a pragmatic choice for performance reasons as it is
      * assumed you are not working on the edge of the precision of double.
      *
      * @param d value to round
@@ -209,6 +332,30 @@ public final class Maths {
         final double factor = 1e6;
         return Math.abs(d) < WHOLE_NUMBER / factor
                 ? (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor : d;
+    }
+
+    /**
+     * Performs a round which is accurate to within 1 ulp.
+     * The value 0.5 should round up however the value one ulp less might round up or down.
+     * This is a pragmatic choice for performance reasons as it is
+     * assumed you are not working on the edge of the precision of double.
+     *
+     * @param d value to round
+     * @return rounded value
+     */
+    public static double round6up(double d) {
+        if (d < 0)
+            return -round6(-d);
+        final double factor = 1e6;
+        if (!(d <= WHOLE_NUMBER / factor)) // to handle NaN
+            return d;
+        final double df = d * factor;
+        long ldf = (long) df;
+        final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
+        if (residual >= 0.5)
+            ldf++;
+        final double v = ldf / factor;
+        return v;
     }
 
     /**
@@ -226,6 +373,30 @@ public final class Maths {
     }
 
     /**
+     * Performs a round which is accurate to within 1 ulp.
+     * The value 0.5 should round up however the value one ulp less might round up or down.
+     * This is a pragmatic choice for performance reasons as it is
+     * assumed you are not working on the edge of the precision of double.
+     *
+     * @param d value to round
+     * @return rounded value
+     */
+    public static double round7up(double d) {
+        if (d < 0)
+            return -round7(-d);
+        final double factor = 1e7;
+        if (!(d <= WHOLE_NUMBER / factor)) // to handle NaN
+            return d;
+        final double df = d * factor;
+        long ldf = (long) df;
+        final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
+        if (residual >= 0.5)
+            ldf++;
+        final double v = ldf / factor;
+        return v;
+    }
+
+    /**
      * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
      * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
      * assumed you are not working on the edge of the precision of double.
@@ -237,6 +408,30 @@ public final class Maths {
         final double factor = 1e8;
         return Math.abs(d) < WHOLE_NUMBER / factor
                 ? (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor : d;
+    }
+
+    /**
+     * Performs a round which is accurate to within 1 ulp.
+     * The value 0.5 should round up however the value one ulp less might round up or down.
+     * This is a pragmatic choice for performance reasons as it is
+     * assumed you are not working on the edge of the precision of double.
+     *
+     * @param d value to round
+     * @return rounded value
+     */
+    public static double round8up(double d) {
+        if (d < 0)
+            return -round8(-d);
+        final double factor = 1e8;
+        if (!(d <= WHOLE_NUMBER / factor)) // to handle NaN
+            return d;
+        final double df = d * factor;
+        long ldf = (long) df;
+        final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
+        if (residual >= 0.5)
+            ldf++;
+        final double v = ldf / factor;
+        return v;
     }
 
     /**
