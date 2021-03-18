@@ -58,8 +58,23 @@ public final class Maths {
      * @return rounded value
      */
     public static double roundN(double d, int digits) {
+        final long factor = roundingFactor(digits);
+        return Math.abs(d) < WHOLE_NUMBER / factor
+                ? (double) (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor : d;
+    }
+
+    /**
+     * Performs a round which is accurate to within 1 ulp.
+     * The value 0.5 should round up however the value one ulp less might round up or down.
+     * This is a pragmatic choice for performance reasons as it is
+     * assumed you are not working on the edge of the precision of double.
+     *
+     * @param d value to round
+     * @return rounded value
+     */
+    public static double roundNup(double d, int digits) {
         if (d < 0)
-            return -roundN(-d, digits);
+            return -roundNup(-d, digits);
         final long factor = roundingFactor(digits);
         if (d >= WHOLE_NUMBER / factor)
             return d;

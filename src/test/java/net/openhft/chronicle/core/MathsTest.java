@@ -50,6 +50,8 @@ public class MathsTest {
         final double factor = 1e1;
         roundEither(factor, Maths::round1);
         roundUp(factor, Maths::round1up);
+        roundEither(factor, d -> Maths.roundNup(d, 1));
+        roundUp(factor, d -> Maths.roundNup(d, 1));
     }
 
     @Test
@@ -57,6 +59,8 @@ public class MathsTest {
         final double factor = 1e2;
         roundEither(factor, Maths::round2);
         roundUp(factor, Maths::round2up);
+        roundEither(factor, d -> Maths.roundNup(d, 2));
+        roundUp(factor, d -> Maths.roundNup(d, 2));
     }
 
     @Test
@@ -64,6 +68,8 @@ public class MathsTest {
         final double factor = 1e3;
         roundEither(factor, Maths::round3);
         roundUp(factor, Maths::round3up);
+        roundEither(factor, d -> Maths.roundNup(d, 3));
+        roundUp(factor, d -> Maths.roundNup(d, 3));
     }
 
     @Test
@@ -71,6 +77,8 @@ public class MathsTest {
         final double factor = 1e4;
         roundEither(factor, Maths::round4);
         roundUp(factor, Maths::round4up);
+        roundEither(factor, d -> Maths.roundNup(d, 4));
+        roundUp(factor, d -> Maths.roundNup(d, 4));
     }
 
     @Test
@@ -78,6 +86,8 @@ public class MathsTest {
         final double factor = 1e5;
         roundEither(factor, Maths::round5);
         roundUp(factor, Maths::round5up);
+        roundEither(factor, d -> Maths.roundNup(d, 5));
+        roundUp(factor, d -> Maths.roundNup(d, 5));
     }
 
     @Test
@@ -85,6 +95,8 @@ public class MathsTest {
         final double factor = 1e6;
         roundEither(factor, Maths::round6);
         roundUp(factor, Maths::round6up);
+        roundEither(factor, d -> Maths.roundNup(d, 6));
+        roundUp(factor, d -> Maths.roundNup(d, 6));
     }
 
     @Test
@@ -92,6 +104,8 @@ public class MathsTest {
         final double factor = 1e7;
         roundEither(factor, Maths::round7);
         roundUp(factor, Maths::round7up);
+        roundEither(factor, d -> Maths.roundNup(d, 7));
+        roundUp(factor, d -> Maths.roundNup(d, 7));
     }
 
     @Test
@@ -99,6 +113,8 @@ public class MathsTest {
         final double factor = 1e8;
         roundEither(factor, Maths::round8);
         roundUp(factor, Maths::round8up);
+        roundEither(factor, d -> Maths.roundNup(d, 8));
+        roundUp(factor, d -> Maths.roundNup(d, 8));
     }
 
     public void roundEither(double factor, Rounder rounder) {

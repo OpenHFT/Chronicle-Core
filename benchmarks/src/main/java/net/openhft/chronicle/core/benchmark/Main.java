@@ -17,11 +17,8 @@
 package net.openhft.chronicle.core.benchmark;
 
 import net.openhft.chronicle.core.Jvm;
-import net.openhft.chronicle.core.UnsafeMemory;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.State;
+import net.openhft.chronicle.core.Maths;
+import org.openjdk.jmh.annotations.*;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
@@ -31,8 +28,6 @@ import org.openjdk.jmh.runner.options.TimeValue;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
-
-import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 
 /*
  * Created by Peter Lawrey on 11/08/15.
@@ -97,6 +92,7 @@ Main.threadLocal_get:threadLocal_get·p1.00    sample           17184.000       
 @State(Scope.Thread)
 public class Main {
 
+    int count = 0;
     //    ThreadLocal threadLocal = ThreadLocal.withInitial(Object::new);
 //    Object ob = getClass();
 //    Object oc = System.getenv();
@@ -108,6 +104,7 @@ public class Main {
                 0, 1, 2, 3, 5, 8, 13, 21, 31,
                 1, 2, 3, 4, 6, 9, 14, 22, 32};
 */
+/*
     int[] size = {
             11, 13, 21, 31, 9, 14, 22, 32};
 
@@ -116,7 +113,6 @@ public class Main {
     long[] addr = {addr0, addr0 + 40, addr0 + 80, addr0 + 120};
     byte[][] bytes = new byte[4][40];
     char[][] chars = new char[4][40];
-    int count = 0;
     private int s, o, o2;
 
     public Main() {
@@ -132,6 +128,7 @@ public class Main {
         UNSAFE.putByte(addr[2] + 13, (byte) 0x80);
         UNSAFE.putByte(addr[3] + 20, (byte) 0x80);
     }
+*/
 
     public static void main(String... args) throws RunnerException, InvocationTargetException, IllegalAccessException {
         if (Jvm.isDebug()) {
@@ -142,16 +139,16 @@ public class Main {
                 }
             }
         } else {
-            int time = Jvm.getBoolean("longTest") ? 30 : 1;
+            int time = Jvm.getBoolean("longTest") ? 5 : 1;
             System.out.println("measurementTime: " + time + " secs");
             Options opt = new OptionsBuilder()
                     .include(Main.class.getSimpleName())
                     .warmupIterations(5)
                     .measurementIterations(5)
-                    .forks(5)
-                    .mode(Mode.SampleTime)
+                    .forks(1)
+                    .mode(Mode.Throughput)
                     .measurementTime(TimeValue.seconds(time))
-                    .timeUnit(TimeUnit.NANOSECONDS)
+                    .timeUnit(TimeUnit.MICROSECONDS)
                     .build();
 
             new Runner(opt).run();
@@ -166,6 +163,7 @@ public class Main {
         Jvm.nanoPause();
     }*/
 
+/*
     //    @Benchmark
     public byte[] partialBytes() {
         for (int s : size) {
@@ -183,6 +181,7 @@ public class Main {
         }
         return UnsafeMemory.UNSAFE.getLong(addr[1]);
     }
+*/
     /*
     Benchmark                                 Mode       Cnt      Score   Error  Units
 Main.partialAddr                        sample  25307010     80.135 ± 0.153  ns/op
@@ -245,7 +244,8 @@ Main.partialBytes:partialBytes·p0.9999  sample             21024.000          n
 Main.partialBytes:partialBytes·p1.00    sample            289280.000          ns/op
      */
 
-    @Benchmark
+/*
+    //    @Benchmark
     public boolean is7bitBytes() {
         int i = count & 3;
         int s = size[(count >> 2) & 7];
@@ -263,13 +263,40 @@ Main.partialBytes:partialBytes·p1.00    sample            289280.000          n
         return UnsafeMemory.INSTANCE.is7Bit(chars[i], o, s);
     }
 
-    @Benchmark
+    //    @Benchmark
     public boolean is7bitAddr() {
         int i = count & 3;
         int s = size[(count >> 2) & 7];
         int o = (count >> 6) & 7;
         count++;
         return UnsafeMemory.INSTANCE.is7Bit(addr[i] + o, s);
+    }
+*/
+
+    double value = 0;
+
+    @Setup
+    public void setup() {
+        if (count > 10_000_000)
+            count = 1;
+        else
+            count += 2;
+        value = count / 2e6;
+    }
+
+    @Benchmark
+    public double round6() {
+        return Maths.round6(value);
+    }
+
+    @Benchmark
+    public double roundN6() {
+        return Maths.roundN(value, 6);
+    }
+
+    @Benchmark
+    public double round6up() {
+        return Maths.round6up(value);
     }
 }
 /*
