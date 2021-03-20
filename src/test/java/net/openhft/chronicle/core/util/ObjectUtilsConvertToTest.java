@@ -52,5 +52,4 @@ public class ObjectUtilsConvertToTest {
     public void convertTo() throws IllegalStateException, IllegalArgumentException {
         assertEquals(converted, ObjectUtils.convertTo(converted.getClass(), input));
     }
-
 }

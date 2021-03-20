@@ -14,7 +14,6 @@ import java.util.function.Consumer;
 
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
-
 /**
  * Provides means for libraries to report analytics to an upstream receiver.
  * <p>
@@ -292,5 +291,4 @@ public interface AnalyticsFacade {
         @NotNull
         AnalyticsFacade build();
     }
-
 }

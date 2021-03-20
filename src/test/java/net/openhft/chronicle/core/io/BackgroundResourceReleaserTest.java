@@ -91,5 +91,4 @@ public class BackgroundResourceReleaserTest {
             Jvm.pause(10);
         }
     }
-
 }

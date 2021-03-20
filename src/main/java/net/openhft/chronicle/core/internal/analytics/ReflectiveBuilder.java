@@ -94,5 +94,4 @@ public final class ReflectiveBuilder implements AnalyticsFacade.Builder {
         final Object analytics = ReflectionUtil.invokeOrThrow(m, delegate);
         return new ReflectiveAnalytics(analytics);
     }
-
 }

@@ -90,5 +90,4 @@ public abstract class AbstractCloseableReferenceCounted
     public boolean isClosed() {
         return refCount() <= 0 || closed;
     }
-
 }

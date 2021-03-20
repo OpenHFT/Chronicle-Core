@@ -66,5 +66,4 @@ public class InvalidEventHandlerException extends Exception {
                 super.setStackTrace(stackTrace);
         }
     }
-
 }

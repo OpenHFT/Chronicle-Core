@@ -223,5 +223,4 @@ public final class Ints {
             throw new IllegalArgumentException(val + IS_NOT_IN_THE_RANGE + from + ", " + toInclusive + "]");
         return val;
     }
-
 }

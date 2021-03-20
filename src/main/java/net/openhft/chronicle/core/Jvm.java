@@ -1563,13 +1563,10 @@ public enum Jvm {
 
                 }
 
-
             } catch (IOException e) {
                 Jvm.debug().on(CpuClass.class, "Unable to read cpuinfo", e);
             }
             CPU_MODEL = model;
         }
     }
-
-
 }

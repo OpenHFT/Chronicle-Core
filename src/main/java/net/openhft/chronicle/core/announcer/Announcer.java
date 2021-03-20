@@ -66,6 +66,4 @@ public final class Announcer {
         requireNonNull(properties);
         InternalAnnouncer.announce(groupId, artifactId, properties);
     }
-
-
 }

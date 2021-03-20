@@ -166,5 +166,4 @@ public class CoolerTester {
             throw new RuntimeException(e);
         }
     }
-
 }

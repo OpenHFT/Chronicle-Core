@@ -43,5 +43,4 @@ public final class PomProperties {
     public static String version(@NotNull final String groupId, @NotNull final String artifactId) {
         return InternalPomProperties.version(groupId, artifactId);
     }
-
 }

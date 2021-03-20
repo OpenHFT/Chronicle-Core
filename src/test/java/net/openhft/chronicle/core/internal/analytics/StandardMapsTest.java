@@ -6,7 +6,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class StandardMapsTest {
 
@@ -41,7 +42,6 @@ public class StandardMapsTest {
         )
                 .map(s -> new StackTraceElement(s, "m", "m.java", 1))
                 .toArray(StackTraceElement[]::new);
-
 
         final Map<String, String> expected = new LinkedHashMap<>();
         expected.put("package_name_0", "a");

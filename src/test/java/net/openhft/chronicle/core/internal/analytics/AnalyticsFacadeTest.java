@@ -35,7 +35,6 @@ public class AnalyticsFacadeTest {
 
     }
 
-
     @Test
     public void analytics() {
         final AnalyticsFacade.Builder builder = AnalyticsFacade.builder("measurementId", "apiSecret")

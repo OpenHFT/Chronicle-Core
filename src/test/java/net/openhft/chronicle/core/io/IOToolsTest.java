@@ -120,5 +120,4 @@ public class IOToolsTest extends CoreTestCommon {
             assertTrue(ioe.getMessage().startsWith("Cannot create a directory with the same name as a file "));
         }
     }
-
 }

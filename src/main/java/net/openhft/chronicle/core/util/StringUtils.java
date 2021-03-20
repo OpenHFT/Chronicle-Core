@@ -570,5 +570,4 @@ public final class StringUtils {
         }
         return negative ? result : -result;
     }
-
 }

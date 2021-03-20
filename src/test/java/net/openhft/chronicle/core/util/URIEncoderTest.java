@@ -27,5 +27,4 @@ public class URIEncoderTest {
     public void encodeURI() throws Exception {
         assertEquals("~%25", URIEncoder.encodeURI("~%"));
     }
-
 }

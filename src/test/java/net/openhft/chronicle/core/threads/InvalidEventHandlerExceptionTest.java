@@ -37,5 +37,4 @@ public class InvalidEventHandlerExceptionTest {
     public void toStringTest() {
         assertTrue(e.toString().contains("no stack trace"));
     }
-
 }

@@ -98,5 +98,4 @@ public enum InternalAnnouncer {
             return properties.containsKey("logo");
         return true;
     }
-
 }

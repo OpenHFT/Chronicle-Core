@@ -97,7 +97,6 @@ public class IntsTest {
         }
     }
 
-
     interface IntUnaryOperator {
         long applyAsInt(int happy) throws IllegalArgumentException;
     }
@@ -109,5 +108,4 @@ public class IntsTest {
             this.val = Ints.requirePositive(val);
         }
     }
-
 }

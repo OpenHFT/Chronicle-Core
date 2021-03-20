@@ -57,5 +57,4 @@ public class OnDemandEventLoopTest {
         assertTrue(el.hasEventLoop());
         el.close();
     }
-
 }

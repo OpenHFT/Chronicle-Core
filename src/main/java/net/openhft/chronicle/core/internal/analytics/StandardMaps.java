@@ -47,7 +47,6 @@ public enum StandardMaps {
                     // Add third party libs
             )).collect(toSet());
 
-
     public static Map<String, String> standardEventParameters(@NotNull final String appVersion) {
         requireNonNull(appVersion);
         return Stream.of(
@@ -152,5 +151,4 @@ public enum StandardMaps {
     private static String replaceDotsWithUnderscore(@NotNull final String s) {
         return s.replace('.', '_');
     }
-
 }

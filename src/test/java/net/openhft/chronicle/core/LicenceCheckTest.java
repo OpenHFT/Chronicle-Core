@@ -55,5 +55,4 @@ public class LicenceCheckTest {
         System.setProperty(CHRONICLE_LICENSE, "product=test.,owner=Test Unit,expires=2019-01-01,code=123456789");
         LicenceCheck.check("test", null);
     }
-
 }

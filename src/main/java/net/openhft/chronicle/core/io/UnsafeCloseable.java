@@ -103,5 +103,4 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
     protected boolean threadSafetyCheck(boolean isUsed) {
         return true;
     }
-
 }

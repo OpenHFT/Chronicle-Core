@@ -39,5 +39,4 @@ public enum InternalPomProperties {;
     private static String extractVersionOrUnknown(@NotNull final String groupId, @NotNull final String artifactId) {
         return create(groupId, artifactId).getProperty("version", "unknown");
     }
-
 }
