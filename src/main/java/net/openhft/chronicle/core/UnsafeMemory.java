@@ -144,7 +144,7 @@ public class UnsafeMemory implements Memory {
         int i = 0;
         for (; i < length - 7; i += 8)
             unsafePutLong(to + i, unsafeGetLong(from + i));
-        if (i > 3) {
+        if (i < length - 3) {
             unsafePutInt(to + i, unsafeGetInt(from + i));
             i += 4;
         }
@@ -497,7 +497,7 @@ public class UnsafeMemory implements Memory {
         for (; i < length - 7; i += 8)
             unsafePutLong(address + i, unsafeGetLong(bytes, offset2 + i));
 
-        if (length > 3) {
+        if ( i < length - 3) {
             unsafePutInt(address + i, unsafeGetInt(bytes, offset2 + i));
             i += 4;
         }
