@@ -45,6 +45,13 @@ public class HistogramTest {
     }
 
     @Test
+    public void singleSample() {
+        Histogram h = new Histogram();
+        h.sampleNanos(100_000);
+        assertEquals("50/90 97/99 99.7/99.9 99.97/99.99 - worst was 100.0 / 100.0  100.0 / 100.0  100.0 / 100.0  100.0 / 100.0 - 100.0", h.toLongMicrosFormat());
+    }
+
+    @Test
     public void testSampleRange() {
         @NotNull Histogram h = new Histogram(40, 2);
         double base = 1;

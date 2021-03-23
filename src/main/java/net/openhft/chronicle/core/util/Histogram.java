@@ -41,7 +41,7 @@ public class Histogram implements NanoSampler {
     private int[] sampleCount;
 
     public Histogram() {
-        this(42, 7);
+        this(42, 8);
     }
 
     public Histogram(int powersOf2, int fractionBits) {
