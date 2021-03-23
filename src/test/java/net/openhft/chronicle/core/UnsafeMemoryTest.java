@@ -354,4 +354,25 @@ public class UnsafeMemoryTest {
         }
         MEMORY.freeMemory(addr, 16);
     }
+
+    @Test
+    public void copyMemory() {
+        long addr = MEMORY.allocate(32);
+        long addr2 = MEMORY.allocate(32);
+        final byte b1 = (byte) 0x7F;
+        final byte b2 = (byte) 0x80;
+        MEMORY.setMemory(addr2, 32, b1);
+        for (int i = 1; i < 31; i++) {
+            for (int j = i + 1; j < 31; j++) {
+                MEMORY.setMemory(addr, 32, b2);
+                MEMORY.copyMemory(addr2, addr + i, j - i);
+                assertEquals(b2, MEMORY.readByte(addr + i - 1));
+                assertEquals(b1, MEMORY.readByte(addr + i));
+                assertEquals(b1, MEMORY.readByte(addr + j - 1));
+                assertEquals(b2, MEMORY.readByte(addr + j));
+            }
+        }
+        MEMORY.freeMemory(addr, 32);
+        MEMORY.freeMemory(addr2, 32);
+    }
 }
