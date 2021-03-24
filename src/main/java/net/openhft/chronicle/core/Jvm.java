@@ -340,11 +340,9 @@ public enum Jvm {
     }
 
     /**
-     * Returns the current process id or, if the process id cannot be determined,
-     * a non-negative random number less than 2^16.
+     * Returns the current process id.
      *
-     * @return the current process id or, if the process id cannot be determined,
-     * a non-negative random number less than 2^16
+     * @return the current process id or, if the process id cannot be determined, 1 is used.
      */
     // Todo: Discuss the rational behind the random number. Alternately, 0 could be returned or perhaps -1
     public static int getProcessId() {
@@ -373,8 +371,8 @@ public enum Jvm {
             }
         }
 
-        int rpid = new Random().nextInt(1 << 16);
-        System.err.println(Jvm.class.getName() + ": Unable to determine PID, picked a random number=" + rpid);
+        int rpid = 1;
+        System.err.println(Jvm.class.getName() + ": Unable to determine PID, picked 1 as a PID");
         return rpid;
     }
 
