@@ -47,12 +47,19 @@ public enum HandlerPriority {
     BLOCKING,
 
     /***
-     * used for replication, ensures that the replication runs on its own thread
+     * used for replication, ensures that replication events run on separate thread
      */
     REPLICATION {
         @Override
         public HandlerPriority alias() {
             return MEDIUM;
+        }
+    },
+
+    REPLICATION_TIMER {
+        @Override
+        public HandlerPriority alias() {
+            return TIMER;
         }
     },
 

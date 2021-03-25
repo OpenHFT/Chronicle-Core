@@ -47,7 +47,14 @@ public class Timer {
     public void scheduleAtFixedRate(@NotNull VanillaEventHandler eventHandler,
                                     long initialDelayMs,
                                     long periodMs) {
-        eventLoop.addHandler(new ScheduledEventHandler(eventHandler, initialDelayMs, periodMs));
+        eventLoop.addHandler(new ScheduledEventHandler(eventHandler, initialDelayMs, periodMs, HandlerPriority.TIMER));
+    }
+
+    public void scheduleAtFixedRate(@NotNull VanillaEventHandler eventHandler,
+                                    long initialDelayMs,
+                                    long periodMs,
+                                    HandlerPriority priority ) {
+        eventLoop.addHandler(new ScheduledEventHandler(eventHandler, initialDelayMs, periodMs, priority));
     }
 
     public void schedule(@NotNull Runnable eventHandler, long initialDelayMs) {
@@ -68,12 +75,22 @@ public class Timer {
         private boolean isFirstTime = true;
         private long lastTimeRan = System.currentTimeMillis();
 
+        private final HandlerPriority priority;
+
         private ScheduledEventHandler(@NotNull VanillaEventHandler eventHandler,
                                       long initialDelayMs,
                                       long periodMs) {
+            this(eventHandler, initialDelayMs, periodMs, HandlerPriority.TIMER);
+        }
+
+        private ScheduledEventHandler(@NotNull VanillaEventHandler eventHandler,
+                                      long initialDelayMs,
+                                      long periodMs,
+                                      HandlerPriority priority) {
             this.initialDelayMs = initialDelayMs;
             this.periodMs = periodMs;
             this.eventHandler = eventHandler;
+            this.priority = priority;
         }
 
         @Override
@@ -108,7 +125,7 @@ public class Timer {
         @Override
         @NotNull
         public HandlerPriority priority() {
-            return HandlerPriority.TIMER;
+            return priority;
         }
 
         @Override
