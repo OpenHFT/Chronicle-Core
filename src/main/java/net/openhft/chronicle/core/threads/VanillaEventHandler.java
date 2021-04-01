@@ -45,10 +45,18 @@ public interface VanillaEventHandler {
      * <p>
      * As with a lot of scheduling approaches there's no single answer and some experimentation under typical loads
      * would always be recommended. But the above rule of thumb is a good starting point.
+     * <p>
+     * When the event handler is not required anymore and should be removed from the event loop, the
+     * {@link InvalidEventHandlerException#reusable()} method returns a reusable pre-created
+     * InvalidEventHandlerException which can be thrown to remove the EventHandler from the EventLoop.
      *
      * @return true if you expect more work very soon.
-     * @throws InvalidEventHandlerException when it is not longer valid.
-     *                                      It is recommended to throw this exception if the event handler is closed
+     * @throws InvalidEventHandlerException when the event handler is not required anymore and should be removed from
+     *         the event loop.
+     *         It is recommended to throw this exception if the event handler is closed.
+     *         The InvalidEventHandlerException.reusable() method returns a reusable, pre-created,
+     *         InvalidEventHandlerException that is unmodifiable and contains no stack trace.
+     *         See {@link InvalidEventHandlerException#reusable()}.
      */
     boolean action() throws InvalidEventHandlerException;
 }
