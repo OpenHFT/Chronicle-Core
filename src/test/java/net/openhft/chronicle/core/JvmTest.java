@@ -70,12 +70,16 @@ public class JvmTest {
         assertTrue(Jvm.majorVersion() > 0);
     }
 
-    static class ReportUnoptimised {
+    static final class ReportUnoptimised {
+
+        private ReportUnoptimised() {}
+
         static {
             Jvm.reportUnoptimised();
         }
 
         static void reportOnce() {
+            // Do nothing as reports are made in the static initializer
         }
     }
 
