@@ -1,5 +1,7 @@
 package net.openhft.chronicle.core.threads;
 
+import net.openhft.affinity.Affinity;
+import net.openhft.affinity.AffinityLock;
 import net.openhft.chronicle.core.Jvm;
 
 import java.lang.ref.WeakReference;
@@ -84,6 +86,12 @@ public class CleaningThread extends Thread {
 
     @Override
     public void run() {
+        // reset the thread affinity
+        if (Affinity.getAffinity().cardinality() == 1) {
+            Jvm.warn().on(getClass(), "Resetting affinity from " + Affinity.getAffinity() + " to " + AffinityLock.BASE_AFFINITY);
+            Affinity.setAffinity(AffinityLock.BASE_AFFINITY);
+        }
+
         try {
             super.run();
         } finally {
