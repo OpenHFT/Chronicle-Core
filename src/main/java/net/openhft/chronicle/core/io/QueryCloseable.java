@@ -11,6 +11,7 @@ public interface QueryCloseable {
 
     boolean isClosed();
 
+    /* to be moved in x.22 to ManagedCloseable*/
     default void throwExceptionIfClosed() throws IllegalStateException {
         if (isClosing())
             throw new ClosedIllegalStateException(isClosed() ? "Closed" : "Closing");

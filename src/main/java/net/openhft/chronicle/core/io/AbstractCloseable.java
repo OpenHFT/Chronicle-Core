@@ -33,7 +33,7 @@ import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BACKGROUN
 import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEASER;
 import static net.openhft.chronicle.core.io.TracingReferenceCounted.asString;
 
-public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwner {
+public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwner, ManagedCloseable {
     protected static final boolean DISABLE_THREAD_SAFETY = Jvm.getBoolean("disable.thread.safety", false);
     protected static final boolean DISABLE_DISCARD_WARNING = Jvm.getBoolean("disable.discard.warning", false);
     protected static final boolean STRICT_DISCARD_WARNING = Jvm.getBoolean("strict.discard.warning", false);
@@ -321,6 +321,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
         return false;
     }
 
+    // @Deprecated return void in x.22
     // this should throw IllegalStateException or return true
     protected boolean threadSafetyCheck(boolean isUsed) throws IllegalStateException {
         if (DISABLE_THREAD_SAFETY)

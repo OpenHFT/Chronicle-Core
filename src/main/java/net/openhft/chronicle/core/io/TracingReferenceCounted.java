@@ -188,7 +188,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
                 IllegalStateException ise2 = new IllegalStateException(type.getName() + "reserved by " + asString(referenceOwner), reservedHere);
                 if (referenceOwner instanceof Closeable) {
                     try {
-                        ((Closeable) referenceOwner).throwExceptionIfClosed();
+                        ((ManagedCloseable) referenceOwner).throwExceptionIfClosed();
                     } catch (IllegalStateException ise3) {
                         ise2.addSuppressed(ise3);
                     }
@@ -210,7 +210,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
                     }
                 } else if (referenceOwner instanceof QueryCloseable) {
                     try {
-                        ((QueryCloseable) referenceOwner).throwExceptionIfClosed();
+                        ((ManagedCloseable) referenceOwner).throwExceptionIfClosed();
 
                     } catch (Throwable t) {
                         ise.addSuppressed(new ClosedIllegalStateException(type.getName() + " closed " + asString(referenceOwner), t));

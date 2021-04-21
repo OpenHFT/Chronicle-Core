@@ -68,6 +68,7 @@ public interface Closeable extends java.io.Closeable, QueryCloseable {
         // take an action before everything else closes.
     }
 
+    /* to be moved in x.22 to ManagedCloseable*/
     default void warnAndCloseIfNotClosed() {
         if (!isClosing()) {
             if (Jvm.isResourceTracing() && !DISABLE_DISCARD_WARNING) {

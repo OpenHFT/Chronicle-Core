@@ -179,6 +179,10 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         return true;
     }
 
+    public void clearUsedByThread() {
+        usedByThread = null;
+    }
+
     @Override
     @NotNull
     public String toString() {

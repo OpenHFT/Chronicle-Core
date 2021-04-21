@@ -9,7 +9,7 @@ import static net.openhft.chronicle.core.io.AbstractCloseable.CLOSEABLE_SET;
 
 public abstract class AbstractCloseableReferenceCounted
         extends AbstractReferenceCounted
-        implements CloseableTracer {
+        implements CloseableTracer, ManagedCloseable {
 
     private transient volatile boolean closed;
     private transient volatile StackTrace closedHere;

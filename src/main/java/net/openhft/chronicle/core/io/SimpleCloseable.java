@@ -17,7 +17,9 @@
  */
 package net.openhft.chronicle.core.io;
 
-public abstract class SimpleCloseable implements Closeable, ReferenceOwner {
+import net.openhft.chronicle.core.StackTrace;
+
+public abstract class SimpleCloseable implements Closeable, ReferenceOwner, ManagedCloseable {
     private transient volatile boolean closed;
 
     protected SimpleCloseable() {
