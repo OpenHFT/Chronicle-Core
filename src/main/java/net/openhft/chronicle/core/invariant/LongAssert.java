@@ -6,10 +6,10 @@ import net.openhft.chronicle.core.internal.util.RangeUtil;
 import static net.openhft.chronicle.core.internal.util.RangeUtil.IS_NOT_IN_THE_RANGE;
 import static net.openhft.chronicle.core.invariant.AssertUtil.USE_ASSERTIONS;
 
-public final class LongAssertions {
+public final class LongAssert {
 
     // Suppresses default constructor, ensuring non-instantiability.
-    private LongAssertions() {
+    private LongAssert() {
     }
 
     /**
