@@ -156,7 +156,7 @@ public final class LongAssertions {
 
     /**
      * Throws an AssertionError unless the provided {@code val} equals the provided {@code otherValue}
-     * (i.e. unless {@code val == otherValue}).
+     * (i.e. unless {@code val != otherValue}).
      * <p>
      * This method is designed primarily for doing parameter assertions in private methods
      * and constructors, as demonstrated below:
@@ -190,8 +190,8 @@ public final class LongAssertions {
      * </pre></blockquote>
      *
      * @param val         the value to check
-     * @param from        (inclusive)
-     * @param toExclusive (exclusive)
+     * @param from        lower bounds (inclusive)
+     * @param toExclusive upper bounds (exclusive)
      * @throws AssertionError if the provided value does not meet the requirements.
      */
     public static void assertInRange(@Range final long val,
@@ -215,8 +215,8 @@ public final class LongAssertions {
      * </pre></blockquote>
      *
      * @param val         the value to check
-     * @param from        (inclusive)
-     * @param toInclusive (exclusive)
+     * @param from        lower bounds (inclusive)
+     * @param toInclusive upper bounds (exclusive)
      * @throws AssertionError if the provided value does not meet the requirements.
      */
     public static void assertInRangeClosed(@Range final long val,
@@ -240,7 +240,7 @@ public final class LongAssertions {
      * </pre></blockquote>
      *
      * @param val         the value to check
-     * @param toExclusive (exclusive)
+     * @param toExclusive upper bounds (exclusive)
      * @throws AssertionError if the provided value does not meet the requirements.
      */
     public static void assertInRangeZero(@Range(from = 0) final long val,
