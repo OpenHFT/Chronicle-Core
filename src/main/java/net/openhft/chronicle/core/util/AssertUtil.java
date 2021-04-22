@@ -1,14 +1,17 @@
-package net.openhft.chronicle.core.invariant;
+package net.openhft.chronicle.core.util;
 
 public final class AssertUtil {
 
     /**
      * Setting this variable to false will disable
-     * assertions in this package and will likely
+     * assertions in this package and will almost certainly
      * remove the assertion byte code from the target
      * jar(s).
+     *
+     *
+     *
      */
-    static final boolean USE_ASSERTIONS = true;
+    public static final boolean SKIP_ASSERTIONS = false;
 
     // Suppresses default constructor, ensuring non-instantiability.
     private AssertUtil() {
