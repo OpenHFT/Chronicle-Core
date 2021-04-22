@@ -29,7 +29,7 @@ public final class Ints {
      * @throws IllegalArgumentException if the check fails
      */
     public static int require(final IntPredicate requirement,
-                              final int value) {
+                              final int value) throws IllegalArgumentException, NullPointerException {
         if (!requirement.test(value))
             throw new IllegalArgumentException(failDescription(requirement, value));
         return value;
@@ -54,7 +54,7 @@ public final class Ints {
      */
     public static int require(final IntBiPredicate requirement,
                               final int value,
-                              final int otherValue) {
+                              final int otherValue) throws IllegalArgumentException, NullPointerException {
         if (!requirement.test(value, otherValue))
             throw new IllegalArgumentException(failDescription(requirement, value, otherValue));
         return value;
@@ -83,7 +83,7 @@ public final class Ints {
     public static int require(final IntTriPredicate requirement,
                               final int value,
                               final int otherFirstValue,
-                              final int otherSecondValue) {
+                              final int otherSecondValue) throws IllegalArgumentException, NullPointerException {
         if (!requirement.test(value, otherFirstValue, otherSecondValue))
             throw new IllegalArgumentException(failDescription(requirement, value, otherFirstValue, otherSecondValue));
         return value;
@@ -107,7 +107,7 @@ public final class Ints {
      *                              line option and by setting {@link AssertUtil#SKIP_ASSERTIONS} to {@code false}.
      */
     public static void assertIfEnabled(final IntPredicate requirement,
-                                       final int value) {
+                                       final int value) throws AssertionError, NullPointerException {
         assert AssertUtil.SKIP_ASSERTIONS || requirement.test(value) : failDescription(requirement, value);
     }
 
@@ -131,7 +131,7 @@ public final class Ints {
      */
     public static void assertIfEnabled(final IntBiPredicate requirement,
                                        final int value,
-                                       final int otherValue) {
+                                       final int otherValue) throws AssertionError, NullPointerException {
         assert AssertUtil.SKIP_ASSERTIONS || requirement.test(value, otherValue) : failDescription(requirement, value, otherValue);
     }
 
@@ -158,7 +158,7 @@ public final class Ints {
     public static void assertIfEnabled(final IntTriPredicate requirement,
                                        final int value,
                                        final int otherFirstValue,
-                                       final int otherSecondValue) {
+                                       final int otherSecondValue) throws AssertionError, NullPointerException {
         assert AssertUtil.SKIP_ASSERTIONS || requirement.test(value, otherFirstValue, otherSecondValue)
                 : failDescription(requirement, value, otherFirstValue, otherSecondValue);
     }
@@ -174,7 +174,7 @@ public final class Ints {
      * @throws NullPointerException if the provided {@code requirement} is {@code null}.
      */
     public static String failDescription(final IntPredicate requirement,
-                                         final int value) {
+                                         final int value) throws NullPointerException {
         return String.format("The provided value (%d) is illegal because it does not satisfy the provided requirement: %d %s", value, value, requirement);
     }
 
@@ -191,7 +191,7 @@ public final class Ints {
      */
     public static String failDescription(final IntBiPredicate requirement,
                                          final int value,
-                                         final int otherValue) {
+                                         final int otherValue) throws NullPointerException {
         return String.format("The provided value (%d) is illegal because it does not satisfy the provided requirement: %d %s %d", value, value, requirement, otherValue);
     }
 
@@ -209,7 +209,7 @@ public final class Ints {
     public static String failDescription(final IntTriPredicate requirement,
                                          final int value,
                                          final int otherFirstValue,
-                                         final int otherSecondValue) {
+                                         final int otherSecondValue) throws NullPointerException {
         return String.format("The provided value (%d) is illegal because it does not satisfy the provided requirement: %d %s (%d, %d)", value, value, requirement, otherFirstValue, otherSecondValue);
     }
 

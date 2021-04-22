@@ -29,7 +29,7 @@ public final class Longs {
      * @throws IllegalArgumentException if the check fails
      */
     public static long require(final LongPredicate requirement,
-                               final long value) {
+                               final long value) throws IllegalArgumentException, NullPointerException {
         if (!requirement.test(value))
             throw new IllegalArgumentException(failDescription(requirement, value));
         return value;
@@ -54,7 +54,7 @@ public final class Longs {
      */
     public static long require(final LongBiPredicate requirement,
                                final long value,
-                               final long otherValue) {
+                               final long otherValue) throws IllegalArgumentException, NullPointerException {
         if (!requirement.test(value, otherValue))
             throw new IllegalArgumentException(failDescription(requirement, value, otherValue));
         return value;
@@ -83,7 +83,7 @@ public final class Longs {
     public static long require(final LongTriPredicate requirement,
                                final long value,
                                final long otherFirstValue,
-                               final long otherSecondValue) {
+                               final long otherSecondValue) throws IllegalArgumentException, NullPointerException {
         if (!requirement.test(value, otherFirstValue, otherSecondValue))
             throw new IllegalArgumentException(failDescription(requirement, value, otherFirstValue, otherSecondValue));
         return value;
@@ -107,7 +107,7 @@ public final class Longs {
      *                              line option and by setting {@link AssertUtil#SKIP_ASSERTIONS} to {@code false}.
      */
     public static void assertIfEnabled(final LongPredicate requirement,
-                                       final long value) {
+                                       final long value) throws AssertionError, NullPointerException {
         assert AssertUtil.SKIP_ASSERTIONS || requirement.test(value) : failDescription(requirement, value);
     }
 
@@ -131,7 +131,7 @@ public final class Longs {
      */
     public static void assertIfEnabled(final LongBiPredicate requirement,
                                        final long value,
-                                       final long otherValue) {
+                                       final long otherValue) throws AssertionError, NullPointerException {
         assert AssertUtil.SKIP_ASSERTIONS || requirement.test(value, otherValue) : failDescription(requirement, value, otherValue);
     }
 
@@ -158,7 +158,7 @@ public final class Longs {
     public static void assertIfEnabled(final LongTriPredicate requirement,
                                        final long value,
                                        final long otherFirstValue,
-                                       final long otherSecondValue) {
+                                       final long otherSecondValue) throws AssertionError, NullPointerException {
         assert AssertUtil.SKIP_ASSERTIONS || requirement.test(value, otherFirstValue, otherSecondValue)
                 : failDescription(requirement, value, otherFirstValue, otherSecondValue);
     }
@@ -174,7 +174,7 @@ public final class Longs {
      * @throws NullPointerException if the provided {@code requirement} is {@code null}.
      */
     public static String failDescription(final LongPredicate requirement,
-                                         final long value) {
+                                         final long value) throws NullPointerException {
         return String.format("The provided value (%d) is illegal because it does not satisfy the provided requirement: %d %s", value, value, requirement);
     }
 
@@ -191,7 +191,7 @@ public final class Longs {
      */
     public static String failDescription(final LongBiPredicate requirement,
                                          final long value,
-                                         final long otherValue) {
+                                         final long otherValue) throws NullPointerException {
         return String.format("The provided value (%d) is illegal because it does not satisfy the provided requirement: %d %s %d", value, value, requirement, otherValue);
     }
 
@@ -209,7 +209,7 @@ public final class Longs {
     public static String failDescription(final LongTriPredicate requirement,
                                          final long value,
                                          final long otherFirstValue,
-                                         final long otherSecondValue) {
+                                         final long otherSecondValue) throws NullPointerException {
         return String.format("The provided value (%d) is illegal because it does not satisfy the provided requirement: %d %s (%d, %d)", value, value, requirement, otherFirstValue, otherSecondValue);
     }
 
