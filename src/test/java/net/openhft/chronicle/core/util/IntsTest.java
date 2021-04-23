@@ -5,8 +5,7 @@ import net.openhft.chronicle.core.annotation.Range;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class IntsTest {
 
