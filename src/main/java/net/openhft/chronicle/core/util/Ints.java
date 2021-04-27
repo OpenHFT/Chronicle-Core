@@ -42,7 +42,7 @@ public final class Ints {
      * @throws IllegalArgumentException if the check fails
      */
     public static int requireNonNegative(final int value) {
-        if (value <= 0)
+        if (value < 0)
             throw new IllegalArgumentException(failDescription(negative().negate(), value));
         return value;
     }

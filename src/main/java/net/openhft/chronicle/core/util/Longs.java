@@ -42,7 +42,7 @@ public final class Longs {
      * @throws IllegalArgumentException if the check fails
      */
     public static long requireNonNegative(final long value) {
-        if (value <= 0)
+        if (value < 0)
             throw new IllegalArgumentException(failDescription(negative().negate(), value));
         return value;
     }
