@@ -1,12 +1,13 @@
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.internal.invariant.ints.IntCondition;
 import org.junit.Test;
 
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Map;
 
-import static net.openhft.chronicle.core.util.IntCondition.*;
+import static net.openhft.chronicle.core.internal.invariant.ints.IntCondition.*;
 import static org.junit.Assert.*;
 
 public class IntConditionTest {

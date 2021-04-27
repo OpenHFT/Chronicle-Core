@@ -1,10 +1,11 @@
-package net.openhft.chronicle.core.util;
+package net.openhft.chronicle.core.internal.invariant.longs;
 
 import java.util.function.IntPredicate;
+import java.util.function.LongPredicate;
 
 import static java.util.Objects.requireNonNull;
 
-public enum IntCondition implements IntPredicate {
+public enum LongCondition implements LongPredicate {
 
     POSITIVE("> 0", value -> value > 0),
     NEGATIVE("< 0", value -> value < 0),
@@ -14,31 +15,33 @@ public enum IntCondition implements IntPredicate {
     NON_ZERO("!= 0", value -> value != 0),
     BYTE_CONVERTIBLE(Byte.MIN_VALUE, Byte.MAX_VALUE),
     SHORT_CONVERTIBLE(Short.MIN_VALUE, Short.MAX_VALUE),
-    EVEN_POWER_OF_TWO(" bitcount == 1", value -> value > 0 && Integer.bitCount(value) == 1);
+    EVEN_POWER_OF_TWO(" > 0 && bitcount == 1", value -> value > 0 && Long.bitCount(value) == 1);
+    // EVEN, ODD
     // PRIME
+    // SHORT_ALIGNED, INT_ALIGNED, LONG_ALIGNED
 
     private final String operation;
-    private final IntPredicate predicate;
+    private final LongPredicate predicate;
 
-    IntCondition(final String operation,
-                 final IntPredicate predicate) {
+    LongCondition(final String operation,
+                  final LongPredicate predicate) {
         this.operation = requireNonNull(operation);
         this.predicate = requireNonNull(predicate);
     }
 
-    IntCondition(final int fromInclusive,
-                 final int toInclusive) {
+    LongCondition(final long fromInclusive,
+                  final long toInclusive) {
         this.operation = "∈ [" + fromInclusive + ", " + toInclusive + "]";
         this.predicate = value -> value >= fromInclusive && value <= toInclusive;
     }
 
     @Override
-    public boolean test(final int value) {
+    public boolean test(final long value) {
         return predicate.test(value);
     }
 
     @Override
-    public IntPredicate negate() {
+    public LongPredicate negate() {
         switch (this) {
             case POSITIVE:
                 return NON_POSITIVE;
@@ -52,8 +55,9 @@ public enum IntCondition implements IntPredicate {
                 return NEGATIVE;
             case NON_ZERO:
                 return ZERO;
+            default:
+                return LongPredicate.super.negate();
         }
-        return IntPredicate.super.negate();
     }
 
     @Override
