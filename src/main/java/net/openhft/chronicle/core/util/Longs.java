@@ -20,6 +20,34 @@ public final class Longs {
     }
 
     /**
+     * Returns the provided {@code value} after checking that it is <em>non-negative</em> throwing
+     * an {@link IllegalArgumentException} if the check fails.
+     * <p>
+     * This method is designed primarily for doing parameter validation in public methods
+     * and constructors, as demonstrated below:
+     * <blockquote><pre>
+     * public Foo(long bar) {
+     *     this.bar = requireNonNegative(bar);
+     * }
+     * </pre></blockquote>
+     * <p>
+     * This method is functionally equivalent to:
+     * <blockquote><pre>
+     *     require(negative().negate(), value);
+     * </pre></blockquote>
+     * but is potentially optimized for performance.
+     *
+     * @param value the value to check
+     * @return the provided {@code value} if the check passes
+     * @throws IllegalArgumentException if the check fails
+     */
+    public static long requireNonNegative(final long value) {
+        if (value <= 0)
+            throw new IllegalArgumentException(failDescription(negative().negate(), value));
+        return value;
+    }
+
+    /**
      * Returns the provided {@code value} after checking that it satisfies the provided {@code requirement} throwing
      * an {@link IllegalArgumentException} if the check fails.
      * <p>
