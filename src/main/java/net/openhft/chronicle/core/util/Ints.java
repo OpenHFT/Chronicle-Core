@@ -37,7 +37,7 @@ public final class Ints {
      * </pre></blockquote>
      * but is potentially optimized for performance.
      *
-     * @param value       the value to check
+     * @param value the value to check
      * @return the provided {@code value} if the check passes
      * @throws IllegalArgumentException if the check fails
      */
@@ -239,16 +239,18 @@ public final class Ints {
      *
      * @param requirement to impose on the provided {@code value}
      * @param value       the value to check
+     * @return {@code true}
      * @throws NullPointerException if the provided {@code requirement} is {@code null}. There is no guarantee that this
      *                              exception is thrown. For example, if assertions are not enabled, then the exception
      *                              might not be thrown.
      * @throws AssertionError       if the check fails and assertions are enabled both via the {@code -ea} JVM command
      *                              line option and by setting {@link AssertUtil#SKIP_ASSERTIONS} to {@code false}.
      */
-    public static void assertIfEnabled(final IntPredicate requirement,
-                                       final int value) {
+    public static boolean assertIfEnabled(final IntPredicate requirement,
+                                          final int value) {
         assert AssertUtil.SKIP_ASSERTIONS || requirement.test(value)
                 : failDescription(requirement, value);
+        return true;
     }
 
     /**
@@ -267,17 +269,19 @@ public final class Ints {
      * @param requirement to impose on the provided {@code value} and {@code otherValue}
      * @param value       the value to check
      * @param otherValue  the other value to compare against the provided {@code value}
+     * @return {@code true}
      * @throws NullPointerException if the provided {@code requirement} is {@code null}. There is no guarantee that this
      *                              exception is thrown. For example, if assertions are not enabled, then the exception
      *                              might not be thrown.
      * @throws AssertionError       if the check fails and assertions are enabled both via the {@code -ea} JVM command
      *                              line option and by setting {@link AssertUtil#SKIP_ASSERTIONS} to {@code false}.
      */
-    public static void assertIfEnabled(final IntBiPredicate requirement,
-                                       final int value,
-                                       final int otherValue) {
+    public static boolean assertIfEnabled(final IntBiPredicate requirement,
+                                          final int value,
+                                          final int otherValue) {
         assert AssertUtil.SKIP_ASSERTIONS || requirement.test(value, otherValue)
                 : failDescription(requirement, value, otherValue);
+        return true;
     }
 
     /**
@@ -298,19 +302,20 @@ public final class Ints {
      * @param value            the value to check
      * @param otherFirstValue  the other first value to compare against the provided {@code value}
      * @param otherSecondValue the other first value to compare against the provided {@code value}
+     * @return {@code true}
      * @throws NullPointerException if the provided {@code requirement} is {@code null}. There is no guarantee that this
      *                              exception is thrown. For example, if assertions are not enabled, then the exception
      *                              might not be thrown.
      * @throws AssertionError       if the check fails and assertions are enabled both via the {@code -ea} JVM command
      *                              line option and by setting {@link AssertUtil#SKIP_ASSERTIONS} to {@code false}.
      */
-    public static void assertIfEnabled(final IntTriPredicate requirement,
-                                       final int value,
-                                       final int otherFirstValue,
-                                       final int otherSecondValue) {
+    public static boolean assertIfEnabled(final IntTriPredicate requirement,
+                                          final int value,
+                                          final int otherFirstValue,
+                                          final int otherSecondValue) {
         assert AssertUtil.SKIP_ASSERTIONS || requirement.test(value, otherFirstValue, otherSecondValue)
                 : failDescription(requirement, value, otherFirstValue, otherSecondValue);
-
+        return true;
     }
 
     /**
@@ -379,6 +384,17 @@ public final class Ints {
      */
     public static IntPredicate negative() {
         return IntCondition.NEGATIVE;
+    }
+
+    /**
+     * Returns a predicate that can test if a value is <em>non-negative</em> (i.e. value >= 0).
+     * <p>
+     * This is equivalent to: {@code negative().negate()}
+     *
+     * @return a predicate that can test if a value is <em>non-negative</em> (i.e. value >= 0)
+     */
+    public static IntPredicate nonNegative() {
+        return IntCondition.NON_NEGATIVE;
     }
 
     /**

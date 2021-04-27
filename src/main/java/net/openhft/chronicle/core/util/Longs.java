@@ -239,16 +239,18 @@ public final class Longs {
      *
      * @param requirement to impose on the provided {@code value}
      * @param value       the value to check
+     * @return {@code true}
      * @throws NullPointerException if the provided {@code requirement} is {@code null}. There is no guarantee that this
      *                              exception is thrown. For example, if assertions are not enabled, then the exception
      *                              might not be thrown.
      * @throws AssertionError       if the check fails and assertions are enabled both via the {@code -ea} JVM command
      *                              line option and by setting {@link AssertUtil#SKIP_ASSERTIONS} to {@code false}.
      */
-    public static void assertIfEnabled(final LongPredicate requirement,
-                                       final long value) {
+    public static boolean assertIfEnabled(final LongPredicate requirement,
+                                          final long value) {
         assert AssertUtil.SKIP_ASSERTIONS || requirement.test(value)
                 : failDescription(requirement, value);
+        return true;
     }
 
     /**
@@ -267,17 +269,19 @@ public final class Longs {
      * @param requirement to impose on the provided {@code value} and {@code otherValue}
      * @param value       the value to check
      * @param otherValue  the other value to compare against the provided {@code value}
+     * @return {@code true}
      * @throws NullPointerException if the provided {@code requirement} is {@code null}. There is no guarantee that this
      *                              exception is thrown. For example, if assertions are not enabled, then the exception
      *                              might not be thrown.
      * @throws AssertionError       if the check fails and assertions are enabled both via the {@code -ea} JVM command
      *                              line option and by setting {@link AssertUtil#SKIP_ASSERTIONS} to {@code false}.
      */
-    public static void assertIfEnabled(final LongBiPredicate requirement,
-                                       final long value,
-                                       final long otherValue) {
+    public static boolean assertIfEnabled(final LongBiPredicate requirement,
+                                          final long value,
+                                          final long otherValue) {
         assert AssertUtil.SKIP_ASSERTIONS || requirement.test(value, otherValue)
                 : failDescription(requirement, value, otherValue);
+        return true;
     }
 
     /**
@@ -298,19 +302,20 @@ public final class Longs {
      * @param value            the value to check
      * @param otherFirstValue  the other first value to compare against the provided {@code value}
      * @param otherSecondValue the other first value to compare against the provided {@code value}
+     * @return {@code true}
      * @throws NullPointerException if the provided {@code requirement} is {@code null}. There is no guarantee that this
      *                              exception is thrown. For example, if assertions are not enabled, then the exception
      *                              might not be thrown.
      * @throws AssertionError       if the check fails and assertions are enabled both via the {@code -ea} JVM command
      *                              line option and by setting {@link AssertUtil#SKIP_ASSERTIONS} to {@code false}.
      */
-    public static void assertIfEnabled(final LongTriPredicate requirement,
-                                       final long value,
-                                       final long otherFirstValue,
-                                       final long otherSecondValue) {
+    public static boolean assertIfEnabled(final LongTriPredicate requirement,
+                                          final long value,
+                                          final long otherFirstValue,
+                                          final long otherSecondValue) {
         assert AssertUtil.SKIP_ASSERTIONS || requirement.test(value, otherFirstValue, otherSecondValue)
                 : failDescription(requirement, value, otherFirstValue, otherSecondValue);
-
+        return true;
     }
 
     /**
@@ -379,6 +384,17 @@ public final class Longs {
      */
     public static LongPredicate negative() {
         return LongCondition.NEGATIVE;
+    }
+
+    /**
+     * Returns a predicate that can test if a value is <em>non-negative</em> (i.e. value >= 0).
+     * <p>
+     * This is equivalent to: {@code negative().negate()}
+     *
+     * @return a predicate that can test if a value is <em>non-negative</em> (i.e. value >= 0)
+     */
+    public static LongPredicate nonNegative() {
+        return LongCondition.NON_NEGATIVE;
     }
 
     /**
