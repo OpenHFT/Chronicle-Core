@@ -11,6 +11,8 @@ net.openhft.chronicle.core.cooler
 net.openhft.chronicle.core.internal
 net.openhft.chronicle.core.internal.analytics
 net.openhft.chronicle.core.internal.announcer
+net.openhft.chronicle.core.internal.invariant.ints
+net.openhft.chronicle.core.internal.invariant.longs
 net.openhft.chronicle.core.internal.pom
 net.openhft.chronicle.core.internal.util
 net.openhft.chronicle.core.io
