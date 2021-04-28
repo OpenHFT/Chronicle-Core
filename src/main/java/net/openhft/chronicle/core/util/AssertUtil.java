@@ -10,23 +10,21 @@ public final class AssertUtil {
      * Here is an original class:
      * <p>
      * <blockquote><pre>
-     *
      * import static net.openhft.chronicle.core.util.AssertUtil.SKIP_ASSERTIONS;
-     * import static net.openhft.chronicle.core.util.IntCondition.NON_NEGATIVE;
      * import static net.openhft.chronicle.core.util.Ints.*;
      *
      * public final class AssertTest {
      *
-     *     public static void testWithAssertDirectly() {
-     *         assert SKIP_ASSERTIONS || NON_NEGATIVE.test(3);
+     *     public static void testWithAssertDirectly(int x) {
+     *         assert SKIP_ASSERTIONS || x >= 0 ;
      *     }
      *
-     *     public static void testWithAssertDirectlyWithText() {
-     *         assert SKIP_ASSERTIONS || NON_NEGATIVE.test(3) : failDescription(NON_NEGATIVE, 3);
+     *     public static void testWithAssertDirectlyWithText(int x) {
+     *         assert SKIP_ASSERTIONS || assertIfEnabled(nonNegative(), x);
      *     }
      *
-     *     public static void testWithAssertMethod() {
-     *         assertIfEnabled(NON_NEGATIVE, 3);
+     *     public static void testWithAssertMethod(int x) {
+     *         assertIfEnabled(nonNegative(), x);
      *     }
      *
      * }
@@ -46,48 +44,44 @@ public final class AssertUtil {
      *        1: invokespecial #2                  // Method java/lang/Object."<init>":()V
      *        4: return
      *
-     *   public static void testWithAssertDirectly();
+     *   public static void testWithAssertDirectly(int);
+     *     Code:
+     *        0: getstatic     #3                  // Field $assertionsDisabled:Z
+     *        3: ifne          18
+     *        6: iload_0
+     *        7: ifge          18
+     *       10: new           #4                  // class java/lang/AssertionError
+     *       13: dup
+     *       14: invokespecial #5                  // Method java/lang/AssertionError."<init>":()V
+     *       17: athrow
+     *       18: return
+     *
+     *   public static void testWithAssertDirectlyWithText(int);
      *     Code:
      *        0: getstatic     #3                  // Field $assertionsDisabled:Z
      *        3: ifne          24
-     *        6: getstatic     #4                  // Field net/openhft/chronicle/core/util/IntCondition.NON_NEGATIVE:Lnet/openhft/chronicle/core/util/IntCondition;
-     *        9: iconst_3
-     *       10: invokevirtual #5                  // Method net/openhft/chronicle/core/util/IntCondition.test:(I)Z
+     *        6: invokestatic  #6                  // Method net/openhft/chronicle/core/util/Ints.nonNegative:()Ljava/util/function/IntPredicate;
+     *        9: iload_0
+     *       10: invokestatic  #7                  // Method net/openhft/chronicle/core/util/Ints.assertIfEnabled:(Ljava/util/function/IntPredicate;I)Z
      *       13: ifne          24
-     *       16: new           #6                  // class java/lang/AssertionError
+     *       16: new           #4                  // class java/lang/AssertionError
      *       19: dup
-     *       20: invokespecial #7                  // Method java/lang/AssertionError."<init>":()V
+     *       20: invokespecial #5                  // Method java/lang/AssertionError."<init>":()V
      *       23: athrow
      *       24: return
      *
-     *   public static void testWithAssertDirectlyWithText();
+     *   public static void testWithAssertMethod(int);
      *     Code:
-     *        0: getstatic     #3                  // Field $assertionsDisabled:Z
-     *        3: ifne          31
-     *        6: getstatic     #4                  // Field net/openhft/chronicle/core/util/IntCondition.NON_NEGATIVE:Lnet/openhft/chronicle/core/util/IntCondition;
-     *        9: iconst_3
-     *       10: invokevirtual #5                  // Method net/openhft/chronicle/core/util/IntCondition.test:(I)Z
-     *       13: ifne          31
-     *       16: new           #6                  // class java/lang/AssertionError
-     *       19: dup
-     *       20: getstatic     #4                  // Field net/openhft/chronicle/core/util/IntCondition.NON_NEGATIVE:Lnet/openhft/chronicle/core/util/IntCondition;
-     *       23: iconst_3
-     *       24: invokestatic  #8                  // Method net/openhft/chronicle/core/util/Ints.failDescription:(Ljava/util/function/IntPredicate;I)Ljava/lang/String;
-     *       27: invokespecial #9                  // Method java/lang/AssertionError."<init>":(Ljava/lang/Object;)V
-     *       30: athrow
-     *       31: return
-     *
-     *   public static void testWithAssertMethod();
-     *     Code:
-     *        0: getstatic     #4                  // Field net/openhft/chronicle/core/util/IntCondition.NON_NEGATIVE:Lnet/openhft/chronicle/core/util/IntCondition;
-     *        3: iconst_3
-     *        4: invokestatic  #10                 // Method net/openhft/chronicle/core/util/Ints.assertIfEnabled:(Ljava/util/function/IntPredicate;I)V
-     *        7: return
+     *        0: invokestatic  #6                  // Method net/openhft/chronicle/core/util/Ints.nonNegative:()Ljava/util/function/IntPredicate;
+     *        3: iload_0
+     *        4: invokestatic  #7                  // Method net/openhft/chronicle/core/util/Ints.assertIfEnabled:(Ljava/util/function/IntPredicate;I)Z
+     *        7: pop
+     *        8: return
      *
      *   static {};
      *     Code:
-     *        0: ldc           #11                 // class net/openhft/chronicle/core/util/AssertTest
-     *        2: invokevirtual #12                 // Method java/lang/Class.desiredAssertionStatus:()Z
+     *        0: ldc           #8                  // class net/openhft/chronicle/core/util/AssertTest
+     *        2: invokevirtual #9                  // Method java/lang/Class.desiredAssertionStatus:()Z
      *        5: ifne          12
      *        8: iconst_1
      *        9: goto          13
@@ -109,24 +103,25 @@ public final class AssertUtil {
      *        1: invokespecial #2                  // Method java/lang/Object."<init>":()V
      *        4: return
      *
-     *   public static void testWithAssertDirectly();
+     *   public static void testWithAssertDirectly(int);
      *     Code:
      *        0: return
      *
-     *   public static void testWithAssertDirectlyWithText();
+     *   public static void testWithAssertDirectlyWithText(int);
      *     Code:
      *        0: return
      *
-     *   public static void testWithAssertMethod();
+     *   public static void testWithAssertMethod(int);
      *     Code:
-     *        0: getstatic     #3                  // Field net/openhft/chronicle/core/util/IntCondition.NON_NEGATIVE:Lnet/openhft/chronicle/core/util/IntCondition;
-     *        3: iconst_3
-     *        4: invokestatic  #4                  // Method net/openhft/chronicle/core/util/Ints.assertIfEnabled:(Ljava/util/function/IntPredicate;I)V
-     *        7: return
+     *        0: invokestatic  #3                  // Method net/openhft/chronicle/core/util/Ints.nonNegative:()Ljava/util/function/IntPredicate;
+     *        3: iload_0
+     *        4: invokestatic  #4                  // Method net/openhft/chronicle/core/util/Ints.assertIfEnabled:(Ljava/util/function/IntPredicate;I)Z
+     *        7: pop
+     *        8: return
      * }
      * </pre></blockquote>
      * <p>
-     * As can be seen, the cost is zero when SKIP_ASSERTIONS = true in the first two cases.
+     * As can be seen, the cost is zero when {@code SKIP_ASSERTIONS = true} in the first two cases.
      * <p>
      * Performance critical code should use one of the first two schemes devised above to assert invariants.
      * The third, more convenient form, can be used for non-performance critical code.
