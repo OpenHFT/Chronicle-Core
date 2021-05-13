@@ -96,16 +96,21 @@ public class SystemTimeProviderTest {
 
     @Test
     public void currentTime() throws IllegalStateException {
-        FlakyTestRunner.run(() -> {
+        for (int i = 3; i >= 0; i--) {
             TimeProvider tp = SystemTimeProvider.INSTANCE;
             long time1 = tp.currentTime(TimeUnit.SECONDS);
             long time2 = tp.currentTimeMillis();
             long time3 = tp.currentTimeMicros();
             long time4 = tp.currentTimeNanos();
-            assertEquals(time1, time2 / 1000 + 1, 1);
-            assertEquals(time2, time3 / 1000 + 10, 10);
-            assertEquals(time3, time4 / 1000 + 5000, 10000);
-        });
+            try {
+                assertEquals(time1, time2 / 1000 + 1, 1);
+                assertEquals(time2, time3 / 1000 + 10, 10);
+                assertEquals(time3, time4 / 1000 + 5000, 10000);
+            } catch (AssertionError ae) {
+                if (i == 0)
+                    throw ae;
+            }
+        }
     }
 
     @Test
