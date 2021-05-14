@@ -208,7 +208,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
                     } catch (IllegalStateException e) {
                         ise.addSuppressed(e);
                     }
-                } else if (referenceOwner instanceof QueryCloseable) {
+                } else if (referenceOwner instanceof ManagedCloseable) {
                     try {
                         ((ManagedCloseable) referenceOwner).throwExceptionIfClosed();
 
