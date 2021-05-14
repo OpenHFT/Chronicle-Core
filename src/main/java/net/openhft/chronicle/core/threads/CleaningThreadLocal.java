@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 public class CleaningThreadLocal<T> extends ThreadLocal<T> {
     private final Supplier<T> supplier;
     private final Function<T, T> getWrapper;
-    private ThrowingConsumer<T, Exception> cleanup;
+    private final ThrowingConsumer<T, Exception> cleanup;
 
     CleaningThreadLocal(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup) {
         this(supplier, cleanup, Function.identity());
@@ -63,7 +63,6 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
             ThrowingConsumer<T, Exception> cleanup = this.cleanup;
             if (cleanup != null)
                 cleanup.accept(value);
-            this.cleanup = null;
         } catch (Exception e) {
             Jvm.warn().on(getClass(), "Exception cleaning up " + value.getClass(), e);
         }
