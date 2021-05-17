@@ -57,6 +57,7 @@ import java.util.stream.Collectors;
 import static java.lang.Runtime.getRuntime;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 import static net.openhft.chronicle.core.OS.*;
+import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 
 /**
  * Utility class to access information in the JVM.
@@ -690,6 +691,19 @@ public enum Jvm {
         ret.append(lock).append(" running at");
         trimStackTrace(ret, t.getStackTrace());
         return ret.toString();
+    }
+
+    /**
+     * @param clazz     the class for which you want to get field from [ it wont see inherited fields ]
+     * @param fieldName the name of the field
+     * @return the offset
+     */
+    public static long fieldOffset(final Class<?> clazz, final String fieldName) {
+        try {
+            return UNSAFE.objectFieldOffset(clazz.getDeclaredField(fieldName));
+        } catch (NoSuchFieldException e) {
+            throw new AssertionError(e);
+        }
     }
 
     /**
