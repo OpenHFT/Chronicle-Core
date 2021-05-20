@@ -5,6 +5,7 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.Time;
 import org.junit.Assume;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.FileOutputStream;
@@ -21,7 +22,7 @@ import static org.junit.Assert.*;
 public class IOToolsTest extends CoreTestCommon {
 
     @Test
-    public void readFileManyTimesByPath() throws IOException {
+    public void readFileManyTimesByPath() {
         IntStream.range(0, 10000)
                 .parallel()
                 .forEach(i -> {
@@ -51,7 +52,7 @@ public class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    public void shouldCleanDirectBuffer() throws Exception {
+    public void shouldCleanDirectBuffer() {
         IOTools.clean(ByteBuffer.allocateDirect(64));
     }
 
@@ -82,6 +83,7 @@ public class IOToolsTest extends CoreTestCommon {
         }
     }
 
+    @Ignore("https://github.com/OpenHFT/Chronicle-Core/issues/224")
     @Test
     public void createDirectoriesReadOnly() throws IOException, IllegalStateException {
         Assume.assumeTrue(OS.isLinux());
