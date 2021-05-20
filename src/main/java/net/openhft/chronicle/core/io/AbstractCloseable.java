@@ -49,7 +49,8 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     static volatile Set<CloseableTracer> CLOSEABLE_SET;
 
     static {
-        enableCloseableTracing();
+        if (Jvm.isResourceTracing())
+            enableCloseableTracing();
         CLOSED_OFFSET = UnsafeMemory.unsafeObjectFieldOffset(Jvm.getField(AbstractCloseable.class, "closed"));
     }
 
