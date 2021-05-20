@@ -4,6 +4,7 @@ import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.Time;
+import org.junit.Assume;
 import org.junit.Test;
 
 import java.io.FileOutputStream;
@@ -56,7 +57,7 @@ public class IOToolsTest extends CoreTestCommon {
 
     @Test
     public void createDirectoriesWithBrokenLink() throws IOException, IllegalStateException {
-        if (!OS.isLinux()) return;
+        Assume.assumeTrue(OS.isLinux());
 
         String path = OS.getTarget();
         Path link = Paths.get(path, "link2nowhere" + Time.uniqueId());
@@ -83,7 +84,7 @@ public class IOToolsTest extends CoreTestCommon {
 
     @Test
     public void createDirectoriesReadOnly() throws IOException, IllegalStateException {
-        if (!OS.isLinux()) return;
+        Assume.assumeTrue(OS.isLinux());
 
         String path = OS.getTarget();
         Path ro = Paths.get(path, "read-only" + Time.uniqueId());
@@ -106,7 +107,7 @@ public class IOToolsTest extends CoreTestCommon {
 
     @Test
     public void cannotTurnAfileIntoADirectory() throws IOException {
-        if (!OS.isLinux()) return;
+        Assume.assumeTrue(OS.isLinux());
 
         String path = OS.getTarget();
         Path file = Paths.get(path, "test-file" + Time.uniqueId());
