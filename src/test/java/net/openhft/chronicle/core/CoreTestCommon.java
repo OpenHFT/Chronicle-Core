@@ -72,5 +72,6 @@ public class CoreTestCommon {
         assertReferencesReleased();
         checkThreadDump();
         checkExceptions();
+        AbstractReferenceCounted.disableReferenceTracing();
     }
 }
