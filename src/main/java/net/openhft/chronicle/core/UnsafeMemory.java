@@ -1004,6 +1004,7 @@ public class UnsafeMemory implements Memory {
 
     @Override
     public void testAndSetInt(long address, long offset, int expected, int value) throws IllegalStateException {
+        assert (address & 63) <= 64 - 4;
         assert SKIP_ASSERTIONS || address != 0;
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         if (UNSAFE.compareAndSwapInt(null, address, expected, value))
@@ -1014,6 +1015,7 @@ public class UnsafeMemory implements Memory {
 
     @Override
     public void testAndSetInt(@NotNull Object object, long offset, int expected, int value) throws IllegalStateException {
+//        assert (offset & 63) <= 64 - 4;
         assert SKIP_ASSERTIONS || nonNull(object);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         if (UNSAFE.compareAndSwapInt(object, offset, expected, value))
@@ -1025,6 +1027,7 @@ public class UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public boolean compareAndSwapInt(long address, int expected, int value) {
+        assert (address & 63) <= 64 - 4;
         assert SKIP_ASSERTIONS || address != 0;
 //        assert (address & 0x3) == 0;
         return UNSAFE.compareAndSwapInt(null, address, expected, value);
@@ -1033,6 +1036,7 @@ public class UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public boolean compareAndSwapInt(@NotNull Object object, long offset, int expected, int value) {
+        assert (offset & 63) <= 64 - 4;
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
         return UNSAFE.compareAndSwapInt(object, offset, expected, value);
@@ -1041,6 +1045,7 @@ public class UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public boolean compareAndSwapLong(long address, long expected, long value) {
+        assert (address & 63) <= 64 - 8;
         assert SKIP_ASSERTIONS || address != 0;
 //        assert (address & 0x7) == 0;
         return UNSAFE.compareAndSwapLong(null, address, expected, value);
@@ -1049,6 +1054,7 @@ public class UnsafeMemory implements Memory {
     @Override
     @ForceInline
     public boolean compareAndSwapLong(@NotNull Object object, long offset, long expected, long value) {
+        assert (offset & 63) <= 64 - 8;
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
         return UNSAFE.compareAndSwapLong(object, offset, expected, value);
