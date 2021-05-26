@@ -27,7 +27,6 @@ import sun.misc.Unsafe;
 import java.lang.reflect.Field;
 import java.nio.ByteOrder;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.LongPredicate;
 
 import static java.util.Objects.nonNull;
 import static net.openhft.chronicle.core.util.AssertUtil.SKIP_ASSERTIONS;
