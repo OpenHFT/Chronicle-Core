@@ -16,7 +16,6 @@ net.openhft.chronicle.core.internal.invariant.longs
 net.openhft.chronicle.core.internal.pom
 net.openhft.chronicle.core.internal.util
 net.openhft.chronicle.core.io
-net.openhft.chronicle.core.logger
 net.openhft.chronicle.core.onoes
 net.openhft.chronicle.core.pom
 net.openhft.chronicle.core.pool
