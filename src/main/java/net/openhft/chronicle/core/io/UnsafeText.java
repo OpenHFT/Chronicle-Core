@@ -20,8 +20,6 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.Maths;
 import sun.misc.Unsafe;
 
-import java.nio.BufferOverflowException;
-
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 
 /**
@@ -251,7 +249,7 @@ public final class UnsafeText {
     private static double asDouble(long value, int exp, boolean negative, int deci) {
         int scale2 = 0;
         double d;
-        if (deci > 29) {
+        if (deci >= 28) {
             d = value / Math.pow(5, -deci);
 
         } else if (deci > 0) {
@@ -262,7 +260,7 @@ public final class UnsafeText {
             long rem = value % fives;
             d = whole + (double) rem / fives;
 
-        } else if (deci < -29) {
+        } else if (deci <= -28) {
             d = value * Math.pow(5, -deci);
 
         } else if (deci < 0) {
