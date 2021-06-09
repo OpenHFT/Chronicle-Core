@@ -5,7 +5,6 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.Time;
 import org.junit.Assume;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.FileOutputStream;
@@ -83,7 +82,6 @@ public class IOToolsTest extends CoreTestCommon {
         }
     }
 
-    @Ignore("https://github.com/OpenHFT/Chronicle-Core/issues/224")
     @Test
     public void createDirectoriesReadOnly() throws IOException, IllegalStateException {
         Assume.assumeTrue(OS.isLinux());
