@@ -119,7 +119,12 @@ public enum Jvm {
     private static final boolean PROC_EXISTS = new File("/proc").exists();
     private static final int OBJECT_HEADER_SIZE;
 
+    private static final boolean ASSERT_ENABLED;
+
     static {
+        boolean debug = false;
+        assert debug = true;
+        ASSERT_ENABLED = debug;
         final Field[] declaredFields = ObjectHeaderSizeChecker.class.getDeclaredFields();
         JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
         IS_JAVA_9_PLUS = JVM_JAVA_MAJOR_VERSION > 8; // IS_JAVA_9_PLUS value is used in maxDirectMemory0 method.
@@ -1607,5 +1612,14 @@ public enum Jvm {
             }
             CPU_MODEL = model;
         }
+    }
+
+    /**
+     * Was assertion enabled for the Jvm class when it was initialised.
+     *
+     * @return if assertions were enabled.
+     */
+    public static boolean isAssertEnabled() {
+        return ASSERT_ENABLED;
     }
 }
