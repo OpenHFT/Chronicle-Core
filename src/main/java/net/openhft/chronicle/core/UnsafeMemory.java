@@ -1366,7 +1366,7 @@ public class UnsafeMemory implements Memory {
     }
 
     // https://github.com/OpenHFT/OpenHFT/issues/23
-    static class ARMMemory extends UnsafeMemory {
+    private static class ARMMemory extends UnsafeMemory {
         @Override
         public short readVolatileShort(long address) {
             assert SKIP_ASSERTIONS || address != 0;
