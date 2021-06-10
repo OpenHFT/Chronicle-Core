@@ -567,12 +567,7 @@ public enum Jvm {
      */
     @Nullable
     public static Field getFieldOrNull(@NotNull final Class<?> clazz, @NotNull final String fieldName) {
-        try {
-            return getField(clazz, fieldName);
-
-        } catch (AssertionError e) {
-            return null;
-        }
+        return getField0(clazz, fieldName, false);
     }
 
     /**
