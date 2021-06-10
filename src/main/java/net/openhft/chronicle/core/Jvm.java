@@ -1508,9 +1508,11 @@ public enum Jvm {
             if (inside.get())
                 return;
             inside.set(true);
-            assert Thread.currentThread().isInterrupted();
+            boolean interrupted = Thread.currentThread().isInterrupted();
             if (Jvm.isDebugEnabled(getClass()))
-                Jvm.debug().on(clazz, fc + " not closed on interrupt");
+                Jvm.debug().on(clazz, fc + " not closed on interrupt, interrupted= " + interrupted);
+            else if (!interrupted)
+                Jvm.warn().on(clazz, fc + " thread not interrupted as expected.");
             inside.set(false);
         }
     }
