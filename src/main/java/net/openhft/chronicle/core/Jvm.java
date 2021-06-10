@@ -898,27 +898,57 @@ public enum Jvm {
         return FATAL;
     }
 
+    /**
+     * Returns an ExceptionHandler for errors, this prints as System.err or ERROR level logging.
+     * In tests these messages are usually captured and checked that the error expected and only those expected are produced.
+     *
+     * @return the ERROR exception handler
+     */
     @NotNull
     public static ExceptionHandler error() {
         return ERROR;
     }
 
+    /**
+     * Returns an ExceptionHandler for warnings, this prints as System.out or WARN level logging.
+     * In tests these messages are usually captured and checked that the warning expected and only those expected are produced.
+     *
+     * @return the WARN exception handler
+     */
     @NotNull
     public static ExceptionHandler warn() {
         return WARN;
     }
 
+    /**
+     * Returns an ExceptionHandler for startup messages, this prints as System.out or INFO level logging.
+     * In tests these messages are generally not captured for checking.
+     *
+     * @return the STARTUP exception handler
+     */
     @NotNull
     public static ExceptionHandler startup() {
         // TODO, add a startup level?
         return PERF;
     }
 
+    /**
+     * Returns an ExceptionHandler for performance messages, this prints as System.out or INFO level logging.
+     * In tests these messages are generally not captured for checking, but a few tests may check performance metrics are reported.
+     *
+     * @return the PERF exception handler
+     */
     @NotNull
     public static ExceptionHandler perf() {
         return PERF;
     }
 
+    /**
+     * Returns an ExceptionHandler for debug messages, this prints as System.out or DEBUG level logging.
+     * In tests these messages are generally not captured for checking.
+     *
+     * @return the DEBUG exception handler
+     */
     @NotNull
     public static ExceptionHandler debug() {
         return DEBUG;
