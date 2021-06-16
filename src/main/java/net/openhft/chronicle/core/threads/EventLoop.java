@@ -65,4 +65,11 @@ public interface EventLoop extends Closeable {
      * Wait until the event loop has terminated (after close has been called)
      */
     void awaitTermination();
+
+    /**
+     * @return true if called in an EventLoop.
+     */
+    static boolean inEventLoop() {
+        return CleaningThread.inEventLoop(Thread.currentThread());
+    }
 }

@@ -22,12 +22,20 @@ public class CleaningThread extends Thread {
         VALUE = Jvm.getField(TABLE.getType().getComponentType(), "value");
     }
 
+    private final boolean inEventLoop;
+
     public CleaningThread(Runnable target) {
         super(target);
+        inEventLoop = false;
     }
 
     public CleaningThread(Runnable target, String name) {
+        this(target, name, false);
+    }
+
+    public CleaningThread(Runnable target, String name, boolean inEventLoop) {
         super(target, name);
+        this.inEventLoop = inEventLoop;
     }
 
     /**
@@ -97,5 +105,13 @@ public class CleaningThread extends Thread {
         } finally {
             performCleanup(this);
         }
+    }
+
+    public boolean inEventLoop() {
+        return inEventLoop;
+    }
+
+    public static boolean inEventLoop(Thread t) {
+        return t instanceof CleaningThread && ((CleaningThread) t).inEventLoop();
     }
 }
