@@ -21,7 +21,6 @@ package net.openhft.chronicle.core.util;
 import net.openhft.chronicle.core.ClassLocal;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
-import net.openhft.chronicle.core.annotation.ForceInline;
 import net.openhft.chronicle.core.pool.EnumCache;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -622,7 +621,6 @@ public enum ObjectUtils {
      * @param o reference to check for nullity
      * @throws NullPointerException if o is null
      */
-    @ForceInline
     @SuppressWarnings("UnusedReturnValue")
     public static <T> T requireNonNull(@NotNull T o) {
         // see https://stackoverflow.com/questions/43115645/in-java-lambdas-why-is-getclass-called-on-a-captured-variable

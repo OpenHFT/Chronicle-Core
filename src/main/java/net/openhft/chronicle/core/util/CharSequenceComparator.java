@@ -17,7 +17,6 @@
  */
 package net.openhft.chronicle.core.util;
 
-import net.openhft.chronicle.core.annotation.ForceInline;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Comparator;
@@ -26,7 +25,6 @@ public enum CharSequenceComparator implements Comparator<CharSequence> {
     INSTANCE;
 
     @Override
-    @ForceInline
     public int compare(@NotNull CharSequence o1, @NotNull CharSequence o2) {
         final int o1Length = o1.length();
         final int o2Length = o2.length();

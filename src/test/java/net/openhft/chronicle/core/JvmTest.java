@@ -179,7 +179,7 @@ public class JvmTest {
     @Test
     public void arrayByteBaseOffset() {
         byte[] bytes = {0};
-        UnsafeMemory.UNSAFE.putByte(bytes, (long) Jvm.arrayByteBaseOffset(), (byte) 1);
+        UnsafeMemory.MEMORY.writeByte(bytes, (long) Jvm.arrayByteBaseOffset(), (byte) 1);
         assertEquals(1, bytes[0]);
     }
 

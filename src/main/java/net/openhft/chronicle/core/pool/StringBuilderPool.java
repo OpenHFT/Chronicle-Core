@@ -18,15 +18,12 @@
 
 package net.openhft.chronicle.core.pool;
 
-import net.openhft.chronicle.core.annotation.ForceInline;
-
 import static java.lang.ThreadLocal.withInitial;
 
 public class StringBuilderPool {
     private final ThreadLocal<StringBuilder> sbtl = withInitial(
             () -> new StringBuilder(128));
 
-    @ForceInline
     public StringBuilder acquireStringBuilder() {
         StringBuilder sb = sbtl.get();
         sb.setLength(0);

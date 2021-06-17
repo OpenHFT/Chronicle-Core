@@ -20,6 +20,7 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.Maths;
 import sun.misc.Unsafe;
 
+import static net.openhft.chronicle.core.UnsafeMemory.MEMORY;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 
 /**
@@ -37,7 +38,7 @@ public final class UnsafeText {
         if (num >= 0) {
             // nothing
         } else if (num > Long.MIN_VALUE) {
-            UNSAFE.putByte(address++, (byte) '-');
+            MEMORY.writeByte(address++, (byte) '-');
             num = -num;
         } else {
             return appendText(address, MIN_VALUE_STR);
@@ -47,7 +48,7 @@ public final class UnsafeText {
         do {
             long div = num / 10;
             long mod = num % 10;
-            UNSAFE.putByte(address++, (byte) ('0' + mod));
+            MEMORY.writeByte(address++, (byte) ('0' + mod));
             num = div;
         } while (num > 0);
         // reverse the order
@@ -62,8 +63,8 @@ public final class UnsafeText {
             long a2 = start + end;
             byte b1 = UNSAFE.getByte(a1);
             byte b2 = UNSAFE.getByte(a2);
-            UNSAFE.putByte(a2, b1);
-            UNSAFE.putByte(a1, b2);
+            MEMORY.writeByte(a2, b1);
+            MEMORY.writeByte(a1, b2);
         }
     }
 
@@ -82,7 +83,7 @@ public final class UnsafeText {
         if (num >= 0) {
             // nothing
         } else if (num > Long.MIN_VALUE) {
-            UNSAFE.putByte(address++, (byte) '-');
+            MEMORY.writeByte(address++, (byte) '-');
             num = -num;
         } else {
             throw new AssertionError();
@@ -92,9 +93,9 @@ public final class UnsafeText {
         do {
             long div = num / 10;
             long mod = num % 10;
-            UNSAFE.putByte(address++, (byte) ('0' + mod));
+            MEMORY.writeByte(address++, (byte) ('0' + mod));
             if (--decimal == 0)
-                UNSAFE.putByte(address++, (byte) '.');
+                MEMORY.writeByte(address++, (byte) '.');
             num = div;
         } while (num > 0 || decimal >= 0);
         // reverse the order
@@ -109,10 +110,10 @@ public final class UnsafeText {
         int exp = (int) ((val >>> 52) & 2047);
         long mantissa = val & ((1L << 52) - 1);
         if (sign != 0) {
-            UNSAFE.putByte(address++, (byte) '-');
+            MEMORY.writeByte(address++, (byte) '-');
         }
         if (exp == 0 && mantissa == 0) {
-            UNSAFE.putByte(address, (byte) '0');
+            MEMORY.writeByte(address, (byte) '0');
             UNSAFE.putShort(address + 1, (short) ('.' + ('0' << 8)));
             address += 3;
             return address;
@@ -160,7 +161,7 @@ public final class UnsafeText {
 
         address = appendFixed(address, val2);
         for (int i = 0; i < digits; i++)
-            UNSAFE.putByte(address++, (byte) '0');
+            MEMORY.writeByte(address++, (byte) '0');
         return address;
     }
 
@@ -188,14 +189,14 @@ public final class UnsafeText {
             precision--;
             if (precision >= 64) {
                 decimalPlaces++;
-                UNSAFE.putByte(address++, (byte) '0');
+                MEMORY.writeByte(address++, (byte) '0');
                 continue;
             }
             long num = (mantissa >>> precision);
             value = value * 10 + num;
             final char c = (char) ('0' + num);
 //                    assert !(c < '0' || c > '9');
-            UNSAFE.putByte(address++, (byte) c);
+            MEMORY.writeByte(address++, (byte) c);
             mantissa -= num << precision;
             ++decimalPlaces;
             final double parsedValue = asDouble(value, 0, sign != 0, decimalPlaces);
@@ -210,7 +211,7 @@ public final class UnsafeText {
         address = appendFixed(address, intValue);
         mantissa -= intValue << shift;
         if (mantissa > 0) {
-            UNSAFE.putByte(address++, (byte) '.');
+            MEMORY.writeByte(address++, (byte) '.');
             mantissa <<= 1;
             mantissa++;
             int precision = shift + 1;
@@ -225,7 +226,7 @@ public final class UnsafeText {
                 precision--;
                 long num = (mantissa >> precision);
                 value = value * 10 + num;
-                UNSAFE.putByte(address++, (byte) ('0' + num));
+                MEMORY.writeByte(address++, (byte) ('0' + num));
                 mantissa -= num << precision;
 
                 final double parsedValue = asDouble(value, 0, sign != 0, ++decimalPlaces);
@@ -241,7 +242,7 @@ public final class UnsafeText {
 
     private static long appendText(long address, String s) {
         for (int i = 0; i < s.length(); i++) {
-            UNSAFE.putByte(address++, (byte) s.charAt(i));
+            MEMORY.writeByte(address++, (byte) s.charAt(i));
         }
         return address;
     }
@@ -278,16 +279,16 @@ public final class UnsafeText {
     public static long append8bit(long address, byte[] bytes) {
         int len = bytes.length, i;
         for (i = 0; i < len - 7; i += 8)
-            UNSAFE.putLong(address + i, UNSAFE.getLong(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET + (long) i));
+            MEMORY.writeLong(address + i, UNSAFE.getLong(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET + (long) i));
         for (; i < len; i++)
-            UNSAFE.putByte(address + i, UNSAFE.getByte(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET + (long) i));
+            MEMORY.writeByte(address + i, UNSAFE.getByte(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET + (long) i));
         return address + len;
     }
 
     public static long append8bit(long address, char[] chars) {
         int len = chars.length, i;
         for (i = 0; i < len; i++)
-            UNSAFE.putByte(address + i, (byte) chars[i]);
+            MEMORY.writeByte(address + i, (byte) chars[i]);
         return address + len;
     }
 }

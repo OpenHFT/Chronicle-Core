@@ -277,9 +277,9 @@ public class UnsafeMemoryTest {
         final long addr = UNSAFE.allocateMemory(64);
         assertTrue(MEMORY.is7Bit(addr, 0));
         for (int i = 1; i <= 64; i++) {
-            UNSAFE.putByte(addr + i - 1, (byte) -1);
+            MEMORY.writeByte(addr + i - 1, (byte) -1);
             assertFalse(MEMORY.is7Bit(addr, i));
-            UNSAFE.putByte(addr + i - 1, (byte) 0);
+            MEMORY.writeByte(addr + i - 1, (byte) 0);
         }
         UNSAFE.freeMemory(addr);
     }
@@ -288,7 +288,7 @@ public class UnsafeMemoryTest {
     public void is7BitAddr2() {
         final long addr = UNSAFE.allocateMemory(256);
         for (int i = 0; i < 256; i++)
-            UNSAFE.putByte(addr + i, (byte) i);
+            MEMORY.writeByte(addr + i, (byte) i);
 
         Random rand = new Random();
         for (int i = 0; i < 1000; i++) {
@@ -375,6 +375,14 @@ public class UnsafeMemoryTest {
         }
         MEMORY.freeMemory(addr, 32);
         MEMORY.freeMemory(addr2, 32);
+    }
+
+    @Test
+    public void copyMemoryEachWay() {
+        long addr = MEMORY.allocate(32);
+        long[] data = new long[4];
+        MEMORY.copyMemory(data, 0, addr, 32);
+        MEMORY.copyMemory(addr, data, 0, 32);
     }
 
     @Test

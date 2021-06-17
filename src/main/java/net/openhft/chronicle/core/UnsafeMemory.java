@@ -18,7 +18,6 @@
 
 package net.openhft.chronicle.core;
 
-import net.openhft.chronicle.core.annotation.ForceInline;
 import net.openhft.chronicle.core.util.Ints;
 import net.openhft.chronicle.core.util.Longs;
 import org.jetbrains.annotations.NotNull;
@@ -328,19 +327,16 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void storeFence() {
         UNSAFE.storeFence();
     }
 
     @Override
-    @ForceInline
     public void loadFence() {
         UNSAFE.loadFence();
     }
 
     @Override
-    @ForceInline
     public void setMemory(long address, long size, byte b) {
         assert SKIP_ASSERTIONS || address != 0;
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), size);
@@ -375,14 +371,12 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void writeByte(long address, byte b) {
         assert SKIP_ASSERTIONS || address != 0;
         UNSAFE.putByte(address, b);
     }
 
     @Override
-    @ForceInline
     public void writeByte(@NotNull Object object, long offset, byte b) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -390,7 +384,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public byte readByte(@NotNull Object object, long offset) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -398,7 +391,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void writeBytes(long address, byte[] b, int offset, int length) throws IllegalArgumentException {
         assert SKIP_ASSERTIONS || address != 0;
         assert SKIP_ASSERTIONS || assertIfEnabled(Ints.nonNegative(), offset);
@@ -409,7 +401,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void readBytes(long address, byte[] b, long offset, int length) throws IllegalArgumentException {
         assert SKIP_ASSERTIONS || address != 0;
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
@@ -420,7 +411,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public byte readByte(long address) {
         assert SKIP_ASSERTIONS || address != 0;
 //        if (tracing)
@@ -429,14 +419,12 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void writeShort(long address, short i16) {
         assert SKIP_ASSERTIONS || address != 0;
         UNSAFE.putShort(address, i16);
     }
 
     @Override
-    @ForceInline
     public void writeShort(@NotNull Object object, long offset, short i16) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -444,14 +432,12 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public short readShort(long address) {
         assert SKIP_ASSERTIONS || address != 0;
         return UNSAFE.getShort(address);
     }
 
     @Override
-    @ForceInline
     public short readShort(@NotNull Object object, long offset) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -459,14 +445,12 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void writeInt(long address, int i32) {
         assert SKIP_ASSERTIONS || address != 0;
         UNSAFE.putInt(address, i32);
     }
 
     @Override
-    @ForceInline
     public void writeInt(@NotNull Object object, long offset, int i32) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -474,7 +458,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void writeOrderedInt(long address, int i32) {
         assert SKIP_ASSERTIONS || address != 0;
 //        assert (address & 0x3) == 0;
@@ -482,7 +465,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void writeOrderedInt(@NotNull Object object, long offset, int i32) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -490,7 +472,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public int readInt(long address) {
         assert SKIP_ASSERTIONS || address != 0;
 //        if (tracing)
@@ -499,7 +480,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public int readInt(@NotNull Object object, long offset) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -507,14 +487,12 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void writeLong(long address, long i64) {
         assert SKIP_ASSERTIONS || address != 0;
         UNSAFE.putLong(address, i64);
     }
 
     @Override
-    @ForceInline
     public void writeLong(@NotNull Object object, long offset, long i64) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -522,7 +500,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public long readLong(long address) {
         assert SKIP_ASSERTIONS || address != 0;
 //        if (tracing)
@@ -531,7 +508,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public long readLong(@NotNull Object object, long offset) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -539,14 +515,12 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void writeFloat(long address, float f) {
         assert SKIP_ASSERTIONS || address != 0;
         UNSAFE.putFloat(address, f);
     }
 
     @Override
-    @ForceInline
     public void writeFloat(@NotNull Object object, long offset, float f) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -554,14 +528,12 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public float readFloat(long address) {
         assert SKIP_ASSERTIONS || address != 0;
         return UNSAFE.getFloat(address);
     }
 
     @Override
-    @ForceInline
     public float readFloat(@NotNull Object object, long offset) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -569,14 +541,12 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void writeDouble(long address, double d) {
         assert SKIP_ASSERTIONS || address != 0;
         UNSAFE.putDouble(address, d);
     }
 
     @Override
-    @ForceInline
     public void writeDouble(@NotNull Object object, long offset, double d) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -584,14 +554,12 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public double readDouble(long address) {
         assert SKIP_ASSERTIONS || address != 0;
         return UNSAFE.getDouble(address);
     }
 
     @Override
-    @ForceInline
     public double readDouble(@NotNull Object object, long offset) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -599,7 +567,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void copyMemory(byte[] bytes, int offset, long address, int length) {
         assert SKIP_ASSERTIONS || nonNull(bytes);
         assert SKIP_ASSERTIONS || assertIfEnabled(Ints.nonNegative(), offset);
@@ -619,7 +586,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void copyMemory(long fromAddress, long address, long length) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), fromAddress);
         assert SKIP_ASSERTIONS || address != 0;
@@ -664,6 +630,11 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
+    public void copyMemory(Object o, long offset, long toAddress, int length) {
+        copyMemoryLoop(o, offset, toAddress, length);
+    }
+
+    @Override
     public void copyMemory(Object o, long offset, Object o2, long offset2, int length) {
         assert SKIP_ASSERTIONS || nonNull(0);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
@@ -672,8 +643,31 @@ public class UnsafeMemory implements Memory {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), length);
         if (o instanceof byte[])
             copyMemory((byte[]) o, Math.toIntExact(offset - Unsafe.ARRAY_BYTE_BASE_OFFSET), o2, offset2, length);
+        else if (o == null)
+            if (o2 == null)
+                copyMemory(offset, offset2, length);
+            else
+                copyMemory(offset, o2, offset2, length);
+        else if (o2 == null)
+            copyMemory(o, offset, offset2, length);
         else
             copyMemoryLoop(o, offset, o2, offset2, length);
+    }
+
+    private void copyMemoryLoop(Object o, long offset, long toAddr, int length) {
+        assert SKIP_ASSERTIONS || nonNull(0);
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), toAddr);
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), length);
+        int i = 0;
+        for (; i < length - 7; i += 8)
+            MEMORY.writeLong(toAddr + i, UNSAFE.getLong(o, offset + i));
+        if (i < length - 3) {
+            UNSAFE.putInt(toAddr + i, UNSAFE.getInt(o, offset + i));
+            i += 4;
+        }
+        for (; i < length; i++)
+            MEMORY.writeByte(toAddr + i, UNSAFE.getByte(o, offset + i));
     }
 
     private void copyMemoryLoop(Object o, long offset, Object o2, long offset2, int length) {
@@ -688,9 +682,13 @@ public class UnsafeMemory implements Memory {
         }
         int i = 0;
         for (; i < length - 7; i += 8)
-            UNSAFE.putLong(o2, offset2 + i, UNSAFE.getLong(o, offset + i));
+            MEMORY.writeLong(o2, offset2 + i, UNSAFE.getLong(o, offset + i));
+        if (i < length - 3) {
+            UNSAFE.putInt(o2, offset2 + i, UNSAFE.getInt(o, offset + i));
+            i += 4;
+        }
         for (; i < length; i++)
-            UNSAFE.putByte(o2, offset2 + i, UNSAFE.getByte(o, offset + i));
+            MEMORY.writeByte(o2, offset2 + i, UNSAFE.getByte(o, offset + i));
     }
 
     private void backwardCopyMemoryLoop(Object o, long offset, Object o2, long offset2, int length) {
@@ -703,23 +701,20 @@ public class UnsafeMemory implements Memory {
         offset2 += length;
         int i = 0;
         for (; i < length - 7; i += 8)
-            UNSAFE.putLong(o2, offset2 - 8 - i, UNSAFE.getLong(o, offset - 8 - i));
+            MEMORY.writeLong(o2, offset2 - 8 - i, UNSAFE.getLong(o, offset - 8 - i));
         for (; i < length; i++) {
-            final byte aByte = UNSAFE.getByte(o, offset - 1 - i);
-            System.out.println((char) aByte);
-            UNSAFE.putByte(o2, offset2 - 1 - i, aByte);
+            MEMORY.writeByte(o2, offset2 - 1 - i, UNSAFE.getByte(o, offset - 1 - i));
         }
     }
 
     @Override
-    @ForceInline
     public void copyMemory(long fromAddress, Object obj2, long offset2, int length) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), fromAddress);
         assert SKIP_ASSERTIONS || nonNull(obj2);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset2);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), length);
         long start = length > 128 << 10 ? System.nanoTime() : 0;
-        copyMemory0(null, fromAddress, obj2, offset2, length);
+        copyMemoryLoop(null, fromAddress, obj2, offset2, length);
         if (length > 128 << 10) {
             long time = System.nanoTime() - start;
             if (time > 100_000)
@@ -993,7 +988,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void writeOrderedLong(long address, long i) {
         assert SKIP_ASSERTIONS || address != 0;
 //        assert (address & 0x7) == 0;
@@ -1001,7 +995,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void writeOrderedLong(@NotNull Object object, long offset, long i) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -1031,7 +1024,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public boolean compareAndSwapInt(long address, int expected, int value) {
         assert (address & 63) <= 64 - 4;
         assert SKIP_ASSERTIONS || address != 0;
@@ -1040,7 +1032,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public boolean compareAndSwapInt(@NotNull Object object, long offset, int expected, int value) {
         assert (offset & 63) <= 64 - 4;
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
@@ -1049,7 +1040,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public boolean compareAndSwapLong(long address, long expected, long value) {
         assert (address & 63) <= 64 - 8;
         assert SKIP_ASSERTIONS || address != 0;
@@ -1058,7 +1048,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public boolean compareAndSwapLong(@NotNull Object object, long offset, long expected, long value) {
         assert (offset & 63) <= 64 - 8;
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
@@ -1072,14 +1061,12 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public byte readVolatileByte(long address) {
         assert SKIP_ASSERTIONS || address != 0;
         return UNSAFE.getByteVolatile(null, address);
     }
 
     @Override
-    @ForceInline
     public byte readVolatileByte(@NotNull Object object, long offset) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -1087,7 +1074,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public short readVolatileShort(long address) {
         assert SKIP_ASSERTIONS || address != 0;
         // TODO add support for a short split across cache lines.
@@ -1095,7 +1081,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public short readVolatileShort(@NotNull Object object, long offset) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -1103,7 +1088,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public int readVolatileInt(long address) {
         assert SKIP_ASSERTIONS || address != 0;
         int value = UNSAFE.getIntVolatile(null, address);
@@ -1116,7 +1100,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public int readVolatileInt(@NotNull Object object, long offset) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -1124,7 +1107,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public float readVolatileFloat(long address) {
         assert SKIP_ASSERTIONS || address != 0;
         // TODO add support for a float split across cache lines.
@@ -1132,7 +1114,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public float readVolatileFloat(@NotNull Object object, long offset) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -1140,7 +1121,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public long readVolatileLong(long address) {
         assert SKIP_ASSERTIONS || address != 0;
         long value = UNSAFE.getLongVolatile(null, address);
@@ -1151,7 +1131,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public long readVolatileLong(@NotNull Object object, long offset) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -1159,7 +1138,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public double readVolatileDouble(long address) {
         assert SKIP_ASSERTIONS || address != 0;
         // TODO add support for a double split across cache lines.
@@ -1167,7 +1145,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public double readVolatileDouble(@NotNull Object object, long offset) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -1175,14 +1152,12 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void writeVolatileByte(long address, byte b) {
         assert SKIP_ASSERTIONS || address != 0;
         UNSAFE.putByteVolatile(null, address, b);
     }
 
     @Override
-    @ForceInline
     public void writeVolatileByte(@NotNull Object object, long offset, byte b) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -1190,14 +1165,12 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void writeVolatileShort(long address, short i16) {
         assert SKIP_ASSERTIONS || address != 0;
         UNSAFE.putShortVolatile(null, address, i16);
     }
 
     @Override
-    @ForceInline
     public void writeVolatileShort(@NotNull Object object, long offset, short i16) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -1205,7 +1178,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void writeVolatileInt(long address, int i32) {
         assert SKIP_ASSERTIONS || address != 0;
 //        assert (address & 0x3) == 0;
@@ -1213,7 +1185,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void writeVolatileInt(@NotNull Object object, long offset, int i32) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -1221,7 +1192,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void writeVolatileFloat(long address, float f) {
         assert SKIP_ASSERTIONS || address != 0;
 //        assert (address & 0x3) == 0;
@@ -1229,7 +1199,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void writeVolatileFloat(@NotNull Object object, long offset, float f) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -1237,7 +1206,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void writeVolatileLong(long address, long i64) {
         assert SKIP_ASSERTIONS || address != 0;
 //        assert (address & 0x7) == 0;
@@ -1245,7 +1213,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void writeVolatileLong(@NotNull Object object, long offset, long i64) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -1253,7 +1220,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void writeVolatileDouble(long address, double d) {
         assert SKIP_ASSERTIONS || address != 0;
 //        assert (address & 0x7) == 0;
@@ -1262,7 +1228,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public void writeVolatileDouble(@NotNull Object object, long offset, double d) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         requireNonNull(object);
@@ -1270,7 +1235,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public int addInt(long address, int increment) {
         assert SKIP_ASSERTIONS || address != 0;
 //        assert (address & 0x3) == 0;
@@ -1278,7 +1242,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public int addInt(@NotNull Object object, long offset, int increment) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
 //        assert (offset & 0x3) == 0;
@@ -1287,7 +1250,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public long addLong(long address, long increment) {
         assert SKIP_ASSERTIONS || address != 0;
 //        assert (address & 0x7) == 0;
@@ -1295,7 +1257,6 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    @ForceInline
     public long addLong(@NotNull Object object, long offset, long increment) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
 //        assert (offset & 0x7) == 0;

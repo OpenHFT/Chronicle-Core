@@ -20,7 +20,6 @@ package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
-import net.openhft.chronicle.core.annotation.ForceInline;
 import net.openhft.chronicle.core.annotation.Java9;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -116,7 +115,6 @@ public final class StringUtils {
         return true;
     }
 
-    @ForceInline
     public static boolean isEqual(@Nullable CharSequence s, @Nullable CharSequence cs) {
         if (s instanceof StringBuilder) {
             return isEqual((StringBuilder) s, cs);
@@ -142,7 +140,6 @@ public final class StringUtils {
         }
     }
 
-    @ForceInline
     public static boolean isEqual(@Nullable StringBuilder s, @Nullable CharSequence cs) {
         if (s == cs)
             return true;
@@ -166,7 +163,6 @@ public final class StringUtils {
         }
     }
 
-    @ForceInline
     public static boolean equalsCaseIgnore(@Nullable CharSequence s, @NotNull CharSequence cs) {
         if (s == null) return false;
         if (s.length() != cs.length()) return false;
@@ -178,7 +174,6 @@ public final class StringUtils {
     }
 
     @Nullable
-    @ForceInline
     public static String toString(@Nullable Object o) {
         return o == null ? null : o.toString();
     }

@@ -123,9 +123,9 @@ public class Main {
         chars[2][13] = (char) 0x80;
         chars[3][20] = (char) 0x80;
 
-        UNSAFE.putByte(addr[1] + 1, (byte) 0x80);
-        UNSAFE.putByte(addr[2] + 13, (byte) 0x80);
-        UNSAFE.putByte(addr[3] + 20, (byte) 0x80);
+        MEMORY.writeByte(addr[1] + 1, (byte) 0x80);
+        MEMORY.writeByte(addr[2] + 13, (byte) 0x80);
+        MEMORY.writeByte(addr[3] + 20, (byte) 0x80);
     }
 */
 
