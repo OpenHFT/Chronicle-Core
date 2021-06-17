@@ -1016,6 +1016,7 @@ public enum Jvm {
      *
      * @param signalHandler to call on a signal
      */
+    @Deprecated(/* to be removed in x.23*/)
     public static void signalHandler(final sun.misc.SignalHandler signalHandler) {
         final sun.misc.SignalHandler signalHandler2 = signal -> {
             Jvm.warn().on(signalHandler.getClass(), "Signal " + signal.getName() + " triggered");
@@ -1025,9 +1026,17 @@ public enum Jvm {
         InitSignalHandlers.init();
     }
 
-    public static void signalHandler(final SignalHandler signalHandler) {
+    /**
+     * Adds the provided {@code signalHandler} to an internal chain of handlers that will be invoked
+     * upon detecting system signals (e.g. HUP, INT, TERM).
+     * <p>
+     * Not all signals are available on all operating systems.
+     *
+     * @param signalHandler to call on a signal
+     */
+    public static void addSignalHandler(final SignalHandler signalHandler) {
         final SignalHandler signalHandler2 = signal -> {
-            Jvm.warn().on(signalHandler.getClass(), "Signal " + signal + " triggered");
+            Jvm.warn().on(signalHandler.getClass(), "Signal " + signal + " triggered for " + signalHandler);
             signalHandler.handle(signal);
         };
         signalHandlerGlobal.handlers2.add(signalHandler2);

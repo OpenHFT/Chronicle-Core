@@ -123,7 +123,7 @@ public class JvmTest {
     @Test
     public void enableSignals() {
         Jvm.signalHandler((Signal signal) -> System.out.println(signal + " occurred"));
-        Jvm.signalHandler((String signal) -> System.out.println(signal + " occurred"));
+        Jvm.addSignalHandler((String signal) -> System.out.println(signal + " occurred"));
     }
 
     @Test
