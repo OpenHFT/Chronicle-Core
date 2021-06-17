@@ -226,6 +226,8 @@ public interface Memory {
     @Deprecated(/* to be removed in x.22 */)
     void setInt(@NotNull Object o, long offset, int value);
 
+    void putObject(Object o, long offset, Object value);
+
     @NotNull <T> T getObject(@NotNull Object o, long offset);
 
     int arrayBaseOffset(Class<?> type);

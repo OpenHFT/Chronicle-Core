@@ -312,6 +312,13 @@ public class UnsafeMemory implements Memory {
         UNSAFE.putInt(object, offset, value);
     }
 
+    @Override
+    public void putObject(Object o, long offset, Object value) {
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
+        requireNonNull(o);
+        UNSAFE.putObject(o, offset, value);
+    }
+
     @NotNull
     @Override
     public <T> T getObject(@NotNull Object object, long offset) {
