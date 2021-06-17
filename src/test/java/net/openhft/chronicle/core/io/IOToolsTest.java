@@ -6,6 +6,7 @@ import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.Time;
 import org.junit.Assume;
 import org.junit.Test;
+import sun.nio.ch.IOStatus;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -120,5 +121,29 @@ public class IOToolsTest extends CoreTestCommon {
             assertSame(IOException.class, ioe.getClass());
             assertTrue(ioe.getMessage().startsWith("Cannot create a directory with the same name as a file "));
         }
+    }
+
+    @Test
+    public void isDirectBuffer() {
+        assertTrue(IOTools.isDirectBuffer(ByteBuffer.allocateDirect(1)));
+        assertFalse(IOTools.isDirectBuffer(ByteBuffer.allocate(1)));
+    }
+
+    @Test
+    public void addressFor() {
+        assertTrue(IOTools.addressFor(ByteBuffer.allocateDirect(1)) != 0L);
+        try {
+            IOTools.addressFor(ByteBuffer.allocate(1));
+            fail();
+        } catch (ClassCastException cce) {
+            // expected
+        }
+    }
+
+    @Test
+    public void normaliseIOStatus() {
+        assertEquals(-3, IOTools.IOSTATUS_INTERRUPTED);
+
+        assertEquals(-3, IOStatus.normalize(-3));
     }
 }

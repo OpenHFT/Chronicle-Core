@@ -24,6 +24,8 @@ import net.openhft.chronicle.core.cleaner.CleanerServiceLocator;
 import net.openhft.chronicle.core.util.Time;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import sun.nio.ch.DirectBuffer;
+import sun.nio.ch.IOStatus;
 
 import java.io.*;
 import java.lang.reflect.Field;
@@ -292,5 +294,19 @@ public final class IOTools {
                 Jvm.warn().on(IOTools.class, e);
             }
         }
+    }
+
+    public static final int IOSTATUS_INTERRUPTED = IOStatus.INTERRUPTED;
+
+    public static boolean isDirectBuffer(ByteBuffer byteBuffer) {
+        return byteBuffer instanceof DirectBuffer;
+    }
+
+    public static long addressFor(ByteBuffer byteBuffer) {
+        return ((DirectBuffer) byteBuffer).address();
+    }
+
+    public static int normaliseIOStatus(int n) {
+        return IOStatus.normalize(n);
     }
 }
