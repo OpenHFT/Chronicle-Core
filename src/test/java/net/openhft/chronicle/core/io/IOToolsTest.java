@@ -6,7 +6,6 @@ import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.Time;
 import org.junit.Assume;
 import org.junit.Test;
-import sun.nio.ch.IOStatus;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -144,6 +143,6 @@ public class IOToolsTest extends CoreTestCommon {
     public void normaliseIOStatus() {
         assertEquals(-3, IOTools.IOSTATUS_INTERRUPTED);
 
-        assertEquals(-3, IOStatus.normalize(-3));
+        assertEquals(-3, IOTools.normaliseIOStatus(-3));
     }
 }
