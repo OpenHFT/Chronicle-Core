@@ -25,6 +25,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import sun.misc.Signal;
 import sun.nio.ch.DirectBuffer;
 
 import javax.naming.ConfigurationException;
@@ -121,7 +122,8 @@ public class JvmTest {
 
     @Test
     public void enableSignals() {
-        Jvm.signalHandler(signal -> System.out.println(signal + " occurred"));
+        Jvm.signalHandler((Signal signal) -> System.out.println(signal + " occurred"));
+        Jvm.signalHandler((String signal) -> System.out.println(signal + " occurred"));
     }
 
     @Test

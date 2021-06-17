@@ -27,7 +27,6 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.misc.Signal;
-import sun.misc.SignalHandler;
 import sun.misc.Unsafe;
 import sun.nio.ch.DirectBuffer;
 import sun.nio.ch.Interruptible;
@@ -1017,21 +1016,25 @@ public enum Jvm {
      *
      * @param signalHandler to call on a signal
      */
-    public static void signalHandler(final SignalHandler signalHandler) {
-        if (signalHandlerGlobal.handlers.isEmpty()) {
-            if (!OS.isWindows()) // not available on windows.
-                addSignalHandler("HUP", signalHandlerGlobal);
-            addSignalHandler("INT", signalHandlerGlobal);
-            addSignalHandler("TERM", signalHandlerGlobal);
-        }
-        final SignalHandler signalHandler2 = signal -> {
+    public static void signalHandler(final sun.misc.SignalHandler signalHandler) {
+        final sun.misc.SignalHandler signalHandler2 = signal -> {
             Jvm.warn().on(signalHandler.getClass(), "Signal " + signal.getName() + " triggered");
             signalHandler.handle(signal);
         };
         signalHandlerGlobal.handlers.add(signalHandler2);
+        InitSignalHandlers.init();
     }
 
-    private static void addSignalHandler(final String sig, final SignalHandler signalHandler) {
+    public static void signalHandler(final SignalHandler signalHandler) {
+        final SignalHandler signalHandler2 = signal -> {
+            Jvm.warn().on(signalHandler.getClass(), "Signal " + signal + " triggered");
+            signalHandler.handle(signal);
+        };
+        signalHandlerGlobal.handlers2.add(signalHandler2);
+        InitSignalHandlers.init();
+    }
+
+    private static void addSignalHandler(final String sig, final sun.misc.SignalHandler signalHandler) {
         try {
             Signal.handle(new Signal(sig), signalHandler);
 
@@ -1041,6 +1044,15 @@ public enum Jvm {
             // System.exit()
             Jvm.warn().on(signalHandler.getClass(), "Unable add a signal handler", e);
         }
+    }
+
+    public interface SignalHandler {
+        /**
+         * Handle a Signal
+         *
+         * @param signal to handle
+         */
+        void handle(String signal);
     }
 
     /**
@@ -1528,15 +1540,38 @@ public enum Jvm {
         }
     }
 
-    static final class ChainedSignalHandler implements SignalHandler {
-        final List<SignalHandler> handlers = new CopyOnWriteArrayList<>();
+    static final class InitSignalHandlers {
+        static {
+            if (!OS.isWindows()) // not available on windows.
+                addSignalHandler("HUP", signalHandlerGlobal);
+            addSignalHandler("INT", signalHandlerGlobal);
+            addSignalHandler("TERM", signalHandlerGlobal);
+
+        }
+
+        static void init() {
+            // trigger static block
+        }
+    }
+
+    static final class ChainedSignalHandler implements sun.misc.SignalHandler {
+        final List<sun.misc.SignalHandler> handlers = new CopyOnWriteArrayList<>();
+        final List<SignalHandler> handlers2 = new CopyOnWriteArrayList<>();
 
         @Override
         public void handle(final Signal signal) {
-            for (SignalHandler handler : handlers) {
+            for (sun.misc.SignalHandler handler : handlers) {
                 try {
                     if (handler != null)
                         handler.handle(signal);
+                } catch (Throwable t) {
+                    Jvm.warn().on(this.getClass(), "Problem handling signal", t);
+                }
+            }
+            for (SignalHandler handler : handlers2) {
+                try {
+                    if (handler != null)
+                        handler.handle(signal.getName());
                 } catch (Throwable t) {
                     Jvm.warn().on(this.getClass(), "Problem handling signal", t);
                 }
