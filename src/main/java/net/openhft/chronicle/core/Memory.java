@@ -20,6 +20,7 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.annotation.Positive;
 import org.jetbrains.annotations.NotNull;
+import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
 
@@ -46,9 +47,9 @@ public interface Memory {
      *
      * @param capacity to allocate
      * @return the low level base address of the newly allocated
-     *         memory region
+     * memory region
      * @throws IllegalArgumentException if the capacity is non-positive
-     * @throws OutOfMemoryError if there are not enough memory to allocate
+     * @throws OutOfMemoryError         if there are not enough memory to allocate
      */
     long allocate(@Positive long capacity);
 
@@ -226,4 +227,17 @@ public interface Memory {
     void setInt(@NotNull Object o, long offset, int value);
 
     @NotNull <T> T getObject(@NotNull Object o, long offset);
+
+    /**
+     * @param type of primitive or a reference
+     * @return the number of bytes this type uses.
+     */
+    static int sizeOf(Class<?> type) {
+        return type == void.class ? 0
+                : type == boolean.class || type == byte.class ? 1
+                : type == short.class || type == char.class ? 2
+                : type == int.class || type == float.class ? 4
+                : type == long.class || type == double.class ? 8
+                : Unsafe.ARRAY_OBJECT_INDEX_SCALE;
+    }
 }
