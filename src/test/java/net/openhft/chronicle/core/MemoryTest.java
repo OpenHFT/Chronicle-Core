@@ -20,6 +20,9 @@ package net.openhft.chronicle.core;
 
 import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
+import sun.misc.Unsafe;
+
+import static org.junit.Assert.assertEquals;
 
 public class MemoryTest {
 
@@ -41,5 +44,18 @@ public class MemoryTest {
         } finally {
             memory.freeMemory(address, 1024);
         }
+    }
+
+    @Test
+    public void sizeOf() {
+        assertEquals(Unsafe.ARRAY_BOOLEAN_INDEX_SCALE, Memory.sizeOf(boolean.class));
+        assertEquals(Unsafe.ARRAY_BYTE_INDEX_SCALE, Memory.sizeOf(byte.class));
+        assertEquals(Unsafe.ARRAY_CHAR_INDEX_SCALE, Memory.sizeOf(char.class));
+        assertEquals(Unsafe.ARRAY_SHORT_INDEX_SCALE, Memory.sizeOf(short.class));
+        assertEquals(Unsafe.ARRAY_INT_INDEX_SCALE, Memory.sizeOf(int.class));
+        assertEquals(Unsafe.ARRAY_FLOAT_INDEX_SCALE, Memory.sizeOf(float.class));
+        assertEquals(Unsafe.ARRAY_DOUBLE_INDEX_SCALE, Memory.sizeOf(double.class));
+        assertEquals(Unsafe.ARRAY_LONG_INDEX_SCALE, Memory.sizeOf(long.class));
+        assertEquals(Unsafe.ARRAY_OBJECT_INDEX_SCALE, Memory.sizeOf(Long.class));
     }
 }

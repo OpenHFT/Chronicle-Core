@@ -2,6 +2,7 @@ package net.openhft.chronicle.core;
 
 import org.junit.Test;
 
+import java.lang.reflect.Field;
 import java.util.Random;
 
 import static net.openhft.chronicle.core.UnsafeMemory.MEMORY;
@@ -375,4 +376,20 @@ public class UnsafeMemoryTest {
         MEMORY.freeMemory(addr, 32);
         MEMORY.freeMemory(addr2, 32);
     }
+
+    @Test
+    public void arrayBaseOffset() {
+        assertEquals(12, MEMORY.arrayBaseOffset(byte[].class), 4);
+    }
+
+    @Test
+    public void objectFieldOffset() throws NoSuchFieldException {
+        Field num = MyDTO.class.getDeclaredField("num");
+        assertEquals(12, MEMORY.objectFieldOffset(num), 4);
+    }
+
+    static class MyDTO {
+        int num;
+    }
+
 }

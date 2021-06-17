@@ -1687,4 +1687,14 @@ public class UnsafeMemory implements Memory {
             throw new AssertionError(MIS_ALIGNED);
         }
     }
+
+    @Override
+    public int arrayBaseOffset(Class<?> type) {
+        return UNSAFE.arrayBaseOffset(type);
+    }
+
+    @Override
+    public long objectFieldOffset(Field field) {
+        return UNSAFE.objectFieldOffset(field);
+    }
 }

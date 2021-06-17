@@ -228,6 +228,10 @@ public interface Memory {
 
     @NotNull <T> T getObject(@NotNull Object o, long offset);
 
+    int arrayBaseOffset(Class<?> type);
+
+    long objectFieldOffset(Field field);
+
     /**
      * @param type of primitive or a reference
      * @return the number of bytes this type uses.
