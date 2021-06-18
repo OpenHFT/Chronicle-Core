@@ -33,7 +33,7 @@ public class CleaningRandomAccessFileTest {
     public void resourceLeak() throws IOException {
         File tempDir = IOTools.createTempFile("resourceLeak");
         tempDir.mkdir();
-        int repeat = Jvm.isArm() ? 10 : 50;
+        int repeat = Jvm.isArm() ? 6 : 50;
         for (int j = 0; j < repeat; j++) {
             int files = getFDs();
             if (files > 0) {
@@ -50,7 +50,7 @@ public class CleaningRandomAccessFileTest {
             System.gc();
             for (int i = 0; i < 40; i++) {
                 Jvm.pause(20);
-                if (getFDs() < 400) {
+                if (getFDs() < 200) {
                     double time = (System.currentTimeMillis() - start) / 1e3;
                     if (time > 0.1)
                         System.out.println("resourceLeak() - Took " + time + " seconds.");
