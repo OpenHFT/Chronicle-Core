@@ -4,6 +4,7 @@
 
 package net.openhft.chronicle.core.watcher;
 
+import net.openhft.chronicle.core.FlakyTestRunner;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.io.IOTools;
@@ -42,6 +43,10 @@ public class FileSystemWatcherTest {
 
     @Test
     public void bootstrapAndUpdate() throws IOException {
+        FlakyTestRunner.run(Jvm.isArm(), this::bootstrapAndUpdate0);
+    }
+
+    public void bootstrapAndUpdate0() throws IOException {
         /*
         This test fails on Windows and may also fail on MmcOS.
 
