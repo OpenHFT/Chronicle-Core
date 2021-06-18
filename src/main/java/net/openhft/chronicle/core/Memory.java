@@ -248,4 +248,6 @@ public interface Memory {
                 : type == long.class || type == double.class ? 8
                 : Unsafe.ARRAY_OBJECT_INDEX_SCALE;
     }
+
+    boolean safeAlignedInt(long addr);
 }

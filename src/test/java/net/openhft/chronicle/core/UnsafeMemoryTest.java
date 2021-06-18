@@ -386,6 +386,16 @@ public class UnsafeMemoryTest {
     }
 
     @Test
+    public void safeAlignTest() {
+        for (int i = -1; i < 70; i++) {
+            if (Jvm.isArm())
+                assertEquals(i % 4 == 0, MEMORY.safeAlignedInt(i));
+            else
+                assertEquals((i & 63) + 4 <= 64, MEMORY.safeAlignedInt(i));
+        }
+    }
+
+    @Test
     public void arrayBaseOffset() {
         assertEquals(12, MEMORY.arrayBaseOffset(byte[].class), 4);
     }

@@ -1333,6 +1333,21 @@ public class UnsafeMemory implements Memory {
         return true;
     }
 
+    @Override
+    public boolean safeAlignedInt(long addr) {
+        return (addr & 63) <= 60;
+    }
+
+    @Override
+    public int arrayBaseOffset(Class<?> type) {
+        return UNSAFE.arrayBaseOffset(type);
+    }
+
+    @Override
+    public long objectFieldOffset(Field field) {
+        return UNSAFE.objectFieldOffset(field);
+    }
+
     // https://github.com/OpenHFT/OpenHFT/issues/23
     private static class ARMMemory extends UnsafeMemory {
         @Override
@@ -1492,7 +1507,7 @@ public class UnsafeMemory implements Memory {
                     UNSAFE.storeFence();
                     return;
                 }
-                throw new IllegalStateException("Cannot perform thread safe operation at " + offset + " as mis-aligned");
+                throw new IllegalStateException("Cannot change at " + offset + " expected " + expected + " was " + actual + " (mis-aligned)");
             }
         }
 
@@ -1654,15 +1669,10 @@ public class UnsafeMemory implements Memory {
                 return super.compareAndSwapLong(address, expected, value);
             throw new AssertionError(MIS_ALIGNED);
         }
-    }
 
-    @Override
-    public int arrayBaseOffset(Class<?> type) {
-        return UNSAFE.arrayBaseOffset(type);
-    }
-
-    @Override
-    public long objectFieldOffset(Field field) {
-        return UNSAFE.objectFieldOffset(field);
+        @Override
+        public boolean safeAlignedInt(long addr) {
+            return (addr & 3) == 0;
+        }
     }
 }
