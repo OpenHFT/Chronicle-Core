@@ -96,7 +96,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     }
 
     public void callOnRelease() throws ClosedIllegalStateException {
-        if (released)
+        if (released && !Jvm.supportThread())
             throw new ClosedIllegalStateException(type.getName() + " already released");
         released = true;
         onRelease.run();
@@ -107,6 +107,8 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         for (; ; ) {
             int v = value;
             if (v <= 0) {
+                if (Jvm.supportThread())
+                    break;
                 throw new ClosedIllegalStateException(type.getName() + " released");
             }
             if (v > 1) {

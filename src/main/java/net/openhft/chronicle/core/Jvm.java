@@ -1666,4 +1666,9 @@ public enum Jvm {
     public static boolean isAssertEnabled() {
         return ASSERT_ENABLED;
     }
+
+    public static boolean supportThread() {
+        String name = Thread.currentThread().getName();
+        return "Finalizer".equals(name) || name.contains("~");
+    }
 }
