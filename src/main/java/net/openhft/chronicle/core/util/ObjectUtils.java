@@ -389,6 +389,17 @@ public enum ObjectUtils {
         throw new UnsupportedOperationException("Cannot convert " + o.getClass() + " to " + eClass);
     }
 
+
+    @NotNull
+    public static <T> T newInstance(@NotNull String className) {
+        try {
+            Supplier cons = supplierClassLocal.get(Class.forName(className));
+            return (T) cons.get();
+        } catch (ClassNotFoundException e) {
+            throw new AssertionError(e);
+        }
+    }
+
     @NotNull
     public static <T> T newInstance(@NotNull Class<T> clazz) {
         Supplier cons = supplierClassLocal.get(clazz);
