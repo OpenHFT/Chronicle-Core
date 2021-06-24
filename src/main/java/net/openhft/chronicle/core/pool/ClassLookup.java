@@ -40,7 +40,7 @@ public interface ClassLookup {
         return new ClassAliasPool(this, loader);
     }
 
-    @Deprecated(/* to be removed in x.22 */)
+    // used in Datagrid
     @NotNull
     default ClassLookup wrap() {
         return new ClassAliasPool(this);
