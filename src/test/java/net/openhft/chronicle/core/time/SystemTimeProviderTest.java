@@ -113,7 +113,6 @@ public class SystemTimeProviderTest {
         }
     }
 
-
     @Test
     public void resolution() {
         for (int j = 0; j < 3; j++) {

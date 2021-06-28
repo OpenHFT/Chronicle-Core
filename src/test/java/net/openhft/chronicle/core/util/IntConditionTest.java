@@ -8,7 +8,8 @@ import java.util.Arrays;
 import java.util.Map;
 
 import static net.openhft.chronicle.core.internal.invariant.ints.IntCondition.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class IntConditionTest {
 
@@ -79,7 +80,6 @@ public class IntConditionTest {
                 entry(-2, false)
         );
     }
-
 
     private void test(IntCondition predicate,
                       IntCondition negatedPredicate,

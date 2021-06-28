@@ -52,7 +52,6 @@ public enum IntBiCondition implements IntBiPredicate {
         }
     }
 
-
     @Override
     public String toString() {
         return operation;

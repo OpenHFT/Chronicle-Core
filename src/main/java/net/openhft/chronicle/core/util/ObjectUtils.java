@@ -388,7 +388,6 @@ public enum ObjectUtils {;
         throw new UnsupportedOperationException("Cannot convert " + o.getClass() + " to " + eClass);
     }
 
-
     @NotNull
     public static <T> T newInstance(@NotNull String className) {
         try {

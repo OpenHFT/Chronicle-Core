@@ -52,7 +52,6 @@ public enum LongBiCondition implements LongBiPredicate {
         }
     }
 
-
     @Override
     public String toString() {
         return operation;
