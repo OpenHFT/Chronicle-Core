@@ -4,20 +4,16 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.announcer.Announcer;
 import net.openhft.chronicle.core.pom.PomProperties;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-public enum InternalAnnouncer {
-    ;
+public enum InternalAnnouncer {;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(Announcer.class);
     private static final boolean DISABLE_ANNOUNCEMENT = Optional.ofNullable(System.getProperty("chronicle.announcer.disable")).filter("true"::equals).isPresent();
-    private static final Consumer<String> LINE_PRINTER = DISABLE_ANNOUNCEMENT ? s -> {} : LOGGER::info;
+    private static final Consumer<String> LINE_PRINTER = DISABLE_ANNOUNCEMENT ? s -> {} : m -> Jvm.startup().on(InternalAnnouncer.class, m);
     private static final AtomicBoolean JVM_ANNOUNCED = new AtomicBoolean();
     private static final Map<String, Set<String>> ANNOUNCED_GROUP_IDS = new ConcurrentHashMap<>();
 

@@ -14,8 +14,7 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
-public enum StandardMaps {
-    ;
+public enum StandardMaps {;
 
     private static final long GIB = 1L << 30;
 

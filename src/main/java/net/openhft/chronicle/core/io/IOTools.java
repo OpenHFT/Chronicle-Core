@@ -106,7 +106,6 @@ public final class IOTools {
      * Canonical usage is to call this *before* your test so you fail fast if you can't delete
      *
      * @param dirs dirs
-     * @throws IORuntimeException
      */
     public static void deleteDirWithFilesOrThrow(@NotNull File... dirs) throws IORuntimeException {
         for (File dir : dirs)

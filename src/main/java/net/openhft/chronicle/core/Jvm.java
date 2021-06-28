@@ -61,8 +61,7 @@ import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 /**
  * Utility class to access information in the JVM.
  */
-public enum Jvm {
-    ;
+public enum Jvm {;
 
     public static final String JAVA_CLASS_PATH = "java.class.path";
     public static final String SYSTEM_PROPERTIES = "system.properties";
@@ -969,6 +968,10 @@ public enum Jvm {
 
     public static boolean isDebugEnabled(final Class<?> aClass) {
         return DEBUG.isEnabled(aClass) || isDebug();
+    }
+
+    public static boolean isPerfEnabled(final Class<?> aClass) {
+        return PERF.isEnabled(aClass);
     }
 
     private static long maxDirectMemory0() {

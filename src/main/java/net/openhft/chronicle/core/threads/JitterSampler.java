@@ -17,6 +17,8 @@
  */
 package net.openhft.chronicle.core.threads;
 
+import net.openhft.chronicle.core.Jvm;
+
 import java.util.concurrent.TimeUnit;
 
 public final class JitterSampler {
@@ -33,7 +35,7 @@ public final class JitterSampler {
     static volatile long time = Long.MAX_VALUE;
 
     public static void atStage(String desc) {
-        System.out.println("atStage " + desc);
+        Jvm.startup().on(JitterSampler.class, "atStage " + desc);
         JitterSampler.desc = desc;
         thread = Thread.currentThread();
         time = System.nanoTime();
@@ -68,7 +70,7 @@ public final class JitterSampler {
     }
 
     public static void finished() {
-        System.out.println("finished");
+        Jvm.startup().on(JitterSampler.class, "finished");
         thread = null;
         desc = "finished";
         time = Long.MAX_VALUE;

@@ -38,8 +38,7 @@ import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
 import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.MAYBE;
 import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
 
-public enum ObjectUtils {
-    ;
+public enum ObjectUtils {;
 
     static final Map<Class, Class> primMap = new LinkedHashMap<Class, Class>() {{
         put(boolean.class, Boolean.class);

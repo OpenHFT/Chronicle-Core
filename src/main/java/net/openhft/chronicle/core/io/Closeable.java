@@ -73,7 +73,7 @@ public interface Closeable extends java.io.Closeable, QueryCloseable {
         if (!isClosing()) {
             if (Jvm.isResourceTracing() && !DISABLE_DISCARD_WARNING) {
                 ExceptionHandler warn = Jvm.getBoolean("warnAndCloseIfNotClosed") ? Jvm.warn() : Slf4jExceptionHandler.WARN;
-                warn.on(getClass(), "Discarded without closing " + toString());
+                warn.on(getClass(), "Discarded without closing " + this);
             }
             Closeable.closeQuietly(this);
         }
