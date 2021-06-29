@@ -2,7 +2,8 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 
-public enum FlakyTestRunner {;
+public enum FlakyTestRunner {
+    ; // none
 
     static boolean IN_RUN = false;
 

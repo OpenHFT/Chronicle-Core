@@ -10,10 +10,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-public enum InternalAnnouncer {;
+public enum InternalAnnouncer {
+    ; // none
 
     private static final boolean DISABLE_ANNOUNCEMENT = Optional.ofNullable(System.getProperty("chronicle.announcer.disable")).filter("true"::equals).isPresent();
-    private static final Consumer<String> LINE_PRINTER = DISABLE_ANNOUNCEMENT ? s -> {} : m -> Jvm.startup().on(InternalAnnouncer.class, m);
+    private static final Consumer<String> LINE_PRINTER = DISABLE_ANNOUNCEMENT ? s -> {
+    } : m -> Jvm.startup().on(InternalAnnouncer.class, m);
     private static final AtomicBoolean JVM_ANNOUNCED = new AtomicBoolean();
     private static final Map<String, Set<String>> ANNOUNCED_GROUP_IDS = new ConcurrentHashMap<>();
 

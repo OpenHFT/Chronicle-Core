@@ -61,7 +61,8 @@ import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 /**
  * Utility class to access information in the JVM.
  */
-public enum Jvm {;
+public enum Jvm {
+    ; // none
 
     public static final String JAVA_CLASS_PATH = "java.class.path";
     public static final String SYSTEM_PROPERTIES = "system.properties";

@@ -4,7 +4,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public enum IOBenchmarkMain {;
+public enum IOBenchmarkMain {
+    ; // none
 
     public static void main(String[] args) throws IOException {
         String path = args.length > 0 ? args[0] : ".";

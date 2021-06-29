@@ -35,7 +35,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public enum Mocker {;
+public enum Mocker {
+    ; // none
 
     private static final Class[] NO_CLASSES = new Class[0];
 

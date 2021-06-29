@@ -7,7 +7,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
-public enum InternalPomProperties {;
+public enum InternalPomProperties {
+    ; // none
 
     private static final Map<String, String> VERSION_CACHE = new ConcurrentHashMap<>();
 

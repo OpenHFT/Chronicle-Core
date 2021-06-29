@@ -3,7 +3,8 @@ package net.openhft.chronicle.core;
 /**
  * Contains the pieces which must be loaded first
  */
-enum Bootstrap {;
+enum Bootstrap {
+    ; // none
 
     public static final String OS_ARCH = System.getProperty("os.arch", "?");
     public static final String VM_VENDOR = System.getProperty("java.vm.vendor", "?");
