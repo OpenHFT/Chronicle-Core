@@ -28,6 +28,10 @@ public class DynamicEnumPooledClassTest {
         // check that asArray returns YesNo instances
         for (YesNo yesNo : yesNoEnumCache.asArray())
             assertEquals(yesNo.name(), yesNo.toString());
+
+        DynamicEnumClass<YesNo> dynamicEnumClass = (DynamicEnumClass<YesNo>) yesNoEnumCache;
+        dynamicEnumClass.reset();
+        assertEquals("[Yes, No]", Arrays.toString(yesNoEnumCache.asArray()));
     }
 
     @Test

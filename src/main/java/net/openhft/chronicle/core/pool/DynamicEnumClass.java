@@ -20,6 +20,7 @@ package net.openhft.chronicle.core.pool;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.CoreDynamicEnum;
+import org.jetbrains.annotations.TestOnly;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -37,13 +38,17 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
 
     DynamicEnumClass(Class<E> eClass) {
         super(eClass);
-        E[] enumConstants = eClass.isEnum() ? eClass.getEnumConstants() : getStaticConstants(eClass);
+        reset0();
+        nameField = Jvm.getField(eClass, "name");
+        ordinalField = Jvm.getFieldOrNull(eClass, "ordinal");
+    }
+
+    private void reset0() {
+        E[] enumConstants = type.isEnum() ? type.getEnumConstants() : getStaticConstants(type);
         for (E e : enumConstants) {
             eMap.put(e.name(), e);
             eList.add(e);
         }
-        nameField = Jvm.getField(eClass, "name");
-        ordinalField = Jvm.getFieldOrNull(eClass, "ordinal");
     }
 
     private E[] getStaticConstants(Class<E> eClass) {
@@ -118,5 +123,13 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
     public Set<E> createSet() {
         // see comment in createMap
         return new TreeSet<>();
+    }
+
+    @TestOnly
+    public void reset() {
+        values = null;
+        eMap.clear();
+        eList.clear();
+        reset0();
     }
 }
