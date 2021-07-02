@@ -1,213 +1,229 @@
 package net.openhft.chronicle.core;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Random;
 
-import static net.openhft.chronicle.core.UnsafeMemory.MEMORY;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 import static org.junit.Assert.*;
 
+@RunWith(Parameterized.class)
 public class UnsafeMemoryTest {
     static final long addr = UNSAFE.allocateMemory(128);
+    private final UnsafeMemory memory;
+
+    public UnsafeMemoryTest(UnsafeMemory memory) {
+        this.memory = memory;
+    }
+
+    @Parameterized.Parameters(name = "{0}")
+    public static Collection<Object[]> data() {
+        Object[][] ret = {{new UnsafeMemory()}, {new UnsafeMemory.ARMMemory()}};
+        return Arrays.asList(ret);
+    }
 
     @Test
     public void writeShort() {
-        for (int i = 0; i <= 64; i++)
-            MEMORY.writeShort(addr + i, (short) 0);
+        for (int i = 0; i <= 64; i++) {
+            memory.writeShort(addr + i, (short) 0);
+        }
     }
 
     @Test
     public void readShort() {
-        MEMORY.writeLong(addr, 0x123456789ABCDEFL);
-        assertEquals((short) 0xCDEF, MEMORY.readShort(addr));
-        assertEquals((short) 0xABCD, MEMORY.readShort(addr + 1));
+        memory.writeLong(addr, 0x123456789ABCDEFL);
+        assertEquals((short) 0xCDEF, memory.readShort(addr));
+        assertEquals((short) 0xABCD, memory.readShort(addr + 1));
     }
 
     @Test
     public void writeInt() {
         for (int i = 0; i <= 64; i++)
-            MEMORY.writeInt(addr + i, 0);
+            memory.writeInt(addr + i, 0);
     }
 
     @Test
     public void writeOrderedInt() {
         for (int i = 0; i <= 64; i++)
-            MEMORY.writeOrderedInt(addr + i, 0);
+            memory.writeOrderedInt(addr + i, 0);
     }
 
     @Test
     public void readInt() {
         for (int i = 0; i <= 64; i++)
-            MEMORY.readInt(addr + i);
+            memory.readInt(addr + i);
     }
 
     @Test
     public void writeLong() {
         for (int i = 0; i <= 64; i++)
-            MEMORY.writeLong(addr + i, 0);
+            memory.writeLong(addr + i, 0);
     }
 
     @Test
     public void readLong() {
         for (int i = 0; i <= 64; i++)
-            MEMORY.readLong(addr + i);
+            memory.readLong(addr + i);
     }
 
     @Test
     public void writeFloat() {
         for (int i = 0; i <= 64; i++)
-            MEMORY.writeFloat(addr + i, 0);
+            memory.writeFloat(addr + i, 0);
     }
 
     @Test
     public void readFloat() {
         for (int i = 0; i <= 64; i++)
-            MEMORY.readFloat(addr + i);
+            memory.readFloat(addr + i);
     }
 
     @Test
     public void writeDouble() {
         for (int i = 0; i <= 64; i++)
-            MEMORY.writeDouble(addr + i, 0);
+            memory.writeDouble(addr + i, 0);
     }
 
     @Test
     public void readDouble() {
         for (int i = 0; i <= 64; i++)
-            MEMORY.readDouble(addr + i);
+            memory.readDouble(addr + i);
     }
 
     @Test
     public void writeOrderedLong() {
         for (int i = 0; i <= 64; i += 8)
-            MEMORY.writeOrderedLong(addr + i, 0);
+            memory.writeOrderedLong(addr + i, 0);
     }
 
     @Test
     public void compareAndSwapInt() {
         for (int i = 0; i <= 64; i += 4)
-            MEMORY.compareAndSwapInt(addr + i, 0, 0);
+            memory.compareAndSwapInt(addr + i, 0, 0);
     }
 
     @Test
     public void compareAndSwapLong() {
         for (int i = 0; i <= 64; i += 8)
-            MEMORY.compareAndSwapLong(addr + i, 0, 0);
+            memory.compareAndSwapLong(addr + i, 0, 0);
     }
 
     @Test
     public void readVolatileByte() {
         for (int i = 0; i <= 64; i++)
-            MEMORY.readVolatileByte(addr + i);
+            memory.readVolatileByte(addr + i);
     }
 
     @Test
     public void readVolatileShort() {
         for (int i = 0; i <= 64; i += 2)
-            MEMORY.readVolatileShort(addr + i);
+            memory.readVolatileShort(addr + i);
     }
 
     @Test
     public void readVolatileInt() {
         for (int i = 0; i <= 64; i += 4)
-            MEMORY.readVolatileInt(addr + i);
+            memory.readVolatileInt(addr + i);
     }
 
     @Test
     public void readVolatileFloat() {
         for (int i = 0; i <= 64; i += 4)
-            MEMORY.readVolatileFloat(addr + i);
+            memory.readVolatileFloat(addr + i);
     }
 
     @Test
     public void readVolatileLong() {
         for (int i = 0; i <= 64; i += 8)
-            MEMORY.readVolatileLong(addr + i);
+            memory.readVolatileLong(addr + i);
     }
 
     @Test
     public void readVolatileDouble() {
         for (int i = 0; i <= 64; i += 8)
-            MEMORY.readVolatileDouble(addr + i);
+            memory.readVolatileDouble(addr + i);
     }
 
     @Test
     public void writeVolatileByte() {
         for (int i = 0; i <= 64; i++)
-            MEMORY.writeVolatileByte(addr + i, (byte) 0);
+            memory.writeVolatileByte(addr + i, (byte) 0);
     }
 
     @Test
     public void writeVolatileShort() {
         for (int i = 0; i <= 64; i += 2)
-            MEMORY.writeVolatileShort(addr + i, (short) 0);
+            memory.writeVolatileShort(addr + i, (short) 0);
     }
 
     @Test
     public void writeVolatileInt() {
         for (int i = 0; i <= 64; i += 4)
-            MEMORY.writeVolatileInt(addr + i, 0);
+            memory.writeVolatileInt(addr + i, 0);
     }
 
     @Test
     public void writeVolatileFloat() {
         for (int i = 0; i <= 64; i += 4)
-            MEMORY.writeVolatileFloat(addr + i, 0);
+            memory.writeVolatileFloat(addr + i, 0);
     }
 
     @Test
     public void writeVolatileLong() {
         for (int i = 0; i <= 64; i += 8)
-            MEMORY.writeVolatileLong(addr + i, 0L);
+            memory.writeVolatileLong(addr + i, 0L);
     }
 
     @Test
     public void writeVolatileDouble() {
         for (int i = 0; i <= 64; i += 8)
-            MEMORY.writeVolatileDouble(addr + i, 0);
+            memory.writeVolatileDouble(addr + i, 0);
     }
 
     @Test
     public void addInt() {
         for (int i = 0; i <= 64; i += 4)
-            MEMORY.addInt(addr + i, 0);
+            memory.addInt(addr + i, 0);
     }
 
     @Test
     public void addLong() {
         for (int i = 0; i <= 64; i += 8)
-            MEMORY.addLong(addr + i, 0);
+            memory.addLong(addr + i, 0);
     }
 
     @Test
     public void stopBitLengthInt() {
-        assertEquals(1, MEMORY.stopBitLength(0));
-        assertEquals(2, MEMORY.stopBitLength(~0));
+        assertEquals(1, memory.stopBitLength(0));
+        assertEquals(2, memory.stopBitLength(~0));
 
         for (int i = 7; i < 32; i += 7) {
             int j = 1 << i;
-            assertEquals(i / 7, MEMORY.stopBitLength(j - 1));
-            assertEquals(i / 7 + 1, MEMORY.stopBitLength(j));
-            assertEquals(i / 7 + 1, MEMORY.stopBitLength(-j));
-            assertEquals(i / 7 + 2, MEMORY.stopBitLength(~j));
+            assertEquals(i / 7, memory.stopBitLength(j - 1));
+            assertEquals(i / 7 + 1, memory.stopBitLength(j));
+            assertEquals(i / 7 + 1, memory.stopBitLength(-j));
+            assertEquals(i / 7 + 2, memory.stopBitLength(~j));
         }
     }
 
     @Test
     public void stopBitLengthLong() {
-        assertEquals(1, MEMORY.stopBitLength(0L));
-        assertEquals(2, MEMORY.stopBitLength(~0L));
+        assertEquals(1, memory.stopBitLength(0L));
+        assertEquals(2, memory.stopBitLength(~0L));
 
         for (int i = 7; i < 64; i += 7) {
             long j = 1L << i;
-            assertEquals(i / 7, MEMORY.stopBitLength(j - 1));
-            assertEquals(i / 7 + 1, MEMORY.stopBitLength(j));
-            assertEquals(i / 7 + 1, MEMORY.stopBitLength(-j));
+            assertEquals(i / 7, memory.stopBitLength(j - 1));
+            assertEquals(i / 7 + 1, memory.stopBitLength(j));
+            assertEquals(i / 7 + 1, memory.stopBitLength(-j));
             if (i < 63)
-                assertEquals(i / 7 + 2, MEMORY.stopBitLength(~j));
+                assertEquals(i / 7 + 2, memory.stopBitLength(~j));
         }
     }
 
@@ -215,11 +231,11 @@ public class UnsafeMemoryTest {
     public void is7BitBytes() {
         for (int i = 0; i <= 64; i++) {
             byte[] bytes = new byte[i];
-            assertTrue(MEMORY.is7Bit(bytes, 0, i));
+            assertTrue(memory.is7Bit(bytes, 0, i));
             if (i == 0)
                 continue;
             bytes[i - 1] = -1;
-            assertFalse(MEMORY.is7Bit(bytes, 0, i));
+            assertFalse(memory.is7Bit(bytes, 0, i));
         }
     }
 
@@ -235,10 +251,10 @@ public class UnsafeMemoryTest {
             int start = Math.min(a, b);
             int length = Math.abs(a - b);
             if (length == 0)
-                assertTrue(MEMORY.is7Bit(bytes, start, length));
+                assertTrue(memory.is7Bit(bytes, start, length));
             else
                 assertEquals("start: " + start + ", length: " + length, start + length <= 128,
-                        MEMORY.is7Bit(bytes, start, length));
+                        memory.is7Bit(bytes, start, length));
         }
     }
 
@@ -246,11 +262,11 @@ public class UnsafeMemoryTest {
     public void is7BitChars() {
         for (int i = 0; i <= 64; i++) {
             char[] chars = new char[i];
-            assertTrue(MEMORY.is7Bit(chars, 0, i));
+            assertTrue(memory.is7Bit(chars, 0, i));
             if (i == 0)
                 continue;
             chars[i - 1] = 0x8000;
-            assertFalse(MEMORY.is7Bit(chars, 0, i));
+            assertFalse(memory.is7Bit(chars, 0, i));
         }
     }
 
@@ -266,21 +282,21 @@ public class UnsafeMemoryTest {
             int start = Math.min(a, b);
             int length = Math.abs(a - b);
             if (length == 0)
-                assertTrue(MEMORY.is7Bit(chars, start, length));
+                assertTrue(memory.is7Bit(chars, start, length));
             else
                 assertEquals("start: " + start + ", length: " + length, start + length <= 128,
-                        MEMORY.is7Bit(chars, start, length));
+                        memory.is7Bit(chars, start, length));
         }
     }
 
     @Test
     public void is7BitAddr() {
         final long addr = UNSAFE.allocateMemory(64);
-        assertTrue(MEMORY.is7Bit(addr, 0));
+        assertTrue(memory.is7Bit(addr, 0));
         for (int i = 1; i <= 64; i++) {
-            MEMORY.writeByte(addr + i - 1, (byte) -1);
-            assertFalse(MEMORY.is7Bit(addr, i));
-            MEMORY.writeByte(addr + i - 1, (byte) 0);
+            memory.writeByte(addr + i - 1, (byte) -1);
+            assertFalse(memory.is7Bit(addr, i));
+            memory.writeByte(addr + i - 1, (byte) 0);
         }
         UNSAFE.freeMemory(addr);
     }
@@ -289,7 +305,7 @@ public class UnsafeMemoryTest {
     public void is7BitAddr2() {
         final long addr = UNSAFE.allocateMemory(256);
         for (int i = 0; i < 256; i++)
-            MEMORY.writeByte(addr + i, (byte) i);
+            memory.writeByte(addr + i, (byte) i);
 
         Random rand = new Random();
         for (int i = 0; i < 1000; i++) {
@@ -298,10 +314,10 @@ public class UnsafeMemoryTest {
             int start = Math.min(a, b);
             int length = Math.abs(a - b);
             if (length == 0)
-                assertTrue(MEMORY.is7Bit(addr + start, length));
+                assertTrue(memory.is7Bit(addr + start, length));
             else
                 assertEquals("start: " + start + ", length: " + length, start + length <= 128,
-                        MEMORY.is7Bit(addr + start, length));
+                        memory.is7Bit(addr + start, length));
         }
         UNSAFE.freeMemory(addr);
     }
@@ -311,9 +327,9 @@ public class UnsafeMemoryTest {
         byte[] bytes = new byte[16];
         for (int i = 0; i < bytes.length; i++)
             bytes[i] = (byte) (0x10 + i);
-        String s8 = Long.toHexString(MEMORY.partialRead(bytes, 0, 8));
+        String s8 = Long.toHexString(memory.partialRead(bytes, 0, 8));
         for (int i = 1; i < 8; i++) {
-            String s = Long.toHexString(MEMORY.partialRead(bytes, 0, i));
+            String s = Long.toHexString(memory.partialRead(bytes, 0, i));
             assertEquals(s8.substring(16 - i * 2), s);
         }
     }
@@ -323,8 +339,8 @@ public class UnsafeMemoryTest {
         byte[] bytes = new byte[16];
         for (int i = 0; i < 8; i++) {
             final long value = 0x1011121314151617L;
-            MEMORY.partialWrite(bytes, 0, value, i);
-            long l = MEMORY.partialRead(bytes, 0, 8);
+            memory.partialWrite(bytes, 0, value, i);
+            long l = memory.partialRead(bytes, 0, 8);
             long mask = (1L << (8 * i)) - 1;
             assertEquals("i: " + i, Long.toHexString(value & mask), Long.toHexString(l));
         }
@@ -332,247 +348,255 @@ public class UnsafeMemoryTest {
 
     @Test
     public void partialReadAddr() {
-        long addr = MEMORY.allocate(16);
+        long addr = memory.allocate(16);
         for (int i = 0; i < 16; i++)
-            MEMORY.writeByte(addr + i, (byte) (0x10 + i));
-        String s8 = Long.toHexString(MEMORY.partialRead(addr, 8));
+            memory.writeByte(addr + i, (byte) (0x10 + i));
+        String s8 = Long.toHexString(memory.partialRead(addr, 8));
         for (int i = 1; i < 8; i++) {
-            String s = Long.toHexString(MEMORY.partialRead(addr, i));
+            String s = Long.toHexString(memory.partialRead(addr, i));
             assertEquals(s8.substring(16 - i * 2), s);
         }
-        MEMORY.freeMemory(addr, 16);
+        memory.freeMemory(addr, 16);
     }
 
     @Test
     public void partialWriteAddr() {
-        long addr = MEMORY.allocate(16);
-        MEMORY.partialWrite(addr, 0, 8);
+        long addr = memory.allocate(16);
+        memory.partialWrite(addr, 0, 8);
         for (int i = 0; i < 8; i++) {
             final long value = 0x1011121314151617L;
-            MEMORY.partialWrite(addr, value, i);
-            long l = MEMORY.partialRead(addr, 8);
+            memory.partialWrite(addr, value, i);
+            long l = memory.partialRead(addr, 8);
             long mask = (1L << (8 * i)) - 1;
             assertEquals("i: " + i, Long.toHexString(value & mask), Long.toHexString(l));
         }
-        MEMORY.freeMemory(addr, 16);
+        memory.freeMemory(addr, 16);
     }
 
     @Test
     public void copyMemory() {
-        long addr = MEMORY.allocate(32);
-        long addr2 = MEMORY.allocate(32);
+        long addr = memory.allocate(32);
+        long addr2 = memory.allocate(32);
         final byte b1 = (byte) 0x7F;
         final byte b2 = (byte) 0x80;
-        MEMORY.setMemory(addr2, 32, b1);
+        memory.setMemory(addr2, 32, b1);
         for (int i = 1; i < 31; i++) {
             for (int j = i + 1; j < 31; j++) {
-                MEMORY.setMemory(addr, 32, b2);
-                MEMORY.copyMemory(addr2, addr + i, j - i);
-                assertEquals(b2, MEMORY.readByte(addr + i - 1));
-                assertEquals(b1, MEMORY.readByte(addr + i));
-                assertEquals(b1, MEMORY.readByte(addr + j - 1));
-                assertEquals(b2, MEMORY.readByte(addr + j));
+                memory.setMemory(addr, 32, b2);
+                memory.copyMemory(addr2, addr + i, j - i);
+                assertEquals(b2, memory.readByte(addr + i - 1));
+                assertEquals(b1, memory.readByte(addr + i));
+                assertEquals(b1, memory.readByte(addr + j - 1));
+                assertEquals(b2, memory.readByte(addr + j));
             }
         }
-        MEMORY.freeMemory(addr, 32);
-        MEMORY.freeMemory(addr2, 32);
+        memory.freeMemory(addr, 32);
+        memory.freeMemory(addr2, 32);
     }
 
     @Test
     public void address() {
-        assertNotEquals(0, MEMORY.address(ByteBuffer.allocateDirect(32)));
+        assertNotEquals(0, memory.address(ByteBuffer.allocateDirect(32)));
     }
 
     @Test
     public void setMemory() {
         long[] ds = new long[2];
-        MEMORY.setMemory(ds, MEMORY.arrayBaseOffset(long[].class), 2 * Long.BYTES, (byte) 1);
+        memory.setMemory(ds, memory.arrayBaseOffset(long[].class), 2 * Long.BYTES, (byte) 1);
         assertEquals(0x0101010101010101L, ds[0]);
         assertEquals(0x0101010101010101L, ds[1]);
     }
 
     @Test
     public void copyMemoryEachWay() {
-        long addr = MEMORY.allocate(32);
+        long addr = memory.allocate(32);
         long[] data = new long[4];
-        MEMORY.copyMemory(data, 0, addr, 32);
-        MEMORY.copyMemory(addr, data, 0, 32);
+        memory.copyMemory(data, 0, addr, 32);
+        memory.copyMemory(addr, data, 0, 32);
     }
 
     @Test
     public void safeAlignTest() {
         for (int i = -1; i < 70; i++) {
-            if (Jvm.isArm())
-                assertEquals(i % 4 == 0, MEMORY.safeAlignedInt(i));
+            if (memory instanceof UnsafeMemory.ARMMemory)
+                assertEquals(i % 4 == 0, memory.safeAlignedInt(i));
             else
-                assertEquals((i & 63) + 4 <= 64, MEMORY.safeAlignedInt(i));
+                assertEquals((i & 63) + 4 <= 64, memory.safeAlignedInt(i));
         }
     }
 
     @Test
     public void arrayBaseOffset() {
-        assertEquals(12, MEMORY.arrayBaseOffset(byte[].class), 4);
+        assertEquals(12, memory.arrayBaseOffset(byte[].class), 4);
     }
 
     @Test
     public void objectFieldOffset() throws NoSuchFieldException {
         Field num = MyDTO.class.getDeclaredField("num");
-        assertEquals(12, MEMORY.objectFieldOffset(num), 4);
+        assertEquals(12, memory.objectFieldOffset(num), 4);
     }
 
     @Test
     public void directMemoryByte() {
-        long memory = MEMORY.allocate(32);
-        MEMORY.writeByte(null, memory, (byte) 12);
-        assertEquals(12, MEMORY.readByte(null, memory));
-        MEMORY.freeMemory(memory, 32);
+        long memory = this.memory.allocate(32);
+        this.memory.writeByte(null, memory, (byte) 12);
+        assertEquals(12, this.memory.readByte(null, memory));
+        this.memory.freeMemory(memory, 32);
     }
 
     @Test
     public void directMemoryShort() {
-        long memory = MEMORY.allocate(32);
-        MEMORY.writeShort(null, memory, (short) 12345);
-        assertEquals(12345, MEMORY.readShort(null, memory));
-        MEMORY.freeMemory(memory, 32);
+        long memory = this.memory.allocate(32);
+        this.memory.writeShort(null, memory, (short) 12345);
+        assertEquals(12345, this.memory.readShort(null, memory));
+        this.memory.freeMemory(memory, 32);
     }
 
     @Test
     public void directMemoryInt() {
-        long memory = MEMORY.allocate(32);
-        MEMORY.writeInt(null, memory, 0x12345678);
-        assertEquals(0x12345678, MEMORY.readInt(null, memory));
-        MEMORY.freeMemory(memory, 32);
+        long memory = this.memory.allocate(32);
+        this.memory.writeInt(null, memory, 0x12345678);
+        assertEquals(0x12345678, this.memory.readInt(null, memory));
+        this.memory.freeMemory(memory, 32);
     }
 
     @Test
     public void directMemoryAddInt() {
-        long memory = MEMORY.allocate(32);
-        MEMORY.addInt(null, memory, 0x12345678);
-        MEMORY.freeMemory(memory, 32);
+        long memory = this.memory.allocate(32);
+        this.memory.addInt(null, memory, 0x12345678);
+        this.memory.freeMemory(memory, 32);
     }
 
     @Test
     public void directMemoryCASInt() {
-        long memory = MEMORY.allocate(32);
-        MEMORY.compareAndSwapInt(null, memory, 0, 0x12345678);
-        MEMORY.freeMemory(memory, 32);
+        long memory = this.memory.allocate(32);
+        this.memory.compareAndSwapInt(null, memory, 0, 0x12345678);
+        this.memory.freeMemory(memory, 32);
     }
 
     @Test
     public void directMemoryLong() {
-        long memory = MEMORY.allocate(32);
-        MEMORY.writeLong(null, memory, Long.MAX_VALUE);
-        assertEquals(Long.MAX_VALUE, MEMORY.readLong(null, memory));
-        MEMORY.freeMemory(memory, 32);
+        long memory = this.memory.allocate(32);
+        this.memory.writeLong(null, memory, Long.MAX_VALUE);
+        assertEquals(Long.MAX_VALUE, this.memory.readLong(null, memory));
+        this.memory.freeMemory(memory, 32);
     }
 
     @Test
     public void directMemoryAddLong() {
-        long memory = MEMORY.allocate(32);
-        MEMORY.addLong(null, memory, Long.MAX_VALUE);
-        MEMORY.freeMemory(memory, 32);
+        long memory = this.memory.allocate(32);
+        this.memory.addLong(null, memory, Long.MAX_VALUE);
+        this.memory.freeMemory(memory, 32);
     }
 
     @Test
     public void directMemoryCASLong() {
-        long memory = MEMORY.allocate(32);
-        MEMORY.compareAndSwapLong(null, memory, 0L, Long.MAX_VALUE);
-        MEMORY.freeMemory(memory, 32);
+        long memory = this.memory.allocate(32);
+        this.memory.compareAndSwapLong(null, memory, 0L, Long.MAX_VALUE);
+        this.memory.freeMemory(memory, 32);
     }
 
     @Test
     public void directMemoryFloat() {
-        long memory = MEMORY.allocate(32);
-        MEMORY.writeFloat(null, memory, 1.2345f);
-        assertEquals(1.2345f, MEMORY.readFloat(null, memory), 0f);
-        MEMORY.freeMemory(memory, 32);
+        long memory = this.memory.allocate(32);
+        this.memory.writeFloat(null, memory, 1.2345f);
+        assertEquals(1.2345f, this.memory.readFloat(null, memory), 0f);
+        this.memory.freeMemory(memory, 32);
     }
 
     @Test
     public void directMemoryDouble() {
-        long memory = MEMORY.allocate(32);
-        MEMORY.writeDouble(null, memory, 1.2345);
-        assertEquals(1.2345, MEMORY.readDouble(null, memory), 0f);
-        MEMORY.freeMemory(memory, 32);
+        long memory = this.memory.allocate(32);
+        this.memory.writeDouble(null, memory, 1.2345);
+        assertEquals(1.2345, this.memory.readDouble(null, memory), 0f);
+        this.memory.freeMemory(memory, 32);
     }
 
     @Test(expected = NullPointerException.class)
     public void directMemoryReference1() {
-        long memory = MEMORY.allocate(32);
+        long memory = this.memory.allocate(32);
         try {
-            MEMORY.putObject(null, memory, 1.2345);
+            this.memory.putObject(null, memory, 1.2345);
         } finally {
-            MEMORY.freeMemory(memory, 32);
+            this.memory.freeMemory(memory, 32);
         }
-        assertEquals(1.2345, MEMORY.getObject(null, memory), 0f);
+        assertEquals(1.2345, this.memory.getObject(null, memory), 0f);
     }
 
     @Test(expected = NullPointerException.class)
     public void directMemoryReference2() {
-        long memory = MEMORY.allocate(32);
+        long memory = this.memory.allocate(32);
         try {
-            MEMORY.getObject(null, memory);
+            this.memory.getObject(null, memory);
             fail();
         } finally {
-            MEMORY.freeMemory(memory, 32);
+            this.memory.freeMemory(memory, 32);
         }
     }
 
 
     @Test
     public void directMemoryVolatileByte() {
-        long memory = MEMORY.allocate(32);
-        MEMORY.writeVolatileByte(null, memory, (byte) 12);
-        assertEquals(12, MEMORY.readVolatileByte(null, memory));
-        MEMORY.freeMemory(memory, 32);
+        long memory = this.memory.allocate(32);
+        this.memory.writeVolatileByte(null, memory, (byte) 12);
+        assertEquals(12, this.memory.readVolatileByte(null, memory));
+        this.memory.freeMemory(memory, 32);
     }
 
     @Test
     public void directMemoryVolatileShort() {
-        long memory = MEMORY.allocate(32);
-        MEMORY.writeVolatileShort(null, memory, (short) 12345);
-        assertEquals(12345, MEMORY.readVolatileShort(null, memory));
-        MEMORY.freeMemory(memory, 32);
+        long memory = this.memory.allocate(32);
+        this.memory.writeVolatileShort(null, memory, (short) 12345);
+        assertEquals(12345, this.memory.readVolatileShort(null, memory));
+        this.memory.freeMemory(memory, 32);
     }
 
     @Test
     public void directMemoryVolatileInt() {
-        long memory = MEMORY.allocate(32);
-        MEMORY.writeVolatileInt(null, memory, 0x12345678);
-        assertEquals(0x12345678, MEMORY.readVolatileInt(null, memory));
-        MEMORY.freeMemory(memory, 32);
+        long memory = this.memory.allocate(32);
+        this.memory.writeVolatileInt(null, memory, 0x12345678);
+        assertEquals(0x12345678, this.memory.readVolatileInt(null, memory));
+        this.memory.freeMemory(memory, 32);
     }
 
     @Test
     public void directMemoryOrderedInt() {
-        long memory = MEMORY.allocate(32);
-        MEMORY.writeOrderedInt(null, memory, 0x12345678);
-        assertEquals(0x12345678, MEMORY.readVolatileInt(null, memory));
-        MEMORY.freeMemory(memory, 32);
+        long memory = this.memory.allocate(32);
+        this.memory.writeOrderedInt(null, memory, 0x12345678);
+        assertEquals(0x12345678, this.memory.readVolatileInt(null, memory));
+        this.memory.freeMemory(memory, 32);
     }
 
     @Test
     public void directMemoryVolatileLong() {
-        long memory = MEMORY.allocate(32);
-        MEMORY.writeVolatileLong(null, memory, Long.MAX_VALUE);
-        assertEquals(Long.MAX_VALUE, MEMORY.readVolatileLong(null, memory));
-        MEMORY.freeMemory(memory, 32);
+        long memory = this.memory.allocate(32);
+        this.memory.writeVolatileLong(null, memory, Long.MAX_VALUE);
+        assertEquals(Long.MAX_VALUE, this.memory.readVolatileLong(null, memory));
+        this.memory.freeMemory(memory, 32);
+    }
+
+    @Test
+    public void directMemoryOrderedLong() {
+        long memory = this.memory.allocate(32);
+        this.memory.writeOrderedLong(null, memory, Long.MAX_VALUE);
+        assertEquals(Long.MAX_VALUE, this.memory.readVolatileLong(null, memory));
+        this.memory.freeMemory(memory, 32);
     }
 
     @Test
     public void directMemoryVolatileFloat() {
-        long memory = MEMORY.allocate(32);
-        MEMORY.writeVolatileFloat(null, memory, 1.2345f);
-        assertEquals(1.2345f, MEMORY.readVolatileFloat(null, memory), 0f);
-        MEMORY.freeMemory(memory, 32);
+        long memory = this.memory.allocate(32);
+        this.memory.writeVolatileFloat(null, memory, 1.2345f);
+        assertEquals(1.2345f, this.memory.readVolatileFloat(null, memory), 0f);
+        this.memory.freeMemory(memory, 32);
     }
 
     @Test
     public void directMemoryVolatileDouble() {
-        long memory = MEMORY.allocate(32);
-        MEMORY.writeVolatileDouble(null, memory, 1.2345);
-        assertEquals(1.2345, MEMORY.readVolatileDouble(null, memory), 0f);
-        MEMORY.freeMemory(memory, 32);
+        long memory = this.memory.allocate(32);
+        this.memory.writeVolatileDouble(null, memory, 1.2345);
+        assertEquals(1.2345, this.memory.readVolatileDouble(null, memory), 0f);
+        this.memory.freeMemory(memory, 32);
     }
 
 

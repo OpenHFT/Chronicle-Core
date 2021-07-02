@@ -992,7 +992,6 @@ public class UnsafeMemory implements Memory {
     @Override
     public void writeOrderedLong(Object object, long offset, long i) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-        requireNonNull(object);
         UNSAFE.putOrderedLong(object, offset, i);
     }
 
@@ -1326,7 +1325,7 @@ public class UnsafeMemory implements Memory {
     }
 
     // https://github.com/OpenHFT/OpenHFT/issues/23
-    private static class ARMMemory extends UnsafeMemory {
+    static class ARMMemory extends UnsafeMemory {
         @Override
         public short readVolatileShort(long address) {
             assert SKIP_ASSERTIONS || address != 0;
@@ -1366,7 +1365,6 @@ public class UnsafeMemory implements Memory {
 
         @Override
         public void writeFloat(Object object, long offset, float f) {
-            assert SKIP_ASSERTIONS || nonNull(object);
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
             if ((offset & 0x3) == 0)
                 super.writeFloat(object, offset, f);
@@ -1377,7 +1375,6 @@ public class UnsafeMemory implements Memory {
 
         @Override
         public float readFloat(Object object, long offset) {
-            assert SKIP_ASSERTIONS || nonNull(object);
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
             if ((offset & 0x3) == 0)
                 return super.readFloat(object, offset);
@@ -1424,7 +1421,6 @@ public class UnsafeMemory implements Memory {
 
         @Override
         public void writeOrderedInt(Object object, long offset, int i32) {
-            assert SKIP_ASSERTIONS || nonNull(object);
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
             if ((offset & 0x3) == 0)
                 super.writeOrderedInt(object, offset, i32);
@@ -1459,7 +1455,6 @@ public class UnsafeMemory implements Memory {
 
         @Override
         public boolean compareAndSwapInt(Object object, long offset, int expected, int value) {
-            assert SKIP_ASSERTIONS || nonNull(object);
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
             if ((offset & 0x3) == 0)
                 return super.compareAndSwapInt(object, offset, expected, value);
@@ -1529,7 +1524,6 @@ public class UnsafeMemory implements Memory {
 
         @Override
         public void writeDouble(Object object, long offset, double d) {
-            assert SKIP_ASSERTIONS || nonNull(object);
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
             if ((offset & 0x7) == 0) super.writeDouble(object, offset, d);
             else
@@ -1538,7 +1532,6 @@ public class UnsafeMemory implements Memory {
 
         @Override
         public double readDouble(Object object, long offset) {
-            assert SKIP_ASSERTIONS || nonNull(object);
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
             if ((offset & 0x7) == 0) return super.readDouble(object, offset);
             return Double.longBitsToDouble(super.readLong(object, offset));
@@ -1564,7 +1557,6 @@ public class UnsafeMemory implements Memory {
 
         @Override
         public void writeOrderedLong(Object object, long offset, long i) {
-            assert SKIP_ASSERTIONS || nonNull(object);
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
             if ((offset & 0x7) == 0)
                 super.writeOrderedLong(object, offset, i);
@@ -1574,7 +1566,6 @@ public class UnsafeMemory implements Memory {
 
         @Override
         public long readVolatileLong(Object object, long offset) {
-            assert SKIP_ASSERTIONS || nonNull(object);
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
             if ((offset & 0x7) == 0) return super.readVolatileLong(object, offset);
             UNSAFE.loadFence();
@@ -1592,7 +1583,6 @@ public class UnsafeMemory implements Memory {
 
         @Override
         public void writeVolatileLong(Object object, long offset, long i64) {
-            assert SKIP_ASSERTIONS || nonNull(object);
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
             if ((offset & 0x7) == 0) {
                 super.writeVolatileLong(object, offset, i64);
@@ -1632,7 +1622,6 @@ public class UnsafeMemory implements Memory {
 
         @Override
         public boolean compareAndSwapLong(Object object, long offset, long expected, long value) {
-            assert SKIP_ASSERTIONS || nonNull(object);
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
             if ((offset & 0x7) == 0)
                 return super.compareAndSwapLong(object, offset, expected, value);
