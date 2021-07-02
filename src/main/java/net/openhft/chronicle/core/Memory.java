@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 
 /**
  * Low level memory access
@@ -38,6 +39,8 @@ public interface Memory {
     void loadFence();
 
     void setMemory(long address, long size, byte b);
+
+    void setMemory(Object o, long offset, long size, byte b);
 
     void freeMemory(long address, long size);
 
@@ -250,4 +253,6 @@ public interface Memory {
     }
 
     boolean safeAlignedInt(long addr);
+
+    long address(ByteBuffer bb);
 }

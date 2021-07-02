@@ -3,6 +3,7 @@ package net.openhft.chronicle.core;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 import java.util.Random;
 
 import static net.openhft.chronicle.core.UnsafeMemory.MEMORY;
@@ -378,6 +379,19 @@ public class UnsafeMemoryTest {
     }
 
     @Test
+    public void address() {
+        assertNotEquals(0, MEMORY.address(ByteBuffer.allocateDirect(32)));
+    }
+
+    @Test
+    public void setMemory() {
+        long[] ds = new long[2];
+        MEMORY.setMemory(ds, MEMORY.arrayBaseOffset(long[].class), 2 * Long.BYTES, (byte) 1);
+        assertEquals(0x0101010101010101L, ds[0]);
+        assertEquals(0x0101010101010101L, ds[1]);
+    }
+
+    @Test
     public void copyMemoryEachWay() {
         long addr = MEMORY.allocate(32);
         long[] data = new long[4];
@@ -405,6 +419,162 @@ public class UnsafeMemoryTest {
         Field num = MyDTO.class.getDeclaredField("num");
         assertEquals(12, MEMORY.objectFieldOffset(num), 4);
     }
+
+    @Test
+    public void directMemoryByte() {
+        long memory = MEMORY.allocate(32);
+        MEMORY.writeByte(null, memory, (byte) 12);
+        assertEquals(12, MEMORY.readByte(null, memory));
+        MEMORY.freeMemory(memory, 32);
+    }
+
+    @Test
+    public void directMemoryShort() {
+        long memory = MEMORY.allocate(32);
+        MEMORY.writeShort(null, memory, (short) 12345);
+        assertEquals(12345, MEMORY.readShort(null, memory));
+        MEMORY.freeMemory(memory, 32);
+    }
+
+    @Test
+    public void directMemoryInt() {
+        long memory = MEMORY.allocate(32);
+        MEMORY.writeInt(null, memory, 0x12345678);
+        assertEquals(0x12345678, MEMORY.readInt(null, memory));
+        MEMORY.freeMemory(memory, 32);
+    }
+
+    @Test
+    public void directMemoryAddInt() {
+        long memory = MEMORY.allocate(32);
+        MEMORY.addInt(null, memory, 0x12345678);
+        MEMORY.freeMemory(memory, 32);
+    }
+
+    @Test
+    public void directMemoryCASInt() {
+        long memory = MEMORY.allocate(32);
+        MEMORY.compareAndSwapInt(null, memory, 0, 0x12345678);
+        MEMORY.freeMemory(memory, 32);
+    }
+
+    @Test
+    public void directMemoryLong() {
+        long memory = MEMORY.allocate(32);
+        MEMORY.writeLong(null, memory, Long.MAX_VALUE);
+        assertEquals(Long.MAX_VALUE, MEMORY.readLong(null, memory));
+        MEMORY.freeMemory(memory, 32);
+    }
+
+    @Test
+    public void directMemoryAddLong() {
+        long memory = MEMORY.allocate(32);
+        MEMORY.addLong(null, memory, Long.MAX_VALUE);
+        MEMORY.freeMemory(memory, 32);
+    }
+
+    @Test
+    public void directMemoryCASLong() {
+        long memory = MEMORY.allocate(32);
+        MEMORY.compareAndSwapLong(null, memory, 0L, Long.MAX_VALUE);
+        MEMORY.freeMemory(memory, 32);
+    }
+
+    @Test
+    public void directMemoryFloat() {
+        long memory = MEMORY.allocate(32);
+        MEMORY.writeFloat(null, memory, 1.2345f);
+        assertEquals(1.2345f, MEMORY.readFloat(null, memory), 0f);
+        MEMORY.freeMemory(memory, 32);
+    }
+
+    @Test
+    public void directMemoryDouble() {
+        long memory = MEMORY.allocate(32);
+        MEMORY.writeDouble(null, memory, 1.2345);
+        assertEquals(1.2345, MEMORY.readDouble(null, memory), 0f);
+        MEMORY.freeMemory(memory, 32);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void directMemoryReference1() {
+        long memory = MEMORY.allocate(32);
+        try {
+            MEMORY.putObject(null, memory, 1.2345);
+        } finally {
+            MEMORY.freeMemory(memory, 32);
+        }
+        assertEquals(1.2345, MEMORY.getObject(null, memory), 0f);
+    }
+
+    @Test(expected = NullPointerException.class)
+    public void directMemoryReference2() {
+        long memory = MEMORY.allocate(32);
+        try {
+            MEMORY.getObject(null, memory);
+            fail();
+        } finally {
+            MEMORY.freeMemory(memory, 32);
+        }
+    }
+
+
+    @Test
+    public void directMemoryVolatileByte() {
+        long memory = MEMORY.allocate(32);
+        MEMORY.writeVolatileByte(null, memory, (byte) 12);
+        assertEquals(12, MEMORY.readVolatileByte(null, memory));
+        MEMORY.freeMemory(memory, 32);
+    }
+
+    @Test
+    public void directMemoryVolatileShort() {
+        long memory = MEMORY.allocate(32);
+        MEMORY.writeVolatileShort(null, memory, (short) 12345);
+        assertEquals(12345, MEMORY.readVolatileShort(null, memory));
+        MEMORY.freeMemory(memory, 32);
+    }
+
+    @Test
+    public void directMemoryVolatileInt() {
+        long memory = MEMORY.allocate(32);
+        MEMORY.writeVolatileInt(null, memory, 0x12345678);
+        assertEquals(0x12345678, MEMORY.readVolatileInt(null, memory));
+        MEMORY.freeMemory(memory, 32);
+    }
+
+    @Test
+    public void directMemoryOrderedInt() {
+        long memory = MEMORY.allocate(32);
+        MEMORY.writeOrderedInt(null, memory, 0x12345678);
+        assertEquals(0x12345678, MEMORY.readVolatileInt(null, memory));
+        MEMORY.freeMemory(memory, 32);
+    }
+
+    @Test
+    public void directMemoryVolatileLong() {
+        long memory = MEMORY.allocate(32);
+        MEMORY.writeVolatileLong(null, memory, Long.MAX_VALUE);
+        assertEquals(Long.MAX_VALUE, MEMORY.readVolatileLong(null, memory));
+        MEMORY.freeMemory(memory, 32);
+    }
+
+    @Test
+    public void directMemoryVolatileFloat() {
+        long memory = MEMORY.allocate(32);
+        MEMORY.writeVolatileFloat(null, memory, 1.2345f);
+        assertEquals(1.2345f, MEMORY.readVolatileFloat(null, memory), 0f);
+        MEMORY.freeMemory(memory, 32);
+    }
+
+    @Test
+    public void directMemoryVolatileDouble() {
+        long memory = MEMORY.allocate(32);
+        MEMORY.writeVolatileDouble(null, memory, 1.2345);
+        assertEquals(1.2345, MEMORY.readVolatileDouble(null, memory), 0f);
+        MEMORY.freeMemory(memory, 32);
+    }
+
 
     static class MyDTO {
         int num;
