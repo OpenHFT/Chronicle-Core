@@ -20,6 +20,7 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.util.Ints;
 import net.openhft.chronicle.core.util.Longs;
+import net.openhft.chronicle.core.util.MisAlignedAssertionError;
 import org.jetbrains.annotations.NotNull;
 import sun.misc.Unsafe;
 import sun.nio.ch.DirectBuffer;
@@ -49,7 +50,6 @@ public class UnsafeMemory implements Memory {
     // copyMemory method. A limit is imposed to allow for safepoint polling
     // during a large copy
     static final long UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
-    private static final String MIS_ALIGNED = "mis-aligned";
     // TODO support big endian
     public static final boolean IS_LITTLE_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
 
@@ -1009,7 +1009,7 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    public boolean compareAndSwapInt(long address, int expected, int value) {
+    public boolean compareAndSwapInt(long address, int expected, int value) throws MisAlignedAssertionError {
         assert (address & 63) <= 64 - 4;
         assert SKIP_ASSERTIONS || address != 0;
 //        assert (address & 0x3) == 0;
@@ -1017,23 +1017,23 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    public boolean compareAndSwapInt(Object object, long offset, int expected, int value) {
+    public boolean compareAndSwapInt(Object object, long offset, int expected, int value) throws MisAlignedAssertionError {
         assert (offset & 63) <= 64 - 4;
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         return UNSAFE.compareAndSwapInt(object, offset, expected, value);
     }
 
     @Override
-    public boolean compareAndSwapLong(long address, long expected, long value) {
-        assert (address & 63) <= 64 - 8;
+    public boolean compareAndSwapLong(long address, long expected, long value) throws MisAlignedAssertionError {
+        if (!safeAlignedLong(address))
+            throw new MisAlignedAssertionError();
         assert SKIP_ASSERTIONS || address != 0;
 //        assert (address & 0x7) == 0;
         return UNSAFE.compareAndSwapLong(null, address, expected, value);
     }
 
     @Override
-    public boolean compareAndSwapLong(Object object, long offset, long expected, long value) {
-        assert (offset & 63) <= 64 - 8;
+    public boolean compareAndSwapLong(Object object, long offset, long expected, long value) throws MisAlignedAssertionError {
         assert SKIP_ASSERTIONS || (object == null || assertIfEnabled(Longs.nonNegative(), offset));
         return UNSAFE.compareAndSwapLong(object, offset, expected, value);
     }
@@ -1206,7 +1206,7 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    public int addInt(long address, int increment) {
+    public int addInt(long address, int increment) throws MisAlignedAssertionError {
         assert SKIP_ASSERTIONS || address != 0;
         return UNSAFE.getAndAddInt(null, address, increment) + increment;
     }
@@ -1218,14 +1218,14 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    public long addLong(long address, long increment) {
+    public long addLong(long address, long increment) throws MisAlignedAssertionError {
         assert SKIP_ASSERTIONS || address != 0;
 //        assert (address & 0x7) == 0;
         return UNSAFE.getAndAddLong(null, address, increment) + increment;
     }
 
     @Override
-    public long addLong(Object object, long offset, long increment) {
+    public long addLong(Object object, long offset, long increment) throws MisAlignedAssertionError {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
 //        assert (offset & 0x7) == 0;
         return UNSAFE.getAndAddLong(object, offset, increment) + increment;
@@ -1306,6 +1306,11 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
+    public boolean safeAlignedLong(long addr) {
+        return (addr & 63) <= 56;
+    }
+
+    @Override
     public int arrayBaseOffset(Class<?> type) {
         return UNSAFE.arrayBaseOffset(type);
     }
@@ -1345,7 +1350,7 @@ public class UnsafeMemory implements Memory {
         @Override
         public void writeFloat(long address, float f) {
             assert SKIP_ASSERTIONS || address != 0;
-            if ((address & 0x3) == 0)
+            if (safeAlignedInt(address))
                 super.writeFloat(address, f);
             else
                 super.writeInt(address, Float.floatToRawIntBits(f));
@@ -1354,7 +1359,7 @@ public class UnsafeMemory implements Memory {
         @Override
         public float readFloat(long address) {
             assert SKIP_ASSERTIONS || address != 0;
-            if ((address & 0x3) == 0)
+            if (safeAlignedInt(address))
                 return super.readFloat(address);
             return Float.intBitsToFloat(super.readInt(address));
         }
@@ -1372,7 +1377,7 @@ public class UnsafeMemory implements Memory {
         @Override
         public float readFloat(Object object, long offset) {
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-            if ((offset & 0x3) == 0)
+            if (safeAlignedInt(offset))
                 return super.readFloat(object, offset);
             return Float.intBitsToFloat(super.readInt(object, offset));
         }
@@ -1380,7 +1385,7 @@ public class UnsafeMemory implements Memory {
         @Override
         public int readVolatileInt(long address) {
             assert SKIP_ASSERTIONS || address != 0;
-            if ((address & 0x3) == 0)
+            if (safeAlignedInt(address))
                 return super.readVolatileInt(address);
             UNSAFE.loadFence();
             return super.readInt(address);
@@ -1389,7 +1394,7 @@ public class UnsafeMemory implements Memory {
         @Override
         public float readVolatileFloat(long address) {
             assert SKIP_ASSERTIONS || address != 0;
-            if ((address & 0x3) == 0)
+            if (safeAlignedInt(address))
                 return super.readVolatileFloat(address);
             UNSAFE.loadFence();
             return readFloat(address);
@@ -1398,7 +1403,7 @@ public class UnsafeMemory implements Memory {
         @Override
         public void writeVolatileInt(long address, int i32) {
             assert SKIP_ASSERTIONS || address != 0;
-            if ((address & 0x3) == 0) {
+            if (safeAlignedInt(address)) {
                 super.writeVolatileInt(address, i32);
             } else {
                 writeInt(address, i32);
@@ -1409,7 +1414,7 @@ public class UnsafeMemory implements Memory {
         @Override
         public void writeOrderedInt(long address, int i32) {
             assert SKIP_ASSERTIONS || address != 0;
-            if ((address & 0x3) == 0)
+            if (safeAlignedInt(address))
                 super.writeOrderedInt(address, i32);
             else
                 writeVolatileInt(address, i32);
@@ -1418,9 +1423,9 @@ public class UnsafeMemory implements Memory {
         @Override
         public void writeOrderedInt(Object object, long offset, int i32) {
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-            if ((offset & 0x3) == 0)
+            if (safeAlignedInt(offset)) {
                 super.writeOrderedInt(object, offset, i32);
-            else {
+            } else {
                 writeInt(object, offset, i32);
                 UNSAFE.storeFence();
             }
@@ -1429,41 +1434,41 @@ public class UnsafeMemory implements Memory {
         @Override
         public void writeVolatileFloat(long address, float f) {
             assert SKIP_ASSERTIONS || address != 0;
-            if ((address & 0x3) == 0)
+            if (safeAlignedInt(address))
                 super.writeVolatileFloat(address, f);
             else
                 writeVolatileInt(address, Float.floatToRawIntBits(f));
         }
 
         @Override
-        public int addInt(long address, int increment) {
+        public int addInt(long address, int increment) throws MisAlignedAssertionError {
             assert SKIP_ASSERTIONS || address != 0;
-            if ((address & 0x3) == 0)
+            if (safeAlignedInt(address))
                 return super.addInt(address, increment);
-            throw new AssertionError(MIS_ALIGNED);
+            throw new MisAlignedAssertionError();
         }
 
         @Override
-        public boolean compareAndSwapInt(long address, int expected, int value) {
+        public boolean compareAndSwapInt(long address, int expected, int value) throws MisAlignedAssertionError {
             assert SKIP_ASSERTIONS || address != 0;
-            if ((address & 0x3) == 0)
+            if (safeAlignedInt(address))
                 return super.compareAndSwapInt(address, expected, value);
-            throw new AssertionError(MIS_ALIGNED);
+            throw new MisAlignedAssertionError();
         }
 
         @Override
-        public boolean compareAndSwapInt(Object object, long offset, int expected, int value) {
+        public boolean compareAndSwapInt(Object object, long offset, int expected, int value) throws MisAlignedAssertionError {
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-            if ((offset & 0x3) == 0)
+            if (safeAlignedInt(offset))
                 return super.compareAndSwapInt(object, offset, expected, value);
-            throw new AssertionError(MIS_ALIGNED);
+            throw new MisAlignedAssertionError();
         }
 
         @Override
         public void testAndSetInt(long address, long offset, int expected, int value) throws IllegalStateException {
             assert SKIP_ASSERTIONS || address != 0;
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-            if ((address & ~0x3) == 0) {
+            if (safeAlignedInt(address)) {
                 if (UNSAFE.compareAndSwapInt(null, address, expected, value)) {
                     return;
                 }
@@ -1485,7 +1490,7 @@ public class UnsafeMemory implements Memory {
         public void testAndSetInt(Object object, long offset, int expected, int value) throws IllegalStateException {
             assert SKIP_ASSERTIONS || nonNull(object);
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-            if ((offset & ~0x3) == 0) {
+            if (safeAlignedInt(offset)) {
                 if (UNSAFE.compareAndSwapInt(object, offset, expected, value)) {
                     return;
                 }
@@ -1506,7 +1511,7 @@ public class UnsafeMemory implements Memory {
         @Override
         public void writeDouble(long address, double d) {
             assert SKIP_ASSERTIONS || address != 0;
-            if ((address & 0x7) == 0)
+            if (safeAlignedLong(address))
                 super.writeDouble(address, d);
             else
                 super.writeLong(address, Double.doubleToRawLongBits(d));
@@ -1515,7 +1520,7 @@ public class UnsafeMemory implements Memory {
         @Override
         public double readDouble(long address) {
             assert SKIP_ASSERTIONS || address != 0;
-            if ((address & 0x7) == 0)
+            if (safeAlignedLong(address))
                 return super.readDouble(address);
             return Double.longBitsToDouble(super.readLong(address));
         }
@@ -1523,7 +1528,8 @@ public class UnsafeMemory implements Memory {
         @Override
         public void writeDouble(Object object, long offset, double d) {
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-            if ((offset & 0x7) == 0) super.writeDouble(object, offset, d);
+            if (safeAlignedLong(offset))
+                super.writeDouble(object, offset, d);
             else
                 super.writeLong(object, offset, Double.doubleToRawLongBits(d));
         }
@@ -1531,14 +1537,15 @@ public class UnsafeMemory implements Memory {
         @Override
         public double readDouble(Object object, long offset) {
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-            if ((offset & 0x7) == 0) return super.readDouble(object, offset);
+            if (safeAlignedLong(offset))
+                return super.readDouble(object, offset);
             return Double.longBitsToDouble(super.readLong(object, offset));
         }
 
         @Override
         public void writeOrderedLong(long address, long i) {
             assert SKIP_ASSERTIONS || address != 0;
-            if ((address & 0x7) == 0)
+            if (safeAlignedLong(address))
                 super.writeOrderedLong(address, i);
             else
                 writeVolatileLong(address, i);
@@ -1547,7 +1554,7 @@ public class UnsafeMemory implements Memory {
         @Override
         public long readVolatileLong(long address) {
             assert SKIP_ASSERTIONS || address != 0;
-            if ((address & 0x7) == 0)
+            if (safeAlignedLong(address))
                 return super.readVolatileLong(address);
             UNSAFE.loadFence();
             return readLong(address);
@@ -1556,7 +1563,7 @@ public class UnsafeMemory implements Memory {
         @Override
         public void writeOrderedLong(Object object, long offset, long i) {
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-            if ((offset & 0x7) == 0)
+            if (safeAlignedLong(offset))
                 super.writeOrderedLong(object, offset, i);
             else
                 writeVolatileLong(object, offset, i);
@@ -1565,7 +1572,8 @@ public class UnsafeMemory implements Memory {
         @Override
         public long readVolatileLong(Object object, long offset) {
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-            if ((offset & 0x7) == 0) return super.readVolatileLong(object, offset);
+            if (safeAlignedLong(offset))
+                return super.readVolatileLong(object, offset);
             UNSAFE.loadFence();
             return readLong(object, offset);
         }
@@ -1573,7 +1581,7 @@ public class UnsafeMemory implements Memory {
         @Override
         public double readVolatileDouble(long address) {
             assert SKIP_ASSERTIONS || address != 0;
-            if ((address & 0x7) == 0)
+            if (safeAlignedLong(address))
                 return super.readVolatileDouble(address);
             UNSAFE.loadFence();
             return readDouble(address);
@@ -1582,7 +1590,7 @@ public class UnsafeMemory implements Memory {
         @Override
         public void writeVolatileLong(Object object, long offset, long i64) {
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-            if ((offset & 0x7) == 0) {
+            if (safeAlignedLong(offset)) {
                 super.writeVolatileLong(object, offset, i64);
             } else {
                 writeLong(object, offset, i64);
@@ -1593,7 +1601,7 @@ public class UnsafeMemory implements Memory {
         @Override
         public void writeVolatileLong(long address, long i64) {
             assert SKIP_ASSERTIONS || address != 0;
-            if ((address & 0x7) == 0) {
+            if (safeAlignedLong(address)) {
                 super.writeVolatileLong(address, i64);
             } else {
                 writeLong(address, i64);
@@ -1604,39 +1612,52 @@ public class UnsafeMemory implements Memory {
         @Override
         public void writeVolatileDouble(long address, double d) {
             assert SKIP_ASSERTIONS || address != 0;
-            if ((address & 0x7) == 0)
+            if (safeAlignedLong(address))
                 super.writeVolatileDouble(address, d);
             else
                 writeLong(address, Double.doubleToRawLongBits(d));
         }
 
         @Override
-        public long addLong(long address, long increment) {
+        public long addLong(long address, long increment) throws MisAlignedAssertionError {
             assert SKIP_ASSERTIONS || address != 0;
-            if ((address & 0x7) == 0)
+            if (safeAlignedLong(address))
                 return super.addLong(address, increment);
-            throw new AssertionError(MIS_ALIGNED);
+            throw new MisAlignedAssertionError();
         }
 
         @Override
-        public boolean compareAndSwapLong(Object object, long offset, long expected, long value) {
+        public boolean compareAndSwapLong(Object object, long offset, long expected, long value) throws MisAlignedAssertionError {
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-            if ((offset & 0x7) == 0)
+            if (safeAlignedLong(offset))
                 return super.compareAndSwapLong(object, offset, expected, value);
-            throw new AssertionError(MIS_ALIGNED);
+            throw new MisAlignedAssertionError();
         }
 
         @Override
-        public boolean compareAndSwapLong(long address, long expected, long value) {
+        public boolean compareAndSwapLong(long address, long expected, long value) throws MisAlignedAssertionError {
             assert SKIP_ASSERTIONS || address != 0;
-            if ((address & 0x7) == 0)
+            if (safeAlignedLong(address))
                 return super.compareAndSwapLong(address, expected, value);
-            throw new AssertionError(MIS_ALIGNED);
+            throw new MisAlignedAssertionError();
         }
 
         @Override
         public boolean safeAlignedInt(long addr) {
             return (addr & 3) == 0;
+        }
+
+        @Override
+        public boolean safeAlignedLong(long addr) {
+            return (addr & 7) == 0;
+        }
+
+        @Override
+        public long addLong(Object object, long offset, long increment) throws MisAlignedAssertionError {
+            assert SKIP_ASSERTIONS || offset > 8;
+            if (safeAlignedLong(offset))
+                return super.addLong(object, offset, increment);
+            throw new MisAlignedAssertionError();
         }
     }
 }

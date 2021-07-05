@@ -19,6 +19,7 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.annotation.Positive;
+import net.openhft.chronicle.core.util.MisAlignedAssertionError;
 import org.jetbrains.annotations.NotNull;
 import sun.misc.Unsafe;
 
@@ -155,13 +156,13 @@ public interface Memory {
     // throws IllegalStateException
     void testAndSetInt(Object object, long offset, int expected, int value) throws IllegalStateException;
 
-    boolean compareAndSwapInt(long address, int expected, int value);
+    boolean compareAndSwapInt(long address, int expected, int value) throws MisAlignedAssertionError;
 
-    boolean compareAndSwapInt(Object object, long offset, int expected, int value);
+    boolean compareAndSwapInt(Object object, long offset, int expected, int value) throws MisAlignedAssertionError;
 
-    boolean compareAndSwapLong(long address, long expected, long value);
+    boolean compareAndSwapLong(long address, long expected, long value) throws MisAlignedAssertionError;
 
-    boolean compareAndSwapLong(Object object, long offset, long expected, long value);
+    boolean compareAndSwapLong(Object object, long offset, long expected, long value) throws MisAlignedAssertionError;
 
     int pageSize();
 
@@ -213,13 +214,13 @@ public interface Memory {
 
     void writeVolatileDouble(Object object, long offset, double d);
 
-    int addInt(long address, int increment);
+    int addInt(long address, int increment) throws MisAlignedAssertionError;
 
     int addInt(Object object, long offset, int increment);
 
-    long addLong(long address, long increment);
+    long addLong(long address, long increment) throws MisAlignedAssertionError;
 
-    long addLong(Object object, long offset, long increment);
+    long addLong(Object object, long offset, long increment) throws MisAlignedAssertionError;
 
     @NotNull <E> E allocateInstance(Class<? extends E> clazz) throws InstantiationException;
 
@@ -253,6 +254,8 @@ public interface Memory {
     }
 
     boolean safeAlignedInt(long addr);
+
+    boolean safeAlignedLong(long addr);
 
     long address(ByteBuffer bb);
 }

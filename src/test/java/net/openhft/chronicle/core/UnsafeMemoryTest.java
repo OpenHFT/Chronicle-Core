@@ -1,5 +1,6 @@
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.util.MisAlignedAssertionError;
 import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -178,22 +179,32 @@ public class UnsafeMemoryTest {
     }
 
     @Test
-    public void compareAndSwapInt() {
+    public void compareAndSwapInt() throws MisAlignedAssertionError {
         for (int i = 0; i <= 64; i += 4)
-            if (onHeap == null) {
-                memory.compareAndSwapInt(addr + i, 0, 0);
-            } else {
-                memory.compareAndSwapInt(object, addr + i, 0, 0);
+            try {
+                if (onHeap == null) {
+                    memory.compareAndSwapInt(addr + i, 0, 0);
+                } else {
+                    memory.compareAndSwapInt(object, addr + i, 0, 0);
+                }
+            } catch (MisAlignedAssertionError e) {
+                if (memory.safeAlignedInt(addr + i))
+                    throw e;
             }
     }
 
     @Test
-    public void compareAndSwapLong() {
+    public void compareAndSwapLong() throws MisAlignedAssertionError {
         for (int i = 0; i <= 64; i += 8)
-            if (onHeap == null) {
-                memory.compareAndSwapLong(addr + i, 0, 0);
-            } else {
-                memory.compareAndSwapLong(object, addr + i, 0, 0);
+            try {
+                if (onHeap == null) {
+                    memory.compareAndSwapLong(addr + i, 0, 0);
+                } else {
+                    memory.compareAndSwapLong(object, addr + i, 0, 0);
+                }
+            } catch (MisAlignedAssertionError e) {
+                if (memory.safeAlignedLong(addr + i))
+                    throw e;
             }
     }
 
@@ -318,22 +329,32 @@ public class UnsafeMemoryTest {
     }
 
     @Test
-    public void addInt() {
+    public void addInt() throws MisAlignedAssertionError {
         for (int i = 0; i <= 64; i += 4)
-            if (onHeap == null) {
-                memory.addInt(addr + i, 0);
-            } else {
-                memory.addInt(object, addr + i, 0);
+            try {
+                if (onHeap == null) {
+                    memory.addInt(addr + i, 0);
+                } else {
+                    memory.addInt(object, addr + i, 0);
+                }
+            } catch (MisAlignedAssertionError e) {
+                if (memory.safeAlignedInt(addr + i))
+                    throw e;
             }
     }
 
     @Test
-    public void addLong() {
+    public void addLong() throws MisAlignedAssertionError {
         for (int i = 0; i <= 64; i += 8)
-            if (onHeap == null) {
-                memory.addLong(addr + i, 0);
-            } else {
-                memory.addLong(object, addr + i, 0);
+            try {
+                if (onHeap == null) {
+                    memory.addLong(addr + i, 0);
+                } else {
+                    memory.addLong(object, addr + i, 0);
+                }
+            } catch (MisAlignedAssertionError e) {
+                if (memory.safeAlignedLong(addr + i))
+                    throw e;
             }
     }
 }

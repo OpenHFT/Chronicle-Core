@@ -27,11 +27,16 @@ public class UnsafeMemory2Test {
 
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> data() {
-        Object[][] ret = {
-                {new UnsafeMemory()},
-                {new UnsafeMemory.ARMMemory()}
+        UnsafeMemory memory1 = new UnsafeMemory();
+        UnsafeMemory.ARMMemory memory2 = new UnsafeMemory.ARMMemory();
+        Object[][] all = {
+                {memory1},
+                {memory2}
         };
-        return Arrays.asList(ret);
+        Object[][] arm = {
+                {memory2}
+        };
+        return Arrays.asList(Jvm.isArm() ? arm : all);
     }
 
     @Test
