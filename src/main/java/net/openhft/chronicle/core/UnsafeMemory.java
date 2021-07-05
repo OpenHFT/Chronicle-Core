@@ -1170,7 +1170,12 @@ public class UnsafeMemory implements Memory {
     @Override
     public void writeVolatileInt(Object object, long offset, int i32) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-        UNSAFE.putIntVolatile(object, offset, i32);
+        if ((offset & 0x3) == 0)
+            UNSAFE.putIntVolatile(object, offset, i32);
+        else {
+            writeInt(object, offset, i32);
+            UNSAFE.storeFence();
+        }
     }
 
     @Override
@@ -1424,8 +1429,10 @@ public class UnsafeMemory implements Memory {
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
             if ((offset & 0x3) == 0)
                 super.writeOrderedInt(object, offset, i32);
-            else
-                super.writeVolatileInt(object, offset, i32);
+            else {
+                writeInt(object, offset, i32);
+                UNSAFE.storeFence();
+            }
         }
 
         @Override
