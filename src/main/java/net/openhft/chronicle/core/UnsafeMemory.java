@@ -313,18 +313,16 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    public void putObject(Object o, long offset, Object value) {
+    public void putObject(@NotNull Object object, long offset, Object value) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-        requireNonNull(o);
-        UNSAFE.putObject(o, offset, value);
+        UNSAFE.putObject(requireNonNull(object), offset, value);
     }
 
     @NotNull
     @Override
-    public <T> T getObject(Object object, long offset) {
+    public <T> T getObject(@NotNull Object object, long offset) {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-        requireNonNull(object);
-        return (T) UNSAFE.getObject(object, offset);
+        return (T) UNSAFE.getObject(requireNonNull(object), offset);
     }
 
     @Override
@@ -419,8 +417,6 @@ public class UnsafeMemory implements Memory {
     @Override
     public byte readByte(long address) {
         assert SKIP_ASSERTIONS || address != 0;
-//        if (tracing)
-//            System.out.println("Read " + Long.toHexString(address));
         return UNSAFE.getByte(address);
     }
 
@@ -463,7 +459,6 @@ public class UnsafeMemory implements Memory {
     @Override
     public void writeOrderedInt(long address, int i32) {
         assert SKIP_ASSERTIONS || address != 0;
-//        assert (address & 0x3) == 0;
         UNSAFE.putOrderedInt(null, address, i32);
     }
 
@@ -476,8 +471,6 @@ public class UnsafeMemory implements Memory {
     @Override
     public int readInt(long address) {
         assert SKIP_ASSERTIONS || address != 0;
-//        if (tracing)
-//            System.out.println("Read int " + Long.toHexString(address));
         return UNSAFE.getInt(address);
     }
 
@@ -502,8 +495,6 @@ public class UnsafeMemory implements Memory {
     @Override
     public long readLong(long address) {
         assert SKIP_ASSERTIONS || address != 0;
-//        if (tracing)
-//            System.out.println("Read long " + Long.toHexString(address));
         return UNSAFE.getLong(address);
     }
 
