@@ -807,7 +807,7 @@ public enum Jvm {
         FATAL.defaultHandler(recordingExceptionHandler(LogLevel.FATAL, map, exceptionsOnly, logToSlf4j));
         setErrorExceptionHandler(recordingExceptionHandler(LogLevel.ERROR, map, exceptionsOnly, logToSlf4j));
         setWarnExceptionHandler(recordingExceptionHandler(LogLevel.WARN, map, exceptionsOnly, logToSlf4j));
-        setWarnExceptionHandler(debug
+        setPerfExceptionHandler(debug
                 ? recordingExceptionHandler(LogLevel.PERF, map, exceptionsOnly, logToSlf4j)
                 : logToSlf4j ? Slf4jExceptionHandler.PERF : NullExceptionHandler.NOTHING);
         setDebugExceptionHandler(debug
