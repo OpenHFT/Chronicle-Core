@@ -750,22 +750,38 @@ public enum Jvm {
 
     public static void resetExceptionHandlers() {
         FATAL.defaultHandler(Slf4jExceptionHandler.FATAL).resetThreadLocalHandler();
-        ERROR.defaultHandler(Slf4jExceptionHandler.ERROR).resetThreadLocalHandler();
-        WARN.defaultHandler(Slf4jExceptionHandler.WARN).resetThreadLocalHandler();
-        DEBUG.defaultHandler(Slf4jExceptionHandler.DEBUG).resetThreadLocalHandler();
-        PERF.defaultHandler(Slf4jExceptionHandler.DEBUG).resetThreadLocalHandler();
+        setErrorExceptionHandler(Slf4jExceptionHandler.ERROR);
+        setWarnExceptionHandler(Slf4jExceptionHandler.WARN);
+        setDebugExceptionHandler(Slf4jExceptionHandler.DEBUG);
+        setPerfExceptionHandler(Slf4jExceptionHandler.DEBUG);
+    }
+
+    public static void setErrorExceptionHandler(ExceptionHandler exceptionHandler) {
+        ERROR.defaultHandler(exceptionHandler).resetThreadLocalHandler();
+    }
+
+    public static void setWarnExceptionHandler(ExceptionHandler exceptionHandler) {
+        WARN.defaultHandler(exceptionHandler).resetThreadLocalHandler();
+    }
+
+    public static void setDebugExceptionHandler(ExceptionHandler exceptionHandler) {
+        DEBUG.defaultHandler(exceptionHandler).resetThreadLocalHandler();
+    }
+
+    public static void setPerfExceptionHandler(ExceptionHandler exceptionHandler) {
+        PERF.defaultHandler(exceptionHandler).resetThreadLocalHandler();
     }
 
     public static void disableDebugHandler() {
-        DEBUG.defaultHandler(null).resetThreadLocalHandler();
+        setDebugExceptionHandler(null);
     }
 
     public static void disablePerfHandler() {
-        PERF.defaultHandler(null).resetThreadLocalHandler();
+        setPerfExceptionHandler(null);
     }
 
     public static void disableWarnHandler() {
-        WARN.defaultHandler(null).resetThreadLocalHandler();
+        setWarnExceptionHandler(null);
     }
 
     @NotNull
@@ -789,12 +805,12 @@ public enum Jvm {
                                                               final boolean logToSlf4j) {
         final Map<ExceptionKey, Integer> map = Collections.synchronizedMap(new LinkedHashMap<>());
         FATAL.defaultHandler(recordingExceptionHandler(LogLevel.FATAL, map, exceptionsOnly, logToSlf4j));
-        ERROR.defaultHandler(recordingExceptionHandler(LogLevel.ERROR, map, exceptionsOnly, logToSlf4j));
-        WARN.defaultHandler(recordingExceptionHandler(LogLevel.WARN, map, exceptionsOnly, logToSlf4j));
-        PERF.defaultHandler(debug
+        setErrorExceptionHandler(recordingExceptionHandler(LogLevel.ERROR, map, exceptionsOnly, logToSlf4j));
+        setWarnExceptionHandler(recordingExceptionHandler(LogLevel.WARN, map, exceptionsOnly, logToSlf4j));
+        setWarnExceptionHandler(debug
                 ? recordingExceptionHandler(LogLevel.PERF, map, exceptionsOnly, logToSlf4j)
                 : logToSlf4j ? Slf4jExceptionHandler.PERF : NullExceptionHandler.NOTHING);
-        DEBUG.defaultHandler(debug
+        setDebugExceptionHandler(debug
                 ? recordingExceptionHandler(LogLevel.DEBUG, map, exceptionsOnly, logToSlf4j)
                 : logToSlf4j ? Slf4jExceptionHandler.DEBUG : NullExceptionHandler.NOTHING);
         return map;
