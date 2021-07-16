@@ -45,11 +45,38 @@ public class ObjectUtilsConvertToTest {
                 {Boolean.TRUE, "yes"},
                 {Boolean.FALSE, "N"},
                 {Boolean.FALSE, "no"},
+                {DEnum.ZERO, "Zero"},
+                {DEnum.ONE, "One"},
+                {DEnum.TWO, "Two"},
         });
     }
 
     @Test
     public void convertTo() throws IllegalStateException, IllegalArgumentException {
         assertEquals(converted, ObjectUtils.convertTo(converted.getClass(), input));
+    }
+
+    static class DEnum implements CoreDynamicEnum<DEnum> {
+        static final DEnum ZERO = new DEnum("Zero", 0);
+        static final DEnum ONE = new DEnum("One", 1);
+        static final DEnum TWO = new DEnum("Two", 2);
+
+        private final String name;
+        private final int ordinal;
+
+        public DEnum(String name, int ordinal) {
+            this.name = name;
+            this.ordinal = ordinal;
+        }
+
+        @Override
+        public String name() {
+            return name;
+        }
+
+        @Override
+        public int ordinal() {
+            return 0;
+        }
     }
 }

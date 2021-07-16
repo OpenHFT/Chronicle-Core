@@ -598,6 +598,8 @@ public enum ObjectUtils {
                 return ObjectUtils::toBoolean;
             if (c == UUID.class)
                 return UUID::fromString;
+            if (CoreDynamicEnum.class.isAssignableFrom(c))
+                return EnumCache.of(c)::get;
             try {
                 Method valueOf = c.getDeclaredMethod("valueOf", String.class);
                 Jvm.setAccessible(valueOf);
