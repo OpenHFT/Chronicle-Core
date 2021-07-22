@@ -87,4 +87,13 @@ public enum BackgroundResourceReleaser {
             COUNTER.decrementAndGet();
         }
     }
+
+    /**
+     * Is the current thread the background resource releaser thread?
+     *
+     * @return true if the current thread is the background resource releaser thread
+     */
+    public static boolean isOnBackgroundResourceReleaserThread() {
+        return Thread.currentThread() == RELEASER;
+    }
 }

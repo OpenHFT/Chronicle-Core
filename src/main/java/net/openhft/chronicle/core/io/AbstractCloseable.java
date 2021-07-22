@@ -29,7 +29,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BACKGROUND_RESOURCE_RELEASER;
 import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEASER;
 import static net.openhft.chronicle.core.io.TracingReferenceCounted.asString;
 
@@ -222,7 +221,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
         callPerformClose();
         long time = System.nanoTime() - start;
         if (time >= WARN_NS &&
-                !Thread.currentThread().getName().equals(BACKGROUND_RESOURCE_RELEASER))
+                !BackgroundResourceReleaser.isOnBackgroundResourceReleaserThread())
             Jvm.perf().on(getClass(), "Took " + time / 1000_000 + " ms to performClose");
     }
 

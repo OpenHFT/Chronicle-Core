@@ -5,6 +5,7 @@ import net.openhft.chronicle.core.OS;
 import org.junit.Test;
 
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Supplier;
 
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
@@ -46,6 +47,58 @@ public class BackgroundResourceReleaserTest {
         assertEquals(count, closed.get());
         assertEquals(count, released.get());
         AbstractCloseable.assertCloseablesClosed();
+    }
+
+    @Test
+    public void isOnBackgroundResourceReleaserThreadIsTrueWhenOnThread() {
+        assumeTrue(BackgroundResourceReleaser.BG_RELEASER);
+        final WasInBackgroundResourceReleaserRecorder recorder = new WasInBackgroundResourceReleaserRecorder(true);
+        recorder.close();
+        assertValueBecomes(true, recorder::wasClosedInBackgroundResourceReleaserThread);
+        assertTrue(recorder.wasClosedInBackgroundResourceReleaserThread());
+    }
+
+    @Test
+    public void isOnBackgroundResourceReleaserThreadIsFalseWhenNotOnThread() {
+        final WasInBackgroundResourceReleaserRecorder recorder = new WasInBackgroundResourceReleaserRecorder(false);
+        recorder.close();
+        assertValueBecomes(false, recorder::wasClosedInBackgroundResourceReleaserThread);
+        assertFalse(recorder.wasClosedInBackgroundResourceReleaserThread());
+    }
+
+    private void assertValueBecomes(boolean expectedValue, Supplier<Boolean> supplier) {
+        long endTime = System.currentTimeMillis() + 5_000;
+        while (supplier.get() == null) {
+            Jvm.pause(10);
+            if (System.currentTimeMillis() > endTime) {
+                fail("Timed out waiting for value");
+            }
+        }
+        assertEquals(expectedValue, supplier.get());
+    }
+
+    private static class WasInBackgroundResourceReleaserRecorder extends AbstractCloseable {
+
+        private final boolean shouldPerformCloseInBackground;
+        private Boolean wasClosedInBackgroundResourceReleaserThread = null;
+
+        public WasInBackgroundResourceReleaserRecorder(boolean shouldPerformCloseInBackground) {
+            this.shouldPerformCloseInBackground = shouldPerformCloseInBackground;
+        }
+
+        @Override
+        protected boolean shouldPerformCloseInBackground() {
+            return shouldPerformCloseInBackground;
+        }
+
+        @Override
+        protected void performClose() {
+            wasClosedInBackgroundResourceReleaserThread = BackgroundResourceReleaser.isOnBackgroundResourceReleaserThread();
+        }
+
+        public Boolean wasClosedInBackgroundResourceReleaserThread() {
+            return wasClosedInBackgroundResourceReleaserThread;
+        }
     }
 
     static void assertBetween(long min, long actual, long max) {
