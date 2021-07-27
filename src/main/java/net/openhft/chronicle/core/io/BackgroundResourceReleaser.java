@@ -1,6 +1,7 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.shutdown.PriorityHook;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -19,6 +20,8 @@ public enum BackgroundResourceReleaser {
     static {
         RELEASER.setDaemon(true);
         RELEASER.start();
+
+        PriorityHook.add(99, BackgroundResourceReleaser::releasePendingResources);
     }
 
     private static void runReleaseResources() {
