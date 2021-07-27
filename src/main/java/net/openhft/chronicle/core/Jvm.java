@@ -49,6 +49,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -1690,5 +1691,14 @@ public enum Jvm {
     public static boolean supportThread() {
         String name = Thread.currentThread().getName();
         return "Finalizer".equals(name) || name.contains("~");
+    }
+
+    /**
+     * park the current thread, and stay parked
+     */
+    public static void park() {
+        // LockSupport.park can spuriously return so we execute in a loop
+        while (!Thread.currentThread().isInterrupted())
+            LockSupport.park();
     }
 }
