@@ -115,6 +115,17 @@ public final class StringUtils {
         return true;
     }
 
+    public static boolean startsWith(@NotNull final CharSequence source,
+                                   @NotNull final String startsWith) {
+        for (int i = 0; i < startsWith.length(); i++) {
+            if (toLowerCase(charAt(source, i)) != toLowerCase(startsWith.charAt(i))) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
     public static boolean isEqual(@Nullable CharSequence s, @Nullable CharSequence cs) {
         if (s instanceof StringBuilder) {
             return isEqual((StringBuilder) s, cs);
