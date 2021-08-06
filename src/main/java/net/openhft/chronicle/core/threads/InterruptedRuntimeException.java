@@ -6,7 +6,7 @@ package net.openhft.chronicle.core.threads;
  * This should generally not be used, prefer {@link InterruptedException} wherever possible, but
  * there are some scenarios where we need to throw an unchecked exception after being interrupted.
  * <p>
- * Always remember to set {@link Thread#interrupt()} prior to throwing these.
+ * If {@link InterruptedException} was caught, remember to set {@link Thread#interrupt()} prior to throwing these.
  */
 public class InterruptedRuntimeException extends IllegalStateException {
 
