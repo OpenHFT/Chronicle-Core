@@ -70,9 +70,9 @@ public enum Jvm {
     private static final List<String> INPUT_ARGUMENTS = getRuntimeMXBean().getInputArguments();
     private static final String INPUT_ARGUMENTS2 = " " + String.join(" ", INPUT_ARGUMENTS);
     private static final int COMPILE_THRESHOLD = getCompileThreshold0();
-    private static final boolean IS_DEBUG = INPUT_ARGUMENTS2.contains("jdwp") || Jvm.getBoolean("debug");
+    private static final boolean IS_DEBUG = Jvm.getBoolean("debug", INPUT_ARGUMENTS2.contains("jdwp"));
     // e.g-verbose:gc  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=dumponexit=true,filename=myrecording.jfr,settings=profile -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints
-    private static final boolean IS_FLIGHT_RECORDER = INPUT_ARGUMENTS2.contains(" -XX:+FlightRecorder") || Jvm.getBoolean("jfr");
+    private static final boolean IS_FLIGHT_RECORDER = Jvm.getBoolean("jfr", INPUT_ARGUMENTS2.contains(" -XX:+FlightRecorder"));
     private static final boolean IS_COVERAGE = INPUT_ARGUMENTS2.contains("coverage");
     private static final boolean REPORT_UNOPTIMISED;
     private static final Supplier<Long> reservedMemory;
