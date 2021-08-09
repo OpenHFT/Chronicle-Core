@@ -257,9 +257,17 @@ public final class UnsafeText {
             scale2 = Long.numberOfLeadingZeros(value) - 1;
             value <<= scale2;
             long fives = Maths.fives(deci);
-            long whole = value / fives;
-            long rem = value % fives;
-            d = whole + (double) rem / fives;
+
+            // We have at most [63 - scale2] significant binary digits in "value".
+            // 53 binary digits fit in mantissa without errors.
+            // Thus, if [63 - scale2] <= 53, "value" casted to double will contain the exact value.
+            if (scale2 >= 10)
+                d = (double)value / fives;
+            else {
+                long whole = value / fives;
+                long rem = value % fives;
+                d = whole + (double) rem / fives;
+            }
 
         } else if (deci <= -28) {
             d = value * Math.pow(5, -deci);
