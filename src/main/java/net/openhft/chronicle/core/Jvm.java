@@ -985,7 +985,7 @@ public enum Jvm {
     }
 
     public static boolean isDebugEnabled(final Class<?> aClass) {
-        return DEBUG.isEnabled(aClass) || isDebug();
+        return DEBUG.isEnabled(aClass);
     }
 
     public static boolean isPerfEnabled(final Class<?> aClass) {
