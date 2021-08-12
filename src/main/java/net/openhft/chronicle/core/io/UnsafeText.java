@@ -251,7 +251,7 @@ public final class UnsafeText {
         int scale2 = 0;
         double d;
         if (deci >= 28) {
-            d = value / Math.pow(5, -deci);
+            d = value / Math.pow(5, deci);
 
         } else if (deci > 0) {
             scale2 = Long.numberOfLeadingZeros(value) - 1;
