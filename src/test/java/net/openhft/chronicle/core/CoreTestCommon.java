@@ -53,7 +53,7 @@ public class CoreTestCommon {
             if (!exceptions.keySet().removeIf(expectedException.getKey()))
                 Slf4jExceptionHandler.WARN.on(getClass(), "No error for " + expectedException.getValue());
         }
-        exceptions.clear();
+        expectedExceptions.clear();
         if (Jvm.hasException(exceptions)) {
             Jvm.dumpException(exceptions);
             Jvm.resetExceptionHandlers();
