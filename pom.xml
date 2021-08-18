@@ -26,7 +26,7 @@
     </parent>
 
     <artifactId>chronicle-core</artifactId>
-    <version>2.21ea90-SNAPSHOT</version>
+    <version>2.21.90-SNAPSHOT</version>
     <name>OpenHFT/Chronicle-Core</name>
     <description>Chronicle-Core</description>
     <packaging>bundle</packaging>
@@ -390,7 +390,7 @@
         <url>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</url>
         <connection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</connection>
         <developerConnection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</developerConnection>
-        <tag>ea</tag>
+        <tag>21-release</tag>
     </scm>
 
 </project>
