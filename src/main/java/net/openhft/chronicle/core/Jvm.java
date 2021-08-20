@@ -839,13 +839,6 @@ public enum Jvm {
         return false;
     }
 
-    @Deprecated(/* to be removed in x.22 */)
-    public static void setExceptionsHandlers(@Nullable final ExceptionHandler fatal,
-                                             @Nullable final ExceptionHandler warn,
-                                             @Nullable final ExceptionHandler debug) {
-        setExceptionHandlers(fatal, warn, debug);
-    }
-
     // Note: 'fatal' param will be replaced with 'error' in x.23
     public static void setExceptionHandlers(@Nullable final ExceptionHandler fatal,
                                             @Nullable final ExceptionHandler warn,
@@ -1094,11 +1087,6 @@ public enum Jvm {
                 Safepoint.force(); // 1 ns on Java 11
             else
                 Compiler.enable(); // 5 ns on Java 8
-    }
-
-    @Deprecated(/* to be removed in x.22 */)
-    public static void optionalSafepoint() {
-        safepoint();
     }
 
     public static boolean areOptionalSafepointsEnabled() {

@@ -40,7 +40,7 @@ public interface LicenceCheck {
 
             try {
 
-                String source = new String(IOTools.readFile(expiryDateFile));
+                String source = new String(IOTools.readFile(LicenceCheck.class, expiryDateFile));
                 Date expriyDate = new SimpleDateFormat("yyyy-MM-dd").parse(source);
                 long days = (expriyDate.getTime() - System.currentTimeMillis()) / 86400000;
 

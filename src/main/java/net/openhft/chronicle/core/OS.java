@@ -44,15 +44,11 @@ import static java.lang.management.ManagementFactory.getRuntimeMXBean;
  */
 public final class OS {
 
-    private OS() {}
-
     public static final String TMP = System.getProperty("java.io.tmpdir");
     public static final String USER_DIR = System.getProperty("user.dir");
     public static final String USER_HOME = System.getProperty("user.home");
     public static final Exception TIME_LIMIT = new TimeLimitExceededException();
-    // can't make it private until all libraries have been updated to x.20.60, Use getTarget() instead.
-    @Deprecated(/* to be removed in x.22 */)
-    public static final String TARGET = findTarget();
+    public static final int SAFE_PAGE_SIZE = 64 << 10;
     static final ClassLocal<MethodHandle> MAP0_MH = ClassLocal.withInitial(c -> {
         try {
             Method map0;
@@ -63,6 +59,7 @@ public final class OS {
             throw new AssertionError(e);
         }
     });
+    private static final String TARGET = findTarget();
     private static final String HOST_NAME = getHostName0();
     private static final String USER_NAME = System.getProperty("user.name");
     private static final int MAP_RO = 0;
@@ -79,7 +76,6 @@ public final class OS {
     private static final MethodHandle UNMAPP0_MH;
     private static final MethodHandle READ0_MH;
     private static final MethodHandle WRITE0_MH, WRITE0_MH2;
-    public static final int SAFE_PAGE_SIZE = 64 << 10;
     private static int PAGE_SIZE; // avoid circular initialisation
     private static int MAP_ALIGNMENT;
 
@@ -109,6 +105,9 @@ public final class OS {
         } catch (IllegalAccessException | ClassNotFoundException e) {
             throw new AssertionError(e);
         }
+    }
+
+    private OS() {
     }
 
     @NotNull
@@ -311,9 +310,8 @@ public final class OS {
 
     /**
      * @return the maximum PID.
-     *
      * @throws NumberFormatException if ?
-     * @throws AssertionError if ?
+     * @throws AssertionError        if ?
      */
     public static long getPidMax() {
         if (isLinux()) {

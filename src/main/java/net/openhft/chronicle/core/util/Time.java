@@ -35,11 +35,6 @@ public final class Time {
     private Time() {
     }
 
-    @Deprecated(/* Still widely used */)
-    public static long currentTimeMillis() {
-        return System.currentTimeMillis();
-    }
-
     public static String uniqueId() {
         long l;
         try {

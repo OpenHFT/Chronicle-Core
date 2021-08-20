@@ -114,12 +114,6 @@ public final class IOTools {
                     throw new AssertionError("Could not delete " + dir);
     }
 
-    @Deprecated(/* to be removed in x.22 */)
-    public static URL urlFor(String name) throws FileNotFoundException {
-        // use the callers class loader not the default one if possible.
-        return urlFor(Thread.currentThread().getContextClassLoader(), name);
-    }
-
     @NotNull
     public static URL urlFor(Class clazz, String name) throws FileNotFoundException {
         return urlFor(clazz.getClassLoader(), name);
@@ -159,18 +153,13 @@ public final class IOTools {
      * it appends the suffix .gz and looks again on the file system.
      * If it still not found a FileNotFoundException is thrown.
      *
-     * @param name Name of the file
+     * @param clazz file to use to determine the class loader.
+     * @param name  Name of the file
      * @return A byte[] containing the contents of the file
      * @throws IOException FileNotFoundException thrown if file is not found
      */
-    public static byte[] readFile(@NotNull String name) throws IOException {
-        InputStream is = open(urlFor(name));
-
-        return readAsBytes(is);
-    }
-
     public static byte[] readFile(Class clazz, @NotNull String name) throws IOException {
-        URL url = urlFor(clazz.getClassLoader(), name);
+        URL url = urlFor(clazz, name);
         InputStream is = open(url);
 
         return readAsBytes(is);

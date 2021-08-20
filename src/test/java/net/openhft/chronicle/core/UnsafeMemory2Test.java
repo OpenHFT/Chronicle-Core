@@ -375,7 +375,6 @@ public class UnsafeMemory2Test {
         }
     }
 
-
     @Test
     public void directMemoryVolatileByte() {
         long memory = this.memory.allocate(32);

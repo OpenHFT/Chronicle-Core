@@ -43,8 +43,7 @@ public class UnsafeMemory implements Memory {
     public static final Unsafe UNSAFE;
     public static final UnsafeMemory INSTANCE;
     public static final UnsafeMemory MEMORY;
-    @Deprecated(/* to be removed in .x21 */)
-    public static final boolean tracing = false;
+
     // see java.nio.Bits.copyMemory
     // This number limits the number of bytes to copy per call to Unsafe's
     // copyMemory method. A limit is imposed to allow for safepoint polling
@@ -304,12 +303,6 @@ public class UnsafeMemory implements Memory {
     public long getFieldOffset(Field field) {
         assert SKIP_ASSERTIONS || nonNull(field);
         return UNSAFE.objectFieldOffset(field);
-    }
-
-    @Override
-    public void setInt(Object object, long offset, int value) {
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-        UNSAFE.putInt(object, offset, value);
     }
 
     @Override

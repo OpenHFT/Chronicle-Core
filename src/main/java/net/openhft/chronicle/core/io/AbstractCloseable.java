@@ -305,12 +305,6 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
      * @return whether this component should be closed in the background or not
      */
     protected boolean shouldPerformCloseInBackground() {
-        return performCloseInBackground();
-    }
-
-    // TODO Rename this method to be less confusing. e.g. shouldPerformCloseInBackground
-    @Deprecated(/* to be removed in x.22 */)
-    protected boolean performCloseInBackground() {
         return false;
     }
 
@@ -321,13 +315,11 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
         return false;
     }
 
-    // @Deprecated return void in x.22
-    // this should throw IllegalStateException or return true
-    protected boolean threadSafetyCheck(boolean isUsed) throws IllegalStateException {
+    protected void threadSafetyCheck(boolean isUsed) throws IllegalStateException {
         if (DISABLE_THREAD_SAFETY)
-            return true;
+            return;
         if (usedByThread == null && !isUsed)
-            return true;
+            return;
 
         Thread currentThread = Thread.currentThread();
         if (usedByThread == null) {
@@ -339,7 +331,6 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
                 throw new IllegalStateException(getClass().getName() + " component which is not thread safes used by " + usedByThread + " and " + currentThread, usedByThreadHere);
             usedByThread = currentThread;
         }
-        return true;
     }
 
     public void resetUsedByThread() {

@@ -100,7 +100,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
     }
 
     @Override
-    protected boolean threadSafetyCheck(boolean isUsed) {
-        return true;
+    protected void threadSafetyCheck(boolean isUsed) {
+        // no check.
     }
 }

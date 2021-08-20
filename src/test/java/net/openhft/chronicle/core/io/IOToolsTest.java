@@ -26,7 +26,7 @@ public class IOToolsTest extends CoreTestCommon {
                 .parallel()
                 .forEach(i -> {
                     try {
-                        IOTools.readFile("readFileManyTimes.txt");
+                        IOTools.readFile(IOToolsTest.class, "readFileManyTimes.txt");
                     } catch (IOException ioe) {
                         Jvm.rethrow(ioe);
                     }
@@ -43,7 +43,7 @@ public class IOToolsTest extends CoreTestCommon {
                 .parallel()
                 .forEach(i -> {
                     try {
-                        IOTools.readFile(file);
+                        IOTools.readFile(IOToolsTest.class, file);
                     } catch (IOException ioe) {
                         Jvm.rethrow(ioe);
                     }

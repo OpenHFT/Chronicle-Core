@@ -1,7 +1,8 @@
 package net.openhft.chronicle.core.util;
 
 import static net.openhft.chronicle.core.util.AssertUtil.SKIP_ASSERTIONS;
-import static net.openhft.chronicle.core.util.Ints.*;
+import static net.openhft.chronicle.core.util.Ints.assertIfEnabled;
+import static net.openhft.chronicle.core.util.Ints.nonNegative;
 
 public final class AssertTest {
 
@@ -16,15 +17,4 @@ public final class AssertTest {
     public static void testWithAssertMethod(int x) {
         assertIfEnabled(nonNegative(), x);
     }
-/*
-    @Test
-    public void a() {
-        setInt(new byte[10], 8, 13);
-    }
-
-    public void setInt(byte[] bytes, int offset, int value) {
-        assertIfEnabled(Ints.betweenZeroAndReserving(),offset, bytes.length, Integer.BYTES);
-        // set value via unsafe
-    }*/
-
 }

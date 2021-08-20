@@ -19,14 +19,10 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
-import net.openhft.chronicle.core.onoes.ExceptionHandler;
-import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.Reference;
 import java.util.Collection;
-
-import static net.openhft.chronicle.core.io.AbstractCloseable.DISABLE_DISCARD_WARNING;
 
 public interface Closeable extends java.io.Closeable, QueryCloseable {
 
@@ -62,20 +58,4 @@ public interface Closeable extends java.io.Closeable, QueryCloseable {
      */
     @Override
     void close();
-
-    @Deprecated(/* to be removed in x.22 */)
-    default void notifyClosing() {
-        // take an action before everything else closes.
-    }
-
-    /* to be moved in x.22 to ManagedCloseable*/
-    default void warnAndCloseIfNotClosed() {
-        if (!isClosing()) {
-            if (Jvm.isResourceTracing() && !DISABLE_DISCARD_WARNING) {
-                ExceptionHandler warn = Jvm.getBoolean("warnAndCloseIfNotClosed") ? Jvm.warn() : Slf4jExceptionHandler.WARN;
-                warn.on(getClass(), "Discarded without closing " + this);
-            }
-            Closeable.closeQuietly(this);
-        }
-    }
 }
