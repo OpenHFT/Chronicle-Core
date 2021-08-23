@@ -390,7 +390,7 @@
         <url>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</url>
         <connection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</connection>
         <developerConnection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</developerConnection>
-        <tag>21-release</tag>
+        <tag>release/2.21</tag>
     </scm>
 
 </project>
