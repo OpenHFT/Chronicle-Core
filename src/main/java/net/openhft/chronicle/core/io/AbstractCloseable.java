@@ -59,6 +59,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     private transient volatile StackTrace closedHere;
     private transient volatile Thread usedByThread;
     private transient volatile StackTrace usedByThreadHere;
+    private transient boolean disableThreadSafetyCheck;
 
     @UsedViaReflection
     private transient Finalizer finalizer = DISABLE_DISCARD_WARNING ? null : new Finalizer();
@@ -321,7 +322,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     }
 
     protected void threadSafetyCheck(boolean isUsed) throws IllegalStateException {
-        if (DISABLE_THREAD_SAFETY)
+        if (DISABLE_THREAD_SAFETY || disableThreadSafetyCheck)
             return;
         if (usedByThread == null && !isUsed)
             return;
@@ -351,6 +352,15 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     @Override
     public String toString() {
         return referenceName();
+    }
+
+    public boolean disableThreadSafetyCheck() {
+        return disableThreadSafetyCheck;
+    }
+
+    public AbstractCloseable disableThreadSafetyCheck(boolean disableThreadSafetyCheck) {
+        this.disableThreadSafetyCheck = disableThreadSafetyCheck;
+        return this;
     }
 
     class Finalizer {

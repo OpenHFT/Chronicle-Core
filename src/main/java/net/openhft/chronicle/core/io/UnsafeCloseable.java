@@ -7,6 +7,10 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
     protected long address;
     protected Unsafe unsafe = null;
 
+    public UnsafeCloseable() {
+        disableThreadSafetyCheck(true);
+    }
+
     protected void address(long address) {
         this.address = address;
         unsafe = UnsafeMemory.UNSAFE;
@@ -97,10 +101,5 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
             throwExceptionIfClosed();
             throw e;
         }
-    }
-
-    @Override
-    protected void threadSafetyCheck(boolean isUsed) {
-        // no check.
     }
 }
