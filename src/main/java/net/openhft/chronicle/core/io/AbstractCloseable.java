@@ -20,6 +20,7 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
 import net.openhft.chronicle.core.UnsafeMemory;
+import net.openhft.chronicle.core.annotation.UsedViaReflection;
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 import net.openhft.chronicle.core.util.WeakIdentityHashMap;
@@ -58,6 +59,10 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     private transient volatile StackTrace closedHere;
     private transient volatile Thread usedByThread;
     private transient volatile StackTrace usedByThreadHere;
+
+    @UsedViaReflection
+    private transient Finalizer finalizer = DISABLE_DISCARD_WARNING ? null : new Finalizer();
+
     private int referenceId;
 
     protected AbstractCloseable() {
@@ -346,5 +351,14 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     @Override
     public String toString() {
         return referenceName();
+    }
+
+    class Finalizer {
+        @Override
+        protected void finalize()
+                throws Throwable {
+            warnAndCloseIfNotClosed();
+            super.finalize();
+        }
     }
 }
