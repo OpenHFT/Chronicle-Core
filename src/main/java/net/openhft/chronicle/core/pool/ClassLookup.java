@@ -18,7 +18,15 @@
 
 package net.openhft.chronicle.core.pool;
 
+import org.jetbrains.annotations.NotNull;
+
 public interface ClassLookup {
+
+    @Deprecated(/* to be removed in x.23, used in Datagrid */)
+    @NotNull
+    default ClassLookup wrap() {
+        return new ClassAliasPool(this);
+    }
 
     Class forName(CharSequence name) throws ClassNotFoundException;
 
