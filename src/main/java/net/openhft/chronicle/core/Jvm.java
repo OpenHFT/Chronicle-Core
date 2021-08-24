@@ -19,6 +19,7 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.annotation.DontChain;
+import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
 import net.openhft.chronicle.core.onoes.*;
 import net.openhft.chronicle.core.util.ObjectUtils;
 import net.openhft.chronicle.core.util.ThrowingSupplier;
@@ -28,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.misc.Signal;
 import sun.misc.Unsafe;
-import sun.nio.ch.DirectBuffer;
 import sun.nio.ch.Interruptible;
 
 import java.io.*;
@@ -1342,7 +1342,7 @@ public enum Jvm {
      * @return the native address of the provided {@code byteBuffer}
      */
     public static long address(@NotNull final ByteBuffer byteBuffer) {
-        return ((DirectBuffer) byteBuffer).address();
+        return DirectBufferUtil.addressOrThrow(byteBuffer);
     }
 
     /**

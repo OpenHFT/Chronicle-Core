@@ -19,7 +19,7 @@ package net.openhft.chronicle.core.cleaner.impl.jdk8;
 
 import net.openhft.chronicle.core.annotation.TargetMajorVersion;
 import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;
-import sun.nio.ch.DirectBuffer;
+import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
 
 import java.nio.ByteBuffer;
 
@@ -28,9 +28,7 @@ public final class Jdk8ByteBufferCleanerService implements ByteBufferCleanerServ
 
     @Override
     public void clean(final ByteBuffer buffer) {
-        if (buffer instanceof DirectBuffer) {
-            ((DirectBuffer) buffer).cleaner().clean();
-        }
+        DirectBufferUtil.cleanIfInstanceOfDirectBuffer(buffer);
     }
 
     @Override

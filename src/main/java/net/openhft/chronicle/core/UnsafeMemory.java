@@ -18,12 +18,12 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
 import net.openhft.chronicle.core.util.Ints;
 import net.openhft.chronicle.core.util.Longs;
 import net.openhft.chronicle.core.util.MisAlignedAssertionError;
 import org.jetbrains.annotations.NotNull;
 import sun.misc.Unsafe;
-import sun.nio.ch.DirectBuffer;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
@@ -1310,7 +1310,7 @@ public class UnsafeMemory implements Memory {
 
     @Override
     public long address(ByteBuffer bb) {
-        return ((DirectBuffer) bb).address();
+        return DirectBufferUtil.addressOrThrow(bb);
     }
 
     // https://github.com/OpenHFT/OpenHFT/issues/23

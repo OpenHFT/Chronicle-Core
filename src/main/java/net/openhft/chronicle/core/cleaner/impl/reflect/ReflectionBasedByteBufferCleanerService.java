@@ -19,7 +19,7 @@ package net.openhft.chronicle.core.cleaner.impl.reflect;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;
-import sun.nio.ch.DirectBuffer;
+import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -45,7 +45,7 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
         Impact impact = Impact.SOME_IMPACT;
         try {
             final Class<?> cleanerClass = Class.forName(cleanerClassname);
-            cleaner = lookup.findVirtual(DirectBuffer.class, "cleaner", MethodType.methodType(cleanerClass));
+            cleaner = lookup.findVirtual(DirectBufferUtil.directBufferClass(), "cleaner", MethodType.methodType(cleanerClass));
             clean = lookup.findVirtual(cleanerClass, "clean", MethodType.methodType(void.class));
         } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException e) {
             // Don't want to record this in tests so just send to slf4j
@@ -70,7 +70,7 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
                             " could not be explicitly cleaned and will thus linger until the next GC.");
         } else {
             try {
-                final Object cleaner = CLEANER_METHOD.invoke((DirectBuffer) buffer);
+                final Object cleaner = CLEANER_METHOD.invoke(DirectBufferUtil.directBufferClass().cast(buffer));
                 CLEAN_METHOD.invoke(cleaner);
             } catch (Throwable throwable) {
                 throw Jvm.rethrow(throwable);

@@ -287,7 +287,7 @@ public final class IOTools {
     public static final int IOSTATUS_INTERRUPTED = IOStatus.INTERRUPTED;
 
     public static boolean isDirectBuffer(ByteBuffer byteBuffer) {
-        return byteBuffer instanceof DirectBuffer;
+        return byteBuffer.isDirect();
     }
 
     public static long addressFor(ByteBuffer byteBuffer) {
