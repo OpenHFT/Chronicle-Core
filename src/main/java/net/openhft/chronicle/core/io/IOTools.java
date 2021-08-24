@@ -21,10 +21,10 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.cleaner.CleanerServiceLocator;
+import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
 import net.openhft.chronicle.core.util.Time;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import sun.nio.ch.DirectBuffer;
 import sun.nio.ch.IOStatus;
 
 import java.io.*;
@@ -291,7 +291,7 @@ public final class IOTools {
     }
 
     public static long addressFor(ByteBuffer byteBuffer) {
-        return ((DirectBuffer) byteBuffer).address();
+        return DirectBufferUtil.addressOrThrow(byteBuffer);
     }
 
     public static int normaliseIOStatus(int n) {
