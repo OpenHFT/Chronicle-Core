@@ -99,6 +99,10 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
             synchronized (traceSet) {
                 for (CloseableTracer key : traceSet) {
                     try {
+                        // too late to be checking thread safety.
+                        if (key instanceof AbstractCloseable) {
+                            ((AbstractCloseable) key).disableThreadSafetyCheck(true);
+                        }
                         if (key instanceof ReferenceCountedTracer) {
                             ((ReferenceCountedTracer) key).throwExceptionIfNotReleased();
                         }

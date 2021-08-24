@@ -17,12 +17,13 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     }
 
     private final Runnable onRelease;
+    private final Class type;
     // must be volatile
     @UsedViaReflection
     private volatile int value = 1;
     private volatile boolean released = false;
-    private final Class type;
     private boolean unmonitored;
+    private StackTrace releasedHere;
 
     VanillaReferenceCounted(final Runnable onRelease, Class type) {
         this.onRelease = onRelease;
@@ -97,7 +98,8 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
 
     public void callOnRelease() throws ClosedIllegalStateException {
         if (released && !Jvm.supportThread())
-            throw new ClosedIllegalStateException(type.getName() + " already released");
+            throw new ClosedIllegalStateException(type.getName() + " already released", releasedHere);
+        releasedHere = Jvm.isResourceTracing() ? new StackTrace("Released here") : null;
         released = true;
         onRelease.run();
     }
