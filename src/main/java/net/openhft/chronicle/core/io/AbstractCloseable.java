@@ -33,7 +33,7 @@ import java.util.Set;
 import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEASER;
 import static net.openhft.chronicle.core.io.TracingReferenceCounted.asString;
 
-public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwner, ManagedCloseable {
+public abstract class AbstractCloseable implements ReferenceOwner, ManagedCloseable {
     protected static final boolean DISABLE_THREAD_SAFETY = Jvm.getBoolean("disable.thread.safety", false);
     protected static final boolean DISABLE_DISCARD_WARNING = Jvm.getBoolean("disable.discard.warning", false);
     protected static final boolean STRICT_DISCARD_WARNING = Jvm.getBoolean("strict.discard.warning", false);
@@ -46,7 +46,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     private static final int STATE_NOT_CLOSED = 0;
     private static final int STATE_CLOSING = ~0;
     private static final int STATE_CLOSED = 1;
-    static volatile Set<CloseableTracer> CLOSEABLE_SET;
+    static volatile Set<Closeable> CLOSEABLE_SET;
 
     static {
         if (Jvm.isResourceTracing())
@@ -69,7 +69,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     protected AbstractCloseable() {
         createdHere = Jvm.isResourceTracing() ? new StackTrace(getClass().getName() + " created here") : null;
 
-        Set<CloseableTracer> set = CLOSEABLE_SET;
+        Set<Closeable> set = CLOSEABLE_SET;
         if (set != null)
             set.add(this);
     }
@@ -85,7 +85,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     }
 
     public static boolean waitForCloseablesToClose(long millis) {
-        final Set<CloseableTracer> traceSet = CLOSEABLE_SET;
+        final Set<Closeable> traceSet = CLOSEABLE_SET;
         if (traceSet == null) {
             return true;
         }
@@ -97,7 +97,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
         toWait:
         do {
             synchronized (traceSet) {
-                for (CloseableTracer key : traceSet) {
+                for (Closeable key : traceSet) {
                     try {
                         // too late to be checking thread safety.
                         if (key instanceof AbstractCloseable) {
@@ -119,7 +119,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
     }
 
     public static void assertCloseablesClosed() {
-        final Set<CloseableTracer> traceSet = CLOSEABLE_SET;
+        final Set<Closeable> traceSet = CLOSEABLE_SET;
         if (traceSet == null) {
             Jvm.warn().on(AbstractCloseable.class, "closable tracing disabled");
             return;
@@ -131,20 +131,22 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
 
         synchronized (traceSet) {
             traceSet.removeIf(o -> o == null || o.isClosing());
-            Set<CloseableTracer> nested = new HashSet<>();
-            for (CloseableTracer key : traceSet) {
+            Set<Closeable> nested = new HashSet<>();
+            for (Closeable key : traceSet) {
                 addNested(nested, key, 1);
             }
-            Set<CloseableTracer> traceSet2 = new HashSet<>(traceSet);
+            Set<Closeable> traceSet2 = new HashSet<>(traceSet);
             traceSet2.removeAll(nested);
 
-            for (CloseableTracer key : traceSet2) {
-                Throwable t;
+            for (Closeable key : traceSet2) {
+                Throwable t = null;
                 try {
                     if (key instanceof ReferenceCountedTracer) {
                         ((ReferenceCountedTracer) key).throwExceptionIfNotReleased();
                     }
-                    t = key.createdHere();
+                    if (key instanceof ManagedCloseable) {
+                        t = ((ManagedCloseable) key).createdHere();
+                    }
                 } catch (IllegalStateException e) {
                     t = e;
                 }
@@ -165,16 +167,16 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
         }
     }
 
-    private static void addNested(Set<CloseableTracer> nested, CloseableTracer key, int depth) {
+    private static void addNested(Set<Closeable> nested, Closeable key, int depth) {
         if (key.isClosing())
             return;
         Set<Field> fields = new HashSet<>();
-        Class<? extends CloseableTracer> keyClass = key.getClass();
+        Class<? extends Closeable> keyClass = key.getClass();
         getCloseableFields(keyClass, fields);
         for (Field field : fields) {
             try {
                 field.setAccessible(true);
-                CloseableTracer o = (CloseableTracer) field.get(key);
+                Closeable o = (Closeable) field.get(key);
                 if (o != null && nested.add(o))
                     if (depth > 1)
                         addNested(nested, o, depth - 1);
@@ -188,7 +190,7 @@ public abstract class AbstractCloseable implements CloseableTracer, ReferenceOwn
         if (keyClass == null || keyClass == Object.class)
             return;
         for (Field field : keyClass.getDeclaredFields())
-            if (CloseableTracer.class.isAssignableFrom(field.getType()))
+            if (Closeable.class.isAssignableFrom(field.getType()))
                 fields.add(field);
         getCloseableFields(keyClass.getSuperclass(), fields);
     }
