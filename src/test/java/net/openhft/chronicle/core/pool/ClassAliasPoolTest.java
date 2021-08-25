@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.pool;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.threads.ThreadDump;
 import org.junit.After;
 import org.junit.Before;
@@ -26,7 +27,7 @@ import org.junit.Test;
 import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
 import static org.junit.Assert.assertEquals;
 
-public class ClassAliasPoolTest {
+public class ClassAliasPoolTest extends CoreTestCommon {
 
     private ThreadDump threadDump;
 
@@ -41,7 +42,7 @@ public class ClassAliasPoolTest {
     }
 
     @Test
-    public void forName() throws ClassNotFoundException {
+    public void forName() {
         CLASS_ALIASES.addAlias(ClassAliasPoolTest.class);
         String simpleName = getClass().getSimpleName();
         assertEquals(ClassAliasPoolTest.class, CLASS_ALIASES.forName(simpleName));
@@ -64,6 +65,13 @@ public class ClassAliasPoolTest {
                 CLASS_ALIASES.nameFor(TestEnum.FOO.getClass()));
         assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum",
                 CLASS_ALIASES.nameFor(TestEnum.BAR.getClass()));
+    }
+
+    @Test
+    public void replace() {
+        expectException("Replaced class net.openhft.chronicle.core.pool.ClassAliasPoolTest with class net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum");
+        CLASS_ALIASES.addAlias(ClassAliasPoolTest.class, "name1");
+        CLASS_ALIASES.addAlias(TestEnum.class, "name1");
     }
 
     enum TestEnum {

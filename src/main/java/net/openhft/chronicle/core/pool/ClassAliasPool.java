@@ -80,10 +80,11 @@ public class ClassAliasPool implements ClassLookup {
         addAlias(LocalTime.class, "Time");
         addAlias(ZonedDateTime.class, "ZonedDateTime");
         addAlias(TimeUnit.class, "TimeUnit");
-        addAlias(Byte[].class, "Byte[]");
         addAlias(String[].class, "String[]");
         for (@NotNull Class prim : new Class[]{boolean.class, byte.class, short.class, char.class, int.class, long.class, float.class, double.class})
             addAlias(Array.newInstance(prim, 0).getClass(), prim.getName() + "[]");
+        // byte[] gets in before camel cased Byte[]
+        addAlias(Byte[].class, "Byte[]");
         addAlias(Class.class, "type");
         addAlias(void.class, "!null");
 
@@ -184,8 +185,10 @@ public class ClassAliasPool implements ClassLookup {
     @Override
     public void addAlias(@NotNull Class... classes) {
         for (@NotNull Class clazz : classes) {
-            stringClassMap.putIfAbsent(new CAPKey(clazz.getName()), clazz);
-            stringClassMap2.putIfAbsent(new CAPKey(clazz.getSimpleName()), clazz);
+            Class prev = stringClassMap.putIfAbsent(new CAPKey(clazz.getName()), clazz);
+            warnIfChanged(prev, clazz, "Did not replace by name");
+            prev = stringClassMap2.putIfAbsent(new CAPKey(clazz.getSimpleName()), clazz);
+            warnIfChanged(prev, clazz, "Did not replace by simpleName");
             stringClassMap2.putIfAbsent(new CAPKey(toCamelCase(clazz.getSimpleName())), clazz);
             classStringMap.computeIfAbsent(clazz, Class::getSimpleName);
         }
@@ -200,11 +203,17 @@ public class ClassAliasPool implements ClassLookup {
     @Override
     public void addAlias(Class clazz, @NotNull String names) {
         for (@NotNull String name : names.split(", ?")) {
-            stringClassMap.put(new CAPKey(name), clazz);
+            Class prev = stringClassMap.put(new CAPKey(name), clazz);
+            warnIfChanged(prev, clazz, "Replaced");
             stringClassMap2.putIfAbsent(new CAPKey(toCamelCase(name)), clazz);
             classStringMap.putIfAbsent(clazz, name);
             addAlias(clazz);
         }
+    }
+
+    private void warnIfChanged(Class prev, Class clazz, String msg) {
+        if (prev != null && prev != clazz)
+            Jvm.warn().on(getClass(), msg + " " + prev + " with " + clazz);
     }
 
     static class CAPKey implements CharSequence {
