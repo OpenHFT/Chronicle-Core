@@ -43,8 +43,6 @@ public class ThreadDump {
         ignored.add("Time-limited test");
         ignored.add("Attach Listener");
         ignored.add("process reaper");
-        for (int i = 0, max = Runtime.getRuntime().availableProcessors(); i < max; i++)
-            ignored.add("ForkJoinPool.commonPool-worker-" + i);
     }
 
     public static void add(Thread t, StackTrace stackTrace) {
@@ -87,7 +85,12 @@ public class ThreadDump {
             if (allStackTraces.isEmpty())
                 return;
             allStackTraces.keySet()
-                    .removeIf(next -> ignored.stream().anyMatch(item -> next.getName().contains(item)));
+                    .removeIf(next -> ignored.stream()
+                            .anyMatch(item -> next.getName().contains(item)));
+            allStackTraces.keySet()
+                    .removeIf(next -> next.getName().startsWith("ForkJoinPool.commonPool-worker-"));
+            allStackTraces.keySet()
+                    .removeIf(next -> next.getName().startsWith("HttpClient-") & next.getName().endsWith("-SelectorManager"));
             allStackTraces.keySet()
                     .removeIf(next -> next.getName().contains(IGNORE_THREAD_IF_IN_NAME));
             if (allStackTraces.isEmpty())
