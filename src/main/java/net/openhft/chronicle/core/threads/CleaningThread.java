@@ -96,7 +96,7 @@ public class CleaningThread extends Thread {
     public void run() {
         // reset the thread affinity
         if (Affinity.getAffinity().cardinality() == 1) {
-            Jvm.warn().on(getClass(), "Resetting affinity from " + Affinity.getAffinity() + " to " + AffinityLock.BASE_AFFINITY);
+            Jvm.debug().on(getClass(), "Resetting affinity from " + Affinity.getAffinity() + " to " + AffinityLock.BASE_AFFINITY);
             Affinity.setAffinity(AffinityLock.BASE_AFFINITY);
         }
 
