@@ -24,6 +24,8 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class StringInternerTest {
+
+
     @Test
     public void testIntern() throws IllegalArgumentException {
         @NotNull StringInterner si = new StringInterner(128);
@@ -32,4 +34,51 @@ public class StringInternerTest {
         }
         assertEquals(82, si.valueCount());
     }
+
+    @Test
+    public void testInternIndex() throws IllegalArgumentException {
+        @NotNull StringInterner si = new StringInterner(128);
+        for (int i = 0; i < 100; i++) {
+            assertEquals("" + i, si.get(si.index("" + i, null)));
+        }
+
+    }
+
+    private String[] uppercase;
+
+    /**
+     * an example of the StringInterner used in conjunction with  the uppercase[] to cache another value
+     *
+     * @throws IllegalArgumentException
+     */
+    @Test
+    public void testToUppercaseInternIndex() throws IllegalArgumentException {
+
+        @NotNull StringInterner si = new StringInterner(128);
+        uppercase = new String[si.capacity()];
+        for (int i = 0; i < 100; i++) {
+            String lowerCaseString = randomLowercaseString();
+            System.out.println(lowerCaseString.toString());
+            int index = si.index(lowerCaseString, this::changed);
+            if (index != -1)
+                assertEquals(lowerCaseString.toUpperCase(), uppercase[index]);
+        }
+    }
+
+
+    private String randomLowercaseString() {
+        final String CHARS = "abcdefghijklmnopqrstuvwxyz";
+        StringBuilder sb = new StringBuilder();
+        final int count = 1 + (int) ((Math.random() * 10));
+        for (int i = 0; i < count; i++) {
+            sb.append(CHARS.charAt((int) (Math.random() * CHARS.length())));
+        }
+        return sb.toString();
+    }
+
+    private void changed(int index, String value) {
+        uppercase[index] = value.toUpperCase();
+    }
+
+
 }

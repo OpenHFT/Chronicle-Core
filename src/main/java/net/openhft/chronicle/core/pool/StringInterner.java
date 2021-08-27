@@ -43,12 +43,23 @@ public class StringInterner {
     protected final int mask, shift;
     protected boolean toggle = false;
 
+    interface Changed {
+        void onChanged(int index, String value);
+    }
+
     // throws IllegalArgumentException
     public StringInterner(int capacity) throws IllegalArgumentException {
         int n = Maths.nextPower2(capacity, 128);
         shift = Maths.intLog2(n);
         interner = new String[n];
         mask = n - 1;
+    }
+
+    /**
+     * @return the size of  interner[]
+     */
+    public int capacity() {
+        return interner.length;
     }
 
     @Nullable
@@ -70,6 +81,76 @@ public class StringInterner {
         interner[s == null || (s2 != null && toggle()) ? h : h2] = s3;
 
         return s3;
+    }
+
+
+    private String[] uppercase;
+
+
+    /**
+     * provide
+     *
+     * @param cs a source string
+     * @return the index that the internered string is stored in, or -1 if not stored
+     * <p>
+     * <p>
+     * An example of the StringInterner used in conjunction with the uppercase[] to cache another value
+     * <pre>
+     *
+     * private String[] uppercase;
+     *
+     * public void myMethod() throws IllegalArgumentException {
+     *
+     *         StringInterner si = new StringInterner(128);
+     *         uppercase = new String[si.capacity()];
+     *
+     *         String lowerCaseString = ...
+     *
+     *         int index = si.index(lowerCaseString, this::changed);
+     *         if (index != -1)
+     *             assertEquals(lowerCaseString.toUpperCase(), uppercase[index]);
+     * }
+     *
+     * private void changed(int index, String value) {
+     *      uppercase[index] = value.toUpperCase();
+     * }
+     *
+     * </pre>
+     */
+    @Nullable
+    public int index(@Nullable CharSequence cs, @Nullable Changed onChanged) {
+        if (cs == null)
+            return -1;
+        if (cs.length() > interner.length)
+            return -1;
+        int hash = Maths.hash32(cs);
+        int h = hash & mask;
+        String s = interner[h];
+        if (StringUtils.isEqual(cs, s))
+            return h;
+
+        int h2 = (hash >> shift) & mask;
+        String s2 = interner[h2];
+        if (StringUtils.isEqual(cs, s2))
+            return h2;
+
+        String s3 = cs.toString();
+        final int i = s == null || (s2 != null && toggle()) ? h : h2;
+
+        interner[i] = s3;
+        if (onChanged != null)
+            onChanged.onChanged(i, s3);
+        return i;
+    }
+
+    /**
+     * get an intered string based on the index
+     *
+     * @param index the index of the  interner string, to acquire an index call  {@link net.openhft.chronicle.core.pool.StringInterner#index}
+     * @return
+     */
+    public String get(int index) {
+        return interner[index];
     }
 
     protected boolean toggle() {
