@@ -64,6 +64,9 @@ public class StringInternerTest {
                 assertEquals(lowerCaseString.toUpperCase(), uppercase[index]);
         }
     }
+    private void changed(int index, String value) {
+        uppercase[index] = value.toUpperCase();
+    }
 
 
     private String randomLowercaseString() {
@@ -76,9 +79,6 @@ public class StringInternerTest {
         return sb.toString();
     }
 
-    private void changed(int index, String value) {
-        uppercase[index] = value.toUpperCase();
-    }
 
 
 }

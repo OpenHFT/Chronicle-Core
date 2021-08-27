@@ -43,7 +43,7 @@ public class StringInterner {
     protected final int mask, shift;
     protected boolean toggle = false;
 
-    interface Changed {
+    public interface Changed {
         void onChanged(int index, String value);
     }
 
