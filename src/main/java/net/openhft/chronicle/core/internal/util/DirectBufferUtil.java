@@ -50,5 +50,4 @@ public final class DirectBufferUtil {
         return ((DirectBuffer) buffer).address();
     }
 
-
 }

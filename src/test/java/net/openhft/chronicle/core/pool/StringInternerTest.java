@@ -25,7 +25,6 @@ import static org.junit.Assert.assertEquals;
 
 public class StringInternerTest {
 
-
     @Test
     public void testIntern() throws IllegalArgumentException {
         @NotNull StringInterner si = new StringInterner(128);
@@ -68,7 +67,6 @@ public class StringInternerTest {
         uppercase[index] = value.toUpperCase();
     }
 
-
     private String randomLowercaseString() {
         final String CHARS = "abcdefghijklmnopqrstuvwxyz";
         StringBuilder sb = new StringBuilder();
@@ -78,7 +76,5 @@ public class StringInternerTest {
         }
         return sb.toString();
     }
-
-
 
 }

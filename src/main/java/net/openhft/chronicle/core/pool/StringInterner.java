@@ -83,9 +83,7 @@ public class StringInterner {
         return s3;
     }
 
-
     private String[] uppercase;
-
 
     /**
      * provide
