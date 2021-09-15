@@ -46,15 +46,11 @@ public interface EventLoop extends Closeable {
     void unpause();
 
     /**
-     * Notify event loop to stop executing handlers. It is not expected that event loops can then be restarted
+     * Stop executing handlers and block until all handlers are complete.
+     * <p>
+     * It is not expected that event loops can then be restarted.
      */
     void stop();
-
-    /**
-     * @return {@code true} close has been called
-     */
-    @Override
-    boolean isClosed();
 
     /**
      * @return {@code true} if the main thread is running
@@ -62,7 +58,7 @@ public interface EventLoop extends Closeable {
     boolean isAlive();
 
     /**
-     * Wait until the event loop has terminated (after close has been called)
+     * Wait until the event loop has terminated (after {@link #stop()} has been called)
      */
     void awaitTermination();
 
@@ -72,4 +68,12 @@ public interface EventLoop extends Closeable {
     static boolean inEventLoop() {
         return CleaningThread.inEventLoop(Thread.currentThread());
     }
+
+    /**
+     * Stop the event loop, then close any resources being held.
+     *
+     * Blocks until the handlers are all stopped and closed
+     */
+    @Override
+    void close();
 }
