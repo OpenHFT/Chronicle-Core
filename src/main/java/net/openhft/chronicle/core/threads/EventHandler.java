@@ -42,7 +42,7 @@ public interface EventHandler extends VanillaEventHandler {
     }
 
     /**
-     * Notify handler that the event the handler's action method
+     * Notify handler that the event handler's action method
      * will not be called again. This is an appropriate place to perform cleanup.
      * Event loop implementations call this once only, from the event loop's execution thread.
      * <p>This is called either when the event loop is terminating, or if this EventHandler is being

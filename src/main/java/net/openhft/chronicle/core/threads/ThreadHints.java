@@ -23,7 +23,9 @@ import net.openhft.chronicle.core.Jvm;
  * behaviours that are implemented in or anticipated to be spec'ed under the
  * {@link java.lang.Thread} class in some Java SE versions, but missing in prior
  * versions.
+ * @deprecated use net.openhft.chronicle.core.Jvm#nanoPause()
  */
+@Deprecated(/* to be removed in x.23 */)
 public final class ThreadHints {
 
     private ThreadHints() {
