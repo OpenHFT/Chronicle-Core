@@ -25,7 +25,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     }
 
     protected AbstractReferenceCounted(boolean monitored) {
-        Runnable performRelease = BG_RELEASER && performReleaseInBackground()
+        Runnable performRelease = BG_RELEASER && canReleaseInBackground()
                 ? this::backgroundPerformRelease
                 : this::inThreadPerformRelease;
         referenceId = IOTools.counter(getClass()).incrementAndGet();
@@ -95,7 +95,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         referenceCounted.throwExceptionIfNotReleased();
     }
 
-    void backgroundPerformRelease() {
+    protected void backgroundPerformRelease() {
         BackgroundResourceReleaser.release(this);
     }
 
@@ -111,7 +111,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
             Slf4jExceptionHandler.PERF.on(getClass(), "Took " + time / 100_000 / 10.0 + " ms to performRelease");
     }
 
-    protected boolean performReleaseInBackground() {
+    protected boolean canReleaseInBackground() {
         return false;
     }
 

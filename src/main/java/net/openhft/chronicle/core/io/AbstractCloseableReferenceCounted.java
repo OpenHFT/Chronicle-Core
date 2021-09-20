@@ -11,7 +11,7 @@ public abstract class AbstractCloseableReferenceCounted
         extends AbstractReferenceCounted
         implements ManagedCloseable {
 
-    private transient volatile boolean closed;
+    private transient volatile boolean closing, closed;
     private transient volatile StackTrace closedHere;
     private boolean initReleased;
 
@@ -65,23 +65,46 @@ public abstract class AbstractCloseableReferenceCounted
         setClosed();
     }
 
+    @Override
+    protected void backgroundPerformRelease() {
+        setClosing();
+        super.backgroundPerformRelease();
+    }
+
+    /**
+     * Set closing in case it is being released in the background.
+     */
+    protected void setClosing() {
+        closing = true;
+        setClosedHere(" closing here");
+    }
+
+    private void setClosedHere(String s) {
+        closedHere = Jvm.isResourceTracing() ? new StackTrace(getClass().getName() + s) : null;
+    }
+
+    /**
+     * When actually closed.
+     */
     protected void setClosed() {
-        closed = true;
-        closedHere = Jvm.isResourceTracing() ? new StackTrace(getClass().getName() + " closed here") : null;
+        closing = closed = true;
+        setClosedHere(" closed here");
     }
 
     @Override
     public void throwExceptionIfClosed() throws IllegalStateException {
-        if (closed)
-            throw new ClosedIllegalStateException(getClass().getName() + " closed", closedHere);
+        throwExceptionIfClosed0();
         throwExceptionIfReleased();
         assert threadSafetyCheck(true);
     }
 
-    // throws IllegalStateException
+    private void throwExceptionIfClosed0() {
+        if (closing)
+            throw new ClosedIllegalStateException(getClass().getName() + (closed ? " closed" : " closing"), closedHere);
+    }
+
     protected void throwExceptionIfClosedInSetter() throws IllegalStateException {
-        if (closed)
-            throw new ClosedIllegalStateException(getClass().getName() + " closed", closedHere);
+        throwExceptionIfClosed0();
         throwExceptionIfReleased();
         assert threadSafetyCheck(false);
     }

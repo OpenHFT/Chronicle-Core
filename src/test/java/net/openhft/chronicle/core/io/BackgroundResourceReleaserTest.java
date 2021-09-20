@@ -134,7 +134,7 @@ public class BackgroundResourceReleaserTest {
 
     class BGReferenceCounted extends AbstractReferenceCounted {
         @Override
-        protected boolean performReleaseInBackground() {
+        protected boolean canReleaseInBackground() {
             return true;
         }
 

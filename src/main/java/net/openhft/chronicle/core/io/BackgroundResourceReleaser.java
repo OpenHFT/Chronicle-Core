@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public enum BackgroundResourceReleaser {
     ; // none
     public static final String BACKGROUND_RESOURCE_RELEASER = "background~resource~releaser";
-    static final boolean BG_RELEASER = Jvm.getBoolean("background.releaser", false);
+    static final boolean BG_RELEASER = Jvm.getBoolean("background.releaser", true);
     private static final BlockingQueue<Object> RESOURCES = new ArrayBlockingQueue<>(128);
     private static final AtomicLong COUNTER = new AtomicLong();
     private static final Thread RELEASER = new Thread(BackgroundResourceReleaser::runReleaseResources,
