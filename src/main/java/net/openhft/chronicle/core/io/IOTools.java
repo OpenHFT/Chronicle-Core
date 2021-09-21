@@ -114,6 +114,29 @@ public final class IOTools {
                     throw new AssertionError("Could not delete " + dir);
     }
 
+    /**
+     * Ensures that directory is absent or deleted, awaits for given timeout if necessary.
+     *
+     * @param timeoutMs Time to ensure that the directory is absent.
+     * @param dir Dir to delete.
+     * @throws AssertionError If timeout passed and the directory is still present.
+     */
+    public static void deleteDirWithFilesOrWait(long timeoutMs, @NotNull File dir) {
+        long startTs = System.currentTimeMillis();
+
+        do {
+            if (deleteDirWithFiles(dir))
+                return;
+
+            if (dir.exists())
+                Jvm.pause(50);
+            else
+                return;
+        } while (System.currentTimeMillis() - startTs < timeoutMs);
+
+        throw new AssertionError("Failed to delete dir " + dir + " within " + timeoutMs + "ms");
+    }
+
     @NotNull
     public static URL urlFor(Class clazz, String name) throws FileNotFoundException {
         return urlFor(clazz.getClassLoader(), name);
