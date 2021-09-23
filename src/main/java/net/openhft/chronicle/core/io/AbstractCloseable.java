@@ -24,6 +24,7 @@ import net.openhft.chronicle.core.annotation.UsedViaReflection;
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 import net.openhft.chronicle.core.threads.CleaningThread;
+import net.openhft.chronicle.core.threads.CleaningThreadLocal;
 import net.openhft.chronicle.core.util.WeakIdentityHashMap;
 
 import java.lang.reflect.Field;
@@ -122,6 +123,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
 
         toWait:
         do {
+            CleaningThreadLocal.cleanupNonCleaningThreads();
             synchronized (traceSet) {
                 for (Closeable key : traceSet) {
                     try {

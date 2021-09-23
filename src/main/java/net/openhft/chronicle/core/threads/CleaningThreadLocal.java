@@ -4,6 +4,7 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.Closeable;
 import net.openhft.chronicle.core.util.ThrowingConsumer;
 
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -13,9 +14,12 @@ import java.util.function.Supplier;
  * Note: this will not clean up the resource if the ThreadLocal itself is discarded.
  */
 public class CleaningThreadLocal<T> extends ThreadLocal<T> {
+    private static final Set<CleaningThreadLocal> cleaningThreadLocals = Collections.synchronizedSet(new LinkedHashSet<>());
+
     private final Supplier<T> supplier;
     private final Function<T, T> getWrapper;
     private final ThrowingConsumer<T, Exception> cleanup;
+    private Map<Thread, Object> nonCleaningThreadValues = null;
 
     CleaningThreadLocal(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup) {
         this(supplier, cleanup, Function.identity());
@@ -25,6 +29,8 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         this.supplier = supplier;
         this.cleanup = cleanup;
         this.getWrapper = getWrapper;
+        // only do this for testing.
+        assert trackNonCleaningThreads();
     }
 
     public static <T> CleaningThreadLocal<T> withCloseQuietly(Supplier<T> supplier) {
@@ -44,9 +50,39 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         return new CleaningThreadLocal<>(supplier, cleanup, getWrapper);
     }
 
+    public static void cleanupNonCleaningThreads() {
+        if (cleaningThreadLocals.isEmpty())
+            return;
+
+        synchronized (cleaningThreadLocals) {
+            for (Iterator<CleaningThreadLocal> iterator = cleaningThreadLocals.iterator(); iterator.hasNext(); ) {
+                CleaningThreadLocal<?> nctl = iterator.next();
+                for (Map.Entry<Thread, Object> entry : nctl.nonCleaningThreadValues.entrySet()) {
+                    if (!entry.getKey().isAlive())
+                        ((CleaningThreadLocal) nctl).cleanup(entry.getValue());
+                }
+                if (nctl.nonCleaningThreadValues.isEmpty())
+                    iterator.remove();
+            }
+        }
+    }
+
+    private boolean trackNonCleaningThreads() {
+        cleaningThreadLocals.add(this);
+        nonCleaningThreadValues = Collections.synchronizedMap(new LinkedHashMap<>());
+        return true;
+    }
+
     @Override
     protected T initialValue() {
-        return supplier.get();
+        final T t = supplier.get();
+        if (nonCleaningThreadValues != null) {
+            Thread thread = Thread.currentThread();
+            if (thread instanceof CleaningThread)
+                return t;
+            nonCleaningThreadValues.put(thread, t);
+        }
+        return t;
     }
 
     @Override
@@ -54,14 +90,39 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         return getWrapper.apply(super.get());
     }
 
+    @Override
+    public void set(T value) {
+        final Thread thread = Thread.currentThread();
+        if (thread instanceof CleaningThread) {
+            CleaningThread.performCleanup(thread, this);
+        } else if (nonCleaningThreadValues != null) {
+            final T o = (T) nonCleaningThreadValues.put(thread, value);
+            cleanup(o);
+        }
+        super.set(value);
+    }
+
+    @Override
+    public void remove() {
+        final Thread thread = Thread.currentThread();
+        if (thread instanceof CleaningThread) {
+            CleaningThread.performCleanup(thread, this);
+        } else if (nonCleaningThreadValues != null) {
+            final T o = (T) nonCleaningThreadValues.remove(thread);
+            cleanup(o);
+        }
+        super.remove();
+    }
+
     /**
      * Cleanup. Can safely be called more than once - will only perform cleanup the first time.
+     *
      * @param value value to clean up for
      */
     public synchronized void cleanup(T value) {
         try {
             ThrowingConsumer<T, Exception> cleanup = this.cleanup;
-            if (cleanup != null)
+            if (cleanup != null && value != null)
                 cleanup.accept(value);
         } catch (Exception e) {
             Jvm.warn().on(getClass(), "Exception cleaning up " + value.getClass(), e);

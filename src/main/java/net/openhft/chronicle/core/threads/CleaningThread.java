@@ -80,6 +80,7 @@ public class CleaningThread extends Thread {
                 if (value == null)
                     continue;
 
+                System.out.println(Thread.currentThread() + " - Cleaning " + key);
                 CleaningThreadLocal ctl = (CleaningThreadLocal) key;
                 ctl.cleanup(value);
 
@@ -90,6 +91,62 @@ public class CleaningThread extends Thread {
                 Jvm.debug().on(CleaningThreadLocal.class, e);
             }
         }
+    }
+
+    /**
+     * Cleanup a specific CleaningThreadLocal
+     */
+    public static void performCleanup(Thread thread, CleaningThreadLocal ctl) {
+        WeakReference[] table;
+        Object o;
+        try {
+            o = THREAD_LOCALS.get(thread);
+            if (o == null)
+                return;
+            table = (WeakReference[]) TABLE.get(o);
+        } catch (IllegalAccessException | IllegalArgumentException e) {
+            Jvm.debug().on(CleaningThreadLocal.class, e.toString());
+            return;
+        }
+        if (table == null)
+            return;
+
+        Method remove;
+        try {
+            remove = o.getClass().getDeclaredMethod("remove", ThreadLocal.class);
+            remove.setAccessible(true);
+        } catch (NoSuchMethodException e) {
+            return;
+        }
+
+        for (WeakReference reference : table) {
+            try {
+                Object key = reference != null ? reference.get() : null;
+                if (!(key instanceof CleaningThreadLocal))
+                    continue;
+
+                if (key != ctl)
+                    continue;
+
+                Object value = VALUE.get(reference);
+                if (value == null)
+                    continue;
+
+                System.out.println(Thread.currentThread() + " - Cleaning " + key);
+                ctl.cleanup(value);
+
+                remove.invoke(o, key);
+                break;
+            } catch (IllegalAccessException e) {
+                Jvm.debug().on(CleaningThreadLocal.class, e.toString());
+            } catch (Throwable e) {
+                Jvm.debug().on(CleaningThreadLocal.class, e);
+            }
+        }
+    }
+
+    public static boolean inEventLoop(Thread t) {
+        return t instanceof CleaningThread && ((CleaningThread) t).inEventLoop();
     }
 
     @Override
@@ -109,9 +166,5 @@ public class CleaningThread extends Thread {
 
     public boolean inEventLoop() {
         return inEventLoop;
-    }
-
-    public static boolean inEventLoop(Thread t) {
-        return t instanceof CleaningThread && ((CleaningThread) t).inEventLoop();
     }
 }
