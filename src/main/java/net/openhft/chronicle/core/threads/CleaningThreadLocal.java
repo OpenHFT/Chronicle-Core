@@ -57,9 +57,12 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         synchronized (cleaningThreadLocals) {
             for (Iterator<CleaningThreadLocal> iterator = cleaningThreadLocals.iterator(); iterator.hasNext(); ) {
                 CleaningThreadLocal<?> nctl = iterator.next();
-                for (Map.Entry<Thread, Object> entry : nctl.nonCleaningThreadValues.entrySet()) {
-                    if (!entry.getKey().isAlive())
+                for (Iterator<Map.Entry<Thread, Object>> iter = nctl.nonCleaningThreadValues.entrySet().iterator(); iter.hasNext(); ) {
+                    Map.Entry<Thread, Object> entry = iter.next();
+                    if (!entry.getKey().isAlive()) {
                         ((CleaningThreadLocal) nctl).cleanup(entry.getValue());
+                        iter.remove();
+                    }
                 }
                 if (nctl.nonCleaningThreadValues.isEmpty())
                     iterator.remove();
