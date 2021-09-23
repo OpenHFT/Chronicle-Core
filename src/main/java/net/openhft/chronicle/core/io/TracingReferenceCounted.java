@@ -185,7 +185,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
             for (Map.Entry<ReferenceOwner, StackTrace> entry : references.entrySet()) {
                 ReferenceOwner referenceOwner = entry.getKey();
                 StackTrace reservedHere = entry.getValue();
-                IllegalStateException ise2 = new IllegalStateException(type.getName() + "reserved by " + asString(referenceOwner), reservedHere);
+                IllegalStateException ise2 = new IllegalStateException(type.getName() + " reserved by " + asString(referenceOwner), reservedHere);
                 if (referenceOwner instanceof Closeable) {
                     try {
                         ((ManagedCloseable) referenceOwner).throwExceptionIfClosed();
