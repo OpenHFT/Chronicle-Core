@@ -23,12 +23,16 @@ import net.openhft.chronicle.core.UnsafeMemory;
 import net.openhft.chronicle.core.annotation.UsedViaReflection;
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
+import net.openhft.chronicle.core.threads.CleaningThread;
 import net.openhft.chronicle.core.util.WeakIdentityHashMap;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEASER;
 import static net.openhft.chronicle.core.io.TracingReferenceCounted.asString;
@@ -82,6 +86,28 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
 
     public static void disableCloseableTracing() {
         CLOSEABLE_SET = null;
+    }
+
+    public static void gcAndWaitForCloseablesToClose() {
+        CleaningThread.performCleanup(Thread.currentThread());
+
+        // find any discarded resources.
+        BlockingQueue q = new LinkedBlockingQueue();
+        new Object() {
+            @Override
+            protected void finalize() throws Throwable {
+                super.finalize();
+                q.add("finalized");
+            }
+        };
+        System.gc();
+        AbstractCloseable.waitForCloseablesToClose(1000);
+        try {
+            if (q.poll(5, TimeUnit.SECONDS) == null)
+                throw new AssertionError("Timed out waiting for the Finalizer");
+        } catch (InterruptedException e) {
+            throw new AssertionError(e);
+        }
     }
 
     public static boolean waitForCloseablesToClose(long millis) {
