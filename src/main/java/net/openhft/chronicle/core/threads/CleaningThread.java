@@ -80,7 +80,7 @@ public class CleaningThread extends Thread {
                 if (value == null)
                     continue;
 
-                System.out.println(Thread.currentThread() + " - Cleaning " + key);
+//                System.out.println(Thread.currentThread() + " - Cleaning " + key);
                 CleaningThreadLocal ctl = (CleaningThreadLocal) key;
                 ctl.cleanup(value);
 
@@ -132,7 +132,7 @@ public class CleaningThread extends Thread {
                 if (value == null)
                     continue;
 
-                System.out.println(Thread.currentThread() + " - Cleaning " + key);
+//                System.out.println(Thread.currentThread() + " - Cleaning " + key);
                 ctl.cleanup(value);
 
                 remove.invoke(o, key);
