@@ -58,6 +58,11 @@ public interface EventLoop extends Closeable {
     boolean isAlive();
 
     /**
+     * @return is it in the stopped state.
+     */
+    boolean isStopped();
+
+    /**
      * Wait until the event loop has terminated (after {@link #stop()} has been called)
      */
     void awaitTermination();

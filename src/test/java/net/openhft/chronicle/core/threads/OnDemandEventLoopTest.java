@@ -49,6 +49,11 @@ public class OnDemandEventLoopTest {
             }
 
             @Override
+            public boolean isStopped() {
+                return false;
+            }
+
+            @Override
             public void close() {
             }
         });

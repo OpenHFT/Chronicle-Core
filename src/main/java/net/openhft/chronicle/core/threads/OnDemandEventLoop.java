@@ -64,6 +64,12 @@ public class OnDemandEventLoop implements EventLoop {
     }
 
     @Override
+    public boolean isStopped() {
+        final EventLoop el = this.eventLoop;
+        return el != null && el.isStopped();
+    }
+
+    @Override
     public void awaitTermination() {
         if (hasEventLoop())
             eventLoop().awaitTermination();
