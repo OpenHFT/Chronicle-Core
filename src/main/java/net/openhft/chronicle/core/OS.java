@@ -349,7 +349,7 @@ public final class OS {
         if (isWindows() && size > 4L << 30)
             throw new IllegalArgumentException("Mapping more than 4096 MiB is unusable on Windows, size = " + (size >> 20) + " MiB");
         final long address = map0(fileChannel, imodeFor(mode), mapAlign(start), pageAlign(size));
-        final long threshold = 32L << 40;
+        final long threshold = Math.min(64 * size, 32L << 40);
         if (isLinux() && (address > 0 && address < threshold) && Jvm.is64bit()) {
             double ratio = (double) threshold / address;
             final long durationMs = Math.max(5000, (long) (250 * ratio * ratio * ratio));
