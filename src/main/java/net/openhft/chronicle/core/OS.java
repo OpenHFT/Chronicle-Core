@@ -350,9 +350,9 @@ public final class OS {
             throw new IllegalArgumentException("Mapping more than 4096 MiB is unusable on Windows, size = " + (size >> 20) + " MiB");
         final long address = map0(fileChannel, imodeFor(mode), mapAlign(start), pageAlign(size));
         final long threshold = 32L << 40;
-        if (Jvm.is64bit() && (address > 0 && address < threshold)) {
+        if (isLinux() && (address > 0 && address < threshold) && Jvm.is64bit()) {
             double ratio = (double) threshold / address;
-            final long durationMs = (long) (250 * ratio * ratio * ratio);
+            final long durationMs = Math.max(5000, (long) (250 * ratio * ratio * ratio));
             System.err.println("Running low on virtual memory, pausing " + durationMs + " ms, address: " + Long.toUnsignedString(address, 16));
             Jvm.pause(durationMs);
         }
