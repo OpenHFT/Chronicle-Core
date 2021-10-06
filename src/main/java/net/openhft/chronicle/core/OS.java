@@ -348,7 +348,15 @@ public final class OS {
             throws IOException, IllegalArgumentException {
         if (isWindows() && size > 4L << 30)
             throw new IllegalArgumentException("Mapping more than 4096 MiB is unusable on Windows, size = " + (size >> 20) + " MiB");
-        return map0(fileChannel, imodeFor(mode), mapAlign(start), pageAlign(size));
+        final long address = map0(fileChannel, imodeFor(mode), mapAlign(start), pageAlign(size));
+        final long threshold = 32L << 40;
+        if (Jvm.is64bit() && (address > 0 && address < threshold)) {
+            double ratio = (double) threshold / address;
+            final long durationMs = (long) (250 * ratio * ratio * ratio);
+            System.err.println("Running low on virtual memory, pausing " + durationMs + " ms, address: " + Long.toUnsignedString(address, 16));
+            Jvm.pause(durationMs);
+        }
+        return address;
     }
 
     private static long invokeFileChannelMap0(@NotNull MethodHandle map0, @NotNull FileChannel fileChannel, int imode, long start, long size,
