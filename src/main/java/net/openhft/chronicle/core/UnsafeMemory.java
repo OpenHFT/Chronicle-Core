@@ -31,6 +31,7 @@ import java.nio.ByteOrder;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static java.util.Objects.nonNull;
+import static net.openhft.chronicle.core.util.AssertUtil.SKIP_ALIGNMENT_ASSERTIONS;
 import static net.openhft.chronicle.core.util.AssertUtil.SKIP_ASSERTIONS;
 import static net.openhft.chronicle.core.util.Ints.assertIfEnabled;
 import static net.openhft.chronicle.core.util.Longs.assertIfEnabled;
@@ -634,7 +635,7 @@ public class UnsafeMemory implements Memory {
     }
 
     private void copyMemoryLoop(Object o, long offset, long toAddr, int length) {
-        assert SKIP_ASSERTIONS || nonNull(0);
+        assert SKIP_ASSERTIONS || nonNull(o);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), toAddr);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), length);
@@ -650,7 +651,7 @@ public class UnsafeMemory implements Memory {
     }
 
     private void copyMemoryLoop(Object o, long offset, Object o2, long offset2, int length) {
-        assert SKIP_ASSERTIONS || nonNull(0);
+        assert SKIP_ASSERTIONS || nonNull(o);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         assert SKIP_ASSERTIONS || nonNull(o2);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset2);
@@ -671,7 +672,7 @@ public class UnsafeMemory implements Memory {
     }
 
     private void backwardCopyMemoryLoop(Object o, long offset, Object o2, long offset2, int length) {
-        assert SKIP_ASSERTIONS || nonNull(0);
+        assert SKIP_ASSERTIONS || nonNull(o);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         assert SKIP_ASSERTIONS || nonNull(o2);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset2);
