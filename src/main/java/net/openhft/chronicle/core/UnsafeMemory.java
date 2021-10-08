@@ -615,7 +615,7 @@ public class UnsafeMemory implements Memory {
 
     @Override
     public void copyMemory(Object o, long offset, Object o2, long offset2, int length) {
-        assert SKIP_ASSERTIONS || nonNull(0);
+        assert SKIP_ASSERTIONS || nonNull(o);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         assert SKIP_ASSERTIONS || nonNull(o2);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset2);
