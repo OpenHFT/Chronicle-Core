@@ -31,6 +31,8 @@ public interface LongArrayValues extends Closeable {
 
     long getUsed() throws IllegalStateException, BufferUnderflowException;
 
+    void setUsed(long used) throws IllegalStateException, BufferUnderflowException;
+
     void setMaxUsed(long usedAtLeast) throws IllegalStateException, BufferUnderflowException;
 
     // throws BufferUnderflowException;
