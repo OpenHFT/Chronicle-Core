@@ -321,47 +321,6 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-resources-plugin</artifactId>
-                        <version>3.2.0</version>
-                        <executions>
-                            <execution>
-                                <id>default-testResources</id>
-                                <phase>process-test-resources</phase>
-                                <goals>
-                                    <goal>testResources</goal>
-                                </goals>
-                                <configuration>
-                                    <resources>
-                                        <resource>
-                                            <directory>src/test/resources</directory>
-                                            <excludes>
-                                                <exclude>META-INF/services/**</exclude>
-                                            </excludes>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>default-resources</id>
-                                <phase>process-resources</phase>
-                                <goals>
-                                    <goal>resources</goal>
-                                </goals>
-                                <configuration>
-                                    <resources>
-                                        <resource>
-                                            <directory>src/main/resources</directory>
-                                            <excludes>
-                                                <exclude>META-INF/services/**</exclude>
-                                            </excludes>
-                                        </resource>
-                                    </resources>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-compiler-plugin</artifactId>
                         <version>3.8.1</version>
                         <configuration>
@@ -371,10 +330,6 @@
                                 <arg>--add-exports=java.base/jdk.internal.ref=ALL-UNNAMED</arg>
                                 <arg>--add-exports=java.base/sun.nio.ch=ALL-UNNAMED</arg>
                             </compilerArgs>
-                            <excludes>
-                                <exclude>**/jdk8/**</exclude>
-                                <exclude>**/META-INF/services/**</exclude>
-                            </excludes>
                         </configuration>
                     </plugin>
                 </plugins>

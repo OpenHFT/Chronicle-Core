@@ -52,8 +52,6 @@ public class IOToolsTest extends CoreTestCommon {
 
     @Test
     public void shouldCleanDirectBuffer() {
-        if (Jvm.isJava9Plus())
-            expectException("Unable to find suitable cleaner service, falling back to using reflection");
         IOTools.clean(ByteBuffer.allocateDirect(64));
     }
 
