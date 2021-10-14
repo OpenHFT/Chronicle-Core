@@ -358,6 +358,10 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     protected void threadSafetyCheck(boolean isUsed) throws IllegalStateException {
         if (DISABLE_THREAD_SAFETY || disableThreadSafetyCheck)
             return;
+        threadSafetyCheck0(isUsed);
+    }
+
+    private void threadSafetyCheck0(boolean isUsed) {
         if (usedByThread == null && !isUsed)
             return;
 

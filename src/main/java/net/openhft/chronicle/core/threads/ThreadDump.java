@@ -88,7 +88,7 @@ public class ThreadDump {
                     .removeIf(next -> ignored.stream()
                             .anyMatch(item -> next.getName().contains(item)));
             allStackTraces.keySet()
-                    .removeIf(next -> next.getName().startsWith("ForkJoinPool.commonPool-worker-"));
+                    .removeIf(next -> startsWith(next.getName(), "RMI ", "VM JFR ", "JFR ", "JMX ", "ForkJoinPool.commonPool-worker-"));
             allStackTraces.keySet()
                     .removeIf(next -> next.getName().startsWith("HttpClient-") & next.getName().endsWith("-SelectorManager"));
             allStackTraces.keySet()
@@ -116,5 +116,13 @@ public class ThreadDump {
             }
         }
         throw ae;
+    }
+
+    private static boolean startsWith(String str, String... strs) {
+        for (String s : strs) {
+            if (str.startsWith(s))
+                return true;
+        }
+        return false;
     }
 }
