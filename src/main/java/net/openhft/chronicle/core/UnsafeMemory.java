@@ -31,7 +31,6 @@ import java.nio.ByteOrder;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static java.util.Objects.nonNull;
-import static net.openhft.chronicle.core.util.AssertUtil.SKIP_ALIGNMENT_ASSERTIONS;
 import static net.openhft.chronicle.core.util.AssertUtil.SKIP_ASSERTIONS;
 import static net.openhft.chronicle.core.util.Ints.assertIfEnabled;
 import static net.openhft.chronicle.core.util.Longs.assertIfEnabled;
