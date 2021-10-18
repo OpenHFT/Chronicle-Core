@@ -13,6 +13,12 @@ public interface ReferenceCountedTracer extends ReferenceCounted {
         return onReleased(onRelease, () -> uniqueId, ReferenceCountedTracer.class);
     }
 
+    @Deprecated
+    @NotNull
+    static ReferenceCountedTracer onReleased(final Runnable onRelease, String uniqueId, Class type) {
+        return onReleased(onRelease, () -> uniqueId, type);
+    }
+
     @NotNull
     static ReferenceCountedTracer onReleased(final Runnable onRelease, Supplier<String> uniqueId, Class type) {
         return Jvm.isResourceTracing()
