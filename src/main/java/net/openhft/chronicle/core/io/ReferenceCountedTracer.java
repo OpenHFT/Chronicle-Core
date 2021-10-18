@@ -10,7 +10,7 @@ public interface ReferenceCountedTracer extends ReferenceCounted {
     @Deprecated(/* to be removed in x.22 */)
     @NotNull
     static ReferenceCountedTracer onReleased(final Runnable onRelease, String uniqueId) {
-        return onReleased(onRelease, uniqueId, ReferenceCountedTracer.class);
+        return onReleased(onRelease, () -> uniqueId, ReferenceCountedTracer.class);
     }
 
     @NotNull
