@@ -4,12 +4,14 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.function.Supplier;
+
 public interface ReferenceCountedTracer extends ReferenceCounted {
     @NotNull
-    static ReferenceCountedTracer onReleased(final Runnable onRelease, String uniqueId, Class type) {
+    static ReferenceCountedTracer onReleased(final Runnable onRelease, Supplier<String> uniqueId, Class type) {
         return Jvm.isResourceTracing()
                 ? new DualReferenceCounted(
-                new TracingReferenceCounted(onRelease, uniqueId, type),
+                new TracingReferenceCounted(onRelease, uniqueId.get(), type),
                 new VanillaReferenceCounted(() -> {
                 }, type))
                 : new VanillaReferenceCounted(onRelease, type);

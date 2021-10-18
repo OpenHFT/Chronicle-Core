@@ -29,7 +29,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
                 ? this::backgroundPerformRelease
                 : this::inThreadPerformRelease;
         referenceId = IOTools.counter(getClass()).incrementAndGet();
-        referenceCounted = (MonitorReferenceCounted) ReferenceCountedTracer.onReleased(performRelease, referenceName(), getClass());
+        referenceCounted = (MonitorReferenceCounted) ReferenceCountedTracer.onReleased(performRelease, this::referenceName, getClass());
         referenceCounted.unmonitored(!monitored);
         Set<AbstractReferenceCounted> set = REFERENCE_COUNTED_SET;
         if (monitored && set != null)
