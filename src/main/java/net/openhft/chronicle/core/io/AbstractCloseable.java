@@ -30,6 +30,7 @@ import net.openhft.chronicle.core.util.WeakIdentityHashMap;
 import java.lang.reflect.Field;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -159,11 +160,12 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
 
         synchronized (traceSet) {
             traceSet.removeIf(o -> o == null || o.isClosing());
-            Set<Closeable> nested = new HashSet<>();
+            Set<Closeable> nested = Collections.newSetFromMap(new IdentityHashMap<>());
             for (Closeable key : traceSet) {
                 addNested(nested, key, 1);
             }
-            Set<Closeable> traceSet2 = new HashSet<>(traceSet);
+            Set<Closeable> traceSet2 = Collections.newSetFromMap(new IdentityHashMap<>());
+            traceSet2.addAll(traceSet);
             traceSet2.removeAll(nested);
 
             for (Closeable key : traceSet2) {
@@ -372,7 +374,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
                 usedByThreadHere = new StackTrace(getClass().getName() + " used here");
         } else if (usedByThread != currentThread) {
             if (usedByThread.isAlive()) // really expensive call.
-                throw new IllegalStateException(getClass().getName() + " component which is not thread safes used by " + usedByThread + " and " + currentThread, usedByThreadHere);
+                throw new IllegalStateException(getClass().getName() + " component which is not thread safe used by " + usedByThread + " and " + currentThread, usedByThreadHere);
             usedByThread = currentThread;
         }
     }
