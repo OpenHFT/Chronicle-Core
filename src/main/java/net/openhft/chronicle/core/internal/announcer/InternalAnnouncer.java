@@ -41,6 +41,7 @@ public enum InternalAnnouncer {
                 System.getProperty("java.runtime.name"),
                 System.getProperty("java.runtime.version"),
                 Runtime.getRuntime().availableProcessors()));
+        LINE_PRINTER.accept("Leave your e-mail to get information about the latest releases and patches at https://chronicle.software/release-notes/");
     }
 
     private static void announceArtifact(@NotNull final String groupId,
