@@ -70,12 +70,18 @@ public class Histogram implements NanoSampler {
         values.add(99 / 100.0);
         if (count > 10_000) {
             values.add(0.997);
-            if (count > 100_000) {
+            if (count >= 100_000) {
                 values.add(0.999);
-                if (count > 1_000_000) {
+                if (count >= 300_000) {
                     values.add(0.9997);
-                    if (count > 2_000_000) {
+                    if (count >= 1_000_000) {
                         values.add(0.9999);
+                        if (count >= 3_000_000) {
+                            values.add(0.99997);
+                            if (count >= 10_000_000) {
+                                values.add(0.99999);
+                            }
+                        }
                     }
                 }
             }
