@@ -14,9 +14,9 @@ class VanillaThreadConfinementAsserter implements ThreadConfinementAsserter {
             synchronized (this) {
                 if (initialThread == null) {
                     initialThread = current;
-                    past = current;
                 }
             }
+            past = current;
         }
         if (past != current) {
             throw new IllegalStateException("Thread " + current + " accessed a thread confined class that was already accessed by thread " + initialThread);
