@@ -11,7 +11,7 @@ import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 /**
  * Provides means for libraries to announce themselves.
  * <p>
- * Announcements can be turned off buy setting the system property
+ * Announcements can be turned off by setting the system property and provide other information elements.
  * "chronicle.announcer.disable=true" prior to making any announcements.
  */
 public final class Announcer {
