@@ -23,6 +23,7 @@ import net.openhft.chronicle.core.util.Ints;
 import net.openhft.chronicle.core.util.Longs;
 import net.openhft.chronicle.core.util.MisAlignedAssertionError;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
@@ -163,18 +164,7 @@ public class UnsafeMemory implements Memory {
 
     //      throws BufferUnderflowException, BufferOverflowException
     public static void copyMemory(long from, long to, int length) {
-        assert SKIP_ASSERTIONS || from != 0;
-        assert SKIP_ASSERTIONS || to != 0;
-        assert SKIP_ASSERTIONS || assertIfEnabled(Ints.nonNegative(), length);
-        int i = 0;
-        for (; i < length - 7; i += 8)
-            unsafePutLong(to + i, unsafeGetLong(from + i));
-        if (i < length - 3) {
-            unsafePutInt(to + i, unsafeGetInt(from + i));
-            i += 4;
-        }
-        for (; i < length; i++)
-            unsafePutByte(to + i, unsafeGetByte(from + i));
+        MEMORY.copyMemory(from, to, (long)length);
     }
 
     public static void unsafePutBoolean(Object obj, long offset, boolean value) {
@@ -546,154 +536,124 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
-    public void copyMemory(byte[] bytes, int offset, long address, int length) {
-        assert SKIP_ASSERTIONS || nonNull(bytes);
-        assert SKIP_ASSERTIONS || assertIfEnabled(Ints.nonNegative(), offset);
-        assert SKIP_ASSERTIONS || address != 0;
-        assert SKIP_ASSERTIONS || assertIfEnabled(Ints.nonNegative(), length);
-        final long offset2 = (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset;
-        int i = 0;
-        for (; i < length - 7; i += 8)
-            unsafePutLong(address + i, unsafeGetLong(bytes, offset2 + i));
-
-        if (i < length - 3) {
-            unsafePutInt(address + i, unsafeGetInt(bytes, offset2 + i));
-            i += 4;
-        }
-        for (; i < length; i++)
-            unsafePutByte(address + i, unsafeGetByte(bytes, offset2 + i));
+    public void copyMemory(byte[] src, int srcOffset, long dest, int length) {
+        final long offset2 = (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + srcOffset;
+        copyMemory((Object)src, offset2, dest, length);
     }
 
     @Override
-    public void copyMemory(long fromAddress, long address, long length) {
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), fromAddress);
-        assert SKIP_ASSERTIONS || address != 0;
+    public void copyMemory(long src, long dest, long length) {
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), src);
+        assert SKIP_ASSERTIONS || dest != 0;
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), length);
         if (length < UNSAFE_COPY_THRESHOLD) {
-            UNSAFE.copyMemory(null, fromAddress, null, address, length);
-
+            UNSAFE.copyMemory(src, dest, length);
         } else {
-            copyMemory0(null, fromAddress, null, address, length);
+            copyMemory0(null, src, null, dest, length);
         }
     }
 
     @Override
-    public void copyMemory(byte[] bytes, int offset, Object obj2, long offset2, int length) {
-        assert SKIP_ASSERTIONS || nonNull(bytes);
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-        assert SKIP_ASSERTIONS || nonNull(obj2);
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset2);
+    public void copyMemory(byte[] src, int srcOffset, @Nullable Object dest, long destOffset, int length) {
+        assert SKIP_ASSERTIONS || nonNull(src);
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), srcOffset);
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), destOffset);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), length);
 
-        if (obj2 instanceof byte[]) {
-            copyMemory(bytes, offset, (byte[]) obj2, Math.toIntExact(offset2 - Unsafe.ARRAY_BYTE_BASE_OFFSET), length);
-
+        if (dest instanceof byte[]) {
+            copyMemory(src, srcOffset, (byte[]) dest, Math.toIntExact(destOffset - Unsafe.ARRAY_BYTE_BASE_OFFSET), length);
         } else {
-            copyMemoryLoop(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, obj2, offset2, length);
+            copyMemoryLoop(src, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + srcOffset, dest, destOffset, length);
         }
     }
 
-    public void copyMemory(byte[] bytes, int offset, byte[] obj2, int offset2, int length) {
-        assert SKIP_ASSERTIONS || nonNull(bytes);
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-        assert SKIP_ASSERTIONS || nonNull(obj2);
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset2);
+    public void copyMemory(byte[] src, int srcOffset, byte[] dest, int destOffset, int length) {
+        assert SKIP_ASSERTIONS || nonNull(src);
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), srcOffset);
+        assert SKIP_ASSERTIONS || nonNull(dest);
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), destOffset);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), length);
-        long offsetB = (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset;
-        long offset2B = (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset2;
+        long offsetB = (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + srcOffset;
+        long offset2B = (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + destOffset;
         if (length < UNSAFE_COPY_THRESHOLD) {
-            UNSAFE.copyMemory(bytes, offsetB, obj2, offset2B, length);
+            UNSAFE.copyMemory(src, offsetB, dest, offset2B, length);
         } else {
-            copyMemory0(bytes, offsetB, obj2, offset2B, length);
+            copyMemory0(src, offsetB, dest, offset2B, length);
         }
     }
 
     @Override
-    public void copyMemory(Object o, long offset, long toAddress, int length) {
-        copyMemoryLoop(o, offset, toAddress, length);
+    public void copyMemory(@Nullable Object src, long srcOffset, long dest, int length) {
+        copyMemory0(src, srcOffset, null, dest, length);
     }
 
+    /**
+     * Copy memory from one object to another.
+     * <p>If either {code o} or {code o2} are {code null}, {code offset} or {code offset2} are treated as
+     * addresses.
+     * <p>Instead of calling this with {code o == o2 == null}, use {@link #copyMemory(long, long, int)}
+     */
     @Override
-    public void copyMemory(Object o, long offset, Object o2, long offset2, int length) {
-        assert SKIP_ASSERTIONS || nonNull(o);
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-        assert SKIP_ASSERTIONS || nonNull(o2);
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset2);
+    public void copyMemory(@Nullable Object src, long srcOffset, @Nullable Object dest, long destOffset, int length) {
+        assert SKIP_ASSERTIONS || !(src == null && dest == null);
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), srcOffset);
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), destOffset);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), length);
-        if (o instanceof byte[])
-            copyMemory((byte[]) o, Math.toIntExact(offset - Unsafe.ARRAY_BYTE_BASE_OFFSET), o2, offset2, length);
-        else if (o == null)
-            if (o2 == null)
-                copyMemory(offset, offset2, length);
+        if (src instanceof byte[])
+            copyMemory((byte[]) src, Math.toIntExact(srcOffset - Unsafe.ARRAY_BYTE_BASE_OFFSET), dest, destOffset, length);
+        else if (src == null)
+            if (dest == null)
+                copyMemory(srcOffset, destOffset, (long)length);
             else
-                copyMemory(offset, o2, offset2, length);
-        else if (o2 == null)
-            copyMemory(o, offset, offset2, length);
+                copyMemory(srcOffset, dest, destOffset, length);
+        else if (dest == null)
+            copyMemory(src, srcOffset, destOffset, length);
         else
-            copyMemoryLoop(o, offset, o2, offset2, length);
+            copyMemoryLoop(src, srcOffset, dest, destOffset, length);
     }
 
-    private void copyMemoryLoop(Object o, long offset, long toAddr, int length) {
-        assert SKIP_ASSERTIONS || nonNull(o);
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), toAddr);
+    private void copyMemoryLoop(Object src, long srcOffset, Object dest, long destOffset, int length) {
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), srcOffset);
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), destOffset);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), length);
-        int i = 0;
-        for (; i < length - 7; i += 8)
-            MEMORY.writeLong(toAddr + i, UNSAFE.getLong(o, offset + i));
-        if (i < length - 3) {
-            UNSAFE.putInt(toAddr + i, UNSAFE.getInt(o, offset + i));
-            i += 4;
-        }
-        for (; i < length; i++)
-            MEMORY.writeByte(toAddr + i, UNSAFE.getByte(o, offset + i));
-    }
-
-    private void copyMemoryLoop(Object o, long offset, Object o2, long offset2, int length) {
-        assert SKIP_ASSERTIONS || nonNull(o);
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-        assert SKIP_ASSERTIONS || nonNull(o2);
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset2);
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), length);
-        if (o == o2 && offset < offset2) {
-            backwardCopyMemoryLoop(o, offset, o2, offset2, length);
+        if (src == dest && srcOffset < destOffset) {
+            backwardCopyMemoryLoop(src, srcOffset, dest, destOffset, length);
             return;
         }
         int i = 0;
         for (; i < length - 7; i += 8)
-            MEMORY.writeLong(o2, offset2 + i, UNSAFE.getLong(o, offset + i));
+            MEMORY.writeLong(dest, destOffset + i, UNSAFE.getLong(src, srcOffset + i));
         if (i < length - 3) {
-            UNSAFE.putInt(o2, offset2 + i, UNSAFE.getInt(o, offset + i));
+            UNSAFE.putInt(dest, destOffset + i, UNSAFE.getInt(src, srcOffset + i));
             i += 4;
         }
         for (; i < length; i++)
-            MEMORY.writeByte(o2, offset2 + i, UNSAFE.getByte(o, offset + i));
+            MEMORY.writeByte(dest, destOffset + i, UNSAFE.getByte(src, srcOffset + i));
     }
 
-    private void backwardCopyMemoryLoop(Object o, long offset, Object o2, long offset2, int length) {
-        assert SKIP_ASSERTIONS || nonNull(o);
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-        assert SKIP_ASSERTIONS || nonNull(o2);
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset2);
+    private void backwardCopyMemoryLoop(Object src, long srcOffset, Object dest, long destOffset, int length) {
+        assert SKIP_ASSERTIONS || nonNull(src);
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), srcOffset);
+        assert SKIP_ASSERTIONS || nonNull(dest);
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), destOffset);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), length);
-        offset += length;
-        offset2 += length;
+        srcOffset += length;
+        destOffset += length;
         int i = 0;
         for (; i < length - 7; i += 8)
-            MEMORY.writeLong(o2, offset2 - 8 - i, UNSAFE.getLong(o, offset - 8 - i));
+            MEMORY.writeLong(dest, destOffset - 8 - i, UNSAFE.getLong(src, srcOffset - 8 - i));
         for (; i < length; i++) {
-            MEMORY.writeByte(o2, offset2 - 1 - i, UNSAFE.getByte(o, offset - 1 - i));
+            MEMORY.writeByte(dest, destOffset - 1 - i, UNSAFE.getByte(src, srcOffset - 1 - i));
         }
     }
 
     @Override
-    public void copyMemory(long fromAddress, Object obj2, long offset2, int length) {
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), fromAddress);
-        assert SKIP_ASSERTIONS || nonNull(obj2);
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset2);
+    public void copyMemory(long src, @Nullable Object dest, long destOffset, int length) {
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), src);
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), destOffset);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), length);
         long start = length > 128 << 10 ? System.nanoTime() : 0;
-        copyMemoryLoop(null, fromAddress, obj2, offset2, length);
+        copyMemoryLoop(null, src, dest, destOffset, length);
         if (length > 128 << 10) {
             long time = System.nanoTime() - start;
             if (time > 100_000)
@@ -701,19 +661,17 @@ public class UnsafeMemory implements Memory {
         }
     }
 
-    void copyMemory0(Object from, long fromOffset, Object to, long toOffset, long length) {
-        assert SKIP_ASSERTIONS || nonNull(from);
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), fromOffset);
-        assert SKIP_ASSERTIONS || nonNull(to);
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), toOffset);
+    void copyMemory0(@Nullable Object src, long srcOffset, @Nullable Object dest, long destOffset, long length) {
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), srcOffset);
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), destOffset);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), length);
         // use a loop to ensure there is a safe point every so often.
         while (length > 0) {
             long size = Math.min(length, UNSAFE_COPY_THRESHOLD);
-            UNSAFE.copyMemory(from, fromOffset, to, toOffset, size);
+            UNSAFE.copyMemory(src, srcOffset, dest, destOffset, size);
             length -= size;
-            fromOffset += size;
-            toOffset += size;
+            srcOffset += size;
+            destOffset += size;
         }
     }
 
@@ -853,8 +811,6 @@ public class UnsafeMemory implements Memory {
         }
         if ((length & 4) != 0) {
             UNSAFE.putInt(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, (int) value);
-//            offset += 4;
-//            value >>>= 32;
         }
     }
 
@@ -891,8 +847,6 @@ public class UnsafeMemory implements Memory {
         }
         if ((length & 4) != 0) {
             UNSAFE.putInt(addr, (int) value);
-//            addr += 4;
-//            value >>>= 32;
         }
     }
 
@@ -969,7 +923,6 @@ public class UnsafeMemory implements Memory {
     @Override
     public void writeOrderedLong(long address, long i) {
         assert SKIP_ASSERTIONS || address != 0;
-//        assert (address & 0x7) == 0;
         UNSAFE.putOrderedLong(null, address, i);
     }
 
