@@ -23,6 +23,7 @@ import org.junit.Test;
 import sun.misc.Unsafe;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class MemoryTest {
 
@@ -37,10 +38,10 @@ public class MemoryTest {
         long address = memory.allocate(1024);
         try {
             memory.writeInt(address, 1);
-            assert memory.readInt(address) == 1;
+            assertEquals(1, memory.readInt(address));
             final boolean swapped = memory.compareAndSwapInt(address, 1, 2);
-            assert swapped;
-            assert memory.readInt(address) == 2;
+            assertTrue(swapped);
+            assertEquals(2, memory.readInt(address));
         } finally {
             memory.freeMemory(address, 1024);
         }

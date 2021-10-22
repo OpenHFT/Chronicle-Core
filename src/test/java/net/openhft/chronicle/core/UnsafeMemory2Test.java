@@ -11,18 +11,17 @@ import java.util.Collection;
 import java.util.Random;
 
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
+import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE_COPY_THRESHOLD;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
 
 @RunWith(Parameterized.class)
 public class UnsafeMemory2Test {
     private final UnsafeMemory memory;
-    private long addr;
 
     public UnsafeMemory2Test(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         this.memory = memory;
-        addr = UNSAFE.allocateMemory(128);
     }
 
     @Parameterized.Parameters(name = "{0}")
@@ -216,23 +215,40 @@ public class UnsafeMemory2Test {
 
     @Test
     public void copyMemory() {
-        long addr = memory.allocate(32);
-        long addr2 = memory.allocate(32);
+        final int capacity = 37;
+        long addr = memory.allocate(capacity);
+        long addr2 = memory.allocate(capacity);
         final byte b1 = (byte) 0x7F;
         final byte b2 = (byte) 0x80;
-        memory.setMemory(addr2, 32, b1);
-        for (int i = 1; i < 31; i++) {
-            for (int j = i + 1; j < 31; j++) {
-                memory.setMemory(addr, 32, b2);
-                memory.copyMemory(addr2, addr + i, j - i);
+        memory.setMemory(addr2, capacity, b1);
+        for (int i = 1; i < capacity - 1; i++) {
+            for (int j = i + 1; j < capacity - 1; j++) {
+                memory.setMemory(addr, capacity, b2);
+                UnsafeMemory.copyMemory(addr2, addr + i, j - i);
                 assertEquals(b2, memory.readByte(addr + i - 1));
                 assertEquals(b1, memory.readByte(addr + i));
                 assertEquals(b1, memory.readByte(addr + j - 1));
                 assertEquals(b2, memory.readByte(addr + j));
             }
         }
-        memory.freeMemory(addr, 32);
-        memory.freeMemory(addr2, 32);
+        memory.freeMemory(addr, capacity);
+        memory.freeMemory(addr2, capacity);
+    }
+
+    @Test
+    public void copyMemoryMoreThanThreshold() {
+        final long capacity = (int) (UNSAFE_COPY_THRESHOLD * 2.5d);
+        long addr = memory.allocate(capacity);
+        long addr2 = memory.allocate(capacity);
+        for (int i = 0; i < capacity; i += 4)
+            memory.writeInt(addr + i, i);
+        final byte b2 = (byte) 0x80;
+        memory.setMemory(addr2, capacity, b2);
+        memory.copyMemory(addr, addr2, capacity);
+        for (int i = 0; i < capacity; i += 4)
+            assertEquals(i, memory.readInt(addr2 + i));
+        memory.freeMemory(addr, capacity);
+        memory.freeMemory(addr2, capacity);
     }
 
     @Test
@@ -249,11 +265,134 @@ public class UnsafeMemory2Test {
     }
 
     @Test
-    public void copyMemoryEachWay() {
-        long addr = memory.allocate(32);
-        long[] data = new long[4];
-        memory.copyMemory(data, 0, addr, 32);
-        memory.copyMemory(addr, data, 0, 32);
+    public void copyMemoryEachWayLongArrayMemory() {
+        final long[] data = new long[]{1, 2, 3, 4};
+        final int lengthInBytes = data.length * Long.BYTES;
+        final long addr = memory.allocate(lengthInBytes);
+        memory.copyMemory(data, memory.arrayBaseOffset(data.getClass()), addr, lengthInBytes);
+        final long[] check = new long[data.length];
+        memory.copyMemory(addr, check, memory.arrayBaseOffset(data.getClass()), lengthInBytes);
+        assertArrayEquals(data, check);
+    }
+
+    @Test
+    public void copyMemoryEachWayByteArrayMemory() {
+        int capacity = 37;
+        final byte[] data = new byte[capacity];
+        for (int i = 0; i < capacity; i++)
+            data[i] = (byte) i;
+        final long addr = memory.allocate(capacity);
+        memory.copyMemory(data, 0, addr, capacity);
+        final byte[] check = new byte[data.length];
+        memory.copyMemory(addr, check, memory.arrayBaseOffset(data.getClass()), capacity);
+        assertArrayEquals(data, check);
+    }
+
+    @Test
+    public void copyMemoryByteArray() {
+        int capacity = 37;
+        final byte[] data = new byte[capacity];
+        for (int i = 0; i < capacity; i++)
+            data[i] = (byte) i;
+        final byte[] dest = new byte[capacity];
+        memory.copyMemory(data, 0, dest, 0, capacity);
+        assertArrayEquals(data, dest);
+    }
+
+    @Test
+    public void copyMemoryByteArrayAsObject() {
+        int capacity = 37;
+        final byte[] data = new byte[capacity];
+        for (int i = 0; i < capacity; i++)
+            data[i] = (byte) i;
+        final byte[] dest = new byte[capacity];
+        memory.copyMemory((Object) data, memory.arrayBaseOffset(data.getClass()), dest, memory.arrayBaseOffset(data.getClass()), capacity);
+        assertArrayEquals(data, dest);
+    }
+
+    @Test
+    public void copyMemoryEachWayByteArrayLongArray() {
+        final long[] longs = new long[]{0x0706050403020100L, 0x0f0e0d0c0b0a0908L};
+        final long[] copy = new long[longs.length];
+        System.arraycopy(longs, 0, copy, 0, longs.length);
+        final int lengthInBytes = longs.length * Long.BYTES;
+        final byte[] bytes = new byte[lengthInBytes];
+        memory.copyMemory(longs, memory.arrayBaseOffset(longs.getClass()), bytes, memory.arrayBaseOffset(bytes.getClass()), lengthInBytes);
+        for (int i = 0; i < lengthInBytes; i++)
+            assertEquals(i, bytes[i]);
+        Arrays.fill(longs, 0);
+        memory.copyMemory((Object) bytes, memory.arrayBaseOffset(bytes.getClass()), longs, memory.arrayBaseOffset(longs.getClass()), lengthInBytes);
+        assertArrayEquals(copy, longs);
+    }
+
+    @Test
+    public void copyMemoryOverlap() {
+        int capacity = 32;
+        final byte[] data = new byte[capacity];
+        for (int i = 0; i < capacity; i++)
+            data[i] = (byte) i;
+        int offset = capacity / 4;
+        int length = (capacity / 4) * 3;
+        memory.copyMemory(data, 0, data, offset, length);
+        for (int i = 0; i < offset; i++)
+            assertEquals(i, data[i]);
+        for (int i = 0; i < length; i++)
+            assertEquals(i, data[i + offset]);
+    }
+
+    @Test
+    public void copyMemoryOverlapBackwards() {
+        int capacity = 32;
+        final byte[] data = new byte[capacity];
+        for (int i = 0; i < capacity; i++)
+            data[i] = (byte) i;
+        int offset = capacity / 4;
+        int length = (capacity / 4) * 3;
+        memory.copyMemory(data, offset, data, 0, length);
+        for (int i = 0; i < length; i++)
+            assertEquals(i + offset, data[i]);
+        for (int i = length; i < capacity; i++)
+            assertEquals(i, data[i]);
+    }
+
+    @Test
+    public void copyMemoryHeapObject() throws NoSuchFieldException {
+        Field num = MyDTO.class.getDeclaredField("num");
+        long offset = memory.objectFieldOffset(num);
+        MyDTO from = new MyDTO();
+        from.num = 99;
+        MyDTO to = new MyDTO();
+        memory.copyMemory(from, offset, to, offset, Integer.BYTES);
+        assertEquals(from.num, to.num);
+    }
+
+    @Test
+    public void copyMemoryEachWayByteArrayHeapObject() throws NoSuchFieldException {
+        Field num = MyDTO.class.getDeclaredField("num");
+        long offset = memory.objectFieldOffset(num);
+        final byte[] data = new byte[Integer.BYTES];
+        data[0] = 98;
+        MyDTO to = new MyDTO();
+        memory.copyMemory(data, 0, to, offset, Integer.BYTES);
+        assertEquals(data[0], to.num);
+        to.num = 77;
+        memory.copyMemory(to, offset, data, memory.arrayBaseOffset(data.getClass()), Integer.BYTES);
+        assertEquals(to.num, data[0]);
+    }
+
+    @Test
+    public void copyMemoryEachWayAddressHeapObject() throws NoSuchFieldException {
+        Field num = MyDTO.class.getDeclaredField("num");
+        long offset = memory.objectFieldOffset(num);
+        final long addr = memory.allocate(Integer.BYTES);
+        int expected = 97;
+        memory.unsafePutInt(addr, expected);
+        MyDTO to = new MyDTO();
+        memory.copyMemory(addr, to, offset, Integer.BYTES);
+        assertEquals(expected, to.num);
+        to.num = 75;
+        memory.copyMemory(to, offset, addr, Integer.BYTES);
+        assertEquals(to.num, memory.unsafeGetInt(addr));
     }
 
     @Test
@@ -353,7 +492,8 @@ public class UnsafeMemory2Test {
         this.memory.freeMemory(memory, 32);
     }
 
-    @Test(expected = NullPointerException.class)
+    @SuppressWarnings("ConstantConditions")
+    @Test(expected = Exception.class)
     public void directMemoryReference1() {
         long memory = this.memory.allocate(32);
         try {
@@ -364,7 +504,8 @@ public class UnsafeMemory2Test {
         assertEquals(1.2345, this.memory.getObject(null, memory), 0f);
     }
 
-    @Test(expected = NullPointerException.class)
+    @SuppressWarnings("ConstantConditions")
+    @Test(expected = Exception.class)
     public void directMemoryReference2() {
         long memory = this.memory.allocate(32);
         try {
