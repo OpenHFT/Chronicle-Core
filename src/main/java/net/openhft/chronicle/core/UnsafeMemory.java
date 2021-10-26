@@ -67,6 +67,14 @@ public class UnsafeMemory implements Memory {
     }
 
     private final AtomicLong nativeMemoryUsed = new AtomicLong();
+    private final ObjectToAddress copyMemoryObjectToAddress;
+
+    public UnsafeMemory() {
+        copyMemoryObjectToAddress = (Bootstrap.IS_JAVA_9_PLUS || Bootstrap.isArm0()) ?
+            (src, srcOffset, dest, length) -> copyMemoryLoop(src, srcOffset, null, dest, length) :
+            (src, srcOffset, dest, length) -> copyMemory0(src, srcOffset, null, dest, length);
+        ;
+    }
 
     private static int retryReadVolatileInt(long address, int value) {
         assert SKIP_ASSERTIONS || address != 0;
@@ -584,10 +592,7 @@ public class UnsafeMemory implements Memory {
 
     @Override
     public void copyMemory(@Nullable Object src, long srcOffset, long dest, int length) {
-        if (Jvm.isJava9Plus() || Jvm.isArm())
-            copyMemoryLoop(src, srcOffset, null, dest, length);
-        else
-            copyMemory0(src, srcOffset, null, dest, length);
+        copyMemoryObjectToAddress.apply(src, srcOffset, dest, length);
     }
 
     /**
@@ -1616,5 +1621,9 @@ public class UnsafeMemory implements Memory {
                 return super.addLong(object, offset, increment);
             throw new MisAlignedAssertionError();
         }
+    }
+
+    private interface ObjectToAddress {
+        void apply(Object src, long srcOffset, long dest, int length);
     }
 }
