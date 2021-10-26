@@ -56,6 +56,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.Runtime.getRuntime;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
+import static net.openhft.chronicle.core.Bootstrap.*;
 import static net.openhft.chronicle.core.OS.*;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 
@@ -90,11 +91,6 @@ public enum Jvm {
     private static final ThreadLocalisedExceptionHandler PERF = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.PERF);
     @NotNull
     private static final ThreadLocalisedExceptionHandler DEBUG = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.DEBUG);
-    private static final int JVM_JAVA_MAJOR_VERSION;
-    private static final boolean IS_JAVA_9_PLUS;
-    private static final boolean IS_JAVA_12_PLUS;
-    private static final boolean IS_JAVA_14_PLUS;
-    private static final boolean IS_JAVA_15_PLUS;
     private static final long MAX_DIRECT_MEMORY;
     private static final boolean SAFEPOINT_ENABLED;
     private static final boolean IS_ARM = Bootstrap.isArm0();
@@ -126,11 +122,6 @@ public enum Jvm {
         assert debug = true;
         ASSERT_ENABLED = debug;
         final Field[] declaredFields = ObjectHeaderSizeChecker.class.getDeclaredFields();
-        JVM_JAVA_MAJOR_VERSION = getMajorVersion0();
-        IS_JAVA_9_PLUS = JVM_JAVA_MAJOR_VERSION > 8; // IS_JAVA_9_PLUS value is used in maxDirectMemory0 method.
-        IS_JAVA_12_PLUS = JVM_JAVA_MAJOR_VERSION > 11;
-        IS_JAVA_14_PLUS = JVM_JAVA_MAJOR_VERSION > 13;
-        IS_JAVA_15_PLUS = JVM_JAVA_MAJOR_VERSION > 14;
         // get this here before we call getField
         setAccessible0_Method = get_setAccessible0_Method();
         MAX_DIRECT_MEMORY = maxDirectMemory0();
@@ -1008,25 +999,6 @@ public enum Jvm {
         }
         System.err.println(Jvm.class.getName() + ": Unable to determine max direct memory");
         return 0L;
-    }
-
-    private static int getMajorVersion0() {
-        try {
-            final Method method = Runtime.class.getDeclaredMethod("version");
-            if (method != null) {
-                final Object version = method.invoke(getRuntime());
-                final Class<?> clz = Class.forName("java.lang.Runtime$Version");
-                return (Integer) clz.getDeclaredMethod("major").invoke(version);
-            }
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException | IllegalArgumentException e) {
-            // ignore and fall back to pre-jdk9
-        }
-        try {
-            return Integer.parseInt(Runtime.class.getPackage().getSpecificationVersion().split("\\.")[1]);
-        } catch (NumberFormatException nfe) {
-            Jvm.warn().on(Jvm.class, "Unable to get the major version, defaulting to 8 " + nfe);
-            return 8;
-        }
     }
 
     /**
