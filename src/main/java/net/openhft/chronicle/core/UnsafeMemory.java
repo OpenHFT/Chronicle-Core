@@ -584,7 +584,7 @@ public class UnsafeMemory implements Memory {
 
     @Override
     public void copyMemory(@Nullable Object src, long srcOffset, long dest, int length) {
-        if (Jvm.isJava9Plus())
+        if (Jvm.isJava9Plus() || Jvm.isArm())
             copyMemoryLoop(src, srcOffset, null, dest, length);
         else
             copyMemory0(src, srcOffset, null, dest, length);
