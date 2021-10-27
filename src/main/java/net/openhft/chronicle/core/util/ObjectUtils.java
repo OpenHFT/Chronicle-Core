@@ -628,10 +628,11 @@ public enum ObjectUtils {
 
     /**
      * Standard mechanism to determine objects as not null. Same method contract as {@link Objects#requireNonNull(Object)}
-     * and also decorated with {@link NotNull} so that IntelliJ and other static anslysis tools can work their magic.
+     * and also decorated with {@link NotNull} so that IntelliJ and other static analysis tools can work their magic.
      *
      * @param o reference to check for nullity
      * @throws NullPointerException if o is null
+     * @see #checkNonNull(Object) throwing an {@link IllegalArgumentException} instead
      */
     @SuppressWarnings("UnusedReturnValue")
     public static <T> T requireNonNull(@NotNull T o) {
@@ -639,5 +640,29 @@ public enum ObjectUtils {
         // Maybe calling Objects.requireNonNull is just as optimisable/intrinisfiable but I didn't do the research
         o.getClass();
         return o;
+    }
+
+    /**
+     * Checks that the provided {@code object } reference is not {@code null} throwing an {@link IllegalArgumentException}.
+     * if it is.
+     *
+     * By default, instrumented classes will throw an IllegalArgumentException if annotated with {@link NotNull} and
+     * this method can be used to mimic that behaviour.
+     *
+     * This method is designed primarily for doing parameter validation in methods
+     * and constructors, as demonstrated below:
+     * <blockquote><pre>
+     * public Foo(Bar bar) {
+     *     checkNonNull(bar);
+     * }
+     * </pre></blockquote>
+     *
+     * @param obj the object reference to check for nullity
+     * @throws IllegalArgumentException if {@code obj} is {@code null}
+     * @see #requireNonNull(Object) throwing a {@link NullPointerException} instead
+     */
+    public static void checkNonNull(Object obj) {
+        if (obj == null)
+            throw new IllegalArgumentException("The provided parameter was `null` which is not allowed.");
     }
 }

@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 public class ObjectUtilsTest {
     @Test
@@ -58,4 +59,11 @@ public class ObjectUtilsTest {
         assertEquals(1L, (long) ObjectUtils.convertTo(long.class, '1'));
         assertEquals(1.0, ObjectUtils.convertTo(double.class, '1'), 0.0);
     }
+
+    @Test
+    public void testCheckNonNull() {
+        ObjectUtils.checkNonNull("a");
+        assertThrows(IllegalArgumentException.class, () -> ObjectUtils.checkNonNull(null));
+    }
+
 }
