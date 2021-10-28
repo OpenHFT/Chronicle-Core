@@ -62,7 +62,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
 
     private transient volatile int closed = 0;
     private final transient StackTrace createdHere;
-    private transient volatile StackTrace closedHere;
+    protected transient volatile StackTrace closedHere;
     private transient volatile Thread usedByThread;
     private transient volatile StackTrace usedByThreadHere;
     private transient boolean disableThreadSafetyCheck;
