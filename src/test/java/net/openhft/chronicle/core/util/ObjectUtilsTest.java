@@ -60,10 +60,4 @@ public class ObjectUtilsTest {
         assertEquals(1.0, ObjectUtils.convertTo(double.class, '1'), 0.0);
     }
 
-    @Test
-    public void testCheckNonNull() {
-        ObjectUtils.checkNonNull("a");
-        assertThrows(IllegalArgumentException.class, () -> ObjectUtils.checkNonNull(null));
-    }
-
 }
