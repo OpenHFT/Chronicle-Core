@@ -38,7 +38,7 @@ public class BackgroundResourceReleaserTest {
         new Thread(wc::close).start();
         wc.close();
         long time0 = System.currentTimeMillis() - start0;
-        int error = Jvm.isAzulZing() || Jvm.isAzulZulu() ? 30 : Jvm.isArm() || OS.isWindows() ? 15 : 7;
+        int error = Jvm.isAzulZing() || Jvm.isAzulZulu() ? 45 : Jvm.isArm() || OS.isWindows() ? 15 : 7;
         assertBetween(10, time0, 15 + 3 * error);
 
         BackgroundResourceReleaser.releasePendingResources();
