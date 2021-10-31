@@ -1,7 +1,23 @@
 = Chronicle Core
+Chronicle Software
+:css-signature: demo
+:toc: macro
+:toclevels: 2
+:icons: font
 
-image:https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-core/badge.svg[Maven Central,link=https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-core]
+image:https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-core/badge.svg[caption="",link=https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-core]
 image:https://javadoc.io/badge2/net.openhft/chronicle-core/javadoc.svg[link="https://www.javadoc.io/doc/net.openhft/chronicle-core/latest/index.html"]
+//image:https://javadoc-badge.appspot.com/net.openhft/chronicle-wire.svg?label=javadoc[JavaDoc, link=https://www.javadoc.io/doc/net.openhft/chronicle-core]
+image:https://img.shields.io/github/license/OpenHFT/Chronicle-Core[GitHub]
+image:https://img.shields.io/badge/release%20notes-subscribe-brightgreen[link="https://chronicle.software/release-notes/"]
+image:https://sonarcloud.io/api/project_badges/measure?project=OpenHFT_Chronicle-Core&metric=alert_status[link="https://sonarcloud.io/dashboard?id=OpenHFT_Chronicle-Core"]
+image:https://img.shields.io/badge/release%20notes-subscribe-brightgreen[link="https://chronicle.software/release-notes/"]
+
+image::images/Core_line.png[]
+
+toc::[]
+
+== About
 
 This library wraps up low level access to
 
