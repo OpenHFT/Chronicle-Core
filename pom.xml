@@ -24,7 +24,10 @@
         <version>1.1.29</version>
         <relativePath />
     </parent>
-
+    <properties>
+      <sonar.organization>openhft</sonar.organization>
+      <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    </properties>
     <artifactId>chronicle-core</artifactId>
     <version>2.22ea14-SNAPSHOT</version>
     <name>OpenHFT/Chronicle-Core</name>
