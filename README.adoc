@@ -11,7 +11,6 @@ image:https://javadoc.io/badge2/net.openhft/chronicle-core/javadoc.svg[link="htt
 image:https://img.shields.io/github/license/OpenHFT/Chronicle-Core[GitHub]
 image:https://img.shields.io/badge/release%20notes-subscribe-brightgreen[link="https://chronicle.software/release-notes/"]
 image:https://sonarcloud.io/api/project_badges/measure?project=OpenHFT_Chronicle-Core&metric=alert_status[link="https://sonarcloud.io/dashboard?id=OpenHFT_Chronicle-Core"]
-image:https://img.shields.io/badge/release%20notes-subscribe-brightgreen[link="https://chronicle.software/release-notes/"]
 
 image::images/Core_line.png[]
 
