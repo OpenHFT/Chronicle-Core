@@ -12,7 +12,7 @@ image:https://img.shields.io/github/license/OpenHFT/Chronicle-Core[GitHub]
 image:https://img.shields.io/badge/release%20notes-subscribe-brightgreen[link="https://chronicle.software/release-notes/"]
 image:https://sonarcloud.io/api/project_badges/measure?project=OpenHFT_Chronicle-Core&metric=alert_status[link="https://sonarcloud.io/dashboard?id=OpenHFT_Chronicle-Core"]
 
-image::images/Core_line.png[]
+image::images/Core_line.png[width=20%]
 
 toc::[]
 
