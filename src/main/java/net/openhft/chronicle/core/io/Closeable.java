@@ -40,9 +40,9 @@ public interface Closeable extends java.io.Closeable, QueryCloseable {
             for (Object o2 : (Object[]) o)
                 closeQuietly(o2);
 
-        } else if (o instanceof java.io.Closeable) {
+        } else if (o instanceof java.lang.AutoCloseable) {
             try {
-                ((java.io.Closeable) o).close();
+                ((java.lang.AutoCloseable) o).close();
             } catch (Exception e) {
                 Jvm.debug().on(Closeable.class, e);
             } catch (Throwable e) {
