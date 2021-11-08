@@ -43,6 +43,7 @@ public class ThreadDump {
         ignored.add("Time-limited test");
         ignored.add("Attach Listener");
         ignored.add("process reaper");
+        ignored.add("junit-jupiter-timeout-watcher");
     }
 
     public static void add(Thread t, StackTrace stackTrace) {
