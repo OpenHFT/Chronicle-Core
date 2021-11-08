@@ -25,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 
@@ -42,6 +43,11 @@ public class HistogramTest {
             }
         }
         System.out.println(hist.toLongMicrosFormat());
+    }
+
+    @Test
+    public void percentilesFor() {
+        assertEquals("[0.5, 0.9, 0.99, 0.997, 0.999, 0.9997, 0.9999, 0.99997, 0.99999, 0.999997, 1.0]", Arrays.toString(Histogram.percentilesFor(50_000_000)));
     }
 
     @Test

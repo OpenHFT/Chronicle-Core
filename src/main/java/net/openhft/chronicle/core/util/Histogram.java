@@ -68,23 +68,15 @@ public class Histogram implements NanoSampler {
         values.add(50 / 100.0);
         values.add(90 / 100.0);
         values.add(99 / 100.0);
-        if (count > 10_000) {
+        if (count > 10_000)
             values.add(0.997);
-            if (count >= 100_000) {
-                values.add(0.999);
-                if (count >= 300_000) {
-                    values.add(0.9997);
-                    if (count >= 1_000_000) {
-                        values.add(0.9999);
-                        if (count >= 3_000_000) {
-                            values.add(0.99997);
-                            if (count >= 10_000_000) {
-                                values.add(0.99999);
-                            }
-                        }
-                    }
-                }
-            }
+        for (int x = 1000; x <= 10_000_000; x *= 10) {
+            if (count < 100L * x)
+                break;
+            values.add(1 - 1.0 / x);
+            if (count < 300L * x)
+                break;
+            values.add(1 - 3.0 / (10 * x));
         }
         values.add(100 / 100.0);
         return values.stream().mapToDouble(d -> d).toArray();
