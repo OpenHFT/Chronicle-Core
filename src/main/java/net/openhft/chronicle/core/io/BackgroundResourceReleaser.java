@@ -12,14 +12,25 @@ public enum BackgroundResourceReleaser {
     ; // none
     public static final String BACKGROUND_RESOURCE_RELEASER = "background~resource~releaser";
     static final boolean BG_RELEASER = Jvm.getBoolean("background.releaser", true);
+    /**
+     * Turn off the background thread if you want to manage the releasing in your own thread
+     */
+    private static final boolean BG_RELEASER_THREAD = Jvm.getBoolean("background.releaser.thread", BG_RELEASER);
     private static final BlockingQueue<Object> RESOURCES = new ArrayBlockingQueue<>(128);
     private static final AtomicLong COUNTER = new AtomicLong();
-    private static final Thread RELEASER = new Thread(BackgroundResourceReleaser::runReleaseResources,
-            BACKGROUND_RESOURCE_RELEASER);
+    private static final Object POISON_PILL = new Object();
+    private static final Thread RELEASER =
+            BG_RELEASER_THREAD
+                    ? new Thread(BackgroundResourceReleaser::runReleaseResources,
+                    BACKGROUND_RESOURCE_RELEASER)
+                    : null;
+    private static volatile boolean stopping = !BG_RELEASER;
 
     static {
-        RELEASER.setDaemon(true);
-        RELEASER.start();
+        if (BG_RELEASER_THREAD) {
+            RELEASER.setDaemon(true);
+            RELEASER.start();
+        }
 
         PriorityHook.add(99, BackgroundResourceReleaser::releasePendingResources);
     }
@@ -28,6 +39,10 @@ public enum BackgroundResourceReleaser {
         try {
             for (; ; ) {
                 Object o = RESOURCES.take();
+                if (o == POISON_PILL) {
+                    Jvm.debug().on(BackgroundResourceReleaser.class, "Stopped thread");
+                    break;
+                }
                 performRelease(o);
             }
         } catch (InterruptedException e) {
@@ -35,16 +50,36 @@ public enum BackgroundResourceReleaser {
         }
     }
 
+    /**
+     * Stop the background releasing thread
+     */
+    public static void stop() {
+        stopping = true;
+        releasePendingResources();
+        if (!RESOURCES.offer(POISON_PILL)) {
+            Jvm.warn().on(BackgroundResourceReleaser.class, "Failed to add a stop object to the resource queue");
+        }
+    }
+
     public static void release(AbstractCloseable closeable) {
-        release0(closeable);
+        if (stopping)
+            performRelease(closeable);
+        else
+            release0(closeable);
     }
 
     public static void release(AbstractReferenceCounted referenceCounted) {
-        release0(referenceCounted);
+        if (stopping)
+            performRelease(referenceCounted);
+        else
+            release0(referenceCounted);
     }
 
     public static void run(Runnable runnable) {
-        release0(runnable);
+        if (stopping)
+            performRelease(runnable);
+        else
+            release0(runnable);
     }
 
     private static void release0(Object o) {
@@ -60,8 +95,11 @@ public enum BackgroundResourceReleaser {
                 Object o = RESOURCES.poll(1, TimeUnit.MILLISECONDS);
                 if (o == null)
                     break;
-                performRelease(o);
+                if (o != POISON_PILL)
+                    performRelease(o);
             }
+            if (stopping)
+                RESOURCES.offer(POISON_PILL);
 
             for (int i = 0; i < 1000 && COUNTER.get() > 0; i++)
                 Jvm.pause(1);
