@@ -2,8 +2,11 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
+import net.openhft.chronicle.testframework.process.ProcessRunner;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
@@ -11,8 +14,8 @@ import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
 public class BackgroundResourceReleaserTest {
-    final AtomicLong closed = new AtomicLong();
-    final AtomicLong released = new AtomicLong();
+    private final AtomicLong closed = new AtomicLong();
+    private final AtomicLong released = new AtomicLong();
 
     @Test
     public void testResourcesCleanedUp() throws IllegalStateException {
@@ -47,6 +50,41 @@ public class BackgroundResourceReleaserTest {
         assertEquals(count, closed.get());
         assertEquals(count, released.get());
         AbstractCloseable.assertCloseablesClosed();
+    }
+
+    @Test
+    public void testResourcesCleanedUpManually() throws IllegalStateException, IOException, InterruptedException {
+        Process process = ProcessRunner.runClass(BackgroundResourceReleaserMain.class,
+                new String[] {"-Dbackground.releaser.thread=false"}, new String[] {"manual"});
+
+        try {
+            assertEquals(0, process.waitFor());
+        } finally {
+            ProcessRunner.printProcessOutput("BackgroundResourceReleaserMain manual", process);
+        }
+    }
+
+    @Test
+    public void testResourcesCleanedUpAndThreadStopped() throws IllegalStateException, IOException, InterruptedException {
+        Process process = ProcessRunner.runClass(BackgroundResourceReleaserMain.class, "stop");
+
+        try {
+            assertEquals(0, process.waitFor());
+        } finally {
+            ProcessRunner.printProcessOutput("BackgroundResourceReleaserMain stop", process);
+        }
+    }
+
+    @Test
+    public void testResourcesCleanedUpInForeground() throws IllegalStateException, IOException, InterruptedException {
+        Process process = ProcessRunner.runClass(BackgroundResourceReleaserMain.class,
+                new String[] {"-Dbackground.releaser=false"}, new String[] {"foreground"});
+
+        try {
+            assertEquals(0, process.waitFor());
+        } finally {
+            ProcessRunner.printProcessOutput("BackgroundResourceReleaserMain stop", process);
+        }
     }
 
     @Test

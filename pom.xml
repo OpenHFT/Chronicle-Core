@@ -86,6 +86,11 @@
         </dependency>
         <dependency>
             <groupId>net.openhft</groupId>
+            <artifactId>chronicle-test-framework</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.openhft</groupId>
             <artifactId>jlbh</artifactId>
             <version>1.21ea5</version>
             <scope>test</scope>
