@@ -15,24 +15,23 @@ public enum BackgroundResourceReleaser {
     /**
      * Turn off the background thread if you want to manage the releasing in your own thread
      */
-    private static final boolean BG_RELEASER_THREAD = Jvm.getBoolean("background.releaser.thread", BG_RELEASER);
+    private static final boolean BG_RELEASER_THREAD = BG_RELEASER && Jvm.getBoolean("background.releaser.thread", true);
     private static final BlockingQueue<Object> RESOURCES = new ArrayBlockingQueue<>(128);
     private static final AtomicLong COUNTER = new AtomicLong();
     private static final Object POISON_PILL = new Object();
-    private static final Thread RELEASER =
-            BG_RELEASER_THREAD
-                    ? new Thread(BackgroundResourceReleaser::runReleaseResources,
-                    BACKGROUND_RESOURCE_RELEASER)
-                    : null;
+    private static final Thread RELEASER = BG_RELEASER_THREAD ? runBackgroundReleaserThread() : null;
     private static volatile boolean stopping = !BG_RELEASER;
 
     static {
-        if (BG_RELEASER_THREAD) {
-            RELEASER.setDaemon(true);
-            RELEASER.start();
-        }
-
         PriorityHook.add(99, BackgroundResourceReleaser::releasePendingResources);
+    }
+
+    private static Thread runBackgroundReleaserThread() {
+        Thread thread = new Thread(BackgroundResourceReleaser::runReleaseResources, BACKGROUND_RESOURCE_RELEASER);
+        thread.setDaemon(true);
+        thread.start();
+
+        return thread;
     }
 
     private static void runReleaseResources() {
@@ -51,7 +50,7 @@ public enum BackgroundResourceReleaser {
     }
 
     /**
-     * Stop the background releasing thread
+     * Stops the background releasing thread after releasing pending resources.
      */
     public static void stop() {
         stopping = true;
