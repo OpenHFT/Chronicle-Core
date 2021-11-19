@@ -1,6 +1,6 @@
 package net.openhft.chronicle.core.io;
 
-import net.openhft.chronicle.core.Jvm;
+/*import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.testframework.process.ProcessRunner;
 import org.junit.Test;
@@ -182,4 +182,4 @@ public class BackgroundResourceReleaserTest {
             Jvm.pause(10);
         }
     }
-}
+}*/
