@@ -84,11 +84,11 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
+        <!--dependency>
             <groupId>net.openhft</groupId>
             <artifactId>chronicle-test-framework</artifactId>
             <scope>test</scope>
-        </dependency>
+        </dependency-->
         <dependency>
             <groupId>net.openhft</groupId>
             <artifactId>jlbh</artifactId>
