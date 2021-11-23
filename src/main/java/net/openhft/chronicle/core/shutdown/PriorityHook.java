@@ -10,6 +10,7 @@ public class PriorityHook {
 
     private final PriorityQueue<Hooklet> hooklets = new PriorityQueue<>();
     private final HashMap<Hooklet, Hooklet> hookletPool = new LinkedHashMap<>();
+    private Thread shutdownThread;
 
     private PriorityHook() { }
 
@@ -39,7 +40,7 @@ public class PriorityHook {
         if (registeredHook == null) {
             registeredHook = new PriorityHook();
 
-            Runtime.getRuntime().addShutdownHook(new Thread(registeredHook::onShutdown));
+            Runtime.getRuntime().addShutdownHook(registeredHook.shutdownThread());
         }
 
         H registered = (H) registeredHook.hookletPool.get(hooklet);
@@ -53,7 +54,17 @@ public class PriorityHook {
         return registered;
     }
 
+    private Thread shutdownThread() {
+        if (shutdownThread != null)
+            return shutdownThread;
+
+        this.shutdownThread = new Thread(registeredHook::onShutdown);
+
+        return shutdownThread;
+    }
+
     public static synchronized void clear() {
+        Runtime.getRuntime().removeShutdownHook(registeredHook.shutdownThread());
         registeredHook = null;
     }
 
