@@ -8,8 +8,7 @@ import java.util.*;
 public class PriorityHook {
     private static PriorityHook registeredHook;
 
-    private final PriorityQueue<Hooklet> hooklets = new PriorityQueue<>();
-    private final HashMap<Hooklet, Hooklet> hookletPool = new LinkedHashMap<>();
+    private final TreeMap<Hooklet, Hooklet> hookletPool = new TreeMap<>();
     private Thread shutdownThread;
 
     private PriorityHook() { }
@@ -46,7 +45,6 @@ public class PriorityHook {
         H registered = (H) registeredHook.hookletPool.get(hooklet);
         if (registered == null) {
             registeredHook.hookletPool.put(hooklet, hooklet);
-            registeredHook.hooklets.add(hooklet);
 
             return hooklet;
         }
@@ -69,7 +67,7 @@ public class PriorityHook {
     }
 
     public void onShutdown() {
-        for (Hooklet hooklet : hooklets)
+        for (Hooklet hooklet : hookletPool.keySet())
             hooklet.onShutdown();
     }
 
