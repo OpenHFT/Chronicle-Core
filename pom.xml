@@ -92,6 +92,12 @@
             <artifactId>jlbh</artifactId>
             <version>1.21ea5</version>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>net.openhft</groupId>
+                    <artifactId>chronicle-core</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
