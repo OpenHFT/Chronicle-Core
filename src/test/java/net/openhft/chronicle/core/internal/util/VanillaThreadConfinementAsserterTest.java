@@ -18,7 +18,6 @@ public class VanillaThreadConfinementAsserterTest {
     @Test
     public void assertThreadConfinedSame() {
         asserter.assertThreadConfined();
-        asserter.createIfAssertionsEnabled();
     }
 
     @Test
