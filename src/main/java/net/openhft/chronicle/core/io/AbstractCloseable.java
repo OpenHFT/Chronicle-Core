@@ -108,6 +108,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
             if (q.poll(5, TimeUnit.SECONDS) == null)
                 throw new AssertionError("Timed out waiting for the Finalizer");
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             throw new AssertionError(e);
         }
     }
