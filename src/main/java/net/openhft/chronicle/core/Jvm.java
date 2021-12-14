@@ -62,6 +62,8 @@ import static java.util.stream.Collectors.*;
 import static net.openhft.chronicle.core.Bootstrap.*;
 import static net.openhft.chronicle.core.OS.*;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
+import static net.openhft.chronicle.core.internal.util.MapUtil.entry;
+import static net.openhft.chronicle.core.internal.util.MapUtil.ofUnmodifiable;
 
 /**
  * Utility class to access information in the JVM.
@@ -100,16 +102,16 @@ public enum Jvm {
     private static final boolean IS_MAC_ARM = Bootstrap.isMacArm0();
 
     private static final Map<Class<?>, ClassMetrics> CLASS_METRICS_MAP = new ConcurrentHashMap<>();
-    private static final Map<Class<?>, Integer> PRIMITIVE_SIZE = Stream.of(
-            new SimpleImmutableEntry<>(boolean.class, 1),
-            new SimpleImmutableEntry<>(byte.class, 1),
-            new SimpleImmutableEntry<>(char.class, 2),
-            new SimpleImmutableEntry<>(short.class, 2),
-            new SimpleImmutableEntry<>(int.class, 4),
-            new SimpleImmutableEntry<>(float.class, 4),
-            new SimpleImmutableEntry<>(long.class, 8),
-            new SimpleImmutableEntry<>(double.class, 8)
-    ).collect(collectingAndThen(toMap(Entry::getKey, Entry::getValue), Collections::unmodifiableMap));
+    private static final Map<Class<?>, Integer> PRIMITIVE_SIZE = ofUnmodifiable(
+            entry(boolean.class, 1),
+            entry(byte.class, Byte.BYTES),
+            entry(char.class, Character.BYTES),
+            entry(short.class, Short.BYTES),
+            entry(int.class, Integer.BYTES),
+            entry(float.class, Float.BYTES),
+            entry(long.class, Long.BYTES),
+            entry(double.class, Double.BYTES)
+    );
 
     private static final MethodHandle setAccessible0_Method;
     private static final MethodHandle onSpinWaitMH;
