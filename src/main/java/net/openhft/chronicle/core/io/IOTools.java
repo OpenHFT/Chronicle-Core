@@ -24,7 +24,6 @@ import net.openhft.chronicle.core.cleaner.CleanerServiceLocator;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
 import net.openhft.chronicle.core.util.Time;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import sun.nio.ch.IOStatus;
 
 import java.io.*;
@@ -48,7 +47,7 @@ import java.util.zip.GZIPOutputStream;
 public final class IOTools {
     private IOTools() { }
 
-    static volatile Map<Class, AtomicInteger> COUNTER_MAP = new ConcurrentHashMap<>();
+    static final Map<Class<?>, AtomicInteger> COUNTER_MAP = new ConcurrentHashMap<>();
 
     public static boolean shallowDeleteDirWithFiles(@NotNull String directory) throws IORuntimeException {
         return shallowDeleteDirWithFiles(new File(directory));
@@ -76,7 +75,7 @@ public final class IOTools {
     }
 
     public static boolean deleteDirWithFiles(@NotNull File dir, int maxDepth) throws IORuntimeException {
-        @Nullable File[] entries = dir.listFiles();
+        final File[] entries = dir.listFiles();
         if (entries == null) return false;
         Stream.of(entries).filter(File::isDirectory).forEach(f -> {
             if (maxDepth < 1) {
@@ -138,7 +137,7 @@ public final class IOTools {
     }
 
     @NotNull
-    public static URL urlFor(Class clazz, String name) throws FileNotFoundException {
+    public static URL urlFor(Class<?> clazz, String name) throws FileNotFoundException {
         return urlFor(clazz.getClassLoader(), name);
     }
 
@@ -181,7 +180,7 @@ public final class IOTools {
      * @return A byte[] containing the contents of the file
      * @throws IOException FileNotFoundException thrown if file is not found
      */
-    public static byte[] readFile(Class clazz, @NotNull String name) throws IOException {
+    public static byte[] readFile(Class<?> clazz, @NotNull String name) throws IOException {
         URL url = urlFor(clazz, name);
         InputStream is = open(url);
 
@@ -249,7 +248,7 @@ public final class IOTools {
         }
     }
 
-    static AtomicInteger counter(Class type) {
+    static AtomicInteger counter(final Class<?> type) {
         return COUNTER_MAP.computeIfAbsent(type, k -> new AtomicInteger());
     }
 
@@ -281,7 +280,7 @@ public final class IOTools {
             unmonitor(t.getClass(), t, depth - 1);
     }
 
-    private static <T> void unmonitor(Class aClass, Object t, int depth) {
+    private static <T> void unmonitor(Class<?> aClass, Object t, int depth) {
         if (aClass == null || aClass == Object.class)
             return;
         unmonitor(aClass.getSuperclass(), t, depth);
