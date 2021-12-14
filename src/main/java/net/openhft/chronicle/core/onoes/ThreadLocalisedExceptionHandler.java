@@ -68,7 +68,6 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
     }
 
     public void resetThreadLocalHandler() {
-        handlerTL.remove();
         handlerTL = new InheritableThreadLocal<>();
     }
 
