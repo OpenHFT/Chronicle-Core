@@ -45,6 +45,8 @@ public enum BackgroundResourceReleaser {
                 performRelease(o);
             }
         } catch (InterruptedException e) {
+            // Restore the interrupt state...
+            Thread.currentThread().interrupt();
             Jvm.warn().on(BackgroundResourceReleaser.class, "Died on interrupt");
         }
     }
@@ -55,9 +57,7 @@ public enum BackgroundResourceReleaser {
     public static void stop() {
         stopping = true;
         releasePendingResources();
-        if (!RESOURCES.offer(POISON_PILL)) {
-            Jvm.warn().on(BackgroundResourceReleaser.class, "Failed to add a stop object to the resource queue");
-        }
+        offerPoisonPill();
     }
 
     public static void release(AbstractCloseable closeable) {
@@ -98,7 +98,7 @@ public enum BackgroundResourceReleaser {
                     performRelease(o);
             }
             if (stopping)
-                RESOURCES.offer(POISON_PILL);
+                offerPoisonPill();
 
             for (int i = 0; i < 1000 && COUNTER.get() > 0; i++)
                 Jvm.pause(1);
@@ -136,4 +136,11 @@ public enum BackgroundResourceReleaser {
     public static boolean isOnBackgroundResourceReleaserThread() {
         return Thread.currentThread() == RELEASER;
     }
+
+    private static void offerPoisonPill() {
+        if (!RESOURCES.offer(POISON_PILL)) {
+            Jvm.warn().on(BackgroundResourceReleaser.class, "Failed to add a stop object to the resource queue");
+        }
+    }
+
 }
