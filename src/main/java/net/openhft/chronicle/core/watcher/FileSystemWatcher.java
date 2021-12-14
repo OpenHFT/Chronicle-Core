@@ -152,6 +152,7 @@ public class FileSystemWatcher {
                     watchKeysToRemove.remove(key);
                 }
             } catch (InterruptedException expected) {
+                Thread.currentThread().interrupt();
             }
         }
     }
