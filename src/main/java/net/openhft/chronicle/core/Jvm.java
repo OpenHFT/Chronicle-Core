@@ -1587,7 +1587,7 @@ public enum Jvm {
                 if (Files.isReadable(path)) {
                     model = Files.lines(path)
                             .filter(line -> line.startsWith("model name"))
-                            .map(line -> line.replaceAll(".*: ", ""))
+                            .map(line -> line.replaceAll("[^:]*+: ", ""))
                             .findFirst().orElse(model);
                 } else if (OS.isWindows()) {
                     String cmd = "wmic cpu get name";
@@ -1619,7 +1619,7 @@ public enum Jvm {
                         model = reader.lines()
                                 .map(String::trim)
                                 .filter(s -> s.startsWith("machdep.cpu.brand_string"))
-                                .map(line -> line.replaceAll(".*: ", ""))
+                                .map(line -> line.replaceAll("[^:]*+: ", ""))
                                 .findFirst().orElse(model);
                     }
                     try {

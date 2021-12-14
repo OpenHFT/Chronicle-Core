@@ -32,6 +32,7 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.channels.FileChannel;
+import java.security.SecureRandom;
 import java.util.Scanner;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -278,7 +279,8 @@ public final class OS {
                 // ignored
             }
         }
-        int rpid = ThreadLocalRandom.current().nextInt(2, 1 << 16);
+        final int minPid = 2;
+        final int rpid = minPid + new SecureRandom().nextInt((1 << 16) - minPid);
         Jvm.warn().on(OS.class, "Unable to determine PID, picked a random number=" + rpid);
         return rpid;
     }
