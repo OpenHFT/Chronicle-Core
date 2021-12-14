@@ -7,6 +7,7 @@ import net.openhft.chronicle.core.util.ThrowingConsumer;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 /**
  * This will clean up a resource if the CleaningThread holding it dies.
@@ -22,10 +23,10 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
     private Map<Thread, Object> nonCleaningThreadValues = null;
 
     CleaningThreadLocal(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup) {
-        this(supplier, cleanup, Function.identity());
+        this(supplier, cleanup, UnaryOperator.identity());
     }
 
-    CleaningThreadLocal(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup, Function<T, T> getWrapper) {
+    CleaningThreadLocal(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup, UnaryOperator<T> getWrapper) {
         this.supplier = supplier;
         this.cleanup = cleanup;
         this.getWrapper = getWrapper;
@@ -47,7 +48,7 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
 
     // Used in VanillaSessionHandler
     public static <T> CleaningThreadLocal<T> withCleanup(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup, Function<T, T> getWrapper) {
-        return new CleaningThreadLocal<>(supplier, cleanup, getWrapper);
+        return new CleaningThreadLocal<>(supplier, cleanup, getWrapper::apply);
     }
 
     public static void cleanupNonCleaningThreads() {

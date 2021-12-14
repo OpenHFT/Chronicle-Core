@@ -39,7 +39,8 @@ public enum PrintExceptionHandler implements ExceptionHandler {
         }
     };
 
-    public static final PrintExceptionHandler WARN = ERR, DEBUG = OUT;
+    public static final PrintExceptionHandler WARN = ERR;
+    public static final PrintExceptionHandler DEBUG = OUT;
 
     private static void printLog(@NotNull Class clazz, String message, @Nullable Throwable thrown, PrintStream stream) {
         boolean interrupted = Thread.interrupted();

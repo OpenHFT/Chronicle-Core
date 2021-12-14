@@ -83,8 +83,7 @@ public final class Maths {
         final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
         if (residual >= 0.5)
             ldf++;
-        final double v = ldf / (double) factor;
-        return v;
+        return ldf / (double) factor;
     }
 
     public static long roundingFactor(int digits) {
@@ -164,7 +163,7 @@ public final class Maths {
         if (d < 0)
             return -round1(-d);
         final double factor = 1e1;
-        if (!(d <= WHOLE_NUMBER / factor)) // to handle NaN
+        if ((d > WHOLE_NUMBER / factor)) // to handle NaN
             return d;
         return (long) (d * factor + 0.5) / factor;
     }
@@ -209,15 +208,14 @@ public final class Maths {
         if (d < 0)
             return -round2(-d);
         final double factor = 1e2;
-        if (!(d <= WHOLE_NUMBER / factor)) // to handle NaN
+        if ((d > WHOLE_NUMBER / factor)) // to handle NaN
             return d;
         final double df = d * factor;
         long ldf = (long) df;
         final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
         if (residual >= 0.5)
             ldf++;
-        final double v = ldf / factor;
-        return v;
+        return ldf / factor;
     }
 
     /**
@@ -247,15 +245,14 @@ public final class Maths {
         if (d < 0)
             return -round3(-d);
         final double factor = 1e3;
-        if (!(d <= WHOLE_NUMBER / factor)) // to handle NaN
+        if ((d > WHOLE_NUMBER / factor)) // to handle NaN
             return d;
         final double df = d * factor;
         long ldf = (long) df;
         final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
         if (residual >= 0.5)
             ldf++;
-        final double v = ldf / factor;
-        return v;
+        return ldf / factor;
     }
 
     /**
@@ -285,15 +282,14 @@ public final class Maths {
         if (d < 0)
             return -round4(-d);
         final double factor = 1e4;
-        if (!(d <= WHOLE_NUMBER / factor)) // to handle NaN
+        if ((d > WHOLE_NUMBER / factor)) // to handle NaN
             return d;
         final double df = d * factor;
         long ldf = (long) df;
         final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
         if (residual >= 0.5)
             ldf++;
-        final double v = ldf / factor;
-        return v;
+        return ldf / factor;
     }
 
     /**
@@ -323,15 +319,14 @@ public final class Maths {
         if (d < 0)
             return -round5(-d);
         final double factor = 1e5;
-        if (!(d <= WHOLE_NUMBER / factor)) // to handle NaN
+        if ((d > WHOLE_NUMBER / factor)) // to handle NaN
             return d;
         final double df = d * factor;
         long ldf = (long) df;
         final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
         if (residual >= 0.5)
             ldf++;
-        final double v = ldf / factor;
-        return v;
+        return ldf / factor;
     }
 
     /**
@@ -362,15 +357,14 @@ public final class Maths {
         if (d < 0)
             return -round6(-d);
         final double factor = 1e6;
-        if (!(d <= WHOLE_NUMBER / factor)) // to handle NaN
+        if ((d > WHOLE_NUMBER / factor)) // to handle NaN
             return d;
         final double df = d * factor;
         long ldf = (long) df;
         final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
         if (residual >= 0.5)
             ldf++;
-        final double v = ldf / factor;
-        return v;
+        return ldf / factor;
     }
 
     /**
@@ -400,15 +394,14 @@ public final class Maths {
         if (d < 0)
             return -round7(-d);
         final double factor = 1e7;
-        if (!(d <= WHOLE_NUMBER / factor)) // to handle NaN
+        if ((d > WHOLE_NUMBER / factor)) // to handle NaN
             return d;
         final double df = d * factor;
         long ldf = (long) df;
         final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
         if (residual >= 0.5)
             ldf++;
-        final double v = ldf / factor;
-        return v;
+        return ldf / factor;
     }
 
     /**
@@ -438,15 +431,14 @@ public final class Maths {
         if (d < 0)
             return -round8(-d);
         final double factor = 1e8;
-        if (!(d <= WHOLE_NUMBER / factor)) // to handle NaN
+        if ((d > WHOLE_NUMBER / factor)) // to handle NaN
             return d;
         final double df = d * factor;
         long ldf = (long) df;
         final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
         if (residual >= 0.5)
             ldf++;
-        final double v = ldf / factor;
-        return v;
+        return ldf / factor;
     }
 
     /**

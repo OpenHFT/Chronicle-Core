@@ -75,9 +75,12 @@ public final class OS {
     private static final AtomicLong memoryMapped = new AtomicLong();
     private static final MethodHandle UNMAPP0_MH;
     private static final MethodHandle READ0_MH;
-    private static final MethodHandle WRITE0_MH, WRITE0_MH2;
-    private static int PAGE_SIZE; // avoid circular initialisation
-    private static int MAP_ALIGNMENT;
+    private static final MethodHandle WRITE0_MH;
+    private static final MethodHandle WRITE0_MH2;
+    private static final String PROC_SELF = "/proc/self";
+    private static final String PROC_SYS_KERNEL_PID_MAX = "/proc/sys/kernel/pid_max";
+    private static int pageSize; // avoid circular initialisation
+    private static int mapAlignment;
 
     static {
         // make sure it is initialised first.
@@ -90,7 +93,8 @@ public final class OS {
             Method read0 = Jvm.getMethod(fdi, "read0", FileDescriptor.class, long.class, int.class);
             READ0_MH = MethodHandles.lookup().unreflect(read0);
 
-            MethodHandle write0Mh = null, write0Mh2 = null;
+            MethodHandle write0Mh = null;
+            MethodHandle write0Mh2 = null;
             try {
                 Method write0 = Jvm.getMethod(fdi, "write0", FileDescriptor.class, long.class, int.class);
                 write0Mh = MethodHandles.lookup().unreflect(write0);
@@ -197,9 +201,9 @@ public final class OS {
      * @see #pageAlign(long)
      */
     public static int pageSize() {
-        if (PAGE_SIZE == 0)
-            PAGE_SIZE = memory().pageSize();
-        return PAGE_SIZE;
+        if (pageSize == 0)
+            pageSize = memory().pageSize();
+        return pageSize;
     }
 
     /**
@@ -222,12 +226,12 @@ public final class OS {
      * @see #mapAlign(long)
      */
     public static long mapAlignment() {
-        if (MAP_ALIGNMENT == 0)
+        if (mapAlignment == 0)
             // Windows 10 produces this error for alignment of less than 64K
             // java.io.IOException: The base address or the file offset specified does not have the proper alignment
             // c.f. https://docs.microsoft.com/en-us/windows/win32/memory/creating-a-view-within-a-file
-            MAP_ALIGNMENT = isWindows() ? SAFE_PAGE_SIZE : pageSize();
-        return MAP_ALIGNMENT;
+            mapAlignment = isWindows() ? SAFE_PAGE_SIZE : pageSize();
+        return mapAlignment;
     }
 
     /**
@@ -262,7 +266,7 @@ public final class OS {
 
     private static int getProcessId0() {
         @Nullable String pid = null;
-        @NotNull final File self = new File("/proc/self");
+        @NotNull final File self = new File(PROC_SELF);
         try {
             if (self.exists())
                 pid = self.getCanonicalFile().getName();
@@ -315,7 +319,7 @@ public final class OS {
      */
     public static long getPidMax() {
         if (isLinux()) {
-            @NotNull File file = new File("/proc/sys/kernel/pid_max");
+            @NotNull File file = new File(PROC_SYS_KERNEL_PID_MAX);
             if (file.canRead())
                 try {
                     try (Scanner scanner = new Scanner(file)) {
@@ -405,7 +409,8 @@ public final class OS {
     public static void unmap(long address, long size) throws IOException {
         try {
             final long size2 = pageAlign(size);
-            int n = (int) UNMAPP0_MH.invokeExact(address, size2);
+            // n must be used here
+            final int n = (int)UNMAPP0_MH.invokeExact(address, size2);
             memoryMapped.addAndGet(-size2);
         } catch (Throwable e) {
             throw asAnIOException(e);
@@ -450,8 +455,8 @@ public final class OS {
     private static long spaceUsed(@NotNull File file) {
         if (!isWindows()) {
             try {
-                String du_k = run("du", "-ks", file.getAbsolutePath());
-                return Long.parseLong(du_k.substring(0, du_k.indexOf('\t')));
+                final String du = run("du", "-ks", file.getAbsolutePath());
+                return Long.parseLong(du.substring(0, du.indexOf('\t')));
             } catch (@NotNull IOException | NumberFormatException e) {
                 Jvm.warn().on(OS.class, e);
             }

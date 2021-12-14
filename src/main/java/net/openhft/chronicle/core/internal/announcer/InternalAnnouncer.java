@@ -64,7 +64,7 @@ public enum InternalAnnouncer {
         final String formatString = "%-"+indent+"s: %s";
 
         propertiesCopy.entrySet().stream()
-                .map((e) -> String.format(formatString, e.getKey(), e.getValue()))
+                .map(e -> String.format(formatString, e.getKey(), e.getValue()))
                 .forEach(LINE_PRINTER);
 
     }

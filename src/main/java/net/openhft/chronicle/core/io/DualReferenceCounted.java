@@ -4,7 +4,8 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
 
 public class DualReferenceCounted implements MonitorReferenceCounted {
-    private final MonitorReferenceCounted a, b;
+    private final MonitorReferenceCounted a;
+    private final MonitorReferenceCounted b;
     private volatile int refCount;
     private volatile Throwable error;
     private int refCountB;

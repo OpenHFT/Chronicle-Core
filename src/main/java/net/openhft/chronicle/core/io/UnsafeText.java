@@ -285,7 +285,8 @@ public final class UnsafeText {
     }
 
     public static long append8bit(long address, byte[] bytes) {
-        int len = bytes.length, i;
+        final int len = bytes.length;
+        int i;
         for (i = 0; i < len - 7; i += 8)
             MEMORY.writeLong(address + i, UNSAFE.getLong(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET + (long) i));
         for (; i < len; i++)
@@ -294,7 +295,8 @@ public final class UnsafeText {
     }
 
     public static long append8bit(long address, char[] chars) {
-        int len = chars.length, i;
+        final int len = chars.length;
+        int i;
         for (i = 0; i < len; i++)
             MEMORY.writeByte(address + i, (byte) chars[i]);
         return address + len;
