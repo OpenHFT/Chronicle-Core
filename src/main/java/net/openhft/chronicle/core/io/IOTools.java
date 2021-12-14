@@ -161,10 +161,20 @@ public final class IOTools {
         return url;
     }
 
+    /**
+     * Creates and returns a new InputStream from the provided {@code url}.
+     * <p>
+     * It is up to the caller to close the returned InputStream after being used.
+     *
+     * @param url to create an InputStream from
+     * @return an InputStream
+     * @throws IOException if the URL cannot be opened
+     */
     public static InputStream open(URL url) throws IOException {
-        InputStream in = url.openStream();
-        if (url.getFile().endsWith(".gz"))
-            in = new GZIPInputStream(in);
+        final InputStream in = url.openStream();
+        if (url.getFile().endsWith(".gz")) {
+            return new GZIPInputStream(in);
+        }
         return in;
     }
 
