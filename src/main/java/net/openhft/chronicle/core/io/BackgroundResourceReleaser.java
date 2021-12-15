@@ -57,7 +57,7 @@ public enum BackgroundResourceReleaser {
     public static void stop() {
         stopping = true;
         releasePendingResources();
-        offerPoisonPill();
+        offerPoisonPill(true);
     }
 
     public static void release(AbstractCloseable closeable) {
@@ -98,7 +98,7 @@ public enum BackgroundResourceReleaser {
                     performRelease(o);
             }
             if (stopping)
-                offerPoisonPill();
+                offerPoisonPill(false);
 
             for (int i = 0; i < 1000 && COUNTER.get() > 0; i++)
                 Jvm.pause(1);
@@ -137,9 +137,10 @@ public enum BackgroundResourceReleaser {
         return Thread.currentThread() == RELEASER;
     }
 
-    private static void offerPoisonPill() {
+    private static void offerPoisonPill(boolean warn) {
         if (!RESOURCES.offer(POISON_PILL)) {
-            Jvm.warn().on(BackgroundResourceReleaser.class, "Failed to add a stop object to the resource queue");
+            if (warn)
+                Jvm.warn().on(BackgroundResourceReleaser.class, "Failed to add a stop object to the resource queue");
         }
     }
 
