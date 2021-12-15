@@ -45,8 +45,7 @@ public final class ReflectionUtil {
             final Class<?> analyticsClass = Class.forName(className);
             return analyticsClass.getMethod(methodName, parameterTypes);
         } catch (ReflectiveOperationException e) {
-            Jvm.rethrow(e);
-            throw new IllegalStateException("We cannot end up here");
+            throw Jvm.rethrow(e);
         }
     }
 
