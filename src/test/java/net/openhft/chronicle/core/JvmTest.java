@@ -267,4 +267,11 @@ public class JvmTest {
 
         assertNotNull(cpuClass);
     }
+
+    @Test
+    public void removingTag() {
+        final String actual = Jvm.CpuClass.removingTag().apply("tag: value");
+        assertEquals("value", actual);
+    }
+
 }

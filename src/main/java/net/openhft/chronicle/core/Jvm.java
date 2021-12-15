@@ -51,6 +51,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -1587,7 +1588,7 @@ public enum Jvm {
                 if (Files.isReadable(path)) {
                     model = Files.lines(path)
                             .filter(line -> line.startsWith("model name"))
-                            .map(line -> line.replaceAll("[^:]*+: ", ""))
+                            .map(removingTag())
                             .findFirst().orElse(model);
                 } else if (OS.isWindows()) {
                     String cmd = "wmic cpu get name";
@@ -1619,7 +1620,7 @@ public enum Jvm {
                         model = reader.lines()
                                 .map(String::trim)
                                 .filter(s -> s.startsWith("machdep.cpu.brand_string"))
-                                .map(line -> line.replaceAll("[^:]*+: ", ""))
+                                .map(removingTag())
                                 .findFirst().orElse(model);
                     }
                     try {
@@ -1637,6 +1638,11 @@ public enum Jvm {
                 Jvm.debug().on(CpuClass.class, "Unable to read cpuinfo", e);
             }
             CPU_MODEL = model;
+        }
+
+        @NotNull
+        static Function<String, String> removingTag() {
+            return line -> line.replaceAll("[^:]*+: ", "");
         }
     }
 
