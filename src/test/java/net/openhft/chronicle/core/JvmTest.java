@@ -39,7 +39,7 @@ import java.util.Map;
 import static net.openhft.chronicle.core.Jvm.*;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class JvmTest {
 
@@ -58,7 +58,7 @@ public class JvmTest {
 
     @Test
     public void addToClassPath() {
-        Jvm.addToClassPath(JvmTest.class);
+        assertDoesNotThrow(() -> Jvm.addToClassPath(JvmTest.class));
     }
 
     @Test(expected = ConfigurationException.class)
@@ -73,7 +73,8 @@ public class JvmTest {
 
     static final class ReportUnoptimised {
 
-        private ReportUnoptimised() {}
+        private ReportUnoptimised() {
+        }
 
         static {
             Jvm.reportUnoptimised();
@@ -122,8 +123,10 @@ public class JvmTest {
 
     @Test
     public void enableSignals() {
-        Jvm.signalHandler((Signal signal) -> System.out.println(signal + " occurred"));
-        Jvm.addSignalHandler((String signal) -> System.out.println(signal + " occurred"));
+        assertDoesNotThrow(() -> {
+            Jvm.signalHandler((Signal signal) -> System.out.println(signal + " occurred"));
+            Jvm.addSignalHandler((String signal) -> System.out.println(signal + " occurred"));
+        });
     }
 
     @Test
@@ -159,12 +162,6 @@ public class JvmTest {
     }
 
     @Test
-    public void loadSystemProperties() {
-        assumeTrue(Jvm.isResourceTracing());
-//        new TreeMap<>(System.getProperties()).entrySet().forEach(System.out::println);
-    }
-
-    @Test
     public void address() {
         ByteBuffer bb = ByteBuffer.allocateDirect(64);
         assertTrue(Jvm.address(bb) != 0);
@@ -190,7 +187,9 @@ public class JvmTest {
                 StandardOpenOption.APPEND,
                 StandardOpenOption.CREATE_NEW,
                 StandardOpenOption.DELETE_ON_CLOSE)) {
-            Jvm.doNotCloseOnInterrupt(getClass(), fc);
+            assertDoesNotThrow(() ->
+                    Jvm.doNotCloseOnInterrupt(getClass(), fc)
+            );
         }
     }
 
