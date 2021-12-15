@@ -35,7 +35,7 @@ public class ThreadDump {
     static final Map<Thread, StackTrace> THREAD_STACK_TRACE_MAP =
             new WeakIdentityHashMap<>();
     @NotNull
-    transient final Set<Thread> threads;
+    final transient Set<Thread> threads;
     final Set<String> ignored = new HashSet<>();
 
     public ThreadDump() {

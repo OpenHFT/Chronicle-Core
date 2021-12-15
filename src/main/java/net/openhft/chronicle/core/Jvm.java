@@ -72,6 +72,9 @@ import static net.openhft.chronicle.core.internal.util.MapUtil.ofUnmodifiable;
 public enum Jvm {
     ; // none
 
+    private static final String PROC = "/proc";
+    private static final String PROC_SELF = "/proc/self";
+
     public static final String JAVA_CLASS_PATH = "java.class.path";
     public static final String SYSTEM_PROPERTIES = "system.properties";
     private static final List<String> INPUT_ARGUMENTS = getRuntimeMXBean().getInputArguments();
@@ -118,7 +121,7 @@ public enum Jvm {
     private static final MethodHandle onSpinWaitMH;
     private static final ChainedSignalHandler signalHandlerGlobal;
     private static final boolean RESOURCE_TRACING;
-    private static final boolean PROC_EXISTS = new File("/proc").exists();
+    private static final boolean PROC_EXISTS = new File(PROC).exists();
     private static final int OBJECT_HEADER_SIZE;
 
     private static final boolean ASSERT_ENABLED;
@@ -129,7 +132,7 @@ public enum Jvm {
         ASSERT_ENABLED = debug;
         final Field[] declaredFields = ObjectHeaderSizeChecker.class.getDeclaredFields();
         // get this here before we call getField
-        setAccessible0_Method = get_setAccessible0_Method();
+        setAccessible0_Method = getSetAccessible0Method();
         MAX_DIRECT_MEMORY = maxDirectMemory0();
         OBJECT_HEADER_SIZE = (int) UnsafeMemory.INSTANCE.getFieldOffset(declaredFields[0]);
 
@@ -209,7 +212,7 @@ public enum Jvm {
         loadSystemProperties(systemProperties, wasSet);
     }
 
-    private static MethodHandle get_setAccessible0_Method() {
+    private static MethodHandle getSetAccessible0Method() {
         if (!IS_JAVA_9_PLUS) {
             return null;
         }
@@ -354,7 +357,7 @@ public enum Jvm {
 
     private static int getProcessId0() {
         String pid = null;
-        final File self = new File("/proc/self");
+        final File self = new File(PROC_SELF);
         try {
             if (self.exists()) {
                 pid = self.getCanonicalFile().getName();
@@ -1038,17 +1041,6 @@ public enum Jvm {
         InitSignalHandlers.init();
     }
 
-    private static void addSignalHandler(final String sig, final sun.misc.SignalHandler signalHandler) {
-        try {
-            Signal.handle(new Signal(sig), signalHandler);
-
-        } catch (IllegalArgumentException e) {
-            // When -Xrs is specified the user is responsible for
-            // ensuring that shutdown hooks are run by calling
-            // System.exit()
-            Jvm.warn().on(signalHandler.getClass(), "Unable add a signal handler", e);
-        }
-    }
 
     public interface SignalHandler {
         /**
@@ -1124,11 +1116,10 @@ public enum Jvm {
 
     private static ClassMetrics getClassMetrics(final Class<?> c) {
         final Class<?> superclass = c.getSuperclass();
-        int start = Integer.MAX_VALUE, end = 0;
+        int start = Integer.MAX_VALUE;
+        int end = 0;
         for (Field f : c.getDeclaredFields()) {
-            if ((f.getModifiers() & (Modifier.STATIC | Modifier.TRANSIENT)) != 0)
-                continue;
-            if (!f.getType().isPrimitive())
+            if ((f.getModifiers() & (Modifier.STATIC | Modifier.TRANSIENT)) != 0 || !f.getType().isPrimitive())
                 continue;
             int start0 = Math.toIntExact(UnsafeMemory.unsafeObjectFieldOffset(f));
             int size = PRIMITIVE_SIZE.get(f.getType());
@@ -1151,9 +1142,7 @@ public enum Jvm {
                                              final int start,
                                              final int end) {
         for (Field f : c.getDeclaredFields()) {
-            if ((f.getModifiers() & Modifier.STATIC) != 0)
-                continue;
-            if (f.getType().isPrimitive())
+            if ((f.getModifiers() & Modifier.STATIC) != 0 || f.getType().isPrimitive())
                 continue;
             final int start0 = Math.toIntExact(UnsafeMemory.unsafeObjectFieldOffset(f));
             if (start <= start0 && start0 < end) {
@@ -1500,8 +1489,8 @@ public enum Jvm {
         return OBJECT_HEADER_SIZE;
     }
 
-    static class ObjectHeaderSizeChecker {
-        public int a;
+    private static final class ObjectHeaderSizeChecker {
+        private int a;
     }
 
     static final class CommonInterruptible {
@@ -1539,8 +1528,10 @@ public enum Jvm {
 
     static final class InitSignalHandlers {
         static {
-            if (!OS.isWindows()) // not available on windows.
+            if (!OS.isWindows()) {
+                // Not available on Windows.
                 addSignalHandler("HUP", signalHandlerGlobal);
+            }
             addSignalHandler("INT", signalHandlerGlobal);
             addSignalHandler("TERM", signalHandlerGlobal);
 
@@ -1549,6 +1540,19 @@ public enum Jvm {
         static void init() {
             // trigger static block
         }
+
+        private static void addSignalHandler(final String sig, final sun.misc.SignalHandler signalHandler) {
+            try {
+                Signal.handle(new Signal(sig), signalHandler);
+
+            } catch (IllegalArgumentException e) {
+                // When -Xrs is specified the user is responsible for
+                // ensuring that shutdown hooks are run by calling
+                // System.exit()
+                Jvm.warn().on(signalHandler.getClass(), "Unable add a signal handler", e);
+            }
+        }
+
     }
 
     static final class ChainedSignalHandler implements sun.misc.SignalHandler {

@@ -115,7 +115,6 @@ public class StringInterner {
      *
      * </pre>
      */
-    @Nullable
     public int index(@Nullable CharSequence cs, @Nullable Changed onChanged) {
         if (cs == null)
             return -1;

@@ -83,8 +83,7 @@ public final class Maths {
         final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
         if (residual >= 0.5)
             ldf++;
-        final double v = ldf / (double) factor;
-        return v;
+        return ldf / (double) factor;
     }
 
     public static long roundingFactor(int digits) {
@@ -216,8 +215,7 @@ public final class Maths {
         final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
         if (residual >= 0.5)
             ldf++;
-        final double v = ldf / factor;
-        return v;
+        return ldf / factor;
     }
 
     /**
@@ -254,8 +252,7 @@ public final class Maths {
         final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
         if (residual >= 0.5)
             ldf++;
-        final double v = ldf / factor;
-        return v;
+        return ldf / factor;
     }
 
     /**
@@ -292,8 +289,7 @@ public final class Maths {
         final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
         if (residual >= 0.5)
             ldf++;
-        final double v = ldf / factor;
-        return v;
+        return ldf / factor;
     }
 
     /**
@@ -330,8 +326,7 @@ public final class Maths {
         final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
         if (residual >= 0.5)
             ldf++;
-        final double v = ldf / factor;
-        return v;
+        return ldf / factor;
     }
 
     /**
@@ -369,8 +364,7 @@ public final class Maths {
         final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
         if (residual >= 0.5)
             ldf++;
-        final double v = ldf / factor;
-        return v;
+        return ldf / factor;
     }
 
     /**
@@ -407,8 +401,7 @@ public final class Maths {
         final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
         if (residual >= 0.5)
             ldf++;
-        final double v = ldf / factor;
-        return v;
+        return ldf / factor;
     }
 
     /**
@@ -445,8 +438,7 @@ public final class Maths {
         final double residual = df - ldf + Math.ulp(d) * (factor * 0.983);
         if (residual >= 0.5)
             ldf++;
-        final double v = ldf / factor;
-        return v;
+        return ldf / factor;
     }
 
     /**

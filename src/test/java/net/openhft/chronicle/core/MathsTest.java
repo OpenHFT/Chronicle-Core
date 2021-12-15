@@ -33,6 +33,7 @@ import java.math.RoundingMode;
 import java.security.SecureRandom;
 import java.util.Random;
 import java.util.stream.DoubleStream;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.*;
 
@@ -145,6 +146,30 @@ public class MathsTest {
             assertEquals(msg, e, rounder.round(d), 0);
             assertEquals(msg, e0, rounder.round(d0), 0);
         }
+    }
+
+    @Test
+    public void nanTest() {
+        Stream.<Rounder>of(
+                        Maths::round1,
+                        Maths::round1up,
+                        Maths::round2,
+                        Maths::round2up,
+                        Maths::round3,
+                        Maths::round3up,
+                        Maths::round4,
+                        Maths::round4up,
+                        Maths::round5,
+                        Maths::round5up,
+                        Maths::round6,
+                        Maths::round6up,
+                        Maths::round7,
+                        Maths::round7up,
+                        Maths::round8,
+                        Maths::round8up
+                )
+                .mapToDouble(rounder -> rounder.round(Double.NaN))
+                .forEach(d -> assertTrue(Double.isNaN(d)));
     }
 
     @FunctionalInterface

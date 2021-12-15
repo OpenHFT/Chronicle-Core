@@ -10,7 +10,7 @@ import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 final class ReflectiveAnalytics implements AnalyticsFacade {
 
-    private final static String CLASS_NAME = "net.openhft.chronicle.analytics.Analytics";
+    private static final String CLASS_NAME = "net.openhft.chronicle.analytics.Analytics";
 
     private final Object delegate;
 

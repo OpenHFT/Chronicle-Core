@@ -1,6 +1,5 @@
 package net.openhft.chronicle.core.internal.invariant.longs;
 
-import java.util.function.IntPredicate;
 import java.util.function.LongPredicate;
 
 import static java.util.Objects.requireNonNull;

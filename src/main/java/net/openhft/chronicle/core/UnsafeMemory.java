@@ -73,7 +73,6 @@ public class UnsafeMemory implements Memory {
         copyMemoryObjectToAddress = (Bootstrap.IS_JAVA_9_PLUS || Bootstrap.isArm0()) ?
             (src, srcOffset, dest, length) -> copyMemoryLoop(src, srcOffset, null, dest, length) :
             (src, srcOffset, dest, length) -> copyMemory0(src, srcOffset, null, dest, length);
-        ;
     }
 
     private static int retryReadVolatileInt(long address, int value) {
@@ -546,7 +545,7 @@ public class UnsafeMemory implements Memory {
     @Override
     public void copyMemory(byte[] src, int srcOffset, long dest, int length) {
         final long offset2 = (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + srcOffset;
-        copyMemory((Object)src, offset2, dest, length);
+        copyMemory(src, offset2, dest, length);
     }
 
     @Override

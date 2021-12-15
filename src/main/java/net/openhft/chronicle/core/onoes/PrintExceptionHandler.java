@@ -39,13 +39,15 @@ public enum PrintExceptionHandler implements ExceptionHandler {
         }
     };
 
+
+    public static final PrintExceptionHandler WARN = ERR;
+    public static final PrintExceptionHandler DEBUG = OUT;
+
     PrintExceptionHandler(final PrintStream printStream) {
         this.printStream = printStream;
     }
 
     private final PrintStream printStream;
-
-    public static final PrintExceptionHandler WARN = ERR, DEBUG = OUT;
 
     private static void printLog(@NotNull final Class<?> clazz,
                                  final String message,

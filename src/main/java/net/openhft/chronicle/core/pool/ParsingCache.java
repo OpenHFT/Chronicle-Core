@@ -29,7 +29,8 @@ import java.util.stream.Stream;
 
 public class ParsingCache<E> {
     protected final ParsedData<E>[] interner;
-    protected final int mask, shift;
+    protected final int mask;
+    protected final int shift;
     private final Function<String, E> eFunction;
     protected boolean toggle = false;
 
