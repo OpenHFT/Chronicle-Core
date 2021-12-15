@@ -443,14 +443,18 @@ public class UnsafeMemory2Test {
     @Test
     public void directMemoryAddInt() {
         long memory = this.memory.allocate(32);
-        this.memory.addInt(null, memory, 0x12345678);
+        final int actual = this.memory.addInt(null, memory, 0x12345678);
+        assertEquals(0x12345678, actual);
+        assertEquals(0x12345678, this.memory.readInt(memory));
         this.memory.freeMemory(memory, 32);
     }
 
     @Test
     public void directMemoryCASInt() {
         long memory = this.memory.allocate(32);
-        this.memory.compareAndSwapInt(null, memory, 0, 0x12345678);
+        final boolean actual = this.memory.compareAndSwapInt(null, memory, 0, 0x12345678);
+        assertTrue(actual);
+        assertEquals(0x12345678, this.memory.readInt(memory));
         this.memory.freeMemory(memory, 32);
     }
 
@@ -465,14 +469,18 @@ public class UnsafeMemory2Test {
     @Test
     public void directMemoryAddLong() {
         long memory = this.memory.allocate(32);
-        this.memory.addLong(null, memory, Long.MAX_VALUE);
+        final long actual = this.memory.addLong(null, memory, Long.MAX_VALUE);
+        assertEquals(Long.MAX_VALUE, actual);
+        assertEquals(Long.MAX_VALUE, this.memory.readLong(memory));
         this.memory.freeMemory(memory, 32);
     }
 
     @Test
     public void directMemoryCASLong() {
         long memory = this.memory.allocate(32);
-        this.memory.compareAndSwapLong(null, memory, 0L, Long.MAX_VALUE);
+        final boolean actual = this.memory.compareAndSwapLong(null, memory, 0L, Long.MAX_VALUE);
+        assertTrue(actual);
+        assertEquals(Long.MAX_VALUE, this.memory.readLong(memory));
         this.memory.freeMemory(memory, 32);
     }
 
