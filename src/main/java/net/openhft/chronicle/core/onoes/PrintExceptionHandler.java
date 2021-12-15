@@ -26,31 +26,40 @@ import java.io.PrintStream;
 import java.time.LocalDateTime;
 
 public enum PrintExceptionHandler implements ExceptionHandler {
-    ERR {
+    ERR(System.err) {
         @Override
         public void on(@NotNull Class clazz, String message, Throwable thrown) {
-            printLog(clazz, message, thrown, System.err);
+            printLog(clazz, message, thrown, this);
         }
     },
-    OUT {
+    OUT(System.out) {
         @Override
         public void on(@NotNull Class clazz, String message, Throwable thrown) {
-            printLog(clazz, message, thrown, System.out);
+            printLog(clazz, message, thrown, this);
         }
     };
 
+    PrintExceptionHandler(final PrintStream printStream) {
+        this.printStream = printStream;
+    }
+
+    private final PrintStream printStream;
+
     public static final PrintExceptionHandler WARN = ERR, DEBUG = OUT;
 
-    private static void printLog(@NotNull Class clazz, String message, @Nullable Throwable thrown, PrintStream stream) {
-        boolean interrupted = Thread.interrupted();
+    private static void printLog(@NotNull final Class<?> clazz,
+                                 final String message,
+                                 @Nullable final Throwable thrown,
+                                 final PrintExceptionHandler exceptionHandler) {
+        final boolean interrupted = Thread.interrupted();
         try {
-        synchronized (stream) {
-            stream.print(LocalDateTime.now() + " " + Thread.currentThread().getName() + " " + clazz.getSimpleName() + " " + message);
-            if (thrown != null)
-                thrown.printStackTrace(stream);
-            else
-                stream.println();
-        }
+            synchronized (exceptionHandler.printStream) {
+                exceptionHandler.printStream.print(LocalDateTime.now() + " " + Thread.currentThread().getName() + " " + clazz.getSimpleName() + " " + message);
+                if (thrown != null)
+                    thrown.printStackTrace(exceptionHandler.printStream);
+                else
+                    exceptionHandler.printStream.println();
+            }
         } finally {
             if (interrupted)
                 Thread.currentThread().interrupt();

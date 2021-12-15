@@ -143,7 +143,7 @@ public final class StringUtils {
         return true;
     }
 
-    private static char charAt(@Nullable CharSequence s, int i) {
+    private static char charAt(@NotNull CharSequence s, int i) {
         try {
             return s.charAt(i);
         } catch (IndexOutOfBoundsException e) {
@@ -341,7 +341,8 @@ public final class StringUtils {
     }
 
     private static boolean compareRest(@NotNull CharSequence in,
-                                       int pos, @NotNull String s) {
+                                       final int pos,
+                                       @NotNull String s) {
 
         if (s.length() > in.length() - pos)
             return false;

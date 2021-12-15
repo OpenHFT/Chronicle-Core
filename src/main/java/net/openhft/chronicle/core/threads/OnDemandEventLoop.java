@@ -1,13 +1,17 @@
 package net.openhft.chronicle.core.threads;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.function.Supplier;
+
+import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 public class OnDemandEventLoop implements EventLoop {
     private final Supplier<EventLoop> eventLoopSupplier;
     private volatile EventLoop eventLoop;
 
-    public OnDemandEventLoop(Supplier<EventLoop> eventLoopSupplier) {
-        this.eventLoopSupplier = eventLoopSupplier;
+    public OnDemandEventLoop(@NotNull final Supplier<EventLoop> eventLoopSupplier) {
+        this.eventLoopSupplier = requireNonNull(eventLoopSupplier);
     }
 
     EventLoop eventLoop() {
@@ -18,7 +22,8 @@ public class OnDemandEventLoop implements EventLoop {
             el = this.eventLoop;
             if (el != null)
                 return el;
-            return eventLoop = eventLoopSupplier.get();
+            eventLoop = eventLoopSupplier.get();
+            return eventLoop;
         }
     }
 

@@ -82,7 +82,6 @@ public class Histogram implements NanoSampler {
         return values.stream().mapToDouble(d -> d).toArray();
     }
 
-    @SuppressWarnings("EqualsHashCode") // we don't expect to put these in HashMaps
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Histogram))
@@ -98,6 +97,17 @@ public class Histogram implements NanoSampler {
                 return false;
         }
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = fractionBits;
+        result = 31 * result + powersOf2;
+        result = 31 * result + (int) (overRange ^ (overRange >>> 32));
+        result = 31 * result + (int) (totalCount ^ (totalCount >>> 32));
+        result = 31 * result + (int) (floor ^ (floor >>> 32));
+        result = 31 * result + Arrays.hashCode(sampleCount);
+        return result;
     }
 
     @NotNull

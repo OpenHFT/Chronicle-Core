@@ -34,6 +34,8 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+import static net.openhft.chronicle.core.internal.util.MapUtil.entry;
+import static net.openhft.chronicle.core.internal.util.MapUtil.ofUnmodifiable;
 import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
 import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.MAYBE;
 import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
@@ -41,20 +43,31 @@ import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
 public enum ObjectUtils {
     ; // none
 
-    static final Map<Class, Class> primMap = new LinkedHashMap<Class, Class>() {{
-        put(boolean.class, Boolean.class);
-        put(byte.class, Byte.class);
-        put(char.class, Character.class);
-        put(short.class, Short.class);
-        put(int.class, Integer.class);
-        put(float.class, Float.class);
-        put(long.class, Long.class);
-        put(double.class, Double.class);
-        put(void.class, Void.class);
-    }};
-    static final Map<Class, Object> DEFAULT_MAP = new HashMap<>();
+    static final Map<Class<?>, Class<?>> PRIM_MAP = ofUnmodifiable(
+            entry(boolean.class, Boolean.class),
+            entry(byte.class, Byte.class),
+            entry(char.class, Character.class),
+            entry(short.class, Short.class),
+            entry(int.class, Integer.class),
+            entry(float.class, Float.class),
+            entry(long.class, Long.class),
+            entry(double.class, Double.class),
+            entry(void.class, Void.class)
+    );
+
+    static final Map<Class<?>, Object> DEFAULT_MAP = ofUnmodifiable(
+            entry(boolean.class, false),
+            entry(byte.class, (byte) 0),
+            entry(short.class, (short) 0),
+            entry(char.class, (char) 0),
+            entry(int.class, 0),
+            entry(long.class, 0L),
+            entry(float.class, 0.0f),
+            entry(double.class, 0.0d)
+    );
+
     static final ClassLocal<ThrowingFunction<String, Object, Exception>> PARSER_CL = ClassLocal.withInitial(new ConversionFunction());
-    static final ClassLocal<Map<String, Enum>> CASE_IGNORE_LOOKUP = ClassLocal.withInitial(ObjectUtils::caseIgnoreLookup);
+    static final ClassLocal<Map<String, Enum<?>>> CASE_IGNORE_LOOKUP = ClassLocal.withInitial(ObjectUtils::caseIgnoreLookup);
     static final ClassValue<Method> READ_RESOLVE = ClassLocal.withInitial(c -> {
         try {
             Method m = c.getDeclaredMethod("readResolve");
@@ -66,31 +79,20 @@ public enum ObjectUtils {
             throw new AssertionError(e);
         }
     });
-    private static final Map<Class, Immutability> immutabilityMap = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, Immutability> IMMUTABILITY_MAP = new ConcurrentHashMap<>();
 
     // these should only ever be changed on startup.
-    private static volatile ClassLocal<Class> interfaceToDefaultClass = ClassLocal.withInitial(ObjectUtils::lookForImplEnum);
-    private static volatile ClassLocal<Supplier> supplierClassLocal = ClassLocal.withInitial(ObjectUtils::supplierForClass);
+    private static volatile ClassLocal<Class<?>> interfaceToDefaultClass = ClassLocal.withInitial(ObjectUtils::lookForImplEnum);
+    private static volatile ClassLocal<Supplier<?>> supplierClassLocal = ClassLocal.withInitial(ObjectUtils::supplierForClass);
 
-    static {
-        DEFAULT_MAP.put(boolean.class, false);
-        DEFAULT_MAP.put(byte.class, (byte) 0);
-        DEFAULT_MAP.put(short.class, (short) 0);
-        DEFAULT_MAP.put(char.class, (char) 0);
-        DEFAULT_MAP.put(int.class, 0);
-        DEFAULT_MAP.put(long.class, 0L);
-        DEFAULT_MAP.put(float.class, 0.0f);
-        DEFAULT_MAP.put(double.class, 0.0);
-    }
-
-    private static Supplier supplierForClass(Class<?> c) {
+    private static Supplier<?> supplierForClass(Class<?> c) {
         if (c == null)
             throw new NullPointerException();
         if (c.isPrimitive())
             Jvm.rethrow(new IllegalArgumentException("primitive: " + c.getName()));
         if (c.isInterface()) {
             return () -> {
-                Class aClass = ObjectUtils.interfaceToDefaultClass.get(c);
+                Class<?> aClass = ObjectUtils.interfaceToDefaultClass.get(c);
                 if (aClass == null)
                     Jvm.rethrow(new IllegalArgumentException("interface: " + c.getName()));
                 return supplierForClass(aClass);
@@ -107,7 +109,7 @@ public enum ObjectUtils {
         if (Modifier.isAbstract(c.getModifiers()))
             Jvm.rethrow(new IllegalArgumentException("abstract class: " + c.getName()));
         try {
-            Constructor constructor = c.getDeclaredConstructor();
+            Constructor<?> constructor = c.getDeclaredConstructor();
             Jvm.setAccessible(constructor);
             return ThrowingSupplier.asSupplier(constructor::newInstance);
 
@@ -122,12 +124,12 @@ public enum ObjectUtils {
         }
     }
 
-    public static void immutabile(Class clazz, boolean isImmutable) {
-        immutabilityMap.put(clazz, isImmutable ? Immutability.YES : Immutability.NO);
+    public static void immutabile(final Class<?> clazz, final boolean isImmutable) {
+        IMMUTABILITY_MAP.put(clazz, isImmutable ? Immutability.YES : Immutability.NO);
     }
 
-    public static Immutability isImmutable(@NotNull Class clazz) {
-        Immutability immutability = immutabilityMap.get(clazz);
+    public static Immutability isImmutable(@NotNull final Class<?> clazz) {
+        final Immutability immutability = IMMUTABILITY_MAP.get(clazz);
         if (immutability == null)
             return Comparable.class.isAssignableFrom(clazz) ? MAYBE : NO;
         return immutability;
@@ -186,7 +188,7 @@ public enum ObjectUtils {
      * @return the wrapper class if eClass is a primitive type, or the eClass if not.
      */
     public static Class primToWrapper(Class eClass) {
-        Class clazz0 = primMap.get(eClass);
+        Class clazz0 = PRIM_MAP.get(eClass);
         if (clazz0 != null)
             eClass = clazz0;
         return eClass;
@@ -201,10 +203,10 @@ public enum ObjectUtils {
     }
 
     @NotNull
-    private static Map<String, Enum> caseIgnoreLookup(@NotNull Class c) {
-        @NotNull Map<String, Enum> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+    private static Map<String, Enum<?>> caseIgnoreLookup(@NotNull Class<?> c) {
+        @NotNull Map<String, Enum<?>> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         for (Object o : c.getEnumConstants()) {
-            @NotNull Enum e = (Enum) o;
+            @NotNull Enum<?> e = (Enum<?>) o;
             map.put(e.name().toUpperCase(), e);
         }
         return map;
@@ -212,9 +214,10 @@ public enum ObjectUtils {
 
     @NotNull
     public static <E extends Enum<E>> E valueOfIgnoreCase(@NotNull Class<E> eClass, @NotNull String name) {
-        final Map<String, Enum> map = CASE_IGNORE_LOOKUP.get(eClass);
+        final Map<String, Enum<?>> map = CASE_IGNORE_LOOKUP.get(eClass);
         if (name.startsWith("{") && name.endsWith("}"))
             return getSingletonForEnum(eClass);
+        @SuppressWarnings("unchecked")
         @NotNull final E anEnum = (E) map.get(name);
         return anEnum == null ? EnumCache.of(eClass).valueOf(name) : anEnum;
     }
@@ -493,8 +496,8 @@ public enum ObjectUtils {
         }
     }
 
-    @NotNull
-    public static Boolean toBoolean(String s) {
+    @Nullable
+    public static Boolean toBoolean(@Nullable String s) {
         if (s == null)
             return null;
         s = s.trim();
@@ -563,10 +566,10 @@ public enum ObjectUtils {
     }
 
     @NotNull
-    protected static Class lookForImplEnum(Class c2) {
+    static Class<?> lookForImplEnum(Class<?> c2) {
         if (c2.isInterface()) {
             try {
-                Class c3 = Class.forName(c2.getName() + "s");
+                final Class<?> c3 = Class.forName(c2.getName() + "s");
                 if (c2.isAssignableFrom(c3))
                     return c3;
             } catch (ClassNotFoundException cne) {

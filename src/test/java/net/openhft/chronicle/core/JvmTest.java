@@ -209,11 +209,13 @@ public class JvmTest {
     @Test
     public void testGetMethod() {
         Assert.assertNotNull(Jvm.getMethod(ClassIWDM.class, "hello", CharSequence.class));
+        boolean fail = false;
         try {
             Jvm.getMethod(ClassIWDM.class, "helloDefault", CharSequence.class);
-            Assert.fail();
+            fail = true;
         } catch (Throwable ignored) {
         }
+        assertFalse(fail);
     }
 
     static class ClassA {
@@ -255,7 +257,7 @@ public class JvmTest {
         final String cpuClass = Jvm.getCpuClass();
         System.out.println("cpuClass: " + cpuClass);
         if (Jvm.isMacArm()) {
-            assertTrue(cpuClass, cpuClass.equals("Apple M1"));
+            assertEquals(cpuClass, "Apple M1", cpuClass);
 
         } else if (Jvm.isArm()) {
             assertTrue(cpuClass, cpuClass.startsWith("ARMv"));
