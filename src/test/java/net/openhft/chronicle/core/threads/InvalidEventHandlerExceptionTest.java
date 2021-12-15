@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class InvalidEventHandlerExceptionTest {
 
@@ -30,7 +31,9 @@ public class InvalidEventHandlerExceptionTest {
 
     @Test
     public void printStackTrace() {
-        e.printStackTrace();
+        assertDoesNotThrow(() ->
+                e.printStackTrace()
+        );
     }
 
     @Test

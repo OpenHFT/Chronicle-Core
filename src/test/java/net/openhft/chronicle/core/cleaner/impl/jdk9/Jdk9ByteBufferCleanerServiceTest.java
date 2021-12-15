@@ -6,11 +6,14 @@ import org.junit.Test;
 import java.nio.ByteBuffer;
 
 import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class Jdk9ByteBufferCleanerServiceTest {
     @Test
     public void shouldCleanBuffer() {
         assumeTrue(Jvm.isJava9Plus());
-        new Jdk9ByteBufferCleanerService().clean(ByteBuffer.allocateDirect(64));
+        assertDoesNotThrow(() ->
+                new Jdk9ByteBufferCleanerService().clean(ByteBuffer.allocateDirect(64))
+        );
     }
 }
