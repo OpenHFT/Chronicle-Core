@@ -75,8 +75,9 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     }
 
     public static void unmonitor(ReferenceCounted counted) {
-        if (REFERENCE_COUNTED_SET != null)
-            REFERENCE_COUNTED_SET.remove(counted);
+        final Set<AbstractReferenceCounted> set = REFERENCE_COUNTED_SET;
+        if (set != null)
+            set.remove(counted);
         if (counted instanceof AbstractReferenceCounted)
             ((AbstractReferenceCounted) counted).referenceCounted.unmonitored(true);
     }

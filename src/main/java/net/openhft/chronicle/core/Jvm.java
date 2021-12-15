@@ -45,20 +45,26 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.AbstractMap.SimpleImmutableEntry;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static java.lang.Runtime.getRuntime;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
+import static java.util.stream.Collectors.*;
 import static net.openhft.chronicle.core.Bootstrap.*;
 import static net.openhft.chronicle.core.OS.*;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
+import static net.openhft.chronicle.core.internal.util.MapUtil.entry;
+import static net.openhft.chronicle.core.internal.util.MapUtil.ofUnmodifiable;
 
 /**
  * Utility class to access information in the JVM.
@@ -99,18 +105,18 @@ public enum Jvm {
     private static final boolean IS_ARM = Bootstrap.isArm0();
     private static final boolean IS_MAC_ARM = Bootstrap.isMacArm0();
 
-    private static final Map<Class, ClassMetrics> CLASS_METRICS_MAP =
-            new ConcurrentHashMap<>();
-    private static final Map<Class, Integer> PRIMITIVE_SIZE = new HashMap<Class, Integer>() {{
-        put(boolean.class, 1);
-        put(byte.class, 1);
-        put(char.class, 2);
-        put(short.class, 2);
-        put(int.class, 4);
-        put(float.class, 4);
-        put(long.class, 8);
-        put(double.class, 8);
-    }};
+    private static final Map<Class<?>, ClassMetrics> CLASS_METRICS_MAP = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, Integer> PRIMITIVE_SIZE = ofUnmodifiable(
+            entry(boolean.class, 1),
+            entry(byte.class, Byte.BYTES),
+            entry(char.class, Character.BYTES),
+            entry(short.class, Short.BYTES),
+            entry(int.class, Integer.BYTES),
+            entry(float.class, Float.BYTES),
+            entry(long.class, Long.BYTES),
+            entry(double.class, Double.BYTES)
+    );
+
     private static final MethodHandle setAccessible0_Method;
     private static final MethodHandle onSpinWaitMH;
     private static final ChainedSignalHandler signalHandlerGlobal;
@@ -962,7 +968,7 @@ public enum Jvm {
 
     public static void dumpException(@NotNull final Map<ExceptionKey, Integer> exceptions) {
         System.out.println("exceptions: " + exceptions.size());
-        for (@NotNull Map.Entry<ExceptionKey, Integer> entry : exceptions.entrySet()) {
+        for (@NotNull Entry<ExceptionKey, Integer> entry : exceptions.entrySet()) {
             final ExceptionKey key = entry.getKey();
             System.err.println(key.level + " " + key.clazz.getSimpleName() + " " + key.message);
             if (key.throwable != null)
@@ -1388,7 +1394,7 @@ public enum Jvm {
         Collections.addAll(jcp, property.split(File.pathSeparator));
         jcp.addAll(jcp.stream()
                 .map(f -> new File(f).getAbsolutePath())
-                .collect(Collectors.toList()));
+                .collect(toList()));
 
         URLClassLoader ucl = (URLClassLoader) cl;
         StringBuilder classpath = new StringBuilder(property);
@@ -1591,7 +1597,7 @@ public enum Jvm {
                 if (Files.isReadable(path)) {
                     model = Files.lines(path)
                             .filter(line -> line.startsWith("model name"))
-                            .map(line -> line.replaceAll(".*: ", ""))
+                            .map(removingTag())
                             .findFirst().orElse(model);
                 } else if (OS.isWindows()) {
                     String cmd = "wmic cpu get name";
@@ -1610,6 +1616,8 @@ public enum Jvm {
                             Jvm.warn().on(CpuClass.class, "process " + cmd + " returned " + ret);
                     } catch (InterruptedException e) {
                         Jvm.warn().on(CpuClass.class, "process " + cmd + " waitFor threw ", e);
+                        // Restore the interrupt state...
+                        Thread.currentThread().interrupt();
                     }
                     process.destroy();
 
@@ -1623,7 +1631,7 @@ public enum Jvm {
                         model = reader.lines()
                                 .map(String::trim)
                                 .filter(s -> s.startsWith("machdep.cpu.brand_string"))
-                                .map(line -> line.replaceAll(".*: ", ""))
+                                .map(removingTag())
                                 .findFirst().orElse(model);
                     }
                     try {
@@ -1632,6 +1640,8 @@ public enum Jvm {
                             Jvm.warn().on(CpuClass.class, "process " + cmd + " returned " + ret);
                     } catch (InterruptedException e) {
                         Jvm.warn().on(CpuClass.class, "process " + cmd + " waitFor threw ", e);
+                        // Restore the interrupt state...
+                        Thread.currentThread().interrupt();
                     }
                     process.destroy();
 
@@ -1641,6 +1651,11 @@ public enum Jvm {
                 Jvm.debug().on(CpuClass.class, "Unable to read cpuinfo", e);
             }
             CPU_MODEL = model;
+        }
+
+        @NotNull
+        static Function<String, String> removingTag() {
+            return line -> line.replaceAll("[^:]*+: ", "");
         }
     }
 

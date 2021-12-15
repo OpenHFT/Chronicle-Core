@@ -116,6 +116,8 @@ public class ThreadDump {
                 }
             }
         }
+        if (ae == null)
+            throw new NullPointerException("This should not happen as ae should be set.");
         throw ae;
     }
 

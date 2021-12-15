@@ -6,7 +6,7 @@ import net.openhft.chronicle.core.values.IntArrayValues;
 
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
-import java.util.concurrent.ThreadLocalRandom;
+import java.security.SecureRandom;
 
 public class ThreadIndexAssigner {
     private final IntArrayValues values;
@@ -44,6 +44,6 @@ public class ThreadIndexAssigner {
     }
 
     protected int nextIndex(int size) {
-        return ThreadLocalRandom.current().nextInt(size);
+        return new SecureRandom().nextInt(size);
     }
 }

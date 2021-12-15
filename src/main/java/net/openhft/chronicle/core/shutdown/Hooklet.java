@@ -2,6 +2,8 @@ package net.openhft.chronicle.core.shutdown;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
+
 /**
  * A shutdown hook that allows running in controlled order.
  */
@@ -81,6 +83,14 @@ public abstract class Hooklet implements Comparable<Hooklet> {
         if (!(obj instanceof Hooklet))
             return false;
 
-        return identity().equals(((Hooklet)obj).identity());
+        final Hooklet that = (Hooklet) obj;
+
+        return this.priority() == that.priority() &&
+                this.identity().equals(that.identity());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(priority(), identity());
     }
 }

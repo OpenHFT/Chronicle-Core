@@ -28,9 +28,8 @@ import java.util.concurrent.locks.LockSupport;
 public class StackSampler {
     @NotNull
     private final Thread sampler;
-    @Nullable
+
     private volatile Thread thread = null;
-    @Nullable
     private volatile StackTraceElement[] stack = null;
 
     public StackSampler() {
@@ -61,7 +60,7 @@ public class StackSampler {
 
     @Nullable
     public StackTraceElement[] getAndReset() {
-        StackTraceElement[] stack = this.stack;
+        final StackTraceElement[] stack = this.stack;
         thread = null;
         this.stack = null;
         return stack;
