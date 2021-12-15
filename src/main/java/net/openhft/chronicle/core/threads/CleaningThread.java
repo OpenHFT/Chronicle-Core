@@ -122,10 +122,7 @@ public class CleaningThread extends Thread {
         for (WeakReference reference : table) {
             try {
                 Object key = reference != null ? reference.get() : null;
-                if (!(key instanceof CleaningThreadLocal))
-                    continue;
-
-                if (key != ctl)
+                if (!(key instanceof CleaningThreadLocal) || key != ctl)
                     continue;
 
                 Object value = VALUE.get(reference);

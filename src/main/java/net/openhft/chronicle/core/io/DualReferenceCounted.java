@@ -45,7 +45,7 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
             this.refCount = a.refCount();
             this.refCountB = b.refCount();
             if (this.refCount != refCountB)
-                throw new AssertionError(this.refCount + " != " + refCountB + " , id= " + id);
+                throw newAssertionError(this.refCount, refCountB, id);
         } catch (IllegalStateException e) {
             throw e;
         } catch (Throwable e) {
@@ -72,7 +72,7 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
             this.refCount = a.refCount();
             this.refCountB = b.refCount();
             if (this.refCount != refCountB)
-                throw new AssertionError(this.refCount + " != " + refCountB + " , id= " + id);
+                throw newAssertionError(this.refCount, refCountB, id);
             return aa;
         } catch (IllegalStateException e) {
             throw e;
@@ -92,7 +92,7 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
             this.refCount = a.refCount();
             this.refCountB = b.refCount();
             if (this.refCount != refCountB)
-                throw new AssertionError(this.refCount + " != " + refCountB + " , id= " + id);
+                throw newAssertionError(this.refCount, refCountB, id);
         } catch (IllegalStateException e) {
             throw e;
         } catch (Throwable e) {
@@ -165,4 +165,11 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
     public boolean unmonitored() {
         return a.unmonitored();
     }
+
+    private static AssertionError newAssertionError(final int refCount,
+                                                    final int refCountB,
+                                                    final ReferenceOwner id) {
+        return new AssertionError(refCount + " != " + refCountB + " , id= " + id);
+    }
+
 }

@@ -53,6 +53,10 @@ public class UnsafeMemory implements Memory {
     // TODO support big endian
     public static final boolean IS_LITTLE_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
 
+    private static final String CANNOT_CHANGE_AT = "Cannot change at ";
+    private static final String WAS = " was ";
+    private static final String EXPECTED = " expected ";
+
     static {
         try {
             Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
@@ -725,6 +729,8 @@ public class UnsafeMemory implements Memory {
                 return bytes[offset] & 0xFF;
             case 0:
                 return 0;
+            default:
+                // Do nothing here, instead continue below
         }
         long value = 0;
         offset += length;
@@ -762,6 +768,8 @@ public class UnsafeMemory implements Memory {
                 return UNSAFE.getByte(addr) & 0xFF;
             case 0:
                 return 0;
+            default:
+                // Do nothing here, instead continue below
         }
         long value = 0;
         addr += length;
@@ -805,6 +813,8 @@ public class UnsafeMemory implements Memory {
                 return;
             case 0:
                 return;
+            default:
+                // Do nothing here, instead continue below
         }
         if ((length & 1) != 0) {
             UNSAFE.putByte(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, (byte) value);
@@ -841,6 +851,8 @@ public class UnsafeMemory implements Memory {
                 return;
             case 0:
                 return;
+            default:
+                // Do nothing here, instead continue below
         }
         if ((length & 1) != 0) {
             UNSAFE.putByte(addr, (byte) value);
@@ -947,7 +959,7 @@ public class UnsafeMemory implements Memory {
         if (UNSAFE.compareAndSwapInt(null, address, expected, value))
             return;
         int actual = UNSAFE.getIntVolatile(null, address);
-        throw new IllegalStateException("Cannot change at " + offset + " expected " + expected + " was " + actual);
+        throw new IllegalStateException(CANNOT_CHANGE_AT + offset + EXPECTED + expected + WAS + actual);
     }
 
     @Override
@@ -958,7 +970,7 @@ public class UnsafeMemory implements Memory {
         if (UNSAFE.compareAndSwapInt(object, offset, expected, value))
             return;
         int actual = UNSAFE.getIntVolatile(object, offset);
-        throw new IllegalStateException("Cannot change " + object.getClass().getSimpleName() + " at " + offset + " expected " + expected + " was " + actual);
+        throw new IllegalStateException("Cannot change " + object.getClass().getSimpleName() + " at " + offset + EXPECTED + expected + WAS + actual);
     }
 
     @Override
@@ -1179,21 +1191,21 @@ public class UnsafeMemory implements Memory {
         return UNSAFE.getAndAddLong(object, offset, increment) + increment;
     }
 
-    static class CachedReflection {
+    static final class CachedReflection {
 
-        private static final long stringValueOffset;
+        private static final long STRING_VALUE_OFFSET;
 
         static {
             long offset = 0;
             try {
                 if (!Jvm.isJava9Plus()) {
-                    Field valueField = String.class.getDeclaredField("value");
+                    final Field valueField = String.class.getDeclaredField("value");
                     offset = UNSAFE.objectFieldOffset(valueField);
                 }
             } catch (NoSuchFieldException e) {
                 offset = 0;
             }
-            stringValueOffset = offset;
+            STRING_VALUE_OFFSET = offset;
         }
     }
 
@@ -1201,11 +1213,11 @@ public class UnsafeMemory implements Memory {
         assert SKIP_ASSERTIONS || assertIfEnabled(Ints.nonNegative(), start);
         assert SKIP_ASSERTIONS || assertIfEnabled(Ints.nonNegative(), length);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), addr);
-        if (CachedReflection.stringValueOffset == 0) {
+        if (CachedReflection.STRING_VALUE_OFFSET == 0) {
             copy8BitJava9(s, start, length, addr);
             return;
         }
-        char[] chars = (char[]) UNSAFE.getObject(s, CachedReflection.stringValueOffset);
+        char[] chars = (char[]) UNSAFE.getObject(s, CachedReflection.STRING_VALUE_OFFSET);
         for (int i = 0; i < length; i++)
             UNSAFE.putByte(addr + i, (byte) chars[start + i]);
     }
@@ -1216,11 +1228,11 @@ public class UnsafeMemory implements Memory {
     }
 
     public void write8bit(String s, int start, Object object, long offset, int length) {
-        if (CachedReflection.stringValueOffset == 0) {
+        if (CachedReflection.STRING_VALUE_OFFSET == 0) {
             write8bitJava9(s, start, object, offset, length);
             return;
         }
-        char[] chars = (char[]) UNSAFE.getObject(s, CachedReflection.stringValueOffset);
+        char[] chars = (char[]) UNSAFE.getObject(s, CachedReflection.STRING_VALUE_OFFSET);
         for (int i = 0; i < length; i++)
             UNSAFE.putByte(object, offset + i, (byte) chars[start + i]);
     }
@@ -1231,10 +1243,10 @@ public class UnsafeMemory implements Memory {
     }
 
     public boolean isEqual(long addr, String s, int length) {
-        if (CachedReflection.stringValueOffset == 0) {
+        if (CachedReflection.STRING_VALUE_OFFSET == 0) {
             return isEqualJava9(addr, s, length);
         }
-        char[] chars = (char[]) UNSAFE.getObject(s, CachedReflection.stringValueOffset);
+        char[] chars = (char[]) UNSAFE.getObject(s, CachedReflection.STRING_VALUE_OFFSET);
         for (int i = 0; i < length; i++)
             if (UNSAFE.getByte(addr + i) != chars[i])
                 return false;
@@ -1434,7 +1446,7 @@ public class UnsafeMemory implements Memory {
                     return;
                 }
                 int actual = UNSAFE.getIntVolatile(null, address);
-                throw new IllegalStateException("Cannot change at " + offset + " expected " + expected + " was " + actual);
+                throw new IllegalStateException(CANNOT_CHANGE_AT + offset + EXPECTED + expected + WAS + actual);
             } else {
                 UNSAFE.loadFence();
                 int actual = UNSAFE.getInt(address);
@@ -1443,7 +1455,7 @@ public class UnsafeMemory implements Memory {
                     UNSAFE.storeFence();
                     return;
                 }
-                throw new IllegalStateException("Cannot change at " + offset + " expected " + expected + " was " + actual + " (mis-aligned)");
+                throw new IllegalStateException(CANNOT_CHANGE_AT + offset + EXPECTED + expected + WAS + actual + " (mis-aligned)");
             }
         }
 
@@ -1456,7 +1468,7 @@ public class UnsafeMemory implements Memory {
                     return;
                 }
                 int actual = UNSAFE.getIntVolatile(object, offset);
-                throw new IllegalStateException("Cannot change " + object.getClass().getSimpleName() + " at " + offset + " expected " + expected + " was " + actual);
+                throw new IllegalStateException("Cannot change " + object.getClass().getSimpleName() + " at " + offset + EXPECTED + expected + WAS + actual);
             } else {
                 UNSAFE.loadFence();
                 int actual = UNSAFE.getInt(object, offset);
