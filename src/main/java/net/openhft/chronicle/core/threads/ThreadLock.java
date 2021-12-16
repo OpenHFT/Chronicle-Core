@@ -21,7 +21,8 @@ public class ThreadLock {
     }
 
     public boolean tryLock(int threadId) {
-        assert threadId != UNLOCKED;
+        if (threadId == 0)
+            throw new IllegalArgumentException();
         long twoThreadId0 = twoThreadId.getVolatileValue();
         int threadId0 = (int) twoThreadId0;
         if (threadId0 != UNLOCKED) {
@@ -50,6 +51,7 @@ public class ThreadLock {
         forceUnlockAndRetry(threadId);
     }
 
+    @SuppressWarnings("java:S3776")
     private boolean busyLockSlower(int threadId) throws InterruptedRuntimeException {
         long endMS = System.currentTimeMillis() + timeoutMs;
         do {
@@ -78,6 +80,7 @@ public class ThreadLock {
         return new File("/proc/" + lockedThread).exists();
     }
 
+    @SuppressWarnings("java:S3358")
     private void forceUnlockAndRetry(int threadId) {
         long twoThreadId0 = twoThreadId.getVolatileValue();
         int threadId0 = (int) twoThreadId0;
@@ -122,6 +125,7 @@ public class ThreadLock {
     static class Metrics {
         final boolean supportsProc;
 
+        @SuppressWarnings("java:S1075")
         Metrics() {
             this.supportsProc = new File("/proc").isDirectory();
             if (OS.isLinux() && !supportsProc) Jvm.warn().on(getClass(), "/proc not found on Linux");

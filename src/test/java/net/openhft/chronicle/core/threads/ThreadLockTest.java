@@ -190,6 +190,13 @@ public class ThreadLockTest extends CoreTestCommon {
         assertTrue(thread.isInterrupted());
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void invalidThreadId() {
+        final VanillaLongValue value = new VanillaLongValue();
+        ThreadLock lock = new ThreadLock(value, 100);
+        lock.lock(0);
+    }
+
     static class VanillaLongValue implements LongValue {
         long value;
 
