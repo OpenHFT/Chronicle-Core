@@ -83,7 +83,9 @@ public class ThreadLocalProperties extends Properties {
 
     @Override
     public Object clone() {
-        return tl.get().clone();
+        final ThreadLocalProperties clone = new ThreadLocalProperties(defaults);
+        clone.putAll(tl.get());
+        return clone;
     }
 
     @Override
@@ -172,5 +174,15 @@ public class ThreadLocalProperties extends Properties {
     @Override
     public Object merge(Object key, Object value, BiFunction<? super Object, ? super Object, ?> remappingFunction) {
         return tl.get().merge(key, value, remappingFunction);
+    }
+
+    @Override
+    public synchronized int size() {
+        return tl.get().size();
+    }
+
+    @Override
+    public synchronized boolean isEmpty() {
+        return tl.get().isEmpty();
     }
 }

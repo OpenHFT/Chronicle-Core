@@ -51,4 +51,21 @@ public class ThreadLocalPropertiesTest extends CoreTestCommon {
         es2.shutdownNow();
         es3.shutdownNow();
     }
+
+    @Test
+    public void cloneTest() {
+        Properties properties = new Properties();
+        properties.setProperty("A", "1");
+
+        ThreadLocalProperties threadLocalProperties = new ThreadLocalProperties(properties);
+        threadLocalProperties.setProperty("B", "2");
+
+        ThreadLocalProperties actual = (ThreadLocalProperties) threadLocalProperties.clone();
+
+        assertEquals("2", actual.getProperty("B"));
+        assertEquals("1", actual.getProperty("A"));
+        assertEquals(1, actual.size());
+
+    }
+
 }
