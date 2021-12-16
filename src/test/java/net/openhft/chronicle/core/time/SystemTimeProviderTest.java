@@ -33,7 +33,7 @@ import static org.junit.Assert.assertTrue;
 public class SystemTimeProviderTest {
     @Test
     public void currentTimeMicros() throws IllegalStateException {
-        // Superflaky
+        // doCurrentTimeMicros() is very flaky so that is why we retry this operation
         for (int i = 0; i < 3; i++) {
             try {
                 FlakyTestRunner.run(Jvm.isArm() || OS.isWindows() || OS.isMacOSX(), this::doCurrentTimeMicros);
