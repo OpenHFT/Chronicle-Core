@@ -35,9 +35,9 @@ public class ClassAliasPool implements ClassLookup {
     static final ThreadLocal<CAPKey> CAP_KEY_TL = ThreadLocal.withInitial(() -> new CAPKey(null));
     private final ClassLookup parent;
     private final ClassLoader classLoader;
-    private final Map<CAPKey, Class> stringClassMap = new ConcurrentHashMap<>();
-    private final Map<CAPKey, Class> stringClassMap2 = new ConcurrentHashMap<>();
-    private final Map<Class, String> classStringMap = new ConcurrentHashMap<>();
+    private final Map<CAPKey, Class<?>> stringClassMap = new ConcurrentHashMap<>();
+    private final Map<CAPKey, Class<?>> stringClassMap2 = new ConcurrentHashMap<>();
+    private final Map<Class<?>, String> classStringMap = new ConcurrentHashMap<>();
 
     ClassAliasPool(ClassLookup parent, ClassLoader classLoader) {
         this.parent = parent;
@@ -49,11 +49,11 @@ public class ClassAliasPool implements ClassLookup {
         this.classLoader = getClass().getClassLoader();
     }
 
-    public static void a(Class clazz) {
+    public static void a(Class<?> clazz) {
         throw Jvm.rethrow(new AssertionError(clazz));
     }
 
-    protected static boolean testPackage(String pkgName, Class clazz) {
+    protected static boolean testPackage(String pkgName, Class<?> clazz) {
         Package aPackage = clazz.getPackage();
         return aPackage != null && aPackage.getName().startsWith(pkgName);
     }
@@ -100,10 +100,10 @@ public class ClassAliasPool implements ClassLookup {
         clean(classStringMap.keySet());
     }
 
-    private void clean(@NotNull Iterable<Class> coll) {
+    private void clean(@NotNull Iterable<Class<?>> coll) {
         ClassLoader classLoader2 = ClassAliasPool.class.getClassLoader();
-        for (Iterator<Class> iter = coll.iterator(); iter.hasNext(); ) {
-            Class clazz = iter.next();
+        for (Iterator<Class<?>> iter = coll.iterator(); iter.hasNext(); ) {
+            Class<?> clazz = iter.next();
             ClassLoader classLoader = clazz.getClassLoader();
             if (classLoader == null || classLoader == classLoader2)
                 continue;
@@ -117,7 +117,7 @@ public class ClassAliasPool implements ClassLookup {
         Objects.requireNonNull(name);
         CAPKey key = CAP_KEY_TL.get();
         key.value = name;
-        Class clazz = stringClassMap.get(key);
+        Class<?> clazz = stringClassMap.get(key);
         if (clazz != null)
             return clazz;
         clazz = stringClassMap2.get(key);
@@ -126,8 +126,8 @@ public class ClassAliasPool implements ClassLookup {
     }
 
     @NotNull
-    private synchronized Class forName0(@NotNull CAPKey key) {
-        Class clazz = stringClassMap2.get(key);
+    private synchronized Class<?> forName0(@NotNull CAPKey key) {
+        Class<?> clazz = stringClassMap2.get(key);
         if (clazz != null) return clazz;
         String name0 = key.toString();
         CAPKey key2 = new CAPKey(name0);
@@ -161,9 +161,9 @@ public class ClassAliasPool implements ClassLookup {
                 : name;
     }
 
-    private String nameFor0(Class clazz) {
+    private String nameFor0(Class<?> clazz) {
         if (Enum.class.isAssignableFrom(clazz)) {
-            Class clazz2 = clazz.getSuperclass();
+            Class<?> clazz2 = clazz.getSuperclass();
             if (clazz2 != null && clazz2 != Enum.class && Enum.class.isAssignableFrom(clazz2)) {
                 String alias = classStringMap.get(clazz2);
                 if (alias != null) {
@@ -185,7 +185,7 @@ public class ClassAliasPool implements ClassLookup {
     @Override
     public void addAlias(@NotNull Class... classes) {
         for (@NotNull Class clazz : classes) {
-            Class prev = stringClassMap.putIfAbsent(new CAPKey(clazz.getName()), clazz);
+            Class<?> prev = stringClassMap.putIfAbsent(new CAPKey(clazz.getName()), clazz);
             warnIfChanged(prev, clazz, "Did not replace by name");
             prev = stringClassMap2.putIfAbsent(new CAPKey(clazz.getSimpleName()), clazz);
             warnIfChanged(prev, clazz, "Did not replace by simpleName");
@@ -203,7 +203,7 @@ public class ClassAliasPool implements ClassLookup {
     @Override
     public void addAlias(Class clazz, @NotNull String names) {
         for (@NotNull String name : names.split(", ?")) {
-            Class prev = stringClassMap.put(new CAPKey(name), clazz);
+            Class<?> prev = stringClassMap.put(new CAPKey(name), clazz);
             warnIfChanged(prev, clazz, "Replaced");
             stringClassMap2.putIfAbsent(new CAPKey(toCamelCase(name)), clazz);
             classStringMap.putIfAbsent(clazz, name);
@@ -211,7 +211,7 @@ public class ClassAliasPool implements ClassLookup {
         }
     }
 
-    private void warnIfChanged(Class prev, Class clazz, String msg) {
+    private void warnIfChanged(Class<?> prev, Class<?> clazz, String msg) {
         if (prev != null && prev != clazz)
             Jvm.warn().on(getClass(), msg + " " + prev + " with " + clazz);
     }

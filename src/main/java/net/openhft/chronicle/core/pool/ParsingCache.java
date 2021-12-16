@@ -39,7 +39,7 @@ public class ParsingCache<E> {
         this.eFunction = eFunction;
         int n = Maths.nextPower2(capacity, 128);
         shift = Maths.intLog2(n);
-        interner = new ParsedData[n];
+        interner = (ParsedData<E>[]) new ParsedData[n];
         mask = n - 1;
     }
 

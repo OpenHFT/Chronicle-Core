@@ -29,6 +29,10 @@ public final class CleanerServiceLocator {
     private static boolean initialised = false;
     private static ByteBufferCleanerService instance;
 
+    // Suppresses default constructor, ensuring non-instantiability.
+    private CleanerServiceLocator() {
+    }
+
     public static synchronized ByteBufferCleanerService cleanerService() {
         if (!initialised) {
             final ServiceLoader<ByteBufferCleanerService> available =

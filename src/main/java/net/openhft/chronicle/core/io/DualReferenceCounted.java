@@ -49,7 +49,8 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
         } catch (IllegalStateException e) {
             throw e;
         } catch (Throwable e) {
-            throw Jvm.rethrow(error = e);
+            error = e;
+            throw Jvm.rethrow(e);
         }
     }
 
@@ -58,8 +59,11 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
             throw new AssertionError("Unable to use this resource due to previous error", error);
         int aRefCount = a.refCount();
         int bRefCount = b.refCount();
-        if (aRefCount != bRefCount)
-            throw Jvm.rethrow(error = new AssertionError(aRefCount + " != " + bRefCount, error));
+        if (aRefCount != bRefCount) {
+            final AssertionError ae = new AssertionError(aRefCount + " != " + bRefCount, error);
+            error = ae;
+            throw Jvm.rethrow(error);
+        }
     }
 
     @Override
@@ -77,7 +81,8 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
         } catch (IllegalStateException e) {
             throw e;
         } catch (Throwable e) {
-            throw Jvm.rethrow(error = e);
+            error = e;
+            throw Jvm.rethrow(e);
         }
 
     }
@@ -96,7 +101,8 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
         } catch (IllegalStateException e) {
             throw e;
         } catch (Throwable e) {
-            throw Jvm.rethrow(error = e);
+            error = e;
+            throw Jvm.rethrow(e);
         }
     }
 
@@ -113,7 +119,8 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
         } catch (IllegalStateException e) {
             throw e;
         } catch (Throwable e) {
-            throw Jvm.rethrow(error = e);
+            error = e;
+            throw Jvm.rethrow(e);
         }
     }
 
@@ -141,7 +148,8 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
         } catch (IllegalStateException e) {
             throw e;
         } catch (Throwable e) {
-            throw Jvm.rethrow(error = e);
+            error = e;
+            throw Jvm.rethrow(e);
         }
     }
 

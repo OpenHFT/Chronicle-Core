@@ -27,7 +27,7 @@ import org.jetbrains.annotations.Nullable;
  * https://github.com/OpenHFT/Chronicle-Core/issues/75
  */
 public class StackTrace extends Throwable {
-    
+
     public StackTrace() {
         this("stack trace");
     }
@@ -46,10 +46,8 @@ public class StackTrace extends Throwable {
         StackTrace st = new StackTrace(t.toString());
         StackTraceElement[] stackTrace = t.getStackTrace();
         int start = 0;
-        if (stackTrace.length > 2) {
-            if (stackTrace[0].isNativeMethod()) {
-                start++;
-            }
+        if (stackTrace.length > 2 && stackTrace[0].isNativeMethod()) {
+            start++;
         }
         if (start > 0) {
             StackTraceElement[] stackTrace2 = new StackTraceElement[stackTrace.length - start];

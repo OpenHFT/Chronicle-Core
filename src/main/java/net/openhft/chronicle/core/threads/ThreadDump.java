@@ -91,7 +91,7 @@ public class ThreadDump {
             allStackTraces.keySet()
                     .removeIf(next -> startsWith(next.getName(), "RMI ", "VM JFR ", "JFR ", "JMX ", "ForkJoinPool.commonPool-worker-"));
             allStackTraces.keySet()
-                    .removeIf(next -> next.getName().startsWith("HttpClient-") & next.getName().endsWith("-SelectorManager"));
+                    .removeIf(next -> next.getName().startsWith("HttpClient-") && next.getName().endsWith("-SelectorManager"));
             allStackTraces.keySet()
                     .removeIf(next -> next.getName().contains(IGNORE_THREAD_IF_IN_NAME));
             if (allStackTraces.isEmpty())

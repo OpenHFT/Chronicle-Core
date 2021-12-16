@@ -28,6 +28,8 @@ import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
  * NOTE: The caller has to ensure there is always plenty of memory to perform this operation.
  */
 public final class UnsafeText {
+
+    // Suppresses default constructor, ensuring non-instantiability.
     private UnsafeText() {
     }
 
