@@ -24,7 +24,7 @@ import net.openhft.chronicle.core.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 public class EnumInterner<E extends Enum<E>> {
-    public static final ClassLocal<EnumInterner> ENUM_INTERNER = ClassLocal.withInitial(EnumInterner::create);
+    public static final ClassLocal<EnumInterner<?>> ENUM_INTERNER = ClassLocal.withInitial(EnumInterner::create);
 
     @NotNull
     private final E[] interner;

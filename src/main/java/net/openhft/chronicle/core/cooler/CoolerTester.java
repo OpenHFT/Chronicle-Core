@@ -32,13 +32,13 @@ public class CoolerTester {
     private final List<CpuCooler> disturbers = new ArrayList<>();
     private final List<Histogram> histograms = new ArrayList<>();
     private final List<String> testNames = new ArrayList<>();
-    private final List<Callable> tests = new ArrayList<>();
+    private final List<Callable<?>> tests = new ArrayList<>();
     private int repeat = 10;
     private int runTimeMS = 5_000;
     private int minCount = 20;
     private int maxCount = 20_000;
 
-    public CoolerTester(Callable tested, CpuCooler... disturbers) {
+    public CoolerTester(Callable<?> tested, CpuCooler... disturbers) {
         Collections.addAll(this.disturbers, disturbers);
         this.testNames.add("");
         this.tests.add(tested);
@@ -48,12 +48,12 @@ public class CoolerTester {
         Collections.addAll(this.disturbers, disturbers);
     }
 
-    public CoolerTester(CpuCooler disturber, Callable... tests) {
+    public CoolerTester(CpuCooler disturber, Callable<?>... tests) {
         this.disturbers.add(disturber);
         Collections.addAll(this.tests, tests);
     }
 
-    static void innerloop0(Callable tested, Histogram histogram, long start, int count, int minCount, int runTimeMS, int maxCount) throws Exception {
+    static void innerloop0(Callable<?> tested, Histogram histogram, long start, int count, int minCount, int runTimeMS, int maxCount) throws Exception {
         do {
             innerLoop2(tested, histogram);
             count++;
@@ -61,7 +61,7 @@ public class CoolerTester {
         while (count < minCount || (System.currentTimeMillis() - start <= runTimeMS && count < maxCount * 10));
     }
 
-    static void innerloop1(Callable tested, CpuCooler disturber, Histogram histogram, long start, int count, int minCount, int runTimeMS, int maxCount) throws Exception {
+    static void innerloop1(Callable<?> tested, CpuCooler disturber, Histogram histogram, long start, int count, int minCount, int runTimeMS, int maxCount) throws Exception {
         do {
             disturber.disturb();
             innerLoop2(tested, histogram);
@@ -70,7 +70,7 @@ public class CoolerTester {
         while (count < minCount || (System.currentTimeMillis() - start <= runTimeMS && count < maxCount));
     }
 
-    private static void innerLoop2(Callable tested, Histogram histogram) throws Exception {
+    private static void innerLoop2(Callable<?> tested, Histogram histogram) throws Exception {
         UNSAFE.fullFence();
         long start0 = System.nanoTime();
         blackhole = tested.call();
@@ -79,7 +79,7 @@ public class CoolerTester {
         histogram.sample(time0);
     }
 
-    public CoolerTester add(String name, Callable test) {
+    public CoolerTester add(String name, Callable<?> test) {
         testNames.add(name);
         tests.add(test);
         return this;

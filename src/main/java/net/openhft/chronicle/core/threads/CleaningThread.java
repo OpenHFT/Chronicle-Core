@@ -48,13 +48,13 @@ public class CleaningThread extends Thread {
      * @param thread thread to clean for
      */
     public static void performCleanup(Thread thread) {
-        WeakReference[] table;
+        WeakReference<?>[] table;
         Object o;
         try {
             o = THREAD_LOCALS.get(thread);
             if (o == null)
                 return;
-            table = (WeakReference[]) TABLE.get(o);
+            table = (WeakReference<?>[]) TABLE.get(o);
         } catch (IllegalAccessException | IllegalArgumentException e) {
             Jvm.debug().on(CleaningThreadLocal.class, e.toString());
             return;
@@ -70,7 +70,7 @@ public class CleaningThread extends Thread {
             return;
         }
 
-        for (WeakReference reference : table.clone()) {
+        for (WeakReference<?> reference : table.clone()) {
             try {
                 Object key = reference != null ? reference.get() : null;
                 if (!(key instanceof CleaningThreadLocal))
@@ -97,13 +97,13 @@ public class CleaningThread extends Thread {
      * Cleanup a specific CleaningThreadLocal
      */
     public static void performCleanup(Thread thread, CleaningThreadLocal ctl) {
-        WeakReference[] table;
+        WeakReference<?>[] table;
         Object o;
         try {
             o = THREAD_LOCALS.get(thread);
             if (o == null)
                 return;
-            table = (WeakReference[]) TABLE.get(o);
+            table = (WeakReference<?>[]) TABLE.get(o);
         } catch (IllegalAccessException | IllegalArgumentException e) {
             Jvm.debug().on(CleaningThreadLocal.class, e.toString());
             return;
@@ -119,7 +119,7 @@ public class CleaningThread extends Thread {
             return;
         }
 
-        for (WeakReference reference : table) {
+        for (WeakReference<?> reference : table) {
             try {
                 Object key = reference != null ? reference.get() : null;
                 if (!(key instanceof CleaningThreadLocal) || key != ctl)

@@ -16,7 +16,7 @@ public abstract class AbstractCloseableReferenceCounted
     private transient volatile StackTrace closedHere;
     private boolean initReleased;
 
-    public AbstractCloseableReferenceCounted() {
+    protected AbstractCloseableReferenceCounted() {
         Set<Closeable> set = CLOSEABLE_SET;
         if (set != null)
             set.add(this);

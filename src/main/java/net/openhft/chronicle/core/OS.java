@@ -111,6 +111,7 @@ public final class OS {
         }
     }
 
+    // Suppresses default constructor, ensuring non-instantiability.
     private OS() {
     }
 
@@ -259,8 +260,10 @@ public final class OS {
         // getting the process id is slow if the reserve DNS is not setup correctly.
         // which is frustrating since we don't actually use the hostname.
         int id = PROCESS_ID.get();
-        if (id == 0)
-            PROCESS_ID.set(id = getProcessId0());
+        if (id == 0) {
+            id = getProcessId0();
+            PROCESS_ID.set(id);
+        }
         return id;
     }
 
@@ -375,14 +378,12 @@ public final class OS {
                 return (long) map0.invokeExact((FileChannelImpl) fileChannel, imode, start, size);
         } catch (IllegalAccessException e) {
             throw new AssertionError("Method map0 is not accessible", e);
+        } catch (OutOfMemoryError oom) {
+            return errorHandler.apply(oom);
+        } catch (IOException ioe) {
+            throw ioe;
         } catch (Throwable e) {
-            if (e instanceof OutOfMemoryError) {
-                return errorHandler.apply((OutOfMemoryError) e);
-            } else if (e instanceof IOException) {
-                throw (IOException) e;
-            } else {
-                throw new IOException(e);
-            }
+            throw new IOException(e);
         }
     }
 

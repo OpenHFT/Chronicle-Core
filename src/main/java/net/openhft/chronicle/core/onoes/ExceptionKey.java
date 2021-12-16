@@ -26,11 +26,11 @@ import java.io.StringWriter;
 
 public class ExceptionKey {
     public final LogLevel level;
-    public final Class clazz;
+    public final Class<?> clazz;
     public final String message;
     public final Throwable throwable;
 
-    public ExceptionKey(LogLevel level, Class clazz, String message, Throwable throwable) {
+    public ExceptionKey(LogLevel level, Class<?> clazz, String message, Throwable throwable) {
         this.level = level;
         this.clazz = clazz;
         this.message = message;

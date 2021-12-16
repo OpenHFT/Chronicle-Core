@@ -14,6 +14,10 @@ public final class ReflectionUtil {
 
     private static final String ANALYTICS_NAME = "net.openhft.chronicle.analytics.Analytics";
 
+    // Suppresses default constructor, ensuring non-instantiability.
+    private ReflectionUtil() {
+    }
+
     public static boolean analyticsPresent() {
         try {
             Class.forName(ANALYTICS_NAME);

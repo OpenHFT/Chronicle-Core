@@ -52,20 +52,20 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
     }
 
     private E[] getStaticConstants(Class<E> eClass) {
-        List<E> eList = new ArrayList<>();
+        final List<E> fieldList = new ArrayList<>();
         Field[] fields = eClass.getDeclaredFields();
         for (Field field : fields) {
             if (Modifier.isStatic(field.getModifiers()) && field.getType() == eClass) {
                 try {
                     field.setAccessible(true);
                     Object o = field.get(null);
-                    eList.add((E) o);
+                    fieldList.add((E) o);
                 } catch (IllegalAccessException | IllegalArgumentException e) {
                     Jvm.warn().on(getClass(), e.toString());
                 }
             }
         }
-        return (E[]) eList.toArray(new CoreDynamicEnum[eList.size()]);
+        return (E[]) fieldList.toArray(new CoreDynamicEnum[fieldList.size()]);
     }
 
     @Override

@@ -25,6 +25,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.nio.ByteBuffer;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public final class ReflectionBasedByteBufferCleanerService implements ByteBufferCleanerService {
@@ -49,10 +50,13 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
             clean = lookup.findVirtual(cleanerClass, "clean", MethodType.methodType(void.class));
         } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException e) {
             // Don't want to record this in tests so just send to slf4j
-            Logger.getLogger(ReflectionBasedByteBufferCleanerService.class.getName())
-                    .warning("Make sure you have set the command line option " +
-                            "\"--illegal-access=permit --add-exports java.base/jdk.internal.ref=ALL-UNNAMED\" " +
-                            "to enable " + ReflectionBasedByteBufferCleanerService.class.getSimpleName());
+            final Logger logger = Logger.getLogger(ReflectionBasedByteBufferCleanerService.class.getName());
+            if (logger.isLoggable(Level.WARNING)) {
+                Logger.getLogger(ReflectionBasedByteBufferCleanerService.class.getName())
+                        .warning("Make sure you have set the command line option " +
+                                "\"--illegal-access=permit --add-exports java.base/jdk.internal.ref=ALL-UNNAMED\" " +
+                                "to enable " + ReflectionBasedByteBufferCleanerService.class.getSimpleName());
+            }
             impact = Impact.UNAVAILABLE;
         }
         CLEAN_METHOD = clean;

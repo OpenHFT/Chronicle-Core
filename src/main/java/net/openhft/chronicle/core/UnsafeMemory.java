@@ -1195,6 +1195,10 @@ public class UnsafeMemory implements Memory {
 
         private static final long STRING_VALUE_OFFSET;
 
+        // Suppresses default constructor, ensuring non-instantiability.
+        private CachedReflection() {
+        }
+
         static {
             long offset = 0;
             try {

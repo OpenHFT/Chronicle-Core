@@ -45,7 +45,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -55,11 +54,10 @@ import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import static java.lang.Runtime.getRuntime;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
 import static net.openhft.chronicle.core.Bootstrap.*;
 import static net.openhft.chronicle.core.OS.*;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
@@ -69,8 +67,11 @@ import static net.openhft.chronicle.core.internal.util.MapUtil.ofUnmodifiable;
 /**
  * Utility class to access information in the JVM.
  */
-public enum Jvm {
-    ; // none
+public final class Jvm {
+
+    // Suppresses default constructor, ensuring non-instantiability.
+    private Jvm() {
+    }
 
     private static final String PROC = "/proc";
     private static final String PROC_SELF = "/proc/self";
@@ -160,6 +161,7 @@ public enum Jvm {
                 onSpinWait = MethodHandles.lookup()
                         .findStatic(Thread.class, "onSpinWait", MethodType.methodType(Void.TYPE));
             } catch (Exception ignored) {
+                // Ignore
             }
         }
         onSpinWaitMH = onSpinWait;
@@ -175,7 +177,8 @@ public enum Jvm {
         RESOURCE_TRACING = Jvm.getBoolean("jvm.resource.tracing");
 
         Logger logger = LoggerFactory.getLogger(Jvm.class);
-        logger.info("Chronicle core loaded from " + Jvm.class.getProtectionDomain().getCodeSource().getLocation());
+        if (logger.isInfoEnabled())
+            logger.info("Chronicle core loaded from " + Jvm.class.getProtectionDomain().getCodeSource().getLocation());
         if (RESOURCE_TRACING && !Jvm.getBoolean("disable.resource.warning"))
             logger.warn("Resource tracing is turned on. If you are performance testing or running in PROD you probably don't want this");
         REPORT_UNOPTIMISED = Jvm.getBoolean("report.unoptimised");
@@ -363,6 +366,7 @@ public enum Jvm {
                 pid = self.getCanonicalFile().getName();
             }
         } catch (IOException ignored) {
+            // Ignore
         }
 
         if (pid == null) {
@@ -620,6 +624,7 @@ public enum Jvm {
                     if (m != null)
                         return m;
                 } catch (Exception ignored) {
+                    // Ignore
                 }
             if (first)
                 throw new AssertionError(e);
@@ -1056,10 +1061,11 @@ public enum Jvm {
      */
     public static void safepoint() {
         if (SAFEPOINT_ENABLED)
-            if (IS_JAVA_9_PLUS)
+            if (IS_JAVA_9_PLUS) {
                 Safepoint.force(); // 1 ns on Java 11
-            else
+            } else {
                 Compiler.enable(); // 5 ns on Java 8
+            }
     }
 
     public static boolean areOptionalSafepointsEnabled() {
@@ -1517,6 +1523,11 @@ public enum Jvm {
 
     // from https://stackoverflow.com/questions/62550828/is-there-a-lightweight-method-which-adds-a-safepoint-in-java-9
     static final class Safepoint {
+
+        // Suppresses default constructor, ensuring non-instantiability.
+        private Safepoint() {
+        }
+
         // must be volatile
         private static volatile int one = 1;
 
@@ -1527,6 +1538,11 @@ public enum Jvm {
     }
 
     static final class InitSignalHandlers {
+
+        // Suppresses default constructor, ensuring non-instantiability.
+        private InitSignalHandlers() {
+        }
+
         static {
             if (!OS.isWindows()) {
                 // Not available on Windows.
@@ -1591,6 +1607,10 @@ public enum Jvm {
         static final String CPU_MODEL;
 
         private static final String PROCESS = "process ";
+
+        // Suppresses default constructor, ensuring non-instantiability.
+        private CpuClass() {
+        }
 
         static {
             String model = System.getProperty("os.arch", "unknown");
