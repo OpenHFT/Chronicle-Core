@@ -33,7 +33,6 @@ public class ThreadLock {
     }
 
     public void lock(int threadId) throws InterruptedRuntimeException {
-        assert threadId != UNLOCKED;
         if (tryLock(threadId))
             return;
         busyLock(threadId);
