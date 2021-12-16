@@ -39,7 +39,6 @@ import java.util.Map;
 import static net.openhft.chronicle.core.Jvm.*;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class JvmTest {
 
@@ -58,7 +57,7 @@ public class JvmTest {
 
     @Test
     public void addToClassPath() {
-        assertDoesNotThrow(() -> Jvm.addToClassPath(JvmTest.class));
+        Jvm.addToClassPath(JvmTest.class);
     }
 
     @Test(expected = ConfigurationException.class)
@@ -123,10 +122,8 @@ public class JvmTest {
 
     @Test
     public void enableSignals() {
-        assertDoesNotThrow(() -> {
-            Jvm.signalHandler((Signal signal) -> System.out.println(signal + " occurred"));
-            Jvm.addSignalHandler((String signal) -> System.out.println(signal + " occurred"));
-        });
+        Jvm.signalHandler((Signal signal) -> System.out.println(signal + " occurred"));
+        Jvm.addSignalHandler((String signal) -> System.out.println(signal + " occurred"));
     }
 
     @Test
@@ -187,9 +184,7 @@ public class JvmTest {
                 StandardOpenOption.APPEND,
                 StandardOpenOption.CREATE_NEW,
                 StandardOpenOption.DELETE_ON_CLOSE)) {
-            assertDoesNotThrow(() ->
-                    Jvm.doNotCloseOnInterrupt(getClass(), fc)
-            );
+                    Jvm.doNotCloseOnInterrupt(getClass(), fc);
         }
     }
 

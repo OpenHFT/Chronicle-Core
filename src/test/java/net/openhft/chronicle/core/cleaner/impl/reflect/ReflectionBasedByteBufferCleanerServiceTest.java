@@ -21,13 +21,9 @@ import org.junit.Test;
 
 import java.nio.ByteBuffer;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-
 public class ReflectionBasedByteBufferCleanerServiceTest {
     @Test
     public void shouldCleanBuffer() {
-        assertDoesNotThrow(() ->
-                new ReflectionBasedByteBufferCleanerService().clean(ByteBuffer.allocateDirect(64))
-        );
+        new ReflectionBasedByteBufferCleanerService().clean(ByteBuffer.allocateDirect(64));
     }
 }

@@ -38,7 +38,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OSTest {
@@ -59,7 +58,6 @@ public class OSTest {
 
     @Test
     public void testIs64Bit() {
-        assertDoesNotThrow(OS::is64Bit);
         System.out.println("is64 = " + OS.is64Bit());
     }
 

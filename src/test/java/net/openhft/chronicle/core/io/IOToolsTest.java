@@ -17,23 +17,20 @@ import java.nio.file.Paths;
 import java.util.stream.IntStream;
 
 import static org.junit.Assert.*;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class IOToolsTest extends CoreTestCommon {
 
     @Test
     public void readFileManyTimesByPath() {
-        assertDoesNotThrow(() ->
-                IntStream.range(0, 10000)
-                        .parallel()
-                        .forEach(i -> {
-                            try {
-                                IOTools.readFile(IOToolsTest.class, "readFileManyTimes.txt");
-                            } catch (IOException ioe) {
-                                Jvm.rethrow(ioe);
-                            }
-                        })
-        );
+        IntStream.range(0, 10000)
+                .parallel()
+                .forEach(i -> {
+                    try {
+                        IOTools.readFile(IOToolsTest.class, "readFileManyTimes.txt");
+                    } catch (IOException ioe) {
+                        Jvm.rethrow(ioe);
+                    }
+                });
     }
 
     @Test
@@ -43,24 +40,20 @@ public class IOToolsTest extends CoreTestCommon {
             fos.write("Delete me\n".getBytes(StandardCharsets.UTF_8));
         }
 
-        assertDoesNotThrow(() ->
-                IntStream.range(0, 10000)
-                        .parallel()
-                        .forEach(i -> {
-                            try {
-                                IOTools.readFile(IOToolsTest.class, file);
-                            } catch (IOException ioe) {
-                                Jvm.rethrow(ioe);
-                            }
-                        })
-        );
+        IntStream.range(0, 10000)
+                .parallel()
+                .forEach(i -> {
+                    try {
+                        IOTools.readFile(IOToolsTest.class, file);
+                    } catch (IOException ioe) {
+                        Jvm.rethrow(ioe);
+                    }
+                });
     }
 
     @Test
     public void shouldCleanDirectBuffer() {
-        assertDoesNotThrow(() ->
-                IOTools.clean(ByteBuffer.allocateDirect(64))
-        );
+        IOTools.clean(ByteBuffer.allocateDirect(64));
     }
 
     @Test

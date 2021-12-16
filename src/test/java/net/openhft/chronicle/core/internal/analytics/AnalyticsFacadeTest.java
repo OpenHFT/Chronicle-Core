@@ -14,7 +14,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class AnalyticsFacadeTest {
 
@@ -50,9 +49,7 @@ public class AnalyticsFacadeTest {
 
         final AnalyticsFacade analyticsFacade = builder.build();
 
-        assertDoesNotThrow(() ->
-                analyticsFacade.sendEvent("test")
-        );
+        analyticsFacade.sendEvent("test");
     }
 
     @Test(timeout = 10_000L)

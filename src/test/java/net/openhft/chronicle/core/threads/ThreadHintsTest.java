@@ -18,14 +18,12 @@ package net.openhft.chronicle.core.threads;
 
 import org.junit.Test;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-
 public class ThreadHintsTest {
 
     @Test
     public void testOnSpinWait() {
         for (int i = 0; i < 100; i++) {
-            assertDoesNotThrow(ThreadHints::onSpinWait);
+            ThreadHints.onSpinWait();
         }
     }
 }
