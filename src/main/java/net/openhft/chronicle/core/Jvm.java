@@ -1590,6 +1590,8 @@ public enum Jvm {
     static final class CpuClass {
         static final String CPU_MODEL;
 
+        private static final String PROCESS = "process ";
+
         static {
             String model = System.getProperty("os.arch", "unknown");
             try {
@@ -1613,9 +1615,9 @@ public enum Jvm {
                     try {
                         int ret = process.waitFor();
                         if (ret != 0)
-                            Jvm.warn().on(CpuClass.class, "process " + cmd + " returned " + ret);
+                            Jvm.warn().on(CpuClass.class, PROCESS + cmd + " returned " + ret);
                     } catch (InterruptedException e) {
-                        Jvm.warn().on(CpuClass.class, "process " + cmd + " waitFor threw ", e);
+                        Jvm.warn().on(CpuClass.class, PROCESS + cmd + " waitFor threw ", e);
                         // Restore the interrupt state...
                         Thread.currentThread().interrupt();
                     }
@@ -1637,9 +1639,9 @@ public enum Jvm {
                     try {
                         int ret = process.waitFor();
                         if (ret != 0)
-                            Jvm.warn().on(CpuClass.class, "process " + cmd + " returned " + ret);
+                            Jvm.warn().on(CpuClass.class, PROCESS + cmd + " returned " + ret);
                     } catch (InterruptedException e) {
-                        Jvm.warn().on(CpuClass.class, "process " + cmd + " waitFor threw ", e);
+                        Jvm.warn().on(CpuClass.class, PROCESS + cmd + " waitFor threw ", e);
                         // Restore the interrupt state...
                         Thread.currentThread().interrupt();
                     }

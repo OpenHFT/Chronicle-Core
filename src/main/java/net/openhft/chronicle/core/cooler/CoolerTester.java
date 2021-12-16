@@ -135,7 +135,7 @@ public class CoolerTester {
                 if (t == repeat)
                     System.out.println("\n---- RESULTS ----\n");
                 for (int j = 0; j < tests.size(); j++) {
-                    Callable tested = tests.get(j);
+                    Callable<?> tested = tests.get(j);
                     for (int i = 0; i < disturbers.size(); i++) {
                         CpuCooler disturber = disturbers.get(i);
                         Histogram histogram = histograms.get(j * disturbers.size() + i);

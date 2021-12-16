@@ -29,15 +29,15 @@ import org.jetbrains.annotations.NotNull;
  * @author Daniel Murphy
  */
 public class URIEncoder {
-    private static final String mark = "-_.!~*'()\"";
-    private static final char[] hex = "0123456789ABCDEF".toCharArray();
+    private static final String MARK = "-_.!~*'()\"";
+    private static final char[] HEX = "0123456789ABCDEF".toCharArray();
 
     public static String encodeURI(@NotNull String argString) {
         @NotNull StringBuilder uri = new StringBuilder();
 
         for (char c : argString.toCharArray()) {
             if ((c >= '0' && c <= '9') || (c >= 'a' && c <= 'z') ||
-                    (c >= 'A' && c <= 'Z') || mark.indexOf(c) != -1) {
+                    (c >= 'A' && c <= 'Z') || MARK.indexOf(c) != -1) {
                 uri.append(c);
             } else {
                 appendEscaped(uri, c);
@@ -49,16 +49,16 @@ public class URIEncoder {
     private static void appendEscaped(@NotNull StringBuilder uri, char c) {
         if (c <= 0xFF) {
             uri.append("%");
-            uri.append(hex[(c >> 4) & 0xF]);
-            uri.append(hex[c & 0xF]);
+            uri.append(HEX[(c >> 4) & 0xF]);
+            uri.append(HEX[c & 0xF]);
             return;
         }
         // unicode
         uri.append('\\');
         uri.append('u');
-        uri.append(hex[(c >> 12) & 0xF]);
-        uri.append(hex[(c >> 8) & 0xF]);
-        uri.append(hex[(c >> 4) & 0xF]);
-        uri.append(hex[c & 0xF]);
+        uri.append(HEX[(c >> 12) & 0xF]);
+        uri.append(HEX[(c >> 8) & 0xF]);
+        uri.append(HEX[(c >> 4) & 0xF]);
+        uri.append(HEX[c & 0xF]);
     }
 }

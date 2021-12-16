@@ -23,7 +23,7 @@ public enum NullExceptionHandler implements ExceptionHandler {
     NOTHING {
         @Override
         public void on(Class clazz, String message, Throwable thrown) {
-
+            // Do nothing
         }
 
         @Override
