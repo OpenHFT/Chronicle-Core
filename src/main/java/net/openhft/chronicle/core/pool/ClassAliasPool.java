@@ -113,7 +113,7 @@ public class ClassAliasPool implements ClassLookup {
 
     @Override
     @NotNull
-    public Class forName(@NotNull CharSequence name) {
+    public Class<?> forName(@NotNull CharSequence name) {
         Objects.requireNonNull(name);
         CAPKey key = CAP_KEY_TL.get();
         key.value = name;
@@ -150,7 +150,7 @@ public class ClassAliasPool implements ClassLookup {
     }
 
     @Override
-    public String nameFor(Class clazz) throws IllegalArgumentException {
+    public String nameFor(Class<?> clazz) throws IllegalArgumentException {
         if (clazz.getName().contains("$$Lambda$"))
             throw new IllegalArgumentException("Class name for " + clazz + " isn't meaningful.");
         String name = classStringMap.get(clazz);
@@ -183,8 +183,8 @@ public class ClassAliasPool implements ClassLookup {
     }
 
     @Override
-    public void addAlias(@NotNull Class... classes) {
-        for (@NotNull Class clazz : classes) {
+    public void addAlias(@NotNull Class<?>... classes) {
+        for (@NotNull Class<?> clazz : classes) {
             Class<?> prev = stringClassMap.putIfAbsent(new CAPKey(clazz.getName()), clazz);
             warnIfChanged(prev, clazz, "Did not replace by name");
             prev = stringClassMap2.putIfAbsent(new CAPKey(clazz.getSimpleName()), clazz);
@@ -201,7 +201,7 @@ public class ClassAliasPool implements ClassLookup {
     }
 
     @Override
-    public void addAlias(Class clazz, @NotNull String names) {
+    public void addAlias(Class<?> clazz, @NotNull String names) {
         for (@NotNull String name : names.split(", ?")) {
             Class<?> prev = stringClassMap.put(new CAPKey(name), clazz);
             warnIfChanged(prev, clazz, "Replaced");
@@ -216,7 +216,7 @@ public class ClassAliasPool implements ClassLookup {
             Jvm.warn().on(getClass(), msg + " " + prev + " with " + clazz);
     }
 
-    static class CAPKey implements CharSequence {
+    static final class CAPKey implements CharSequence {
         CharSequence value;
 
         CAPKey(String name) {
