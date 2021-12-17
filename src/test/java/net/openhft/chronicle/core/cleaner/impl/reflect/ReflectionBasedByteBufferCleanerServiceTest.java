@@ -17,6 +17,7 @@
  */
 package net.openhft.chronicle.core.cleaner.impl.reflect;
 
+import net.openhft.chronicle.core.internal.cleaner.ReflectionBasedByteBufferCleanerService;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
