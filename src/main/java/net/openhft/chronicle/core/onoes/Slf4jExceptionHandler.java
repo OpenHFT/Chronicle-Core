@@ -21,6 +21,7 @@ package net.openhft.chronicle.core.onoes;
 
 import net.openhft.chronicle.core.ClassLocal;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +32,7 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
     @Deprecated(/* remove in x.23*/)
     FATAL {
         @Override
-        public void on(@NotNull Class clazz, String message, Throwable thrown) {
+        public void on(@NotNull Class<?> clazz, @Nullable String message, Throwable thrown) {
             getLogger(clazz).error("FATAL error " + message, thrown);
             if (!Slf4jExceptionHandler.isJUnitTest()) {
                 System.exit(-1);
@@ -40,35 +41,35 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
     },
     ERROR {
         @Override
-        public void on(@NotNull Class clazz, String message, Throwable thrown) {
+        public void on(@NotNull Class<?> clazz, @Nullable String message, Throwable thrown) {
             getLogger(clazz).error(message, thrown);
         }
     },
     WARN {
         @Override
-        public void on(@NotNull Class clazz, String message, Throwable thrown) {
+        public void on(@NotNull Class<?> clazz, @Nullable String message, Throwable thrown) {
             getLogger(clazz).warn(message, thrown);
         }
     },
     PERF {
         @Override
-        public void on(@NotNull Class clazz, String message, Throwable thrown) {
+        public void on(@NotNull Class<?> clazz, @Nullable String message, Throwable thrown) {
             getLogger(clazz).info(message, thrown);
         }
     },
     DEBUG {
         @Override
-        public void on(@NotNull Class clazz, String message, Throwable thrown) {
+        public void on(@NotNull Class<?> clazz, @Nullable String message, Throwable thrown) {
             getLogger(clazz).debug(message, thrown);
         }
 
         @Override
-        public boolean isEnabled(Class clazz) {
+        public boolean isEnabled(@NotNull Class<?> clazz) {
             return getLogger(clazz).isDebugEnabled();
         }
     };
 
-    static Logger getLogger(Class clazz) {
+    static Logger getLogger(Class<?> clazz) {
         return CLASS_LOGGER.get(clazz);
     }
 

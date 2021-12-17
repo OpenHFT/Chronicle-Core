@@ -17,6 +17,9 @@
  */
 package net.openhft.chronicle.core.onoes;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
     private ExceptionHandler defaultHandler;
     private ThreadLocal<ExceptionHandler> handlerTL;
@@ -27,7 +30,7 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
     }
 
     @Override
-    public void on(Class clazz, String message, Throwable thrown) {
+    public void on(@NotNull Class<?> clazz, @Nullable String message, Throwable thrown) {
         ExceptionHandler exceptionHandler = exceptionHandler();
         if (exceptionHandler == null)
             return;
@@ -72,7 +75,7 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
     }
 
     @Override
-    public boolean isEnabled(Class aClass) {
+    public boolean isEnabled(@NotNull Class<?> aClass) {
         ExceptionHandler exceptionHandler = exceptionHandler();
         if (exceptionHandler == null)
             return true;

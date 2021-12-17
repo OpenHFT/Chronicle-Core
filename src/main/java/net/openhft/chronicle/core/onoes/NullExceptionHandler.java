@@ -19,15 +19,18 @@
 
 package net.openhft.chronicle.core.onoes;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 public enum NullExceptionHandler implements ExceptionHandler {
     NOTHING {
         @Override
-        public void on(Class clazz, String message, Throwable thrown) {
+        public void on(@NotNull Class<?> clazz, @Nullable String message, Throwable thrown) {
             // Do nothing
         }
 
         @Override
-        public boolean isEnabled(Class aClass) {
+        public boolean isEnabled(@NotNull Class<?> aClass) {
             return false;
         }
     }

@@ -28,13 +28,13 @@ import java.time.LocalDateTime;
 public enum PrintExceptionHandler implements ExceptionHandler {
     ERR(System.err) {
         @Override
-        public void on(@NotNull Class clazz, String message, Throwable thrown) {
+        public void on(@NotNull Class<?> clazz, @Nullable String message, Throwable thrown) {
             printLog(clazz, message, thrown, this);
         }
     },
     OUT(System.out) {
         @Override
-        public void on(@NotNull Class clazz, String message, Throwable thrown) {
+        public void on(@NotNull Class<?> clazz, @Nullable String message, Throwable thrown) {
             printLog(clazz, message, thrown, this);
         }
     };
