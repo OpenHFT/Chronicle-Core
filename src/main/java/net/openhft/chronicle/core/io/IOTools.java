@@ -45,6 +45,8 @@ import java.util.zip.GZIPOutputStream;
  * A collection of CONCURRENT utility tools
  */
 public final class IOTools {
+
+    // Suppresses default constructor, ensuring non-instantiability.
     private IOTools() { }
 
     static final Map<Class<?>, AtomicInteger> COUNTER_MAP = new ConcurrentHashMap<>();

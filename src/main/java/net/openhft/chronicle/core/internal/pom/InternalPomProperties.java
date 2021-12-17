@@ -7,8 +7,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
-public enum InternalPomProperties {
-    ; // none
+public final class InternalPomProperties {
+
+    // Suppresses default constructor, ensuring non-instantiability.
+    private InternalPomProperties() {
+    }
 
     private static final Map<String, String> VERSION_CACHE = new ConcurrentHashMap<>();
 

@@ -2,8 +2,11 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 
-public enum FlakyTestRunner {
-    ; // none
+public final class FlakyTestRunner {
+
+    // Suppresses default constructor, ensuring non-instantiability.
+    private FlakyTestRunner() {
+    }
 
     private static boolean inRun = false;
 
