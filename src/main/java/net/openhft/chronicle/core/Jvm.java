@@ -1675,9 +1675,11 @@ public final class Jvm {
             CPU_MODEL = model;
         }
 
+
+        @SuppressWarnings("java:S5852") // Possessive quantifiers (*+) are used preventing catastrophic backtracking
         @NotNull
         static Function<String, String> removingTag() {
-            return line -> line.replaceAll("[^:]*+: ", "");
+            return line -> line.replaceFirst("[^:]*+: ", "");
         }
     }
 

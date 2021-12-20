@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.openhft.chronicle.core.cleaner.impl.reflect;
+package net.openhft.chronicle.core.internal.cleaner;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;

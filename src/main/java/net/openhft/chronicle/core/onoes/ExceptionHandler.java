@@ -19,34 +19,40 @@
 
 package net.openhft.chronicle.core.onoes;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
+
 @FunctionalInterface
 public interface ExceptionHandler {
-    default void on(Class clazz, Throwable thrown) {
+
+    default void on(@NotNull final Class<?> clazz, @NotNull final Throwable thrown) {
         try {
             on(clazz, "", thrown);
         } catch (Throwable t) {
             try {
-                Slf4jExceptionHandler.FATAL.on(clazz, "unable to handle the exception so logging to SLF, ", t);
+                Slf4jExceptionHandler.ERROR.on(clazz, "unable to handle the exception so logging to SLF, ", t);
             } catch (Throwable t0) {
                 t0.printStackTrace();
             }
         }
     }
 
-    default void on(Class clazz, String message) {
+    default void on(@NotNull final Class<?> clazz, @NotNull final String message) {
         on(clazz, message, null);
     }
 
     /**
      * A method to call when an exception occurs. It assumes there is a different handler for different levels.
-     *
-     * @param clazz   the error is associated with, e.g. the one in which it was caught
-     * @param message any message associated with the error, or empty String.
+     *  @param clazz   the error is associated with, e.g. the one in which it was caught (non-null)
+     * @param message any message associated with the error, or an empty String
      * @param thrown  any Throwable caught, or null if there was no exception.
      */
-    void on(Class clazz, String message, Throwable thrown);
+    void on(@NotNull Class<?> clazz, @Nullable String message, @Nullable Throwable thrown);
 
-    default boolean isEnabled(Class aClass) {
+    default boolean isEnabled(@NotNull Class<?> aClass) {
+        requireNonNull(aClass);
         return true;
     }
 }

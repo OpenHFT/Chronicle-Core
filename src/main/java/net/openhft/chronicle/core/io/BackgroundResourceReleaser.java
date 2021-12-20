@@ -8,8 +8,12 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-public enum BackgroundResourceReleaser {
-    ; // none
+public final class BackgroundResourceReleaser {
+
+    // Suppresses default constructor, ensuring non-instantiability.
+    private BackgroundResourceReleaser() {
+    }
+
     public static final String BACKGROUND_RESOURCE_RELEASER = "background~resource~releaser";
     static final boolean BG_RELEASER = Jvm.getBoolean("background.releaser", true);
     /**

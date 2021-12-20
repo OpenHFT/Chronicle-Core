@@ -8,8 +8,11 @@ import static java.lang.Runtime.getRuntime;
 /**
  * Contains the pieces which must be loaded first
  */
-enum Bootstrap {
-    ; // none
+final class Bootstrap {
+
+    // Suppresses default constructor, ensuring non-instantiability.
+    private Bootstrap() {
+    }
 
     public static final String OS_ARCH = System.getProperty("os.arch", "?");
     public static final String VM_VENDOR = System.getProperty("java.vm.vendor", "?");

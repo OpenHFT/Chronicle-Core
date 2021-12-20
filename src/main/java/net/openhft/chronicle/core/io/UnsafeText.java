@@ -58,7 +58,7 @@ public final class UnsafeText {
         return address;
     }
 
-    protected static void reverseTheOrder(long address, long start) {
+    private static void reverseTheOrder(long address, long start) {
         int end = (int) (address - start) - 1;
         for (int i = 0; i < end; i++, end--) {
             long a1 = start + i;
@@ -142,7 +142,7 @@ public final class UnsafeText {
         return appendLargeNumber(address, mantissa, shift);
     }
 
-    protected static long appendLargeNumber(long address, long mantissa, int shift) {
+    private static long appendLargeNumber(long address, long mantissa, int shift) {
         mantissa <<= 10;
         int precision = -10 - shift;
         int digits = 0;
@@ -167,7 +167,7 @@ public final class UnsafeText {
         return address;
     }
 
-    protected static long appendFraction(long address, double d, int sign, long mantissa, int shift) {
+    private static long appendFraction(long address, double d, int sign, long mantissa, int shift) {
         // fraction.
         UNSAFE.putShort(address, (short) ('0' + ('.' << 8)));
         address += 2;
@@ -208,7 +208,7 @@ public final class UnsafeText {
         return address;
     }
 
-    protected static long appendIntegerAndFraction(long address, double d, int sign, long mantissa, int shift) {
+    private static long appendIntegerAndFraction(long address, double d, int sign, long mantissa, int shift) {
         long intValue = mantissa >> shift;
         address = appendFixed(address, intValue);
         mantissa -= intValue << shift;
