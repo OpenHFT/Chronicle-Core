@@ -23,6 +23,7 @@ import net.openhft.chronicle.core.io.Closeable;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,16 +60,41 @@ public class FileSystemWatcher {
         Path base0 = Paths.get(base);
         Path base2 = base0.resolve(relative);
         if (Files.isDirectory(base2)) {
-            try (Stream<Path> paths = Files.walk(base2, 8, FileVisitOption.FOLLOW_LINKS)) {
-                paths.forEach(full -> addPath0(base0, full));
+            try {
+                Files.walkFileTree(base2, Collections.singleton(FileVisitOption.FOLLOW_LINKS), 8, new FileVisitor<Path>() {
+                    @Override
+                    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+                        return visitFile(dir, attrs);
+                    }
 
+                    @Override
+                    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                        addPath0(base0, file);
+
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    @Override
+                    public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                        warnOnException(exc, base);
+
+                        return FileVisitResult.CONTINUE;
+                    }
+
+                    @Override
+                    public FileVisitResult postVisitDirectory(Path dir, IOException exc) {
+                        warnOnException(exc, base);
+
+                        return FileVisitResult.CONTINUE;
+                    }
+                });
             } catch (IOException e) {
-                Jvm.warn().on(FileSystemWatcher.class, "Couldn't walk path " + base, e);
+                warnOnException(e, base);
             }
             try {
                 bootstrapPath(listeners, base, relative);
             } catch (IOException e) {
-                Jvm.warn().on(FileSystemWatcher.class, "Couldn't walk path " + base, e);
+                warnOnException(e, base);
             }
         }
     }
@@ -169,8 +195,15 @@ public class FileSystemWatcher {
 
     private void bootstrapPath(List<WatcherListener> list, String base, String relative) throws IOException {
         Path full = Paths.get(base).resolve(relative);
-        try (Stream<Path> walk = Files.walk(full, 8, FileVisitOption.FOLLOW_LINKS)) {
-            walk.forEach(p -> {
+
+        Files.walkFileTree(full, Collections.singleton(FileVisitOption.FOLLOW_LINKS), 8, new FileVisitor<Path>() {
+            @Override
+            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                return visitFile(dir, attrs);
+            }
+
+            @Override
+            public FileVisitResult visitFile(Path p, BasicFileAttributes attrs) throws IOException {
                 for (Iterator<WatcherListener> iterator = list.iterator(); iterator.hasNext(); ) {
                     WatcherListener listener = iterator.next();
                     String pToString = p.toString();
@@ -183,8 +216,23 @@ public class FileSystemWatcher {
                         iterator.remove();
                     }
                 }
-            });
-        }
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+                warnOnException(exc, base);
+
+                return FileVisitResult.CONTINUE;
+            }
+
+            @Override
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                warnOnException(exc, base);
+
+                return FileVisitResult.CONTINUE;
+            }
+        });
     }
 
     public void start() {
@@ -200,6 +248,12 @@ public class FileSystemWatcher {
             Thread.currentThread().interrupt();
         }
         Closeable.closeQuietly(watchService);
+    }
+
+    private void warnOnException(IOException exc, String base) {
+        if (exc != null) {
+            Jvm.warn().on(FileSystemWatcher.class, "Couldn't walk path " + base, exc);
+        }
     }
 
     static class PathInfo {
