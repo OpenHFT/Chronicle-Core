@@ -1,6 +1,7 @@
-package net.openhft.chronicle.core.threads;
+package net.openhft.chronicle.core.internal.threads;
 
 import net.openhft.chronicle.core.CoreTestCommon;
+import net.openhft.chronicle.core.threads.InterruptedRuntimeException;
 import net.openhft.chronicle.core.values.LongValue;
 import org.junit.Test;
 
@@ -10,12 +11,12 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
-public class ThreadLockTest extends CoreTestCommon {
+public class VanillaThreadLockTest extends CoreTestCommon {
 
     @Test
     public void lockUnlock() {
         final VanillaLongValue value = new VanillaLongValue();
-        ThreadLock lock = new ThreadLock(value, 1000);
+        VanillaThreadLock lock = new VanillaThreadLock(value, 1000);
         lock.lock(1);
         lock.unlock(1);
 
@@ -30,7 +31,7 @@ public class ThreadLockTest extends CoreTestCommon {
     @Test
     public void duplicateLock() {
         final VanillaLongValue value = new VanillaLongValue();
-        ThreadLock lock = new ThreadLock(value, 1000);
+        VanillaThreadLock lock = new VanillaThreadLock(value, 1000);
         lock.lock(1);
         try {
             lock.lock(1);
@@ -44,7 +45,7 @@ public class ThreadLockTest extends CoreTestCommon {
 
     @Test
     public void duplicateUnlock() {
-        ThreadLock lock = new ThreadLock(new VanillaLongValue(), 1000);
+        VanillaThreadLock lock = new VanillaThreadLock(new VanillaLongValue(), 1000);
         lock.lock(1);
         lock.unlock(1);
         try {
@@ -59,7 +60,7 @@ public class ThreadLockTest extends CoreTestCommon {
     @Test
     public void wrongUnlock() {
         final VanillaLongValue value = new VanillaLongValue();
-        ThreadLock lock = new ThreadLock(value, 1000);
+        VanillaThreadLock lock = new VanillaThreadLock(value, 1000);
         lock.lock(1);
 
         expectException("Lock held by another thread 1 not mine 2");
@@ -72,7 +73,7 @@ public class ThreadLockTest extends CoreTestCommon {
     @Test
     public void lockTimeOut() {
         final VanillaLongValue value = new VanillaLongValue();
-        ThreadLock lock = new ThreadLock(value, 100);
+        VanillaThreadLock lock = new VanillaThreadLock(value, 100);
         lock.lock(-1);
 
         expectException("ThreadId -1 died while holding a lock");
@@ -90,7 +91,7 @@ public class ThreadLockTest extends CoreTestCommon {
     @Test
     public void lockTimeOut1() {
         final VanillaLongValue value = new VanillaLongValue();
-        ThreadLock lock = new ThreadLock(value, 100);
+        VanillaThreadLock lock = new VanillaThreadLock(value, 100);
         lock.lock(1);
 
         expectException("Successfully forced an unlock for threadId: 2, previous thread held by: 1, status: running");
@@ -105,7 +106,7 @@ public class ThreadLockTest extends CoreTestCommon {
     @Test
     public void raceConditions() {
         CheckingLongValue value = new CheckingLongValue();
-        ThreadLock lock = new ThreadLock(value, 100);
+        VanillaThreadLock lock = new VanillaThreadLock(value, 100);
 
         value.getValues.add(0L);
         // changed
@@ -134,7 +135,7 @@ public class ThreadLockTest extends CoreTestCommon {
     @Test
     public void raceConditions2() {
         CheckingLongValue value = new CheckingLongValue();
-        ThreadLock lock = new ThreadLock(value, 100);
+        VanillaThreadLock lock = new VanillaThreadLock(value, 100);
         lock.busyLoopCount = lock.busyLockSlowerCount = 1;
 
         // tryLock
@@ -145,7 +146,7 @@ public class ThreadLockTest extends CoreTestCommon {
         value.getValues.add(deadThreadId);
         // busyLockSlower
         value.getValues.add(deadThreadId);
-        if (ThreadLock.METRICS.supportsProc)
+        if (VanillaThreadLock.METRICS.supportsProc)
             value.getValues.add(deadThreadId);
 
         value.getValues.add(deadThreadId);
@@ -161,7 +162,7 @@ public class ThreadLockTest extends CoreTestCommon {
         // busyLock
         value.getValues.add(deadThreadId);
         // busyLockSlower
-        if (ThreadLock.METRICS.supportsProc) {
+        if (VanillaThreadLock.METRICS.supportsProc) {
             value.getValues.add(deadThreadId);
             value.getValues.add(deadThreadId << 32);
         }
@@ -177,7 +178,7 @@ public class ThreadLockTest extends CoreTestCommon {
     @Test
     public void interrupted() {
         final VanillaLongValue value = new VanillaLongValue();
-        ThreadLock lock = new ThreadLock(value, 100);
+        VanillaThreadLock lock = new VanillaThreadLock(value, 100);
         final Thread thread = Thread.currentThread();
         thread.interrupt();
         lock.lock(2);
@@ -193,7 +194,7 @@ public class ThreadLockTest extends CoreTestCommon {
     @Test(expected = IllegalArgumentException.class)
     public void invalidThreadId() {
         final VanillaLongValue value = new VanillaLongValue();
-        ThreadLock lock = new ThreadLock(value, 100);
+        VanillaThreadLock lock = new VanillaThreadLock(value, 100);
         lock.lock(0);
     }
 
