@@ -24,7 +24,7 @@ public class VanillaThreadLock implements ThreadLock {
     }
 
     @Override
-    public boolean tryLock(int threadId) {
+    public boolean tryLock(int threadId) throws IllegalStateException {
         if (threadId == 0)
             throw new IllegalArgumentException();
         long twoThreadId0 = twoThreadId.getVolatileValue();
@@ -130,8 +130,8 @@ public class VanillaThreadLock implements ThreadLock {
         Jvm.warn().on(getClass(), "Failed to unlock");
     }
 
-    private void unlock2(int threadId, long twoThreadId0, int threadId0) {
-        if (threadId0 == 0) {
+    private void unlock2(int threadId, long twoThreadId0, int threadId0) throws IllegalStateException {
+        if (threadId0 == UNLOCKED) {
             int prevThreadId = (int) (twoThreadId0 >>> 32);
             if (prevThreadId == threadId)
                 throw new IllegalStateException("Lock already unlocked by threadId " + threadId);
