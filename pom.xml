@@ -103,18 +103,6 @@
         </dependency>
 
         <dependency>
-            <groupId>net.openhft</groupId>
-            <artifactId>jlbh</artifactId>
-            <scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>net.openhft</groupId>
-                    <artifactId>chronicle-core</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-
-        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <scope>test</scope>
