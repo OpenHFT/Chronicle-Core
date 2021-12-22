@@ -239,8 +239,8 @@ public interface Memory {
      * @return the number of bytes this type uses.
      */
     static int sizeOf(Class<?> type) {
-        return type == void.class ? 0
-                : type == boolean.class || type == byte.class ? 1
+        if (type == void.class) return 0;
+        return type == boolean.class || type == byte.class ? 1
                 : type == short.class || type == char.class ? 2
                 : type == int.class || type == float.class ? 4
                 : type == long.class || type == double.class ? 8

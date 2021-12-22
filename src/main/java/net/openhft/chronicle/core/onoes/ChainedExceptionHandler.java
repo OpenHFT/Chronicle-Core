@@ -19,18 +19,27 @@
 
 package net.openhft.chronicle.core.onoes;
 
+import net.openhft.chronicle.core.util.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.stream.Stream;
+
+import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 public class ChainedExceptionHandler implements ExceptionHandler {
     @NotNull
     private final ExceptionHandler[] chain;
 
     public ChainedExceptionHandler(@NotNull ExceptionHandler... chain) {
-        this.chain = chain;
+        requireNonNull(chain);
+        this.chain = Stream.of(chain)
+                .map(ObjectUtils::requireNonNull)
+                .toArray(ExceptionHandler[]::new);
     }
 
     @Override
-    public void on(Class clazz, String message, Throwable thrown) {
+    public void on(@NotNull Class<?> clazz, @Nullable String message, Throwable thrown) {
         for (ExceptionHandler eh : chain)
             eh.on(clazz, message, thrown);
     }

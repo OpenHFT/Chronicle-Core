@@ -10,8 +10,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-public enum InternalAnnouncer {
-    ; // none
+public final class InternalAnnouncer {
+
+    // Suppresses default constructor, ensuring non-instantiability.
+    private InternalAnnouncer() {
+    }
 
     private static final boolean DISABLE_ANNOUNCEMENT = Optional.ofNullable(System.getProperty("chronicle.announcer.disable")).filter("true"::equals).isPresent();
     private static final Consumer<String> LINE_PRINTER = DISABLE_ANNOUNCEMENT ? s -> {
@@ -64,7 +67,7 @@ public enum InternalAnnouncer {
         final String formatString = "%-"+indent+"s: %s";
 
         propertiesCopy.entrySet().stream()
-                .map((e) -> String.format(formatString, e.getKey(), e.getValue()))
+                .map(e -> String.format(formatString, e.getKey(), e.getValue()))
                 .forEach(LINE_PRINTER);
 
     }

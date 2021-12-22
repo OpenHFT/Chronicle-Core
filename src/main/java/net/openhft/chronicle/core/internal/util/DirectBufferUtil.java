@@ -13,7 +13,8 @@ import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
  */
 public final class DirectBufferUtil {
 
-    public DirectBufferUtil() {
+    // Suppresses default constructor, ensuring non-instantiability.
+    private DirectBufferUtil() {
     }
 
     /**

@@ -29,7 +29,8 @@ import java.util.stream.Stream;
 
 public class ParsingCache<E> {
     protected final ParsedData<E>[] interner;
-    protected final int mask, shift;
+    protected final int mask;
+    protected final int shift;
     private final Function<String, E> eFunction;
     protected boolean toggle = false;
 
@@ -38,7 +39,7 @@ public class ParsingCache<E> {
         this.eFunction = eFunction;
         int n = Maths.nextPower2(capacity, 128);
         shift = Maths.intLog2(n);
-        interner = new ParsedData[n];
+        interner = (ParsedData<E>[]) new ParsedData[n];
         mask = n - 1;
     }
 

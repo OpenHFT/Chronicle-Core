@@ -1,6 +1,7 @@
 package net.openhft.chronicle.core.cleaner.impl.jdk9;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.internal.cleaner.Jdk9ByteBufferCleanerService;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;

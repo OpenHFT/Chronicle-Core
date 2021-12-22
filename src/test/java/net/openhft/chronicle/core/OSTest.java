@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OSTest {
 
@@ -62,11 +63,12 @@ public class OSTest {
 
     @Test
     public void testGetProcessId() {
-        System.out.println("pid = " + OS.getProcessId());
+        final int processId = OS.getProcessId();
+        assertTrue(processId > 0);
     }
 
     /**
-     * tests that windows supports page mapping granularity
+     * tests that Windows supports page mapping granularity
      */
     @Test
     //@Ignore("Failing on TC (linux agent) for unknown reason, anyway the goal of this test is to " +

@@ -7,6 +7,7 @@ import net.openhft.chronicle.core.util.ThrowingConsumer;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 /**
  * This will clean up a resource if the CleaningThread holding it dies.
@@ -14,7 +15,7 @@ import java.util.function.Supplier;
  * Note: this will not clean up the resource if the ThreadLocal itself is discarded.
  */
 public class CleaningThreadLocal<T> extends ThreadLocal<T> {
-    private static final Set<CleaningThreadLocal> cleaningThreadLocals = Collections.synchronizedSet(new LinkedHashSet<>());
+    private static final Set<CleaningThreadLocal<?>> cleaningThreadLocals = Collections.synchronizedSet(new LinkedHashSet<>());
 
     private final Supplier<T> supplier;
     private final Function<T, T> getWrapper;
@@ -22,10 +23,10 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
     private Map<Thread, Object> nonCleaningThreadValues = null;
 
     CleaningThreadLocal(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup) {
-        this(supplier, cleanup, Function.identity());
+        this(supplier, cleanup, UnaryOperator.identity());
     }
 
-    CleaningThreadLocal(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup, Function<T, T> getWrapper) {
+    CleaningThreadLocal(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup, UnaryOperator<T> getWrapper) {
         this.supplier = supplier;
         this.cleanup = cleanup;
         this.getWrapper = getWrapper;
@@ -47,7 +48,7 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
 
     // Used in VanillaSessionHandler
     public static <T> CleaningThreadLocal<T> withCleanup(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup, Function<T, T> getWrapper) {
-        return new CleaningThreadLocal<>(supplier, cleanup, getWrapper);
+        return new CleaningThreadLocal<>(supplier, cleanup, getWrapper::apply);
     }
 
     public static void cleanupNonCleaningThreads() {
@@ -55,7 +56,7 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
             return;
 
         synchronized (cleaningThreadLocals) {
-            for (Iterator<CleaningThreadLocal> iterator = cleaningThreadLocals.iterator(); iterator.hasNext(); ) {
+            for (Iterator<CleaningThreadLocal<?>> iterator = cleaningThreadLocals.iterator(); iterator.hasNext(); ) {
                 CleaningThreadLocal<?> nctl = iterator.next();
                 final CleaningThreadLocal nctl2 = nctl;
                 for (Iterator<Map.Entry<Thread, Object>> iter = nctl.nonCleaningThreadValues.entrySet().iterator(); iter.hasNext(); ) {
@@ -125,9 +126,9 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
      */
     public synchronized void cleanup(T value) {
         try {
-            ThrowingConsumer<T, Exception> cleanup = this.cleanup;
-            if (cleanup != null && value != null)
-                cleanup.accept(value);
+            ThrowingConsumer<T, Exception> lCleanup = this.cleanup;
+            if (lCleanup != null && value != null)
+                lCleanup.accept(value);
         } catch (Exception e) {
             Jvm.warn().on(getClass(), "Exception cleaning up " + value.getClass(), e);
         }
