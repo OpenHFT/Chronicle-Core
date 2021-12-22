@@ -181,11 +181,11 @@ public class VanillaThreadLockTest extends CoreTestCommon {
         final VanillaLongValue value = new VanillaLongValue();
         VanillaThreadLock lock = new VanillaThreadLock(value, 100);
         final Thread thread = Thread.currentThread();
-        thread.interrupt();
         lock.lock(2);
+        thread.interrupt();
         try {
             lock.lock(1);
-            fail();
+            fail("Should have interrupted");
         } catch (InterruptedRuntimeException ire) {
             // expected
         }
