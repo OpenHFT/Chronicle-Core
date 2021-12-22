@@ -60,6 +60,7 @@ public class VanillaThreadLock implements ThreadLock {
     private boolean busyLockSlower(int threadId) throws InterruptedRuntimeException {
         oldLock = 0;
         final long startMS = System.currentTimeMillis();
+        long prevDelayMS = 0;
         long endMS = startMS + timeoutMs;
         do {
             final long currLock = twoThreadId.getVolatileValue();
@@ -84,8 +85,10 @@ public class VanillaThreadLock implements ThreadLock {
                     continue;
                 if (isThreadRunning(lockedThread)) {
                     final long delayMS = System.currentTimeMillis() - startMS;
-                    if (delayMS > 0)
+                    if (delayMS > prevDelayMS) {
                         Jvm.warn().on(getClass(), "ThreadId " + lockedThread + " is running while still holding a lock after " + delayMS + " ms.");
+                        prevDelayMS = delayMS;
+                    }
 
                 } else {
                     Jvm.warn().on(getClass(), "ThreadId " + lockedThread + " died while holding a lock");
