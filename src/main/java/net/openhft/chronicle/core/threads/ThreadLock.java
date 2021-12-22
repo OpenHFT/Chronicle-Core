@@ -55,9 +55,16 @@ public class ThreadLock {
     private boolean busyLockSlower(int threadId) throws InterruptedRuntimeException {
         long endMS = System.currentTimeMillis() + timeoutMs;
         do {
+            int lastThreadId = (int) twoThreadId.getVolatileValue();
             for (int i = 0; i < busyLockSlowerCount; i++) {
                 if (tryLock(threadId))
                     return true;
+                int currThreadId = (int) twoThreadId.getVolatileValue();
+                if (currThreadId != lastThreadId) {
+                    Jvm.perf().on(getClass(), "Owning thread changed from " + lastThreadId + " to " + currThreadId);
+                    lastThreadId = currThreadId;
+                    endMS = System.currentTimeMillis() + timeoutMs;
+                }
                 Thread.yield();
             }
             if (METRICS.supportsProc) {
@@ -86,13 +93,15 @@ public class ThreadLock {
         int threadId0 = (int) twoThreadId0;
 
         // unlock the previous thread
-        if (twoThreadId.compareAndSwapValue(twoThreadId0, ((long) threadId0 << 32) | UNLOCKED)) {
-            String status = METRICS.supportsProc
-                    ? isThreadRunning(threadId0) ? "running" : "dead"
-                    : "unknown";
-            Jvm.warn().on(getClass(), "Successfully forced an unlock for threadId: " + threadId + ", previous thread held by: " + threadId0 + ", status: " + status);
-        } else {
-            Jvm.warn().on(getClass(), "Failed to forced an unlock for threadId: " + threadId);
+        if (threadId0 != UNLOCKED) {
+            if (twoThreadId.compareAndSwapValue(twoThreadId0, ((long) threadId0 << 32) | UNLOCKED)) {
+                String status = METRICS.supportsProc
+                        ? isThreadRunning(threadId0) ? "running" : "dead"
+                        : "unknown";
+                Jvm.warn().on(getClass(), "Successfully forced an unlock for threadId: " + threadId + ", previous thread held by: " + threadId0 + ", status: " + status);
+            } else {
+                Jvm.warn().on(getClass(), "Failed to forced an unlock for threadId: " + threadId);
+            }
         }
         lock(threadId);
     }
