@@ -30,7 +30,7 @@ public interface NanoSampler {
      * Provided nanos must be derived from a coherent and non-decreasing source such as {@link System#nanoTime()}
      * <p>
      * This method must only be called by a single thread.
-     * If called from several thread or provided negative nanos, silently provides an unspecified result.
+     * If called from several threads or provided negative nanos, silently provides an unspecified result.
      *
      * @param nanos time (non-negative)
      */
