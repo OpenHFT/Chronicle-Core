@@ -63,6 +63,9 @@ public class VanillaThreadLock implements ThreadLock {
         long prevDelayMS = 0;
         long endMS = startMS + timeoutMs;
         do {
+            if (Thread.currentThread().isInterrupted())
+                throw new InterruptedRuntimeException();
+
             final long currLock = twoThreadId.getVolatileValue();
             if (oldLock == 0)
                 oldLock = currLock;
@@ -79,6 +82,7 @@ public class VanillaThreadLock implements ThreadLock {
                 }
                 Thread.yield();
             }
+
             if (METRICS.supportsProc) {
                 int lockedThread = (int) twoThreadId.getVolatileValue();
                 if (lockedThread == 0)
@@ -95,8 +99,6 @@ public class VanillaThreadLock implements ThreadLock {
                     return false;
                 }
             }
-            if (Thread.currentThread().isInterrupted())
-                throw new InterruptedRuntimeException();
 
         } while (System.currentTimeMillis() < endMS);
         return false;
