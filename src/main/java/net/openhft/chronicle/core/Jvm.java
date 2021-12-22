@@ -45,7 +45,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -55,11 +54,10 @@ import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import static java.lang.Runtime.getRuntime;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
 import static net.openhft.chronicle.core.Bootstrap.*;
 import static net.openhft.chronicle.core.OS.*;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
@@ -76,11 +74,11 @@ public enum Jvm {
     public static final String SYSTEM_PROPERTIES = "system.properties";
     private static final List<String> INPUT_ARGUMENTS = getRuntimeMXBean().getInputArguments();
     private static final String INPUT_ARGUMENTS2 = " " + String.join(" ", INPUT_ARGUMENTS);
-    private static final int COMPILE_THRESHOLD = getCompileThreshold0();
     private static final boolean IS_DEBUG = Jvm.getBoolean("debug", INPUT_ARGUMENTS2.contains("jdwp"));
     // e.g-verbose:gc  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=dumponexit=true,filename=myrecording.jfr,settings=profile -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints
     private static final boolean IS_FLIGHT_RECORDER = Jvm.getBoolean("jfr", INPUT_ARGUMENTS2.contains(" -XX:+FlightRecorder"));
     private static final boolean IS_COVERAGE = INPUT_ARGUMENTS2.contains("coverage");
+    private static final int COMPILE_THRESHOLD = getCompileThreshold0();
     private static final boolean REPORT_UNOPTIMISED;
     private static final Supplier<Long> reservedMemory;
     private static final boolean IS_64BIT = is64bit0();
@@ -964,15 +962,13 @@ public enum Jvm {
     }
 
     public static void dumpException(@NotNull final Map<ExceptionKey, Integer> exceptions) {
-        System.out.println("exceptions: " + exceptions.size());
+        final Slf4jExceptionHandler warn = Slf4jExceptionHandler.WARN;
         for (@NotNull Entry<ExceptionKey, Integer> entry : exceptions.entrySet()) {
             final ExceptionKey key = entry.getKey();
-            System.err.println(key.level + " " + key.clazz.getSimpleName() + " " + key.message);
-            if (key.throwable != null)
-                key.throwable.printStackTrace();
+            warn.on(Jvm.class, key.level + " " + key.clazz.getSimpleName() + " " + key.message, key.throwable);
             final Integer value = entry.getValue();
             if (value > 1)
-                System.err.println("Repeated " + value + " times");
+                warn.on(Jvm.class, "Repeated " + value + " times");
         }
         resetExceptionHandlers();
     }
@@ -1048,15 +1044,6 @@ public enum Jvm {
             // System.exit()
             Jvm.warn().on(signalHandler.getClass(), "Unable add a signal handler", e);
         }
-    }
-
-    public interface SignalHandler {
-        /**
-         * Handle a Signal
-         *
-         * @param signal to handle
-         */
-        void handle(String signal);
     }
 
     /**
@@ -1500,6 +1487,45 @@ public enum Jvm {
         return OBJECT_HEADER_SIZE;
     }
 
+    /**
+     * @return Obtain the model of CPU on Linux or the os.arch on other OSes.
+     */
+    public static String getCpuClass() {
+        return CpuClass.CPU_MODEL;
+    }
+
+    /**
+     * Was assertion enabled for the Jvm class when it was initialised.
+     *
+     * @return if assertions were enabled.
+     */
+    public static boolean isAssertEnabled() {
+        return ASSERT_ENABLED;
+    }
+
+    public static boolean supportThread() {
+        String name = Thread.currentThread().getName();
+        return "Finalizer".equals(name) || name.contains("~");
+    }
+
+    /**
+     * park the current thread, and stay parked
+     */
+    public static void park() {
+        // LockSupport.park can spuriously return so we execute in a loop
+        while (!Thread.currentThread().isInterrupted())
+            LockSupport.park();
+    }
+
+    public interface SignalHandler {
+        /**
+         * Handle a Signal
+         *
+         * @param signal to handle
+         */
+        void handle(String signal);
+    }
+
     static class ObjectHeaderSizeChecker {
         public int a;
     }
@@ -1576,13 +1602,6 @@ public enum Jvm {
         }
     }
 
-    /**
-     * @return Obtain the model of CPU on Linux or the os.arch on other OSes.
-     */
-    public static String getCpuClass() {
-        return CpuClass.CPU_MODEL;
-    }
-
     static final class CpuClass {
         static final String CPU_MODEL;
 
@@ -1653,28 +1672,5 @@ public enum Jvm {
         static Function<String, String> removingTag() {
             return line -> line.replaceAll("[^:]*+: ", "");
         }
-    }
-
-    /**
-     * Was assertion enabled for the Jvm class when it was initialised.
-     *
-     * @return if assertions were enabled.
-     */
-    public static boolean isAssertEnabled() {
-        return ASSERT_ENABLED;
-    }
-
-    public static boolean supportThread() {
-        String name = Thread.currentThread().getName();
-        return "Finalizer".equals(name) || name.contains("~");
-    }
-
-    /**
-     * park the current thread, and stay parked
-     */
-    public static void park() {
-        // LockSupport.park can spuriously return so we execute in a loop
-        while (!Thread.currentThread().isInterrupted())
-            LockSupport.park();
     }
 }
