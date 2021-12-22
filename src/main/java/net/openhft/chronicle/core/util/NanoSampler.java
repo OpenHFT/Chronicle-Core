@@ -18,7 +18,21 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.annotation.SingleThreaded;
+
+@SingleThreaded
 @FunctionalInterface
 public interface NanoSampler {
+
+    /**
+     * Records a sample at the provided {@code nanos} time (corresponding to a time given in nanoseconds).
+     * <p>
+     * Provided nanos must be derived from a coherent and non-decreasing source such as {@link System#nanoTime()}
+     * <p>
+     * This method must only be called by a single thread.
+     * If called from several threads or provided negative nanos, silently provides an unspecified result.
+     *
+     * @param nanos time (non-negative)
+     */
     void sampleNanos(long nanos);
 }
