@@ -73,7 +73,7 @@ public class VanillaThreadLockTest extends CoreTestCommon {
     @Test
     public void lockTimeOut() {
         final VanillaLongValue value = new VanillaLongValue();
-        VanillaThreadLock lock = new VanillaThreadLock(value, 100);
+        VanillaThreadLock lock = new VanillaThreadLock(value, 50);
         lock.lock(-1);
 
         expectException("ThreadId -1 died while holding a lock");
@@ -91,9 +91,10 @@ public class VanillaThreadLockTest extends CoreTestCommon {
     @Test
     public void lockTimeOut1() {
         final VanillaLongValue value = new VanillaLongValue();
-        VanillaThreadLock lock = new VanillaThreadLock(value, 100);
+        VanillaThreadLock lock = new VanillaThreadLock(value, 50);
         lock.lock(1);
 
+        expectException("ThreadId 1 is running while still holding a lock after ");
         expectException("Successfully forced an unlock for threadId: 2, previous thread held by: 1, status: running");
         lock.lock(2);
 
