@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.annotation.SingleThreaded;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DecimalFormat;
@@ -29,6 +30,7 @@ import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
 // TODO add a dummy histogram.
+@SingleThreaded
 public class Histogram implements NanoSampler {
     private static final DecimalFormat F3 = new DecimalFormat("0.000");
     private static final DecimalFormat F2 = new DecimalFormat("0.00");
