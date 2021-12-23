@@ -332,7 +332,7 @@ public class Histogram implements NanoSampler {
     }
 
     @Override
-    public void sampleNanos(long nanos) {
-        sample(nanos);
+    public void sampleNanos(long durationNs) {
+        sample(durationNs);
     }
 }
