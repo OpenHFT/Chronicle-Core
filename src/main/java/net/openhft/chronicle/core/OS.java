@@ -124,6 +124,7 @@ public final class OS {
                 && new File(tmp).isDirectory()
                 && new File(tmp).canWrite())
             return tmp;
+        new File("tmp").mkdirs();
         return "tmp";
     }
 
@@ -140,7 +141,9 @@ public final class OS {
             if (gradleTarget.exists())
                 return gradleTarget.getAbsolutePath();
         }
-        return System.getProperty("java.io.tmpdir") + File.pathSeparator + "target";
+        final File dir = new File(System.getProperty("java.io.tmpdir"), "target");
+        dir.mkdirs();
+        return dir.getPath();
     }
 
     @NotNull
