@@ -50,9 +50,9 @@ public class StackTrace extends Throwable {
             start++;
         }
         if (start > 0) {
-            StackTraceElement[] stackTrace2 = new StackTraceElement[stackTrace.length - start];
-            System.arraycopy(stackTrace, start, stackTrace2, 0, stackTrace2.length);
-            stackTrace = stackTrace2;
+            StackTraceElement[] ste2 = new StackTraceElement[stackTrace.length - start];
+            System.arraycopy(stackTrace, start, ste2, 0, ste2.length);
+            stackTrace = ste2;
         }
         st.setStackTrace(stackTrace);
         return st;
