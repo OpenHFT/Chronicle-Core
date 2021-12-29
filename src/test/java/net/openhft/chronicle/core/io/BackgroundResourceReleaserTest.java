@@ -45,7 +45,7 @@ public class BackgroundResourceReleaserTest {
 
         BackgroundResourceReleaser.releasePendingResources();
         long time = System.currentTimeMillis() - start0;
-        assertBetween(count * 10, time, count * (Jvm.isAzulZulu() ? 60 : 17));
+        assertBetween(count * 10, time, count * (Jvm.isAzulZulu() ? 60 : 18));
         assertEquals(count, closed.get());
         assertEquals(count, released.get());
         AbstractCloseable.assertCloseablesClosed();

@@ -113,7 +113,7 @@ public class SystemTimeProviderTest {
             long time4 = tp.currentTimeNanos();
             try {
                 assertBetween(time2 / 1000, time1, time2 / 1000 + 2);
-                assertBetween(time3 / 1000 - 1, time2, time3 / 1000 + 20);
+                assertBetween(time3 / 1000 - 8, time2, time3 / 1000 + 20);
                 assertBetween(time4 / 1000 - 100, time3, time4 / 1000 + 2_000);
             } catch (AssertionError ae) {
                 Thread.yield();

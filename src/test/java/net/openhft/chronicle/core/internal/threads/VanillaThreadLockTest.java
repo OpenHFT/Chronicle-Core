@@ -77,7 +77,7 @@ public class VanillaThreadLockTest extends CoreTestCommon {
         lock.lock(-1);
 
         expectException("ThreadId -1 died while holding a lock");
-        expectException("Successfully forced an unlock for threadId: 2, previous thread held by: -1, status: dead");
+        expectException("Successfully forced an unlock for threadId: 2, previous thread held by: -1, status: "); // dead or unknown
         lock.lock(2);
 
         lock.unlock(2);
@@ -95,7 +95,7 @@ public class VanillaThreadLockTest extends CoreTestCommon {
         lock.lock(1);
 
         expectException("ThreadId 1 is running while still holding a lock after ");
-        expectException("Successfully forced an unlock for threadId: 2, previous thread held by: 1, status: running");
+        expectException("Successfully forced an unlock for threadId: 2, previous thread held by: 1, status: "); // running or unknown
         lock.lock(2);
 
         expectException("Lock held by another thread 2 not mine 1");
