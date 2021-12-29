@@ -14,6 +14,17 @@ import static org.junit.Assert.*;
 public class VanillaThreadLockTest extends CoreTestCommon {
 
     @Test
+    public void gettid() {
+        final VanillaLongValue value = new VanillaLongValue();
+        VanillaThreadLock lock = new VanillaThreadLock(value, 1000);
+        assertTrue(lock.gettid() > 0);
+        assertTrue(lock.tryLock());
+        lock.unlock();
+        lock.lock();
+        lock.unlock();
+    }
+
+    @Test
     public void lockUnlock() {
         final VanillaLongValue value = new VanillaLongValue();
         VanillaThreadLock lock = new VanillaThreadLock(value, 1000);
