@@ -64,13 +64,13 @@ public class Timer {
         }, initialDelayMs, 0));
     }
 
-    private static class ScheduledEventHandler implements EventHandler, Closeable {
+    private static final class ScheduledEventHandler implements EventHandler, Closeable {
 
         @NotNull
         private final VanillaEventHandler eventHandler;
         private final long initialDelayMs;
         private final long periodMs;
-        private transient volatile boolean closed;
+        private volatile boolean closed;
 
         private boolean isFirstTime = true;
         private long lastTimeRan = System.currentTimeMillis();

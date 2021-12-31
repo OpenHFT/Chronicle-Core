@@ -60,9 +60,9 @@ public class StackSampler {
 
     @Nullable
     public StackTraceElement[] getAndReset() {
-        final StackTraceElement[] stack = this.stack;
+        final StackTraceElement[] lStack = this.stack;
         thread = null;
         this.stack = null;
-        return stack;
+        return lStack;
     }
 }

@@ -2,8 +2,6 @@ package net.openhft.chronicle.core.util;
 
 import org.jetbrains.annotations.NotNull;
 
-import java.util.function.Supplier;
-
 /**
  * A Builder of type T is a configurable object that can provide
  * another non-null T instance.

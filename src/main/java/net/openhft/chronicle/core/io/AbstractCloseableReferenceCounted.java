@@ -11,11 +11,12 @@ public abstract class AbstractCloseableReferenceCounted
         extends AbstractReferenceCounted
         implements ManagedCloseable {
 
-    private transient volatile boolean closing, closed;
+    private transient volatile boolean closing;
+    private transient volatile boolean closed;
     private transient volatile StackTrace closedHere;
     private boolean initReleased;
 
-    public AbstractCloseableReferenceCounted() {
+    protected AbstractCloseableReferenceCounted() {
         Set<Closeable> set = CLOSEABLE_SET;
         if (set != null)
             set.add(this);

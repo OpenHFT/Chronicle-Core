@@ -2,10 +2,13 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 
-public enum FlakyTestRunner {
-    ; // none
+public final class FlakyTestRunner {
 
-    static boolean IN_RUN = false;
+    // Suppresses default constructor, ensuring non-instantiability.
+    private FlakyTestRunner() {
+    }
+
+    private static boolean inRun = false;
 
     public static <T extends Throwable> void run(RunnableThrows<T> rt) throws T {
         run(true, rt);
@@ -18,9 +21,9 @@ public enum FlakyTestRunner {
         }
         try {
             // stop accidental call back to self.
-            if (IN_RUN)
+            if (inRun)
                 throw new AssertionError("Can't run nested");
-            IN_RUN = true;
+            inRun = true;
 
             rt.run();
 
@@ -31,7 +34,7 @@ public enum FlakyTestRunner {
             rt.run();
             Slf4jExceptionHandler.WARN.on(FlakyTestRunner.class, "Flaky test threw an error the first run, passed the second time", t);
         } finally {
-            IN_RUN = false;
+            inRun = false;
         }
     }
 

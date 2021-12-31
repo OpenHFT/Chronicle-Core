@@ -19,7 +19,7 @@ package net.openhft.chronicle.core.cleaner;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.annotation.TargetMajorVersion;
-import net.openhft.chronicle.core.cleaner.impl.reflect.ReflectionBasedByteBufferCleanerService;
+import net.openhft.chronicle.core.internal.cleaner.ReflectionBasedByteBufferCleanerService;
 import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;
 
 import java.util.ServiceConfigurationError;
@@ -28,6 +28,10 @@ import java.util.ServiceLoader;
 public final class CleanerServiceLocator {
     private static boolean initialised = false;
     private static ByteBufferCleanerService instance;
+
+    // Suppresses default constructor, ensuring non-instantiability.
+    private CleanerServiceLocator() {
+    }
 
     public static synchronized ByteBufferCleanerService cleanerService() {
         if (!initialised) {

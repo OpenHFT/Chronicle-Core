@@ -20,6 +20,7 @@
 package net.openhft.chronicle.core.onoes;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
@@ -35,7 +36,7 @@ public class RecordingExceptionHandler implements ExceptionHandler {
     }
 
     @Override
-    public void on(Class clazz, String message, Throwable thrown) {
+    public void on(@NotNull Class<?> clazz, @Nullable String message, Throwable thrown) {
         if (exceptionsOnly && thrown == null)
             return;
         synchronized (exceptionKeyCountMap) {

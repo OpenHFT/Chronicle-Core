@@ -45,7 +45,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.AbstractMap.SimpleImmutableEntry;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -55,11 +54,10 @@ import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Stream;
 
 import static java.lang.Runtime.getRuntime;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
 import static net.openhft.chronicle.core.Bootstrap.*;
 import static net.openhft.chronicle.core.OS.*;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
@@ -69,18 +67,24 @@ import static net.openhft.chronicle.core.internal.util.MapUtil.ofUnmodifiable;
 /**
  * Utility class to access information in the JVM.
  */
-public enum Jvm {
-    ; // none
+public final class Jvm {
+
+    // Suppresses default constructor, ensuring non-instantiability.
+    private Jvm() {
+    }
+
+    private static final String PROC = "/proc";
+    private static final String PROC_SELF = "/proc/self";
 
     public static final String JAVA_CLASS_PATH = "java.class.path";
     public static final String SYSTEM_PROPERTIES = "system.properties";
     private static final List<String> INPUT_ARGUMENTS = getRuntimeMXBean().getInputArguments();
     private static final String INPUT_ARGUMENTS2 = " " + String.join(" ", INPUT_ARGUMENTS);
-    private static final int COMPILE_THRESHOLD = getCompileThreshold0();
     private static final boolean IS_DEBUG = Jvm.getBoolean("debug", INPUT_ARGUMENTS2.contains("jdwp"));
     // e.g-verbose:gc  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=dumponexit=true,filename=myrecording.jfr,settings=profile -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints
     private static final boolean IS_FLIGHT_RECORDER = Jvm.getBoolean("jfr", INPUT_ARGUMENTS2.contains(" -XX:+FlightRecorder"));
     private static final boolean IS_COVERAGE = INPUT_ARGUMENTS2.contains("coverage");
+    private static final int COMPILE_THRESHOLD = getCompileThreshold0();
     private static final boolean REPORT_UNOPTIMISED;
     private static final Supplier<Long> reservedMemory;
     private static final boolean IS_64BIT = is64bit0();
@@ -118,7 +122,7 @@ public enum Jvm {
     private static final MethodHandle onSpinWaitMH;
     private static final ChainedSignalHandler signalHandlerGlobal;
     private static final boolean RESOURCE_TRACING;
-    private static final boolean PROC_EXISTS = new File("/proc").exists();
+    private static final boolean PROC_EXISTS = new File(PROC).exists();
     private static final int OBJECT_HEADER_SIZE;
 
     private static final boolean ASSERT_ENABLED;
@@ -129,7 +133,7 @@ public enum Jvm {
         ASSERT_ENABLED = debug;
         final Field[] declaredFields = ObjectHeaderSizeChecker.class.getDeclaredFields();
         // get this here before we call getField
-        setAccessible0_Method = get_setAccessible0_Method();
+        setAccessible0_Method = getSetAccessible0Method();
         MAX_DIRECT_MEMORY = maxDirectMemory0();
         OBJECT_HEADER_SIZE = (int) UnsafeMemory.INSTANCE.getFieldOffset(declaredFields[0]);
 
@@ -157,6 +161,7 @@ public enum Jvm {
                 onSpinWait = MethodHandles.lookup()
                         .findStatic(Thread.class, "onSpinWait", MethodType.methodType(Void.TYPE));
             } catch (Exception ignored) {
+                // Ignore
             }
         }
         onSpinWaitMH = onSpinWait;
@@ -172,7 +177,8 @@ public enum Jvm {
         RESOURCE_TRACING = Jvm.getBoolean("jvm.resource.tracing");
 
         Logger logger = LoggerFactory.getLogger(Jvm.class);
-        logger.info("Chronicle core loaded from " + Jvm.class.getProtectionDomain().getCodeSource().getLocation());
+        if (logger.isInfoEnabled())
+            logger.info("Chronicle core loaded from " + Jvm.class.getProtectionDomain().getCodeSource().getLocation());
         if (RESOURCE_TRACING && !Jvm.getBoolean("disable.resource.warning"))
             logger.warn("Resource tracing is turned on. If you are performance testing or running in PROD you probably don't want this");
         REPORT_UNOPTIMISED = Jvm.getBoolean("report.unoptimised");
@@ -209,7 +215,7 @@ public enum Jvm {
         loadSystemProperties(systemProperties, wasSet);
     }
 
-    private static MethodHandle get_setAccessible0_Method() {
+    private static MethodHandle getSetAccessible0Method() {
         if (!IS_JAVA_9_PLUS) {
             return null;
         }
@@ -354,12 +360,13 @@ public enum Jvm {
 
     private static int getProcessId0() {
         String pid = null;
-        final File self = new File("/proc/self");
+        final File self = new File(PROC_SELF);
         try {
             if (self.exists()) {
                 pid = self.getCanonicalFile().getName();
             }
         } catch (IOException ignored) {
+            // Ignore
         }
 
         if (pid == null) {
@@ -617,6 +624,7 @@ public enum Jvm {
                     if (m != null)
                         return m;
                 } catch (Exception ignored) {
+                    // Ignore
                 }
             if (first)
                 throw new AssertionError(e);
@@ -964,15 +972,13 @@ public enum Jvm {
     }
 
     public static void dumpException(@NotNull final Map<ExceptionKey, Integer> exceptions) {
-        System.out.println("exceptions: " + exceptions.size());
+        final Slf4jExceptionHandler warn = Slf4jExceptionHandler.WARN;
         for (@NotNull Entry<ExceptionKey, Integer> entry : exceptions.entrySet()) {
             final ExceptionKey key = entry.getKey();
-            System.err.println(key.level + " " + key.clazz.getSimpleName() + " " + key.message);
-            if (key.throwable != null)
-                key.throwable.printStackTrace();
+            warn.on(Jvm.class, key.level + " " + key.clazz.getSimpleName() + " " + key.message, key.throwable);
             final Integer value = entry.getValue();
             if (value > 1)
-                System.err.println("Repeated " + value + " times");
+                warn.on(Jvm.class, "Repeated " + value + " times");
         }
         resetExceptionHandlers();
     }
@@ -1038,36 +1044,17 @@ public enum Jvm {
         InitSignalHandlers.init();
     }
 
-    private static void addSignalHandler(final String sig, final sun.misc.SignalHandler signalHandler) {
-        try {
-            Signal.handle(new Signal(sig), signalHandler);
-
-        } catch (IllegalArgumentException e) {
-            // When -Xrs is specified the user is responsible for
-            // ensuring that shutdown hooks are run by calling
-            // System.exit()
-            Jvm.warn().on(signalHandler.getClass(), "Unable add a signal handler", e);
-        }
-    }
-
-    public interface SignalHandler {
-        /**
-         * Handle a Signal
-         *
-         * @param signal to handle
-         */
-        void handle(String signal);
-    }
 
     /**
      * Inserts a low-cost Java safe-point in the code path.
      */
     public static void safepoint() {
         if (SAFEPOINT_ENABLED)
-            if (IS_JAVA_9_PLUS)
+            if (IS_JAVA_9_PLUS) {
                 Safepoint.force(); // 1 ns on Java 11
-            else
+            } else {
                 Compiler.enable(); // 5 ns on Java 8
+            }
     }
 
     public static boolean areOptionalSafepointsEnabled() {
@@ -1124,11 +1111,10 @@ public enum Jvm {
 
     private static ClassMetrics getClassMetrics(final Class<?> c) {
         final Class<?> superclass = c.getSuperclass();
-        int start = Integer.MAX_VALUE, end = 0;
+        int start = Integer.MAX_VALUE;
+        int end = 0;
         for (Field f : c.getDeclaredFields()) {
-            if ((f.getModifiers() & (Modifier.STATIC | Modifier.TRANSIENT)) != 0)
-                continue;
-            if (!f.getType().isPrimitive())
+            if ((f.getModifiers() & (Modifier.STATIC | Modifier.TRANSIENT)) != 0 || !f.getType().isPrimitive())
                 continue;
             int start0 = Math.toIntExact(UnsafeMemory.unsafeObjectFieldOffset(f));
             int size = PRIMITIVE_SIZE.get(f.getType());
@@ -1151,9 +1137,7 @@ public enum Jvm {
                                              final int start,
                                              final int end) {
         for (Field f : c.getDeclaredFields()) {
-            if ((f.getModifiers() & Modifier.STATIC) != 0)
-                continue;
-            if (f.getType().isPrimitive())
+            if ((f.getModifiers() & Modifier.STATIC) != 0 || f.getType().isPrimitive())
                 continue;
             final int start0 = Math.toIntExact(UnsafeMemory.unsafeObjectFieldOffset(f));
             if (start <= start0 && start0 < end) {
@@ -1500,8 +1484,48 @@ public enum Jvm {
         return OBJECT_HEADER_SIZE;
     }
 
-    static class ObjectHeaderSizeChecker {
-        public int a;
+    /**
+     * @return Obtain the model of CPU on Linux or the os.arch on other OSes.
+     */
+    public static String getCpuClass() {
+        return CpuClass.CPU_MODEL;
+    }
+
+    /**
+     * Was assertion enabled for the Jvm class when it was initialised.
+     *
+     * @return if assertions were enabled.
+     */
+    public static boolean isAssertEnabled() {
+        return ASSERT_ENABLED;
+    }
+
+    public static boolean supportThread() {
+        String name = Thread.currentThread().getName();
+        return "Finalizer".equals(name) || name.contains("~");
+    }
+
+    /**
+     * park the current thread, and stay parked
+     */
+    public static void park() {
+        // LockSupport.park can spuriously return so we execute in a loop
+        while (!Thread.currentThread().isInterrupted())
+            LockSupport.park();
+    }
+
+    public interface SignalHandler {
+        /**
+         * Handle a Signal
+         *
+         * @param signal to handle
+         */
+        void handle(String signal);
+    }
+
+
+    private static final class ObjectHeaderSizeChecker {
+        private int a;
     }
 
     static final class CommonInterruptible {
@@ -1528,6 +1552,11 @@ public enum Jvm {
 
     // from https://stackoverflow.com/questions/62550828/is-there-a-lightweight-method-which-adds-a-safepoint-in-java-9
     static final class Safepoint {
+
+        // Suppresses default constructor, ensuring non-instantiability.
+        private Safepoint() {
+        }
+
         // must be volatile
         private static volatile int one = 1;
 
@@ -1538,9 +1567,16 @@ public enum Jvm {
     }
 
     static final class InitSignalHandlers {
+
+        // Suppresses default constructor, ensuring non-instantiability.
+        private InitSignalHandlers() {
+        }
+
         static {
-            if (!OS.isWindows()) // not available on windows.
+            if (!OS.isWindows()) {
+                // Not available on Windows.
                 addSignalHandler("HUP", signalHandlerGlobal);
+            }
             addSignalHandler("INT", signalHandlerGlobal);
             addSignalHandler("TERM", signalHandlerGlobal);
 
@@ -1549,6 +1585,19 @@ public enum Jvm {
         static void init() {
             // trigger static block
         }
+
+        private static void addSignalHandler(final String sig, final sun.misc.SignalHandler signalHandler) {
+            try {
+                Signal.handle(new Signal(sig), signalHandler);
+
+            } catch (IllegalArgumentException e) {
+                // When -Xrs is specified the user is responsible for
+                // ensuring that shutdown hooks are run by calling
+                // System.exit()
+                Jvm.warn().on(signalHandler.getClass(), "Unable add a signal handler", e);
+            }
+        }
+
     }
 
     static final class ChainedSignalHandler implements sun.misc.SignalHandler {
@@ -1576,15 +1625,14 @@ public enum Jvm {
         }
     }
 
-    /**
-     * @return Obtain the model of CPU on Linux or the os.arch on other OSes.
-     */
-    public static String getCpuClass() {
-        return CpuClass.CPU_MODEL;
-    }
-
     static final class CpuClass {
         static final String CPU_MODEL;
+
+        private static final String PROCESS = "process ";
+
+        // Suppresses default constructor, ensuring non-instantiability.
+        private CpuClass() {
+        }
 
         static {
             String model = System.getProperty("os.arch", "unknown");
@@ -1609,9 +1657,9 @@ public enum Jvm {
                     try {
                         int ret = process.waitFor();
                         if (ret != 0)
-                            Jvm.warn().on(CpuClass.class, "process " + cmd + " returned " + ret);
+                            Jvm.warn().on(CpuClass.class, PROCESS + cmd + " returned " + ret);
                     } catch (InterruptedException e) {
-                        Jvm.warn().on(CpuClass.class, "process " + cmd + " waitFor threw ", e);
+                        Jvm.warn().on(CpuClass.class, PROCESS + cmd + " waitFor threw ", e);
                         // Restore the interrupt state...
                         Thread.currentThread().interrupt();
                     }
@@ -1633,9 +1681,9 @@ public enum Jvm {
                     try {
                         int ret = process.waitFor();
                         if (ret != 0)
-                            Jvm.warn().on(CpuClass.class, "process " + cmd + " returned " + ret);
+                            Jvm.warn().on(CpuClass.class, PROCESS + cmd + " returned " + ret);
                     } catch (InterruptedException e) {
-                        Jvm.warn().on(CpuClass.class, "process " + cmd + " waitFor threw ", e);
+                        Jvm.warn().on(CpuClass.class, PROCESS + cmd + " waitFor threw ", e);
                         // Restore the interrupt state...
                         Thread.currentThread().interrupt();
                     }
@@ -1649,32 +1697,11 @@ public enum Jvm {
             CPU_MODEL = model;
         }
 
+
+        @SuppressWarnings("java:S5852") // Possessive quantifiers (*+) are used preventing catastrophic backtracking
         @NotNull
         static Function<String, String> removingTag() {
-            return line -> line.replaceAll("[^:]*+: ", "");
+            return line -> line.replaceFirst("[^:]*+: ", "");
         }
-    }
-
-    /**
-     * Was assertion enabled for the Jvm class when it was initialised.
-     *
-     * @return if assertions were enabled.
-     */
-    public static boolean isAssertEnabled() {
-        return ASSERT_ENABLED;
-    }
-
-    public static boolean supportThread() {
-        String name = Thread.currentThread().getName();
-        return "Finalizer".equals(name) || name.contains("~");
-    }
-
-    /**
-     * park the current thread, and stay parked
-     */
-    public static void park() {
-        // LockSupport.park can spuriously return so we execute in a loop
-        while (!Thread.currentThread().isInterrupted())
-            LockSupport.park();
     }
 }

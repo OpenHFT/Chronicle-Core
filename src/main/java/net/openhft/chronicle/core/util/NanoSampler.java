@@ -18,7 +18,19 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.annotation.SingleThreaded;
+
+@SingleThreaded
 @FunctionalInterface
 public interface NanoSampler {
-    void sampleNanos(long nanos);
+
+    /**
+     * Records a sample at the provided {@code durationNs}. The duration is given in nanoseconds.
+     * <p>
+     * This method must only be called by a single thread.
+     * If called from several threads or provided negative durationNs, silently provides an unspecified result.
+     *
+     * @param durationNs time (non-negative)
+     */
+    void sampleNanos(long durationNs);
 }

@@ -45,6 +45,8 @@ import java.util.zip.GZIPOutputStream;
  * A collection of CONCURRENT utility tools
  */
 public final class IOTools {
+
+    // Suppresses default constructor, ensuring non-instantiability.
     private IOTools() { }
 
     static final Map<Class<?>, AtomicInteger> COUNTER_MAP = new ConcurrentHashMap<>();
@@ -207,9 +209,8 @@ public final class IOTools {
                 return bytes;
             }
         }
-        try {
-            @NotNull ByteArrayOutputStream out = new ByteArrayOutputStream(Math.min(512, is.available()));
-            @NotNull byte[] bytes = new byte[1024];
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream(Math.min(512, is.available()))){
+            byte[] bytes = new byte[1024];
             for (int len; (len = is.read(bytes)) > 0; )
                 out.write(bytes, 0, len);
             return out.toByteArray();
@@ -295,9 +296,7 @@ public final class IOTools {
             return;
         unmonitor(aClass.getSuperclass(), t, depth);
         for (Field field : aClass.getDeclaredFields()) {
-            if (field.getType().isPrimitive())
-                continue;
-            if (Modifier.isStatic(field.getModifiers()))
+            if (field.getType().isPrimitive() || Modifier.isStatic(field.getModifiers()))
                 continue;
             try {
                 field.setAccessible(true);

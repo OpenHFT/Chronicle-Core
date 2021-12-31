@@ -126,7 +126,7 @@ public class FileSystemWatcherTest {
     }
 
     private void retryAssertEquals(String expected, SortedMap<String, String> events) {
-        for (int i = Jvm.isDebug() ? 500 : 50; ; i--) {
+        for (int i = Jvm.isDebug() ? 500 : 100; ; i--) {
             try {
                 Jvm.pause(20);
                 assertEquals(expected,

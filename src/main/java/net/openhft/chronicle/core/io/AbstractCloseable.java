@@ -94,7 +94,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         CleaningThread.performCleanup(Thread.currentThread());
 
         // find any discarded resources.
-        BlockingQueue q = new LinkedBlockingQueue();
+        final BlockingQueue<String> q = new LinkedBlockingQueue<>();
         new Object() {
             @Override
             protected void finalize() throws Throwable {
@@ -208,16 +208,15 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
             try {
                 field.setAccessible(true);
                 Closeable o = (Closeable) field.get(key);
-                if (o != null && nested.add(o))
-                    if (depth > 1)
-                        addNested(nested, o, depth - 1);
+                if (o != null && nested.add(o) && depth > 1)
+                    addNested(nested, o, depth - 1);
             } catch (IllegalAccessException e) {
                 Jvm.warn().on(keyClass, e);
             }
         }
     }
 
-    private static void getCloseableFields(Class keyClass, Set<Field> fields) {
+    private static void getCloseableFields(Class<?> keyClass, Set<Field> fields) {
         if (keyClass == null || keyClass == Object.class)
             return;
         for (Field field : keyClass.getDeclaredFields())
@@ -290,6 +289,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
      * @throws ClosedIllegalStateException if closed
      * @throws IllegalStateException       if the thread safety check fails
      */
+    @Override
     public void throwExceptionIfClosed() throws IllegalStateException {
         if (isClosed())
             throw new ClosedIllegalStateException(getClass().getName() + " closed for " + Thread.currentThread().getName(), closedHere);

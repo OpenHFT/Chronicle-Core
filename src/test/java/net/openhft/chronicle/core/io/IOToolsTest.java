@@ -39,6 +39,7 @@ public class IOToolsTest extends CoreTestCommon {
         try (FileOutputStream fos = new FileOutputStream(file)) {
             fos.write("Delete me\n".getBytes(StandardCharsets.UTF_8));
         }
+
         IntStream.range(0, 10000)
                 .parallel()
                 .forEach(i -> {

@@ -11,7 +11,7 @@ import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 public final class ReflectiveBuilder implements AnalyticsFacade.Builder {
 
-    private final static String CLASS_NAME = "net.openhft.chronicle.analytics.Analytics$Builder";
+    private static final String CLASS_NAME = "net.openhft.chronicle.analytics.Analytics$Builder";
 
     private final Object delegate;
 

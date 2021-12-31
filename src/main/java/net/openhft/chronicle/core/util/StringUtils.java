@@ -116,7 +116,7 @@ public final class StringUtils {
     }
 
     public static boolean startsWith(@NotNull final CharSequence source,
-                                   @NotNull final String startsWith) {
+                                     @NotNull final String startsWith) {
         for (int i = 0; i < startsWith.length(); i++) {
             if (toLowerCase(charAt(source, i)) != toLowerCase(startsWith.charAt(i))) {
                 return false;
@@ -310,6 +310,8 @@ public final class StringUtils {
                 negative = true;
                 ch = charAt(in, pos++);
                 break;
+            default:
+                // Continue below
         }
         while (true) {
             if (ch >= '0' && ch <= '9') {
@@ -466,13 +468,11 @@ public final class StringUtils {
         }
 
         if (radix < Character.MIN_RADIX) {
-            throw new NumberFormatException("radix " + radix +
-                    " less than Character.MIN_RADIX");
+            throw forRadix(radix, true);
         }
 
         if (radix > Character.MAX_RADIX) {
-            throw new NumberFormatException("radix " + radix +
-                    " greater than Character.MAX_RADIX");
+            throw forRadix(radix, false);
         }
 
         int result = 0;
@@ -521,6 +521,15 @@ public final class StringUtils {
         return new NumberFormatException("For input string: \"" + s + "\"");
     }
 
+    static NumberFormatException forRadix(int radix, boolean less) {
+        if (less)
+            return new NumberFormatException("radix " + radix +
+                    " less than Character.MIN_RADIX");
+        else
+            return new NumberFormatException("radix " + radix +
+                    " greater than Character.MAX_RADIX");
+    }
+
     public static long parseLong(CharSequence s, int radix)
             throws NumberFormatException {
         if (s == null) {
@@ -528,12 +537,10 @@ public final class StringUtils {
         }
 
         if (radix < Character.MIN_RADIX) {
-            throw new NumberFormatException("radix " + radix +
-                    " less than Character.MIN_RADIX");
+            throw forRadix(radix, true);
         }
         if (radix > Character.MAX_RADIX) {
-            throw new NumberFormatException("radix " + radix +
-                    " greater than Character.MAX_RADIX");
+            throw forRadix(radix, false);
         }
 
         long result = 0;

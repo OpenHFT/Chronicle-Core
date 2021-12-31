@@ -57,7 +57,7 @@ public class CoreTestCommon {
         if (Jvm.hasException(exceptions)) {
             Jvm.dumpException(exceptions);
             Jvm.resetExceptionHandlers();
-            Assert.fail();
+            Assert.fail(exceptions.keySet().toString());
         }
     }
 

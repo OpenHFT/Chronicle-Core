@@ -28,6 +28,8 @@ import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
  * NOTE: The caller has to ensure there is always plenty of memory to perform this operation.
  */
 public final class UnsafeText {
+
+    // Suppresses default constructor, ensuring non-instantiability.
     private UnsafeText() {
     }
 
@@ -56,7 +58,7 @@ public final class UnsafeText {
         return address;
     }
 
-    protected static void reverseTheOrder(long address, long start) {
+    private static void reverseTheOrder(long address, long start) {
         int end = (int) (address - start) - 1;
         for (int i = 0; i < end; i++, end--) {
             long a1 = start + i;
@@ -140,7 +142,7 @@ public final class UnsafeText {
         return appendLargeNumber(address, mantissa, shift);
     }
 
-    protected static long appendLargeNumber(long address, long mantissa, int shift) {
+    private static long appendLargeNumber(long address, long mantissa, int shift) {
         mantissa <<= 10;
         int precision = -10 - shift;
         int digits = 0;
@@ -165,7 +167,7 @@ public final class UnsafeText {
         return address;
     }
 
-    protected static long appendFraction(long address, double d, int sign, long mantissa, int shift) {
+    private static long appendFraction(long address, double d, int sign, long mantissa, int shift) {
         // fraction.
         UNSAFE.putShort(address, (short) ('0' + ('.' << 8)));
         address += 2;
@@ -206,7 +208,7 @@ public final class UnsafeText {
         return address;
     }
 
-    protected static long appendIntegerAndFraction(long address, double d, int sign, long mantissa, int shift) {
+    private static long appendIntegerAndFraction(long address, double d, int sign, long mantissa, int shift) {
         long intValue = mantissa >> shift;
         address = appendFixed(address, intValue);
         mantissa -= intValue << shift;
@@ -285,7 +287,8 @@ public final class UnsafeText {
     }
 
     public static long append8bit(long address, byte[] bytes) {
-        int len = bytes.length, i;
+        final int len = bytes.length;
+        int i;
         for (i = 0; i < len - 7; i += 8)
             MEMORY.writeLong(address + i, UNSAFE.getLong(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET + (long) i));
         for (; i < len; i++)
@@ -294,7 +297,8 @@ public final class UnsafeText {
     }
 
     public static long append8bit(long address, char[] chars) {
-        int len = chars.length, i;
+        final int len = chars.length;
+        int i;
         for (i = 0; i < len; i++)
             MEMORY.writeByte(address + i, (byte) chars[i]);
         return address + len;

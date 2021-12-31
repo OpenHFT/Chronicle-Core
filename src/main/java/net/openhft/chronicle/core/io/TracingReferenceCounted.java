@@ -21,12 +21,12 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     private final Map<ReferenceOwner, StackTrace> releases = Collections.synchronizedMap(new IdentityHashMap<>());
     private final Runnable onRelease;
     private final String uniqueId;
-    private final Class type;
+    private final Class<?> type;
     private final StackTrace createdHere;
     private volatile StackTrace releasedHere;
     private boolean unmonitored;
 
-    TracingReferenceCounted(final Runnable onRelease, String uniqueId, Class type) {
+    TracingReferenceCounted(final Runnable onRelease, String uniqueId, Class<?> type) {
         this.onRelease = onRelease;
         this.uniqueId = uniqueId;
         this.type = type;

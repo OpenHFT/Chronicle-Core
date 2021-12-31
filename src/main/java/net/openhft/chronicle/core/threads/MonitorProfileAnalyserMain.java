@@ -87,10 +87,10 @@ public class MonitorProfileAnalyserMain {
                         .sorted(Comparator.comparing(e -> -e.getValue())) // reversed
                         .limit(20)
                         .collect(Collectors.toList());
-        stackSortedByCount
-                .stream()
-                .peek(e -> stackCount.remove(e.getKey()))
-                .forEach(e -> System.out.println(e.getValue() + e.getKey()));
+        stackSortedByCount.forEach(e -> {
+                    stackCount.remove(e.getKey());
+                    System.out.println(e.getValue() + e.getKey());
+                });
 
         System.out.println("Grouped by method.");
         Map<String, Integer> methodCount = new LinkedHashMap<>();
