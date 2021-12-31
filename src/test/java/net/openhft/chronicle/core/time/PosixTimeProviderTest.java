@@ -32,7 +32,7 @@ import static org.junit.Assume.assumeTrue;
 public class PosixTimeProviderTest {
     @Test
     public void currentTimeMicros() throws IllegalStateException {
-        assumeTrue(OS.isLinux() && !OS.isMacOSX());
+        assumeTrue(!OS.isMacOSX());
 
         @NotNull TimeProvider tp = PosixTimeProvider.INSTANCE;
         long minDiff = 0;
@@ -93,6 +93,7 @@ public class PosixTimeProviderTest {
 
     @Test
     public void currentTime() throws IllegalStateException {
+        assumeTrue(!OS.isMacOSX());
         TimeProvider tp = PosixTimeProvider.INSTANCE;
         for (int i = 3; i >= 0; i--) {
             long time1 = tp.currentTime(TimeUnit.SECONDS);
@@ -113,6 +114,7 @@ public class PosixTimeProviderTest {
 
     @Test
     public void resolution() {
+        assumeTrue(!OS.isMacOSX());
         final PosixTimeProvider instance = PosixTimeProvider.INSTANCE;
         for (int j = 0; j < 3; j++) {
             Histogram h = new Histogram(32, 10, 1);
