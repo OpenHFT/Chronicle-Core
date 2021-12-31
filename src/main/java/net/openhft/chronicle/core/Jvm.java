@@ -80,11 +80,11 @@ public final class Jvm {
     public static final String SYSTEM_PROPERTIES = "system.properties";
     private static final List<String> INPUT_ARGUMENTS = getRuntimeMXBean().getInputArguments();
     private static final String INPUT_ARGUMENTS2 = " " + String.join(" ", INPUT_ARGUMENTS);
-    private static final int COMPILE_THRESHOLD = getCompileThreshold0();
     private static final boolean IS_DEBUG = Jvm.getBoolean("debug", INPUT_ARGUMENTS2.contains("jdwp"));
     // e.g-verbose:gc  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder -XX:StartFlightRecording=dumponexit=true,filename=myrecording.jfr,settings=profile -XX:+UnlockDiagnosticVMOptions -XX:+DebugNonSafepoints
     private static final boolean IS_FLIGHT_RECORDER = Jvm.getBoolean("jfr", INPUT_ARGUMENTS2.contains(" -XX:+FlightRecorder"));
     private static final boolean IS_COVERAGE = INPUT_ARGUMENTS2.contains("coverage");
+    private static final int COMPILE_THRESHOLD = getCompileThreshold0();
     private static final boolean REPORT_UNOPTIMISED;
     private static final Supplier<Long> reservedMemory;
     private static final boolean IS_64BIT = is64bit0();
@@ -972,15 +972,13 @@ public final class Jvm {
     }
 
     public static void dumpException(@NotNull final Map<ExceptionKey, Integer> exceptions) {
-        System.out.println("exceptions: " + exceptions.size());
+        final Slf4jExceptionHandler warn = Slf4jExceptionHandler.WARN;
         for (@NotNull Entry<ExceptionKey, Integer> entry : exceptions.entrySet()) {
             final ExceptionKey key = entry.getKey();
-            System.err.println(key.level + " " + key.clazz.getSimpleName() + " " + key.message);
-            if (key.throwable != null)
-                key.throwable.printStackTrace();
+            warn.on(Jvm.class, key.level + " " + key.clazz.getSimpleName() + " " + key.message, key.throwable);
             final Integer value = entry.getValue();
             if (value > 1)
-                System.err.println("Repeated " + value + " times");
+                warn.on(Jvm.class, "Repeated " + value + " times");
         }
         resetExceptionHandlers();
     }
@@ -1046,15 +1044,6 @@ public final class Jvm {
         InitSignalHandlers.init();
     }
 
-
-    public interface SignalHandler {
-        /**
-         * Handle a Signal
-         *
-         * @param signal to handle
-         */
-        void handle(String signal);
-    }
 
     /**
      * Inserts a low-cost Java safe-point in the code path.
@@ -1495,6 +1484,46 @@ public final class Jvm {
         return OBJECT_HEADER_SIZE;
     }
 
+    /**
+     * @return Obtain the model of CPU on Linux or the os.arch on other OSes.
+     */
+    public static String getCpuClass() {
+        return CpuClass.CPU_MODEL;
+    }
+
+    /**
+     * Was assertion enabled for the Jvm class when it was initialised.
+     *
+     * @return if assertions were enabled.
+     */
+    public static boolean isAssertEnabled() {
+        return ASSERT_ENABLED;
+    }
+
+    public static boolean supportThread() {
+        String name = Thread.currentThread().getName();
+        return "Finalizer".equals(name) || name.contains("~");
+    }
+
+    /**
+     * park the current thread, and stay parked
+     */
+    public static void park() {
+        // LockSupport.park can spuriously return so we execute in a loop
+        while (!Thread.currentThread().isInterrupted())
+            LockSupport.park();
+    }
+
+    public interface SignalHandler {
+        /**
+         * Handle a Signal
+         *
+         * @param signal to handle
+         */
+        void handle(String signal);
+    }
+
+
     private static final class ObjectHeaderSizeChecker {
         private int a;
     }
@@ -1596,13 +1625,6 @@ public final class Jvm {
         }
     }
 
-    /**
-     * @return Obtain the model of CPU on Linux or the os.arch on other OSes.
-     */
-    public static String getCpuClass() {
-        return CpuClass.CPU_MODEL;
-    }
-
     static final class CpuClass {
         static final String CPU_MODEL;
 
@@ -1681,28 +1703,5 @@ public final class Jvm {
         static Function<String, String> removingTag() {
             return line -> line.replaceFirst("[^:]*+: ", "");
         }
-    }
-
-    /**
-     * Was assertion enabled for the Jvm class when it was initialised.
-     *
-     * @return if assertions were enabled.
-     */
-    public static boolean isAssertEnabled() {
-        return ASSERT_ENABLED;
-    }
-
-    public static boolean supportThread() {
-        String name = Thread.currentThread().getName();
-        return "Finalizer".equals(name) || name.contains("~");
-    }
-
-    /**
-     * park the current thread, and stay parked
-     */
-    public static void park() {
-        // LockSupport.park can spuriously return so we execute in a loop
-        while (!Thread.currentThread().isInterrupted())
-            LockSupport.park();
     }
 }
