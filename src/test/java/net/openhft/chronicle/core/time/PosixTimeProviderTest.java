@@ -21,6 +21,8 @@ package net.openhft.chronicle.core.time;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.Histogram;
+import net.openhft.posix.ClockId;
+import net.openhft.posix.PosixAPI;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
@@ -129,6 +131,13 @@ public class PosixTimeProviderTest {
                 last = next;
             }
             System.out.println(h.toMicrosFormat());
+        }
+    }
+
+
+    public static void main(String[] args) {
+        for (ClockId value : ClockId.values()) {
+            System.out.println(value + " " + PosixAPI.posix().clock_gettime(value));
         }
     }
 }

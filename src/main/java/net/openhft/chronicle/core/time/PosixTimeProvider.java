@@ -42,9 +42,4 @@ public enum PosixTimeProvider implements TimeProvider {
         return PosixAPI.posix().clock_gettime(ClockId.CLOCK_REALTIME);
     }
 
-    public static void main(String[] args) {
-        for (ClockId value : ClockId.values()) {
-            System.out.println(value + " " + PosixAPI.posix().clock_gettime(value));
-        }
-    }
 }
