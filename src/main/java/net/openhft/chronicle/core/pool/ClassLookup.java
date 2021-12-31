@@ -27,16 +27,16 @@ public interface ClassLookup {
         return new ClassAliasPool(this);
     }
 
-    Class forName(CharSequence name) throws ClassNotFoundException;
+    Class<?> forName(CharSequence name) throws ClassNotFoundException;
 
     /**
      * @param clazz to lookup an alias for
      * @return the alias
      * @throws IllegalArgumentException if used on a lambda function.
      */
-    String nameFor(Class clazz) throws IllegalArgumentException;
+    String nameFor(Class<?> clazz) throws IllegalArgumentException;
 
-    void addAlias(Class... classes);
+    void addAlias(Class<?>... classes);
 
-    void addAlias(Class clazz, String names);
+    void addAlias(Class<?> clazz, String names);
 }

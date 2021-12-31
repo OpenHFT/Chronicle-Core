@@ -3,6 +3,7 @@ package net.openhft.chronicle.core.threads;
 import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.Properties;
@@ -51,4 +52,22 @@ public class ThreadLocalPropertiesTest extends CoreTestCommon {
         es2.shutdownNow();
         es3.shutdownNow();
     }
+
+    @Test
+    @Ignore("ThreadLocalProperties to be internalized, this test does not work under Java11+")
+    public void cloneTest() {
+        Properties properties = new Properties();
+        properties.setProperty("A", "1");
+
+        ThreadLocalProperties threadLocalProperties = new ThreadLocalProperties(properties);
+        threadLocalProperties.setProperty("B", "2");
+
+        ThreadLocalProperties actual = (ThreadLocalProperties) threadLocalProperties.clone();
+
+        assertEquals("2", actual.getProperty("B"));
+        assertEquals("1", actual.getProperty("A"));
+        assertEquals(1, actual.size());
+
+    }
+
 }

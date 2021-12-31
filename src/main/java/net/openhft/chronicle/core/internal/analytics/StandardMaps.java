@@ -14,8 +14,11 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
-public enum StandardMaps {
-    ; // none
+public final class StandardMaps {
+
+    // Suppresses default constructor, ensuring non-instantiability.
+    private StandardMaps() {
+    }
 
     private static final long GIB = 1L << 30;
 

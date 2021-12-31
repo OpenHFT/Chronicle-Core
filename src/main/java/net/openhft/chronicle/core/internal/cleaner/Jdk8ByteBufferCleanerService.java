@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.openhft.chronicle.core.cleaner.impl.jdk8;
+package net.openhft.chronicle.core.internal.cleaner;
 
 import net.openhft.chronicle.core.annotation.TargetMajorVersion;
 import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;

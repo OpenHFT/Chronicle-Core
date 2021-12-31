@@ -40,8 +40,11 @@ import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
 import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.MAYBE;
 import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
 
-public enum ObjectUtils {
-    ; // none
+public final class ObjectUtils {
+
+    // Suppresses default constructor, ensuring non-instantiability.
+    private ObjectUtils() {
+    }
 
     static final Map<Class<?>, Class<?>> PRIM_MAP = ofUnmodifiable(
             entry(boolean.class, Boolean.class),

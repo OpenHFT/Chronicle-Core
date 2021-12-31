@@ -51,7 +51,7 @@ public class WebExceptionHandler implements ExceptionHandler {
     }
 
     @Override
-    public void on(@NotNull Class clazz, @Nullable String message, @NotNull Throwable t) {
+    public void on(@NotNull Class<?> clazz, @Nullable String message, @NotNull Throwable t) {
         while (t.getCause() != null && t.getCause() != t)
             t = t.getCause();
         String uri = properties.getProperty(t.getClass().getName());

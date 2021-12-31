@@ -36,7 +36,7 @@
                 <groupId>net.openhft</groupId>
                 <artifactId>third-party-bom</artifactId>
                 <type>pom</type>
-                <version>3.19.4</version>
+                <version>3.22.3</version>
                 <scope>import</scope>
             </dependency>
 
@@ -54,6 +54,11 @@
         <dependency>
             <groupId>net.openhft</groupId>
             <artifactId>chronicle-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>net.openhft</groupId>
+            <artifactId>jlbh</artifactId>
         </dependency>
 
         <dependency>
@@ -97,8 +102,9 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>run-benchmarks</id>
-                        <phase>integration-test</phase>
+                        <id>run-jmh</id>
+                        <!-- comment out below line as JMH not working "No matching benchmarks. Miss-spelled regexp?" -->
+                        <!-- <phase>integration-test</phase>-->
                         <goals>
                             <goal>exec</goal>
                         </goals>
@@ -168,4 +174,125 @@
             </plugins>
         </pluginManagement>
     </build>
+
+    <profiles>
+        <profile>
+            <id>run-benchmarks</id>
+            <properties />
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <configuration>
+                            <classpathScope>test</classpathScope>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>copyMemory20</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>java</executable>
+                                    <arguments>
+                                        <argument>-classpath</argument>
+                                        <classpath />
+                                        <argument>-Dcapacity=20</argument>
+                                        <argument>net.openhft.chronicle.core.jlbh.CopyMemoryJLBH</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>copyMemory60</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>java</executable>
+                                    <arguments>
+                                        <argument>-classpath</argument>
+                                        <classpath />
+                                        <argument>-Dcapacity=60</argument>
+                                        <argument>net.openhft.chronicle.core.jlbh.CopyMemoryJLBH</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>copyMemory122</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>java</executable>
+                                    <arguments>
+                                        <argument>-classpath</argument>
+                                        <classpath />
+                                        <argument>-Dcapacity=122</argument>
+                                        <argument>net.openhft.chronicle.core.jlbh.CopyMemoryJLBH</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>copyMemory1K</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>java</executable>
+                                    <arguments>
+                                        <argument>-classpath</argument>
+                                        <classpath />
+                                        <argument>-Dcapacity=1000</argument>
+                                        <argument>net.openhft.chronicle.core.jlbh.CopyMemoryJLBH</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>copyMemory10K</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>java</executable>
+                                    <arguments>
+                                        <argument>-classpath</argument>
+                                        <classpath />
+                                        <argument>-Dcapacity=10000</argument>
+                                        <argument>-Diterations=10000000</argument>
+                                        <argument>-Dthroughput=1000000</argument>
+                                        <argument>net.openhft.chronicle.core.jlbh.CopyMemoryJLBH</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>copyMemory10M</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>java</executable>
+                                    <arguments>
+                                        <argument>-classpath</argument>
+                                        <classpath />
+                                        <argument>-Dcapacity=10000000</argument>
+                                        <argument>-Dwarmup=10000</argument>
+                                        <argument>-Diterations=10000</argument>
+                                        <argument>-Dthroughput=1000</argument>
+                                        <argument>net.openhft.chronicle.core.jlbh.CopyMemoryJLBH</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

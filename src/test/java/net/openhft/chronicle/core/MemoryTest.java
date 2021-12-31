@@ -29,7 +29,9 @@ public class MemoryTest {
 
     @Test
     public void testHeapUsed() {
-        System.out.println("heap used: " + OS.memory().heapUsed());
+        final long heapUsed = OS.memory().heapUsed();
+        System.out.println("heap used: " + heapUsed);
+        assertTrue(heapUsed > 0);
     }
 
     @Test

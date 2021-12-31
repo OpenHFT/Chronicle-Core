@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.openhft.chronicle.core.cleaner.impl.jdk9;
+package net.openhft.chronicle.core.internal.cleaner;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.UnsafeMemory;
@@ -30,9 +30,9 @@ import java.nio.ByteBuffer;
 @TargetMajorVersion(majorVersion = 9, includeNewer = true)
 public final class Jdk9ByteBufferCleanerService implements ByteBufferCleanerService {
 
-    private static final MethodHandle INVOKE_CLEANER_METHOD = get_invokeCleaner_Method();
+    private static final MethodHandle INVOKE_CLEANER_METHOD = getInvokeCleanerMethod();
 
-    private static MethodHandle get_invokeCleaner_Method() {
+    private static MethodHandle getInvokeCleanerMethod() {
         if (!Jvm.isJava9Plus()) {
             return null;
         }

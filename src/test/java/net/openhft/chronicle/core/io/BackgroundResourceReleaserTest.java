@@ -6,7 +6,6 @@ import net.openhft.chronicle.testframework.process.ProcessRunner;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
@@ -46,7 +45,7 @@ public class BackgroundResourceReleaserTest {
 
         BackgroundResourceReleaser.releasePendingResources();
         long time = System.currentTimeMillis() - start0;
-        assertBetween(count * 10, time, count * (Jvm.isAzulZulu() ? 60 : 15));
+        assertBetween(count * 10, time, count * (Jvm.isAzulZulu() ? 60 : 18));
         assertEquals(count, closed.get());
         assertEquals(count, released.get());
         AbstractCloseable.assertCloseablesClosed();

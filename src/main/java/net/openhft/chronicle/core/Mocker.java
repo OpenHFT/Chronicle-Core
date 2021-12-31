@@ -35,8 +35,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
-public enum Mocker {
-    ; // none
+public final class Mocker {
+
+    // Suppresses default constructor, ensuring non-instantiability.
+    private Mocker() {
+    }
 
     private static final Class[] NO_CLASSES = new Class[0];
 

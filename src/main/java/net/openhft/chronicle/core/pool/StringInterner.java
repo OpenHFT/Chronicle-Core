@@ -40,7 +40,8 @@ import java.util.stream.Stream;
  */
 public class StringInterner {
     protected final String[] interner;
-    protected final int mask, shift;
+    protected final int mask;
+    protected final int shift;
     protected boolean toggle = false;
 
     public interface Changed {
@@ -83,8 +84,6 @@ public class StringInterner {
         return s3;
     }
 
-    private String[] uppercase;
-
     /**
      * provide
      *
@@ -115,7 +114,6 @@ public class StringInterner {
      *
      * </pre>
      */
-    @Nullable
     public int index(@Nullable CharSequence cs, @Nullable Changed onChanged) {
         if (cs == null)
             return -1;
@@ -145,14 +143,15 @@ public class StringInterner {
      * get an intered string based on the index
      *
      * @param index the index of the  interner string, to acquire an index call  {@link net.openhft.chronicle.core.pool.StringInterner#index}
-     * @return
+     * @return interned String
      */
     public String get(int index) {
         return interner[index];
     }
 
     protected boolean toggle() {
-        return toggle = !toggle;
+        toggle = !toggle;
+        return toggle;
     }
 
     public int valueCount() {

@@ -10,9 +10,20 @@ import java.util.*;
 
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
 public class UnsafeMemoryTest {
+
+    private static final float EPSILON = 1e-7f;
+
+    private static final byte BYTE_VAL = Byte.MAX_VALUE;
+    private static final short SHORT_VAL = Short.MAX_VALUE;
+    private static final int INT_VAL = 0x12345678;
+    private static final long LONG_VAL = Long.MAX_VALUE;
+    private static final float FLOAT_VAL = 1f;
+    private static final double DOUBLE_VAL = 1d;
+
     private final UnsafeMemory memory;
     private Boolean onHeap;
     private Object object;
@@ -58,10 +69,13 @@ public class UnsafeMemoryTest {
     @Test
     public void writeShort() {
         for (int i = 0; i <= 64; i++) {
-            if (onHeap == null)
-                memory.writeShort(addr + i, (short) 0);
-            else
-                memory.writeShort(object, addr + i, (short) 0);
+            if (onHeap == null) {
+                memory.writeShort(addr + i, (short) 0xABCD);
+                assertEquals((short) 0xABCD, memory.readShort(addr + i));
+            } else {
+                memory.writeShort(object, addr + i, (short) 0xABCD);
+                assertEquals((short) 0xABCD, memory.readShort(object, addr + i));
+            }
         }
     }
 
@@ -79,12 +93,14 @@ public class UnsafeMemoryTest {
     }
 
     @Test
-    public void writeInt() {
+    public void readWriteInt() {
         for (int i = 0; i <= 64; i++)
             if (onHeap == null) {
-                memory.writeInt(addr + i, 0);
+                memory.writeInt(addr + i, INT_VAL);
+                assertEquals(INT_VAL, memory.readInt(addr + i));
             } else {
-                memory.writeInt(object, addr + i, 0);
+                memory.writeInt(object, addr + i, INT_VAL);
+                assertEquals(INT_VAL, memory.readInt(object, addr + i));
             }
     }
 
@@ -92,79 +108,47 @@ public class UnsafeMemoryTest {
     public void writeOrderedInt() {
         for (int i = 0; i <= 64; i++)
             if (onHeap == null) {
-                memory.writeOrderedInt(addr + i, 0);
+                memory.writeOrderedInt(addr + i, INT_VAL);
+                assertEquals(INT_VAL, memory.readInt(addr + i));
             } else {
-                memory.writeOrderedInt(object, addr + i, 0);
+                memory.writeOrderedInt(object, addr + i, INT_VAL);
+                assertEquals(INT_VAL, memory.readInt(object, addr + i));
             }
     }
 
     @Test
-    public void readInt() {
+    public void readWriteLong() {
         for (int i = 0; i <= 64; i++)
             if (onHeap == null) {
-                memory.readInt(addr + i);
+                memory.writeLong(addr + i, LONG_VAL);
+                assertEquals(LONG_VAL, memory.readLong(addr + i));
             } else {
-                memory.readInt(object, addr + i);
+                memory.writeLong(object, addr + i, LONG_VAL);
+                assertEquals(LONG_VAL, memory.readLong(object, addr + i));
             }
     }
 
     @Test
-    public void writeLong() {
+    public void readWriteFloat() {
         for (int i = 0; i <= 64; i++)
             if (onHeap == null) {
-                memory.writeLong(addr + i, 0);
+                memory.writeFloat(addr + i, FLOAT_VAL);
+                assertEquals(FLOAT_VAL, memory.readFloat(addr + i), EPSILON);
             } else {
-                memory.writeLong(object, addr + i, 0);
+                memory.writeFloat(object, addr + i, 1);
+                assertEquals(FLOAT_VAL, memory.readFloat(object, addr + i), EPSILON);
             }
     }
 
     @Test
-    public void readLong() {
+    public void readWriteDouble() {
         for (int i = 0; i <= 64; i++)
             if (onHeap == null) {
-                memory.readLong(addr + i);
+                memory.writeDouble(addr + i, DOUBLE_VAL);
+                assertEquals(DOUBLE_VAL, memory.readDouble(addr + i), EPSILON);
             } else {
-                memory.readLong(object, addr + i);
-            }
-    }
-
-    @Test
-    public void writeFloat() {
-        for (int i = 0; i <= 64; i++)
-            if (onHeap == null) {
-                memory.writeFloat(addr + i, 0);
-            } else {
-                memory.writeFloat(object, addr + i, 0);
-            }
-    }
-
-    @Test
-    public void readFloat() {
-        for (int i = 0; i <= 64; i++)
-            if (onHeap == null) {
-                memory.readFloat(addr + i);
-            } else {
-                memory.readFloat(object, addr + i);
-            }
-    }
-
-    @Test
-    public void writeDouble() {
-        for (int i = 0; i <= 64; i++)
-            if (onHeap == null) {
-                memory.writeDouble(addr + i, 0);
-            } else {
-                memory.writeDouble(object, addr + i, 0);
-            }
-    }
-
-    @Test
-    public void readDouble() {
-        for (int i = 0; i <= 64; i++)
-            if (onHeap == null) {
-                memory.readDouble(addr + i);
-            } else {
-                memory.readDouble(object, addr + i);
+                memory.writeDouble(object, addr + i, DOUBLE_VAL);
+                assertEquals(DOUBLE_VAL, memory.readDouble(object, addr + i), EPSILON);
             }
     }
 
@@ -172,9 +156,11 @@ public class UnsafeMemoryTest {
     public void writeOrderedLong() {
         for (int i = 0; i <= 64; i += 8)
             if (onHeap == null) {
-                memory.writeOrderedLong(addr + i, 0);
+                memory.writeOrderedLong(addr + i, LONG_VAL);
+                assertEquals(LONG_VAL, memory.readLong(addr + i));
             } else {
-                memory.writeOrderedLong(object, addr + i, 0);
+                memory.writeOrderedLong(object, addr + i, LONG_VAL);
+                assertEquals(LONG_VAL, memory.readLong(object, addr + i));
             }
     }
 
@@ -183,9 +169,15 @@ public class UnsafeMemoryTest {
         for (int i = 0; i <= 64; i += 4)
             try {
                 if (onHeap == null) {
-                    memory.compareAndSwapInt(addr + i, 0, 0);
+                    memory.writeInt(addr + i, 0);
+                    final boolean actual = memory.compareAndSwapInt(addr + i, 0, INT_VAL);
+                    assertTrue(actual);
+                    assertEquals(INT_VAL, memory.readInt(addr + i));
                 } else {
-                    memory.compareAndSwapInt(object, addr + i, 0, 0);
+                    memory.writeInt(object, addr + i, 0);
+                    final boolean actual = memory.compareAndSwapInt(object, addr + i, 0, INT_VAL);
+                    assertTrue(actual);
+                    assertEquals(INT_VAL, memory.readInt(object, addr + i));
                 }
             } catch (MisAlignedAssertionError e) {
                 if (memory.safeAlignedInt(addr + i))
@@ -198,9 +190,15 @@ public class UnsafeMemoryTest {
         for (int i = 0; i <= 64; i += 8)
             try {
                 if (onHeap == null) {
-                    memory.compareAndSwapLong(addr + i, 0, 0);
+                    memory.writeLong(addr + i, 0);
+                    final boolean actual = memory.compareAndSwapLong(addr + i, 0, LONG_VAL);
+                    assertTrue(actual);
+                    assertEquals(LONG_VAL, memory.readLong(addr + i));
                 } else {
-                    memory.compareAndSwapLong(object, addr + i, 0, 0);
+                    memory.writeLong(object, addr + i, 0);
+                    final boolean actual = memory.compareAndSwapLong(object, addr + i, 0, LONG_VAL);
+                    assertTrue(actual);
+                    assertEquals(LONG_VAL, memory.readLong(object, addr + i));
                 }
             } catch (MisAlignedAssertionError e) {
                 if (memory.safeAlignedLong(addr + i))
@@ -212,9 +210,13 @@ public class UnsafeMemoryTest {
     public void readVolatileByte() {
         for (int i = 0; i <= 64; i++)
             if (onHeap == null) {
-                memory.readVolatileByte(addr + i);
+                memory.writeByte(addr + i, BYTE_VAL);
+                final byte actual = memory.readVolatileByte(addr + i);
+                assertEquals(BYTE_VAL, actual);
             } else {
-                memory.readVolatileByte(object, addr + i);
+                memory.writeByte(object, addr + i, BYTE_VAL);
+                final byte actual = memory.readVolatileByte(object, addr + i);
+                assertEquals(BYTE_VAL, actual);
             }
     }
 
@@ -222,9 +224,13 @@ public class UnsafeMemoryTest {
     public void readVolatileShort() {
         for (int i = 0; i <= 64; i += 2)
             if (onHeap == null) {
-                memory.readVolatileShort(addr + i);
+                memory.writeShort(addr + i, SHORT_VAL);
+                final short actual = memory.readVolatileShort(addr + i);
+                assertEquals(SHORT_VAL, actual);
             } else {
-                memory.readVolatileShort(object, addr + i);
+                memory.writeShort(object, addr + i, SHORT_VAL);
+                final short actual = memory.readVolatileShort(object, addr + i);
+                assertEquals(SHORT_VAL, actual);
             }
     }
 
@@ -232,9 +238,13 @@ public class UnsafeMemoryTest {
     public void readVolatileInt() {
         for (int i = 0; i <= 64; i += 4)
             if (onHeap == null) {
-                memory.readVolatileInt(addr + i);
+                memory.writeInt(addr + i, INT_VAL);
+                final int actual = memory.readVolatileInt(addr + i);
+                assertEquals(INT_VAL, actual);
             } else {
-                memory.readVolatileInt(object, addr + i);
+                memory.writeInt(object, addr + i, INT_VAL);
+                final int actual = memory.readVolatileInt(object, addr + i);
+                assertEquals(INT_VAL, actual);
             }
     }
 
@@ -242,9 +252,13 @@ public class UnsafeMemoryTest {
     public void readVolatileFloat() {
         for (int i = 0; i <= 64; i += 4)
             if (onHeap == null) {
-                memory.readVolatileFloat(addr + i);
+                memory.writeFloat(addr + i, FLOAT_VAL);
+                final float actual = memory.readVolatileFloat(addr + i);
+                assertEquals(FLOAT_VAL, actual, EPSILON);
             } else {
-                memory.readVolatileFloat(object, addr + i);
+                memory.writeFloat(object, addr + i, FLOAT_VAL);
+                final float actual = memory.readVolatileFloat(object, addr + i);
+                assertEquals(FLOAT_VAL, actual, EPSILON);
             }
     }
 
@@ -252,9 +266,13 @@ public class UnsafeMemoryTest {
     public void readVolatileLong() {
         for (int i = 0; i <= 64; i += 8)
             if (onHeap == null) {
-                memory.readVolatileLong(addr + i);
+                memory.writeLong(addr + i, LONG_VAL);
+                final long actual = memory.readVolatileLong(addr + i);
+                assertEquals(LONG_VAL, actual);
             } else {
-                memory.readVolatileLong(object, addr + i);
+                memory.writeLong(object, addr + i, LONG_VAL);
+                final long actual = memory.readVolatileLong(object, addr + i);
+                assertEquals(LONG_VAL, actual);
             }
     }
 
@@ -262,9 +280,13 @@ public class UnsafeMemoryTest {
     public void readVolatileDouble() {
         for (int i = 0; i <= 64; i += 8)
             if (onHeap == null) {
-                memory.readVolatileDouble(addr + i);
+                memory.writeDouble(addr + i, DOUBLE_VAL);
+                final double actual = memory.readVolatileDouble(addr + i);
+                assertEquals(DOUBLE_VAL, actual, EPSILON);
             } else {
-                memory.readVolatileDouble(object, addr + i);
+                memory.writeDouble(object, addr + i, DOUBLE_VAL);
+                final double actual = memory.readVolatileDouble(object, addr + i);
+                assertEquals(DOUBLE_VAL, actual, EPSILON);
             }
     }
 
@@ -272,9 +294,11 @@ public class UnsafeMemoryTest {
     public void writeVolatileByte() {
         for (int i = 0; i <= 64; i++)
             if (onHeap == null) {
-                memory.writeVolatileByte(addr + i, (byte) 0);
+                memory.writeVolatileByte(addr + i, BYTE_VAL);
+                assertEquals(BYTE_VAL, memory.readByte(addr + i));
             } else {
-                memory.writeVolatileByte(object, addr + i, (byte) 0);
+                memory.writeVolatileByte(object, addr + i, BYTE_VAL);
+                assertEquals(BYTE_VAL, memory.readByte(object, addr + i));
             }
     }
 
@@ -282,9 +306,11 @@ public class UnsafeMemoryTest {
     public void writeVolatileShort() {
         for (int i = 0; i <= 64; i += 2)
             if (onHeap == null) {
-                memory.writeVolatileShort(addr + i, (short) 0);
+                memory.writeVolatileShort(addr + i, SHORT_VAL);
+                assertEquals(SHORT_VAL, memory.readShort(addr + i));
             } else {
-                memory.writeVolatileShort(object, addr + i, (short) 0);
+                memory.writeVolatileShort(object, addr + i, SHORT_VAL);
+                assertEquals(SHORT_VAL, memory.readShort(object, addr + i));
             }
     }
 
@@ -292,9 +318,11 @@ public class UnsafeMemoryTest {
     public void writeVolatileInt() {
         for (int i = 0; i <= 64; i += 4)
             if (onHeap == null) {
-                memory.writeVolatileInt(addr + i, 0);
+                memory.writeVolatileInt(addr + i, INT_VAL);
+                assertEquals(INT_VAL, memory.readInt(addr + i));
             } else {
-                memory.writeVolatileInt(object, addr + i, 0);
+                memory.writeVolatileInt(object, addr + i, INT_VAL);
+                assertEquals(INT_VAL, memory.readInt(object, addr + i));
             }
     }
 
@@ -302,9 +330,11 @@ public class UnsafeMemoryTest {
     public void writeVolatileFloat() {
         for (int i = 0; i <= 64; i += 4)
             if (onHeap == null) {
-                memory.writeVolatileFloat(addr + i, 0);
+                memory.writeVolatileFloat(addr + i, FLOAT_VAL);
+                assertEquals(FLOAT_VAL, memory.readFloat(addr + i), EPSILON);
             } else {
-                memory.writeVolatileFloat(object, addr + i, 0);
+                memory.writeVolatileFloat(object, addr + i, FLOAT_VAL);
+                assertEquals(FLOAT_VAL, memory.readFloat(object, addr + i), EPSILON);
             }
     }
 
@@ -312,9 +342,11 @@ public class UnsafeMemoryTest {
     public void writeVolatileLong() {
         for (int i = 0; i <= 64; i += 8)
             if (onHeap == null) {
-                memory.writeVolatileLong(addr + i, 0L);
+                memory.writeVolatileLong(addr + i, LONG_VAL);
+                assertEquals(LONG_VAL, memory.readLong(addr + i));
             } else {
-                memory.writeVolatileLong(object, addr + i, 0L);
+                memory.writeVolatileLong(object, addr + i, LONG_VAL);
+                assertEquals(LONG_VAL, memory.readLong(object, addr + i));
             }
     }
 
@@ -322,9 +354,11 @@ public class UnsafeMemoryTest {
     public void writeVolatileDouble() {
         for (int i = 0; i <= 64; i += 8)
             if (onHeap == null) {
-                memory.writeVolatileDouble(addr + i, 0);
+                memory.writeVolatileDouble(addr + i, DOUBLE_VAL);
+                assertEquals(DOUBLE_VAL, memory.readDouble(addr + i), EPSILON);
             } else {
-                memory.writeVolatileDouble(object, addr + i, 0);
+                memory.writeVolatileDouble(object, addr + i, DOUBLE_VAL);
+                assertEquals(DOUBLE_VAL, memory.readDouble(object, addr + i), EPSILON);
             }
     }
 
@@ -333,9 +367,15 @@ public class UnsafeMemoryTest {
         for (int i = 0; i <= 64; i += 4)
             try {
                 if (onHeap == null) {
-                    memory.addInt(addr + i, 0);
+                    memory.writeInt(addr + i, 0);
+                    final int actual = memory.addInt(addr + i, INT_VAL);
+                    assertEquals(INT_VAL, actual);
+                    assertEquals(INT_VAL, memory.readInt(addr + i));
                 } else {
-                    memory.addInt(object, addr + i, 0);
+                    memory.writeInt(object, addr + i, 0);
+                    final int actual = memory.addInt(object, addr + i, INT_VAL);
+                    assertEquals(INT_VAL, actual);
+                    assertEquals(INT_VAL, memory.readInt(object, addr + i));
                 }
             } catch (MisAlignedAssertionError e) {
                 if (memory.safeAlignedInt(addr + i))
@@ -348,9 +388,15 @@ public class UnsafeMemoryTest {
         for (int i = 0; i <= 64; i += 8)
             try {
                 if (onHeap == null) {
-                    memory.addLong(addr + i, 0);
+                    memory.writeLong(addr + i, 0);
+                    final long actual = memory.addLong(addr + i, LONG_VAL);
+                    assertEquals(LONG_VAL, actual);
+                    assertEquals(LONG_VAL, memory.readLong(addr + i));
                 } else {
-                    memory.addLong(object, addr + i, 0);
+                    memory.writeLong(object, addr + i, 0);
+                    final long actual = memory.addLong(object, addr + i, LONG_VAL);
+                    assertEquals(LONG_VAL, actual);
+                    assertEquals(LONG_VAL, memory.readLong(object, addr + i));
                 }
             } catch (MisAlignedAssertionError e) {
                 if (memory.safeAlignedLong(addr + i))

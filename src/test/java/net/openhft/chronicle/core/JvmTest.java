@@ -39,7 +39,6 @@ import java.util.Map;
 import static net.openhft.chronicle.core.Jvm.*;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeTrue;
 
 public class JvmTest {
 
@@ -73,7 +72,8 @@ public class JvmTest {
 
     static final class ReportUnoptimised {
 
-        private ReportUnoptimised() {}
+        private ReportUnoptimised() {
+        }
 
         static {
             Jvm.reportUnoptimised();
@@ -159,12 +159,6 @@ public class JvmTest {
     }
 
     @Test
-    public void loadSystemProperties() {
-        assumeTrue(Jvm.isResourceTracing());
-//        new TreeMap<>(System.getProperties()).entrySet().forEach(System.out::println);
-    }
-
-    @Test
     public void address() {
         ByteBuffer bb = ByteBuffer.allocateDirect(64);
         assertTrue(Jvm.address(bb) != 0);
@@ -190,7 +184,7 @@ public class JvmTest {
                 StandardOpenOption.APPEND,
                 StandardOpenOption.CREATE_NEW,
                 StandardOpenOption.DELETE_ON_CLOSE)) {
-            Jvm.doNotCloseOnInterrupt(getClass(), fc);
+                    Jvm.doNotCloseOnInterrupt(getClass(), fc);
         }
     }
 
