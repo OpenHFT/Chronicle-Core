@@ -60,11 +60,11 @@ public class PosixTimeProviderTest {
                 long diff = time2 - now;
                 if (minDiff > diff) {
                     minDiff = diff;
-//                    System.out.println("min: " + minDiff);
+                    System.out.println("min: " + minDiff);
                 }
                 if (maxDiff < diff) {
                     maxDiff = diff;
-//                    System.out.println("max: " + maxDiff);
+                    System.out.println("max: " + maxDiff);
                 }
                 long ns = System.nanoTime();
                 while (System.nanoTime() < ns + 100)
@@ -74,14 +74,16 @@ public class PosixTimeProviderTest {
             } while (System.currentTimeMillis() < start + 500);
 
             try {
-                assertBetween(-5 * error, minDiff, 5 * error);
+                if (!OS.isWindows())
+                    assertBetween(-5 * error, minDiff, 5 * error);
                 assertBetween(990, maxDiff, 1000 + 30 * error);
                 break;
             } catch (AssertionError e) {
                 continue;
             }
         }
-        assertBetween(-5 * error, minDiff, 5 * error);
+        if (!OS.isWindows())
+            assertBetween(-5 * error, minDiff, 5 * error);
         assertBetween(990, maxDiff, 1000 + 30 * error);
     }
 
