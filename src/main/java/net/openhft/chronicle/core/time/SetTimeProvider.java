@@ -34,20 +34,47 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
 
     private long autoIncrement = 0;
 
+    /**
+     * Create a time provider which start as 0
+     */
     public SetTimeProvider() {
         this(0L);
     }
 
+    /**
+     * Create a time provider which starts at a specific time
+     *
+     * @param initialNanos in nano-seconds since epoch
+     */
     public SetTimeProvider(long initialNanos) {
         super(initialNanos);
     }
 
+    /**
+     * Create a timeprovider which starts a time specified as ISO8601 format
+     *
+     * @param timestamp to start
+     */
     public SetTimeProvider(String timestamp) {
         super(initialNanos(timestamp));
     }
 
+    /**
+     * Create a time provider which starts at a given Instant
+     *
+     * @param instant to start
+     */
     public SetTimeProvider(Instant instant) {
         super(initialNanos(instant));
+    }
+
+    /**
+     * Create a time provider which starts now
+     *
+     * @return the SetTimeProvider
+     */
+    public SetTimeProvider now() {
+        return new SetTimeProvider(SystemTimeProvider.CLOCK.currentTimeNanos());
     }
 
     static long initialNanos(String timestamp) {
