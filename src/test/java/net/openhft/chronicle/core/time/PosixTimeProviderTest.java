@@ -32,7 +32,7 @@ import static org.junit.Assume.assumeTrue;
 public class PosixTimeProviderTest {
     @Test
     public void currentTimeMicros() throws IllegalStateException {
-        assumeTrue(OS.isLinux());
+        assumeTrue(OS.isLinux() && !OS.isMacOSX());
 
         @NotNull TimeProvider tp = PosixTimeProvider.INSTANCE;
         long minDiff = 0;
