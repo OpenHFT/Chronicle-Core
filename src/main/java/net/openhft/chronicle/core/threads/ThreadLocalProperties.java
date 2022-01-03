@@ -8,6 +8,7 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+@Deprecated // For removal in x.23, To be moved into Services if needed there
 public class ThreadLocalProperties extends Properties {
     static final boolean THREAD_LOCAL_PROPERTIES = Jvm.getBoolean("threadLocal.properties");
     final ThreadLocal<Properties> tl = ThreadLocal.withInitial(() -> new Properties(defaults));
