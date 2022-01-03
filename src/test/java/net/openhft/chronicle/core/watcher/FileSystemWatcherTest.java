@@ -4,11 +4,11 @@
 
 package net.openhft.chronicle.core.watcher;
 
-import net.openhft.chronicle.core.FlakyTestRunner;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.io.IOTools;
 import net.openhft.chronicle.core.util.Time;
+import net.openhft.chronicle.testframework.FlakyTestRunner;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;

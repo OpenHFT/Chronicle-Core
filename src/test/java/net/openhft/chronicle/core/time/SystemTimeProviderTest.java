@@ -18,10 +18,10 @@
 
 package net.openhft.chronicle.core.time;
 
-import net.openhft.chronicle.core.FlakyTestRunner;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.Histogram;
+import net.openhft.chronicle.testframework.FlakyTestRunner;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
