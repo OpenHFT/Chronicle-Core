@@ -59,6 +59,31 @@ public class AbstractCloseableTest extends CoreTestCommon {
                             .collect(Collectors.joining(", ")));
     }
 
+    @Test
+    public void assertCloseable() {
+
+        final MyCloseable myCloseable = new MyCloseable() {
+            int cnt = 0;
+
+            @Override
+            protected void assertCloseable() {
+                if (cnt++ == 0)
+                    throw new IllegalStateException("First close will always fail!");
+            }
+        };
+
+        try {
+            myCloseable.close();
+            fail();
+        } catch (IllegalStateException expected) {
+            // do Nothing
+        }
+        assertEquals(0, myCloseable.performClose);
+
+        myCloseable.close();
+        assertEquals(1, myCloseable.performClose);
+    }
+
     static class MyCloseable extends AbstractCloseable {
         int performClose;
 
