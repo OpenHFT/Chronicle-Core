@@ -2,6 +2,7 @@ package net.openhft.chronicle.core.internal.threads;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.threads.InterruptedRuntimeException;
 import net.openhft.chronicle.core.values.LongValue;
 import org.junit.Test;
@@ -17,7 +18,7 @@ public class VanillaThreadLockTest extends CoreTestCommon {
 
     @Test
     public void gettid() {
-        assumeFalse(Jvm.isArm() || Jvm.isMacArm());
+        assumeFalse(Jvm.isArm() || OS.isMacOSX());
         final VanillaLongValue value = new VanillaLongValue();
         VanillaThreadLock lock = new VanillaThreadLock(value, 1000);
         assertTrue(lock.gettid() > 0);
