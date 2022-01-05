@@ -54,7 +54,12 @@ public interface Closeable extends java.io.Closeable, QueryCloseable {
     }
 
     /**
-     * Doesn't throw a checked exception.
+     * Closes this resource, potentially preventing parts of it from being used again
+     * and potentially relinquishing resources held.
+     * <p>
+     * This method is idem-potent.
+     *
+     * @throws IllegalStateException if the resource cannot be closed.
      */
     @Override
     void close();
