@@ -2,6 +2,7 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 
+@Deprecated // For removal in x.23 . This is a class that supports testing and is moved to Chronicle-Test-Framework
 public final class FlakyTestRunner {
 
     // Suppresses default constructor, ensuring non-instantiability.
