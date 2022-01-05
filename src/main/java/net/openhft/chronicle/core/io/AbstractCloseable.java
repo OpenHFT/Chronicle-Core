@@ -242,11 +242,9 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         return createdHere;
     }
 
-    /**
-     * Close a resource so it cannot be used again.
-     */
     @Override
     public final void close() {
+        assertCloseable();
         if (!UnsafeMemory.INSTANCE.compareAndSwapInt(this, CLOSED_OFFSET, STATE_NOT_CLOSED, STATE_CLOSING)) {
             if (shouldWaitForClosed() && isInUserThread()) {
                 waitForClosed();
@@ -265,6 +263,21 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         if (time >= WARN_NS &&
                 !BackgroundResourceReleaser.isOnBackgroundResourceReleaserThread())
             Jvm.perf().on(getClass(), "Took " + time / 1000_000 + " ms to performClose");
+    }
+
+    /**
+     * Asserts that this resource can be closed, throwing an {@link IllegalStateException } if it cannot.
+     * <p>
+     * This can be useful for resources that have outstanding guarantees such as acquired update locks or open
+     * contexts.
+     * <p>
+     * Electing to throw an Exception might cause memory-leaks as there is no guarantee that the
+     * close methods will ever be invoked again in the general case.
+     *
+     * @throws IllegalStateException if the resource cannot be closed.
+     */
+    protected void assertCloseable() {
+        // Do nothing by default, allowing close() to complete unconditionally
     }
 
     protected boolean isInUserThread() {
