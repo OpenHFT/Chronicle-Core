@@ -1,5 +1,6 @@
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.testframework.FlakyTestRunner;
 import org.junit.Test;
 
 import static junit.framework.TestCase.assertTrue;
@@ -44,8 +45,14 @@ public class JvmSafepointTest {
         assertTrue("counter: " + counter, counter > min);
     }
 
+
     @Test
     public void safePointPerf() {
+        // This will enable the C2 compiler to kick in.
+        FlakyTestRunner.run(true, this::safePointPerf0, 3);
+    }
+
+    public void safePointPerf0() {
 
         for (int t = 0; t <= 5; t++) {
             long start = System.nanoTime();
