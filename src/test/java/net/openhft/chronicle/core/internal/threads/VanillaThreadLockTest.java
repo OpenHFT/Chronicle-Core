@@ -5,6 +5,7 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.threads.InterruptedRuntimeException;
 import net.openhft.chronicle.core.values.LongValue;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
 
+@Ignore("causes link errors on build server - https://github.com/OpenHFT/Chronicle-Core/issues/326")
 public class VanillaThreadLockTest extends CoreTestCommon {
 
     @Test
