@@ -177,6 +177,21 @@
 
     <profiles>
         <profile>
+            <id>latest</id>
+            <activation>
+                <property>
+                    <name>core.version</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>net.openhft</groupId>
+                    <artifactId>chronicle-core</artifactId>
+                    <version>${core.version}</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
             <id>run-benchmarks</id>
             <properties />
             <build>
