@@ -131,6 +131,9 @@ public class PosixTimeProviderTest {
                 last = next;
             }
             System.out.println(h.toMicrosFormat());
+
+            // Performance test
+            assertTrue(h.totalCount() > 0);
         }
     }
 

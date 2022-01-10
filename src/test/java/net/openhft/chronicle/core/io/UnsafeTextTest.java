@@ -4,7 +4,10 @@ import net.openhft.chronicle.core.cooler.CoolerTester;
 import net.openhft.chronicle.core.cooler.CpuCoolers;
 import org.junit.Test;
 
+import java.util.stream.LongStream;
+
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
+import static org.junit.Assert.assertEquals;
 
 public class UnsafeTextTest {
 
@@ -26,6 +29,14 @@ public class UnsafeTextTest {
                     .repeat(3)
                     .run();
 
+
+            final String memVal = LongStream.range(address, blackhole)
+                    .mapToInt(addr -> UNSAFE.getByte(null, addr))
+                    .mapToObj(c -> (char) c)
+                    .reduce(new StringBuilder(), StringBuilder::append, StringBuilder::append)
+                    .toString();
+
+            assertEquals(Long.toString(-Integer.MAX_VALUE), memVal);
         } finally {
             UNSAFE.freeMemory(address);
         }

@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
 import net.openhft.chronicle.core.threads.ThreadDump;
 import net.openhft.chronicle.core.util.Time;
@@ -30,11 +31,13 @@ import sun.nio.ch.DirectBuffer;
 
 import javax.naming.ConfigurationException;
 import java.io.IOException;
+import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static net.openhft.chronicle.core.Jvm.*;
 import static org.junit.Assert.*;
@@ -57,7 +60,15 @@ public class JvmTest {
 
     @Test
     public void addToClassPath() {
+        final String propertyBefore = System.getProperty(JAVA_CLASS_PATH);
         Jvm.addToClassPath(JvmTest.class);
+        final String propertyAfter = System.getProperty(JAVA_CLASS_PATH);
+
+        if (JvmTest.class.getClassLoader() instanceof URLClassLoader) {
+            assertNotSame(propertyBefore, propertyAfter);
+        } else {
+            assertSame(propertyBefore, propertyAfter);
+        }
     }
 
     @Test(expected = ConfigurationException.class)
@@ -122,8 +133,15 @@ public class JvmTest {
 
     @Test
     public void enableSignals() {
+        final AtomicBoolean failed = new AtomicBoolean();
+        final ExceptionHandler handler = (c, m, t) -> failed.set(true);
+        Jvm.setWarnExceptionHandler(handler);
+        Jvm.setErrorExceptionHandler(handler);
+
         Jvm.signalHandler((Signal signal) -> System.out.println(signal + " occurred"));
         Jvm.addSignalHandler((String signal) -> System.out.println(signal + " occurred"));
+
+        assertFalse(failed.get());
     }
 
     @Test
@@ -179,13 +197,19 @@ public class JvmTest {
 
     @Test
     public void doNotCloseOnInterrupt() throws IOException {
+        final AtomicBoolean failed = new AtomicBoolean();
+        final ExceptionHandler handler = (c, m, t) -> failed.set(true);
+        Jvm.setWarnExceptionHandler(handler);
+        Jvm.setErrorExceptionHandler(handler);
+
         try (FileChannel fc = FileChannel.open(
                 Paths.get(OS.getTarget(), "doNotCloseOnInterrupt-" + Time.uniqueId() + ".tmp"),
                 StandardOpenOption.APPEND,
                 StandardOpenOption.CREATE_NEW,
                 StandardOpenOption.DELETE_ON_CLOSE)) {
-                    Jvm.doNotCloseOnInterrupt(getClass(), fc);
+            Jvm.doNotCloseOnInterrupt(getClass(), fc);
         }
+        assertFalse(failed.get());
     }
 
     /**
