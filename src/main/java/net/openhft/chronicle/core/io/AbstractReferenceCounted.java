@@ -31,9 +31,12 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         referenceId = IOTools.counter(getClass()).incrementAndGet();
         referenceCounted = (MonitorReferenceCounted) ReferenceCountedTracer.onReleased(performRelease, this::referenceName, getClass());
         referenceCounted.unmonitored(!monitored);
-        Set<AbstractReferenceCounted> set = REFERENCE_COUNTED_SET;
-        if (monitored && set != null)
-            set.add(this);
+        final Set<AbstractReferenceCounted> set = REFERENCE_COUNTED_SET;
+        if (monitored && set != null) {
+            synchronized (set) {
+                set.add(this);
+            }
+        }
     }
 
     public static void enableReferenceTracing() {
@@ -49,7 +52,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     }
 
     public static void assertReferencesReleased() {
-        Set<AbstractReferenceCounted> traceSet = REFERENCE_COUNTED_SET;
+        final Set<AbstractReferenceCounted> traceSet = REFERENCE_COUNTED_SET;
         if (traceSet == null) {
             Jvm.warn().on(AbstractReferenceCounted.class, "Reference tracing disabled");
             return;
@@ -76,10 +79,16 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
 
     public static void unmonitor(ReferenceCounted counted) {
         final Set<AbstractReferenceCounted> set = REFERENCE_COUNTED_SET;
-        if (set != null)
-            set.remove(counted);
-        if (counted instanceof AbstractReferenceCounted)
+        if (counted instanceof AbstractReferenceCounted) {
+            if (set != null) {
+                synchronized (set) {
+                    // The set contains <AbstractReferenceCounted> so, "counted" must be an instance of that
+                    // for remove to have any effect.
+                    set.remove(counted);
+                }
+            }
             ((AbstractReferenceCounted) counted).referenceCounted.unmonitored(true);
+        }
     }
 
     @Override
