@@ -397,7 +397,7 @@ public class UnsafeMemory implements Memory {
         assert SKIP_ASSERTIONS || assertIfEnabled(Ints.nonNegative(), length);
         if (offset + length > b.length)
             throw new IllegalArgumentException("Invalid offset or length, array's length is " + b.length);
-        UnsafeMemory.UNSAFE.copyMemory(b, (long) ARRAY_BYTE_BASE_OFFSET + offset, null, address, length);
+        UnsafeMemory.UNSAFE.copyMemory(b, ARRAY_BYTE_BASE_OFFSET + offset, null, address, length);
     }
 
     @Override
