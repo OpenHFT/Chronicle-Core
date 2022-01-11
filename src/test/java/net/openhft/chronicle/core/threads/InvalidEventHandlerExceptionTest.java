@@ -3,6 +3,9 @@ package net.openhft.chronicle.core.threads;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
@@ -29,12 +32,26 @@ public class InvalidEventHandlerExceptionTest {
     }
 
     @Test
-    public void printStackTrace() {
-        e.printStackTrace();
+    public void printStackTrace() throws IOException {
+        final StringBuilder sb = new StringBuilder();
+
+        try (OutputStream os = new OutputStream() {
+            @Override
+            public void write(int b) throws IOException {
+                sb.append((char) b);
+            }
+        };
+        PrintStream ps = new PrintStream(os)) {
+            e.printStackTrace(ps);
+        }
+        final String stackTrace = sb.toString();
+        assertTrue(stackTrace.contains("Reusable"));
+        assertTrue(stackTrace.contains("no stack trace"));
     }
 
     @Test
     public void toStringTest() {
+        assertTrue(e.toString().contains("Reusable"));
         assertTrue(e.toString().contains("no stack trace"));
     }
 }

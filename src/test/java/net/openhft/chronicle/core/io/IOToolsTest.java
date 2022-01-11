@@ -3,6 +3,7 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
+import net.openhft.chronicle.core.cleaner.impl.CleanerTestUtil;
 import net.openhft.chronicle.core.util.Time;
 import org.junit.Assume;
 import org.junit.Test;
@@ -14,6 +15,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAccumulator;
 import java.util.stream.IntStream;
 
 import static org.junit.Assert.*;
@@ -22,38 +25,50 @@ public class IOToolsTest extends CoreTestCommon {
 
     @Test
     public void readFileManyTimesByPath() {
-        IntStream.range(0, 10000)
+        final int iterations = 10_000;
+        final LongAccumulator accumulator = new LongAccumulator(Long::sum, 0);
+
+        IntStream.range(0, iterations)
                 .parallel()
                 .forEach(i -> {
                     try {
                         IOTools.readFile(IOToolsTest.class, "readFileManyTimes.txt");
+                        accumulator.accumulate(1);
                     } catch (IOException ioe) {
                         Jvm.rethrow(ioe);
                     }
                 });
+
+        assertEquals(iterations, accumulator.get());
     }
 
     @Test
     public void readFileManyTimesByFile() throws IOException {
+        final int iterations = 10_000;
+        final LongAccumulator accumulator = new LongAccumulator(Long::sum, 0);
+
         String file = OS.getTarget() + "/readFileManyTimes.txt";
         try (FileOutputStream fos = new FileOutputStream(file)) {
             fos.write("Delete me\n".getBytes(StandardCharsets.UTF_8));
         }
 
-        IntStream.range(0, 10000)
+        IntStream.range(0, iterations)
                 .parallel()
                 .forEach(i -> {
                     try {
                         IOTools.readFile(IOToolsTest.class, file);
+                        accumulator.accumulate(1);
                     } catch (IOException ioe) {
                         Jvm.rethrow(ioe);
                     }
                 });
+
+        assertEquals(iterations, accumulator.get());
     }
 
     @Test
     public void shouldCleanDirectBuffer() {
-        IOTools.clean(ByteBuffer.allocateDirect(64));
+        CleanerTestUtil.test(IOTools::clean);
     }
 
     @Test

@@ -36,6 +36,8 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -58,7 +60,17 @@ public class OSTest {
 
     @Test
     public void testIs64Bit() {
-        System.out.println("is64 = " + OS.is64Bit());
+        final boolean expected =
+                Stream.of("com.ibm.vm.bitmode", "sun.arch.data.model")
+                        .map(System::getProperty)
+                        .filter(Objects::nonNull)
+                        .anyMatch(p -> p.contains("64")) ||
+                        Stream.of("java.vm.version")
+                                .map(System::getProperty)
+                                .filter(Objects::nonNull)
+                                .anyMatch(p -> p.contains("_64"));
+
+        assertEquals(expected, OS.is64Bit());
     }
 
     @Test

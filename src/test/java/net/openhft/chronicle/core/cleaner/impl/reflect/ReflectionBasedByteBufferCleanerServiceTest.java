@@ -17,14 +17,13 @@
  */
 package net.openhft.chronicle.core.cleaner.impl.reflect;
 
+import net.openhft.chronicle.core.cleaner.impl.CleanerTestUtil;
 import net.openhft.chronicle.core.internal.cleaner.ReflectionBasedByteBufferCleanerService;
 import org.junit.Test;
-
-import java.nio.ByteBuffer;
 
 public class ReflectionBasedByteBufferCleanerServiceTest {
     @Test
     public void shouldCleanBuffer() {
-        new ReflectionBasedByteBufferCleanerService().clean(ByteBuffer.allocateDirect(64));
+        CleanerTestUtil.test(new ReflectionBasedByteBufferCleanerService()::clean);
     }
 }

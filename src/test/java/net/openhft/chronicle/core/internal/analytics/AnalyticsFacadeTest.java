@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class AnalyticsFacadeTest {
 
@@ -39,7 +39,7 @@ public class AnalyticsFacadeTest {
     public void analytics() {
         final AnalyticsFacade.Builder builder = AnalyticsFacade.builder("measurementId", "apiSecret")
                 .putEventParameter("e", "1")
-                .putUserProperty("u","2")
+                .putUserProperty("u", "2")
                 .withClientIdFileName("file_name")
                 .withDebugLogger(System.out::println)
                 .withErrorLogger(System.err::println)
@@ -49,7 +49,8 @@ public class AnalyticsFacadeTest {
 
         final AnalyticsFacade analyticsFacade = builder.build();
 
-        analyticsFacade.sendEvent("test");
+        // Must be a real one
+        assertFalse(analyticsFacade instanceof MuteAnalytics);
     }
 
     @Test(timeout = 10_000L)
@@ -74,7 +75,7 @@ public class AnalyticsFacadeTest {
 
             final AnalyticsFacade.Builder builder = AnalyticsFacade.builder("measurementId", "apiSecret")
                     .putEventParameter("e", "1")
-                    .putUserProperty("u","2")
+                    .putUserProperty("u", "2")
                     .withClientIdFileName(clientIdFileName)
                     .withDebugLogger(debugResponses::add)
                     .withErrorLogger(errorResponses::add)

@@ -136,6 +136,10 @@ public class SystemTimeProviderTest {
                 last = next;
             }
             System.out.println(h.toMicrosFormat());
+
+            // Performance test
+            assertTrue(h.totalCount() > 0);
         }
+
     }
 }
