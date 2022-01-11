@@ -51,10 +51,16 @@ public class WebExceptionHandler implements ExceptionHandler {
     }
 
     @Override
-    public void on(@NotNull Class<?> clazz, @Nullable String message, @NotNull Throwable t) {
-        while (t.getCause() != null && t.getCause() != t)
+    public void on(@NotNull Class<?> clazz, @Nullable String message, @Nullable Throwable t) {
+        while (t != null && t.getCause() != null && t.getCause() != t)
             t = t.getCause();
-        String uri = properties.getProperty(t.getClass().getName());
+
+        String uri;
+        if (t == null) {
+            uri = null;
+        } else {
+            uri = properties.getProperty(t.getClass().getName());
+        }
         if (uri == null) {
             uri = baseURI;
             String version = System.getProperty("java.version");
@@ -63,8 +69,12 @@ public class WebExceptionHandler implements ExceptionHandler {
                 version = parts[1];
             }
 
-            uri += "+" + version + "+" + URIEncoder.encodeURI(t.toString())
-                    + "+" + URIEncoder.encodeURI(clazz.getSimpleName());
+            uri += "+" + version;
+            if (t != null) {
+                uri += "+" + URIEncoder.encodeURI(t.toString());
+            }
+            uri += "+" + URIEncoder.encodeURI(clazz.getSimpleName());
+
             if (message != null)
                 uri += "+" + URIEncoder.encodeURI(message);
         }
