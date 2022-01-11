@@ -53,6 +53,10 @@ public class UnsafeMemory implements Memory {
     // TODO support big endian
     public static final boolean IS_LITTLE_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
 
+    // Create a local copy of type long (instead of int) to optimize performance
+    private static final long ARRAY_BYTE_BASE_OFFSET = Unsafe.ARRAY_BYTE_BASE_OFFSET;
+    private static final long ARRAY_CHAR_BASE_OFFSET = Unsafe.ARRAY_CHAR_BASE_OFFSET;
+
     private static final String CANNOT_CHANGE_AT = "Cannot change at ";
     private static final String WAS = " was ";
     private static final String EXPECTED = " expected ";
@@ -112,9 +116,7 @@ public class UnsafeMemory implements Memory {
     public static void putInt(byte[] bytes, int offset, int value) {
         assert SKIP_ASSERTIONS || nonNull(bytes);
         assert SKIP_ASSERTIONS || Ints.betweenZeroAndReserving().test(offset, bytes.length, Integer.BYTES);
-        UnsafeMemory.UNSAFE.putInt(bytes,
-                (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset,
-                value);
+        UnsafeMemory.UNSAFE.putInt(bytes, ARRAY_BYTE_BASE_OFFSET + offset, value);
     }
 
     public static void unsafeStoreFence() {
@@ -158,24 +160,24 @@ public class UnsafeMemory implements Memory {
     public static void unsafePutLong(byte[] bytes, int offset, long value) {
         assert SKIP_ASSERTIONS || nonNull(bytes);
         assert SKIP_ASSERTIONS || assertIfEnabled(Ints.betweenZeroAndReserving(), offset, bytes.length, Long.BYTES);
-        UNSAFE.putLong(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, value);
+        UNSAFE.putLong(bytes, ARRAY_BYTE_BASE_OFFSET + offset, value);
     }
 
     public static void unsafePutInt(byte[] bytes, int offset, int value) {
         assert SKIP_ASSERTIONS || nonNull(bytes);
         assert SKIP_ASSERTIONS || assertIfEnabled(Ints.betweenZeroAndReserving(), offset, bytes.length, Integer.BYTES);
-        UNSAFE.putInt(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, value);
+        UNSAFE.putInt(bytes, ARRAY_BYTE_BASE_OFFSET + offset, value);
     }
 
     public static void unsafePutByte(byte[] bytes, int offset, byte value) {
         assert SKIP_ASSERTIONS || nonNull(bytes);
         assert SKIP_ASSERTIONS || assertIfEnabled(Ints.betweenZeroAndReserving(), offset, bytes.length, Byte.BYTES);
-        UNSAFE.putByte(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, value);
+        UNSAFE.putByte(bytes, ARRAY_BYTE_BASE_OFFSET + offset, value);
     }
 
     //      throws BufferUnderflowException, BufferOverflowException
     public static void copyMemory(long from, long to, int length) {
-        MEMORY.copyMemory(from, to, (long)length);
+        MEMORY.copyMemory(from, to, (long) length);
     }
 
     public static void unsafePutBoolean(Object obj, long offset, boolean value) {
@@ -395,7 +397,7 @@ public class UnsafeMemory implements Memory {
         assert SKIP_ASSERTIONS || assertIfEnabled(Ints.nonNegative(), length);
         if (offset + length > b.length)
             throw new IllegalArgumentException("Invalid offset or length, array's length is " + b.length);
-        UnsafeMemory.UNSAFE.copyMemory(b, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, null, address, length);
+        UnsafeMemory.UNSAFE.copyMemory(b, (long) ARRAY_BYTE_BASE_OFFSET + offset, null, address, length);
     }
 
     @Override
@@ -405,7 +407,7 @@ public class UnsafeMemory implements Memory {
         assert SKIP_ASSERTIONS || assertIfEnabled(Ints.nonNegative(), length);
         if (offset + length > b.length)
             throw new IllegalArgumentException("Invalid offset or length, array's length is " + b.length);
-        UnsafeMemory.UNSAFE.copyMemory(null, address, b, Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, length);
+        UnsafeMemory.UNSAFE.copyMemory(null, address, b, ARRAY_BYTE_BASE_OFFSET + offset, length);
     }
 
     @Override
@@ -548,7 +550,7 @@ public class UnsafeMemory implements Memory {
 
     @Override
     public void copyMemory(byte[] src, int srcOffset, long dest, int length) {
-        final long offset2 = (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + srcOffset;
+        final long offset2 = ARRAY_BYTE_BASE_OFFSET + srcOffset;
         copyMemory(src, offset2, dest, length);
     }
 
@@ -572,9 +574,9 @@ public class UnsafeMemory implements Memory {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), length);
 
         if (dest instanceof byte[]) {
-            copyMemory(src, srcOffset, (byte[]) dest, Math.toIntExact(destOffset - Unsafe.ARRAY_BYTE_BASE_OFFSET), length);
+            copyMemory(src, srcOffset, (byte[]) dest, Math.toIntExact(destOffset - ARRAY_BYTE_BASE_OFFSET), length);
         } else {
-            copyMemoryLoop(src, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + srcOffset, dest, destOffset, length);
+            copyMemoryLoop(src, ARRAY_BYTE_BASE_OFFSET + srcOffset, dest, destOffset, length);
         }
     }
 
@@ -584,8 +586,8 @@ public class UnsafeMemory implements Memory {
         assert SKIP_ASSERTIONS || nonNull(dest);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), destOffset);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), length);
-        long offsetB = (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + srcOffset;
-        long offset2B = (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + destOffset;
+        final long offsetB = ARRAY_BYTE_BASE_OFFSET + srcOffset;
+        final long offset2B =ARRAY_BYTE_BASE_OFFSET + destOffset;
         if (length < UNSAFE_COPY_THRESHOLD) {
             UNSAFE.copyMemory(src, offsetB, dest, offset2B, length);
         } else {
@@ -720,11 +722,11 @@ public class UnsafeMemory implements Memory {
         assert SKIP_ASSERTIONS || assertIfEnabled(Ints.betweenZeroAndReserving(), offset, bytes.length, length);
         switch (length) {
             case 8:
-                return UNSAFE.getLong(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset);
+                return UNSAFE.getLong(bytes, ARRAY_BYTE_BASE_OFFSET + offset);
             case 4:
-                return UNSAFE.getInt(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset) & 0xFFFF_FFFFL;
+                return UNSAFE.getInt(bytes, ARRAY_BYTE_BASE_OFFSET + offset) & 0xFFFF_FFFFL;
             case 2:
-                return UNSAFE.getShort(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset) & 0xFFFF;
+                return UNSAFE.getShort(bytes, ARRAY_BYTE_BASE_OFFSET + offset) & 0xFFFF;
             case 1:
                 return bytes[offset] & 0xFF;
             case 0:
@@ -736,12 +738,12 @@ public class UnsafeMemory implements Memory {
         offset += length;
         if ((length & 4) != 0) {
             offset -= 4;
-            value = UNSAFE.getInt(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset) & 0xFFFF_FFFFL;
+            value = UNSAFE.getInt(bytes, ARRAY_BYTE_BASE_OFFSET + offset) & 0xFFFF_FFFFL;
         }
         if ((length & 2) != 0) {
             value <<= 16;
             offset -= 2;
-            int s = UNSAFE.getShort(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset) & 0xFFFF;
+            int s = UNSAFE.getShort(bytes, ARRAY_BYTE_BASE_OFFSET + offset) & 0xFFFF;
             value |= s;
         }
         if ((length & 1) != 0) {
@@ -800,16 +802,16 @@ public class UnsafeMemory implements Memory {
         assert SKIP_ASSERTIONS || assertIfEnabled(Ints.nonNegative(), length);
         switch (length) {
             case 8:
-                UNSAFE.putLong(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, value);
+                UNSAFE.putLong(bytes, ARRAY_BYTE_BASE_OFFSET + offset, value);
                 return;
             case 4:
-                UNSAFE.putInt(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, (int) value);
+                UNSAFE.putInt(bytes, ARRAY_BYTE_BASE_OFFSET + offset, (int) value);
                 return;
             case 2:
-                UNSAFE.putShort(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, (short) value);
+                UNSAFE.putShort(bytes, ARRAY_BYTE_BASE_OFFSET + offset, (short) value);
                 return;
             case 1:
-                UNSAFE.putByte(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, (byte) value);
+                UNSAFE.putByte(bytes, ARRAY_BYTE_BASE_OFFSET + offset, (byte) value);
                 return;
             case 0:
                 return;
@@ -817,17 +819,17 @@ public class UnsafeMemory implements Memory {
                 // Do nothing here, instead continue below
         }
         if ((length & 1) != 0) {
-            UNSAFE.putByte(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, (byte) value);
+            UNSAFE.putByte(bytes, ARRAY_BYTE_BASE_OFFSET + offset, (byte) value);
             offset += 1;
             value >>>= 8;
         }
         if ((length & 2) != 0) {
-            UNSAFE.putShort(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, (short) value);
+            UNSAFE.putShort(bytes, ARRAY_BYTE_BASE_OFFSET + offset, (short) value);
             offset += 2;
             value >>>= 16;
         }
         if ((length & 4) != 0) {
-            UNSAFE.putInt(bytes, (long) Unsafe.ARRAY_BYTE_BASE_OFFSET + offset, (int) value);
+            UNSAFE.putInt(bytes, ARRAY_BYTE_BASE_OFFSET + offset, (int) value);
         }
     }
 
@@ -874,7 +876,7 @@ public class UnsafeMemory implements Memory {
         assert SKIP_ASSERTIONS || nonNull(bytes);
         assert SKIP_ASSERTIONS || assertIfEnabled(Ints.nonNegative(), offset);
         assert SKIP_ASSERTIONS || assertIfEnabled(Ints.nonNegative(), length);
-        long offset2 = (long) offset + Unsafe.ARRAY_BYTE_BASE_OFFSET;
+        final long offset2 = offset + ARRAY_BYTE_BASE_OFFSET;
         int i = 0;
         for (; i < length - 7; i += 8)
             if ((UnsafeMemory.UNSAFE.getLong(bytes, offset2 + i) & 0x8080808080808080L) != 0)
@@ -901,7 +903,7 @@ public class UnsafeMemory implements Memory {
         assert SKIP_ASSERTIONS || nonNull(chars);
         assert SKIP_ASSERTIONS || assertIfEnabled(Ints.nonNegative(), offset);
         assert SKIP_ASSERTIONS || assertIfEnabled(Ints.nonNegative(), length);
-        long offset2 = (long) offset * 2 + Unsafe.ARRAY_CHAR_BASE_OFFSET;
+        final long offset2 = offset * 2L + ARRAY_CHAR_BASE_OFFSET;
         int i = 0;
         for (; i < length - 3; i += 4)
             if ((UnsafeMemory.UNSAFE.getLong(chars, offset2 + i + i) & 0xFF80FF80FF80FF80L) != 0)
