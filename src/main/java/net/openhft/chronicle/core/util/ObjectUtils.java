@@ -537,7 +537,7 @@ public final class ObjectUtils {
             Class<?> clazz = (Class<?>) o;
 
             if (clazz.isInterface()) {
-                if (accumulator.apply((Class<?>) o)) {
+                if (Boolean.TRUE.equals(accumulator.apply((Class<?>) o))) {
                     for (Class<?> aClass : clazz.getInterfaces()) {
                         getAllInterfaces(aClass, accumulator);
                     }

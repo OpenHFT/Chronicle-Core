@@ -24,7 +24,8 @@ import java.lang.management.ManagementFactory;
 
 public abstract class JMXFileManager implements FileManager, JMXFileManagerMBean {
     protected static final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-    protected final String basePath, relativePath;
+    protected final String basePath;
+    protected final String relativePath;
     private final ObjectName objectName;
 
     protected JMXFileManager(String basePath, String relativePath) {

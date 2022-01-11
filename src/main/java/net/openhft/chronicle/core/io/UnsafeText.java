@@ -290,9 +290,9 @@ public final class UnsafeText {
         final int len = bytes.length;
         int i;
         for (i = 0; i < len - 7; i += 8)
-            MEMORY.writeLong(address + i, UNSAFE.getLong(bytes, ARRAY_BYTE_BASE_OFFSET + (long) i));
+            MEMORY.writeLong(address + i, UNSAFE.getLong(bytes, ARRAY_BYTE_BASE_OFFSET + i));
         for (; i < len; i++)
-            MEMORY.writeByte(address + i, UNSAFE.getByte(bytes, ARRAY_BYTE_BASE_OFFSET + (long) i));
+            MEMORY.writeByte(address + i, UNSAFE.getByte(bytes, ARRAY_BYTE_BASE_OFFSET + i));
         return address + len;
     }
 

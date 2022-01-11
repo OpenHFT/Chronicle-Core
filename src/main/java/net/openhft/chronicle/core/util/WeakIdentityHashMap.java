@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 // Based WeakHashMap but using identity
 public class WeakIdentityHashMap<K, V> extends AbstractMap<K, V> {
     private final Map<WeakKey<K>, V> map;
-    private final transient ReferenceQueue<K> queue = new ReferenceQueue<K>();
+    private final transient ReferenceQueue<K> queue = new ReferenceQueue<>();
 
     /**
      * Constructs a new, empty identity hash map with a default initial
@@ -40,7 +40,7 @@ public class WeakIdentityHashMap<K, V> extends AbstractMap<K, V> {
 
     @Override
     public V put(K key, V value) {
-        return getMap().put(new WeakKey<K>(key, queue), value);
+        return getMap().put(new WeakKey<>(key, queue), value);
     }
 
     @Override
