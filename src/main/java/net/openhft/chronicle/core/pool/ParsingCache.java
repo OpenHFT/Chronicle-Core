@@ -64,7 +64,8 @@ public class ParsingCache<E> {
     }
 
     protected boolean toggle() {
-        return toggle = !toggle;
+        toggle = !toggle;
+        return toggle;
     }
 
     public int valueCount() {

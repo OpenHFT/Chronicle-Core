@@ -104,8 +104,8 @@ public class ClassAliasPool implements ClassLookup {
         ClassLoader classLoader2 = ClassAliasPool.class.getClassLoader();
         for (Iterator<Class<?>> iter = coll.iterator(); iter.hasNext(); ) {
             Class<?> clazz = iter.next();
-            ClassLoader classLoader = clazz.getClassLoader();
-            if (classLoader == null || classLoader == classLoader2)
+            ClassLoader cl = clazz.getClassLoader();
+            if (cl == null || cl == classLoader2)
                 continue;
             iter.remove();
         }

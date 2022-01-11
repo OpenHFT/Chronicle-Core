@@ -28,9 +28,13 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Daniel Murphy
  */
-public class URIEncoder {
+public final class URIEncoder {
     private static final String MARK = "-_.!~*'()\"";
     private static final char[] HEX = "0123456789ABCDEF".toCharArray();
+
+    // Suppresses default constructor, ensuring non-instantiability.
+    private URIEncoder() {
+    }
 
     public static String encodeURI(@NotNull String argString) {
         @NotNull StringBuilder uri = new StringBuilder();

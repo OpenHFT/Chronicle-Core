@@ -27,7 +27,7 @@ public abstract class JMXFileManager implements FileManager, JMXFileManagerMBean
     protected final String basePath, relativePath;
     private final ObjectName objectName;
 
-    public JMXFileManager(String basePath, String relativePath) {
+    protected JMXFileManager(String basePath, String relativePath) {
         this.basePath = basePath;
         this.relativePath = relativePath;
         try {

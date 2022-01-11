@@ -142,9 +142,8 @@ public final class BackgroundResourceReleaser {
     }
 
     private static void offerPoisonPill(boolean warn) {
-        if (!RESOURCES.offer(POISON_PILL)) {
-            if (warn)
-                Jvm.warn().on(BackgroundResourceReleaser.class, "Failed to add a stop object to the resource queue");
+        if (!RESOURCES.offer(POISON_PILL) && warn) {
+            Jvm.warn().on(BackgroundResourceReleaser.class, "Failed to add a stop object to the resource queue");
         }
     }
 

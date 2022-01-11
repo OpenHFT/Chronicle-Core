@@ -179,7 +179,7 @@ public class JvmTest {
     @Test
     public void address() {
         ByteBuffer bb = ByteBuffer.allocateDirect(64);
-        assertTrue(Jvm.address(bb) != 0);
+        assertNotEquals(0, Jvm.address(bb));
         try {
             Jvm.address(ByteBuffer.allocate(64));
             fail();

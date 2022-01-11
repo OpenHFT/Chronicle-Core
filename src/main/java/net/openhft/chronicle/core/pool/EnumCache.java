@@ -24,18 +24,18 @@ import java.util.Map;
 import java.util.Set;
 
 public abstract class EnumCache<E> {
-    private static final ClassLocal<EnumCache> ENUM_CACHE_CL = ClassLocal.withInitial(
-            eClass -> CoreDynamicEnum.class.isAssignableFrom(eClass)
-                    ? new DynamicEnumClass(eClass)
-                    : new StaticEnumClass(eClass));
+
+    private static final ClassLocal<EnumCache<?>> ENUM_CACHE_CL = ClassLocal.withInitial(EnumCache::createFromUnknownClass);
+
     protected final Class<E> type;
 
     protected EnumCache(Class<E> type) {
         this.type = type;
     }
 
+    @SuppressWarnings("unchecked")
     public static <E> EnumCache<E> of(Class<E> eClass) {
-        return ENUM_CACHE_CL.get(eClass);
+        return (EnumCache<E>) ENUM_CACHE_CL.get(eClass);
     }
 
     public E get(String name) {
@@ -57,4 +57,12 @@ public abstract class EnumCache<E> {
     public abstract <T> Map<E, T> createMap();
 
     public abstract Set<E> createSet();
+
+    @SuppressWarnings("unchecked")
+    private static <E, D extends CoreDynamicEnum<D>, S extends Enum<S> & CoreDynamicEnum<S>> EnumCache<E> createFromUnknownClass(Class<E> eClass) {
+        return (EnumCache<E>) (CoreDynamicEnum.class.isAssignableFrom(eClass)
+                ? new DynamicEnumClass<>((Class<D>) eClass)
+                : new StaticEnumClass<>((Class<S>) eClass));
+    }
+
 }

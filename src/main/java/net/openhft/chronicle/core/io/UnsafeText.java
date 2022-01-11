@@ -17,8 +17,8 @@
  */
 package net.openhft.chronicle.core.io;
 
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.Maths;
-import sun.misc.Unsafe;
 
 import static net.openhft.chronicle.core.UnsafeMemory.MEMORY;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
@@ -35,6 +35,7 @@ public final class UnsafeText {
 
     private static final long MAX_VALUE_DIVIDE_5 = Long.MAX_VALUE / 5;
     private static final String MIN_VALUE_STR = "" + Long.MIN_VALUE;
+    private static final long ARRAY_BYTE_BASE_OFFSET = Jvm.arrayByteBaseOffset();
 
     public static long appendFixed(long address, long num) {
         if (num >= 0) {
@@ -197,7 +198,6 @@ public final class UnsafeText {
             long num = (mantissa >>> precision);
             value = value * 10 + num;
             final char c = (char) ('0' + num);
-//                    assert !(c < '0' || c > '9');
             MEMORY.writeByte(address++, (byte) c);
             mantissa -= num << precision;
             ++decimalPlaces;
@@ -290,9 +290,9 @@ public final class UnsafeText {
         final int len = bytes.length;
         int i;
         for (i = 0; i < len - 7; i += 8)
-            MEMORY.writeLong(address + i, UNSAFE.getLong(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET + (long) i));
+            MEMORY.writeLong(address + i, UNSAFE.getLong(bytes, ARRAY_BYTE_BASE_OFFSET + (long) i));
         for (; i < len; i++)
-            MEMORY.writeByte(address + i, UNSAFE.getByte(bytes, Unsafe.ARRAY_BYTE_BASE_OFFSET + (long) i));
+            MEMORY.writeByte(address + i, UNSAFE.getByte(bytes, ARRAY_BYTE_BASE_OFFSET + (long) i));
         return address + len;
     }
 

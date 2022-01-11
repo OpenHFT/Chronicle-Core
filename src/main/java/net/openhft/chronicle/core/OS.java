@@ -67,11 +67,11 @@ public final class OS {
     private static final int MAP_PV = 2;
     private static final boolean IS64BIT = is64Bit0();
     private static final AtomicInteger PROCESS_ID = new AtomicInteger();
-    private static final String OS = System.getProperty("os.name").toLowerCase();
-    private static final boolean IS_LINUX = OS.startsWith("linux");
-    private static final boolean IS_MAC = OS.contains("mac");
-    private static final boolean IS_WIN = OS.startsWith("win");
-    private static final boolean IS_WIN10 = OS.equals("windows 10");
+    private static final String OS_NAME = System.getProperty("os.name").toLowerCase();
+    private static final boolean IS_LINUX = OS_NAME.startsWith("linux");
+    private static final boolean IS_MAC = OS_NAME.contains("mac");
+    private static final boolean IS_WIN = OS_NAME.startsWith("win");
+    private static final boolean IS_WIN10 = OS_NAME.equals("windows 10");
     private static final AtomicLong memoryMapped = new AtomicLong();
     private static final MethodHandle UNMAPP0_MH;
     private static final MethodHandle READ0_MH;
@@ -93,8 +93,22 @@ public final class OS {
             Method read0 = Jvm.getMethod(fdi, "read0", FileDescriptor.class, long.class, int.class);
             READ0_MH = MethodHandles.lookup().unreflect(read0);
 
-            MethodHandle write0Mh = null;
-            MethodHandle write0Mh2 = null;
+            final WriteZero wz = new WriteZero(fdi);
+            WRITE0_MH = wz.write0Mh;
+            WRITE0_MH2 = wz.write0Mh2;
+
+            TIME_LIMIT.setStackTrace(new StackTraceElement[0]);
+
+        } catch (IllegalAccessException | ClassNotFoundException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    private static final class WriteZero {
+        private MethodHandle write0Mh = null;
+        private MethodHandle write0Mh2 = null;
+
+        public WriteZero(final Class<?> fdi) throws IllegalAccessException {
             try {
                 Method write0 = Jvm.getMethod(fdi, "write0", FileDescriptor.class, long.class, int.class);
                 write0Mh = MethodHandles.lookup().unreflect(write0);
@@ -102,12 +116,6 @@ public final class OS {
                 Method write0 = Jvm.getMethod(fdi, "write0", FileDescriptor.class, long.class, int.class, boolean.class);
                 write0Mh2 = MethodHandles.lookup().unreflect(write0);
             }
-            WRITE0_MH = write0Mh;
-            WRITE0_MH2 = write0Mh2;
-            TIME_LIMIT.setStackTrace(new StackTraceElement[0]);
-
-        } catch (IllegalAccessException | ClassNotFoundException e) {
-            throw new AssertionError(e);
         }
     }
 
@@ -292,32 +300,35 @@ public final class OS {
     }
 
     /**
-     * This may or may not be the OS thread id, but should be unique across processes
+     * Returns if this JVM runs on the Windows operating system.
      *
-     * @return a unique tid of up to 48 bits.
+     * @return if runs on Windows
      */
-/*    public static long getUniqueTid() {
-        return getUniqueTid(Thread.currentThread());
-    }
-
-    public static long getUniqueTid(Thread thread) {
-        // Assume 48 bit for 16 to 24-bit process id and 16 million threads from the start.
-        return ((long) getProcessId() << 24) | thread.getId();
-    }*/
     public static boolean isWindows() {
         return IS_WIN;
     }
 
+    /**
+     * Returns if this JVM runs on the MacOS operating system.
+     *
+     * @return if runs on MacOS
+     */
     public static boolean isMacOSX() {
         return IS_MAC;
     }
 
+    /**
+     * Returns if this JVM runs on the Linux operating system.
+     *
+     * @return if runs on Linux
+     */
     public static boolean isLinux() {
         return IS_LINUX;
     }
 
     /**
      * @return the maximum PID.
+     *
      * @throws NumberFormatException if ?
      * @throws AssertionError        if ?
      */
@@ -412,13 +423,18 @@ public final class OS {
         try {
             final long size2 = pageAlign(size);
             // n must be used here
-            final int n = (int)UNMAPP0_MH.invokeExact(address, size2);
+            final int n = (int) UNMAPP0_MH.invokeExact(address, size2);
             memoryMapped.addAndGet(-size2);
         } catch (Throwable e) {
             throw asAnIOException(e);
         }
     }
 
+    /**
+     * Returns the number of bytes that is memory mapped.
+     *
+     * @return bytes memory mapped
+     */
     public static long memoryMapped() {
         return memoryMapped.get();
     }

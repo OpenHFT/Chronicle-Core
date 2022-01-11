@@ -143,7 +143,7 @@ public class WeakIdentityHashMap<K, V> extends AbstractMap<K, V> {
         };
     }
 
-    private static class WeakKey<K> extends WeakReference<K> {
+    private static final class WeakKey<K> extends WeakReference<K> {
         private final int hash;
 
         WeakKey(K key, ReferenceQueue<K> q) {
@@ -156,7 +156,7 @@ public class WeakIdentityHashMap<K, V> extends AbstractMap<K, V> {
             if (this == o) {
                 return true;
             } else if (o instanceof WeakKey) {
-                return get() == ((WeakKey) o).get();
+                return super.get() == ((WeakKey<?>) o).get();
             } else {
                 return false;
             }

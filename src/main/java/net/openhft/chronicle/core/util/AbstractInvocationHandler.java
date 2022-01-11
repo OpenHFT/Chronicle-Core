@@ -41,11 +41,16 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
     /**
      * @param mapSupplier ConcurrentHashMap::new for thread safe, HashMap::new for single thread, Collections::emptyMap to turn off.
      */
-    protected AbstractInvocationHandler(Supplier<Map> mapSupplier) {
+    protected AbstractInvocationHandler(final Supplier<Map<?, ?>> mapSupplier) {
         //noinspection unchecked
-        Map<Object, Function<Method, MethodHandle>> proxyToLambda = mapSupplier.get();
+        Map<Object, Function<Method, MethodHandle>> proxyToLambda = asCasted(mapSupplier.get());
         //noinspection unchecked
-        Map<Method, MethodHandle> defaultMethod = mapSupplier.get();
+        Map<Method, MethodHandle> defaultMethod = asCasted(mapSupplier.get());
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <K, V> Map<K, V> asCasted(Map<?, ?> map) {
+        return (Map<K, V>) map;
     }
 
     private static MethodHandles.Lookup acquireLookup(Class<?> c) {
@@ -58,6 +63,7 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
             }
             return lookupConstructor.newInstance(c, MethodHandles.Lookup.PRIVATE);
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException | IllegalArgumentException ignored) {
+            // Do nothing. Continue below to recover.
         }
         try {
             // Try to grab an internal one,

@@ -26,11 +26,14 @@ import java.io.Serializable;
 public interface ReadResolvable<T> {
     @SuppressWarnings("unchecked")
     static <T> T readResolve(Object o) {
-        return (T) (o instanceof ReadResolvable
-                ? ((ReadResolvable) o).readResolve()
-                : o instanceof Serializable
-                ? ObjectUtils.readResolve(o)
-                : o);
+        // Pattern matching
+        if (o instanceof ReadResolvable) {
+            return (T) ((ReadResolvable) o).readResolve();
+        } else if (o instanceof Serializable) {
+            return (T) ObjectUtils.readResolve(o);
+        } else {
+            return (T) o;
+        }
     }
 
     /**

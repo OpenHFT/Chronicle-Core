@@ -123,8 +123,10 @@ public class FileSystemWatcher {
     private void removePath(String filename) {
         watchKeyToPathMap.keySet().stream()
                 .filter(k -> matches(watchKeyToPathMap.get(k), filename))
-                .peek(watchKeysToRemove::add)
-                .forEach(WatchKey::cancel);
+                .forEach(wk -> {
+                    watchKeysToRemove.add(wk);
+                    wk.cancel();
+                });
     }
 
     private boolean matches(PathInfo path, String filename) {
