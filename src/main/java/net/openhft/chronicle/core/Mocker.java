@@ -31,7 +31,6 @@ import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
@@ -81,7 +80,7 @@ public final class Mocker {
         addInterface(classes, tClass);
         //noinspection unchecked
         try {
-            return (T) Proxy.newProxyInstance(tClass.getClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler(ConcurrentHashMap::new) {
+            return (T) Proxy.newProxyInstance(tClass.getClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler() {
                 @Override
                 protected Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
                     consumer.accept(method.getName(), args);
@@ -121,9 +120,9 @@ public final class Mocker {
         }
         try {
             //noinspection unchecked
-            return (T) Proxy.newProxyInstance(tClass.getClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler(ConcurrentHashMap::new) {
+            return (T) Proxy.newProxyInstance(tClass.getClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler() {
                 @Override
-                protected Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
+                protected Object doInvoke(Object proxy, Method method, Object[] args) {
                     return null;
                 }
             });

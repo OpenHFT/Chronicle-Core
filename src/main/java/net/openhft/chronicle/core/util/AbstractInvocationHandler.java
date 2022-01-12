@@ -28,7 +28,6 @@ import java.lang.reflect.*;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.util.Map;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 public abstract class AbstractInvocationHandler implements InvocationHandler {
@@ -41,16 +40,13 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
     /**
      * @param mapSupplier ConcurrentHashMap::new for thread safe, HashMap::new for single thread, Collections::emptyMap to turn off.
      */
-    protected AbstractInvocationHandler(final Supplier<Map<?, ?>> mapSupplier) {
-        //noinspection unchecked
-        Map<Object, Function<Method, MethodHandle>> proxyToLambda = asCasted(mapSupplier.get());
-        //noinspection unchecked
-        Map<Method, MethodHandle> defaultMethod = asCasted(mapSupplier.get());
+
+    @Deprecated(/* for removal in x.23 */)
+    protected AbstractInvocationHandler(Supplier<Map> mapSupplier) {
+        this();
     }
 
-    @SuppressWarnings("unchecked")
-    private static <K, V> Map<K, V> asCasted(Map<?, ?> map) {
-        return (Map<K, V>) map;
+    protected AbstractInvocationHandler() {
     }
 
     private static MethodHandles.Lookup acquireLookup(Class<?> c) {
