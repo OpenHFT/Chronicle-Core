@@ -24,6 +24,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 
 public final class Maths {
+
+    // Suppresses default constructor, ensuring non-instantiability.
     private Maths() {
     }
 
@@ -31,11 +33,8 @@ public final class Maths {
      * Numbers larger than this are whole numbers due to representation error.
      */
     private static final double WHOLE_NUMBER = 1L << 52;
-    private static final int K0 = 0x6d0f27bd;
     private static final int M0 = 0x5bc80bad;
     private static final int M1 = 0xea7585d7;
-    private static final int M2 = 0x7a646e19;
-    private static final int M3 = 0x855dd4db;
     private static final long[] TENS = new long[19];
     private static final long[] FIVES = new long[28];
     private static final String OUT_OF_RANGE = " out of range";

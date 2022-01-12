@@ -21,6 +21,7 @@ package net.openhft.chronicle.core.time;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.Histogram;
+import net.openhft.chronicle.testframework.FlakyTestRunner;
 import net.openhft.posix.ClockId;
 import net.openhft.posix.PosixAPI;
 import org.jetbrains.annotations.NotNull;
@@ -32,9 +33,17 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
 public class PosixTimeProviderTest {
+
     @Test
     public void currentTimeMicros() throws IllegalStateException {
         assumeTrue(!OS.isMacOSX());
+        FlakyTestRunner.builder(this::currentTimeMicros0)
+                .withMaxIterations(3)
+                .build()
+                .runOrThrow();
+    }
+
+    public void currentTimeMicros0() {
 
         @NotNull TimeProvider tp = PosixTimeProvider.INSTANCE;
         long minDiff = 0;
@@ -81,7 +90,7 @@ public class PosixTimeProviderTest {
                 assertBetween(990, maxDiff, 1000 + 30 * error);
                 break;
             } catch (AssertionError e) {
-                continue;
+                // do nothing
             }
         }
         if (!OS.isWindows())

@@ -106,7 +106,6 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
 
     @Override
     public long currentTimeMillis() {
-//        return TimeUnit.NANOSECONDS.toMillis(currentTimeNanos());
         return currentTimeNanos() / 1_000_000;
     }
 
@@ -122,7 +121,6 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
 
     @Override
     public long currentTimeMicros() {
-//        return TimeUnit.NANOSECONDS.toMicros(currentTimeNanos());
         return currentTimeNanos() / 1_000;
     }
 

@@ -40,7 +40,7 @@ public final class Mocker {
     private Mocker() {
     }
 
-    private static final Class[] NO_CLASSES = new Class[0];
+    private static final Class<?>[] NO_CLASSES = new Class[0];
 
     @NotNull
     public static <T> T logging(@NotNull Class<T> tClass, String description, @NotNull PrintStream out) {
@@ -76,7 +76,7 @@ public final class Mocker {
 
     @NotNull
     public static <T> T intercepting(@NotNull Class<T> tClass, @NotNull BiConsumer<String, Object[]> consumer, T t) {
-        Set<Class> classes = new LinkedHashSet<>();
+        final Set<Class<?>> classes = new LinkedHashSet<>();
         addInterface(classes, tClass);
         //noinspection unchecked
         try {
@@ -98,7 +98,7 @@ public final class Mocker {
         }
     }
 
-    private static <T> void addInterface(Set<Class> classes, Class<T> tClass) {
+    private static <T> void addInterface(Set<Class<?>> classes, Class<T> tClass) {
         if (Jvm.dontChain(tClass))
             return;
         if (classes.contains(tClass))
@@ -112,10 +112,10 @@ public final class Mocker {
     }
 
     @NotNull
-    public static <T> T ignored(@NotNull Class<T> tClass, Class... additional) {
-        Set<Class> classes = new LinkedHashSet<>();
+    public static <T> T ignored(@NotNull Class<T> tClass, Class<?>... additional) {
+        final Set<Class<?>> classes = new LinkedHashSet<>();
         addInterface(classes, tClass);
-        for (Class aClass : additional) {
+        for (Class<?> aClass : additional) {
             addInterface(classes, aClass);
         }
         try {

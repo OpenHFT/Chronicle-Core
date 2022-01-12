@@ -29,7 +29,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.stream.Stream;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
@@ -123,8 +122,10 @@ public class FileSystemWatcher {
     private void removePath(String filename) {
         watchKeyToPathMap.keySet().stream()
                 .filter(k -> matches(watchKeyToPathMap.get(k), filename))
-                .peek(watchKeysToRemove::add)
-                .forEach(WatchKey::cancel);
+                .forEach(wk -> {
+                    watchKeysToRemove.add(wk);
+                    wk.cancel();
+                });
     }
 
     private boolean matches(PathInfo path, String filename) {

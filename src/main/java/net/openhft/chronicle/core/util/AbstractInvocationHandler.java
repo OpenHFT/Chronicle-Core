@@ -40,6 +40,7 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
     /**
      * @param mapSupplier ConcurrentHashMap::new for thread safe, HashMap::new for single thread, Collections::emptyMap to turn off.
      */
+
     @Deprecated(/* for removal in x.23 */)
     protected AbstractInvocationHandler(Supplier<Map> mapSupplier) {
         this();
@@ -58,6 +59,7 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
             }
             return lookupConstructor.newInstance(c, MethodHandles.Lookup.PRIVATE);
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException | IllegalArgumentException ignored) {
+            // Do nothing. Continue below to recover.
         }
         try {
             // Try to grab an internal one,

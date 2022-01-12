@@ -52,7 +52,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     private static final int STATE_NOT_CLOSED = 0;
     private static final int STATE_CLOSING = ~0;
     private static final int STATE_CLOSED = 1;
-    static volatile Set<Closeable> CLOSEABLE_SET;
+    static volatile Set<Closeable> closeableSet;
 
     static {
         if (Jvm.isResourceTracing())
@@ -75,19 +75,21 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     protected AbstractCloseable() {
         createdHere = Jvm.isResourceTracing() ? new StackTrace(getClass().getName() + " created here") : null;
 
-        Set<Closeable> set = CLOSEABLE_SET;
+        final Set<Closeable> set = closeableSet;
         if (set != null)
-            set.add(this);
+            synchronized (set) {
+                set.add(this);
+            }
     }
 
     public static void enableCloseableTracing() {
-        CLOSEABLE_SET =
+        closeableSet =
                 Collections.newSetFromMap(
                         new WeakIdentityHashMap<>());
     }
 
     public static void disableCloseableTracing() {
-        CLOSEABLE_SET = null;
+        closeableSet = null;
     }
 
     public static void gcAndWaitForCloseablesToClose() {
@@ -114,7 +116,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     }
 
     public static boolean waitForCloseablesToClose(long millis) {
-        final Set<Closeable> traceSet = CLOSEABLE_SET;
+        final Set<Closeable> traceSet = closeableSet;
         if (traceSet == null) {
             return true;
         }
@@ -149,7 +151,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     }
 
     public static void assertCloseablesClosed() {
-        final Set<Closeable> traceSet = CLOSEABLE_SET;
+        final Set<Closeable> traceSet = closeableSet;
         if (traceSet == null) {
             Jvm.warn().on(AbstractCloseable.class, "closable tracing disabled");
             return;
@@ -184,7 +186,6 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
                 IllegalStateException exception = new IllegalStateException("Not closed " + asString(key), t);
                 Thread.yield();
                 if (key.isClosed()) {
-//                        System.out.println(exception.getMessage() + " is now closed...");
                     continue;
                 }
                 exception.printStackTrace();
@@ -226,8 +227,11 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     }
 
     public static void unmonitor(Closeable closeable) {
-        if (CLOSEABLE_SET != null)
-            CLOSEABLE_SET.remove(closeable);
+        final Set<Closeable> set = closeableSet;
+        if (set != null)
+            synchronized (set) {
+                set.remove(closeable);
+            }
     }
 
     @Override

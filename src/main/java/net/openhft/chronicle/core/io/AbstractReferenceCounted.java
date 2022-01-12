@@ -15,9 +15,9 @@ import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEAS
 public abstract class AbstractReferenceCounted implements ReferenceCountedTracer, ReferenceOwner {
     protected static final long WARN_NS = (long) (Jvm.getDouble("reference.warn.secs", 0.003) * 1e9);
     protected static final int WARN_COUNT = Integer.getInteger("reference.warn.count", Integer.MAX_VALUE);
-    static volatile Set<AbstractReferenceCounted> REFERENCE_COUNTED_SET;
+    static volatile Set<AbstractReferenceCounted> referenceCountedSet;
     private transient volatile Thread usedByThread;
-    protected transient final MonitorReferenceCounted referenceCounted;
+    protected final transient MonitorReferenceCounted referenceCounted;
     private final int referenceId;
 
     protected AbstractReferenceCounted() {
@@ -31,7 +31,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         referenceId = IOTools.counter(getClass()).incrementAndGet();
         referenceCounted = (MonitorReferenceCounted) ReferenceCountedTracer.onReleased(performRelease, this::referenceName, getClass());
         referenceCounted.unmonitored(!monitored);
-        final Set<AbstractReferenceCounted> set = REFERENCE_COUNTED_SET;
+        final Set<AbstractReferenceCounted> set = referenceCountedSet;
         if (monitored && set != null) {
             synchronized (set) {
                 set.add(this);
@@ -41,18 +41,18 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
 
     public static void enableReferenceTracing() {
         enableCloseableTracing();
-        REFERENCE_COUNTED_SET =
+        referenceCountedSet =
                 Collections.newSetFromMap(
                         new WeakIdentityHashMap<>());
     }
 
     public static void disableReferenceTracing() {
         disableCloseableTracing();
-        REFERENCE_COUNTED_SET = null;
+        referenceCountedSet = null;
     }
 
     public static void assertReferencesReleased() {
-        final Set<AbstractReferenceCounted> traceSet = REFERENCE_COUNTED_SET;
+        final Set<AbstractReferenceCounted> traceSet = referenceCountedSet;
         if (traceSet == null) {
             Jvm.warn().on(AbstractReferenceCounted.class, "Reference tracing disabled");
             return;
@@ -78,7 +78,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     }
 
     public static void unmonitor(ReferenceCounted counted) {
-        final Set<AbstractReferenceCounted> set = REFERENCE_COUNTED_SET;
+        final Set<AbstractReferenceCounted> set = referenceCountedSet;
         if (counted instanceof AbstractReferenceCounted) {
             if (set != null) {
                 synchronized (set) {
@@ -129,9 +129,9 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
 
     @Override
     public void reserve(ReferenceOwner id) throws IllegalStateException {
-        if (WARN_COUNT < Integer.MAX_VALUE && referenceCounted.refCount() >= WARN_COUNT)
-            if ((referenceCounted.refCount() - WARN_COUNT) % 10 == 0)
-                Jvm.warn().on(getClass(), "high reserve count for " + referenceName() + " was " + referenceCounted.refCount(), new StackTrace("reserved here"));
+        if ((WARN_COUNT < Integer.MAX_VALUE && referenceCounted.refCount() >= WARN_COUNT) && (referenceCounted.refCount() - WARN_COUNT) % 10 == 0)
+                Jvm.warn().on(getClass(), "high reserve count for " + referenceName() +
+                        " was " + referenceCounted.refCount(), new StackTrace("reserved here"));
         referenceCounted.reserve(id);
     }
 

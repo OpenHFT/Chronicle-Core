@@ -34,6 +34,7 @@ public class UniqueMicroTimeProvider implements TimeProvider {
      * Create new instances for testing purposes as it is stateful
      */
     public UniqueMicroTimeProvider() {
+        // Do nothing
     }
 
     public UniqueMicroTimeProvider provider(TimeProvider provider) throws IllegalStateException {

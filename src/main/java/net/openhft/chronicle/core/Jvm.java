@@ -1049,12 +1049,13 @@ public final class Jvm {
      * Inserts a low-cost Java safe-point in the code path.
      */
     public static void safepoint() {
-        if (SAFEPOINT_ENABLED)
+        if (SAFEPOINT_ENABLED) {
             if (IS_JAVA_9_PLUS) {
                 Safepoint.force(); // 1 ns on Java 11
             } else {
                 Compiler.enable(); // 5 ns on Java 8
             }
+        }
     }
 
     public static boolean areOptionalSafepointsEnabled() {

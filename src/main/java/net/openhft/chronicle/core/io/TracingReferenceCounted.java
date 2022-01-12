@@ -74,8 +74,6 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     private boolean tryReserve(ReferenceOwner id, boolean must) throws IllegalStateException {
         if (id == this)
             throw new AssertionError(type.getName() + " the counter cannot reserve itself");
-//        if (Jvm.isDebug())
-//            System.out.println(Thread.currentThread().getName() + " " + uniqueId + " - tryReserve " + asString(id));
         synchronized (references) {
             if (references.isEmpty()) {
                 if (must)
@@ -94,8 +92,6 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
 
     @Override
     public void release(ReferenceOwner id) throws IllegalStateException {
-//        if (Jvm.isDebug())
-//            System.out.println(Thread.currentThread().getName() + " " + uniqueId + " - release " + asString(id));
 
         boolean doOnRelease = false;
         synchronized (references) {

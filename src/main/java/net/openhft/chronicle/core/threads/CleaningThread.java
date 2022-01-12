@@ -80,8 +80,7 @@ public class CleaningThread extends Thread {
                 if (value == null)
                     continue;
 
-//                System.out.println(Thread.currentThread() + " - Cleaning " + key);
-                CleaningThreadLocal ctl = (CleaningThreadLocal) key;
+                @SuppressWarnings("unchecked") final CleaningThreadLocal<Object> ctl = (CleaningThreadLocal<Object>) key;
                 ctl.cleanup(value);
 
                 remove.invoke(o, key);
@@ -96,7 +95,7 @@ public class CleaningThread extends Thread {
     /**
      * Cleanup a specific CleaningThreadLocal
      */
-    public static void performCleanup(Thread thread, CleaningThreadLocal ctl) {
+    public static void performCleanup(Thread thread, CleaningThreadLocal<?> ctl) {
         WeakReference<?>[] table;
         Object o;
         try {
@@ -129,8 +128,7 @@ public class CleaningThread extends Thread {
                 if (value == null)
                     continue;
 
-//                System.out.println(Thread.currentThread() + " - Cleaning " + key);
-                ctl.cleanup(value);
+                ((CleaningThreadLocal<Object>) ctl).cleanup(value);
 
                 remove.invoke(o, key);
                 break;

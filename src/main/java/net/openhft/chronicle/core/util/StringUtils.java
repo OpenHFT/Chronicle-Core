@@ -29,21 +29,33 @@ import java.lang.reflect.Field;
 import static java.lang.Character.toLowerCase;
 
 public final class StringUtils {
+
+    // Suppresses default constructor, ensuring non-instantiability.
     private StringUtils() {
     }
 
-    private static final Field S_VALUE, SB_COUNT, S_CODER, SB_CODER;
-    private static final long S_VALUE_OFFSET, SB_VALUE_OFFSET, SB_COUNT_OFFSET, S_COUNT_OFFSET;
+    private static final String VALUE_FIELD_NAME = "value";
+    private static final String COUNT_FIELD_NAME = "count";
+    private static final String CODER_FIELD_NAME = "coder";
+
+    private static final Field S_VALUE;
+    private static final Field SB_COUNT;
+    private static final Field S_CODER;
+    private static final Field SB_CODER;
+    private static final long S_VALUE_OFFSET;
+    private static final long SB_VALUE_OFFSET;
+    private static final long SB_COUNT_OFFSET;
+    private static final long S_COUNT_OFFSET;
     private static final long MAX_VALUE_DIVIDE_10 = Long.MAX_VALUE / 10;
 
     static {
         try {
-            S_VALUE = String.class.getDeclaredField("value");
+            S_VALUE = String.class.getDeclaredField(VALUE_FIELD_NAME);
             Jvm.setAccessible(S_VALUE);
             S_VALUE_OFFSET = OS.memory().getFieldOffset(S_VALUE);
             if (Jvm.isJava9Plus()) {
-                SB_CODER = Jvm.getField(StringBuilder.class.getSuperclass(), "coder");
-                S_CODER = Jvm.getField(String.class, "coder");
+                SB_CODER = Jvm.getField(StringBuilder.class.getSuperclass(), CODER_FIELD_NAME);
+                S_CODER = Jvm.getField(String.class, CODER_FIELD_NAME);
             } else {
                 S_CODER = null;
                 SB_CODER = null;
@@ -54,39 +66,48 @@ public final class StringUtils {
 
         long sCountOffset = -1;
         try {
-            Field sCount = String.class.getDeclaredField("count");
+            Field sCount = String.class.getDeclaredField(COUNT_FIELD_NAME);
             Jvm.setAccessible(sCount);
             sCountOffset = OS.memory().getFieldOffset(sCount);
         } catch (Exception ignored) {
+            // Do nothing
         }
         S_COUNT_OFFSET = sCountOffset;
 
+
         try {
-            Field sbValue;
-            long sbValOffset;
-            Field sbCount;
-            long sbCountOffset;
+            final SbFields sbFields = new SbFields();
+            SB_COUNT = sbFields.sbCount;
+            SB_VALUE_OFFSET = sbFields.sbValOffset;
+            SB_COUNT_OFFSET = sbFields.sbCountOffset;
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    private static final class SbFields {
+
+        private Field sbValue;
+        private long sbValOffset;
+        private Field sbCount;
+        private long sbCountOffset;
+
+        public SbFields() throws ClassNotFoundException, NoSuchFieldException {
             try {
-                sbValue = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField("value");
+                sbValue = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField(VALUE_FIELD_NAME);
                 Jvm.setAccessible(sbValue);
                 sbValOffset = OS.memory().getFieldOffset(sbValue);
-                sbCount = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField("count");
+                sbCount = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField(COUNT_FIELD_NAME);
                 Jvm.setAccessible(sbCount);
                 sbCountOffset = OS.memory().getFieldOffset(sbCount);
             } catch (NoSuchFieldException e) {
-                sbValue = Class.forName("java.lang.StringBuilder").getDeclaredField("value");
+                sbValue = Class.forName("java.lang.StringBuilder").getDeclaredField(VALUE_FIELD_NAME);
                 Jvm.setAccessible(sbValue);
                 sbValOffset = OS.memory().getFieldOffset(sbValue);
-                sbCount = Class.forName("java.lang.StringBuilder").getDeclaredField("count");
+                sbCount = Class.forName("java.lang.StringBuilder").getDeclaredField(COUNT_FIELD_NAME);
                 Jvm.setAccessible(sbCount);
                 sbCountOffset = OS.memory().getFieldOffset(sbCount);
             }
-
-            SB_COUNT = sbCount;
-            SB_VALUE_OFFSET = sbValOffset;
-            SB_COUNT_OFFSET = sbCountOffset;
-        } catch (Exception e) {
-            throw new AssertionError(e);
         }
     }
 
@@ -214,7 +235,7 @@ public final class StringUtils {
         try {
             if (charSequence instanceof String) return S_CODER.getByte(charSequence);
             else if (charSequence instanceof StringBuilder) return SB_CODER.getByte(charSequence);
-            else return Jvm.getField(charSequence.getClass(), "coder").getByte(charSequence);
+            else return Jvm.getField(charSequence.getClass(), CODER_FIELD_NAME).getByte(charSequence);
         } catch (IllegalArgumentException | IllegalAccessException e) {
             throw new AssertionError(e);
         }

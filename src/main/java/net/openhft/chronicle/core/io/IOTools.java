@@ -47,7 +47,8 @@ import java.util.zip.GZIPOutputStream;
 public final class IOTools {
 
     // Suppresses default constructor, ensuring non-instantiability.
-    private IOTools() { }
+    private IOTools() {
+    }
 
     static final Map<Class<?>, AtomicInteger> COUNTER_MAP = new ConcurrentHashMap<>();
 
@@ -109,17 +110,17 @@ public final class IOTools {
      * @param dirs dirs
      */
     public static void deleteDirWithFilesOrThrow(@NotNull File... dirs) throws IORuntimeException {
-        for (File dir : dirs)
-            if (!deleteDirWithFiles(dir))
-                if (dir.exists())
-                    throw new AssertionError("Could not delete " + dir);
+        for (File dir : dirs) {
+            if (!deleteDirWithFiles(dir) && dir.exists())
+                throw new AssertionError("Could not delete " + dir);
+        }
     }
 
     /**
      * Ensures that directory is absent or deleted, awaits for given timeout if necessary.
      *
      * @param timeoutMs Time to ensure that the directory is absent.
-     * @param dir Dir to delete.
+     * @param dir       Dir to delete.
      * @throws AssertionError If timeout passed and the directory is still present.
      */
     public static void deleteDirWithFilesOrWait(long timeoutMs, @NotNull File dir) {
@@ -209,7 +210,7 @@ public final class IOTools {
                 return bytes;
             }
         }
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream(Math.min(512, is.available()))){
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream(Math.min(512, is.available()))) {
             byte[] bytes = new byte[1024];
             for (int len; (len = is.read(bytes)) > 0; )
                 out.write(bytes, 0, len);
@@ -291,7 +292,7 @@ public final class IOTools {
             unmonitor(t.getClass(), t, depth - 1);
     }
 
-    private static <T> void unmonitor(Class<?> aClass, Object t, int depth) {
+    private static void unmonitor(Class<?> aClass, Object t, int depth) {
         if (aClass == null || aClass == Object.class)
             return;
         unmonitor(aClass.getSuperclass(), t, depth);

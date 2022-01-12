@@ -612,17 +612,23 @@ public class UnsafeMemory implements Memory {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), srcOffset);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), destOffset);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), length);
-        if (src instanceof byte[])
+        if (src instanceof byte[]) {
             copyMemory((byte[]) src, Math.toIntExact(srcOffset - Unsafe.ARRAY_BYTE_BASE_OFFSET), dest, destOffset, length);
-        else if (src == null)
-            if (dest == null)
-                copyMemory(srcOffset, destOffset, (long)length);
-            else
-                copyMemory(srcOffset, dest, destOffset, length);
-        else if (dest == null)
-            copyMemory(src, srcOffset, destOffset, length);
-        else
-            copyMemoryLoop(src, srcOffset, dest, destOffset, length);
+        } else {
+            if (src == null) {
+                if (dest == null) {
+                    copyMemory(srcOffset, destOffset, (long) length);
+                } else {
+                    copyMemory(srcOffset, dest, destOffset, length);
+                }
+            } else {
+                if (dest == null) {
+                    copyMemory(src, srcOffset, destOffset, length);
+                } else {
+                    copyMemoryLoop(src, srcOffset, dest, destOffset, length);
+                }
+            }
+        }
     }
 
     private void copyMemoryLoop(Object src, long srcOffset, Object dest, long destOffset, int length) {
@@ -966,7 +972,6 @@ public class UnsafeMemory implements Memory {
 
     @Override
     public void testAndSetInt(Object object, long offset, int expected, int value) throws IllegalStateException {
-//        assert (offset & 63) <= 64 - 4;
         assert SKIP_ASSERTIONS || nonNull(object);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
         if (UNSAFE.compareAndSwapInt(object, offset, expected, value))
@@ -979,7 +984,6 @@ public class UnsafeMemory implements Memory {
     public boolean compareAndSwapInt(long address, int expected, int value) throws MisAlignedAssertionError {
         assert (address & 63) <= 64 - 4;
         assert SKIP_ASSERTIONS || address != 0;
-//        assert (address & 0x3) == 0;
         return UNSAFE.compareAndSwapInt(null, address, expected, value);
     }
 
@@ -995,7 +999,6 @@ public class UnsafeMemory implements Memory {
         if (!safeAlignedLong(address))
             throw new MisAlignedAssertionError();
         assert SKIP_ASSERTIONS || address != 0;
-//        assert (address & 0x7) == 0;
         return UNSAFE.compareAndSwapLong(null, address, expected, value);
     }
 

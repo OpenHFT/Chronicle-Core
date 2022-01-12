@@ -190,8 +190,8 @@ public final class ObjectUtils {
      * @param eClass to check
      * @return the wrapper class if eClass is a primitive type, or the eClass if not.
      */
-    public static Class primToWrapper(Class eClass) {
-        Class clazz0 = PRIM_MAP.get(eClass);
+    public static Class primToWrapper(Class<?> eClass) {
+        final Class<?> clazz0 = PRIM_MAP.get(eClass);
         if (clazz0 != null)
             eClass = clazz0;
         return eClass;
@@ -275,7 +275,7 @@ public final class ObjectUtils {
             return convertToArray(eClass, o);
         }
         if (Set.class.isAssignableFrom(eClass)) {
-            return (E) new LinkedHashSet((Collection) o);
+            return (E) new LinkedHashSet<>((Collection) o);
         }
         if (Character.class == eClass) {
             String s = o.toString();
@@ -305,10 +305,10 @@ public final class ObjectUtils {
     // throws IllegalArgumentException
     @NotNull
     private static <E> E convertToArray(@NotNull Class<E> eClass, Object o) {
-        int len = sizeOf(o);
-        Object array = Array.newInstance(eClass.getComponentType(), len);
-        Iterator iter = iteratorFor(o);
-        Class elementType = elementType(eClass);
+        final int len = sizeOf(o);
+        final Object array = Array.newInstance(eClass.getComponentType(), len);
+        final Iterator<?> iter = iteratorFor(o);
+        final Class<?> elementType = elementType(eClass);
         try {
             for (int i = 0; i < len; i++) {
                 @Nullable Object value = convertTo(elementType, iter.next());
@@ -320,15 +320,15 @@ public final class ObjectUtils {
         return (E) array;
     }
 
-    private static <E> Class elementType(@NotNull Class<E> eClass) {
+    private static <E> Class<?> elementType(@NotNull Class<E> eClass) {
         if (Object[].class.isAssignableFrom(eClass))
             return eClass.getComponentType();
         return Object.class;
     }
 
-    private static Iterator iteratorFor(Object o) {
+    private static Iterator<?> iteratorFor(Object o) {
         if (o instanceof Iterable) {
-            return ((Iterable) o).iterator();
+            return ((Iterable<?>) o).iterator();
         }
         if (o instanceof Object[]) {
             return Arrays.asList((Object[]) o).iterator();
@@ -339,9 +339,9 @@ public final class ObjectUtils {
     // throws IllegalArgumentException
     private static int sizeOf(Object o) {
         if (o instanceof Collection)
-            return ((Collection) o).size();
+            return ((Collection<?>) o).size();
         if (o instanceof Map)
-            return ((Map) o).size();
+            return ((Map<?, ?>) o).size();
         try {
             if (o.getClass().isArray())
                 return Array.getLength(o);
@@ -352,7 +352,7 @@ public final class ObjectUtils {
     }
 
     // throws NumberFormatException
-    private static Number convertToNumber(Class eClass, Object o) throws NumberFormatException {
+    private static Number convertToNumber(Class<?> eClass, Object o) throws NumberFormatException {
         if (o instanceof Number) {
             @NotNull Number n = (Number) o;
             if (eClass == Double.class)
@@ -398,7 +398,7 @@ public final class ObjectUtils {
     @NotNull
     public static <T> T newInstance(@NotNull String className) {
         try {
-            Supplier cons = supplierClassLocal.get(Class.forName(className));
+            final Supplier<?> cons = supplierClassLocal.get(Class.forName(className));
             return (T) cons.get();
         } catch (ClassNotFoundException e) {
             throw new AssertionError(e);
@@ -407,12 +407,12 @@ public final class ObjectUtils {
 
     @NotNull
     public static <T> T newInstance(@NotNull Class<T> clazz) {
-        Supplier cons = supplierClassLocal.get(clazz);
+        final Supplier<?> cons = supplierClassLocal.get(clazz);
         return (T) cons.get();
     }
 
     @Nullable
-    public static Object newInstanceOrNull(Class type) {
+    public static Object newInstanceOrNull(final Class<?> type) {
         try {
             return newInstance(type);
         } catch (Exception e) {
@@ -434,7 +434,7 @@ public final class ObjectUtils {
         return interfaces;
     }
 
-    public static boolean matchingClass(@NotNull Class base, @NotNull Class toMatch) {
+    public static boolean matchingClass(@NotNull Class<?> base, @NotNull Class<?> toMatch) {
         return base == toMatch
                 || base.isInterface() && interfaceToDefaultClass.get(base) == toMatch
                 || Enum.class.isAssignableFrom(toMatch) && base.equals(toMatch.getEnclosingClass());
@@ -445,8 +445,10 @@ public final class ObjectUtils {
     }
 
     @NotNull
-    public static <T> T onMethodCall(@NotNull BiFunction<Method, Object[], Object> biFunction, @NotNull Class<T> tClass, Class... additional) throws IllegalArgumentException {
-        Class[] interfaces = addAll(tClass, additional);
+    public static <T> T onMethodCall(@NotNull final BiFunction<Method, Object[], Object> biFunction,
+                                     @NotNull final Class<T> tClass,
+                                     final Class<?>... additional) throws IllegalArgumentException {
+        final Class<?>[] interfaces = addAll(tClass, additional);
         //noinspection unchecked
         return (T) Proxy.newProxyInstance(tClass.getClassLoader(), interfaces, new InvocationHandler() {
             @Override
@@ -461,20 +463,20 @@ public final class ObjectUtils {
 
     @Deprecated(/* to be removed in x.23 */)
     @NotNull
-    public static Class getTypeFor(@NotNull Class clazz, @NotNull Class interfaceClass) throws IllegalArgumentException {
+    public static Class getTypeFor(@NotNull Class<?> clazz, @NotNull Class<?> interfaceClass) throws IllegalArgumentException {
         return getTypeFor(clazz, interfaceClass, 0);
     }
 
     @Deprecated(/* to be removed in x.23 */)
     @NotNull
-    public static Class getTypeFor(@NotNull Class clazz, @NotNull Class interfaceClass, int index) throws IllegalArgumentException {
+    public static Class getTypeFor(@NotNull Class<?> clazz, @NotNull Class<?> interfaceClass, int index) throws IllegalArgumentException {
         for (Type type : clazz.getGenericInterfaces()) {
             if (type instanceof ParameterizedType) {
                 @NotNull ParameterizedType ptype = (ParameterizedType) type;
                 if (interfaceClass.isAssignableFrom((Class<?>) ptype.getRawType())) {
                     Type type0 = ptype.getActualTypeArguments()[index];
                     if (type0 instanceof Class)
-                        return (Class) type0;
+                        return (Class<?>) type0;
                     throw new IllegalArgumentException("The match super interface for " + clazz + " was not a concrete class, was " + ptype);
                 }
             }
@@ -482,7 +484,7 @@ public final class ObjectUtils {
         throw new IllegalArgumentException("No matching super interface for " + clazz + " which was a " + interfaceClass);
     }
 
-    public static boolean isConcreteClass(@NotNull Class tClass) {
+    public static boolean isConcreteClass(@NotNull Class<?> tClass) {
         return (tClass.getModifiers() & (Modifier.ABSTRACT | Modifier.INTERFACE)) == 0;
     }
 
@@ -532,11 +534,11 @@ public final class ObjectUtils {
             throw new IllegalArgumentException("Accumulator cannot be null");
 
         if (o instanceof Class) {
-            Class clazz = (Class) o;
+            Class<?> clazz = (Class<?>) o;
 
             if (clazz.isInterface()) {
-                if (accumulator.apply((Class) o)) {
-                    for (Class aClass : clazz.getInterfaces()) {
+                if (Boolean.TRUE.equals(accumulator.apply((Class<?>) o))) {
+                    for (Class<?> aClass : clazz.getInterfaces()) {
                         getAllInterfaces(aClass, accumulator);
                     }
                 }
@@ -544,7 +546,7 @@ public final class ObjectUtils {
                 if (null != clazz.getSuperclass())
                     getAllInterfaces(clazz.getSuperclass(), accumulator);
 
-                for (Class aClass : clazz.getInterfaces()) {
+                for (Class<?> aClass : clazz.getInterfaces()) {
                     getAllInterfaces(aClass, accumulator);
                 }
             }
@@ -553,9 +555,9 @@ public final class ObjectUtils {
         }
     }
 
-    public static synchronized void defaultObjectForInterface(ThrowingFunction<Class, Class, ClassNotFoundException> defaultObjectForInterface) {
+    public static synchronized void defaultObjectForInterface(ThrowingFunction<Class<?>, Class<?>, ClassNotFoundException> defaultObjectForInterface) {
         interfaceToDefaultClass = ClassLocal.withInitial(c -> {
-            Class c2;
+            Class<?> c2;
             try {
                 c2 = defaultObjectForInterface.apply(c);
             } catch (ClassNotFoundException cne) {
@@ -584,9 +586,9 @@ public final class ObjectUtils {
 
     public static <T> Class<T> implementationToUse(Class<T> tClass) {
         if (tClass.isInterface()) {
-            Class class2 = interfaceToDefaultClass.get(tClass);
+            Class<?> class2 = interfaceToDefaultClass.get(tClass);
             if (class2 != null)
-                return class2;
+                return (Class<T>) class2;
         }
         return tClass;
     }
@@ -595,7 +597,7 @@ public final class ObjectUtils {
         YES, NO, MAYBE
     }
 
-    private static class ConversionFunction implements Function<Class<?>, ThrowingFunction<String, Object, Exception>> {
+    private static final class ConversionFunction implements Function<Class<?>, ThrowingFunction<String, Object, Exception>> {
         @Override
         public ThrowingFunction<String, Object, Exception> apply(@NotNull Class<?> c) {
             if (c == Class.class)
@@ -623,7 +625,7 @@ public final class ObjectUtils {
                 // ignored
             }
             try {
-                Constructor constructor = c.getDeclaredConstructor(String.class);
+                final Constructor<?> constructor = c.getDeclaredConstructor(String.class);
                 Jvm.setAccessible(constructor);
                 return constructor::newInstance;
             } catch (Exception e) {

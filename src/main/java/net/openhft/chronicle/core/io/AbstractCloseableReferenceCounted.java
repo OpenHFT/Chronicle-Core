@@ -5,7 +5,7 @@ import net.openhft.chronicle.core.StackTrace;
 
 import java.util.Set;
 
-import static net.openhft.chronicle.core.io.AbstractCloseable.CLOSEABLE_SET;
+import static net.openhft.chronicle.core.io.AbstractCloseable.closeableSet;
 
 public abstract class AbstractCloseableReferenceCounted
         extends AbstractReferenceCounted
@@ -17,9 +17,11 @@ public abstract class AbstractCloseableReferenceCounted
     private boolean initReleased;
 
     protected AbstractCloseableReferenceCounted() {
-        Set<Closeable> set = CLOSEABLE_SET;
+        final Set<Closeable> set = closeableSet;
         if (set != null)
-            set.add(this);
+            synchronized (set) {
+                set.add(this);
+            }
     }
 
     @Override

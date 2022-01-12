@@ -146,9 +146,14 @@ public class IOToolsTest extends CoreTestCommon {
 
     @Test
     public void addressFor() {
-        assertTrue(IOTools.addressFor(ByteBuffer.allocateDirect(1)) != 0L);
+        assertNotEquals(0L, IOTools.addressFor(ByteBuffer.allocateDirect(1)));
+    }
+
+    @Test
+    public void addressFor2() {
+        final ByteBuffer bb = ByteBuffer.allocate(1);
         try {
-            IOTools.addressFor(ByteBuffer.allocate(1));
+            IOTools.addressFor(bb);
             fail();
         } catch (ClassCastException cce) {
             // expected
@@ -157,7 +162,8 @@ public class IOToolsTest extends CoreTestCommon {
 
     @Test
     public void normaliseIOStatus() {
-        assertEquals(-3, IOTools.IOSTATUS_INTERRUPTED);
+        final int actual = IOTools.IOSTATUS_INTERRUPTED;
+        assertEquals(-3, actual);
 
         assertEquals(-3, IOTools.normaliseIOStatus(-3));
     }
