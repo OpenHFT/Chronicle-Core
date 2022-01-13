@@ -89,7 +89,7 @@ public class ThreadDump {
                     .removeIf(next -> ignored.stream()
                             .anyMatch(item -> next.getName().contains(item)));
             allStackTraces.keySet()
-                    .removeIf(next -> startsWith(next.getName(), "RMI ", "VM JFR ", "JFR ", "JMX ", "ForkJoinPool.commonPool-worker-"));
+                    .removeIf(next -> startsWith(next.getName(), "RMI ", "VM JFR ", "JFR ", "JMX ", "ForkJoinPool.commonPool-worker-", "JVMCI"));
             allStackTraces.keySet()
                     .removeIf(next -> next.getName().startsWith("HttpClient-") && next.getName().endsWith("-SelectorManager"));
             allStackTraces.keySet()
