@@ -1271,11 +1271,13 @@ public class UnsafeMemory implements Memory {
 
     @Override
     public boolean safeAlignedInt(long addr) {
+        // This will return true for all address values except 4 preceding steps before a cache-line.
         return (addr & 63) <= 60;
     }
 
     @Override
     public boolean safeAlignedLong(long addr) {
+        // This will return true for all address values except 8 preceding steps before a cache-line.
         return (addr & 63) <= 56;
     }
 

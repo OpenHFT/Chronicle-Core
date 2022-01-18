@@ -247,8 +247,22 @@ public interface Memory {
                 : Unsafe.ARRAY_OBJECT_INDEX_SCALE;
     }
 
+    /**
+     * Returns if the provided {@code addr} would provide access to
+     * an int that would reside entirely within a distinct cache-line.
+     *
+     * @param addr to use
+     * @return if int access would be confined to the same cache-line
+     */
     boolean safeAlignedInt(long addr);
 
+    /**
+     * Returns if the provided {@code addr} would provide access to
+     * a long that would reside entirely within a distinct cache-line.
+     *
+     * @param addr to use
+     * @return if long access would be confined to the same cache-line
+     */
     boolean safeAlignedLong(long addr);
 
     long address(ByteBuffer bb);
