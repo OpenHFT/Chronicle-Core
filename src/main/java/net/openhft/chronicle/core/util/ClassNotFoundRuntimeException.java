@@ -5,6 +5,7 @@ public class ClassNotFoundRuntimeException extends RuntimeException {
         super(cause);
     }
 
+    @SuppressWarnings("squid:L9")
     @Override
     public ClassNotFoundException getCause() {
         return (ClassNotFoundException) super.getCause();
