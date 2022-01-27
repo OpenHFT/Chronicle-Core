@@ -19,6 +19,7 @@
 package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.util.ClassNotFoundRuntimeException;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Array;
@@ -113,7 +114,7 @@ public class ClassAliasPool implements ClassLookup {
 
     @Override
     @NotNull
-    public Class<?> forName(@NotNull CharSequence name) {
+    public Class<?> forName(@NotNull CharSequence name) throws ClassNotFoundRuntimeException {
         Objects.requireNonNull(name);
         CAPKey key = CAP_KEY_TL.get();
         key.value = name;
@@ -126,7 +127,7 @@ public class ClassAliasPool implements ClassLookup {
     }
 
     @NotNull
-    private synchronized Class<?> forName0(@NotNull CAPKey key) {
+    private synchronized Class<?> forName0(@NotNull CAPKey key) throws ClassNotFoundRuntimeException {
         Class<?> clazz = stringClassMap2.get(key);
         if (clazz != null) return clazz;
         String name0 = key.toString();
@@ -136,14 +137,10 @@ public class ClassAliasPool implements ClassLookup {
             clazz = Class.forName(name0, true, classLoader);
 
         } catch (ClassNotFoundException e) {
-            if (parent != null) {
-                try {
-                    return parent.forName(name0);
-                } catch (ClassNotFoundException e2) {
-                    // ignored.
-                }
-            }
-            throw Jvm.rethrow(e);
+            if (parent != null)
+                return parent.forName(name0);
+
+            throw new ClassNotFoundRuntimeException(e);
         }
         stringClassMap2.put(key2, clazz);
         return clazz;
