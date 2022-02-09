@@ -18,16 +18,29 @@
 
 package net.openhft.chronicle.core.pool;
 
+import net.openhft.chronicle.core.util.ClassNotFoundRuntimeException;
 import org.jetbrains.annotations.NotNull;
 
 public interface ClassLookup {
 
+    /**
+     * Wrap this class into
+     *
+     * @return a ClassLookup which can be modified without changing the underlying ClassLookup
+     */
     @NotNull
     default ClassLookup wrap() {
         return new ClassAliasPool(this);
     }
 
-    Class<?> forName(CharSequence name) throws ClassNotFoundException;
+    /**
+     * Turn a string into a class
+     *
+     * @param name of the type/class
+     * @return the fclass for that name
+     * @throws ClassNotFoundRuntimeException
+     */
+    Class<?> forName(CharSequence name) throws ClassNotFoundRuntimeException;
 
     /**
      * @param clazz to lookup an alias for
@@ -36,7 +49,18 @@ public interface ClassLookup {
      */
     String nameFor(Class<?> clazz) throws IllegalArgumentException;
 
+    /**
+     * Add classes to the class lookup. The simple name without the package is added as the alias
+     *
+     * @param classes to add
+     */
     void addAlias(Class<?>... classes);
 
+    /**
+     * Add a class with a specific alias which may or may not have a package name.
+     *
+     * @param clazz to alias
+     * @param names An alias or comma seperated list of aliases
+     */
     void addAlias(Class<?> clazz, String names);
 }
