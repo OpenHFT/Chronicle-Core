@@ -44,7 +44,7 @@ import static java.lang.management.ManagementFactory.getRuntimeMXBean;
  */
 public final class OS {
 
-    public static final String TMP = System.getProperty("java.io.tmpdir");
+    public static final String TMP = findTmp();
     public static final String USER_DIR = System.getProperty("user.dir");
     public static final String USER_HOME = System.getProperty("user.home");
     public static final Exception TIME_LIMIT = new TimeLimitExceededException();
@@ -123,6 +123,19 @@ public final class OS {
     private OS() {
     }
 
+    private static String findTmp() {
+        String target = System.getProperty("project.build.directory");
+        if (target != null)
+            return target + File.pathSeparator + "tmp";
+        final String tmp = System.getProperty("java.io.tmpdir");
+        if (tmp != null
+                && new File(tmp).isDirectory()
+                && new File(tmp).canWrite())
+            return tmp;
+        new File("tmp").mkdirs();
+        return "tmp";
+    }
+
     @NotNull
     private static String findTarget() {
         String target = System.getProperty("project.build.directory");
@@ -136,7 +149,9 @@ public final class OS {
             if (gradleTarget.exists())
                 return gradleTarget.getAbsolutePath();
         }
-        return TMP + "/target";
+        final File dir = new File(System.getProperty("java.io.tmpdir"), "target");
+        dir.mkdirs();
+        return dir.getPath();
     }
 
     @NotNull
