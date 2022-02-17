@@ -5,9 +5,8 @@ public class ClassNotFoundRuntimeException extends RuntimeException {
         super(cause);
     }
 
-    @SuppressWarnings("squid:S3551")
     @Override
-    public ClassNotFoundException getCause() {
+    public synchronized ClassNotFoundException getCause() {
         return (ClassNotFoundException) super.getCause();
     }
 }

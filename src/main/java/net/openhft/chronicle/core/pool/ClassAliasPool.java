@@ -47,7 +47,7 @@ public class ClassAliasPool implements ClassLookup {
 
     ClassAliasPool(ClassLookup parent) {
         this.parent = parent;
-        this.classLoader = getClass().getClassLoader();
+        this.classLoader = (parent == null ? this : parent).getClass().getClassLoader();
     }
 
     public static void a(Class<?> clazz) {
@@ -139,7 +139,6 @@ public class ClassAliasPool implements ClassLookup {
         } catch (ClassNotFoundException e) {
             if (parent != null)
                 return parent.forName(name0);
-
             throw new ClassNotFoundRuntimeException(e);
         }
         stringClassMap2.put(key2, clazz);

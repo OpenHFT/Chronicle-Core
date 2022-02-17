@@ -21,6 +21,7 @@ package net.openhft.chronicle.core.util;
 import net.openhft.chronicle.core.ClassLocal;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
+import net.openhft.chronicle.core.pool.ClassAliasPool;
 import net.openhft.chronicle.core.pool.EnumCache;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -397,12 +398,7 @@ public final class ObjectUtils {
 
     @NotNull
     public static <T> T newInstance(@NotNull String className) {
-        try {
-            final Supplier<?> cons = supplierClassLocal.get(Class.forName(className));
-            return (T) cons.get();
-        } catch (ClassNotFoundException e) {
-            throw new AssertionError(e);
-        }
+        return newInstance((Class<T>) CLASS_ALIASES.forName(className));
     }
 
     @NotNull
@@ -574,10 +570,10 @@ public final class ObjectUtils {
     static Class<?> lookForImplEnum(Class<?> c2) {
         if (c2.isInterface()) {
             try {
-                final Class<?> c3 = Class.forName(c2.getName() + "s");
+                final Class<?> c3 = ClassAliasPool.CLASS_ALIASES.forName(c2.getName() + "s");
                 if (c2.isAssignableFrom(c3))
                     return c3;
-            } catch (ClassNotFoundException cne) {
+            } catch (ClassNotFoundRuntimeException cne) {
                 // ignored
             }
         }
