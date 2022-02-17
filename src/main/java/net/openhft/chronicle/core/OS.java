@@ -125,8 +125,11 @@ public final class OS {
 
     private static String findTmp() {
         String target = System.getProperty("project.build.directory");
-        if (target != null)
-            return target + File.pathSeparator + "tmp";
+        if (target != null) {
+            final File tmp = new File(target, "tmp");
+            tmp.mkdir();
+            return tmp.getPath();
+        }
         final String tmp = System.getProperty("java.io.tmpdir");
         if (tmp != null
                 && new File(tmp).isDirectory()
