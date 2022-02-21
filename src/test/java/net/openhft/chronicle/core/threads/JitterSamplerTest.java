@@ -23,7 +23,7 @@ public class JitterSamplerTest {
         STARTED:
         {
             for (int j = 20; j >= 0; j--) {
-                Jvm.pause(10);
+                Jvm.pause(20);
                 if (JitterSampler.desc != null)
                     break STARTED;
             }
