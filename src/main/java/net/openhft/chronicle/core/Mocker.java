@@ -19,6 +19,8 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.util.AbstractInvocationHandler;
+import net.openhft.chronicle.core.util.IgnoresEverything;
+import net.openhft.chronicle.core.util.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
@@ -36,11 +38,11 @@ import java.util.function.Consumer;
 
 public final class Mocker {
 
+    private static final Class<?>[] NO_CLASSES = new Class[0];
+
     // Suppresses default constructor, ensuring non-instantiability.
     private Mocker() {
     }
-
-    private static final Class<?>[] NO_CLASSES = new Class[0];
 
     @NotNull
     public static <T> T logging(@NotNull Class<T> tClass, String description, @NotNull PrintStream out) {
@@ -115,17 +117,20 @@ public final class Mocker {
     public static <T> T ignored(@NotNull Class<T> tClass, Class<?>... additional) {
         final Set<Class<?>> classes = new LinkedHashSet<>();
         addInterface(classes, tClass);
-        for (Class<?> aClass : additional) {
+        for (Class<?> aClass : additional)
             addInterface(classes, aClass);
-        }
+        classes.add(IgnoresEverything.class);
         try {
             //noinspection unchecked
-            return (T) Proxy.newProxyInstance(tClass.getClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler() {
+            final T t = (T) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler() {
                 @Override
                 protected Object doInvoke(Object proxy, Method method, Object[] args) {
-                    return null;
+                    if (method.getReturnType().isAssignableFrom(this.getClass()))
+                        return this;
+                    return ObjectUtils.defaultValue(method.getReturnType());
                 }
             });
+            return t;
         } catch (IllegalArgumentException e) {
             throw new AssertionError(e);
         }
