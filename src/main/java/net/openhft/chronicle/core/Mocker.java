@@ -116,8 +116,8 @@ public final class Mocker {
     @NotNull
     public static <T> T ignored(@NotNull Class<T> tClass, Class<?>... additional) {
         final Set<Class<?>> classes = new LinkedHashSet<>();
-        classes.add(tClass);
         addInterface(classes, tClass);
+        classes.add(tClass);
         for (Class<?> aClass : additional)
             addInterface(classes, aClass);
         classes.add(IgnoresEverything.class);
@@ -126,8 +126,8 @@ public final class Mocker {
             final T t = (T) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler() {
                 @Override
                 protected Object doInvoke(Object proxy, Method method, Object[] args) {
-                    if (method.getReturnType().isAssignableFrom(this.getClass()))
-                        return this;
+                    if (method.getReturnType().isAssignableFrom(proxy.getClass()))
+                        return proxy;
                     return ObjectUtils.defaultValue(method.getReturnType());
                 }
             });
