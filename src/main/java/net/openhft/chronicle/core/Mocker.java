@@ -116,6 +116,7 @@ public final class Mocker {
     @NotNull
     public static <T> T ignored(@NotNull Class<T> tClass, Class<?>... additional) {
         final Set<Class<?>> classes = new LinkedHashSet<>();
+        classes.add(tClass);
         addInterface(classes, tClass);
         for (Class<?> aClass : additional)
             addInterface(classes, aClass);
