@@ -19,8 +19,8 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.util.AbstractInvocationHandler;
+import net.openhft.chronicle.core.util.GenericReflection;
 import net.openhft.chronicle.core.util.IgnoresEverything;
-import net.openhft.chronicle.core.util.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
@@ -29,6 +29,7 @@ import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -82,7 +83,7 @@ public final class Mocker {
         addInterface(classes, tClass);
         //noinspection unchecked
         try {
-            return (T) Proxy.newProxyInstance(tClass.getClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler() {
+            return (T) Proxy.newProxyInstance(tClass.getClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler(tClass) {
                 @Override
                 protected Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
                     consumer.accept(method.getName(), args);
@@ -107,9 +108,12 @@ public final class Mocker {
             return;
         classes.add(tClass);
         for (Method method : tClass.getMethods()) {
-            Class<?> returnType = method.getReturnType();
-            if (returnType.isInterface())
-                addInterface(classes, returnType);
+            final Type returnType0 = GenericReflection.getReturnType(method, tClass);
+            if (returnType0 instanceof Class) {
+                Class<?> returnType = (Class<?>) returnType0;
+                if (returnType.isInterface())
+                    addInterface(classes, returnType);
+            }
         }
     }
 
@@ -123,12 +127,10 @@ public final class Mocker {
         classes.add(IgnoresEverything.class);
         try {
             //noinspection unchecked
-            final T t = (T) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler() {
+            final T t = (T) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler(tClass) {
                 @Override
                 protected Object doInvoke(Object proxy, Method method, Object[] args) {
-                    if (method.getReturnType().isAssignableFrom(proxy.getClass()))
-                        return proxy;
-                    return ObjectUtils.defaultValue(method.getReturnType());
+                    return null;
                 }
             });
             return t;

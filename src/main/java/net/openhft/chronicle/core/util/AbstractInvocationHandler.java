@@ -27,26 +27,22 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.*;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
-import java.util.Map;
-import java.util.function.Supplier;
 
 public abstract class AbstractInvocationHandler implements InvocationHandler {
     // Lookup which allows access to default methods in another package.
     private static final ClassLocal<MethodHandles.Lookup> PRIVATE_LOOKUP = ClassLocal.withInitial(AbstractInvocationHandler::acquireLookup);
     private static final Object[] NO_ARGS = {};
+    private final Class definedClass;
     // called when close() is called.
     private Closeable closeable;
 
-    /**
-     * @param mapSupplier ConcurrentHashMap::new for thread safe, HashMap::new for single thread, Collections::emptyMap to turn off.
-     */
-
-    @Deprecated(/* for removal in x.23 */)
-    protected AbstractInvocationHandler(Supplier<Map> mapSupplier) {
-        this();
+    @Deprecated(/* for removal in x.24 */)
+    protected AbstractInvocationHandler() {
+        this(Object.class); // only do this if we have no idea.
     }
 
-    protected AbstractInvocationHandler() {
+    protected AbstractInvocationHandler(Class definedClass) {
+        this.definedClass = definedClass;
     }
 
     private static MethodHandles.Lookup acquireLookup(Class<?> c) {
@@ -87,10 +83,14 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
             args = NO_ARGS;
 
         Object o = doInvoke(proxy, method, args);
-        if (o == null && method.getReturnType().isInstance(proxy))
-            return proxy; // assume it's a chained method.
-
-        return o == null ? ObjectUtils.defaultValue(method.getReturnType()) : o;
+        if (o == null) {
+            final Type returnType0 = GenericReflection.getReturnType(method, definedClass);
+            Class returnType = returnType0 instanceof Class ? (Class) returnType0 : method.getReturnType();
+            if (returnType.isInstance(proxy))
+                return proxy; // assume it's a chained method.
+            return ObjectUtils.defaultValue(method.getReturnType());
+        }
+        return o;
     }
 
     /**
