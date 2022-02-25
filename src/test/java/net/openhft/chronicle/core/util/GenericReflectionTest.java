@@ -2,6 +2,8 @@ package net.openhft.chronicle.core.util;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Type;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class GenericReflectionTest {
@@ -16,10 +18,18 @@ class GenericReflectionTest {
 
         assertEquals(Double.class,
                 GenericReflection.getReturnType(Returns2.class.getMethods()[0], Returns2Double.class));
+
+        Type t = GenericReflection.getReturnType(ReturnsReturnsAString.class.getMethods()[0], ReturnsReturnsAString.class);
+        assertEquals(new TypeOf<Returns<String>>() {
+        }.type(), t);
     }
 
     interface Returns<A> {
         A ret();
+    }
+
+    interface ReturnsReturnsAString {
+        Returns<String> retRS();
     }
 
     interface ReturnsString extends Returns<String> {

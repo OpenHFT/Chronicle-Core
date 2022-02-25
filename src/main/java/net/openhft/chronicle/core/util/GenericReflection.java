@@ -27,7 +27,7 @@ public enum GenericReflection {
                 if (typeParameters[i].equals(genericReturnType))
                     return actualTypeArguments[i];
         }
-        return m.getReturnType();
+        return m.getGenericReturnType();
     }
 
     private static Class<?> erase(Type t) {
