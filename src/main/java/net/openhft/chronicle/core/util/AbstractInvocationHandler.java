@@ -32,7 +32,7 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
     // Lookup which allows access to default methods in another package.
     private static final ClassLocal<MethodHandles.Lookup> PRIVATE_LOOKUP = ClassLocal.withInitial(AbstractInvocationHandler::acquireLookup);
     private static final Object[] NO_ARGS = {};
-    private final Class definedClass;
+    private final Type definedClass;
     // called when close() is called.
     private Closeable closeable;
 
@@ -41,7 +41,7 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
         this(Object.class); // only do this if we have no idea.
     }
 
-    protected AbstractInvocationHandler(Class definedClass) {
+    protected AbstractInvocationHandler(Type definedClass) {
         this.definedClass = definedClass;
     }
 
