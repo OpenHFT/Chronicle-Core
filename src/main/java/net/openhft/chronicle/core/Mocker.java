@@ -82,23 +82,19 @@ public final class Mocker {
         final Set<Class<?>> classes = new LinkedHashSet<>();
         addInterface(classes, tClass);
         //noinspection unchecked
-        try {
-            return (T) Proxy.newProxyInstance(tClass.getClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler(tClass) {
-                @Override
-                protected Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
-                    consumer.accept(method.getName(), args);
-                    try {
-                        if (t != null)
-                            return method.invoke(t, args);
-                        return null;
-                    } catch (IllegalArgumentException e) {
-                        throw new AssertionError(e);
-                    }
+        return (T) newProxyInstance(tClass.getClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler(tClass) {
+            @Override
+            protected Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
+                consumer.accept(method.getName(), args);
+                try {
+                    if (t != null)
+                        return method.invoke(t, args);
+                    return null;
+                } catch (IllegalArgumentException e) {
+                    throw new AssertionError(e);
                 }
-            });
-        } catch (IllegalArgumentException e) {
-            throw new AssertionError(e);
-        }
+            }
+        });
     }
 
     private static <T> void addInterface(Set<Class<?>> classes, Class<T> tClass) {
@@ -125,17 +121,26 @@ public final class Mocker {
         for (Class<?> aClass : additional)
             addInterface(classes, aClass);
         classes.add(IgnoresEverything.class);
+        //noinspection unchecked
+        return (T) newProxyInstance(tClass.getClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler(tClass) {
+            @Override
+            protected Object doInvoke(Object proxy, Method method, Object[] args) {
+                return null;
+            }
+        });
+    }
+
+    private static Object newProxyInstance(ClassLoader classLoader, Class<?>[] classes, AbstractInvocationHandler handler) {
         try {
-            //noinspection unchecked
-            final T t = (T) Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler(tClass) {
-                @Override
-                protected Object doInvoke(Object proxy, Method method, Object[] args) {
-                    return null;
-                }
-            });
-            return t;
+            // for exec-maven
+            return Proxy.newProxyInstance(classLoader, classes, handler);
         } catch (IllegalArgumentException e) {
-            throw new AssertionError(e);
+            try {
+                // For Java 11+
+                return Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), classes, handler);
+            } catch (IllegalArgumentException e2) {
+                throw new AssertionError(e);
+            }
         }
     }
 }
