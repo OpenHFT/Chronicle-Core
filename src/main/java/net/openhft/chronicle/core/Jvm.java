@@ -92,8 +92,6 @@ public final class Jvm {
     private static final boolean IS_AZUL_ZING = Bootstrap.isAzulZing0();
     private static final boolean IS_AZUL_ZULU = Bootstrap.isAzulZulu0();
     @NotNull
-    private static final ThreadLocalisedExceptionHandler FATAL = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.FATAL);
-    @NotNull
     private static final ThreadLocalisedExceptionHandler ERROR = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.ERROR);
     @NotNull
     private static final ThreadLocalisedExceptionHandler WARN = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.WARN);
@@ -758,7 +756,6 @@ public final class Jvm {
     }
 
     public static void resetExceptionHandlers() {
-        FATAL.defaultHandler(Slf4jExceptionHandler.FATAL).resetThreadLocalHandler();
         setErrorExceptionHandler(Slf4jExceptionHandler.ERROR);
         setWarnExceptionHandler(Slf4jExceptionHandler.WARN);
         setDebugExceptionHandler(Slf4jExceptionHandler.DEBUG);
@@ -813,7 +810,6 @@ public final class Jvm {
                                                               final boolean exceptionsOnly,
                                                               final boolean logToSlf4j) {
         final Map<ExceptionKey, Integer> map = Collections.synchronizedMap(new LinkedHashMap<>());
-        FATAL.defaultHandler(recordingExceptionHandler(LogLevel.FATAL, map, exceptionsOnly, logToSlf4j));
         setErrorExceptionHandler(recordingExceptionHandler(LogLevel.ERROR, map, exceptionsOnly, logToSlf4j));
         setWarnExceptionHandler(recordingExceptionHandler(LogLevel.WARN, map, exceptionsOnly, logToSlf4j));
         setPerfExceptionHandler(debug
@@ -847,72 +843,37 @@ public final class Jvm {
         return false;
     }
 
-    // Note: 'fatal' param will be replaced with 'error' in x.23
-    public static void setExceptionHandlers(@Nullable final ExceptionHandler fatal,
+    public static void setExceptionHandlers(@Nullable final ExceptionHandler error,
                                             @Nullable final ExceptionHandler warn,
                                             @Nullable final ExceptionHandler debug) {
 
-        FATAL.defaultHandler(fatal);
+        ERROR.defaultHandler(error);
         WARN.defaultHandler(warn);
         DEBUG.defaultHandler(debug);
     }
 
-    // Note: 'fatal' param will be replaced with 'error' in x.23
-    public static void setExceptionHandlers(@Nullable final ExceptionHandler fatal,
+    public static void setExceptionHandlers(@Nullable final ExceptionHandler error,
                                             @Nullable final ExceptionHandler warn,
                                             @Nullable final ExceptionHandler debug,
                                             @Nullable final ExceptionHandler perf) {
-        setExceptionHandlers(fatal, warn, debug);
+        setExceptionHandlers(error, warn, debug);
         PERF.defaultHandler(perf);
     }
 
-    // Use {@link #setExceptionHandlers(ExceptionHandler, ExceptionHandler, ExceptionHandler, ExceptionHandler)} in x.23
-    public static void setExceptionHandlers(@Nullable final ExceptionHandler fatal,
-                                            @Nullable final ExceptionHandler error,
-                                            @Nullable final ExceptionHandler warn,
-                                            @Nullable final ExceptionHandler debug,
-                                            @Nullable final ExceptionHandler perf) {
-        setExceptionHandlers(fatal, warn, debug);
-        ERROR.defaultHandler(error);
-        PERF.defaultHandler(perf);
-    }
-
-    // Note: 'fatal' param will be replaced with 'error' in x.23
-    public static void setThreadLocalExceptionHandlers(@Nullable final ExceptionHandler fatal,
+    public static void setThreadLocalExceptionHandlers(@Nullable final ExceptionHandler error,
                                                        @Nullable final ExceptionHandler warn,
                                                        @Nullable final ExceptionHandler debug) {
-        FATAL.threadLocalHandler(fatal);
+        ERROR.threadLocalHandler(error);
         WARN.threadLocalHandler(warn);
         DEBUG.threadLocalHandler(debug);
     }
 
-    // Note: 'fatal' param will be replaced with 'error' in x.23
-    public static void setThreadLocalExceptionHandlers(@Nullable final ExceptionHandler fatal,
+    public static void setThreadLocalExceptionHandlers(@Nullable final ExceptionHandler error,
                                                        @Nullable final ExceptionHandler warn,
                                                        @Nullable final ExceptionHandler debug,
                                                        @Nullable final ExceptionHandler perf) {
-        setThreadLocalExceptionHandlers(fatal, warn, debug);
+        setThreadLocalExceptionHandlers(error, warn, debug);
         PERF.threadLocalHandler(perf);
-    }
-
-    // Use {@link #setThreadLocalExceptionHandlers(ExceptionHandler, ExceptionHandler, ExceptionHandler, ExceptionHandler)} in x.23
-    public static void setThreadLocalExceptionHandlers(@Nullable final ExceptionHandler fatal,
-                                                       @Nullable final ExceptionHandler error,
-                                                       @Nullable final ExceptionHandler warn,
-                                                       @Nullable final ExceptionHandler debug,
-                                                       @Nullable final ExceptionHandler perf) {
-        setThreadLocalExceptionHandlers(fatal, warn, debug);
-        ERROR.threadLocalHandler(error);
-        PERF.threadLocalHandler(perf);
-    }
-
-    /**
-     * @deprecated use {@link #error()}
-     */
-    @Deprecated(/* remove in x.23*/)
-    @NotNull
-    public static ExceptionHandler fatal() {
-        return FATAL;
     }
 
     /**
@@ -1007,24 +968,6 @@ public final class Jvm {
         }
         System.err.println(Jvm.class.getName() + ": Unable to determine max direct memory");
         return 0L;
-    }
-
-    /**
-     * Adds the provided {@code signalHandler} to an internal chain of handlers that will be invoked
-     * upon detecting system signals (e.g. HUP, INT, TERM).
-     * <p>
-     * Not all signals are available on all operating systems.
-     *
-     * @param signalHandler to call on a signal
-     */
-    @Deprecated(/* to be removed in x.23*/)
-    public static void signalHandler(final sun.misc.SignalHandler signalHandler) {
-        final sun.misc.SignalHandler signalHandler2 = signal -> {
-            Jvm.warn().on(signalHandler.getClass(), "Signal " + signal.getName() + " triggered");
-            signalHandler.handle(signal);
-        };
-        signalHandlerGlobal.handlers.add(signalHandler2);
-        InitSignalHandlers.init();
     }
 
     /**

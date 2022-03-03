@@ -613,7 +613,11 @@ public class UnsafeMemory implements Memory {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), destOffset);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), length);
         if (src instanceof byte[]) {
-            copyMemory((byte[]) src, Math.toIntExact(srcOffset - Unsafe.ARRAY_BYTE_BASE_OFFSET), dest, destOffset, length);
+            if (dest instanceof byte[]) {
+                copyMemory((byte[]) src, Math.toIntExact(srcOffset - Unsafe.ARRAY_BYTE_BASE_OFFSET), (byte[]) dest, Math.toIntExact(destOffset - ARRAY_BYTE_BASE_OFFSET), length);
+            } else {
+                copyMemoryLoop(src, ARRAY_BYTE_BASE_OFFSET + Math.toIntExact(srcOffset - Unsafe.ARRAY_BYTE_BASE_OFFSET), dest, destOffset, length);
+            }
         } else {
             if (src == null) {
                 if (dest == null) {

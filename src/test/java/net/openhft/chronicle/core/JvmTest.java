@@ -138,7 +138,6 @@ public class JvmTest {
         Jvm.setWarnExceptionHandler(handler);
         Jvm.setErrorExceptionHandler(handler);
 
-        Jvm.signalHandler((Signal signal) -> System.out.println(signal + " occurred"));
         Jvm.addSignalHandler((String signal) -> System.out.println(signal + " occurred"));
 
         assertFalse(failed.get());
