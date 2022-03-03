@@ -26,19 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public enum Slf4jExceptionHandler implements ExceptionHandler {
-    /**
-     * @deprecated use ERROR
-     */
-    @Deprecated(/* remove in x.23*/)
-    FATAL {
-        @Override
-        public void on(@NotNull Class<?> clazz, @Nullable String message, Throwable thrown) {
-            getLogger(clazz).error("FATAL error " + message, thrown);
-            if (!Slf4jExceptionHandler.isJUnitTest()) {
-                System.exit(-1);
-            }
-        }
-    },
     ERROR {
         @Override
         public void on(@NotNull Class<?> clazz, @Nullable String message, Throwable thrown) {
@@ -76,8 +63,6 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
     static final ClassLocal<Logger> CLASS_LOGGER = ClassLocal.withInitial(LoggerFactory::getLogger);
 
     public static Slf4jExceptionHandler valueOf(LogLevel logLevel) {
-        if (logLevel == LogLevel.FATAL)
-            return FATAL;
         if (logLevel == LogLevel.ERROR)
             return ERROR;
         if (logLevel == LogLevel.WARN)

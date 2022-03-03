@@ -44,8 +44,6 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     protected static final boolean DISABLE_DISCARD_WARNING = Jvm.getBoolean("disable.discard.warning", false);
     protected static final boolean STRICT_DISCARD_WARNING = Jvm.getBoolean("strict.discard.warning", false);
 
-    @Deprecated(/* remove in x.23 */)
-    protected static final boolean CHECK_THREAD_SAFETY = !DISABLE_THREAD_SAFETY;
     protected static final long WARN_NS = (long) (Jvm.getDouble("closeable.warn.secs", 0.02) * 1e9);
 
     private static final long CLOSED_OFFSET;

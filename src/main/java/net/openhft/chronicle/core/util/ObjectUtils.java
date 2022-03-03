@@ -457,29 +457,6 @@ public final class ObjectUtils {
         });
     }
 
-    @Deprecated(/* to be removed in x.23 */)
-    @NotNull
-    public static Class getTypeFor(@NotNull Class<?> clazz, @NotNull Class<?> interfaceClass) throws IllegalArgumentException {
-        return getTypeFor(clazz, interfaceClass, 0);
-    }
-
-    @Deprecated(/* to be removed in x.23 */)
-    @NotNull
-    public static Class getTypeFor(@NotNull Class<?> clazz, @NotNull Class<?> interfaceClass, int index) throws IllegalArgumentException {
-        for (Type type : clazz.getGenericInterfaces()) {
-            if (type instanceof ParameterizedType) {
-                @NotNull ParameterizedType ptype = (ParameterizedType) type;
-                if (interfaceClass.isAssignableFrom((Class<?>) ptype.getRawType())) {
-                    Type type0 = ptype.getActualTypeArguments()[index];
-                    if (type0 instanceof Class)
-                        return (Class<?>) type0;
-                    throw new IllegalArgumentException("The match super interface for " + clazz + " was not a concrete class, was " + ptype);
-                }
-            }
-        }
-        throw new IllegalArgumentException("No matching super interface for " + clazz + " which was a " + interfaceClass);
-    }
-
     public static boolean isConcreteClass(@NotNull Class<?> tClass) {
         return (tClass.getModifiers() & (Modifier.ABSTRACT | Modifier.INTERFACE)) == 0;
     }
