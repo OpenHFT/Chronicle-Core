@@ -14,13 +14,13 @@ public class MockerTest {
         final ChainedChainingTerminal logging = Mocker.logging(ChainedChainingTerminal.class, "", out);
         logging.chains("one").alsoChains("two").end("three");
         logging.chains("111").alsoChains("222").end("333");
-        assertEquals("" +
-                        "chains[one]\n" +
-                        "alsoChains[two]\n" +
-                        "end[three]\n" +
-                        "chains[111]\n" +
-                        "alsoChains[222]\n" +
-                        "end[333]\n",
+        assertEquals(String.format("" +
+                        "chains[one]%n" +
+                        "alsoChains[two]%n" +
+                        "end[three]%n" +
+                        "chains[111]%n" +
+                        "alsoChains[222]%n" +
+                        "end[333]%n"),
                 out.toString());
     }
 
