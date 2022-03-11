@@ -14,7 +14,7 @@ import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEAS
 
 public abstract class AbstractReferenceCounted implements ReferenceCountedTracer, ReferenceOwner {
     protected static final long WARN_NS = (long) (Jvm.getDouble("reference.warn.secs", 0.003) * 1e9);
-    protected static final int WARN_COUNT = Integer.getInteger("reference.warn.count", Integer.MAX_VALUE);
+    protected static final int WARN_COUNT = Jvm.getInteger("reference.warn.count", Integer.MAX_VALUE);
     static volatile Set<AbstractReferenceCounted> referenceCountedSet;
     private transient volatile Thread usedByThread;
     protected final transient MonitorReferenceCounted referenceCounted;

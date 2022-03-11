@@ -198,7 +198,7 @@ public final class Jvm {
     }
 
     private static void findAndLoadSystemProperties() {
-        String systemProperties = System.getProperty(SYSTEM_PROPERTIES);
+        String systemProperties = Jvm.getProperty(SYSTEM_PROPERTIES);
         boolean wasSet = true;
         if (systemProperties == null) {
             if (new File(SYSTEM_PROPERTIES).exists())
@@ -230,6 +230,7 @@ public final class Jvm {
 
     public static void init() {
         // force static initialisation
+        ChronicleInit.init();
     }
 
     private static void loadSystemProperties(final String name, final boolean wasSet) {
@@ -334,11 +335,11 @@ public final class Jvm {
 
     private static boolean is64bit0() {
         String systemProp;
-        systemProp = System.getProperty("com.ibm.vm.bitmode");
+        systemProp = Jvm.getProperty("com.ibm.vm.bitmode");
         if (systemProp != null) {
             return "64".equals(systemProp);
         }
-        systemProp = System.getProperty("sun.arch.data.model");
+        systemProp = Jvm.getProperty("sun.arch.data.model");
         if (systemProp != null) {
             return "64".equals(systemProp);
         }
@@ -1119,11 +1120,57 @@ public final class Jvm {
     }
 
     /**
+     * Guarantees that Jvm class is initialized before property is read.
+     *
+     * @see System#getProperty(String)
+     */
+    public static String getProperty(final String systemPropertyKey) {
+        init();
+
+        return System.getProperty(systemPropertyKey);
+    }
+
+    /**
+     * Guarantees that Jvm class is initialized before property is read.
+     *
+     * @see System#getProperty(String, String)
+     */
+    public static String getProperty(final String systemPropertyKey, final String defaultValue) {
+        init();
+
+        return System.getProperty(systemPropertyKey, defaultValue);
+    }
+
+    /**
+     * Guarantees that Jvm class is initialized before property is read.
+     *
+     * @see Long#getLong(String, Long)
+     */
+    public static Long getLong(final String systemPropertyKey, final Long defVal) {
+        init();
+
+        return Long.getLong(systemPropertyKey, defVal);
+    }
+
+    /**
+     * Guarantees that Jvm class is initialized before property is read.
+     *
+     * @see Integer#getInteger(String, Integer)
+     */
+    public static Integer getInteger(final String systemPropertyKey, final Integer defVal) {
+        init();
+
+        return Integer.getInteger(systemPropertyKey, defVal);
+    }
+
+    /**
      * Returns if a System Property with the provided {@code systemPropertyKey}
      * either exists, is set to "yes" or is set to "true".
      * <p>
      * This provides a more permissive boolean System systemPropertyKey flag where
      * {@code -Dflag} {@code -Dflag=true} {@code -Dflag=yes} are all accepted.
+     *
+     * Guarantees that Jvm class is initialized before property is read.
      *
      * @param systemPropertyKey name to lookup
      * @return if a System Property with the provided {@code systemPropertyKey}
@@ -1141,6 +1188,8 @@ public final class Jvm {
      * This provides a more permissive boolean System systemPropertyKey flag where
      * {@code -Dflag} {@code -Dflag=true} {@code -Dflag=yes} are all accepted.
      *
+     * Guarantees that Jvm class is initialized before property is read.
+     *
      * @param systemPropertyKey name to lookup
      * @param defaultValue      value to be used if unknown
      * @return if a System Property with the provided {@code systemPropertyKey}
@@ -1148,7 +1197,7 @@ public final class Jvm {
      * returns the provided {@code defaultValue}.
      */
     public static boolean getBoolean(final String systemPropertyKey, final boolean defaultValue) {
-        final String value = System.getProperty(systemPropertyKey);
+        final String value = Jvm.getProperty(systemPropertyKey);
         if (value == null)
             return defaultValue;
         if (value.isEmpty())
@@ -1230,7 +1279,7 @@ public final class Jvm {
      * @return the size in bytes as a long
      */
     public static long getSize(final String property, final long defaultValue) {
-        final String value = System.getProperty(property);
+        final String value = Jvm.getProperty(property);
         if (value == null || value.length() <= 0)
             return defaultValue;
         try {
@@ -1328,7 +1377,7 @@ public final class Jvm {
         ClassLoader cl = clazz.getClassLoader();
         if (!(cl instanceof URLClassLoader))
             return;
-        String property = System.getProperty(JAVA_CLASS_PATH);
+        String property = Jvm.getProperty(JAVA_CLASS_PATH);
         Set<String> jcp = new LinkedHashSet<>();
         Collections.addAll(jcp, property.split(File.pathSeparator));
         jcp.addAll(jcp.stream()
@@ -1357,6 +1406,8 @@ public final class Jvm {
      * parsed as a {@code double} or, if no such parsable System Property exists,
      * returns the provided {@code defaultValue}.
      *
+     * Guarantees that Jvm class is initialized before property is read.
+     *
      * @param systemPropertyKey to lookup in the System Properties
      * @param defaultValue      to be used if no parsable key association exists
      * @return the System Property associated with the provided {@code systemPropertyKey}
@@ -1364,7 +1415,7 @@ public final class Jvm {
      * returns the provided {@code defaultValue}
      */
     public static double getDouble(final String systemPropertyKey, final double defaultValue) {
-        final String value = System.getProperty(systemPropertyKey);
+        final String value = Jvm.getProperty(systemPropertyKey);
         if (value != null)
             try {
                 return Double.parseDouble(value);
@@ -1579,7 +1630,7 @@ public final class Jvm {
         }
 
         static {
-            String model = System.getProperty("os.arch", "unknown");
+            String model = Jvm.getProperty("os.arch", "unknown");
             try {
                 final Path path = Paths.get("/proc/cpuinfo");
                 if (Files.isReadable(path)) {

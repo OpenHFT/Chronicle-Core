@@ -16,7 +16,7 @@ public final class InternalAnnouncer {
     private InternalAnnouncer() {
     }
 
-    private static final boolean DISABLE_ANNOUNCEMENT = Optional.ofNullable(System.getProperty("chronicle.announcer.disable")).filter("true"::equals).isPresent();
+    private static final boolean DISABLE_ANNOUNCEMENT = Jvm.getBoolean("chronicle.announcer.disable");
     private static final Consumer<String> LINE_PRINTER = DISABLE_ANNOUNCEMENT ? s -> {
     } : m -> Jvm.startup().on(InternalAnnouncer.class, m);
     private static final AtomicBoolean JVM_ANNOUNCED = new AtomicBoolean();
@@ -41,8 +41,8 @@ public final class InternalAnnouncer {
 
     private static void announceJvm() {
         LINE_PRINTER.accept(String.format("Running under %s %s with %d processors reported.",
-                System.getProperty("java.runtime.name"),
-                System.getProperty("java.runtime.version"),
+                Jvm.getProperty("java.runtime.name"),
+                Jvm.getProperty("java.runtime.version"),
                 Runtime.getRuntime().availableProcessors()));
         LINE_PRINTER.accept("Leave your e-mail to get information about the latest releases and patches at https://chronicle.software/release-notes/");
     }

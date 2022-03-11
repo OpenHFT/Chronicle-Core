@@ -45,8 +45,8 @@ import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 public final class OS {
 
     public static final String TMP = findTmp();
-    public static final String USER_DIR = System.getProperty("user.dir");
-    public static final String USER_HOME = System.getProperty("user.home");
+    public static final String USER_DIR = Jvm.getProperty("user.dir");
+    public static final String USER_HOME = Jvm.getProperty("user.home");
     public static final Exception TIME_LIMIT = new TimeLimitExceededException();
     public static final int SAFE_PAGE_SIZE = 64 << 10;
     static final ClassLocal<MethodHandle> MAP0_MH = ClassLocal.withInitial(c -> {
@@ -61,13 +61,13 @@ public final class OS {
     });
     private static final String TARGET = findTarget();
     private static final String HOST_NAME = getHostName0();
-    private static final String USER_NAME = System.getProperty("user.name");
+    private static final String USER_NAME = Jvm.getProperty("user.name");
     private static final int MAP_RO = 0;
     private static final int MAP_RW = 1;
     private static final int MAP_PV = 2;
     private static final boolean IS64BIT = is64Bit0();
     private static final AtomicInteger PROCESS_ID = new AtomicInteger();
-    private static final String OS_NAME = System.getProperty("os.name").toLowerCase();
+    private static final String OS_NAME = Jvm.getProperty("os.name").toLowerCase();
     private static final boolean IS_LINUX = OS_NAME.startsWith("linux");
     private static final boolean IS_MAC = OS_NAME.contains("mac");
     private static final boolean IS_WIN = OS_NAME.startsWith("win");
@@ -124,13 +124,13 @@ public final class OS {
     }
 
     private static String findTmp() {
-        String target = System.getProperty("project.build.directory");
+        String target = Jvm.getProperty("project.build.directory");
         if (target != null) {
             final File tmp = new File(target, "tmp");
             tmp.mkdir();
             return tmp.getPath();
         }
-        final String tmp = System.getProperty("java.io.tmpdir");
+        final String tmp = Jvm.getProperty("java.io.tmpdir");
         if (tmp != null
                 && new File(tmp).isDirectory()
                 && new File(tmp).canWrite())
@@ -141,10 +141,10 @@ public final class OS {
 
     @NotNull
     private static String findTarget() {
-        String target = System.getProperty("project.build.directory");
+        String target = Jvm.getProperty("project.build.directory");
         if (target != null)
             return target;
-        for (File dir = new File(System.getProperty("user.dir")); dir != null; dir = dir.getParentFile()) {
+        for (File dir = new File(Jvm.getProperty("user.dir")); dir != null; dir = dir.getParentFile()) {
             @NotNull File mavenTarget = new File(dir, "target");
             if (mavenTarget.exists())
                 return mavenTarget.getAbsolutePath();
@@ -152,14 +152,14 @@ public final class OS {
             if (gradleTarget.exists())
                 return gradleTarget.getAbsolutePath();
         }
-        final File dir = new File(System.getProperty("java.io.tmpdir"), "target");
+        final File dir = new File(Jvm.getProperty("java.io.tmpdir"), "target");
         dir.mkdirs();
         return dir.getPath();
     }
 
     @NotNull
     public static String findDir(@NotNull String suffix) throws FileNotFoundException {
-        for (@NotNull String s : System.getProperty("java.class.path").split(":")) {
+        for (@NotNull String s : Jvm.getProperty("java.class.path").split(":")) {
             if (s.endsWith(suffix) && new File(s).isDirectory())
                 return s;
         }
@@ -270,15 +270,15 @@ public final class OS {
 
     private static boolean is64Bit0() {
         String systemProp;
-        systemProp = System.getProperty("com.ibm.vm.bitmode");
+        systemProp = Jvm.getProperty("com.ibm.vm.bitmode");
         if (systemProp != null) {
             return "64".equals(systemProp);
         }
-        systemProp = System.getProperty("sun.arch.data.model");
+        systemProp = Jvm.getProperty("sun.arch.data.model");
         if (systemProp != null) {
             return "64".equals(systemProp);
         }
-        systemProp = System.getProperty("java.vm.version");
+        systemProp = Jvm.getProperty("java.vm.version");
         return systemProp != null && systemProp.contains("_64");
     }
 
