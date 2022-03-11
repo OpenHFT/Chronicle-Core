@@ -29,7 +29,7 @@ public final class JitterSampler {
 
     static final long JITTER_THRESHOLD =
             TimeUnit.MILLISECONDS.toNanos(
-                    Long.getLong("chronicle.jitter.threshold", 10));
+                    Jvm.getLong("chronicle.jitter.threshold", 10L));
     static volatile String desc;
     static volatile Thread thread;
     static volatile long time = Long.MAX_VALUE;

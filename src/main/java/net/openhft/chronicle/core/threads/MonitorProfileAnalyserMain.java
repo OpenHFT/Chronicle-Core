@@ -17,6 +17,8 @@
  */
 package net.openhft.chronicle.core.threads;
 
+import net.openhft.chronicle.core.Jvm;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,7 +29,7 @@ import java.util.stream.Collectors;
 // TODO Needs a test
 public class MonitorProfileAnalyserMain {
 
-    private static final int MAX_LINES = Integer.getInteger("st.maxlines", 8);
+    private static final int MAX_LINES = Jvm.getInteger("st.maxlines", 8);
     private static final String PROFILE_OF_THE_THREAD = "profile of the thread";
     private static final String THREAD_HAS_BLOCKED_FOR = "thread has blocked for";
 
@@ -38,7 +40,7 @@ public class MonitorProfileAnalyserMain {
         if (args.length == 0)
             System.err.println("No input file(s) provided");
 
-        final String stIgnore = System.getProperty("st.ignore");
+        final String stIgnore = Jvm.getProperty("st.ignore");
         List<String> ignoreSubStrings = stIgnore != null ? Arrays.asList(stIgnore.split(",")) : Collections.emptyList();
         int interval = Integer.getInteger("interval", 0);
         if (interval <= 0) {

@@ -144,7 +144,7 @@ public final class StandardMaps {
     }
 
     private static Map.Entry<String, String> entryFor(@NotNull final String systemProperty) {
-        return new AbstractMap.SimpleImmutableEntry<>(replaceDotsWithUnderscore(systemProperty), System.getProperty(systemProperty));
+        return new AbstractMap.SimpleImmutableEntry<>(replaceDotsWithUnderscore(systemProperty), Jvm.getProperty(systemProperty));
     }
 
     private static Map.Entry<String, String> entry(@NotNull final String key, @Nullable final String value) {

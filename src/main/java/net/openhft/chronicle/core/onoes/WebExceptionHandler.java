@@ -63,7 +63,7 @@ public class WebExceptionHandler implements ExceptionHandler {
         }
         if (uri == null) {
             uri = baseURI;
-            String version = System.getProperty("java.version");
+            String version = Jvm.getProperty("java.version");
             if (version.compareTo("1.5") >= 0) {
                 @NotNull String[] parts = version.split("\\.");
                 version = parts[1];
