@@ -8,7 +8,6 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.io.IOTools;
 import net.openhft.chronicle.core.util.Time;
-import net.openhft.chronicle.testframework.FlakyTestRunner;
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
@@ -26,6 +25,7 @@ import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
 
 public class FileSystemWatcherTest {
     static String base = OS.getTarget() + "/FileSystemWatcherTest-" + Time.uniqueId();
@@ -43,10 +43,8 @@ public class FileSystemWatcherTest {
 
     @Test
     public void bootstrapAndUpdate() throws IOException {
-        FlakyTestRunner.run(Jvm.isArm(), this::bootstrapAndUpdate0);
-    }
+        assumeFalse(Jvm.isArm());
 
-    public void bootstrapAndUpdate0() throws IOException {
         /*
         This test fails on Windows and may also fail on MmcOS.
 
