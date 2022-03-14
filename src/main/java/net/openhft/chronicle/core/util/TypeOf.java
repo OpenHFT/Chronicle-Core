@@ -6,7 +6,7 @@ import java.lang.reflect.Type;
 public class TypeOf<T> {
     private final Type type = extractType();
 
-    Type type() {
+    public Type type() {
         return type;
     }
 
