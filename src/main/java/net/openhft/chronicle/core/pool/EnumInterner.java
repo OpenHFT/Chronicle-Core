@@ -64,6 +64,6 @@ public class EnumInterner<E extends Enum<E>> {
         @NotNull String s2 = cs.toString();
         E value = enumCache.valueOf(s2);
         interner[h] = value;
-        return interner[h];
+        return value;
     }
 }
