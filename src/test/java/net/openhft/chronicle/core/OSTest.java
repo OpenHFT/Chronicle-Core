@@ -192,6 +192,6 @@ public class OSTest {
         assertNotEquals("", ipAddress);
 
         assumeTrue(OS.isWindows() || OS.isLinux() || OS.isMacOSX());
-        assertNotEquals("localhost", ipAddress);
+        assertNotEquals("0.0.0.0", ipAddress);
     }
 }
