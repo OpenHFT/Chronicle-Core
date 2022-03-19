@@ -39,7 +39,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OSTest {
@@ -165,5 +166,32 @@ public class OSTest {
 
             OS.unmap(address, length);
         }
+    }
+
+    @Test
+    public void getHostname() throws IOException {
+        System.out.println("exec hostname: " + OS.HostnameHolder.execHostname());
+        final String hostName = OS.getHostName();
+        System.out.println("hostname: " + hostName);
+        assertNotNull(hostName);
+        assertNotEquals("", hostName);
+
+        assumeTrue(OS.isWindows() || OS.isLinux() || OS.isMacOSX());
+        assertNotEquals("localhost", hostName);
+    }
+
+    @Test
+    public void getIPAddress() {
+        System.out.println("getIpAddressByLocalHost: " + OS.IPAddressHolder.getIpAddressByLocalHost());
+        System.out.println("getIpAddressByDatagram " + OS.IPAddressHolder.getIpAddressByDatagram());
+        System.out.println("getIpAddressBySocket: " + OS.IPAddressHolder.getIpAddressBySocket());
+
+        final String ipAddress = OS.getIPAddress();
+        System.out.println("ipAddress: " + ipAddress);
+        assertNotNull(ipAddress);
+        assertNotEquals("", ipAddress);
+
+        assumeTrue(OS.isWindows() || OS.isLinux() || OS.isMacOSX());
+        assertNotEquals("localhost", ipAddress);
     }
 }

@@ -29,8 +29,10 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.nio.channels.FileChannel;
 import java.security.SecureRandom;
 import java.util.Scanner;
@@ -60,7 +62,6 @@ public final class OS {
         }
     });
     private static final String TARGET = findTarget();
-    private static final String HOST_NAME = getHostName0();
     private static final String USER_NAME = Jvm.getProperty("user.name");
     private static final int MAP_RO = 0;
     private static final int MAP_RW = 1;
@@ -101,21 +102,6 @@ public final class OS {
 
         } catch (IllegalAccessException | ClassNotFoundException e) {
             throw new AssertionError(e);
-        }
-    }
-
-    private static final class WriteZero {
-        private MethodHandle write0Mh = null;
-        private MethodHandle write0Mh2 = null;
-
-        public WriteZero(final Class<?> fdi) throws IllegalAccessException {
-            try {
-                Method write0 = Jvm.getMethod(fdi, "write0", FileDescriptor.class, long.class, int.class);
-                write0Mh = MethodHandles.lookup().unreflect(write0);
-            } catch (AssertionError ae) {
-                Method write0 = Jvm.getMethod(fdi, "write0", FileDescriptor.class, long.class, int.class, boolean.class);
-                write0Mh2 = MethodHandles.lookup().unreflect(write0);
-            }
         }
     }
 
@@ -184,7 +170,11 @@ public final class OS {
     }
 
     public static String getHostName() {
-        return HOST_NAME;
+        return HostnameHolder.HOST_NAME;
+    }
+
+    public static String getIPAddress() {
+        return IPAddressHolder.IP_ADDRESS;
     }
 
     public static String getUserName() {
@@ -193,14 +183,6 @@ public final class OS {
 
     public static String getTarget() {
         return TARGET;
-    }
-
-    private static String getHostName0() {
-        try {
-            return InetAddress.getLocalHost().getHostName();
-        } catch (UnknownHostException e) {
-            return "localhost";
-        }
     }
 
     /**
@@ -346,7 +328,6 @@ public final class OS {
 
     /**
      * @return the maximum PID.
-     *
      * @throws NumberFormatException if ?
      * @throws AssertionError        if ?
      */
@@ -541,6 +522,25 @@ public final class OS {
         }
     }
 
+    private static boolean isSet(String s) {
+        return !(s == null || s.isEmpty());
+    }
+
+    private static final class WriteZero {
+        private MethodHandle write0Mh = null;
+        private MethodHandle write0Mh2 = null;
+
+        public WriteZero(final Class<?> fdi) throws IllegalAccessException {
+            try {
+                Method write0 = Jvm.getMethod(fdi, "write0", FileDescriptor.class, long.class, int.class);
+                write0Mh = MethodHandles.lookup().unreflect(write0);
+            } catch (AssertionError ae) {
+                Method write0 = Jvm.getMethod(fdi, "write0", FileDescriptor.class, long.class, int.class, boolean.class);
+                write0Mh2 = MethodHandles.lookup().unreflect(write0);
+            }
+        }
+    }
+
     public static final class Unmapper implements Runnable {
         private final long size;
 
@@ -564,6 +564,88 @@ public final class OS {
 
             } catch (@NotNull IOException e) {
                 Jvm.warn().on(OS.class, "Error on unmap and release", e);
+            }
+        }
+    }
+
+    static class IPAddressHolder {
+        public static final String NO_ADDRESS = "0.0.0.0";
+        static final String IP_ADDRESS = getIPAddress0();
+
+        static String getIPAddress0() {
+            String addr = getIpAddressByLocalHost();
+            if (isSet(addr))
+                return addr;
+            addr = getIpAddressByDatagram();
+            if (isSet(addr))
+                return addr;
+            addr = getIpAddressBySocket();
+            if (isSet(addr))
+                return addr;
+            return NO_ADDRESS;
+        }
+
+        static boolean isSet(String s) {
+            return !(s == null || s.isEmpty() || s.equals(NO_ADDRESS));
+        }
+
+        static String getIpAddressByLocalHost() {
+            try {
+                return InetAddress.getLocalHost().getHostAddress();
+            } catch (Throwable e) {
+                return "";
+            }
+        }
+
+        static String getIpAddressBySocket() {
+            try {
+                try (Socket socket = new Socket()) {
+                    socket.connect(new InetSocketAddress("google.com", 80));
+                    return socket.getLocalAddress().getHostAddress();
+                }
+            } catch (Throwable e) {
+                return "";
+            }
+        }
+
+        static String getIpAddressByDatagram() {
+            try {
+                try (final DatagramSocket socket = new DatagramSocket()) {
+                    socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+                    return socket.getLocalAddress().getHostAddress();
+                }
+            } catch (Throwable e) {
+                return null;
+            }
+        }
+    }
+
+    static class HostnameHolder {
+        static final String HOST_NAME = getHostName0();
+
+        private static String getHostName0() {
+            if (isWindows()) {
+                String computerName = System.getenv().get("COMPUTERNAME");
+                if (isSet(computerName))
+                    return computerName.toLowerCase();
+            }
+            try {
+                return InetAddress.getLocalHost().getHostName();
+            } catch (Throwable e) {
+                try {
+                    return execHostname();
+                } catch (IOException ioe) {
+                    return "localhost";
+                }
+            }
+        }
+
+        static String execHostname() throws IOException {
+            try (BufferedReader br = new BufferedReader(
+                    new InputStreamReader(
+                            Runtime.getRuntime().exec("hostname")
+                                    .getInputStream()))) {
+                return br.readLine();
             }
         }
     }
