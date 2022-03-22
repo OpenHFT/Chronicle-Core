@@ -41,8 +41,8 @@ public final class InternalAnnouncer {
 
     private static void announceJvm() {
         LINE_PRINTER.accept(String.format("Running under %s %s with %d processors reported.",
-                systemPropertyOfEither("java.runtime.name", "java.vm.name"),
-                systemPropertyOfEither("java.runtime.version", "java.vm.version"),
+                Jvm.getProperty("java.runtime.name", Jvm.getProperty("java.vm.name")),
+                Jvm.getProperty("java.runtime.version", Jvm.getProperty("java.vm.version")),
                 Runtime.getRuntime().availableProcessors()));
         LINE_PRINTER.accept("Leave your e-mail to get information about the latest releases and patches at https://chronicle.software/release-notes/");
     }
@@ -101,9 +101,4 @@ public final class InternalAnnouncer {
         return true;
     }
 
-    private static String systemPropertyOfEither(@NotNull final String first,
-                                                 @NotNull final String second) {
-        return Optional.ofNullable(Jvm.getProperty(first))
-                .orElse(Jvm.getProperty(second));
-    }
 }
