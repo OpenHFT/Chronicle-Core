@@ -41,8 +41,8 @@ public final class InternalAnnouncer {
 
     private static void announceJvm() {
         LINE_PRINTER.accept(String.format("Running under %s %s with %d processors reported.",
-                Jvm.getProperty("java.runtime.name"),
-                Jvm.getProperty("java.runtime.version"),
+                systemPropertyOfEither("java.runtime.name", "java.vm.name"),
+                systemPropertyOfEither("java.runtime.version", "java.vm.version"),
                 Runtime.getRuntime().availableProcessors()));
         LINE_PRINTER.accept("Leave your e-mail to get information about the latest releases and patches at https://chronicle.software/release-notes/");
     }
@@ -64,7 +64,7 @@ public final class InternalAnnouncer {
                 .max()
                 .orElse(0);
 
-        final String formatString = "%-"+indent+"s: %s";
+        final String formatString = "%-" + indent + "s: %s";
 
         propertiesCopy.entrySet().stream()
                 .map(e -> String.format(formatString, e.getKey(), e.getValue()))
@@ -76,7 +76,7 @@ public final class InternalAnnouncer {
     private static String pretty(@NotNull final String artifactId) {
         final StringBuilder sb = new StringBuilder();
         boolean makeUpperCase = true;
-        for (char c:artifactId.toCharArray()) {
+        for (char c : artifactId.toCharArray()) {
             if (makeUpperCase) {
                 sb.append(Character.toUpperCase(c));
                 makeUpperCase = false;
@@ -99,5 +99,11 @@ public final class InternalAnnouncer {
             // If there is only a "logo" key, then only announce once
             return properties.containsKey("logo");
         return true;
+    }
+
+    private static String systemPropertyOfEither(@NotNull final String first,
+                                                 @NotNull final String second) {
+        return Optional.ofNullable(Jvm.getProperty(first))
+                .orElse(Jvm.getProperty(second));
     }
 }
