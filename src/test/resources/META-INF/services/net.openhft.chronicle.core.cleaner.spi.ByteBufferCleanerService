@@ -1,3 +1,2 @@
-net.openhft.chronicle.core.internal.cleaner.Jdk8ByteBufferCleanerService
 net.openhft.chronicle.core.internal.cleaner.Jdk9ByteBufferCleanerService
 net.openhft.chronicle.core.internal.cleaner.ReflectionBasedByteBufferCleanerService
