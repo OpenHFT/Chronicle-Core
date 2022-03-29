@@ -22,6 +22,7 @@ import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.Reference;
+import java.net.HttpURLConnection;
 import java.util.Collection;
 
 public interface Closeable extends java.io.Closeable, QueryCloseable {
@@ -36,6 +37,7 @@ public interface Closeable extends java.io.Closeable, QueryCloseable {
     static void closeQuietly(@Nullable Object o) {
         if (o instanceof Collection) {
             ((Collection) o).forEach(Closeable::closeQuietly);
+
         } else if (o instanceof Object[]) {
             for (Object o2 : (Object[]) o)
                 closeQuietly(o2);
@@ -48,8 +50,13 @@ public interface Closeable extends java.io.Closeable, QueryCloseable {
             } catch (Throwable e) {
                 Jvm.warn().on(Closeable.class, e);
             }
+
         } else if (o instanceof Reference) {
             closeQuietly(((Reference) o).get());
+
+        } else if (o instanceof HttpURLConnection) {
+            HttpURLConnection connection = (HttpURLConnection) o;
+            connection.disconnect();
         }
     }
 
