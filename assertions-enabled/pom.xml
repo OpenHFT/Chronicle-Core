@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <version>2.23ea1-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
     <groupId>net.openhft</groupId>
     <artifactId>assertions-enabled</artifactId>
     <packaging>jar</packaging>
