@@ -25,7 +25,7 @@
         <relativePath />
     </parent>
     <properties>
-      <zero.cost.assertions>assertions-disabled</zero.cost.assertions>
+      <zero.cost.assertions>disabled</zero.cost.assertions>
       <sonar.organization>openhft</sonar.organization>
       <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
@@ -60,7 +60,7 @@
         <!--TODO: Use profile to select type-->
         <dependency>
             <groupId>net.openhft</groupId>
-            <artifactId>${zero.cost.assertions}</artifactId>
+            <artifactId>assertions-${zero.cost.assertions}</artifactId>
             <scope>provided</scope>
         </dependency>
 
