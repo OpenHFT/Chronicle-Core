@@ -1,4 +1,4 @@
-package net.openhft.chronicle.core.util;
+package net.openhft.chronicle.assertions;
 
 public final class AssertUtil {
 
@@ -126,7 +126,7 @@ public final class AssertUtil {
      * Performance critical code should use one of the first two schemes devised above to assert invariants.
      * The third, more convenient form, can be used for non-performance critical code.
      */
-    public static final boolean SKIP_ASSERTIONS = true;
+    public static final boolean SKIP_ASSERTIONS = false;
 
     // Suppresses default constructor, ensuring non-instantiability.
     private AssertUtil() {

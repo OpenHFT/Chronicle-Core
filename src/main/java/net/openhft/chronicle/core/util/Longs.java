@@ -1,5 +1,6 @@
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.assertions.AssertUtil;
 import net.openhft.chronicle.core.internal.invariant.longs.LongBiCondition;
 import net.openhft.chronicle.core.internal.invariant.longs.LongCondition;
 import net.openhft.chronicle.core.internal.invariant.longs.LongTriCondition;
