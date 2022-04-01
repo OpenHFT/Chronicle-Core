@@ -1,10 +1,5 @@
-package net.openhft.chronicle.core.util;
+package net.openhft.chronicle.assertions;
 
-/**
- * @deprecated Use net.openhft.chronicle.assertions.AssertUtil from dependency
- * net.openhft::(assertions-enabled | assertions-disables) instead.
- */
-@Deprecated /* For removal in x.24 (likely only used internally) */
 public final class AssertUtil {
 
     /**

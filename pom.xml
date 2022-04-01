@@ -25,6 +25,7 @@
         <relativePath />
     </parent>
     <properties>
+      <zero.cost.assertions>disabled</zero.cost.assertions>
       <sonar.organization>openhft</sonar.organization>
       <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
@@ -55,6 +56,13 @@
     </dependencyManagement>
 
     <dependencies>
+
+        <dependency>
+            <groupId>net.openhft</groupId>
+            <artifactId>assertions-${zero.cost.assertions}</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
             <groupId>net.openhft</groupId>
             <artifactId>affinity</artifactId>
