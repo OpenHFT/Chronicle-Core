@@ -19,6 +19,7 @@
 package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.ClassNotFoundRuntimeException;
 import org.jetbrains.annotations.NotNull;
 
@@ -133,16 +134,36 @@ public class ClassAliasPool implements ClassLookup {
         String name0 = key.toString();
         CAPKey key2 = new CAPKey(name0);
 
-        try {
-            clazz = Class.forName(name0, true, classLoader);
+        clazz = OS.isWindows() || OS.isMacOSX() ? doLookupWindowsOSX(name0) : doLookup(name0);
 
-        } catch (ClassNotFoundException e) {
-            if (parent != null)
-                return parent.forName(name0);
-            throw new ClassNotFoundRuntimeException(e);
-        }
         stringClassMap2.put(key2, clazz);
         return clazz;
+    }
+
+    /**
+     * On Windows & OSX, if you ask for a class with the wrong case, it will throw
+     * this instead of ClassNotFoundException
+     *
+     * @param name The class name to lookup
+     * @return The resolved class
+     * @throws ClassNotFoundRuntimeException if the class can't be loaded
+     */
+    private Class<?> doLookupWindowsOSX(String name) {
+        try {
+            return doLookup(name);
+        } catch (NoClassDefFoundError e) {
+            throw new ClassNotFoundRuntimeException(new ClassNotFoundException(e.getMessage(), e));
+        }
+    }
+
+    private Class<?> doLookup(String name) {
+        try {
+            return Class.forName(name, true, classLoader);
+        } catch (ClassNotFoundException e) {
+            if (parent != null)
+                return parent.forName(name);
+            throw new ClassNotFoundRuntimeException(e);
+        }
     }
 
     @Override

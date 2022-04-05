@@ -20,12 +20,14 @@ package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.threads.ThreadDump;
+import net.openhft.chronicle.core.util.ClassNotFoundRuntimeException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 
 public class ClassAliasPoolTest extends CoreTestCommon {
 
@@ -72,6 +74,14 @@ public class ClassAliasPoolTest extends CoreTestCommon {
         expectException("Replaced class net.openhft.chronicle.core.pool.ClassAliasPoolTest with class net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum");
         CLASS_ALIASES.addAlias(ClassAliasPoolTest.class, "name1");
         CLASS_ALIASES.addAlias(TestEnum.class, "name1");
+    }
+
+    /**
+     * On Windows this would cause a NoClassDefFoundError
+     */
+    @Test
+    public void wrongCaseClassName() {
+        assertThrows(ClassNotFoundRuntimeException.class, () -> CLASS_ALIASES.forName(TestEnum.class.getName().toLowerCase()));
     }
 
     enum TestEnum {
