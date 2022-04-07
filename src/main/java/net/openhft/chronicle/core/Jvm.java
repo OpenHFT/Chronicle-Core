@@ -832,6 +832,10 @@ public final class Jvm {
         return eh;
     }
 
+    /**
+     * @deprecated use {@link JvmExceptionTracker#create()} instead
+     */
+    @Deprecated
     public static boolean hasException(@NotNull final Map<ExceptionKey, Integer> exceptions) {
 
         final Iterator<ExceptionKey> iterator = exceptions.keySet().iterator();
@@ -933,6 +937,10 @@ public final class Jvm {
         return DEBUG;
     }
 
+    /**
+     * @deprecated Use {@link JvmExceptionTracker#create()} instead
+     */
+    @Deprecated
     public static void dumpException(@NotNull final Map<ExceptionKey, Integer> exceptions) {
         final Slf4jExceptionHandler warn = Slf4jExceptionHandler.WARN;
         for (@NotNull Entry<ExceptionKey, Integer> entry : exceptions.entrySet()) {
