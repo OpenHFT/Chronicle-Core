@@ -171,11 +171,11 @@ public class ClassAliasPool implements ClassLookup {
         if (clazz.getName().contains("$$Lambda$"))
             throw new IllegalArgumentException("Class name for " + clazz + " isn't meaningful.");
         String name = classStringMap.get(clazz);
-        return name == null
-                ? parent == null
-                ? nameFor0(clazz)
-                : parent.nameFor(clazz)
-                : name;
+        if (name != null)
+            return name;
+        if (parent != null)
+            return parent.nameFor(clazz);
+        return nameFor0(clazz);
     }
 
     private String nameFor0(Class<?> clazz) {
