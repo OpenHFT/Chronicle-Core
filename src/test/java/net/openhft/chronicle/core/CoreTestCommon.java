@@ -1,9 +1,10 @@
 package net.openhft.chronicle.core;
 
-import net.openhft.chronicle.core.internal.ExceptionTracker;
+import net.openhft.chronicle.core.internal.JvmExceptionTracker;
 import net.openhft.chronicle.core.io.AbstractReferenceCounted;
 import net.openhft.chronicle.core.threads.CleaningThread;
 import net.openhft.chronicle.core.threads.ThreadDump;
+import net.openhft.chronicle.testframework.internal.ExceptionTracker;
 import org.junit.After;
 import org.junit.Before;
 
@@ -12,7 +13,7 @@ import static net.openhft.chronicle.core.io.AbstractReferenceCounted.assertRefer
 
 public class CoreTestCommon {
     protected ThreadDump threadDump;
-    private final ExceptionTracker exceptionTracker = new ExceptionTracker();
+    private ExceptionTracker<?> exceptionTracker;
 
     @Before
     public void enableReferenceTracing() {
@@ -29,8 +30,8 @@ public class CoreTestCommon {
     }
 
     @Before
-    public void recordExceptions() {
-        exceptionTracker.recordExceptions();
+    public void createExceptionTracker() {
+        exceptionTracker = JvmExceptionTracker.create();
     }
 
     public void expectException(String message) {
