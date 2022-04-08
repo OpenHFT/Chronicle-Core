@@ -30,7 +30,7 @@
       <sonar.host.url>https://sonarcloud.io</sonar.host.url>
     </properties>
     <artifactId>chronicle-core</artifactId>
-    <version>2.23ea8-SNAPSHOT</version>
+    <version>2.23ea8</version>
     <name>OpenHFT/Chronicle-Core</name>
     <description>Chronicle-Core</description>
     <packaging>bundle</packaging>
@@ -439,7 +439,7 @@
         <url>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</url>
         <connection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</connection>
         <developerConnection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</developerConnection>
-        <tag>ea</tag>
+        <tag>chronicle-core-2.23ea8</tag>
     </scm>
 
 </project>
