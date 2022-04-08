@@ -21,7 +21,7 @@
     <parent>
         <groupId>net.openhft</groupId>
         <artifactId>java-parent-pom</artifactId>
-        <version>1.1.29</version>
+        <version>1.1.31</version>
         <relativePath />
     </parent>
     <properties>
@@ -352,6 +352,9 @@
     <profiles>
         <profile>
             <id>java11</id>
+            <activation>
+                <jdk>[11,</jdk>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
