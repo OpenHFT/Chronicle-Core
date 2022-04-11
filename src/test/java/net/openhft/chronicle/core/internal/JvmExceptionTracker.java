@@ -4,7 +4,7 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
 import net.openhft.chronicle.core.onoes.LogLevel;
 import net.openhft.chronicle.testframework.internal.ExceptionTracker;
-import net.openhft.chronicle.testframework.internal.StandardExceptionTracker;
+import net.openhft.chronicle.testframework.internal.VanillaExceptionTracker;
 
 import java.util.EnumSet;
 import java.util.Set;
@@ -27,7 +27,7 @@ public enum JvmExceptionTracker {
      * @return the exception tracker
      */
     public static ExceptionTracker<ExceptionKey> create() {
-        return new StandardExceptionTracker<>(
+        return new VanillaExceptionTracker<>(
                 ExceptionKey::message,
                 ExceptionKey::throwable,
                 Jvm::resetExceptionHandlers,
