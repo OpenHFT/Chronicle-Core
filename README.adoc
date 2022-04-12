@@ -372,7 +372,7 @@ There is String and Enum object pools to turn a CharSequence into a String.
 
 [source,java]
 ----
-Bytes b = Bytes.from("Hello World");
+Bytes<?> b = Bytes.from("Hello World");
 b.readSkip(6);
 
 StringInterner si = new StringInterner(128);
