@@ -833,7 +833,7 @@ public final class Jvm {
     }
 
     /**
-     * @deprecated use {@link JvmExceptionTracker#create()} instead
+     * @deprecated use {@link net.openhft.chronicle.core.internal.JvmExceptionTracker#create()} instead (to be removed in .25)
      */
     @Deprecated
     public static boolean hasException(@NotNull final Map<ExceptionKey, Integer> exceptions) {
@@ -938,7 +938,7 @@ public final class Jvm {
     }
 
     /**
-     * @deprecated Use {@link JvmExceptionTracker#create()} instead
+     * @deprecated Use {@link net.openhft.chronicle.core.internal.JvmExceptionTracker#create()} instead (to be removed in .25)
      */
     @Deprecated
     public static void dumpException(@NotNull final Map<ExceptionKey, Integer> exceptions) {
