@@ -5,7 +5,6 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.threads.InterruptedRuntimeException;
 import net.openhft.chronicle.core.values.LongValue;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
