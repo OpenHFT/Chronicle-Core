@@ -24,10 +24,27 @@ import org.jetbrains.annotations.NotNull;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+@SuppressWarnings({"deprecated", "squid:S1874", "squid:S6355"}) // public fields will become private, they're not being removed entirely
 public class ExceptionKey {
+    /**
+     * @deprecated This will become private in .25
+     */
+    @Deprecated
     public final LogLevel level;
+    /**
+     * @deprecated This will become private in .25
+     */
+    @Deprecated
     public final Class<?> clazz;
+    /**
+     * @deprecated This will become private in .25
+     */
+    @Deprecated
     public final String message;
+    /**
+     * @deprecated This will become private in .25
+     */
+    @Deprecated
     public final Throwable throwable;
 
     public ExceptionKey(LogLevel level, Class<?> clazz, String message, Throwable throwable) {
@@ -35,6 +52,22 @@ public class ExceptionKey {
         this.clazz = clazz;
         this.message = message;
         this.throwable = throwable;
+    }
+
+    public LogLevel level() {
+        return level;
+    }
+
+    public Class<?> clazz() {
+        return clazz;
+    }
+
+    public String message() {
+        return message;
+    }
+
+    public Throwable throwable() {
+        return throwable;
     }
 
     @Override
