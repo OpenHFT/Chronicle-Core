@@ -841,7 +841,7 @@ public final class Jvm {
         final Iterator<ExceptionKey> iterator = exceptions.keySet().iterator();
         while (iterator.hasNext()) {
             final ExceptionKey k = iterator.next();
-            if (k.level != LogLevel.DEBUG && k.level != LogLevel.PERF)
+            if (k.level() != LogLevel.DEBUG && k.level() != LogLevel.PERF)
                 return true;
         }
 
@@ -945,7 +945,7 @@ public final class Jvm {
         final Slf4jExceptionHandler warn = Slf4jExceptionHandler.WARN;
         for (@NotNull Entry<ExceptionKey, Integer> entry : exceptions.entrySet()) {
             final ExceptionKey key = entry.getKey();
-            warn.on(Jvm.class, key.level + " " + key.clazz.getSimpleName() + " " + key.message, key.throwable);
+            warn.on(Jvm.class, key.level() + " " + key.clazz().getSimpleName() + " " + key.message(), key.throwable());
             final Integer value = entry.getValue();
             if (value > 1)
                 warn.on(Jvm.class, "Repeated " + value + " times");
