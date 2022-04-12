@@ -24,6 +24,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+@SuppressWarnings({"deprecated", "squid:S1874", "squid:S6355"}) // public fields will become private, they're not being removed entirely
 public class ExceptionKey {
     /**
      * @deprecated This will become private in .25
