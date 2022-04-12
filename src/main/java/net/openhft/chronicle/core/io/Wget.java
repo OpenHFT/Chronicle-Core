@@ -10,7 +10,7 @@ import java.net.URL;
 
 import static net.openhft.chronicle.core.io.Closeable.*;
 
-public class Wget {
+public final class Wget {
 
     private static StringBuilderPool stringBuilderPool = new StringBuilderPool();
 
@@ -18,7 +18,7 @@ public class Wget {
     }
 
     /**
-     * performs and http get
+     * performs an http get
      *
      * @param url the url of the http get
      * @return the result, as a string
