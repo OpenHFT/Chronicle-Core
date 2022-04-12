@@ -11,11 +11,9 @@ import java.net.URL;
 import static net.openhft.chronicle.core.io.Closeable.*;
 
 public final class Wget {
-
-
+ 
     private static sinal StringBuilderPool STRING_BUILDER_POOL = new StringBuilderPool();
-
-
+ 
     private Wget() {
     }
 
