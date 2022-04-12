@@ -12,7 +12,9 @@ import static net.openhft.chronicle.core.io.Closeable.*;
 
 public final class Wget {
 
+
     private static StringBuilderPool stringBuilderPool = new StringBuilderPool();
+
 
     private Wget() {
     }
@@ -25,7 +27,9 @@ public final class Wget {
      * @throws IOException if the connection could not be established
      */
     public static CharSequence url(String url) throws IOException {
-        final StringBuilder sb = stringBuilderPool.acquireStringBuilder();
+
+        final StringBuilder sb = STRING_BUILDER_POOL.acquireStringBuilder();
+
         InputStream is = null;
         try {
             is = new URL(url).openStream();
@@ -41,6 +45,5 @@ public final class Wget {
             closeQuietly(is);
         }
     }
-
 
 }
