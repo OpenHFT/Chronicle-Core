@@ -832,10 +832,6 @@ public final class Jvm {
         return eh;
     }
 
-    /**
-     * @deprecated use {@link net.openhft.chronicle.core.internal.JvmExceptionTracker#create()} instead (to be removed in .25)
-     */
-    @Deprecated
     public static boolean hasException(@NotNull final Map<ExceptionKey, Integer> exceptions) {
 
         final Iterator<ExceptionKey> iterator = exceptions.keySet().iterator();
@@ -937,10 +933,6 @@ public final class Jvm {
         return DEBUG;
     }
 
-    /**
-     * @deprecated Use {@link net.openhft.chronicle.core.internal.JvmExceptionTracker#create()} instead (to be removed in .25)
-     */
-    @Deprecated
     public static void dumpException(@NotNull final Map<ExceptionKey, Integer> exceptions) {
         final Slf4jExceptionHandler warn = Slf4jExceptionHandler.WARN;
         for (@NotNull Entry<ExceptionKey, Integer> entry : exceptions.entrySet()) {
