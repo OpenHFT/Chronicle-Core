@@ -55,7 +55,7 @@ public class AbstractCloseableTest extends CoreTestCommon {
             assertEquals("Discarded without closing\n" +
                             "java.lang.IllegalStateException: net.openhft.chronicle.core.StackTrace: net.openhft.chronicle.core.io.AbstractCloseableTest$MyCloseable created here on main",
                     map.keySet().stream()
-                            .map(e -> e.message + "\n" + e.throwable)
+                            .map(e -> e.message() + "\n" + e.throwable())
                             .collect(Collectors.joining(", ")));
     }
 

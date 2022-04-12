@@ -5,7 +5,6 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.threads.InterruptedRuntimeException;
 import net.openhft.chronicle.core.values.LongValue;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -93,7 +92,7 @@ public class VanillaThreadLockTest extends CoreTestCommon {
         VanillaThreadLock lock = new VanillaThreadLock(value, 50);
         lock.lock(-1);
 
-        expectException("ThreadId -1 died while holding a lock");
+        ignoreException("ThreadId -1 died while holding a lock");
         expectException("Successfully forced an unlock for threadId: 2, previous thread held by: -1, status: "); // dead or unknown
         lock.lock(2);
 
@@ -111,7 +110,7 @@ public class VanillaThreadLockTest extends CoreTestCommon {
         VanillaThreadLock lock = new VanillaThreadLock(value, 50);
         lock.lock(1);
 
-        expectException("ThreadId 1 is running while still holding a lock after ");
+        ignoreException("ThreadId 1 is running while still holding a lock after ");
         expectException("Successfully forced an unlock for threadId: 2, previous thread held by: 1, status: "); // running or unknown
         lock.lock(2);
 
@@ -158,7 +157,7 @@ public class VanillaThreadLockTest extends CoreTestCommon {
 
         // tryLock
         final long deadThreadId = 1L << 31;
-        expectException("ThreadId -2147483648 died while holding a lock");
+        ignoreException("ThreadId -2147483648 died while holding a lock");
         value.getValues.add(deadThreadId);
         // busyLoop
         value.getValues.add(deadThreadId);
@@ -170,7 +169,7 @@ public class VanillaThreadLockTest extends CoreTestCommon {
         value.getValues.add(deadThreadId);
 
         // OOPS changed at the last nano-second
-        expectException("Failed to forced an unlock for threadId: 1");
+        ignoreException("Failed to forced an unlock for threadId: 1");
         value.getValues.add(deadThreadId << 32);
 
         // tryLock

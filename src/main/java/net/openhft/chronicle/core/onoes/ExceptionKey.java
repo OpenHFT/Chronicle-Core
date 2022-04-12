@@ -37,6 +37,22 @@ public class ExceptionKey {
         this.throwable = throwable;
     }
 
+    public LogLevel level() {
+        return level;
+    }
+
+    public Class<?> clazz() {
+        return clazz;
+    }
+
+    public String message() {
+        return message;
+    }
+
+    public Throwable throwable() {
+        return throwable;
+    }
+
     @Override
     public int hashCode() {
         int result = level.hashCode();
