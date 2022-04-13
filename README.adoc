@@ -378,15 +378,6 @@ assertEquals(0, mf.refCount());
 assertEquals("refCount: 0, 0, 0", mf.referenceCounts());
 ----
 
-=== Releasing Resources
-
-Releasing resources can be managed by turning on the `BACKGROUND_RESOURCE_RELEASER` thread or alternatively it can be managed in a user defined thread. To turn on the `BACKGROUND_RESOURCE_RELEASER` thread, both system properties `background.releaser` and `background.releaser.thread` should be set to `true`.
-If only `background.releaser.thread` is set to `false`, resources will still be queued for closing, but they need to be released explicitly by calling `BackgroundResourceReleaser.releasePendingResources()`.
-
-Calling `BackgroundResourceReleaser.runBackgroundReleaserThread()` starts `BACKGROUND_RESOURCE_RELEASER` as a daemon thread.
-
-Calling `BackgroundResourceReleaser.stop()` releases pending resources and then stops the `BACKGROUND_RESOURCE_RELEASER` thread. To make sure the shutdown hook does not prevent classes from unloading, deregister the shutdown hook by calling `PriorityHook.clear()`.
-
 == Object Pools
 
 There is String and Enum object pools to turn a CharSequence into a String.
