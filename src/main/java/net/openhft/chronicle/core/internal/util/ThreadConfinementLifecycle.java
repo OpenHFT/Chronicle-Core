@@ -11,7 +11,15 @@ public final class ThreadConfinementLifecycle {
     private ThreadConfinementLifecycle() {}
 
     public static ThreadConfinementAsserter create() {
-        return ASSERTIONS_ENABLE
+        return create(ASSERTIONS_ENABLE);
+    }
+
+    public static ThreadConfinementAsserter createEnabled() {
+        return create(true);
+    }
+
+    static ThreadConfinementAsserter create(boolean active) {
+        return active
                 ? new VanillaThreadConfinementAsserter()
                 : NopThreadConfinementAsserter.INSTANCE;
     }

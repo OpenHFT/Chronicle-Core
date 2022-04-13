@@ -17,10 +17,19 @@ public interface ThreadConfinementAsserter {
      * returns a no-op asserter.
      *
      * @return Creates and returns a new ThreadConfinementAsserter if assertions are enabled, otherwise
-     *         returns a no-op asserter
+     * returns a no-op asserter
      */
     static ThreadConfinementAsserter create() {
         return ThreadConfinementLifecycle.create();
+    }
+
+    /**
+     * Creates and returns a new ThreadConfinementAsserter that is always enabled.
+     *
+     * @return Creates and returns a new enabled ThreadConfinementAsserter
+     */
+    static ThreadConfinementAsserter createEnabled() {
+        return ThreadConfinementLifecycle.createEnabled();
     }
 
 }
