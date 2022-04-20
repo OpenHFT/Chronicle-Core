@@ -20,6 +20,7 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
+import net.openhft.chronicle.core.onoes.ThreadLocalisedExceptionHandler;
 import net.openhft.chronicle.core.threads.ThreadDump;
 import net.openhft.chronicle.core.util.Time;
 import org.junit.After;
@@ -79,6 +80,16 @@ public class JvmTest {
     @Test
     public void shouldGetMajorVersion() {
         assertTrue(Jvm.majorVersion() > 0);
+    }
+
+    @Test
+    public void resetExceptionHandlersSetHandlersBackToTheirDefaults() throws IllegalAccessException {
+        Jvm.setExceptionHandlers(null, null, null, null);
+        Jvm.resetExceptionHandlers();
+        assertSame(Jvm.getField(Jvm.class, "DEFAULT_PERF_EXCEPTION_HANDLER").get(null), ((ThreadLocalisedExceptionHandler) Jvm.perf()).defaultHandler());
+        assertSame(Jvm.getField(Jvm.class, "DEFAULT_WARN_EXCEPTION_HANDLER").get(null), ((ThreadLocalisedExceptionHandler) Jvm.warn()).defaultHandler());
+        assertSame(Jvm.getField(Jvm.class, "DEFAULT_ERROR_EXCEPTION_HANDLER").get(null), ((ThreadLocalisedExceptionHandler) Jvm.error()).defaultHandler());
+        assertSame(Jvm.getField(Jvm.class, "DEFAULT_DEBUG_EXCEPTION_HANDLER").get(null), ((ThreadLocalisedExceptionHandler) Jvm.debug()).defaultHandler());
     }
 
     static final class ReportUnoptimised {
