@@ -66,6 +66,12 @@ import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 public enum Jvm {
     ; // none
 
+    // These are the exception handlers used initially, and restored when resetExceptionHandlers() is called
+    private static final ExceptionHandler DEFAULT_ERROR_EXCEPTION_HANDLER = Slf4jExceptionHandler.ERROR;
+    private static final ExceptionHandler DEFAULT_WARN_EXCEPTION_HANDLER = Slf4jExceptionHandler.WARN;
+    private static final ExceptionHandler DEFAULT_PERF_EXCEPTION_HANDLER = Slf4jExceptionHandler.PERF;
+    private static final ExceptionHandler DEFAULT_DEBUG_EXCEPTION_HANDLER = Slf4jExceptionHandler.DEBUG;
+
     public static final String JAVA_CLASS_PATH = "java.class.path";
     public static final String SYSTEM_PROPERTIES = "system.properties";
     private static final List<String> INPUT_ARGUMENTS = getRuntimeMXBean().getInputArguments();
@@ -84,13 +90,13 @@ public enum Jvm {
     @NotNull
     private static final ThreadLocalisedExceptionHandler FATAL = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.FATAL);
     @NotNull
-    private static final ThreadLocalisedExceptionHandler ERROR = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.ERROR);
+    private static final ThreadLocalisedExceptionHandler ERROR = new ThreadLocalisedExceptionHandler(DEFAULT_ERROR_EXCEPTION_HANDLER);
     @NotNull
-    private static final ThreadLocalisedExceptionHandler WARN = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.WARN);
+    private static final ThreadLocalisedExceptionHandler WARN = new ThreadLocalisedExceptionHandler(DEFAULT_WARN_EXCEPTION_HANDLER);
     @NotNull
-    private static final ThreadLocalisedExceptionHandler PERF = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.PERF);
+    private static final ThreadLocalisedExceptionHandler PERF = new ThreadLocalisedExceptionHandler(DEFAULT_PERF_EXCEPTION_HANDLER);
     @NotNull
-    private static final ThreadLocalisedExceptionHandler DEBUG = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.DEBUG);
+    private static final ThreadLocalisedExceptionHandler DEBUG = new ThreadLocalisedExceptionHandler(DEFAULT_DEBUG_EXCEPTION_HANDLER);
     private static final long MAX_DIRECT_MEMORY;
     private static final boolean SAFEPOINT_ENABLED;
     private static final boolean IS_ARM = Bootstrap.isArm0();
@@ -742,10 +748,10 @@ public enum Jvm {
 
     public static void resetExceptionHandlers() {
         FATAL.defaultHandler(Slf4jExceptionHandler.FATAL).resetThreadLocalHandler();
-        setErrorExceptionHandler(Slf4jExceptionHandler.ERROR);
-        setWarnExceptionHandler(Slf4jExceptionHandler.WARN);
-        setDebugExceptionHandler(Slf4jExceptionHandler.DEBUG);
-        setPerfExceptionHandler(Slf4jExceptionHandler.DEBUG);
+        setErrorExceptionHandler(DEFAULT_ERROR_EXCEPTION_HANDLER);
+        setWarnExceptionHandler(DEFAULT_WARN_EXCEPTION_HANDLER);
+        setDebugExceptionHandler(DEFAULT_DEBUG_EXCEPTION_HANDLER);
+        setPerfExceptionHandler(DEFAULT_PERF_EXCEPTION_HANDLER);
     }
 
     public static void setErrorExceptionHandler(ExceptionHandler exceptionHandler) {
