@@ -69,6 +69,12 @@ import static net.openhft.chronicle.core.internal.util.MapUtil.ofUnmodifiable;
  */
 public final class Jvm {
 
+    // These are the exception handlers used initially, and restored when resetExceptionHandlers() is called
+    private static final ExceptionHandler DEFAULT_ERROR_EXCEPTION_HANDLER = Slf4jExceptionHandler.ERROR;
+    private static final ExceptionHandler DEFAULT_WARN_EXCEPTION_HANDLER = Slf4jExceptionHandler.WARN;
+    private static final ExceptionHandler DEFAULT_PERF_EXCEPTION_HANDLER = Slf4jExceptionHandler.PERF;
+    private static final ExceptionHandler DEFAULT_DEBUG_EXCEPTION_HANDLER = Slf4jExceptionHandler.DEBUG;
+
     // Suppresses default constructor, ensuring non-instantiability.
     private Jvm() {
     }
@@ -92,13 +98,13 @@ public final class Jvm {
     private static final boolean IS_AZUL_ZING = Bootstrap.isAzulZing0();
     private static final boolean IS_AZUL_ZULU = Bootstrap.isAzulZulu0();
     @NotNull
-    private static final ThreadLocalisedExceptionHandler ERROR = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.ERROR);
+    private static final ThreadLocalisedExceptionHandler ERROR = new ThreadLocalisedExceptionHandler(DEFAULT_ERROR_EXCEPTION_HANDLER);
     @NotNull
-    private static final ThreadLocalisedExceptionHandler WARN = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.WARN);
+    private static final ThreadLocalisedExceptionHandler WARN = new ThreadLocalisedExceptionHandler(DEFAULT_WARN_EXCEPTION_HANDLER);
     @NotNull
-    private static final ThreadLocalisedExceptionHandler PERF = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.PERF);
+    private static final ThreadLocalisedExceptionHandler PERF = new ThreadLocalisedExceptionHandler(DEFAULT_PERF_EXCEPTION_HANDLER);
     @NotNull
-    private static final ThreadLocalisedExceptionHandler DEBUG = new ThreadLocalisedExceptionHandler(Slf4jExceptionHandler.DEBUG);
+    private static final ThreadLocalisedExceptionHandler DEBUG = new ThreadLocalisedExceptionHandler(DEFAULT_DEBUG_EXCEPTION_HANDLER);
     private static final long MAX_DIRECT_MEMORY;
     private static final boolean SAFEPOINT_ENABLED;
     private static final boolean IS_ARM = Bootstrap.isArm0();
@@ -757,10 +763,10 @@ public final class Jvm {
     }
 
     public static void resetExceptionHandlers() {
-        setErrorExceptionHandler(Slf4jExceptionHandler.ERROR);
-        setWarnExceptionHandler(Slf4jExceptionHandler.WARN);
-        setDebugExceptionHandler(Slf4jExceptionHandler.DEBUG);
-        setPerfExceptionHandler(Slf4jExceptionHandler.DEBUG);
+        setErrorExceptionHandler(DEFAULT_ERROR_EXCEPTION_HANDLER);
+        setWarnExceptionHandler(DEFAULT_WARN_EXCEPTION_HANDLER);
+        setDebugExceptionHandler(DEFAULT_DEBUG_EXCEPTION_HANDLER);
+        setPerfExceptionHandler(DEFAULT_PERF_EXCEPTION_HANDLER);
     }
 
     public static void setErrorExceptionHandler(ExceptionHandler exceptionHandler) {
