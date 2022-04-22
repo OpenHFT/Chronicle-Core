@@ -380,12 +380,23 @@ assertEquals("refCount: 0, 0, 0", mf.referenceCounts());
 
 === Releasing Resources
 
-Releasing resources can be managed by turning on the `BACKGROUND_RESOURCE_RELEASER` thread or alternatively it can be managed in a user defined thread. To turn on the `BACKGROUND_RESOURCE_RELEASER` thread, both system properties `background.releaser` and `background.releaser.thread` should be set to `true`.
+Releasing resources can be managed by starting the `BACKGROUND_RESOURCE_RELEASER` thread or alternatively it can be managed in a user defined thread. To start the `BACKGROUND_RESOURCE_RELEASER` thread, both system properties `background.releaser` and `background.releaser.thread` should be set to `true`.
 In this condition, the thread starts as a daemon thread and invokes `BackgroundResourceReleaser.runReleaseResources()`.
 
-If only `background.releaser.thread` is set to `false`, resources will still be queued for closing, but they need to be released explicitly by calling `BackgroundResourceReleaser.releasePendingResources()`.
+If only `background.releaser.thread` is set to `false`, resources will still be queued for releasing, but they need to be released explicitly by calling `BackgroundResourceReleaser.releasePendingResources()`.
+
+If `background.releaser` is set to `false` regardless of `background.releaser.thread`, resources are not queued for release and release will be done synchronously (by calling the relevant close() function).
 
 Calling `BackgroundResourceReleaser.stop()` releases pending resources and then stops the `BACKGROUND_RESOURCE_RELEASER` thread. To make sure the shutdown hook does not prevent classes from unloading, deregister the shutdown hook by calling `PriorityHook.clear()`.
+
+.Releasing Resources
+[%header,cols=3]
+|===
+| `background.releaser.thread` | `background.releaser` | Release Behaviour
+| `true` | `true` | resources are queued and then released in the `BACKGROUND_RESOURCE_RELEASER` thread.
+| `false` | `true` | resources are queued but should be released in a user thread by calling `BackgroundResourceReleaser.releasePendingResources()`.
+| X | `false` | resources are not queued and are released synchronously.
+|===
 
 == Object Pools
 
