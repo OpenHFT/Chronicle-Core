@@ -46,7 +46,7 @@ public final class BackgroundResourceReleaser {
                     Jvm.debug().on(BackgroundResourceReleaser.class, "Stopped thread");
                     break;
                 }
-                performRelease(o);
+                performRelease(o, true);
             }
         } catch (InterruptedException e) {
             // Restore the interrupt state...
@@ -66,21 +66,21 @@ public final class BackgroundResourceReleaser {
 
     public static void release(AbstractCloseable closeable) {
         if (stopping)
-            performRelease(closeable);
+            performRelease(closeable, false);
         else
             release0(closeable);
     }
 
     public static void release(AbstractReferenceCounted referenceCounted) {
         if (stopping)
-            performRelease(referenceCounted);
+            performRelease(referenceCounted, false);
         else
             release0(referenceCounted);
     }
 
     public static void run(Runnable runnable) {
         if (stopping)
-            performRelease(runnable);
+            performRelease(runnable, false);
         else
             release0(runnable);
     }
@@ -89,7 +89,7 @@ public final class BackgroundResourceReleaser {
         COUNTER.incrementAndGet();
         if (RESOURCES.offer(o))
             return;
-        performRelease(o);
+        performRelease(o, true);
     }
 
     public static void releasePendingResources() {
@@ -99,7 +99,7 @@ public final class BackgroundResourceReleaser {
                 if (o == null)
                     break;
                 if (o != POISON_PILL)
-                    performRelease(o);
+                    performRelease(o, true);
             }
             if (stopping)
                 offerPoisonPill(false);
@@ -115,7 +115,7 @@ public final class BackgroundResourceReleaser {
         }
     }
 
-    private static void performRelease(Object o) {
+    private static void performRelease(Object o, boolean counted) {
         try {
             if (o instanceof AbstractCloseable)
                 ((AbstractCloseable) o).callPerformClose();
@@ -128,7 +128,8 @@ public final class BackgroundResourceReleaser {
         } catch (Throwable e) {
             Jvm.warn().on(BackgroundResourceReleaser.class, "Failed in release/close", e);
         } finally {
-            COUNTER.decrementAndGet();
+            if (counted)
+                COUNTER.decrementAndGet();
         }
     }
 
