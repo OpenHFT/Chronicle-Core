@@ -289,7 +289,9 @@ public final class Jvm {
      *
      * @return the compile threshold for the JVM or else an
      * estimate thereof (e.g. 10_000)
+     * @deprecated for removal in x.xx. There is no planned substitute for this method.
      */
+    @Deprecated
     public static int compileThreshold() {
         return COMPILE_THRESHOLD;
     }
