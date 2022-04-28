@@ -121,8 +121,10 @@ public final class Mocker {
         for (Class<?> aClass : additional)
             addInterface(classes, aClass);
         classes.add(IgnoresEverything.class);
+        ClassLoader tClassLoader = tClass.getClassLoader();
         //noinspection unchecked
-        return (T) newProxyInstance(tClass.getClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler(tClass) {
+        return (T) newProxyInstance(tClassLoader != null ? tClassLoader : Mocker.class.getClassLoader(),
+                classes.toArray(NO_CLASSES), new AbstractInvocationHandler(tClass) {
             @Override
             protected Object doInvoke(Object proxy, Method method, Object[] args) {
                 return null;
