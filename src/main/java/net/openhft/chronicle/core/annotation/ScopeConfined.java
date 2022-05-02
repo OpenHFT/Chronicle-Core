@@ -21,17 +21,20 @@ package net.openhft.chronicle.core.annotation;
 import java.lang.annotation.*;
 
 /**
- * Indicates that the value, value consumer, value mapper etc. should not divulge the value outside
- * the annotated scope. The meaning value should also be construed to include any and all descendant Object properties
- * recursively from the original value.
+ * Indicates that the value consumer, value mapper, structure etc. should not divulge the object outside
+ * the annotated scope. The meaning of "the object" should also be construed to include any and all descendant
+ * non-immutable Object properties recursively dereferenced from the original object.
+ * <p>
+ * <em>
+ * In other words,object contents would be purposely overwritten after they are passed to the receiver and
+ * consequently cannot be kept after the invocation.
+ * </em>
  * <p>
  * This annotation can be used for entities that are dealing with reused-objects.
- * The term divulge obviously includes making the value or any of its descendant objects available to another Thread.
- *
- * @see ThreadConfined
+ * The term divulge also includes making the value or any of its descendant objects available to another Thread.
  */
 @Documented
-@Retention(RetentionPolicy.CLASS)
+@Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE, ElementType.TYPE_USE})
 public @interface ScopeConfined {
 
