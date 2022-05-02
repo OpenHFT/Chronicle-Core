@@ -109,6 +109,10 @@ public final class OS {
     private OS() {
     }
 
+    public static boolean isSparseFileSupported() {
+        return OS.isLinux() && OS.is64Bit();
+    }
+
     private static String findTmp() {
         String target = Jvm.getProperty("project.build.directory");
         if (target != null) {
