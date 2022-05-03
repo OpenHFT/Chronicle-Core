@@ -109,6 +109,11 @@ public final class OS {
     private OS() {
     }
 
+    /**
+     * Checks if the operating system supports sparse files
+     *
+     * @return if the OS supports sparse files
+     */
     public static boolean isSparseFileSupported() {
         return OS.isLinux() && OS.is64Bit();
     }
