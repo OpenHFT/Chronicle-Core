@@ -146,7 +146,6 @@ public class PosixTimeProviderTest {
         }
     }
 
-
     public static void main(String[] args) {
         for (ClockId value : ClockId.values()) {
             System.out.println(value + " " + PosixAPI.posix().clock_gettime(value));

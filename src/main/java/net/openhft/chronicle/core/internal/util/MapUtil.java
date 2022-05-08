@@ -32,5 +32,4 @@ public final class MapUtil {
                 .collect(collectingAndThen(toMap(Map.Entry::getKey, Map.Entry::getValue), Collections::unmodifiableMap));
     }
 
-
 }

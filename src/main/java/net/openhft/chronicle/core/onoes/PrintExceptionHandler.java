@@ -39,7 +39,6 @@ public enum PrintExceptionHandler implements ExceptionHandler {
         }
     };
 
-
     public static final PrintExceptionHandler WARN = ERR;
     public static final PrintExceptionHandler DEBUG = OUT;
 

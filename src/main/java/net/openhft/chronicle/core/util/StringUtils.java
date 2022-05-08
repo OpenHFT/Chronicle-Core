@@ -74,7 +74,6 @@ public final class StringUtils {
         }
         S_COUNT_OFFSET = sCountOffset;
 
-
         try {
             final SbFields sbFields = new SbFields();
             SB_COUNT = sbFields.sbCount;

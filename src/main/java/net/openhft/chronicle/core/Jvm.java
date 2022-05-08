@@ -994,7 +994,6 @@ public final class Jvm {
         InitSignalHandlers.init();
     }
 
-
     /**
      * Inserts a low-cost Java safe-point in the code path.
      */
@@ -1524,7 +1523,6 @@ public final class Jvm {
         void handle(String signal);
     }
 
-
     private static final class ObjectHeaderSizeChecker {
         private int a;
     }
@@ -1697,7 +1695,6 @@ public final class Jvm {
             }
             CPU_MODEL = model;
         }
-
 
         @SuppressWarnings("java:S5852") // Possessive quantifiers (*+) are used preventing catastrophic backtracking
         @NotNull

@@ -45,7 +45,6 @@ public class JvmSafepointTest {
         assertTrue("counter: " + counter, counter > min);
     }
 
-
     @Test
     public void safePointPerf() {
         // This will enable the C2 compiler to kick in.

@@ -29,7 +29,6 @@ public class UnsafeTextTest {
                     .repeat(3)
                     .run();
 
-
             final String memVal = LongStream.range(address, blackhole)
                     .mapToInt(addr -> UNSAFE.getByte(null, addr))
                     .mapToObj(c -> (char) c)
