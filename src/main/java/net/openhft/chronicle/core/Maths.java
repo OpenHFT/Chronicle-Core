@@ -20,6 +20,7 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
@@ -502,7 +503,9 @@ public final class Maths {
         return (int) h;
     }
 
-    public static long hash64(@NotNull CharSequence cs) {
+    public static long hash64(@Nullable CharSequence cs) {
+        if (cs == null || cs.length() == 0)
+            return 0;
         if (cs instanceof String)
             return hash64((String) cs);
         try {
