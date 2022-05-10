@@ -22,18 +22,25 @@
         <groupId>net.openhft</groupId>
         <artifactId>java-parent-pom</artifactId>
         <version>1.1.31</version>
-        <relativePath />
+        <relativePath></relativePath>
     </parent>
-    <properties>
-      <zero.cost.assertions>disabled</zero.cost.assertions>
-        <sonar.organization>openhft</sonar.organization>
-        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-    </properties>
     <artifactId>chronicle-core</artifactId>
+    <packaging>bundle</packaging>
     <version>2.23ea13-SNAPSHOT</version>
     <name>OpenHFT/Chronicle-Core</name>
     <description>Chronicle-Core</description>
-    <packaging>bundle</packaging>
+
+    <scm>
+        <connection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</connection>
+        <developerConnection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</developerConnection>
+        <tag>ea</tag>
+        <url>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</url>
+    </scm>
+    <properties>
+        <zero.cost.assertions>disabled</zero.cost.assertions>
+        <sonar.organization>openhft</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -130,18 +137,65 @@
 
     </dependencies>
 
+    <repositories>
+        <repository>
+            <releases>
+                <enabled>false</enabled>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+            <id>Snapshot Repository</id>
+            <name>Snapshot Repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+        <repository>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+            <id>chronicle-enterprise-snapshots</id>
+            <name>Snapshot Repository</name>
+            <url>https://nexus.chronicle.software/content/repositories/snapshots</url>
+        </repository>
+        <repository>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <id>chronicle-enterprise-release</id>
+            <url>https://nexus.chronicle.software/content/repositories/releases</url>
+        </repository>
+    </repositories>
+
     <build>
         <plugins>
+            <plugin>
+                <groupId>com.github.ekryd.sortpom</groupId>
+                <artifactId>sortpom-maven-plugin</artifactId>
+                <version>3.0.1</version>
+                <configuration>
+                    <nrOfIndentSpace>4</nrOfIndentSpace>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>sort</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>net.openhft</groupId>
                 <artifactId>binary-compatibility-enforcer-plugin</artifactId>
                 <version>1.0.9</version>
                 <executions>
                     <execution>
-                        <phase>verify</phase>
                         <goals>
                             <goal>enforcer</goal>
                         </goals>
+                        <phase>verify</phase>
                         <configuration>
                             <referenceVersion>2.23ea0</referenceVersion>
                             <artifactsURI>https://teamcity.chronicle.software/repository/download</artifactsURI>
@@ -156,10 +210,8 @@
                 <artifactId>maven-scm-publish-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <checkoutDirectory>${project.build.directory}/scmpublish/javadoc
-                    </checkoutDirectory>
-                    <checkinComment>Publishing javadoc for ${project.artifactId}:${project.version}
-                    </checkinComment>
+                    <checkoutDirectory>${project.build.directory}/scmpublish/javadoc</checkoutDirectory>
+                    <checkinComment>Publishing javadoc for ${project.artifactId}:${project.version}</checkinComment>
                     <content>${project.reporting.outputDirectory}</content>
                     <skipDeletedFiles>true</skipDeletedFiles>
                     <pubScmUrl>scm:git:git@github.com:OpenHFT/Chronicle-Core</pubScmUrl>
@@ -258,17 +310,12 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Bundle-SymbolicName>${project.groupId}.${project.artifactId}
-                        </Bundle-SymbolicName>
+                        <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>OpenHFT :: ${project.artifactId}</Bundle-Name>
                         <Bundle-Version>${project.version}</Bundle-Version>
-                        <Export-Package>
-                            net.openhft.chronicle.core.*;-noimport:=true
-                        </Export-Package>
-                        <Import-Package>
-                            software.chronicle.enterprise.core;resolution:=optional,
-                            *
-                        </Import-Package>
+                        <Export-Package>net.openhft.chronicle.core.*;-noimport:=true</Export-Package>
+                        <Import-Package>software.chronicle.enterprise.core;resolution:=optional,
+                            *</Import-Package>
                     </instructions>
                 </configuration>
                 <executions>
@@ -321,41 +368,6 @@
         </plugins>
     </build>
 
-    <repositories>
-        <repository>
-            <id>Snapshot Repository</id>
-            <name>Snapshot Repository</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-            <releases>
-                <enabled>false</enabled>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-        </repository>
-        <repository>
-            <id>chronicle-enterprise-snapshots</id>
-            <name>Snapshot Repository</name>
-            <url>
-                https://nexus.chronicle.software/content/repositories/snapshots
-            </url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>chronicle-enterprise-release</id>
-            <url>
-                https://nexus.chronicle.software/content/repositories/releases
-            </url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </repository>
-    </repositories>
-
     <profiles>
         <profile>
             <id>java11</id>
@@ -401,10 +413,10 @@
                             </execution>
                             <execution>
                                 <id>report</id>
-                                <phase>prepare-package</phase>
                                 <goals>
                                     <goal>report</goal>
                                 </goals>
+                                <phase>prepare-package</phase>
                             </execution>
                         </executions>
                     </plugin>
@@ -418,14 +430,6 @@
                     <plugin>
                         <artifactId>maven-invoker-plugin</artifactId>
                         <version>3.2.2</version>
-                        <executions>
-                            <execution>
-                                <phase>test</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                            </execution>
-                        </executions>
                         <configuration>
                             <pom>benchmarks/pom.xml</pom>
                             <goals>clean,test</goals>
@@ -438,18 +442,19 @@
                             </properties>
                             <streamLogs>true</streamLogs>
                         </configuration>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <phase>test</phase>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
         </profile>
 
     </profiles>
-
-    <scm>
-        <url>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</url>
-        <connection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</connection>
-        <developerConnection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</developerConnection>
-        <tag>ea</tag>
-    </scm>
 
 </project>
