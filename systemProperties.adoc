@@ -1,0 +1,23 @@
+
+== System Properties
+Below, a number of relevant System Properties are listed.
+
+.System properties
+[cols=4*, options="header"]
+|===
+| Property Key | Default | Description | Java Variable Name (Type)
+| disable.thread.safety | `false` | If 'true', threadSafetyCheck is disabled | _DISABLE_THREAD_SAFETY_ (boolean)
+| disable.discard.warning | `false` | If 'true', discarded without closing message is displayed | _DISABLE_DISCARD_WARNING_ (boolean)
+| strict.discard.warning | `false` | If 'true', discarded without being released message is displayed| _STRICT_DISCARD_WARNING_ (boolean)
+| warnAndCloseIfNotClosed | `false` |If 'true', returns the WARN exception handler | boolean
+| debug | `false` | If 'true', returns if the JVM is running in debug mode |_IS_DEBUG_ (boolean)
+| jfr | `false` | If 'true', returns if the JVM is running in flight recorder mode | _IS_FLIGHT_RECORDER_ (boolean)
+| disable.perf.info | `false` | if 'true', returns an ExceptionHandler for performance messages | disablePerfInfo (boolean)
+| jvm.safepoint.enabled | `false` | If 'true', inserts a low-cost Java safe-point in the code path | SAFEPOINT_ENABLED (boolean)
+| jvm.resources.tracing | `false` | Returns if certain chronicle resources (such as memory regions) are traced | RESOURCE_TRACING (boolean)
+| disable.resource.warning | `false` | If 'true', returns that resource tracing is turned on | boolean
+| report.unoptimised | `false` | If 'true', returns usage of unoptimised method | REPORT_UNOPTIMISED (boolean)
+| chronicle.analytics.disabled | `false` | Returns if Analytics is enabled | boolean
+| chronicle.announcer.disable | `false` | If 'true', disables the InternalAnnouncer | _DISABLE_ANNOUNCEMENT_ (boolean)
+| background.releaser | `true` | Turn off the background thread if you want to manage the releasing in your own thread | _BG_RELEASER_ (boolean)
+|===
