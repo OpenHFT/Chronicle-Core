@@ -64,7 +64,10 @@ public interface EventLoop extends Closeable {
 
     /**
      * Wait until the event loop has terminated (after {@link #stop()} has been called)
+     *
+     * @deprecated {@link #stop()} and {@link #close()} both block until the event handlers have finished running, there's no reason to call this explicitly
      */
+    @Deprecated(/* for removal in x.25 */)
     void awaitTermination();
 
     /**
@@ -76,7 +79,7 @@ public interface EventLoop extends Closeable {
 
     /**
      * Stop the event loop, then close any resources being held.
-     *
+     * <p>
      * Blocks until the handlers are all stopped and closed
      */
     @Override

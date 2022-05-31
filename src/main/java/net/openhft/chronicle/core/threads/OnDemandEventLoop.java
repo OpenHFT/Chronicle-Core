@@ -74,6 +74,7 @@ public class OnDemandEventLoop implements EventLoop {
         return el != null && el.isStopped();
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void awaitTermination() {
         if (hasEventLoop())
