@@ -25,8 +25,8 @@
         <relativePath></relativePath>
     </parent>
     <artifactId>chronicle-core</artifactId>
-    <packaging>bundle</packaging>
     <version>2.23ea13-SNAPSHOT</version>
+    <packaging>bundle</packaging>
     <name>OpenHFT/Chronicle-Core</name>
     <description>Chronicle-Core</description>
 
@@ -107,12 +107,6 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-params</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.junit.vintage</groupId>
-            <artifactId>junit-vintage-engine</artifactId>
             <scope>test</scope>
         </dependency>
 
