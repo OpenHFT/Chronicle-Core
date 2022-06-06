@@ -465,7 +465,7 @@ public final class Longs {
      * (i.e. value & (Long.BYTES - 1) == 0)
      */
     public static LongPredicate longAligned() {
-        return LongCondition.INT_ALIGNED;
+        return LongCondition.LONG_ALIGNED;
     }
 
     /**

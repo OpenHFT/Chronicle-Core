@@ -465,7 +465,7 @@ public final class Ints {
      * (i.e. value & (Long.BYTES - 1) == 0)
      */
     public static IntPredicate longAligned() {
-        return IntCondition.INT_ALIGNED;
+        return IntCondition.LONG_ALIGNED;
     }
 
     /**
