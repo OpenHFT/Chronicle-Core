@@ -8,6 +8,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
+import java.util.function.IntPredicate;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -27,6 +28,8 @@ interface UnsafeMemoryTestMixin<T> {
     float EPSILON = 1e-7f;
 
     Class<T> type();
+
+    IntPredicate alignedToType();
 
     T zero();
 
@@ -277,7 +280,8 @@ interface UnsafeMemoryTestMixin<T> {
         return IntStream.concat(
                 IntStream.of(0, 1),
                 IntStream.of(CACHE_LINE_SIZE_ARM, CACHE_LINE_SIZE)
-                        .flatMap(s -> IntStream.rangeClosed(s - Long.BYTES, s)));
+                        .flatMap(s -> IntStream.rangeClosed(s - Long.BYTES, s)))
+                .filter(alignedToType());
     }
 
     static Stream<Arguments> arguments() {

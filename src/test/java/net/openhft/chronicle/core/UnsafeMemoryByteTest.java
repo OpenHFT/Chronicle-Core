@@ -2,6 +2,7 @@ package net.openhft.chronicle.core;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -10,6 +11,11 @@ final class UnsafeMemoryByteTest implements UnsafeMemoryTestMixin<Byte> {
     @Override
     public Class<Byte> type() {
         return Byte.class;
+    }
+
+    @Override
+    public IntPredicate alignedToType() {
+        return i -> true;
     }
 
     @Override
@@ -35,6 +41,7 @@ final class UnsafeMemoryByteTest implements UnsafeMemoryTestMixin<Byte> {
                 new NamedOperation<>("UnsafeMemory::writeByte", UnsafeMemory::writeByte),
                 new NamedOperation<>("UnsafeMemory::writeVolatileByte", UnsafeMemory::writeVolatileByte));
     }
+
     @Override
     public List<NamedOperation<MemoryLongFunction<Byte>>> addressReadOperations() {
         return Arrays.asList(
@@ -42,6 +49,7 @@ final class UnsafeMemoryByteTest implements UnsafeMemoryTestMixin<Byte> {
                 new NamedOperation<>("UnsafeMemory::readByte", UnsafeMemory::readByte),
                 new NamedOperation<>("UnsafeMemory::readVolatileByte", UnsafeMemory::readVolatileByte));
     }
+
     @Override
     public List<NamedOperation<MemoryObjLongObjConsumer<Byte>>> objectWriteOperations() {
         return Arrays.asList(

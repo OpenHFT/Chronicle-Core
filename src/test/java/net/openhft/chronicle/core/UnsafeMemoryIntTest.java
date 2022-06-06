@@ -1,9 +1,11 @@
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.util.Ints;
 import net.openhft.chronicle.testframework.Series;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.IntPredicate;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
@@ -12,6 +14,11 @@ final class UnsafeMemoryIntTest implements UnsafeMemoryTestMixin<Integer> {
     @Override
     public Class<Integer> type() {
         return Integer.class;
+    }
+
+    @Override
+    public IntPredicate alignedToType() {
+        return Ints.intAligned();
     }
 
     @Override

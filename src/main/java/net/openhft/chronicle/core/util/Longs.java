@@ -436,6 +436,39 @@ public final class Longs {
     }
 
     /**
+     * Returns a predicate that can test if a value is <em>short aligned</em>
+     * (i.e. value & (Short.BYTES - 1) == 0).
+     *
+     * @return a predicate that can test if a value is <em>short aligned</em>
+     * (i.e. value & (Short.BYTES - 1) == 0)
+     */
+    public static LongPredicate shortAligned() {
+        return LongCondition.SHORT_ALIGNED;
+    }
+
+    /**
+     * Returns a predicate that can test if a value is <em>int aligned</em>
+     * (i.e. value & (Integer.BYTES - 1) == 0).
+     *
+     * @return a predicate that can test if a value is a <em>int aligned</em>
+     * (i.e. value & (Integer.BYTES - 1) == 0)
+     */
+    public static LongPredicate intAligned() {
+        return LongCondition.INT_ALIGNED;
+    }
+
+    /**
+     * Returns a predicate that can test if a value is <em>long aligned</em>
+     * (i.e. value & (Long.BYTES - 1) == 0).
+     *
+     * @return a predicate that can test if a value is a <em>long aligned</em>
+     * (i.e. value & (Long.BYTES - 1) == 0)
+     */
+    public static LongPredicate longAligned() {
+        return LongCondition.INT_ALIGNED;
+    }
+
+    /**
      * Returns a predicate that can test if a value is <em>equal to</em> another value.
      *
      * @return a predicate that can test if a value is <em>equal to</em> another value
