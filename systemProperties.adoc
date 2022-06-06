@@ -2,23 +2,26 @@
 == System Properties
 Below, a number of relevant System Properties are listed.
 
+NOTE: With `getBoolean`, returns if a System Property with the provided {@code systemPropertyKey} either exists, is set to "yes" or is set to "true", see
+https://github.com/OpenHFT/Chronicle-Core/blob/351e79ed593fa656c21b4e5a540a3a5831cd06a3/src/main/java/net/openhft/chronicle/core/Jvm.java#L1184[javadoc].
+
 .System properties
 [cols=4*, options="header"]
 |===
 | Property Key | Default | Description | Java Variable Name (Type)
 | background.releaser | `true` | Turn off the BackgroundResourceReleaser thread to manage resource releasing in your own thread | _BG_RELEASER_ (boolean)
-| chronicle.announcer.disable | `false` | If 'true', disables the InternalAnnouncer | _DISABLE_ANNOUNCEMENT_ (boolean)
+| chronicle.announcer.disable | `false` | If enabled (see NOTE), disables the InternalAnnouncer | _DISABLE_ANNOUNCEMENT_ (boolean)
 | debug | `false` | Returns if the JVM is running in debug mode |_IS_DEBUG_ (boolean)
 | disable.discard.warning | `false` | Called from finalise() implementations. If 'true', message is displayed stating that resource cannot be closed, and IllegalStateException is thrown  | _DISABLE_DISCARD_WARNING_ (boolean)
-| disable.perf.info | `false` | if 'true', returns NullExceptionHandler | disablePerfInfo (boolean)
-| disable.resource.warning | `false` | If 'true', returns that resource tracing is turned on | boolean
-| disable.thread.safety | `false` | If 'true', threadSafetyCheck throws IllegalStateException in AbstractReferenceCounted.java and message thrown stating which component is not thread safe | _DISABLE_THREAD_SAFETY_ (boolean)
+| disable.perf.info | `false` | if enabled (see NOTE), returns NullExceptionHandler | disablePerfInfo (boolean)
+| disable.resource.warning | `false` | If enabled (see NOTE), returns that resource tracing is turned on | boolean
+| disable.thread.safety | `false` | If enabled (see NOTE), threadSafetyCheck throws IllegalStateException in AbstractReferenceCounted.java and message thrown stating which component is not thread safe | _DISABLE_THREAD_SAFETY_ (boolean)
 | jfr | `false` | Returns if the JVM is running in flight recorder mode | _IS_FLIGHT_RECORDER_ (boolean)
 | jvm.resources.tracing | `false` | Returns if certain chronicle resources (such as memory regions) are traced. Reference counting can be enabled, which incurs slightly less performance, but it provides a means of detecting proper release of resources | RESOURCE_TRACING (boolean)
-| jvm.safepoint.enabled | `false` | If 'true', inserts a low-cost Java safe-point, which can help to find blockages. Jvm.safepoint can also be added when monitoring the event loop in link:https://github.com/OpenHFT/Chronicle-Threads#monitoring-the-event-loop[Chronicle-Threads] to help identify hotspots in the code | SAFEPOINT_ENABLED (boolean)
+| jvm.safepoint.enabled | `false` | If enabled (see NOTE), inserts a low-cost Java safe-point, which can help to find blockages. Jvm.safepoint can also be added when monitoring the event loop in link:https://github.com/OpenHFT/Chronicle-Threads#monitoring-the-event-loop[Chronicle-Threads] to help identify hotspots in the code | SAFEPOINT_ENABLED (boolean)
 | reference.warn.count | unknown | If there is a high reserve count (relative to referenceCounted), warning is thrown stating the referenceName with the high reserve count | _WARN_COUNT_ (int)
 | reference.warn.secs | 0.003 | If time of inThreadPerformanceRelease is greater than default, message is thrown to state the ms it takes to performRelease | _WARN_NS_ (long)
-| report.unoptimised | `false` | If 'true', returns usage of unoptimised method | REPORT_UNOPTIMISED (boolean)
-| strict.discard.warning | `false` | If 'true', message is displayed stating that resources have been 'discarded without being released by' + referencesAsString() | _STRICT_DISCARD_WARNING_ (boolean)
+| report.unoptimised | `false` | If enabled (see NOTE), returns usage of unoptimised method | REPORT_UNOPTIMISED (boolean)
+| strict.discard.warning | `false` | If enabled (see NOTE), message is displayed stating that resources have been 'discarded without being released by' + referencesAsString() | _STRICT_DISCARD_WARNING_ (boolean)
 | warnAndCloseIfNotClosed | `true` |If 'false', returns the DEBUG exception handler, which prints as System.out or DEBUG level logging | boolean
 |===
