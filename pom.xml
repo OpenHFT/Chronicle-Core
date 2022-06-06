@@ -183,7 +183,6 @@
             <plugin>
                 <groupId>net.openhft</groupId>
                 <artifactId>binary-compatibility-enforcer-plugin</artifactId>
-                <version>1.0.9</version>
                 <executions>
                     <execution>
                         <goals>
