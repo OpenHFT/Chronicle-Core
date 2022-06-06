@@ -1,0 +1,1 @@
+BOOT_IMAGE=/vmlinuz-3.10.0-1160.25.1.el7.x86_64 root=/dev/mapper/centos-root ro LANG=en_GB.UTF-8 nohz_full=2-11 spectre_v2=off processor.max_cstate=1 intel_idle.max_cstate=0 idle=poll mce=ignore_ce nosoftlockup audit=0 nopti crashkernel=auto rd.lvm.lv=centos/root rd.lvm.lv=centos/swap rhgb quiet
