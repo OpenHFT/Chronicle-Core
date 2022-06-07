@@ -157,18 +157,39 @@ public class UnsafeMemory implements Memory {
         UNSAFE.putByte(address, value);
     }
 
+    /**
+     * Puts the provided {@code value} into the provided {@code bytes} array at the provided byte {@code offset}.
+     *
+     * @param bytes non-null byte array.
+     * @param offset in the provided bytes where the value is written
+     * @param value to put
+     */
     public static void unsafePutLong(byte[] bytes, int offset, long value) {
         assert SKIP_ASSERTIONS || nonNull(bytes);
         assert SKIP_ASSERTIONS || assertIfEnabled(Ints.betweenZeroAndReserving(), offset, bytes.length, Long.BYTES);
         UNSAFE.putLong(bytes, ARRAY_BYTE_BASE_OFFSET + offset, value);
     }
 
+    /**
+     * Puts the provided {@code value} into the provided {@code bytes} array at the provided byte {@code offset}.
+     *
+     * @param bytes non-null byte array.
+     * @param offset in the provided bytes where the value is written
+     * @param value to put
+     */
     public static void unsafePutInt(byte[] bytes, int offset, int value) {
         assert SKIP_ASSERTIONS || nonNull(bytes);
         assert SKIP_ASSERTIONS || assertIfEnabled(Ints.betweenZeroAndReserving(), offset, bytes.length, Integer.BYTES);
         UNSAFE.putInt(bytes, ARRAY_BYTE_BASE_OFFSET + offset, value);
     }
 
+    /**
+     * Puts the provided {@code value} into the provided {@code bytes} array at the provided byte {@code offset}.
+     *
+     * @param bytes non-null byte array.
+     * @param offset in the provided bytes where the value is written
+     * @param value to put
+     */
     public static void unsafePutByte(byte[] bytes, int offset, byte value) {
         assert SKIP_ASSERTIONS || nonNull(bytes);
         assert SKIP_ASSERTIONS || assertIfEnabled(Ints.betweenZeroAndReserving(), offset, bytes.length, Byte.BYTES);

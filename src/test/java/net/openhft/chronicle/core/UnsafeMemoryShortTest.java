@@ -64,7 +64,7 @@ final class UnsafeMemoryShortTest implements UnsafeMemoryTestMixin<Short> {
     public List<NamedOperation<MemoryObjLongObjConsumer<Short>>> objectWriteOperations() {
         return Arrays.asList(
                 new NamedOperation<>("UnsafeMemory::unsafePutShort(Object)", (m, obj, offset, v) -> UnsafeMemory.unsafePutShort(obj, offset, v)),
-                // SIGSEGV
+                // This operation does not support obj == null
                 // new NamedOperation<>("UnsafeMemory::unsafePutShort(byte[])", (m, obj, offset, v) -> UnsafeMemory.unsafePutShort((byte[]) obj, (int) offset, v)),
                 new NamedOperation<>("UnsafeMemory::writeShort", UnsafeMemory::writeShort),
                 new NamedOperation<>("UnsafeMemory::writeVolatileShort", UnsafeMemory::writeVolatileShort));

@@ -2,6 +2,7 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.util.Ints;
 import net.openhft.chronicle.testframework.Series;
+import org.junit.Test;
 
 import java.util.Arrays;
 import java.util.List;
@@ -62,7 +63,7 @@ final class UnsafeMemoryIntTest implements UnsafeMemoryTestMixin<Integer> {
     public List<NamedOperation<MemoryObjLongObjConsumer<Integer>>> objectWriteOperations() {
         return Arrays.asList(
                 new NamedOperation<>("UnsafeMemory::unsafePutInt(Object)", (m, obj, offset, v) -> UnsafeMemory.unsafePutInt(obj, offset, v)),
-                // SIGSEGV
+                // This operation does not support obj == null
                 // new NamedOperation<>("UnsafeMemory::unsafePutInt(byte[])", (m, obj, offset, v) -> UnsafeMemory.unsafePutInt((byte[]) obj, (int) offset, v)),
                 new NamedOperation<>("UnsafeMemory::writeInt", UnsafeMemory::writeInt),
                 new NamedOperation<>("UnsafeMemory::writeVolatileInt", UnsafeMemory::writeVolatileInt));

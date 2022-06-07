@@ -62,8 +62,8 @@ final class UnsafeMemoryLongTest implements UnsafeMemoryTestMixin<Long> {
     public List<NamedOperation<MemoryObjLongObjConsumer<Long>>> objectWriteOperations() {
         return Arrays.asList(
                 new NamedOperation<>("UnsafeMemory::unsafePutLong(Object)", (m, obj, offset, v) -> UnsafeMemory.unsafePutLong(obj, offset, v)),
-                // SIGSEGV
-                // new NamedOperation<>("UnsafeMemory::unsafePutInt(byte[])", (m, obj, offset, v) -> UnsafeMemory.unsafePutInt((byte[]) obj, (int) offset, v)),
+                // This operation does not support obj == null
+                // new NamedOperation<>("UnsafeMemory::unsafePutLong(byte[])", (m, obj, offset, v) -> UnsafeMemory.unsafePutLong((byte[]) obj, (int) offset, v)),
                 new NamedOperation<>("UnsafeMemory::writeLong", UnsafeMemory::writeLong),
                 new NamedOperation<>("UnsafeMemory::writeVolatileLong", UnsafeMemory::writeVolatileLong));
     }
