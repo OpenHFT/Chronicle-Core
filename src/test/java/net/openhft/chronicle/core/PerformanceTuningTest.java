@@ -18,12 +18,14 @@ public class PerformanceTuningTest {
     public static void main(String[] args) {
         assumeTrue(OS.isLinux());
 
-        File cpu0ScalingGovernor = new File("sys/devices/system/cpu/cpu0/cpufreq/scaling_governor");
+        File cpu0ScalingGovernor = new File("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor");
         assertTrue(cpu0ScalingGovernor.exists());
 
         String scalingGovernorsCheck = PerformanceTuning.checkScalingGovernors();
         System.out.println("Result of checking CPU scaling governors: " + scalingGovernorsCheck);
         assertNull(scalingGovernorsCheck);
+
+        assertTrue(PerformanceTuning.issues().isEmpty());
 
         PerformanceTuning.reportIssues();
     }
