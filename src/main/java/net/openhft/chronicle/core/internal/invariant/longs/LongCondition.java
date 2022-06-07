@@ -14,10 +14,12 @@ public enum LongCondition implements LongPredicate {
     NON_ZERO("!= 0", value -> value != 0),
     BYTE_CONVERTIBLE(Byte.MIN_VALUE, Byte.MAX_VALUE),
     SHORT_CONVERTIBLE(Short.MIN_VALUE, Short.MAX_VALUE),
-    EVEN_POWER_OF_TWO(" > 0 && bitcount == 1", value -> value > 0 && Long.bitCount(value) == 1);
+    EVEN_POWER_OF_TWO(" > 0 && bitcount == 1", value -> value > 0 && Long.bitCount(value) == 1),
     // EVEN, ODD
     // PRIME
-    // SHORT_ALIGNED, INT_ALIGNED, LONG_ALIGNED
+    SHORT_ALIGNED("short aligned", value -> (value & (Short.BYTES - 1)) == 0),
+    INT_ALIGNED("int aligned", value -> (value & (Integer.BYTES - 1)) == 0),
+    LONG_ALIGNED("long aligned", value -> (value & (Long.BYTES - 1)) == 0);
 
     private final String operation;
     private final LongPredicate predicate;
