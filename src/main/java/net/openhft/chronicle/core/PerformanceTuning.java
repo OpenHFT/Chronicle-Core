@@ -30,7 +30,7 @@ public final class PerformanceTuning {
         List<String> issues = issues();
         if (!issues.isEmpty()) {
             StringBuilder msg = new StringBuilder();
-            msg.append("OS configuration is non-optimal for high-performance:").append("\n");
+            msg.append("OS configuration is non-optimal for high performance:").append("\n");
             issues.forEach(issue -> msg.append(issue).append("\n"));
             msg.append("If you would like assistance, please contact sales@chroncle.software.");
             Jvm.warn().on(PerformanceTuning.class, msg.toString());
