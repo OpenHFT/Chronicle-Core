@@ -98,7 +98,7 @@ public abstract class AbstractCloseableReferenceCounted
     public void throwExceptionIfClosed() throws IllegalStateException {
         throwExceptionIfClosed0();
         throwExceptionIfReleased();
-        assert threadSafetyCheck(true);
+        assert AbstractCloseable.DISABLE_SINGLE_THREADED_CHECK || threadSafetyCheck(true);
     }
 
     private void throwExceptionIfClosed0() {
@@ -109,7 +109,7 @@ public abstract class AbstractCloseableReferenceCounted
     protected void throwExceptionIfClosedInSetter() throws IllegalStateException {
         throwExceptionIfClosed0();
         throwExceptionIfReleased();
-        assert threadSafetyCheck(false);
+        assert AbstractCloseable.DISABLE_SINGLE_THREADED_CHECK || threadSafetyCheck(false);
     }
 
     @Override

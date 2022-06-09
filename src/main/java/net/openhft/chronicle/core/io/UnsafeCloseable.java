@@ -8,7 +8,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
     protected Unsafe unsafe = null;
 
     protected UnsafeCloseable() {
-        disableThreadSafetyCheck(true);
+        singleThreadedCheckDisabled(true);
     }
 
     protected void address(long address) {
