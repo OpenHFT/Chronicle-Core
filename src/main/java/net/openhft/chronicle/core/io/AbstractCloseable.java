@@ -398,11 +398,17 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         }
     }
 
+    /**
+     * @deprecated Use @{code singleThreadedCheckReset()} instead
+     */
     @Deprecated(/* to be removed in x.25 */)
     public void resetUsedByThread() {
         singleThreadedCheckReset();
     }
 
+    /**
+     * @deprecated Use @{code singleThreadedCheckReset()} instead
+     */
     @Deprecated(/* to be removed in x.25 */)
     public void clearUsedByThread() {
         singleThreadedCheckReset();
@@ -418,6 +424,9 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         return referenceName();
     }
 
+    /**
+     * @deprecated Use @{code singleThreadedCheckDisabled()} instead
+     */
     @Deprecated(/* to be removed in x.25 */)
     public boolean disableThreadSafetyCheck() {
         return singleThreadedCheckDisabled;
@@ -427,6 +436,9 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         return singleThreadedCheckDisabled;
     }
 
+    /**
+     * @deprecated Use @{code disableThreadSafetyCheck(boolean)} instead
+     */
     @Deprecated(/* to be removed in x.25 */)
     public AbstractCloseable disableThreadSafetyCheck(boolean disableThreadSafetyCheck) {
         singleThreadedCheckDisabled(disableThreadSafetyCheck);

@@ -201,6 +201,9 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         usedByThread = null;
     }
 
+    /**
+     * @deprecated Use singleThreadedCheckReset() instead
+     */
     @Deprecated(/* to be removed in x.25 */)
     public void clearUsedByThread() {
         usedByThread = null;
