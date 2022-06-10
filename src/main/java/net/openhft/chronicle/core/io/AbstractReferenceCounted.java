@@ -191,7 +191,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
             usedByThread = currentThread;
             usedByThreadHere = new StackTrace("Used here");
         } else if (usedByThread != currentThread) {
-            final String message = getClass().getName() + " component which is not thread safes used by " + usedByThread + " and " + currentThread;
+            final String message = getClass().getName() + " component which is not thread safe used by " + usedByThread + " and " + currentThread;
             throw new IllegalStateException(message, usedByThreadHere);
         }
         return true;
