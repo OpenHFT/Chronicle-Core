@@ -32,6 +32,7 @@ import sun.misc.Unsafe;
 import sun.nio.ch.Interruptible;
 
 import java.io.*;
+import java.lang.annotation.Annotation;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -69,21 +70,15 @@ import static net.openhft.chronicle.core.internal.util.MapUtil.ofUnmodifiable;
  */
 public final class Jvm {
 
+    public static final String JAVA_CLASS_PATH = "java.class.path";
+    public static final String SYSTEM_PROPERTIES = "system.properties";
     // These are the exception handlers used initially, and restored when resetExceptionHandlers() is called
     private static final ExceptionHandler DEFAULT_ERROR_EXCEPTION_HANDLER = Slf4jExceptionHandler.ERROR;
     private static final ExceptionHandler DEFAULT_WARN_EXCEPTION_HANDLER = Slf4jExceptionHandler.WARN;
     private static final ExceptionHandler DEFAULT_PERF_EXCEPTION_HANDLER = Slf4jExceptionHandler.PERF;
     private static final ExceptionHandler DEFAULT_DEBUG_EXCEPTION_HANDLER = Slf4jExceptionHandler.DEBUG;
-
-    // Suppresses default constructor, ensuring non-instantiability.
-    private Jvm() {
-    }
-
     private static final String PROC = "/proc";
     private static final String PROC_SELF = "/proc/self";
-
-    public static final String JAVA_CLASS_PATH = "java.class.path";
-    public static final String SYSTEM_PROPERTIES = "system.properties";
     private static final List<String> INPUT_ARGUMENTS = getRuntimeMXBean().getInputArguments();
     private static final String INPUT_ARGUMENTS2 = " " + String.join(" ", INPUT_ARGUMENTS);
     private static final boolean IS_DEBUG = Jvm.getBoolean("debug", INPUT_ARGUMENTS2.contains("jdwp"));
@@ -109,7 +104,6 @@ public final class Jvm {
     private static final boolean SAFEPOINT_ENABLED;
     private static final boolean IS_ARM = Bootstrap.isArm0();
     private static final boolean IS_MAC_ARM = Bootstrap.isMacArm0();
-
     private static final Map<Class<?>, ClassMetrics> CLASS_METRICS_MAP = new ConcurrentHashMap<>();
     private static final Map<Class<?>, Integer> PRIMITIVE_SIZE = ofUnmodifiable(
             entry(boolean.class, 1),
@@ -121,14 +115,12 @@ public final class Jvm {
             entry(long.class, Long.BYTES),
             entry(double.class, Double.BYTES)
     );
-
     private static final MethodHandle setAccessible0_Method;
     private static final MethodHandle onSpinWaitMH;
     private static final ChainedSignalHandler signalHandlerGlobal;
     private static final boolean RESOURCE_TRACING;
     private static final boolean PROC_EXISTS = new File(PROC).exists();
     private static final int OBJECT_HEADER_SIZE;
-
     private static final boolean ASSERT_ENABLED;
 
     static {
@@ -188,6 +180,10 @@ public final class Jvm {
         REPORT_UNOPTIMISED = Jvm.getBoolean("report.unoptimised");
     }
 
+    // Suppresses default constructor, ensuring non-instantiability.
+    private Jvm() {
+    }
+
     public static void reportUnoptimised() {
         if (!REPORT_UNOPTIMISED)
             return;
@@ -229,7 +225,8 @@ public final class Jvm {
             Method privateLookupIn = MethodHandles.class.getDeclaredMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
             MethodHandles.Lookup lookup = (MethodHandles.Lookup) privateLookupIn.invoke(null, AccessibleObject.class, MethodHandles.lookup());
             return lookup.findVirtual(AccessibleObject.class, "setAccessible0", signature);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException |
+                 IllegalArgumentException e) {
             throw new ExceptionInInitializerError(e);
         }
     }
@@ -1174,7 +1171,7 @@ public final class Jvm {
      * <p>
      * This provides a more permissive boolean System systemPropertyKey flag where
      * {@code -Dflag} {@code -Dflag=true} {@code -Dflag=yes} are all accepted.
-     *
+     * <p>
      * Guarantees that Jvm class is initialized before property is read.
      *
      * @param systemPropertyKey name to lookup
@@ -1192,7 +1189,7 @@ public final class Jvm {
      * <p>
      * This provides a more permissive boolean System systemPropertyKey flag where
      * {@code -Dflag} {@code -Dflag=true} {@code -Dflag=yes} are all accepted.
-     *
+     * <p>
      * Guarantees that Jvm class is initialized before property is read.
      *
      * @param systemPropertyKey name to lookup
@@ -1410,7 +1407,7 @@ public final class Jvm {
      * Returns the System Property associated with the provided {@code systemPropertyKey}
      * parsed as a {@code double} or, if no such parsable System Property exists,
      * returns the provided {@code defaultValue}.
-     *
+     * <p>
      * Guarantees that Jvm class is initialized before property is read.
      *
      * @param systemPropertyKey to lookup in the System Properties
@@ -1514,6 +1511,50 @@ public final class Jvm {
             LockSupport.park();
     }
 
+    public static <A extends Annotation> A findAnnotation(AnnotatedElement ae, Class<A> annotationType) {
+        return findAnnotation(ae, annotationType, new HashSet<>());
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <A extends Annotation> A findAnnotation(AnnotatedElement ae, Class<A> annotationType, Set<Annotation> visited) {
+        try {
+            Annotation[] anns = ae.getDeclaredAnnotations();
+            for (Annotation ann : anns) {
+                if (ann.annotationType() == annotationType) {
+                    return (A) ann;
+                }
+            }
+            for (Annotation ann : anns) {
+                if (visited.add(ann)) {
+                    A annotation = findAnnotation(ann.annotationType(), annotationType, visited);
+                    if (annotation != null) {
+                        return annotation;
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            return null;
+        }
+
+        if (!(ae instanceof Class)) {
+            return null;
+        }
+        Class clazz = (Class) ae;
+        for (Class<?> ifc : clazz.getInterfaces()) {
+            A annotation = findAnnotation(ifc, annotationType, visited);
+            if (annotation != null) {
+                return annotation;
+            }
+        }
+
+        Class<?> superclass = clazz.getSuperclass();
+        if (superclass == null || Object.class == superclass) {
+            return null;
+        }
+
+        return findAnnotation(superclass, annotationType, visited);
+    }
+
     public interface SignalHandler {
         /**
          * Handle a Signal
@@ -1552,12 +1593,12 @@ public final class Jvm {
     // from https://stackoverflow.com/questions/62550828/is-there-a-lightweight-method-which-adds-a-safepoint-in-java-9
     static final class Safepoint {
 
+        // must be volatile
+        private static volatile int one = 1;
+
         // Suppresses default constructor, ensuring non-instantiability.
         private Safepoint() {
         }
-
-        // must be volatile
-        private static volatile int one = 1;
 
         public static void force() {
             // trick only works from Java 9+
@@ -1567,10 +1608,6 @@ public final class Jvm {
 
     static final class InitSignalHandlers {
 
-        // Suppresses default constructor, ensuring non-instantiability.
-        private InitSignalHandlers() {
-        }
-
         static {
             if (!OS.isWindows()) {
                 // Not available on Windows.
@@ -1579,6 +1616,10 @@ public final class Jvm {
             addSignalHandler("INT", signalHandlerGlobal);
             addSignalHandler("TERM", signalHandlerGlobal);
 
+        }
+
+        // Suppresses default constructor, ensuring non-instantiability.
+        private InitSignalHandlers() {
         }
 
         static void init() {
@@ -1628,10 +1669,6 @@ public final class Jvm {
         static final String CPU_MODEL;
 
         private static final String PROCESS = "process ";
-
-        // Suppresses default constructor, ensuring non-instantiability.
-        private CpuClass() {
-        }
 
         static {
             String model = Jvm.getProperty("os.arch", "unknown");
@@ -1694,6 +1731,10 @@ public final class Jvm {
                 Jvm.debug().on(CpuClass.class, "Unable to read cpuinfo", e);
             }
             CPU_MODEL = model;
+        }
+
+        // Suppresses default constructor, ensuring non-instantiability.
+        private CpuClass() {
         }
 
         @SuppressWarnings("java:S5852") // Possessive quantifiers (*+) are used preventing catastrophic backtracking
