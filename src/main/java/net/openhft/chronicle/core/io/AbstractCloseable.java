@@ -39,8 +39,11 @@ import java.util.concurrent.TimeUnit;
 import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEASER;
 import static net.openhft.chronicle.core.io.TracingReferenceCounted.asString;
 
-public abstract class AbstractCloseable implements ReferenceOwner, ManagedCloseable {
-    protected static final boolean DISABLE_THREAD_SAFETY = Jvm.getBoolean("disable.thread.safety", false);
+public abstract class AbstractCloseable implements ReferenceOwner, ManagedCloseable, SingleThreadedChecked {
+    protected static final boolean DISABLE_SINGLE_THREADED_CHECK =
+            Jvm.getBoolean("disable.single.threaded.check",
+                    Jvm.getBoolean("disable.thread.safety", false));
+    protected static final boolean DISABLE_THREAD_SAFETY = DISABLE_SINGLE_THREADED_CHECK;
     protected static final boolean DISABLE_DISCARD_WARNING = Jvm.getBoolean("disable.discard.warning", false);
     protected static final boolean STRICT_DISCARD_WARNING = Jvm.getBoolean("strict.discard.warning", false);
 
@@ -58,12 +61,12 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         CLOSED_OFFSET = UnsafeMemory.unsafeObjectFieldOffset(Jvm.getField(AbstractCloseable.class, "closed"));
     }
 
-    private transient volatile int closed = 0;
     private final transient StackTrace createdHere;
     protected transient volatile StackTrace closedHere;
+    private transient volatile int closed = 0;
     private transient volatile Thread usedByThread;
     private transient volatile StackTrace usedByThreadHere;
-    private transient boolean disableThreadSafetyCheck;
+    private transient boolean singleThreadedCheckDisabled;
 
     @UsedViaReflection
     private transient Finalizer finalizer = DISABLE_DISCARD_WARNING ? null : new Finalizer();
@@ -131,7 +134,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
                     try {
                         // too late to be checking thread safety.
                         if (key instanceof AbstractCloseable) {
-                            ((AbstractCloseable) key).disableThreadSafetyCheck(true);
+                            ((AbstractCloseable) key).singleThreadedCheckDisabled(true);
                         }
                         if (key instanceof ReferenceCountedTracer) {
                             ((ReferenceCountedTracer) key).throwExceptionIfNotReleased();
@@ -308,7 +311,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     public void throwExceptionIfClosed() throws IllegalStateException {
         if (isClosed())
             throw new ClosedIllegalStateException(getClass().getName() + " closed for " + Thread.currentThread().getName(), closedHere);
-        if (!DISABLE_THREAD_SAFETY)
+        if (!DISABLE_SINGLE_THREADED_CHECK)
             threadSafetyCheck(true);
     }
 
@@ -316,7 +319,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         if (isClosed())
             throw new ClosedIllegalStateException(getClass().getName() + " closed for " + Thread.currentThread().getName(), closedHere);
         // only check it if this has been used.
-        if (!DISABLE_THREAD_SAFETY)
+        if (!DISABLE_SINGLE_THREADED_CHECK)
             threadSafetyCheck(false);
     }
 
@@ -374,7 +377,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     }
 
     protected void threadSafetyCheck(boolean isUsed) throws IllegalStateException {
-        if (DISABLE_THREAD_SAFETY || disableThreadSafetyCheck)
+        if (DISABLE_SINGLE_THREADED_CHECK || singleThreadedCheckDisabled)
             return;
         threadSafetyCheck0(isUsed);
     }
@@ -395,12 +398,23 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         }
     }
 
+    /**
+     * @deprecated Use @{code singleThreadedCheckReset()} instead
+     */
+    @Deprecated(/* to be removed in x.25 */)
     public void resetUsedByThread() {
-        usedByThread = Thread.currentThread();
-        usedByThreadHere = new StackTrace(getClass().getName() + " used here");
+        singleThreadedCheckReset();
     }
 
+    /**
+     * @deprecated Use @{code singleThreadedCheckReset()} instead
+     */
+    @Deprecated(/* to be removed in x.25 */)
     public void clearUsedByThread() {
+        singleThreadedCheckReset();
+    }
+
+    public void singleThreadedCheckReset() {
         usedByThread = null;
         usedByThreadHere = null;
     }
@@ -410,13 +424,29 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         return referenceName();
     }
 
+    /**
+     * @deprecated Use @{code singleThreadedCheckDisabled()} instead
+     */
+    @Deprecated(/* to be removed in x.25 */)
     public boolean disableThreadSafetyCheck() {
-        return disableThreadSafetyCheck;
+        return singleThreadedCheckDisabled;
     }
 
+    protected boolean singleThreadedCheckDisabled() {
+        return singleThreadedCheckDisabled;
+    }
+
+    /**
+     * @deprecated Use @{code disableThreadSafetyCheck(boolean)} instead
+     */
+    @Deprecated(/* to be removed in x.25 */)
     public AbstractCloseable disableThreadSafetyCheck(boolean disableThreadSafetyCheck) {
-        this.disableThreadSafetyCheck = disableThreadSafetyCheck;
+        singleThreadedCheckDisabled(disableThreadSafetyCheck);
         return this;
+    }
+
+    public void singleThreadedCheckDisabled(boolean singleThreadedCheckDisabled) {
+        this.singleThreadedCheckDisabled = singleThreadedCheckDisabled;
     }
 
     class Finalizer {

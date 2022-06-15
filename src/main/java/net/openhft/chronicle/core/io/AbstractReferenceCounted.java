@@ -16,9 +16,11 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     protected static final long WARN_NS = (long) (Jvm.getDouble("reference.warn.secs", 0.003) * 1e9);
     protected static final int WARN_COUNT = Jvm.getInteger("reference.warn.count", Integer.MAX_VALUE);
     static volatile Set<AbstractReferenceCounted> referenceCountedSet;
-    private transient volatile Thread usedByThread;
     protected final transient MonitorReferenceCounted referenceCounted;
     private final int referenceId;
+    private transient volatile Thread usedByThread;
+    private transient volatile StackTrace usedByThreadHere;
+    private boolean singleThreadedCheckDisabled;
 
     protected AbstractReferenceCounted() {
         this(true);
@@ -130,8 +132,8 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     @Override
     public void reserve(ReferenceOwner id) throws IllegalStateException {
         if ((WARN_COUNT < Integer.MAX_VALUE && referenceCounted.refCount() >= WARN_COUNT) && (referenceCounted.refCount() - WARN_COUNT) % 10 == 0)
-                Jvm.warn().on(getClass(), "high reserve count for " + referenceName() +
-                        " was " + referenceCounted.refCount(), new StackTrace("reserved here"));
+            Jvm.warn().on(getClass(), "high reserve count for " + referenceName() +
+                    " was " + referenceCounted.refCount(), new StackTrace("reserved here"));
         referenceCounted.reserve(id);
     }
 
@@ -174,8 +176,12 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         return referenceCounted.reservedBy(owner);
     }
 
+    public void singleThreadedCheckDisabled(boolean singleThreadedCheckDisabled) {
+        this.singleThreadedCheckDisabled = singleThreadedCheckDisabled;
+    }
+
     protected boolean threadSafetyCheck(boolean isUsed) throws IllegalStateException {
-        if (DISABLE_THREAD_SAFETY)
+        if (DISABLE_SINGLE_THREADED_CHECK || singleThreadedCheckDisabled)
             return true;
         if (usedByThread == null && !isUsed)
             return true;
@@ -183,12 +189,22 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         Thread currentThread = Thread.currentThread();
         if (usedByThread == null || !usedByThread.isAlive()) {
             usedByThread = currentThread;
+            usedByThreadHere = new StackTrace("Used here");
         } else if (usedByThread != currentThread) {
-            throw new IllegalStateException(getClass().getName() + " component which is not thread safes used by " + usedByThread + " and " + currentThread);
+            final String message = getClass().getName() + " component which is not thread safe used by " + usedByThread + " and " + currentThread;
+            throw new IllegalStateException(message, usedByThreadHere);
         }
         return true;
     }
 
+    public void singleThreadedCheckReset() {
+        usedByThread = null;
+    }
+
+    /**
+     * @deprecated Use singleThreadedCheckReset() instead
+     */
+    @Deprecated(/* to be removed in x.25 */)
     public void clearUsedByThread() {
         usedByThread = null;
     }

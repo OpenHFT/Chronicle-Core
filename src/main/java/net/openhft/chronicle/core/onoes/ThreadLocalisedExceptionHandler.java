@@ -27,7 +27,7 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
     /**
      * @deprecated use {@link #ThreadLocalisedExceptionHandler(ExceptionHandler)} instead (to be removed in x.24)
      */
-    @Deprecated
+    @Deprecated(/* to be removed in x.24*/)
     public ThreadLocalisedExceptionHandler(Slf4jExceptionHandler handler) {
         this((ExceptionHandler) handler);
     }
