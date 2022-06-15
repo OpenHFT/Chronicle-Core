@@ -31,6 +31,10 @@ import sun.nio.ch.DirectBuffer;
 
 import javax.naming.ConfigurationException;
 import java.io.IOException;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
@@ -303,4 +307,25 @@ public class JvmTest {
         assertEquals("value", actual);
     }
 
+    @Test
+    public void findAnnotationOnClass() {
+        final RealAnno ra = findAnnotation(Foo.class, RealAnno.class);
+        assertEquals("Hello", ra.value());
+    }
+
+    @Target(value = {ElementType.ANNOTATION_TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface RealAnno {
+        String value();
+    }
+
+    @Target(value = {ElementType.TYPE})
+    @Retention(RetentionPolicy.RUNTIME)
+    @RealAnno("Hello")
+    public @interface AnnoAlias {
+    }
+
+    @AnnoAlias
+    class Foo {
+    }
 }
