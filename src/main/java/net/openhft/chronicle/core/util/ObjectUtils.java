@@ -293,6 +293,9 @@ public final class ObjectUtils {
                 throw asCCE(e);
             }
         }
+        if (Date.class == eClass && o instanceof Long) {
+            return (E) new Date((Long) o);
+        }
         throw new ClassCastException("Unable to convert " + o.getClass() + " " + o + " to " + eClass);
     }
 
