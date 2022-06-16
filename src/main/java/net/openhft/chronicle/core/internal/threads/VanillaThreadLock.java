@@ -8,6 +8,7 @@ import net.openhft.chronicle.core.values.LongValue;
 
 import java.io.File;
 
+@Deprecated(/* to be removed in x.24 */)
 public class VanillaThreadLock implements ThreadLock {
     static final Metrics METRICS = new Metrics();
     private static final long TOP_BITS = ~0L << 32;
