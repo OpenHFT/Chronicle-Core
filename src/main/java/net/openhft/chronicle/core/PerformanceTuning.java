@@ -4,11 +4,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static java.util.Arrays.asList;
@@ -20,6 +23,8 @@ import static net.openhft.chronicle.core.Jvm.rethrow;
  * This class is responsible for OS performance tuning diagnostic.
  */
 public final class PerformanceTuning {
+    static final File TIMESTAMP = new File(OS.TMP, ".tuning." + OS.getUserName());
+
     private PerformanceTuning() {
     }
 
@@ -27,6 +32,7 @@ public final class PerformanceTuning {
      * Report OS performance tuning issues.
      */
     public static void reportIssues() {
+
         List<String> issues = issues();
         if (!issues.isEmpty()) {
             StringBuilder msg = new StringBuilder();
@@ -44,6 +50,14 @@ public final class PerformanceTuning {
     public static List<String> issues() {
         if (!OS.isLinux()) {
             return Collections.emptyList();
+        }
+        if (TIMESTAMP.lastModified() + TimeUnit.MINUTES.toMillis(30) > System.currentTimeMillis())
+            return Collections.emptyList();
+        try {
+            try (FileOutputStream fos = new FileOutputStream(TIMESTAMP, true)) {
+            }
+        } catch (IOException ioe) {
+            Jvm.debug().on(PerformanceTuning.class, ioe);
         }
 
         List<String> issues = new LinkedList<>();
