@@ -59,9 +59,11 @@ NOTE: If you specify system properties on the command line then they will overri
 
 == ChronicleInit
 
-The link:https://github.com/OpenHFT/Chronicle-Core/blob/ea/src/main/java/net/openhft/chronicle/core/ChronicleInit.java[`ChronicInit`] class handles application code which must be loaded/run before any system property is read and may override system properties.
+The link:https://github.com/OpenHFT/Chronicle-Core/blob/ea/src/main/java/net/openhft/chronicle/core/ChronicleInit.java[`ChronicleInit`] class
+allows the developer to hook in their own code to be run at startup before the Chronicle static initialisers are run.
+Chronicle static initialisers perform tasks such as loading system properties, so it is possible, for example, to override system properties using `ChronicleInit`.
 To this end, the system property "chronicle.init.runnable" should specify a fully qualified class name that will be run once before any system property is read by Chronicle code, allowing the class to set them to the desired values.
-The class should contain an empty static init() method that is called to trigger class load. The code should reside in a static block to be run once.
+The class should contain an empty static `init()` method that is called to trigger class load. The code should reside in a static block to be run once.
 
 == Off Heap Memory Access
 
