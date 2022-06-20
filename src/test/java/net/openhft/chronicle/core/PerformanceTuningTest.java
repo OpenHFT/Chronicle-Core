@@ -1,6 +1,7 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.io.IOTools;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -15,6 +16,11 @@ import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
 public class PerformanceTuningTest {
+    @Before
+    public void setUp() {
+        assumeTrue(OS.isLinux());
+    }
+
     public static void main(String[] args) {
         assumeTrue(OS.isLinux());
 
