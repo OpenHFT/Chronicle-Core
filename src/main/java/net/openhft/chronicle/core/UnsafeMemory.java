@@ -1326,6 +1326,26 @@ public class UnsafeMemory implements Memory {
         }
 
         @Override
+        public short readVolatileShort(Object object, long offset) {
+            assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
+            if ((offset & 0x1) == 0)
+                return super.readVolatileShort(object, offset);
+            UNSAFE.loadFence();
+            return super.readShort(object, offset);
+        }
+
+        @Override
+        public void writeVolatileShort(Object object, long offset, short i16) {
+            assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
+            if ((offset & 0x1) == 0) {
+                super.writeVolatileShort(object, offset, i16);
+            } else {
+                super.writeShort(object, offset, i16);
+                UNSAFE.storeFence();
+            }
+        }
+
+        @Override
         public void writeFloat(long address, float f) {
             assert SKIP_ASSERTIONS || address != 0;
             if (safeAlignedInt(address))
@@ -1367,6 +1387,15 @@ public class UnsafeMemory implements Memory {
                 return super.readVolatileInt(address);
             UNSAFE.loadFence();
             return super.readInt(address);
+        }
+
+        @Override
+        public int readVolatileInt(Object object, long offset) {
+            assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
+            if (safeAlignedInt(offset))
+                return super.readVolatileInt(object, offset);
+            UNSAFE.loadFence();
+            return super.readInt(object, offset);
         }
 
         @Override
