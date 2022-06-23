@@ -40,9 +40,7 @@ import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEAS
 import static net.openhft.chronicle.core.io.TracingReferenceCounted.asString;
 
 public abstract class AbstractCloseable implements ReferenceOwner, ManagedCloseable, SingleThreadedChecked {
-    protected static final boolean DISABLE_SINGLE_THREADED_CHECK =
-            Jvm.getBoolean("disable.single.threaded.check",
-                    Jvm.getBoolean("disable.thread.safety", false));
+    @Deprecated(/* remove in x.25 */)
     protected static final boolean DISABLE_THREAD_SAFETY = DISABLE_SINGLE_THREADED_CHECK;
     protected static final boolean DISABLE_DISCARD_WARNING = Jvm.getBoolean("disable.discard.warning", false);
     protected static final boolean STRICT_DISCARD_WARNING = Jvm.getBoolean("strict.discard.warning", false);
