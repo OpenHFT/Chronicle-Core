@@ -235,7 +235,7 @@ public class Histogram implements NanoSampler {
     @NotNull
     public String toMicrosFormat(@NotNull DoubleFunction<Double> toMicros) {
         if (totalCount < 1_000_000)
-            return "50/90 99/99.9 99.99 - worst was " +
+            return "50/90 99/99.9 99.99 - worst " + was() +
                     p(toMicros.apply(percentile(0.5))) + " / " +
                     p(toMicros.apply(percentile(0.9))) + "  " +
                     p(toMicros.apply(percentile(0.99))) + " / " +
@@ -244,7 +244,7 @@ public class Histogram implements NanoSampler {
                     p(toMicros.apply(percentile(1)));
 
         if (totalCount < 10_000_000)
-            return "50/90 99/99.9 99.99/99.999 - worst was " +
+            return "50/90 99/99.9 99.99/99.999 - worst " + was() +
                     p(toMicros.apply(percentile(0.5))) + " / " +
                     p(toMicros.apply(percentile(0.9))) + "  " +
                     p(toMicros.apply(percentile(0.99))) + " / " +
@@ -253,7 +253,7 @@ public class Histogram implements NanoSampler {
                     p(toMicros.apply(percentile(0.99999))) + " - " +
                     p(toMicros.apply(percentile(1)));
 
-        return "50/90 99/99.9 99.99/99.999 99.9999/worst was " +
+        return "50/90 99/99.9 99.99/99.999 99.9999/worst " + was() +
                 p(toMicros.apply(percentile(0.5))) + " / " +
                 p(toMicros.apply(percentile(0.9))) + "  " +
                 p(toMicros.apply(percentile(0.99))) + " / " +
@@ -272,24 +272,28 @@ public class Histogram implements NanoSampler {
     @NotNull
     public String toLongMicrosFormat(@NotNull DoubleFunction<Double> toMicros) {
         if (totalCount < 1_000_000)
-            return "50/90 97/99 99.7/99.9 99.97/99.99 - worst was " +
+            return "50/90 97/99 99.7/99.9 99.97/99.99 - worst " + was() +
                     first4nines(toMicros) + " - " +
                     p(toMicros.apply(percentile(1)));
 
         if (totalCount < 10_000_000)
-            return "50/90 97/99 99.7/99.9 99.97/99.99 99.997/99.999 - worst was " +
+            return "50/90 97/99 99.7/99.9 99.97/99.99 99.997/99.999 - worst " + was() +
                     first4nines(toMicros) + "  " +
                     p(toMicros.apply(percentile(0.99997))) + " / " +
                     p(toMicros.apply(percentile(0.99999))) + " - " +
                     p(toMicros.apply(percentile(1)));
 
-        return "50/90 97/99 99.7/99.9 99.97/99.99 99.997/99.999 99.9997/99.9999 - worst was " +
+        return "50/90 97/99 99.7/99.9 99.97/99.99 99.997/99.999 99.9997/99.9999 - worst " + was() +
                 first4nines(toMicros) + "  " +
                 p(toMicros.apply(percentile(0.99997))) + " / " +
                 p(toMicros.apply(percentile(0.99999))) + "  " +
                 p(toMicros.apply(percentile(0.999997))) + " / " +
                 p(toMicros.apply(percentile(0.999999))) + " - " +
                 p(toMicros.apply(percentile(1)));
+    }
+
+    protected String was() {
+        return "was ";
     }
 
     @NotNull
