@@ -21,6 +21,8 @@ package net.openhft.chronicle.core.pool;
 import net.openhft.chronicle.core.util.ClassNotFoundRuntimeException;
 import org.jetbrains.annotations.NotNull;
 
+import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
+
 public interface ClassLookup {
 
     /**
@@ -31,6 +33,19 @@ public interface ClassLookup {
     @NotNull
     default ClassLookup wrap() {
         return new ClassAliasPool(this);
+    }
+
+    /**
+     * Creates and returns a new ClassLookup wrapping this ClassLookup and using the
+     * provided {@code classLoader} to look up new classes.
+     *
+     * @return a new ClassLookup which can be modified without changing the underlying ClassLookup
+     * that is using a custom ClassLoader
+     */
+    @NotNull
+    default ClassLookup wrap(@NotNull ClassLoader classLoader) {
+        requireNonNull(classLoader);
+        return new ClassAliasPool(this, classLoader);
     }
 
     /**
