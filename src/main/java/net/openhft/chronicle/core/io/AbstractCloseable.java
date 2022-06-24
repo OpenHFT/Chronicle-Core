@@ -310,17 +310,18 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     @Override
     public void throwExceptionIfClosed() throws IllegalStateException {
         if (isClosed())
-            throw new ClosedIllegalStateException(getClass().getName() + " closed for " + Thread.currentThread().getName(), closedHere);
-        if (!DISABLE_SINGLE_THREADED_CHECK)
-            threadSafetyCheck(true);
+            throwClosed();
+        threadSafetyCheck(true);
+    }
+
+    private void throwClosed() {
+        throw new ClosedIllegalStateException(getClass().getName() + " closed for " + Thread.currentThread().getName(), closedHere);
     }
 
     public void throwExceptionIfClosedInSetter() throws IllegalStateException {
         if (isClosed())
-            throw new ClosedIllegalStateException(getClass().getName() + " closed for " + Thread.currentThread().getName(), closedHere);
-        // only check it if this has been used.
-        if (!DISABLE_SINGLE_THREADED_CHECK)
-            threadSafetyCheck(false);
+            throwClosed();
+        threadSafetyCheck(false);
     }
 
     /**

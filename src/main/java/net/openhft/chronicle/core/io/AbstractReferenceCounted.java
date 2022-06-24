@@ -164,7 +164,12 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
 
     @Override
     public void throwExceptionIfReleased() throws ClosedIllegalStateException {
-        referenceCounted.throwExceptionIfReleased();
+        if (referenceCounted.refCount() <= 0)
+            throwReleased();
+    }
+
+    private void throwReleased() {
+        throw new ClosedIllegalStateException("Released");
     }
 
     @Override
@@ -186,6 +191,10 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         if (usedByThread == null && !isUsed)
             return true;
 
+        return threadSafetyCheck0();
+    }
+
+    private boolean threadSafetyCheck0() {
         Thread currentThread = Thread.currentThread();
         if (usedByThread == null || !usedByThread.isAlive()) {
             usedByThread = currentThread;
