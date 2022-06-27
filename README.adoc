@@ -39,20 +39,20 @@ if it can find this file in the current directory. If it can't find this file in
 look in `..` too.
 This is a useful feature if you want to de-clutter your command line.
 
-Chronicle Core class `Jvm` loads the file `system.properties` into the System's properties.
-To ensure it is loaded early enough, add the following code to your `Main`
+Chronicle Core class `Jvm` loads the file `system.properties` into the System's properties. To ensure it is loaded early enough, you can load in a static block
 
 [source,java]
 ----
 static {
     Jvm.init();
 }
-
 ----
 
 The choice of file to load can be overridden on the command line with `-Dsystem.properties=my.properties`
 
-See `Jvm.Main` in the `src/test` as an example.
+In link:https://github.com/OpenHFT/Chronicle-Core/blob/ea/src/main/java/net/openhft/chronicle/core/Jvm.java[Jvm.java] it can be seen how to guarantee that JVM class is initialized before the system property is read. For example with Jvm.getInteger or Jvm.getLong.
+
+A  number of relevant system properties are listed in link:https://github.com/OpenHFT/Chronicle-Core/blob/ea/systemProperties.adoc[systemProperties.adoc].
 
 NOTE: If you specify system properties on the command line then they will override those in the
 `system.properties` file.
