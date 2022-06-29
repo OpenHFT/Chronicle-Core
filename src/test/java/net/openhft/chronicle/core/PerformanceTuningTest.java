@@ -1,7 +1,6 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.io.IOTools;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -16,11 +15,6 @@ import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
 public class PerformanceTuningTest {
-    @Before
-    public void setUp() {
-        assumeTrue(OS.isLinux());
-    }
-
     public static void main(String[] args) {
         assumeTrue(OS.isLinux());
 
@@ -38,11 +32,13 @@ public class PerformanceTuningTest {
 
     @Test
     public void scalingGovernorsSetToPerformance() throws FileNotFoundException {
+        assumeTrue(OS.isLinux());
         assertNull(PerformanceTuning.checkScalingGovernors(pathTo("/cpu-performance")));
     }
 
     @Test
     public void scalingGovernorsForCpu2and3SetToPowersave() throws FileNotFoundException {
+        assumeTrue(OS.isLinux());
         assertEquals(
                 "Following CPUs have non-performant scaling governor setting: cpu2, cpu3.",
                 PerformanceTuning.checkScalingGovernors(pathTo("/cpu-2-and-3-powersave")));
@@ -50,6 +46,7 @@ public class PerformanceTuningTest {
 
     @Test
     public void readKernelCommandLineParameters() throws FileNotFoundException {
+        assumeTrue(OS.isLinux());
         Set<String> kernelCmdLineParams = PerformanceTuning.kernelCommandLineParameters(pathTo("proc/cmdline"));
 
         assertEquals(
