@@ -30,13 +30,26 @@ import org.junit.Test;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
 public class PosixTimeProviderTest {
 
+    static void assertBetween(long min, long actual, long max) {
+        if (min <= actual && actual <= max)
+            return;
+        throw new AssertionError("Not in range " + min + " <= " + actual + " <= " + max);
+    }
+
+    public static void main(String[] args) {
+        for (ClockId value : ClockId.values()) {
+            System.out.println(value + " " + PosixAPI.posix().clock_gettime(value));
+        }
+    }
+
     @Test
     public void currentTimeMicros() throws IllegalStateException {
-        assumeTrue(!OS.isMacOSX());
+        assumeFalse(OS.isMacOSX() || Jvm.isArm());
         FlakyTestRunner.builder(this::currentTimeMicros0)
                 .withMaxIterations(3)
                 .build()
@@ -98,12 +111,6 @@ public class PosixTimeProviderTest {
         assertBetween(990, maxDiff, 1000 + 30 * error);
     }
 
-    static void assertBetween(long min, long actual, long max) {
-        if (min <= actual && actual <= max)
-            return;
-        throw new AssertionError("Not in range " + min + " <= " + actual + " <= " + max);
-    }
-
     @Test
     public void currentTime() throws IllegalStateException {
         assumeTrue(!OS.isMacOSX());
@@ -143,12 +150,6 @@ public class PosixTimeProviderTest {
 
             // Performance test
             assertTrue(h.totalCount() > 0);
-        }
-    }
-
-    public static void main(String[] args) {
-        for (ClockId value : ClockId.values()) {
-            System.out.println(value + " " + PosixAPI.posix().clock_gettime(value));
         }
     }
 }
