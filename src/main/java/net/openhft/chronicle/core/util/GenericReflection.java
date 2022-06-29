@@ -1,5 +1,7 @@
 package net.openhft.chronicle.core.util;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -37,6 +39,11 @@ public enum GenericReflection {
      */
     public static Type getReturnType(Method method, Type type) {
         final Type genericReturnType = method.getGenericReturnType();
+        return findType(method, type, genericReturnType);
+    }
+
+    @Nullable
+    private static Type findType(Method method, Type type, Type genericReturnType) {
         if (genericReturnType instanceof Class)
             return genericReturnType;
         final Class<?> declaringClass = method.getDeclaringClass();
@@ -53,7 +60,15 @@ public enum GenericReflection {
                 if (typeParameters[i].equals(genericReturnType))
                     return actualTypeArguments[i];
         }
-        return method.getGenericReturnType();
+        return genericReturnType;
+    }
+
+    public static Type[] getParameterTypes(Method method, Type type) {
+        final Type[] parameterTypes = method.getGenericParameterTypes();
+        for (int i = 0; i < parameterTypes.length; i++) {
+            parameterTypes[i] = findType(method, type, parameterTypes[i]);
+        }
+        return parameterTypes;
     }
 
     static Type[] getGenericInterfaces(Type forClass) {

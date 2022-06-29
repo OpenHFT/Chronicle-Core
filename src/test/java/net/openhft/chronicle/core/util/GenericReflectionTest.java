@@ -2,7 +2,9 @@ package net.openhft.chronicle.core.util;
 
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -53,6 +55,19 @@ class GenericReflectionTest {
                 GenericReflection.getGenericSuperclass(returnString));
     }
 
+    @Test
+    public void getParameterTypes() throws NoSuchMethodException {
+        final Method method = GenericMethod.class.getDeclaredMethod("method", Object.class, Object.class);
+        final String expected = "[class java.lang.Byte, class java.lang.Short]";
+        assertEquals(expected,
+                Arrays.toString(GenericReflection.getParameterTypes(method, ExtendsGenericMethod.class)));
+        final Method omethod = OverridesGenericMethod.class.getDeclaredMethod("method", Byte.class, Short.class);
+        assertEquals(expected,
+                Arrays.toString(GenericReflection.getParameterTypes(omethod, OverridesGenericMethod.class)));
+        assertEquals(expected,
+                Arrays.toString(GenericReflection.getParameterTypes(method, OverridesGenericMethod.class)));
+    }
+
     interface Returns<A> {
         A ret();
     }
@@ -62,6 +77,18 @@ class GenericReflectionTest {
     }
 
     interface ReturnsString extends Returns<String> {
+    }
+
+    interface GenericMethod<A, B> {
+        void method(A a, B b);
+    }
+
+    interface ExtendsGenericMethod extends GenericMethod<Byte, Short> {
+
+    }
+
+    interface OverridesGenericMethod extends GenericMethod<Byte, Short> {
+        void method(Byte b, Short s);
     }
 
     class ReturnsInteger implements Returns<Integer> {
