@@ -5,6 +5,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.LinkedHashSet;
 import java.util.Optional;
 import java.util.Set;
@@ -96,8 +97,12 @@ public enum GenericReflection {
      * @return raw class
      */
     public static Class<?> erase(Type type) {
-        return type instanceof ParameterizedType
-                ? erase(((ParameterizedType) type).getRawType())
-                : (Class) type;
+        if (type instanceof TypeVariable) {
+            TypeVariable tv = (TypeVariable) type;
+            return erase(tv.getBounds()[0]);
+        }
+        if (type instanceof ParameterizedType)
+            return erase(((ParameterizedType) type).getRawType());
+        return (Class) type;
     }
 }
