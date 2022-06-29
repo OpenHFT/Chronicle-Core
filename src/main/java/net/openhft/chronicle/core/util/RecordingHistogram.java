@@ -6,6 +6,13 @@ import java.util.function.DoubleFunction;
 
 import static net.openhft.chronicle.core.time.SystemTimeProvider.CLOCK;
 
+/**
+ * This is an extension of Histogram which include the top 5 or 10 longest samples, including the delay from the last reset.
+ * e.g. the start is the same information as Histogram, the top list is the longest delays in decreasing order
+ * <pre>
+ * { 50/90 99/99.9 99.99 - worst  was: 500 / 900  1000 / 1000  1000 - 1000, top: [{ off: 10.0, dur: 1000.0 }, { off: 11.0, dur: 950.0 }, { off: 9.0, dur: 900.0 }, { off: 12.0, dur: 850.0 }, { off: 8.0, dur: 800.0 }] }
+ * </pre>
+ */
 public class RecordingHistogram extends Histogram {
     private final Top10 top10 = new Top10();
     private long start;
@@ -30,13 +37,13 @@ public class RecordingHistogram extends Histogram {
     @Override
     public @NotNull String toMicrosFormat(@NotNull DoubleFunction<Double> toMicros) {
         final String s = super.toMicrosFormat(toMicros);
-        return "{ " + s + ", top10: " + top10.asString(toMicros, 5) + " }";
+        return "{ " + s + ", top: " + top10.asString(toMicros, 5) + " }";
     }
 
     @Override
     public @NotNull String toLongMicrosFormat(@NotNull DoubleFunction<Double> toMicros) {
         final String s = super.toLongMicrosFormat(toMicros);
-        return "{ " + s + ", top10: " + top10.asString(toMicros, 10) + " }";
+        return "{ " + s + ", top: " + top10.asString(toMicros, 10) + " }";
     }
 
     @Override
