@@ -95,7 +95,7 @@ public class PerformanceTuningTest {
     public void checkMCE() {
         assertNull(PerformanceTuning.checkMCE(set("mce=ignore_ce")));
 
-        assertNotNull(PerformanceTuning.checkMCE(set("intel_idle.max_cstate=0")));
+        assertNotNull(PerformanceTuning.checkMCE(set("inteethodFill_idle.max_cstate=0")));
         assertNotNull(PerformanceTuning.checkMCE(set("mce=off")));
     }
 
