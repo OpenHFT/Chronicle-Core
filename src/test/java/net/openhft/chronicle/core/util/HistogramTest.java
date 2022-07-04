@@ -58,13 +58,7 @@ public class HistogramTest {
     public void testSamples() {
         @NotNull Histogram h = new Histogram(10, 5, 1000);
 
-        long seed = 2141;
-        for (int i = 0; i <= 500; i++) {
-            h.sampleNanos(seed);
-            seed += 128_981;
-            if (seed > 1_000_000)
-                seed -= 1_000_000;
-        }
+        sampleWithSeed(h, 2141);
 
         assertEquals("50/90 99/99.9 99.99 - worst was 500 / 890  990 / 990  990 - 990",
                 h.toMicrosFormat());
@@ -75,6 +69,32 @@ public class HistogramTest {
             assertEquals("i: " + i, i, percentile(h, i / 100.0), 1);
         for (int i = 1; i <= 100; i++)
             assertEquals(i, h.percentageLessThan(i * 10_000), 2);
+    }
+
+    private void sampleWithSeed(@NotNull Histogram h, long seed) {
+        for (int i = 0; i <= 500; i++) {
+            h.sampleNanos(seed);
+            seed += 128_981;
+            if (seed > 1_000_000)
+                seed -= 1_000_000;
+        }
+    }
+
+    @Test
+    public void testAdd() {
+        int seed1 = 2141;
+        int seed2 = 33;
+        Histogram h1 = Histogram.timeMicros();
+        Histogram h2 = Histogram.timeMicros();
+        sampleWithSeed(h1, seed1);
+        sampleWithSeed(h2, seed2);
+
+        Histogram both = Histogram.timeMicros();
+        sampleWithSeed(both, seed1);
+        sampleWithSeed(both, seed2);
+
+        h1.add(h2);
+        assertEquals(both, h1);
     }
 
     private int percentile(@NotNull Histogram h, double fraction) {
