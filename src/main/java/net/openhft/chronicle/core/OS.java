@@ -45,9 +45,10 @@ import static java.lang.management.ManagementFactory.getRuntimeMXBean;
  * Low level access to OS class.
  */
 public final class OS {
+    public static final String USER_DIR = Jvm.getProperty("user.dir");
 
     public static final String TMP = findTmp();
-    public static final String USER_DIR = Jvm.getProperty("user.dir");
+
     public static final String USER_HOME = Jvm.getProperty("user.home");
     public static final Exception TIME_LIMIT = new TimeLimitExceededException();
     public static final int SAFE_PAGE_SIZE = 64 << 10;
@@ -119,6 +120,10 @@ public final class OS {
     }
 
     private static String findTmp() {
+        return asRelativePath(findTmp0());
+    }
+
+    private static String findTmp0() {
         String target = Jvm.getProperty("project.build.directory");
         if (target != null) {
             final File tmp = new File(target, "tmp");
@@ -136,6 +141,24 @@ public final class OS {
 
     @NotNull
     private static String findTarget() {
+        String path = findTarget0();
+        return asRelativePath(path);
+    }
+
+    @NotNull
+    private static String asRelativePath(String path) {
+        String userDir = new File(USER_DIR).getAbsolutePath();
+        if (!userDir.endsWith(File.separator))
+            userDir += File.separator;
+        if (path.startsWith(userDir)) {
+            if (path.equals(userDir))
+                return ".";
+            return path.substring(userDir.length());
+        }
+        return path;
+    }
+
+    private static String findTarget0() {
         String target = Jvm.getProperty("project.build.directory");
         if (target != null)
             return target;
@@ -192,6 +215,10 @@ public final class OS {
 
     public static String getTarget() {
         return TARGET;
+    }
+
+    public static String getTmp() {
+        return TMP;
     }
 
     /**

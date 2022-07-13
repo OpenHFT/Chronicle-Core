@@ -44,7 +44,6 @@ import static org.junit.Assume.assumeTrue;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OSTest {
-
     @Rule
     public final TestName testName = new TestName();
     private ThreadDump threadDump;
@@ -193,5 +192,17 @@ public class OSTest {
 
         assumeTrue(OS.isWindows() || OS.isLinux() || OS.isMacOSX());
         assertNotEquals("0.0.0.0", ipAddress);
+    }
+
+    @Test
+    public void getTarget() {
+        String target = OS.getTarget();
+        assertEquals("target", target);
+    }
+
+    @Test
+    public void getTmp() {
+        String tmp = OS.getTmp();
+        assertNotNull(tmp);
     }
 }
