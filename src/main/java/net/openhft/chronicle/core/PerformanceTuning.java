@@ -51,10 +51,13 @@ public final class PerformanceTuning {
         if (!OS.isLinux()) {
             return Collections.emptyList();
         }
-        if (TIMESTAMP.lastModified() + TimeUnit.MINUTES.toMillis(30) > System.currentTimeMillis())
+        final long lastModified = TIMESTAMP.lastModified();
+        final long age = System.currentTimeMillis() - lastModified;
+        if (age < TimeUnit.MINUTES.toMillis(30))
             return Collections.emptyList();
         try {
-            try (FileOutputStream fos = new FileOutputStream(TIMESTAMP, true)) {
+            Jvm.debug().on(PerformanceTuning.class, lastModified == 0 ? "No " + TIMESTAMP+" file" : "Tuning Timestamp " + age / 1e3 + " seconds.");
+            try (FileOutputStream fos = new FileOutputStream(TIMESTAMP)) {
             }
         } catch (IOException ioe) {
             Jvm.debug().on(PerformanceTuning.class, ioe);
