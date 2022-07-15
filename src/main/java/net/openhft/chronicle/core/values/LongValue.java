@@ -30,22 +30,36 @@ public interface LongValue extends Closeable {
 
     void setValue(long value) throws IllegalStateException;
 
-    long getVolatileValue() throws IllegalStateException;
+    default long getVolatileValue() throws IllegalStateException {
+        return getValue();
+    }
 
-    void setVolatileValue(long value) throws IllegalStateException;
+    default void setVolatileValue(long value) throws IllegalStateException {
+        setValue(value);
+    }
 
     /**
      * Value to return if the underlying resource isn't available.
      */
     default long getVolatileValue(long closedValue) throws IllegalStateException {
-        return getVolatileValue();
+        if (isClosed())
+            return closedValue;
+        try {
+            return getVolatileValue();
+        } catch (Exception e) {
+            return closedValue;
+        }
     }
 
-    void setOrderedValue(long value) throws IllegalStateException;
+    default void setOrderedValue(long value) throws IllegalStateException {
+        setVolatileValue(value);
+    }
 
     long addValue(long delta) throws IllegalStateException;
 
-    long addAtomicValue(long delta) throws IllegalStateException;
+    default long addAtomicValue(long delta) throws IllegalStateException {
+        return addValue(delta);
+    }
 
     boolean compareAndSwapValue(long expected, long value) throws IllegalStateException;
 

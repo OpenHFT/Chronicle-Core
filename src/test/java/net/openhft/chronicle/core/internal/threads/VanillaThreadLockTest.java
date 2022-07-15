@@ -229,27 +229,7 @@ public class VanillaThreadLockTest extends CoreTestCommon {
         }
 
         @Override
-        public long getVolatileValue() throws IllegalStateException {
-            return getValue();
-        }
-
-        @Override
-        public void setVolatileValue(long value) throws IllegalStateException {
-            setValue(value);
-        }
-
-        @Override
-        public void setOrderedValue(long value) throws IllegalStateException {
-            setValue(value);
-        }
-
-        @Override
         public long addValue(long delta) throws IllegalStateException {
-            throw new AssertionError();
-        }
-
-        @Override
-        public long addAtomicValue(long delta) throws IllegalStateException {
             throw new AssertionError();
         }
 
