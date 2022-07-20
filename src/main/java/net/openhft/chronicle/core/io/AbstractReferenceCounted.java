@@ -164,12 +164,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
 
     @Override
     public void throwExceptionIfReleased() throws ClosedIllegalStateException {
-        if (referenceCounted.refCount() <= 0)
-            throwReleased();
-    }
-
-    private void throwReleased() {
-        throw new ClosedIllegalStateException("Released");
+        referenceCounted.throwExceptionIfReleased();
     }
 
     @Override
