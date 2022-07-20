@@ -18,16 +18,19 @@
 
 package net.openhft.chronicle.core.io;
 
+/**
+ * A RuntimeException triggered when a underlying IO resource throws an exception.
+ */
 public class IORuntimeException extends RuntimeException {
     public IORuntimeException(String message) {
         super(message);
     }
 
-    public IORuntimeException(Throwable e) {
-        super(e);
+    public IORuntimeException(Throwable thrown) {
+        super(thrown);
     }
 
-    public IORuntimeException(String s, Throwable e) {
-        super(s, e);
+    public IORuntimeException(String message, Throwable thrown) {
+        super(message, thrown);
     }
 }
