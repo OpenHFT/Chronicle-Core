@@ -103,7 +103,11 @@ public abstract class AbstractCloseableReferenceCounted
 
     private void throwExceptionIfClosed0() {
         if (closing)
-            throw new ClosedIllegalStateException(getClass().getName() + (closed ? " closed" : " closing"), closedHere);
+            throwClosing();
+    }
+
+    private void throwClosing() {
+        throw new ClosedIllegalStateException(getClass().getName() + (closed ? " closed" : " closing"), closedHere);
     }
 
     protected void throwExceptionIfClosedInSetter() throws IllegalStateException {
