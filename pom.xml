@@ -363,6 +363,12 @@
 
     <profiles>
         <profile>
+            <id>assertions</id>
+            <properties>
+                <zero.cost.assertions>enabled</zero.cost.assertions>
+            </properties>
+        </profile>
+        <profile>
             <id>java11</id>
             <activation>
                 <jdk>[11,</jdk>
