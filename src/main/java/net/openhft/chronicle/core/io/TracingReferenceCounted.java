@@ -41,8 +41,12 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
                 : id.getClass().getSimpleName() + "@" + Integer.toHexString(System.identityHashCode(id));
         if (id instanceof ReferenceCounted)
             s += " refCount=" + ((ReferenceCounted) id).refCount();
-        if (id instanceof Closeable)
-            s += " closed=" + ((Closeable) id).isClosed();
+        try {
+            if (id instanceof Closeable)
+                s += " closed=" + ((Closeable) id).isClosed();
+        } catch (NullPointerException ignored) {
+            // not initialised
+        }
         return s;
     }
 
