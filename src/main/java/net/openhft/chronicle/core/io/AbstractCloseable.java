@@ -446,6 +446,8 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
 
     public void singleThreadedCheckDisabled(boolean singleThreadedCheckDisabled) {
         this.singleThreadedCheckDisabled = singleThreadedCheckDisabled;
+        if (singleThreadedCheckDisabled)
+            singleThreadedCheckReset();
     }
 
     class Finalizer {
