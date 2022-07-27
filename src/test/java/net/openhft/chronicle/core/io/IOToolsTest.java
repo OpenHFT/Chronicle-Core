@@ -183,7 +183,7 @@ public class IOToolsTest extends CoreTestCommon {
         final byte[] bytes = new byte[512];
         try {
             for (int i = 0; i < 100; i++) {
-                System.out.println(i);
+//                System.out.println(i);
                 os.write(bytes);
             }
             fail();
