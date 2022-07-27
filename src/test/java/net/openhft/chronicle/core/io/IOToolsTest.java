@@ -303,7 +303,7 @@ public class IOToolsTest extends CoreTestCommon {
     @Test
     public void connectionClosed4() throws IOException {
         ServerSocket ss = new ServerSocket(0);
-        SocketChannel sc = SocketChannel.open(ss.getLocalSocketAddress());
+        SocketChannel sc = SocketChannel.open(new InetSocketAddress("localhost", ss.getLocalPort()));
         Socket s2 = ss.accept();
         ss.close();
         ByteBuffer bytes = ByteBuffer.allocateDirect(1024);
