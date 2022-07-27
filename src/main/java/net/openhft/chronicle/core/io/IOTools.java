@@ -33,8 +33,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.*;
-import java.util.Arrays;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
@@ -45,12 +44,34 @@ import java.util.zip.GZIPOutputStream;
  * A collection of CONCURRENT utility tools
  */
 public final class IOTools {
+    public static final int IOSTATUS_INTERRUPTED = IOStatus.INTERRUPTED;
+    static final Map<Class<?>, AtomicInteger> COUNTER_MAP = new ConcurrentHashMap<>();
+    private static final Set<String> CLOSED_MESSAGES =
+            new HashSet<>(
+                    Arrays.asList(
+                            "Closed",
+                            "closed",
+                            "Connection reset",
+                            "An existing connection was forcibly closed by the remote host",
+                            "Connection reset by peer",
+                            "An established connection was aborted by the software in your host machine",
+                            "Broken pipe",
+                            "Broken pipe (Write failed)",
+                            "Stream is closed",
+                            "Stream closed",
+                            "Remotely Closed"
+                    )
+            );
 
     // Suppresses default constructor, ensuring non-instantiability.
     private IOTools() {
     }
 
-    static final Map<Class<?>, AtomicInteger> COUNTER_MAP = new ConcurrentHashMap<>();
+    public static boolean isClosedException(Exception e) {
+        Language.warnOnce();
+        return CLOSED_MESSAGES.contains(e.getMessage())
+                || e.getClass().getName().contains("Closed");
+    }
 
     public static boolean shallowDeleteDirWithFiles(@NotNull String directory) throws IORuntimeException {
         return shallowDeleteDirWithFiles(new File(directory));
@@ -316,8 +337,6 @@ public final class IOTools {
         }
     }
 
-    public static final int IOSTATUS_INTERRUPTED = IOStatus.INTERRUPTED;
-
     public static boolean isDirectBuffer(ByteBuffer byteBuffer) {
         return byteBuffer.isDirect();
     }
@@ -328,5 +347,19 @@ public final class IOTools {
 
     public static int normaliseIOStatus(int n) {
         return IOStatus.normalize(n);
+    }
+
+    private static final class Language {
+        static {
+            if (!Locale.getDefault().getLanguage().equals(Locale.ENGLISH.getLanguage())) {
+                Jvm.warn().on(IOTools.class,
+                        "Running under non-English locale '" + Locale.getDefault().getLanguage() +
+                                "', transient exceptions will be reported with higher level than necessary.");
+            }
+        }
+
+        static void warnOnce() {
+            // No-op.
+        }
     }
 }

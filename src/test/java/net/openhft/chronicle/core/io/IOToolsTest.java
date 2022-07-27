@@ -10,12 +10,15 @@ import org.junit.Test;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.stream.IntStream;
 
@@ -166,5 +169,81 @@ public class IOToolsTest extends CoreTestCommon {
         assertEquals(-3, actual);
 
         assertEquals(-3, IOTools.normaliseIOStatus(-3));
+    }
+
+    @Test
+    public void connectionClosed() throws IOException {
+        ServerSocket ss = new ServerSocket(0);
+        Socket s = new Socket("localhost", ss.getLocalPort());
+        final OutputStream os = s.getOutputStream();
+        Socket s2 = ss.accept();
+        s2.close();
+        ss.close();
+        final byte[] bytes = new byte[512];
+        try {
+            for (int i = 0; i < 100; i++) {
+                System.out.println(i);
+                os.write(bytes);
+            }
+            fail();
+        } catch (IOException ioe) {
+            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+        } finally {
+            os.close();
+        }
+    }
+
+    @Test
+    public void connectionClosed2() throws IOException {
+        ServerSocket ss = new ServerSocket(0);
+        SocketChannel sc = SocketChannel.open(ss.getLocalSocketAddress());
+        Socket s2 = ss.accept();
+        s2.close();
+        ss.close();
+        ByteBuffer bytes = ByteBuffer.allocateDirect(1024);
+        try {
+            for (int i = 0; i < 100; i++) {
+//                System.out.println(i);
+                bytes.clear();
+                sc.write(bytes);
+            }
+            fail();
+        } catch (IOException ioe) {
+            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+        } finally {
+            sc.close();
+        }
+    }
+
+    @Test
+    public void connectionClosed3() throws IOException {
+        ServerSocket ss = new ServerSocket(0);
+        SocketChannel sc = SocketChannel.open(ss.getLocalSocketAddress());
+        Socket s2 = ss.accept();
+        ss.close();
+        ByteBuffer bytes = ByteBuffer.allocateDirect(1024);
+        Thread t = new Thread(() -> {
+            Jvm.pause(100);
+            try {
+                sc.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        t.start();
+        try {
+            for (int i = 0; i < 10000; i++) {
+//                System.out.println(i);
+                bytes.clear();
+                final int write = sc.write(bytes);
+                assertTrue(write > 0);
+            }
+            fail();
+        } catch (IOException ioe) {
+            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+        } finally {
+            s2.close();
+            sc.close();
+        }
     }
 }
