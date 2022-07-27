@@ -32,7 +32,6 @@ import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -50,17 +49,18 @@ public final class IOTools {
     private static final Set<String> CLOSED_MESSAGES =
             new HashSet<>(
                     Arrays.asList(
+                            "An established connection was aborted by the software in your host machine",
+                            "An existing connection was forcibly closed by the remote host",
+                            "Broken pipe",
+                            "Broken pipe (Write failed)",
                             "Closed",
                             "closed",
                             "Connection reset",
-                            "An existing connection was forcibly closed by the remote host",
                             "Connection reset by peer",
-                            "An established connection was aborted by the software in your host machine",
-                            "Broken pipe",
-                            "Broken pipe (Write failed)",
+                            "Remotely Closed",
+                            "Software caused connection abort: socket write error",
                             "Stream is closed",
-                            "Stream closed",
-                            "Remotely Closed"
+                            "Stream closed"
                     )
             );
 
