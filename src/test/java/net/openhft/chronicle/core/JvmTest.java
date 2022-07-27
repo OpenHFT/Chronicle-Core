@@ -286,7 +286,7 @@ public class JvmTest {
     @Test
     public void getCpuClass() {
         final String cpuClass = Jvm.getCpuClass();
-        System.out.println("cpuClass: " + cpuClass);
+        System.out.println("cpuClass: " + cpuClass + ", os.name: " + System.getProperty("os.name") + ", os.arch: " + System.getProperty("os.arch"));
         if (Jvm.isMacArm()) {
             assertEquals(cpuClass, "Apple M1", cpuClass);
 
