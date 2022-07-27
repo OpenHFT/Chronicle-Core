@@ -298,4 +298,41 @@ public class IOToolsTest extends CoreTestCommon {
             sc.close();
         }
     }
+
+
+    @Test
+    public void connectionClosed4() throws IOException {
+        ServerSocket ss = new ServerSocket(0);
+        SocketChannel sc = SocketChannel.open(ss.getLocalSocketAddress());
+        Socket s2 = ss.accept();
+        ss.close();
+        ByteBuffer bytes = ByteBuffer.allocateDirect(1024);
+        Thread main = Thread.currentThread();
+        Thread t = new Thread(() -> {
+            Jvm.pause(100);
+            main.interrupt();
+            Jvm.pause(10);
+            try {
+                sc.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
+        t.setDaemon(true);
+        t.start();
+        try {
+            for (int i = 0; i < 10000; i++) {
+//                System.out.println(i);
+                bytes.clear();
+                final int write = sc.write(bytes);
+                assertTrue(write > 0);
+            }
+            fail();
+        } catch (IOException ioe) {
+            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+        } finally {
+            s2.close();
+            sc.close();
+        }
+    }
 }
