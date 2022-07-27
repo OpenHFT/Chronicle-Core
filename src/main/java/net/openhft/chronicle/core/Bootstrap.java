@@ -1,7 +1,16 @@
 package net.openhft.chronicle.core;
 
+import org.jetbrains.annotations.NotNull;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.function.Function;
 
 import static java.lang.Runtime.getRuntime;
 
@@ -11,14 +20,12 @@ import static java.lang.Runtime.getRuntime;
 final class Bootstrap {
 
     // Suppresses default constructor, ensuring non-instantiability.
-    private Bootstrap() {
-    }
 
+    public static final String OS_NAME = System.getProperty("os.name", "?");
     public static final String OS_ARCH = System.getProperty("os.arch", "?");
     public static final String VM_VENDOR = System.getProperty("java.vm.vendor", "?");
     public static final String VM_VERSION = System.getProperty("java.vm.version", "?");
     public static final String VM_NAME = System.getProperty("java.vm.name", "?");
-
     static final int JVM_JAVA_MAJOR_VERSION;
     static final boolean IS_JAVA_9_PLUS;
     static final boolean IS_JAVA_12_PLUS;
@@ -33,15 +40,20 @@ final class Bootstrap {
         IS_JAVA_15_PLUS = JVM_JAVA_MAJOR_VERSION > 14;
     }
 
+    private Bootstrap() {
+    }
+
     // can't be in Jvm or causes a problem on initialisation.
     static boolean isArm0() {
-        return Boolean.parseBoolean(System.getProperty("jvm.isarm")) ||
-                OS_ARCH.startsWith("arm") || OS_ARCH.startsWith("aarch");
+        return Boolean.parseBoolean(System.getProperty("jvm.isarm"))
+                || OS_ARCH.startsWith("arm")
+                || OS_ARCH.startsWith("aarch")
+                || isMacArm0();
     }
 
     static boolean isMacArm0() {
-        return System.getProperty("os.name", "?").equals("Mac OS X")
-                && OS_ARCH.equals("aarch64");
+        return OS_NAME.equals("Mac OS X")
+                && CpuClass.CPU_MODEL.startsWith("Apple M");
     }
 
     static boolean isAzulZing0() {
@@ -68,6 +80,85 @@ final class Bootstrap {
         } catch (NumberFormatException nfe) {
             Jvm.warn().on(Jvm.class, "Unable to get the major version, defaulting to 8 " + nfe);
             return 8;
+        }
+    }
+
+    static final class CpuClass {
+        static final String CPU_MODEL;
+
+        private static final String PROCESS = "process ";
+
+        static {
+            String model = Jvm.getProperty("os.arch", "unknown");
+            try {
+                final Path path = Paths.get("/proc/cpuinfo");
+                if (Files.isReadable(path)) {
+                    model = Files.lines(path)
+                            .filter(line -> line.startsWith("model name"))
+                            .map(removingTag())
+                            .findFirst().orElse(model);
+                } else if (OS.isWindows()) {
+                    String cmd = "wmic cpu get name";
+                    Process process = new ProcessBuilder(cmd.split(" "))
+                            .redirectErrorStream(true)
+                            .start();
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                        model = reader.lines()
+                                .map(String::trim)
+                                .filter(s -> !"Name".equals(s) && !s.isEmpty())
+                                .findFirst().orElse(model);
+                    }
+                    try {
+                        int ret = process.waitFor();
+                        if (ret != 0)
+                            Jvm.warn().on(CpuClass.class, PROCESS + cmd + " returned " + ret);
+                    } catch (InterruptedException e) {
+                        Jvm.warn().on(CpuClass.class, PROCESS + cmd + " waitFor threw ", e);
+                        // Restore the interrupt state...
+                        Thread.currentThread().interrupt();
+                    }
+                    process.destroy();
+
+                } else if (OS.isMacOSX()) {
+
+                    String cmd = "sysctl -a";
+                    Process process = new ProcessBuilder(cmd.split(" "))
+                            .redirectErrorStream(true)
+                            .start();
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                        model = reader.lines()
+                                .map(String::trim)
+                                .filter(s -> s.startsWith("machdep.cpu.brand_string"))
+                                .map(removingTag())
+                                .findFirst().orElse(model);
+                    }
+                    try {
+                        int ret = process.waitFor();
+                        if (ret != 0)
+                            Jvm.warn().on(CpuClass.class, PROCESS + cmd + " returned " + ret);
+                    } catch (InterruptedException e) {
+                        Jvm.warn().on(CpuClass.class, PROCESS + cmd + " waitFor threw ", e);
+                        // Restore the interrupt state...
+                        Thread.currentThread().interrupt();
+                    }
+                    process.destroy();
+
+                }
+
+            } catch (IOException e) {
+                Jvm.debug().on(CpuClass.class, "Unable to read cpuinfo", e);
+            }
+            CPU_MODEL = model;
+        }
+
+        // Suppresses default constructor, ensuring non-instantiability.
+        private CpuClass() {
+        }
+
+        @SuppressWarnings("java:S5852") // Possessive quantifiers (*+) are used preventing catastrophic backtracking
+        @NotNull
+        static Function<String, String> removingTag() {
+            return line -> line.replaceFirst("[^:]*+: ", "");
         }
     }
 }

@@ -42,8 +42,6 @@ import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.spi.AbstractInterruptibleChannel;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
@@ -53,7 +51,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 import static java.lang.Runtime.getRuntime;
@@ -1664,85 +1661,6 @@ public final class Jvm {
                     Jvm.warn().on(this.getClass(), "Problem handling signal", t);
                 }
             }
-        }
-    }
-
-    static final class CpuClass {
-        static final String CPU_MODEL;
-
-        private static final String PROCESS = "process ";
-
-        static {
-            String model = Jvm.getProperty("os.arch", "unknown");
-            try {
-                final Path path = Paths.get("/proc/cpuinfo");
-                if (Files.isReadable(path)) {
-                    model = Files.lines(path)
-                            .filter(line -> line.startsWith("model name"))
-                            .map(removingTag())
-                            .findFirst().orElse(model);
-                } else if (OS.isWindows()) {
-                    String cmd = "wmic cpu get name";
-                    Process process = new ProcessBuilder(cmd.split(" "))
-                            .redirectErrorStream(true)
-                            .start();
-                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                        model = reader.lines()
-                                .map(String::trim)
-                                .filter(s -> !"Name".equals(s) && !s.isEmpty())
-                                .findFirst().orElse(model);
-                    }
-                    try {
-                        int ret = process.waitFor();
-                        if (ret != 0)
-                            Jvm.warn().on(CpuClass.class, PROCESS + cmd + " returned " + ret);
-                    } catch (InterruptedException e) {
-                        Jvm.warn().on(CpuClass.class, PROCESS + cmd + " waitFor threw ", e);
-                        // Restore the interrupt state...
-                        Thread.currentThread().interrupt();
-                    }
-                    process.destroy();
-
-                } else if (OS.isMacOSX()) {
-
-                    String cmd = "sysctl -a";
-                    Process process = new ProcessBuilder(cmd.split(" "))
-                            .redirectErrorStream(true)
-                            .start();
-                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                        model = reader.lines()
-                                .map(String::trim)
-                                .filter(s -> s.startsWith("machdep.cpu.brand_string"))
-                                .map(removingTag())
-                                .findFirst().orElse(model);
-                    }
-                    try {
-                        int ret = process.waitFor();
-                        if (ret != 0)
-                            Jvm.warn().on(CpuClass.class, PROCESS + cmd + " returned " + ret);
-                    } catch (InterruptedException e) {
-                        Jvm.warn().on(CpuClass.class, PROCESS + cmd + " waitFor threw ", e);
-                        // Restore the interrupt state...
-                        Thread.currentThread().interrupt();
-                    }
-                    process.destroy();
-
-                }
-
-            } catch (IOException e) {
-                Jvm.debug().on(CpuClass.class, "Unable to read cpuinfo", e);
-            }
-            CPU_MODEL = model;
-        }
-
-        // Suppresses default constructor, ensuring non-instantiability.
-        private CpuClass() {
-        }
-
-        @SuppressWarnings("java:S5852") // Possessive quantifiers (*+) are used preventing catastrophic backtracking
-        @NotNull
-        static Function<String, String> removingTag() {
-            return line -> line.replaceFirst("[^:]*+: ", "");
         }
     }
 }

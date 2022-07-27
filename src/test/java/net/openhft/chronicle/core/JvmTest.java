@@ -303,7 +303,7 @@ public class JvmTest {
 
     @Test
     public void removingTag() {
-        final String actual = Jvm.CpuClass.removingTag().apply("tag: value");
+        final String actual = Bootstrap.CpuClass.removingTag().apply("tag: value");
         assertEquals("value", actual);
     }
 
