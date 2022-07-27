@@ -32,6 +32,7 @@ import java.lang.reflect.Modifier;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.channels.ClosedChannelException;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -70,7 +71,7 @@ public final class IOTools {
     public static boolean isClosedException(Exception e) {
         Language.warnOnce();
         return CLOSED_MESSAGES.contains(e.getMessage())
-                || e.getClass().getName().contains("Closed");
+                || e.getClass().getName().contains("Close");
     }
 
     public static boolean shallowDeleteDirWithFiles(@NotNull String directory) throws IORuntimeException {
