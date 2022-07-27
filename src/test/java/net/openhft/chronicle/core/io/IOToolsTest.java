@@ -11,6 +11,7 @@ import org.junit.Test;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
@@ -196,7 +197,7 @@ public class IOToolsTest extends CoreTestCommon {
     @Test
     public void connectionClosed2() throws IOException {
         ServerSocket ss = new ServerSocket(0);
-        SocketChannel sc = SocketChannel.open(ss.getLocalSocketAddress());
+        SocketChannel sc = SocketChannel.open(new InetSocketAddress("localhost", ss.getLocalPort()));
         Socket s2 = ss.accept();
         s2.close();
         ss.close();
@@ -218,7 +219,7 @@ public class IOToolsTest extends CoreTestCommon {
     @Test
     public void connectionClosed3() throws IOException {
         ServerSocket ss = new ServerSocket(0);
-        SocketChannel sc = SocketChannel.open(ss.getLocalSocketAddress());
+        SocketChannel sc = SocketChannel.open(new InetSocketAddress("localhost", ss.getLocalPort()));
         Socket s2 = ss.accept();
         ss.close();
         ByteBuffer bytes = ByteBuffer.allocateDirect(1024);
@@ -251,7 +252,7 @@ public class IOToolsTest extends CoreTestCommon {
     @Test
     public void connectionClosed4() throws IOException {
         ServerSocket ss = new ServerSocket(0);
-        SocketChannel sc = SocketChannel.open(ss.getLocalSocketAddress());
+        SocketChannel sc = SocketChannel.open(new InetSocketAddress("localhost", ss.getLocalPort()));
         Socket s2 = ss.accept();
         ss.close();
         ByteBuffer bytes = ByteBuffer.allocateDirect(1024);
