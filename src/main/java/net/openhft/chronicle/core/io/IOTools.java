@@ -29,7 +29,12 @@ import sun.nio.ch.IOStatus;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.net.*;
+import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
+import java.net.Socket;
+import java.net.URL;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
@@ -46,21 +51,30 @@ import java.util.zip.GZIPOutputStream;
  */
 public final class IOTools {
     public static final int IOSTATUS_INTERRUPTED = IOStatus.INTERRUPTED;
-    static final Map<Class<?>, AtomicInteger> COUNTER_MAP = new ConcurrentHashMap<>();
+    private static final Map<Class<?>, AtomicInteger> COUNTER_MAP = new ConcurrentHashMap<>();
     private static final Set<String> CLOSED_MESSAGES =
             new HashSet<>(
                     Arrays.asList(
+                            // isAWindowsEstablishedConnectionAbortedException
                             "An established connection was aborted by the software in your host machine",
+                            // isAWindowsConnectionResetException
                             "An existing connection was forcibly closed by the remote host",
+                            // isAnOSXBrokenPipeException
                             "Broken pipe",
+                            // on Windows
                             "Broken pipe (Write failed)",
-                            "Closed",
-                            "closed",
+                            // isALinuxJava13OrGreaterConnectionResetException
                             "Connection reset",
+                            // isALinuxJava12OrLessConnectionResetException
                             "Connection reset by peer",
                             "Remotely Closed",
+                            // Timeout of a WinSock write on Windows
                             "Software caused connection abort: socket write error",
+                            // If you attempt to write to a closed socket
+                            "Socket is closed",
+                            // If you attempt to write to a closed stream
                             "Stream is closed",
+                            // Non socket messages e.g. InflaterInputStream
                             "Stream closed"
                     )
             );
@@ -69,10 +83,22 @@ public final class IOTools {
     private IOTools() {
     }
 
+    /**
+     * Is the passed exception one that results from reading from or writing to
+     * a reset or closed connection?
+     * <p>
+     * NOTE: This is not reliable and shouldn't be used for anything critical. We use it
+     * to make logging less noisy, false negatives are acceptable and expected. It should
+     * not produce false positives, but there's no guarantees it doesn't.
+     *
+     * @param e The exception
+     * @return true if the exception is one that signifies the connection was reset/closed
+     */
     public static boolean isClosedException(Exception e) {
         Language.warnOnce();
-        return CLOSED_MESSAGES.contains(e.getMessage())
-                || e.getClass().getName().contains("Close");
+        return e instanceof IOException
+                && (CLOSED_MESSAGES.contains(e.getMessage())
+                || e.getClass().getName().contains("Close"));
     }
 
     public static boolean shallowDeleteDirWithFiles(@NotNull String directory) throws IORuntimeException {
@@ -351,6 +377,30 @@ public final class IOTools {
         return IOStatus.normalize(n);
     }
 
+    // has to be moved to another class to avoid a live lock
+    @NotNull
+    static Runnable close3(SocketChannel sc, SocketChannel s2) {
+        return () -> {
+            Jvm.pause(50);
+            System.out.println("Close " + sc);
+            Closeable.closeQuietly(sc);
+            Jvm.pause(10);
+            Closeable.closeQuietly(s2);
+        };
+    }
+
+    // has to be moved to another class to avoid a live lock
+    @NotNull
+    static Runnable close4(SocketChannel sc, SocketChannel s2, Thread main) {
+        return () -> {
+            Jvm.pause(50);
+            main.interrupt();
+            Jvm.pause(10);
+            Closeable.closeQuietly(sc);
+            Closeable.closeQuietly(s2);
+        };
+    }
+
     private static final class Language {
         static {
             if (!Locale.getDefault().getLanguage().equals(Locale.ENGLISH.getLanguage())) {
@@ -380,7 +430,22 @@ public final class IOTools {
                         }
                     } catch (IOException ioe) {
                         CLOSED_MESSAGES.add(ioe.getMessage());
+                    } finally {
+                        s.close();
                     }
+                    try {
+                        s.getOutputStream().write(bytes);
+                    } catch (IOException ioe) {
+                        CLOSED_MESSAGES.add(ioe.getMessage());
+                    }
+                }
+                try (Socket s = new Socket("localhost", port);
+                     SocketChannel s2 = ssc.accept()) {
+                    OutputStream os = s.getOutputStream();
+                    os.close();
+                    os.write(1);
+                } catch (IOException ioe) {
+                    CLOSED_MESSAGES.add(ioe.getMessage());
                 }
                 ByteBuffer bytes = ByteBuffer.allocateDirect(1024);
                 try (SocketChannel sc = SocketChannel.open(address);
@@ -431,29 +496,5 @@ public final class IOTools {
         static void warnOnce() {
             // No-op.
         }
-    }
-
-    // has to be moved to another class to avoid a live lock
-    @NotNull
-    static Runnable close3(SocketChannel sc, SocketChannel s2) {
-        return () -> {
-            Jvm.pause(50);
-            System.out.println("Close " + sc);
-            Closeable.closeQuietly(sc);
-            Jvm.pause(10);
-            Closeable.closeQuietly(s2);
-        };
-    }
-
-    // has to be moved to another class to avoid a live lock
-    @NotNull
-    static Runnable close4(SocketChannel sc, SocketChannel s2, Thread main) {
-        return () -> {
-            Jvm.pause(50);
-            main.interrupt();
-            Jvm.pause(10);
-            Closeable.closeQuietly(sc);
-            Closeable.closeQuietly(s2);
-        };
     }
 }

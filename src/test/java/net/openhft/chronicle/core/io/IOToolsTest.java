@@ -192,6 +192,12 @@ public class IOToolsTest extends CoreTestCommon {
         } finally {
             os.close();
         }
+        try {
+            s2.getOutputStream().write(bytes);
+            fail();
+        } catch (IOException ioe) {
+            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+        }
     }
 
     @Test
@@ -200,8 +206,16 @@ public class IOToolsTest extends CoreTestCommon {
         SocketChannel sc = SocketChannel.open(new InetSocketAddress("localhost", ss.getLocalPort()));
         Socket s2 = ss.accept();
         s2.close();
-        ss.close();
         ByteBuffer bytes = ByteBuffer.allocateDirect(1024);
+        try {
+            OutputStream os = s2.getOutputStream();
+            os.close();
+            os.write(1);
+            fail();
+        } catch (IOException ioe) {
+            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+        }
+        ss.close();
         try {
             for (int i = 0; i < 100; i++) {
 //                System.out.println(i);
