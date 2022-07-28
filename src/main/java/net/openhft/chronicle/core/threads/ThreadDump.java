@@ -107,7 +107,7 @@ public class ThreadDump {
                 Thread thread = threadEntry.getKey();
                 sb.append("Thread still running ").append(thread);
                 Jvm.trimStackTrace(sb, threadEntry.getValue());
-                System.err.println(sb);
+
                 if (i == last) {
                     StackTrace stackTrace = ThreadDump.createdHereFor(thread);
                     StackTrace st = new StackTrace(thread.toString(), stackTrace);
