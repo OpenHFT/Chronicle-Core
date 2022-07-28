@@ -18,6 +18,8 @@
 
 package net.openhft.chronicle.core.io;
 
+import java.net.SocketException;
+
 /**
  * A RuntimeException triggered when a underlying IO resource throws an exception.
  */
@@ -32,5 +34,11 @@ public class IORuntimeException extends RuntimeException {
 
     public IORuntimeException(String message, Throwable thrown) {
         super(message, thrown);
+    }
+
+    public static IORuntimeException newIORuntimeException(Exception e) {
+        return IOTools.isClosedException(e)
+                ? new ClosedIORuntimeException("Closed", e)
+                : new IORuntimeException(e);
     }
 }
