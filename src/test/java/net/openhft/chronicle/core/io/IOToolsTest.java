@@ -230,7 +230,7 @@ public class IOToolsTest extends CoreTestCommon {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        });
+        },  "close~thread");
         t.start();
         try {
             for (int i = 0; i < 10000; i++) {
@@ -266,7 +266,7 @@ public class IOToolsTest extends CoreTestCommon {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        });
+        }, "close~thread");
         t.setDaemon(true);
         t.start();
         try {

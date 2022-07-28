@@ -29,9 +29,10 @@ import sun.nio.ch.IOStatus;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.*;
 import java.nio.ByteBuffer;
+import java.nio.channels.ServerSocketChannel;
+import java.nio.channels.SocketChannel;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -353,14 +354,106 @@ public final class IOTools {
     private static final class Language {
         static {
             if (!Locale.getDefault().getLanguage().equals(Locale.ENGLISH.getLanguage())) {
-                Jvm.warn().on(IOTools.class,
-                        "Running under non-English locale '" + Locale.getDefault().getLanguage() +
-                                "', transient exceptions will be reported with higher level than necessary.");
+                try {
+                    addRegionalMessages();
+                } catch (IOException ioe) {
+                    Jvm.warn().on(IOTools.class,
+                            "Running under non-English locale '" + Locale.getDefault().getLanguage() +
+                                    "', transient exceptions will be reported with higher level than necessary.", ioe);
+                }
+            }
+        }
+
+        static void addRegionalMessages() throws IOException {
+            try (ServerSocketChannel ssc = ServerSocketChannel.open()) {
+                ssc.bind(new InetSocketAddress(0));
+                final int port = ssc.socket().getLocalPort();
+                final InetSocketAddress address = new InetSocketAddress("localhost", port);
+                try (Socket s = new Socket("localhost", port);
+                     SocketChannel s2 = ssc.accept()) {
+                    final OutputStream os = s.getOutputStream();
+                    s2.close();
+                    final byte[] bytes = new byte[512];
+                    try {
+                        for (int i = 0; i < 100; i++) {
+                            os.write(bytes);
+                        }
+                    } catch (IOException ioe) {
+                        CLOSED_MESSAGES.add(ioe.getMessage());
+                    }
+                }
+                ByteBuffer bytes = ByteBuffer.allocateDirect(1024);
+                try (SocketChannel sc = SocketChannel.open(address);
+                     SocketChannel s2 = ssc.accept()) {
+                    try {
+                        for (int i = 0; i < 100; i++) {
+                            bytes.clear();
+                            sc.write(bytes);
+                        }
+                    } catch (IOException ioe) {
+                        CLOSED_MESSAGES.add(ioe.getMessage());
+                    }
+                }
+                try (SocketChannel sc = SocketChannel.open(address);
+                     SocketChannel s2 = ssc.accept()) {
+                    Thread t = new Thread(close3(sc, s2), "close~3");
+                    t.setDaemon(true);
+                    t.start();
+                    try {
+                        for (int i = 0; i < 10000; i++) {
+                            bytes.clear();
+                            final int write = sc.write(bytes);
+                            assert write > 0;
+                        }
+                    } catch (IOException ioe) {
+                        CLOSED_MESSAGES.add(ioe.getMessage());
+                    }
+                }
+                try (SocketChannel sc = SocketChannel.open(address);
+                     SocketChannel s2 = ssc.accept()) {
+                    Thread main = Thread.currentThread();
+                    Thread t = new Thread(close4(sc, s2, main), "close~4");
+                    t.setDaemon(true);
+                    t.start();
+                    try {
+                        for (int i = 0; i < 10000; i++) {
+                            bytes.clear();
+                            final int write = sc.write(bytes);
+                            assert write > 0;
+                        }
+                    } catch (IOException ioe) {
+                        CLOSED_MESSAGES.add(ioe.getMessage());
+                    }
+                }
             }
         }
 
         static void warnOnce() {
             // No-op.
         }
+    }
+
+    // has to be moved to another class to avoid a live lock
+    @NotNull
+    static Runnable close3(SocketChannel sc, SocketChannel s2) {
+        return () -> {
+            Jvm.pause(50);
+            System.out.println("Close " + sc);
+            Closeable.closeQuietly(sc);
+            Jvm.pause(10);
+            Closeable.closeQuietly(s2);
+        };
+    }
+
+    // has to be moved to another class to avoid a live lock
+    @NotNull
+    static Runnable close4(SocketChannel sc, SocketChannel s2, Thread main) {
+        return () -> {
+            Jvm.pause(50);
+            main.interrupt();
+            Jvm.pause(10);
+            Closeable.closeQuietly(sc);
+            Closeable.closeQuietly(s2);
+        };
     }
 }
