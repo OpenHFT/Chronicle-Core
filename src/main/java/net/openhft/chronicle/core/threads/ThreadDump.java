@@ -55,6 +55,14 @@ public class ThreadDump {
         return THREAD_STACK_TRACE_MAP.get(thread);
     }
 
+    private static boolean startsWith(String str, String... strs) {
+        for (String s : strs) {
+            if (str.startsWith(s))
+                return true;
+        }
+        return false;
+    }
+
     public void ignore(String threadName) {
         ignored.add(threadName);
     }
@@ -78,7 +86,7 @@ public class ThreadDump {
         long delayNanos = delayUnit.toNanos(delay);
         @Nullable Map<Thread, StackTraceElement[]> allStackTraces = null;
         AssertionError ae = null;
-        int last = 4;
+        int last = 5;
         for (int i = 1; i <= last; ) {
             Jvm.pause(i * i * 50L);
             allStackTraces = Thread.getAllStackTraces();
@@ -119,13 +127,5 @@ public class ThreadDump {
         if (ae == null)
             throw new NullPointerException("This should not happen as ae should be set.");
         throw ae;
-    }
-
-    private static boolean startsWith(String str, String... strs) {
-        for (String s : strs) {
-            if (str.startsWith(s))
-                return true;
-        }
-        return false;
     }
 }
