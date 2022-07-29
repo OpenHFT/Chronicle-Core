@@ -79,8 +79,8 @@ public class UnsafeMemory implements Memory {
 
     public UnsafeMemory() {
         copyMemoryObjectToAddress = (Bootstrap.IS_JAVA_9_PLUS || Bootstrap.isArm0()) ?
-            (src, srcOffset, dest, length) -> copyMemoryLoop(src, srcOffset, null, dest, length) :
-            (src, srcOffset, dest, length) -> copyMemory0(src, srcOffset, null, dest, length);
+                (src, srcOffset, dest, length) -> copyMemoryLoop(src, srcOffset, null, dest, length) :
+                (src, srcOffset, dest, length) -> copyMemory0(src, srcOffset, null, dest, length);
     }
 
     private static int retryReadVolatileInt(long address, int value) {
@@ -160,9 +160,9 @@ public class UnsafeMemory implements Memory {
     /**
      * Puts the provided {@code value} into the provided {@code bytes} array at the provided byte {@code offset}.
      *
-     * @param bytes non-null byte array.
+     * @param bytes  non-null byte array.
      * @param offset in the provided bytes where the value is written
-     * @param value to put
+     * @param value  to put
      */
     public static void unsafePutLong(byte[] bytes, int offset, long value) {
         assert SKIP_ASSERTIONS || nonNull(bytes);
@@ -173,9 +173,9 @@ public class UnsafeMemory implements Memory {
     /**
      * Puts the provided {@code value} into the provided {@code bytes} array at the provided byte {@code offset}.
      *
-     * @param bytes non-null byte array.
+     * @param bytes  non-null byte array.
      * @param offset in the provided bytes where the value is written
-     * @param value to put
+     * @param value  to put
      */
     public static void unsafePutInt(byte[] bytes, int offset, int value) {
         assert SKIP_ASSERTIONS || nonNull(bytes);
@@ -186,9 +186,9 @@ public class UnsafeMemory implements Memory {
     /**
      * Puts the provided {@code value} into the provided {@code bytes} array at the provided byte {@code offset}.
      *
-     * @param bytes non-null byte array.
+     * @param bytes  non-null byte array.
      * @param offset in the provided bytes where the value is written
-     * @param value to put
+     * @param value  to put
      */
     public static void unsafePutByte(byte[] bytes, int offset, byte value) {
         assert SKIP_ASSERTIONS || nonNull(bytes);
@@ -590,7 +590,7 @@ public class UnsafeMemory implements Memory {
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), destOffset);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), length);
         final long offsetB = ARRAY_BYTE_BASE_OFFSET + srcOffset;
-        final long offset2B =ARRAY_BYTE_BASE_OFFSET + destOffset;
+        final long offset2B = ARRAY_BYTE_BASE_OFFSET + destOffset;
         if (length < UNSAFE_COPY_THRESHOLD) {
             UNSAFE.copyMemory(src, offsetB, dest, offset2B, length);
         } else {
@@ -1413,7 +1413,7 @@ public class UnsafeMemory implements Memory {
             if (safeAlignedInt(address)) {
                 super.writeVolatileInt(address, i32);
             } else {
-                writeInt(address, i32);
+                UNSAFE.putInt(address, i32);
                 UNSAFE.storeFence();
             }
         }
@@ -1424,7 +1424,7 @@ public class UnsafeMemory implements Memory {
             if (safeAlignedInt(address))
                 super.writeOrderedInt(address, i32);
             else {
-                writeInt(address, i32);
+                UNSAFE.putInt(address, i32);
                 UNSAFE.storeFence();
             }
         }
@@ -1435,7 +1435,7 @@ public class UnsafeMemory implements Memory {
             if ((offset & 0x3) == 0)
                 super.writeVolatileInt(object, offset, i32);
             else {
-                writeInt(object, offset, i32);
+                UNSAFE.putInt(object, offset, i32);
                 UNSAFE.storeFence();
             }
         }
@@ -1446,7 +1446,7 @@ public class UnsafeMemory implements Memory {
             if (safeAlignedInt(offset)) {
                 super.writeOrderedInt(object, offset, i32);
             } else {
-                writeInt(object, offset, i32);
+                UNSAFE.putInt(object, offset, i32);
                 UNSAFE.storeFence();
             }
         }
@@ -1565,10 +1565,12 @@ public class UnsafeMemory implements Memory {
         @Override
         public void writeOrderedLong(long address, long i) {
             assert SKIP_ASSERTIONS || address != 0;
-            if (safeAlignedLong(address))
+            if (safeAlignedLong(address)) {
                 super.writeOrderedLong(address, i);
-            else
-                writeVolatileLong(address, i);
+            } else {
+                UNSAFE.putLong(address, i);
+                UNSAFE.storeFence();
+            }
         }
 
         @Override
@@ -1583,10 +1585,12 @@ public class UnsafeMemory implements Memory {
         @Override
         public void writeOrderedLong(Object object, long offset, long i) {
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
-            if (safeAlignedLong(offset))
+            if (safeAlignedLong(offset)) {
                 super.writeOrderedLong(object, offset, i);
-            else
-                writeVolatileLong(object, offset, i);
+            } else {
+                UNSAFE.putLong(object, offset, i);
+                UNSAFE.storeFence();
+            }
         }
 
         @Override

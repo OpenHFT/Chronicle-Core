@@ -2,7 +2,10 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.util.MisAlignedAssertionError;
 import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -23,18 +26,22 @@ public class UnsafeMemoryTest {
     private static final long LONG_VAL = Long.MAX_VALUE;
     private static final float FLOAT_VAL = 1f;
     private static final double DOUBLE_VAL = 1d;
+    @Rule
+    public final TestName testName = new TestName();
 
+    private final String name;
     private final UnsafeMemory memory;
     private Boolean onHeap;
     private Object object;
     private long addr;
 
     public UnsafeMemoryTest(String name, UnsafeMemory memory, Boolean onHeap) {
+        this.name = name;
         this.memory = memory;
         this.onHeap = onHeap;
         if (Boolean.TRUE.equals(onHeap)) {
             object = new byte[128];
-            addr = UnsafeMemory.MEMORY.arrayBaseOffset(byte[].class);
+            addr = memory.arrayBaseOffset(byte[].class);
         } else {
             object = null;
             addr = UNSAFE.allocateMemory(128);
@@ -43,27 +50,42 @@ public class UnsafeMemoryTest {
 
     @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> data() {
-        UnsafeMemory memory1 = new UnsafeMemory();
         UnsafeMemory.ARMMemory memory2 = new UnsafeMemory.ARMMemory();
+        Object[][] arm = {
+                {"ARMMemory onheap", memory2, true},
+                {"ARMMemory offheap", memory2, false},
+                {"ARMMemory offheap (no object)", memory2, null},
+                {"ARMMemory onheap (2)", memory2, true}
+        };
+        if (Jvm.isArm())
+            return Arrays.asList(arm);
+        UnsafeMemory memory1 = new UnsafeMemory();
         Object[][] intel = {
                 {"UnsafeMemory offheap", memory1, false},
                 {"UnsafeMemory onheap", memory1, true},
-                {"UnsafeMemory offheap (null)", memory1, null}};
-        Object[][] arm = {
-                {"ARMMemory offheap", memory2, false},
-                {"ARMMemory onheap", memory2, true},
-                {"ARMMemory offheap (null)", memory2, null}
-        };
+                {"UnsafeMemory offheap (no object)", memory1, null}};
+
         List<Object[]> all = new ArrayList<>();
         Collections.addAll(all, intel);
         Collections.addAll(all, arm);
-        return Jvm.isArm() ? Arrays.asList(arm) : all;
+        return all;
+    }
+
+    @Before
+    public void setUp() {
+        System.err.println("testName: " + testName.getMethodName() + ", object: " + object + ", addr: " + addr);
+        if (object == null && addr == 0)
+            addr = UNSAFE.allocateMemory(128);
     }
 
     @After
     public void tearDown() {
-        if (object == null)
+        if (object == null) {
             UNSAFE.freeMemory(addr);
+            addr = 0;
+        }
+        // check the state of the heap
+        System.gc();
     }
 
     @Test
@@ -154,7 +176,7 @@ public class UnsafeMemoryTest {
 
     @Test
     public void writeOrderedLong() {
-        for (int i = 0; i <= 64; i += 8)
+        for (int i = (int) (-addr & 7); i <= 64; i += 8)
             if (onHeap == null) {
                 memory.writeOrderedLong(addr + i, LONG_VAL);
                 assertEquals(LONG_VAL, memory.readLong(addr + i));
@@ -162,6 +184,7 @@ public class UnsafeMemoryTest {
                 memory.writeOrderedLong(object, addr + i, LONG_VAL);
                 assertEquals(LONG_VAL, memory.readLong(object, addr + i));
             }
+        System.err.println("DONE");
     }
 
     @Test
@@ -187,7 +210,7 @@ public class UnsafeMemoryTest {
 
     @Test
     public void compareAndSwapLong() throws MisAlignedAssertionError {
-        for (int i = 0; i <= 64; i += 8)
+        for (int i = (int) (-addr & 7); i <= 64; i += 8)
             try {
                 if (onHeap == null) {
                     memory.writeLong(addr + i, 0);
@@ -264,7 +287,7 @@ public class UnsafeMemoryTest {
 
     @Test
     public void readVolatileLong() {
-        for (int i = 0; i <= 64; i += 8)
+        for (int i = (int) (-addr & 7); i <= 64; i += 8)
             if (onHeap == null) {
                 memory.writeLong(addr + i, LONG_VAL);
                 final long actual = memory.readVolatileLong(addr + i);
@@ -278,7 +301,7 @@ public class UnsafeMemoryTest {
 
     @Test
     public void readVolatileDouble() {
-        for (int i = 0; i <= 64; i += 8)
+        for (int i = (int) (-addr & 7); i <= 64; i += 8)
             if (onHeap == null) {
                 memory.writeDouble(addr + i, DOUBLE_VAL);
                 final double actual = memory.readVolatileDouble(addr + i);
@@ -340,7 +363,7 @@ public class UnsafeMemoryTest {
 
     @Test
     public void writeVolatileLong() {
-        for (int i = 0; i <= 64; i += 8)
+        for (int i = (int) (-addr & 7); i <= 64; i += 8)
             if (onHeap == null) {
                 memory.writeVolatileLong(addr + i, LONG_VAL);
                 assertEquals(LONG_VAL, memory.readLong(addr + i));
@@ -352,7 +375,7 @@ public class UnsafeMemoryTest {
 
     @Test
     public void writeVolatileDouble() {
-        for (int i = 0; i <= 64; i += 8)
+        for (int i = (int) (-addr & 7); i <= 64; i += 8)
             if (onHeap == null) {
                 memory.writeVolatileDouble(addr + i, DOUBLE_VAL);
                 assertEquals(DOUBLE_VAL, memory.readDouble(addr + i), EPSILON);
@@ -385,7 +408,7 @@ public class UnsafeMemoryTest {
 
     @Test
     public void addLong() throws MisAlignedAssertionError {
-        for (int i = 0; i <= 64; i += 8)
+        for (int i = (int) (-addr & 7); i <= 64; i += 8)
             try {
                 if (onHeap == null) {
                     memory.writeLong(addr + i, 0);
