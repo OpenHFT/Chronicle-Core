@@ -86,7 +86,7 @@ public class ThreadDump {
         long delayNanos = delayUnit.toNanos(delay);
         @Nullable Map<Thread, StackTraceElement[]> allStackTraces = null;
         AssertionError ae = null;
-        int last = 5;
+        int last = 7;
         for (int i = 1; i <= last; ) {
             Jvm.pause(i * i * 50L);
             allStackTraces = Thread.getAllStackTraces();
