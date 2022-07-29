@@ -52,8 +52,8 @@ final class Bootstrap {
     }
 
     static boolean isMacArm0() {
-        return OS_NAME.equals("Mac OS X")
-                && CpuClass.CPU_MODEL.startsWith("Apple M");
+        return OS_NAME.equals("Mac OS X");
+        // TODO FIX && CpuClass.CPU_MODEL.startsWith("Apple M");
     }
 
     static boolean isAzulZing0() {
