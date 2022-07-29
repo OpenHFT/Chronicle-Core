@@ -44,6 +44,7 @@ import static org.junit.Assert.*;
  */
 public class MathsTest {
     static final double err = 5.1e-9;
+    public static final int COUNT = Jvm.isArm() ? 2_000_000 : 20_000_000;
     private ThreadDump threadDump;
 
     @Test
@@ -120,7 +121,7 @@ public class MathsTest {
 
     public void roundEither(double factor, Rounder rounder) {
         final double factor2 = 2 * factor;
-        for (int i = 1; i < 20_000_000; i += 2) {
+        for (int i = 1; i < COUNT; i += 2) {
             double dm = i / factor2;
             final double ulp = Math.ulp(dm);
             double d = dm + ulp;
@@ -136,7 +137,7 @@ public class MathsTest {
 
     public void roundUp(double factor, Rounder rounder) {
         final double factor2 = 2 * factor;
-        for (int i = 1; i < 20_000_000; i += 2) {
+        for (int i = 1; i < COUNT; i += 2) {
             double d = i / factor2;
             double d0 = d - Math.ulp(d) * 2;
 
