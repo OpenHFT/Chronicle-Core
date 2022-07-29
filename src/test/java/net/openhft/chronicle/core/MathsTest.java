@@ -30,7 +30,6 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.security.SecureRandom;
 import java.util.Random;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
@@ -44,7 +43,7 @@ import static org.junit.Assert.*;
  */
 public class MathsTest {
     static final double err = 5.1e-9;
-    public static final int COUNT = Jvm.isArm() ? 2_000_000 : 20_000_000;
+    public static final int COUNT = Jvm.isArm() ? 2_000_000 : 10_000_000;
     private ThreadDump threadDump;
 
     @Test
