@@ -170,6 +170,13 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
             traceSet2.addAll(traceSet);
             traceSet2.removeAll(nested);
 
+            // wait up to 250 ms for resources to be closed in the background.
+            for (int i = 0; i < 250; i++) {
+                if (traceSet2.stream().allMatch(Closeable::isClosing))
+                    return;
+                Jvm.pause(1);
+            }
+
             for (Closeable key : traceSet2) {
                 Throwable t = null;
                 try {
@@ -183,7 +190,6 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
                     t = e;
                 }
                 IllegalStateException exception = new IllegalStateException("Not closed " + asString(key), t);
-                Thread.yield();
                 if (key.isClosed()) {
                     continue;
                 }
