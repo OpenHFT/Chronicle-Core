@@ -199,19 +199,23 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     }
 
     protected boolean threadSafetyCheck(boolean isUsed) throws IllegalStateException {
+        // most common check, and sometimes the only check
         if (DISABLE_SINGLE_THREADED_CHECK || singleThreadedCheckDisabled)
             return true;
+        return threadSafetyCheck0(isUsed);
+    }
+
+    private boolean threadSafetyCheck0(boolean isUsed) {
+        // not so common but very cheap
         if (usedByThread == null && !isUsed)
             return true;
 
-        return threadSafetyCheck0();
-    }
-
-    private boolean threadSafetyCheck0() {
         Thread currentThread = Thread.currentThread();
+        // when checking safety, this is the common case
         if (usedByThread == currentThread)
             return true;
 
+        // very rare, only one first use after reset or a failure
         return threadSafetyCheck2(currentThread);
     }
 
