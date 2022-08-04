@@ -212,6 +212,10 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         if (usedByThread == currentThread)
             return true;
 
+        return threadSafetyCheck2(currentThread);
+    }
+
+    private boolean threadSafetyCheck2(Thread currentThread) {
         if (usedByThread == null || !usedByThread.isAlive()) {
             usedByThread = currentThread;
             usedByThreadHere = new StackTrace("Used here");
