@@ -119,6 +119,8 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         if (traceSet == null) {
             return true;
         }
+        if (Thread.interrupted())
+            System.err.println("Interrupted in waitForCloseablesToClose!");
 
         long end = System.currentTimeMillis() + millis;
 
@@ -155,6 +157,8 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
             Jvm.warn().on(AbstractCloseable.class, "closable tracing disabled");
             return;
         }
+        if (Thread.interrupted())
+            System.err.println("Interrupted in assertCloseablesClosed!");
 
         BackgroundResourceReleaser.releasePendingResources();
 
@@ -294,14 +298,24 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     }
 
     protected void waitForClosed() {
-        long start = System.currentTimeMillis();
-        while (closed != STATE_CLOSED) {
-            if (System.currentTimeMillis() > start + 10_000) {
-                Jvm.warn().on(getClass(), "Aborting close()ing object " + referenceId +
-                        " after " + (System.currentTimeMillis() - start) / 1e3 + " secs", new StackTrace("waiting here", closedHere));
-                break;
+        boolean interrupted = false;
+        try {
+            long start = System.currentTimeMillis();
+            while (closed != STATE_CLOSED) {
+                if (System.currentTimeMillis() > start + 2_500) {
+                    Jvm.warn().on(getClass(), "Aborting close()ing object " + referenceId +
+                            " after " + (System.currentTimeMillis() - start) / 1e3 + " secs", new StackTrace("waiting here", closedHere));
+                    break;
+                }
+                try {
+                    Thread.sleep(1);
+                } catch (InterruptedException ie) {
+                    interrupted = true;
+                }
             }
-            Jvm.pause(1);
+        } finally {
+            if (interrupted)
+                Thread.currentThread().interrupt();
         }
     }
 

@@ -123,12 +123,13 @@ public final class BackgroundResourceReleaser {
                 offerPoisonPill(false);
 
             for (int i = 0; i < 1000 && COUNTER.get() > 0; i++)
-                Jvm.pause(1);
+                Thread.sleep(1);
             long left = COUNTER.get();
             if (left != 0)
                 Jvm.perf().on(BackgroundResourceReleaser.class, "Still got " + left + " resources to clean");
 
         } catch (InterruptedException e) {
+            Jvm.warn().on(BackgroundResourceReleaser.class, "Interrupted in releasePendingResources");
             Thread.currentThread().interrupt();
         }
     }
