@@ -14,6 +14,7 @@ and so are enabled if either `-Dflag` or `-Dflag=true` or `-Dflag=yes`
 | debug | `false` | Returns if the JVM is running in debug mode |_IS_DEBUG_ (boolean)
 | disable.discard.warning | `false` | Called from finalise() implementations. If 'true', message is displayed stating that resource cannot be closed, and IllegalStateException is thrown  | _DISABLE_DISCARD_WARNING_ (boolean)
 | disable.perf.info | `false` | if enabled, returns NullExceptionHandler | disablePerfInfo (boolean)
+| disable.performance.tuning.report | `false` | If enabled, performance tuning suggestions would not be reported on startup | boolean
 | disable.resource.warning | `false` | If enabled, returns that resource tracing is turned on | boolean
 | disable.thread.safety | `false` | If enabled, threadSafetyCheck throws IllegalStateException in AbstractReferenceCounted.java and message thrown stating which component is not thread safe | _DISABLE_THREAD_SAFETY_ (boolean)
 | jfr | `false` | Returns if the JVM is running in flight recorder mode | _IS_FLIGHT_RECORDER_ (boolean)
