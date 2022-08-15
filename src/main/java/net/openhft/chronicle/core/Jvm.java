@@ -176,7 +176,7 @@ public final class Jvm {
             logger.warn("Resource tracing is turned on. If you are performance testing or running in PROD you probably don't want this");
         REPORT_UNOPTIMISED = Jvm.getBoolean("report.unoptimised");
 
-        if (!Jvm.getBoolean("disable.performance.tuning"))
+        if (!Jvm.getBoolean("disable.performance.tuning.report"))
             PerformanceTuning.reportIssues();
     }
 
