@@ -24,12 +24,12 @@ public enum HandlerPriority {
      */
     HIGH,
     /**
-     * Less critical tasks 1/4 as often as HIGH
+     * Less critical tasks invoked approximately 1/4 as often as HIGH
      */
     MEDIUM,
     /**
-     * Timing based tasks called every give interval. Note: this task will not be called if the
-     * thread pauses e.g. due a GC or when debugging is used.  This makes the timer more robust to
+     * Timing based tasks called every given interval. Note: this task will not be called if the
+     * thread pauses e.g. due a GC or when debugging is used. This makes the timer more robust to
      * delays than using absolute time differences.
      */
     TIMER,
@@ -55,7 +55,9 @@ public enum HandlerPriority {
             return MEDIUM;
         }
     },
-
+    /**
+     * like {@link #TIMER} but for replication
+     */
     REPLICATION_TIMER {
         @Override
         public HandlerPriority alias() {
