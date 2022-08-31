@@ -195,6 +195,16 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         this.singleThreadedCheckDisabled = singleThreadedCheckDisabled;
     }
 
+    @Override
+    public void addReferenceChangeListener(ReferenceChangeListener referenceChangeListener) {
+        referenceCounted.addReferenceChangeListener(referenceChangeListener);
+    }
+
+    @Override
+    public void removeReferenceChangeListener(ReferenceChangeListener referenceChangeListener) {
+        referenceCounted.removeReferenceChangeListener(referenceChangeListener);
+    }
+
     protected boolean threadSafetyCheck(boolean isUsed) throws IllegalStateException {
         // most common check, and sometimes the only check
         if (DISABLE_SINGLE_THREADED_CHECK || singleThreadedCheckDisabled)

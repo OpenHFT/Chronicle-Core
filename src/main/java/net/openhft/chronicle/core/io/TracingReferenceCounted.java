@@ -21,6 +21,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     private final String uniqueId;
     private final Class<?> type;
     private final StackTrace createdHere;
+    private final ReferenceChangeListenerManager referenceChangeListeners;
     private volatile StackTrace releasedHere;
     private boolean unmonitored;
 
@@ -30,6 +31,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
         this.type = type;
         createdHere = stackTrace("init", INIT);
         references.put(INIT, createdHere);
+        referenceChangeListeners = new ReferenceChangeListenerManager(this);
     }
 
     static String asString(Object id) {
@@ -51,6 +53,16 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     @Override
     public StackTrace createdHere() {
         return createdHere;
+    }
+
+    @Override
+    public void addReferenceChangeListener(ReferenceChangeListener referenceChangeListener) {
+        referenceChangeListeners.add(referenceChangeListener);
+    }
+
+    @Override
+    public void removeReferenceChangeListener(ReferenceChangeListener referenceChangeListener) {
+        referenceChangeListeners.remove(referenceChangeListener);
     }
 
     @Deprecated
@@ -77,6 +89,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     private boolean tryReserve(ReferenceOwner id, boolean must) throws IllegalStateException {
         if (id == this)
             throw new AssertionError(type.getName() + " the counter cannot reserve itself");
+        boolean addedOne = false;
         synchronized (references) {
             if (references.isEmpty()) {
                 if (must)
@@ -84,10 +97,17 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
                 return false;
             }
             StackTrace stackTrace = references.get(id);
-            if (stackTrace == null)
-                references.putIfAbsent(id, stackTrace("reserve", id));
-            else
+            if (stackTrace == null) {
+                final StackTrace reference = references.putIfAbsent(id, stackTrace("reserve", id));
+                if (reference == null) {
+                    addedOne = true;
+                }
+            } else
                 throw new IllegalStateException(type.getName() + " already reserved resource by " + asString(id) + " here", stackTrace);
+        }
+        // notify outside the synchronized block to avoid potential deadlock
+        if (addedOne) {
+            referenceChangeListeners.notifyAdded(id);
         }
         releases.remove(id);
         return true;
@@ -110,6 +130,8 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
                 } else {
                     throw new ClosedIllegalStateException(type.getName() + " already released " + asString(id) + " location ", stackTrace);
                 }
+            } else {
+                referenceChangeListeners.notifyRemoved(id);
             }
             releases.put(id, stackTrace("release", id));
             if (references.isEmpty()) {
@@ -155,6 +177,8 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
         }
         if (e0 != null)
             Jvm.rethrow(e0);
+        // If all went well, clear the listeners
+        referenceChangeListeners.clear();
     }
 
     @Override
