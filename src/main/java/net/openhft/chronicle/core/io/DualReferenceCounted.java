@@ -50,6 +50,16 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
         return a.createdHere();
     }
 
+    @Override
+    public void addReferenceChangeListener(ReferenceChangeListener referenceChangeListener) {
+        a.addReferenceChangeListener(referenceChangeListener);
+    }
+
+    @Override
+    public void removeReferenceChangeListener(ReferenceChangeListener referenceChangeListener) {
+        a.removeReferenceChangeListener(referenceChangeListener);
+    }
+
     @Deprecated(/* To be removed in x.25 */)
     @Override
     public boolean reservedBy(ReferenceOwner owner) throws IllegalStateException {
