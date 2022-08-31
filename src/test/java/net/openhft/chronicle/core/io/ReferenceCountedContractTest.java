@@ -4,7 +4,9 @@ import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import org.junit.Test;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -180,6 +182,107 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
             throw new IllegalStateException("ExecutorService didn't shut down");
         }
         counted.releaseLast();
+    }
+
+    @Test
+    public void shouldNotifyListenersWhenReferencesAreAddedAndRemoved() {
+        ReferenceCounted rc = createReferenceCounted();
+        assertEquals(1, rc.refCount());
+        Set<ReferenceOwner> currentOwners = new HashSet<>();
+        Set<ReferenceOwner> untrackedOwners = new HashSet<>();
+        rc.addReferenceChangeListener(new ReferenceChangeListener() {
+
+            @Override
+            public void onReferenceAdded(ReferenceCounted referenceCounted, ReferenceOwner referenceOwner) {
+                currentOwners.add(referenceOwner);
+            }
+
+            @Override
+            public void onReferenceRemoved(ReferenceCounted referenceCounted, ReferenceOwner referenceOwner) {
+                if (!currentOwners.remove(referenceOwner)) {
+                    untrackedOwners.add(referenceOwner);
+                }
+            }
+
+            @Override
+            public void onReferenceTransferred(ReferenceCounted referenceCounted, ReferenceOwner fromOwner, ReferenceOwner toOwner) {
+                currentOwners.remove(fromOwner);
+                currentOwners.add(toOwner);
+            }
+        });
+
+        ReferenceOwner a = ReferenceOwner.temporary("a");
+        ReferenceOwner b = ReferenceOwner.temporary("b");
+
+        rc.reserve(a);
+        assertEquals(1, currentOwners.size());
+        assertTrue(currentOwners.contains(a));
+
+        rc.reserve(b);
+        assertEquals(2, currentOwners.size());
+        assertTrue(currentOwners.contains(b));
+
+        rc.release(a);
+        assertEquals(1, currentOwners.size());
+        assertTrue(currentOwners.contains(b));
+
+        rc.reserveTransfer(b, a);
+        assertEquals(1, currentOwners.size());
+        assertTrue(currentOwners.contains(a));
+
+        rc.release(a);
+        assertEquals(0, currentOwners.size());
+
+        rc.releaseLast(ReferenceOwner.INIT);
+        assertEquals(1, untrackedOwners.size());
+        assertFalse(currentOwners.contains(ReferenceOwner.INIT));
+    }
+
+    @Test
+    public void shouldBeAbleToAddAndRemoveListeners() {
+        ReferenceCounted rc = createReferenceCounted();
+
+        ReferenceOwner a = ReferenceOwner.temporary("a");
+        ReferenceOwner b = ReferenceOwner.temporary("b");
+
+        CounterReferenceChangeListener listener1 = new CounterReferenceChangeListener();
+        CounterReferenceChangeListener listener2 = new CounterReferenceChangeListener();
+
+        rc.addReferenceChangeListener(listener1);
+        rc.reserve(a);
+        assertEquals(1, listener1.invokeCount);
+        assertEquals(0, listener2.invokeCount);
+        rc.addReferenceChangeListener(listener2);
+        rc.reserve(b);
+        assertEquals(2, listener1.invokeCount);
+        assertEquals(1, listener2.invokeCount);
+        rc.removeReferenceChangeListener(listener1);
+        rc.release(a);
+        assertEquals(2, listener1.invokeCount);
+        assertEquals(2, listener2.invokeCount);
+        rc.removeReferenceChangeListener(listener2);
+        rc.release(b);
+        assertEquals(2, listener1.invokeCount);
+        assertEquals(2, listener2.invokeCount);
+    }
+
+    static class CounterReferenceChangeListener implements ReferenceChangeListener {
+        int invokeCount = 0;
+
+        @Override
+        public void onReferenceAdded(ReferenceCounted referenceCounted, ReferenceOwner referenceOwner) {
+            invokeCount++;
+        }
+
+        @Override
+        public void onReferenceRemoved(ReferenceCounted referenceCounted, ReferenceOwner referenceOwner) {
+            invokeCount++;
+        }
+
+        @Override
+        public void onReferenceTransferred(ReferenceCounted referenceCounted, ReferenceOwner fromOwner, ReferenceOwner toOwner) {
+            invokeCount++;
+        }
     }
 
     private void getQuietly(Future<?> future) {

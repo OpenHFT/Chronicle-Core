@@ -17,6 +17,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
 
     private final Runnable onRelease;
     private final Class<?> type;
+    private final ReferenceChangeListenerManager referenceChangeListeners;
     // must be volatile
     @UsedViaReflection
     private volatile int value = 1;
@@ -27,6 +28,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     VanillaReferenceCounted(final Runnable onRelease, Class<?> type) {
         this.onRelease = onRelease;
         this.type = type;
+        referenceChangeListeners = new ReferenceChangeListenerManager(this);
     }
 
     @Override
@@ -52,6 +54,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
                 throw newReleasedClosedIllegalStateException();
             }
             if (valueCompareAndSet(v, v + 1)) {
+                referenceChangeListeners.notifyAdded(id);
                 break;
             }
         }
@@ -60,6 +63,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     @Override
     public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws ClosedIllegalStateException {
         throwExceptionIfReleased();
+        referenceChangeListeners.notifyTransferred(from, to);
     }
 
     @Override
@@ -70,6 +74,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
                 return false;
 
             if (valueCompareAndSet(v, v + 1)) {
+                referenceChangeListeners.notifyAdded(id);
                 return true;
             }
         }
@@ -92,6 +97,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
             }
             int count = v - 1;
             if (valueCompareAndSet(v, count)) {
+                referenceChangeListeners.notifyRemoved(id);
                 if (count == 0) {
                     callOnRelease();
                 }
@@ -106,6 +112,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         releasedHere = Jvm.isResourceTracing() ? new StackTrace("Released here") : null;
         released = true;
         onRelease.run();
+        referenceChangeListeners.clear();
     }
 
     @Override
@@ -162,8 +169,15 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         return unmonitored;
     }
 
+    public void addReferenceChangeListener(ReferenceChangeListener referenceChangeListener) {
+        referenceChangeListeners.add(referenceChangeListener);
+    }
+
+    public void removeReferenceChangeListener(ReferenceChangeListener referenceChangeListener) {
+        referenceChangeListeners.remove(referenceChangeListener);
+    }
+
     private ClosedIllegalStateException newReleasedClosedIllegalStateException() {
         return new ClosedIllegalStateException(type.getName() + " released");
     }
-
 }

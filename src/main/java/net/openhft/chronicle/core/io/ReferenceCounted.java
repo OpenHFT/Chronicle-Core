@@ -75,4 +75,20 @@ public interface ReferenceCounted extends ReferenceOwner {
      * @return the reference count for this resource
      */
     int refCount();
+
+    /**
+     * Add a {@link ReferenceChangeListener} that will be notified whenever the set of references changes
+     *
+     * @param referenceChangeListener The listener to add
+     */
+    void addReferenceChangeListener(ReferenceChangeListener referenceChangeListener);
+
+    /**
+     * Remove a {@link ReferenceChangeListener}
+     * <p>
+     * Uses object equality to determine which to remove so be careful if the listener implements equals
+     *
+     * @param referenceChangeListener The listener to remove
+     */
+    void removeReferenceChangeListener(ReferenceChangeListener referenceChangeListener);
 }

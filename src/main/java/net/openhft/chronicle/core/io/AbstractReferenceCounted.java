@@ -175,6 +175,16 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         return referenceCounted.reservedBy(owner);
     }
 
+    @Override
+    public void addReferenceChangeListener(ReferenceChangeListener referenceChangeListener) {
+        referenceCounted.addReferenceChangeListener(referenceChangeListener);
+    }
+
+    @Override
+    public void removeReferenceChangeListener(ReferenceChangeListener referenceChangeListener) {
+        referenceCounted.removeReferenceChangeListener(referenceChangeListener);
+    }
+
     protected boolean threadSafetyCheck(boolean isUsed) throws IllegalStateException {
         if (DISABLE_THREAD_SAFETY)
             return true;
