@@ -28,10 +28,7 @@ public interface ReferenceCountedTracer extends ReferenceCounted {
     @NotNull
     static ReferenceCountedTracer onReleased(final Runnable onRelease, Supplier<String> uniqueId, Class<?> type) {
         return Jvm.isResourceTracing()
-                ? new DualReferenceCounted(
-                new TracingReferenceCounted(onRelease, uniqueId.get(), type),
-                new VanillaReferenceCounted(() -> {
-                }, type))
+                ? new TracingReferenceCounted(onRelease, uniqueId.get(), type)
                 : new VanillaReferenceCounted(onRelease, type);
     }
 

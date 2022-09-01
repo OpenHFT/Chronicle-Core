@@ -43,7 +43,9 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     @Deprecated(/* remove in x.25 */)
     protected static final boolean DISABLE_THREAD_SAFETY = DISABLE_SINGLE_THREADED_CHECK;
     protected static final boolean DISABLE_DISCARD_WARNING = Jvm.getBoolean("disable.discard.warning", false);
-    protected static final boolean STRICT_DISCARD_WARNING = Jvm.getBoolean("strict.discard.warning", false);
+    @SuppressWarnings("DeprecatedIsStillUsed")
+    @Deprecated(/* remove in x.25 */)
+    protected static final boolean STRICT_DISCARD_WARNING;
 
     protected static final long WARN_NS = (long) (Jvm.getDouble("closeable.warn.secs", 0.02) * 1e9);
 
@@ -57,6 +59,10 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         if (Jvm.isResourceTracing())
             enableCloseableTracing();
         CLOSED_OFFSET = UnsafeMemory.unsafeObjectFieldOffset(Jvm.getField(AbstractCloseable.class, "closed"));
+        if (Jvm.getProperty("strict.discard.warning") != null) {
+            Jvm.warn().on(AbstractCloseable.class, "strict.discard.warning is deprecated and has no effect, it will be removed in x.25");
+        }
+        STRICT_DISCARD_WARNING = Jvm.getBoolean("strict.discard.warning", false);
     }
 
     private final transient StackTrace createdHere;
