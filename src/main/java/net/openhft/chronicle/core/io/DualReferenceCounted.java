@@ -3,6 +3,7 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
 
+@Deprecated(/* To be removed in x.25 */)
 public class DualReferenceCounted implements MonitorReferenceCounted {
     private final MonitorReferenceCounted a;
     private final MonitorReferenceCounted b;
@@ -31,6 +32,7 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
         return a.createdHere();
     }
 
+    @Deprecated(/* To be removed in x.25 */)
     @Override
     public boolean reservedBy(ReferenceOwner owner) throws IllegalStateException {
         return a.reservedBy(owner);

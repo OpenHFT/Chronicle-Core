@@ -6,8 +6,6 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
-import net.openhft.chronicle.core.onoes.ExceptionHandler;
-import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -41,8 +39,8 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
                 : id.getClass().getSimpleName() + "@" + Integer.toHexString(System.identityHashCode(id));
         if (id instanceof ReferenceCounted)
             s += " refCount=" + ((ReferenceCounted) id).refCount();
-        if (id instanceof Closeable)
-            s += " closed=" + ((Closeable) id).isClosed();
+        if (id instanceof QueryCloseable)
+            s += " closed=" + ((QueryCloseable) id).isClosed();
         return s;
     }
 
@@ -51,6 +49,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
         return createdHere;
     }
 
+    @Deprecated
     @Override
     public boolean reservedBy(ReferenceOwner owner) throws IllegalStateException {
         if (references.containsKey(owner))
@@ -135,15 +134,13 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
 
     @Override
     public void releaseLast(ReferenceOwner id) throws IllegalStateException {
-        if (references.size() <= 1) {
+        Exception e0 = null;
+        try {
             release(id);
-        } else {
-            Exception e0 = null;
-            try {
-                release(id);
-            } catch (Exception e) {
-                e0 = e;
-            }
+        } catch (Exception e) {
+            e0 = e;
+        }
+        if (references.size() > 0) {
             IllegalStateException ise = new IllegalStateException(type.getName() + " still reserved " + referencesAsString(), createdHere);
             synchronized (references) {
                 references.values().forEach(ise::addSuppressed);
@@ -152,6 +149,8 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
                 ise.addSuppressed(e0);
             throw ise;
         }
+        if (e0 != null)
+            Jvm.rethrow(e0);
     }
 
     @Override
@@ -226,11 +225,18 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
 
     @Override
     public void warnAndReleaseIfNotReleased() {
-        if (refCount() > 0) {
-            if (!unmonitored && !AbstractCloseable.DISABLE_DISCARD_WARNING) {
-                ExceptionHandler warn = AbstractCloseable.STRICT_DISCARD_WARNING ? Jvm.warn() : Slf4jExceptionHandler.WARN;
-                warn.on(type, "Discarded without being released by " + referencesAsString(), createdHere);
+        boolean runOnRelease = false;
+        synchronized (references) {
+            if (refCount() > 0) {
+                if (!unmonitored && !AbstractCloseable.DISABLE_DISCARD_WARNING) {
+                    Jvm.warn().on(type, "Discarded without being released by " + referencesAsString(), createdHere);
+                }
+                references.clear();
+                runOnRelease = true;
             }
+        }
+        // Run outside the synchronized block to avoid risk of deadlock
+        if (runOnRelease) {
             onRelease.run();
         }
     }

@@ -42,7 +42,9 @@ import static net.openhft.chronicle.core.io.TracingReferenceCounted.asString;
 public abstract class AbstractCloseable implements ReferenceOwner, ManagedCloseable {
     protected static final boolean DISABLE_THREAD_SAFETY = Jvm.getBoolean("disable.thread.safety", false);
     protected static final boolean DISABLE_DISCARD_WARNING = Jvm.getBoolean("disable.discard.warning", false);
-    protected static final boolean STRICT_DISCARD_WARNING = Jvm.getBoolean("strict.discard.warning", false);
+    @SuppressWarnings("DeprecatedIsStillUsed")
+    @Deprecated(/* remove in x.25 */)
+    protected static final boolean STRICT_DISCARD_WARNING;
 
     @Deprecated(/* remove in x.23 */)
     protected static final boolean CHECK_THREAD_SAFETY = !DISABLE_THREAD_SAFETY;
@@ -58,6 +60,10 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         if (Jvm.isResourceTracing())
             enableCloseableTracing();
         CLOSED_OFFSET = UnsafeMemory.unsafeObjectFieldOffset(Jvm.getField(AbstractCloseable.class, "closed"));
+        if (System.getProperty("strict.discard.warning") != null) {
+            Jvm.warn().on(AbstractCloseable.class, "strict.discard.warning is deprecated and has no effect, it will be removed in x.25");
+        }
+        STRICT_DISCARD_WARNING = Jvm.getBoolean("strict.discard.warning", false);
     }
 
     private transient volatile int closed = 0;

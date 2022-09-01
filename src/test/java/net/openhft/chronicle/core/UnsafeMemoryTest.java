@@ -207,6 +207,28 @@ public class UnsafeMemoryTest {
     }
 
     @Test
+    public void getAndSetInt() throws MisAlignedAssertionError {
+        int initialValue = 9876;
+        for (int i = 0; i <= 64; i += 4)
+            try {
+                if (onHeap == null) {
+                    memory.writeInt(addr + i, initialValue);
+                    final int previous = memory.getAndSetInt(addr + i, INT_VAL);
+                    assertEquals(initialValue, previous);
+                    assertEquals(INT_VAL, memory.readInt(addr + i));
+                } else {
+                    memory.writeInt(object, addr + i, initialValue);
+                    final int previous = memory.getAndSetInt(object, addr + i, INT_VAL);
+                    assertEquals(initialValue, previous);
+                    assertEquals(INT_VAL, memory.readInt(object, addr + i));
+                }
+            } catch (MisAlignedAssertionError e) {
+                if (memory.safeAlignedInt(addr + i))
+                    throw e;
+            }
+    }
+
+    @Test
     public void readVolatileByte() {
         for (int i = 0; i <= 64; i++)
             if (onHeap == null) {

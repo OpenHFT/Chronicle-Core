@@ -164,6 +164,10 @@ public interface Memory {
 
     boolean compareAndSwapLong(Object object, long offset, long expected, long value) throws MisAlignedAssertionError;
 
+    int getAndSetInt(long address, int value) throws MisAlignedAssertionError;
+
+    int getAndSetInt(Object object, long offset, int value) throws MisAlignedAssertionError;
+
     int pageSize();
 
     byte readVolatileByte(long address);

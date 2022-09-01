@@ -38,7 +38,9 @@ public interface ReferenceCounted extends ReferenceOwner {
      *
      * @param owner to check
      * @return false if the owner definitely doesn't own it.
+     * @deprecated Deprecated with no replacement
      */
+    @Deprecated(/* to be removed in x.25 */)
     boolean reservedBy(ReferenceOwner owner) throws IllegalStateException;
 
     /**

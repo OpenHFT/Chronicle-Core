@@ -1009,6 +1009,20 @@ public class UnsafeMemory implements Memory {
     }
 
     @Override
+    public int getAndSetInt(long address, int value) throws MisAlignedAssertionError {
+        assert (address & 63) <= 64 - 4;
+        assert SKIP_ASSERTIONS || address != 0;
+        return UNSAFE.getAndSetInt(null, address, value);
+    }
+
+    @Override
+    public int getAndSetInt(Object object, long offset, int value) throws MisAlignedAssertionError {
+        assert (offset & 63) <= 64 - 4;
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
+        return UNSAFE.getAndSetInt(object, offset, value);
+    }
+
+    @Override
     public int pageSize() {
         return UNSAFE.pageSize();
     }
@@ -1443,6 +1457,22 @@ public class UnsafeMemory implements Memory {
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
             if (safeAlignedInt(offset))
                 return super.compareAndSwapInt(object, offset, expected, value);
+            throw new MisAlignedAssertionError();
+        }
+
+        @Override
+        public int getAndSetInt(long address, int value) throws MisAlignedAssertionError {
+            assert SKIP_ASSERTIONS || address != 0;
+            if (safeAlignedInt(address))
+                return super.getAndSetInt(address, value);
+            throw new MisAlignedAssertionError();
+        }
+
+        @Override
+        public int getAndSetInt(Object object, long offset, int value) throws MisAlignedAssertionError {
+            assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
+            if (safeAlignedInt(offset))
+                return super.getAndSetInt(object, offset, value);
             throw new MisAlignedAssertionError();
         }
 

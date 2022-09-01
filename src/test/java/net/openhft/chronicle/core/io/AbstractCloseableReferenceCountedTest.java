@@ -1,18 +1,17 @@
 package net.openhft.chronicle.core.io;
 
-import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
-public class AbstractCloseableReferenceCountedTest extends CoreTestCommon {
+public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTracerContractTest {
 
     @Test
     public void reserve() throws IllegalStateException, IllegalArgumentException {
         assumeTrue(Jvm.isResourceTracing());
-        MyCloseableReferenceCounted rc = new MyCloseableReferenceCounted();
+        MyCloseableReferenceCounted rc = createReferenceCounted();
         assertEquals(1, rc.refCount());
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -44,7 +43,7 @@ public class AbstractCloseableReferenceCountedTest extends CoreTestCommon {
 
     @Test
     public void reserveWhenClosed() throws IllegalStateException, IllegalArgumentException {
-        MyCloseableReferenceCounted rc = new MyCloseableReferenceCounted();
+        MyCloseableReferenceCounted rc = createReferenceCounted();
         assertEquals(1, rc.refCount());
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -75,6 +74,11 @@ public class AbstractCloseableReferenceCountedTest extends CoreTestCommon {
         } catch (IllegalStateException ignored) {
 
         }
+    }
+
+    @Override
+    protected MyCloseableReferenceCounted createReferenceCounted() {
+        return new MyCloseableReferenceCounted();
     }
 
     static class MyCloseableReferenceCounted extends AbstractCloseableReferenceCounted {

@@ -1,6 +1,5 @@
 package net.openhft.chronicle.core.io;
 
-import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import org.junit.Test;
 
@@ -8,13 +7,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 
-public class AbstractReferenceCountedTest extends CoreTestCommon {
+public class AbstractReferenceCountedTest extends ReferenceCountedTracerContractTest {
 
     @Test
     public void reserve() throws IllegalStateException, IllegalArgumentException {
         assumeTrue(Jvm.isResourceTracing());
 
-        MyReferenceCounted rc = new MyReferenceCounted();
+        MyReferenceCounted rc = createReferenceCounted();
         assertEquals(1, rc.refCount());
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -42,6 +41,11 @@ public class AbstractReferenceCountedTest extends CoreTestCommon {
         rc.releaseLast();
         assertEquals(0, rc.refCount());
         assertEquals(1, rc.performRelease);
+    }
+
+    @Override
+    protected MyReferenceCounted createReferenceCounted() {
+        return new MyReferenceCounted();
     }
 
     static class MyReferenceCounted extends AbstractReferenceCounted {
