@@ -20,7 +20,6 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
-import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 import net.openhft.chronicle.core.util.WeakIdentityHashMap;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +29,7 @@ import java.util.Set;
 import static net.openhft.chronicle.core.io.AbstractCloseable.*;
 import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEASER;
 
-public abstract class AbstractReferenceCounted implements ReferenceCountedTracer, ReferenceOwner {
+public abstract class AbstractReferenceCounted implements ReferenceCountedTracer, ReferenceOwner, SingleThreadedChecked {
     protected static final long WARN_NS = (long) (Jvm.getDouble("reference.warn.secs", 0.003) * 1e9);
     protected static final int WARN_COUNT = Jvm.getInteger("reference.warn.count", Integer.MAX_VALUE);
     static volatile Set<AbstractReferenceCounted> referenceCountedSet;
@@ -186,10 +185,12 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         referenceCounted.warnAndReleaseIfNotReleased();
     }
 
+    @Deprecated
     public boolean reservedBy(ReferenceOwner owner) throws IllegalStateException {
         return referenceCounted.reservedBy(owner);
     }
 
+    @Override
     public void singleThreadedCheckDisabled(boolean singleThreadedCheckDisabled) {
         this.singleThreadedCheckDisabled = singleThreadedCheckDisabled;
     }

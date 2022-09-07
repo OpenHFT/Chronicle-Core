@@ -22,6 +22,5 @@ and so are enabled if either `-Dflag` or `-Dflag=true` or `-Dflag=yes`
 | reference.warn.count | unknown | If there is a high reserve count (relative to referenceCounted), warning is thrown stating the referenceName with the high reserve count | _WARN_COUNT_ (int)
 | reference.warn.secs | 0.003 | If time of inThreadPerformanceRelease is greater than default, message is thrown to state the ms it takes to performRelease | _WARN_NS_ (long)
 | report.unoptimised | `false` | If enabled, returns usage of unoptimised method | REPORT_UNOPTIMISED (boolean)
-| strict.discard.warning | `false` | If enabled, message is displayed stating that resources have been 'discarded without being released by' + referencesAsString() | _STRICT_DISCARD_WARNING_ (boolean)
 | warnAndCloseIfNotClosed | `true` |If 'false', returns the DEBUG exception handler, which prints as System.out or DEBUG level logging | boolean
 |===

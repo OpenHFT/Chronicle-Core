@@ -22,7 +22,6 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
 import net.openhft.chronicle.core.UnsafeMemory;
 import net.openhft.chronicle.core.annotation.UsedViaReflection;
-import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 
 import static net.openhft.chronicle.core.io.TracingReferenceCounted.asString;
 
@@ -53,6 +52,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         return null;
     }
 
+    @Deprecated
     @Override
     public boolean reservedBy(ReferenceOwner owner) throws IllegalStateException {
         if (refCount() <= 0)
@@ -97,6 +97,10 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         return UnsafeMemory.INSTANCE.compareAndSwapInt(this, VALUE, from, to);
     }
 
+    private int valueGetAndSet(int to) {
+        return UnsafeMemory.INSTANCE.getAndSetInt(this, VALUE, to);
+    }
+
     @Override
     public void release(ReferenceOwner id) throws ClosedIllegalStateException {
         for (; ; ) {
@@ -124,20 +128,21 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
 
     @Override
     public void releaseLast(ReferenceOwner id) throws IllegalStateException {
-        for (; ; ) {
-            int v = value;
-            if (v <= 0) {
-                if (Jvm.supportThread())
-                    break;
-                throw newReleasedClosedIllegalStateException();
+        Exception thrownException = null;
+        try {
+            release(id);
+        } catch (Exception e) {
+            thrownException = e;
+        }
+        if (value > 0) {
+            final IllegalStateException ise = new IllegalStateException(type.getName() + " not the last released");
+            if (thrownException != null) {
+                ise.addSuppressed(thrownException);
             }
-            if (v > 1) {
-                throw new IllegalStateException(type.getName() + " not the last released");
-            }
-            if (valueCompareAndSet(1, 0)) {
-                callOnRelease();
-                break;
-            }
+            throw ise;
+        }
+        if (thrownException != null) {
+            Jvm.rethrow(thrownException);
         }
     }
 
@@ -158,9 +163,9 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
 
     @Override
     public void warnAndReleaseIfNotReleased() throws ClosedIllegalStateException {
-        if (refCount() > 0) {
+        if (valueGetAndSet(0) > 0) {
             if (!unmonitored && !AbstractCloseable.DISABLE_DISCARD_WARNING)
-                Slf4jExceptionHandler.WARN.on(type, "Discarded without being released");
+                Jvm.warn().on(type, "Discarded without being released");
             callOnRelease();
         }
     }
