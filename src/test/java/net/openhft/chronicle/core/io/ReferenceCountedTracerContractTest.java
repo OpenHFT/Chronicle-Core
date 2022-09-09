@@ -3,6 +3,7 @@ package net.openhft.chronicle.core.io;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
 /**
@@ -42,5 +43,22 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
 
         referenceCounted.releaseLast();
         referenceCounted.throwExceptionIfNotReleased();
+    }
+
+    @Test
+    public void listenersShouldBeNotifiedOnWarnAndReleaseIfNotReleased() {
+        ReferenceCountedTracer rc = createReferenceCounted();
+
+        ReferenceOwner a = ReferenceOwner.temporary("a");
+        ReferenceOwner b = ReferenceOwner.temporary("b");
+
+        CounterReferenceChangeListener listener = new CounterReferenceChangeListener();
+        rc.addReferenceChangeListener(listener);
+        rc.reserve(a);
+        rc.reserve(b);
+
+        expectException("Discarded without being released");
+        rc.warnAndReleaseIfNotReleased();
+        assertEquals(3, listener.referenceRemovedCount);
     }
 }

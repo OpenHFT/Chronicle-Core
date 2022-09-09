@@ -1,5 +1,7 @@
 package net.openhft.chronicle.core.io;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * An interface to be notified when references to a {@link ReferenceCounted} are added, removed or transferred
  */
@@ -24,9 +26,9 @@ public interface ReferenceChangeListener {
      * what you do here that might introduce a deadlock!
      *
      * @param referenceCounted The ReferenceCounted to which the reference was removed
-     * @param referenceOwner   The owner of the reference removed
+     * @param referenceOwner   The owner whose reference was removed, or null if that is not known
      */
-    default void onReferenceRemoved(ReferenceCounted referenceCounted, ReferenceOwner referenceOwner) {
+    default void onReferenceRemoved(@Nullable ReferenceCounted referenceCounted, ReferenceOwner referenceOwner) {
     }
 
     /**

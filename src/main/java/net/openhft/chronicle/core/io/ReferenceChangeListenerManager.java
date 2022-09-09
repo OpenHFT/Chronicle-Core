@@ -1,5 +1,7 @@
 package net.openhft.chronicle.core.io;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -27,7 +29,7 @@ class ReferenceChangeListenerManager {
                 referenceOwner, null);
     }
 
-    void notifyRemoved(ReferenceOwner referenceOwner) {
+    void notifyRemoved(@Nullable ReferenceOwner referenceOwner) {
         this.callReferenceChangeListeners(
                 (listener, referenceCounted, lhs, rhs) -> listener.onReferenceRemoved(referenceCounted, lhs),
                 referenceOwner, null);
