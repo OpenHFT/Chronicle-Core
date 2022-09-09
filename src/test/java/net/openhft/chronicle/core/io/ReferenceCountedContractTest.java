@@ -251,38 +251,40 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
 
         rc.addReferenceChangeListener(listener1);
         rc.reserve(a);
-        assertEquals(1, listener1.invokeCount);
-        assertEquals(0, listener2.invokeCount);
+        assertEquals(1, listener1.referenceAddedCount);
+        assertEquals(0, listener2.referenceAddedCount);
         rc.addReferenceChangeListener(listener2);
         rc.reserve(b);
-        assertEquals(2, listener1.invokeCount);
-        assertEquals(1, listener2.invokeCount);
+        assertEquals(2, listener1.referenceAddedCount);
+        assertEquals(1, listener2.referenceAddedCount);
         rc.removeReferenceChangeListener(listener1);
         rc.release(a);
-        assertEquals(2, listener1.invokeCount);
-        assertEquals(2, listener2.invokeCount);
+        assertEquals(0, listener1.referenceRemovedCount);
+        assertEquals(1, listener2.referenceRemovedCount);
         rc.removeReferenceChangeListener(listener2);
         rc.release(b);
-        assertEquals(2, listener1.invokeCount);
-        assertEquals(2, listener2.invokeCount);
+        assertEquals(0, listener1.referenceRemovedCount);
+        assertEquals(1, listener2.referenceRemovedCount);
     }
 
     static class CounterReferenceChangeListener implements ReferenceChangeListener {
-        int invokeCount = 0;
+        int referenceAddedCount = 0;
+        int referenceRemovedCount = 0;
+        int referenceTransferredCount = 0;
 
         @Override
         public void onReferenceAdded(ReferenceCounted referenceCounted, ReferenceOwner referenceOwner) {
-            invokeCount++;
+            referenceAddedCount++;
         }
 
         @Override
         public void onReferenceRemoved(ReferenceCounted referenceCounted, ReferenceOwner referenceOwner) {
-            invokeCount++;
+            referenceRemovedCount++;
         }
 
         @Override
         public void onReferenceTransferred(ReferenceCounted referenceCounted, ReferenceOwner fromOwner, ReferenceOwner toOwner) {
-            invokeCount++;
+            referenceTransferredCount++;
         }
     }
 
