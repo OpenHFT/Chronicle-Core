@@ -8,10 +8,7 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Collections;
-import java.util.IdentityHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public final class TracingReferenceCounted implements MonitorReferenceCounted {
@@ -111,37 +108,56 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
 
     @Override
     public void release(ReferenceOwner id) throws IllegalStateException {
+        tryRelease(id, true);
+    }
 
-        boolean doOnRelease = false;
+    /**
+     * Try and release a reference
+     *
+     * @param id   The owner whose reference to release
+     * @param must if true, throw an exception if the release was unsuccessful, if false, just return
+     */
+    private void tryRelease(ReferenceOwner id, boolean must) {
+        boolean oneWasReleased = false;
+        boolean lastWasReleased = false;
         synchronized (references) {
             if (references.remove(id) == null) {
-                StackTrace stackTrace = releases.get(id);
-                if (stackTrace == null) {
-                    Throwable cause = createdHere;
-                    if (!references.isEmpty()) {
-                        StackTrace ste = references.values().iterator().next();
-                        cause = new IllegalStateException(type.getName() + " reserved by " + referencesAsString(), ste);
-                    }
-                    throw new IllegalStateException(type.getName() + " not reserved by " + asString(id), cause);
-                } else {
-                    throw new ClosedIllegalStateException(type.getName() + " already released " + asString(id) + " location ", stackTrace);
+                if (must) {
+                    throwInvalidReleaseException(id);
                 }
             } else {
-                referenceChangeListeners.notifyRemoved(id);
+                oneWasReleased = true;
             }
             releases.put(id, stackTrace("release", id));
             if (references.isEmpty()) {
                 // prevent this being called more than once.
-                doOnRelease = true;
+                lastWasReleased = true;
             }
         }
         // needs to be called outside synchronized block above to avoid deadlock.
-        if (doOnRelease) {
+        if (oneWasReleased) {
+            referenceChangeListeners.notifyRemoved(id);
+        }
+        if (lastWasReleased) {
             if (releasedHere != null) {
                 throw new IllegalStateException(type.getName() + " already released", releasedHere);
             }
             onRelease.run();
             releasedHere = new StackTrace(type.getName() + " released here");
+        }
+    }
+
+    private void throwInvalidReleaseException(ReferenceOwner id) {
+        StackTrace stackTrace = releases.get(id);
+        if (stackTrace == null) {
+            Throwable cause = createdHere;
+            if (!references.isEmpty()) {
+                StackTrace ste = references.values().iterator().next();
+                cause = new IllegalStateException(type.getName() + " reserved by " + referencesAsString(), ste);
+            }
+            throw new IllegalStateException(type.getName() + " not reserved by " + asString(id), cause);
+        } else {
+            throw new ClosedIllegalStateException(type.getName() + " already released " + asString(id) + " location ", stackTrace);
         }
     }
 
@@ -249,19 +265,18 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
 
     @Override
     public void warnAndReleaseIfNotReleased() {
-        boolean runOnRelease = false;
+        List<ReferenceOwner> remainingOwners = null;
         synchronized (references) {
             if (refCount() > 0) {
                 if (!unmonitored && !AbstractCloseable.DISABLE_DISCARD_WARNING) {
                     Jvm.warn().on(type, "Discarded without being released by " + referencesAsString(), createdHere);
                 }
-                references.clear();
-                runOnRelease = true;
+                remainingOwners = new ArrayList<>(references.keySet());
             }
         }
         // Run outside the synchronized block to avoid risk of deadlock
-        if (runOnRelease) {
-            onRelease.run();
+        if (remainingOwners != null) {
+            remainingOwners.forEach(ro -> this.tryRelease(ro, false));
         }
     }
 
