@@ -46,7 +46,7 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
     }
 
     @Test
-    public void listenersShouldBeNotifiedOnWarnAndReleaseIfNotReleased() {
+    public void listenersShouldNotBeNotifiedOnWarnAndReleaseIfNotReleased() {
         ReferenceCountedTracer rc = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -59,6 +59,6 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
 
         expectException("Discarded without being released");
         rc.warnAndReleaseIfNotReleased();
-        assertEquals(3, listener.referenceRemovedCount);
+        assertEquals(0, listener.referenceRemovedCount);
     }
 }
