@@ -124,7 +124,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         }
     }
 
-    public void callOnRelease() throws ClosedIllegalStateException {
+    private void callOnRelease() throws ClosedIllegalStateException {
         if (released && !Jvm.supportThread())
             throw new ClosedIllegalStateException(type.getName() + " already released", releasedHere);
         releasedHere = Jvm.isResourceTracing() ? new StackTrace("Released here") : null;
@@ -170,17 +170,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
 
     @Override
     public void warnAndReleaseIfNotReleased() throws ClosedIllegalStateException {
-        int unreleasedReferences = value;
-        for (; ; ) {
-            final int value0 = value;
-            if (value0 == 0) {
-                break;
-            }
-            if (valueCompareAndSet(value0, value0 - 1)) {
-                referenceChangeListeners.notifyRemoved(null);
-            }
-        }
-        if (unreleasedReferences > 0) {
+        if (valueGetAndSet(0) > 0) {
             if (!unmonitored && !AbstractCloseable.DISABLE_DISCARD_WARNING)
                 Jvm.warn().on(type, "Discarded without being released");
             callOnRelease();

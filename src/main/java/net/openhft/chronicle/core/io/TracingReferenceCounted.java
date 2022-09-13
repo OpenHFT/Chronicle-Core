@@ -8,7 +8,10 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public final class TracingReferenceCounted implements MonitorReferenceCounted {
@@ -112,23 +115,11 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
 
     @Override
     public void release(ReferenceOwner id) throws IllegalStateException {
-        tryRelease(id, true);
-    }
-
-    /**
-     * Try and release a reference
-     *
-     * @param id   The owner whose reference to release
-     * @param must if true, throw an exception if the release was unsuccessful, if false, just return
-     */
-    private void tryRelease(ReferenceOwner id, boolean must) {
         boolean oneWasReleased = false;
         boolean lastWasReleased = false;
         synchronized (references) {
             if (references.remove(id) == null) {
-                if (must) {
-                    throwInvalidReleaseException(id);
-                }
+                throwInvalidReleaseException(id);
             } else {
                 oneWasReleased = true;
             }
@@ -269,18 +260,19 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
 
     @Override
     public void warnAndReleaseIfNotReleased() {
-        List<ReferenceOwner> remainingOwners = null;
+        boolean runOnRelease = false;
         synchronized (references) {
             if (refCount() > 0) {
                 if (!unmonitored && !AbstractCloseable.DISABLE_DISCARD_WARNING) {
                     Jvm.warn().on(type, "Discarded without being released by " + referencesAsString(), createdHere);
                 }
-                remainingOwners = new ArrayList<>(references.keySet());
+                references.clear();
+                runOnRelease = true;
             }
         }
         // Run outside the synchronized block to avoid risk of deadlock
-        if (remainingOwners != null) {
-            remainingOwners.forEach(ro -> this.tryRelease(ro, false));
+        if (runOnRelease) {
+            onRelease.run();
         }
     }
 
