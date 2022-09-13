@@ -240,6 +240,45 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
     }
 
     @Test
+    public void whenAReferenceIsAddedTheReferenceChangeListenerShouldFire() {
+        ReferenceCounted rc = createReferenceCounted();
+
+        ReferenceOwner a = ReferenceOwner.temporary("a");
+        final CounterReferenceChangeListener referenceChangeListener = new CounterReferenceChangeListener();
+        rc.addReferenceChangeListener(referenceChangeListener);
+
+        rc.reserve(a);
+        assertEquals(1, referenceChangeListener.referenceAddedCount);
+    }
+
+    @Test
+    public void whenAReferenceIsRemovedTheReferenceChangeListenerShouldFire() {
+        ReferenceCounted rc = createReferenceCounted();
+
+        ReferenceOwner a = ReferenceOwner.temporary("a");
+        final CounterReferenceChangeListener referenceChangeListener = new CounterReferenceChangeListener();
+        rc.addReferenceChangeListener(referenceChangeListener);
+
+        rc.reserve(a);
+        rc.release(a);
+        assertEquals(1, referenceChangeListener.referenceRemovedCount);
+    }
+
+    @Test
+    public void referenceChangeListenerShouldFireWhenAReferenceIsTransferred() {
+        ReferenceCounted rc = createReferenceCounted();
+
+        ReferenceOwner a = ReferenceOwner.temporary("a");
+        ReferenceOwner b = ReferenceOwner.temporary("b");
+        final CounterReferenceChangeListener referenceChangeListener = new CounterReferenceChangeListener();
+        rc.addReferenceChangeListener(referenceChangeListener);
+
+        rc.reserve(a);
+        rc.reserveTransfer(a, b);
+        assertEquals(1, referenceChangeListener.referenceTransferredCount);
+    }
+
+    @Test
     public void shouldBeAbleToAddAndRemoveListeners() {
         ReferenceCounted rc = createReferenceCounted();
 

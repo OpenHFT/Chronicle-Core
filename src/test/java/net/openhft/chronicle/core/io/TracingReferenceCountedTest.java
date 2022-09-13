@@ -137,4 +137,33 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
 
         assertNotNull(referenceCounted.createdHere());
     }
+
+    @Test
+    public void reserveTransferWillThrowWhenFromHasNoReservation() {
+        TracingReferenceCounted referenceCounted = createReferenceCounted();
+
+        ReferenceOwner a = ReferenceOwner.temporary("a");
+        ReferenceOwner b = ReferenceOwner.temporary("b");
+
+        assertThrows(IllegalStateException.class, () -> referenceCounted.reserveTransfer(a, b));
+    }
+
+    @Test
+    public void reserveTransferWillThrowWhenToAlreadyHasAReservation() {
+        TracingReferenceCounted referenceCounted = createReferenceCounted();
+
+        ReferenceOwner a = ReferenceOwner.temporary("a");
+        ReferenceOwner b = ReferenceOwner.temporary("b");
+        referenceCounted.reserve(a);
+        referenceCounted.reserve(b);
+
+        assertThrows(IllegalStateException.class, () -> referenceCounted.reserveTransfer(a, b));
+    }
+
+    @Test
+    public void reserveWillThrowWhenCalledWithSelf() {
+        TracingReferenceCounted referenceCounted = createReferenceCounted();
+
+        assertThrows(AssertionError.class, () -> referenceCounted.reserve(referenceCounted));
+    }
 }
