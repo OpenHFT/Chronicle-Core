@@ -85,7 +85,6 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     private boolean tryReserve(ReferenceOwner id, boolean must) throws IllegalStateException {
         if (id == this)
             throw new AssertionError(type.getName() + " the counter cannot reserve itself");
-        boolean addedOne = false;
         synchronized (references) {
             if (references.isEmpty()) {
                 if (must)
@@ -93,43 +92,34 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
                 return false;
             }
             StackTrace stackTrace = references.get(id);
-            if (stackTrace == null) {
-                final StackTrace reference = references.putIfAbsent(id, stackTrace("reserve", id));
-                if (reference == null) {
-                    addedOne = true;
-                }
-            } else
+            if (stackTrace == null)
+                references.put(id, stackTrace("reserve", id));
+            else
                 throw new IllegalStateException(type.getName() + " already reserved resource by " + asString(id) + " here", stackTrace);
         }
         // notify outside the synchronized block to avoid potential deadlock
-        if (addedOne) {
-            referenceChangeListeners.notifyAdded(id);
-        }
+        referenceChangeListeners.notifyAdded(id);
         releases.remove(id);
         return true;
     }
 
     @Override
     public void release(ReferenceOwner id) throws IllegalStateException {
-        boolean oneWasReleased = false;
-        boolean lastWasReleased = false;
+
+        boolean doOnRelease = false;
         synchronized (references) {
             if (references.remove(id) == null) {
-                throwInvalidReleaseException(id);
-            } else {
-                oneWasReleased = true;
+                throw throwInvalidReleaseException(id);
             }
             releases.put(id, stackTrace("release", id));
             if (references.isEmpty()) {
                 // prevent this being called more than once.
-                lastWasReleased = true;
+                doOnRelease = true;
             }
         }
         // needs to be called outside synchronized block above to avoid deadlock.
-        if (oneWasReleased) {
-            referenceChangeListeners.notifyRemoved(id);
-        }
-        if (lastWasReleased) {
+        referenceChangeListeners.notifyRemoved(id);
+        if (doOnRelease) {
             if (releasedHere != null) {
                 throw new IllegalStateException(type.getName() + " already released", releasedHere);
             }
@@ -138,7 +128,24 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
         }
     }
 
-    private void throwInvalidReleaseException(ReferenceOwner id) {
+    @Override
+    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException {
+        synchronized (references) {
+            final StackTrace stackTrace = references.get(to);
+            if (stackTrace != null) {
+                throw new IllegalStateException(type.getName() + " already reserved resource by " + asString(to) + " here", stackTrace);
+            }
+            if (references.remove(from) == null) {
+                throw throwInvalidReleaseException(from);
+            }
+            releases.put(from, stackTrace("reserveTransfer", from));
+            references.put(to, stackTrace("reserveTransfer", to));
+            releases.remove(to);
+        }
+        referenceChangeListeners.notifyTransferred(from, to);
+    }
+
+    private IllegalStateException throwInvalidReleaseException(ReferenceOwner id) {
         StackTrace stackTrace = releases.get(id);
         if (stackTrace == null) {
             Throwable cause = createdHere;
