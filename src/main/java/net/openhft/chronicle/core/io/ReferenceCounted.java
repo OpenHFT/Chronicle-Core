@@ -98,8 +98,11 @@ public interface ReferenceCounted extends ReferenceOwner {
      * Add a {@link ReferenceChangeListener} that will be notified whenever the set of references changes
      *
      * @param referenceChangeListener The listener to add
+     * @throws UnsupportedOperationException if this ReferenceCounted does not support reference change listeners
      */
-    void addReferenceChangeListener(ReferenceChangeListener referenceChangeListener);
+    default void addReferenceChangeListener(ReferenceChangeListener referenceChangeListener) {
+        throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support reference change listeners");
+    }
 
     /**
      * Remove a {@link ReferenceChangeListener}
@@ -107,6 +110,9 @@ public interface ReferenceCounted extends ReferenceOwner {
      * Uses object equality to determine which to remove so be careful if the listener implements equals
      *
      * @param referenceChangeListener The listener to remove
+     * @throws UnsupportedOperationException if this ReferenceCounted does not support reference change listeners
      */
-    void removeReferenceChangeListener(ReferenceChangeListener referenceChangeListener);
+    default void removeReferenceChangeListener(ReferenceChangeListener referenceChangeListener) {
+        throw new UnsupportedOperationException(getClass().getSimpleName() + " does not support reference change listeners");
+    }
 }
