@@ -49,6 +49,7 @@ final class Bootstrap {
     static final boolean IS_JAVA_12_PLUS;
     static final boolean IS_JAVA_14_PLUS;
     static final boolean IS_JAVA_15_PLUS;
+    static final boolean IS_JAVA_19_PLUS;
 
     static {
         JVM_JAVA_MAJOR_VERSION = Bootstrap.getMajorVersion0();
@@ -56,6 +57,7 @@ final class Bootstrap {
         IS_JAVA_12_PLUS = JVM_JAVA_MAJOR_VERSION > 11;
         IS_JAVA_14_PLUS = JVM_JAVA_MAJOR_VERSION > 13;
         IS_JAVA_15_PLUS = JVM_JAVA_MAJOR_VERSION > 14;
+        IS_JAVA_19_PLUS = JVM_JAVA_MAJOR_VERSION > 18;
     }
 
     private Bootstrap() {
