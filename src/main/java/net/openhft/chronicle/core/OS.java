@@ -27,6 +27,7 @@ import javax.naming.TimeLimitExceededException;
 import java.io.*;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.DatagramSocket;
@@ -55,13 +56,15 @@ public final class OS {
     static final ClassLocal<MethodHandle> MAP0_MH = ClassLocal.withInitial(c -> {
         try {
             Method map0;
-            if (Jvm.isJava14Plus()) map0 = Jvm.getMethod(c, "map0", int.class, long.class, long.class, boolean.class);
+            if (Jvm.isJava19Plus()) map0 = Jvm.getMethod(c, "map0", FileDescriptor.class, int.class, long.class, long.class, boolean.class);
+            else if (Jvm.isJava14Plus()) map0 = Jvm.getMethod(c, "map0", int.class, long.class, long.class, boolean.class);
             else map0 = Jvm.getMethod(c, "map0", int.class, long.class, long.class);
             return MethodHandles.lookup().unreflect(map0);
         } catch (IllegalAccessException e) {
             throw new AssertionError(e);
         }
     });
+    private static final Field FD_FIELD = Jvm.getField(FileChannelImpl.class, "fd");
     private static final String TARGET = findTarget();
     private static final String USER_NAME = Jvm.getProperty("user.name");
     private static final int MAP_RO = 0;
@@ -418,7 +421,10 @@ public final class OS {
         try {
             // For now, access is assumed to be non-synchronous
             // TODO - Support passing/deducing synchronous flag externally
-            if (Jvm.isJava14Plus())
+            if (Jvm.isJava19Plus()) {
+                final FileDescriptor fd = (FileDescriptor) FD_FIELD.get(fileChannel);
+                return (long) map0.invokeExact((FileChannelImpl) fileChannel, fd, imode, start, size, false);
+            } else if (Jvm.isJava14Plus())
                 return (long) map0.invokeExact((FileChannelImpl) fileChannel, imode, start, size, false);
             else
                 return (long) map0.invokeExact((FileChannelImpl) fileChannel, imode, start, size);

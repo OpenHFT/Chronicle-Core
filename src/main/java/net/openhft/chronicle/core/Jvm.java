@@ -325,12 +325,21 @@ public final class Jvm {
     }
 
     /**
-     * Returns if the major Java version is 14 or higher.
+     * Returns if the major Java version is 15 or higher.
      *
-     * @return if the major Java version is 14 or higher
+     * @return if the major Java version is 15 or higher
      */
     public static boolean isJava15Plus() {
         return IS_JAVA_15_PLUS;
+    }
+
+    /**
+     * Returns if the major Java version is 19 or higher.
+     *
+     * @return if the major Java version is 19 or higher
+     */
+    public static boolean isJava19Plus() {
+        return IS_JAVA_19_PLUS;
     }
 
     private static boolean is64bit0() {
