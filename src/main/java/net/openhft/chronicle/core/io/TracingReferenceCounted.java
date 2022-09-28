@@ -65,7 +65,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
         referenceChangeListeners.remove(referenceChangeListener);
     }
 
-    @Deprecated
+    @Deprecated(/* To be removed in 2.25 */)
     @Override
     public boolean reservedBy(ReferenceOwner owner) throws IllegalStateException {
         if (references.containsKey(owner))

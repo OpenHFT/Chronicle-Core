@@ -54,7 +54,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         return null;
     }
 
-    @Deprecated
+    @Deprecated(/* To be removed in 2.25 */)
     @Override
     public boolean reservedBy(ReferenceOwner owner) throws IllegalStateException {
         if (refCount() <= 0)

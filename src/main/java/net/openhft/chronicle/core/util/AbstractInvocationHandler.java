@@ -36,11 +36,6 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
     // called when close() is called.
     private Closeable closeable;
 
-    @Deprecated(/* for removal in x.24 */)
-    protected AbstractInvocationHandler() {
-        this(Object.class); // only do this if we have no idea.
-    }
-
     protected AbstractInvocationHandler(Type definedClass) {
         this.definedClass = definedClass;
     }

@@ -66,7 +66,7 @@ public class JvmSafepointTest {
     @Test
     public void safePointPerf() {
         // This will enable the C2 compiler to kick in.
-        FlakyTestRunner.run(true, this::safePointPerf0, 3);
+        FlakyTestRunner.<RuntimeException>builder(this::safePointPerf0).withFlakyOnThisArchitecture(true).withMaxIterations(3).build().run();
     }
 
     public void safePointPerf0() {

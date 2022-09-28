@@ -19,11 +19,7 @@
 package net.openhft.chronicle.core.values;
 
 import net.openhft.chronicle.core.Jvm;
-import net.openhft.chronicle.core.internal.threads.VanillaThreadLock;
 import net.openhft.chronicle.core.io.Closeable;
-import net.openhft.chronicle.core.threads.ThreadLock;
-
-import java.util.concurrent.TimeUnit;
 
 public interface LongValue extends Closeable {
     long getValue() throws IllegalStateException;
@@ -92,9 +88,5 @@ public interface LongValue extends Closeable {
 
     @Override
     default void close() {
-    }
-
-    default ThreadLock vanillaThreadLock() {
-        return new VanillaThreadLock(this, TimeUnit.MINUTES.toMillis(5));
     }
 }
