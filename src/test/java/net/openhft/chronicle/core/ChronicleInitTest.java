@@ -18,7 +18,7 @@
 
 package net.openhft.chronicle.core;
 
-import net.openhft.chronicle.testframework.process.ProcessRunner;
+import net.openhft.chronicle.testframework.process.JavaProcessBuilder;
 import org.junit.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -32,36 +32,36 @@ public class ChronicleInitTest {
 
     @Test
     public void testPositive() throws Exception {
-        Process process = ProcessRunner.runClass(ChronicleInitTest.class,
-                new String[] {"-Dchronicle.init.runnable=" + ResourceTracingInit.class.getName()}, new String[0]);
+        Process process = JavaProcessBuilder.create(ChronicleInitTest.class)
+                .withJvmArguments("-Dchronicle.init.runnable=" + ResourceTracingInit.class.getName()).start();
 
         try {
             assertEquals(0, process.waitFor());
         } finally {
-            ProcessRunner.printProcessOutput("ChronicleInitTest", process);
+            JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
         }
     }
 
     @Test
     public void testNoInit() throws Exception {
-        Process process = ProcessRunner.runClass(ChronicleInitTest.class);
+        Process process = JavaProcessBuilder.create(ChronicleInitTest.class).start();
 
         try {
             assertNotEquals(0, process.waitFor());
         } finally {
-            ProcessRunner.printProcessOutput("ChronicleInitTest", process);
+            JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
         }
     }
 
     @Test
     public void testBadClass() throws Exception {
-        Process process = ProcessRunner.runClass(ChronicleInitTest.class,
-                new String[] {"-Dchronicle.init.class=" + ChronicleInitTest.class.getName()}, new String[0]);
+        Process process = JavaProcessBuilder.create(ChronicleInitTest.class)
+                .withJvmArguments("-Dchronicle.init.class=" + ChronicleInitTest.class.getName()).start();
 
         try {
             assertNotEquals(0, process.waitFor());
         } finally {
-            ProcessRunner.printProcessOutput("ChronicleInitTest", process);
+            JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
         }
     }
 

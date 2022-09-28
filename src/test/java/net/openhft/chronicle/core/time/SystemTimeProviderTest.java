@@ -36,7 +36,8 @@ public class SystemTimeProviderTest {
         // doCurrentTimeMicros() is very flaky so that is why we retry this operation
         for (int i = 0; i < 3; i++) {
             try {
-                FlakyTestRunner.run(Jvm.isArm() || OS.isWindows() || OS.isMacOSX(), this::doCurrentTimeMicros);
+                FlakyTestRunner.builder(this::doCurrentTimeMicros)
+                        .withFlakyOnThisArchitecture(Jvm.isArm() || OS.isWindows() || OS.isMacOSX()).build().run();
                 break;
             } catch (Throwable t) {
                 System.out.println("Trying to deflake flaky test: " + i);

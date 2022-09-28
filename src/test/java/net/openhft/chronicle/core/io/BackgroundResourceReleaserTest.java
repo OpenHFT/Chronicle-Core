@@ -20,7 +20,7 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
-import net.openhft.chronicle.testframework.process.ProcessRunner;
+import net.openhft.chronicle.testframework.process.JavaProcessBuilder;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -71,36 +71,36 @@ public class BackgroundResourceReleaserTest {
 
     @Test
     public void testResourcesCleanedUpManually() throws IllegalStateException, IOException, InterruptedException {
-        Process process = ProcessRunner.runClass(BackgroundResourceReleaserMain.class,
-                new String[] {"-Dbackground.releaser.thread=false"}, new String[] {"manual"});
+        Process process = JavaProcessBuilder.create(BackgroundResourceReleaserMain.class)
+                .withJvmArguments("-Dbackground.releaser.thread=false").withProgramArguments("manual").start();
 
         try {
             assertEquals(0, process.waitFor());
         } finally {
-            ProcessRunner.printProcessOutput("BackgroundResourceReleaserMain manual", process);
+            JavaProcessBuilder.printProcessOutput("BackgroundResourceReleaserMain manual", process);
         }
     }
 
     @Test
     public void testResourcesCleanedUpAndThreadStopped() throws IllegalStateException, IOException, InterruptedException {
-        Process process = ProcessRunner.runClass(BackgroundResourceReleaserMain.class, "stop");
+        Process process = JavaProcessBuilder.create(BackgroundResourceReleaserMain.class).withProgramArguments("stop").start();
 
         try {
             assertEquals(0, process.waitFor());
         } finally {
-            ProcessRunner.printProcessOutput("BackgroundResourceReleaserMain stop", process);
+            JavaProcessBuilder.printProcessOutput("BackgroundResourceReleaserMain stop", process);
         }
     }
 
     @Test
     public void testResourcesCleanedUpInForeground() throws IllegalStateException, IOException, InterruptedException {
-        Process process = ProcessRunner.runClass(BackgroundResourceReleaserMain.class,
-                new String[] {"-Dbackground.releaser=false"}, new String[] {"foreground"});
+        Process process = JavaProcessBuilder.create(BackgroundResourceReleaserMain.class)
+                .withJvmArguments("-Dbackground.releaser=false").withProgramArguments("foreground").start();
 
         try {
             assertEquals(0, process.waitFor());
         } finally {
-            ProcessRunner.printProcessOutput("BackgroundResourceReleaserMain stop", process);
+            JavaProcessBuilder.printProcessOutput("BackgroundResourceReleaserMain stop", process);
         }
     }
 

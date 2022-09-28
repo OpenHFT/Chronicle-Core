@@ -185,7 +185,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         referenceCounted.warnAndReleaseIfNotReleased();
     }
 
-    @Deprecated
+    @Deprecated(/* To be removed in 2.25 */)
     public boolean reservedBy(ReferenceOwner owner) throws IllegalStateException {
         return referenceCounted.reservedBy(owner);
     }
