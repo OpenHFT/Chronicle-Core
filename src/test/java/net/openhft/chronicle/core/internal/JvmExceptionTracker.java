@@ -24,6 +24,7 @@ import net.openhft.chronicle.core.onoes.LogLevel;
 import net.openhft.chronicle.testframework.internal.ExceptionTracker;
 
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.Set;
 
 import static net.openhft.chronicle.core.onoes.LogLevel.DEBUG;
@@ -44,11 +45,56 @@ public enum JvmExceptionTracker {
      * @return the exception tracker
      */
     public static ExceptionTracker<ExceptionKey> create() {
+        return create(Jvm.recordExceptions());
+    }
+
+    /**
+     * Create a JvmExceptionTracker
+     *
+     * @param debug Whether to track debug messages
+     * @return the exception tracker
+     */
+    public static ExceptionTracker<ExceptionKey> create(final boolean debug) {
+        return create(Jvm.recordExceptions(debug));
+    }
+
+    /**
+     * Create a JvmExceptionTracker
+     *
+     * @param debug          Whether to track debug messages
+     * @param exceptionsOnly Whether to track only messages with exceptions
+     * @return the exception tracker
+     */
+    public static ExceptionTracker<ExceptionKey> create(final boolean debug,
+                                                        final boolean exceptionsOnly) {
+        return create(Jvm.recordExceptions(debug, exceptionsOnly));
+    }
+
+    /**
+     * Create a JvmExceptionTracker
+     *
+     * @param debug          Whether to track debug messages
+     * @param exceptionsOnly Whether to track only messages with exceptions
+     * @param logToSlf4j     Whether to also log messages to slf4j
+     * @return the exception tracker
+     */
+    public static ExceptionTracker<ExceptionKey> create(final boolean debug,
+                                                        final boolean exceptionsOnly,
+                                                        final boolean logToSlf4j) {
+        return create(Jvm.recordExceptions(debug, exceptionsOnly, logToSlf4j));
+    }
+
+    /**
+     * Create a JvmExceptionTracker
+     *
+     * @return the exception tracker
+     */
+    private static ExceptionTracker<ExceptionKey> create(Map<ExceptionKey, Integer> recordedExceptions) {
         return ExceptionTracker.create(
                 ExceptionKey::message,
                 ExceptionKey::throwable,
                 Jvm::resetExceptionHandlers,
-                Jvm.recordExceptions(),
+                recordedExceptions,
                 key -> IGNORED_LOG_LEVELS.contains(key.level()),
                 key -> key.level() + " " + key.clazz().getSimpleName() + " " + key.message()
         );
