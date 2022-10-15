@@ -224,6 +224,7 @@ public final class Jvm {
             return lookup.findVirtual(AccessibleObject.class, "setAccessible0", signature);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException |
                  IllegalArgumentException e) {
+            Jvm.error().on(Jvm.class, "Chronicle products require command line arguments to be provided for Java 11 and above. See https://chronicle.software/chronicle-support-java-17");
             throw new ExceptionInInitializerError(e);
         }
     }
