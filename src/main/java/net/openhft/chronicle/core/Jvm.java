@@ -46,6 +46,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -822,7 +823,7 @@ public final class Jvm {
     public static Map<ExceptionKey, Integer> recordExceptions(final boolean debug,
                                                               final boolean exceptionsOnly,
                                                               final boolean logToSlf4j) {
-        final Map<ExceptionKey, Integer> map = Collections.synchronizedMap(new LinkedHashMap<>());
+        final Map<ExceptionKey, Integer> map = new ConcurrentSkipListMap<>(Comparator.comparing(ExceptionKey::nanoTimestamp));
         setErrorExceptionHandler(recordingExceptionHandler(LogLevel.ERROR, map, exceptionsOnly, logToSlf4j));
         setWarnExceptionHandler(recordingExceptionHandler(LogLevel.WARN, map, exceptionsOnly, logToSlf4j));
         setPerfExceptionHandler(debug
