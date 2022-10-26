@@ -19,22 +19,29 @@
 
 package net.openhft.chronicle.core.onoes;
 
+import net.openhft.chronicle.core.time.SystemTimeProvider;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
 public class ExceptionKey {
+    public final long nanoTimestamp;
     public final LogLevel level;
     public final Class<?> clazz;
     public final String message;
     public final Throwable throwable;
 
     public ExceptionKey(LogLevel level, Class<?> clazz, String message, Throwable throwable) {
+        this.nanoTimestamp = SystemTimeProvider.INSTANCE.currentTimeNanos();
         this.level = level;
         this.clazz = clazz;
         this.message = message;
         this.throwable = throwable;
+    }
+
+    public long nanoTimestamp() {
+        return nanoTimestamp;
     }
 
     public LogLevel level() {
@@ -82,7 +89,8 @@ public class ExceptionKey {
         if (throwable != null)
             throwable.printStackTrace(new PrintWriter(sw));
         return "ExceptionKey{" +
-                "level=" + level +
+                "nanoTimestamp=" + nanoTimestamp +
+                ", level=" + level +
                 ", clazz=" + clazz +
                 ", message='" + message + '\'' +
                 ", throwable=" + sw +
