@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.posix.PosixAPI;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
@@ -51,6 +52,14 @@ final class Bootstrap {
     static final boolean IS_JAVA_15_PLUS;
 
     static {
+        // Eagerly initialise Posix & Affinity
+        PosixAPI.posix();
+        try {
+            Class.forName("net.openhft.affinity.Affinity");
+        } catch (ClassNotFoundException e) {
+            // Ignore, Affinity is an optional dependency
+        }
+
         JVM_JAVA_MAJOR_VERSION = Bootstrap.getMajorVersion0();
         IS_JAVA_9_PLUS = JVM_JAVA_MAJOR_VERSION > 8; // IS_JAVA_9_PLUS value is used in maxDirectMemory0 method.
         IS_JAVA_12_PLUS = JVM_JAVA_MAJOR_VERSION > 11;
