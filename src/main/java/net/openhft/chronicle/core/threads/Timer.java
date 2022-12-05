@@ -20,6 +20,8 @@
 package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.time.SystemTimeProvider;
+import net.openhft.chronicle.core.time.TimeProvider;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.Closeable;
@@ -28,44 +30,79 @@ public class Timer {
 
     @NotNull
     private final EventLoop eventLoop;
+    @NotNull
+    private final TimeProvider timeProvider;
 
     /**
      * @param eventLoop the event loop that the timer task is run on
      */
     public Timer(@NotNull EventLoop eventLoop) {
+        this(eventLoop, SystemTimeProvider.INSTANCE);
+    }
+
+    public Timer(@NotNull EventLoop eventLoop, @NotNull TimeProvider timeProvider) {
         this.eventLoop = eventLoop;
+        this.timeProvider = timeProvider;
     }
 
     /**
      * uses the event loop thread to call the event handler periodically, the time that the event is
-     * called back is best efforts, but if the thread is busy that call back maybe delayed
+     * called back is best-effort, but if the thread is busy that call back maybe delayed
      *
      * @param eventHandler   the handler to be called back
      * @param initialDelayMs how long in milliseconds to wait before being called back
      * @param periodMs       the poll interval of being called
+     * @return a {@link Closeable} that when closed will abort any remaining scheduled calls
      */
-    public void scheduleAtFixedRate(@NotNull VanillaEventHandler eventHandler,
-                                    long initialDelayMs,
-                                    long periodMs) {
-        eventLoop.addHandler(new ScheduledEventHandler(eventHandler, initialDelayMs, periodMs, HandlerPriority.TIMER));
+    public Closeable scheduleAtFixedRate(@NotNull VanillaEventHandler eventHandler,
+                                         long initialDelayMs,
+                                         long periodMs) {
+        final ScheduledEventHandler handler =
+                new ScheduledEventHandler(timeProvider, eventHandler, initialDelayMs, periodMs, HandlerPriority.TIMER);
+        eventLoop.addHandler(handler);
+        return handler;
     }
 
-    public void scheduleAtFixedRate(@NotNull VanillaEventHandler eventHandler,
-                                    long initialDelayMs,
-                                    long periodMs,
-                                    HandlerPriority priority ) {
-        eventLoop.addHandler(new ScheduledEventHandler(eventHandler, initialDelayMs, periodMs, priority));
+    /**
+     * uses the event loop thread to call the event handler periodically, the time that the event is
+     * called back is best-effort, but if the thread is busy that call back maybe delayed
+     *
+     * @param eventHandler   the handler to be called back
+     * @param initialDelayMs how long in milliseconds to wait before being called back
+     * @param periodMs       the poll interval of being called
+     * @param priority       the priority of the event handler
+     * @return a {@link Closeable} that when closed will abort any remaining scheduled calls
+     */
+    public Closeable scheduleAtFixedRate(@NotNull VanillaEventHandler eventHandler,
+                                         long initialDelayMs,
+                                         long periodMs,
+                                         HandlerPriority priority) {
+        final ScheduledEventHandler handler =
+                new ScheduledEventHandler(timeProvider, eventHandler, initialDelayMs, periodMs, priority);
+        eventLoop.addHandler(handler);
+        return handler;
     }
 
-    public void schedule(@NotNull Runnable eventHandler, long initialDelayMs) {
-        eventLoop.addHandler(new ScheduledEventHandler(() -> {
+    /**
+     * Schedule a handler to run once after a delay
+     *
+     * @param eventHandler   the handler to be called back
+     * @param initialDelayMs how long in milliseconds to wait before being called back
+     * @return a {@link Closeable} that when closed will abort any remaining scheduled calls
+     */
+    public Closeable schedule(@NotNull Runnable eventHandler, long initialDelayMs) {
+        final ScheduledEventHandler handler = new ScheduledEventHandler(timeProvider, () -> {
             eventHandler.run();
             throw new InvalidEventHandlerException("just runs once");
-        }, initialDelayMs, 0));
+        }, initialDelayMs, 0);
+        eventLoop.addHandler(handler);
+        return handler;
     }
 
-    private static final class ScheduledEventHandler implements EventHandler, Closeable {
+    protected static final class ScheduledEventHandler implements EventHandler, Closeable {
 
+        @NotNull
+        private final TimeProvider timeProvider;
         @NotNull
         private final VanillaEventHandler eventHandler;
         private final long initialDelayMs;
@@ -73,24 +110,28 @@ public class Timer {
         private volatile boolean closed;
 
         private boolean isFirstTime = true;
-        private long lastTimeRan = System.currentTimeMillis();
+        private long lastTimeRan;
 
         private final HandlerPriority priority;
 
-        private ScheduledEventHandler(@NotNull VanillaEventHandler eventHandler,
+        private ScheduledEventHandler(@NotNull TimeProvider timeProvider,
+                                      @NotNull VanillaEventHandler eventHandler,
                                       long initialDelayMs,
                                       long periodMs) {
-            this(eventHandler, initialDelayMs, periodMs, HandlerPriority.TIMER);
+            this(timeProvider, eventHandler, initialDelayMs, periodMs, HandlerPriority.TIMER);
         }
 
-        private ScheduledEventHandler(@NotNull VanillaEventHandler eventHandler,
+        private ScheduledEventHandler(@NotNull TimeProvider timeProvider,
+                                      @NotNull VanillaEventHandler eventHandler,
                                       long initialDelayMs,
                                       long periodMs,
                                       HandlerPriority priority) {
+            this.timeProvider = timeProvider;
             this.initialDelayMs = initialDelayMs;
             this.periodMs = periodMs;
             this.eventHandler = eventHandler;
             this.priority = priority;
+            this.lastTimeRan = timeProvider.currentTimeMillis();
         }
 
         @Override
@@ -98,7 +139,7 @@ public class Timer {
             if (closed)
                 throw InvalidEventHandlerException.reusable();
 
-            long currentTime = System.currentTimeMillis();
+            long currentTime = timeProvider.currentTimeMillis();
 
             if (lastTimeRan + waitTimeMs() > currentTime)
                 return false;

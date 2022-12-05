@@ -21,8 +21,8 @@
     <parent>
         <groupId>net.openhft</groupId>
         <artifactId>java-parent-pom</artifactId>
-        <version>1.1.33</version>
-        <relativePath />
+        <version>1.1.36</version>
+        <relativePath></relativePath>
     </parent>
     <artifactId>chronicle-core</artifactId>
     <version>2.23.40-SNAPSHOT</version>
@@ -40,6 +40,7 @@
         <zero.cost.assertions>disabled</zero.cost.assertions>
         <sonar.organization>openhft</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <mockito.version>4.9.0</mockito.version>
     </properties>
 
     <dependencyManagement>
@@ -129,6 +130,20 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <repositories>
@@ -192,7 +207,7 @@
                         <configuration>
                             <referenceVersion>2.23ea0</referenceVersion>
                             <artifactsURI>https://teamcity.chronicle.software/repository/download</artifactsURI>
-                            <!--                            <binaryCompatibilityPercentageRequired>99</binaryCompatibilityPercentageRequired>-->
+                            <binaryCompatibilityPercentageRequired>99.8</binaryCompatibilityPercentageRequired>
                         </configuration>
                     </execution>
                 </executions>
