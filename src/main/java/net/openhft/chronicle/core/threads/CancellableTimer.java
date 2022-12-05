@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.Closeable;
 
-public class Timer {
+public class CancellableTimer {
 
     @NotNull
     private final EventLoop eventLoop;
@@ -36,11 +36,11 @@ public class Timer {
     /**
      * @param eventLoop the event loop that the timer task is run on
      */
-    public Timer(@NotNull EventLoop eventLoop) {
+    public CancellableTimer(@NotNull EventLoop eventLoop) {
         this(eventLoop, SystemTimeProvider.INSTANCE);
     }
 
-    public Timer(@NotNull EventLoop eventLoop, @NotNull TimeProvider timeProvider) {
+    public CancellableTimer(@NotNull EventLoop eventLoop, @NotNull TimeProvider timeProvider) {
         this.eventLoop = eventLoop;
         this.timeProvider = timeProvider;
     }
