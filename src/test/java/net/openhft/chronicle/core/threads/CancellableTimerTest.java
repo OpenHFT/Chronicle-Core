@@ -16,7 +16,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class TimerTest {
+class CancellableTimerTest {
 
     public static final int INITIAL_DELAY_MS = 1_000;
     public static final int PERIOD_MS = 2_000;
@@ -27,8 +27,8 @@ class TimerTest {
     @Mock
     private Runnable runnable;
 
-    private Timer.ScheduledEventHandler scheduledEventHandler;
-    private Timer timer;
+    private CancellableTimer.ScheduledEventHandler scheduledEventHandler;
+    private CancellableTimer timer;
     private SetTimeProvider timeProvider;
 
     @BeforeEach
@@ -38,7 +38,7 @@ class TimerTest {
             scheduledEventHandler = iom.getArgument(0);
             return null;
         }).when(eventLoop).addHandler(any(EventHandler.class));
-        timer = new Timer(eventLoop, timeProvider);
+        timer = new CancellableTimer(eventLoop, timeProvider);
     }
 
     @Test
