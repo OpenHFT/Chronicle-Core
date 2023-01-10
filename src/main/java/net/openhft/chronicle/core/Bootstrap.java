@@ -54,7 +54,12 @@ final class Bootstrap {
 
     static {
         // Eagerly initialise Posix & Affinity
-        PosixAPI.posix();
+        try {
+            PosixAPI.posix();
+        } catch (Error e) {
+            Jvm.warn().on(Bootstrap.class, "Unable to load PosixAPI " + e);
+        }
+
         try {
             Class.forName("net.openhft.affinity.Affinity");
         } catch (ClassNotFoundException e) {

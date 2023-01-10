@@ -33,10 +33,14 @@ public interface ThreadLock {
     }
 
     /**
-     * @return the thread id used for locking for the current thread
+     * @return the thread id used for locking for the current thread, or -1 is unknown.
      */
     default int gettid() {
-        return PosixAPI.posix().gettid();
+        try {
+            return PosixAPI.posix().gettid();
+        } catch (Error e) {
+            return -1;
+        }
     }
 
     /**
