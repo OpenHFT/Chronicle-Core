@@ -444,8 +444,9 @@
             <build>
                 <plugins>
                     <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-invoker-plugin</artifactId>
-                        <version>3.2.2</version>
+                        <version>3.3.0</version>
                         <configuration>
                             <pom>benchmarks/pom.xml</pom>
                             <goals>clean,test</goals>
