@@ -51,7 +51,7 @@ public class RecordingExceptionHandler implements ExceptionHandler {
         if (exceptionsOnly && thrown == null)
             return;
         synchronized (exceptionKeyCountMap) {
-            @NotNull ExceptionKey key = new ExceptionKey(level, null, logger.getName() + ": " + message, thrown);
+            @NotNull ExceptionKey key = new ExceptionKey(level, Logger.class, logger.getName() + ": " + message, thrown);
             exceptionKeyCountMap.merge(key, 1, Integer::sum);
         }
     }
