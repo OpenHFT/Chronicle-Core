@@ -40,6 +40,12 @@ public class ChainedExceptionHandler implements ExceptionHandler {
     }
 
     @Override
+    public void on(@NotNull Class<?> clazz, @Nullable String message, @Nullable Throwable thrown) {
+        for (ExceptionHandler eh : chain)
+            eh.on(clazz, message, thrown);
+    }
+
+    @Override
     public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
         for (ExceptionHandler eh : chain)
             eh.on(logger, message, thrown);
