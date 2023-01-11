@@ -60,7 +60,7 @@ public interface ExceptionHandler {
     void on(@NotNull Logger logger, @Nullable String message, @Nullable Throwable thrown);
 
     default void on(@NotNull Logger logger, @Nullable String message) {
-        on(logger, message);
+        on(logger, message,null);
     }
 
     default boolean isEnabled(@NotNull Class<?> aClass) {
