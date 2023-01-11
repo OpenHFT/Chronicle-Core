@@ -70,7 +70,7 @@ public class AbstractCloseableTest extends CoreTestCommon {
         assertTrue(mc.isClosed());
         Jvm.resetExceptionHandlers();
         if (!AbstractCloseable.DISABLE_DISCARD_WARNING)
-            assertEquals("net.openhft.chronicle.core.io.AbstractCloseableTest$MyCloseable: Discarded without closing\n" +
+            assertEquals("Discarded without closing\n" +
                             "java.lang.IllegalStateException: net.openhft.chronicle.core.StackTrace: net.openhft.chronicle.core.io.AbstractCloseableTest$MyCloseable created here on main",
                     map.keySet().stream()
                             .map(e -> e.message() + "\n" + e.throwable())
