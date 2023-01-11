@@ -19,6 +19,7 @@ package net.openhft.chronicle.core.onoes;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
     private ExceptionHandler defaultHandler;
@@ -30,13 +31,13 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
     }
 
     @Override
-    public void on(@NotNull Class<?> clazz, @Nullable String message, Throwable thrown) {
+    public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
         ExceptionHandler exceptionHandler = exceptionHandler();
         if (exceptionHandler == null)
             return;
         boolean interrupted = Thread.interrupted();
         try {
-            exceptionHandler.on(clazz, message, thrown);
+            exceptionHandler.on(logger, message, thrown);
         } finally {
             if (interrupted)
                 Thread.currentThread().interrupt();

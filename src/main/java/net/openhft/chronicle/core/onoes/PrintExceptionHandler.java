@@ -21,6 +21,7 @@ package net.openhft.chronicle.core.onoes;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.io.PrintStream;
 import java.time.LocalDateTime;
@@ -28,14 +29,14 @@ import java.time.LocalDateTime;
 public enum PrintExceptionHandler implements ExceptionHandler {
     ERR(System.err) {
         @Override
-        public void on(@NotNull Class<?> clazz, @Nullable String message, Throwable thrown) {
-            printLog(clazz, message, thrown, this);
+        public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
+            printLog(logger, message, thrown, this);
         }
     },
     OUT(System.out) {
         @Override
-        public void on(@NotNull Class<?> clazz, @Nullable String message, Throwable thrown) {
-            printLog(clazz, message, thrown, this);
+        public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
+            printLog(logger, message, thrown, this);
         }
     };
 
@@ -48,14 +49,14 @@ public enum PrintExceptionHandler implements ExceptionHandler {
 
     private final PrintStream printStream;
 
-    private static void printLog(@NotNull final Class<?> clazz,
+    private static void printLog(@NotNull final Logger logger,
                                  final String message,
                                  @Nullable final Throwable thrown,
                                  final PrintExceptionHandler exceptionHandler) {
         final boolean interrupted = Thread.interrupted();
         try {
             synchronized (exceptionHandler.printStream) {
-                exceptionHandler.printStream.print(LocalDateTime.now() + " " + Thread.currentThread().getName() + " " + clazz.getSimpleName() + " " + message);
+                exceptionHandler.printStream.print(LocalDateTime.now() + " " + Thread.currentThread().getName() + " " + logger.getName() + " " + message);
                 if (thrown != null)
                     thrown.printStackTrace(exceptionHandler.printStream);
                 else

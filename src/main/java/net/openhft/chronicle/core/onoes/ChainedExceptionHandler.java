@@ -22,6 +22,7 @@ package net.openhft.chronicle.core.onoes;
 import net.openhft.chronicle.core.util.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.util.stream.Stream;
 
@@ -39,8 +40,8 @@ public class ChainedExceptionHandler implements ExceptionHandler {
     }
 
     @Override
-    public void on(@NotNull Class<?> clazz, @Nullable String message, Throwable thrown) {
+    public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
         for (ExceptionHandler eh : chain)
-            eh.on(clazz, message, thrown);
+            eh.on(logger, message, thrown);
     }
 }
