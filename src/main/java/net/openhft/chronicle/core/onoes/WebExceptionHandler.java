@@ -23,6 +23,7 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.util.URIEncoder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.awt.*;
 import java.io.IOException;
@@ -51,7 +52,7 @@ public class WebExceptionHandler implements ExceptionHandler {
     }
 
     @Override
-    public void on(@NotNull Class<?> clazz, @Nullable String message, @Nullable Throwable t) {
+    public void on(@NotNull Logger logger, @Nullable String message, @Nullable Throwable t) {
         while (t != null && t.getCause() != null && t.getCause() != t)
             t = t.getCause();
 
@@ -73,7 +74,7 @@ public class WebExceptionHandler implements ExceptionHandler {
             if (t != null) {
                 uri += "+" + URIEncoder.encodeURI(t.toString());
             }
-            uri += "+" + URIEncoder.encodeURI(clazz.getSimpleName());
+            uri += "+" + URIEncoder.encodeURI(logger.getName());
 
             if (message != null)
                 uri += "+" + URIEncoder.encodeURI(message);
@@ -82,7 +83,7 @@ public class WebExceptionHandler implements ExceptionHandler {
             if (Jvm.isDebug() && Desktop.isDesktopSupported())
                 Desktop.getDesktop().browse(new URI(uri));
             else
-                fallBack.on(clazz, message, t);
+                fallBack.on(logger, message, t);
 
         } catch (Exception e) {
             fallBack.on(WebExceptionHandler.class, "Failed to open browser", e);

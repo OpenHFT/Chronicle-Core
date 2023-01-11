@@ -21,6 +21,7 @@ package net.openhft.chronicle.core.onoes;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 import java.util.Map;
 
@@ -41,7 +42,17 @@ public class RecordingExceptionHandler implements ExceptionHandler {
             return;
         synchronized (exceptionKeyCountMap) {
             @NotNull ExceptionKey key = new ExceptionKey(level, clazz, message, thrown);
-            exceptionKeyCountMap.merge(key, 1, (p, v) -> p == null ? v : p + v);
+            exceptionKeyCountMap.merge(key, 1, Integer::sum);
+        }
+    }
+
+    @Override
+    public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
+        if (exceptionsOnly && thrown == null)
+            return;
+        synchronized (exceptionKeyCountMap) {
+            @NotNull ExceptionKey key = new ExceptionKey(level, null, logger.getName() + ": " + message, thrown);
+            exceptionKeyCountMap.merge(key, 1, Integer::sum);
         }
     }
 }

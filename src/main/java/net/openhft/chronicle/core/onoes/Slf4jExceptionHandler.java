@@ -28,26 +28,26 @@ import org.slf4j.LoggerFactory;
 public enum Slf4jExceptionHandler implements ExceptionHandler {
     ERROR {
         @Override
-        public void on(@NotNull Class<?> clazz, @Nullable String message, Throwable thrown) {
-            getLogger(clazz).error(message, thrown);
+        public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
+            logger.error(message, thrown);
         }
     },
     WARN {
         @Override
-        public void on(@NotNull Class<?> clazz, @Nullable String message, Throwable thrown) {
-            getLogger(clazz).warn(message, thrown);
+        public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
+            logger.warn(message, thrown);
         }
     },
     PERF {
         @Override
-        public void on(@NotNull Class<?> clazz, @Nullable String message, Throwable thrown) {
-            getLogger(clazz).info(message, thrown);
+        public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
+            logger.info(message, thrown);
         }
     },
     DEBUG {
         @Override
-        public void on(@NotNull Class<?> clazz, @Nullable String message, Throwable thrown) {
-            getLogger(clazz).debug(message, thrown);
+        public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
+            logger.debug(message, thrown);
         }
 
         @Override

@@ -21,11 +21,12 @@ package net.openhft.chronicle.core.onoes;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
 public enum NullExceptionHandler implements ExceptionHandler {
     NOTHING {
         @Override
-        public void on(@NotNull Class<?> clazz, @Nullable String message, Throwable thrown) {
+        public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
             // Do nothing
         }
 
