@@ -18,11 +18,17 @@
 
 package net.openhft.chronicle.core;
 
+import java.util.ServiceLoader;
+
 /**
  * Handles application code which must be loaded first/run and may override system properties.
- *
+ * <p>
  * A {@link Runnable} fully qualified class name may be provided via {@code chronicle.init.runnable} property.
- *
+ * <p>
+ * Alternatively, a {@link ChronicleInitRunnable} implementing class name may be listed in
+ * {@code META-INF/services/net.openhft.chronicle.core.ChronicleInitRunnable} file in any JAR in classpath to be
+ * discovered via {@link ServiceLoader} JVM facility.
+ * <p>
  * This class may also be replaced with different concrete implementation. Code should reside in a static block to
  * be run once. It should contain empty static init() method called to trigger class load.
  */
@@ -45,6 +51,20 @@ public final class ChronicleInit {
                 // System.err since the logging subsystem may not be up at this point
                 ex.printStackTrace();
             }
+        }
+
+        try {
+            ServiceLoader<ChronicleInitRunnable> runnableLoader = ServiceLoader.load(ChronicleInitRunnable.class);
+
+            for (Runnable runnable : runnableLoader) {
+                try {
+                    runnable.run();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
     }
 

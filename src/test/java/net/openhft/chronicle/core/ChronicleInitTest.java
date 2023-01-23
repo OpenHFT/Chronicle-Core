@@ -26,6 +26,9 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ChronicleInitTest {
 
     public static void main(String[] args) {
+        // Service loader implementation
+        assertEquals("dolor", Jvm.getProperty("lorem.ipsum"));
+
         // Normally enabled via system.properties file
         assertFalse(Jvm.isResourceTracing());
     }
@@ -70,6 +73,13 @@ public class ChronicleInitTest {
         public void run() {
             System.err.println("disabling resource tracking");
             System.setProperty("jvm.resource.tracing", "false");
+        }
+    }
+
+    public static class ServiceLoaderInit implements ChronicleInitRunnable {
+        @Override
+        public void run() {
+            System.setProperty("lorem.ipsum", "dolor");
         }
     }
 }
