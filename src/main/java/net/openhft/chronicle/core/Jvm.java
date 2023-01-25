@@ -175,6 +175,8 @@ public final class Jvm {
         if (RESOURCE_TRACING && !Jvm.getBoolean("disable.resource.warning"))
             logger.warn("Resource tracing is turned on. If you are performance testing or running in PROD you probably don't want this");
         REPORT_UNOPTIMISED = Jvm.getBoolean("report.unoptimised");
+
+        ChronicleInit.postInit();
     }
 
     // Suppresses default constructor, ensuring non-instantiability.

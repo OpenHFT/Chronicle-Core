@@ -26,8 +26,13 @@ import static org.junit.jupiter.api.Assertions.*;
 public class ChronicleInitTest {
 
     public static void main(String[] args) {
+        // Service loader implementation
+        assertEquals("dolor", Jvm.getProperty("lorem.ipsum"));
+
         // Normally enabled via system.properties file
         assertFalse(Jvm.isResourceTracing());
+        assertTrue(Jvm.areOptionalSafepointsEnabled());
+        assertEquals("false", Jvm.getProperty("jvm.safepoint.enabled"));
     }
 
     @Test
@@ -37,6 +42,18 @@ public class ChronicleInitTest {
 
         try {
             assertEquals(0, process.waitFor());
+        } finally {
+            JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
+        }
+    }
+
+    @Test
+    public void testPostInitNegative() throws Exception {
+        Process process = JavaProcessBuilder.create(ChronicleInitTest.class)
+                .withJvmArguments("-Dchronicle.postinit.runnable=" + ResourceTracingInit.class.getName()).start();
+
+        try {
+            assertEquals(1, process.waitFor());
         } finally {
             JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
         }
@@ -70,6 +87,18 @@ public class ChronicleInitTest {
         public void run() {
             System.err.println("disabling resource tracking");
             System.setProperty("jvm.resource.tracing", "false");
+        }
+    }
+
+    public static class ServiceLoaderInit implements ChronicleInitRunnable {
+        @Override
+        public void run() {
+            System.setProperty("lorem.ipsum", "dolor");
+        }
+
+        @Override
+        public void postInit() {
+            System.setProperty("jvm.safepoint.enabled", "false");
         }
     }
 }
