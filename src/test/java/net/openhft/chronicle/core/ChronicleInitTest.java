@@ -49,13 +49,13 @@ public class ChronicleInitTest {
 
     @Test
     public void testPostInitNegative() throws Exception {
-        Process process = JavaProcessBuilder.create(ChronicleInitTest.class)
-                .withJvmArguments("-Dchronicle.postinit.runnable=" + ResourceTracingInit.class.getName()).start();
+        Process process = ProcessRunner.runClass(ChronicleInitTest.class,
+                new String[] {"-Dchronicle.postinit.runnable=" + ResourceTracingInit.class.getName()}, new String[0]);
 
         try {
             assertEquals(1, process.waitFor());
         } finally {
-            JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
+            ProcessRunner.printProcessOutput("ChronicleInitTest", process);
         }
     }
 
