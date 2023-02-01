@@ -224,7 +224,8 @@ public class ClassAliasPool implements ClassLookup {
             warnIfChanged(prev, clazz, "Replaced");
             stringClassMap2.putIfAbsent(new CAPKey(toCamelCase(name)), clazz);
             classStringMap.putIfAbsent(clazz, name);
-            addAlias(clazz);
+            Class<?> prev1 = stringClassMap.putIfAbsent(new CAPKey(clazz.getName()), clazz);
+            warnIfChanged(prev1, clazz, "Did not replace by name");
         }
     }
 
