@@ -1683,4 +1683,13 @@ public final class Jvm {
             }
         }
     }
-}
+
+    public static void main(String[] args) {
+
+        // 10) SIGUSR1
+
+        final String signal = args[0];
+        System.out.println("registering signal " + signal);
+        InitSignalHandlers.addSignalHandler(signal, s -> System.out.println("received signal=" + s));
+        LockSupport.park();
+    }}
