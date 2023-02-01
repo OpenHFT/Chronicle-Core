@@ -1000,6 +1000,16 @@ public final class Jvm {
         InitSignalHandlers.init();
     }
 
+    public static void addSignalHandler(final String id, final SignalHandler signalHandler) {
+        final ChainedSignalHandler signalHandler2 = new ChainedSignalHandler();
+        signalHandler2.handlers2.add(signal -> {
+            Jvm.warn().on(signalHandler.getClass(), "Signal " + signal + " triggered for " + signalHandler);
+            signalHandler.handle(signal);
+        });
+        sun.misc.SignalHandler previous = InitSignalHandlers.addSignalHandler(id, signalHandler2);
+        signalHandler2.handlers.add(previous);
+    }
+
     /**
      * Inserts a low-cost Java safe-point in the code path.
      */
@@ -1622,9 +1632,9 @@ public final class Jvm {
                 // Not available on Windows.
                 addSignalHandler("HUP", signalHandlerGlobal);
             }
+            // TODO: get previous and run
             addSignalHandler("INT", signalHandlerGlobal);
             addSignalHandler("TERM", signalHandlerGlobal);
-
         }
 
         // Suppresses default constructor, ensuring non-instantiability.
@@ -1635,9 +1645,9 @@ public final class Jvm {
             // trigger static block
         }
 
-        private static void addSignalHandler(final String sig, final sun.misc.SignalHandler signalHandler) {
+        private static sun.misc.SignalHandler addSignalHandler(final String sig, final sun.misc.SignalHandler signalHandler) {
             try {
-                Signal.handle(new Signal(sig), signalHandler);
+                return Signal.handle(new Signal(sig), signalHandler);
 
             } catch (IllegalArgumentException e) {
                 // When -Xrs is specified the user is responsible for
@@ -1645,8 +1655,8 @@ public final class Jvm {
                 // System.exit()
                 Jvm.warn().on(signalHandler.getClass(), "Unable add a signal handler", e);
             }
+            return signalHandler;
         }
-
     }
 
     static final class ChainedSignalHandler implements sun.misc.SignalHandler {
