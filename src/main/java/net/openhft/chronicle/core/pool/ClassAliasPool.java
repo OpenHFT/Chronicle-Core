@@ -70,11 +70,11 @@ public class ClassAliasPool implements ClassLookup {
         addAlias(SortedMap.class, "!omap");
         addAlias(String.class, "String, !str");
         addAlias(CharSequence.class);
-        addAlias(Byte.class, "byte, int8");
-        addAlias(Short.class, "short, int16");
+        addAlias(Byte.class, "byte, int8, Byte");
+        addAlias(Short.class, "short, int16, Short");
         addAlias(Character.class, "Char, Character");
         addAlias(Integer.class, "int, int32, Integer");
-        addAlias(Long.class, "long, int64");
+        addAlias(Long.class, "long, int64, Long");
         addAlias(Float.class, "Float32, Float");
         addAlias(Double.class, "Float64, Double");
         addAlias(LocalDate.class, "Date, LocalDate");
