@@ -75,7 +75,7 @@ This system property specifies a fully qualified class name that will run only o
 The class should contain an empty static `postInit()` method that is called to trigger class load.
 
 The alternative way to using the above system properties is to implement the `ChronicleInitRunnable` interface that may be listed the `META-INF/services/net.openhft.chronicle.core.ChronicleInitRunnable` file in any JAR in classpath to be discovered via `ServiceLoader` JVM facility.
-It can provide both init and post-init functionalities by overriding the `Runnable.run()` and `ChronicleInitRunnable.postInit()` methods.
+It can provide both init and post-init functionalities by overriding the `ChronicleInitRunnableRunnable.run()` and `ChronicleInitRunnable.postInit()` methods.
 
 == Off Heap Memory Access
 
