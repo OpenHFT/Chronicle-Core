@@ -62,12 +62,12 @@ public class ClassAliasPool implements ClassLookup {
 
     @NotNull
     private ClassAliasPool defaultAliases() {
-        addAlias(Set.class, "!set");
-        addAlias(BitSet.class, "!bitset");
-        addAlias(SortedSet.class, "!oset");
-        addAlias(List.class, "!seq");
-        addAlias(Map.class, "!map");
-        addAlias(SortedMap.class, "!omap");
+        addAlias(Set.class, "!set, Set");
+        addAlias(BitSet.class, "!bitset, BitSet");
+        addAlias(SortedSet.class, "!oset, SortedSet");
+        addAlias(List.class, "!seq, List");
+        addAlias(Map.class, "!map, Map");
+        addAlias(SortedMap.class, "!omap, SortedMap");
         addAlias(String.class, "String, !str");
         addAlias(CharSequence.class);
         addAlias(Byte.class, "byte, int8, Byte");
@@ -87,7 +87,7 @@ public class ClassAliasPool implements ClassLookup {
             addAlias(Array.newInstance(prim, 0).getClass(), prim.getName() + "[]");
         // byte[] gets in before camel cased Byte[]
         addAlias(Byte[].class, "Byte[]");
-        addAlias(Class.class, "type");
+        addAlias(Class.class, "type, class, Class");
         addAlias(void.class, "!null");
 
         return this;
