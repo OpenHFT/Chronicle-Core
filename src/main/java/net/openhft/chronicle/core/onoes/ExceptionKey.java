@@ -33,7 +33,7 @@ public class ExceptionKey {
     public final Throwable throwable;
 
     public ExceptionKey(LogLevel level, Class<?> clazz, String message, Throwable throwable) {
-        this.nanoTimestamp = SystemTimeProvider.INSTANCE.currentTimeNanos();
+        this.nanoTimestamp = SystemTimeProvider.CLOCK.currentTimeNanos();
         this.level = level;
         this.clazz = clazz;
         this.message = message;
@@ -89,7 +89,7 @@ public class ExceptionKey {
         if (throwable != null)
             throwable.printStackTrace(new PrintWriter(sw));
         return "ExceptionKey{" +
-                "nanoTimestamp=" + nanoTimestamp +
+                "nanoTimestamp=" + nanoTimestamp / 1e9 +
                 ", level=" + level +
                 ", clazz=" + clazz +
                 ", message='" + message + '\'' +
