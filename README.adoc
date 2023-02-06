@@ -60,10 +60,22 @@ NOTE: If you specify system properties on the command line then they will overri
 == ChronicleInit
 
 The link:https://github.com/OpenHFT/Chronicle-Core/blob/ea/src/main/java/net/openhft/chronicle/core/ChronicleInit.java[`ChronicleInit`] class
-allows the developer to hook in their own code to be run at startup before the Chronicle static initialisers are run.
+allows the developer to hook in their own code to be run at startup before and/or after the Chronicle static initialisers are run.
 Chronicle static initialisers perform tasks such as loading system properties, so it is possible, for example, to override system properties using `ChronicleInit`.
-To this end, the system property "chronicle.init.runnable" should specify a fully qualified class name that will be run once before any system property is read by Chronicle code, allowing the class to set them to the desired values.
-The class should contain an empty static `init()` method that is called to trigger class load. The code should reside in a static block to be run once.
+To this end, `ChronicleInit` introduces the following system properties:
+
+. "*chronicle.init.runnable*"
++
+This system property specifies a fully qualified class name that will be run before any system property is read by Chronicle code, allowing the class to set them to the desired values.
+The class should contain an empty static `init()` method that is called to trigger class load.
+
+. "*chronicle.postinit.runnable*"
++
+This system property specifies a fully qualified class name that will run only once after the Jvm initialisation static class.
+The class should contain an empty static `postInit()` method that is called to trigger class load.
+
+The alternative way to using the above system properties is to implement the `ChronicleInitRunnable` interface whose implementing classes may be listed in the `META-INF/services/net.openhft.chronicle.core.ChronicleInitRunnable` file in any JAR in classpath to be discovered via `ServiceLoader` JVM facility.
+It can provide both init and post-init functionalities by implementing the `ChronicleInitRunnableRunnable.run()` and `ChronicleInitRunnable.postInit()` methods.
 
 == Off Heap Memory Access
 
