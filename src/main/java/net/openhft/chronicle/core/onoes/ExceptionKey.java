@@ -33,7 +33,11 @@ public class ExceptionKey {
     public final Throwable throwable;
 
     public ExceptionKey(LogLevel level, Class<?> clazz, String message, Throwable throwable) {
-        this.nanoTimestamp = SystemTimeProvider.CLOCK.currentTimeNanos();
+        this(SystemTimeProvider.CLOCK.currentTimeNanos(), level, clazz, message, throwable);
+    }
+
+    public ExceptionKey(long nanoTimestamp, LogLevel level, Class<?> clazz, String message, Throwable throwable) {
+        this.nanoTimestamp = nanoTimestamp;
         this.level = level;
         this.clazz = clazz;
         this.message = message;
