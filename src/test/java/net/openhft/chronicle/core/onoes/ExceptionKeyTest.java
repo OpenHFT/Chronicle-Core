@@ -18,36 +18,22 @@
 
 package net.openhft.chronicle.core.onoes;
 
-import net.openhft.chronicle.core.time.SetTimeProvider;
-import net.openhft.chronicle.core.time.SystemTimeProvider;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class ExceptionKeyTest {
-    @Before
-    public void setUp() {
-        SystemTimeProvider.CLOCK = new SetTimeProvider((long) 1e9).autoIncrement(1, TimeUnit.SECONDS);
-    }
-
-    @After
-    public void tearDown() {
-        SystemTimeProvider.CLOCK = SystemTimeProvider.INSTANCE;
-    }
 
     @Test
-    public void hasTimestamp() {
+    public void testEqualsAndHashCode() {
         ExceptionKey ek1 = new ExceptionKey(LogLevel.PERF, getClass(), "one", null);
-        ExceptionKey ek1b = new ExceptionKey((long) 1e9, LogLevel.PERF, getClass(), "one", null);
+        ExceptionKey ek1b = new ExceptionKey(LogLevel.PERF, getClass(), "one", null);
         assertEquals(ek1, ek1b);
         assertEquals(ek1.hashCode(), ek1b.hashCode());
-        assertEquals("ExceptionKey{nanoTimestamp=1.0, level=PERF, clazz=class net.openhft.chronicle.core.onoes.ExceptionKeyTest, message='one', throwable=}", ek1.toString());
+        assertEquals("ExceptionKey{level=PERF, clazz=class net.openhft.chronicle.core.onoes.ExceptionKeyTest, message='one', throwable=}", ek1.toString());
         ExceptionKey ek2 = new ExceptionKey(LogLevel.WARN, getClass(), "two", null);
-        assertEquals("ExceptionKey{nanoTimestamp=2.0, level=WARN, clazz=class net.openhft.chronicle.core.onoes.ExceptionKeyTest, message='two', throwable=}", ek2.toString());
+        assertEquals("ExceptionKey{level=WARN, clazz=class net.openhft.chronicle.core.onoes.ExceptionKeyTest, message='two', throwable=}", ek2.toString());
         assertNotEquals(ek1, ek2);
         assertNotEquals(ek1.hashCode(), ek2.hashCode());
     }
