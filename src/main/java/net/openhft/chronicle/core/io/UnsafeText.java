@@ -201,7 +201,7 @@ public final class UnsafeText {
             MEMORY.writeByte(address++, (byte) c);
             mantissa -= num << precision;
             ++decimalPlaces;
-            final double parsedValue = asDouble(value, 0, sign != 0, decimalPlaces);
+            final double parsedValue = Maths.asDouble(value, 0, sign != 0, decimalPlaces);
             if (parsedValue == d)
                 break;
         }
@@ -231,7 +231,7 @@ public final class UnsafeText {
                 MEMORY.writeByte(address++, (byte) ('0' + num));
                 mantissa -= num << precision;
 
-                final double parsedValue = asDouble(value, 0, sign != 0, ++decimalPlaces);
+                final double parsedValue = Maths.asDouble(value, 0, sign != 0, ++decimalPlaces);
                 if (parsedValue == d)
                     break;
             }
@@ -249,7 +249,11 @@ public final class UnsafeText {
         return address;
     }
 
-    private static double asDouble(long value, int exp, boolean negative, int deci) {
+    /**
+     * @deprecated Use {@link Maths#asDouble(long, int, boolean, int)} instead
+     */
+    @Deprecated(/* To be moved into Maths.asDouble in x.25 */)
+    public static double asDouble(long value, int exp, boolean negative, int deci) {
         int scale2 = 0;
         double d;
         if (deci >= 28) {

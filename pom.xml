@@ -144,6 +144,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>net.openhft</groupId>
+            <artifactId>jlbh</artifactId>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <repositories>

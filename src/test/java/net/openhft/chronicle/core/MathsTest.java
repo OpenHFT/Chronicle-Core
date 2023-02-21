@@ -462,4 +462,16 @@ public class MathsTest {
             assertEquals("i: " + i, floor0, floor, 0);
         }
     }
+
+    @Test
+    public void asDouble() {
+        assertEquals(12.345, Maths.asDouble(12345, 0, false, 3), 0.00000000000001);
+        assertEquals(-12.345, Maths.asDouble(12345, 0, true, 3), 0.00000000000001);
+        assertEquals(98760.0, Maths.asDouble(12345, 3, false, 0), 0.00000000000001);
+        assertEquals(1543.125, Maths.asDouble(12345, -3, false, 0), 0.0000000000001);
+        assertEquals(1.2345E-26, Maths.asDouble(12345, 0, false, 30), 0.0000000000001);
+        assertEquals(123450000000000000L, Maths.asDouble(1234500000000000000L, 0, false, 1), 0.0000000000001);
+        assertEquals(1234500, Maths.asDouble(12345, 0, false, -2), 0.0000000000001);
+        assertEquals(1.23E30, Maths.asDouble(123, 0, false, -28), 0.0000000000001);
+    }
 }
