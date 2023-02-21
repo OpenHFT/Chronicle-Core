@@ -249,47 +249,6 @@ public final class UnsafeText {
         return address;
     }
 
-    /**
-     * @deprecated Use {@link Maths#asDouble(long, int, boolean, int)} instead
-     */
-    @Deprecated(/* To be moved into Maths.asDouble in x.25 */)
-    public static double asDouble(long value, int exp, boolean negative, int deci) {
-        int scale2 = 0;
-        double d;
-        if (deci >= 28) {
-            d = value / Math.pow(5, deci);
-
-        } else if (deci > 0) {
-            scale2 = Long.numberOfLeadingZeros(value) - 1;
-            value <<= scale2;
-            long fives = Maths.fives(deci);
-
-            // We have at most [63 - scale2] significant binary digits in "value".
-            // 53 binary digits fit in mantissa without errors.
-            // Thus, if [63 - scale2] <= 53, "value" casted to double will contain the exact value.
-            if (scale2 >= 10)
-                d = (double)value / fives;
-            else {
-                long whole = value / fives;
-                long rem = value % fives;
-                d = whole + (double) rem / fives;
-            }
-
-        } else if (deci <= -28) {
-            d = value * Math.pow(5, -deci);
-
-        } else if (deci < 0) {
-            double fives = Maths.fives(-deci);
-            d = value * fives;
-
-        } else {
-            d = value;
-        }
-
-        double scalb = Math.scalb(d, exp - deci - scale2);
-        return negative ? -scalb : scalb;
-    }
-
     public static long append8bit(long address, byte[] bytes) {
         final int len = bytes.length;
         int i;
