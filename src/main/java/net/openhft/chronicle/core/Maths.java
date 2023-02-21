@@ -20,7 +20,6 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.assertions.AssertUtil;
 import net.openhft.chronicle.core.annotation.NonNegative;
-import net.openhft.chronicle.core.io.UnsafeText;
 import net.openhft.chronicle.core.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -777,6 +776,39 @@ public final class Maths {
      */
     public static double asDouble(@NonNegative long value, int exponent, boolean negative, int decimalPlaces) {
         assert AssertUtil.SKIP_ASSERTIONS || value >= 0;
-        return UnsafeText.asDouble(value, exponent, negative, decimalPlaces);
+        int scale2 = 0;
+        double d;
+        if (decimalPlaces >= 28) {
+            d = value / Math.pow(5, decimalPlaces);
+
+        } else if (decimalPlaces > 0) {
+            scale2 = Long.numberOfLeadingZeros(value) - 1;
+            value <<= scale2;
+            long fives = Maths.fives(decimalPlaces);
+
+            // We have at most [63 - scale2] significant binary digits in "value".
+            // 53 binary digits fit in mantissa without errors.
+            // Thus, if [63 - scale2] <= 53, "value" casted to double will contain the exact value.
+            if (scale2 >= 10)
+                d = (double) value / fives;
+            else {
+                long whole = value / fives;
+                long rem = value % fives;
+                d = whole + (double) rem / fives;
+            }
+
+        } else if (decimalPlaces <= -28) {
+            d = value * Math.pow(5, -decimalPlaces);
+
+        } else if (decimalPlaces < 0) {
+            double fives = Maths.fives(-decimalPlaces);
+            d = value * fives;
+
+        } else {
+            d = value;
+        }
+
+        double scalb = Math.scalb(d, exponent - decimalPlaces - scale2);
+        return negative ? -scalb : scalb;
     }
 }
