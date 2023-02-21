@@ -19,6 +19,7 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.Maths;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.annotation.Java9;
 import org.jetbrains.annotations.NotNull;
@@ -353,7 +354,10 @@ public final class StringUtils {
             ch = charAt(in, pos++);
         }
 
-        return asDouble(value, exp, negative, decimalPlaces);
+        if (decimalPlaces < 0)
+            decimalPlaces = 0;
+
+        return Maths.asDouble(value, exp, negative, decimalPlaces);
     }
 
     private static void ensureJava9Plus() {
@@ -377,7 +381,8 @@ public final class StringUtils {
         return true;
     }
 
-    private static double asDouble(long value, int exp, boolean negative, int decimalPlaces) {
+    @Deprecated(/* For removal in x.25 */)
+    public static double asDouble(long value, int exp, boolean negative, int decimalPlaces) {
         if (decimalPlaces > 0 && value < Long.MAX_VALUE / 2) {
             if (value < Long.MAX_VALUE / (1L << 32)) {
                 exp -= 32;

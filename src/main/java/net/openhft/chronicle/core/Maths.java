@@ -18,6 +18,9 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.assertions.AssertUtil;
+import net.openhft.chronicle.core.annotation.NonNegative;
+import net.openhft.chronicle.core.io.UnsafeText;
 import net.openhft.chronicle.core.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -761,5 +764,19 @@ public final class Maths {
 
     public static int hash(Object o1, Object o2, Object o3, Object o4, Object o5) {
         return hash(o1, o2, o3, o4) * M0 + hash(o5);
+    }
+
+    /**
+     * Convert components to a double value
+     *
+     * @param value         The integer value
+     * @param exponent      The exponent
+     * @param negative      Whether it is negative or not
+     * @param decimalPlaces The number of decimal places
+     * @return The value as a double
+     */
+    public static double asDouble(@NonNegative long value, int exponent, boolean negative, int decimalPlaces) {
+        assert AssertUtil.SKIP_ASSERTIONS || value >= 0;
+        return UnsafeText.asDouble(value, exponent, negative, decimalPlaces);
     }
 }
