@@ -15,6 +15,7 @@ public class AsDoubleImplementationPerfJLBH implements JLBHTask {
     private JLBH jlbh;
 
     public static void main(String[] args) {
+        System.setProperty("jvm.resource.tracing", "false");
         new JLBH(new JLBHOptions()
                 .jlbhTask(new AsDoubleImplementationPerfJLBH())
                 .iterations(ITERATIONS)
