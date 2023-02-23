@@ -306,6 +306,21 @@
                                     </arguments>
                                 </configuration>
                             </execution>
+                            <execution>
+                                <id>AsDoubleImplementationPerfJLBH</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>${java.home}/bin/java</executable>
+                                    <arguments>
+                                        <argument>-classpath</argument>
+                                        <classpath/>
+                                        <argument>net.openhft.chronicle.core.AsDoubleImplementationPerfJLBH</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
                         </executions>
                     </plugin>
                 </plugins>
