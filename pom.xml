@@ -144,12 +144,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>net.openhft</groupId>
-            <artifactId>jlbh</artifactId>
-            <scope>test</scope>
-        </dependency>
-
     </dependencies>
 
     <repositories>
@@ -468,35 +462,6 @@
                                     <goal>run</goal>
                                 </goals>
                                 <phase>test</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>exec-maven-plugin</artifactId>
-
-                        <configuration>
-                            <systemProperties>
-                                <systemProperty>
-                                    <key>jvm.resource.tracing</key>
-                                    <value>false</value>
-                                </systemProperty>
-                            </systemProperties>
-                            <classpathScope>test</classpathScope>
-                            <cleanupDaemonThreads>false</cleanupDaemonThreads>
-                        </configuration>
-                        <executions>
-                            <execution>
-                                <id>AsDoubleImplementationPerfJLBH</id>
-                                <phase>test</phase>
-                                <goals>
-                                    <goal>java</goal>
-                                </goals>
-                                <configuration>
-                                    <mainClass>
-                                        net.openhft.chronicle.core.AsDoubleImplementationPerfJLBH
-                                    </mainClass>
-                                </configuration>
                             </execution>
                         </executions>
                     </plugin>
