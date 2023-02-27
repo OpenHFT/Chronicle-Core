@@ -23,6 +23,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.HashSet;
+import java.util.Set;
 
 public class ExceptionKey {
     public final LogLevel level;
@@ -51,6 +53,30 @@ public class ExceptionKey {
 
     public Throwable throwable() {
         return throwable;
+    }
+
+    /**
+     * Does this ExceptionKey or the Throwable or any of its causes contain the specified text?
+     *
+     * @param text The substring to search for
+     * @return true if there are any matches for it, false otherwise
+     */
+    public boolean containsText(@NotNull String text) {
+        if (message != null && message.contains(text)) {
+            return true;
+        }
+        return throwableContainsTextRecursive(text, throwable, new HashSet<>());
+    }
+
+    private boolean throwableContainsTextRecursive(@NotNull String text, Throwable throwable, Set<Integer> seenThrowableIDs) {
+        if (throwable == null || seenThrowableIDs.contains(System.identityHashCode(throwable))) {
+            return false;
+        }
+        if (throwable.getMessage() != null && throwable.getMessage().contains(text)) {
+            return true;
+        }
+        seenThrowableIDs.add(System.identityHashCode(throwable));
+        return throwableContainsTextRecursive(text, throwable.getCause(), seenThrowableIDs);
     }
 
     @Override

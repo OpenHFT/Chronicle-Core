@@ -20,8 +20,8 @@ package net.openhft.chronicle.core.onoes;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ExceptionKeyTest {
 
@@ -36,5 +36,50 @@ public class ExceptionKeyTest {
         assertEquals("ExceptionKey{level=WARN, clazz=class net.openhft.chronicle.core.onoes.ExceptionKeyTest, message='two', throwable=}", ek2.toString());
         assertNotEquals(ek1, ek2);
         assertNotEquals(ek1.hashCode(), ek2.hashCode());
+    }
+
+    @Test
+    public void containsTextReturnsTrueWhenMessageMatches() {
+        ExceptionKey exceptionKey = new ExceptionKey(LogLevel.WARN, getClass(), "this string matches", null);
+        assertTrue(exceptionKey.containsText("matches"));
+    }
+
+    @Test
+    public void containsTextReturnsFalseWhenMessageAndThrowableAreNull() {
+        ExceptionKey exceptionKey = new ExceptionKey(LogLevel.WARN, getClass(), null, null);
+        assertFalse(exceptionKey.containsText("matches"));
+    }
+
+    @Test
+    public void containsTextReturnsTrueWhenMessageIsInThrowableMessage() {
+        ExceptionKey exceptionKey = new ExceptionKey(LogLevel.WARN, getClass(), null, new RuntimeException("this string matches"));
+        assertTrue(exceptionKey.containsText("matches"));
+    }
+
+    @Test
+    public void containsTextReturnsTrueWhenMessageIsInThrowableMessageCause() {
+        ExceptionKey exceptionKey = new ExceptionKey(LogLevel.WARN, getClass(), null,
+                new RuntimeException("no match",
+                        new RuntimeException(null,
+                                new RuntimeException("this string matches"))));
+        assertTrue(exceptionKey.containsText("matches"));
+    }
+
+    @Test
+    public void containsTextDoesNotGetLostInCircularReference() {
+        assertFalse(new ExceptionKey(LogLevel.WARN, getClass(), null, new SelfCausedException("no match")).containsText("matches"));
+        assertTrue(new ExceptionKey(LogLevel.WARN, getClass(), null, new SelfCausedException("this string matches")).containsText("matches"));
+    }
+
+    private static class SelfCausedException extends Exception {
+
+        public SelfCausedException(String message) {
+            super(message);
+        }
+
+        @Override
+        public synchronized Throwable getCause() {
+            return this;
+        }
     }
 }
