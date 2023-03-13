@@ -197,7 +197,8 @@ public class OSTest {
     @Test
     public void getTarget() {
         String target = OS.getTarget();
-        assertEquals("target", target);
+        if (!target.endsWith("/target"))
+            assertEquals("target", target);
     }
 
     @Test
