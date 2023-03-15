@@ -776,28 +776,42 @@ public final class Maths {
      */
     public static double asDouble(@NonNegative long value, int exponent, boolean negative, int decimalPlaces) {
         assert AssertUtil.SKIP_ASSERTIONS || value >= 0;
+        // these numbers were determined empirically.
+        int leading =
+                Long.numberOfLeadingZeros(value) - 1;
+
         int scale2 = 0;
-        double d;
-        if (decimalPlaces >= 28) {
-            d = value / Math.pow(5, decimalPlaces);
-
-        } else if (decimalPlaces > 0) {
-            scale2 = Long.numberOfLeadingZeros(value) - 1;
+        if (leading > 0) {
+            scale2 = leading > 10 ? (10 + leading) >> 1 : leading;
             value <<= scale2;
-            long fives = Maths.fives(decimalPlaces);
-
-            // We have at most [63 - scale2] significant binary digits in "value".
-            // 53 binary digits fit in mantissa without errors.
-            // Thus, if [63 - scale2] <= 53, "value" casted to double will contain the exact value.
-            if (scale2 >= 10)
-                d = (double) value / fives;
-            else {
+        }
+        double d;
+        if (decimalPlaces > 0) {
+            if (decimalPlaces < 28) {
+                long fives = Maths.fives(decimalPlaces);
                 long whole = value / fives;
                 long rem = value % fives;
-                d = whole + (double) rem / fives;
-            }
+                int wholeZero = Long.numberOfLeadingZeros(whole) - 10;
+                if (wholeZero <= 0) {
+                    d = whole;
+                    if (wholeZero == 0) {
+                        long l = (long) d;
+                        if (rem > 0 && whole > l)
+                            d += Math.ulp(d);
+                    }
+                } else {
+                    int remZero = Long.numberOfLeadingZeros(rem) - 1;
+                    int leading2 = Math.min(wholeZero, remZero);
+                    rem <<= leading2;
+                    long rem2 = rem / fives;
+                    d = add((whole << leading2) + rem2, rem % fives, fives);
+                    scale2 += leading2;
+                }
 
-        } else if (decimalPlaces <= -28) {
+            } else {
+                d = value / Math.pow(5, decimalPlaces);
+            }
+        } else if (decimalPlaces < -27) {
             d = value * Math.pow(5, -decimalPlaces);
 
         } else if (decimalPlaces < 0) {
@@ -810,5 +824,16 @@ public final class Maths {
 
         double scalb = Math.scalb(d, exponent - decimalPlaces - scale2);
         return negative ? -scalb : scalb;
+    }
+
+    /**
+     * return a + b / c as a double
+     */
+    public static double add(long a, long b, long c) {
+        double d = a;
+        long l = (long) d;
+        long diff = a - l;
+        double div = diff + (double) b / c;
+        return d + div;
     }
 }

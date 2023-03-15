@@ -465,13 +465,25 @@ public class MathsTest {
 
     @Test
     public void asDouble() {
-        assertEquals(12.345, Maths.asDouble(12345, 0, false, 3), 0.00000000000001);
-        assertEquals(-12.345, Maths.asDouble(12345, 0, true, 3), 0.00000000000001);
-        assertEquals(98760.0, Maths.asDouble(12345, 3, false, 0), 0.00000000000001);
-        assertEquals(1543.125, Maths.asDouble(12345, -3, false, 0), 0.0000000000001);
-        assertEquals(1.2345E-26, Maths.asDouble(12345, 0, false, 30), 0.0000000000001);
-        assertEquals(123450000000000000L, Maths.asDouble(1234500000000000000L, 0, false, 1), 0.0000000000001);
-        assertEquals(1234500, Maths.asDouble(12345, 0, false, -2), 0.0000000000001);
-        assertEquals(1.23E30, Maths.asDouble(123, 0, false, -28), 0.0000000000001);
+        assertEquals(0.00017853, Maths.asDouble(17853, 0, false, 8), 0.0);
+        assertEquals(0.00035706, Maths.asDouble(35706, 0, false, 8), 0.0);
+
+        assertEquals(1.475344805371041E-8, Maths.asDouble(1475344805371041L, 0, false, 23), 0.0);
+        assertEquals(1.000000000000003E12, Maths.asDouble(1000000000000003L, 0, false, 3), 0.0);
+        assertEquals(-1.453448689138e11, Maths.asDouble(1453448689138L, 0, true, 1), 0.0);
+        assertEquals(999999999999.994, Maths.asDouble(999999999999994L, 0, false, 3), 0.0);
+        assertEquals(-1.16823E70, Maths.asDouble(116823, 0, true, -65), 0.0);
+        assertEquals(12.345, Maths.asDouble(12345, 0, false, 3), 0.0);
+        assertEquals(1e-5, Maths.asDouble(100000000000L, 0, false, 16), 0.0);
+        assertEquals(1.4753448053710411E-8, Maths.asDouble(14753448053710411L, 0, false, 24), 0.0);
+        assertEquals(1.720578937592997e-8, Maths.asDouble(1720578937592997L, 0, false, 23), 0.0);
+        //
+        assertEquals(-12.345, Maths.asDouble(12345, 0, true, 3), 0.0);
+        assertEquals(98760.0, Maths.asDouble(12345, 3, false, 0), 0.0);
+        assertEquals(1543.125, Maths.asDouble(12345, -3, false, 0), 0.0);
+        assertEquals(1.2345E-26, Maths.asDouble(12345, 0, false, 30), 0.0);
+        assertEquals(123450000000000000L, Maths.asDouble(1234500000000000000L, 0, false, 1), 0.0);
+        assertEquals(1234500, Maths.asDouble(12345, 0, false, -2), 0.0);
+        assertEquals(1.23E30, Maths.asDouble(123, 0, false, -28), 0.0);
     }
 }
