@@ -36,6 +36,7 @@ public class ChainedExceptionHandler implements ExceptionHandler {
         requireNonNull(chain);
         this.chain = Stream.of(chain)
                 .map(ObjectUtils::requireNonNull)
+                .map(ThreadLocalisedExceptionHandler::unwrap)
                 .toArray(ExceptionHandler[]::new);
     }
 
@@ -49,5 +50,9 @@ public class ChainedExceptionHandler implements ExceptionHandler {
     public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
         for (ExceptionHandler eh : chain)
             eh.on(logger, message, thrown);
+    }
+
+    public @NotNull ExceptionHandler[] chain() {
+        return chain;
     }
 }

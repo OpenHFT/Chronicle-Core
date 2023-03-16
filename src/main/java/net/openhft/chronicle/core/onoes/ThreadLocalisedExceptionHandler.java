@@ -22,11 +22,11 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
-    private ExceptionHandler defaultHandler;
+    private ExceptionHandler eh;
     private ThreadLocal<ExceptionHandler> handlerTL;
 
     public ThreadLocalisedExceptionHandler(ExceptionHandler handler) {
-        defaultHandler = handler;
+        eh = handler;
         resetThreadLocalHandler();
     }
 
@@ -61,18 +61,30 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
     private ExceptionHandler exceptionHandler() {
         ExceptionHandler exceptionHandler = handlerTL.get();
         if (exceptionHandler == null)
-            exceptionHandler = defaultHandler;
+            exceptionHandler = eh;
         return exceptionHandler;
     }
 
     public ExceptionHandler defaultHandler() {
-        return defaultHandler;
+        return eh;
+    }
+
+    public static ExceptionHandler unwrap(ExceptionHandler eh) {
+        if (eh instanceof ThreadLocalisedExceptionHandler)
+            return ((ThreadLocalisedExceptionHandler) eh).exceptionHandler();
+        return eh;
     }
 
     public ThreadLocalisedExceptionHandler defaultHandler(ExceptionHandler defaultHandler) {
-        if (defaultHandler instanceof ThreadLocalisedExceptionHandler)
-            defaultHandler = ((ThreadLocalisedExceptionHandler) defaultHandler).exceptionHandler();
-        this.defaultHandler = defaultHandler == null ? NullExceptionHandler.NOTHING : defaultHandler;
+        defaultHandler = unwrap(defaultHandler);
+        if (defaultHandler instanceof ChainedExceptionHandler) {
+            ChainedExceptionHandler ceh = (ChainedExceptionHandler) defaultHandler;
+            for (ExceptionHandler handler : ceh.chain()) {
+                if (handler instanceof ThreadLocalisedExceptionHandler)
+                    throw new AssertionError("Recursive used of "+getClass());
+            }
+        }
+        this.eh = defaultHandler == null ? NullExceptionHandler.NOTHING : defaultHandler;
         return this;
     }
 
