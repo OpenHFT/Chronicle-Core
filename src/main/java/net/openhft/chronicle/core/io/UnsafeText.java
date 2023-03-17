@@ -20,6 +20,8 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.Maths;
 
+import java.math.BigDecimal;
+
 import static net.openhft.chronicle.core.UnsafeMemory.MEMORY;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 
@@ -28,6 +30,8 @@ import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
  * NOTE: The caller has to ensure there is always plenty of memory to perform this operation.
  */
 public final class UnsafeText {
+
+    public static final long MASK32 = 0xFFFF_FFFFL;
 
     // Suppresses default constructor, ensuring non-instantiability.
     private UnsafeText() {
@@ -106,8 +110,25 @@ public final class UnsafeText {
         return address;
     }
 
+    /**
+     * Internal method for low level appending a String. The caller must ensure there is at least 32 bytes available.
+     *
+     * @param address to start writing
+     * @param d       double value
+     * @return endOfAddress
+     */
     //      throws BufferOverflowException, IllegalArgumentException
     public static long appendDouble(long address, double d) {
+        double abs = Math.abs(d);
+        // outside range so that !Double.isFinite(d) implicitly added.
+        if (5e-10 > abs || abs > 1e31) {
+            return appendDoubleString(address, d);
+        } else {
+            return appendDouble0(address, d);
+        }
+    }
+
+    static long appendDouble0(long address, double d) {
         long val = Double.doubleToRawLongBits(d);
         int sign = (int) (val >>> 63);
         int exp = (int) ((val >>> 52) & 2047);
@@ -143,6 +164,16 @@ public final class UnsafeText {
         return appendLargeNumber(address, mantissa, shift);
     }
 
+    static final ThreadLocal<StringBuilder> TL_SB = ThreadLocal.withInitial(StringBuilder::new);
+    static long appendDoubleString(long address, double d) {
+        StringBuilder sb = TL_SB.get();
+        sb.setLength(0);
+        sb.append(d);
+        for (int i = 0; i < sb.length(); i++)
+            UNSAFE.putByte(address++, (byte) sb.charAt(i));
+        return address;
+    }
+
     private static long appendLargeNumber(long address, long mantissa, int shift) {
         mantissa <<= 10;
         int precision = -10 - shift;
@@ -169,43 +200,54 @@ public final class UnsafeText {
     }
 
     private static long appendFraction(long address, double d, int sign, long mantissa, int shift) {
-        // fraction.
+        long value = 0;
+        int digits = -1;
+        mantissa = mantissa << 9;
+        shift += 9;
+        do {
+            if (shift < 63) {
+                value = value * 10 + (mantissa >> shift);
+                mantissa &= (1L << shift) - 1;
+            }
+            if (mantissa >= Long.MAX_VALUE / 5) {
+                mantissa >>>= 3;
+                shift -= 3;
+            }
+            // times 10
+            mantissa *= 5;
+            shift--;
+            digits++;
+        } while (value < 1e17);
+        long value3 = value;
+        // back track
+        while (true) {
+            final long value2 = (value + 5) / 10;
+            final double parsedValue = Maths.asDouble(value2, 0, sign != 0, digits - 1);
+            if (parsedValue != d)
+                break;
+            digits--;
+            value3 = value2;
+            value = value / 10;
+        }
+
         UNSAFE.putShort(address, (short) ('0' + ('.' << 8)));
         address += 2;
-        final int shift2 = 10;
-        mantissa <<= shift2;
-        long error = (1 << (shift2 - 1));
-        mantissa += error;
-        int precision = shift + shift2;
 
-        long value = 0;
-        int decimalPlaces = 0;
-        while (mantissa > error) {
-            while (mantissa > MAX_VALUE_DIVIDE_5) {
-                mantissa = (mantissa + 1) >>> 1;
-                error = ((error + 1) >>> 1);
-                precision--;
-            }
-            // times 5*2 = 10
-            mantissa *= 5;
-            error *= 5;
-            precision--;
-            if (precision >= 64) {
-                decimalPlaces++;
-                MEMORY.writeByte(address++, (byte) '0');
-                continue;
-            }
-            long num = (mantissa >>> precision);
-            value = value * 10 + num;
+        long addressOfLastNonZero = address + digits;
+
+        do {
+            long num = value3 % 10;
+            value3 /= 10;
             final char c = (char) ('0' + num);
-            MEMORY.writeByte(address++, (byte) c);
-            mantissa -= num << precision;
-            ++decimalPlaces;
-            final double parsedValue = Maths.asDouble(value, 0, sign != 0, decimalPlaces);
-            if (parsedValue == d)
-                break;
+            digits--;
+            MEMORY.writeByte(address + digits, (byte) c);
+        } while (value3 > 0);
+        while (digits > 0) {
+            digits--;
+            UNSAFE.putByte(address + digits, (byte) '0');
         }
-        return address;
+
+        return addressOfLastNonZero;
     }
 
     private static long appendIntegerAndFraction(long address, double d, int sign, long mantissa, int shift) {
