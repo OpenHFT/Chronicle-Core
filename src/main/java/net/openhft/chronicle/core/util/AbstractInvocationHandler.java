@@ -21,6 +21,7 @@ package net.openhft.chronicle.core.util;
 import net.openhft.chronicle.core.ClassLocal;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.Closeable;
+import net.openhft.chronicle.core.io.InvalidMarshallableException;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -91,7 +92,8 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
     /**
      * Default handler for method call.
      */
-    protected abstract Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException, IllegalStateException, BufferOverflowException, BufferUnderflowException, IllegalArgumentException, ArithmeticException;
+    protected abstract Object doInvoke(Object proxy, Method method, Object[] args)
+            throws InvocationTargetException, IllegalAccessException, IllegalStateException, BufferOverflowException, BufferUnderflowException, IllegalArgumentException, ArithmeticException, InvalidMarshallableException;
 
     @SuppressWarnings("WeakerAccess")
     MethodHandle methodHandleForProxy(Object proxy, Method m) {
