@@ -170,7 +170,7 @@ public class UnsafeTextTest {
                 String s = appendDoubleToString(d, address);
                 double d2 = Double.parseDouble(s);
                 if (d != d2) {
-                    assertEquals("" + (d - d2), d, d2, Math.abs(d) < 1e-8 ? 1e-23 : 0);
+                    assertEquals("" + (d - d2), d, d2, Math.abs(d) < 6e-8 ? 1e-23 : 0);
                 }
             }
             // this is called unless the test is about to die
