@@ -21,7 +21,7 @@ package net.openhft.chronicle.core.io;
 public class ValidatableUtil {
     static final ThreadLocal<int[]> VALIDATE_DISABLED = ThreadLocal.withInitial(() -> new int[1]);
 
-    public static void startValidatableDisabled() {
+    public static void startValidateDisabled() {
         VALIDATE_DISABLED.get()[0]++;
     }
 

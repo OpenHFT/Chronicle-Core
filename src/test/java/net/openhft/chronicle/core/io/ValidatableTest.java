@@ -59,7 +59,7 @@ public class ValidatableTest {
     @Test
     public void validateDisabled() {
 
-        ValidatableUtil.startValidatableDisabled();
+        ValidatableUtil.startValidateDisabled();
         DTOWithValidateToString d = new DTOWithValidateToString();
         try {
             assertEquals("DTOWithValidateToString{a='null', b=0}", d.toString()); // is ok
@@ -71,7 +71,7 @@ public class ValidatableTest {
             d.b = 1;
             assertEquals("DTOWithValidateToString{a='hi', b=1}", d.toString()); // is ok
 
-            ValidatableUtil.startValidatableDisabled();
+            ValidatableUtil.startValidateDisabled();
             try {
                 d.b = 0;
                 assertEquals("DTOWithValidateToString{a='hi', b=0}", d.toString()); // is ok
