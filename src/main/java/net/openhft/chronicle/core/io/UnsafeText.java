@@ -121,7 +121,7 @@ public final class UnsafeText {
     public static long appendDouble(long address, double d) {
         double abs = Math.abs(d);
         // outside range so that !Double.isFinite(d) implicitly added.
-        if (5e-10 > abs || abs > 1e31) {
+        if (6e-8 > abs || abs > 1e31) {
             return appendDoubleString(address, d);
         } else {
             return appendDouble0(address, d);

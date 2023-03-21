@@ -22,6 +22,7 @@ import net.openhft.chronicle.core.cooler.CoolerTester;
 import net.openhft.chronicle.core.cooler.CpuCoolers;
 import org.junit.Test;
 
+import java.security.SecureRandom;
 import java.util.Random;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -67,27 +68,27 @@ public class UnsafeTextTest {
     public void testAppendDouble() {
         // TODO FIX
         // Examples for https://github.com/OpenHFT/Chronicle-Core/issues/493
-//        testAppendDoubleOnce(-4.3723721608241563E-8, "-0.000000043723721608241563");
-//        testAppendDoubleOnce(3.5645738448792343E-8, "0.000000035645738448792343");
-//        testAppendDoubleOnce(4.6751491878715573E-8, "0.000000046751491878715573");
-//        testAppendDoubleOnce(1.1914579369762811E-8, "0.000000011914579369762811");
-//        testAppendDoubleOnce(3.0804639491353553E-8, "0.000000030804639491353553");
+        testAppendDoubleOnce(5.959231521092378E-8, "5.959231521092378E-8");
+        testAppendDoubleOnce(5.954710747053357E-8, "5.954710747053357E-8");
+        testAppendDoubleOnce(-4.3723721608241563E-8, "-4.3723721608241563E-8");
+        testAppendDoubleOnce(3.5645738448792343E-8, "3.5645738448792343E-8");
+        testAppendDoubleOnce(1.1914579369762811E-8, "1.1914579369762811E-8");
 
         // FIXED
-        testAppendDoubleOnce(-1.4778838950354771E-9, "-0.000000001477883895035477");
+        testAppendDoubleOnce(-1.4778838950354771E-9, "-1.4778838950354771E-9");
         testAppendDoubleOnce(-145344868913.80003, "-145344868913.80003");
 
-        testAppendDoubleOnce(1.4753448053710411E-8, "0.000000014753448053710411");
+        testAppendDoubleOnce(1.4753448053710411E-8, "1.4753448053710411E-8");
         testAppendDoubleOnce(4.731428525883379E-10, "4.731428525883379E-10");
         testAppendDoubleOnce(1e-5, "0.00001");
 
-        testAppendDoubleOnce(5.7270847085938394E-9, "0.0000000057270847085938394");
-        testAppendDoubleOnce(-3.5627763205104632E-9, "-0.0000000035627763205104632");
+        testAppendDoubleOnce(5.7270847085938394E-9, "5.7270847085938394E-9");
+        testAppendDoubleOnce(-3.5627763205104632E-9, "-3.5627763205104632E-9");
         testAppendDoubleOnce(3.4363211797092447E-10, "3.4363211797092447E-10");
 
         testAppendDoubleOnce(0.91234567890123456789, "0.9123456789012345");
         testAppendDoubleOnce(0.7205789375929972, "0.7205789375929972");
-        testAppendDoubleOnce(1.7205789375929972E-8, "0.000000017205789375929972");
+        testAppendDoubleOnce(1.7205789375929972E-8, "1.7205789375929972E-8");
         testAppendDoubleOnce(1.000000459754255, "1.000000459754255");
 //        testAppendDoubleOnce(1.0000004597542552, "1.0000004597542552");
         testAppendDoubleOnce(-0.0042633243189823394, "-0.0042633243189823394");
@@ -119,15 +120,15 @@ public class UnsafeTextTest {
         testAppendDoubleOnce(0.0001, "0.0001");
         testAppendDoubleOnce(0.000001, "0.000001");
         testAppendDoubleOnce(0.0000001, "0.0000001");
-        testAppendDoubleOnce(0.00000001, "0.00000001");
-        testAppendDoubleOnce(0.000000001, "0.000000001");
+        testAppendDoubleOnce(1.0E-8, "1.0E-8");
+        testAppendDoubleOnce(1.0E-9, "1.0E-9");
         testAppendDoubleOnce(0.009, "0.009");
         testAppendDoubleOnce(0.0009, "0.0009");
         testAppendDoubleOnce(0.00009, "0.00009");
         testAppendDoubleOnce(0.000009, "0.000009");
         testAppendDoubleOnce(0.0000009, "0.0000009");
         testAppendDoubleOnce(0.00000009, "0.00000009");
-        testAppendDoubleOnce(0.000000009, "0.000000009");
+        testAppendDoubleOnce(9.0E-9, "9.0E-9");
         testAppendDoubleOnce(Double.NaN, "NaN");
         testAppendDoubleOnce(Double.POSITIVE_INFINITY, "Infinity");
         testAppendDoubleOnce(Double.NEGATIVE_INFINITY, "-Infinity");
@@ -135,7 +136,7 @@ public class UnsafeTextTest {
         testAppendDoubleOnce(12.0, "12.0");
         testAppendDoubleOnce(12.1, "12.1");
         testAppendDoubleOnce(12.00000001, "12.00000001");
-        testAppendDoubleOnce(1e-9 + Math.ulp(1e-9), "0.0000000010000000000000003");
+        testAppendDoubleOnce(1e-9 + Math.ulp(1e-9), "1.0000000000000003E-9");
         testAppendDoubleOnce(1e-10 + Math.ulp(1e-10), "1.0000000000000002E-10");
         testAppendDoubleOnce(1e-11 + Math.ulp(1e-11), "1.0000000000000001E-11");
         double d = -1e30;
@@ -161,22 +162,23 @@ public class UnsafeTextTest {
 
     @Test
     public void testRandom() {
-        int runLength = 100_000;
+        int runLength = 1_000_000;
         IntStream.range(0, runLength).parallel().forEach(t -> {
             Random r = new Random();
             long address = UNSAFE.allocateMemory(max + 8);
             long l = r.nextLong() | 1L;
-            for (int i = 0; i < 10_000; i++) {
+            for (int i = 0; i < 1_000; i++) {
                 // agitate
                 l += 2;
                 double d = Double.longBitsToDouble(l);
                 if (!Double.isFinite(d) || Math.abs(d) < 1e-20 || Math.abs(d) > 5e11) {
-                    continue;
+                    break;
                 }
                 String s = appendDoubleToString(d, address);
                 double d2 = Double.parseDouble(s);
                 if (d != d2) {
-                    assertEquals("" + (d - d2), d, d2, Math.abs(d) < 5e-8 ? 1e-22 : 0);
+                    String message = "" + (d - d2);
+                    assertEquals(message, d, d2, 0);
                 }
             }
             // this is called unless the test is about to die
