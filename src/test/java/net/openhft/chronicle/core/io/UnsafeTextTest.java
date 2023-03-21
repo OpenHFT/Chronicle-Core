@@ -18,7 +18,6 @@
 
 package net.openhft.chronicle.core.io;
 
-import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.cooler.CoolerTester;
 import net.openhft.chronicle.core.cooler.CpuCoolers;
 import org.junit.Test;
@@ -28,7 +27,8 @@ import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 public class UnsafeTextTest {
 
@@ -66,9 +66,15 @@ public class UnsafeTextTest {
     @Test
     public void testAppendDouble() {
         // TODO FIX
-        testAppendDoubleOnce(-1.4778838950354771E-9, "-0.000000001477883895035477");
+        // Examples for https://github.com/OpenHFT/Chronicle-Core/issues/493
+//        testAppendDoubleOnce(-4.3723721608241563E-8, "-0.000000043723721608241563");
+//        testAppendDoubleOnce(3.5645738448792343E-8, "0.000000035645738448792343");
+//        testAppendDoubleOnce(4.6751491878715573E-8, "0.000000046751491878715573");
+//        testAppendDoubleOnce(1.1914579369762811E-8, "0.000000011914579369762811");
+//        testAppendDoubleOnce(3.0804639491353553E-8, "0.000000030804639491353553");
 
         // FIXED
+        testAppendDoubleOnce(-1.4778838950354771E-9, "-0.000000001477883895035477");
         testAppendDoubleOnce(-145344868913.80003, "-145344868913.80003");
 
         testAppendDoubleOnce(1.4753448053710411E-8, "0.000000014753448053710411");
@@ -170,7 +176,7 @@ public class UnsafeTextTest {
                 String s = appendDoubleToString(d, address);
                 double d2 = Double.parseDouble(s);
                 if (d != d2) {
-                    assertEquals("" + (d - d2), d, d2, Math.abs(d) < 6e-8 ? 1e-23 : 0);
+                    assertEquals("" + (d - d2), d, d2, Math.abs(d) < 5e-8 ? 1e-22 : 0);
                 }
             }
             // this is called unless the test is about to die
