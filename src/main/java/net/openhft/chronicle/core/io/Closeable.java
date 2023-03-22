@@ -45,10 +45,8 @@ public interface Closeable extends java.io.Closeable, QueryCloseable {
         } else if (o instanceof java.lang.AutoCloseable) {
             try {
                 ((java.lang.AutoCloseable) o).close();
-            } catch (Exception e) {
-                Jvm.debug().on(Closeable.class, e);
             } catch (Throwable e) {
-                Jvm.warn().on(Closeable.class, e);
+                Jvm.warn().on(Closeable.class, "Error occurred closing resources", e);
             }
 
         } else if (o instanceof Reference) {
