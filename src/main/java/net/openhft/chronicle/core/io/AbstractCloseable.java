@@ -371,7 +371,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         try {
             performClose();
         } catch (Throwable t) {
-            Jvm.debug().on(getClass(), t);
+            Jvm.warn().on(getClass(), "Error occurred in close method", t);
         } finally {
             closed = STATE_CLOSED;
         }
