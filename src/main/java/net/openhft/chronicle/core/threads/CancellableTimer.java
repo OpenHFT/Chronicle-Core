@@ -20,6 +20,7 @@
 package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.io.InvalidMarshallableException;
 import net.openhft.chronicle.core.time.SystemTimeProvider;
 import net.openhft.chronicle.core.time.TimeProvider;
 import org.jetbrains.annotations.NotNull;
@@ -135,7 +136,7 @@ public class CancellableTimer {
         }
 
         @Override
-        public boolean action() throws InvalidEventHandlerException {
+        public boolean action() throws InvalidEventHandlerException, InvalidMarshallableException {
             if (closed)
                 throw InvalidEventHandlerException.reusable();
 

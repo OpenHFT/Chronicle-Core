@@ -19,6 +19,8 @@
 
 package net.openhft.chronicle.core.threads;
 
+import net.openhft.chronicle.core.io.InvalidMarshallableException;
+
 @FunctionalInterface
 public interface VanillaEventHandler {
 
@@ -57,6 +59,7 @@ public interface VanillaEventHandler {
      *         The InvalidEventHandlerException.reusable() method returns a reusable, pre-created,
      *         InvalidEventHandlerException that is unmodifiable and contains no stack trace.
      *         See {@link InvalidEventHandlerException#reusable()}.
+     * @throws InvalidMarshallableException if a DTO read or written failed validation
      */
-    boolean action() throws InvalidEventHandlerException;
+    boolean action() throws InvalidEventHandlerException, InvalidMarshallableException;
 }

@@ -20,6 +20,7 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.io.InvalidMarshallableException;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
@@ -55,8 +56,9 @@ public interface ThrowingSupplier<V, T extends Throwable> {
     /**
      * Gets a result.
      *
+     * @throws InvalidMarshallableException if the object created is not valid
      * @return a result
      */
     @NotNull
-    V get() throws T;
+    V get() throws T, InvalidMarshallableException;
 }
