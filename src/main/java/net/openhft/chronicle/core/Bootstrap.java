@@ -105,13 +105,14 @@ final class Bootstrap {
                 final Class<?> clz = Class.forName("java.lang.Runtime$Version");
                 return (Integer) clz.getDeclaredMethod("major").invoke(version);
             }
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException | IllegalArgumentException e) {
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | ClassNotFoundException |
+                 IllegalArgumentException e) {
             // ignore and fall back to pre-jdk9
         }
         try {
             return Integer.parseInt(Runtime.class.getPackage().getSpecificationVersion().split("\\.")[1]);
-        } catch (NumberFormatException nfe) {
-            Jvm.warn().on(Jvm.class, "Unable to get the major version, defaulting to 8 " + nfe);
+        } catch (Exception e) {
+            Jvm.warn().on(Jvm.class, "Unable to get the major version, defaulting to 8 " + e);
             return 8;
         }
     }
