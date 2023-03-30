@@ -48,7 +48,7 @@ public class MonitorProfileAnalyserMain {
         } else {
             for (; ; ) {
                 main0(ignoreSubStrings, args);
-                JitterSampler.sleepSilently(interval * 1000);
+                Jvm.pause(interval * 1000L);
                 System.out.println("\n---\n");
             }
         }
@@ -90,9 +90,9 @@ public class MonitorProfileAnalyserMain {
                         .limit(20)
                         .collect(Collectors.toList());
         stackSortedByCount.forEach(e -> {
-                    stackCount.remove(e.getKey());
-                    System.out.println(e.getValue() + e.getKey());
-                });
+            stackCount.remove(e.getKey());
+            System.out.println(e.getValue() + e.getKey());
+        });
 
         System.out.println("Grouped by method.");
         Map<String, Integer> methodCount = new LinkedHashMap<>();
