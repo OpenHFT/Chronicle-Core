@@ -21,45 +21,50 @@ package net.openhft.chronicle.core.threads;
 import net.openhft.chronicle.core.Jvm;
 import org.junit.Test;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 import static org.junit.Assert.*;
 
 public class JitterSamplerTest {
 
     @Test
     public void takeSnapshot() throws InterruptedException {
-
-//        Assume.assumeTrue(!Jvm.isArm());
+        CountDownLatch latch = new CountDownLatch(2);
         Thread t = new Thread(() -> {
             JitterSampler.atStage("started");
+            waitForLatch(latch);
             int millis = Jvm.isArm() ? 120 : 60;
-            JitterSampler.sleepSilently(millis);
+            Jvm.pause(millis);
             JitterSampler.atStage("finishing");
-            JitterSampler.sleepSilently(millis);
+            Jvm.pause(millis);
             JitterSampler.finished();
         });
         t.start();
-        STARTED:
-        {
-            for (int j = 20; j >= 0; j--) {
-                Jvm.pause(20);
-                if (JitterSampler.desc != null)
-                    break STARTED;
-            }
-            fail("Not started");
-        }
+        waitForLatch(latch);
         for (int i = 0; i < 10; i++) {
-            JitterSampler.sleepSilently(10);
+            Jvm.busyWaitMicros(1000);
             String s = JitterSampler.takeSnapshot(10_000_000);
-            //System.out.println(s);
-            if ("finishing".equals(JitterSampler.desc)) {
+            final String desc = JitterSampler.desc;
+            if ("finishing".equals(desc)) {
                 if (s != null && s.contains("finish"))
                     break;
             } else {
-                assertEquals("started", JitterSampler.desc);
+                assertEquals("started", desc);
             }
         }
         t.join();
         String s = JitterSampler.takeSnapshot();
         assertNull(s);
+    }
+
+    private void waitForLatch(CountDownLatch latch) {
+        latch.countDown();
+        try {
+            assertTrue(latch.await(3, TimeUnit.SECONDS));
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException("Interrupted waiting for latch", e);
+        }
     }
 }
