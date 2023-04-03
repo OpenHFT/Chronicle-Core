@@ -345,6 +345,10 @@ public final class Jvm {
         return IS_JAVA_19_PLUS;
     }
 
+    public static boolean isJava20Plus() {
+        return IS_JAVA_20_PLUS;
+    }
+
     private static boolean is64bit0() {
         String systemProp;
         systemProp = Jvm.getProperty("com.ibm.vm.bitmode");
