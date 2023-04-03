@@ -46,7 +46,12 @@ public class StackTraceTest {
         Jvm.pause(50);
         StackTrace st = StackTrace.forThread(t);
         t.interrupt();
-        assertEquals("Thread[background,5,main] on main", st.getMessage());
-        assertEquals("net.openhft.chronicle.core.Jvm.pause", st.getStackTrace()[0].toString().split("\\(")[0].replaceAll("^app//", ""));
+        if (Jvm.isJava20Plus()) {
+            assertTrue(st.getMessage().endsWith("background,5,main] on main"));
+            assertEquals("net.openhft.chronicle.core.Jvm.pause", st.getStackTrace()[1].toString().split("\\(")[0].replaceAll("^app//", ""));
+        } else {
+            assertEquals("Thread[background,5,main] on main", st.getMessage());
+            assertEquals("net.openhft.chronicle.core.Jvm.pause", st.getStackTrace()[0].toString().split("\\(")[0].replaceAll("^app//", ""));
+        }
     }
 }

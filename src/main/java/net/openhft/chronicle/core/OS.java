@@ -56,9 +56,16 @@ public final class OS {
     static final ClassLocal<MethodHandle> MAP0_MH = ClassLocal.withInitial(c -> {
         try {
             Method map0;
-            if (Jvm.isJava19Plus()) map0 = Jvm.getMethod(c, "map0", FileDescriptor.class, int.class, long.class, long.class, boolean.class);
-            else if (Jvm.isJava14Plus()) map0 = Jvm.getMethod(c, "map0", int.class, long.class, long.class, boolean.class);
-            else map0 = Jvm.getMethod(c, "map0", int.class, long.class, long.class);
+            if (Jvm.isJava20Plus()) {
+                Class<?> dispatcherClass = findClass("sun.nio.ch.UnixFileDispatcherImpl");
+                map0 = Jvm.getMethod(dispatcherClass, "map0", FileDescriptor.class, int.class, long.class, long.class, boolean.class);
+            } else if (Jvm.isJava19Plus()) {
+                map0 = Jvm.getMethod(c, "map0", FileDescriptor.class, int.class, long.class, long.class, boolean.class);
+            } else if (Jvm.isJava14Plus()) {
+                map0 = Jvm.getMethod(c, "map0", int.class, long.class, long.class, boolean.class);
+            } else {
+                map0 = Jvm.getMethod(c, "map0", int.class, long.class, long.class);
+            }
             return MethodHandles.lookup().unreflect(map0);
         } catch (IllegalAccessException e) {
             throw new AssertionError(e);
@@ -91,7 +98,13 @@ public final class OS {
         // make sure it is initialised first.
         Jvm.debug();
         try {
-            Method unmap0 = Jvm.getMethod(FileChannelImpl.class, "unmap0", long.class, long.class);
+            Method unmap0;
+            if (Jvm.isJava20Plus()) {
+                Class<?> dispatcherClass = findClass("sun.nio.ch.UnixFileDispatcherImpl");
+                unmap0 = Jvm.getMethod(dispatcherClass, "unmap0", long.class, long.class);
+            } else {
+                unmap0 = Jvm.getMethod(FileChannelImpl.class, "unmap0", long.class, long.class);
+            }
             UNMAPP0_MH = MethodHandles.lookup().unreflect(unmap0);
 
             Class<?> fdi = Class.forName("sun.nio.ch.FileDispatcherImpl");
@@ -111,6 +124,15 @@ public final class OS {
 
     // Suppresses default constructor, ensuring non-instantiability.
     private OS() {
+    }
+
+    private static Class<?> findClass(String name) {
+        try {
+            Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(name);
+            return clazz;
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("Not found: " + name, e);
+        }
     }
 
     /**
@@ -421,7 +443,10 @@ public final class OS {
         try {
             // For now, access is assumed to be non-synchronous
             // TODO - Support passing/deducing synchronous flag externally
-            if (Jvm.isJava19Plus()) {
+            if (Jvm.isJava20Plus()) {
+                final FileDescriptor fd = (FileDescriptor) FD_FIELD.get(fileChannel);
+                return (long) map0.invokeExact(fd, imode, start, size, false);
+            } else if (Jvm.isJava19Plus()) {
                 final FileDescriptor fd = (FileDescriptor) FD_FIELD.get(fileChannel);
                 return (long) map0.invokeExact((FileChannelImpl) fileChannel, fd, imode, start, size, false);
             } else if (Jvm.isJava14Plus())

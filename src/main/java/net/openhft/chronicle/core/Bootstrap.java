@@ -51,6 +51,7 @@ final class Bootstrap {
     static final boolean IS_JAVA_14_PLUS;
     static final boolean IS_JAVA_15_PLUS;
     static final boolean IS_JAVA_19_PLUS;
+    static final boolean IS_JAVA_20_PLUS;
 
     static {
         // Eagerly initialise Posix & Affinity
@@ -72,6 +73,7 @@ final class Bootstrap {
         IS_JAVA_14_PLUS = JVM_JAVA_MAJOR_VERSION > 13;
         IS_JAVA_15_PLUS = JVM_JAVA_MAJOR_VERSION > 14;
         IS_JAVA_19_PLUS = JVM_JAVA_MAJOR_VERSION > 18;
+        IS_JAVA_20_PLUS = JVM_JAVA_MAJOR_VERSION > 19;
     }
 
     private Bootstrap() {
