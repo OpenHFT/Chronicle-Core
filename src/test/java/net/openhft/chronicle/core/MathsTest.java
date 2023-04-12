@@ -408,7 +408,7 @@ public class MathsTest {
     }
 
     @Test
-    public void testHash64ForString() throws Exception {
+    public void testHash64ForString() {
         // Empty
         String e1 = "";
         long eh1 = Maths.hash64(e1);
@@ -419,7 +419,7 @@ public class MathsTest {
         String a1 = "Test";
         long ah1 = Maths.hash64(a1);
 
-        String a2 = new StringBuilder().append("T").append("e").toString() + "st";
+        String a2 = new StringBuilder().append("T").append("e") + "st";
         long ah2 = Maths.hash64(a2);
 
         assertEquals(ah1, ah2);
@@ -427,11 +427,7 @@ public class MathsTest {
         // UTF8 & Equality test
         String u1 = "€";
         long uh1 = Maths.hash64(u1);
-        if (Jvm.isJava9Plus()) {
-            assertEquals(-11958288497246124L, uh1);
-        } else {
-            assertEquals(1177128352603971756L, uh1);
-        }
+        assertEquals(1177128352603971756L, uh1);
 
         String u2 = "€€".substring(0, 1);
         long uh2 = Maths.hash64(u2);
