@@ -427,11 +427,7 @@ public class MathsTest {
         // UTF8 & Equality test
         String u1 = "€";
         long uh1 = Maths.hash64(u1);
-        if (Jvm.isJava9Plus()) {
-            assertEquals(-11958288497246124L, uh1);
-        } else {
-            assertEquals(1177128352603971756L, uh1);
-        }
+        assertEquals(1177128352603971756L, uh1);
 
         String u2 = "€€".substring(0, 1);
         long uh2 = Maths.hash64(u2);
