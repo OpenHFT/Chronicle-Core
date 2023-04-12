@@ -67,4 +67,8 @@ public interface ExceptionHandler {
         requireNonNull(aClass);
         return true;
     }
+
+    default ExceptionHandler defaultHandler() {
+        return this;
+    }
 }

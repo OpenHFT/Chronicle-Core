@@ -89,6 +89,7 @@ public final class Jvm {
     private static final int PROCESS_ID = getProcessId0();
     private static final boolean IS_AZUL_ZING = Bootstrap.isAzulZing0();
     private static final boolean IS_AZUL_ZULU = Bootstrap.isAzulZulu0();
+    private static final boolean DISABLE_DEBUG = Jvm.getBoolean("disable.debug.info");
     @NotNull
     private static final ThreadLocalisedExceptionHandler ERROR = new ThreadLocalisedExceptionHandler(DEFAULT_ERROR_EXCEPTION_HANDLER);
     @NotNull
@@ -96,7 +97,7 @@ public final class Jvm {
     @NotNull
     private static final ThreadLocalisedExceptionHandler PERF = new ThreadLocalisedExceptionHandler(DEFAULT_PERF_EXCEPTION_HANDLER);
     @NotNull
-    private static final ThreadLocalisedExceptionHandler DEBUG = new ThreadLocalisedExceptionHandler(DEFAULT_DEBUG_EXCEPTION_HANDLER);
+    private static final ExceptionHandler DEBUG;
     private static final long MAX_DIRECT_MEMORY;
     private static final boolean SAFEPOINT_ENABLED;
     private static final boolean IS_ARM = Bootstrap.isArm0();
@@ -121,6 +122,11 @@ public final class Jvm {
     private static final boolean ASSERT_ENABLED;
 
     static {
+        if (DISABLE_DEBUG) {
+            DEBUG = NullExceptionHandler.NOTHING;
+        } else {
+            DEBUG = new ThreadLocalisedExceptionHandler(DEFAULT_DEBUG_EXCEPTION_HANDLER);
+        }
         boolean debug = false;
         assert debug = true;
         ASSERT_ENABLED = debug;
@@ -170,6 +176,8 @@ public final class Jvm {
         RESOURCE_TRACING = Jvm.getBoolean("jvm.resource.tracing");
 
         Logger logger = LoggerFactory.getLogger(Jvm.class);
+        if (DISABLE_DEBUG)
+            logger.info("-Ddisable.debug.info turned of debug logging");
         if (logger.isInfoEnabled())
             logger.info("Chronicle core loaded from " + Jvm.class.getProtectionDomain().getCodeSource().getLocation());
         if (RESOURCE_TRACING && !Jvm.getBoolean("disable.resource.warning"))
@@ -784,7 +792,8 @@ public final class Jvm {
     }
 
     public static void setDebugExceptionHandler(ExceptionHandler exceptionHandler) {
-        DEBUG.defaultHandler(exceptionHandler).resetThreadLocalHandler();
+        if (DEBUG instanceof ThreadLocalisedExceptionHandler)
+            ((ThreadLocalisedExceptionHandler) DEBUG).defaultHandler(exceptionHandler).resetThreadLocalHandler();
     }
 
     public static void setPerfExceptionHandler(ExceptionHandler exceptionHandler) {
@@ -862,7 +871,8 @@ public final class Jvm {
 
         ERROR.defaultHandler(error);
         WARN.defaultHandler(warn);
-        DEBUG.defaultHandler(debug);
+        if (DEBUG instanceof ThreadLocalisedExceptionHandler)
+            ((ThreadLocalisedExceptionHandler) DEBUG).defaultHandler(debug);
     }
 
     public static void setExceptionHandlers(@Nullable final ExceptionHandler error,
@@ -878,7 +888,8 @@ public final class Jvm {
                                                        @Nullable final ExceptionHandler debug) {
         ERROR.threadLocalHandler(error);
         WARN.threadLocalHandler(warn);
-        DEBUG.threadLocalHandler(debug);
+        if (DEBUG instanceof ThreadLocalisedExceptionHandler)
+            ((ThreadLocalisedExceptionHandler) DEBUG).threadLocalHandler(debug);
     }
 
     public static void setThreadLocalExceptionHandlers(@Nullable final ExceptionHandler error,

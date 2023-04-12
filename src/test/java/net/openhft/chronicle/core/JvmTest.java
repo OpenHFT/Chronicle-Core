@@ -89,10 +89,10 @@ public class JvmTest {
     public void resetExceptionHandlersSetHandlersBackToTheirDefaults() throws IllegalAccessException {
         Jvm.setExceptionHandlers(null, null, null, null);
         Jvm.resetExceptionHandlers();
-        assertSame(Jvm.getField(Jvm.class, "DEFAULT_PERF_EXCEPTION_HANDLER").get(null), ((ThreadLocalisedExceptionHandler) Jvm.perf()).defaultHandler());
-        assertSame(Jvm.getField(Jvm.class, "DEFAULT_WARN_EXCEPTION_HANDLER").get(null), ((ThreadLocalisedExceptionHandler) Jvm.warn()).defaultHandler());
-        assertSame(Jvm.getField(Jvm.class, "DEFAULT_ERROR_EXCEPTION_HANDLER").get(null), ((ThreadLocalisedExceptionHandler) Jvm.error()).defaultHandler());
-        assertSame(Jvm.getField(Jvm.class, "DEFAULT_DEBUG_EXCEPTION_HANDLER").get(null), ((ThreadLocalisedExceptionHandler) Jvm.debug()).defaultHandler());
+        assertSame(Jvm.getField(Jvm.class, "DEFAULT_PERF_EXCEPTION_HANDLER").get(null), Jvm.perf().defaultHandler());
+        assertSame(Jvm.getField(Jvm.class, "DEFAULT_WARN_EXCEPTION_HANDLER").get(null), Jvm.warn().defaultHandler());
+        assertSame(Jvm.getField(Jvm.class, "DEFAULT_ERROR_EXCEPTION_HANDLER").get(null), Jvm.error().defaultHandler());
+        assertSame(Jvm.getField(Jvm.class, "DEFAULT_DEBUG_EXCEPTION_HANDLER").get(null), Jvm.debug().defaultHandler());
     }
 
     static final class ReportUnoptimised {
