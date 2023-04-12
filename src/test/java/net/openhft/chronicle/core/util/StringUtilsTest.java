@@ -19,6 +19,7 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.Maths;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -85,13 +86,11 @@ public class StringUtilsTest {
                 StringUtils.extractBytes("foobar"), is("foobar".getBytes(StandardCharsets.US_ASCII)));
     }
 
-    @Ignore("picks up dead chars at end of string builder value array")
     @Test
     public void shouldExtractBytesFromStringBuilder() {
-        assumeTrue(Jvm.isJava9Plus());
-
-        assertThat("Is this test running on JDK9 with compact strings disabled?",
-                StringUtils.extractBytes(new StringBuilder("foobar")), is("foobar".getBytes(StandardCharsets.US_ASCII)));
+        // uses StringUtils.extractBytes/extractChars as appropriate
+        assertEquals(0xdf8d42fa7e05af8aL,
+                Maths.hash64(new StringBuilder("foobar")));
     }
 
     @Test

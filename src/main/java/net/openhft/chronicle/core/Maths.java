@@ -524,9 +524,14 @@ public final class Maths {
         long hash = 0;
 
         if (Jvm.isJava9Plus()) {
-            final byte[] bytes = StringUtils.extractBytes(s);
-            for (int i = 0, len = s.length(); i < len; i++)
-                hash = hash * 0x32246e3d + bytes[i];
+            if (StringUtils.getStringCoder(s) == 0) {
+                final byte[] bytes = StringUtils.extractBytes(s);
+                for (int i = 0, len = s.length(); i < len; i++)
+                    hash = hash * 0x32246e3d + bytes[i];
+            } else {
+                for (int i = 0, len = s.length(); i < len; i++)
+                    hash = hash * 0x32246e3d + s.charAt(i);
+            }
         } else {
             final char[] chars = StringUtils.extractChars(s);
             for (int i = 0, len = s.length(); i < len; i++)
@@ -539,9 +544,15 @@ public final class Maths {
         long hash = 0;
 
         if (Jvm.isJava9Plus()) {
-            final byte[] bytes = StringUtils.extractBytes(s);
-            for (int i = 0, len = s.length(); i < len; i++)
-                hash = hash * 0x32246e3d + bytes[i];
+            if (StringUtils.getStringCoder(s) == 0) {
+                final byte[] bytes = StringUtils.extractBytes(s);
+                for (int i = 0, len = s.length(); i < len; i++)
+                    hash = hash * 0x32246e3d + bytes[i];
+            } else {
+                final byte[] bytes = StringUtils.extractBytes(s);
+                for (int i = 0, len = s.length(); i < len; i++)
+                    hash = hash * 0x32246e3d + s.charAt(i);
+            }
         } else {
             final char[] chars = StringUtils.extractChars(s);
             for (int i = 0, len = s.length(); i < len; i++)
