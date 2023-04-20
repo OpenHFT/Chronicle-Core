@@ -97,7 +97,7 @@ public final class ObjectUtils {
         if (c.isInterface()) {
             return () -> {
                 Class<?> aClass = ObjectUtils.interfaceToDefaultClass.get(c);
-                if (aClass == null)
+                if (aClass == null || aClass == c)
                     Jvm.rethrow(new IllegalArgumentException("interface: " + c.getName()));
                 return supplierForClass(aClass);
             };

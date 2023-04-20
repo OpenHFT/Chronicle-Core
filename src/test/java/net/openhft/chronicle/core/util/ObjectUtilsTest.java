@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
@@ -60,4 +61,8 @@ public class ObjectUtilsTest {
         assertEquals(1.0, ObjectUtils.convertTo(double.class, '1'), 0.0);
     }
 
+    @Test
+    public void testNoDefaultClassForInterfaceNewInstanceThrows() {
+        assertThrows(IllegalArgumentException.class, () -> ObjectUtils.newInstance(ExceptionHandler.class));
+    }
 }
