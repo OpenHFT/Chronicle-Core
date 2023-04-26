@@ -10,7 +10,6 @@ import org.junit.After;
 import org.junit.Test;
 
 import javax.naming.TimeLimitExceededException;
-import java.io.IOException;
 import java.util.Map;
 
 import static net.openhft.chronicle.core.LicenceCheck.CHRONICLE_LICENSE;
@@ -27,7 +26,6 @@ public class LicenceCheckTest {
 
     @Test(expected = TimeLimitExceededException.class)
     public void checkIfNoExpiryFile() {
-        Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
         // Evaluation license
 
         LicenceCheck.check("test", LicenceCheck.class);
@@ -35,7 +33,7 @@ public class LicenceCheckTest {
     }
 
     @Test(expected = TimeLimitExceededException.class)
-    public void checkEvalExpired() throws IOException {
+    public void checkEvalExpired() {
         LicenceCheck.check("test", TestCase.class);
     }
 
@@ -46,8 +44,7 @@ public class LicenceCheckTest {
         Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
         // licensed
         LicenceCheck.check("test", null);
-        System.out.println(map);
-        assertTrue(map.toString().contains("License for Test Unit expires in 29"));
+        assertTrue(map.toString().contains("license for Test Unit expires in about 7"));
     }
 
     @Test(expected = TimeLimitExceededException.class)

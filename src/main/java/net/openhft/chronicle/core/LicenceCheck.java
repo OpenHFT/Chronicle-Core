@@ -25,7 +25,9 @@ import javax.naming.TimeLimitExceededException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.function.BiConsumer;
 
+import static net.openhft.chronicle.core.Jvm.startup;
 import static net.openhft.chronicle.core.Jvm.warn;
 
 public interface LicenceCheck {
@@ -33,27 +35,31 @@ public interface LicenceCheck {
     String CHRONICLE_LICENSE = "chronicle.license";
 
     static void check(String product, Class<?> caller) {
+        final BiConsumer<Long, String> logLicenseExpiryDetails = (days, owner) -> {
+            String ownerId = owner == null ? "" : "for " + owner + " ";
+            String expires = "The license " + ownerId + "expires";
+            String message = days <= 1 ? expires + " in 1 day" : expires + " in " + days + " days";
+
+            if (days > 500)
+                message = expires + " in about " + (days / 365) + " years";
+
+            String logMessage = message + ". At which point, this product will stop working, if you wish to renew this licence please contact sales@chronicle.software";
+            if (days < 30)
+                warn().on(LicenceCheck.class, logMessage);
+            else
+                startup().on(LicenceCheck.class, logMessage);
+        };
+
         String key = Jvm.getProperty(CHRONICLE_LICENSE); // make sure this was loaded first.
         if (key == null || !key.contains(product + '.')) {
             String expiryDateFile = product + ".expiry-date";
-
             try {
-
                 String source = new String(IOTools.readFile(LicenceCheck.class, expiryDateFile));
                 Date expriyDate = new SimpleDateFormat("yyyy-MM-dd").parse(source);
                 long days = (expriyDate.getTime() - System.currentTimeMillis()) / 86400000;
-
                 if (days < 0)
                     throw Jvm.rethrow(new TimeLimitExceededException("Failed to read '" + expiryDateFile));
-
-                String message = days <= 1 ? "The license expires in 1 day" : "The license expires in " + days + " days";
-
-                if (days > 500)
-                    message = "The license expires in about " + (days / 365) + " years";
-
-                if (days < 30)
-                    warn().on(LicenceCheck.class, message + ". At which point, this product will stop working, if you wish to renew this licence please contact sales@chronicle.software");
-
+                logLicenseExpiryDetails.accept(days, null);
             } catch (Throwable t) {
                 throw Jvm.rethrow(new TimeLimitExceededException("Failed to read expiry date, from '" + expiryDateFile + "'"));
             }
@@ -65,9 +71,9 @@ public interface LicenceCheck {
             int end2 = key.indexOf(",", start2);
             String owner = key.substring(start2, end2);
             long days = date.toEpochDay() - System.currentTimeMillis() / 86400000;
-            Jvm.warn().on(LicenceCheck.class, "License for " + owner + " expires in " + days + " days");
             if (days < 0)
                 throw Jvm.rethrow(new TimeLimitExceededException());
+            logLicenseExpiryDetails.accept(days, owner);
         }
     }
 
