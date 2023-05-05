@@ -17,6 +17,7 @@
  */
 package net.openhft.chronicle.core.onoes;
 
+import net.openhft.chronicle.core.util.IgnoresEverything;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -47,7 +48,7 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
     @Override
     public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
         ExceptionHandler exceptionHandler = exceptionHandler();
-        if (exceptionHandler == null)
+        if (exceptionHandler == null || exceptionHandler instanceof IgnoresEverything)
             return;
         boolean interrupted = Thread.interrupted();
         try {

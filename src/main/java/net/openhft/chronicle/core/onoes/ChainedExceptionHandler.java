@@ -19,15 +19,20 @@
 
 package net.openhft.chronicle.core.onoes;
 
+import net.openhft.chronicle.core.util.IgnoresEverything;
 import net.openhft.chronicle.core.util.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.stream.Stream;
 
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
+/**
+ * ExceptionHandler that wraps multiple ExceptionHandlers to be called in order
+ */
 public class ChainedExceptionHandler implements ExceptionHandler {
     @NotNull
     private final ExceptionHandler[] chain;
@@ -35,6 +40,7 @@ public class ChainedExceptionHandler implements ExceptionHandler {
     public ChainedExceptionHandler(@NotNull ExceptionHandler... chain) {
         requireNonNull(chain);
         this.chain = Stream.of(chain)
+                .filter(e -> !(e instanceof IgnoresEverything))
                 .map(ObjectUtils::requireNonNull)
                 .map(ThreadLocalisedExceptionHandler::unwrap)
                 .toArray(ExceptionHandler[]::new);
@@ -42,14 +48,23 @@ public class ChainedExceptionHandler implements ExceptionHandler {
 
     @Override
     public void on(@NotNull Class<?> clazz, @Nullable String message, @Nullable Throwable thrown) {
-        for (ExceptionHandler eh : chain)
-            eh.on(clazz, message, thrown);
+        for (ExceptionHandler eh : chain) {
+            try {
+                eh.on(clazz, message, thrown);
+            } catch (Throwable t) {
+                LoggerFactory.getLogger(eh.getClass()).error("Unable to call with message " + message, t);
+            }
+        }
     }
 
     @Override
     public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
         for (ExceptionHandler eh : chain)
-            eh.on(logger, message, thrown);
+            try {
+                eh.on(logger, message, thrown);
+            } catch (Throwable t) {
+                LoggerFactory.getLogger(eh.getClass()).error("Unable to call with message " + message, t);
+            }
     }
 
     public @NotNull ExceptionHandler[] chain() {

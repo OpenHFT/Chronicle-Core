@@ -29,6 +29,13 @@ import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 @FunctionalInterface
 public interface ExceptionHandler {
 
+    /**
+     * @return An exception handler that is recognised it IgnoresEverything
+     */
+    static ExceptionHandler ignoresEverything() {
+        return NullExceptionHandler.NOTHING;
+    }
+
     default void on(@NotNull final Class<?> clazz, @NotNull final Throwable thrown) {
         on(clazz, "", thrown);
     }
@@ -60,7 +67,7 @@ public interface ExceptionHandler {
     void on(@NotNull Logger logger, @Nullable String message, @Nullable Throwable thrown);
 
     default void on(@NotNull Logger logger, @Nullable String message) {
-        on(logger, message,null);
+        on(logger, message, null);
     }
 
     default boolean isEnabled(@NotNull Class<?> aClass) {
