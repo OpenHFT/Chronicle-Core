@@ -22,9 +22,7 @@ package net.openhft.chronicle.core;
 import net.openhft.chronicle.core.io.IOTools;
 
 import javax.naming.TimeLimitExceededException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.function.BiConsumer;
 
 import static net.openhft.chronicle.core.Jvm.startup;
@@ -55,8 +53,8 @@ public interface LicenceCheck {
             String expiryDateFile = product + ".expiry-date";
             try {
                 String source = new String(IOTools.readFile(LicenceCheck.class, expiryDateFile));
-                Date expriyDate = new SimpleDateFormat("yyyy-MM-dd").parse(source);
-                long days = (expriyDate.getTime() - System.currentTimeMillis()) / 86400000;
+                LocalDate expiryDate = LocalDate.parse(source);
+                long days = expiryDate.toEpochDay() - System.currentTimeMillis() / 86400000;
                 if (days < 0)
                     throw Jvm.rethrow(new TimeLimitExceededException("Failed to read '" + expiryDateFile));
                 logLicenseExpiryDetails.accept(days, null);
@@ -69,10 +67,10 @@ public interface LicenceCheck {
             LocalDate date = LocalDate.parse(key.substring(start, end));
             int start2 = key.indexOf("owner=") + 6;
             int end2 = key.indexOf(",", start2);
-            String owner = key.substring(start2, end2);
             long days = date.toEpochDay() - System.currentTimeMillis() / 86400000;
             if (days < 0)
                 throw Jvm.rethrow(new TimeLimitExceededException());
+            String owner = key.substring(start2, end2);
             logLicenseExpiryDetails.accept(days, owner);
         }
     }
