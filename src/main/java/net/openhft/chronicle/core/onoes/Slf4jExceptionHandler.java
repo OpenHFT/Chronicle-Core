@@ -67,6 +67,8 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
             return ERROR;
         if (logLevel == LogLevel.WARN)
             return WARN;
+        if (logLevel == LogLevel.PERF)
+            return PERF;
         return DEBUG;
     }
 
