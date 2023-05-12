@@ -92,6 +92,14 @@ public final class ObjectUtils {
     private static Supplier<?> supplierForClass(Class<?> c) {
         if (c == null)
             throw new NullPointerException();
+        Package pkg = c.getPackage();
+        if (pkg != null) {
+            String name = pkg.getName();
+            if ((name.startsWith("com.sun.") || name.startsWith("java")) && name.contains(".internal"))
+                return () -> {
+                    throw new IllegalArgumentException("Cannot create objects in JVM internal packages");
+                };
+        }
         if (c.isPrimitive())
             Jvm.rethrow(new IllegalArgumentException("primitive: " + c.getName()));
         if (c.isInterface()) {
