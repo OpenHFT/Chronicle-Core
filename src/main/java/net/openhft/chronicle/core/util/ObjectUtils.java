@@ -564,6 +564,12 @@ public final class ObjectUtils {
             } catch (ClassNotFoundRuntimeException cne) {
                 // ignored
             }
+            if (c2 == Map.class)
+                return LinkedHashMap.class;
+            if (c2 == Set.class)
+                return LinkedHashSet.class;
+            if (c2 == List.class)
+                return ArrayList.class;
         }
         return c2;
     }
