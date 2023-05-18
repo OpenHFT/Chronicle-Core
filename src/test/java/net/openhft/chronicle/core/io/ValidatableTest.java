@@ -59,7 +59,9 @@ public class ValidatableTest {
     @Test
     public void validateDisabled() {
 
+        assertTrue(ValidatableUtil.validateEnabled());
         ValidatableUtil.startValidateDisabled();
+        assertFalse(ValidatableUtil.validateEnabled());
         DTOWithValidateToString d = new DTOWithValidateToString();
         try {
             assertEquals("DTOWithValidateToString{a='null', b=0}", d.toString()); // is ok
@@ -80,6 +82,7 @@ public class ValidatableTest {
             }
         } finally {
             ValidatableUtil.endValidateDisabled();
+            assertTrue(ValidatableUtil.validateEnabled());
         }
         try {
             d.toString();
@@ -96,6 +99,7 @@ public class ValidatableTest {
             // expected
         }
         assertFalse(failed);
+        assertTrue(ValidatableUtil.validateEnabled());
     }
 
     static class DTOWithValidateToString implements Validatable {
