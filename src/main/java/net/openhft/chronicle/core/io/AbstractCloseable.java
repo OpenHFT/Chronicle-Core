@@ -73,7 +73,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     private transient boolean singleThreadedCheckDisabled;
 
     @UsedViaReflection
-    private transient Finalizer finalizer = DISABLE_DISCARD_WARNING ? null : new Finalizer();
+    private final transient Finalizer finalizer = DISABLE_DISCARD_WARNING ? null : new Finalizer();
 
     private int referenceId;
 
