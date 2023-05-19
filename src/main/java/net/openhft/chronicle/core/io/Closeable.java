@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.Reference;
 import java.net.HttpURLConnection;
-import java.util.Collection;
+import java.util.*;
 
 public interface Closeable extends java.io.Closeable, QueryCloseable {
 
@@ -36,7 +36,11 @@ public interface Closeable extends java.io.Closeable, QueryCloseable {
 
     static void closeQuietly(@Nullable Object o) {
         if (o instanceof Collection) {
-            ((Collection) o).forEach(Closeable::closeQuietly);
+            Collection coll = (Collection) o;
+            if (coll.isEmpty())
+                return;
+            // take a copy before removing
+            new ArrayList<>(coll).forEach(Closeable::closeQuietly);
 
         } else if (o instanceof Object[]) {
             for (Object o2 : (Object[]) o)
