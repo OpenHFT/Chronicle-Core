@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Objects;
 
 public class ExceptionKey {
     public final LogLevel level;
@@ -71,8 +72,8 @@ public class ExceptionKey {
 
         if (level != that.level) return false;
         if (!clazz.equals(that.clazz)) return false;
-        if (message != null ? !message.equals(that.message) : that.message != null) return false;
-        return throwable != null ? throwable.equals(that.throwable) : that.throwable == null;
+        if (!Objects.equals(message, that.message)) return false;
+        return Objects.equals(throwable, that.throwable);
     }
 
     @NotNull
