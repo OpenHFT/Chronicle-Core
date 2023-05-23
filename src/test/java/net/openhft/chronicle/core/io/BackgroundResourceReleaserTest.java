@@ -21,6 +21,7 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.testframework.process.JavaProcessBuilder;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -81,6 +82,7 @@ public class BackgroundResourceReleaserTest {
         }
     }
 
+    @Ignore("https://github.com/OpenHFT/Chronicle-Core/issues/516")
     @Test
     public void testResourcesCleanedUpAndThreadStopped() throws IllegalStateException, IOException, InterruptedException {
         Process process = JavaProcessBuilder.create(BackgroundResourceReleaserMain.class).withProgramArguments("stop").start();
