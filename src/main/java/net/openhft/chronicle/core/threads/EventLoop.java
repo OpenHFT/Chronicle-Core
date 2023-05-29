@@ -84,4 +84,13 @@ public interface EventLoop extends Closeable {
      */
     @Override
     void close();
+
+    /**
+     * Returns {@code true} if current thread is the core thread of this event loop, or if it cannot be determined.
+     * If current thread is not the core event thread but any other, returns {@code false}.
+     * @return {@code true} unless current thread is not the core event thread
+     */
+    default boolean runsInsideCoreLoop() {
+        return true;
+    }
 }

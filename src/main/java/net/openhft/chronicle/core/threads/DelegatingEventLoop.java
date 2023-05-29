@@ -83,4 +83,9 @@ public class DelegatingEventLoop implements EventLoop {
     public void addHandler(EventHandler handler) {
         inner.addHandler(handler);
     }
+
+    @Override
+    public boolean runsInsideCoreLoop() {
+        return inner.runsInsideCoreLoop();
+    }
 }
