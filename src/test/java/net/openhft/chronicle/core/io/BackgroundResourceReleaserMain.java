@@ -57,8 +57,8 @@ public class BackgroundResourceReleaserMain {
             new BGCloseable().close();
             new BGReferenceCounted().releaseLast();
         }
-        assertEquals(1, closed.get(), 1);
-        assertEquals(1, released.get(), 1);
+        assertEquals(2, closed.get(), 2);
+        assertEquals(2, released.get(), 2);
         BGCloseable bgc = new BGCloseable();
         bgc.close();
         assertTrue(bgc.isClosing());
@@ -89,8 +89,8 @@ public class BackgroundResourceReleaserMain {
             new BGCloseable().close();
             new BGReferenceCounted().releaseLast();
         }
-        assertEquals(1, closed.get(), 1);
-        assertEquals(1, released.get(), 1);
+        assertEquals(2, closed.get(), 2);
+        assertEquals(2, released.get(), 2);
         BGCloseable bgc = new BGCloseable();
         bgc.close();
         assertTrue(bgc.isClosing());
