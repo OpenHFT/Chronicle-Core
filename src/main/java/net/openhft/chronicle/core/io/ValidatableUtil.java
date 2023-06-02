@@ -21,10 +21,23 @@ package net.openhft.chronicle.core.io;
 public class ValidatableUtil {
     static final ThreadLocal<int[]> VALIDATE_DISABLED = ThreadLocal.withInitial(() -> new int[1]);
 
+    /**
+     * @return has validation been enabled
+     */
+    public static boolean validateEnabled() {
+        return VALIDATE_DISABLED.get()[0] <= 0;
+    }
+
+    /**
+     * Start a nestable block where validation is disabled
+     */
     public static void startValidateDisabled() {
         VALIDATE_DISABLED.get()[0]++;
     }
 
+    /**
+     * End a nestable block where validation is disabled
+     */
     public static void endValidateDisabled() {
         int[] val = VALIDATE_DISABLED.get();
         assert val[0] > 0;
@@ -50,7 +63,7 @@ public class ValidatableUtil {
      * @throws InvalidMarshallableException if validate() method fails
      */
     public static <T> T validate(T t) throws InvalidMarshallableException {
-        if (t instanceof Validatable && VALIDATE_DISABLED.get()[0] <= 0)
+        if (t instanceof Validatable && validateEnabled())
             ((Validatable) t).validate();
         return t;
     }
