@@ -114,7 +114,7 @@ final class Bootstrap {
         try {
             return Integer.parseInt(Runtime.class.getPackage().getSpecificationVersion().split("\\.")[1]);
         } catch (Exception e) {
-            System.err.println("Unable to get the major version, defaulting to 8 " + e.getMessage());
+            System.err.println("Unable to get the major version, defaulting to 8 " + e);
             return 8;
         }
     }
