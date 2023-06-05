@@ -22,9 +22,7 @@ package net.openhft.chronicle.core;
 import net.openhft.chronicle.core.io.IOTools;
 
 import javax.naming.TimeLimitExceededException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.function.BiConsumer;
 
 import static net.openhft.chronicle.core.Jvm.startup;
@@ -34,8 +32,13 @@ public interface LicenceCheck {
 
     String CHRONICLE_LICENSE = "chronicle.license";
 
+    /**
+     * Check for license expiry and log message with license and expiry details
+     * @param product product
+     * @param caller caller
+     */
     static void check(String product, Class<?> caller) {
-        final BiConsumer<Long, String> logLicenseExpiryDetails = (days, owner) -> {
+        final BiConsumer<Long, String> logLicenceExpiryDetails = (days, owner) -> {
             String ownerId = owner == null ? "" : "for " + owner + " ";
             String expires = "The license " + ownerId + "expires";
             String message = days <= 1 ? expires + " in 1 day" : expires + " in " + days + " days";
@@ -43,23 +46,32 @@ public interface LicenceCheck {
             if (days > 500)
                 message = expires + " in about " + (days / 365) + " years";
 
-            String logMessage = message + ". At which point, this product will stop working, if you wish to renew this licence please contact sales@chronicle.software";
             if (days < 30)
-                warn().on(LicenceCheck.class, logMessage);
+                warn().on(LicenceCheck.class, message  + ". At which point, this product will stop working, if you wish to renew this licence please contact sales@chronicle.software");
             else
-                startup().on(LicenceCheck.class, logMessage);
+                startup().on(LicenceCheck.class, message + ".");
         };
 
+        licenceExpiry(product, caller, logLicenceExpiryDetails);
+    }
+
+    /**
+     * Provide licence expiry details
+     * @param product product
+     * @param caller caller
+     * @param licenceExpiryDetails callback to call with license days to run and license owner
+     */
+    static void licenceExpiry(String product, Class<?> caller, BiConsumer<Long, String> licenceExpiryDetails) {
         String key = Jvm.getProperty(CHRONICLE_LICENSE); // make sure this was loaded first.
         if (key == null || !key.contains(product + '.')) {
             String expiryDateFile = product + ".expiry-date";
             try {
                 String source = new String(IOTools.readFile(LicenceCheck.class, expiryDateFile));
-                Date expriyDate = new SimpleDateFormat("yyyy-MM-dd").parse(source);
-                long days = (expriyDate.getTime() - System.currentTimeMillis()) / 86400000;
+                LocalDate expiryDate = LocalDate.parse(source);
+                long days = expiryDate.toEpochDay() - System.currentTimeMillis() / 86400000;
                 if (days < 0)
                     throw Jvm.rethrow(new TimeLimitExceededException("Failed to read '" + expiryDateFile));
-                logLicenseExpiryDetails.accept(days, null);
+                licenceExpiryDetails.accept(days, null);
             } catch (Throwable t) {
                 throw Jvm.rethrow(new TimeLimitExceededException("Failed to read expiry date, from '" + expiryDateFile + "'"));
             }
@@ -69,11 +81,11 @@ public interface LicenceCheck {
             LocalDate date = LocalDate.parse(key.substring(start, end));
             int start2 = key.indexOf("owner=") + 6;
             int end2 = key.indexOf(",", start2);
-            String owner = key.substring(start2, end2);
             long days = date.toEpochDay() - System.currentTimeMillis() / 86400000;
             if (days < 0)
                 throw Jvm.rethrow(new TimeLimitExceededException());
-            logLicenseExpiryDetails.accept(days, owner);
+            String owner = key.substring(start2, end2);
+            licenceExpiryDetails.accept(days, owner);
         }
     }
 
