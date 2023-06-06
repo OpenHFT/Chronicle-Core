@@ -598,6 +598,8 @@ public final class ObjectUtils {
                 return ObjectUtils::toBoolean;
             if (c == UUID.class)
                 return UUID::fromString;
+            if (c == byte[].class)
+                return String::getBytes;
             if (CoreDynamicEnum.class.isAssignableFrom(c))
                 return EnumCache.of(c)::get;
             try {
