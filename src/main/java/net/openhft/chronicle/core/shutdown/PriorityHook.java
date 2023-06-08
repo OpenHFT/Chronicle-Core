@@ -80,7 +80,8 @@ public class PriorityHook {
     }
 
     public static synchronized void clear() {
-        Runtime.getRuntime().removeShutdownHook(registeredHook.shutdownThread());
+        if (registeredHook != null)
+            Runtime.getRuntime().removeShutdownHook(registeredHook.shutdownThread());
         registeredHook = null;
     }
 

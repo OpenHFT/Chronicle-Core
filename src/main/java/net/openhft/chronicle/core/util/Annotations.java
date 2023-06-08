@@ -22,6 +22,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
+@Deprecated(/* to be removed in x.26, replaced by Jvm.findAnnotation */)
 public final class Annotations {
     private Annotations() { }
 

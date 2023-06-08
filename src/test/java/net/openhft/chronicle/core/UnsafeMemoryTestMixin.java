@@ -105,12 +105,6 @@ interface UnsafeMemoryTestMixin<T> {
     }
 
     @TestFactory
-    default Stream<DynamicTest> readPartialLongTests() {
-        // Write a long value and then see if the value is seen
-        return Stream.empty();
-    }
-
-    @TestFactory
     default Stream<DynamicTest> volatileTests() {
         return arguments()
                 .flatMap(args ->
