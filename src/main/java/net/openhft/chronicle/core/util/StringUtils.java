@@ -180,19 +180,25 @@ public final class StringUtils {
         int length = cs.length();
         if (s.length() != length) return false;
 
-        if (Jvm.isJava9Plus()) {
-            for (int i = 0; i < length; i++)
-                // This is not as fast as it could be.
-                if (s.charAt(i) != charAt(cs, i))
-                    return false;
-            return true;
-        } else {
-            char[] chars = StringUtils.extractChars(s);
-            for (int i = 0; i < length; i++)
-                if (chars[i] != charAt(cs, i))
-                    return false;
-            return true;
-        }
+        return Jvm.isJava9Plus()
+                ? isEqualJava9(s, cs, length)
+                : isEqualJava8(s, cs, length);
+    }
+
+    private static boolean isEqualJava8(@NotNull StringBuilder s, @NotNull CharSequence cs, int length) {
+        char[] chars = StringUtils.extractChars(s);
+        for (int i = 0; i < length; i++)
+            if (chars[i] != charAt(cs, i))
+                return false;
+        return true;
+    }
+
+    private static boolean isEqualJava9(@NotNull StringBuilder s, @NotNull CharSequence cs, int length) {
+        for (int i = 0; i < length; i++)
+            // This is not as fast as it could be.
+            if (s.charAt(i) != charAt(cs, i))
+                return false;
+        return true;
     }
 
     public static boolean equalsCaseIgnore(@Nullable CharSequence s, @NotNull CharSequence cs) {

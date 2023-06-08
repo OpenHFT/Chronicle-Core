@@ -171,46 +171,56 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         AssertionError openFiles = new AssertionError("Closeables still open");
 
         synchronized (traceSet) {
-            traceSet.removeIf(o -> o == null || o.isClosing());
-            Set<Closeable> nested = Collections.newSetFromMap(new IdentityHashMap<>());
-            for (Closeable key : traceSet) {
-                addNested(nested, key, 1);
-            }
             Set<Closeable> traceSet2 = Collections.newSetFromMap(new IdentityHashMap<>());
-            traceSet2.addAll(traceSet);
-            traceSet2.removeAll(nested);
+            if (waitForTraceSet(traceSet, traceSet2))
+                return;
 
-            // wait up to 250 ms for resources to be closed in the background.
-            for (int i = 0; i < 250; i++) {
-                if (traceSet2.stream().allMatch(Closeable::isClosing))
-                    return;
-                Jvm.pause(1);
-            }
-
-            for (Closeable key : traceSet2) {
-                Throwable t = null;
-                try {
-                    if (key instanceof ReferenceCountedTracer) {
-                        ((ReferenceCountedTracer) key).throwExceptionIfNotReleased();
-                    }
-                    if (key instanceof ManagedCloseable) {
-                        t = ((ManagedCloseable) key).createdHere();
-                    }
-                } catch (IllegalStateException e) {
-                    t = e;
-                }
-                IllegalStateException exception = new IllegalStateException("Not closed " + asString(key), t);
-                if (key.isClosed()) {
-                    continue;
-                }
-                exception.printStackTrace();
-                openFiles.addSuppressed(exception);
-                key.close();
-            }
+            captureTheUnclosed(openFiles, traceSet2);
         }
 
         if (openFiles.getSuppressed().length > 0) {
             throw openFiles;
+        }
+    }
+
+    private static boolean waitForTraceSet(Set<Closeable> traceSet, Set<Closeable> traceSet2) {
+        traceSet.removeIf(o -> o == null || o.isClosing());
+        Set<Closeable> nested = Collections.newSetFromMap(new IdentityHashMap<>());
+        for (Closeable key : traceSet) {
+            addNested(nested, key, 1);
+        }
+        traceSet2.addAll(traceSet);
+        traceSet2.removeAll(nested);
+
+        // wait up to 250 ms for resources to be closed in the background.
+        for (int i = 0; i < 250; i++) {
+            if (traceSet2.stream().allMatch(Closeable::isClosing))
+                return true;
+            Jvm.pause(1);
+        }
+        return false;
+    }
+
+    private static void captureTheUnclosed(AssertionError openFiles, Set<Closeable> traceSet2) {
+        for (Closeable key : traceSet2) {
+            Throwable t = null;
+            try {
+                if (key instanceof ReferenceCountedTracer) {
+                    ((ReferenceCountedTracer) key).throwExceptionIfNotReleased();
+                }
+                if (key instanceof ManagedCloseable) {
+                    t = ((ManagedCloseable) key).createdHere();
+                }
+            } catch (IllegalStateException e) {
+                t = e;
+            }
+            IllegalStateException exception = new IllegalStateException("Not closed " + asString(key), t);
+            if (key.isClosed()) {
+                continue;
+            }
+            exception.printStackTrace();
+            openFiles.addSuppressed(exception);
+            key.close();
         }
     }
 

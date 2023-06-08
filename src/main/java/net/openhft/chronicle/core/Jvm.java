@@ -1542,28 +1542,44 @@ public final class Jvm {
     @SuppressWarnings("unchecked")
     private static <A extends Annotation> A findAnnotation(AnnotatedElement ae, Class<A> annotationType, Set<Annotation> visited) {
         try {
-            Annotation[] anns = ae.getDeclaredAnnotations();
-            for (Annotation ann : anns) {
-                if (ann.annotationType() == annotationType) {
-                    return (A) ann;
-                }
+            A annotation = findDirectAnnotation(ae, annotationType);
+            if (annotation != null) {
+                return annotation;
             }
-            for (Annotation ann : anns) {
-                if (visited.add(ann)) {
-                    A annotation = findAnnotation(ann.annotationType(), annotationType, visited);
-                    if (annotation != null) {
-                        return annotation;
-                    }
-                }
+
+            annotation = findNestedAnnotation(ae, annotationType, visited);
+            if (annotation != null) {
+                return annotation;
             }
         } catch (Exception ex) {
             return null;
         }
 
-        if (!(ae instanceof Class)) {
-            return null;
+        return ae instanceof Class ? findAnnotationInHierarchy((Class<?>) ae, annotationType, visited) : null;
+    }
+
+    private static <A extends Annotation> A findDirectAnnotation(AnnotatedElement ae, Class<A> annotationType) {
+        for (Annotation ann : ae.getDeclaredAnnotations()) {
+            if (ann.annotationType() == annotationType) {
+                return (A) ann;
+            }
         }
-        Class clazz = (Class) ae;
+        return null;
+    }
+
+    private static <A extends Annotation> A findNestedAnnotation(AnnotatedElement ae, Class<A> annotationType, Set<Annotation> visited) {
+        for (Annotation ann : ae.getDeclaredAnnotations()) {
+            if (visited.add(ann)) {
+                A annotation = findAnnotation(ann.annotationType(), annotationType, visited);
+                if (annotation != null) {
+                    return annotation;
+                }
+            }
+        }
+        return null;
+    }
+
+    private static <A extends Annotation> A findAnnotationInHierarchy(Class<?> clazz, Class<A> annotationType, Set<Annotation> visited) {
         for (Class<?> ifc : clazz.getInterfaces()) {
             A annotation = findAnnotation(ifc, annotationType, visited);
             if (annotation != null) {
@@ -1572,11 +1588,9 @@ public final class Jvm {
         }
 
         Class<?> superclass = clazz.getSuperclass();
-        if (superclass == null || Object.class == superclass) {
-            return null;
-        }
-
-        return findAnnotation(superclass, annotationType, visited);
+        return superclass == null || Object.class == superclass
+                ? null
+                : findAnnotation(superclass, annotationType, visited);
     }
 
     public interface SignalHandler {

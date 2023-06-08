@@ -20,7 +20,10 @@ package net.openhft.chronicle.core.io;
 
 import org.junit.Test;
 
+import java.io.IOException;
 import java.lang.ref.SoftReference;
+import java.net.InetSocketAddress;
+import java.nio.channels.ServerSocketChannel;
 import java.util.Arrays;
 import java.util.List;
 
@@ -79,6 +82,15 @@ public class CloseableTest {
         assertTrue(closeable2.wasClosed);
         assertTrue(closeable3.wasClosed);
         assertTrue(closeable4.wasClosed);
+    }
+
+    @Test
+    public void closeQuietlyServerSocketChannel() throws IOException {
+        ServerSocketChannel ssc = ServerSocketChannel.open();
+        ssc.bind(new InetSocketAddress(0));
+        ssc.close();
+        // can throw an IOException ssc.close();
+        Closeable.closeQuietly(ssc);
     }
 
     static class CloseableImpl implements Closeable {
