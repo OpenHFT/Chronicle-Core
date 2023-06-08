@@ -401,6 +401,10 @@ public final class IOTools {
         };
     }
 
+    static void logErrorOnClose(Throwable e) {
+        Jvm.warn().on(Closeable.class, "Error occurred closing resources", e);
+    }
+
     private static final class Language {
         static {
             if (!Locale.getDefault().getLanguage().equals(Locale.ENGLISH.getLanguage())) {

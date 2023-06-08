@@ -18,11 +18,13 @@
 
 package net.openhft.chronicle.core.io;
 
-import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
 import java.lang.ref.Reference;
 import java.net.HttpURLConnection;
+import java.nio.channels.ServerSocketChannel;
+import java.util.Collection;
 import java.util.*;
 
 public interface Closeable extends java.io.Closeable, QueryCloseable {
@@ -46,11 +48,22 @@ public interface Closeable extends java.io.Closeable, QueryCloseable {
             for (Object o2 : (Object[]) o)
                 closeQuietly(o2);
 
+        } else if (o instanceof ServerSocketChannel) {
+            try {
+                ((ServerSocketChannel) o).close();
+            } catch (IOException e) {
+                // If you close a ServerSocketChannelImpl more than once it can throw an IOException that it doesn't exist.
+                if (!"No such file or directory".equals(e.getMessage()))
+                    IOTools.logErrorOnClose(e);
+            } catch (Throwable e) {
+                IOTools.logErrorOnClose(e);
+            }
+
         } else if (o instanceof java.lang.AutoCloseable) {
             try {
                 ((java.lang.AutoCloseable) o).close();
             } catch (Throwable e) {
-                Jvm.warn().on(Closeable.class, "Error occurred closing resources", e);
+                IOTools.logErrorOnClose(e);
             }
 
         } else if (o instanceof Reference) {
