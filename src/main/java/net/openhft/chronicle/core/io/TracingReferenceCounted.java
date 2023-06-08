@@ -219,43 +219,54 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
             if (references.isEmpty())
                 return;
             IllegalStateException ise = new ClosedIllegalStateException(type.getName() + " retained reference closed");
+
             for (Map.Entry<ReferenceOwner, StackTrace> entry : references.entrySet()) {
                 ReferenceOwner referenceOwner = entry.getKey();
-                StackTrace reservedHere = entry.getValue();
-                IllegalStateException ise2 = new IllegalStateException(type.getName() + " reserved by " + asString(referenceOwner), reservedHere);
-                if (referenceOwner instanceof Closeable) {
-                    try {
-                        ((ManagedCloseable) referenceOwner).throwExceptionIfClosed();
-                    } catch (IllegalStateException ise3) {
-                        ise2.addSuppressed(ise3);
-                    }
-                } else if (referenceOwner instanceof AbstractReferenceCounted) {
-                    try {
-                        ((AbstractReferenceCounted) referenceOwner).throwExceptionIfReleased();
-                    } catch (IllegalStateException ise3) {
-                        ise2.addSuppressed(ise3);
-                    }
-                }
+                IllegalStateException ise2 = generateIllegalStateException(referenceOwner, entry.getValue());
                 ise.addSuppressed(ise2);
+
                 if (referenceOwner instanceof AbstractCloseable) {
-                    AbstractCloseable ac = (AbstractCloseable) referenceOwner;
-                    try {
-                        ac.throwExceptionIfClosed();
-
-                    } catch (IllegalStateException e) {
-                        ise.addSuppressed(e);
-                    }
+                    addCloseableSuppressed(ise, (AbstractCloseable) referenceOwner);
                 } else if (referenceOwner instanceof ManagedCloseable) {
-                    try {
-                        ((ManagedCloseable) referenceOwner).throwExceptionIfClosed();
-
-                    } catch (Throwable t) {
-                        ise.addSuppressed(new ClosedIllegalStateException(type.getName() + " closed " + asString(referenceOwner), t));
-                    }
+                    addManagedCloseableSuppressed(ise, (ManagedCloseable) referenceOwner);
                 }
             }
             if (ise.getSuppressed().length > 0)
                 throw ise;
+        }
+    }
+
+    private IllegalStateException generateIllegalStateException(ReferenceOwner referenceOwner, StackTrace reservedHere) {
+        IllegalStateException ise2 = new IllegalStateException(type.getName() + " reserved by " + asString(referenceOwner), reservedHere);
+        if (referenceOwner instanceof Closeable) {
+            try {
+                ((ManagedCloseable) referenceOwner).throwExceptionIfClosed();
+            } catch (IllegalStateException ise3) {
+                ise2.addSuppressed(ise3);
+            }
+        } else if (referenceOwner instanceof AbstractReferenceCounted) {
+            try {
+                ((AbstractReferenceCounted) referenceOwner).throwExceptionIfReleased();
+            } catch (IllegalStateException ise3) {
+                ise2.addSuppressed(ise3);
+            }
+        }
+        return ise2;
+    }
+
+    private void addCloseableSuppressed(IllegalStateException ise, AbstractCloseable ac) {
+        try {
+            ac.throwExceptionIfClosed();
+        } catch (IllegalStateException e) {
+            ise.addSuppressed(e);
+        }
+    }
+
+    private void addManagedCloseableSuppressed(IllegalStateException ise, ManagedCloseable mc) {
+        try {
+            mc.throwExceptionIfClosed();
+        } catch (Throwable t) {
+            ise.addSuppressed(new ClosedIllegalStateException(type.getName() + " closed " + asString(mc), t));
         }
     }
 

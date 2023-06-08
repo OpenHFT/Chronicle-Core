@@ -135,35 +135,39 @@ public class CoolerTester {
                 if (t == repeat)
                     System.out.println("\n---- RESULTS ----\n");
                 for (int j = 0; j < tests.size(); j++) {
-                    Callable<?> tested = tests.get(j);
-                    for (int i = 0; i < disturbers.size(); i++) {
-                        CpuCooler disturber = disturbers.get(i);
-                        Histogram histogram = histograms.get(j * disturbers.size() + i);
-
-                        long start = System.currentTimeMillis();
-                        int count = 0;
-                        if (t > 0)
-                            innerloop1(tested, disturber, histogram, start, count, minCount, runTimeMS, maxCount);
-                        else
-                            innerloop0(tested, histogram, start, count, minCount, runTimeMS, maxCount);
-                        if (tests.size() > 1)
-                            System.out.print(testNames.get(j) + " ");
-                        System.out.print(disturber);
-                        System.out.println(",band,<0.1,<1,<10,<100, "
-                                + histogram.percentageLessThan(0.1e3) + ", "
-                                + histogram.percentageLessThan(1e3) + ", "
-                                + histogram.percentageLessThan(10e3) + ", "
-                                + histogram.percentageLessThan(100e3) + ",%iles,"
-                                + histogram.toLongMicrosFormat());
-                        if (t == 0)
-                            histogram.reset();
-                    }
-                    if (t == 0)
-                        Jvm.pause(500);
+                    runInnerLoop(t, j);
                 }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void runInnerLoop(int t, int j) throws Exception {
+        Callable<?> tested = tests.get(j);
+        for (int i = 0; i < disturbers.size(); i++) {
+            CpuCooler disturber = disturbers.get(i);
+            Histogram histogram = histograms.get(j * disturbers.size() + i);
+
+            long start = System.currentTimeMillis();
+            int count = 0;
+            if (t > 0)
+                innerloop1(tested, disturber, histogram, start, count, minCount, runTimeMS, maxCount);
+            else
+                innerloop0(tested, histogram, start, count, minCount, runTimeMS, maxCount);
+            if (tests.size() > 1)
+                System.out.print(testNames.get(j) + " ");
+            System.out.print(disturber);
+            System.out.println(",band,<0.1,<1,<10,<100, "
+                    + histogram.percentageLessThan(0.1e3) + ", "
+                    + histogram.percentageLessThan(1e3) + ", "
+                    + histogram.percentageLessThan(10e3) + ", "
+                    + histogram.percentageLessThan(100e3) + ",%iles,"
+                    + histogram.toLongMicrosFormat());
+            if (t == 0)
+                histogram.reset();
+        }
+        if (t == 0)
+            Jvm.pause(500);
     }
 }

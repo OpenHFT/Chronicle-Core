@@ -23,6 +23,7 @@ import org.junit.Test;
 import java.io.StringWriter;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class MockerTest {
 
@@ -47,6 +48,7 @@ public class MockerTest {
         final ChainedChainingTerminal logging = Mocker.ignored(ChainedChainingTerminal.class);
         logging.chains("one").alsoChains("two").end("three");
         logging.chains("111").alsoChains("222").end("333");
+        assertNotNull(logging.toString());
     }
 
     interface Chained<T> {
