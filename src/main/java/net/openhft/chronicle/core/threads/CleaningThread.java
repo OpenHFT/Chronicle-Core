@@ -121,7 +121,8 @@ public class CleaningThread extends Thread {
                 ctlKey.cleanup(value);
 
                 remove.invoke(o, key);
-                break;
+                if (ctl != null)
+                    break;
             } catch (IllegalAccessException e) {
                 Jvm.debug().on(CleaningThreadLocal.class, e.toString());
             } catch (Throwable e) {
