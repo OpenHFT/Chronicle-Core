@@ -21,6 +21,7 @@ package net.openhft.chronicle.core.util;
 import net.openhft.chronicle.core.ClassLocal;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
+import net.openhft.chronicle.core.internal.ClassUtil;
 import net.openhft.chronicle.core.pool.ClassAliasPool;
 import net.openhft.chronicle.core.pool.EnumCache;
 import org.jetbrains.annotations.NotNull;
@@ -75,7 +76,7 @@ public final class ObjectUtils {
     static final ClassValue<Method> READ_RESOLVE = ClassLocal.withInitial(c -> {
         try {
             Method m = c.getDeclaredMethod("readResolve");
-            Jvm.setAccessible(m);
+            ClassUtil.setAccessible(m);
             return m;
         } catch (NoSuchMethodException expected) {
             return null;
@@ -89,6 +90,10 @@ public final class ObjectUtils {
     private static volatile ClassLocal<Class<?>> interfaceToDefaultClass = ClassLocal.withInitial(ObjectUtils::lookForImplEnum);
     private static volatile ClassLocal<Supplier<?>> supplierClassLocal = ClassLocal.withInitial(ObjectUtils::supplierForClass);
 
+    private static <T extends Throwable> RuntimeException rethrow(Throwable throwable) throws T {
+        throw (T) throwable; // rely on vacuous cast
+    }
+
     private static Supplier<?> supplierForClass(Class<?> c) {
         if (c == null)
             throw new NullPointerException();
@@ -101,12 +106,12 @@ public final class ObjectUtils {
                 };
         }
         if (c.isPrimitive())
-            Jvm.rethrow(new IllegalArgumentException("primitive: " + c.getName()));
+            rethrow(new IllegalArgumentException("primitive: " + c.getName()));
         if (c.isInterface()) {
             return () -> {
                 Class<?> aClass = ObjectUtils.interfaceToDefaultClass.get(c);
                 if (aClass == null || aClass == c)
-                    Jvm.rethrow(new IllegalArgumentException("interface: " + c.getName()));
+                    rethrow(new IllegalArgumentException("interface: " + c.getName()));
                 return supplierForClass(aClass);
             };
         }
@@ -119,10 +124,10 @@ public final class ObjectUtils {
                 }
             };
         if (Modifier.isAbstract(c.getModifiers()))
-            Jvm.rethrow(new IllegalArgumentException("abstract class: " + c.getName()));
+            rethrow(new IllegalArgumentException("abstract class: " + c.getName()));
         try {
             Constructor<?> constructor = c.getDeclaredConstructor();
-            Jvm.setAccessible(constructor);
+            ClassUtil.setAccessible(constructor);
             return ThrowingSupplier.asSupplier(constructor::newInstance);
 
         } catch (Exception e) {
@@ -130,7 +135,7 @@ public final class ObjectUtils {
                 try {
                     return OS.memory().allocateInstance(c);
                 } catch (InstantiationException e1) {
-                    throw Jvm.rethrow(e1);
+                    throw rethrow(e1);
                 }
             };
         }
@@ -479,9 +484,9 @@ public final class ObjectUtils {
         try {
             return readResove.invoke(o);
         } catch (IllegalAccessException | IllegalArgumentException e) {
-            throw Jvm.rethrow(e);
+            throw rethrow(e);
         } catch (InvocationTargetException e) {
-            throw Jvm.rethrow(e.getCause());
+            throw rethrow(e.getCause());
         }
     }
 
@@ -496,7 +501,8 @@ public final class ObjectUtils {
             return Boolean.FALSE;
         if (s.isEmpty())
             return null;
-        Jvm.debug().on(ObjectUtils.class, "Treating '" + s + "' as false");
+        if (Jvm.isDebugEnabled(ObjectUtils.class))
+            Jvm.debug().on(ObjectUtils.class, "Treating '" + s + "' as false");
         return Boolean.FALSE;
     }
 
@@ -604,7 +610,7 @@ public final class ObjectUtils {
                 return EnumCache.of(c)::get;
             try {
                 Method valueOf = c.getDeclaredMethod("valueOf", String.class);
-                Jvm.setAccessible(valueOf);
+                ClassUtil.setAccessible(valueOf);
                 return s -> valueOf.invoke(null, s);
             } catch (NoSuchMethodException e) {
                 // ignored
@@ -612,7 +618,7 @@ public final class ObjectUtils {
 
             try {
                 Method parse = c.getDeclaredMethod("parse", CharSequence.class);
-                Jvm.setAccessible(parse);
+                ClassUtil.setAccessible(parse);
                 return s -> parse.invoke(null, s);
 
             } catch (NoSuchMethodException e) {
@@ -620,7 +626,7 @@ public final class ObjectUtils {
             }
             try {
                 final Constructor<?> constructor = c.getDeclaredConstructor(String.class);
-                Jvm.setAccessible(constructor);
+                ClassUtil.setAccessible(constructor);
                 return constructor::newInstance;
             } catch (Exception e) {
                 throw asCCE(e);

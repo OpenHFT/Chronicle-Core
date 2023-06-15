@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.internal.Bootstrap;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
 import net.openhft.chronicle.core.util.Ints;
 import net.openhft.chronicle.core.util.Longs;
@@ -78,7 +79,7 @@ public class UnsafeMemory implements Memory {
     private final ObjectToAddress copyMemoryObjectToAddress;
 
     public UnsafeMemory() {
-        copyMemoryObjectToAddress = (Bootstrap.IS_JAVA_9_PLUS || Bootstrap.isArm0()) ?
+        copyMemoryObjectToAddress = (Bootstrap.isJava9Plus() || Bootstrap.isArm0()) ?
                 (src, srcOffset, dest, length) -> copyMemoryLoop(src, srcOffset, null, dest, length) :
                 (src, srcOffset, dest, length) -> copyMemory0(src, srcOffset, null, dest, length);
     }

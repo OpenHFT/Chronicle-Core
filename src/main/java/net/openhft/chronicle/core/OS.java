@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.internal.Bootstrap;
 import net.openhft.chronicle.core.util.ThrowingFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -79,11 +80,6 @@ public final class OS {
     private static final int MAP_PV = 2;
     private static final boolean IS64BIT = is64Bit0();
     private static final AtomicInteger PROCESS_ID = new AtomicInteger();
-    private static final String OS_NAME = Jvm.getProperty("os.name").toLowerCase();
-    private static final boolean IS_LINUX = OS_NAME.startsWith("linux");
-    private static final boolean IS_MAC = OS_NAME.contains("mac");
-    private static final boolean IS_WIN = OS_NAME.startsWith("win");
-    private static final boolean IS_WIN10 = OS_NAME.equals("windows 10");
     private static final AtomicLong memoryMapped = new AtomicLong();
     private static final MethodHandle UNMAPP0_MH;
     private static final MethodHandle READ0_MH;
@@ -366,7 +362,7 @@ public final class OS {
      * @return if runs on Windows
      */
     public static boolean isWindows() {
-        return IS_WIN;
+        return Bootstrap.IS_WIN;
     }
 
     /**
@@ -375,7 +371,7 @@ public final class OS {
      * @return if runs on MacOS
      */
     public static boolean isMacOSX() {
-        return IS_MAC;
+        return Bootstrap.IS_MAC;
     }
 
     /**
@@ -384,7 +380,7 @@ public final class OS {
      * @return if runs on Linux
      */
     public static boolean isLinux() {
-        return IS_LINUX;
+        return Bootstrap.IS_LINUX;
     }
 
     /**
@@ -409,7 +405,7 @@ public final class OS {
             return 1L << 24;
         }
         // the default.
-        return IS_WIN10 ? 1L << 32 : 1L << 16;
+        return Bootstrap.IS_WIN10 ? 1L << 32 : 1L << 16;
     }
 
     /**
