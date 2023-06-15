@@ -41,7 +41,7 @@ import static org.junit.Assert.*;
  * Date: 20/09/13
  * Time: 10:31
  */
-public class MathsTest {
+public class MathsTest extends CoreTestCommon {
     static final double err = 5.1e-9;
     public static final int COUNT = Jvm.isArm() ? 2_000_000 : 10_000_000;
     private ThreadDump threadDump;

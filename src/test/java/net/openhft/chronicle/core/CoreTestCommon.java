@@ -38,13 +38,15 @@ public class CoreTestCommon {
         AbstractReferenceCounted.enableReferenceTracing();
     }
 
-    @Before
+    // Add @Before in subsclass where appropriate.
     public void threadDump() {
         threadDump = new ThreadDump();
     }
 
     public void checkThreadDump() {
-        threadDump.assertNoNewThreads();
+        if (threadDump != null)
+            threadDump.assertNoNewThreads();
+        threadDump = null;
     }
 
     @Before

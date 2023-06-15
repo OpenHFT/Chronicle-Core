@@ -43,7 +43,7 @@ import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class OSTest {
+public class OSTest extends CoreTestCommon {
     @Rule
     public final TestName testName = new TestName();
     private ThreadDump threadDump;

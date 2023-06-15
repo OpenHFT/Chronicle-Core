@@ -18,11 +18,12 @@
 
 package net.openhft.chronicle.core.threads;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class OnDemandEventLoopTest {
+public class OnDemandEventLoopTest extends CoreTestCommon {
     @Test
     public void onDemand() {
         OnDemandEventLoop el = new OnDemandEventLoop(() -> new EventLoop() {

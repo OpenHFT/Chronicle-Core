@@ -18,12 +18,13 @@
 
 package net.openhft.chronicle.core.onoes;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-public class ExceptionKeyTest {
+public class ExceptionKeyTest extends CoreTestCommon {
 
     @Test
     public void testEqualsAndHashCode() {

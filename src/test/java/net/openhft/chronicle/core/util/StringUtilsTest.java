@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.Maths;
 import org.junit.Ignore;
@@ -30,7 +31,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
-public class StringUtilsTest {
+public class StringUtilsTest extends CoreTestCommon {
     @Test
     public void testFirstLowerCase() {
         assertEquals("", StringUtils.firstLowerCase(""));

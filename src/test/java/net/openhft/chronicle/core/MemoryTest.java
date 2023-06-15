@@ -25,7 +25,7 @@ import sun.misc.Unsafe;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class MemoryTest {
+public class MemoryTest extends CoreTestCommon {
 
     @Test
     public void testHeapUsed() {

@@ -15,7 +15,7 @@ import java.nio.ByteBuffer;
 
 import static org.junit.Assert.assertEquals;
 
-public class CleaningRandomAccessFileTest {
+public class CleaningRandomAccessFileTest extends CoreTestCommon {
 
     static int getFDs() {
         if (!OS.isLinux())

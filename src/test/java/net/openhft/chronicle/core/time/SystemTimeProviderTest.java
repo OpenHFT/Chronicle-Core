@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.time;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.Histogram;
@@ -30,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
 
-public class SystemTimeProviderTest {
+public class SystemTimeProviderTest extends CoreTestCommon {
     @Test
     public void currentTimeMicros() throws IllegalStateException {
         // doCurrentTimeMicros() is very flaky so that is why we retry this operation

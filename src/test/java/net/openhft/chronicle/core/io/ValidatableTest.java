@@ -18,12 +18,13 @@
 
 package net.openhft.chronicle.core.io;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class ValidatableTest {
+public class ValidatableTest extends CoreTestCommon {
 
     @Test
     public void validate() {

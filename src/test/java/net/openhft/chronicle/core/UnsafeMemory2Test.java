@@ -34,7 +34,7 @@ import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
 
 @RunWith(Parameterized.class)
-public class UnsafeMemory2Test {
+public class UnsafeMemory2Test extends CoreTestCommon {
     private static final int INT_VAL = 0x12345678;
     private final UnsafeMemory memory;
 

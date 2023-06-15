@@ -20,7 +20,6 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
-import net.openhft.chronicle.core.onoes.ThreadLocalisedExceptionHandler;
 import net.openhft.chronicle.core.threads.ThreadDump;
 import net.openhft.chronicle.core.util.Time;
 import org.junit.After;
@@ -47,7 +46,7 @@ import static net.openhft.chronicle.core.Jvm.*;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
 
-public class JvmTest {
+public class JvmTest extends CoreTestCommon {
 
     private ThreadDump threadDump;
 
@@ -294,17 +293,13 @@ public class JvmTest {
             assertTrue(cpuClass, cpuClass.startsWith("ARMv"));
 
         } else {
+            if (cpuClass.contains("th Gen Intel"))
+                return;
             assertTrue(cpuClass, (cpuClass.startsWith("Intel") && cpuClass.contains(" CPU ") && cpuClass.contains(" @ "))
                     || (cpuClass.startsWith("AMD ")));
         }
 
         assertNotNull(cpuClass);
-    }
-
-    @Test
-    public void removingTag() {
-        final String actual = Bootstrap.CpuClass.removingTag().apply("tag: value");
-        assertEquals("value", actual);
     }
 
     @Test

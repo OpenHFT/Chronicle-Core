@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.time;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
 import java.time.Instant;
@@ -25,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 
-public class SetTimeProviderTest {
+public class SetTimeProviderTest extends CoreTestCommon {
 
     @Test
     public void testNoOpConstructor() throws IllegalArgumentException {
