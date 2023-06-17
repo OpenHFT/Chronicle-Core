@@ -119,7 +119,7 @@ public final class Jvm {
     static {
         Logger logger = LoggerFactory.getLogger(Jvm.class);
 
-        if (!isJUnitTest0()) {
+/*        if (!isJUnitTest0()) {
             // Eagerly initialise Posix & Affinity
             try {
                 PosixAPI.posix();
@@ -132,7 +132,7 @@ public final class Jvm {
             } catch (ClassNotFoundException e) {
                 logger.trace("Unable to load Affinity", e);
             }
-        }
+        }*/
         if (DISABLE_DEBUG) {
             DEBUG = NullExceptionHandler.NOTHING;
         } else {
@@ -1133,6 +1133,7 @@ public final class Jvm {
     /**
      * Parse a string as a decimal memory size with an optional scale.
      * K/k = * 2<sup>10</sup>, M/m = 2<sup>20</sup>, G/g = 2<sup>10</sup>, T/t = 2<sup>40</sup>
+     *
      * <p>
      * trailing B/b/iB/ib are ignored.
      *      <table>
@@ -1148,7 +1149,7 @@ public final class Jvm {
      *
      * @param value size to parse
      * @return the size
-     * @throws IllegalArgumentException if the string could be parsed
+     * @throws IllegalArgumentException if the string could not be parsed
      */
     public static long parseSize(@NotNull String value) throws IllegalArgumentException {
         long factor = 1;

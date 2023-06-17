@@ -44,9 +44,10 @@ import java.util.concurrent.atomic.AtomicLong;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 
 /**
- * Low level access to OS class.
+ * Low level access to OS class. The OS class provides utility methods related to the operating system.
  */
 public final class OS {
+    @Deprecated(/* to be removed in x.26, use getUserDir() */)
     public static final String USER_DIR = Jvm.getProperty("user.dir");
 
     public static final String TMP = findTmp();
@@ -140,7 +141,12 @@ public final class OS {
         return OS.isLinux() && OS.is64Bit();
     }
 
-    private static String findTmp() {
+    /**
+     * Finds the temporary directory path.
+     *
+     * @return the path of the temporary directory
+     */
+    protected static String findTmp() {
         return asRelativePath(findTmp0());
     }
 
@@ -196,9 +202,17 @@ public final class OS {
         return dir.getPath();
     }
 
+    /**
+     * Finds a directory with the specified suffix in the class path.
+     *
+     * @param suffix the suffix of the directory
+     * @return the path of the found directory
+     * @throws FileNotFoundException if no directory with the specified suffix is found
+     */
     @NotNull
     public static String findDir(@NotNull String suffix) throws FileNotFoundException {
-        for (@NotNull String s : Jvm.getProperty("java.class.path").split(":")) {
+        String[] split = Jvm.getProperty("java.class.path").split(File.pathSeparator);
+        for (@NotNull String s : split) {
             if (s.endsWith(suffix) && new File(s).isDirectory())
                 return s;
         }
@@ -222,22 +236,47 @@ public final class OS {
         return new File(dir, path[path.length - 1]);
     }
 
+    /**
+     * Returns the host name of the current machine.
+     *
+     * @return the host name
+     */
     public static String getHostName() {
         return HostnameHolder.HOST_NAME;
     }
 
+    /**
+     * Returns the IP address of the current machine.
+     *
+     * @return the IP address
+     */
     public static String getIPAddress() {
         return IPAddressHolder.IP_ADDRESS;
     }
 
+    /**
+     * Returns the user name of the current user.
+     *
+     * @return the user name
+     */
     public static String getUserName() {
         return USER_NAME;
     }
 
+    /**
+     * Returns the target of the operating system.
+     *
+     * @return the target
+     */
     public static String getTarget() {
         return TARGET;
     }
 
+    /**
+     * Returns the temporary directory path.
+     *
+     * @return the temporary directory path
+     */
     public static String getTmp() {
         return TMP;
     }
@@ -321,6 +360,15 @@ public final class OS {
         return systemProp != null && systemProp.contains("_64");
     }
 
+    /**
+     * Returns the process ID of the current running process.
+     *
+     * <p>
+     * Note: Getting the process ID may be slow if the reserve DNS is not set up correctly.
+     * </p>
+     *
+     * @return the process ID
+     */
     public static int getProcessId() {
         // getting the process id is slow if the reserve DNS is not setup correctly.
         // which is frustrating since we don't actually use the hostname.
@@ -332,6 +380,11 @@ public final class OS {
         return id;
     }
 
+    /**
+     * Returns the process ID of the current running process.
+     *
+     * @return the process ID
+     */
     private static int getProcessId0() {
         @Nullable String pid = null;
         @NotNull final File self = new File(PROC_SELF);
@@ -385,8 +438,6 @@ public final class OS {
 
     /**
      * @return the maximum PID.
-     * @throws NumberFormatException if ?
-     * @throws AssertionError        if ?
      */
     public static long getPidMax() {
         if (isLinux()) {
@@ -558,6 +609,11 @@ public final class OS {
         return sw.toString();
     }
 
+    /**
+     * Returns the current working directory of the user.
+     *
+     * @return the user's current working directory
+     */
     public static String userDir() {
         return USER_DIR;
     }
@@ -604,6 +660,7 @@ public final class OS {
         }
     }
 
+    @Deprecated(/* to be moved in x.26 to an internal package of Chronicle-Bytes */)
     public static final class Unmapper implements Runnable {
         private final long size;
 

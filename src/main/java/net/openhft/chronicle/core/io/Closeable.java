@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.io;
 
+import net.openhft.chronicle.core.internal.CloseableUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
@@ -27,52 +28,33 @@ import java.nio.channels.ServerSocketChannel;
 import java.util.Collection;
 import java.util.*;
 
+/**
+ * A resource that must be closed when it is no longer needed.
+ */
 public interface Closeable extends java.io.Closeable, QueryCloseable {
 
+    /**
+     * Close a closeable quietly, i.e. without throwing an exception.
+     * If the closeable is a collection, close all the elements.
+     * If the closeable is an array, close all the elements.
+     * If the closeable is a ServerSocketChannel, close it quietly.
+     *
+     * @param closeables the objects to close
+     */
     static void closeQuietly(@Nullable Object... closeables) {
-        if (closeables == null)
-            return;
-        for (Object o : closeables)
-            closeQuietly(o);
+        CloseableUtils.closeQuietly(closeables);
     }
 
+    /**
+     * Close a closeable quietly, i.e. without throwing an exception.
+     * If the closeable is a collection, close all the elements.
+     * If the closeable is an array, close all the elements.
+     * If the closeable is a ServerSocketChannel, close it quietly.
+     *
+     * @param o the object to close
+     */
     static void closeQuietly(@Nullable Object o) {
-        if (o instanceof Collection) {
-            Collection coll = (Collection) o;
-            if (coll.isEmpty())
-                return;
-            // take a copy before removing
-            new ArrayList<>(coll).forEach(Closeable::closeQuietly);
-
-        } else if (o instanceof Object[]) {
-            for (Object o2 : (Object[]) o)
-                closeQuietly(o2);
-
-        } else if (o instanceof ServerSocketChannel) {
-            try {
-                ((ServerSocketChannel) o).close();
-            } catch (IOException e) {
-                // If you close a ServerSocketChannelImpl more than once it can throw an IOException that it doesn't exist.
-                if (!"No such file or directory".equals(e.getMessage()))
-                    IOTools.logErrorOnClose(e);
-            } catch (Throwable e) {
-                IOTools.logErrorOnClose(e);
-            }
-
-        } else if (o instanceof java.lang.AutoCloseable) {
-            try {
-                ((java.lang.AutoCloseable) o).close();
-            } catch (Throwable e) {
-                IOTools.logErrorOnClose(e);
-            }
-
-        } else if (o instanceof Reference) {
-            closeQuietly(((Reference) o).get());
-
-        } else if (o instanceof HttpURLConnection) {
-            HttpURLConnection connection = (HttpURLConnection) o;
-            connection.disconnect();
-        }
+        CloseableUtils.closeQuietly(o);
     }
 
     /**

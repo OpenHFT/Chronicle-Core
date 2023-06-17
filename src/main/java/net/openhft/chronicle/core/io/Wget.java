@@ -26,8 +26,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 
-import static net.openhft.chronicle.core.io.Closeable.*;
+import static net.openhft.chronicle.core.io.Closeable.closeQuietly;
 
+/**
+ * Utility class for performing an HTTP GET request.
+ */
 public final class Wget {
 
     private static final StringBuilderPool STRING_BUILDER_POOL = new StringBuilderPool();
@@ -36,11 +39,11 @@ public final class Wget {
     }
 
     /**
-     * performs an http get
+     * Performs an HTTP GET request to the specified URL.
      *
-     * @param url the url of the http get
-     * @return the result, as a string
-     * @throws IOException if the connection could not be established
+     * @param url the URL of the HTTP GET request
+     * @return the result of the request as a {@link CharSequence}
+     * @throws IOException if an error occurs while establishing the connection
      */
     public static CharSequence url(String url) throws IOException {
 

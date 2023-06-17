@@ -1,5 +1,6 @@
 package net.openhft.chronicle.core.io;
 
+import net.openhft.chronicle.core.internal.CloseableUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -103,7 +104,7 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
     @Test
     public void asStringWillIncludeReferenceCountedDetails() {
         final TracingReferenceCounted referenceCounted = createReferenceCounted();
-        assertTrue(Pattern.matches("TracingReferenceCounted@\\w+ refCount=1", TracingReferenceCounted.asString(referenceCounted)));
+        assertTrue(Pattern.matches("TracingReferenceCounted@\\w+ refCount=1", CloseableUtils.asString(referenceCounted)));
     }
 
     @Test
@@ -120,7 +121,7 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
                 return "testCloseable";
             }
         }
-        assertEquals("testCloseable closed=false", TracingReferenceCounted.asString(new SomeCloseable()));
+        assertEquals("testCloseable closed=false", CloseableUtils.asString(new SomeCloseable()));
     }
 
     @Test
@@ -128,7 +129,7 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
         class SomePlainObject {
 
         }
-        assertTrue(Pattern.matches("SomePlainObject@\\w+", TracingReferenceCounted.asString(new SomePlainObject())));
+        assertTrue(Pattern.matches("SomePlainObject@\\w+", CloseableUtils.asString(new SomePlainObject())));
     }
 
     @Test

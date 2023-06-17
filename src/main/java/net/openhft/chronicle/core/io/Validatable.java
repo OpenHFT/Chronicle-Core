@@ -18,13 +18,16 @@
 
 package net.openhft.chronicle.core.io;
 
+/**
+ * An interface for validating the state of an object before writing it via a method writer.
+ * Implementing classes should perform checks to ensure that the object's state is valid.
+ */
 public interface Validatable {
     /**
      * Method which can be called when writing DTOs via the method writer.
      *
-     * @throws IllegalArgumentException if a value is null or out of range.
-     * @throws RuntimeException or any other exception if it's not valid
+     * @throws InvalidMarshallableException If a value is null or out of range, indicating an invalid state.
+     * @throws RuntimeException            or any other exception if the object is not considered valid.
      */
     void validate() throws InvalidMarshallableException;
-
 }

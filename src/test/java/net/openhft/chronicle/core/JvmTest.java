@@ -34,15 +34,18 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static net.openhft.chronicle.core.Jvm.*;
+import static net.openhft.chronicle.core.Jvm.JAVA_CLASS_PATH;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
 
@@ -57,7 +60,7 @@ public class JvmTest extends CoreTestCommon {
 
     @After
     public void checkThreadDump() {
-        resetExceptionHandlers();
+        Jvm.resetExceptionHandlers();
         threadDump.assertNoNewThreads();
     }
 
@@ -94,6 +97,246 @@ public class JvmTest extends CoreTestCommon {
         assertSame(Jvm.getField(Jvm.class, "DEFAULT_DEBUG_EXCEPTION_HANDLER").get(null), Jvm.debug().defaultHandler());
     }
 
+    static void assertBetween(double d, double min, double max) {
+        assertEquals(d, (min + max) / 2, Math.abs(max - min) / 2);
+    }
+
+    @Test
+    public void compileThreshold() {
+        assertBetween(Jvm.compileThreshold(), 1000, 10000);
+    }
+
+    @Test
+    public void majorVersion() {
+        assertBetween(Jvm.majorVersion(), 8, 21);
+    }
+
+    @Test
+    public void isJava9Plus() {
+        assertEquals(Jvm.majorVersion()>= 9, Jvm.isJava9Plus());
+    }
+
+    @Test
+    public void isJava12Plus() {
+        assertEquals(Jvm.majorVersion()>= 12, Jvm.isJava12Plus());
+    }
+
+    @Test
+    public void isJava14Plus() {
+        assertEquals(Jvm.majorVersion()>= 14, Jvm.isJava14Plus());
+    }
+
+    @Test
+    public void isJava15Plus() {
+        assertEquals(Jvm.majorVersion()>= 15, Jvm.isJava15Plus());
+    }
+
+    @Test
+    public void isJava19Plus() {
+        assertEquals(Jvm.majorVersion()>= 19, Jvm.isJava19Plus());
+    }
+
+    @Test
+    public void isJava20Plus() {
+        assertEquals(Jvm.majorVersion()>= 20, Jvm.isJava20Plus());
+    }
+
+    @Test
+    public void getProcessId() {
+        assertNotEquals(0, Jvm.getProcessId());
+    }
+
+    @Test
+    public void rethrow() {
+        try {
+            Jvm.rethrow(new StackTrace());
+            fail();
+        } catch (Throwable se) {
+            if (se.getClass() != StackTrace.class)
+                throw se;
+        }
+    }
+
+    @Test
+    public void trimStackTrace() {
+        StringBuilder sb = new StringBuilder();
+        Jvm.trimStackTrace(sb, new StackTrace().getStackTrace());
+        assertTrue(sb.toString().contains("trimStackTrace"));
+    }
+
+    @Test
+    public void isInternal() {
+        assertTrue(Jvm.isInternal("jdk."));
+        assertTrue(Jvm.isInternal("sun."));
+        assertTrue(Jvm.isInternal("java."));
+        assertFalse(Jvm.isInternal("net."));
+    }
+
+    @Test
+    public void isDebug() {
+        assertNotNull(Jvm.isDebug());
+    }
+
+    @Test
+    public void isFlightRecorder() {
+        assertNotNull(Jvm.isFlightRecorder());
+    }
+
+    @Test
+    public void isCodeCoverage() {
+        assertNotNull(Jvm.isCodeCoverage());
+    }
+
+    @Test
+    public void getField() {
+        Field field = Jvm.getField(Jvm.class, "JAVA_CLASS_PATH");
+        assertEquals("JAVA_CLASS_PATH", field.getName());
+        boolean ok = true;
+        try {
+            Jvm.getField(Jvm.class, "NULL");
+            ok = false;
+        } catch (AssertionError e) {
+            // expected
+        }
+        assertTrue(ok);
+    }
+
+    @Test
+    public void getFieldOrNull() {
+        Field field = Jvm.getFieldOrNull(Jvm.class, "NULL");
+        assertNull(field);
+    }
+
+    @Test
+    public void getMethod() {
+        Method getMethod = Jvm.getMethod(getClass(), "getMethod");
+        assertEquals("getMethod", getMethod.getName());
+    }
+
+    @Test
+    public void getValue() {
+        assertEquals(128, (int) Jvm.getValue(128, "value"));
+    }
+
+    @Test
+    public void lockWithStack() {
+    }
+
+    @Test
+    public void fieldOffset() {
+        assertNotEquals(0, Jvm.fieldOffset(Integer.class, "value"));
+    }
+
+    @Test
+    public void usedDirectMemory() {
+        ByteBuffer bb = ByteBuffer.allocateDirect(128);
+        assertNotEquals(0, Jvm.usedDirectMemory());
+    }
+
+    @Test
+    public void usedNativeMemory() {
+        long addr = UnsafeMemory.MEMORY.allocate(128);
+        assertNotEquals(0, Jvm.usedNativeMemory());
+        UnsafeMemory.MEMORY.freeMemory(addr, 128);
+    }
+
+    @Test
+    public void maxDirectMemory() {
+        assertNotEquals(0, Jvm.maxDirectMemory());
+    }
+
+    @Test
+    public void is64bit() {
+        assertTrue(Jvm.is64bit());
+    }
+
+    @Test
+    public void dontChain() {
+        assertTrue(Jvm.dontChain(Integer.class));
+        assertFalse(Jvm.dontChain(Jvm.class));
+    }
+
+    @Test
+    public void isResourceTracing() {
+        assertNotNull(Jvm.isResourceTracing());
+    }
+
+    @Test
+    public void getLong() {
+        System.setProperty("-num-", "128");
+        assertEquals(128, (long) Jvm.getLong("-num-", Long.MAX_VALUE));
+    }
+
+    @Test
+    public void getInteger() {
+        System.setProperty("-num-", "128");
+        assertEquals(128, (int) Jvm.getInteger("-num-", 1));
+    }
+
+    @Test
+    public void testGetBoolean() {
+        System.setProperty("-flag-", "yes");
+        System.setProperty("-flag2-", "");
+        System.setProperty("-flag3-", "true");
+        assertFalse(Jvm.getBoolean("-none-"));
+        assertFalse(Jvm.getBoolean("-none-", false));
+        assertTrue(Jvm.getBoolean("-flag-"));
+        assertTrue(Jvm.getBoolean("-flag2-"));
+        assertTrue(Jvm.getBoolean("-flag3-"));
+    }
+
+    @Test
+    public void parseSize() {
+        assertEquals(64 << 10, Jvm.parseSize("64k"));
+    }
+
+    @Test
+    public void getSize() {
+        String key = "-key-";
+        System.setProperty(key, "128M");
+        assertEquals(128 << 20, Jvm.getSize(key, 1));
+        assertEquals(1, Jvm.getSize("-none-", 1));
+    }
+
+    @Test
+    public void getDouble() {
+        String key = "-dummy-";
+        System.setProperty(key, "128");
+        assertEquals(128, Jvm.getDouble(key, 1), 0);
+        assertEquals(1, Jvm.getDouble("-none-", 1), 0);
+    }
+
+    @Test
+    public void isProcessAlive() {
+        assertTrue(Jvm.isProcessAlive(Jvm.getProcessId()));
+    }
+
+    @Test
+    public void isAzulZulu() {
+        assertNotNull(Jvm.isAzulZulu());
+    }
+
+    @Test
+    public void objectHeaderSize() {
+        assertBetween(Jvm.objectHeaderSize(), 8 , 16);
+    }
+
+    @Test
+    public void isAssertEnabled() {
+        boolean flag = false;
+        assert flag = true;
+        assertEquals(flag, Jvm.isAssertEnabled());
+    }
+
+    @Test
+    public void supportThread() {
+        assertFalse(Jvm.supportThread());
+    }
+
+    @Test
+    public void findAnnotation() {
+    }
+
     static final class ReportUnoptimised {
 
         private ReportUnoptimised() {
@@ -110,7 +353,7 @@ public class JvmTest extends CoreTestCommon {
 
     @Test
     public void reportThis() {
-        final Map<ExceptionKey, Integer> map = recordExceptions();
+        final Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
         ReportUnoptimised.reportOnce();
 
         final String actual = map.keySet().toString();
@@ -158,7 +401,7 @@ public class JvmTest extends CoreTestCommon {
 
     @Test
     public void classMetrics() throws IllegalArgumentException {
-        assumeFalse(isArm());
+        assumeFalse(Jvm.isArm());
         String expect = "ClassMetrics{offset=" + Jvm.objectHeaderSize() + ", length=16}";
         assertEquals(expect,
                 Jvm.classMetrics(ClassA.class).toString());
@@ -229,7 +472,7 @@ public class JvmTest extends CoreTestCommon {
      */
     @Test
     public void isProcessAliveTest() {
-        long pid = getProcessId();
+        long pid = Jvm.getProcessId();
         Assert.assertTrue(Jvm.isProcessAlive(pid));
         if (OS.isLinux())
             Assert.assertTrue(Jvm.isProcessAlive(1)); // the kernel
@@ -304,7 +547,7 @@ public class JvmTest extends CoreTestCommon {
 
     @Test
     public void findAnnotationOnClass() {
-        final RealAnno ra = findAnnotation(Foo.class, RealAnno.class);
+        final RealAnno ra = Jvm.findAnnotation(Foo.class, RealAnno.class);
         assertEquals("Hello", ra.value());
     }
 

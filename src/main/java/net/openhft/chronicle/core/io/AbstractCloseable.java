@@ -21,39 +21,36 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
 import net.openhft.chronicle.core.UnsafeMemory;
 import net.openhft.chronicle.core.annotation.UsedViaReflection;
+import net.openhft.chronicle.core.internal.CloseableUtils;
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
-import net.openhft.chronicle.core.threads.CleaningThread;
-import net.openhft.chronicle.core.threads.CleaningThreadLocal;
-import net.openhft.chronicle.core.util.WeakIdentityHashMap;
-
-import java.lang.reflect.Field;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.IdentityHashMap;
-import java.util.Set;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEASER;
-import static net.openhft.chronicle.core.io.TracingReferenceCounted.asString;
 
+/**
+ * An abstract class representing a closeable resource.
+ */
 public abstract class AbstractCloseable implements ReferenceOwner, ManagedCloseable, SingleThreadedChecked {
     @Deprecated(/* remove in x.25 */)
     protected static final boolean DISABLE_THREAD_SAFETY = DISABLE_SINGLE_THREADED_CHECK;
+
+    /**
+     * Flag indicating whether discard warning is disabled.
+     */
     protected static final boolean DISABLE_DISCARD_WARNING = Jvm.getBoolean("disable.discard.warning", false);
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated(/* remove in x.25 */)
     protected static final boolean STRICT_DISCARD_WARNING;
 
+    /**
+     * The number of nanoseconds to warn before closing a resource.
+     */
     protected static final long WARN_NS = (long) (Jvm.getDouble("closeable.warn.secs", 0.02) * 1e9);
 
     private static final long CLOSED_OFFSET;
     private static final int STATE_NOT_CLOSED = 0;
     private static final int STATE_CLOSING = ~0;
     private static final int STATE_CLOSED = 1;
-    static volatile Set<Closeable> closeableSet;
 
     static {
         if (Jvm.isResourceTracing())
@@ -77,186 +74,58 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
 
     private int referenceId;
 
+    /**
+     * Constructs a new AbstractCloseable instance.
+     */
     protected AbstractCloseable() {
         createdHere = Jvm.isResourceTracing() ? new StackTrace(getClass().getName() + " created here") : null;
-
-        final Set<Closeable> set = closeableSet;
-        if (set != null)
-            synchronized (set) {
-                set.add(this);
-            }
+        CloseableUtils.add(this);
     }
 
+    /**
+     * Enables tracing of closeable resources.
+     * Tracked resources will be stored in a set.
+     * This method should be called to enable tracing before using closeable resources.
+     */
     public static void enableCloseableTracing() {
-        closeableSet =
-                Collections.newSetFromMap(
-                        new WeakIdentityHashMap<>());
+        CloseableUtils.enableCloseableTracing();
     }
 
+    /**
+     * Disables tracing of closeable resources.
+     * Tracked resources will no longer be stored in the set.
+     * This method should be called to disable tracing when no longer needed.
+     */
     public static void disableCloseableTracing() {
-        closeableSet = null;
+        CloseableUtils.disableCloseableTracing();
     }
 
+    /**
+     * Performs garbage collection and waits for closeables to close.
+     * This method is useful for ensuring that closeable resources are properly closed before continuing.
+     * It performs the following steps:
+     * 1. Performs cleanup on the current thread.
+     * 2. Performs garbage collection.
+     * 3. Waits for closeables to close with a specified timeout.
+     * 4. Checks if the finalizer thread has finalized any objects.
+     *    If not, it throws an AssertionError.
+     *
+     * @throws AssertionError If the finalizer does not complete within the specified timeout.
+     */
     public static void gcAndWaitForCloseablesToClose() {
-        CleaningThread.performCleanup(Thread.currentThread());
-
-        // find any discarded resources.
-        final BlockingQueue<String> q = new LinkedBlockingQueue<>();
-        new Object() {
-            @Override
-            protected void finalize() throws Throwable {
-                super.finalize();
-                q.add("finalized");
-            }
-        };
-        System.gc();
-        AbstractCloseable.waitForCloseablesToClose(1000);
-        try {
-            if (q.poll(5, TimeUnit.SECONDS) == null)
-                throw new AssertionError("Timed out waiting for the Finalizer");
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new AssertionError(e);
-        }
+        CloseableUtils.gcAndWaitForCloseablesToClose();
     }
 
     public static boolean waitForCloseablesToClose(long millis) {
-        final Set<Closeable> traceSet = closeableSet;
-        if (traceSet == null) {
-            return true;
-        }
-        if (Thread.interrupted())
-            System.err.println("Interrupted in waitForCloseablesToClose!");
-
-        long end = System.currentTimeMillis() + millis;
-
-        BackgroundResourceReleaser.releasePendingResources();
-
-        toWait:
-        do {
-            CleaningThreadLocal.cleanupNonCleaningThreads();
-            synchronized (traceSet) {
-                for (Closeable key : traceSet) {
-                    try {
-                        // too late to be checking thread safety.
-                        if (key instanceof AbstractCloseable) {
-                            ((AbstractCloseable) key).singleThreadedCheckDisabled(true);
-                        }
-                        if (key instanceof ReferenceCountedTracer) {
-                            ((ReferenceCountedTracer) key).throwExceptionIfNotReleased();
-                        }
-                    } catch (IllegalStateException e) {
-                        Jvm.pause(1);
-                        continue toWait;
-                    }
-                }
-            }
-            Jvm.pause(1);
-            return true;
-        } while (System.currentTimeMillis() < end);
-        return false;
+        return CloseableUtils.waitForCloseablesToClose(millis);
     }
 
     public static void assertCloseablesClosed() {
-        final Set<Closeable> traceSet = closeableSet;
-        if (traceSet == null) {
-            Jvm.warn().on(AbstractCloseable.class, "closable tracing disabled");
-            return;
-        }
-        if (Thread.interrupted())
-            System.err.println("Interrupted in assertCloseablesClosed!");
-
-        BackgroundResourceReleaser.releasePendingResources();
-
-        AssertionError openFiles = new AssertionError("Closeables still open");
-
-        synchronized (traceSet) {
-            Set<Closeable> traceSet2 = Collections.newSetFromMap(new IdentityHashMap<>());
-            if (waitForTraceSet(traceSet, traceSet2))
-                return;
-
-            captureTheUnclosed(openFiles, traceSet2);
-        }
-
-        if (openFiles.getSuppressed().length > 0) {
-            throw openFiles;
-        }
-    }
-
-    private static boolean waitForTraceSet(Set<Closeable> traceSet, Set<Closeable> traceSet2) {
-        traceSet.removeIf(o -> o == null || o.isClosing());
-        Set<Closeable> nested = Collections.newSetFromMap(new IdentityHashMap<>());
-        for (Closeable key : traceSet) {
-            addNested(nested, key, 1);
-        }
-        traceSet2.addAll(traceSet);
-        traceSet2.removeAll(nested);
-
-        // wait up to 250 ms for resources to be closed in the background.
-        for (int i = 0; i < 250; i++) {
-            if (traceSet2.stream().allMatch(Closeable::isClosing))
-                return true;
-            Jvm.pause(1);
-        }
-        return false;
-    }
-
-    private static void captureTheUnclosed(AssertionError openFiles, Set<Closeable> traceSet2) {
-        for (Closeable key : traceSet2) {
-            Throwable t = null;
-            try {
-                if (key instanceof ReferenceCountedTracer) {
-                    ((ReferenceCountedTracer) key).throwExceptionIfNotReleased();
-                }
-                if (key instanceof ManagedCloseable) {
-                    t = ((ManagedCloseable) key).createdHere();
-                }
-            } catch (IllegalStateException e) {
-                t = e;
-            }
-            IllegalStateException exception = new IllegalStateException("Not closed " + asString(key), t);
-            if (key.isClosed()) {
-                continue;
-            }
-            exception.printStackTrace();
-            openFiles.addSuppressed(exception);
-            key.close();
-        }
-    }
-
-    private static void addNested(Set<Closeable> nested, Closeable key, int depth) {
-        if (key.isClosing())
-            return;
-        Set<Field> fields = new HashSet<>();
-        Class<? extends Closeable> keyClass = key.getClass();
-        getCloseableFields(keyClass, fields);
-        for (Field field : fields) {
-            try {
-                field.setAccessible(true);
-                Closeable o = (Closeable) field.get(key);
-                if (o != null && nested.add(o) && depth > 1)
-                    addNested(nested, o, depth - 1);
-            } catch (IllegalAccessException e) {
-                Jvm.warn().on(keyClass, e);
-            }
-        }
-    }
-
-    private static void getCloseableFields(Class<?> keyClass, Set<Field> fields) {
-        if (keyClass == null || keyClass == Object.class)
-            return;
-        for (Field field : keyClass.getDeclaredFields())
-            if (Closeable.class.isAssignableFrom(field.getType()))
-                fields.add(field);
-        getCloseableFields(keyClass.getSuperclass(), fields);
+        CloseableUtils.assertCloseablesClosed();
     }
 
     public static void unmonitor(Closeable closeable) {
-        final Set<Closeable> set = closeableSet;
-        if (set != null)
-            synchronized (set) {
-                set.remove(closeable);
-            }
+        CloseableUtils.unmonitor(closeable);
     }
 
     @Override

@@ -59,7 +59,7 @@ public final class Announcer {
     public static void announce(@NotNull final String groupId, @NotNull final String artifactId) {
         requireNonNull(groupId);
         requireNonNull(artifactId);
-        InternalAnnouncer.announce(groupId, artifactId, Collections.emptyMap());
+//        InternalAnnouncer.announce(groupId, artifactId, Collections.emptyMap());
     }
 
     /**
@@ -82,6 +82,6 @@ public final class Announcer {
         requireNonNull(groupId);
         requireNonNull(artifactId);
         requireNonNull(properties);
-        InternalAnnouncer.announce(groupId, artifactId, properties);
+//        InternalAnnouncer.announce(groupId, artifactId, properties);
     }
 }

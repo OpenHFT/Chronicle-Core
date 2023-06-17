@@ -23,8 +23,11 @@ import net.openhft.chronicle.core.StackTrace;
 import net.openhft.chronicle.core.UnsafeMemory;
 import net.openhft.chronicle.core.annotation.UsedViaReflection;
 
-import static net.openhft.chronicle.core.io.TracingReferenceCounted.asString;
+import static net.openhft.chronicle.core.internal.CloseableUtils.asString;
 
+/**
+ * A simple implementation of the {@link MonitorReferenceCounted} interface.
+ */
 public final class VanillaReferenceCounted implements MonitorReferenceCounted {
 
     private static final long VALUE;
@@ -43,6 +46,12 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     private boolean unmonitored;
     private StackTrace releasedHere;
 
+    /**
+     * Constructs a {@code VanillaReferenceCounted} with the specified release action and class type.
+     *
+     * @param onRelease the action to be performed on release
+     * @param type      the class type
+     */
     VanillaReferenceCounted(final Runnable onRelease, Class<?> type) {
         this.onRelease = onRelease;
         this.type = type;
@@ -66,7 +75,6 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     @Override
     public void reserve(ReferenceOwner id) throws ClosedIllegalStateException {
         for (; ; ) {
-
             int v = value;
             if (v <= 0) {
                 throw newReleasedClosedIllegalStateException();
@@ -187,10 +195,20 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         return unmonitored;
     }
 
+    /**
+     * Adds a {@link ReferenceChangeListener} to be notified when references are added or removed.
+     *
+     * @param referenceChangeListener the listener to add
+     */
     public void addReferenceChangeListener(ReferenceChangeListener referenceChangeListener) {
         referenceChangeListeners.add(referenceChangeListener);
     }
 
+    /**
+     * Removes a {@link ReferenceChangeListener} from the notification list.
+     *
+     * @param referenceChangeListener the listener to remove
+     */
     public void removeReferenceChangeListener(ReferenceChangeListener referenceChangeListener) {
         referenceChangeListeners.remove(referenceChangeListener);
     }

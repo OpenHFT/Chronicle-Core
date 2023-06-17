@@ -23,6 +23,7 @@ import net.openhft.chronicle.core.Jvm;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
+@Deprecated(/* to be removed x.26 */)
 public final class ByteBuffers {
     private ByteBuffers() {}
 

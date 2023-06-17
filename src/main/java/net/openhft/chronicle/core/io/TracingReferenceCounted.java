@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
+import net.openhft.chronicle.core.internal.CloseableUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -34,22 +35,6 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
         referenceChangeListeners = new ReferenceChangeListenerManager(this);
     }
 
-    static String asString(Object id) {
-        if (id == INIT) return "INIT";
-        String s = id instanceof ReferenceOwner
-                ? ((ReferenceOwner) id).referenceName()
-                : id.getClass().getSimpleName() + "@" + Integer.toHexString(System.identityHashCode(id));
-        if (id instanceof ReferenceCounted)
-            s += " refCount=" + ((ReferenceCounted) id).refCount();
-        try {
-            if (id instanceof QueryCloseable)
-                s += " closed=" + ((QueryCloseable) id).isClosed();
-        } catch (NullPointerException ignored) {
-            // not initialised
-        }
-        return s;
-    }
-
     @Override
     public StackTrace createdHere() {
         return createdHere;
@@ -72,8 +57,8 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
             return true;
         StackTrace stackTrace = releases.get(owner);
         if (stackTrace == null)
-            throw new IllegalStateException(type.getName() + " never reserved by " + asString(owner));
-        throw new IllegalStateException(type.getName() + " no longer reserved by " + asString(owner), stackTrace);
+            throw new IllegalStateException(type.getName() + " never reserved by " + CloseableUtils.asString(owner));
+        throw new IllegalStateException(type.getName() + " no longer reserved by " + CloseableUtils.asString(owner), stackTrace);
     }
 
     @Override
@@ -99,7 +84,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
             if (stackTrace == null)
                 references.put(id, stackTrace("reserve", id));
             else
-                throw new IllegalStateException(type.getName() + " already reserved resource by " + asString(id) + " here", stackTrace);
+                throw new IllegalStateException(type.getName() + " already reserved resource by " + CloseableUtils.asString(id) + " here", stackTrace);
         }
         // notify outside the synchronized block to avoid potential deadlock
         referenceChangeListeners.notifyAdded(id);
@@ -137,7 +122,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
         synchronized (references) {
             final StackTrace stackTrace = references.get(to);
             if (stackTrace != null) {
-                throw new IllegalStateException(type.getName() + " already reserved resource by " + asString(to) + " here", stackTrace);
+                throw new IllegalStateException(type.getName() + " already reserved resource by " + CloseableUtils.asString(to) + " here", stackTrace);
             }
             if (references.remove(from) == null) {
                 throw throwInvalidReleaseException(from);
@@ -157,9 +142,9 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
                 StackTrace ste = references.values().iterator().next();
                 cause = new IllegalStateException(type.getName() + " reserved by " + referencesAsString(), ste);
             }
-            throw new IllegalStateException(type.getName() + " not reserved by " + asString(id), cause);
+            throw new IllegalStateException(type.getName() + " not reserved by " + CloseableUtils.asString(id), cause);
         } else {
-            throw new ClosedIllegalStateException(type.getName() + " already released " + asString(id) + " location ", stackTrace);
+            throw new ClosedIllegalStateException(type.getName() + " already released " + CloseableUtils.asString(id) + " location ", stackTrace);
         }
     }
 
@@ -167,7 +152,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     public List<String> referencesAsString() {
         synchronized (references) {
             return references.keySet().stream()
-                    .map(TracingReferenceCounted::asString)
+                    .map(CloseableUtils::asString)
                     .collect(Collectors.toList());
         }
     }
@@ -210,7 +195,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
         return new StackTrace(uniqueId + " "
                 + Thread.currentThread().getName() + " "
                 + oper + " "
-                + asString(ro));
+                + CloseableUtils.asString(ro));
     }
 
     @Override
@@ -237,7 +222,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     }
 
     private IllegalStateException generateIllegalStateException(ReferenceOwner referenceOwner, StackTrace reservedHere) {
-        IllegalStateException ise2 = new IllegalStateException(type.getName() + " reserved by " + asString(referenceOwner), reservedHere);
+        IllegalStateException ise2 = new IllegalStateException(type.getName() + " reserved by " + CloseableUtils.asString(referenceOwner), reservedHere);
         if (referenceOwner instanceof Closeable) {
             try {
                 ((ManagedCloseable) referenceOwner).throwExceptionIfClosed();
@@ -266,7 +251,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
         try {
             mc.throwExceptionIfClosed();
         } catch (Throwable t) {
-            ise.addSuppressed(new ClosedIllegalStateException(type.getName() + " closed " + asString(mc), t));
+            ise.addSuppressed(new ClosedIllegalStateException(type.getName() + " closed " + CloseableUtils.asString(mc), t));
         }
     }
 

@@ -18,8 +18,17 @@
  */
 
 package net.openhft.chronicle.core.io;
-
+/**
+ * Functional interface representing a closed state.
+ * This interface provides a method to check if an object is in a closed state.
+ */
 @FunctionalInterface
 public interface ClosedState {
+
+    /**
+     * Checks if the object is in a closed state.
+     *
+     * @return true if the object is closed, false otherwise.
+     */
     boolean isClosed();
 }

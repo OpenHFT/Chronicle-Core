@@ -23,6 +23,11 @@ package net.openhft.chronicle.core.io;
  */
 public class InvalidMarshallableException extends RuntimeException {
 
+    /**
+     * Constructs an InvalidMarshallableException with the specified detail message.
+     *
+     * @param msg The detail message.
+     */
     public InvalidMarshallableException(String msg) {
         super(msg);
     }

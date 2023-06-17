@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+@Deprecated(/* to be removed x.26 */)
 class PlainFileManager extends JMXFileManager implements PlainFileManagerMBean {
     private final Path path;
 

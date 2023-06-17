@@ -32,6 +32,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
+@Deprecated(/* to be removed x.26 */)
 public class FileSystemWatcher {
     private final WatchService watchService;
     // shared
