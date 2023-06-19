@@ -7,9 +7,11 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class ValidatableUtilDiffblueTest {
+public class ValidatableUtilDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link ValidatableUtil#validateEnabled()}
    */

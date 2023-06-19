@@ -4,9 +4,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import java.util.concurrent.TimeUnit;
 import net.openhft.chronicle.analytics.internal.VanillaAnalyticsBuilder;
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class ReflectionUtilDiffblueTest {
+public class ReflectionUtilDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link ReflectionUtil#analyticsPresent()}
    */

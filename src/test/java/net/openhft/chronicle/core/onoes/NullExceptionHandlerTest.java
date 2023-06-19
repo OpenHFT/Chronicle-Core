@@ -24,8 +24,9 @@ import net.openhft.chronicle.core.util.IgnoresEverything;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-public class ExceptionHandlerTest extends CoreTestCommon {
+public class NullExceptionHandlerTest extends CoreTestCommon {
     @Test
     public void ignoresEverything() {
         assertTrue(ExceptionHandler.ignoresEverything() instanceof IgnoresEverything);

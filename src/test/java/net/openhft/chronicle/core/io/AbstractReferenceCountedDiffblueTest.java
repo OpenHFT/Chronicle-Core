@@ -2,9 +2,11 @@ package net.openhft.chronicle.core.io;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class AbstractReferenceCountedDiffblueTest {
+public class AbstractReferenceCountedDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link AbstractReferenceCounted#unmonitor(ReferenceCounted)}
   */

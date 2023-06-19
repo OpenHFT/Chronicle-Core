@@ -4,9 +4,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import java.util.function.Supplier;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class DelegatingEventLoopDiffblueTest {
+public class DelegatingEventLoopDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link DelegatingEventLoop#DelegatingEventLoop(EventLoop)}
   */

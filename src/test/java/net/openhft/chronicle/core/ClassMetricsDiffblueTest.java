@@ -3,7 +3,7 @@ package net.openhft.chronicle.core;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
-public class ClassMetricsDiffblueTest {
+public class ClassMetricsDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link ClassMetrics#offset()}
    */

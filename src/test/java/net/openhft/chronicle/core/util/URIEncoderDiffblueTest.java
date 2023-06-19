@@ -1,9 +1,11 @@
 package net.openhft.chronicle.core.util;
 
 import static org.junit.Assert.assertEquals;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class URIEncoderDiffblueTest {
+public class URIEncoderDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link URIEncoder#encodeURI(String)}
   */

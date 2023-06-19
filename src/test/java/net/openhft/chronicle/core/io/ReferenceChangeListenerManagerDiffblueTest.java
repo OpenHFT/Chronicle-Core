@@ -3,10 +3,12 @@ package net.openhft.chronicle.core.io;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class ReferenceChangeListenerManagerDiffblueTest {
+public class ReferenceChangeListenerManagerDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link ReferenceChangeListenerManager#notifyAdded(ReferenceOwner)}
   */

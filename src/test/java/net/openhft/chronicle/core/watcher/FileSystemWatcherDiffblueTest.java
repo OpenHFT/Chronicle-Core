@@ -1,9 +1,11 @@
 package net.openhft.chronicle.core.watcher;
 
 import static org.junit.Assert.assertEquals;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class FileSystemWatcherDiffblueTest {
+public class FileSystemWatcherDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link FileSystemWatcher.PathInfo#PathInfo(String, String)}
   */

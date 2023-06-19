@@ -2,9 +2,11 @@ package net.openhft.chronicle.core.io;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class InvalidMarshallableExceptionDiffblueTest {
+public class InvalidMarshallableExceptionDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link InvalidMarshallableException#InvalidMarshallableException(String)}
   */

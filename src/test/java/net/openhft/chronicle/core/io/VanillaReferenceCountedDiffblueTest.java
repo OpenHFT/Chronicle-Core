@@ -8,9 +8,11 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class VanillaReferenceCountedDiffblueTest {
+public class VanillaReferenceCountedDiffblueTest extends CoreTestCommon {
   /**
   * Methods under test: 
   * 

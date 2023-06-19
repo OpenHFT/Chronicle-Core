@@ -1,9 +1,11 @@
 package net.openhft.chronicle.core.util;
 
 import static org.junit.Assert.assertEquals;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class CharSequenceComparatorDiffblueTest {
+public class CharSequenceComparatorDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link CharSequenceComparator#compare(CharSequence, CharSequence)}
   */

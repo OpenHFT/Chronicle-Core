@@ -2,9 +2,11 @@ package net.openhft.chronicle.core.pom;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class PomPropertiesDiffblueTest {
+public class PomPropertiesDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link PomProperties#create(String, String)}
   */

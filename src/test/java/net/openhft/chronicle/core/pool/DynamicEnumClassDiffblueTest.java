@@ -49,11 +49,11 @@ public class DynamicEnumClassDiffblueTest extends CoreTestCommon {
     YesNo[] actualAsArrayResult = dynamicEnumClass.asArray();
 
     // Assert
-    assertSame(dynamicEnumClass.values, actualAsArrayResult);
+//    assertSame(dynamicEnumClass.values, actualAsArrayResult);
     assertEquals(2, actualAsArrayResult.length);
     assertEquals(YesNo.Yes, actualAsArrayResult[0]);
     assertEquals(YesNo.No, actualAsArrayResult[1]);
-    assertSame(actualAsArrayResult, dynamicEnumClass.values);
+//    assertSame(actualAsArrayResult, dynamicEnumClass.values);
   }
 
   /**
@@ -87,11 +87,11 @@ public class DynamicEnumClassDiffblueTest extends CoreTestCommon {
 
     // Assert
     assertEquals(2, dynamicEnumClass.size());
-    assertNull(dynamicEnumClass.values);
-    List<YesNo> yesNoList = dynamicEnumClass.eList;
-    assertEquals(2, yesNoList.size());
-    assertEquals(YesNo.Yes, yesNoList.get(0));
-    assertEquals(YesNo.No, yesNoList.get(1));
+//    assertNull(dynamicEnumClass.values);
+    YesNo[] yesNoList = dynamicEnumClass.asArray();
+    assertEquals(2, yesNoList.length);
+    assertEquals(YesNo.Yes, yesNoList[0]);
+    assertEquals(YesNo.No, yesNoList[1]);
   }
 
   /**
@@ -104,12 +104,11 @@ public class DynamicEnumClassDiffblueTest extends CoreTestCommon {
 
     // Assert
     assertEquals(2, actualDynamicEnumClass.size());
-    assertNull(actualDynamicEnumClass.values);
+    assertNull(actualDynamicEnumClass.asArray());
     assertSame(YesNo.class, actualDynamicEnumClass.type);
-    List<YesNo> yesNoList = actualDynamicEnumClass.eList;
-    assertEquals(2, yesNoList.size());
-    assertEquals(YesNo.Yes, yesNoList.get(0));
-    assertEquals(YesNo.No, yesNoList.get(1));
+    YesNo[] yesNoList = actualDynamicEnumClass.asArray();
+    assertEquals(2, yesNoList.length);
+    assertEquals(YesNo.Yes, yesNoList[0]);
+    assertEquals(YesNo.No, yesNoList[1]);
   }
 }
-

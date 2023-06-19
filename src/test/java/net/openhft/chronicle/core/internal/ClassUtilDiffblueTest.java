@@ -1,9 +1,11 @@
 package net.openhft.chronicle.core.internal;
 
 import static org.junit.Assert.assertNull;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class ClassUtilDiffblueTest {
+public class ClassUtilDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link ClassUtil#getField0(Class, String, boolean)}
   */

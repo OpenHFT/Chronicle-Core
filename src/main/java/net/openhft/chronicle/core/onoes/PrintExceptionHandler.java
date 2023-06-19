@@ -25,7 +25,25 @@ import org.slf4j.Logger;
 
 import java.io.PrintStream;
 import java.time.LocalDateTime;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
+import java.io.PrintStream;
+import java.time.LocalDateTime;
+
+/**
+ * PrintExceptionHandler is an enumeration implementing the ExceptionHandler interface.
+ * It is used to log exceptions to either the standard output or standard error.
+ *
+ * <ul>
+ *     <li>{@link #ERR} - Logs to the standard error stream.</li>
+ *     <li>{@link #OUT} - Logs to the standard output stream.</li>
+ * </ul>
+ *
+ * Additionally, it provides two static instances, {@link #WARN} and {@link #DEBUG},
+ * which correspond to {@link #ERR} and {@link #OUT} respectively.
+ */
 public enum PrintExceptionHandler implements ExceptionHandler {
     ERR(System.err) {
         @Override
@@ -43,12 +61,26 @@ public enum PrintExceptionHandler implements ExceptionHandler {
     public static final PrintExceptionHandler WARN = ERR;
     public static final PrintExceptionHandler DEBUG = OUT;
 
+    private final PrintStream printStream;
+
+    /**
+     * Constructs an instance of PrintExceptionHandler with the specified PrintStream.
+     *
+     * @param printStream the PrintStream to which the handler will log.
+     */
     PrintExceptionHandler(final PrintStream printStream) {
         this.printStream = printStream;
     }
 
-    private final PrintStream printStream;
-
+    /**
+     * Prints a log message to the associated PrintStream.
+     * If a throwable is provided, its stack trace is also printed.
+     *
+     * @param logger  the logger instance. Must not be null.
+     * @param message a custom message detailing the error, or null.
+     * @param thrown  the throwable instance representing the error, or null.
+     * @param exceptionHandler the instance of PrintExceptionHandler which will output the log message.
+     */
     private static void printLog(@NotNull final Logger logger,
                                  final String message,
                                  @Nullable final Throwable thrown,

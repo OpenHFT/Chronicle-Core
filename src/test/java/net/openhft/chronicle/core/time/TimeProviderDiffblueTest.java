@@ -1,9 +1,11 @@
 package net.openhft.chronicle.core.time;
 
 import static org.junit.Assert.assertEquals;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class TimeProviderDiffblueTest {
+public class TimeProviderDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link TimeProvider#currentTimeMicros()}
   */

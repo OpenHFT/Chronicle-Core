@@ -7,9 +7,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import java.util.function.DoubleFunction;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class RecordingHistogramDiffblueTest {
+public class RecordingHistogramDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: default or parameterless constructor of {@link RecordingHistogram}
   */

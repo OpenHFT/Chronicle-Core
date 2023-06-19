@@ -4,9 +4,11 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class AbstractCloseableDiffblueTest {
+public class AbstractCloseableDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link AbstractCloseable.Finalizer#finalize()}
    */

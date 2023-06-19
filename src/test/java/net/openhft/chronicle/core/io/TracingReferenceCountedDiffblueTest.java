@@ -11,11 +11,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import java.util.List;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.internal.CloseableUtils;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class TracingReferenceCountedDiffblueTest {
+public class TracingReferenceCountedDiffblueTest extends CoreTestCommon {
   /**
   * Methods under test: 
   * 

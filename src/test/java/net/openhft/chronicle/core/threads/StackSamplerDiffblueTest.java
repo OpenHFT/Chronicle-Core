@@ -4,9 +4,11 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class StackSamplerDiffblueTest {
+public class StackSamplerDiffblueTest extends CoreTestCommon {
   /**
   * Methods under test: 
   * 

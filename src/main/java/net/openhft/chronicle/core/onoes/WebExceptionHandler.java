@@ -31,6 +31,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.util.Properties;
 
+@Deprecated(/* to be moved in x.26 to a demo repo */)
 public class WebExceptionHandler implements ExceptionHandler {
     private final Properties properties = new Properties();
 

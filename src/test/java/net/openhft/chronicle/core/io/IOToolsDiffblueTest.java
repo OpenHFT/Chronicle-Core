@@ -9,10 +9,11 @@ import java.io.*;
 import java.nio.file.Paths;
 import javax.management.loading.MLet;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.OS;
 import org.junit.Test;
 
-public class IOToolsDiffblueTest {
+public class IOToolsDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link IOTools#isClosedException(Exception)}
    */

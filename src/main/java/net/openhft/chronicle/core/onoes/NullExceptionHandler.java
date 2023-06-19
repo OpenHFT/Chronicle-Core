@@ -24,16 +24,43 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
+/**
+ * NullExceptionHandler is an enumeration implementing the ExceptionHandler and IgnoresEverything interfaces.
+ * It serves as a null object for the ExceptionHandler, providing default behavior that essentially does nothing
+ * when an exception occurs. This is often used as a safer alternative to null.
+ *
+ * <ul>
+ *     <li>{@link #NOTHING} - An ExceptionHandler that does nothing when an exception occurs and is not enabled for any class.</li>
+ * </ul>
+ */
 public enum NullExceptionHandler implements ExceptionHandler, IgnoresEverything {
+    /**
+     * The NOTHING instance of this enumeration represents a no-op implementation of the ExceptionHandler.
+     */
     NOTHING {
+        /**
+         * This implementation of {@link ExceptionHandler#on(Logger, String, Throwable)} does nothing.
+         *
+         * @param logger  the logger instance. Must not be null.
+         * @param message a custom message detailing the error, or null.
+         * @param thrown  the throwable instance representing the error, or null.
+         */
         @Override
         public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
             // Do nothing
         }
 
+        /**
+         * This implementation of {@link ExceptionHandler#isEnabled(Class)} always returns false,
+         * indicating that this handler is not enabled for any class.
+         *
+         * @param aClass the class to check if the exception handler is enabled for. Must not be null.
+         * @return false, as this handler is not enabled for any class.
+         */
         @Override
         public boolean isEnabled(@NotNull Class<?> aClass) {
             return false;
         }
     }
 }
+

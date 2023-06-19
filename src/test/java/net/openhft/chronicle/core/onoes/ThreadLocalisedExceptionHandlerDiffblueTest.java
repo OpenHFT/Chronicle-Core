@@ -9,12 +9,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import java.util.LinkedList;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.helpers.SubstituteLogger;
 
-public class ThreadLocalisedExceptionHandlerDiffblueTest {
+public class ThreadLocalisedExceptionHandlerDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link ThreadLocalisedExceptionHandler#ThreadLocalisedExceptionHandler(ExceptionHandler)}
   */

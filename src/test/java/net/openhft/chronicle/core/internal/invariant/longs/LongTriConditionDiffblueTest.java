@@ -2,9 +2,11 @@ package net.openhft.chronicle.core.internal.invariant.longs;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class LongTriConditionDiffblueTest {
+public class LongTriConditionDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link LongTriCondition#test(long, long, long)}
   */

@@ -4,9 +4,11 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class UniqueMicroTimeProviderDiffblueTest {
+public class UniqueMicroTimeProviderDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link UniqueMicroTimeProvider#provider(TimeProvider)}
   */

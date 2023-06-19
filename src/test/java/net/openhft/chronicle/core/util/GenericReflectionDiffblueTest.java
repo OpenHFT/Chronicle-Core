@@ -4,10 +4,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import java.lang.reflect.Type;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 import org.mockito.internal.util.reflection.GenericMetadataSupport;
 
-public class GenericReflectionDiffblueTest {
+public class GenericReflectionDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link GenericReflection#erase(Type)}
   */

@@ -1,9 +1,11 @@
 package net.openhft.chronicle.core.io;
 
 import static org.junit.Assert.assertFalse;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class BackgroundResourceReleaserDiffblueTest {
+public class BackgroundResourceReleaserDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link BackgroundResourceReleaser#isOnBackgroundResourceReleaserThread()}
   */

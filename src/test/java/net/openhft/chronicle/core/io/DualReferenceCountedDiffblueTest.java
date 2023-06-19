@@ -8,9 +8,11 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class DualReferenceCountedDiffblueTest {
+public class DualReferenceCountedDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link DualReferenceCounted#DualReferenceCounted(MonitorReferenceCounted, MonitorReferenceCounted)}
   */

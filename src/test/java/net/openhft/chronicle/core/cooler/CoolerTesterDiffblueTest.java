@@ -9,10 +9,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import java.util.concurrent.Callable;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.util.Histogram;
 import org.junit.Test;
 
-public class CoolerTesterDiffblueTest {
+public class CoolerTesterDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link CoolerTester#CoolerTester(Callable, CpuCooler[])}
   */

@@ -10,10 +10,12 @@ import java.net.URLClassLoader;
 import java.net.URLStreamHandlerFactory;
 import java.nio.file.Paths;
 import javax.management.loading.MLet;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class ClassLookupDiffblueTest {
+public class ClassLookupDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link ClassLookup#wrap()}
   */

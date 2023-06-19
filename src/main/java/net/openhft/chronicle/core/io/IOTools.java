@@ -46,8 +46,25 @@ import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-/*
- * A collection of CONCURRENT utility tools
+/**
+ * IOTools is a utility class containing a variety of methods and constants
+ * designed for handling input/output (IO) operations, especially regarding
+ * file and directory manipulation.
+ * <p>
+ * It provides functionality such as:
+ * <ul>
+ *     <li>Determining if an exception is due to a closed connection</li>
+ *     <li>Deleting directories and their files</li>
+ *     <li>Reading files from classpath or file system</li>
+ *     <li>Writing files to file system</li>
+ *     <li>Creating temporary files and directories</li>
+ * </ul>
+ * <p>
+ * It also handles some specific byte buffer operations and manages a
+ * {@link ConcurrentHashMap} for tracking object counts of specific types.
+ * <p>
+ * Note: This class is designed to be thread-safe and is intended to be used
+ * concurrently.
  */
 public final class IOTools {
     public static final int IOSTATUS_INTERRUPTED = IOStatus.INTERRUPTED;
@@ -101,10 +118,28 @@ public final class IOTools {
                 || e.getClass().getName().contains("Close"));
     }
 
+    /**
+     * Attempts to delete a directory with its files. If the directory or any
+     * subdirectories contain directories themselves, the method will stop at the
+     * first layer of directories and will not delete them.
+     *
+     * @param directory The directory to be deleted
+     * @return true if deletion is successful, false otherwise
+     * @throws IORuntimeException if an I/O error occurs
+     */
     public static boolean shallowDeleteDirWithFiles(@NotNull String directory) throws IORuntimeException {
         return shallowDeleteDirWithFiles(new File(directory));
     }
 
+    /**
+     * Attempts to delete a directory with its files. If the directory or any
+     * subdirectories contain directories themselves, the method will stop at the
+     * first layer of directories and will not delete them.
+     *
+     * @param dir The directory to be deleted
+     * @return true if deletion is successful, false otherwise
+     * @throws IORuntimeException if an I/O error occurs
+     */
     public static boolean shallowDeleteDirWithFiles(@NotNull File dir) throws IORuntimeException {
         return deleteDirWithFiles(dir, 1);
     }
@@ -118,14 +153,38 @@ public final class IOTools {
         return result;
     }
 
+    /**
+     * Attempts to delete the specified directory and its files recursively up to a
+     * given depth. If the depth limit is reached, an {@link AssertionError} is thrown.
+     *
+     * @param dir The directory to be deleted
+     * @param maxDepth The maximum depth of directories to be deleted
+     * @return true if deletion is successful, false otherwise
+     * @throws IORuntimeException if an I/O error occurs
+     */
     public static boolean deleteDirWithFiles(@NotNull String dir, int maxDepth) throws IORuntimeException {
         return deleteDirWithFiles(new File(dir), maxDepth);
     }
 
+    /**
+     * Attempts to delete directories and their files. If any directory is not
+     * deleted successfully, throws an {@link AssertionError}.
+     *
+     * @param dir The directories to be deleted
+     * @throws IORuntimeException if an I/O error occurs
+     */
     public static boolean deleteDirWithFiles(@NotNull File dir) throws IORuntimeException {
         return deleteDirWithFiles(dir, 20);
     }
 
+    /**
+     * Attempts to delete directories and their files. If any directory is not
+     * deleted successfully, throws an {@link AssertionError}.
+     *
+     * @param dir The directories to be deleted
+     * @param maxDepth The maximum depth of directories to be deleted
+     * @throws IORuntimeException if an I/O error occurs
+     */
     public static boolean deleteDirWithFiles(@NotNull File dir, int maxDepth) throws IORuntimeException {
         final File[] entries = dir.listFiles();
         if (entries == null) return false;
@@ -148,6 +207,11 @@ public final class IOTools {
         return dir.delete();
     }
 
+    /**
+     * Canonical usage is to call this *before* your test so you fail fast if you can't delete
+     *
+     * @param dirs dirs
+     */
     public static void deleteDirWithFilesOrThrow(@NotNull String... dirs) throws IORuntimeException {
         final File[] files = Arrays.stream(dirs).map(File::new).toArray(File[]::new);
         deleteDirWithFilesOrThrow(files);
@@ -188,11 +252,25 @@ public final class IOTools {
         throw new AssertionError("Failed to delete dir " + dir + " within " + timeoutMs + "ms");
     }
 
+    /**
+     * Ensures that directory is absent or deleted, awaits for given timeout if necessary.
+     * @param clazz file to use to determine the class loader.
+     * @param name Name of the file to find.
+     * @return URL of the file.
+     * @throws FileNotFoundException if the file is not found.
+     */
     @NotNull
     public static URL urlFor(Class<?> clazz, String name) throws FileNotFoundException {
         return urlFor(clazz.getClassLoader(), name);
     }
 
+    /**
+     * Ensures that directory is absent or deleted, awaits for given timeout if necessary.
+     * @param classLoader Class loader to use to find the file.
+     * @param name Name of the file to find.
+     * @return URL of the file.
+     * @throws FileNotFoundException if the file is not found.
+     */
     @NotNull
     public static URL urlFor(ClassLoader classLoader, String name) throws FileNotFoundException {
         URL url = classLoader.getResource(name);
@@ -249,6 +327,13 @@ public final class IOTools {
         return readAsBytes(is);
     }
 
+    /**
+     * Reads data from an input stream and returns it as a byte array.
+     *
+     * @param is The input stream to read data from
+     * @return A byte array containing the data read from the input stream
+     * @throws IOException If an I/O error occurs
+     */
     public static byte[] readAsBytes(InputStream is) throws IOException {
         if (is instanceof FileInputStream) {
             try (FileInputStream fis = (FileInputStream) is) {
@@ -269,6 +354,13 @@ public final class IOTools {
         }
     }
 
+    /**
+     * Writes the given byte array to a file with the specified name.
+     *
+     * @param filename The name of the file to write to
+     * @param bytes The byte array to write to the file
+     * @throws IOException If an I/O error occurs
+     */
     public static void writeFile(@NotNull String filename, @NotNull byte[] bytes) throws IOException {
         try (@NotNull OutputStream out0 = new FileOutputStream(filename)) {
             OutputStream out = out0;
@@ -279,6 +371,13 @@ public final class IOTools {
         }
     }
 
+    /**
+     * Creates a temporary name for a file by appending the system's current
+     * nanosecond time to the file name.
+     *
+     * @param filename The original file name
+     * @return A temporary file name
+     */
     @NotNull
     public static String tempName(@NotNull String filename) {
         int ext = filename.lastIndexOf('.');
@@ -288,10 +387,22 @@ public final class IOTools {
         return filename + System.nanoTime();
     }
 
+    /**
+     * Calls the system's Cleaner Service to clean the given ByteBuffer.
+     *
+     * @param bb The ByteBuffer to clean
+     */
     public static void clean(ByteBuffer bb) {
         CleanerServiceLocator.cleanerService().clean(bb);
     }
 
+    /**
+     * Creates a directory at the specified path, including any necessary
+     * but nonexistent parent directories.
+     *
+     * @param dir The path of the directory to create
+     * @throws IOException If an I/O error occurs
+     */
     public static void createDirectories(Path dir) throws IOException {
         if (dir == null || dir.getNameCount() == 0 || Files.isDirectory(dir))
             return;
@@ -309,21 +420,44 @@ public final class IOTools {
         }
     }
 
+    /**
+     * Gets the atomic counter associated with a specific class.
+     *
+     * @param type The class for which to get the counter
+     * @return An AtomicInteger that is the counter for the specified class
+     */
     static AtomicInteger counter(final Class<?> type) {
         return COUNTER_MAP.computeIfAbsent(type, k -> new AtomicInteger());
     }
 
+    /**
+     * Creates a temporary file in a temporary directory with the specified name.
+     *
+     * @param s The name of the temporary file to create
+     * @return The temporary file that was created
+     */
     public static File createTempFile(String s) {
         File file = createTempDirectory(s).toFile();
         file.deleteOnExit();
         return file;
     }
 
+    /**
+     * Creates a temporary directory with the specified name.
+     *
+     * @param s The name of the temporary directory to create
+     * @return The path to the temporary directory that was created
+     */
     public static Path createTempDirectory(String s) {
         new File(OS.getTarget()).mkdir();
         return Paths.get(OS.getTarget(), s + "-" + Time.uniqueId() + ".tmp");
     }
 
+    /**
+     * Stops the monitoring of the specified object.
+     *
+     * @param t The object to stop monitoring
+     */
     public static void unmonitor(final Object t) {
         unmonitor(t, 4);
     }
@@ -365,14 +499,32 @@ public final class IOTools {
         }
     }
 
+    /**
+     * Checks if a ByteBuffer is a direct buffer.
+     *
+     * @param byteBuffer The ByteBuffer to check
+     * @return true if the ByteBuffer is a direct buffer, false otherwise
+     */
     public static boolean isDirectBuffer(ByteBuffer byteBuffer) {
         return byteBuffer.isDirect();
     }
 
+    /**
+     * Gets the memory address of the given ByteBuffer.
+     *
+     * @param byteBuffer The ByteBuffer for which to get the memory address
+     * @return The memory address of the ByteBuffer
+     */
     public static long addressFor(ByteBuffer byteBuffer) {
         return DirectBufferUtil.addressOrThrow(byteBuffer);
     }
 
+    /**
+     * Normalizes an I/O operation status code.
+     *
+     * @param n The I/O status code to normalize
+     * @return The normalized I/O status code
+     */
     public static int normaliseIOStatus(int n) {
         return IOStatus.normalize(n);
     }

@@ -2,10 +2,12 @@ package net.openhft.chronicle.core.internal.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.util.ThreadConfinementAsserter;
 import org.junit.Test;
 
-public class ThreadConfinementLifecycleDiffblueTest {
+public class ThreadConfinementLifecycleDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link ThreadConfinementLifecycle#create()}
    */

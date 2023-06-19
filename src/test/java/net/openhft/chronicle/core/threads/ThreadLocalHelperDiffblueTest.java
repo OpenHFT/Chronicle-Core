@@ -10,10 +10,12 @@ import java.lang.ref.WeakReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class ThreadLocalHelperDiffblueTest {
+public class ThreadLocalHelperDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link ThreadLocalHelper#getTL(ThreadLocal, Object, Function)}
    */

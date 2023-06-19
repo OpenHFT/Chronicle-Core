@@ -10,13 +10,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import java.util.function.Function;
 import java.util.function.LongPredicate;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.internal.invariant.longs.LongBiCondition;
 import net.openhft.chronicle.core.internal.invariant.longs.LongCondition;
 import net.openhft.chronicle.core.internal.invariant.longs.LongTriCondition;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class LongsDiffblueTest {
+public class LongsDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link Longs#requireNonNegative(long)}
    */

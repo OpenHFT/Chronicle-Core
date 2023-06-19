@@ -1,10 +1,12 @@
 package net.openhft.chronicle.core.cleaner;
 
 import static org.junit.Assert.assertTrue;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.internal.cleaner.ReflectionBasedByteBufferCleanerService;
 import org.junit.Test;
 
-public class CleanerServiceLocatorDiffblueTest {
+public class CleanerServiceLocatorDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link CleanerServiceLocator#cleanerService()}
   */

@@ -3,10 +3,12 @@ package net.openhft.chronicle.core.internal.invariant.ints;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.util.IntBiPredicate;
 import org.junit.Test;
 
-public class IntBiConditionDiffblueTest {
+public class IntBiConditionDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link IntBiCondition#negate()}
    */

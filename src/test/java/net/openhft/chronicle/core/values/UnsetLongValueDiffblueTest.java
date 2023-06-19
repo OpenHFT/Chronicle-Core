@@ -2,9 +2,11 @@ package net.openhft.chronicle.core.values;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class UnsetLongValueDiffblueTest {
+public class UnsetLongValueDiffblueTest extends CoreTestCommon {
   /**
   * Methods under test: 
   * 

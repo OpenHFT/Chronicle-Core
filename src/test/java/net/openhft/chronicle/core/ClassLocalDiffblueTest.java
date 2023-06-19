@@ -9,7 +9,7 @@ import org.junit.Test;
  * This class contains tests for the ClassLocal class.
  * It tests the functionality provided by the ClassLocal class methods.
  */
-public class ClassLocalDiffblueTest {
+public class ClassLocalDiffblueTest extends CoreTestCommon {
 
   /**
    * This test case verifies the behavior of the {@link ClassLocal#withInitial(Function)} method.

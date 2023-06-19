@@ -1,9 +1,11 @@
 package net.openhft.chronicle.core.pool;
 
 import static org.junit.Assert.assertTrue;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class EnumCacheDiffblueTest {
+public class EnumCacheDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link EnumCache#of(Class)}
   */

@@ -10,13 +10,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import java.util.function.Function;
 import java.util.function.IntPredicate;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.internal.invariant.ints.IntBiCondition;
 import net.openhft.chronicle.core.internal.invariant.ints.IntCondition;
 import net.openhft.chronicle.core.internal.invariant.ints.IntTriCondition;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class IntsDiffblueTest {
+public class IntsDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link Ints#requireNonNegative(int)}
    */

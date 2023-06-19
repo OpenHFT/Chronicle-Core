@@ -1,10 +1,12 @@
 package net.openhft.chronicle.core.internal.cleaner;
 
 import static org.junit.Assert.assertEquals;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;
 import org.junit.Test;
 
-public class Jdk9ByteBufferCleanerServiceDiffblueTest {
+public class Jdk9ByteBufferCleanerServiceDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link Jdk9ByteBufferCleanerService#impact()}
    */

@@ -8,9 +8,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import java.util.function.Supplier;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class ReferenceCountedTracerDiffblueTest {
+public class ReferenceCountedTracerDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link ReferenceCountedTracer#onReleased(Runnable, Supplier, Class)}
   */

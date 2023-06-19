@@ -19,12 +19,15 @@
 package net.openhft.chronicle.core.io;
 
 import junit.framework.TestCase;
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class ReferenceOwnerTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+
+public class ReferenceOwnerTest extends CoreTestCommon {
     @Test
     public void testReferenceId() {
         Set<Integer> ints = new HashSet<>();

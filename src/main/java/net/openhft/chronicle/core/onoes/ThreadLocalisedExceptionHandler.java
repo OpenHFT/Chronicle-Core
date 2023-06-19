@@ -22,6 +22,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
+/**
+ * This class provides a thread-localized ExceptionHandler. The actual ExceptionHandler used for handling
+ * exceptions can vary per thread and can be configured using the threadLocalHandler method.
+ * If no thread-local ExceptionHandler has been set, it will fall back to a default ExceptionHandler.
+ *
+ * The default ExceptionHandler can be set using the defaultHandler method, and is initially passed to
+ * the constructor when creating a new instance of this class.
+ */
 public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
     private ExceptionHandler eh;
     private ThreadLocal<ExceptionHandler> handlerTL;
@@ -59,6 +67,12 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
         }
     }
 
+    /**
+     * Retrieves the ExceptionHandler for the current thread. If no thread-local ExceptionHandler has been set,
+     * it will return the default ExceptionHandler.
+     *
+     * @return the ExceptionHandler for the current thread.
+     */
     private ExceptionHandler exceptionHandler() {
         ExceptionHandler exceptionHandler = handlerTL.get();
         if (exceptionHandler == null)
@@ -66,6 +80,11 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
         return exceptionHandler;
     }
 
+    /**
+     * Retrieves the default ExceptionHandler.
+     *
+     * @return the default ExceptionHandler.
+     */
     public ExceptionHandler defaultHandler() {
         return eh;
     }
@@ -76,6 +95,12 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
         return eh;
     }
 
+    /**
+     * Sets the default ExceptionHandler.
+     *
+     * @param defaultHandler the new default ExceptionHandler.
+     * @return the updated ThreadLocalisedExceptionHandler.
+     */
     public ThreadLocalisedExceptionHandler defaultHandler(ExceptionHandler defaultHandler) {
         defaultHandler = unwrap(defaultHandler);
         if (defaultHandler instanceof ChainedExceptionHandler) {
@@ -89,19 +114,40 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
         return this;
     }
 
+    /**
+     * Retrieves the thread-local ExceptionHandler for the current thread.
+     *
+     * @return the thread-local ExceptionHandler for the current thread.
+     */
     public ExceptionHandler threadLocalHandler() {
         return handlerTL.get();
     }
 
+    /**
+     * Sets the thread-local ExceptionHandler for the current thread.
+     *
+     * @param handler the new thread-local ExceptionHandler.
+     * @return the updated ThreadLocalisedExceptionHandler.
+     */
     public ThreadLocalisedExceptionHandler threadLocalHandler(ExceptionHandler handler) {
         handlerTL.set(handler);
         return this;
     }
 
+    /**
+     * Resets the thread-local ExceptionHandler for the current thread.
+     */
     public void resetThreadLocalHandler() {
         handlerTL = new InheritableThreadLocal<>();
     }
 
+    /**
+     * Returns true if the exception handler for the provided class is enabled.
+     * If no thread-local ExceptionHandler is found, it returns true.
+     *
+     * @param aClass the class to check for exception handling.
+     * @return true if the exception handler is enabled for the provided class.
+     */
     @Override
     public boolean isEnabled(@NotNull Class<?> aClass) {
         ExceptionHandler exceptionHandler = exceptionHandler();

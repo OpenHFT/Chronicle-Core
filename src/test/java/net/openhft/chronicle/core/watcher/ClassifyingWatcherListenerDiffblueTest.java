@@ -6,10 +6,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import java.nio.file.Paths;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class ClassifyingWatcherListenerDiffblueTest {
+public class ClassifyingWatcherListenerDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link ClassifyingWatcherListener#onExists(String, String, Boolean)}
    */

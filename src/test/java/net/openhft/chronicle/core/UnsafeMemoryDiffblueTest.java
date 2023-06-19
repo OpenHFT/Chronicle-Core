@@ -3,7 +3,7 @@ package net.openhft.chronicle.core;
 import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
-public class UnsafeMemoryDiffblueTest {
+public class UnsafeMemoryDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: default or parameterless constructor of {@link UnsafeMemory.ARMMemory}
    */
