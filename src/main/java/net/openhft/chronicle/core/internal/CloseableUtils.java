@@ -214,7 +214,6 @@ public final class CloseableUtils {
             if (key.isClosed()) {
                 continue;
             }
-            exception.printStackTrace();
             openFiles.addSuppressed(exception);
             key.close();
         }
