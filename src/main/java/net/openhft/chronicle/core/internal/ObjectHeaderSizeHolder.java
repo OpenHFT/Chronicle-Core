@@ -1,18 +1,25 @@
 package net.openhft.chronicle.core.internal;
 
 import net.openhft.chronicle.core.UnsafeMemory;
+import net.openhft.chronicle.core.annotation.UsedViaReflection;
 
 import java.lang.reflect.Field;
 
 public final class ObjectHeaderSizeHolder {
+
     private static final int OBJECT_HEADER_SIZE;
 
     static {
-        final Field[] declaredFields = ObjectHeaderSizeHolder.class.getDeclaredFields();
-        OBJECT_HEADER_SIZE = (int) UnsafeMemory.INSTANCE.getFieldOffset(declaredFields[0]);
+        try {
+            final Field aField = ObjectHeaderSizeHolder.class.getDeclaredField("firstField");
+            OBJECT_HEADER_SIZE = (int) UnsafeMemory.INSTANCE.getFieldOffset(aField);
+        } catch (NoSuchFieldException e) {
+            throw new AssertionError(e);
+        }
     }
 
-    int a;
+    @UsedViaReflection
+    int firstField;
 
     private ObjectHeaderSizeHolder() {
     }
