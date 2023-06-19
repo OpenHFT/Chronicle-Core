@@ -20,11 +20,12 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
+import net.openhft.chronicle.core.internal.CloseableUtils;
 
-import java.util.Set;
-
-import static net.openhft.chronicle.core.io.AbstractCloseable.closeableSet;
-
+/**
+ * An abstract class representing a reference-counted closeable resource.
+ * This class extends AbstractReferenceCounted and implements ManagedCloseable.
+ */
 public abstract class AbstractCloseableReferenceCounted
         extends AbstractReferenceCounted
         implements ManagedCloseable {
@@ -34,14 +35,20 @@ public abstract class AbstractCloseableReferenceCounted
     private transient volatile StackTrace closedHere;
     private boolean initReleased;
 
+    /**
+     * Constructs a new AbstractCloseableReferenceCounted instance.
+     * Adds the instance to the CloseableUtils set for tracking.
+     */
     protected AbstractCloseableReferenceCounted() {
-        final Set<Closeable> set = closeableSet;
-        if (set != null)
-            synchronized (set) {
-                set.add(this);
-            }
+        CloseableUtils.add(this);
     }
 
+    /**
+     * Reserves the resource for the given id.
+     *
+     * @param id unique id for this reserve
+     * @throws IllegalStateException if already released
+     */
     @Override
     public void reserve(ReferenceOwner id) throws IllegalStateException {
         throwExceptionIfClosed();
@@ -49,6 +56,13 @@ public abstract class AbstractCloseableReferenceCounted
         super.reserve(id);
     }
 
+    /**
+     * Reserves the resource for the given id.
+     *
+     * @param from resource
+     * @param to   resource
+     * @throws IllegalStateException if resource is already released
+     */
     @Override
     public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException {
         throwExceptionIfClosed();
@@ -58,23 +72,45 @@ public abstract class AbstractCloseableReferenceCounted
         if (to == INIT) initReleased = false;
     }
 
+    /**
+     * Releases the resource for the given id.
+     *
+     * @param id unique id for this release
+     * @throws IllegalStateException if resource is already released
+     */
     @Override
     public void release(ReferenceOwner id) throws IllegalStateException {
         super.release(id);
         if (id == INIT) initReleased = true;
     }
 
+    /**
+     * Releases the resource for the given id and checks the resource is now released.
+     *
+     * @param id unique id for this release
+     * @throws IllegalStateException if resource is already released
+     */
     @Override
     public void releaseLast(ReferenceOwner id) throws IllegalStateException {
         super.releaseLast(id);
         if (id == INIT) initReleased = true;
     }
 
+    /**
+     * Tries to reserve the resource for the given id.
+     *
+     * @param id unique id for this reserve
+     * @return true if reserved
+     * @throws IllegalStateException if resource is already released
+     */
     @Override
     public boolean tryReserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException {
         return !closed && super.tryReserve(id);
     }
 
+    /**
+     * Closes the resource.
+     */
     @Override
     public void close() {
         if (!initReleased)
@@ -86,6 +122,9 @@ public abstract class AbstractCloseableReferenceCounted
         setClosed();
     }
 
+    /**
+     * Closes the resource in the background.
+     */
     @Override
     protected void backgroundPerformRelease() {
         setClosing();
@@ -93,7 +132,7 @@ public abstract class AbstractCloseableReferenceCounted
     }
 
     /**
-     * Set closing in case it is being released in the background.
+     * Sets the resource as closing in case it is being released in the background.
      */
     protected void setClosing() {
         closing = true;
@@ -105,13 +144,18 @@ public abstract class AbstractCloseableReferenceCounted
     }
 
     /**
-     * When actually closed.
+     * Sets the resource as closed.
      */
     protected void setClosed() {
         closing = closed = true;
         setClosedHere(" closed here");
     }
 
+    /**
+     * Throws an exception if the resource is closed.
+     *
+     * @throws IllegalStateException if closed
+     */
     @Override
     public void throwExceptionIfClosed() throws IllegalStateException {
         throwExceptionIfClosed0();
@@ -128,12 +172,20 @@ public abstract class AbstractCloseableReferenceCounted
         throw new ClosedIllegalStateException(getClass().getName() + (closed ? " closed" : " closing"), closedHere);
     }
 
+    /**
+     * Throws an exception if the resource is closed while in a setter method.
+     *
+     * @throws IllegalStateException if closed
+     */
     protected void throwExceptionIfClosedInSetter() throws IllegalStateException {
         throwExceptionIfClosed0();
         throwExceptionIfReleased();
         assert AbstractCloseable.DISABLE_SINGLE_THREADED_CHECK || threadSafetyCheck(false);
     }
 
+    /**
+     * @return true if the resource is closed
+     */
     @Override
     public boolean isClosed() {
         return refCount() <= 0 || closed;

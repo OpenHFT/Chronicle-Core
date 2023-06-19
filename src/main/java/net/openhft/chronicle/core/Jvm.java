@@ -19,10 +19,15 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.annotation.DontChain;
+import net.openhft.chronicle.core.internal.Bootstrap;
+import net.openhft.chronicle.core.internal.ClassUtil;
+import net.openhft.chronicle.core.internal.CpuClass;
+import net.openhft.chronicle.core.internal.ObjectHeaderSizeHolder;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
 import net.openhft.chronicle.core.onoes.*;
 import net.openhft.chronicle.core.util.ObjectUtils;
 import net.openhft.chronicle.core.util.ThrowingSupplier;
+import net.openhft.posix.PosixAPI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
@@ -56,9 +61,9 @@ import java.util.function.Supplier;
 import static java.lang.Runtime.getRuntime;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 import static java.util.stream.Collectors.toList;
-import static net.openhft.chronicle.core.Bootstrap.*;
 import static net.openhft.chronicle.core.OS.*;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
+import static net.openhft.chronicle.core.internal.Bootstrap.*;
 import static net.openhft.chronicle.core.internal.util.MapUtil.entry;
 import static net.openhft.chronicle.core.internal.util.MapUtil.ofUnmodifiable;
 
@@ -75,7 +80,6 @@ public final class Jvm {
     private static final ExceptionHandler DEFAULT_PERF_EXCEPTION_HANDLER = Slf4jExceptionHandler.PERF;
     private static final ExceptionHandler DEFAULT_DEBUG_EXCEPTION_HANDLER = Slf4jExceptionHandler.DEBUG;
     private static final String PROC = "/proc";
-    private static final String PROC_SELF = "/proc/self";
     private static final List<String> INPUT_ARGUMENTS = getRuntimeMXBean().getInputArguments();
     private static final String INPUT_ARGUMENTS2 = " " + String.join(" ", INPUT_ARGUMENTS);
     private static final boolean IS_DEBUG = Jvm.getBoolean("debug", INPUT_ARGUMENTS2.contains("jdwp"));
@@ -85,10 +89,6 @@ public final class Jvm {
     private static final int COMPILE_THRESHOLD = getCompileThreshold0();
     private static final boolean REPORT_UNOPTIMISED;
     private static final Supplier<Long> reservedMemory;
-    private static final boolean IS_64BIT = is64bit0();
-    private static final int PROCESS_ID = getProcessId0();
-    private static final boolean IS_AZUL_ZING = Bootstrap.isAzulZing0();
-    private static final boolean IS_AZUL_ZULU = Bootstrap.isAzulZulu0();
     private static final boolean DISABLE_DEBUG = Jvm.getBoolean("disable.debug.info");
     @NotNull
     private static final ThreadLocalisedExceptionHandler ERROR = new ThreadLocalisedExceptionHandler(DEFAULT_ERROR_EXCEPTION_HANDLER);
@@ -100,8 +100,6 @@ public final class Jvm {
     private static final ExceptionHandler DEBUG;
     private static final long MAX_DIRECT_MEMORY;
     private static final boolean SAFEPOINT_ENABLED;
-    private static final boolean IS_ARM = Bootstrap.isArm0();
-    private static final boolean IS_MAC_ARM = Bootstrap.isMacArm0();
     private static final Map<Class<?>, ClassMetrics> CLASS_METRICS_MAP = new ConcurrentHashMap<>();
     private static final Map<Class<?>, Integer> PRIMITIVE_SIZE = ofUnmodifiable(
             entry(boolean.class, 1),
@@ -113,28 +111,35 @@ public final class Jvm {
             entry(long.class, Long.BYTES),
             entry(double.class, Double.BYTES)
     );
-    private static final MethodHandle setAccessible0_Method;
     private static final MethodHandle onSpinWaitMH;
     private static final ChainedSignalHandler signalHandlerGlobal;
     private static final boolean RESOURCE_TRACING;
     private static final boolean PROC_EXISTS = new File(PROC).exists();
-    private static final int OBJECT_HEADER_SIZE;
-    private static final boolean ASSERT_ENABLED;
 
     static {
+        Logger logger = LoggerFactory.getLogger(Jvm.class);
+
+        if (!isJUnitTest0()) {
+            // Eagerly initialise Posix & Affinity
+            try {
+                PosixAPI.posix();
+            } catch (Error e) {
+                logger.debug("Unable to load PosixAPI ", e);
+            }
+
+            try {
+                Class.forName("net.openhft.affinity.Affinity");
+            } catch (ClassNotFoundException e) {
+                logger.trace("Unable to load Affinity", e);
+            }
+        }
         if (DISABLE_DEBUG) {
             DEBUG = NullExceptionHandler.NOTHING;
         } else {
             DEBUG = new ThreadLocalisedExceptionHandler(DEFAULT_DEBUG_EXCEPTION_HANDLER);
         }
-        boolean debug = false;
-        assert debug = true;
-        ASSERT_ENABLED = debug;
-        final Field[] declaredFields = ObjectHeaderSizeChecker.class.getDeclaredFields();
-        // get this here before we call getField
-        setAccessible0_Method = getSetAccessible0Method();
+
         MAX_DIRECT_MEMORY = maxDirectMemory0();
-        OBJECT_HEADER_SIZE = (int) UnsafeMemory.INSTANCE.getFieldOffset(declaredFields[0]);
 
         Supplier<Long> reservedMemoryGetter;
         try {
@@ -155,7 +160,7 @@ public final class Jvm {
         signalHandlerGlobal = new ChainedSignalHandler();
 
         MethodHandle onSpinWait = null;
-        if (IS_JAVA_9_PLUS) {
+        if (isJava9Plus()) {
             try {
                 onSpinWait = MethodHandles.lookup()
                         .findStatic(Thread.class, "onSpinWait", MethodType.methodType(Void.TYPE));
@@ -175,7 +180,6 @@ public final class Jvm {
 
         RESOURCE_TRACING = Jvm.getBoolean("jvm.resource.tracing");
 
-        Logger logger = LoggerFactory.getLogger(Jvm.class);
         if (DISABLE_DEBUG)
             logger.info("-Ddisable.debug.info turned of debug logging");
         if (logger.isInfoEnabled())
@@ -220,23 +224,6 @@ public final class Jvm {
             }
         }
         loadSystemProperties(systemProperties, wasSet);
-    }
-
-    private static MethodHandle getSetAccessible0Method() {
-        if (!IS_JAVA_9_PLUS) {
-            return null;
-        }
-        final MethodType signature = MethodType.methodType(boolean.class, boolean.class);
-        try {
-            // Access privateLookupIn() reflectively to support compilation with JDK 8
-            Method privateLookupIn = MethodHandles.class.getDeclaredMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
-            MethodHandles.Lookup lookup = (MethodHandles.Lookup) privateLookupIn.invoke(null, AccessibleObject.class, MethodHandles.lookup());
-            return lookup.findVirtual(AccessibleObject.class, "setAccessible0", signature);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException |
-                 IllegalArgumentException e) {
-            Jvm.error().on(Jvm.class, "Chronicle products require command line arguments to be provided for Java 11 and above. See https://chronicle.software/chronicle-support-java-17");
-            throw new ExceptionInInitializerError(e);
-        }
     }
 
     public static void init() {
@@ -300,75 +287,52 @@ public final class Jvm {
     }
 
     /**
-     * Returns the major Java version (e.g. 8, 11 or 17)
-     *
      * @return the major Java version (e.g. 8, 11 or 17)
      */
     public static int majorVersion() {
-        return JVM_JAVA_MAJOR_VERSION;
+        return Bootstrap.getJvmJavaMajorVersion();
     }
 
     /**
-     * Returns if the major Java version is 9 or higher.
-     *
      * @return if the major Java version is 9 or higher
      */
     public static boolean isJava9Plus() {
-        return IS_JAVA_9_PLUS;
+        return Bootstrap.isJava9Plus();
     }
 
     /**
-     * Returns if the major Java version is 12 or higher.
-     *
      * @return if the major Java version is 12 or higher
      */
     public static boolean isJava12Plus() {
-        return IS_JAVA_12_PLUS;
+        return Bootstrap.isJava12Plus();
     }
 
     /**
-     * Returns if the major Java version is 14 or higher.
-     *
      * @return if the major Java version is 14 or higher
      */
     public static boolean isJava14Plus() {
-        return IS_JAVA_14_PLUS;
+        return Bootstrap.isJava14Plus();
     }
 
     /**
-     * Returns if the major Java version is 15 or higher.
-     *
      * @return if the major Java version is 15 or higher
      */
     public static boolean isJava15Plus() {
-        return IS_JAVA_15_PLUS;
+        return Bootstrap.isJava15Plus();
     }
 
     /**
-     * Returns if the major Java version is 19 or higher.
-     *
      * @return if the major Java version is 19 or higher
      */
     public static boolean isJava19Plus() {
-        return IS_JAVA_19_PLUS;
+        return Bootstrap.isJava19Plus();
     }
 
+    /**
+     * @return if the major Java version is 20 or higher
+     */
     public static boolean isJava20Plus() {
-        return IS_JAVA_20_PLUS;
-    }
-
-    private static boolean is64bit0() {
-        String systemProp;
-        systemProp = Jvm.getProperty("com.ibm.vm.bitmode");
-        if (systemProp != null) {
-            return "64".equals(systemProp);
-        }
-        systemProp = Jvm.getProperty("sun.arch.data.model");
-        if (systemProp != null) {
-            return "64".equals(systemProp);
-        }
-        systemProp = System.getProperty("java.vm.version");
-        return systemProp != null && systemProp.contains("_64");
+        return Bootstrap.isJava20Plus();
     }
 
     /**
@@ -516,9 +480,10 @@ public final class Jvm {
      */
     public static void nanoPause() {
         if (onSpinWaitMH == null) {
-            if (IS_JAVA_9_PLUS)
+            if (isJava9Plus())
                 Safepoint.force(); // 1 ns on Java 11
             else
+                //noinspection removal
                 Compiler.enable(); // 5 ns on Java 8
         } else {
             try {
@@ -567,28 +532,7 @@ public final class Jvm {
     // Todo: Should not throw an AssertionError but rather a RuntimeException
     @NotNull
     public static Field getField(@NotNull final Class<?> clazz, @NotNull final String fieldName) {
-        return getField0(clazz, fieldName, true);
-    }
-
-    static Field getField0(@NotNull final Class<?> clazz,
-                           @NotNull final String name,
-                           final boolean error) {
-        try {
-            final Field field = clazz.getDeclaredField(name);
-            setAccessible(field);
-            return field;
-
-        } catch (NoSuchFieldException e) {
-            final Class<?> superclass = clazz.getSuperclass();
-            if (superclass != null) {
-                final Field field = getField0(superclass, name, false);
-                if (field != null)
-                    return field;
-            }
-            if (error)
-                throw new AssertionError(e);
-            return null;
-        }
+        return ClassUtil.getField0(clazz, fieldName, true);
     }
 
     /**
@@ -602,7 +546,7 @@ public final class Jvm {
      */
     @Nullable
     public static Field getFieldOrNull(@NotNull final Class<?> clazz, @NotNull final String fieldName) {
-        return getField0(clazz, fieldName, false);
+        return ClassUtil.getField0(clazz, fieldName, false);
     }
 
     /**
@@ -625,57 +569,7 @@ public final class Jvm {
     public static Method getMethod(@NotNull final Class<?> clazz,
                                    @NotNull final String methodName,
                                    final Class... argTypes) {
-        return getMethod0(clazz, methodName, argTypes, true);
-    }
-
-    private static Method getMethod0(@NotNull final Class<?> clazz,
-                                     @NotNull final String name,
-                                     final Class[] args,
-                                     final boolean first) {
-        try {
-            final Method method = clazz.getDeclaredMethod(name, args);
-            if (!Modifier.isPublic(method.getModifiers()) ||
-                    !Modifier.isPublic(method.getDeclaringClass().getModifiers()))
-                setAccessible(method);
-            return method;
-
-        } catch (NoSuchMethodException e) {
-            final Class<?> superclass = clazz.getSuperclass();
-            if (superclass != null)
-                try {
-                    final Method m = getMethod0(superclass, name, args, false);
-                    if (m != null)
-                        return m;
-                } catch (Exception ignored) {
-                    // Ignore
-                }
-            if (first)
-                throw new AssertionError(e);
-            return null;
-        }
-    }
-
-    /**
-     * Set the accessible flag for the provided {@code accessibleObject} indicating that
-     * the reflected object should suppress Java language access checking when it is used.
-     * <p>
-     * The setting of the accessible flag might be subject to security manager approval.
-     *
-     * @param accessibleObject to modify
-     * @throws SecurityException – if the request is denied.
-     * @see SecurityManager#checkPermission
-     * @see RuntimePermission
-     */
-    public static void setAccessible(@NotNull final AccessibleObject accessibleObject) {
-        if (IS_JAVA_9_PLUS)
-            try {
-                boolean newFlag = (boolean) setAccessible0_Method.invokeExact(accessibleObject, true);
-                assert newFlag;
-            } catch (Throwable throwable) {
-                throw Jvm.rethrow(throwable);
-            }
-        else
-            accessibleObject.setAccessible(true);
+        return ClassUtil.getMethod0(clazz, methodName, argTypes, true);
     }
 
     /**
@@ -983,7 +877,7 @@ public final class Jvm {
     private static long maxDirectMemory0() {
         try {
             final Class<?> clz;
-            if (IS_JAVA_9_PLUS) {
+            if (isJava9Plus()) {
                 clz = Class.forName("jdk.internal.misc.VM");
             } else {
                 clz = Class.forName("sun.misc.VM");
@@ -1020,9 +914,10 @@ public final class Jvm {
      */
     public static void safepoint() {
         if (SAFEPOINT_ENABLED) {
-            if (IS_JAVA_9_PLUS) {
+            if (Bootstrap.isJava9Plus()) {
                 Safepoint.force(); // 1 ns on Java 11
             } else {
+                //noinspection removal
                 Compiler.enable(); // 5 ns on Java 8
             }
         }
@@ -1237,6 +1132,7 @@ public final class Jvm {
     /**
      * Parse a string as a decimal memory size with an optional scale.
      * K/k = * 2<sup>10</sup>, M/m = 2<sup>20</sup>, G/g = 2<sup>10</sup>, T/t = 2<sup>40</sup>
+     *
      * <p>
      * trailing B/b/iB/ib are ignored.
      *      <table>
@@ -1252,7 +1148,7 @@ public final class Jvm {
      *
      * @param value size to parse
      * @return the size
-     * @throws IllegalArgumentException if the string could be parsed
+     * @throws IllegalArgumentException if the string could not be parsed
      */
     public static long parseSize(@NotNull String value) throws IllegalArgumentException {
         long factor = 1;
@@ -1364,7 +1260,7 @@ public final class Jvm {
         try {
             final Field field = AbstractInterruptibleChannel.class
                     .getDeclaredField("interruptor");
-            Jvm.setAccessible(field);
+            ClassUtil.setAccessible(field);
             final CommonInterruptible ci = new CommonInterruptible(clazz, fc);
             field.set(fc, (Interruptible) thread -> ci.interrupt());
         } catch (Throwable e) {
@@ -1378,7 +1274,7 @@ public final class Jvm {
         try {
             final Field field = AbstractInterruptibleChannel.class.getDeclaredField("interruptor");
             final Class<?> interruptibleClass = field.getType();
-            Jvm.setAccessible(field);
+            ClassUtil.setAccessible(field);
             final CommonInterruptible ci = new CommonInterruptible(clazz, fc);
             field.set(fc, Proxy.newProxyInstance(
                     interruptibleClass.getClassLoader(),
@@ -1502,14 +1398,14 @@ public final class Jvm {
     }
 
     public static int objectHeaderSize() {
-        return OBJECT_HEADER_SIZE;
+        return ObjectHeaderSizeHolder.getSize();
     }
 
     /**
      * @return Obtain the model of CPU on Linux or the os.arch on other OSes.
      */
     public static String getCpuClass() {
-        return CpuClass.CPU_MODEL;
+        return CpuClass.getCpuModel();
     }
 
     /**
@@ -1701,5 +1597,16 @@ public final class Jvm {
                 }
             }
         }
+    }
+
+    private static boolean isJUnitTest0() {
+        for (StackTraceElement[] stackTrace : Thread.getAllStackTraces().values()) {
+            for (StackTraceElement element : stackTrace) {
+                if (element.getClassName().contains(".junit")) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }

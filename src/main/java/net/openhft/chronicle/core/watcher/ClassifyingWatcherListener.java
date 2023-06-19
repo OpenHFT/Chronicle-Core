@@ -26,6 +26,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+@Deprecated(/* to be removed x.26 */)
 public class ClassifyingWatcherListener implements WatcherListener {
     final Set<FileClassifier> classifiers = new CopyOnWriteArraySet<>();
     final Map<Path, FileManager> fileManagerMap = new TreeMap<>();

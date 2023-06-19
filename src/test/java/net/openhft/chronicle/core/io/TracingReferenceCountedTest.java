@@ -6,6 +6,7 @@ import org.junit.Test;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
+import static net.openhft.chronicle.core.internal.CloseableUtils.asString;
 import static org.junit.Assert.*;
 
 public class TracingReferenceCountedTest extends MonitorReferenceCountedContractTest {
@@ -103,7 +104,7 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
     @Test
     public void asStringWillIncludeReferenceCountedDetails() {
         final TracingReferenceCounted referenceCounted = createReferenceCounted();
-        assertTrue(Pattern.matches("TracingReferenceCounted@\\w+ refCount=1", TracingReferenceCounted.asString(referenceCounted)));
+        assertTrue(Pattern.matches("TracingReferenceCounted@\\w+ refCount=1", asString(referenceCounted)));
     }
 
     @Test
@@ -120,7 +121,7 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
                 return "testCloseable";
             }
         }
-        assertEquals("testCloseable closed=false", TracingReferenceCounted.asString(new SomeCloseable()));
+        assertEquals("testCloseable closed=false", asString(new SomeCloseable()));
     }
 
     @Test
@@ -128,7 +129,7 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
         class SomePlainObject {
 
         }
-        assertTrue(Pattern.matches("SomePlainObject@\\w+", TracingReferenceCounted.asString(new SomePlainObject())));
+        assertTrue(Pattern.matches("SomePlainObject@\\w+", asString(new SomePlainObject())));
     }
 
     @Test

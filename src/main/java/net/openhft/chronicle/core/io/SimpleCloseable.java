@@ -17,14 +17,23 @@
  */
 package net.openhft.chronicle.core.io;
 
+/**
+ * An abstract class providing a basic implementation of the {@link Closeable}, {@link ReferenceOwner}, and {@link ManagedCloseable} interfaces.
+ * It maintains a flag to track the closed state of the resource and provides methods for closing the resource.
+ */
 public abstract class SimpleCloseable implements Closeable, ReferenceOwner, ManagedCloseable {
     private transient volatile boolean closed;
 
+    /**
+     * Constructs a new instance of {@code SimpleCloseable}.
+     * This constructor is protected to encourage inheritance and prevent direct instantiation.
+     */
     protected SimpleCloseable() {
     }
 
     /**
-     * Close a resource so it cannot be used again.
+     * Closes the resource so that it cannot be used again.
+     * Once closed, subsequent calls to this method will have no effect.
      */
     @Override
     public final void close() {
@@ -35,12 +44,21 @@ public abstract class SimpleCloseable implements Closeable, ReferenceOwner, Mana
     }
 
     /**
+     * Performs the actual close operation.
+     * Subclasses can override this method to provide custom close logic.
+     * The default implementation does nothing.
+     * <p>
      * Call close() to ensure this is called exactly once.
      */
     protected void performClose() {
         // might be nothing.
     }
 
+    /**
+     * Checks if the resource is closed.
+     *
+     * @return {@code true} if the resource is closed, {@code false} otherwise.
+     */
     @Override
     public boolean isClosed() {
         return closed;

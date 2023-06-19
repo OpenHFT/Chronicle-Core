@@ -20,21 +20,36 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
 
+/**
+ * An interface indicating that the implementing resource supports single-threaded access checking.
+ * It provides methods to reset the check and disable the single-threaded check.
+ */
 public interface SingleThreadedChecked {
-    // TODO: remove disable.thread.safety property in x.25
+
+    /**
+     * A flag indicating whether the single-threaded check is disabled.
+     * By default, it reads the value from the system property "disable.single.threaded.check",
+     * falling back to "disable.thread.safety" if not found.
+     * It can be overridden or configured via the system properties.
+     * TODO: Remove "disable.thread.safety" property in version x.25
+     */
     boolean DISABLE_SINGLE_THREADED_CHECK =
             Jvm.getBoolean("disable.single.threaded.check",
                     Jvm.getBoolean("disable.thread.safety", false));
 
     /**
-     * Forget about previous accesses and only check from now on.
+     * Resets the single-threaded check, forgetting about previous accesses.
+     * Subsequent accesses will be checked from the point of this reset.
      */
     void singleThreadedCheckReset();
 
     /**
-     * When set to <code>true</code> this resource can be shared between thread provided you ensure they used in a thread safe manner.
+     * Sets the flag to disable the single-threaded check.
+     * When set to {@code true}, this resource can be shared between threads
+     * as long as the users ensure that it is used in a thread-safe manner.
      *
-     * @param singleThreadedCheckDisabled true to turn off the thread safety check
+     * @param singleThreadedCheckDisabled {@code true} to turn off the thread safety check,
+     *                                    {@code false} to enable it.
      */
     void singleThreadedCheckDisabled(boolean singleThreadedCheckDisabled);
 }

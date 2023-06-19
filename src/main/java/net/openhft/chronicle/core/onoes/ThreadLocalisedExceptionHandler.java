@@ -22,6 +22,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
+/**
+ * This class provides a thread-localized ExceptionHandler. The actual ExceptionHandler used for handling
+ * exceptions can vary per thread and can be configured using the threadLocalHandler method.
+ * If no thread-local ExceptionHandler has been set, it will fall back to a default ExceptionHandler.
+ * <p>
+ * The default ExceptionHandler can be set using the defaultHandler method, and is initially passed to
+ * the constructor when creating a new instance of this class.
+ */
 public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
     private ExceptionHandler eh;
     private ThreadLocal<ExceptionHandler> handlerTL;

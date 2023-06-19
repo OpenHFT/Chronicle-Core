@@ -24,7 +24,20 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
 
+/**
+ * An interface for tracing the reference counting of objects.
+ * It extends the {@link ReferenceCounted} interface and provides additional tracing and exception-throwing methods.
+ */
 public interface ReferenceCountedTracer extends ReferenceCounted {
+
+    /**
+     * Creates a new instance of {@link ReferenceCountedTracer} based on the resource tracing configuration.
+     *
+     * @param onRelease The {@link Runnable} to be executed upon release of the object.
+     * @param uniqueId  The unique identifier for the object.
+     * @param type      The class type of the object.
+     * @return A new instance of {@link ReferenceCountedTracer} based on the resource tracing configuration.
+     */
     @NotNull
     static ReferenceCountedTracer onReleased(final Runnable onRelease, Supplier<String> uniqueId, Class<?> type) {
         return Jvm.isResourceTracing()
@@ -32,7 +45,9 @@ public interface ReferenceCountedTracer extends ReferenceCounted {
                 : new VanillaReferenceCounted(onRelease, type);
     }
 
-    // throws IllegalStateException
+    /**
+     * @throws ClosedIllegalStateException If the object has been released.
+     */
     default void throwExceptionIfReleased() throws ClosedIllegalStateException {
         if (refCount() <= 0)
             throw new ClosedIllegalStateException("Released");
@@ -47,7 +62,13 @@ public interface ReferenceCountedTracer extends ReferenceCounted {
      */
     void warnAndReleaseIfNotReleased() throws ClosedIllegalStateException;
 
+    /**
+     * @throws IllegalStateException If the object has not been released.
+     */
     void throwExceptionIfNotReleased() throws IllegalStateException;
 
+    /**
+     * @return The stack trace where the object was created.
+     */
     StackTrace createdHere();
 }

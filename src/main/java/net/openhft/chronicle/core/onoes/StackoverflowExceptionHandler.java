@@ -21,6 +21,7 @@ package net.openhft.chronicle.core.onoes;
 
 import org.jetbrains.annotations.NotNull;
 
+@Deprecated(/* to be moved in x.26 to a demo repo */)
 public class StackoverflowExceptionHandler extends WebExceptionHandler {
     public static final ExceptionHandler WARN = new StackoverflowExceptionHandler(Slf4jExceptionHandler.WARN);
 

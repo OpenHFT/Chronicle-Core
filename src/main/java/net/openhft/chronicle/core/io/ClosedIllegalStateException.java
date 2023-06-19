@@ -18,11 +18,27 @@
 
 package net.openhft.chronicle.core.io;
 
+/**
+ * Exception thrown when an operation is attempted on a closed resource.
+ * This exception is a subclass of IllegalStateException.
+ */
 public class ClosedIllegalStateException extends IllegalStateException {
+
+    /**
+     * Constructs a ClosedIllegalStateException with the specified detail message.
+     *
+     * @param s The detail message.
+     */
     public ClosedIllegalStateException(String s) {
         super(s);
     }
 
+    /**
+     * Constructs a ClosedIllegalStateException with the specified detail message and cause.
+     *
+     * @param message The detail message.
+     * @param cause   The cause of the exception.
+     */
     public ClosedIllegalStateException(String message, Throwable cause) {
         super(message, cause);
     }

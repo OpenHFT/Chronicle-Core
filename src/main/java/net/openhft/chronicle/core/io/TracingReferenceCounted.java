@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
+import net.openhft.chronicle.core.internal.CloseableUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
@@ -13,6 +14,8 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import static net.openhft.chronicle.core.internal.CloseableUtils.asString;
 
 public final class TracingReferenceCounted implements MonitorReferenceCounted {
     private final Map<ReferenceOwner, StackTrace> references = Collections.synchronizedMap(new IdentityHashMap<>());
@@ -32,22 +35,6 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
         createdHere = stackTrace("init", INIT);
         references.put(INIT, createdHere);
         referenceChangeListeners = new ReferenceChangeListenerManager(this);
-    }
-
-    static String asString(Object id) {
-        if (id == INIT) return "INIT";
-        String s = id instanceof ReferenceOwner
-                ? ((ReferenceOwner) id).referenceName()
-                : id.getClass().getSimpleName() + "@" + Integer.toHexString(System.identityHashCode(id));
-        if (id instanceof ReferenceCounted)
-            s += " refCount=" + ((ReferenceCounted) id).refCount();
-        try {
-            if (id instanceof QueryCloseable)
-                s += " closed=" + ((QueryCloseable) id).isClosed();
-        } catch (NullPointerException ignored) {
-            // not initialised
-        }
-        return s;
     }
 
     @Override
@@ -167,7 +154,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     public List<String> referencesAsString() {
         synchronized (references) {
             return references.keySet().stream()
-                    .map(TracingReferenceCounted::asString)
+                    .map(CloseableUtils::asString)
                     .collect(Collectors.toList());
         }
     }

@@ -25,6 +25,18 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Slf4jExceptionHandler is an enum implementation of the ExceptionHandler interface.
+ * It uses SLF4J (Simple Logging Facade for Java) to handle exceptions based on the level of logging severity.
+ * It supports four levels of logging severity: ERROR, WARN, PERF and DEBUG.
+ * <p>
+ * Each instance of Slf4jExceptionHandler logs at a specific level and corresponds to a LogLevel enum.
+ * This is used to map LogLevel enums to their corresponding Slf4jExceptionHandler instances via the valueOf(LogLevel logLevel) method.
+ * <p>
+ * The DEBUG instance also overrides the isEnabled(@NotNull Class<?> clazz) method, using the isDebugEnabled() method from SLF4J's Logger class.
+ * <p>
+ * There's also a utility method isJUnitTest() which is used to detect if the current execution context is a JUnit test.
+ */
 public enum Slf4jExceptionHandler implements ExceptionHandler {
     ERROR {
         @Override
@@ -62,6 +74,12 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
 
     static final ClassLocal<Logger> CLASS_LOGGER = ClassLocal.withInitial(LoggerFactory::getLogger);
 
+    /**
+     * Returns the appropriate Slf4jExceptionHandler value based on the given LogLevel.
+     *
+     * @param logLevel the LogLevel enum to convert.
+     * @return the corresponding Slf4jExceptionHandler value.
+     */
     public static Slf4jExceptionHandler valueOf(LogLevel logLevel) {
         if (logLevel == LogLevel.ERROR)
             return ERROR;
@@ -70,17 +88,5 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
         if (logLevel == LogLevel.PERF)
             return PERF;
         return DEBUG;
-    }
-
-    private static boolean isJUnitTest() {
-
-        for (StackTraceElement[] stackTrace : Thread.getAllStackTraces().values()) {
-            for (StackTraceElement element : stackTrace) {
-                if (element.getClassName().contains(".junit")) {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
 }

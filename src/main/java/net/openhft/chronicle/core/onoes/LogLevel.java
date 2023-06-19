@@ -19,6 +19,17 @@
 
 package net.openhft.chronicle.core.onoes;
 
+/**
+ * LogLevel is an enumeration that defines various levels of logging within an application.
+ * These levels allow for granularity and control over what types of messages should be logged.
+ *
+ * <ul>
+ *     <li>{@link #ERROR} - Designates error events that might still allow the application to continue running.</li>
+ *     <li>{@link #WARN} - Designates potentially harmful situations which should still allow the application to continue.</li>
+ *     <li>{@link #PERF} - Designates performance events that could be used for performance optimization and diagnosis.</li>
+ *     <li>{@link #DEBUG} - Designates fine-grained informational events that are most useful to debug an application.</li>
+ * </ul>
+ */
 public enum LogLevel {
     ERROR,
     WARN,

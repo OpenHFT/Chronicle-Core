@@ -32,6 +32,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
+@Deprecated(/* to be removed x.26 */)
 public class FileSystemWatcher {
     private final WatchService watchService;
     // shared
@@ -103,10 +104,10 @@ public class FileSystemWatcher {
             try {
                 String basePath = base.toString();
                 watchKeyToPathMap.put(full.register(
-                        watchService,
-                        StandardWatchEventKinds.ENTRY_CREATE,
-                        StandardWatchEventKinds.ENTRY_DELETE,
-                        StandardWatchEventKinds.ENTRY_MODIFY),
+                                watchService,
+                                StandardWatchEventKinds.ENTRY_CREATE,
+                                StandardWatchEventKinds.ENTRY_DELETE,
+                                StandardWatchEventKinds.ENTRY_MODIFY),
                         new PathInfo(basePath, full.toString()));
             } catch (IOException e) {
                 Jvm.warn().on(FileSystemWatcher.class, "Couldn't add path " + full, e);

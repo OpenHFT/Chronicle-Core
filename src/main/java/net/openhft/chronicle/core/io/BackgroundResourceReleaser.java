@@ -26,6 +26,9 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * Utility class for managing reference counted resources and related operations.
+ */
 public final class BackgroundResourceReleaser {
 
     // Suppresses default constructor, ensuring non-instantiability.
@@ -82,6 +85,11 @@ public final class BackgroundResourceReleaser {
         offerPoisonPill(true);
     }
 
+    /**
+     * Releases the specified resource.
+     *
+     * @param closeable the resource to release
+     */
     public static void release(AbstractCloseable closeable) {
         if (stopping)
             performRelease(closeable, false);
@@ -89,6 +97,11 @@ public final class BackgroundResourceReleaser {
             release0(closeable);
     }
 
+    /**
+     * Releases the specified resource.
+     *
+     * @param referenceCounted the resource to release
+     */
     public static void release(AbstractReferenceCounted referenceCounted) {
         if (stopping)
             performRelease(referenceCounted, false);
@@ -96,6 +109,11 @@ public final class BackgroundResourceReleaser {
             release0(referenceCounted);
     }
 
+    /**
+     * Releases the specified resource.
+     *
+     * @param runnable the resource to release
+     */
     public static void run(Runnable runnable) {
         if (stopping)
             performRelease(runnable, false);
@@ -110,6 +128,9 @@ public final class BackgroundResourceReleaser {
         performRelease(o, true);
     }
 
+    /**
+     * Releases all pending resources.
+     */
     public static void releasePendingResources() {
         boolean interrupted = Thread.interrupted();
         try {
@@ -171,5 +192,4 @@ public final class BackgroundResourceReleaser {
             Jvm.warn().on(BackgroundResourceReleaser.class, "Failed to add a stop object to the resource queue");
         }
     }
-
 }

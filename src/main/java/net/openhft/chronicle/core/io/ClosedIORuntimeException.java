@@ -19,13 +19,26 @@
 package net.openhft.chronicle.core.io;
 
 /**
- * An IORuntimeException triggered when a closed underlying IO resource is used.
+ * Exception thrown when a closed underlying IO resource is used.
+ * This exception is a subclass of IORuntimeException.
  */
 public class ClosedIORuntimeException extends IORuntimeException {
+
+    /**
+     * Constructs a ClosedIORuntimeException with the specified detail message.
+     *
+     * @param message The detail message.
+     */
     public ClosedIORuntimeException(String message) {
         super(message);
     }
 
+    /**
+     * Constructs a ClosedIORuntimeException with the specified detail message and cause.
+     *
+     * @param message The detail message.
+     * @param thrown  The cause of the exception.
+     */
     public ClosedIORuntimeException(String message, Throwable thrown) {
         super(message, thrown);
     }
