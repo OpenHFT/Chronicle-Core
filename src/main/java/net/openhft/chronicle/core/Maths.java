@@ -785,6 +785,7 @@ public final class Maths {
      * @param decimalPlaces The number of decimal places
      * @return The value as a double
      */
+
     public static double asDouble(@NonNegative long value, int exponent, boolean negative, int decimalPlaces) {
         assert AssertUtil.SKIP_ASSERTIONS || value >= 0;
         // these numbers were determined empirically.
@@ -804,18 +805,11 @@ public final class Maths {
                 long rem = value % fives;
                 int wholeZero = Long.numberOfLeadingZeros(whole) - 10;
                 if (wholeZero <= 0) {
-                    d = whole;
-                    if (wholeZero == 0) {
-                        long l = (long) d;
-                        if (rem > 0 && whole > l)
-                            d += Math.ulp(d);
-                    }
+                    d = roundUpOneUlp(whole, rem, wholeZero);
                 } else {
                     int remZero = Long.numberOfLeadingZeros(rem) - 1;
                     int leading2 = Math.min(wholeZero, remZero);
-                    rem <<= leading2;
-                    long rem2 = rem / fives;
-                    d = add((whole << leading2) + rem2, rem % fives, fives);
+                    d = addRemainingFraction(fives, whole, rem, leading2);
                     scale2 += leading2;
                 }
 
@@ -835,6 +829,25 @@ public final class Maths {
 
         double scalb = Math.scalb(d, exponent - decimalPlaces - scale2);
         return negative ? -scalb : scalb;
+    }
+
+    private static double addRemainingFraction(long fives, long whole, long rem, int leading2) {
+        double d;
+        rem <<= leading2;
+        long rem2 = rem / fives;
+        d = add((whole << leading2) + rem2, rem % fives, fives);
+        return d;
+    }
+
+    private static double roundUpOneUlp(long whole, long rem, int wholeZero) {
+        double d;
+        d = whole;
+        if (wholeZero == 0) {
+            long l = (long) d;
+            if (rem > 0 && whole > l)
+                d += Math.ulp(d);
+        }
+        return d;
     }
 
     /**

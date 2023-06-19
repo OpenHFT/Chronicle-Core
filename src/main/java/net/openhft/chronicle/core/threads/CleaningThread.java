@@ -21,6 +21,7 @@ package net.openhft.chronicle.core.threads;
 import net.openhft.affinity.Affinity;
 import net.openhft.affinity.AffinityLock;
 import net.openhft.chronicle.core.Jvm;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
@@ -66,48 +67,19 @@ public class CleaningThread extends Thread {
      * @param thread thread to clean for
      */
     public static void performCleanup(Thread thread) {
-        WeakReference<?>[] table;
-        Object o;
-        try {
-            o = THREAD_LOCALS.get(thread);
-            if (o == null)
-                return;
-            table = (WeakReference<?>[]) TABLE.get(o);
-        } catch (IllegalAccessException | IllegalArgumentException e) {
-            Jvm.debug().on(CleaningThreadLocal.class, e.toString());
-            return;
-        }
-        if (table == null)
-            return;
+        performCleanup(thread, null);
+    }
 
+    @Nullable
+    private static Method getRemoveMethod(Object o) {
         Method remove;
         try {
             remove = o.getClass().getDeclaredMethod("remove", ThreadLocal.class);
             remove.setAccessible(true);
         } catch (NoSuchMethodException e) {
-            return;
+            return null;
         }
-
-        for (WeakReference<?> reference : table.clone()) {
-            try {
-                Object key = reference != null ? reference.get() : null;
-                if (!(key instanceof CleaningThreadLocal))
-                    continue;
-
-                Object value = VALUE.get(reference);
-                if (value == null)
-                    continue;
-
-                @SuppressWarnings("unchecked") final CleaningThreadLocal<Object> ctl = (CleaningThreadLocal<Object>) key;
-                ctl.cleanup(value);
-
-                remove.invoke(o, key);
-            } catch (IllegalAccessException e) {
-                Jvm.debug().on(CleaningThreadLocal.class, e.toString());
-            } catch (Throwable e) {
-                Jvm.debug().on(CleaningThreadLocal.class, e);
-            }
-        }
+        return remove;
     }
 
     /**
@@ -128,28 +100,29 @@ public class CleaningThread extends Thread {
         if (table == null)
             return;
 
-        Method remove;
-        try {
-            remove = o.getClass().getDeclaredMethod("remove", ThreadLocal.class);
-            remove.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            return;
-        }
+        Method remove = getRemoveMethod(o);
+        if (remove == null) return;
 
-        for (WeakReference<?> reference : table) {
+        scanReferences(ctl, table, o, remove);
+    }
+
+    private static void scanReferences(CleaningThreadLocal<?> ctl, WeakReference<?>[] table, Object o, Method remove) {
+        for (WeakReference<?> reference : table.clone()) {
             try {
                 Object key = reference != null ? reference.get() : null;
-                if (!(key instanceof CleaningThreadLocal) || key != ctl)
+                if (!(key instanceof CleaningThreadLocal) || (ctl != null && key != ctl))
                     continue;
 
                 Object value = VALUE.get(reference);
                 if (value == null)
                     continue;
 
-                ((CleaningThreadLocal<Object>) ctl).cleanup(value);
+                CleaningThreadLocal<Object> ctlKey = (CleaningThreadLocal<Object>) key;
+                ctlKey.cleanup(value);
 
                 remove.invoke(o, key);
-                break;
+                if (ctl != null)
+                    break;
             } catch (IllegalAccessException e) {
                 Jvm.debug().on(CleaningThreadLocal.class, e.toString());
             } catch (Throwable e) {

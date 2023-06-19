@@ -518,24 +518,26 @@ public final class ObjectUtils {
             throw new IllegalArgumentException("Accumulator cannot be null");
 
         if (o instanceof Class) {
-            Class<?> clazz = (Class<?>) o;
+            getAllInterfacesForClass((Class<?>) o, accumulator);
+        } else {
+            getAllInterfaces(o.getClass(), accumulator);
+        }
+    }
 
-            if (clazz.isInterface()) {
-                if (Boolean.TRUE.equals(accumulator.apply((Class<?>) o))) {
-                    for (Class<?> aClass : clazz.getInterfaces()) {
-                        getAllInterfaces(aClass, accumulator);
-                    }
-                }
-            } else {
-                if (null != clazz.getSuperclass())
-                    getAllInterfaces(clazz.getSuperclass(), accumulator);
-
+    private static void getAllInterfacesForClass(Class<?> clazz, Function<Class<?>, Boolean> accumulator) {
+        if (clazz.isInterface()) {
+            if (Boolean.TRUE.equals(accumulator.apply(clazz))) {
                 for (Class<?> aClass : clazz.getInterfaces()) {
                     getAllInterfaces(aClass, accumulator);
                 }
             }
         } else {
-            getAllInterfaces(o.getClass(), accumulator);
+            if (null != clazz.getSuperclass())
+                getAllInterfaces(clazz.getSuperclass(), accumulator);
+
+            for (Class<?> aClass : clazz.getInterfaces()) {
+                getAllInterfaces(aClass, accumulator);
+            }
         }
     }
 
@@ -596,6 +598,8 @@ public final class ObjectUtils {
                 return ObjectUtils::toBoolean;
             if (c == UUID.class)
                 return UUID::fromString;
+            if (c == byte[].class)
+                return String::getBytes;
             if (CoreDynamicEnum.class.isAssignableFrom(c))
                 return EnumCache.of(c)::get;
             try {
