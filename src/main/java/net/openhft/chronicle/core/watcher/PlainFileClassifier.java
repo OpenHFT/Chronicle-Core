@@ -21,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+@Deprecated(/* to be removed x.26 */)
 public class PlainFileClassifier implements FileClassifier {
     @Override
     public FileManager classify(String base, String relative) {

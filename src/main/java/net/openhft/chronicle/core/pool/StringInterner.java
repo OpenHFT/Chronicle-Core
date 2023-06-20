@@ -36,8 +36,16 @@ import java.util.stream.Stream;
  * Discussion https://stackoverflow.com/questions/63383745/string-array-needless-synchronization/63383983
  * </p>
  *
+ *
+ * This class provides string interning functionality.
+ * It's used to optimize memory usage by caching strings and
+ * referring to them by index, rather than storing duplicate strings.
+ * When you 'intern' a string, it's looked up in the cache and
+ * if an equal string is found, it's returned instead of creating a new one.
+ *
  * @author peter.lawrey
  */
+
 public class StringInterner {
     protected final String[] interner;
     protected final int mask;
@@ -48,7 +56,12 @@ public class StringInterner {
         void onChanged(int index, String value);
     }
 
-    // throws IllegalArgumentException
+    /**
+     * Constructs a new StringInterner with the specified capacity.
+     *
+     * @param capacity the initial capacity of the interner.
+     * @throws IllegalArgumentException if the capacity is invalid.
+     */
     public StringInterner(int capacity) throws IllegalArgumentException {
         int n = Maths.nextPower2(capacity, 128);
         shift = Maths.intLog2(n);
@@ -57,12 +70,19 @@ public class StringInterner {
     }
 
     /**
-     * @return the size of  interner[]
+     * @return the size of interner[]
      */
     public int capacity() {
         return interner.length;
     }
 
+    /**
+     * Interns the specified CharSequence.
+     *
+     * @param cs the CharSequence to intern.
+     * @return the interned string, or the original CharSequence
+     * if it's not interned.
+     */
     @Nullable
     public String intern(@Nullable CharSequence cs) {
         if (cs == null)
@@ -154,6 +174,11 @@ public class StringInterner {
         return toggle;
     }
 
+    /**
+     * Returns the number of values in the interner.
+     *
+     * @return the count of non-null strings in the interner.
+     */
     public int valueCount() {
         return (int) Stream.of(interner).filter(Objects::nonNull).count();
     }

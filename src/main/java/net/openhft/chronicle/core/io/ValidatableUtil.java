@@ -18,18 +18,24 @@
 
 package net.openhft.chronicle.core.io;
 
+/**
+ * Utility class for validating objects and managing validation settings.
+ */
 public class ValidatableUtil {
     static final ThreadLocal<int[]> VALIDATE_DISABLED = ThreadLocal.withInitial(() -> new int[1]);
 
     /**
-     * @return has validation been enabled
+     * Checks if validation is enabled.
+     *
+     * @return {@code true} if validation is enabled, {@code false} otherwise.
      */
     public static boolean validateEnabled() {
         return VALIDATE_DISABLED.get()[0] <= 0;
     }
 
     /**
-     * Start a nestable block where validation is disabled
+     * Starts a nestable block where validation is disabled.
+     * This method can be used to temporarily disable validation for a specific code block.
      */
     public static void startValidateDisabled() {
         VALIDATE_DISABLED.get()[0]++;

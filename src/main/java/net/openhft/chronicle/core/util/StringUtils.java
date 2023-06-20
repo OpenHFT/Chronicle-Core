@@ -18,10 +18,11 @@
 
 package net.openhft.chronicle.core.util;
 
-import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.Maths;
-import net.openhft.chronicle.core.OS;
+import net.openhft.chronicle.core.UnsafeMemory;
 import net.openhft.chronicle.core.annotation.Java9;
+import net.openhft.chronicle.core.internal.Bootstrap;
+import net.openhft.chronicle.core.internal.ClassUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -52,11 +53,11 @@ public final class StringUtils {
     static {
         try {
             S_VALUE = String.class.getDeclaredField(VALUE_FIELD_NAME);
-            Jvm.setAccessible(S_VALUE);
-            S_VALUE_OFFSET = OS.memory().getFieldOffset(S_VALUE);
-            if (Jvm.isJava9Plus()) {
-                SB_CODER = Jvm.getField(StringBuilder.class.getSuperclass(), CODER_FIELD_NAME);
-                S_CODER = Jvm.getField(String.class, CODER_FIELD_NAME);
+            ClassUtil.setAccessible(S_VALUE);
+            S_VALUE_OFFSET = getMemory().getFieldOffset(S_VALUE);
+            if (Bootstrap.isJava9Plus()) {
+                SB_CODER = ClassUtil.getField0(StringBuilder.class.getSuperclass(), CODER_FIELD_NAME, true);
+                S_CODER = ClassUtil.getField0(String.class, CODER_FIELD_NAME, true);
             } else {
                 S_CODER = null;
                 SB_CODER = null;
@@ -68,8 +69,8 @@ public final class StringUtils {
         long sCountOffset = -1;
         try {
             Field sCount = String.class.getDeclaredField(COUNT_FIELD_NAME);
-            Jvm.setAccessible(sCount);
-            sCountOffset = OS.memory().getFieldOffset(sCount);
+            ClassUtil.setAccessible(sCount);
+            sCountOffset = getMemory().getFieldOffset(sCount);
         } catch (Exception ignored) {
             // Do nothing
         }
@@ -85,30 +86,22 @@ public final class StringUtils {
         }
     }
 
-    private static final class SbFields {
+    @NotNull
+    private static UnsafeMemory getMemory() {
+        return UnsafeMemory.INSTANCE;
+    }
 
-        private Field sbValue;
-        private long sbValOffset;
-        private Field sbCount;
-        private long sbCountOffset;
+    public static boolean isEqual(@Nullable StringBuilder s, @Nullable CharSequence cs) {
+        if (s == cs)
+            return true;
+        if (s == null) return false;
+        if (cs == null) return false;
+        int length = cs.length();
+        if (s.length() != length) return false;
 
-        public SbFields() throws ClassNotFoundException, NoSuchFieldException {
-            try {
-                sbValue = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField(VALUE_FIELD_NAME);
-                Jvm.setAccessible(sbValue);
-                sbValOffset = OS.memory().getFieldOffset(sbValue);
-                sbCount = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField(COUNT_FIELD_NAME);
-                Jvm.setAccessible(sbCount);
-                sbCountOffset = OS.memory().getFieldOffset(sbCount);
-            } catch (NoSuchFieldException e) {
-                sbValue = Class.forName("java.lang.StringBuilder").getDeclaredField(VALUE_FIELD_NAME);
-                Jvm.setAccessible(sbValue);
-                sbValOffset = OS.memory().getFieldOffset(sbValue);
-                sbCount = Class.forName("java.lang.StringBuilder").getDeclaredField(COUNT_FIELD_NAME);
-                Jvm.setAccessible(sbCount);
-                sbCountOffset = OS.memory().getFieldOffset(sbCount);
-            }
-        }
+        return Bootstrap.isJava9Plus()
+                ? isEqualJava9(s, cs, length)
+                : isEqualJava8(s, cs, length);
     }
 
     public static void setLength(@NotNull StringBuilder sb, int length) {
@@ -172,17 +165,14 @@ public final class StringUtils {
         }
     }
 
-    public static boolean isEqual(@Nullable StringBuilder s, @Nullable CharSequence cs) {
-        if (s == cs)
-            return true;
-        if (s == null) return false;
-        if (cs == null) return false;
-        int length = cs.length();
-        if (s.length() != length) return false;
+    public static char[] extractChars(StringBuilder sb) {
+        if (Bootstrap.isJava9Plus()) {
+            final char[] data = new char[sb.length()];
+            sb.getChars(0, sb.length(), data, 0);
+            return data;
+        }
 
-        return Jvm.isJava9Plus()
-                ? isEqualJava9(s, cs, length)
-                : isEqualJava8(s, cs, length);
+        return getMemory().getObject(sb, SB_VALUE_OFFSET);
     }
 
     private static boolean isEqualJava8(@NotNull StringBuilder s, @NotNull CharSequence cs, int length) {
@@ -216,14 +206,21 @@ public final class StringUtils {
         return o == null ? null : o.toString();
     }
 
-    public static char[] extractChars(StringBuilder sb) {
-        if (Jvm.isJava9Plus()) {
-            final char[] data = new char[sb.length()];
-            sb.getChars(0, sb.length(), data, 0);
-            return data;
+    @Java9
+    private static byte getStringCoderForStringOrStringBuilder(@NotNull CharSequence charSequence) {
+        try {
+            Field coder;
+            if (charSequence instanceof String)
+                coder = S_CODER;
+            else if (charSequence instanceof StringBuilder)
+                coder = SB_CODER;
+            else
+                coder = ClassUtil.getField0(charSequence.getClass(), CODER_FIELD_NAME, true);
+            assert coder != null;
+            return coder.getByte(charSequence);
+        } catch (IllegalArgumentException | IllegalAccessException e) {
+            throw new AssertionError(e);
         }
-
-        return OS.memory().getObject(sb, SB_VALUE_OFFSET);
     }
 
     @Java9
@@ -237,44 +234,33 @@ public final class StringUtils {
     }
 
     @Java9
-    private static byte getStringCoderForStringOrStringBuilder(@NotNull CharSequence charSequence) {
-        try {
-            if (charSequence instanceof String) return S_CODER.getByte(charSequence);
-            else if (charSequence instanceof StringBuilder) return SB_CODER.getByte(charSequence);
-            else return Jvm.getField(charSequence.getClass(), CODER_FIELD_NAME).getByte(charSequence);
-        } catch (IllegalArgumentException | IllegalAccessException e) {
-            throw new AssertionError(e);
-        }
-    }
-
-    @Java9
     public static byte[] extractBytes(@NotNull StringBuilder sb) {
         ensureJava9Plus();
 
-        return OS.memory().getObject(sb, SB_VALUE_OFFSET);
+        return getMemory().getObject(sb, SB_VALUE_OFFSET);
     }
 
     public static char[] extractChars(@NotNull String s) {
-        if (Jvm.isJava9Plus()) {
+        if (Bootstrap.isJava9Plus()) {
             return s.toCharArray();
         }
-        return OS.memory().getObject(s, S_VALUE_OFFSET);
+        return getMemory().getObject(s, S_VALUE_OFFSET);
     }
 
     @Java9
     public static byte[] extractBytes(@NotNull String s) {
         ensureJava9Plus();
 
-        return OS.memory().getObject(s, S_VALUE_OFFSET);
+        return getMemory().getObject(s, S_VALUE_OFFSET);
     }
 
     public static void setCount(@NotNull StringBuilder sb, int count) {
-        OS.memory().writeInt(sb, SB_COUNT_OFFSET, count);
+        getMemory().writeInt(sb, SB_COUNT_OFFSET, count);
     }
 
     @NotNull
     public static String newString(@NotNull char[] chars) {
-        if (Jvm.isJava9Plus()) {
+        if (Bootstrap.isJava9Plus()) {
             return new String(chars);
         }
         //noinspection RedundantStringConstructorCall
@@ -282,10 +268,16 @@ public final class StringUtils {
         try {
             S_VALUE.set(str, chars);
             if (S_COUNT_OFFSET > -1)
-                OS.memory().writeInt(str, S_COUNT_OFFSET, chars.length);
+                getMemory().writeInt(str, S_COUNT_OFFSET, chars.length);
             return str;
         } catch (Exception e) {
             throw new AssertionError(e);
+        }
+    }
+
+    private static void ensureJava9Plus() {
+        if (!Bootstrap.isJava9Plus()) {
+            throw new UnsupportedOperationException("This method is only supported on Java9+ runtimes");
         }
     }
 
@@ -366,9 +358,29 @@ public final class StringUtils {
         return Maths.asDouble(value, exp, negative, decimalPlaces);
     }
 
-    private static void ensureJava9Plus() {
-        if (!Jvm.isJava9Plus()) {
-            throw new UnsupportedOperationException("This method is only supported on Java9+ runtimes");
+    private static final class SbFields {
+
+        private Field sbValue;
+        private long sbValOffset;
+        private Field sbCount;
+        private long sbCountOffset;
+
+        public SbFields() throws ClassNotFoundException, NoSuchFieldException {
+            try {
+                sbValue = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField(VALUE_FIELD_NAME);
+                ClassUtil.setAccessible(sbValue);
+                sbValOffset = getMemory().getFieldOffset(sbValue);
+                sbCount = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField(COUNT_FIELD_NAME);
+                ClassUtil.setAccessible(sbCount);
+                sbCountOffset = getMemory().getFieldOffset(sbCount);
+            } catch (NoSuchFieldException e) {
+                sbValue = Class.forName("java.lang.StringBuilder").getDeclaredField(VALUE_FIELD_NAME);
+                ClassUtil.setAccessible(sbValue);
+                sbValOffset = getMemory().getFieldOffset(sbValue);
+                sbCount = Class.forName("java.lang.StringBuilder").getDeclaredField(COUNT_FIELD_NAME);
+                ClassUtil.setAccessible(sbCount);
+                sbCountOffset = getMemory().getFieldOffset(sbCount);
+            }
         }
     }
 

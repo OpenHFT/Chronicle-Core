@@ -18,12 +18,11 @@
 
 package net.openhft.chronicle.core.util;
 
-import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.internal.ClassUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 /**
  * This class support loading and debugging Java Classes dynamically.
@@ -35,7 +34,7 @@ public final class CompilerUtils {
         try {
             DEFINE_CLASS_METHOD = ClassLoader.class.getDeclaredMethod(
                     "defineClass", String.class, byte[].class, int.class, int.class);
-            Jvm.setAccessible(DEFINE_CLASS_METHOD);
+            ClassUtil.setAccessible(DEFINE_CLASS_METHOD);
         } catch (NoSuchMethodException e) {
             throw new AssertionError(e);
         }

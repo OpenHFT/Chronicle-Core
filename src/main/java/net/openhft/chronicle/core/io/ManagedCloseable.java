@@ -29,6 +29,14 @@ import static net.openhft.chronicle.core.io.AbstractCloseable.DISABLE_DISCARD_WA
  * This interface hides some methods which are more for expert lifecycle use but not strictly internal
  */
 public interface ManagedCloseable extends Closeable {
+
+    /**
+     * Warns and closes the resource if it is not already closed.
+     * This method is intended for expert lifecycle use but not strictly internal.
+     * If resource tracing is enabled and the discard warning is not disabled,
+     * a warning message is logged for the discarded resource.
+     * The resource is then closed using {@link Closeable#closeQuietly(Object)}.
+     */
     default void warnAndCloseIfNotClosed() {
         if (!isClosing()) {
             if (Jvm.isResourceTracing() && !DISABLE_DISCARD_WARNING) {
@@ -39,11 +47,26 @@ public interface ManagedCloseable extends Closeable {
         }
     }
 
+    /**
+     * Throws an exception if the resource is closed or closing.
+     * This method is intended for expert lifecycle use but not strictly internal.
+     * If the resource is closing, a {@link ClosedIllegalStateException} is thrown
+     * with a message indicating whether the resource is already closed or closing.
+     *
+     * @throws IllegalStateException If the resource is closed or closing.
+     */
     default void throwExceptionIfClosed() throws IllegalStateException {
         if (isClosing())
             throw new ClosedIllegalStateException(isClosed() ? "Closed" : "Closing");
     }
 
+    /**
+     * Returns the stack trace of where the resource was created.
+     * This method is intended for expert lifecycle use but not strictly internal.
+     * It returns null by default, indicating that the information is not available.
+     *
+     * @return The stack trace of where the resource was created, or null if not available.
+     */
     default StackTrace createdHere() {
         return null;
     }

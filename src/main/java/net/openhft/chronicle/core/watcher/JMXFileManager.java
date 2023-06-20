@@ -22,6 +22,7 @@ import net.openhft.chronicle.core.Jvm;
 import javax.management.*;
 import java.lang.management.ManagementFactory;
 
+@Deprecated(/* to be removed x.26 */)
 public abstract class JMXFileManager implements FileManager, JMXFileManagerMBean {
     protected static final MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
     protected final String basePath;

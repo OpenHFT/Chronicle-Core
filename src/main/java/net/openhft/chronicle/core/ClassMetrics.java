@@ -17,24 +17,45 @@
  *
  */
 package net.openhft.chronicle.core;
-
+/**
+ * ClassMetrics is a utility class that holds offset and length metrics of a class.
+ * It provides methods to access these metrics and overrides equals, hashCode, and toString methods.
+ */
 public class ClassMetrics {
     private final int offset;
     private final int length;
 
+    /**
+     * Constructs a ClassMetrics object with the specified offset and length.
+     *
+     * @param offset the offset value
+     * @param length the length value
+     */
     public ClassMetrics(int offset, int length) {
         this.offset = offset;
         this.length = length;
     }
 
+    /**
+     * @return the offset
+     */
     public int offset() {
         return offset;
     }
 
+    /**
+     * @return the length
+     */
     public int length() {
         return length;
     }
 
+    /**
+     * Indicates whether some other object is "equal to" this one.
+     *
+     * @param o the reference object with which to compare
+     * @return true if this object is the same as the obj argument; false otherwise
+     */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -44,11 +65,17 @@ public class ClassMetrics {
                 length == that.length;
     }
 
+    /**
+     * @return a hash code value for this object
+     */
     @Override
     public int hashCode() {
         return Maths.hash(offset, length);
     }
 
+    /**
+     * @return a string representation of the object
+     */
     @Override
     public String toString() {
         return "ClassMetrics{" +

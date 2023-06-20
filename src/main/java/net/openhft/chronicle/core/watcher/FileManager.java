@@ -17,6 +17,7 @@
  */
 package net.openhft.chronicle.core.watcher;
 
+@Deprecated(/* to be removed x.26 */)
 public interface FileManager {
     void start();
 

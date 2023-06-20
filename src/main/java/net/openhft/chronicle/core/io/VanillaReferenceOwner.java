@@ -18,18 +18,33 @@
 
 package net.openhft.chronicle.core.io;
 
+/**
+ * A simple implementation of the {@link ReferenceOwner} and {@link QueryCloseable} interfaces.
+ */
 public class VanillaReferenceOwner implements ReferenceOwner, QueryCloseable {
+
     private final String name;
 
+    /**
+     * Constructs a {@code VanillaReferenceOwner} with the specified name.
+     *
+     * @param name the name of the reference owner
+     */
     public VanillaReferenceOwner(String name) {
         this.name = name;
     }
 
+    /**
+     * @return the name of the reference owner
+     */
     @Override
     public String referenceName() {
         return toString();
     }
 
+    /**
+     * @return the string representation of the reference owner
+     */
     @Override
     public String toString() {
         return "VanillaReferenceOwner{" +

@@ -28,14 +28,30 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.Function;
 
+/**
+ * Represents a dynamic enum class that extends the capabilities of {@link EnumCache}.
+ * It allows dynamic creation and management of enum-like instances.
+ *
+ * @param <E> the type of enum instances this class will manage.
+ */
 public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E> {
-    final Map<String, E> eMap = Collections.synchronizedMap(new LinkedHashMap<>());
-    final List<E> eList = new ArrayList<>();
-    E[] values = null;
+
+    // The map and list that holds the enum instances.
+    private final Map<String, E> eMap = Collections.synchronizedMap(new LinkedHashMap<>());
+    private final List<E> eList = new ArrayList<>();
+    // Fields to reflectively set properties on new instances.
     private final Field nameField;
+    // An array of enum values
+    private E[] values = null;
     private final Field ordinalField;
+    // The function used to create new enum instances
     private final Function<String, E> create = this::create;
 
+    /**
+     * Constructs a new DynamicEnumClass.
+     *
+     * @param eClass the enum class this DynamicEnumClass will manage.
+     */
     DynamicEnumClass(Class<E> eClass) {
         super(eClass);
         reset0();
@@ -68,11 +84,23 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
         return (E[]) fieldList.toArray(new CoreDynamicEnum[fieldList.size()]);
     }
 
+    /**
+     * Returns the enum constant with the specified name.
+     *
+     * @param name the name of the enum constant to be returned.
+     * @return the enum constant with the specified name.
+     */
     @Override
     public E get(String name) {
         return eMap.get(name);
     }
 
+    /**
+     * Returns the enum constant with the specified name, creating it if it doesn't exist.
+     *
+     * @param name the name of the enum constant to be returned.
+     * @return the enum constant with the specified name.
+     */
     @Override
     public E valueOf(String name) {
         return eMap.computeIfAbsent(name, create);
@@ -95,11 +123,23 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
         }
     }
 
+    /**
+     * Returns the number of enum instances currently managed by this class.
+     *
+     * @return the size of enum instances.
+     */
     @Override
     public int size() {
         return eMap.size();
     }
 
+    /**
+     * Retrieves the enum instance at the given index.
+     *
+     * @param index the index of the enum instance to retrieve.
+     * @return the enum instance at the given index.
+     * @throws IndexOutOfBoundsException if the index is out of range.
+     */
     @Override
     public E forIndex(int index) {
         return eList.get(index);
@@ -125,6 +165,12 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
         return new TreeSet<>();
     }
 
+    /**
+     * Resets the internal state of this class. This includes clearing the stored enum instances
+     * and resetting to the initial state.
+     * <p>
+     * This method should only be used for testing purposes.
+     */
     @TestOnly
     public void reset() {
         values = null;

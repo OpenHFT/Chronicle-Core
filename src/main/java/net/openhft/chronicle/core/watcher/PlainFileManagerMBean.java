@@ -18,6 +18,7 @@
 package net.openhft.chronicle.core.watcher;
 
 @SuppressWarnings("unused")
+@Deprecated(/* to be removed x.26 */)
 public interface PlainFileManagerMBean {
     String getFileSize();
 

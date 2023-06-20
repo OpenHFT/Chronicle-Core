@@ -27,27 +27,70 @@ import java.util.concurrent.Callable;
 
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 
+/**
+ * This class is used to test the effectiveness of various {@link CpuCooler} implementations.
+ * It allows configuring multiple tests and multiple coolers to test against.
+ * It executes each test multiple times with each cooler and records the time it takes to run each test.
+ */
 public class CoolerTester {
+
+    /**
+     * Holds the results of the tests to avoid being optimised away and making the test meaningless.
+     */
     static Object blackhole;
+
+    /**
+     * List of disturbers or CPU coolers to be used in the tests.
+     */
     private final List<CpuCooler> disturbers = new ArrayList<>();
+
+    /**
+     * List of Histogram objects to record the test results.
+     */
     private final List<Histogram> histograms = new ArrayList<>();
+
+    /**
+     * List of test names.
+     */
     private final List<String> testNames = new ArrayList<>();
+
+    /**
+     * List of tests to be run.
+     */
     private final List<Callable<?>> tests = new ArrayList<>();
     private int repeat = 10;
     private int runTimeMS = 5_000;
     private int minCount = 20;
     private int maxCount = 20_000;
 
+    /**
+     * Constructor with Callable and array of CpuCoolers. The Callable is the task to be executed
+     * while each of the CpuCoolers is in use.
+     *
+     * @param tested     the task to be executed during the tests
+     * @param disturbers the array of CpuCoolers to be tested
+     */
     public CoolerTester(Callable<?> tested, CpuCooler... disturbers) {
         Collections.addAll(this.disturbers, disturbers);
         this.testNames.add("");
         this.tests.add(tested);
     }
 
+    /**
+     * Constructor with an array of CpuCoolers. No tasks are initially configured for execution.
+     *
+     * @param disturbers the array of CpuCoolers to be tested
+     */
     public CoolerTester(CpuCooler... disturbers) {
         Collections.addAll(this.disturbers, disturbers);
     }
 
+    /**
+     * Constructor with a single CpuCooler and an array of tasks to be executed while the CpuCooler is in use.
+     *
+     * @param disturber the CpuCooler to be tested
+     * @param tests     the array of tasks to be executed during the tests
+     */
     public CoolerTester(CpuCooler disturber, Callable<?>... tests) {
         this.disturbers.add(disturber);
         Collections.addAll(this.tests, tests);
@@ -79,48 +122,95 @@ public class CoolerTester {
         histogram.sample(time0);
     }
 
+    /**
+     * Adds a test to be executed during the tests.
+     *
+     * @param name the name of the test
+     * @param test the task to be executed during the tests
+     * @return this object
+     */
     public CoolerTester add(String name, Callable<?> test) {
         testNames.add(name);
         tests.add(test);
         return this;
     }
 
+    /**
+     * @return the maximum number of times each test is run with each cooler.
+     */
     public int repeat() {
         return repeat;
     }
 
+    /**
+     * Sets the number of times each test is run with each cooler.
+     *
+     * @param repeat the number of times each test is run with each cooler
+     * @return this object
+     */
     public CoolerTester repeat(int repeat) {
         this.repeat = repeat;
         return this;
     }
 
+    /**
+     * @return the time in milliseconds that each test is run with each cooler.
+     */
     public int runTimeMS() {
         return runTimeMS;
     }
 
+    /**
+     * Sets the time in milliseconds that each test is run with each cooler.
+     *
+     * @param runTimeMS the time in milliseconds that each test is run with each cooler
+     * @return this object
+     */
     public CoolerTester runTimeMS(int runTimeMS) {
         this.runTimeMS = runTimeMS;
         return this;
     }
 
+    /**
+     * @return the minimum number of times each test is run with each cooler.
+     */
     public int minCount() {
         return minCount;
     }
 
+    /**
+     * Sets the minimum number of times each test is run with each cooler.
+     *
+     * @param minCount the minimum number of times each test is run with each cooler
+     * @return this object
+     */
     public CoolerTester minCount(int minCount) {
         this.minCount = minCount;
         return this;
     }
 
+    /**
+     * @return the maximum number of times each test is run with each cooler.
+     */
     public int maxCount() {
         return maxCount;
     }
 
+    /**
+     * Sets the maximum number of times each test is run with each cooler.
+     *
+     * @param maxCount the maximum number of times each test is run with each cooler
+     * @return this object
+     */
     public CoolerTester maxCount(int maxCount) {
         this.maxCount = maxCount;
         return this;
     }
 
+    /**
+     * This method runs the tests and outputs the results. Each test is run with each cooler multiple times,
+     * and the execution times are recorded.
+     */
     public void run() {
         try {
             System.out.println("---- Warmup ----");

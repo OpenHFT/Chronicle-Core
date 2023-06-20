@@ -26,7 +26,15 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.concurrent.locks.LockSupport;
 
+/**
+ * An enumeration of various CPU cooler implementations, each of which disturbs the CPU in a
+ * different way. The exact way in which the CPU is disturbed is defined by the `disturb()` method
+ * of each enum constant.
+ */
 public enum CpuCoolers implements CpuCooler {
+    /**
+     * Causes the CPU to wait without doing work for a very short period of time.
+     */
     PARK {
         @Override
         public void disturb() {
@@ -129,6 +137,10 @@ public enum CpuCoolers implements CpuCooler {
             busyWait(1000e6);
         }
     },
+    /**
+     * Switches the CPU affinity back and forth between two cores, causing the CPU to do work in
+     * moving the executing thread from one core to the other.
+     */
     AFFINITY {
         boolean toogle;
 
@@ -158,6 +170,9 @@ public enum CpuCoolers implements CpuCooler {
             System.arraycopy(from, 0, to, 0, from.length);
         }
     },
+    /**
+     * Performs multiple disturbing operations at once.
+     */
     ALL {
         @Override
         public void disturb() {

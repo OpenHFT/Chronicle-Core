@@ -89,12 +89,12 @@ public final class Maths {
     }
 
     public static long roundingFactor(int digits) {
-        return TENS[digits];
+        return tens(digits);
     }
 
     public static long roundingFactor(double digits) {
         int iDigits = (int) digits;
-        long ten = TENS[iDigits];
+        long ten = tens(iDigits);
 
         switch ((int) ((digits - iDigits) * 10 + 0.5)) {
             case 0:
@@ -117,6 +117,14 @@ public final class Maths {
         }
     }
 
+    /**
+     * Rounds up the given double value to the nearest higher number,
+     * accurate to the specified number of decimal places.
+     *
+     * @param d      The double value to be rounded up.
+     * @param digits The number of decimal places to which the value is to be rounded.
+     * @return The value rounded up to the nearest higher number.
+     */
     public static double ceilN(double d, int digits) {
         final long factor = roundingFactor(digits);
         double ulp = Math.ulp(d);
@@ -125,6 +133,14 @@ public final class Maths {
                 ? Math.ceil((d - ulp) * factor) / factor : d;
     }
 
+    /**
+     * Rounds down the given double value to the nearest lower number,
+     * accurate to the specified number of decimal places.
+     *
+     * @param d      The double value to be rounded down.
+     * @param digits The number of decimal places to which the value is to be rounded.
+     * @return The value rounded down to the nearest lower number.
+ */
     public static double floorN(double d, int digits) {
         final long factor = roundingFactor(digits);
         double ulp = Math.ulp(d);
@@ -487,12 +503,30 @@ public final class Maths {
         return (int) h;
     }
 
+    /**
+     * Computes a 32-bit hash value for the given string.
+     * This is done by first computing a 64-bit hash using the {@link #hash64(String)} method,
+     * and then combining the upper and lower 32 bits of the hash using XOR.
+     *
+     * @param s the string to compute the hash for
+     * @return the 32-bit hash value
+     * @throws IllegalArgumentException if {@code s} is {@code null}
+     */
     public static int hash32(@NotNull String s) {
         long h = hash64(s);
         h ^= h >> 32;
         return (int) h;
     }
 
+    /**
+     * Computes a 32-bit hash value for the given StringBuilder.
+     * This is done by first computing a 64-bit hash using the {@link #hash64(StringBuilder)} method,
+     * and then combining the upper and lower 32 bits of the hash using XOR.
+     *
+     * @param s the StringBuilder to compute the hash for
+     * @return the 32-bit hash value
+     * @throws IllegalArgumentException if {@code s} is {@code null}
+     */
     public static int hash32(@NotNull StringBuilder s) {
         long h = hash64(s);
         h ^= h >> 32;
@@ -520,7 +554,20 @@ public final class Maths {
         }
     }
 
+    /**
+     * Computes a 64-bit hash value for the given string.
+     * The hash function used is dependent on the Java version and the internal representation of the string.
+     * For Java 9 and later, if the string is represented as a byte array, each byte is incorporated into the hash.
+     * Otherwise, each character is incorporated into the hash.
+     * For Java 8 and earlier, each character is incorporated into the hash.
+     * The hash is then agitated using a function not shown in this code snippet.
+     *
+     * @param s the string to compute the hash for
+     * @return the 64-bit hash value
+     * @throws IllegalArgumentException if {@code s} is {@code null}
+     */
     public static long hash64(@NotNull String s) {
+        if (s == null) throw new IllegalArgumentException();
         long hash = 0;
 
         if (Jvm.isJava9Plus()) {
@@ -540,6 +587,18 @@ public final class Maths {
         return agitate(hash);
     }
 
+    /**
+     * Computes a 64-bit hash value for the given StringBuilder.
+     * The hash function used is dependent on the Java version and the internal representation of the string.
+     * For Java 9 and later, if the string is represented as a byte array, each byte is incorporated into the hash.
+     * Otherwise, each character is incorporated into the hash.
+     * For Java 8 and earlier, each character is incorporated into the hash.
+     * The hash is then agitated using a function not shown in this code snippet.
+     *
+     * @param s the string to compute the hash for
+     * @return the 64-bit hash value
+     * @throws IllegalArgumentException if {@code s} is {@code null}
+     */
     public static long hash64(@NotNull StringBuilder s) {
         long hash = 0;
 
@@ -686,6 +745,15 @@ public final class Maths {
         throw new ArithmeticException("Unsigned Int " + value + OUT_OF_RANGE);
     }
 
+    /**
+     * Performs a series of bit operations on a long value to "agitate" the bits.
+     * This includes a right shift, addition, and a right rotation with a bitwise XOR operation.
+     * The purpose of this method is to create a more evenly distributed set of bit patterns
+     * which can be useful in certain hashing or random number generation scenarios.
+     *
+     * @param l the long value to be agitated
+     * @return the agitated long value
+     */
     public static long agitate(long l) {
         l += l >>> 22;
         l ^= Long.rotateRight(l, 17);
@@ -735,23 +803,63 @@ public final class Maths {
         return sign * (Math.abs(dividend) + Math.abs(divisor) - 1) / Math.abs(divisor);
     }
 
+    /**
+     * Returns the power of ten for the given decimal places.
+     *
+     * @param decimalPlaces the number of decimal places
+     * @return the power of ten corresponding to the decimal places
+     * @throws IllegalArgumentException if the decimal places are less than 0 or greater than or equal to 19
+     */
     public static long tens(int decimalPlaces) {
+        if (decimalPlaces < 0 || decimalPlaces >= 19)
+            throw decimalPlacesIAE(decimalPlaces);
         return TENS[decimalPlaces];
     }
 
+    @NotNull
+    private static IllegalArgumentException decimalPlacesIAE(int decimalPlaces) {
+        return new IllegalArgumentException("decimalPlaces=" + decimalPlaces);
+    }
+
+    /**
+     * Returns the number of digits in the given number.
+     *
+     * @param num the number to count the digits of
+     * @return the number of digits in the given number
+     */
     public static int digits(long num) {
         int index = Arrays.binarySearch(TENS, num);
         return index < -1 ? -1 - index : index >= 0 ? index + 1 : 1;
     }
 
+    /**
+     * Returns the power of five for the given decimal places.
+     *
+     * @param decimalPlaces the number of decimal places
+     * @return the power of five corresponding to the decimal places
+     */
     public static long fives(int decimalPlaces) {
         return FIVES[decimalPlaces];
     }
 
+    /**
+     * Checks if two double values are the same. Considers NaN values as equal.
+     *
+     * @param a the first double value
+     * @param b the second double value
+     * @return true if both values are the same or both are NaN, false otherwise
+     */
     public static boolean same(double a, double b) {
         return Double.isNaN(a) ? Double.isNaN(b) : a == b;
     }
 
+    /**
+     * Checks if two float values are the same. Considers NaN values as equal.
+     *
+     * @param a the first float value
+     * @param b the second float value
+     * @return true if both values are the same or both are NaN, false otherwise
+     */
     public static boolean same(float a, float b) {
         return Float.isNaN(a) ? Float.isNaN(b) : a == b;
     }

@@ -20,10 +20,26 @@ package net.openhft.chronicle.core.pool;
 
 import static java.lang.ThreadLocal.withInitial;
 
+/**
+ * This class provides a pool of StringBuilder objects for efficient string building operations.
+ * Each thread gets its own StringBuilder instance via a ThreadLocal,
+ * ensuring thread-safety while avoiding synchronization overhead.
+ */
 public class StringBuilderPool {
+    /**
+     * Thread-local variable that holds a StringBuilder for each thread.
+     * The initial capacity for each StringBuilder is 128.
+     */
     private final ThreadLocal<StringBuilder> sbtl = withInitial(
             () -> new StringBuilder(128));
 
+    /**
+     * Returns a StringBuilder instance from the pool.
+     * If the current thread does not yet have a StringBuilder, it is created and added to the pool.
+     * The length of the StringBuilder is reset to 0 before being returned.
+     *
+     * @return a StringBuilder instance with length 0.
+     */
     public StringBuilder acquireStringBuilder() {
         StringBuilder sb = sbtl.get();
         sb.setLength(0);
