@@ -140,7 +140,11 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
                     try {
                         // too late to be checking thread safety.
                         if (key instanceof AbstractCloseable) {
-                            ((AbstractCloseable) key).singleThreadedCheckDisabled(true);
+                            try {
+                                ((AbstractCloseable) key).singleThreadedCheckDisabled(true);
+                            } catch (UnsupportedOperationException e) {
+                                // Ignore
+                            }
                         }
                         if (key instanceof ReferenceCountedTracer) {
                             ((ReferenceCountedTracer) key).throwExceptionIfNotReleased();
