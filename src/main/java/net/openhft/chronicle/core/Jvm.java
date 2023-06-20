@@ -61,6 +61,7 @@ import java.util.function.Supplier;
 import static java.lang.Runtime.getRuntime;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 import static java.util.stream.Collectors.toList;
+import static net.openhft.chronicle.core.Bootstrap.IS_JAVA_9_PLUS;
 import static net.openhft.chronicle.core.OS.*;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 import static net.openhft.chronicle.core.internal.Bootstrap.*;
@@ -572,6 +573,20 @@ public final class Jvm {
         return ClassUtil.getMethod0(clazz, methodName, argTypes, true);
     }
 
+    /**
+     * Set the accessible flag for the provided {@code accessibleObject} indicating that
+     * the reflected object should suppress Java language access checking when it is used.
+     * <p>
+     * The setting of the accessible flag might be subject to security manager approval.
+     *
+     * @param accessibleObject to modify
+     * @throws SecurityException – if the request is denied.
+     * @see SecurityManager#checkPermission
+     * @see RuntimePermission
+     */
+    public static void setAccessible(@NotNull final AccessibleObject accessibleObject) {
+        ClassUtil.setAccessible(accessibleObject);
+    }
     /**
      * Returns the value of the provided {@code fieldName} extracted from the provided {@code target}.
      * <p>
