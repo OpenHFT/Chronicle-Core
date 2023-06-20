@@ -25,6 +25,7 @@ import net.openhft.chronicle.core.util.WeakIdentityHashMap;
 
 import java.util.Collections;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static net.openhft.chronicle.core.io.AbstractCloseable.*;
 
@@ -32,7 +33,8 @@ import static net.openhft.chronicle.core.io.AbstractCloseable.*;
  * Utility class for managing reference counted resources and related operations.
  */
 public final class ReferenceCountedUtils {
-    static volatile Set<AbstractReferenceCounted> referenceCountedSet;
+    private static final AtomicReference<Set<AbstractReferenceCounted>> REFERENCE_COUNTED_SET
+            = new AtomicReference<>();
 
     private ReferenceCountedUtils() {
     }
@@ -43,12 +45,9 @@ public final class ReferenceCountedUtils {
      * @param referenceCounted The reference counted resource to add.
      */
     public static void add(AbstractReferenceCounted referenceCounted) {
-        final Set<AbstractReferenceCounted> set = referenceCountedSet;
-        if (set != null) {
-            synchronized (set) {
-                set.add(referenceCounted);
-            }
-        }
+        final Set<AbstractReferenceCounted> set = REFERENCE_COUNTED_SET.get();
+        if (set != null)
+            set.add(referenceCounted);
     }
 
     /**
@@ -58,9 +57,10 @@ public final class ReferenceCountedUtils {
      */
     public static void enableReferenceTracing() {
         enableCloseableTracing();
-        referenceCountedSet =
-                Collections.newSetFromMap(
-                        new WeakIdentityHashMap<>());
+        REFERENCE_COUNTED_SET.set(
+                Collections.synchronizedSet(
+                        Collections.newSetFromMap(
+                                new WeakIdentityHashMap<>())));
     }
 
     /**
@@ -70,7 +70,7 @@ public final class ReferenceCountedUtils {
      */
     public static void disableReferenceTracing() {
         disableCloseableTracing();
-        referenceCountedSet = null;
+        REFERENCE_COUNTED_SET.set(null);
     }
 
     /**
@@ -82,7 +82,7 @@ public final class ReferenceCountedUtils {
      * @throws AssertionError If any reference counted resource has not been released.
      */
     public static void assertReferencesReleased() {
-        final Set<AbstractReferenceCounted> traceSet = referenceCountedSet;
+        final Set<AbstractReferenceCounted> traceSet = REFERENCE_COUNTED_SET.get();
         if (traceSet == null) {
             Jvm.warn().on(ReferenceCountedUtils.class, "Reference tracing disabled");
             return;
@@ -91,6 +91,7 @@ public final class ReferenceCountedUtils {
         assertCloseablesClosed();
 
         AssertionError openFiles = new AssertionError("Reference counted not released");
+        //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (traceSet) {
             for (AbstractReferenceCounted key : traceSet) {
                 if (key == null || key.refCount() == 0)
@@ -114,14 +115,12 @@ public final class ReferenceCountedUtils {
      * @param counted The reference counted resource to unmonitor.
      */
     public static void unmonitor(ReferenceCounted counted) {
-        final Set<AbstractReferenceCounted> set = referenceCountedSet;
+        final Set<AbstractReferenceCounted> set = REFERENCE_COUNTED_SET.get();
         if (counted instanceof AbstractReferenceCounted) {
             if (set != null) {
-                synchronized (set) {
-                    // The set contains <AbstractReferenceCounted> so, "counted" must be an instance of that
-                    // for remove to have any effect.
-                    set.remove(counted);
-                }
+                // The set contains <AbstractReferenceCounted> so, "counted" must be an instance of that
+                // for remove to have any effect.
+                set.remove(counted);
             }
             ((AbstractReferenceCounted) counted).referenceCountedUnmonitored(true);
         }

@@ -16,6 +16,7 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Utility class for managing closeable resources and related operations.
@@ -23,8 +24,11 @@ import java.util.concurrent.TimeUnit;
 public final class CloseableUtils {
     /**
      * Set of closeable resources being tracked.
+     * <p>
+     * NOTE: This assumes the collection will not be replaced concurrently, and a particular lifecycle is used.
+     * It is set and reset between tests in a single threaded manner. The set itself could be changed concurrently.
      */
-    static volatile Set<Closeable> closeableSet;
+    private static final AtomicReference<Set<Closeable>> CLOSEABLES = new AtomicReference<>();
 
     private CloseableUtils() {
     }
@@ -36,11 +40,9 @@ public final class CloseableUtils {
      * @param closeable The closeable resource to add.
      */
     public static void add(Closeable closeable) {
-        final Set<Closeable> set = closeableSet;
+        final Set<Closeable> set = CLOSEABLES.get();
         if (set != null)
-            synchronized (set) {
-                set.add(closeable);
-            }
+            set.add(closeable);
     }
 
     /**
@@ -49,9 +51,10 @@ public final class CloseableUtils {
      * This method should be called to enable tracing before using closeable resources.
      */
     public static void enableCloseableTracing() {
-        closeableSet =
-                Collections.newSetFromMap(
-                        new WeakIdentityHashMap<>());
+        CLOSEABLES.set(
+                Collections.synchronizedSet(
+                        Collections.newSetFromMap(
+                                new WeakIdentityHashMap<>())));
     }
 
     /**
@@ -60,7 +63,7 @@ public final class CloseableUtils {
      * This method should be called to disable tracing when no longer needed.
      */
     public static void disableCloseableTracing() {
-        closeableSet = null;
+        CLOSEABLES.set(null);
     }
 
     /**
@@ -112,7 +115,7 @@ public final class CloseableUtils {
      * @return true if all closeable resources are closed within the time limit, false otherwise.
      */
     public static boolean waitForCloseablesToClose(long millis) {
-        final Set<Closeable> traceSet = closeableSet;
+        final Set<Closeable> traceSet = CLOSEABLES.get();
         if (traceSet == null) {
             return true;
         }
@@ -154,7 +157,7 @@ public final class CloseableUtils {
      * If any resources are found to be open, an AssertionError is thrown.
      */
     public static void assertCloseablesClosed() {
-        final Set<Closeable> traceSet = closeableSet;
+        final Set<Closeable> traceSet = CLOSEABLES.get();
         if (traceSet == null) {
             Jvm.warn().on(AbstractCloseable.class, "closable tracing disabled");
             return;
@@ -250,11 +253,9 @@ public final class CloseableUtils {
      * @param closeable to remove monitoring of
      */
     public static void unmonitor(Closeable closeable) {
-        final Set<Closeable> set = closeableSet;
+        final Set<Closeable> set = CLOSEABLES.get();
         if (set != null)
-            synchronized (set) {
-                set.remove(closeable);
-            }
+            set.remove(closeable);
     }
 
     /**
@@ -286,7 +287,8 @@ public final class CloseableUtils {
             if (coll.isEmpty())
                 return;
             // take a copy before removing
-            new ArrayList<>(coll).forEach(Closeable::closeQuietly);
+            List list = new ArrayList<>(coll);
+            list.forEach(Closeable::closeQuietly);
 
         } else if (o instanceof Object[]) {
             for (Object o2 : (Object[]) o)
