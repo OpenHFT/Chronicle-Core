@@ -25,11 +25,14 @@ public class LicenceCheckTest {
     }
 
     @Test(expected = TimeLimitExceededException.class)
-    public void checkIfNoExpiryFile() {
-        // Evaluation license
-
+    public void checkExpiredExpiryFile() {
         LicenceCheck.check("test", LicenceCheck.class);
         fail("should have got an AssertionError");
+    }
+
+    @Test
+    public void checkUnexpiredExpiryFileWithNewline() {
+        LicenceCheck.check("test2", LicenceCheck.class);
     }
 
     @Test(expected = TimeLimitExceededException.class)

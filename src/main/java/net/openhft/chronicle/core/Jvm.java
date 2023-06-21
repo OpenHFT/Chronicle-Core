@@ -341,7 +341,6 @@ public final class Jvm {
      *
      * @return the current process id or, if the process id cannot be determined, 1 is used.
      */
-    // Todo: Discuss the rational behind the random number. Alternately, 0 could be returned or perhaps -1
     public static int getProcessId() {
         return PROCESS_ID;
     }
