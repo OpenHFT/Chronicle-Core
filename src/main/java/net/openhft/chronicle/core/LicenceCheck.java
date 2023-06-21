@@ -67,7 +67,7 @@ public interface LicenceCheck {
             String expiryDateFile = product + ".expiry-date";
             try {
                 String source = new String(IOTools.readFile(LicenceCheck.class, expiryDateFile));
-                LocalDate expiryDate = LocalDate.parse(source);
+                LocalDate expiryDate = LocalDate.parse(source.trim());
                 long days = expiryDate.toEpochDay() - System.currentTimeMillis() / 86400000;
                 if (days < 0)
                     throw Jvm.rethrow(new TimeLimitExceededException("Failed to read '" + expiryDateFile));
