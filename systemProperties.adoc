@@ -12,7 +12,7 @@ and so are enabled if either `-Dflag` or `-Dflag=true` or `-Dflag=yes`
 | background.releaser | `true` | Turn off the BackgroundResourceReleaser thread to manage resource releasing in your own thread | _BG_RELEASER_ (boolean)
 | chronicle.announcer.disable | `false` | If enabled, disables the InternalAnnouncer | _DISABLE_ANNOUNCEMENT_ (boolean)
 | debug | `false` | Returns if the JVM is running in debug mode |_IS_DEBUG_ (boolean)
-| disable.discard.warning | `false` | Called from finalise() implementations. If 'true', message is displayed stating that resource cannot be closed, and IllegalStateException is thrown  | _DISABLE_DISCARD_WARNING_ (boolean)
+| disable.discard.warning | `true` | Called from finalise() implementations. If 'false', message is displayed stating that resource cannot be closed, and IllegalStateException is thrown  | _DISABLE_DISCARD_WARNING_ (boolean)
 | disable.perf.info | `false` | if enabled, returns NullExceptionHandler | disablePerfInfo (boolean)
 | disable.resource.warning | `false` | If enabled, returns that resource tracing is turned on | boolean
 | disable.thread.safety | `false` | If enabled, threadSafetyCheck throws IllegalStateException in AbstractReferenceCounted.java and message thrown stating which component is not thread safe | _DISABLE_THREAD_SAFETY_ (boolean)
