@@ -42,7 +42,11 @@ import static net.openhft.chronicle.core.io.TracingReferenceCounted.asString;
 public abstract class AbstractCloseable implements ReferenceOwner, ManagedCloseable, SingleThreadedChecked {
     @Deprecated(/* remove in x.25 */)
     protected static final boolean DISABLE_THREAD_SAFETY = DISABLE_SINGLE_THREADED_CHECK;
-    protected static final boolean DISABLE_DISCARD_WARNING = Jvm.getBoolean("disable.discard.warning", false);
+
+    /**
+     * Flag indicating whether discard warning is disabled.
+     */
+    protected static final boolean DISABLE_DISCARD_WARNING = Jvm.getBoolean("disable.discard.warning", true);
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated(/* remove in x.25 */)
     protected static final boolean STRICT_DISCARD_WARNING;
