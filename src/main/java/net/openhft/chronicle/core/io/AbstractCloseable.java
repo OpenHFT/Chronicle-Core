@@ -37,7 +37,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     /**
      * Flag indicating whether discard warning is disabled.
      */
-    protected static final boolean DISABLE_DISCARD_WARNING = Jvm.getBoolean("disable.discard.warning", false);
+    protected static final boolean DISABLE_DISCARD_WARNING = Jvm.getBoolean("disable.discard.warning", true);
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated(/* remove in x.25 */)
     protected static final boolean STRICT_DISCARD_WARNING;
