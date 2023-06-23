@@ -206,4 +206,12 @@ public class OSTest {
         String tmp = OS.getTmp();
         assertNotNull(tmp);
     }
+
+    @Test
+    public void mapAlign() {
+        for (int i = 0; i < 1024; i++) {
+            assertEquals("Unexpected alignment for offset " + i, 0, OS.mapAlign(i, 1024));
+        }
+        assertEquals(1024, OS.mapAlign(1024, 1024));
+    }
 }

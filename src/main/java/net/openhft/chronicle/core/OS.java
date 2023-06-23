@@ -320,7 +320,11 @@ public final class OS {
      */
     public static long mapAlign(long offset) {
         int chunkMultiple = (int) mapAlignment();
-        return (offset + chunkMultiple - 1) / chunkMultiple * chunkMultiple;
+        return mapAlign(offset, chunkMultiple);
+    }
+
+    public static long mapAlign(long offset, int pageAlignment) {
+        return ((offset + pageAlignment) / pageAlignment - 1) * pageAlignment;
     }
 
     /**
