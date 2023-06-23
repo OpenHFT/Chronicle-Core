@@ -23,6 +23,7 @@ import net.openhft.chronicle.core.io.IOTools;
 
 import javax.naming.TimeLimitExceededException;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.function.BiConsumer;
 
 import static net.openhft.chronicle.core.Jvm.startup;
@@ -68,7 +69,7 @@ public interface LicenceCheck {
             try {
                 String source = new String(IOTools.readFile(LicenceCheck.class, expiryDateFile));
                 LocalDate expiryDate = LocalDate.parse(source.trim());
-                long days = expiryDate.toEpochDay() - System.currentTimeMillis() / 86400000;
+                long days = ChronoUnit.DAYS.between(LocalDate.now(), expiryDate);
                 if (days < 0)
                     throw Jvm.rethrow(new TimeLimitExceededException("Failed to read '" + expiryDateFile));
                 licenceExpiryDetails.accept(days, null);
