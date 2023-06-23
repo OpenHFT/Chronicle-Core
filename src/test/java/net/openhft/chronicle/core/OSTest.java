@@ -209,9 +209,32 @@ public class OSTest {
 
     @Test
     public void mapAlign() {
-        for (int i = 0; i < 1024; i++) {
-            assertEquals("Unexpected alignment for offset " + i, 0, OS.mapAlign(i, 1024));
-        }
-        assertEquals(1024, OS.mapAlign(1024, 1024));
+        // Testing for 64 bytes alignment
+        assertEquals(0, OS.mapAlign(0, 64)); // Perfectly aligned already
+        assertEquals(64, OS.mapAlign(1, 64)); // Not aligned, should round up to 64
+        assertEquals(128, OS.mapAlign(96, 64)); // Not aligned, should round up to 128
+
+        // Testing for 1024 bytes alignment
+        assertEquals(0, OS.mapAlign(0, 1024)); // Perfectly aligned already
+        assertEquals(1024, OS.mapAlign(1024, 1024)); // Perfectly aligned already
+        assertEquals(2048, OS.mapAlign(1025, 1024)); // Not aligned, should round up to 2048
+
+        // Testing for 4096 bytes alignment
+        assertEquals(0, OS.mapAlign(0, 4096)); // Perfectly aligned already
+        assertEquals(4096, OS.mapAlign(1, 4096)); // Not aligned, should round up to 4096
+        assertEquals(4096, OS.mapAlign(4096, 4096)); // Perfectly aligned already
+        assertEquals(8192, OS.mapAlign(4097, 4096)); // Not aligned, should round up to 8192
+
+        // Testing with page alignment equal to 1 (should not change the offset)
+        assertEquals(42, OS.mapAlign(42, 1)); // Alignment of 1, no change
+
+        // Edge cases: large numbers
+        assertEquals(1_073_741_824L, OS.mapAlign(1_073_741_823L, 4096)); // 1 GiB - 1 rounded up to next page
+
+        // Testing negative cases (should throw an exception)
+        assertThrows(IllegalArgumentException.class, () -> OS.mapAlign(-1, 64));
+        assertThrows(IllegalArgumentException.class, () -> OS.mapAlign(10, -64));
+        assertThrows(IllegalArgumentException.class, () -> OS.mapAlign(10, 0));
     }
+
 }

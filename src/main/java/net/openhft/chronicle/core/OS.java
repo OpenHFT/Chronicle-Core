@@ -312,19 +312,42 @@ public final class OS {
     }
 
     /**
-     * Align an offset of a memory mapping in file based on OS.
+     * Aligns the specified offset for a memory-mapped file based on the operating system's page size.
+     * Memory mapping typically requires that the offset be aligned to the operating system's page size.
+     * This method calculates the nearest higher offset that meets this alignment requirement.
      *
-     * @param offset to align
-     * @return offset aligned
+     * <p>For example, if the operating system's page size is 4096 bytes and an offset of 6000 is specified,
+     * this method would return 8192, as 8192 is the next multiple of 4096 greater than 6000.
+     *
+     * @param offset the offset to be aligned. It must be non-negative.
+     * @return the aligned offset.
+     * @throws IllegalArgumentException if offset is negative.
      * @see #mapAlignment()
      */
     public static long mapAlign(long offset) {
+        if (offset < 0) {
+            throw new IllegalArgumentException("Offset cannot be negative.");
+        }
         int chunkMultiple = (int) mapAlignment();
         return mapAlign(offset, chunkMultiple);
     }
 
+    /**
+     * Aligns the specified offset for a memory-mapped file to the nearest higher multiple of the given pageAlignment.
+     *
+     * @param offset         the offset to be aligned. It must be non-negative.
+     * @param pageAlignment  the alignment size, in bytes. This should typically be the operating system's page size or a multiple thereof.
+     * @return the aligned offset.
+     * @throws IllegalArgumentException if offset is negative or pageAlignment is non-positive.
+     */
     public static long mapAlign(long offset, int pageAlignment) {
-        return ((offset + pageAlignment) / pageAlignment - 1) * pageAlignment;
+        if (offset < 0) {
+            throw new IllegalArgumentException("Offset cannot be negative.");
+        }
+        if (pageAlignment <= 0) {
+            throw new IllegalArgumentException("Page alignment must be positive.");
+        }
+        return (offset + pageAlignment - 1) / pageAlignment * pageAlignment;
     }
 
     /**
