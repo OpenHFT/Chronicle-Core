@@ -19,23 +19,29 @@
 package net.openhft.chronicle.core.io;
 
 /**
- * A simple implementation of the {@link ReferenceOwner} and {@link QueryCloseable} interfaces.
+ * A simple, no-frills implementation of {@link ReferenceOwner} and {@link QueryCloseable}.
+ * It's primarily used to represent an owner of references in the reference-counting mechanisms.
+ * This class is not capable of being closed, and {@link #isClosed()} will always return {@code false}.
  */
 public class VanillaReferenceOwner implements ReferenceOwner, QueryCloseable {
 
     private final String name;
 
     /**
-     * Constructs a {@code VanillaReferenceOwner} with the specified name.
+     * Constructs a new instance of {@code VanillaReferenceOwner} with the specified name.
+     * The name is used to identify the owner of references.
      *
-     * @param name the name of the reference owner
+     * @param name A {@link String} representing the name of the reference owner.
      */
     public VanillaReferenceOwner(String name) {
         this.name = name;
     }
 
     /**
-     * @return the name of the reference owner
+     * Returns the name of the reference owner in a string format.
+     *
+     * @return A {@link String} representing the name of the reference owner,
+     * wrapped inside the standard string representation of this object.
      */
     @Override
     public String referenceName() {
@@ -43,7 +49,10 @@ public class VanillaReferenceOwner implements ReferenceOwner, QueryCloseable {
     }
 
     /**
-     * @return the string representation of the reference owner
+     * Returns the string representation of the reference owner.
+     * This representation includes the name provided during the construction of this instance.
+     *
+     * @return A {@link String} representing the reference owner in the format: "VanillaReferenceOwner{name='[name]'}".
      */
     @Override
     public String toString() {
@@ -52,6 +61,13 @@ public class VanillaReferenceOwner implements ReferenceOwner, QueryCloseable {
                 '}';
     }
 
+    /**
+     * Indicates whether this reference owner is closed.
+     * Since the {@code VanillaReferenceOwner} does not support the concept of being closed,
+     * this method always returns {@code false}.
+     *
+     * @return {@code false}, indicating that this reference owner is not closeable.
+     */
     @Override
     public boolean isClosed() {
         return false;

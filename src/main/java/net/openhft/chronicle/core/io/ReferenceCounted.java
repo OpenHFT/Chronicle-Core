@@ -19,94 +19,115 @@
 package net.openhft.chronicle.core.io;
 
 /**
- * A resource which is reference counted and freed when the refCount drop to 0.
+ * Represents a resource that is reference counted. The resource is freed when the reference count drops to 0.
+ * This can be used for efficiently managing resources, such as memory buffers or file handles,
+ * by ensuring that they are not released until they are no longer in use.
  */
 public interface ReferenceCounted extends ReferenceOwner {
 
     /**
-     * Reserves a resource or throws an Exception.
+     * Reserves the resource by incrementing its reference count by one.
      * <p>
-     * Each invocation of this method increases the reference count by one.
+     * It is required to reserve a resource before using it to prevent it from being freed.
+     * </p>
      *
-     * @param id unique id for this reserve
+     * @param id The unique identifier representing the owner reserving the resource.
      * @throws IllegalStateException if the resource has already been freed.
      *                               I.e. its reference counter has as some point reached zero.
      */
     void reserve(ReferenceOwner id) throws IllegalStateException;
 
+    /**
+     * Atomically transfers a reservation from one owner to another by incrementing the reference
+     * count for the new owner and decrementing it for the old owner.
+     *
+     * @param from The unique identifier representing the owner releasing the reservation.
+     * @param to   The unique identifier representing the owner acquiring the reservation.
+     * @throws IllegalStateException if the resource has already been freed.
+     */
     default void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException {
         reserve(to);
         release(from);
     }
 
     /**
-     * Tries to reserve a resource and returns if the resource could
-     * be successfully reserved.
-     * <p>
-     * Each invocation of this method increases the reference count by one.
+     * Attempts to reserve the resource and returns {@code true} if successful.
+     * Unlike {@link #reserve(ReferenceOwner)}, this method will not throw an exception if the resource
+     * is already freed.
      *
-     * @param id unique id for this reserve
+     * @param id The unique identifier representing the owner attempting to reserve the resource.
+     * @return {@code true} if the resource was successfully reserved, {@code false} otherwise.
      * @throws IllegalStateException if the resource has already been freed.
-     *                               I.e. its reference counter has as some point reached zero.
+     * @throws IllegalArgumentException if the reference owner is invalid.
      */
     boolean tryReserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException;
 
     /**
-     * Best effort check the owner has reserved it. Returns <code>true</code> if not sure.
+     * Checks if the resource is reserved by the specified owner. Returns {@code true} if unsure.
+     * <p>
+     * This method provides a best-effort check and may not be accurate.
+     * </p>
      *
-     * @param owner to check
-     * @return false if the owner definitely doesn't own it.
-     * @deprecated Deprecated with no replacement
+     * @param owner The unique identifier representing the owner to check.
+     * @return {@code false} if it is certain that the owner does not have the resource reserved; {@code true} otherwise.
+     * @deprecated This method is deprecated and may be removed in future versions.
      */
     @Deprecated(/* to be removed in x.25 */)
     boolean reservedBy(ReferenceOwner owner) throws IllegalStateException;
 
     /**
-     * Releases a resource.
-     * <p>
-     * Each invocation of this method decreases the reference count by one.
+     * Releases the resource by decrementing its reference count by one.
+     * When the reference count reaches zero, the resource is freed.
      *
-     * @param id unique id for the reserve to be released
+     * @param id The unique identifier representing the owner releasing the resource.
      * @throws IllegalStateException if the resource has already been freed.
      *                               I.e. its reference counter has as some point reached zero.
      */
     void release(ReferenceOwner id) throws IllegalStateException;
 
     /**
-     * Releases a resource and checks this is the last usage.
-     * <p>
-     * Each invocation of this method decreases the reference count by one.
+     * Releases the resource and ensures that this release is the last usage of the resource.
+     * The reference count is decremented and checked to be zero after this release.
      *
-     * @param id unique id for the reserve to be released
-     * @throws IllegalStateException if the resource has already been freed.
-     *                               I.e. its reference counter has as some point reached zero.
+     * @param id The unique identifier representing the owner releasing the resource.
+     * @throws IllegalStateException if the resource has already been freed or if the reference count is not zero after this release.
      */
     void releaseLast(ReferenceOwner id) throws IllegalStateException;
 
+    /**
+     * Releases the resource for the initial owner and ensures that this release is the last usage of the resource.
+     * The reference count is decremented and checked to be zero after this release.
+     *
+     * @throws IllegalStateException if the resource has already been freed or if the reference count is not zero after this release.
+     */
     default void releaseLast() throws IllegalStateException {
         releaseLast(INIT);
     }
 
     /**
-     * Returns the reference count for this resource.
+     * Returns the current reference count of the resource. The reference count indicates
+     * the number of owners currently holding reservations to the resource.
      *
-     * @return the reference count for this resource
+     * @return The current reference count of the resource.
      */
     int refCount();
 
     /**
-     * Add a {@link ReferenceChangeListener} that will be notified whenever the set of references changes
+     * Adds a {@link ReferenceChangeListener} that will be notified whenever the reference count changes.
+     * This can be used to monitor the usage of the resource and execute code when certain conditions are met.
      *
-     * @param referenceChangeListener The listener to add
+     * @param referenceChangeListener The listener that will receive notifications of reference count changes.
      */
     void addReferenceChangeListener(ReferenceChangeListener referenceChangeListener);
 
     /**
-     * Remove a {@link ReferenceChangeListener}
+     * Removes a {@link ReferenceChangeListener} previously added via {@link #addReferenceChangeListener(ReferenceChangeListener)}.
      * <p>
-     * Uses object equality to determine which to remove so be careful if the listener implements equals
+     * Note: Object equality is used to determine which listener to remove, so be cautious if the listener
+     * implements the equals method in a non-standard way.
+     * </p>
      *
-     * @param referenceChangeListener The listener to remove
+     * @param referenceChangeListener The listener to remove.
      */
     void removeReferenceChangeListener(ReferenceChangeListener referenceChangeListener);
 }

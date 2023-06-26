@@ -26,7 +26,9 @@ import net.openhft.chronicle.core.annotation.UsedViaReflection;
 import static net.openhft.chronicle.core.internal.CloseableUtils.asString;
 
 /**
- * A simple implementation of the {@link MonitorReferenceCounted} interface.
+ * This class provides a basic implementation of the {@link MonitorReferenceCounted} interface.
+ * It is responsible for keeping track of reference counts and releasing resources
+ * once they are no longer needed.
  */
 public final class VanillaReferenceCounted implements MonitorReferenceCounted {
 
@@ -47,10 +49,11 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     private StackTrace releasedHere;
 
     /**
-     * Constructs a {@code VanillaReferenceCounted} with the specified release action and class type.
+     * Constructs a new instance of {@code VanillaReferenceCounted} with the specified action to be performed
+     * on release and the class type of the resource.
      *
-     * @param onRelease the action to be performed on release
-     * @param type      the class type
+     * @param onRelease The action to be executed once the reference count drops to 0 and the resource is released.
+     * @param type      The class type of the resource being reference counted.
      */
     VanillaReferenceCounted(final Runnable onRelease, Class<?> type) {
         this.onRelease = onRelease;
@@ -58,6 +61,9 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         referenceChangeListeners = new ReferenceChangeListenerManager(this);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public StackTrace createdHere() {
         return null;
@@ -72,6 +78,12 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         return true;
     }
 
+    /**
+     * Reserves the resource for the provided reference owner.
+     *
+     * @param id The reference owner.
+     * @throws ClosedIllegalStateException If the object has already been released.
+     */
     @Override
     public void reserve(ReferenceOwner id) throws ClosedIllegalStateException {
         for (; ; ) {
@@ -86,12 +98,25 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         }
     }
 
+    /**
+     * Transfers the reservation of the resource from one reference owner to another.
+     *
+     * @param from The current reference owner.
+     * @param to   The new reference owner.
+     * @throws ClosedIllegalStateException If the object has already been released.
+     */
     @Override
     public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws ClosedIllegalStateException {
         throwExceptionIfReleased();
         referenceChangeListeners.notifyTransferred(from, to);
     }
 
+    /**
+     * Attempts to reserve the resource for the provided reference owner.
+     *
+     * @param id The reference owner.
+     * @return {@code true} if the reservation was successful, {@code false} if the object has already been released.
+     */
     @Override
     public boolean tryReserve(ReferenceOwner id) {
         for (; ; ) {
@@ -114,6 +139,12 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         return UnsafeMemory.INSTANCE.getAndSetInt(this, VALUE, to);
     }
 
+    /**
+     * Releases the resource reserved by the provided reference owner.
+     *
+     * @param id The reference owner.
+     * @throws ClosedIllegalStateException If the object has already been released.
+     */
     @Override
     public void release(ReferenceOwner id) throws ClosedIllegalStateException {
         for (; ; ) {
@@ -141,6 +172,12 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         referenceChangeListeners.clear();
     }
 
+    /**
+     * Releases the last reference of the resource.
+     *
+     * @param id The reference owner.
+     * @throws IllegalStateException If the object has more references.
+     */
     @Override
     public void releaseLast(ReferenceOwner id) throws IllegalStateException {
         Exception thrownException = null;
@@ -196,18 +233,18 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     }
 
     /**
-     * Adds a {@link ReferenceChangeListener} to be notified when references are added or removed.
+     * Adds a {@link ReferenceChangeListener} that will be notified when references are added or removed.
      *
-     * @param referenceChangeListener the listener to add
+     * @param referenceChangeListener The {@link ReferenceChangeListener} to be added.
      */
     public void addReferenceChangeListener(ReferenceChangeListener referenceChangeListener) {
         referenceChangeListeners.add(referenceChangeListener);
     }
 
     /**
-     * Removes a {@link ReferenceChangeListener} from the notification list.
+     * Removes a {@link ReferenceChangeListener} from being notified when references are added or removed.
      *
-     * @param referenceChangeListener the listener to remove
+     * @param referenceChangeListener The {@link ReferenceChangeListener} to be removed.
      */
     public void removeReferenceChangeListener(ReferenceChangeListener referenceChangeListener) {
         referenceChangeListeners.remove(referenceChangeListener);
