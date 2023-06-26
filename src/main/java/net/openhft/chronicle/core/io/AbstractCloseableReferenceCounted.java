@@ -113,6 +113,7 @@ public abstract class AbstractCloseableReferenceCounted
      */
     @Override
     public void close() {
+        setClosing();
         if (!initReleased)
             try {
                 release(INIT);
