@@ -19,7 +19,13 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>net.openhft</groupId>
+    <parent>
+        <groupId>net.openhft</groupId>
+        <artifactId>java-parent-pom</artifactId>
+        <version>1.1.36</version>
+        <relativePath />
+    </parent>
+
     <artifactId>chronicle-core-benchmarks</artifactId>
     <version>0.1-SNAPSHOT</version>
     <name>OpenHFT/Chronicle-Core/Benchmarks</name>
@@ -35,7 +41,7 @@
             <dependency>
                 <groupId>net.openhft</groupId>
                 <artifactId>third-party-bom</artifactId>
-                <version>3.22.3</version>
+                <version>3.22.4</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -213,12 +219,8 @@
                                 </goals>
                                 <configuration>
                                     <executable>${java.home}/bin/java</executable>
-                                    <arguments>
-                                        <argument>-classpath</argument>
-                                        <classpath />
-                                        <argument>-Dcapacity=20</argument>
-                                        <argument>net.openhft.chronicle.core.jlbh.CopyMemoryJLBH</argument>
-                                    </arguments>
+                                    <commandlineArgs>-Dcapacity=20 ${jvm.requiredArgs} -Djvm.resource.tracing=false -classpath %classpath net.openhft.chronicle.core.jlbh.CopyMemoryJLBH
+                                    </commandlineArgs>
                                 </configuration>
                             </execution>
                             <execution>
@@ -229,12 +231,8 @@
                                 </goals>
                                 <configuration>
                                     <executable>${java.home}/bin/java</executable>
-                                    <arguments>
-                                        <argument>-classpath</argument>
-                                        <classpath />
-                                        <argument>-Dcapacity=60</argument>
-                                        <argument>net.openhft.chronicle.core.jlbh.CopyMemoryJLBH</argument>
-                                    </arguments>
+                                    <commandlineArgs>-Dcapacity=60 ${jvm.requiredArgs} -Djvm.resource.tracing=false -classpath %classpath net.openhft.chronicle.core.jlbh.CopyMemoryJLBH
+                                    </commandlineArgs>
                                 </configuration>
                             </execution>
                             <execution>
@@ -245,12 +243,8 @@
                                 </goals>
                                 <configuration>
                                     <executable>${java.home}/bin/java</executable>
-                                    <arguments>
-                                        <argument>-classpath</argument>
-                                        <classpath />
-                                        <argument>-Dcapacity=122</argument>
-                                        <argument>net.openhft.chronicle.core.jlbh.CopyMemoryJLBH</argument>
-                                    </arguments>
+                                    <commandlineArgs>-Dcapacity=122 ${jvm.requiredArgs} -Djvm.resource.tracing=false -classpath %classpath net.openhft.chronicle.core.jlbh.CopyMemoryJLBH
+                                    </commandlineArgs>
                                 </configuration>
                             </execution>
                             <execution>
@@ -261,12 +255,8 @@
                                 </goals>
                                 <configuration>
                                     <executable>${java.home}/bin/java</executable>
-                                    <arguments>
-                                        <argument>-classpath</argument>
-                                        <classpath />
-                                        <argument>-Dcapacity=1000</argument>
-                                        <argument>net.openhft.chronicle.core.jlbh.CopyMemoryJLBH</argument>
-                                    </arguments>
+                                    <commandlineArgs>-Dcapacity=1000 ${jvm.requiredArgs} -Djvm.resource.tracing=false -classpath %classpath net.openhft.chronicle.core.jlbh.CopyMemoryJLBH
+                                    </commandlineArgs>
                                 </configuration>
                             </execution>
                             <execution>
@@ -277,14 +267,8 @@
                                 </goals>
                                 <configuration>
                                     <executable>${java.home}/bin/java</executable>
-                                    <arguments>
-                                        <argument>-classpath</argument>
-                                        <classpath />
-                                        <argument>-Dcapacity=10000</argument>
-                                        <argument>-Diterations=10000000</argument>
-                                        <argument>-Dthroughput=1000000</argument>
-                                        <argument>net.openhft.chronicle.core.jlbh.CopyMemoryJLBH</argument>
-                                    </arguments>
+                                    <commandlineArgs>-Dcapacity=10000 -Diterations=10000000 -Dthroughput=1000000 ${jvm.requiredArgs} -Djvm.resource.tracing=false -classpath %classpath net.openhft.chronicle.core.jlbh.CopyMemoryJLBH
+                                    </commandlineArgs>
                                 </configuration>
                             </execution>
                             <execution>
@@ -295,15 +279,8 @@
                                 </goals>
                                 <configuration>
                                     <executable>${java.home}/bin/java</executable>
-                                    <arguments>
-                                        <argument>-classpath</argument>
-                                        <classpath />
-                                        <argument>-Dcapacity=10000000</argument>
-                                        <argument>-Dwarmup=10000</argument>
-                                        <argument>-Diterations=10000</argument>
-                                        <argument>-Dthroughput=1000</argument>
-                                        <argument>net.openhft.chronicle.core.jlbh.CopyMemoryJLBH</argument>
-                                    </arguments>
+                                    <commandlineArgs>-Dcapacity=10000000 -Dwarmup=10000 -Diterations=10000 -Dthroughput=1000 ${jvm.requiredArgs} -Djvm.resource.tracing=false -classpath %classpath net.openhft.chronicle.core.jlbh.CopyMemoryJLBH
+                                    </commandlineArgs>
                                 </configuration>
                             </execution>
                             <execution>
@@ -314,11 +291,8 @@
                                 </goals>
                                 <configuration>
                                     <executable>${java.home}/bin/java</executable>
-                                    <arguments>
-                                        <argument>-classpath</argument>
-                                        <classpath/>
-                                        <argument>net.openhft.chronicle.core.AsDoubleImplementationPerfJLBH</argument>
-                                    </arguments>
+                                    <commandlineArgs>${jvm.requiredArgs} -Djvm.resource.tracing=false -classpath %classpath net.openhft.chronicle.core.AsDoubleImplementationPerfJLBH
+                                    </commandlineArgs>
                                 </configuration>
                             </execution>
                         </executions>
