@@ -113,6 +113,7 @@ public abstract class AbstractCloseableReferenceCounted
      */
     @Override
     public void close() {
+        setClosing();
         if (!initReleased)
             try {
                 release(INIT);
@@ -140,7 +141,8 @@ public abstract class AbstractCloseableReferenceCounted
     }
 
     private void setClosedHere(String s) {
-        closedHere = Jvm.isResourceTracing() ? new StackTrace(getClass().getName() + s) : null;
+        if (closedHere == null)
+            closedHere = Jvm.isResourceTracing() ? new StackTrace(getClass().getName() + s) : null;
     }
 
     /**
