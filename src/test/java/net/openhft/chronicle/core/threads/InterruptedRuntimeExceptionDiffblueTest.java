@@ -3,9 +3,11 @@ package net.openhft.chronicle.core.threads;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class InterruptedRuntimeExceptionDiffblueTest {
+public class InterruptedRuntimeExceptionDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link InterruptedRuntimeException#InterruptedRuntimeException()}
   */

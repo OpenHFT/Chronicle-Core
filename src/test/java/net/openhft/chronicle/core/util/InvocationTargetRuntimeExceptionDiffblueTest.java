@@ -3,9 +3,11 @@ package net.openhft.chronicle.core.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import java.lang.reflect.InvocationTargetException;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class InvocationTargetRuntimeExceptionDiffblueTest {
+public class InvocationTargetRuntimeExceptionDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link InvocationTargetRuntimeException#InvocationTargetRuntimeException(Throwable)}
   */

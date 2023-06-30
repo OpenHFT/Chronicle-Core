@@ -13,9 +13,11 @@ import java.awt.image.renderable.ParameterBlock;
 import java.awt.image.renderable.RenderContext;
 import java.awt.image.renderable.RenderableImageOp;
 import java.awt.image.renderable.RenderableImageProducer;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class DualReferenceCountedDiffblueTest {
+public class DualReferenceCountedDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link DualReferenceCounted#DualReferenceCounted(MonitorReferenceCounted, MonitorReferenceCounted)}
   */
@@ -57,69 +59,6 @@ public class DualReferenceCountedDiffblueTest {
     // Assert
     assertEquals(1, actualDualReferenceCounted.refCount());
     assertFalse(actualDualReferenceCounted.unmonitored());
-  }
-
-  /**
-   * Method under test: {@link DualReferenceCounted#warnAndReleaseIfNotReleased()}
-   */
-  @Test
-  public void testWarnAndReleaseIfNotReleased() throws ClosedIllegalStateException {
-    // Arrange
-    Runnable onRelease = mock(Runnable.class);
-    doNothing().when(onRelease).run();
-    VanillaReferenceCounted a = new VanillaReferenceCounted(onRelease, Object.class);
-
-    Runnable onRelease2 = mock(Runnable.class);
-
-    // Act
-    (new DualReferenceCounted(a, new VanillaReferenceCounted(onRelease2, Object.class))).warnAndReleaseIfNotReleased();
-
-    // Assert
-    verify(onRelease).run();
-  }
-
-  /**
-   * Method under test: {@link DualReferenceCounted#warnAndReleaseIfNotReleased()}
-   */
-  @Test
-  public void testWarnAndReleaseIfNotReleased2() throws ClosedIllegalStateException {
-    // Arrange
-    Runnable onRelease = mock(Runnable.class);
-    doNothing().when(onRelease).run();
-    VanillaReferenceCounted a = new VanillaReferenceCounted(onRelease, Object.class);
-
-    Runnable onRelease2 = mock(Runnable.class);
-    DualReferenceCounted a2 = new DualReferenceCounted(a, new VanillaReferenceCounted(onRelease2, Object.class));
-
-    Runnable onRelease3 = mock(Runnable.class);
-
-    // Act
-    (new DualReferenceCounted(a2, new VanillaReferenceCounted(onRelease3, Object.class))).warnAndReleaseIfNotReleased();
-
-    // Assert
-    verify(onRelease).run();
-  }
-
-  /**
-   * Method under test: {@link DualReferenceCounted#warnAndReleaseIfNotReleased()}
-   */
-  @Test
-  public void testWarnAndReleaseIfNotReleased3() throws ClosedIllegalStateException {
-    // Arrange
-    Runnable onRelease = mock(Runnable.class);
-    doNothing().when(onRelease).run();
-    TracingReferenceCounted a = new TracingReferenceCounted(onRelease, "42", Object.class);
-
-    Runnable onRelease2 = mock(Runnable.class);
-    DualReferenceCounted a2 = new DualReferenceCounted(a, new VanillaReferenceCounted(onRelease2, Object.class));
-
-    Runnable onRelease3 = mock(Runnable.class);
-
-    // Act
-    (new DualReferenceCounted(a2, new VanillaReferenceCounted(onRelease3, Object.class))).warnAndReleaseIfNotReleased();
-
-    // Assert
-    verify(onRelease).run();
   }
 
   /**

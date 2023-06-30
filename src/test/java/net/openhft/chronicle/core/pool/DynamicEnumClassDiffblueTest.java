@@ -4,9 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class DynamicEnumClassDiffblueTest {
+public class DynamicEnumClassDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link DynamicEnumClass#get(String)}
    */

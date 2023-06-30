@@ -2,9 +2,11 @@ package net.openhft.chronicle.core.watcher;
 
 import static org.junit.Assert.assertEquals;
 import java.nio.file.Paths;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class JMXFileManagerDiffblueTest {
+public class JMXFileManagerDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link JMXFileManager#type()}
   */

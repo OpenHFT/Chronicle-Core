@@ -4,9 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import java.util.AbstractMap;
 import java.util.Map;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class MapUtilDiffblueTest {
+public class MapUtilDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link MapUtil#ofUnmodifiable(Map.Entry[])}
   */

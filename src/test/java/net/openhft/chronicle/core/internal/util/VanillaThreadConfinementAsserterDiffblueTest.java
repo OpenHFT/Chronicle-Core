@@ -1,9 +1,11 @@
 package net.openhft.chronicle.core.internal.util;
 
 import static org.junit.Assert.assertEquals;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class VanillaThreadConfinementAsserterDiffblueTest {
+public class VanillaThreadConfinementAsserterDiffblueTest extends CoreTestCommon {
   /**
   * Methods under test: 
   * 

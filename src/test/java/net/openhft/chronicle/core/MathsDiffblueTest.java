@@ -6,7 +6,7 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 
-public class MathsDiffblueTest {
+public class MathsDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link Maths#roundN(double, double)}
    */

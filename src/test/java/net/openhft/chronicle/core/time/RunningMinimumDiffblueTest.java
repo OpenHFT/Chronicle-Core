@@ -1,9 +1,11 @@
 package net.openhft.chronicle.core.time;
 
 import static org.junit.Assert.assertEquals;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class RunningMinimumDiffblueTest {
+public class RunningMinimumDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link RunningMinimum#RunningMinimum(long)}
   */

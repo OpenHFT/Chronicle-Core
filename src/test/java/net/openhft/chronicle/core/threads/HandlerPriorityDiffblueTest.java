@@ -1,9 +1,11 @@
 package net.openhft.chronicle.core.threads;
 
 import static org.junit.Assert.assertEquals;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class HandlerPriorityDiffblueTest {
+public class HandlerPriorityDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link HandlerPriority#alias()}
   */

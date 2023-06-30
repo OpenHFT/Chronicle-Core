@@ -10,12 +10,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import javax.management.loading.MLet;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.util.ClassNotFoundRuntimeException;
 import org.junit.Test;
 import org.junit.jupiter.params.shadow.com.univocity.parsers.common.input.DefaultCharAppender;
 import org.mockito.Mockito;
 
-public class ClassAliasPoolDiffblueTest {
+public class ClassAliasPoolDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link ClassAliasPool.CAPKey#charAt(int)}
    */

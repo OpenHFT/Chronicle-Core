@@ -5,9 +5,11 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class StringInternerDiffblueTest {
+public class StringInternerDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link StringInterner#StringInterner(int)}
   */

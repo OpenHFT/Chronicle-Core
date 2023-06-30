@@ -2,9 +2,11 @@ package net.openhft.chronicle.core.io;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class ReferenceChangeListenerDiffblueTest {
+public class ReferenceChangeListenerDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link ReferenceChangeListener#onReferenceAdded(ReferenceCounted, ReferenceOwner)}
   */

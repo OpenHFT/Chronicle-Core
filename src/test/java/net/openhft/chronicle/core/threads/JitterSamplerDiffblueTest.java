@@ -1,9 +1,11 @@
 package net.openhft.chronicle.core.threads;
 
 import static org.junit.Assert.assertNull;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class JitterSamplerDiffblueTest {
+public class JitterSamplerDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link JitterSampler#takeSnapshot()}
   */

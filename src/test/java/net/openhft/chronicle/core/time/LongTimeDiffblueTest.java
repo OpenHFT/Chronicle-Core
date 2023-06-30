@@ -3,9 +3,11 @@ package net.openhft.chronicle.core.time;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class LongTimeDiffblueTest {
+public class LongTimeDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link LongTime#isSecs(long)}
    */

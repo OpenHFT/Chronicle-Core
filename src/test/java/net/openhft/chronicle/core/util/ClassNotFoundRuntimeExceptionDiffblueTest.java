@@ -3,9 +3,11 @@ package net.openhft.chronicle.core.util;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class ClassNotFoundRuntimeExceptionDiffblueTest {
+public class ClassNotFoundRuntimeExceptionDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link ClassNotFoundRuntimeException#ClassNotFoundRuntimeException(ClassNotFoundException)}
   */

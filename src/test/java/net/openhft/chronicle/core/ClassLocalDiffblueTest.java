@@ -5,7 +5,7 @@ import static org.mockito.Mockito.mock;
 import java.util.function.Function;
 import org.junit.Test;
 
-public class ClassLocalDiffblueTest {
+public class ClassLocalDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link ClassLocal#withInitial(Function)}
   */

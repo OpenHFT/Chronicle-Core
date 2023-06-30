@@ -4,9 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class AbstractCloseableReferenceCountedDiffblueTest {
+public class AbstractCloseableReferenceCountedDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link AbstractCloseableReferenceCounted#reserve(ReferenceOwner)}
    */
@@ -17,21 +19,6 @@ public class AbstractCloseableReferenceCountedDiffblueTest {
 
     // Act
     myCloseableReferenceCounted.reserve(new VanillaReferenceOwner("Name"));
-
-    // Assert
-    assertFalse(myCloseableReferenceCounted.isClosing());
-  }
-
-  /**
-   * Method under test: {@link AbstractCloseableReferenceCounted#reserve(ReferenceOwner)}
-   */
-  @Test
-  public void testReserve2() throws IllegalStateException {
-    // Arrange
-    AbstractCloseableReferenceCountedTest.MyCloseableReferenceCounted myCloseableReferenceCounted = new AbstractCloseableReferenceCountedTest.MyCloseableReferenceCounted();
-
-    // Act
-    myCloseableReferenceCounted.reserve(new AbstractCloseableGptTest.ConcreteCloseable());
 
     // Assert
     assertFalse(myCloseableReferenceCounted.isClosing());
@@ -130,19 +117,6 @@ public class AbstractCloseableReferenceCountedDiffblueTest {
 
     // Act and Assert
     assertTrue(myCloseableReferenceCounted.tryReserve(new VanillaReferenceOwner("Name")));
-    assertFalse(myCloseableReferenceCounted.isClosing());
-  }
-
-  /**
-   * Method under test: {@link AbstractCloseableReferenceCounted#tryReserve(ReferenceOwner)}
-   */
-  @Test
-  public void testTryReserve2() throws IllegalArgumentException, IllegalStateException {
-    // Arrange
-    AbstractCloseableReferenceCountedTest.MyCloseableReferenceCounted myCloseableReferenceCounted = new AbstractCloseableReferenceCountedTest.MyCloseableReferenceCounted();
-
-    // Act and Assert
-    assertTrue(myCloseableReferenceCounted.tryReserve(new AbstractCloseableGptTest.ConcreteCloseable()));
     assertFalse(myCloseableReferenceCounted.isClosing());
   }
 

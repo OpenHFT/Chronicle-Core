@@ -2,9 +2,11 @@ package net.openhft.chronicle.core.internal;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class BootstrapDiffblueTest {
+public class BootstrapDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link Bootstrap#isArm0()}
    */

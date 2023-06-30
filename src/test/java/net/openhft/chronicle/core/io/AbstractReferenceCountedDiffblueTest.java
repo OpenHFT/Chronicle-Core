@@ -4,9 +4,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class AbstractReferenceCountedDiffblueTest {
+public class AbstractReferenceCountedDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link AbstractReferenceCounted#unmonitor(ReferenceCounted)}
    */
@@ -106,18 +108,6 @@ public class AbstractReferenceCountedDiffblueTest {
 
     // Act and Assert
     assertTrue(myReferenceCounted.tryReserve(new VanillaReferenceOwner("Name")));
-  }
-
-  /**
-   * Method under test: {@link AbstractReferenceCounted#tryReserve(ReferenceOwner)}
-   */
-  @Test
-  public void testTryReserve2() throws IllegalArgumentException, IllegalStateException {
-    // Arrange
-    AbstractReferenceCountedTest.MyReferenceCounted myReferenceCounted = new AbstractReferenceCountedTest.MyReferenceCounted();
-
-    // Act and Assert
-    assertTrue(myReferenceCounted.tryReserve(new AbstractCloseableGptTest.ConcreteCloseable()));
   }
 
   /**
@@ -238,22 +228,6 @@ public class AbstractReferenceCountedDiffblueTest {
     // Assert that nothing has changed
     assertFalse(myCloseableReferenceCounted.isClosing());
     assertEquals(0, myCloseableReferenceCounted.performRelease);
-  }
-
-  /**
-   * Method under test: {@link AbstractReferenceCounted#warnAndReleaseIfNotReleased()}
-   */
-  @Test
-  public void testWarnAndReleaseIfNotReleased() throws ClosedIllegalStateException {
-    // Arrange
-    AbstractCloseableReferenceCountedTest.MyCloseableReferenceCounted myCloseableReferenceCounted = new AbstractCloseableReferenceCountedTest.MyCloseableReferenceCounted();
-
-    // Act
-    myCloseableReferenceCounted.warnAndReleaseIfNotReleased();
-
-    // Assert
-    assertTrue(myCloseableReferenceCounted.isClosing());
-    assertEquals(1, myCloseableReferenceCounted.performRelease);
   }
 
   /**

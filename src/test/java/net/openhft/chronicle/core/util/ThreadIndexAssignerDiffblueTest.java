@@ -8,10 +8,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.values.IntArrayValues;
 import org.junit.Test;
 
-public class ThreadIndexAssignerDiffblueTest {
+public class ThreadIndexAssignerDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link ThreadIndexAssigner#getId()}
   */

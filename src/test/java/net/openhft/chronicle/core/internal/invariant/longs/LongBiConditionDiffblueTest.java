@@ -3,10 +3,12 @@ package net.openhft.chronicle.core.internal.invariant.longs;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.util.LongBiPredicate;
 import org.junit.Test;
 
-public class LongBiConditionDiffblueTest {
+public class LongBiConditionDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link LongBiCondition#negate()}
    */

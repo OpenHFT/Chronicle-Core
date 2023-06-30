@@ -2,9 +2,11 @@ package net.openhft.chronicle.core.util;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class MisAlignedAssertionErrorDiffblueTest {
+public class MisAlignedAssertionErrorDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: default or parameterless constructor of {@link MisAlignedAssertionError}
   */

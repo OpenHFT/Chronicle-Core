@@ -2,10 +2,12 @@ package net.openhft.chronicle.core.onoes;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 import org.slf4j.impl.SimpleLogger;
 
-public class Slf4jExceptionHandlerDiffblueTest {
+public class Slf4jExceptionHandlerDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link Slf4jExceptionHandler#getLogger(Class)}
   */

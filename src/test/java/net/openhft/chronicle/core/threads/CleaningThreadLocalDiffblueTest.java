@@ -9,11 +9,13 @@ import static org.mockito.Mockito.when;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.util.ThrowingConsumer;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class CleaningThreadLocalDiffblueTest {
+public class CleaningThreadLocalDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link CleaningThreadLocal#withCloseQuietly(Supplier)}
    */

@@ -1,9 +1,11 @@
 package net.openhft.chronicle.core.util;
 
 import static org.junit.Assert.assertThrows;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class TypeOfDiffblueTest {
+public class TypeOfDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: default or parameterless constructor of {@link TypeOf}
   */

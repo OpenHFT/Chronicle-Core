@@ -7,9 +7,11 @@ import java.awt.image.renderable.ParameterBlock;
 import java.awt.image.renderable.RenderContext;
 import java.awt.image.renderable.RenderableImageOp;
 import java.awt.image.renderable.RenderableImageProducer;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class StackSamplerDiffblueTest {
+public class StackSamplerDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: default or parameterless constructor of {@link StackSampler}
   */

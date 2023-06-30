@@ -5,12 +5,14 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.io.DualReferenceCounted;
 import net.openhft.chronicle.core.io.MonitorReferenceCounted;
 import net.openhft.chronicle.core.io.ReferenceOwner;
 import org.junit.Test;
 
-public class CloseableUtilsDiffblueTest {
+public class CloseableUtilsDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link CloseableUtils#waitForCloseablesToClose(long)}
    */

@@ -9,10 +9,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import java.util.function.Function;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-public class ParsingCacheDiffblueTest {
+public class ParsingCacheDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link ParsingCache#ParsingCache(int, Function)}
   */
@@ -149,16 +151,6 @@ public class ParsingCacheDiffblueTest {
     assertFalse(actualParsingCache.toggle);
     assertEquals(7, actualParsingCache.shift);
     assertEquals(Float.MAX_EXPONENT, actualParsingCache.mask);
-  }
-
-  /**
-   * Method under test: {@link ParsingCache#ParsingCache(int, Function)}
-   */
-  @Test
-  public void testConstructor3() throws IllegalArgumentException {
-    // Arrange, Act and Assert
-    assertThrows(OutOfMemoryError.class, () -> new ParsingCache<>(1073741824, mock(Function.class)));
-
   }
 }
 

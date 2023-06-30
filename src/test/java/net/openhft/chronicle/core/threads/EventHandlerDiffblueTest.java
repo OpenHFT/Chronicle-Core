@@ -5,9 +5,11 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import java.util.function.Supplier;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class EventHandlerDiffblueTest {
+public class EventHandlerDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link EventHandler#eventLoop(EventLoop)}
   */

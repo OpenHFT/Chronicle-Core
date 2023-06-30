@@ -4,12 +4,14 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.io.DualReferenceCounted;
 import net.openhft.chronicle.core.io.MonitorReferenceCounted;
 import net.openhft.chronicle.core.io.ReferenceCounted;
 import org.junit.Test;
 
-public class ReferenceCountedUtilsDiffblueTest {
+public class ReferenceCountedUtilsDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link ReferenceCountedUtils#unmonitor(ReferenceCounted)}
   */

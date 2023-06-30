@@ -2,9 +2,11 @@ package net.openhft.chronicle.core.internal.analytics;
 
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class ReflectiveBuilderDiffblueTest {
+public class ReflectiveBuilderDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link ReflectiveBuilder#ReflectiveBuilder(String, String)}
    */

@@ -3,9 +3,11 @@ package net.openhft.chronicle.core.io;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThrows;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class VanillaReferenceOwnerDiffblueTest {
+public class VanillaReferenceOwnerDiffblueTest extends CoreTestCommon {
   /**
   * Methods under test: 
   * 

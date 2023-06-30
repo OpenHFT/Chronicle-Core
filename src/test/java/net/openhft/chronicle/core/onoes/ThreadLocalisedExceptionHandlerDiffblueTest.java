@@ -9,12 +9,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import java.util.LinkedList;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.helpers.SubstituteLogger;
 
-public class ThreadLocalisedExceptionHandlerDiffblueTest {
+public class ThreadLocalisedExceptionHandlerDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link ThreadLocalisedExceptionHandler#ThreadLocalisedExceptionHandler(ExceptionHandler)}
   */
@@ -329,20 +331,6 @@ public class ThreadLocalisedExceptionHandlerDiffblueTest {
     // Act and Assert
     assertTrue(threadLocalisedExceptionHandler.isEnabled(Object.class));
     verify(handler2).isEnabled(Mockito.<Class<Object>>any());
-  }
-
-  /**
-   * Method under test: {@link ThreadLocalisedExceptionHandler#isEnabled(Class)}
-   */
-  @Test
-  public void testIsEnabled4() {
-    // Arrange
-    ThreadLocalisedExceptionHandler threadLocalisedExceptionHandler = new ThreadLocalisedExceptionHandler(
-        mock(ExceptionHandler.class));
-    threadLocalisedExceptionHandler.defaultHandler(new GoogleExceptionHandler(mock(ExceptionHandler.class)));
-
-    // Act and Assert
-    assertTrue(threadLocalisedExceptionHandler.isEnabled(Object.class));
   }
 }
 

@@ -6,9 +6,11 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import java.io.UnsupportedEncodingException;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class StringUtilsDiffblueTest {
+public class StringUtilsDiffblueTest extends CoreTestCommon {
   /**
    * Method under test: {@link StringUtils#isEqual(CharSequence, CharSequence)}
    */

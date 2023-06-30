@@ -7,9 +7,11 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.util.concurrent.TimeUnit;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class SetTimeProviderDiffblueTest {
+public class SetTimeProviderDiffblueTest extends CoreTestCommon {
   /**
   * Methods under test: 
   * 

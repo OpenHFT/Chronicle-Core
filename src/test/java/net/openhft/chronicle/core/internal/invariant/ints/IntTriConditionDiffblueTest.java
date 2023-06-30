@@ -2,9 +2,11 @@ package net.openhft.chronicle.core.internal.invariant.ints;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class IntTriConditionDiffblueTest {
+public class IntTriConditionDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link IntTriCondition#test(int, int, int)}
   */

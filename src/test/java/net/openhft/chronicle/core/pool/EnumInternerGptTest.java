@@ -1,10 +1,11 @@
 package net.openhft.chronicle.core.pool;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class EnumInternerGptTest {
+public class EnumInternerGptTest extends CoreTestCommon {
     enum TestEnum { FIRST, SECOND, THIRD }
 
     private EnumInterner<TestEnum> interner;
@@ -32,7 +33,7 @@ public class EnumInternerGptTest {
     @Test
     public void testInternNull() {
         // Attempting to intern a null value should throw a NullPointerException.
-        assertThrows(NullPointerException.class, () -> interner.intern(null));
+        assertNotNullCheck(() -> interner.intern(null));
     }
 
     @Test

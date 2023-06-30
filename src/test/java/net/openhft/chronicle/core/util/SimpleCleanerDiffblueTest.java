@@ -3,9 +3,11 @@ package net.openhft.chronicle.core.util;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-public class SimpleCleanerDiffblueTest {
+public class SimpleCleanerDiffblueTest extends CoreTestCommon {
   /**
   * Method under test: {@link SimpleCleaner#clean()}
   */
