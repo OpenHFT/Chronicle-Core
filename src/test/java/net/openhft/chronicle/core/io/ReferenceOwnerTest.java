@@ -19,17 +19,41 @@
 package net.openhft.chronicle.core.io;
 
 import junit.framework.TestCase;
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class ReferenceOwnerTest extends TestCase {
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+
+public class ReferenceOwnerTest extends CoreTestCommon {
     @Test
     public void testReferenceId() {
         Set<Integer> ints = new HashSet<>();
         for (int i = 0; i < 101; i++)
             ints.add(new VanillaReferenceOwner("hi").referenceId());
         assertEquals(100, ints.size(), 1);
+    }
+
+    @Test
+    public void testReferenceName() {
+        String expectedName = "VanillaReferenceOwner{name='testName'}";
+        VanillaReferenceOwner vanillaReferenceOwner = new VanillaReferenceOwner("testName");
+        assertEquals(expectedName, vanillaReferenceOwner.referenceName());
+    }
+
+    @Test
+    public void testToString() {
+        String expectedString = "VanillaReferenceOwner{name='anotherTest'}";
+        VanillaReferenceOwner vanillaReferenceOwner = new VanillaReferenceOwner("anotherTest");
+        assertEquals(expectedString, vanillaReferenceOwner.toString());
+    }
+
+    @Test
+    public void testIsClosed() {
+        VanillaReferenceOwner vanillaReferenceOwner = new VanillaReferenceOwner("closedTest");
+        assertFalse(vanillaReferenceOwner.isClosed());
     }
 }

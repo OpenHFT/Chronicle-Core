@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
@@ -25,7 +26,7 @@ import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 
-public class HistogramTest {
+public class HistogramTest extends CoreTestCommon {
     @Test
     public void percentilesFor() {
         assertEquals("[0.5, 0.9, 0.99, 0.997, 0.999, 0.9997, 0.9999, 0.99997, 0.99999, 0.999997, 1.0]", Arrays.toString(Histogram.percentilesFor(50_000_000)));

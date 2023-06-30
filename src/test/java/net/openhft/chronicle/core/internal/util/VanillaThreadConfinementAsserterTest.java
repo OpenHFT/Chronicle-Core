@@ -18,13 +18,14 @@
 
 package net.openhft.chronicle.core.internal.util;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.util.ThreadConfinementAsserter;
 import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertThrows;
 
-public class VanillaThreadConfinementAsserterTest {
+public class VanillaThreadConfinementAsserterTest extends CoreTestCommon {
 
     private ThreadConfinementAsserter asserter;
 

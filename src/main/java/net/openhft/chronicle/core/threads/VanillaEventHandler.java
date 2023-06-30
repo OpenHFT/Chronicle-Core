@@ -21,45 +21,46 @@ package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.io.InvalidMarshallableException;
 
+/**
+ * Represents an event handler that performs actions within an event loop.
+ * <p>
+ * This interface should be implemented by classes that handle specific events or tasks within an event loop.
+ * The {@code action()} method is responsible for performing the necessary actions or tasks.
+ * <p>
+ * The event loop can service multiple event handlers, and the frequency at which any particular handler is serviced
+ * is influenced by the handler's priority as well as the overall activity within the event loop.
+ */
 @FunctionalInterface
 public interface VanillaEventHandler {
 
     /**
-     * Performs an action corresponding to some amount of work and returns if it is expected that a
-     * subsequent call to this method would result in additional work being carried out.
+     * Performs an action corresponding to some amount of work and returns a boolean indicating whether
+     * it is expected that a subsequent call to this method would result in additional work being carried out.
      * <p>
-     * This method is called from an event loop's execution thread. Each event loop can services multiple event handlers.
-     * The aggressiveness with which any one handler is serviced is influenced by the handler's priority as well as
-     * other activity on the event loop as a whole.
+     * This method is executed on the event loop's thread. A return value of {@code true} suggests to the event loop
+     * that this handler should be serviced again shortly. However, the exact timing depends on various factors,
+     * including the handler's priority and other activity on the event loop.
      * <p>
-     * If an event handler returns {@code true } from action(), it biases the event loop to service the same
-     * handler again "soon". How soon depends on a variety of factors and the other work the event loop has
-     * to do across the other handlers.
+     * Returning {@code true} unnecessarily may lead to wastage of CPU cycles on a handler with no actual work,
+     * potentially affecting the performance of other handlers. Conversely, returning {@code false} while there is work
+     * pending may increase latency as the event loop might delay servicing this handler.
      * <p>
-     * Returning {@code true } when there is no actual work to do may waste cycles servicing a handler which has nothing
-     * to do, at the expense of stealing cycles away from other handlers.
-     * Conversely, returning <code>false</code> when there is work to do will effectively increase latency as the event loop
-     * will take the "false" as a hint that several other handlers can be serviced ahead of this one.
+     * Generally, an action handler should perform a fixed amount of work and then return. If it is certain that
+     * there is more work to be done immediately, it should return {@code true}. Otherwise, it should return {@code false},
+     * and the event loop will schedule the next execution based on the handler's priority and workload.
      * <p>
-     * As a rule of thumb, an action handler should do a certain amount of work then yield/return
-     * If it knows for sure that there is remaining work to be done at the point of yielding then return {@code true}.
-     * Otherwise return <code>false</code> and the event loop will revisit based on the handler's priority and other work load.
+     * It is recommended to experiment with different strategies under typical workloads to find the optimal approach.
      * <p>
-     * As with a lot of scheduling approaches there's no single answer and some experimentation under typical loads
-     * would always be recommended. But the above rule of thumb is a good starting point.
-     * <p>
-     * When the event handler is not required anymore and should be removed from the event loop, the
-     * {@link InvalidEventHandlerException#reusable()} method returns a reusable pre-created
-     * InvalidEventHandlerException which can be thrown to remove the EventHandler from the EventLoop.
+     * To remove this event handler from the event loop, the {@link InvalidEventHandlerException} can be thrown.
+     * The {@link InvalidEventHandlerException#reusable()} method returns a reusable, pre-created instance of this
+     * exception, which is unmodifiable and contains no stack trace.
      *
-     * @return true if you expect more work very soon.
-     * @throws InvalidEventHandlerException when the event handler is not required anymore and should be removed from
-     *         the event loop.
-     *         It is recommended to throw this exception if the event handler is closed.
-     *         The InvalidEventHandlerException.reusable() method returns a reusable, pre-created,
-     *         InvalidEventHandlerException that is unmodifiable and contains no stack trace.
-     *         See {@link InvalidEventHandlerException#reusable()}.
-     * @throws InvalidMarshallableException if a DTO read or written failed validation
+     * @return {@code true} if it is expected that there is more work to be done imminently; {@code false} otherwise.
+     * @throws InvalidEventHandlerException   if the event handler is no longer needed and should be removed from
+     *                                        the event loop. This exception should be thrown if the event handler
+     *                                        is closed. Use {@link InvalidEventHandlerException#reusable()} for
+     *                                        a reusable instance of this exception.
+     * @throws InvalidMarshallableException   if there is a failure in the validation of a DTO being read or written.
      */
     boolean action() throws InvalidEventHandlerException, InvalidMarshallableException;
 }

@@ -18,88 +18,66 @@
 
 package net.openhft.chronicle.core.io;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class ValidatableTest {
+public class ValidatableTest extends CoreTestCommon {
 
-    @Test
-    public void validate() {
-        DTOWithValidateToString d = new DTOWithValidateToString();
-        try {
-            d.toString();
-            fail();
-            throw new InvalidMarshallableException(null); // keep the compiler happy
-        } catch (InvalidMarshallableException expected) {
-            // expected
-        }
-        d.b = 1;
-        try {
-            d.toString();
-            fail();
-            throw new InvalidMarshallableException(null); // keep the compiler happy
-        } catch (InvalidMarshallableException expected) {
-            // expected
-        }
-        d.a = "hi";
-        d.b = 1;
-        assertEquals("DTOWithValidateToString{a='hi', b=1}", d.toString()); // is ok
-        d.b = 0;
-        try {
-            d.toString();
-            fail();
-            throw new InvalidMarshallableException(null); // keep the compiler happy
-        } catch (InvalidMarshallableException expected) {
-            // expected
-        }
+    private DTOWithValidateToString dto;
+
+    @Before
+    public void setUp() {
+        dto = new DTOWithValidateToString();
     }
 
     @Test
-    public void validateDisabled() {
+    public void shouldThrowExceptionWhenFieldANull() {
+        dto.b = 1;
+        assertThrows(InvalidMarshallableException.class, dto::toString);
+    }
 
-        assertTrue(ValidatableUtil.validateEnabled());
+    @Test
+    public void shouldThrowExceptionWhenFieldBLessThanOrEqualToZero() {
+        dto.a = "hi";
+        assertThrows(InvalidMarshallableException.class, dto::toString);
+    }
+
+    @Test
+    public void shouldPassValidation() {
+        dto.a = "hi";
+        dto.b = 1;
+        assertEquals("DTOWithValidateToString{a='hi', b=1}", dto.toString());
+    }
+
+    @Test
+    public void shouldNotThrowExceptionWhenValidationDisabled() {
+        ValidatableUtil.startValidateDisabled();
+
+        dto.a = null;
+        dto.b = 0;
+        assertEquals("DTOWithValidateToString{a='null', b=0}", dto.toString());
+
+        dto.b = 1;
+        assertEquals("DTOWithValidateToString{a='null', b=1}", dto.toString());
+        ValidatableUtil.endValidateDisabled();
+    }
+
+    @Test
+    public void shouldReEnableValidation() {
         ValidatableUtil.startValidateDisabled();
         assertFalse(ValidatableUtil.validateEnabled());
-        DTOWithValidateToString d = new DTOWithValidateToString();
-        try {
-            assertEquals("DTOWithValidateToString{a='null', b=0}", d.toString()); // is ok
 
-            d.b = 1;
-            assertEquals("DTOWithValidateToString{a='null', b=1}", d.toString()); // is ok
-
-            d.a = "hi";
-            d.b = 1;
-            assertEquals("DTOWithValidateToString{a='hi', b=1}", d.toString()); // is ok
-
-            ValidatableUtil.startValidateDisabled();
-            try {
-                d.b = 0;
-                assertEquals("DTOWithValidateToString{a='hi', b=0}", d.toString()); // is ok
-            } finally {
-                ValidatableUtil.endValidateDisabled();
-            }
-        } finally {
-            ValidatableUtil.endValidateDisabled();
-            assertTrue(ValidatableUtil.validateEnabled());
-        }
-        try {
-            d.toString();
-            fail();
-            throw new InvalidMarshallableException(null); // keep the compiler happy
-        } catch (InvalidMarshallableException expected) {
-            // expected
-        }
-        boolean failed = false;
-        try {
-            ValidatableUtil.endValidateDisabled();
-            failed = true;
-        } catch (AssertionError expected) {
-            // expected
-        }
-        assertFalse(failed);
+        ValidatableUtil.endValidateDisabled();
         assertTrue(ValidatableUtil.validateEnabled());
+    }
+
+    @Test(expected = AssertionError.class)
+    public void shouldThrowAssertionErrorWhenEndValidationCalledWithoutStart() {
+        ValidatableUtil.endValidateDisabled();
     }
 
     static class DTOWithValidateToString implements Validatable {

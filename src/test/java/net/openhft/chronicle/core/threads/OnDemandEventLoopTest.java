@@ -18,52 +18,57 @@
 
 package net.openhft.chronicle.core.threads;
 
+import net.openhft.chronicle.core.CoreTestCommon;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class OnDemandEventLoopTest {
-    @Test
-    public void onDemand() {
-        OnDemandEventLoop el = new OnDemandEventLoop(() -> new EventLoop() {
+public class OnDemandEventLoopTest extends CoreTestCommon {
+
+    private OnDemandEventLoop onDemandEventLoop;
+
+    @Before
+    public void setUp() {
+        onDemandEventLoop = new OnDemandEventLoop(() -> new EventLoop() {
             @Override
             public String name() {
-                return "dummy";
+                return "testEventLoop";
             }
 
             @Override
             public void addHandler(EventHandler handler) {
-                throw new UnsupportedOperationException();
+                // do nothing
             }
 
             @Override
             public void start() {
-                throw new UnsupportedOperationException();
+                // do nothing
             }
 
             @Override
             public void unpause() {
-                throw new UnsupportedOperationException();
+                // do nothing
             }
 
             @Override
             public void stop() {
-                throw new UnsupportedOperationException();
+                // do nothing
             }
 
             @Override
             public boolean isClosed() {
-                throw new UnsupportedOperationException();
+                return false;
             }
 
             @Override
             public boolean isAlive() {
-                throw new UnsupportedOperationException();
+                return true;
             }
 
             @Override
             public void awaitTermination() {
-                throw new UnsupportedOperationException();
+                // do nothing
             }
 
             @Override
@@ -73,11 +78,41 @@ public class OnDemandEventLoopTest {
 
             @Override
             public void close() {
+                // do nothing
             }
         });
-        assertFalse(el.hasEventLoop());
-        assertEquals("dummy", el.name());
-        assertTrue(el.hasEventLoop());
-        el.close();
+    }
+
+    @Test
+    public void testHasEventLoop() {
+        assertFalse("Initially the event loop should not exist", onDemandEventLoop.hasEventLoop());
+        onDemandEventLoop.name(); // this should create the event loop
+        assertTrue("After calling name() event loop should exist", onDemandEventLoop.hasEventLoop());
+    }
+
+    @Test
+    public void testName() {
+        assertEquals("Event loop name should be testEventLoop", "testEventLoop", onDemandEventLoop.name());
+    }
+
+    @Test
+    public void testIsAlive() {
+        assertFalse("Event loop should be alive after created", onDemandEventLoop.isAlive());
+        assertNotNull(onDemandEventLoop.eventLoop());
+        assertTrue("Event loop should be alive after created", onDemandEventLoop.isAlive());
+    }
+
+    @Test
+    public void testIsClosed() {
+        assertFalse("Event loop should not be closed", onDemandEventLoop.isClosed());
+        assertNotNull(onDemandEventLoop.eventLoop());
+        assertFalse("Event loop should not be closed", onDemandEventLoop.isClosed());
+    }
+
+    @Test
+    public void testIsStopped() {
+        assertFalse("Event loop should not be stopped", onDemandEventLoop.isStopped());
+        assertNotNull(onDemandEventLoop.eventLoop());
+        assertFalse("Event loop should not be stopped", onDemandEventLoop.isStopped());
     }
 }

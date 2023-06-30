@@ -102,6 +102,138 @@ public class AbstractCloseableTest extends CoreTestCommon {
         assertEquals(1, myCloseable.performClose);
     }
 
+    @Test
+    public void testThreadSafetyCheck() throws InterruptedException {
+        MyCloseable mc = new MyCloseable();
+        Thread newThread = new Thread(mc::close);
+        newThread.start();
+        newThread.join();
+        assertThrows(IllegalStateException.class, mc::throwExceptionIfClosed);
+    }
+
+    @Test
+    public void testDisableThreadSafetyCheck() {
+        MyCloseable mc = new MyCloseable();
+        mc.singleThreadedCheckDisabled(true);
+
+        // Since thread safety check is disabled, no exception should be thrown.
+        mc.throwExceptionIfClosed();
+
+        // Make sure thread safety check is disabled
+        assertTrue(mc.singleThreadedCheckDisabled());
+        mc.close();
+    }
+
+    @Test
+    public void testCloseableTracing() {
+        MyCloseable.disableCloseableTracing();
+
+        expectException("Discarded without closing");
+        MyCloseable mc = new MyCloseable();
+        assertNotNull(mc.createdHere());
+
+        assertNull(mc.closedHere);
+
+        MyCloseable.enableCloseableTracing();
+
+        // doesn't detect the mc created while tracing was off
+        AbstractCloseable.assertCloseablesClosed();
+    }
+
+    @Test(timeout = 2000)
+    public void testWaitForCloseablesToClose() throws InterruptedException {
+        MyCloseable mc = new MyCloseable();
+        Thread closingThread = new Thread(mc::close);
+
+        closingThread.start();
+        closingThread.join();
+
+        assertTrue(MyCloseable.waitForCloseablesToClose(1000));
+    }
+
+    @Test
+    public void testIsClosing() {
+        MyCloseable mc = new MyCloseable();
+        assertFalse(mc.isClosing());
+
+        // Initiate closing
+        new Thread(mc::close).start();
+
+        // Wait for closing to start
+        while (!mc.isClosing()) {
+            Thread.yield();
+        }
+
+        assertTrue(mc.isClosing());
+    }
+
+    @Test
+    public void testCloseOnThreadInterrupt() throws InterruptedException {
+        MyCloseable mc = new MyCloseable();
+
+        Thread t = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
+                // Loop until interrupted
+            }
+
+            // Call close on interruption
+            mc.close();
+        });
+
+        t.start();
+
+        // Interrupt the thread
+        t.interrupt();
+        t.join();
+
+        // Assert close() has been called
+        assertTrue(mc.isClosed());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testThrowExceptionIfClosed() {
+        MyCloseable mc = new MyCloseable();
+        mc.close();
+        mc.throwExceptionIfClosed();
+    }
+
+    @Test
+    public void testConcurrentCloseCalls() throws InterruptedException {
+        final MyCloseable mc = new MyCloseable();
+        final int numThreads = 10;
+        Thread[] threads = new Thread[numThreads];
+
+        for (int i = 0; i < numThreads; i++) {
+            threads[i] = new Thread(mc::close);
+            threads[i].start();
+        }
+
+        // Wait for all threads to complete
+        for (Thread t : threads) {
+            t.join();
+        }
+
+        // performClose() should be called only once
+        assertEquals(1, mc.performClose);
+    }
+
+    @Test
+    public void testExceptionInPerformClose() {
+        final MyCloseable myCloseable = new MyCloseable() {
+            @Override
+            protected void performClose() {
+                super.performClose();
+                throw new RuntimeException("Error in performClose");
+            }
+        };
+
+        // expect the exception to be caught and logged, not thrown out
+        expectException("Error in performClose");
+        myCloseable.close();
+
+        assertTrue(myCloseable.isClosed());
+    }
+
     static class MyCloseable extends AbstractCloseable {
         int performClose;
 

@@ -35,7 +35,7 @@ public final class Maths {
     /**
      * Numbers larger than this are whole numbers due to representation error.
      */
-    private static final double WHOLE_NUMBER = 1L << 52;
+    static final double WHOLE_NUMBER = 1L << 52;
     private static final int M0 = 0x5bc80bad;
     private static final int M1 = 0xea7585d7;
     private static final long[] TENS = new long[19];

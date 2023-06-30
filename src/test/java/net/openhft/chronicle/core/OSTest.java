@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.reflect.InvocationTargetException;
@@ -43,7 +44,7 @@ import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class OSTest {
+public class OSTest extends CoreTestCommon {
     @Rule
     public final TestName testName = new TestName();
     private ThreadDump threadDump;
@@ -208,6 +209,41 @@ public class OSTest {
     }
 
     @Test
+    public void isSparseFileSupported() {
+        assertEquals(OS.isLinux(), OS.isSparseFileSupported());
+    }
+
+    @Test
+    public void findDir() throws FileNotFoundException {
+        assertNotNull(OS.findDir("test-classes"));
+    }
+
+    @Test
+    public void findFile() {
+        assertNotNull(OS.findFile("Chronicle-Core", "pom.xml"));
+    }
+
+    @Test
+    public void getHostName() {
+        assertNotNull(OS.getHostName());
+    }
+
+    @Test
+    public void getUserName() {
+        assertNotNull(OS.getUserName());
+    }
+
+    @Test
+    public void pageAlign() {
+        assertEquals(4096, OS.pageAlign(3000));
+    }
+
+    @Test
+    public void pageSize() {
+        assertEquals(4096, OS.pageSize());
+    }
+
+    @Test
     public void mapAlign() {
         // Testing for 64 bytes alignment
         assertEquals(0, OS.mapAlign(0, 64)); // Perfectly aligned already
@@ -237,4 +273,23 @@ public class OSTest {
         assertThrows(IllegalArgumentException.class, () -> OS.mapAlign(10, 0));
     }
 
+    @Test
+    public void mapAlignment() {
+        assertEquals(OS.isWindows() ? 65536 : 4096, OS.mapAlignment());
+    }
+
+    @Test
+    public void is64Bit() {
+        assertNotNull(OS.is64Bit());
+    }
+
+    @Test
+    public void getProcessId() {
+        assertNotEquals(0, OS.getProcessId());
+    }
+
+    @Test
+    public void getPidMax() {
+        assertNotEquals(0, OS.getPidMax());
+    }
 }

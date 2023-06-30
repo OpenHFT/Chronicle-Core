@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -28,7 +29,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class GenericReflectionTest {
+class GenericReflectionTest extends CoreTestCommon {
 
     @Test
     void getReturnType() {

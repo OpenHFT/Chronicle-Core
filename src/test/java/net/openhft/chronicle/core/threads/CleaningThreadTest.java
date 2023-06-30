@@ -20,6 +20,7 @@ package net.openhft.chronicle.core.threads;
 
 import net.openhft.affinity.Affinity;
 import net.openhft.affinity.AffinityLock;
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
 import java.util.BitSet;
@@ -28,43 +29,77 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assume.assumeTrue;
 
-public class CleaningThreadTest {
+public class CleaningThreadTest extends CoreTestCommon {
+
+    /**
+     * Test whether CleaningThreadLocal is cleaned up properly.
+     */
     @Test
     public void cleanupThreadLocal() throws InterruptedException {
-        String threadName = "ctl-test";
-        BlockingQueue<String> ints = new LinkedBlockingQueue<>();
-        CleaningThreadLocal<String> counter = CleaningThreadLocal.withCleanup(() -> Thread.currentThread().getName(), ints::add);
-        CleaningThread ct = new CleaningThread(() -> assertEquals(threadName, counter.get()), threadName);
-        ct.start();
-        String poll = ints.poll(1, TimeUnit.SECONDS);
-        assertEquals(threadName, poll);
+        final String expectedThreadName = "ctl-test";
+        BlockingQueue<String> threadNames = new LinkedBlockingQueue<>();
+
+        CleaningThreadLocal<String> threadNameLocal = CleaningThreadLocal.withCleanup(
+                () -> Thread.currentThread().getName(),
+                threadNames::add
+        );
+
+        CleaningThread cleaningThread = new CleaningThread(
+                () -> assertEquals("Thread name should match", expectedThreadName, threadNameLocal.get()),
+                expectedThreadName
+        );
+
+        cleaningThread.start();
+
+        String retrievedThreadName = threadNames.poll(1, TimeUnit.SECONDS);
+        assertNotNull("Thread name should be retrieved", retrievedThreadName);
+        assertEquals("Thread names should match", expectedThreadName, retrievedThreadName);
     }
 
+    /**
+     * Test CleaningThreadLocal remove functionality.
+     */
     @Test
     public void testRemove() {
         int[] counter = {0};
-        CleaningThreadLocal<Integer> ctl = CleaningThreadLocal.withCloseQuietly(() -> counter[0]++);
-        assertEquals(0, (int) ctl.get());
+
+        CleaningThreadLocal<Integer> counterLocal = CleaningThreadLocal.withCloseQuietly(() -> counter[0]++);
+
+        assertEquals("Initial value should be 0", 0, (int) counterLocal.get());
+
         CleaningThread.performCleanup(Thread.currentThread());
-        assertEquals(1, (int) ctl.get());
+
+        assertEquals("Value should be incremented after cleanup", 1, (int) counterLocal.get());
     }
 
+    /**
+     * Test whether CleaningThread resets thread affinity.
+     */
     @Test
     public void resetThreadAffinity() throws InterruptedException {
-        final BitSet affinity = Affinity.getAffinity();
-        assumeTrue(affinity.cardinality() > 2);
-        assumeTrue(AffinityLock.BASE_AFFINITY.cardinality() > 2);
+        final BitSet initialAffinity = Affinity.getAffinity();
+
+        // Only run the test if we have sufficient affinity cardinality
+        assumeTrue("Affinity cardinality should be more than 2", initialAffinity.cardinality() > 2);
+        assumeTrue("BASE_AFFINITY cardinality should be more than 2", AffinityLock.BASE_AFFINITY.cardinality() > 2);
+
         try {
             Affinity.setAffinity(1);
+
             BitSet[] nestedAffinity = {null};
-            CleaningThread ct = new CleaningThread(() -> nestedAffinity[0] = Affinity.getAffinity());
-            ct.start();
-            ct.join();
-            assertEquals(AffinityLock.BASE_AFFINITY, nestedAffinity[0]);
+
+            CleaningThread cleaningThread = new CleaningThread(() -> nestedAffinity[0] = Affinity.getAffinity());
+
+            cleaningThread.start();
+            cleaningThread.join();
+
+            assertEquals("Nested affinity should match BASE_AFFINITY", AffinityLock.BASE_AFFINITY, nestedAffinity[0]);
         } finally {
-            Affinity.setAffinity(affinity);
+            // Reset the affinity to what it was initially
+            Affinity.setAffinity(initialAffinity);
         }
     }
 }

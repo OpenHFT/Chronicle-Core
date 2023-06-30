@@ -18,12 +18,13 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class WeakIdentityHashMapTest {
+public class WeakIdentityHashMapTest extends CoreTestCommon {
     @Test
     public void twoKeys() {
         String a1 = Character.toString('a');

@@ -18,58 +18,71 @@
 
 package net.openhft.chronicle.core.threads;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class InvalidEventHandlerExceptionTest {
+/**
+ * Tests the behavior of the {@link InvalidEventHandlerException} class.
+ */
+public class InvalidEventHandlerExceptionTest extends CoreTestCommon {
 
-    InvalidEventHandlerException e;
+    private InvalidEventHandlerException e;
 
+    /**
+     * Initializes an instance of {@link InvalidEventHandlerException} to be reused across tests.
+     */
     @Before
     public void setup() {
         e = InvalidEventHandlerException.reusable();
     }
 
+    /**
+     * Tests if the stack trace of the reusable InvalidEventHandlerException is empty
+     * and cannot be modified.
+     */
     @Test
-    public void stacktrace() {
-        assertEquals(0, e.getStackTrace().length);
+    public void shouldHaveEmptyAndUnmodifiableStackTrace() {
+        assertEquals("Expected an empty stack trace.", 0, e.getStackTrace().length);
 
-        StackTraceElement[] newStackTrace = Stream.of(new StackTraceElement("A", "foo", "A.java", 42))
-                .toArray(StackTraceElement[]::new);
+        StackTraceElement[] newStackTrace = {
+                new StackTraceElement("A", "foo", "A.java", 42)
+        };
 
         e.setStackTrace(newStackTrace);
-        assertEquals(0, e.getStackTrace().length);
+        assertEquals("StackTrace should remain empty after an attempt to set it.", 0, e.getStackTrace().length);
     }
 
+    /**
+     * Tests if printStackTrace prints the expected content indicating that the exception is reusable
+     * and contains no stack trace.
+     */
     @Test
-    public void printStackTrace() throws IOException {
-        final StringBuilder sb = new StringBuilder();
-
-        try (OutputStream os = new OutputStream() {
-            @Override
-            public void write(int b) throws IOException {
-                sb.append((char) b);
-            }
-        };
-        PrintStream ps = new PrintStream(os)) {
+    public void shouldIndicateReusableAndNoStackTraceOnPrint() throws IOException {
+        try (ByteArrayOutputStream os = new ByteArrayOutputStream();
+             PrintStream ps = new PrintStream(os)) {
             e.printStackTrace(ps);
+            final String stackTrace = os.toString();
+            assertTrue("Expected 'Reusable' in printed stack trace.", stackTrace.contains("Reusable"));
+            assertTrue("Expected 'no stack trace' in printed stack trace.", stackTrace.contains("no stack trace"));
         }
-        final String stackTrace = sb.toString();
-        assertTrue(stackTrace.contains("Reusable"));
-        assertTrue(stackTrace.contains("no stack trace"));
     }
 
+    /**
+     * Tests if the toString method of the reusable InvalidEventHandlerException
+     * includes indications that it is reusable and has no stack trace.
+     */
     @Test
-    public void toStringTest() {
-        assertTrue(e.toString().contains("Reusable"));
-        assertTrue(e.toString().contains("no stack trace"));
+    public void shouldIndicateReusableAndNoStackTraceInToString() {
+        String toStringResult = e.toString();
+        assertTrue("Expected 'Reusable' in toString result.", toStringResult.contains("Reusable"));
+        assertTrue("Expected 'no stack trace' in toString result.", toStringResult.contains("no stack trace"));
     }
 }

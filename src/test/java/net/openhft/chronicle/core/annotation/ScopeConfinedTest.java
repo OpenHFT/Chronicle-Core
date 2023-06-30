@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.annotation;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -27,9 +28,10 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ScopeConfinedTest {
+@Deprecated(/* to be removed in x.25 as it doesn't test out code */)
+class ScopeConfinedTest extends CoreTestCommon {
 
-    @Test
+//    @Test
     void a() throws NoSuchMethodException {
         Method method = Foo.class.getMethod("stream");
         final Type genericReturnType = method.getGenericReturnType();

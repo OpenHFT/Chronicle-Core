@@ -27,18 +27,31 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
-
+/**
+ * This test class validates the behavior of the `Jvm.parseSize` method and the `Jvm.getSize` method.
+ */
 @RunWith(Parameterized.class)
-public class JvmParseSizeTest {
+public class JvmParseSizeTest extends CoreTestCommon {
     public static final String PROPERTY = "JvmParseSizeTest";
     private final String text;
     private final long value;
 
+    /**
+     * Constructs a test case with the specified text and expected value.
+     *
+     * @param text  the input text
+     * @param value the expected parsed value
+     */
     public JvmParseSizeTest(String text, long value) {
         this.text = text;
         this.value = value;
     }
 
+    /**
+     * Provides test data for parameterized testing.
+     *
+     * @return a collection of test data pairs consisting of the input text and the expected parsed value
+     */
     @Parameterized.Parameters(name = "{0} => {1}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
@@ -57,19 +70,31 @@ public class JvmParseSizeTest {
         });
     }
 
+    /**
+     * Clean up after each test by removing the test property.
+     */
     @After
     public void teardown() {
         System.getProperties().remove(PROPERTY);
     }
 
+    /**
+     * Test the `Jvm.parseSize` method to ensure correct parsing of memory size strings.
+     *
+     * @throws IllegalArgumentException if the parsed size does not match the expected value
+     */
     @Test
     public void parseSize() throws IllegalArgumentException {
         assertEquals(value, Jvm.parseSize(text));
     }
 
+    /**
+     * Test the `Jvm.getSize` method to ensure correct retrieval of a system property as a parsed size.
+     */
     @Test
     public void getSize() {
         System.setProperty(PROPERTY, text);
         assertEquals(value, Jvm.getSize(PROPERTY, -1));
     }
 }
+

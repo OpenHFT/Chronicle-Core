@@ -27,10 +27,26 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * A utility class for managing values in a {@link ThreadLocal}.
+ * <p>
+ * This class provides helper methods for fetching values from {@link ThreadLocal},
+ * taking care of initializing the value if not present.
+ */
 public final class ThreadLocalHelper {
+
+    // Private constructor to prevent instantiation of utility class
     private ThreadLocalHelper() {
     }
 
+    /**
+     * Retrieves a value from the provided {@link ThreadLocal}, initializing it if not present.
+     *
+     * @param threadLocal the ThreadLocal from which the value should be retrieved
+     * @param supplier    the supplier function to create a new value if not present in the ThreadLocal
+     * @param <T>         the type of the value
+     * @return the value from the ThreadLocal or a newly created value if not present
+     */
     @NotNull
     public static <T> T getTL(@NotNull ThreadLocal<WeakReference<T>> threadLocal, @NotNull Supplier<T> supplier) {
         @Nullable WeakReference<T> ref = threadLocal.get();
@@ -44,6 +60,14 @@ public final class ThreadLocalHelper {
         return ret;
     }
 
+    /**
+     * Retrieves a strongly-referenced value from the provided {@link ThreadLocal}, initializing it if not present.
+     *
+     * @param threadLocal the ThreadLocal from which the value should be retrieved
+     * @param supplier    the supplier function to create a new value if not present in the ThreadLocal
+     * @param <T>         the type of the value
+     * @return the value from the ThreadLocal or a newly created value if not present
+     */
     @NotNull
     public static <T> T getSTL(@NotNull ThreadLocal<T> threadLocal, @NotNull Supplier<T> supplier) {
         @Nullable T ret = threadLocal.get();
@@ -54,11 +78,31 @@ public final class ThreadLocalHelper {
         return ret;
     }
 
+    /**
+     * Retrieves a value from the provided {@link ThreadLocal}, initializing it using the supplied function if not present.
+     *
+     * @param threadLocal the ThreadLocal from which the value should be retrieved
+     * @param a           the input argument for the constructor function
+     * @param function    the function to create a new value if not present in the ThreadLocal
+     * @param <T>         the type of the value
+     * @param <A>         the type of the input argument for the constructor function
+     * @return the value from the ThreadLocal or a newly created value if not present
+     */
     @NotNull
     public static <T, A> T getTL(@NotNull ThreadLocal<WeakReference<T>> threadLocal, A a, @NotNull Function<A, T> function) {
         return getTL(threadLocal, a, function, null, null);
     }
 
+    /**
+     * Retrieves a value from the provided {@link ThreadLocal}, initializing it using the supplied function if not present.
+     *
+     * @param threadLocal     the ThreadLocal from which the value should be retrieved
+     * @param supplyingEntity the input argument for the constructor function
+     * @param constructor     the function to create a new value if not present in the ThreadLocal
+     * @param <T>             the type of the value
+     * @param <A>             the type of the input argument for the constructor function
+     * @return the value from the ThreadLocal or a newly created value if not present
+     */
     @NotNull
     public static <T, A> T getTL(@NotNull final ThreadLocal<WeakReference<T>> threadLocal,
                                  @NotNull final A supplyingEntity,
