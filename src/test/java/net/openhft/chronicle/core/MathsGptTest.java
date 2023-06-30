@@ -22,6 +22,7 @@ package net.openhft.chronicle.core;
 import org.junit.Assert;
 import org.junit.Test;
 
+import static net.openhft.chronicle.core.CoreTestCommon.assertNotNullCheck;
 import static net.openhft.chronicle.core.Maths.asDouble;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
@@ -296,14 +297,14 @@ public class MathsGptTest {
         assertEquals(expected, result);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testHash32StringNull() {
-        Maths.hash32((String) null);
+        assertNotNullCheck(() -> Maths.hash32((String) null));
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testHash32StringBuilderNull() {
-        Maths.hash32((StringBuilder) null);
+        assertNotNullCheck(() -> Maths.hash32((StringBuilder) null));
     }
 
     @Test

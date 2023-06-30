@@ -99,9 +99,9 @@ public class ExceptionHandlerTest extends CoreTestCommon {
         verify(logger, times(1)).error(message, (Throwable) null);
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testOnWithNullClass() {
-        exceptionHandler.on((Class) null, "test");
+        assertNotNullCheck(() -> exceptionHandler.on((Class) null, "test"));
     }
 
     @Test
@@ -114,9 +114,9 @@ public class ExceptionHandlerTest extends CoreTestCommon {
         assertNotNull(exceptionHandler.defaultHandler());
     }
 
-    @Test(expected = NullPointerException.class)
+    @Test
     public void testIsEnabledWithNullClass() {
-        exceptionHandler.isEnabled(null);
+        assertNotNullCheck(() -> exceptionHandler.isEnabled(null));
     }
 
     @Test

@@ -26,8 +26,11 @@ import net.openhft.chronicle.testframework.internal.ExceptionTracker;
 import org.junit.After;
 import org.junit.Before;
 
+import java.util.concurrent.Callable;
+
 import static net.openhft.chronicle.core.io.AbstractCloseable.waitForCloseablesToClose;
 import static net.openhft.chronicle.core.io.AbstractReferenceCounted.assertReferencesReleased;
+import static org.junit.Assert.fail;
 
 /**
  * This class provides common functionality and setup for core tests.
@@ -37,6 +40,38 @@ import static net.openhft.chronicle.core.io.AbstractReferenceCounted.assertRefer
 public class CoreTestCommon {
     protected ThreadDump threadDump;
     private ExceptionTracker<?> exceptionTracker;
+
+    /**
+     * Tests whether an argument or return value has an @NotNull check on it.
+     * Depending on your annotation processing this could cause a NullPointerException or IllegalArgumentException
+     *
+     * @param runnable to run
+     */
+    public static void assertNotNullCheck(Runnable runnable) {
+        assertNotNullCheck(() -> {
+            runnable.run();
+            return null;
+        });
+    }
+    /**
+     * Tests whether an argument or return value has an @NotNull check on it.
+     * Depending on your annotation processing this could cause a NullPointerException or IllegalArgumentException
+     *
+     * @param callable to call
+     */
+    public static void assertNotNullCheck(Callable<?> callable) {
+        try {
+            Object call = callable.call();
+            if (call == null)
+                fail("Expected NullPointerException or IllegalArgumentException");
+            else
+                fail("Expected NullPointerException or IllegalArgumentException, got " + call);
+        } catch (NullPointerException | IllegalArgumentException expected) {
+
+        } catch (Throwable throwable) {
+            Jvm.rethrow(throwable);
+        }
+    }
 
     /**
      * Enables reference tracing for AbstractReferenceCounted objects.

@@ -35,17 +35,17 @@ import java.util.function.Supplier;
  */
 public final class ThreadLocalHelper {
 
-    // Private constructor to prevent instantiation of utility class
+    // Private constructor to prevent instantiation of utility  class
     private ThreadLocalHelper() {
     }
 
     /**
-     * Retrieves a value from the provided {@link ThreadLocal}, initializing it if not present.
+     * Retrieves a thread-local weakly-referenced value, or creates a new one using a supplier if none exists.
      *
-     * @param threadLocal the ThreadLocal from which the value should be retrieved
-     * @param supplier    the supplier function to create a new value if not present in the ThreadLocal
-     * @param <T>         the type of the value
-     * @return the value from the ThreadLocal or a newly created value if not present
+     * @param threadLocal The ThreadLocal object to retrieve or create a value for.
+     * @param supplier    The supplier to generate a new value if necessary.
+     * @param <T>         The type of the value.
+     * @return The retrieved or newly created value.
      */
     @NotNull
     public static <T> T getTL(@NotNull ThreadLocal<WeakReference<T>> threadLocal, @NotNull Supplier<T> supplier) {
@@ -61,12 +61,12 @@ public final class ThreadLocalHelper {
     }
 
     /**
-     * Retrieves a strongly-referenced value from the provided {@link ThreadLocal}, initializing it if not present.
+     * Retrieves a thread-local value, or creates a new one using a supplier if none exists.
      *
-     * @param threadLocal the ThreadLocal from which the value should be retrieved
-     * @param supplier    the supplier function to create a new value if not present in the ThreadLocal
-     * @param <T>         the type of the value
-     * @return the value from the ThreadLocal or a newly created value if not present
+     * @param threadLocal The ThreadLocal object to retrieve or create a value for.
+     * @param supplier    The supplier to generate a new value if necessary.
+     * @param <T>         The type of the value.
+     * @return The retrieved or newly created value.
      */
     @NotNull
     public static <T> T getSTL(@NotNull ThreadLocal<T> threadLocal, @NotNull Supplier<T> supplier) {
@@ -79,14 +79,14 @@ public final class ThreadLocalHelper {
     }
 
     /**
-     * Retrieves a value from the provided {@link ThreadLocal}, initializing it using the supplied function if not present.
+     * Retrieves a thread-local weakly-referenced value, or creates a new one using a function if none exists.
      *
-     * @param threadLocal the ThreadLocal from which the value should be retrieved
-     * @param a           the input argument for the constructor function
-     * @param function    the function to create a new value if not present in the ThreadLocal
-     * @param <T>         the type of the value
-     * @param <A>         the type of the input argument for the constructor function
-     * @return the value from the ThreadLocal or a newly created value if not present
+     * @param threadLocal The ThreadLocal object to retrieve or create a value for.
+     * @param a           The input for the function to generate a new value if necessary.
+     * @param function    The function to generate a new value if necessary.
+     * @param <T>         The type of the value.
+     * @param <A>         The type of the input to the function.
+     * @return The retrieved or newly created value.
      */
     @NotNull
     public static <T, A> T getTL(@NotNull ThreadLocal<WeakReference<T>> threadLocal, A a, @NotNull Function<A, T> function) {
@@ -94,14 +94,17 @@ public final class ThreadLocalHelper {
     }
 
     /**
-     * Retrieves a value from the provided {@link ThreadLocal}, initializing it using the supplied function if not present.
+     * Retrieves a thread-local weakly-referenced value, or creates a new one using a function if none exists.
+     * Allows for the registration of the newly created weak reference in a reference queue via a registrar consumer.
      *
-     * @param threadLocal     the ThreadLocal from which the value should be retrieved
-     * @param supplyingEntity the input argument for the constructor function
-     * @param constructor     the function to create a new value if not present in the ThreadLocal
-     * @param <T>             the type of the value
-     * @param <A>             the type of the input argument for the constructor function
-     * @return the value from the ThreadLocal or a newly created value if not present
+     * @param threadLocal    The ThreadLocal object to retrieve or create a value for.
+     * @param supplyingEntity    The input for the function to generate a new value if necessary.
+     * @param constructor    The function to generate a new value if necessary.
+     * @param referenceQueue The reference queue to register the weak reference in.
+     * @param registrar      The consumer to use for registration of the weak reference.
+     * @param <T>            The type of the value.
+     * @param <A>            The type of the input to the function.
+     * @return The retrieved or newly created value.
      */
     @NotNull
     public static <T, A> T getTL(@NotNull final ThreadLocal<WeakReference<T>> threadLocal,
