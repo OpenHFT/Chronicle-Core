@@ -19,6 +19,7 @@
 
 package net.openhft.chronicle.core.time;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
@@ -29,7 +30,7 @@ import static org.junit.Assert.assertEquals;
  * Date: 05/08/13
  * Time: 19:14
  */
-public class RunningMinimumTest {
+public class RunningMinimumTest extends CoreTestCommon {
     @Test
     public void testSample() {
         for (int k = 0; k < 1000; k++) {

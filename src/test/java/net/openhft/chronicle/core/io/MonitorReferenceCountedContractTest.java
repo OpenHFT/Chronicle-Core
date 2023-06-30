@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Any implementation of {@link ReferenceCountedTracer} should implement a test class
  * that extends this class
  */
-public abstract class MonitorReferenceCountedContractTest extends ReferenceCountedTracerContractTest {
+public abstract class MonitorReferenceCountedContractTest extends ReferenceCountedTracerContractTest  {
 
     @Override
     protected abstract MonitorReferenceCounted createReferenceCounted();

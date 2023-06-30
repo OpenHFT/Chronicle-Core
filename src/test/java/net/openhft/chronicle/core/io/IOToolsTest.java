@@ -26,9 +26,7 @@ import net.openhft.chronicle.core.util.Time;
 import org.junit.Assume;
 import org.junit.Test;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -44,6 +42,22 @@ import java.util.stream.IntStream;
 import static org.junit.Assert.*;
 
 public class IOToolsTest extends CoreTestCommon {
+
+
+    /**
+     * Method under test: {@link IOTools#readFile(Class, String)}
+     */
+    @Test
+    public void testReadFile() throws IOException {
+        // Arrange, Act and Assert
+        assertThrows(FileNotFoundException.class, () -> IOTools.readFile(Closeable.class, "Name"));
+        File file = new File(OS.getTarget(), "testReadFile");
+        file.deleteOnExit();
+        try (FileWriter fw = new FileWriter(file)) {
+            fw.write("Hello\n");
+        }
+        assertEquals(6, IOTools.readFile(IOToolsTest.class, file.getAbsolutePath()).length);
+    }
 
     @Test
     public void readFileManyTimesByPath() {

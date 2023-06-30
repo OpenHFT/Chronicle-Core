@@ -24,7 +24,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
-public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTracerContractTest {
+public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTracerContractTest  {
 
     @Test
     public void reserve() throws IllegalStateException, IllegalArgumentException {
@@ -92,6 +92,124 @@ public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTrace
         } catch (IllegalStateException ignored) {
 
         }
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testReserveAfterClose() {
+        MyCloseableReferenceCounted mcrc = new MyCloseableReferenceCounted();
+        mcrc.close();
+        mcrc.reserve(ReferenceOwner.temporary("a"));
+    }
+
+    @Test
+    public void testTryReserveAfterClose() {
+        MyCloseableReferenceCounted mcrc = new MyCloseableReferenceCounted();
+        mcrc.close();
+        assertFalse(mcrc.tryReserve(ReferenceOwner.temporary("a")));
+    }
+
+    @Test
+    public void testIsClosedAfterClose() {
+        MyCloseableReferenceCounted mcrc = new MyCloseableReferenceCounted();
+        assertFalse(mcrc.isClosed());
+        mcrc.close();
+        assertTrue(mcrc.isClosed());
+    }
+
+    @Test
+    public void testPerformReleaseClose1() {
+        MyCloseableReferenceCounted mcrc = new MyCloseableReferenceCounted() {
+            @Override
+            protected void performRelease() {
+                super.performRelease();
+                // isClosed() true as soon as fully released
+                assertTrue(isClosed());
+                assertTrue(isClosing());
+            }
+        };
+        mcrc.close();
+        assertTrue(mcrc.isClosing());
+        assertTrue(mcrc.isClosed());
+    }
+
+    @Test
+    public void testPerformReleaseClose2() {
+        MyCloseableReferenceCounted mcrc = new MyCloseableReferenceCounted() {
+            @Override
+            protected void performRelease() {
+                super.performRelease();
+                // still reserved so not yet closed
+                assertFalse(isClosed());
+                assertTrue(isClosing());
+            }
+        };
+        // holds off closing
+        mcrc.reserve(ReferenceOwner.TMP);
+        mcrc.close();
+        assertTrue(mcrc.isClosing());
+        assertTrue(mcrc.isClosed());
+    }
+
+    @Test
+    public void testReleaseLastCloses() {
+        MyCloseableReferenceCounted mcrc = new MyCloseableReferenceCounted();
+        ReferenceOwner a = ReferenceOwner.temporary("a");
+        mcrc.reserve(a);
+        assertFalse(mcrc.isClosed());
+
+        // initially its reserved by INIT
+        mcrc.release(ReferenceOwner.INIT);
+        assertFalse(mcrc.isClosed());
+
+        mcrc.releaseLast(a);
+        assertTrue(mcrc.isClosed());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testThrowExceptionIfClosedWhenClosed() {
+        MyCloseableReferenceCounted mcrc = new MyCloseableReferenceCounted();
+        mcrc.close();
+        mcrc.throwExceptionIfClosed();
+    }
+
+    @Test
+    public void testThrowExceptionIfClosedWhenNotClosed() {
+        MyCloseableReferenceCounted mcrc = new MyCloseableReferenceCounted();
+        mcrc.throwExceptionIfClosed();
+        // Passes if no exception is thrown.
+    }
+
+    @Test
+    public void testReserveTransfer() {
+        MyCloseableReferenceCounted mcrc = new MyCloseableReferenceCounted();
+        ReferenceOwner from = ReferenceOwner.temporary("from");
+        ReferenceOwner to = ReferenceOwner.temporary("to");
+
+        mcrc.reserve(from);
+        assertEquals(2, mcrc.refCount());
+        mcrc.reserveTransfer(from, to);
+
+        try {
+            mcrc.release(from);
+            fail("Should throw an exception because the reference was transferred");
+        } catch (IllegalStateException ignored) {
+        }
+        mcrc.release(to);
+        assertEquals(1, mcrc.refCount());
+    }
+
+    @Test
+    public void testReserveAndReleaseRefCounts() {
+        MyCloseableReferenceCounted mcrc = new MyCloseableReferenceCounted();
+        ReferenceOwner owner = ReferenceOwner.temporary("owner");
+
+        int initialRefCount = mcrc.refCount();
+
+        mcrc.reserve(owner);
+        assertEquals(initialRefCount + 1, mcrc.refCount());
+
+        mcrc.release(owner);
+        assertEquals(initialRefCount, mcrc.refCount());
     }
 
     @Override

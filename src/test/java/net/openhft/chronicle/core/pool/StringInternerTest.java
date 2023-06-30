@@ -18,12 +18,13 @@
 
 package net.openhft.chronicle.core.pool;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class StringInternerTest {
+public class StringInternerTest extends CoreTestCommon {
 
     @Test
     public void testIntern() throws IllegalArgumentException {

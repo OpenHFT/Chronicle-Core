@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class NotNullIntrumentationTargetTest {
+public class NotNullIntrumentationTargetTest extends CoreTestCommon {
 
     @Test
     public void notNull() {

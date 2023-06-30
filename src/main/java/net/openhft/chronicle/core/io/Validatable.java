@@ -19,16 +19,32 @@
 package net.openhft.chronicle.core.io;
 
 /**
- * An interface for validating the state of an object before writing it via a method writer.
- * Implementing classes should perform checks to ensure that the object's state is valid.
+ * An interface that allows objects to be validated before they are written via a method writer.
+ * Implementing classes should perform checks to ensure that the object's state is valid,
+ * i.e., all required fields are properly initialized, values are within a valid range, etc.
+ * <p>
+ * This can be especially useful when dealing with Data Transfer Objects (DTOs) that require certain
+ * conditions to be met before they are serialized or passed to another component.
+ * <p>
+ * The {@code validate} method should be implemented to perform the necessary validation and throw
+ * an {@link InvalidMarshallableException} if the object is in an invalid state.
  */
 public interface Validatable {
+
     /**
-     * Method which can be called when writing DTOs via the method writer.
+     * Validates the state of the object.
      *
-     * @throws InvalidMarshallableException If a value is null or out of range, indicating an invalid state.
-     * @throws RuntimeException             or any other exception if the object is not considered valid.
+     * <p>This method should be called prior to writing the object via a method writer.
+     * Implementations should check the state of the object and throw an
+     * {@link InvalidMarshallableException} if the object is in an invalid state.
+     * <p>
+     * For example, this could involve checking for null values in required fields,
+     * validating that numerical values are within acceptable ranges, etc.
+     *
+     * @throws InvalidMarshallableException if the object is in an invalid state,
+     *                                      such as having null values in required fields or values
+     *                                      out of acceptable range.
+     * @throws RuntimeException              if an unexpected error occurs during validation.
      */
     void validate() throws InvalidMarshallableException;
-
 }

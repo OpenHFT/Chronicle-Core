@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.io;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.testframework.process.JavaProcessBuilder;
@@ -30,7 +31,7 @@ import java.util.function.Supplier;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
-public class BackgroundResourceReleaserTest {
+public class BackgroundResourceReleaserTest extends CoreTestCommon {
     private final AtomicLong closed = new AtomicLong();
     private final AtomicLong released = new AtomicLong();
 

@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.time;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.Histogram;
@@ -33,7 +34,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
-public class PosixTimeProviderTest {
+public class PosixTimeProviderTest extends CoreTestCommon {
 
     static void assertBetween(long min, long actual, long max) {
         if (min <= actual && actual <= max)

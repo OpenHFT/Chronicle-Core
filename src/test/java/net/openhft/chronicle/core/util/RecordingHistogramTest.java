@@ -18,12 +18,13 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class RecordingHistogramTest {
+public class RecordingHistogramTest extends CoreTestCommon {
     @Test
     public void singleSample() {
         Histogram h = new MyRecordingHistogram();

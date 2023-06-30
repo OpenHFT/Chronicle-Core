@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
@@ -28,7 +29,7 @@ import java.util.function.Consumer;
 
 import static org.junit.Assert.fail;
 
-public class ThrowingConsumerTest {
+public class ThrowingConsumerTest extends CoreTestCommon {
     @Test
     public void asConsumer() throws Exception {
         @NotNull Consumer<String> sc = ThrowingConsumer.asConsumer(s -> {

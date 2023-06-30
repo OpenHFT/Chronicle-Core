@@ -21,74 +21,94 @@ package net.openhft.chronicle.core.threads;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.Closeable;
 
+/**
+ * EventLoop represents an event-driven loop responsible for processing event handlers.
+ * Handlers can be added to the event loop and are executed based on their priority.
+ * The event loop continues to execute handlers until it is explicitly stopped.
+ */
 public interface EventLoop extends Closeable {
+
     boolean DEBUG_ADDING_HANDLERS = Jvm.getBoolean("debug.adding.handlers");
 
+    /**
+     * Retrieves the name of the event loop.
+     *
+     * @return the name of the event loop.
+     */
     String name();
 
     /**
-     * Add handler to event loop to be executed. Event loops should execute handlers in order of priority.
-     * Handlers with same priority have no guarantee of execution order. Handlers will not be executed before
-     * {@link #start()} has been called.
+     * Adds a handler to the event loop to be executed. The event loop should execute
+     * handlers in order of their priority. Handlers with the same priority have no
+     * guarantee of execution order. Handlers will not be executed before {@link #start()}
+     * has been called.
      *
-     * @param handler handler
+     * @param handler The handler to be added to the event loop.
      */
     void addHandler(EventHandler handler);
 
     /**
-     * Start the event loop
+     * Starts the event loop. Once the event loop is started, it begins executing handlers.
      */
     void start();
 
     /**
-     * Typical implementation will unpause the event loop's Pauser
+     * Typically, implementations will unpause the event loop's pauser, if used.
+     * This can be helpful in cases where the event loop was temporarily paused for some reason.
      */
     void unpause();
 
     /**
-     * Stop executing handlers and block until all handlers are complete.
-     * <p>
+     * Stops executing handlers and blocks until all handlers are complete.
      * It is not expected that event loops can then be restarted.
      */
     void stop();
 
     /**
-     * @return {@code true} if the main thread is running
+     * Checks if the main thread of the event loop is running.
+     *
+     * @return {@code true} if the main thread is running, otherwise {@code false}.
      */
     boolean isAlive();
 
     /**
-     * @return is it in the stopped state.
+     * Checks if the event loop is in the stopped state.
+     *
+     * @return {@code true} if the event loop is in the stopped state, otherwise {@code false}.
      */
     boolean isStopped();
 
     /**
-     * Wait until the event loop has terminated (after {@link #stop()} has been called)
+     * Waits until the event loop has terminated (after {@link #stop()} has been called).
      *
-     * @deprecated {@link #stop()} and {@link #close()} both block until the event handlers have finished running, there's no reason to call this explicitly
+     * @deprecated {@link #stop()} and {@link #close()} both block until the event handlers have
+     * finished running, there's no reason to call this method explicitly.
      */
     @Deprecated(/* for removal in x.25 */)
     void awaitTermination();
 
     /**
-     * @return true if called in an EventLoop.
+     * Checks if the current thread is executing inside an event loop.
+     *
+     * @return {@code true} if the current thread is executing inside an event loop, otherwise {@code false}.
      */
     static boolean inEventLoop() {
         return CleaningThread.inEventLoop(Thread.currentThread());
     }
 
     /**
-     * Stop the event loop, then close any resources being held.
-     * <p>
-     * Blocks until the handlers are all stopped and closed
+     * Stops the event loop and then closes any resources being held.
+     * Blocks until all the handlers are stopped and closed.
      */
     @Override
     void close();
 
     /**
-     * Returns {@code true} if current thread is the core thread of this event loop, or if it cannot be determined.
-     * If current thread is not the core event thread but any other, returns {@code false}.
-     * @return {@code true} unless current thread is not the core event thread
+     * Checks if the current thread is the core thread of this event loop, or if this information
+     * cannot be determined. If the current thread is not the core event thread but any other,
+     * this method returns {@code false}.
+     *
+     * @return {@code true} unless the current thread is not the core event thread.
      */
     default boolean runsInsideCoreLoop() {
         return true;

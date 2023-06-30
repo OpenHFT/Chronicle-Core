@@ -29,37 +29,76 @@ import org.junit.Before;
 import static net.openhft.chronicle.core.io.AbstractCloseable.waitForCloseablesToClose;
 import static net.openhft.chronicle.core.io.AbstractReferenceCounted.assertReferencesReleased;
 
+/**
+ * This class provides common functionality and setup for core tests.
+ * It includes methods for enabling reference tracing, capturing thread dumps,
+ * creating exception trackers, and performing cleanup after tests.
+ */
 public class CoreTestCommon {
     protected ThreadDump threadDump;
     private ExceptionTracker<?> exceptionTracker;
 
+    /**
+     * Enables reference tracing for AbstractReferenceCounted objects.
+     * This should be called before running any tests that involve reference counting.
+     */
     @Before
     public void enableReferenceTracing() {
         AbstractReferenceCounted.enableReferenceTracing();
     }
 
-    @Before
+    /**
+     * Captures a thread dump for diagnostic purposes.
+     * Call this method in a subclass before running tests that involve thread management.
+     */
+    // Add @Before in subsclass where appropriate.
     public void threadDump() {
         threadDump = new ThreadDump();
     }
 
+    /**
+     * Checks the captured thread dump to ensure that no new threads were created during the test.
+     * This method should be called after completing tests that involve thread management.
+     */
     public void checkThreadDump() {
-        threadDump.assertNoNewThreads();
+        if (threadDump != null)
+            threadDump.assertNoNewThreads();
+        threadDump = null;
     }
 
+    /**
+     * Creates an exception tracker to track and assert expected exceptions during tests.
+     * Call this method in a subclass before running tests that involve exception handling.
+     */
     @Before
     public void createExceptionTracker() {
         exceptionTracker = JvmExceptionTracker.create();
     }
 
+    /**
+     * Specifies an expected exception message to be tracked by the exception tracker.
+     * Use this method in tests to assert that a specific exception is thrown with the given message.
+     * @param message The expected exception message.
+     */
     public void expectException(String message) {
         exceptionTracker.expectException(message);
     }
 
+    /**
+     * Specifies an exception message to be ignored by the exception tracker.
+     * Use this method in tests to ignore certain exceptions that may be thrown during testing.
+     * @param message The exception message to ignore.
+     */
     public void ignoreException(String message) {
         exceptionTracker.ignoreException(message);
     }
 
+    /**
+     * Performs necessary cleanup after tests.
+     * This method should be annotated with the @After annotation in the subclass.
+     * It performs cleanup tasks such as resource disposal, garbage collection,
+     * reference release assertion, thread dump checks, and exception tracking checks.
+     */
     @After
     public void afterChecks() {
         CleaningThread.performCleanup(Thread.currentThread());

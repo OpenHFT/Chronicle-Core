@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.threads;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import org.junit.Test;
 
@@ -26,11 +27,18 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
-public class JitterSamplerTest {
+/**
+ * Tests the behavior of the {@link JitterSampler} class.
+ */
+public class JitterSamplerTest extends CoreTestCommon {
 
+    /**
+     * Tests the snapshot creation of JitterSampler with different thread stages.
+     */
     @Test
-    public void takeSnapshot() throws InterruptedException {
+    public void shouldTakeSnapshotAtDifferentStages() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(2);
+
         Thread t = new Thread(() -> {
             JitterSampler.atStage("started");
             waitForLatch(latch);
@@ -40,28 +48,40 @@ public class JitterSamplerTest {
             Jvm.pause(millis);
             JitterSampler.finished();
         });
+
         t.start();
+
         waitForLatch(latch);
+
         for (int i = 0; i < 10; i++) {
             Jvm.busyWaitMicros(1000);
             String s = JitterSampler.takeSnapshot(10_000_000);
             final String desc = JitterSampler.desc;
+
             if ("finishing".equals(desc)) {
-                if (s != null && s.contains("finish"))
+                if (s != null && s.contains("finish")) {
                     break;
+                }
             } else {
-                assertEquals("started", desc);
+                assertEquals("Expected 'started' stage description.", "started", desc);
             }
         }
+
         t.join();
+
         String s = JitterSampler.takeSnapshot();
-        assertNull(s);
+        assertNull("Expected null snapshot after thread completion.", s);
     }
 
+    /**
+     * Waits for a CountDownLatch to reach zero.
+     *
+     * @param latch the CountDownLatch
+     */
     private void waitForLatch(CountDownLatch latch) {
         latch.countDown();
         try {
-            assertTrue(latch.await(3, TimeUnit.SECONDS));
+            assertTrue("Latch did not reach zero within the time limit.", latch.await(3, TimeUnit.SECONDS));
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Interrupted waiting for latch", e);

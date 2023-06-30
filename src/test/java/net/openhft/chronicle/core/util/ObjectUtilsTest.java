@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
@@ -31,7 +32,7 @@ import java.util.HashMap;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
-public class ObjectUtilsTest {
+public class ObjectUtilsTest extends CoreTestCommon {
     @Test
     public void testImmutable() {
         for (@NotNull Class c : new Class[]{

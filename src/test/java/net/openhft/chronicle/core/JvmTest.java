@@ -47,7 +47,7 @@ import static net.openhft.chronicle.core.Jvm.*;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
 
-public class JvmTest {
+public class JvmTest extends CoreTestCommon {
 
     private ThreadDump threadDump;
 

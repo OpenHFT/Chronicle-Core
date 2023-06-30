@@ -4,6 +4,7 @@
 
 package net.openhft.chronicle.core.watcher;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.io.IOTools;
@@ -27,7 +28,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeFalse;
 
-public class FileSystemWatcherTest {
+public class FileSystemWatcherTest extends CoreTestCommon {
     static String base = OS.getTarget() + "/FileSystemWatcherTest-" + Time.uniqueId();
 
     @Before

@@ -18,12 +18,13 @@
 
 package net.openhft.chronicle.core.pool;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Maths;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class StaticEnumClassTest {
+public class StaticEnumClassTest extends CoreTestCommon {
     @Test
     public void testInitialSize() throws IllegalArgumentException {
         EnumCache<Ecn> ecnEnumCache = EnumCache.of(Ecn.class);

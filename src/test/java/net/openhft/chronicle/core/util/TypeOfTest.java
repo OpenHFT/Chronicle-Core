@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
 import java.util.List;
@@ -25,7 +26,7 @@ import java.util.function.BiFunction;
 
 import static org.junit.Assert.assertEquals;
 
-public class TypeOfTest {
+public class TypeOfTest extends CoreTestCommon {
 
     @Test
     public <T extends Number> void type() {

@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.internal.analytics;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.analytics.AnalyticsFacade;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
@@ -33,13 +34,19 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
-public class AnalyticsFacadeTest {
+public class AnalyticsFacadeTest extends CoreTestCommon {
 
     private static final String TEST_RESPONSE = "A";
 
     @Before
     public void setSystemProp() {
         System.clearProperty("chronicle.analytics.disable");
+    }
+
+    @Before
+    @Override
+    public void threadDump() {
+        super.threadDump();
     }
 
     @Test
@@ -73,6 +80,7 @@ public class AnalyticsFacadeTest {
 
     @Test(timeout = 10_000L)
     public void analyticsWithRealWebServer() throws IOException {
+        threadDump.ignore("Keep-Alive-Timer");
 
         final String clientIdFileName = "client_id_file_name.txt";
 

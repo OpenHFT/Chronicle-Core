@@ -18,12 +18,15 @@
 
 package net.openhft.chronicle.core.onoes;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
-public class ExceptionKeyTest {
+import static org.junit.Assert.*;
+
+public class ExceptionKeyTest extends CoreTestCommon {
 
     @Test
     public void testEqualsAndHashCode() {
@@ -31,10 +34,38 @@ public class ExceptionKeyTest {
         ExceptionKey ek1b = new ExceptionKey(LogLevel.PERF, getClass(), "one", null);
         assertEquals(ek1, ek1b);
         assertEquals(ek1.hashCode(), ek1b.hashCode());
-        assertEquals("ExceptionKey{level=PERF, clazz=class net.openhft.chronicle.core.onoes.ExceptionKeyTest, message='one', throwable=}", ek1.toString());
+
         ExceptionKey ek2 = new ExceptionKey(LogLevel.WARN, getClass(), "two", null);
-        assertEquals("ExceptionKey{level=WARN, clazz=class net.openhft.chronicle.core.onoes.ExceptionKeyTest, message='two', throwable=}", ek2.toString());
         assertNotEquals(ek1, ek2);
         assertNotEquals(ek1.hashCode(), ek2.hashCode());
+    }
+
+    @Test
+    public void testEqualsWithDifferentThrowable() {
+        ExceptionKey ek1 = new ExceptionKey(LogLevel.ERROR, getClass(), "message", new RuntimeException("error1"));
+        ExceptionKey ek2 = new ExceptionKey(LogLevel.ERROR, getClass(), "message", new RuntimeException("error2"));
+        assertNotEquals(ek1, ek2);
+    }
+
+    @Test
+    public void testToString() {
+        Throwable throwable = new RuntimeException("error");
+        ExceptionKey ek = new ExceptionKey(LogLevel.ERROR, getClass(), "message", throwable);
+
+        StringWriter stringWriter = new StringWriter();
+        throwable.printStackTrace(new PrintWriter(stringWriter));
+        String expectedString = "ExceptionKey{" +
+                "level=" + LogLevel.ERROR +
+                ", clazz=" + getClass() +
+                ", message='message'" +
+                ", throwable=" + stringWriter +
+                '}';
+        assertEquals(expectedString, ek.toString());
+}
+
+    @Test
+    public void testNullFields() {
+        ExceptionKey ek = new ExceptionKey(null, null, null, null);
+        assertNotNull(ek.toString()); // Check toString doesn't throw an exception with null fields.
     }
 }

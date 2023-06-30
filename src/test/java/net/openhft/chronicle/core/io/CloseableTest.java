@@ -18,18 +18,21 @@
 
 package net.openhft.chronicle.core.io;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.lang.ref.SoftReference;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
-public class CloseableTest {
+public class CloseableTest extends CoreTestCommon {
 
     @Test
     public void closeQuietlyHandlesNull() {
@@ -75,8 +78,8 @@ public class CloseableTest {
         CloseableImpl closeable2 = new CloseableImpl();
         CloseableImpl closeable3 = new CloseableImpl();
         CloseableImpl closeable4 = new CloseableImpl();
-        SoftReference<List<List<CloseableImpl>>> structure =
-                new SoftReference<>(Arrays.asList(Arrays.asList(closeable1, closeable2), Arrays.asList(closeable3, closeable4)));
+        List<List<CloseableImpl>> list = Arrays.asList(Arrays.asList(closeable1, closeable2), Arrays.asList(closeable3, closeable4));
+        SoftReference<List<List<CloseableImpl>>> structure = new SoftReference<>(list);
         Closeable.closeQuietly(structure);
         assertTrue(closeable1.wasClosed);
         assertTrue(closeable2.wasClosed);
@@ -91,6 +94,60 @@ public class CloseableTest {
         ssc.close();
         // can throw an IOException ssc.close();
         Closeable.closeQuietly(ssc);
+    }
+
+    @SuppressWarnings("resource")
+    @Test
+    public void closeQuietlyClosesArrays() {
+        final CloseableImpl[] closeables = new CloseableImpl[]{
+                new CloseableImpl(),
+                new CloseableImpl(),
+                new CloseableImpl(),
+                new CloseableImpl()
+        };
+        Closeable.closeQuietly(closeables);
+        for (CloseableImpl closeable : closeables) {
+            assertTrue(closeable.wasClosed);
+        }
+    }
+
+    @Test
+    public void closeQuietlyClosesNestedCollections() {
+        Collection<Object> outerCollection = new ArrayList<>();
+        Collection<CloseableImpl> innerCollection1 = Arrays.asList(new CloseableImpl(), new CloseableImpl());
+        Collection<CloseableImpl> innerCollection2 = Arrays.asList(new CloseableImpl(), new CloseableImpl());
+        outerCollection.add(innerCollection1);
+        outerCollection.add(innerCollection2);
+        Closeable.closeQuietly(outerCollection);
+        for (CloseableImpl closeable : innerCollection1) {
+            assertTrue(closeable.wasClosed);
+        }
+        for (CloseableImpl closeable : innerCollection2) {
+            assertTrue(closeable.wasClosed);
+        }
+    }
+
+    @Test
+    public void closeQuietlyHandlesExceptionOnClose() {
+        expectException("Error occurred closing resources");
+        final CloseableImplWithException closeable = new CloseableImplWithException();
+        Closeable.closeQuietly(closeable);
+        assertTrue(closeable.wasClosed);
+    }
+
+    static class CloseableImplWithException implements Closeable {
+        public boolean wasClosed = false;
+
+        @Override
+        public void close() {
+            wasClosed = true;
+            throw new RuntimeException("Exception during close");
+        }
+
+        @Override
+        public boolean isClosed() {
+            return wasClosed;
+        }
     }
 
     static class CloseableImpl implements Closeable {

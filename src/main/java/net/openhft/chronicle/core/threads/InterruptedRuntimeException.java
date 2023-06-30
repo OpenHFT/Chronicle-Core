@@ -19,27 +19,68 @@
 package net.openhft.chronicle.core.threads;
 
 /**
- * An unchecked alternative to {@link InterruptedException}.
+ * A runtime exception representing interruption of a thread.
  * <p>
- * This should generally not be used, prefer {@link InterruptedException} wherever possible, but
- * there are some scenarios where we need to throw an unchecked exception after being interrupted.
+ * This unchecked exception serves as an alternative to the checked {@link InterruptedException}.
+ * Generally, it is recommended to use {@link InterruptedException} to handle interruptions.
+ * However, in scenarios where handling checked exceptions is not feasible or desirable, this
+ * class can be used to represent thread interruption without being subject to the checked
+ * exception requirements.
  * <p>
- * If {@link InterruptedException} was caught, remember to set {@link Thread#interrupt()} prior to throwing these.
+ * When converting from {@link InterruptedException} to {@code InterruptedRuntimeException}, it is
+ * important to preserve the interrupt status by calling {@link Thread#interrupt()} before
+ * throwing this exception.
+ * <p>
+ * Example usage:
+ * <pre>
+ * try {
+ *     // Code that may throw InterruptedException
+ * } catch (InterruptedException e) {
+ *     Thread.currentThread().interrupt(); // Preserve interrupt status
+ *     throw new InterruptedRuntimeException("Thread was interrupted", e);
+ * }
+ * </pre>
  */
 public class InterruptedRuntimeException extends IllegalStateException {
 
+    /**
+     * Constructs an {@code InterruptedRuntimeException} with no detail message or cause.
+     */
     public InterruptedRuntimeException() {
     }
 
-    public InterruptedRuntimeException(String s) {
-        super(s);
+    /**
+     * Constructs an {@code InterruptedRuntimeException} with the specified detail message.
+     *
+     * @param message the detail message.
+     */
+    public InterruptedRuntimeException(String message) {
+        super(message);
     }
 
-    public InterruptedRuntimeException(String s, Throwable throwable) {
-        super(s, throwable);
+    /**
+     * Constructs an {@code InterruptedRuntimeException} with the specified detail message and cause.
+     * <p>
+     * Note that the detail message associated with {@code cause} is <i>not</i> automatically
+     * incorporated into this exception's detail message.
+     *
+     * @param message the detail message.
+     * @param cause   the cause (which is saved for later retrieval by the {@link #getCause()} method).
+     *                A {@code null} value is permitted, and indicates that the cause is nonexistent or unknown.
+     */
+    public InterruptedRuntimeException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    public InterruptedRuntimeException(Throwable throwable) {
-        super(throwable);
+    /**
+     * Constructs an {@code InterruptedRuntimeException} with the specified cause and a detail
+     * message of {@code (cause == null ? null : cause.toString())} (which typically contains
+     * the class and detail message of {@code cause}).
+     *
+     * @param cause the cause (which is saved for later retrieval by the {@link #getCause()} method).
+     *              A {@code null} value is permitted, and indicates that the cause is nonexistent or unknown.
+     */
+    public InterruptedRuntimeException(Throwable cause) {
+        super(cause);
     }
 }

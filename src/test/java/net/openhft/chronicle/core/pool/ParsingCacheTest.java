@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.pool;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.Test;
@@ -26,7 +27,7 @@ import java.math.BigDecimal;
 
 import static org.junit.Assert.*;
 
-public class ParsingCacheTest {
+public class ParsingCacheTest extends CoreTestCommon {
     @Test
     public void intern() throws Exception {
         @NotNull ParsingCache<BigDecimal> pc = new ParsingCache<>(128, BigDecimal::new);
