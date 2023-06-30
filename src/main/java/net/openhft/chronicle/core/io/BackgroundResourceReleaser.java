@@ -28,6 +28,11 @@ import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Utility class for managing reference counted resources and related operations.
+ * <p>
+ * This class helps in releasing the resources in the background when they are no longer needed.
+ * It internally uses a background thread to perform the releasing operations. The background
+ * thread can be disabled if needed by using system properties.
+ * </p>
  */
 public final class BackgroundResourceReleaser {
 
@@ -37,6 +42,7 @@ public final class BackgroundResourceReleaser {
 
     public static final String BACKGROUND_RESOURCE_RELEASER = "background~resource~releaser";
     static final boolean BG_RELEASER = Jvm.getBoolean("background.releaser", true);
+
     /**
      * Turn off the background thread if you want to manage the releasing in your own thread
      */
@@ -78,6 +84,10 @@ public final class BackgroundResourceReleaser {
 
     /**
      * Stops the background releasing thread after releasing pending resources.
+     * <p>
+     * It should be called during the shutdown process to release any resources that have not been
+     * released yet.
+     * </p>
      */
     public static void stop() {
         stopping = true;
@@ -86,7 +96,7 @@ public final class BackgroundResourceReleaser {
     }
 
     /**
-     * Releases the specified resource.
+     * Releases the specified closeable resource.
      *
      * @param closeable the resource to release
      */
@@ -98,7 +108,7 @@ public final class BackgroundResourceReleaser {
     }
 
     /**
-     * Releases the specified resource.
+     * Releases the specified reference counted resource.
      *
      * @param referenceCounted the resource to release
      */
@@ -110,9 +120,9 @@ public final class BackgroundResourceReleaser {
     }
 
     /**
-     * Releases the specified resource.
+     * Executes the specified runnable to release the resource.
      *
-     * @param runnable the resource to release
+     * @param runnable the runnable to execute for releasing the resource
      */
     public static void run(Runnable runnable) {
         if (stopping)
@@ -130,6 +140,10 @@ public final class BackgroundResourceReleaser {
 
     /**
      * Releases all pending resources.
+     * <p>
+     * Should be called when you want to make sure that all the resources that have been
+     * queued for release are actually released.
+     * </p>
      */
     public static void releasePendingResources() {
         boolean interrupted = Thread.interrupted();
@@ -179,9 +193,9 @@ public final class BackgroundResourceReleaser {
     }
 
     /**
-     * Is the current thread the background resource releaser thread?
+     * Checks if the current thread is the background resource releaser thread.
      *
-     * @return true if the current thread is the background resource releaser thread
+     * @return true if the current thread is the background resource releaser thread; false otherwise.
      */
     public static boolean isOnBackgroundResourceReleaserThread() {
         return Thread.currentThread() == RELEASER;

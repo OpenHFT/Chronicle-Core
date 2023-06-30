@@ -19,13 +19,31 @@
 package net.openhft.chronicle.core.io;
 
 /**
- * Exception thrown when an operation is attempted on a closed resource.
- * This exception is a subclass of IllegalStateException.
+ * {@code ClosedIllegalStateException} is thrown to indicate that a method has been invoked on a
+ * resource that is in an inappropriate state because it has been closed. For example, attempting to
+ * read from a file that has already been closed.
+ * <p>
+ * This exception is a specialized version of {@link IllegalStateException} specifically for cases
+ * where the illegal state is due to the resource being closed. This makes the exception more
+ * semantically meaningful when dealing with closeable resources.
+ * </p>
+ * <p>
+ * Here's a typical example of how {@code ClosedIllegalStateException} might be used:
+ * <pre>
+ * public void readData() {
+ *     if (isClosed()) {
+ *         throw new ClosedIllegalStateException("Attempted to read from a closed resource.");
+ *     }
+ *     // ... read data ...
+ * }
+ * </pre>
+ * </p>
  */
 public class ClosedIllegalStateException extends IllegalStateException {
 
     /**
-     * Constructs a ClosedIllegalStateException with the specified detail message.
+     * Constructs a {@code ClosedIllegalStateException} with the specified detail message.
+     * The detail message is meant to provide more information on why the exception was thrown.
      *
      * @param s The detail message.
      */
@@ -34,10 +52,15 @@ public class ClosedIllegalStateException extends IllegalStateException {
     }
 
     /**
-     * Constructs a ClosedIllegalStateException with the specified detail message and cause.
+     * Constructs a {@code ClosedIllegalStateException} with the specified detail message and cause.
+     * <p>
+     * Note that the detail message associated with {@code cause} is <i>not</i> automatically
+     * incorporated into this exception's detail message.
+     * </p>
      *
-     * @param message The detail message.
-     * @param cause   The cause of the exception.
+     * @param message The detail message, which is saved for later retrieval by the {@link #getMessage()} method.
+     * @param cause   The cause (which is saved for later retrieval by the {@link #getCause()} method).
+     *                (A {@code null} value is permitted, and indicates that the cause is nonexistent or unknown.)
      */
     public ClosedIllegalStateException(String message, Throwable cause) {
         super(message, cause);

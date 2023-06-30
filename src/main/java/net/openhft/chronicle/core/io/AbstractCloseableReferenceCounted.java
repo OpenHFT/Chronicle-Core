@@ -23,8 +23,22 @@ import net.openhft.chronicle.core.StackTrace;
 import net.openhft.chronicle.core.internal.CloseableUtils;
 
 /**
- * An abstract class representing a reference-counted closeable resource.
- * This class extends AbstractReferenceCounted and implements ManagedCloseable.
+ * Represents a closeable resource with reference counting capabilities.
+ * <p>
+ * This abstract class extends {@link AbstractReferenceCounted} and implements {@link ManagedCloseable},
+ * and is designed to manage a resource that requires reference counting to ensure proper cleanup
+ * once it is no longer in use.
+ * </p>
+ * <p>
+ * Reference counting allows multiple users to share a single resource and ensures that the resource
+ * is only closed when all references are released. Each user of the resource increments the reference
+ * count upon acquiring the resource and decrements it upon releasing.
+ * </p>
+ * <p>
+ * This class integrates reference counting with the ability to close the resource. When the reference
+ * count reaches zero, or if an explicit call to close is made, the resource transitions to the closed state
+ * and cannot be used any further.
+ * </p>
  */
 public abstract class AbstractCloseableReferenceCounted
         extends AbstractReferenceCounted
@@ -36,18 +50,18 @@ public abstract class AbstractCloseableReferenceCounted
     private boolean initReleased;
 
     /**
-     * Constructs a new AbstractCloseableReferenceCounted instance.
-     * Adds the instance to the CloseableUtils set for tracking.
+     * Constructs a new AbstractCloseableReferenceCounted instance and adds the instance
+     * to the CloseableUtils set for tracking.
      */
     protected AbstractCloseableReferenceCounted() {
         CloseableUtils.add(this);
     }
 
     /**
-     * Reserves the resource for the given id.
+     * Attempts to reserve the resource for the given unique id.
      *
-     * @param id unique id for this reserve
-     * @throws IllegalStateException if already released
+     * @param id the unique identifier representing the owner of this reserve.
+     * @throws IllegalStateException if the resource has already been released.
      */
     @Override
     public void reserve(ReferenceOwner id) throws IllegalStateException {
@@ -109,7 +123,8 @@ public abstract class AbstractCloseableReferenceCounted
     }
 
     /**
-     * Closes the resource.
+     * Closes the resource, ensuring it transitions to a closed state. If the resource
+     * is being released in the background, it is marked as closing.
      */
     @Override
     public void close() {
@@ -186,7 +201,9 @@ public abstract class AbstractCloseableReferenceCounted
     }
 
     /**
-     * @return true if the resource is closed
+     * Indicates whether the resource is in a closed state.
+     *
+     * @return {@code true} if the resource is closed; {@code false} otherwise.
      */
     @Override
     public boolean isClosed() {

@@ -19,15 +19,42 @@
 package net.openhft.chronicle.core.io;
 
 /**
- * An interface for validating the state of an object before writing it via a method writer.
- * Implementing classes should perform checks to ensure that the object's state is valid.
+ * The {@code Validatable} interface should be implemented by classes that require
+ * validation of their state before being written through a method writer.
+ * <p>
+ * Implementing this interface indicates that the object is capable of self-validation,
+ * which is essential in contexts like serialization or communication where the integrity
+ * and correctness of an object's state are crucial.
+ * </p>
+ * <p>
+ * Example usage:
+ * <pre>
+ * public class MyData implements Validatable {
+ *     private String name;
+ *     private Integer age;
+ *
+ *     // getters and setters
+ *
+ *     {@literal @}Override
+ *     public void validate() throws InvalidMarshallableException {
+ *         if (name == null || name.isEmpty()) {
+ *             throw new InvalidMarshallableException("Name cannot be null or empty");
+ *         }
+ *         if (age == null || age < 0) {
+ *             throw new InvalidMarshallableException("Age cannot be null or negative");
+ *         }
+ *     }
+ * }
+ * </pre>
+ * </p>
  */
 public interface Validatable {
     /**
-     * Method which can be called when writing DTOs via the method writer.
+     * Validates the state of the object. Implementations should perform checks to
+     * ensure that the object's state is valid according to the defined constraints.
      *
-     * @throws InvalidMarshallableException If a value is null or out of range, indicating an invalid state.
-     * @throws RuntimeException             or any other exception if the object is not considered valid.
+     * @throws InvalidMarshallableException if a value is null or out of range, indicating an invalid state.
+     * @throws RuntimeException             if the object is in an invalid state, a general RuntimeException or a custom exception can be thrown.
      */
     void validate() throws InvalidMarshallableException;
 

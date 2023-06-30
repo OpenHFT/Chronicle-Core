@@ -28,7 +28,32 @@ import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEASER;
 
 /**
- * An abstract class representing a closeable resource.
+ * An abstract class that represents a closeable resource with additional utilities for managing the resource lifecycle.
+ * <p>
+ * The class provides base functionalities for resources that require proper management, especially when being closed.
+ * This includes ensuring that close operations are thread-safe, providing hooks for custom cleanup logic, and supporting
+ * diagnostic features for tracking resource usage. It supports resource tracing, thread safety checks, and ensures that
+ * close operations are performed properly.
+ * </p>
+ * <p>
+ * The {@code AbstractCloseable} class implements the {@link ReferenceOwner}, {@link ManagedCloseable}, and {@link SingleThreadedChecked} interfaces.
+ * The {@link ReferenceOwner} interface allows the class to have a unique reference identifier.
+ * The {@link ManagedCloseable} interface ensures that this class provides mechanisms for proper resource management during close operations.
+ * The {@link SingleThreadedChecked} interface ensures that the close operation is executed in a thread-safe manner.
+ * </p>
+ * <p>
+ * Implementations of this abstract class should override the {@link #performClose()} method to include the specific
+ * cleanup logic needed for the resource. This ensures that custom cleanup logic is executed exactly once during the
+ * closing of the resource.
+ * </p>
+ * <p>
+ * Additionally, {@code AbstractCloseable} supports resource tracing, which can be enabled or disabled to monitor and
+ * diagnose resource allocation and deallocation. Resource tracing can help in identifying resource leaks and ensure
+ * resources are properly managed.
+ * </p>
+ * <p>
+ * Subclasses can also control the behavior of thread safety checks and background closing through provided methods.
+ * </p>
  */
 public abstract class AbstractCloseable implements ReferenceOwner, ManagedCloseable, SingleThreadedChecked {
     @Deprecated(/* remove in x.25 */)
@@ -63,19 +88,18 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     }
 
     private final transient StackTrace createdHere;
+    @UsedViaReflection
+    private final transient Finalizer finalizer = DISABLE_DISCARD_WARNING ? null : new Finalizer();
     protected transient volatile StackTrace closedHere;
     private transient volatile int closed = 0;
     private transient volatile Thread usedByThread;
     private transient volatile StackTrace usedByThreadHere;
     private transient boolean singleThreadedCheckDisabled;
-
-    @UsedViaReflection
-    private final transient Finalizer finalizer = DISABLE_DISCARD_WARNING ? null : new Finalizer();
-
     private int referenceId;
 
     /**
-     * Constructs a new AbstractCloseable instance.
+     * Constructs a new {@link AbstractCloseable} instance. Registers the instance
+     * for resource tracing and monitoring if enabled.
      */
     protected AbstractCloseable() {
         createdHere = Jvm.isResourceTracing() ? new StackTrace(getClass().getName() + " created here") : null;
@@ -83,9 +107,8 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     }
 
     /**
-     * Enables tracing of closeable resources.
-     * Tracked resources will be stored in a set.
-     * This method should be called to enable tracing before using closeable resources.
+     * Enables tracing of closeable resources. When enabled, instances of resources
+     * that are not yet closed are stored in a set for tracking and debugging purposes.
      */
     public static void enableCloseableTracing() {
         CloseableUtils.enableCloseableTracing();
@@ -116,18 +139,41 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         CloseableUtils.gcAndWaitForCloseablesToClose();
     }
 
+    /**
+     * Waits for closeable resources to be closed within a specified timeout period.
+     *
+     * @param millis the maximum time in milliseconds to wait for closeables to close.
+     * @return {@code true} if all closeable resources were closed within the specified
+     * timeout, {@code false} otherwise.
+     */
     public static boolean waitForCloseablesToClose(long millis) {
         return CloseableUtils.waitForCloseablesToClose(millis);
     }
 
+    /**
+     * Asserts that all closeable resources are closed. If any closeable resource is not
+     * closed, this method throws an {@link AssertionError}.
+     *
+     * @throws AssertionError if any closeable resource is not closed.
+     */
     public static void assertCloseablesClosed() {
         CloseableUtils.assertCloseablesClosed();
     }
 
+    /**
+     * Removes the specified closeable resource from monitoring.
+     *
+     * @param closeable the closeable resource to unmonitor.
+     */
     public static void unmonitor(Closeable closeable) {
         CloseableUtils.unmonitor(closeable);
     }
 
+    /**
+     * Returns the unique reference ID of this closeable resource.
+     *
+     * @return the unique reference ID.
+     */
     @Override
     public int referenceId() {
         if (referenceId == 0)
@@ -135,11 +181,19 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         return referenceId;
     }
 
+    /**
+     * Returns the stack trace at the point this closeable resource was created.
+     *
+     * @return the stack trace at the point of creation.
+     */
     @Override
     public StackTrace createdHere() {
         return createdHere;
     }
 
+    /**
+     * Closes this resource and releases any associated system resources.
+     */
     @Override
     public final void close() {
         assertCloseable();
@@ -178,10 +232,20 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         // Do nothing by default, allowing close() to complete unconditionally
     }
 
+    /**
+     * Checks if the current thread is a user thread.
+     *
+     * @return {@code true} if the current thread is a user thread; {@code false} otherwise.
+     */
     protected boolean isInUserThread() {
         return Thread.currentThread().getName().indexOf('~') < 0;
     }
 
+    /**
+     * Waits for the resource to transition to the closed state.
+     * This is useful for scenarios where close operations might be asynchronous and
+     * the caller needs to wait until the resource is effectively closed.
+     */
     protected void waitForClosed() {
         boolean interrupted = false;
         try {
@@ -205,10 +269,12 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     }
 
     /**
-     * Called when a resources needs to be open to use it.
+     * Throws an exception if the resource is closed.
+     * This method is used to ensure that the resource is open before attempting an operation
+     * that requires it to be open.
      *
-     * @throws ClosedIllegalStateException if closed
-     * @throws IllegalStateException       if the thread safety check fails
+     * @throws ClosedIllegalStateException if the resource is already closed.
+     * @throws IllegalStateException       if the thread safety check fails.
      */
     @Override
     public void throwExceptionIfClosed() throws ClosedIllegalStateException, IllegalStateException {
@@ -221,6 +287,12 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         throw new ClosedIllegalStateException(getClass().getName() + " closed for " + Thread.currentThread().getName(), closedHere);
     }
 
+    /**
+     * Throws an exception if the resource is closed during a setter operation.
+     * This method is used to ensure that the resource is open before attempting to modify its state.
+     *
+     * @throws IllegalStateException if the resource is already closed.
+     */
     public void throwExceptionIfClosedInSetter() throws IllegalStateException {
         if (isClosed())
             throwClosed();
@@ -228,6 +300,10 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     }
 
     /**
+     * Checks if the resource is not closed, and if so, logs a warning and closes it.
+     * This method is typically called from the finalizer to ensure that resources are not
+     * garbage collected without being properly closed.
+     * <p>
      * Called from finalise() implementations.
      */
     @Override
@@ -242,10 +318,19 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     }
 
     /**
-     * Call close() to ensure this is called exactly once.
+     * Contains the actual logic for closing the resource. This method is intended to be
+     * overridden by subclasses to provide specific close logic.
+     * <p>
+     * Note: This method is called exactly once through {@code callPerformClose()}.
+     *
+     * @throws IllegalStateException if any error occurs during the close operation.
      */
     protected abstract void performClose() throws IllegalStateException;
 
+    /**
+     * Calls {@link #performClose()} and ensures that it is executed exactly once.
+     * Any exceptions thrown by {@link #performClose()} are caught and logged.
+     */
     void callPerformClose() {
         try {
             performClose();
@@ -256,30 +341,58 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         }
     }
 
+    /**
+     * Checks if the resource is in the process of being closed.
+     *
+     * @return {@code true} if the resource is either closed or in the process of being closed;
+     * {@code false} otherwise.
+     */
     @Override
     public boolean isClosing() {
         return closed != STATE_NOT_CLOSED;
     }
 
+    /**
+     * Checks if the resource is closed.
+     *
+     * @return {@code true} if the resource is closed; {@code false} otherwise.
+     */
     @Override
     public boolean isClosed() {
         return closed == STATE_CLOSED;
     }
 
     /**
-     * @return whether this component should be closed in the background or not
+     * Determines if this component should be closed asynchronously in the background.
+     * Subclasses may override this method to change the default behavior, which is to close
+     * synchronously.
+     *
+     * @return {@code true} if this component should be closed in the background; {@code false} otherwise.
      */
     protected boolean shouldPerformCloseInBackground() {
         return false;
     }
 
     /**
-     * @return whether this component should be wait for closed to complete
+     * Determines if this component should wait for the close operation to complete before
+     * returning from the {@code close()} method.
+     * Subclasses may override this method to change the default behavior.
+     *
+     * @return {@code true} if this component should wait for the close to complete; {@code false} otherwise.
      */
     protected boolean shouldWaitForClosed() {
         return false;
     }
 
+    /**
+     * Performs a thread safety check on the component.
+     * If the component is not thread-safe and is accessed by multiple threads,
+     * an {@link IllegalStateException} is thrown.
+     * This method is intended to be called before operations that require thread safety.
+     *
+     * @param isUsed flag indicating whether the component is being used in the current operation.
+     * @throws IllegalStateException if the component is not thread-safe and accessed by multiple threads.
+     */
     protected void threadSafetyCheck(boolean isUsed) throws IllegalStateException {
         if (DISABLE_SINGLE_THREADED_CHECK || singleThreadedCheckDisabled)
             return;
@@ -318,11 +431,22 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         singleThreadedCheckReset();
     }
 
+    /**
+     * Resets the state of the thread safety check.
+     * After calling this method, the component's thread safety check state will be cleared,
+     * and it will no longer remember which thread it was last accessed by.
+     */
     public void singleThreadedCheckReset() {
         usedByThread = null;
         usedByThreadHere = null;
     }
 
+    /**
+     * Returns a string representation of this component, typically used for debugging purposes.
+     * By default, this returns the reference name of the component.
+     *
+     * @return the string representation of this component.
+     */
     @Override
     public String toString() {
         return referenceName();
@@ -336,6 +460,13 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         return singleThreadedCheckDisabled;
     }
 
+    /**
+     * Determines if the single-threaded safety check is disabled for this component.
+     * If disabled, the component will not perform checks to ensure that it is being accessed
+     * by a single thread.
+     *
+     * @return {@code true} if single-threaded safety check is disabled; {@code false} otherwise.
+     */
     protected boolean singleThreadedCheckDisabled() {
         return singleThreadedCheckDisabled;
     }
@@ -349,16 +480,34 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         return this;
     }
 
+    /**
+     * Disables or enables the single-threaded safety check.
+     * If disabled, the component will not perform checks to ensure that it is being accessed
+     * by a single thread.
+     *
+     * @param singleThreadedCheckDisabled {@code true} to disable single-threaded safety check; {@code false} to enable it.
+     */
     public void singleThreadedCheckDisabled(boolean singleThreadedCheckDisabled) {
         this.singleThreadedCheckDisabled = singleThreadedCheckDisabled;
-        if (singleThreadedCheckDisabled)
+        if (singleThreadedCheckDisabled) {
             singleThreadedCheckReset();
+        }
     }
 
+    /**
+     * The Finalizer inner class is used to ensure that resources are properly closed
+     * when the garbage collector decides to reclaim the memory for the enclosing AbstractCloseable instance.
+     */
     class Finalizer {
+        /**
+         * Called by the garbage collector when the enclosing AbstractCloseable instance is
+         * being finalized. This method ensures that if the enclosing instance is not closed,
+         * a warning is issued and the close method is called.
+         *
+         * @throws Throwable if an error occurs during finalization.
+         */
         @Override
-        protected void finalize()
-                throws Throwable {
+        protected void finalize() throws Throwable {
             warnAndCloseIfNotClosed();
             super.finalize();
         }

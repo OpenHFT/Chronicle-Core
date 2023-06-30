@@ -25,7 +25,20 @@ import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;
 import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
+/**
+ * A utility class to locate the appropriate {@link ByteBufferCleanerService} implementation.
+ *
+ * <p>This class employs the ServiceLoader mechanism to dynamically locate and instantiate
+ * an implementation of the ByteBufferCleanerService interface. It selects the most suitable
+ * implementation based on the impact level and the Java major version compatibility.</p>
+ *
+ * <p>If no suitable service provider is found, it falls back to a reflection-based cleaner service.</p>
+ *
+ * <p>This class is thread-safe and ensures that only a single instance of ByteBufferCleanerService
+ * is created and shared among all callers.</p>
+ */
 public final class CleanerServiceLocator {
+
     private static boolean initialised = false;
     private static ByteBufferCleanerService instance;
 
@@ -33,6 +46,15 @@ public final class CleanerServiceLocator {
     private CleanerServiceLocator() {
     }
 
+    /**
+     * Returns a singleton instance of {@link ByteBufferCleanerService}.
+     *
+     * <p>This method uses the ServiceLoader mechanism to dynamically locate and instantiate
+     * an implementation of the ByteBufferCleanerService interface. If no suitable service
+     * provider is found, it falls back to a reflection-based cleaner service.</p>
+     *
+     * @return The singleton instance of ByteBufferCleanerService.
+     */
     public static synchronized ByteBufferCleanerService cleanerService() {
         if (!initialised) {
             final ServiceLoader<ByteBufferCleanerService> available =
@@ -54,7 +76,7 @@ public final class CleanerServiceLocator {
 
             if (cleanerService == null) {
                 cleanerService = new ReflectionBasedByteBufferCleanerService();
-                Jvm.warn().on(CleanerServiceLocator.class,  "Unable to find suitable cleaner service, falling back to using reflection");
+                Jvm.warn().on(CleanerServiceLocator.class, "Unable to find suitable cleaner service, falling back to using reflection");
             }
 
             instance = cleanerService;
@@ -64,6 +86,12 @@ public final class CleanerServiceLocator {
         return instance;
     }
 
+    /**
+     * Determines if the given {@link ByteBufferCleanerService} is compatible with the current Java major version.
+     *
+     * @param svc The ByteBufferCleanerService to check.
+     * @return true if the service is compatible, false otherwise.
+     */
     private static boolean isAllowedInThisMajorVersion(final ByteBufferCleanerService svc) {
         final TargetMajorVersion version = svc.getClass().getDeclaredAnnotation(TargetMajorVersion.class);
 
