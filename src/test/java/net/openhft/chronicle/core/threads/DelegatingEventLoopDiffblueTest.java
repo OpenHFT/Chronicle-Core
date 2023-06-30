@@ -1,0 +1,57 @@
+package net.openhft.chronicle.core.threads;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import java.util.function.Supplier;
+import org.junit.Test;
+
+public class DelegatingEventLoopDiffblueTest {
+  /**
+  * Method under test: {@link DelegatingEventLoop#DelegatingEventLoop(EventLoop)}
+  */
+  @Test
+  public void testConstructor() {
+    // Arrange and Act
+    DelegatingEventLoop actualDelegatingEventLoop = new DelegatingEventLoop(
+        new OnDemandEventLoop(mock(Supplier.class)));
+
+    // Assert
+    assertFalse(actualDelegatingEventLoop.isAlive());
+    assertFalse(actualDelegatingEventLoop.isStopped());
+  }
+
+  /**
+   * Method under test: {@link DelegatingEventLoop#isStopped()}
+   */
+  @Test
+  public void testIsStopped() {
+    // Arrange, Act and Assert
+    assertFalse((new DelegatingEventLoop(new OnDemandEventLoop(mock(Supplier.class)))).isStopped());
+    assertFalse(
+        (new DelegatingEventLoop(new DelegatingEventLoop(new OnDemandEventLoop(mock(Supplier.class))))).isStopped());
+  }
+
+  /**
+   * Method under test: {@link DelegatingEventLoop#isAlive()}
+   */
+  @Test
+  public void testIsAlive() {
+    // Arrange, Act and Assert
+    assertFalse((new DelegatingEventLoop(new OnDemandEventLoop(mock(Supplier.class)))).isAlive());
+    assertFalse(
+        (new DelegatingEventLoop(new DelegatingEventLoop(new OnDemandEventLoop(mock(Supplier.class))))).isAlive());
+  }
+
+  /**
+   * Method under test: {@link DelegatingEventLoop#runsInsideCoreLoop()}
+   */
+  @Test
+  public void testRunsInsideCoreLoop() {
+    // Arrange, Act and Assert
+    assertTrue((new DelegatingEventLoop(new OnDemandEventLoop(mock(Supplier.class)))).runsInsideCoreLoop());
+    assertTrue((new DelegatingEventLoop(new DelegatingEventLoop(new OnDemandEventLoop(mock(Supplier.class)))))
+        .runsInsideCoreLoop());
+  }
+}
+
