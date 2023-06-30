@@ -29,10 +29,26 @@ import java.util.*;
 import java.util.function.Function;
 
 /**
- * Represents a dynamic enum class that extends the capabilities of {@link EnumCache}.
- * It allows dynamic creation and management of enum-like instances.
+ * Represents a dynamic enumeration class that extends the capabilities of {@link EnumCache}.
+ * The class is capable of dynamically creating and managing instances which resemble enumerations
+ * (enums) in behavior. Unlike traditional enums, which have a fixed set of instances,
+ * {@code DynamicEnumClass} can create new instances on-the-fly.
  *
- * @param <E> the type of enum instances this class will manage.
+ * <p>This class is thread-safe and ensures that each unique name maps to a single instance.
+ *
+ * <p>Instances of {@code DynamicEnumClass} have properties similar to traditional enums,
+ * like {@code name} and {@code ordinal}. The {@code name} is the string identifier of an enum instance,
+ * while the {@code ordinal} represents the position of the enum instance in the declaration order.
+ *
+ * @param <E> the type of enum instances this class will manage. It must extend {@link CoreDynamicEnum}.
+ *
+ * Example usage:
+ * <pre>
+ * {@code
+ * EnumCache<YesNo> yesNoEnumCache = EnumCache.of(YesNo.class);
+ * YesNo maybe = yesNoEnumCache.valueOf("Maybe"); // Dynamically creates a new enum instance with name "Maybe"
+ * }
+ * </pre>
  */
 public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E> {
 
@@ -48,7 +64,7 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
     private final Function<String, E> create = this::create;
 
     /**
-     * Constructs a new DynamicEnumClass.
+     * Constructs a new DynamicEnumClass for managing instances of the specified class.
      *
      * @param eClass the enum class this DynamicEnumClass will manage.
      */
@@ -85,10 +101,11 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
     }
 
     /**
-     * Returns the enum constant with the specified name.
+     * Returns the enum instance with the specified name. The method returns {@code null}
+     * if the instance does not exist.
      *
-     * @param name the name of the enum constant to be returned.
-     * @return the enum constant with the specified name.
+     * @param name the name of the enum instance to be retrieved.
+     * @return the enum instance with the specified name, or {@code null} if not present.
      */
     @Override
     public E get(String name) {
@@ -96,10 +113,11 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
     }
 
     /**
-     * Returns the enum constant with the specified name, creating it if it doesn't exist.
+     * Returns the enum instance with the specified name. If an instance with the specified
+     * name does not exist, this method dynamically creates a new one.
      *
-     * @param name the name of the enum constant to be returned.
-     * @return the enum constant with the specified name.
+     * @param name the name of the enum instance to be retrieved or created.
+     * @return the enum instance with the specified name.
      */
     @Override
     public E valueOf(String name) {
@@ -134,11 +152,10 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
     }
 
     /**
-     * Retrieves the enum instance at the given index.
+     * Returns an array containing the enum instances managed by this class in
+     * the order they were created.
      *
-     * @param index the index of the enum instance to retrieve.
-     * @return the enum instance at the given index.
-     * @throws IndexOutOfBoundsException if the index is out of range.
+     * @return an array containing the enum instances.
      */
     @Override
     public E forIndex(int index) {
@@ -166,10 +183,11 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
     }
 
     /**
-     * Resets the internal state of this class. This includes clearing the stored enum instances
-     * and resetting to the initial state.
-     * <p>
-     * This method should only be used for testing purposes.
+     * Resets the internal state of this class by clearing the stored enum instances
+     * and resetting them to the initial state. Use with caution as this will
+     * delete any dynamically created enum instances.
+     *
+     * <p>This method is intended to be used for testing purposes.
      */
     @TestOnly
     public void reset() {

@@ -22,6 +22,7 @@ import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.threads.ThreadDump;
 import net.openhft.chronicle.core.util.ClassNotFoundRuntimeException;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -82,6 +83,27 @@ public class ClassAliasPoolTest extends CoreTestCommon {
     @Test
     public void wrongCaseClassName() {
         assertThrows(ClassNotFoundRuntimeException.class, () -> CLASS_ALIASES.forName(TestEnum.class.getName().toLowerCase()));
+    }
+
+    @Test
+    public void testCustomAlias() {
+        CLASS_ALIASES.addAlias(String.class, "MyString");
+        assertEquals(String.class, CLASS_ALIASES.forName("MyString"));
+    }
+
+    @Test
+    public void testInvalidClassName() {
+        assertThrows(ClassNotFoundRuntimeException.class, () -> CLASS_ALIASES.forName("InvalidClassName"));
+    }
+
+    @Test
+    public void testWrapReturnsSeparateInstance() {
+        ClassLookup wrapped = CLASS_ALIASES.wrap();
+        Assert.assertNotSame(CLASS_ALIASES, wrapped);
+
+        // Ensure that wrapped instance does not affect the original instance
+        wrapped.addAlias(Integer.class, "WrappedInteger");
+        assertThrows(ClassNotFoundRuntimeException.class, () -> CLASS_ALIASES.forName("WrappedInteger"));
     }
 
     enum TestEnum {
