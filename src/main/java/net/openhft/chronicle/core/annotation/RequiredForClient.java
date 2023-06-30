@@ -21,9 +21,18 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Be careful how this class is modified as it is referred to by name in a contract.
+ * Indicates that modifications to the annotated class should be made with caution
+ * as it is known to be used by a client. This annotation serves as a warning to
+ * developers, reminding them of the implications of changes to the annotated element.
  */
 @Retention(RetentionPolicy.SOURCE)
 public @interface RequiredForClient {
+
+    /**
+     * Specifies an optional comment to provide additional context or information
+     * about where this class is referred to.
+     *
+     * @return the comment providing more details
+     */
     String value() default "";
 }

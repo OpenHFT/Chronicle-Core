@@ -25,7 +25,9 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 /**
- * Deliberately made package local, usually to avoid accessor methods
+ * Annotation to indicate that the annotated element has package-local visibility
+ * intentionally, usually to avoid accessor methods. This annotation serves as
+ * documentation to inform others of the deliberate design choice.
  */
 @Documented
 @Retention(SOURCE)

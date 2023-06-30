@@ -24,7 +24,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Documents a class as assumed to be used in a single threaded context.
+ * Annotation to document that a class is intended to be used in a single-threaded context.
+ * Classes marked with this annotation are not designed for concurrent access and should
+ * be accessed by only one thread at a time.
  * <p>
  * Created by Peter Lawrey on 18/05/15.
  */
