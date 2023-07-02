@@ -22,7 +22,7 @@ package net.openhft.chronicle.core.util;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * simple uri encoder, made from the spec at http://www.ietf.org/rfc/rfc2396.txt
+ * simple uri encoder, made from the spec at <a href="http://www.ietf.org/rfc/rfc2396.txt">...</a>
  * Feel free to copy this. I'm not responsible for this code in any way, ever.
  * Thanks to Marco and Thomas
  *

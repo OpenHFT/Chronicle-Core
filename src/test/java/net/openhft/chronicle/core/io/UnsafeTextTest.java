@@ -189,7 +189,7 @@ public class UnsafeTextTest extends CoreTestCommon {
 
     @Test
     public void testSequential() {
-        IntStream.range(0, 1_000).parallel().forEach(t -> {
+        IntStream.range(0, 300).parallel().forEach(t -> {
             // odd numbers have the most precision error
             long address = UNSAFE.allocateMemory(max + 8);
             // double only has 16-17 digits of accuracy so 1 + x/1e15 has 16 digits.

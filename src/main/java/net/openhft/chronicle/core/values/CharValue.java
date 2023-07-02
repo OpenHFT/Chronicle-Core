@@ -19,10 +19,42 @@
 package net.openhft.chronicle.core.values;
 
 /**
- * User: peter.lawrey Date: 10/10/13 Time: 07:17
+ * This interface represents a reference to a char value. It provides methods to get and set the value.
+ * Implementations of this interface are expected to handle the storage and retrieval of the char value.
+ * <p>
+ * Implementations may store the value in different formats or mediums. For example, the value could be stored
+ * in binary format or text format, in memory or on disk.
+ * <p>
+ * The getValue method retrieves the current char value. The setValue method sets the char value.
+ *
+ * @see net.openhft.chronicle.core.values.BooleanValue
+ * @see net.openhft.chronicle.core.values.ByteValue
+ * @see net.openhft.chronicle.core.values.CharValue
+ * @see net.openhft.chronicle.core.values.DoubleValue
+ * @see net.openhft.chronicle.core.values.FloatValue
+ * @see net.openhft.chronicle.core.values.IntValue
+ * @see net.openhft.chronicle.core.values.LongValue
+ * @see net.openhft.chronicle.core.values.ShortValue
+ * @see net.openhft.chronicle.core.values.StringValue
+ * @see net.openhft.chronicle.core.values.LongArrayValues
+ * @see net.openhft.chronicle.core.values.IntArrayValues
+ * @see net.openhft.chronicle.core.values.UnsetLongValue
+ * @author Peter Lawrey
+ * @since 10/10/13
  */
 public interface CharValue {
+    /**
+     * Retrieves the char value.
+     *
+     * @return the char value
+     */
     char getValue();
 
+    /**
+     * Sets the char value.
+     *
+     * @param value the char value to set
+     */
     void setValue(char value);
 }
+

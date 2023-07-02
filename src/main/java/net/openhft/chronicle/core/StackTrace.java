@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
  * <p>
  * This is not an Error or an Exception and is not expected to be thrown or caught.
  * </p>
- * https://github.com/OpenHFT/Chronicle-Core/issues/75
+ * <a href="https://github.com/OpenHFT/Chronicle-Core/issues/75">...</a>
  */
 public class StackTrace extends Throwable {
 

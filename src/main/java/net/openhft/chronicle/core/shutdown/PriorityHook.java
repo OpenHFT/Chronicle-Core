@@ -33,7 +33,7 @@ public class PriorityHook {
 
     /**
      * Add a shutdown hook with a specified priority.
-     *
+     * <p>
      * Will prevent adding the same hook (by parameter's class) more than once, return {@code false} in that case.
      *
      * @param priority See {@link Hooklet#priority()}
@@ -46,7 +46,7 @@ public class PriorityHook {
 
     /**
      * Add a custom shutdown hook.
-     *
+     * <p>
      * Will prevent adding the same hook (by parameter's class) more than once, return the existing one in that case.
      * See {@link Hooklet#identity()}.
      *

@@ -279,7 +279,7 @@ public interface AnalyticsFacade {
         /**
          * Specifies a custom URL to use when connecting to Google Analytics.
          * <p>
-         * By default, the URL "https://www.google-analytics.com/mp/collect"
+         * By default, the URL "<a href="https://www.google-analytics.com/mp/collect">...</a>"
          * will be used.
          *
          * @param url used for remote connection
