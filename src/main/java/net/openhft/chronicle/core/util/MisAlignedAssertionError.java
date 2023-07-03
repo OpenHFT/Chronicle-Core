@@ -15,8 +15,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package net.openhft.chronicle.core.util;
 
+/**
+ * The {@code MisAlignedAssertionError} is thrown to indicate that an attempted memory operation
+ * failed due to a misaligned memory address.
+ * <p>
+ * This error typically indicates a programming error in low-level memory manipulation.
+ * For example, it is thrown by methods like {@code compareAndSwapInt} when the memory
+ * address provided for a compare-and-swap operation is not properly aligned according
+ * to the requirements of the underlying architecture or API.
+ * </p>
+ * <p>
+ * As this error is an {@code AssertionError}, it is considered as an unchecked error.
+ * </p>
+ *
+ * @see AssertionError
+ */
 public class MisAlignedAssertionError extends AssertionError {
 }
