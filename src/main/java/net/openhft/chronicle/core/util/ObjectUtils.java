@@ -42,7 +42,27 @@ import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
 import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.MAYBE;
 import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
 
-public final class ObjectUtils {
+/**
+ * A utility class providing various static methods to perform common operations on objects,
+ * such as instantiation, type conversion, class/interface handling, and more.
+ * This class cannot be instantiated and is meant to serve as a collection of utility functions.
+ *
+ * <p>Some of the key features provided by this utility class include:</p>
+ * <ul>
+ *     <li>Creating new instances of classes</li>
+ *     <li>Retrieving default values for given types</li>
+ *     <li>Checking if a class is concrete</li>
+ *     <li>Performing conversions among types including numbers and booleans</li>
+ *     <li>Handling interfaces and obtaining all interfaces implemented by given objects or classes</li>
+ *     <li>Utility methods for handling exceptions</li>
+ *     <li>Creating dynamic proxies for method calls</li>
+ * </ul>
+ *
+ * <p>Note: This class is a part of the Chronicle core library and is intended to be used by
+ * developers who need to perform various common operations on objects and classes within their
+ * Java applications.</p>
+ */
+ public final class ObjectUtils {
 
     // Suppresses default constructor, ensuring non-instantiability.
     private ObjectUtils() {
@@ -108,7 +128,7 @@ public final class ObjectUtils {
      * @param c The class to create a supplier for.
      * @return A supplier that creates instances of the provided class.
      */
-    private static Supplier<?> supplierForClass(Class<?> c) {
+    static Supplier<?> supplierForClass(Class<?> c) {
         if (c == null)
             throw new NullPointerException();
         Package pkg = c.getPackage();
@@ -161,8 +181,12 @@ public final class ObjectUtils {
      * @param clazz       The class whose immutability status is to be registered.
      * @param isImmutable True if the class is immutable, false otherwise.
      */
-    public static void immutabile(final Class<?> clazz, final boolean isImmutable) {
+    public static void immutable(final Class<?> clazz, final boolean isImmutable) {
         IMMUTABILITY_MAP.put(clazz, isImmutable ? Immutability.YES : Immutability.NO);
+    }
+    @Deprecated(/* to be removed x.26 */)
+    public static void immutabile(final Class<?> clazz, final boolean isImmutable) {
+        immutable(clazz, isImmutable);
     }
 
     /**
@@ -266,7 +290,7 @@ public final class ObjectUtils {
      * @return A map with enum constant names in uppercase as keys and enum constants as values.
      */
     @NotNull
-    private static Map<String, Enum<?>> caseIgnoreLookup(@NotNull Class<?> c) {
+     static Map<String, Enum<?>> caseIgnoreLookup(@NotNull Class<?> c) {
         @NotNull Map<String, Enum<?>> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         for (Object o : c.getEnumConstants()) {
             @NotNull Enum<?> e = (Enum<?>) o;
@@ -407,14 +431,10 @@ public final class ObjectUtils {
         final Object array = Array.newInstance(eClass.getComponentType(), len);
         final Iterator<?> iter = iteratorFor(o);
         final Class<?> elementType = elementType(eClass);
-        try {
             for (int i = 0; i < len; i++) {
                 @Nullable Object value = convertTo(elementType, iter.next());
                 Array.set(array, i, value);
             }
-        } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e) {
-            throw new AssertionError(e);
-        }
         return (E) array;
     }
 
@@ -461,12 +481,8 @@ public final class ObjectUtils {
             return ((Collection<?>) o).size();
         if (o instanceof Map)
             return ((Map<?, ?>) o).size();
-        try {
             if (o.getClass().isArray())
                 return Array.getLength(o);
-        } catch (IllegalArgumentException e) {
-            throw new AssertionError(e);
-        }
         throw new UnsupportedOperationException();
     }
 
@@ -645,6 +661,12 @@ public final class ObjectUtils {
         return (tClass.getModifiers() & (Modifier.ABSTRACT | Modifier.INTERFACE)) == 0;
     }
 
+/**
+ * Invokes the readResolve method on the given object if it exists.
+ *
+ * @param o The object on which to invoke readResolve.
+ * @return  The result of the readResolve method, or the original object if readResolve does not exist.
+ */
     public static Object readResolve(@NotNull Object o) {
         Method readResove = READ_RESOLVE.get(o.getClass());
         if (readResove == null)
@@ -658,6 +680,12 @@ public final class ObjectUtils {
         }
     }
 
+/**
+ * Converts a string to a Boolean.
+ *
+ * @param s The string to be converted.
+ * @return  Boolean.TRUE if the string is "true", Boolean.FALSE if the string is "false", null otherwise.
+ */
     @Nullable
     public static Boolean toBoolean(@Nullable String s) {
         if (s == null)
@@ -673,7 +701,13 @@ public final class ObjectUtils {
             Jvm.debug().on(ObjectUtils.class, "Treating '" + s + "' as false");
         return Boolean.FALSE;
     }
-
+/**
+ * Retrieves all the interfaces implemented by the given object or class.
+ *
+ * @param o The object or class for which to retrieve the implemented interfaces.
+ * @return An array of Class objects representing all the interfaces implemented by the given object or class.
+ * @throws AssertionError If an illegal argument is encountered.
+ */
     public static Class<?>[] getAllInterfaces(Object o) {
         try {
             Set<Class<?>> results = new HashSet<>();
@@ -684,6 +718,13 @@ public final class ObjectUtils {
         }
     }
 
+/**
+ * Recursively accumulates all interfaces implemented by the given object or class.
+ *
+ * @param o           The object or class for which to retrieve the implemented interfaces.
+ * @param accumulator A function that accumulates the interfaces.
+ * @throws IllegalArgumentException If the accumulator is null.
+ */
     public static void getAllInterfaces(Object o, Function<Class<?>, Boolean> accumulator) throws IllegalArgumentException {
         if (null == o)
             return;
@@ -698,6 +739,12 @@ public final class ObjectUtils {
         }
     }
 
+/**
+ * Recursively accumulates all interfaces for a given class.
+ *
+ * @param clazz       The class for which to retrieve the implemented interfaces.
+ * @param accumulator A function that accumulates the interfaces.
+ */
     private static void getAllInterfacesForClass(Class<?> clazz, Function<Class<?>, Boolean> accumulator) {
         if (clazz.isInterface()) {
             if (Boolean.TRUE.equals(accumulator.apply(clazz))) {
@@ -714,7 +761,11 @@ public final class ObjectUtils {
             }
         }
     }
-
+/**
+ * Sets a default implementation to be used for interfaces.
+ *
+ * @param defaultObjectForInterface A function that takes a class and returns a default implementation for it.
+ */
     public static synchronized void defaultObjectForInterface(ThrowingFunction<Class<?>, Class<?>, ClassNotFoundException> defaultObjectForInterface) {
         interfaceToDefaultClass = ClassLocal.withInitial(c -> {
             Class<?> c2;
@@ -730,6 +781,12 @@ public final class ObjectUtils {
         supplierClassLocal = ClassLocal.withInitial(ObjectUtils::supplierForClass);
     }
 
+/**
+ * Looks for a specific implementation of an interface and returns it.
+ *
+ * @param c2 The interface class for which to look for an implementation.
+ * @return The implementation class, or the original class if no specific implementation is found.
+ */
     @NotNull
     static Class<?> lookForImplEnum(Class<?> c2) {
         if (c2.isInterface()) {
@@ -750,6 +807,13 @@ public final class ObjectUtils {
         return c2;
     }
 
+/**
+ * Retrieves the implementation class to use for a given class.
+ *
+ * @param <T>     The type of the class.
+ * @param tClass  The class for which to retrieve the implementation.
+ * @return The implementation class to use.
+ */
     public static <T> Class<T> implementationToUse(Class<T> tClass) {
         if (tClass.isInterface()) {
             Class<?> class2 = interfaceToDefaultClass.get(tClass);

@@ -135,7 +135,6 @@ public class AbstractCloseableTest extends CoreTestCommon {
         assertNull(mc.closedHere);
 
         MyCloseable.enableCloseableTracing();
-
         // doesn't detect the mc created while tracing was off
         AbstractCloseable.assertCloseablesClosed();
     }

@@ -28,6 +28,7 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
         ReferenceCountedTracer referenceCounted = createReferenceCounted();
 
         referenceCounted.throwExceptionIfReleased();
+        referenceCounted.releaseLast();
     }
 
     @Test
@@ -35,6 +36,7 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
         ReferenceCountedTracer referenceCounted = createReferenceCounted();
 
         assertThrows(IllegalStateException.class, referenceCounted::throwExceptionIfNotReleased);
+        referenceCounted.releaseLast();
     }
 
     @Test

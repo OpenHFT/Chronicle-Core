@@ -53,6 +53,7 @@ public class CoreTestCommon {
             return null;
         });
     }
+
     /**
      * Tests whether an argument or return value has an @NotNull check on it.
      * Depending on your annotation processing this could cause a NullPointerException or IllegalArgumentException
@@ -113,6 +114,7 @@ public class CoreTestCommon {
     /**
      * Specifies an expected exception message to be tracked by the exception tracker.
      * Use this method in tests to assert that a specific exception is thrown with the given message.
+     *
      * @param message The expected exception message.
      */
     public void expectException(String message) {
@@ -122,6 +124,7 @@ public class CoreTestCommon {
     /**
      * Specifies an exception message to be ignored by the exception tracker.
      * Use this method in tests to ignore certain exceptions that may be thrown during testing.
+     *
      * @param message The exception message to ignore.
      */
     public void ignoreException(String message) {
@@ -139,12 +142,10 @@ public class CoreTestCommon {
         CleaningThread.performCleanup(Thread.currentThread());
 
         // find any discarded resources.
-        System.gc();
         waitForCloseablesToClose(100);
-
         assertReferencesReleased();
         checkThreadDump();
-        exceptionTracker.checkExceptions();
+            exceptionTracker.checkExceptions();
         AbstractReferenceCounted.disableReferenceTracing();
     }
 }

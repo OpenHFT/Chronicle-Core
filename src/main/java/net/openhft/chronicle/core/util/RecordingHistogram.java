@@ -25,21 +25,32 @@ import java.util.function.DoubleFunction;
 import static net.openhft.chronicle.core.time.SystemTimeProvider.CLOCK;
 
 /**
- * This is an extension of Histogram which include the top 5 or 10 longest samples, including the delay from the last reset.
- * e.g. the start is the same information as Histogram, the top list is the longest delays in decreasing order
+ * An extension of the {@link Histogram} class which not only samples and records data,
+ * but also keeps track of the top 5 or 10 longest samples including the delay from the last reset.
+ *
+ * <p>Example output:
  * <pre>
  * { 50/90 99/99.9 99.99 - worst  was: 500 / 900  1000 / 1000  1000 - 1000, top: [{ off: 10.0, dur: 1000.0 }, { off: 11.0, dur: 950.0 }, { off: 9.0, dur: 900.0 }, { off: 12.0, dur: 850.0 }, { off: 8.0, dur: 800.0 }] }
  * </pre>
  */
 public class RecordingHistogram extends Histogram {
+
     private final Top10 top10 = new Top10();
     private long start;
     private int sampleCount;
 
+    /**
+     * Constructs a new RecordingHistogram with specified parameters.
+     */
     public RecordingHistogram() {
         super(26, 8, 1e6 / 1024);
     }
 
+    /**
+     * Records a sample duration in nanoseconds and keeps track of the top durations.
+     *
+     * @param durationNs The sample duration in nanoseconds.
+     */
     @Override
     public void sampleNanos(long durationNs) {
         super.sampleNanos(durationNs);
@@ -48,22 +59,42 @@ public class RecordingHistogram extends Histogram {
         top10.add(durationNs);
     }
 
+    /**
+     * Retrieves the current time in nanoseconds.
+     *
+     * @return The current time in nanoseconds.
+     */
     protected long currentTimeNanos() {
         return CLOCK.currentTimeNanos();
     }
 
+    /**
+     * Formats the histogram to a string with duration in microseconds.
+     *
+     * @param toMicros A function to convert nanoseconds to microseconds.
+     * @return A formatted string representation of the histogram.
+     */
     @Override
     public @NotNull String toMicrosFormat(@NotNull DoubleFunction<Double> toMicros) {
         final String s = super.toMicrosFormat(toMicros);
         return "{ " + s + ", top: " + top10.asString(toMicros, 5) + " }";
     }
 
+    /**
+     * Formats the histogram to a long string with duration in microseconds.
+     *
+     * @param toMicros A function to convert nanoseconds to microseconds.
+     * @return A formatted string representation of the histogram.
+     */
     @Override
     public @NotNull String toLongMicrosFormat(@NotNull DoubleFunction<Double> toMicros) {
         final String s = super.toLongMicrosFormat(toMicros);
         return "{ " + s + ", top: " + top10.asString(toMicros, 10) + " }";
     }
 
+    /**
+     * Resets the state of this RecordingHistogram.
+     */
     @Override
     public void reset() {
         super.reset();
@@ -76,10 +107,18 @@ public class RecordingHistogram extends Histogram {
         return " was: ";
     }
 
+    /**
+     * Inner class for tracking the top 10 recorded sample durations.
+     */
     class Top10 {
         final long[] top = new long[20];
         int count;
 
+        /**
+         * Adds a duration to the tracked samples.
+         *
+         * @param duration The sample duration in nanoseconds.
+         */
         void add(long duration) {
             if (count == 0 || duration > top[count * 2 - 1])
                 add(currentTimeNanos(), duration);
@@ -103,10 +142,20 @@ public class RecordingHistogram extends Histogram {
             }
         }
 
+        /**
+         * Resets the state of Top10.
+         */
         void reset() {
             count = 0;
         }
 
+        /**
+         * Converts the tracked samples to a formatted string.
+         *
+         * @param toMicros A function to convert nanoseconds to microseconds.
+         * @param max The maximum number of top samples to include in the string.
+         * @return A formatted string representation of the top samples.
+         */
         public String asString(DoubleFunction<Double> toMicros, int max) {
             if (count == 0)
                 return "";

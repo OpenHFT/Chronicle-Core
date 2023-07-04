@@ -45,6 +45,7 @@ public final class Time {
         return Long.toString(l, 36);
     }
 
+    @Deprecated(/* to be removed in x.25 */)
     public static void parkNanos(long nanos) {
         LockSupport.parkNanos(nanos);
     }
@@ -55,6 +56,7 @@ public final class Time {
      * @param time     to pause for at least.
      * @param timeUnit the time unit
      */
+    @Deprecated(/* to be removed in x.25 */)
     public static void sleep(long time, TimeUnit timeUnit) {
         int millis = (int) timeUnit.convert(time, TimeUnit.MILLISECONDS);
         for (int i = 0; i < millis; i++) {

@@ -64,6 +64,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
 
     @Test
     public void testNoDefaultClassForInterfaceNewInstanceThrows() {
+        expectException("Unable to find alias for interface net.openhft.chronicle.core.onoes.ExceptionHandler");
         assertThrows(IllegalArgumentException.class, () -> ObjectUtils.newInstance(ExceptionHandler.class));
     }
 }

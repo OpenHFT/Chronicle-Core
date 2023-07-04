@@ -77,6 +77,8 @@ public class AbstractReferenceCountedTest extends ReferenceCountedTracerContract
         rc.reserve(a);
 
         assertEquals(initialRefCount + 1, rc.refCount());
+        rc.release(a);
+        rc.releaseLast();
     }
 
     @Test
@@ -94,6 +96,7 @@ public class AbstractReferenceCountedTest extends ReferenceCountedTracerContract
         // This should throw an exception as it is being accessed from a different thread
         // This is fine as the other thread has died.
         rc.threadSafetyCheck(true);
+        rc.releaseLast();
     }
 
     @Test(expected = IllegalStateException.class)
@@ -139,6 +142,7 @@ public class AbstractReferenceCountedTest extends ReferenceCountedTracerContract
 
         // This should not throw an exception because we reset the single-threaded check
         rc.threadSafetyCheck(true);
+        rc.releaseLast();
     }
 
 

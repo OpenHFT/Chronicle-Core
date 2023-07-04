@@ -125,13 +125,12 @@ public final class CloseableUtils {
         long end = System.currentTimeMillis() + millis;
 
         BackgroundResourceReleaser.releasePendingResources();
-
         toWait:
         do {
             CleaningThreadLocal.cleanupNonCleaningThreads();
-            synchronized (traceSet) {
-                for (Closeable key : traceSet) {
-                    try {
+            try {
+                synchronized (traceSet) {
+                    for (Closeable key : traceSet) {
                         // too late to be checking thread safety.
                         if (key instanceof AbstractCloseable) {
                             ((AbstractCloseable) key).singleThreadedCheckDisabled(true);
@@ -139,14 +138,15 @@ public final class CloseableUtils {
                         if (key instanceof ReferenceCountedTracer) {
                             ((ReferenceCountedTracer) key).throwExceptionIfNotReleased();
                         }
-                    } catch (IllegalStateException e) {
-                        Jvm.pause(1);
-                        continue toWait;
                     }
                 }
+                return true;
+
+            } catch (IllegalStateException e) {
+                System.gc();
+                Jvm.pause(1);
+                continue toWait;
             }
-            Jvm.pause(1);
-            return true;
         } while (System.currentTimeMillis() < end);
         return false;
     }
@@ -164,18 +164,22 @@ public final class CloseableUtils {
         }
         if (Thread.interrupted())
             System.err.println("Interrupted in assertCloseablesClosed!");
-
+        System.gc();
         BackgroundResourceReleaser.releasePendingResources();
 
         AssertionError openFiles = new AssertionError("Closeables still open");
 
+        Set<Closeable> traceSet0 = new LinkedHashSet<>();
         synchronized (traceSet) {
-            Set<Closeable> traceSet2 = Collections.newSetFromMap(new IdentityHashMap<>());
-            if (waitForTraceSet(traceSet, traceSet2))
-                return;
-
-            captureTheUnclosed(openFiles, traceSet2);
+            traceSet.stream().filter(c -> c != null && !c.isClosing()).forEach(traceSet0::add);
         }
+        if (traceSet0.isEmpty())
+            return;
+        Set<Closeable> traceSet2 = Collections.newSetFromMap(new IdentityHashMap<>());
+        if (waitForTraceSet(traceSet0, traceSet2))
+            return;
+
+        captureTheUnclosed(openFiles, traceSet2);
 
         if (openFiles.getSuppressed().length > 0) {
             throw openFiles;
@@ -183,7 +187,6 @@ public final class CloseableUtils {
     }
 
     private static boolean waitForTraceSet(Set<Closeable> traceSet, Set<Closeable> traceSet2) {
-        traceSet.removeIf(o -> o == null || o.isClosing());
         Set<Closeable> nested = Collections.newSetFromMap(new IdentityHashMap<>());
         for (Closeable key : traceSet) {
             addNested(nested, key, 1);
@@ -195,6 +198,8 @@ public final class CloseableUtils {
         for (int i = 0; i < 250; i++) {
             if (traceSet2.stream().allMatch(Closeable::isClosing))
                 return true;
+            if (i == 0)
+                System.gc();
             Jvm.pause(1);
         }
         return false;

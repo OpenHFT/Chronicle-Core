@@ -533,6 +533,7 @@ public final class Maths {
         return (int) h;
     }
 
+    @Deprecated(/* to be removed in x.25 */)
     public static int hash32(long l0) {
         long h = hash64(l0);
         h ^= h >> 32;
@@ -781,6 +782,7 @@ public final class Maths {
      * @param l1 to hash
      * @return hash value.
      */
+    @Deprecated(/* to be removed in x.25 */)
     public static long hash64(long l0, long l1) {
         int l0a = (int) (l0 >> 32);
         int l1a = (int) (l1 >> 32);
