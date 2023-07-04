@@ -20,26 +20,47 @@ package net.openhft.chronicle.core;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * Throwable created purely for the purposes of reporting a stack trace.
+ * Represents a throwable stack trace which is created purely for reporting purposes.
  * <p>
- * This is not an Error or an Exception and is not expected to be thrown or caught.
+ * This class is not designed as an Error or an Exception and is not intended to be thrown or caught.
  * </p>
  * <a href="https://github.com/OpenHFT/Chronicle-Core/issues/75">...</a>
  */
 public class StackTrace extends Throwable {
 
+    /**
+     * Constructs a new StackTrace with a default message "stack trace".
+     */
     public StackTrace() {
         this("stack trace");
     }
 
+    /**
+     * Constructs a new StackTrace with the specified message.
+     *
+     * @param message the detail message.
+     */
     public StackTrace(String message) {
         this(message, null);
     }
 
+    /**
+     * Constructs a new StackTrace with the specified message and cause.
+     *
+     * @param message the detail message.
+     * @param cause   the cause of the stack trace.
+     */
     public StackTrace(String message, Throwable cause) {
         super(message + " on " + Thread.currentThread().getName(), cause);
     }
 
+    /**
+     * Returns a StackTrace object for the specified thread.
+     *
+     * @param t the thread for which to obtain the stack trace.
+     * @return a StackTrace object containing the stack trace of the specified thread,
+     * or {@code null} if the thread is null.
+     */
     @Nullable
     public static StackTrace forThread(Thread t) {
         if (t == null) return null;

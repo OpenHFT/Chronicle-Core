@@ -147,6 +147,7 @@ public interface TwoLongValue extends LongValue {
      * @param value The value to compare.
      * @throws IllegalStateException if the setting fails due to illegal state.
      */
+    @Deprecated(/* to be moved in x.25 */)
     default void setMaxValue2(long value) throws IllegalStateException {
         for (; ; ) {
             long pos = getVolatileValue2();
@@ -164,6 +165,7 @@ public interface TwoLongValue extends LongValue {
      * @param value The value to compare.
      * @throws IllegalStateException if the setting fails due to illegal state.
      */
+    @Deprecated(/* to be moved in x.25 */)
     default void setMinValue2(long value) throws IllegalStateException {
         for (; ; ) {
             long pos = getVolatileValue2();
@@ -182,6 +184,7 @@ public interface TwoLongValue extends LongValue {
      * @param value2 The second value to set.
      * @throws IllegalStateException if the setting fails due to illegal state.
      */
+    @Deprecated(/* to be moved in x.25 */)
     default void setValues(long value1, long value2) throws IllegalStateException {
         setValue2(value2);
         setOrderedValue(value1);
@@ -194,6 +197,7 @@ public interface TwoLongValue extends LongValue {
      *               and the second value is stored at index 1.
      * @throws IllegalStateException if the retrieval fails due to illegal state.
      */
+    @Deprecated(/* to be moved in x.25 */)
     default void getValues(long[] values) throws IllegalStateException {
         long value1 = getVolatileValue();
         long value2 = getValue2();

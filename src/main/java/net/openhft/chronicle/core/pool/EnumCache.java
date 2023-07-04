@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.Set;
 /**
  * Abstract base class for caching and efficient access to enum-like instances. This class
- * supports both traditional static enums, as well as dynamic enums which allow the creation
+ * supports both traditional static enums, and dynamic enums which allow the creation
  * of enum instances at runtime.
  *
  * <p>Usage of this class provides efficient access to enum instances via name or index,
@@ -32,7 +32,6 @@ import java.util.Set;
  * as keys or elements.
  *
  * @param <E> the type of enum instances this cache will manage.
- *
  * Example usage:
  * <pre>
  * {@code

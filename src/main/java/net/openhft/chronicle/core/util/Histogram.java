@@ -312,8 +312,7 @@ public class Histogram implements NanoSampler {
      *
      * @return an array of percentiles
      */
-    @NotNull
-    public double[] getPercentiles() {
+    public double @NotNull [] getPercentiles() {
         return getPercentiles(percentilesFor(totalCount));
     }
 
@@ -323,8 +322,7 @@ public class Histogram implements NanoSampler {
      * @param percentileFor an array of values for which to calculate percentiles
      * @return an array of calculated percentiles
      */
-    @NotNull
-    public double[] getPercentiles(double[] percentileFor) {
+    public double @NotNull [] getPercentiles(double[] percentileFor) {
         return DoubleStream.of(percentileFor).map(this::percentile).toArray();
     }
 

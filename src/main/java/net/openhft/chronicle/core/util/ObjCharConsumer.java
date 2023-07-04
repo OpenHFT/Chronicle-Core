@@ -19,9 +19,9 @@
 package net.openhft.chronicle.core.util;
 
 /**
- * Represents an operation that accepts a an object-valued and {@code char}-valued argument, and returns no result.  This is the
+ * Represents an operation that accepts an object-valued and {@code char}-valued argument, and returns no result.  This is the
  * {@code (reference, long)} specialization of {@link java.util.function.BiConsumer} for {@code char}.  Unlike most other functional
- * interfaces, {@code ObjCharConsumer} is expected to operate via side-effects.
+ * interfaces, {@code ObjCharConsumer} is expected to operate via side effects.
  * <p>This is a <a href="package-summary.html">functional interface</a> whose functional method is
  * {@link #accept(Object, char)}.
  *

@@ -561,13 +561,14 @@ public final class Maths {
      * For Java 9 and later, if the string is represented as a byte array, each byte is incorporated into the hash.
      * Otherwise, each character is incorporated into the hash.
      * For Java 8 and earlier, each character is incorporated into the hash.
-     * The hash is then agitated using a function not shown in this code snippet.
+     * The hash value is agitated using a function not shown in this code snippet.
      *
      * @param s the string to compute the hash for
      * @return the 64-bit hash value
      * @throws IllegalArgumentException if {@code s} is {@code null}
      */
     public static long hash64(@NotNull String s) {
+        //noinspection ConstantValue
         if (s == null) throw new IllegalArgumentException();
         long hash = 0;
 

@@ -45,6 +45,7 @@ public interface ReferenceCounted extends ReferenceOwner {
      * @param to   The unique identifier representing the owner acquiring the reservation.
      * @throws IllegalStateException if the resource has already been freed.
      */
+    // TODO move implementation to sub-classes in x.24
     default void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException {
         reserve(to);
         release(from);

@@ -23,6 +23,7 @@ import java.lang.reflect.Type;
  * The UnresolvedType class represents an unresolved type.
  * It implements the Type interface.
  */
+// TODO to be moved to the util package x.25
 public class UnresolvedType implements Type {
     private final String typeName;
 

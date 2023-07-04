@@ -41,7 +41,6 @@ import java.util.function.Function;
  * while the {@code ordinal} represents the position of the enum instance in the declaration order.
  *
  * @param <E> the type of enum instances this class will manage. It must extend {@link CoreDynamicEnum}.
- *
  * Example usage:
  * <pre>
  * {@code
@@ -172,7 +171,7 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
 
     @Override
     public <T> Map<E, T> createMap() {
-        // needs to be a SortedMap so as to behave as similarly to EnumMap as possible
+        // needs to be a SortedMap to behave as similarly to EnumMap as possible
         return new TreeMap<>();
     }
 

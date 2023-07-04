@@ -25,6 +25,7 @@ import sun.misc.Unsafe;
  * An abstract base class for resources that use the {@link Unsafe} class for low-level memory operations.
  * Provides methods for manipulating long values stored at a specific memory address.
  */
+// TODO Review whether this class is still needed
 public abstract class UnsafeCloseable extends AbstractCloseable {
 
     protected long address;

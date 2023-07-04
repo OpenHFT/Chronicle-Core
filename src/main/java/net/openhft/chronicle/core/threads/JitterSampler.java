@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
  * and measure how long the thread has been blocked.
  * </p>
  */
+@Deprecated(/* to be moved in x.26 */)
 public final class JitterSampler {
     private JitterSampler() {
     }

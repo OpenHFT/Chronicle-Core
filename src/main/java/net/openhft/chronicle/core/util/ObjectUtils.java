@@ -361,8 +361,6 @@ import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
                     return null;
             }
             @NotNull String s = cs.toString();
-            if (eClass == String.class)
-                return (E) s;
 
             try {
                 return (E) PARSER_CL.get(eClass).apply(s);
@@ -439,7 +437,7 @@ import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
     }
 
     /**
-     * Retrieves the element type of an array class or Object if it's not an array.
+     * Retrieves the element type of array class or Object if it's not an array.
      *
      * @param eClass The class to retrieve the element type from.
      * @param <E>    The type of the class.
@@ -481,8 +479,8 @@ import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
             return ((Collection<?>) o).size();
         if (o instanceof Map)
             return ((Map<?, ?>) o).size();
-            if (o.getClass().isArray())
-                return Array.getLength(o);
+        if (o.getClass().isArray())
+            return Array.getLength(o);
         throw new UnsupportedOperationException();
     }
 

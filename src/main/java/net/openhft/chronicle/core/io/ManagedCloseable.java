@@ -43,6 +43,7 @@ public interface ManagedCloseable extends Closeable {
      * exception is thrown if an error occurs during the closing process.
      * </p>
      */
+    // TODO move implementation to sub-classes in x.24
     default void warnAndCloseIfNotClosed() {
         if (!isClosing()) {
             if (Jvm.isResourceTracing() && !DISABLE_DISCARD_WARNING) {
@@ -78,6 +79,7 @@ public interface ManagedCloseable extends Closeable {
      *
      * @return The stack trace of the location where the resource was created, or {@code null} if the information is not available.
      */
+    // TODO move implementation to sub-classes in x.24
     default StackTrace createdHere() {
         return null;
     }

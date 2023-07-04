@@ -61,7 +61,6 @@ import java.util.function.Supplier;
 import static java.lang.Runtime.getRuntime;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 import static java.util.stream.Collectors.toList;
-import static net.openhft.chronicle.core.Bootstrap.IS_JAVA_9_PLUS;
 import static net.openhft.chronicle.core.OS.*;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 import static net.openhft.chronicle.core.internal.Bootstrap.*;
@@ -633,7 +632,7 @@ public final class Jvm {
     }
 
     /**
-     * @param clazz     the class for which you want to get field from [ it wont see inherited fields ]
+     * @param clazz     the class for which you want to get field from [ it won't see inherited fields ]
      * @param fieldName the name of the field
      * @return the offset
      */
@@ -766,10 +765,7 @@ public final class Jvm {
     }
 
     public static boolean hasException(@NotNull final Map<ExceptionKey, Integer> exceptions) {
-
-        final Iterator<ExceptionKey> iterator = exceptions.keySet().iterator();
-        while (iterator.hasNext()) {
-            final ExceptionKey k = iterator.next();
+        for (ExceptionKey k : exceptions.keySet()) {
             if (k.level() != LogLevel.DEBUG && k.level() != LogLevel.PERF)
                 return true;
         }
@@ -1216,7 +1212,7 @@ public final class Jvm {
      */
     public static long getSize(final String property, final long defaultValue) {
         final String value = Jvm.getProperty(property);
-        if (value == null || value.length() <= 0)
+        if (value == null || value.length() == 0)
             return defaultValue;
         try {
             return parseSize(value);
@@ -1440,7 +1436,7 @@ public final class Jvm {
      * park the current thread, and stay parked
      */
     public static void park() {
-        // LockSupport.park can spuriously return so we execute in a loop
+        // LockSupport.park can spuriously return, so we execute in a loop
         while (!Thread.currentThread().isInterrupted())
             LockSupport.park();
     }
@@ -1539,6 +1535,7 @@ public final class Jvm {
     }
 
     // from https://stackoverflow.com/questions/62550828/is-there-a-lightweight-method-which-adds-a-safepoint-in-java-9
+    @SuppressWarnings("CanBeFinal")
     static final class Safepoint {
 
         // must be volatile

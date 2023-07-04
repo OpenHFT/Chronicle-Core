@@ -24,7 +24,7 @@ public final class ClassUtil {
             // Access privateLookupIn() reflectively to support compilation with JDK 8
             Method privateLookupIn = MethodHandles.class.getDeclaredMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
             MethodHandles.Lookup lookup = (MethodHandles.Lookup) privateLookupIn.invoke(null, AccessibleObject.class, MethodHandles.lookup());
-            return lookup.findVirtual(AccessibleObject.class, "setAccessible0", signature);
+            return lookup.findStatic(AccessibleObject.class, "setAccessible0", signature);
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException |
                  IllegalArgumentException e) {
             Logger logger = LoggerFactory.getLogger(ClassUtil.class);
@@ -66,15 +66,16 @@ public final class ClassUtil {
      * @see RuntimePermission
      */
     public static void setAccessible(@NotNull final AccessibleObject accessibleObject) {
-        if (Bootstrap.isJava9Plus())
+        if (setAccessible0_Method != null) {
             try {
                 boolean newFlag = (boolean) setAccessible0_Method.invokeExact(accessibleObject, true);
                 assert newFlag;
             } catch (Throwable throwable) {
                 throw new AssertionError(throwable);
             }
-        else
+        } else {
             accessibleObject.setAccessible(true);
+        }
     }
 
     public static Method getMethod0(@NotNull final Class<?> clazz,

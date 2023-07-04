@@ -24,6 +24,7 @@ package net.openhft.chronicle.core.time;
  * Date: 05/08/13
  * Time: 19:06
  */
+@Deprecated(/* to be removed in x.26 */)
 @FunctionalInterface
 interface Differencer {
     long sample(long startTime, long endTime);

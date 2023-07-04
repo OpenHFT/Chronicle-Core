@@ -125,7 +125,6 @@ public final class CloseableUtils {
         long end = System.currentTimeMillis() + millis;
 
         BackgroundResourceReleaser.releasePendingResources();
-        toWait:
         do {
             CleaningThreadLocal.cleanupNonCleaningThreads();
             try {
@@ -145,7 +144,6 @@ public final class CloseableUtils {
             } catch (IllegalStateException e) {
                 System.gc();
                 Jvm.pause(1);
-                continue toWait;
             }
         } while (System.currentTimeMillis() < end);
         return false;
@@ -195,13 +193,13 @@ public final class CloseableUtils {
         traceSet2.removeAll(nested);
 
         // wait up to 250 ms for resources to be closed in the background.
-        for (int i = 0; i < 250; i++) {
+        long end = System.currentTimeMillis() + 250;
+        do {
             if (traceSet2.stream().allMatch(Closeable::isClosing))
                 return true;
-            if (i == 0)
-                System.gc();
+            System.gc();
             Jvm.pause(1);
-        }
+        } while (System.currentTimeMillis() < end);
         return false;
     }
 

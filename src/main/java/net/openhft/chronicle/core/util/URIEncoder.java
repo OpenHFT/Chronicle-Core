@@ -28,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Daniel Murphy
  */
+@Deprecated(/* to be removed in x.26 */)
 public final class URIEncoder {
     private static final String MARK = "-_.!~*'()\"";
     private static final char[] HEX = "0123456789ABCDEF".toCharArray();

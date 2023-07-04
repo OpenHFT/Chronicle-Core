@@ -38,7 +38,7 @@ import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
  * Analytics instances only provides a best-effort to propagate
  * events to the upstream receiver.
  * <p>
- * Analytics can be turned off buy setting the system property
+ * Analytics can be turned off by setting the system property
  * "chronicle.analytics.disable=true" prior to acquiring any Analytics
  * instances.
  */

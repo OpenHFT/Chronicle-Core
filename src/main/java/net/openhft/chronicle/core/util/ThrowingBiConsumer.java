@@ -27,7 +27,7 @@ import java.util.function.BiConsumer;
 /**
  * Represents an operation that accepts two input arguments and returns no
  * result. Unlike most other functional interfaces, {@code ThrowingBiConsumer} is expected
- * to operate via side-effects.
+ * to operate via side effects.
  * <p>This is a <a href="package-summary.html">functional interface</a>
  * whose functional method is {@link #accept(Object, Object)}.
  *
@@ -36,6 +36,7 @@ import java.util.function.BiConsumer;
  */
 @FunctionalInterface
 public interface ThrowingBiConsumer<I, J, T extends Throwable> {
+    @Deprecated(/* to be removed in x.26 */)
     static <I, J, T extends Throwable> BiConsumer<I, J> asConsumer(@NotNull ThrowingBiConsumer<I, J, T> function) {
         return (in, i2) -> {
             try {

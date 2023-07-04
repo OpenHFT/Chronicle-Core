@@ -39,6 +39,7 @@ package net.openhft.chronicle.core.values;
  * @see net.openhft.chronicle.core.values.IntArrayValues
  * @see net.openhft.chronicle.core.values.UnsetLongValue
  */
+@Deprecated(/* to be removed in x.26 */)
 public class UnsetLongValue implements LongValue {
     private final long value;
 

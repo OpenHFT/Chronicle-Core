@@ -30,6 +30,7 @@ import java.util.concurrent.locks.LockSupport;
  * samples the stack trace of the specified thread and stores the
  * latest snapshot.
  */
+@Deprecated(/* to be moved in x.26 */)
 public class StackSampler {
     @NotNull
     private final Thread sampler;

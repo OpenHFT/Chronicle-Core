@@ -53,6 +53,7 @@ public interface ReferenceCountedTracer extends ReferenceCounted {
      *
      * @throws ClosedIllegalStateException If the object has been released (i.e., its reference count is less than or equal to 0).
      */
+    // TODO move implementation to sub-classes in x.24
     default void throwExceptionIfReleased() throws ClosedIllegalStateException {
         if (refCount() <= 0)
             throw new ClosedIllegalStateException("Released");

@@ -156,7 +156,7 @@ public final class StringUtils {
     }
 
     /**
-     * Checks if the given {@link CharSequence} ends with the specified string, in a case insensitive way.
+     * Checks if the given {@link CharSequence} ends with the specified string, in a case-insensitive way.
      *
      * @param source    the {@link CharSequence} to be checked.
      * @param endsWith  the string to check if the {@link CharSequence} ends with.
@@ -332,7 +332,7 @@ public final class StringUtils {
     }
 
     @NotNull
-    public static String newString(@NotNull char[] chars) {
+    public static String newString(char @NotNull [] chars) {
         if (Bootstrap.isJava9Plus()) {
             return new String(chars);
         }
@@ -356,7 +356,7 @@ public final class StringUtils {
 
     @Java9
     @NotNull
-    public static String newStringFromBytes(@NotNull byte[] bytes) {
+    public static String newStringFromBytes(byte @NotNull [] bytes) {
         ensureJava9Plus();
         //noinspection RedundantStringConstructorCall
         @NotNull String str = new String();

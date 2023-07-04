@@ -23,8 +23,7 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class StackTraceTest extends CoreTestCommon {
     private static final CountDownLatch threadStarted = new CountDownLatch(1);
@@ -34,6 +33,24 @@ public class StackTraceTest extends CoreTestCommon {
         Jvm.pause(5_000);
     }
 
+    @Test
+    public void testStackTrace() {
+        // Test StackTrace with default message
+        StackTrace stackTrace1 = new StackTrace();
+        assertTrue(stackTrace1.toString().contains("stack trace"));
+
+        // Test StackTrace with custom message
+        StackTrace stackTrace2 = new StackTrace("Custom message");
+        assertTrue(stackTrace2.toString().contains("Custom message"));
+
+        // Test StackTrace for current thread
+        StackTrace stackTrace3 = StackTrace.forThread(Thread.currentThread());
+        assertNotNull(stackTrace3);
+
+        // Test StackTrace for null thread
+        StackTrace stackTrace4 = StackTrace.forThread(null);
+        assertNull(stackTrace4);
+    }
     @Test
     public void forThread() throws InterruptedException {
         // load Jvm class before

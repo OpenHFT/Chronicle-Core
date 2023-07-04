@@ -33,6 +33,7 @@ public interface TimeProvider {
         return currentTimeMicros() * 1000;
     }
 
+    @Deprecated(/* to be removed in x.26 */)
     default long currentTime(TimeUnit timeUnit) throws IllegalStateException {
         switch (timeUnit) {
             case NANOSECONDS:

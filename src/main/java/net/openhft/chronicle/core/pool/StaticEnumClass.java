@@ -17,8 +17,6 @@
  */
 package net.openhft.chronicle.core.pool;
 
-import net.openhft.chronicle.core.util.CoreDynamicEnum;
-
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
@@ -34,7 +32,6 @@ import java.util.Set;
  * standard Java enum behavior.
  *
  * @param <E> the type of enum instances this class will manage.
- *
  * Example usage:
  * <pre>
  * {@code

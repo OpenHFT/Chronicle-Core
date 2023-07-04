@@ -42,7 +42,7 @@ public final class Announcer {
      * Announces the given artifact whereby useful information is printed pertaining
      * to the artifact in particular and the JVM i general.
      * <p>
-     * An distinct artifact is only announced once per classloader and general JVM information
+     * A distinct artifact is only announced once per classloader and general JVM information
      * is only printed once per classloader.
      * <p>
      * Example: net.openhtf:chronicle-queue, net.openhft:chronicle-map and net.openhtf:chronicle-queue (again) is announced.
@@ -64,17 +64,17 @@ public final class Announcer {
 
     /**
      * Announces the given artifact whereby useful information is printed pertaining
-     * to the artifact in particular and the JVM i general accompanied by the provided
+     * to the artifact in particular and the JVM in general accompanied by the provided
      * {@code properties}.
      * <p>
      * The artifact will be announced on each invocation provided that the
-     * given {@code properties} is A) not empty or B) only contains a key "logo", for which
+     * given {@code properties} is (A) not empty or (B) only contains a key "logo", for which
      * only one announcement per class loader is made.
-     * @see #LOGO
      *
-     * @param groupId name of the group (e.g. net.openhft)
+     * @param groupId    name of the group (e.g. net.openhft)
      * @param artifactId name of the library (e.g. chronicle-queue)
      * @param properties to print
+     * @see #LOGO
      */
     public static void announce(@NotNull final String groupId,
                                 @NotNull final String artifactId,
