@@ -167,6 +167,7 @@ public final class Bootstrap {
             // Ignore
         }
 
+/*
         if (pid == null) {
             pid = getRuntimeMXBean().getName().split("@", 0)[0];
         }
@@ -178,6 +179,7 @@ public final class Bootstrap {
                 // ignore
             }
         }
+*/
 
         int rpid = 1;
         System.err.println(Bootstrap.class.getName() + ": Unable to determine PID, picked 1 as a PID");

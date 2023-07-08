@@ -119,6 +119,7 @@ public final class Jvm {
     static {
         Logger logger = LoggerFactory.getLogger(Jvm.class);
 
+/*
         if (!isJUnitTest0()) {
             // Eagerly initialise Posix & Affinity
             try {
@@ -133,6 +134,7 @@ public final class Jvm {
                 logger.trace("Unable to load Affinity", e);
             }
         }
+*/
         if (DISABLE_DEBUG) {
             DEBUG = NullExceptionHandler.NOTHING;
         } else {
