@@ -23,14 +23,20 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
 import net.openhft.chronicle.core.util.WeakIdentityHashMap;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Utility class for monitoring and managing threads.
+ * <p>
+ * Provides functionality for collecting stack traces of threads and detecting
+ * unexpected thread creation, which can be useful in testing and debugging scenarios.
+ */
 public class ThreadDump {
+
     public static final String IGNORE_THREAD_IF_IN_NAME = "~";
     static final Map<Thread, StackTrace> THREAD_STACK_TRACE_MAP =
             new WeakIdentityHashMap<>();
@@ -38,6 +44,10 @@ public class ThreadDump {
     final transient Set<Thread> threads;
     final Set<String> ignored = new HashSet<>();
 
+    /**
+     * Constructs a ThreadDump instance, initializing the set of threads
+     * at the time of creation.
+     */
     public ThreadDump() {
         this.threads = new HashSet<>(Thread.getAllStackTraces().keySet());
         ignored.add("Time-limited test");
@@ -46,11 +56,23 @@ public class ThreadDump {
         ignored.add("junit-jupiter-timeout-watcher");
     }
 
+    /**
+     * Adds a thread with its stack trace to the map of monitored threads.
+     *
+     * @param t          the thread to be monitored
+     * @param stackTrace the stack trace of the thread
+     */
     public static void add(Thread t, StackTrace stackTrace) {
         if (Jvm.isResourceTracing())
             THREAD_STACK_TRACE_MAP.put(t, stackTrace);
     }
 
+    /**
+     * Retrieves the stack trace for a given thread.
+     *
+     * @param thread the thread whose stack trace is to be retrieved
+     * @return the stack trace for the given thread
+     */
     public static StackTrace createdHereFor(Thread thread) {
         return THREAD_STACK_TRACE_MAP.get(thread);
     }
@@ -63,23 +85,33 @@ public class ThreadDump {
         return false;
     }
 
+    /**
+     * Marks a thread to be ignored by the {@link #assertNoNewThreads()} check.
+     *
+     * @param threadName the name of the thread to be ignored
+     */
     public void ignore(String threadName) {
         ignored.add(threadName);
     }
 
     /**
-     * Waits for all new threads to finish execution, up for 50ms.
+     * Asserts that no new threads are running beyond the ones that existed at the time
+     * this ThreadDump instance was created. This method waits for a short period
+     * of time for threads to terminate before throwing an AssertionError if new threads are detected.
      * <p>
-     * Then, prints 3 warnings after 0ms, 200ms and 650ms. Then, throws an exception after 1450ms.
+     * This method can be used in testing scenarios to ensure that no unexpected threads have been left running.
      */
     public void assertNoNewThreads() {
         assertNoNewThreads(0, TimeUnit.NANOSECONDS);
     }
 
     /**
-     * Waits for all new threads to finish execution, up for the specified amount of time ± 50ms.
-     * <p>
-     * Then, prints 3 warnings after 0ms, 200ms and 650ms. Then, throws an exception after 1450ms.
+     * Asserts that no new threads are running beyond the ones that existed at the time
+     * this ThreadDump instance was created. This method waits for a specified delay
+     * for threads to terminate before throwing an AssertionError if new threads are detected.
+     *
+     * @param delay     the maximum time to wait for threads to terminate
+     * @param delayUnit the time unit of the delay parameter
      */
     public void assertNoNewThreads(int delay, @NotNull TimeUnit delayUnit) {
         long start = System.nanoTime();

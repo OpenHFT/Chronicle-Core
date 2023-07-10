@@ -21,16 +21,25 @@ package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.io.InvalidMarshallableException;
 
+/**
+ * Represents an event handler that performs actions within an event loop.
+ * <p>
+ * This interface should be implemented by classes that handle specific events or tasks within an event loop.
+ * The {@code action()} method is responsible for performing the necessary actions or tasks.
+ * <p>
+ * The event loop can service multiple event handlers, and the frequency at which any particular handler is serviced
+ * is influenced by the handler's priority as well as the overall activity within the event loop.
+ */
 @FunctionalInterface
 public interface VanillaEventHandler {
 
     /**
-     * Performs an action corresponding to some amount of work and returns if it is expected that a
-     * subsequent call to this method would result in additional work being carried out.
+     * Performs an action corresponding to some amount of work and returns a boolean indicating whether
+     * it is expected that a subsequent call to this method would result in additional work being carried out.
      * <p>
-     * This method is called from an event loop's execution thread. Each event loop can services multiple event handlers.
-     * The aggressiveness with which any one handler is serviced is influenced by the handler's priority as well as
-     * other activity on the event loop as a whole.
+     * This method is executed on the event loop's thread. A return value of {@code true} suggests to the event loop
+     * that this handler should be serviced again shortly. However, the exact timing depends on various factors,
+     * including the handler's priority and other activity on the event loop.
      * <p>
      * If an event handler returns {@code true } from action(), it biases the event loop to service the same
      * handler again "soon". How soon depends on a variety of factors and the other work the event loop has
@@ -52,14 +61,14 @@ public interface VanillaEventHandler {
      * {@link InvalidEventHandlerException#reusable()} method returns a reusable pre-created
      * InvalidEventHandlerException which can be thrown to remove the EventHandler from the EventLoop.
      *
-     * @return true if you expect more work very soon.
+     * @return {@code true} if it is expected that there is more work to be done imminently; {@code false} otherwise.
      * @throws InvalidEventHandlerException when the event handler is not required anymore and should be removed from
      *         the event loop.
      *         It is recommended to throw this exception if the event handler is closed.
      *         The InvalidEventHandlerException.reusable() method returns a reusable, pre-created,
      *         InvalidEventHandlerException that is unmodifiable and contains no stack trace.
      *         See {@link InvalidEventHandlerException#reusable()}.
-     * @throws InvalidMarshallableException if a DTO read or written failed validation
+     * @throws InvalidMarshallableException   if there is a failure in the validation of a DTO being read or written.
      */
     boolean action() throws InvalidEventHandlerException, InvalidMarshallableException;
 }

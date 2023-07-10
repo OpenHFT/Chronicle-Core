@@ -22,6 +22,13 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.Closeable;
 
+/**
+ * Represents a handler for events within an event loop.
+ * <p>
+ * This interface should be implemented by classes that handle specific events within an event loop.
+ * <p>
+ * An {@code EventHandler} can be registered to an {@link EventLoop} for processing events.
+ */
 @FunctionalInterface
 public interface EventHandler extends VanillaEventHandler {
 
@@ -29,7 +36,7 @@ public interface EventHandler extends VanillaEventHandler {
      * This method is called once when it is added to an eventLoop, which might be before the EventLoop has started
      * This could be called in any thread.
      *
-     * @param eventLoop the handler has been added to.
+     * @param eventLoop The event loop to which this handler has been added.
      */
     default void eventLoop(EventLoop eventLoop) {
     }
@@ -64,6 +71,11 @@ public interface EventHandler extends VanillaEventHandler {
     default void loopFinished() {
     }
 
+    /**
+     * Returns the priority level of this event handler within the event loop.
+     *
+     * @return The priority level of this event handler.
+     */
     @NotNull
     default HandlerPriority priority() {
         return HandlerPriority.MEDIUM;

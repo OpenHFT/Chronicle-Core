@@ -40,6 +40,7 @@ import java.util.function.Consumer;
 /**
  * The Mocker class provides utility methods for creating mocked instances of interfaces.
  */
+// TODO to be moved to the util package x.25
 public final class Mocker {
 
     private static final Class<?>[] NO_CLASSES = new Class[0];

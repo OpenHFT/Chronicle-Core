@@ -24,41 +24,158 @@ import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 
 /**
- * User: peter.lawrey Date: 10/10/13 Time: 07:11
+ * This interface represents a reference to an array of long values. It provides methods to get, set, and manipulate the values.
+ * Implementations of this interface are expected to handle the storage and retrieval of the long array.
+ * <p>
+ * Implementations may store the array in different formats or mediums. For example, the array could be stored
+ * in binary format or text format, in memory or on disk.
+ * <p>
+ * The getValueAt and getVolatileValueAt methods retrieve the long value at a specified index. The difference between these methods
+ * is that getVolatileValueAt uses volatile semantics, meaning it includes a memory barrier which ensures that
+ * subsequent reads and writes are not reordered beyond this point.
+ * <p>
+ * The setValueAt and setOrderedValueAt methods set the long value at a specified index. The difference between these methods is that
+ * setOrderedValueAt uses ordered semantics, meaning it includes a memory barrier which ensures that previous
+ * writes are not reordered beyond this point.
+ * <p>
+ * The compareAndSet method atomically sets the value at a specified index to the given updated value if the current value equals the expected value.
+ * <p>
+ * The bindValueAt method binds a LongValue to a specified index in the array.
+ *
+ * @see net.openhft.chronicle.core.values.BooleanValue
+ * @see net.openhft.chronicle.core.values.ByteValue
+ * @see net.openhft.chronicle.core.values.CharValue
+ * @see net.openhft.chronicle.core.values.DoubleValue
+ * @see net.openhft.chronicle.core.values.FloatValue
+ * @see net.openhft.chronicle.core.values.IntValue
+ * @see net.openhft.chronicle.core.values.LongValue
+ * @see net.openhft.chronicle.core.values.ShortValue
+ * @see net.openhft.chronicle.core.values.StringValue
+ * @see net.openhft.chronicle.core.values.LongArrayValues
+ * @see net.openhft.chronicle.core.values.IntArrayValues
+ * @see net.openhft.chronicle.core.values.UnsetLongValue
+ * @author Peter Lawrey
+ * @since 10/10/13
  */
 public interface LongArrayValues extends Closeable {
+    /**
+     * Retrieves the capacity of the array.
+     *
+     * @return the capacity of the array
+     * @throws IllegalStateException if the array is closed
+     */
     long getCapacity() throws IllegalStateException;
 
+    /**
+     * Retrieves the number of used elements in the array.
+     *
+     * @return the number of used elements in the array
+     * @throws IllegalStateException if the array is closed
+     * @throws BufferUnderflowException if the array is empty
+     */
     long getUsed() throws IllegalStateException, BufferUnderflowException;
 
+    /**
+     * Sets the number of used elements in the array.
+     *
+     * @param used the number of used elements in the array
+     * @throws IllegalStateException if the array is closed
+     * @throws BufferUnderflowException if the array is empty
+     */
     void setUsed(long used) throws IllegalStateException, BufferUnderflowException;
 
+    /**
+     * Sets the maximum number of used elements in the array.
+     *
+     * @param usedAtLeast the minimum number of used elements in the array
+     * @throws IllegalStateException if the array is closed
+     * @throws BufferUnderflowException if the array is empty
+     */
     void setMaxUsed(long usedAtLeast) throws IllegalStateException, BufferUnderflowException;
 
-    // This may throw BufferUnderflowException;
+    /**
+     * Retrieves the long value at a specified index.
+     *
+     * @param index the index of the long value to retrieve
+     * @return the long value at the specified index
+     * @throws IllegalStateException if the array is closed
+     * @throws BufferUnderflowException if the index is out of bounds
+     */
     long getValueAt(long index) throws IllegalStateException, BufferUnderflowException;
 
-    // This may throw IllegalArgumentException, BufferOverflowException
+    /**
+     * Sets the long value at a specified index.
+     *
+     * @param index the index at which to set the long value
+     * @param value the long value to set
+     * @throws IllegalStateException if the array is closed
+     * @throws BufferOverflowException if the index is out of bounds
+     */
     void setValueAt(long index, long value) throws IllegalStateException, BufferOverflowException;
 
-    // This may throw BufferUnderflowException
+    /**
+     * Retrieves the long value at a specified index using volatile semantics.
+     *
+     * @param index the index of the long value to retrieve
+     * @return the long value at the specified index
+     * @throws IllegalStateException if the array is closed
+     * @throws BufferUnderflowException if the index is out of bounds
+     */
     long getVolatileValueAt(long index) throws IllegalStateException, BufferUnderflowException;
 
-    //  This may throw IllegalArgumentException, BufferOverflowException
+    /**
+     * Sets the long value at a specified index using ordered semantics.
+     *
+     * @param index the index at which to set the long value
+     * @param value the long value to set
+     * @throws IllegalStateException if the array is closed
+     * @throws BufferOverflowException if the index is out of bounds
+     */
     void setOrderedValueAt(long index, long value) throws IllegalStateException, BufferOverflowException;
 
-    // This may throw IllegalArgumentException, BufferOverflowException
+    /**
+     * Atomically sets the value at a specified index to the given updated value if the current value equals the expected value.
+     *
+     * @param index the index at which to set the long value
+     * @param expected the expected current value
+     * @param value the new value
+     * @return true if successful, false otherwise
+     * @throws IllegalStateException if the array is closed
+     * @throws BufferOverflowException if the index is out of bounds
+     */
     boolean compareAndSet(long index, long expected, long value) throws IllegalStateException, BufferOverflowException;
 
-    default void bindValueAt(int index, LongValue value) throws IllegalStateException, BufferOverflowException {
-        bindValueAt((long) index, value);
-    }
-
+    /**
+     * Binds a LongValue to a specified index in the array.
+     *
+     * @param index the index at which to bind the LongValue
+     * @param value the LongValue to bind
+     * @throws IllegalStateException if the array is closed
+     * @throws BufferOverflowException if the index is out of bounds
+     */
     void bindValueAt(long index, LongValue value) throws IllegalStateException, BufferOverflowException;
 
+    /**
+     * Calculates the size in bytes of an array with the specified capacity.
+     *
+     * @param capacity the capacity of the array
+     * @return the size in bytes of the array
+     * @throws IllegalStateException if the array is closed
+     */
     long sizeInBytes(long capacity) throws IllegalStateException;
 
+    /**
+     * Checks if the array is null.
+     *
+     * @return true if the array is null, false otherwise
+     * @throws IllegalStateException if the array is closed
+     */
     boolean isNull() throws IllegalStateException;
 
+    /**
+     * Resets the array, clearing all values.
+     *
+     * @throws IllegalStateException if the array is closed
+     */
     void reset() throws IllegalStateException;
 }

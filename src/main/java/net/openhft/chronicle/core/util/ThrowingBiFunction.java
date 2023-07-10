@@ -37,6 +37,7 @@ import java.util.function.BiFunction;
  */
 @FunctionalInterface
 public interface ThrowingBiFunction<I, J, R, T extends Throwable> {
+    @Deprecated(/* to be removed in x.26 */)
     static <I, J, T extends Throwable, R> BiFunction<I, J, R> asBiFunction(@NotNull ThrowingBiFunction<I, J, R, T> function) {
         return (in, i2) -> {
             try {

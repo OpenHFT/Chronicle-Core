@@ -28,43 +28,63 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
- * This will clean up any {@link CleaningThreadLocal} when it completes
+ * The CleaningThread class extends the Thread class and provides functionality
+ * to clean up thread-local variables when the thread completes its execution.
+ * It is particularly useful for avoiding memory leaks associated with thread-local variables.
  */
 public class CleaningThread extends Thread {
     private static final Field THREAD_LOCALS;
     private static final Field TABLE;
     private static final Field VALUE;
 
+    private final boolean inEventLoop;
+
+    // Static block to initialize reflection fields.
     static {
         THREAD_LOCALS = Jvm.getField(Thread.class, "threadLocals");
         TABLE = Jvm.getField(THREAD_LOCALS.getType(), "table");
         VALUE = Jvm.getField(TABLE.getType().getComponentType(), "value");
     }
 
-    private final boolean inEventLoop;
-
+    /**
+     * Constructs a new CleaningThread with the specified target Runnable.
+     *
+     * @param target The Runnable object to execute in the new thread.
+     */
     public CleaningThread(Runnable target) {
         super(target);
         inEventLoop = false;
     }
 
+    /**
+     * Constructs a new CleaningThread with the specified target Runnable and name.
+     *
+     * @param target The Runnable object to execute in the new thread.
+     * @param name   The name for the new thread.
+     */
     public CleaningThread(Runnable target, String name) {
         this(target, name, false);
     }
 
+    /**
+     * Constructs a new CleaningThread with the specified target Runnable, name, and inEventLoop flag.
+     *
+     * @param target      The Runnable object to execute in the new thread.
+     * @param name        The name for the new thread.
+     * @param inEventLoop The flag indicating whether the thread is in an event loop.
+     */
     public CleaningThread(Runnable target, String name, boolean inEventLoop) {
         super(target, name);
         this.inEventLoop = inEventLoop;
     }
 
     /**
-     * Clean up any {@link CleaningThreadLocal} associated with the passed thread.
-     * <p>
+     * Cleans up any {@link CleaningThreadLocal} associated with the given thread.
      * This method uses reflection to find the thread locals for a thread and navigates through a
-     * {@link WeakReference} to get to its destination, so if a GC has occurred then this may not be able
-     * to clean up effectively.
+     * {@link WeakReference} to get to its destination. Note that if a garbage collection has occurred,
+     * this method may not be able to clean up effectively.
      *
-     * @param thread thread to clean for
+     * @param thread The thread whose CleaningThreadLocal instances are to be cleaned up.
      */
     public static void performCleanup(Thread thread) {
         performCleanup(thread, null);
@@ -83,7 +103,10 @@ public class CleaningThread extends Thread {
     }
 
     /**
-     * Cleanup a specific CleaningThreadLocal
+     * Cleans up a specific {@link CleaningThreadLocal} instance associated with the given thread.
+     *
+     * @param thread The thread whose specific CleaningThreadLocal instance is to be cleaned up.
+     * @param ctl    The specific CleaningThreadLocal instance to clean up. If null, cleans all.
      */
     public static void performCleanup(Thread thread, CleaningThreadLocal<?> ctl) {
         WeakReference<?>[] table;
@@ -106,6 +129,9 @@ public class CleaningThread extends Thread {
         scanReferences(ctl, table, o, remove);
     }
 
+    /**
+     * Iterates through the references in the table, cleaning up and removing the CleaningThreadLocal instances.
+     */
     private static void scanReferences(CleaningThreadLocal<?> ctl, WeakReference<?>[] table, Object o, Method remove) {
         for (WeakReference<?> reference : table.clone()) {
             try {
@@ -131,18 +157,29 @@ public class CleaningThread extends Thread {
         }
     }
 
+    /**
+     * Checks if the given thread is an instance of CleaningThread and if it is in an event loop.
+     *
+     * @param t The thread to check.
+     * @return true if the thread is an instance of CleaningThread and in an event loop, false otherwise.
+     */
     public static boolean inEventLoop(Thread t) {
         return t instanceof CleaningThread && ((CleaningThread) t).inEventLoop();
     }
 
+    /**
+     * Overrides the run method to reset the thread affinity, execute the target runnable
+     * and then perform clean up of thread locals.
+     */
     @Override
     public void run() {
-        // reset the thread affinity
+        // Reset thread affinity if required
         if (Affinity.getAffinity().cardinality() == 1) {
             Jvm.debug().on(getClass(), "Resetting affinity from " + Affinity.getAffinity() + " to " + AffinityLock.BASE_AFFINITY);
             Affinity.setAffinity(AffinityLock.BASE_AFFINITY);
         }
 
+        // Execute the target Runnable and perform cleanup
         try {
             super.run();
         } finally {
@@ -150,6 +187,11 @@ public class CleaningThread extends Thread {
         }
     }
 
+    /**
+     * Returns the inEventLoop flag, indicating whether this thread is in an event loop.
+     *
+     * @return true if this thread is in an event loop, false otherwise.
+     */
     public boolean inEventLoop() {
         return inEventLoop;
     }

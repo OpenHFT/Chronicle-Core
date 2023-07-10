@@ -38,6 +38,7 @@ import java.time.LocalDateTime;
  * Additionally, it provides two static instances, {@link #WARN} and {@link #DEBUG},
  * which correspond to {@link #ERR} and {@link #OUT} respectively.
  */
+@Deprecated(/* to be removed in x.26 */)
 public enum PrintExceptionHandler implements ExceptionHandler {
     ERR(System.err) {
         @Override

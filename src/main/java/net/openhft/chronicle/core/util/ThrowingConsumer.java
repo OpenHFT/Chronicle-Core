@@ -38,6 +38,7 @@ import java.util.function.Consumer;
  */
 @FunctionalInterface
 public interface ThrowingConsumer<I, T extends Throwable> {
+    @Deprecated(/* to be removed in x.26 */)
     static <I, T extends Throwable> Consumer<I> asConsumer(@NotNull ThrowingConsumer<I, T> function) {
         return in -> {
             try {

@@ -29,7 +29,16 @@ import java.util.function.DoubleFunction;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 
-// TODO add a dummy histogram.
+/**
+ * A {@link Histogram} class represents a histogram of samples. The histogram is defined by a set of buckets,
+ * each of which counts the number of samples that fall into its range of values. The range of values for each
+ * bucket is determined by a combination of the number of powers of 2 and the number of fraction bits.
+ * <p>
+ * Note that this class is marked as {@link SingleThreaded}, which means it is not safe for use by multiple threads
+ * simultaneously.
+ * <p>
+ * This class implements the {@link NanoSampler} interface, which provides a method for sampling values in nanoseconds.
+ */
 @SingleThreaded
 public class Histogram implements NanoSampler {
     private static final DecimalFormat F3 = new DecimalFormat("0.000");
@@ -42,14 +51,31 @@ public class Histogram implements NanoSampler {
     private long floor;
     private int[] sampleCount;
 
+    /**
+     * Creates a new Histogram with default parameters. The default number of powers of 2 is 42 and the default
+     * number of fraction bits is 8.
+     */
     public Histogram() {
         this(42, 8);
     }
 
+    /**
+     * Creates a new Histogram with the specified number of powers of 2 and fraction bits.
+     *
+     * @param powersOf2    the number of powers of 2 to use in the histogram
+     * @param fractionBits the number of fraction bits to use in the histogram
+     */
     public Histogram(int powersOf2, int fractionBits) {
         this(powersOf2, fractionBits, 1.0);
     }
 
+    /**
+     * Creates a new Histogram with the specified number of powers of 2, fraction bits, and minimum value.
+     *
+     * @param powersOf2    the number of powers of 2 to use in the histogram
+     * @param fractionBits the number of fraction bits to use in the histogram
+     * @param minValue     the minimum value for the histogram
+     */
     public Histogram(int powersOf2, int fractionBits, double minValue) {
         this.powersOf2 = powersOf2;
         this.fractionBits = fractionBits;
@@ -65,6 +91,12 @@ public class Histogram implements NanoSampler {
         return new Histogram(22 /* 4 seconds */, 3 /* 2 decimal places */, 1000.0 /* nano-seconds */);
     }
 
+    /**
+     * Calculates the percentiles for a given count.
+     *
+     * @param count the count of values
+     * @return an array of doubles representing the calculated percentiles
+     */
     public static double[] percentilesFor(long count) {
         List<Double> values = new ArrayList<>();
         values.add(50 / 100.0);
@@ -140,22 +172,49 @@ public class Histogram implements NanoSampler {
             sampleCount = new int[minSampleCountLength];
     }
 
+    /**
+     * Gets the number of fraction bits used by the histogram.
+     *
+     * @return the number of fraction bits
+     */
     public int fractionBits() {
         return fractionBits;
     }
 
+    /**
+     * Gets the number of powers of 2 used by the histogram.
+     *
+     * @return the number of powers of 2
+     */
     public int powersOf2() {
         return powersOf2;
     }
 
+    /**
+     * Gets the number of values that are over the range of the histogram's buckets.
+     *
+     * @return the over range count
+     */
     public long overRange() {
         return overRange;
     }
 
+    /**
+     * Gets the array of sample counts per bucket.
+     *
+     * @return the array of sample counts
+     */
     public int[] sampleCount() {
         return sampleCount;
     }
 
+    /**
+     * Adds the contents of another histogram to this one. The other histogram must have the same number of powers of 2
+     * and fraction bits as this one.
+     *
+     * @param h the other histogram
+     * @throws AssertionError if the other histogram does not have the same number of powers of 2 and fraction bits
+     */
     public void add(@NotNull Histogram h) {
         assert powersOf2 == h.powersOf2;
         assert fractionBits == h.fractionBits;
@@ -165,6 +224,13 @@ public class Histogram implements NanoSampler {
             sampleCount[i] += h.sampleCount[i];
     }
 
+    /**
+     * Samples a value and updates the histogram accordingly. The value is placed into a bucket based on its size,
+     * with the bucket ranges determined by the powers of 2 and fraction bits specified when the histogram was created.
+     *
+     * @param time the value to sample
+     * @return the bucket that the value was placed in
+     */
     public int sample(double time) {
         int bucket = (int) ((Double.doubleToRawLongBits(time) >> (52 - fractionBits)) - floor);
         if (bucket >= sampleCount.length)
@@ -175,14 +241,29 @@ public class Histogram implements NanoSampler {
         return bucket;
     }
 
+    /**
+     * Gets the minimum value in the histogram.
+     *
+     * @return the minimum value
+     */
     public double min() {
         return percentile(0.0);
     }
 
+    /**
+     * Gets the median value in the histogram.
+     *
+     * @return the median value
+     */
     public double typical() {
         return percentile(0.5);
     }
 
+    /**
+     * Gets the maximum value in the histogram.
+     *
+     * @return the maximum value
+     */
     public double max() {
         return percentile(1.0);
     }
@@ -211,27 +292,55 @@ public class Histogram implements NanoSampler {
         return 1;
     }
 
+    /**
+     * Calculates the percentage of values that are less than the given time.
+     *
+     * @param time the time to compare the values against
+     * @return the percentage of values less than the given time
+     */
     public double percentageLessThan(double time) {
         int bucket = (int) ((Double.doubleToRawLongBits(time) >> (52 - fractionBits)) - floor);
         long perthousand = 1000L * IntStream.rangeClosed(0, bucket).mapToLong(i -> sampleCount[i]).sum() / totalCount;
         return perthousand / 10.0;
     }
 
-    @NotNull
-    public double[] getPercentiles() {
+    /**
+     * Calculates an array of percentiles based on the total count.
+     *
+     * @return an array of percentiles
+     */
+    public double @NotNull [] getPercentiles() {
         return getPercentiles(percentilesFor(totalCount));
     }
 
-    @NotNull
-    public double[] getPercentiles(double[] percentileFor) {
+    /**
+     * Calculates an array of percentiles for the given set of values.
+     *
+     * @param percentileFor an array of values for which to calculate percentiles
+     * @return an array of calculated percentiles
+     */
+    public double @NotNull [] getPercentiles(double[] percentileFor) {
         return DoubleStream.of(percentileFor).map(this::percentile).toArray();
     }
 
+    /**
+     * Returns a string representation of the histogram in a format suitable for display in microseconds.
+     * This is a convenience method that uses a default function to convert the values to microseconds.
+     *
+     * @return a string representation of the histogram
+     */
     @NotNull
     public String toMicrosFormat() {
         return toMicrosFormat(t -> t / 1e3);
     }
 
+    /**
+     * Returns a string representation of the histogram in a format suitable for display in microseconds.
+     * The given function is used to convert the values to microseconds.
+     *
+     * @param toMicros a function that converts a value to microseconds
+     * @return a string representation of the histogram
+     */
     @NotNull
     public String toMicrosFormat(@NotNull DoubleFunction<Double> toMicros) {
         if (totalCount < 1_000_000)
@@ -264,11 +373,24 @@ public class Histogram implements NanoSampler {
                 p(toMicros.apply(percentile(1)));
     }
 
+    /**
+     * Returns a string representation of the histogram in a long format suitable for display in microseconds.
+     * This is a convenience method that uses a default function to convert the values to microseconds.
+     *
+     * @return a string representation of the histogram
+     */
     @NotNull
     public String toLongMicrosFormat() {
         return toLongMicrosFormat(t -> t / 1e3);
     }
 
+    /**
+     * Returns a string representation of the histogram in a long format suitable for display in microseconds.
+     * The given function is used to convert the values to microseconds.
+     *
+     * @param toMicros a function that converts a value to microseconds
+     * @return a string representation of the histogram
+     */
     @NotNull
     public String toLongMicrosFormat(@NotNull DoubleFunction<Double> toMicros) {
         if (totalCount < 1_000_000)

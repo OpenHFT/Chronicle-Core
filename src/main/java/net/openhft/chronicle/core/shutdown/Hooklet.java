@@ -60,7 +60,7 @@ public abstract class Hooklet implements Comparable<Hooklet> {
 
     /**
      * Accepts callback and priority to produce shutdown hook object.
-     *
+     * <p>
      * Hook callback class is used to check for identity, see {@link #identity()}.
      *
      * @param priority See {@link #priority()}
@@ -110,5 +110,10 @@ public abstract class Hooklet implements Comparable<Hooklet> {
     @Override
     public int hashCode() {
         return Objects.hash(priority(), identity());
+    }
+
+    @Override
+    public String toString() {
+        return "Hooklet{ priority: " + priority() + ", identity: " + identity() + " }";
     }
 }

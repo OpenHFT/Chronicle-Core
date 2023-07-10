@@ -22,12 +22,13 @@ package net.openhft.chronicle.core.util;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * simple uri encoder, made from the spec at http://www.ietf.org/rfc/rfc2396.txt
+ * simple uri encoder, made from the spec at <a href="http://www.ietf.org/rfc/rfc2396.txt">...</a>
  * Feel free to copy this. I'm not responsible for this code in any way, ever.
  * Thanks to Marco and Thomas
  *
  * @author Daniel Murphy
  */
+@Deprecated(/* to be removed in x.26 */)
 public final class URIEncoder {
     private static final String MARK = "-_.!~*'()\"";
     private static final char[] HEX = "0123456789ABCDEF".toCharArray();

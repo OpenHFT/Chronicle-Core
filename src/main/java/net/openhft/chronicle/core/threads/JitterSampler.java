@@ -21,6 +21,14 @@ import net.openhft.chronicle.core.Jvm;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * A utility class for profiling and tracking the execution stages of threads.
+ * <p>
+ * This class can be used to take snapshots of a thread's stack trace at different stages
+ * and measure how long the thread has been blocked.
+ * </p>
+ */
+@Deprecated(/* to be moved in x.26 */)
 public final class JitterSampler {
     private JitterSampler() {
     }
@@ -35,6 +43,11 @@ public final class JitterSampler {
     static volatile Thread thread;
     static volatile long time = Long.MAX_VALUE;
 
+    /**
+     * Marks the current stage of the thread for profiling.
+     *
+     * @param desc a description of the current stage
+     */
     public static void atStage(String desc) {
         Jvm.startup().on(JitterSampler.class, "atStage " + desc);
         JitterSampler.desc = desc;
@@ -42,10 +55,25 @@ public final class JitterSampler {
         time = System.nanoTime();
     }
 
+    /**
+     * Takes a snapshot of the current thread state if the thread has been
+     * blocked longer than the specified threshold.
+     *
+     * @return a String representation of the thread's stack trace and the time blocked,
+     * or null if the thread has been blocked less than the threshold.
+     */
     public static String takeSnapshot() {
         return takeSnapshot(JITTER_THRESHOLD);
     }
 
+    /**
+     * Takes a snapshot of the current thread state if the thread has been
+     * blocked longer than the specified threshold.
+     *
+     * @param threshold the time threshold in nanoseconds
+     * @return a String representation of the thread's stack trace and the time blocked,
+     * or null if the thread has been blocked less than the threshold.
+     */
     public static String takeSnapshot(long threshold) {
         long time = JitterSampler.time;
         long now = System.nanoTime();
@@ -70,6 +98,9 @@ public final class JitterSampler {
         return sb.toString();
     }
 
+    /**
+     * Marks the current thread as finished for profiling.
+     */
     public static void finished() {
         Jvm.startup().on(JitterSampler.class, "finished");
         thread = null;

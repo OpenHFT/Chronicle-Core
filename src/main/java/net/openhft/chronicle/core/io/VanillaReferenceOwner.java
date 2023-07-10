@@ -19,9 +19,9 @@
 package net.openhft.chronicle.core.io;
 
 /**
- * A simple, no-frills implementation of {@link ReferenceOwner} and {@link QueryCloseable}.
- * It's primarily used to represent an owner of references in the reference-counting mechanisms.
- * This class is not capable of being closed, and {@link #isClosed()} will always return {@code false}.
+ * A simple implementation of the {@link ReferenceOwner} and {@link QueryCloseable} interfaces.
+ * This class represents an object that can own references, but is not closeable.
+ * It holds a name for identification purposes.
  */
 public class VanillaReferenceOwner implements ReferenceOwner, QueryCloseable {
 
@@ -29,11 +29,14 @@ public class VanillaReferenceOwner implements ReferenceOwner, QueryCloseable {
 
     /**
      * Constructs a new instance of {@code VanillaReferenceOwner} with the specified name.
-     * The name is used to identify the owner of references.
      *
-     * @param name A {@link String} representing the name of the reference owner.
+     * @param name the name of the reference owner, used for identification.
+     * @throws IllegalArgumentException if name is null.
      */
     public VanillaReferenceOwner(String name) {
+        if (name == null) {
+            throw new IllegalArgumentException("Name cannot be null");
+        }
         this.name = name;
     }
 

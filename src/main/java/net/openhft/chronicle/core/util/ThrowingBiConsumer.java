@@ -36,6 +36,7 @@ import java.util.function.BiConsumer;
  */
 @FunctionalInterface
 public interface ThrowingBiConsumer<I, J, T extends Throwable> {
+    @Deprecated(/* to be removed in x.26 */)
     static <I, J, T extends Throwable> BiConsumer<I, J> asConsumer(@NotNull ThrowingBiConsumer<I, J, T> function) {
         return (in, i2) -> {
             try {

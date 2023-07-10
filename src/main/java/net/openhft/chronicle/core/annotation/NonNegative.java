@@ -24,16 +24,24 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicates that the value is non-negative (i.e. {@code val >= 0})
+ * Annotation that indicates the annotated element is expected to hold a non-negative value (i.e. {@code val >= 0}).
+ * This can be applied to methods, fields, parameters, local variables, and types to specify constraints
+ * or document the intended usage.
+ *
+ * @see Negative
+ * @see NonPositive
+ * @see Positive
+ * @see Range
  */
 @Retention(RetentionPolicy.CLASS)
 @Target({ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE, ElementType.TYPE_USE})
 public @interface NonNegative {
 
     /**
-     * Returns a comment as to why this value must meet the condition.
+     * Specifies an optional comment to provide additional context or rationale for why the
+     * annotated element must have a non-negative value.
      *
-     * @return a comment as to why this value must meet the condition
+     * @return the comment explaining why this constraint is necessary
      */
     String value() default "";
 }

@@ -255,9 +255,9 @@ public final class OS {
     }
 
     /**
-     * Returns the user name of the current user.
+     * Returns the username of the current user.
      *
-     * @return the user name
+     * @return the username
      */
     public static String getUserName() {
         return USER_NAME;
@@ -627,7 +627,7 @@ public final class OS {
         pb.redirectErrorStream(true);
         Process process = pb.start();
         @NotNull StringWriter sw = new StringWriter();
-        @NotNull char[] chars = new char[1024];
+        char @NotNull [] chars = new char[1024];
         try (@NotNull Reader r = new InputStreamReader(process.getInputStream())) {
             for (int len; (len = r.read(chars)) > 0; ) {
                 sw.write(chars, 0, len);

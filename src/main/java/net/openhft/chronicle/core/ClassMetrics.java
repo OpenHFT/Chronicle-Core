@@ -21,6 +21,7 @@ package net.openhft.chronicle.core;
  * ClassMetrics is a utility class that holds offset and length metrics of a class.
  * It provides methods to access these metrics and overrides equals, hashCode, and toString methods.
  */
+// TODO to be moved to the util package x.25
 public class ClassMetrics {
     private final int offset;
     private final int length;

@@ -23,12 +23,23 @@ import org.jetbrains.annotations.NotNull;
 
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
+/**
+ * An interface for looking up classes by name and associating them with aliases.
+ * This can be useful for reducing verbosity in configurations or serialization,
+ * or for dynamically loading classes in a flexible way.
+ * <p>
+ * Implementations of this interface should handle the logic for aliasing classes
+ * and provide a mechanism for looking up classes by either their canonical name
+ * or an associated alias.
+ */
 public interface ClassLookup {
 
     /**
-     * Wrap this class into
+     * Creates a new ClassLookup instance that wraps this instance. Any changes made
+     * to the returned ClassLookup will not affect this instance.
      *
-     * @return a ClassLookup which can be modified without changing the underlying ClassLookup
+     * @return a new ClassLookup instance wrapping this ClassLookup, ensuring that
+     * the underlying instance remains immutable.
      */
     @NotNull
     default ClassLookup wrap() {
@@ -36,11 +47,14 @@ public interface ClassLookup {
     }
 
     /**
-     * Creates and returns a new ClassLookup wrapping this ClassLookup and using the
-     * provided {@code classLoader} to look up new classes.
+     * Creates a new ClassLookup instance that wraps this instance and uses the provided
+     * class loader to look up new classes. Any changes made to the returned ClassLookup
+     * will not affect this instance.
      *
-     * @return a new ClassLookup which can be modified without changing the underlying ClassLookup
-     * that is using a custom ClassLoader
+     * @param classLoader The ClassLoader used to look up new classes.
+     * @return a new ClassLookup instance wrapping this ClassLookup and using the
+     * provided ClassLoader, ensuring that the underlying instance remains immutable.
+     * @throws NullPointerException if classLoader is null.
      */
     @NotNull
     default ClassLookup wrap(@NotNull ClassLoader classLoader) {
@@ -49,33 +63,38 @@ public interface ClassLookup {
     }
 
     /**
-     * Turn a string into a class
+     * Looks up and returns the Class object associated with the given class name.
      *
-     * @param name of the type/class
-     * @return the fclass for that name
-     * @throws ClassNotFoundRuntimeException
+     * @param name The fully qualified name of the desired class.
+     * @return The Class object representing the specified class.
+     * @throws ClassNotFoundRuntimeException If the class cannot be located.
      */
     Class<?> forName(CharSequence name) throws ClassNotFoundRuntimeException;
 
     /**
-     * @param clazz to lookup an alias for
-     * @return the alias
-     * @throws IllegalArgumentException if used on a lambda function.
+     * Retrieves the alias for the given class. This method is intended for use with
+     * non-lambda classes. For lambda classes, this method will throw an IllegalArgumentException.
+     *
+     * @param clazz The class to retrieve the alias for.
+     * @return A String representing the alias for the given class.
+     * @throws IllegalArgumentException If this method is used on a lambda function.
      */
     String nameFor(Class<?> clazz) throws IllegalArgumentException;
 
     /**
-     * Add classes to the class lookup. The simple name without the package is added as the alias
+     * Adds one or more classes to the class lookup. For each class, its simple name
+     * (excluding package) is automatically added as the alias.
      *
-     * @param classes to add
+     * @param classes The classes to be added to the class lookup.
      */
     void addAlias(Class<?>... classes);
 
     /**
-     * Add a class with a specific alias which may or may not have a package name.
+     * Adds a class to the class lookup with one or more specified aliases. The aliases
+     * can be provided as a comma-separated string and may include the package name.
      *
-     * @param clazz to alias
-     * @param names An alias or comma seperated list of aliases
+     * @param clazz The class to be added to the class lookup.
+     * @param names A single alias or a comma-separated string of aliases for the class.
      */
     void addAlias(Class<?> clazz, String names);
 }

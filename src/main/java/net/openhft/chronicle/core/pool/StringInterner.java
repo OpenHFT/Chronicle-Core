@@ -33,7 +33,7 @@ import java.util.stream.Stream;
  * </p><p>
  * So while technically not thread safe, it doesn't prevent it operating correctly when used from multiple threads, but it is faster than added explicit locking or thread safety. NOTE: It does rely on String being thread safe, something which was guaranteed from Java 5.0 onwards c.f. JSR 133.
  * </p><p>
- * Discussion https://stackoverflow.com/questions/63383745/string-array-needless-synchronization/63383983
+ * Discussion <a href="https://stackoverflow.com/questions/63383745/string-array-needless-synchronization/63383983">...</a>
  * </p>
  *
  *
@@ -109,7 +109,6 @@ public class StringInterner {
      *
      * @param cs a source string
      * @return the index that the internered string is stored in, or -1 if not stored
-     * <p>
      * <p>
      * An example of the StringInterner used in conjunction with the uppercase[] to cache another value
      * <pre>

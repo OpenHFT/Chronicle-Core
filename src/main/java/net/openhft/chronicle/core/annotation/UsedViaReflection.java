@@ -26,7 +26,9 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
 /**
- * This member is either used via reflection, or must be public for tests to work.
+ * Annotation to indicate that the annotated member is accessed via reflection, or
+ * that it must be public for tests to work. This annotation can be used as a marker
+ * to prevent accidental removal or modification of elements that are used dynamically.
  */
 @Documented
 @Retention(CLASS)

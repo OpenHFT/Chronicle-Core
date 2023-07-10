@@ -26,6 +26,7 @@ import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.security.SecureRandom;
 
+@Deprecated(/* to be removed in x.25 */)
 public class ThreadIndexAssigner {
     private final IntArrayValues values;
 

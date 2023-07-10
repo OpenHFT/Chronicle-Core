@@ -36,6 +36,7 @@ public interface Memory {
      *
      * @return The number of bytes used in the heap memory.
      */
+    @Deprecated(/* remove in x.26 */)
     default long heapUsed() {
         Runtime runtime = Runtime.getRuntime();
         return runtime.totalMemory() - runtime.freeMemory();

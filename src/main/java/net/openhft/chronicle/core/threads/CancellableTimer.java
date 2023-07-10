@@ -27,6 +27,10 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.Closeable;
 
+/**
+ * A timer that can schedule tasks to be executed periodically or after a delay.
+ * The timer can be used to perform tasks in a non-blocking manner using an event loop.
+ */
 public class CancellableTimer {
 
     @NotNull
@@ -35,12 +39,20 @@ public class CancellableTimer {
     private final TimeProvider timeProvider;
 
     /**
-     * @param eventLoop the event loop that the timer task is run on
+     * Constructs a CancellableTimer with the given event loop and system time provider.
+     *
+     * @param eventLoop the event loop that the timer tasks will run on.
      */
     public CancellableTimer(@NotNull EventLoop eventLoop) {
         this(eventLoop, SystemTimeProvider.INSTANCE);
     }
 
+    /**
+     * Constructs a CancellableTimer with the given event loop and custom time provider.
+     *
+     * @param eventLoop    the event loop that the timer tasks will run on.
+     * @param timeProvider the custom time provider to use for scheduling.
+     */
     public CancellableTimer(@NotNull EventLoop eventLoop, @NotNull TimeProvider timeProvider) {
         this.eventLoop = eventLoop;
         this.timeProvider = timeProvider;

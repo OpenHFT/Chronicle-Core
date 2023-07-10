@@ -39,7 +39,7 @@ import java.util.function.IntSupplier;
  */
 @FunctionalInterface
 public interface ThrowingIntSupplier<T extends Throwable> {
-
+    @Deprecated(/* to be removed in x.26 */)
     static <T extends Throwable> IntSupplier asSupplier(@NotNull ThrowingIntSupplier<T> throwingSupplier) {
         return () -> {
             try {
