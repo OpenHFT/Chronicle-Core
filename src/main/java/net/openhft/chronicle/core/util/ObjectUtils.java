@@ -157,12 +157,8 @@ public final class ObjectUtils {
             return false;
         switch (s.length()) {
             case 1:
-                try {
-                    char ch = Character.toLowerCase(s.charAt(0));
-                    return ch == 't' || ch == 'y';
-                } catch (IndexOutOfBoundsException e) {
-                    throw new AssertionError(e);
-                }
+                char ch = Character.toLowerCase(s.charAt(0));
+                return ch == 't' || ch == 'y';
             case 3:
                 return equalsCaseIgnore(s, "yes");
             case 4:
@@ -261,11 +257,7 @@ public final class ObjectUtils {
             @Nullable CharSequence cs = (CharSequence) o;
             if (Character.class.equals(eClass)) {
                 if (cs.length() > 0)
-                    try {
                         return (E) (Character) cs.charAt(0);
-                    } catch (IndexOutOfBoundsException e) {
-                        throw new AssertionError(e);
-                    }
                 else
                     return null;
             }
@@ -326,13 +318,9 @@ public final class ObjectUtils {
         final Object array = Array.newInstance(eClass.getComponentType(), len);
         final Iterator<?> iter = iteratorFor(o);
         final Class<?> elementType = elementType(eClass);
-        try {
-            for (int i = 0; i < len; i++) {
-                @Nullable Object value = convertTo(elementType, iter.next());
-                Array.set(array, i, value);
-            }
-        } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e) {
-            throw new AssertionError(e);
+        for (int i = 0; i < len; i++) {
+            @Nullable Object value = convertTo(elementType, iter.next());
+            Array.set(array, i, value);
         }
         return (E) array;
     }
@@ -359,12 +347,8 @@ public final class ObjectUtils {
             return ((Collection<?>) o).size();
         if (o instanceof Map)
             return ((Map<?, ?>) o).size();
-        try {
-            if (o.getClass().isArray())
-                return Array.getLength(o);
-        } catch (IllegalArgumentException e) {
-            throw new AssertionError(e);
-        }
+        if (o.getClass().isArray())
+            return Array.getLength(o);
         throw new UnsupportedOperationException();
     }
 
@@ -507,13 +491,9 @@ public final class ObjectUtils {
     }
 
     public static Class<?>[] getAllInterfaces(Object o) {
-        try {
-            Set<Class<?>> results = new HashSet<>();
-            getAllInterfaces(o, results::add);
-            return results.toArray(new Class<?>[results.size()]);
-        } catch (IllegalArgumentException e) {
-            throw new AssertionError(e);
-        }
+        Set<Class<?>> results = new HashSet<>();
+        getAllInterfaces(o, results::add);
+        return results.toArray(new Class<?>[results.size()]);
     }
 
     public static void getAllInterfaces(Object o, Function<Class<?>, Boolean> accumulator) throws IllegalArgumentException {

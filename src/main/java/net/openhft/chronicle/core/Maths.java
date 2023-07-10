@@ -544,14 +544,11 @@ public final class Maths {
             return 0;
         if (cs instanceof String)
             return hash64((String) cs);
-        try {
-            long hash = 0;
-            for (int i = 0, len = cs.length(); i < len; i++)
-                hash = hash * 0x32246e3d + cs.charAt(i);
-            return agitate(hash);
-        } catch (IndexOutOfBoundsException e) {
-            throw new AssertionError(e);
-        }
+
+        long hash = 0;
+        for (int i = 0, len = cs.length(); i < len; i++)
+            hash = hash * 0x32246e3d + cs.charAt(i);
+        return agitate(hash);
     }
 
     /**

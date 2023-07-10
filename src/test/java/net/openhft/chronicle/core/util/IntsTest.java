@@ -74,12 +74,8 @@ public class IntsTest {
     private void test(final int happy,
                       final int sad,
                       @NotNull final IntUnaryOperator mapper) {
-        try {
-            final long result = mapper.applyAsInt(happy);
-            assertEquals(happy, result);
-        } catch (IllegalArgumentException e) {
-            throw new AssertionError(e);
-        }
+        final long result = mapper.applyAsInt(happy);
+        assertEquals(happy, result);
         try {
             final long result2 = mapper.applyAsInt(sad);
             fail(result2 + " is not valid!");

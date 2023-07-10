@@ -29,14 +29,10 @@ public enum CharSequenceComparator implements Comparator<CharSequence> {
         final int o1Length = o1.length();
         final int o2Length = o2.length();
         final int len = Math.min(o1Length, o2Length);
-        try {
-            for (int i = 0; i < len; i++) {
-                final int cmp = Character.compare(o1.charAt(i), o2.charAt(i));
-                if (cmp != 0)
-                    return cmp;
-            }
-        } catch (IndexOutOfBoundsException e) {
-            throw new AssertionError(e);
+        for (int i = 0; i < len; i++) {
+            final int cmp = Character.compare(o1.charAt(i), o2.charAt(i));
+            if (cmp != 0)
+                return cmp;
         }
         return Integer.compare(o1Length, o2Length);
     }

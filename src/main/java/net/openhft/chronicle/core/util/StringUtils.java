@@ -158,11 +158,7 @@ public final class StringUtils {
     }
 
     private static char charAt(@NotNull CharSequence s, int i) {
-        try {
-            return s.charAt(i);
-        } catch (IndexOutOfBoundsException e) {
-            throw new AssertionError(e);
-        }
+        return s.charAt(i);
     }
 
     public static char[] extractChars(StringBuilder sb) {
