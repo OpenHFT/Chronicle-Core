@@ -476,8 +476,6 @@ public final class OS {
                     }
                 } catch (FileNotFoundException e) {
                     Jvm.debug().on(OS.class, e);
-                } catch (IllegalArgumentException e) {
-                    throw new AssertionError(e);
                 }
         } else if (isMacOSX()) {
             return 1L << 24;
