@@ -28,15 +28,13 @@ import java.util.stream.Stream;
 /**
  * <p>
  * StringInterner only guarantees it will behave in a correct manner. When you ask it for a String for a given input, it must return a String which matches the toString() of that CharSequence.
- * </p><p>
+ * <p>
  * It doesn't guarantee that all threads see the same data, nor that multiple threads will return the same String object for the same string. It is designed to be a best-effort basis so it can be as lightweight as possible.
- * </p><p>
+ * <p>
  * So while technically not thread safe, it doesn't prevent it operating correctly when used from multiple threads, but it is faster than added explicit locking or thread safety. NOTE: It does rely on String being thread safe, something which was guaranteed from Java 5.0 onwards c.f. JSR 133.
- * </p><p>
+ * <p>
  * Discussion <a href="https://stackoverflow.com/questions/63383745/string-array-needless-synchronization/63383983">...</a>
- * </p>
- *
- *
+ * <p>
  * This class provides string interning functionality.
  * It's used to optimize memory usage by caching strings and
  * referring to them by index, rather than storing duplicate strings.

@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
  * This can be used as a base class for implementations that need to override
  * or add behavior to an existing {@link EventLoop} instance without modifying
  * the original class.
- * </p>
+ * 
  */
 public class DelegatingEventLoop implements EventLoop {
     @NotNull

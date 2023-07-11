@@ -97,13 +97,13 @@ public final class ThreadLocalHelper {
      * Retrieves a thread-local weakly-referenced value, or creates a new one using a function if none exists.
      * Allows for the registration of the newly created weak reference in a reference queue via a registrar consumer.
      *
-     * @param threadLocal    The ThreadLocal object to retrieve or create a value for.
-     * @param supplyingEntity    The input for the function to generate a new value if necessary.
-     * @param constructor    The function to generate a new value if necessary.
-     * @param referenceQueue The reference queue to register the weak reference in.
-     * @param registrar      The consumer to use for registration of the weak reference.
-     * @param <T>            The type of the value.
-     * @param <A>            The type of the input to the function.
+     * @param threadLocal     The ThreadLocal object to retrieve or create a value for.
+     * @param supplyingEntity The input for the function to generate a new value if necessary.
+     * @param constructor     The function to generate a new value if necessary.
+     * @param referenceQueue  The reference queue to register the weak reference in.
+     * @param registrar       The consumer to use for registration of the weak reference.
+     * @param <T>             The type of the value.
+     * @param <A>             The type of the input to the function.
      * @return The retrieved or newly created value.
      */
     @NotNull

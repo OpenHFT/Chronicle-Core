@@ -25,7 +25,7 @@ package net.openhft.chronicle.core.io;
  * Implementing this interface indicates that the object is capable of self-validation,
  * which is essential in contexts like serialization or communication where the integrity
  * and correctness of an object's state are crucial.
- * </p>
+ * 
  * <p>
  * Example usage:
  * <pre>
@@ -46,7 +46,7 @@ package net.openhft.chronicle.core.io;
  *     }
  * }
  * </pre>
- * </p>
+ * 
  */
 public interface Validatable {
 
@@ -63,7 +63,7 @@ public interface Validatable {
      * @throws InvalidMarshallableException if the object is in an invalid state,
      *                                      such as having null values in required fields or values
      *                                      out of acceptable range.
-     * @throws RuntimeException              if an unexpected error occurs during validation.
+     * @throws RuntimeException             if an unexpected error occurs during validation.
      */
     void validate() throws InvalidMarshallableException;
 }

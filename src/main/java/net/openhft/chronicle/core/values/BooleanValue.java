@@ -46,7 +46,6 @@ import java.nio.BufferUnderflowException;
  * @see net.openhft.chronicle.core.values.LongArrayValues
  * @see net.openhft.chronicle.core.values.IntArrayValues
  * @see net.openhft.chronicle.core.values.UnsetLongValue
- * @author Peter Lawrey
  * @since 10/10/13
  */
 public interface BooleanValue {
@@ -54,7 +53,7 @@ public interface BooleanValue {
      * Retrieves the boolean value.
      *
      * @return the boolean value
-     * @throws IllegalStateException if the underlying storage medium is not in a state where the operation can be performed
+     * @throws IllegalStateException    if the underlying storage medium is not in a state where the operation can be performed
      * @throws BufferUnderflowException if there is not enough data available to read the value
      */
     boolean getValue() throws IllegalStateException, BufferUnderflowException;

@@ -27,13 +27,13 @@ import java.util.function.IntSupplier;
 /**
  * <p>
  * Represents a supplier of results which might throw an Exception
- * </p><p>
+ * <p>
  * There is no requirement that a new or distinct result be returned each
  * time the supplier is invoked.
- * </p><p>
+ * <p>
  * This is a <a href="package-summary.html">functional interface</a>
  * whose functional method is {@link #getAsInt()}.
- * </p>
+ * 
  *
  * @param <T> the type of exception thrown by this supplier
  */

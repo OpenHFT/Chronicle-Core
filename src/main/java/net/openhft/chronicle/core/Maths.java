@@ -140,7 +140,7 @@ public final class Maths {
      * @param d      The double value to be rounded down.
      * @param digits The number of decimal places to which the value is to be rounded.
      * @return The value rounded down to the nearest lower number.
- */
+     */
     public static double floorN(double d, int digits) {
         final long factor = roundingFactor(digits);
         double ulp = Math.ulp(d);

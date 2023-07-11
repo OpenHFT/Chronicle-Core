@@ -44,12 +44,11 @@ import net.openhft.chronicle.core.Jvm;
  * <p>
  * Implementations can also include additional behaviors or optimizations not specified in this interface.
  *
+ * @author Peter Lawrey
  * @apiNote The {@link #getValue()} and {@link #setValue(long)} methods inherited from {@link LongValue} are applicable
  * to the first {@code long} value.
- *
  * @implSpec Implementations must ensure that all methods are thread-safe and that changes to the values are correctly
  * synchronized across threads.
- *
  * @see net.openhft.chronicle.core.values.LongValue
  * @see net.openhft.chronicle.core.values.BooleanValue
  * @see net.openhft.chronicle.core.values.ByteValue
@@ -63,7 +62,6 @@ import net.openhft.chronicle.core.Jvm;
  * @see net.openhft.chronicle.core.values.LongArrayValues
  * @see net.openhft.chronicle.core.values.IntArrayValues
  * @see net.openhft.chronicle.core.values.UnsetLongValue
- * @author Peter Lawrey
  * @since 10/10/13
  */
 public interface TwoLongValue extends LongValue {

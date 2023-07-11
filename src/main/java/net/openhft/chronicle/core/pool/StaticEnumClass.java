@@ -32,13 +32,13 @@ import java.util.Set;
  * standard Java enum behavior.
  *
  * @param <E> the type of enum instances this class will manage.
- * Example usage:
- * <pre>
- * {@code
- * EnumCache<Ecn> ecnEnumCache = EnumCache.of(Ecn.class);
- * Ecn rfx = ecnEnumCache.get("RFX");
- * }
- * </pre>
+ *            Example usage:
+ *            <pre>
+ *            {@code
+ *            EnumCache<Ecn> ecnEnumCache = EnumCache.of(Ecn.class);
+ *            Ecn rfx = ecnEnumCache.get("RFX");
+ *            }
+ *            </pre>
  */
 public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
 

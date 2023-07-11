@@ -33,20 +33,28 @@ import java.util.Objects;
  * <p>
  * The {@code ExceptionKey} class implements custom {@code equals} and {@code hashCode}
  * methods ensuring that two keys are equal if and only if all their fields are equal.
- * </p>
+ * 
  */
 public class ExceptionKey {
 
-    /** The log level associated with the exception */
+    /**
+     * The log level associated with the exception
+     */
     public final LogLevel level;
 
-    /** The class where the exception occurred */
+    /**
+     * The class where the exception occurred
+     */
     public final Class<?> clazz;
 
-    /** A message associated with the exception */
+    /**
+     * A message associated with the exception
+     */
     public final String message;
 
-    /** The Throwable instance representing the exception */
+    /**
+     * The Throwable instance representing the exception
+     */
     public final Throwable throwable;
 
     /**

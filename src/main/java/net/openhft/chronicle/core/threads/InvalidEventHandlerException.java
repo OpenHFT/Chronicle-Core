@@ -25,10 +25,10 @@ package net.openhft.chronicle.core.threads;
  * <p>This exception class also provides a reusable static instance which is
  * unmodifiable and does not contain any stack trace information. This reusable
  * instance can be used for flow-control purposes such as signalling that an
- * event handler should be removed from the event loop due to successful completion.</p>
+ * event handler should be removed from the event loop due to successful completion.
  *
  * <p>It is important to note that the reusable instance should not be used where
- * error information or stack traces are needed, as it doesn't provide these details.</p>
+ * error information or stack traces are needed, as it doesn't provide these details.
  *
  * @see #reusable()
  */
@@ -66,10 +66,10 @@ public class InvalidEventHandlerException extends Exception {
      *
      * <p>This is useful for situations where throwing an InvalidEventHandlerException
      * is used strictly for flow-control (e.g. removing an EventHandler from
-     * an EventLoop when the former has completed with no errors).</p>
+     * an EventLoop when the former has completed with no errors).
      *
      * <p>Note that this reusable instance contains no stack trace information and
-     * should not be used in scenarios where error information is necessary.</p>
+     * should not be used in scenarios where error information is necessary.
      *
      * @return a reusable, pre-created, InvalidEventHandlerException that is
      * unmodifiable and contains no stack trace

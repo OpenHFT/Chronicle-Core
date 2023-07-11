@@ -30,12 +30,12 @@ import java.util.ServiceLoader;
  *
  * <p>This class employs the ServiceLoader mechanism to dynamically locate and instantiate
  * an implementation of the ByteBufferCleanerService interface. It selects the most suitable
- * implementation based on the impact level and the Java major version compatibility.</p>
+ * implementation based on the impact level and the Java major version compatibility.
  *
- * <p>If no suitable service provider is found, it falls back to a reflection-based cleaner service.</p>
+ * <p>If no suitable service provider is found, it falls back to a reflection-based cleaner service.
  *
  * <p>This class is thread-safe and ensures that only a single instance of ByteBufferCleanerService
- * is created and shared among all callers.</p>
+ * is created and shared among all callers.
  */
 public final class CleanerServiceLocator {
 
@@ -51,7 +51,7 @@ public final class CleanerServiceLocator {
      *
      * <p>This method uses the ServiceLoader mechanism to dynamically locate and instantiate
      * an implementation of the ByteBufferCleanerService interface. If no suitable service
-     * provider is found, it falls back to a reflection-based cleaner service.</p>
+     * provider is found, it falls back to a reflection-based cleaner service.
      *
      * @return The singleton instance of ByteBufferCleanerService.
      */

@@ -46,8 +46,8 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
     /**
      * Private constructor for CleaningThreadLocal.
      *
-     * @param supplier  The supplier that provides the resource.
-     * @param cleanup   The consumer that cleans up the resource.
+     * @param supplier The supplier that provides the resource.
+     * @param cleanup  The consumer that cleans up the resource.
      */
     CleaningThreadLocal(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup) {
         this(supplier, cleanup, UnaryOperator.identity());
@@ -56,8 +56,8 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
     /**
      * Private constructor for CleaningThreadLocal.
      *
-     * @param supplier  The supplier that provides the resource.
-     * @param cleanup   The consumer that cleans up the resource.
+     * @param supplier   The supplier that provides the resource.
+     * @param cleanup    The consumer that cleans up the resource.
      * @param getWrapper The function to apply when the get method is called.
      */
     CleaningThreadLocal(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup, UnaryOperator<T> getWrapper) {
@@ -102,8 +102,8 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
     /**
      * Creates a CleaningThreadLocal with a supplier, a custom cleanup strategy, and a function to apply when the get method is called.
      *
-     * @param supplier  The supplier that provides the resource.
-     * @param cleanup   The consumer that cleans up the resource.
+     * @param supplier   The supplier that provides the resource.
+     * @param cleanup    The consumer that cleans up the resource.
      * @param getWrapper The function to apply when the get method is called.
      * @return A CleaningThreadLocal instance.
      */

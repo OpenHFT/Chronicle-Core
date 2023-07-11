@@ -63,12 +63,12 @@ public interface VanillaEventHandler {
      *
      * @return {@code true} if it is expected that there is more work to be done imminently; {@code false} otherwise.
      * @throws InvalidEventHandlerException when the event handler is not required anymore and should be removed from
-     *         the event loop.
-     *         It is recommended to throw this exception if the event handler is closed.
-     *         The InvalidEventHandlerException.reusable() method returns a reusable, pre-created,
-     *         InvalidEventHandlerException that is unmodifiable and contains no stack trace.
-     *         See {@link InvalidEventHandlerException#reusable()}.
-     * @throws InvalidMarshallableException   if there is a failure in the validation of a DTO being read or written.
+     *                                      the event loop.
+     *                                      It is recommended to throw this exception if the event handler is closed.
+     *                                      The InvalidEventHandlerException.reusable() method returns a reusable, pre-created,
+     *                                      InvalidEventHandlerException that is unmodifiable and contains no stack trace.
+     *                                      See {@link InvalidEventHandlerException#reusable()}.
+     * @throws InvalidMarshallableException if there is a failure in the validation of a DTO being read or written.
      */
     boolean action() throws InvalidEventHandlerException, InvalidMarshallableException;
 }

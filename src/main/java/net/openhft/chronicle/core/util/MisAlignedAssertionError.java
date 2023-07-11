@@ -25,10 +25,10 @@ package net.openhft.chronicle.core.util;
  * For example, it is thrown by methods like {@code compareAndSwapInt} when the memory
  * address provided for a compare-and-swap operation is not properly aligned according
  * to the requirements of the underlying architecture or API.
- * </p>
+ * 
  * <p>
  * As this error is an {@code AssertionError}, it is considered as an unchecked error.
- * </p>
+ * 
  *
  * @see AssertionError
  */

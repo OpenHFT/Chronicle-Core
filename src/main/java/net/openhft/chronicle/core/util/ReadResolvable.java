@@ -37,7 +37,7 @@ public interface ReadResolvable<T> {
      * otherwise it checks if the object is Serializable and attempts to call its readResolve method.
      * If the object does not meet any of the above conditions, it is returned as is.
      *
-     * @param o The object to be resolved.
+     * @param o   The object to be resolved.
      * @param <T> The type of object.
      * @return The resolved object, or the original object if readResolve does not exist or is not applicable.
      */

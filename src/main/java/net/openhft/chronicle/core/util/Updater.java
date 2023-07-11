@@ -23,17 +23,17 @@ import java.util.function.Consumer;
  * Represents an operation that alters an object.
  *
  * <p>Similar to {@link Consumer}, but unlike Consumer, Updater is explicitly
- * expected to perform modifications on its argument.</p>
+ * expected to perform modifications on its argument.
  *
  * @param <T> the type of the input to the operation
  *
- * <p>Example usage:
- * <pre>
- * Updater&lt;List&lt;String&gt;&gt; appender = list -&gt; list.add("newElement");
- * List&lt;String&gt; myList = new ArrayList&lt;&gt;();
- * appender.update(myList);
- * </pre>
- * </p>
+ *            <p>Example usage:
+ *            <pre>
+ *            Updater&lt;List&lt;String&gt;&gt; appender = list -&gt; list.add("newElement");
+ *            List&lt;String&gt; myList = new ArrayList&lt;&gt;();
+ *            appender.update(myList);
+ *            </pre>
+ *            
  */
 @FunctionalInterface
 public interface Updater<T> extends Consumer<T> {
@@ -48,7 +48,7 @@ public interface Updater<T> extends Consumer<T> {
     /**
      * This default implementation simply calls the {@code update} method.
      *
-     * <p>It is provided to ensure compatibility with the {@link Consumer} interface.</p>
+     * <p>It is provided to ensure compatibility with the {@link Consumer} interface.
      *
      * @param t the input argument
      */

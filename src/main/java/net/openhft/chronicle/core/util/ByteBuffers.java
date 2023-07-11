@@ -32,7 +32,8 @@ import java.nio.ByteBuffer;
  */
 @Deprecated(/* to be removed x.26 */)
 public final class ByteBuffers {
-    private ByteBuffers() {}
+    private ByteBuffers() {
+    }
 
     private static final Field ADDRESS;
     private static final Field CAPACITY;
@@ -50,8 +51,8 @@ public final class ByteBuffers {
      * It should be used with caution as it bypasses the usual safety checks and can lead to undefined behavior
      * if used improperly.
      *
-     * @param buffer the ByteBuffer whose address and capacity are to be set
-     * @param address the memory address to be set
+     * @param buffer   the ByteBuffer whose address and capacity are to be set
+     * @param address  the memory address to be set
      * @param capacity the capacity to be set
      * @throws AssertionError if the operation fails due to IllegalAccessException or IllegalArgumentException
      */

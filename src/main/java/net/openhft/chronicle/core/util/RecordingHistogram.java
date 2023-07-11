@@ -153,7 +153,7 @@ public class RecordingHistogram extends Histogram {
          * Converts the tracked samples to a formatted string.
          *
          * @param toMicros A function to convert nanoseconds to microseconds.
-         * @param max The maximum number of top samples to include in the string.
+         * @param max      The maximum number of top samples to include in the string.
          * @return A formatted string representation of the top samples.
          */
         public String asString(DoubleFunction<Double> toMicros, int max) {

@@ -23,11 +23,11 @@ import java.nio.ByteBuffer;
  * Service interface to perform cleaning operation on ByteBuffers.
  *
  * <p>This interface defines a contract for cleaning memory resources associated with ByteBuffers.
- * It can be implemented by different service providers offering different mechanisms for resource cleanup.</p>
+ * It can be implemented by different service providers offering different mechanisms for resource cleanup.
  *
  * <p>Cleaning a ByteBuffer usually means releasing the direct memory that is typically limited
  * and more expensive than regular heap memory. This operation can be critical in environments
- * where lots of direct ByteBuffers are being used, like in high-performance IO or memory-mapped files.</p>
+ * where lots of direct ByteBuffers are being used, like in high-performance IO or memory-mapped files.
  *
  */
 public interface ByteBufferCleanerService {
@@ -44,7 +44,7 @@ public interface ByteBufferCleanerService {
      *
      * <p>If the buffer is a direct ByteBuffer, this operation is expected to release
      * any memory resources associated with it. Depending on the implementation, this method
-     * may have side effects or performance impacts, which can be queried via the {@link #impact()} method.</p>
+     * may have side effects or performance impacts, which can be queried via the {@link #impact()} method.
      *
      * @param buffer the ByteBuffer to clean.
      */

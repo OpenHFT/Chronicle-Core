@@ -42,8 +42,9 @@ import net.openhft.chronicle.core.pool.DynamicEnumClass;
  * MyDynamicEnum customInstance = myDynamicEnums.valueOf("CustomInstance");
  * }
  * </pre>
- *
+ * <p>
  * Where {@code MyDynamicEnum} is a class implementing {@code CoreDynamicEnum}.
+ *
  * @param <E> the type of the dynamic enum instance.
  */
 public interface CoreDynamicEnum<E extends CoreDynamicEnum<E>> {

@@ -26,7 +26,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * This class can be used to take snapshots of a thread's stack trace at different stages
  * and measure how long the thread has been blocked.
- * </p>
+ * 
  */
 @Deprecated(/* to be moved in x.26 */)
 public final class JitterSampler {

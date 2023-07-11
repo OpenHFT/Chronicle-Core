@@ -26,12 +26,13 @@ import java.nio.BufferUnderflowException;
 /**
  * Represents a reference to a 32-bit integer value, providing various methods
  * for accessing and modifying the value.  * Implementations may store the value in different formats or mediums. For example, the value could be stored
- *  * in binary format or text format, in memory or on disk.
+ * * in binary format or text format, in memory or on disk.
  * <p>
  * The interface provides basic operations such as getting and setting the
  * value, as well as atomic and ordered operations that incorporate memory
  * barriers and atomicity guarantees.
  *
+ * @author Peter Lawrey
  * @see net.openhft.chronicle.core.values.BooleanValue
  * @see net.openhft.chronicle.core.values.ByteValue
  * @see net.openhft.chronicle.core.values.CharValue
@@ -44,7 +45,6 @@ import java.nio.BufferUnderflowException;
  * @see net.openhft.chronicle.core.values.LongArrayValues
  * @see net.openhft.chronicle.core.values.IntArrayValues
  * @see net.openhft.chronicle.core.values.UnsetLongValue
- * @author Peter Lawrey
  * @since 10/10/13
  */
 public interface IntValue extends Closeable {
@@ -53,7 +53,7 @@ public interface IntValue extends Closeable {
      * Retrieves the current 32-bit integer value.
      *
      * @return the current value
-     * @throws IllegalStateException if the value is accessed after being closed
+     * @throws IllegalStateException    if the value is accessed after being closed
      * @throws BufferUnderflowException if there's not enough data available to read
      */
     int getValue() throws IllegalStateException, BufferUnderflowException;
@@ -62,7 +62,7 @@ public interface IntValue extends Closeable {
      * Sets the 32-bit integer value.
      *
      * @param value the new value to set
-     * @throws IllegalStateException if the value is modified after being closed
+     * @throws IllegalStateException   if the value is modified after being closed
      * @throws BufferOverflowException if there's not enough space to write the data
      */
     void setValue(int value) throws IllegalStateException, BufferOverflowException;
@@ -73,7 +73,7 @@ public interface IntValue extends Closeable {
      * are not reordered beyond this point.
      *
      * @return the current value
-     * @throws IllegalStateException if the value is accessed after being closed
+     * @throws IllegalStateException    if the value is accessed after being closed
      * @throws BufferUnderflowException if there's not enough data available to read
      */
     int getVolatileValue() throws IllegalStateException, BufferUnderflowException;
@@ -84,7 +84,7 @@ public interface IntValue extends Closeable {
      * this point.
      *
      * @param value the new value to set
-     * @throws IllegalStateException if the value is modified after being closed
+     * @throws IllegalStateException   if the value is modified after being closed
      * @throws BufferOverflowException if there's not enough space to write the data
      */
     void setOrderedValue(int value) throws IllegalStateException, BufferOverflowException;
@@ -94,7 +94,7 @@ public interface IntValue extends Closeable {
      *
      * @param delta the value to add to the current value
      * @return the updated value
-     * @throws IllegalStateException if the value is modified after being closed
+     * @throws IllegalStateException    if the value is modified after being closed
      * @throws BufferUnderflowException if there's not enough data available to read
      */
     int addValue(int delta) throws IllegalStateException, BufferUnderflowException;
@@ -105,7 +105,7 @@ public interface IntValue extends Closeable {
      *
      * @param delta the value to add to the current value
      * @return the updated value
-     * @throws IllegalStateException if the value is modified after being closed
+     * @throws IllegalStateException    if the value is modified after being closed
      * @throws BufferUnderflowException if there's not enough data available to read
      */
     int addAtomicValue(int delta) throws IllegalStateException, BufferUnderflowException;
@@ -115,9 +115,9 @@ public interface IntValue extends Closeable {
      * is equal to the expected value.
      *
      * @param expected the value expected to be present
-     * @param value the new value to set if the expected value is found
+     * @param value    the new value to set if the expected value is found
      * @return true if successful, false otherwise
-     * @throws IllegalStateException if the value is modified after being closed
+     * @throws IllegalStateException   if the value is modified after being closed
      * @throws BufferOverflowException if there's not enough space to write the data
      */
     boolean compareAndSwapValue(int expected, int value) throws IllegalStateException, BufferOverflowException;

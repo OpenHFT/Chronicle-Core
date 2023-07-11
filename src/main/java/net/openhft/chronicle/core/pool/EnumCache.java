@@ -22,6 +22,7 @@ import net.openhft.chronicle.core.util.CoreDynamicEnum;
 
 import java.util.Map;
 import java.util.Set;
+
 /**
  * Abstract base class for caching and efficient access to enum-like instances. This class
  * supports both traditional static enums, and dynamic enums which allow the creation
@@ -32,13 +33,13 @@ import java.util.Set;
  * as keys or elements.
  *
  * @param <E> the type of enum instances this cache will manage.
- * Example usage:
- * <pre>
- * {@code
- * EnumCache<MyEnum> myEnumCache = EnumCache.of(MyEnum.class);
- * MyEnum someValue = myEnumCache.valueOf("SOME_VALUE");
- * }
- * </pre>
+ *            Example usage:
+ *            <pre>
+ *            {@code
+ *            EnumCache<MyEnum> myEnumCache = EnumCache.of(MyEnum.class);
+ *            MyEnum someValue = myEnumCache.valueOf("SOME_VALUE");
+ *            }
+ *            </pre>
  */
 public abstract class EnumCache<E> {
 
@@ -59,7 +60,7 @@ public abstract class EnumCache<E> {
      * Retrieves an EnumCache instance for the specified enum class.
      *
      * @param eClass the class of the enum.
-     * @param <E> the type of the enum.
+     * @param <E>    the type of the enum.
      * @return an EnumCache instance for the specified enum class.
      */
     @SuppressWarnings("unchecked")

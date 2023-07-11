@@ -50,7 +50,7 @@ public class ThreadIndexAssigner {
             int value = values.getVolatileValueAt(index);
             boolean processAlive = Jvm.isProcessAlive(value);
             if ((value == 0 || !processAlive) && (values.compareAndSet(index, value, threadId)))
-                    return index;
+                return index;
             index++;
             if (index >= size) {
                 Thread.yield();

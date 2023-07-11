@@ -45,7 +45,6 @@ import org.jetbrains.annotations.NotNull;
  * @see net.openhft.chronicle.core.values.LongArrayValues
  * @see net.openhft.chronicle.core.values.IntArrayValues
  * @see net.openhft.chronicle.core.values.UnsetLongValue
- * @author Peter Lawrey
  */
 public interface StringValue {
 

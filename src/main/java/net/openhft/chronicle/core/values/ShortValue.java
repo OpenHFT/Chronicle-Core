@@ -30,6 +30,7 @@ import java.nio.BufferUnderflowException;
  * The interface provides basic operations such as getting and setting the
  * value, as well as an atomic addition operation.
  *
+ * @author Peter Lawrey
  * @see net.openhft.chronicle.core.values.BooleanValue
  * @see net.openhft.chronicle.core.values.ByteValue
  * @see net.openhft.chronicle.core.values.CharValue
@@ -42,7 +43,6 @@ import java.nio.BufferUnderflowException;
  * @see net.openhft.chronicle.core.values.LongArrayValues
  * @see net.openhft.chronicle.core.values.IntArrayValues
  * @see net.openhft.chronicle.core.values.UnsetLongValue
- * @author Peter Lawrey
  * @since 10/10/13
  */
 public interface ShortValue {
@@ -51,7 +51,7 @@ public interface ShortValue {
      * Retrieves the current 16-bit short value.
      *
      * @return the current value as a short.
-     * @throws IllegalStateException if the value is accessed after the underlying storage is released.
+     * @throws IllegalStateException    if the value is accessed after the underlying storage is released.
      * @throws BufferUnderflowException if there's not enough data available to read.
      */
     short getValue() throws IllegalStateException, BufferUnderflowException;
@@ -60,7 +60,7 @@ public interface ShortValue {
      * Sets the current 16-bit short value.
      *
      * @param value the new value to set as a short.
-     * @throws IllegalStateException if the value is modified after the underlying storage is released.
+     * @throws IllegalStateException   if the value is modified after the underlying storage is released.
      * @throws BufferOverflowException if there's not enough space to write the data.
      */
     void setValue(short value) throws IllegalStateException, BufferOverflowException;
@@ -72,9 +72,9 @@ public interface ShortValue {
      *
      * @param delta the value to add to the current value as a short.
      * @return the updated value as a short.
-     * @throws IllegalStateException if the value is modified after the underlying storage is released.
+     * @throws IllegalStateException    if the value is modified after the underlying storage is released.
      * @throws BufferUnderflowException if there's not enough data available to read.
-     * @throws BufferOverflowException if there's not enough space to write the data.
+     * @throws BufferOverflowException  if there's not enough space to write the data.
      */
     short addValue(short delta) throws IllegalStateException, BufferUnderflowException, BufferOverflowException;
 }

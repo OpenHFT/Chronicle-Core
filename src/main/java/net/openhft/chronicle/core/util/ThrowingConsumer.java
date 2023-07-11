@@ -28,10 +28,10 @@ import java.util.function.Consumer;
  * Represents an operation that accepts a single input argument and returns no
  * result. Unlike most other functional interfaces, {@code Consumer} is expected
  * to operate via side-effects.
- * </p><p>
+ * <p>
  * This is a <a href="package-summary.html">functional interface</a>
  * whose functional method is {@link #accept(Object)}.
- * </p>
+ * 
  *
  * @param <I> the type of the input to the function
  * @param <T> the type of Throwable thrown

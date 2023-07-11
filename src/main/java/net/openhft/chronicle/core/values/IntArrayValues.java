@@ -42,6 +42,7 @@ import java.nio.BufferUnderflowException;
  * <p>
  * The bindValueAt method binds an IntValue to a specified index in the array.
  *
+ * @author Peter Lawrey
  * @see net.openhft.chronicle.core.values.BooleanValue
  * @see net.openhft.chronicle.core.values.ByteValue
  * @see net.openhft.chronicle.core.values.CharValue
@@ -54,7 +55,6 @@ import java.nio.BufferUnderflowException;
  * @see net.openhft.chronicle.core.values.LongArrayValues
  * @see net.openhft.chronicle.core.values.IntArrayValues
  * @see net.openhft.chronicle.core.values.UnsetLongValue
- * @author Peter Lawrey
  * @since 10/10/13
  */
 public interface IntArrayValues extends Closeable {
@@ -70,7 +70,7 @@ public interface IntArrayValues extends Closeable {
      * Retrieves the number of used elements in the array.
      *
      * @return the number of used elements in the array
-     * @throws IllegalStateException if the array is closed
+     * @throws IllegalStateException    if the array is closed
      * @throws BufferUnderflowException if the array is empty
      */
     long getUsed() throws IllegalStateException, BufferUnderflowException;
@@ -79,7 +79,7 @@ public interface IntArrayValues extends Closeable {
      * Sets the maximum number of used elements in the array.
      *
      * @param usedAtLeast the minimum number of used elements in the array
-     * @throws IllegalStateException if the array is closed
+     * @throws IllegalStateException    if the array is closed
      * @throws BufferUnderflowException if the array is empty
      */
     void setMaxUsed(long usedAtLeast) throws IllegalStateException, BufferUnderflowException;
@@ -89,7 +89,7 @@ public interface IntArrayValues extends Closeable {
      *
      * @param index the index of the int value to retrieve
      * @return the int value at the specified index
-     * @throws IllegalStateException if the array is closed
+     * @throws IllegalStateException    if the array is closed
      * @throws BufferUnderflowException if the index is out of bounds
      */
     int getValueAt(long index) throws IllegalStateException, BufferUnderflowException;
@@ -99,7 +99,7 @@ public interface IntArrayValues extends Closeable {
      *
      * @param index the index at which to set the int value
      * @param value the int value to set
-     * @throws IllegalStateException if the array is closed
+     * @throws IllegalStateException   if the array is closed
      * @throws BufferOverflowException if the index is out of bounds
      */
     void setValueAt(long index, int value) throws IllegalStateException, BufferOverflowException;
@@ -109,7 +109,7 @@ public interface IntArrayValues extends Closeable {
      *
      * @param index the index of the int value to retrieve
      * @return the int value at the specified index
-     * @throws IllegalStateException if the array is closed
+     * @throws IllegalStateException    if the array is closed
      * @throws BufferUnderflowException if the index is out of bounds
      */
     int getVolatileValueAt(long index) throws IllegalStateException, BufferUnderflowException;
@@ -119,7 +119,7 @@ public interface IntArrayValues extends Closeable {
      *
      * @param index the index at which to set the int value
      * @param value the int value to set
-     * @throws IllegalStateException if the array is closed
+     * @throws IllegalStateException   if the array is closed
      * @throws BufferOverflowException if the index is out of bounds
      */
     void setOrderedValueAt(long index, int value) throws IllegalStateException, BufferOverflowException;
@@ -127,11 +127,11 @@ public interface IntArrayValues extends Closeable {
     /**
      * Atomically sets the value at a specified index to the given updated value if the current value equals the expected value.
      *
-     * @param index the index at which to set the int value
+     * @param index    the index at which to set the int value
      * @param expected the expected current value
-     * @param value the new value
+     * @param value    the new value
      * @return true if successful, false otherwise
-     * @throws IllegalStateException if the array is closed
+     * @throws IllegalStateException   if the array is closed
      * @throws BufferOverflowException if the index is out of bounds
      */
     boolean compareAndSet(long index, int expected, int value) throws IllegalStateException, BufferOverflowException;
@@ -141,8 +141,8 @@ public interface IntArrayValues extends Closeable {
      *
      * @param index the index at which to bind the IntValue
      * @param value the IntValue to bind
-     * @throws IllegalStateException if the array is closed
-     * @throws BufferOverflowException if the index is out of bounds
+     * @throws IllegalStateException    if the array is closed
+     * @throws BufferOverflowException  if the index is out of bounds
      * @throws IllegalArgumentException if the value is not valid
      */
     void bindValueAt(long index, IntValue value) throws IllegalStateException, BufferOverflowException, IllegalArgumentException;

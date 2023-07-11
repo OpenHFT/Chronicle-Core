@@ -25,11 +25,11 @@ package net.openhft.chronicle.core.io;
  * This exception is often used to wrap checked exceptions related to IO operations,
  * such as {@code IOException}, into an unchecked exception. This is useful in contexts
  * where it is inconvenient to handle or propagate the checked exceptions.
- * </p>
+ * 
  * <p>
  * The class also provides a utility method to convert general exceptions into {@code IORuntimeException},
  * specializing the exception as {@code ClosedIORuntimeException} if the underlying IO resource is closed.
- * </p>
+ * 
  * <p>
  * Example usage:
  * <pre>
@@ -39,7 +39,7 @@ package net.openhft.chronicle.core.io;
  *     throw new IORuntimeException("Failed to perform the IO operation", e);
  * }
  * </pre>
- * </p>
+ * 
  */
 public class IORuntimeException extends RuntimeException {
 

@@ -2652,15 +2652,16 @@ public class UnsafeMemory implements Memory {
             else
                 writeVolatileInt(address, Float.floatToRawIntBits(f));
         }
-/**
- * Atomically adds the given increment to an int value at the specified memory address.
- * If the address is not aligned to 4 bytes (which is the size of an int), a MisAlignedAssertionError is thrown.
- *
- * @param address the memory address of the int value
- * @param increment the value to add
- * @return the updated value
- * @throws MisAlignedAssertionError if the address is not aligned to 4 bytes
- */
+
+        /**
+         * Atomically adds the given increment to an int value at the specified memory address.
+         * If the address is not aligned to 4 bytes (which is the size of an int), a MisAlignedAssertionError is thrown.
+         *
+         * @param address   the memory address of the int value
+         * @param increment the value to add
+         * @return the updated value
+         * @throws MisAlignedAssertionError if the address is not aligned to 4 bytes
+         */
         @Override
         public int addInt(long address, int increment) throws MisAlignedAssertionError {
             assert SKIP_ASSERTIONS || address != 0;
@@ -2669,17 +2670,17 @@ public class UnsafeMemory implements Memory {
             throw new MisAlignedAssertionError();
         }
 
-/**
- * Atomically sets the int at the specified memory address to the given value if it currently
- * holds the expected value. If the address is not aligned to 4 bytes (which is the size of an int),
- * a MisAlignedAssertionError is thrown.
- *
- * @param address the memory address of the int value
- * @param expected the expected current value
- * @param value the new value
- * @return true if successful, false otherwise
- * @throws MisAlignedAssertionError if the address is not aligned to 4 bytes
- */
+        /**
+         * Atomically sets the int at the specified memory address to the given value if it currently
+         * holds the expected value. If the address is not aligned to 4 bytes (which is the size of an int),
+         * a MisAlignedAssertionError is thrown.
+         *
+         * @param address  the memory address of the int value
+         * @param expected the expected current value
+         * @param value    the new value
+         * @return true if successful, false otherwise
+         * @throws MisAlignedAssertionError if the address is not aligned to 4 bytes
+         */
         @Override
         public boolean compareAndSwapInt(long address, int expected, int value) throws MisAlignedAssertionError {
             assert SKIP_ASSERTIONS || address != 0;
@@ -2688,18 +2689,18 @@ public class UnsafeMemory implements Memory {
             throw new MisAlignedAssertionError();
         }
 
-/**
- * Atomically sets the int at the specified offset within the given object to the given
- * value if it currently holds the expected value. If the offset is not aligned to 4 bytes
- * (which is the size of an int), a MisAlignedAssertionError is thrown.
- *
- * @param object the object containing the int value
- * @param offset the offset of the int value within the object
- * @param expected the expected current value
- * @param value the new value
- * @return true if successful, false otherwise
- * @throws MisAlignedAssertionError if the offset is not aligned to 4 bytes
- */
+        /**
+         * Atomically sets the int at the specified offset within the given object to the given
+         * value if it currently holds the expected value. If the offset is not aligned to 4 bytes
+         * (which is the size of an int), a MisAlignedAssertionError is thrown.
+         *
+         * @param object   the object containing the int value
+         * @param offset   the offset of the int value within the object
+         * @param expected the expected current value
+         * @param value    the new value
+         * @return true if successful, false otherwise
+         * @throws MisAlignedAssertionError if the offset is not aligned to 4 bytes
+         */
         @Override
         public boolean compareAndSwapInt(Object object, long offset, int expected, int value) throws MisAlignedAssertionError {
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
@@ -2708,16 +2709,16 @@ public class UnsafeMemory implements Memory {
             throw new MisAlignedAssertionError();
         }
 
-/**
- * Atomically sets the int at the specified memory address to the given value and
- * returns the old value. If the address is not aligned to 4 bytes (which is the size of an int),
- * a MisAlignedAssertionError is thrown.
- *
- * @param address the memory address of the int value
- * @param value the new value
- * @return the old value
- * @throws MisAlignedAssertionError if the address is not aligned to 4 bytes
- */
+        /**
+         * Atomically sets the int at the specified memory address to the given value and
+         * returns the old value. If the address is not aligned to 4 bytes (which is the size of an int),
+         * a MisAlignedAssertionError is thrown.
+         *
+         * @param address the memory address of the int value
+         * @param value   the new value
+         * @return the old value
+         * @throws MisAlignedAssertionError if the address is not aligned to 4 bytes
+         */
         @Override
         public int getAndSetInt(long address, int value) throws MisAlignedAssertionError {
             assert SKIP_ASSERTIONS || address != 0;
@@ -2726,17 +2727,17 @@ public class UnsafeMemory implements Memory {
             throw new MisAlignedAssertionError();
         }
 
-/**
- * Atomically sets the int at the specified offset within the given object to the given value
- * and returns the old value. If the offset is not aligned to 4 bytes (which is the size of an int),
- * a MisAlignedAssertionError is thrown.
- *
- * @param object the object containing the int value
- * @param offset the offset of the int value within the object
- * @param value the new value
- * @return the old value
- * @throws MisAlignedAssertionError if the offset is not aligned to 4 bytes
- */
+        /**
+         * Atomically sets the int at the specified offset within the given object to the given value
+         * and returns the old value. If the offset is not aligned to 4 bytes (which is the size of an int),
+         * a MisAlignedAssertionError is thrown.
+         *
+         * @param object the object containing the int value
+         * @param offset the offset of the int value within the object
+         * @param value  the new value
+         * @return the old value
+         * @throws MisAlignedAssertionError if the offset is not aligned to 4 bytes
+         */
         @Override
         public int getAndSetInt(Object object, long offset, int value) throws MisAlignedAssertionError {
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
@@ -2744,17 +2745,18 @@ public class UnsafeMemory implements Memory {
                 return super.getAndSetInt(object, offset, value);
             throw new MisAlignedAssertionError();
         }
-/**
- * Atomically sets the int at the specified memory address to the given value if it currently
- * holds the expected value. If it doesn't hold the expected value, or if the address is not
- * aligned to 4 bytes (which is the size of an int), an IllegalStateException is thrown.
- *
- * @param address the memory address of the int value
- * @param offset the offset of the int value within the memory address
- * @param expected the expected current value
- * @param value the new value
- * @throws IllegalStateException if the address is not aligned to 4 bytes or if the current value is not the expected value
- */
+
+        /**
+         * Atomically sets the int at the specified memory address to the given value if it currently
+         * holds the expected value. If it doesn't hold the expected value, or if the address is not
+         * aligned to 4 bytes (which is the size of an int), an IllegalStateException is thrown.
+         *
+         * @param address  the memory address of the int value
+         * @param offset   the offset of the int value within the memory address
+         * @param expected the expected current value
+         * @param value    the new value
+         * @throws IllegalStateException if the address is not aligned to 4 bytes or if the current value is not the expected value
+         */
         @Override
         public void testAndSetInt(long address, long offset, int expected, int value) throws IllegalStateException {
             assert SKIP_ASSERTIONS || address != 0;
@@ -2777,17 +2779,17 @@ public class UnsafeMemory implements Memory {
             }
         }
 
-/**
- * Atomically sets the int at the specified offset within the given object to the given
- * value if it currently holds the expected value. If it doesn't hold the expected value, or if the
- * offset is not aligned to 4 bytes (which is the size of an int), an IllegalStateException is thrown.
- *
- * @param object the object containing the int value
- * @param offset the offset of the int value within the object
- * @param expected the expected current value
- * @param value the new value
- * @throws IllegalStateException if the offset is not aligned to 4 bytes or if the current value is not the expected value
- */
+        /**
+         * Atomically sets the int at the specified offset within the given object to the given
+         * value if it currently holds the expected value. If it doesn't hold the expected value, or if the
+         * offset is not aligned to 4 bytes (which is the size of an int), an IllegalStateException is thrown.
+         *
+         * @param object   the object containing the int value
+         * @param offset   the offset of the int value within the object
+         * @param expected the expected current value
+         * @param value    the new value
+         * @throws IllegalStateException if the offset is not aligned to 4 bytes or if the current value is not the expected value
+         */
         @Override
         public void testAndSetInt(Object object, long offset, int expected, int value) throws IllegalStateException {
             assert SKIP_ASSERTIONS || nonNull(object);
@@ -2810,14 +2812,14 @@ public class UnsafeMemory implements Memory {
             }
         }
 
-/**
- * Writes the specified double value to the specified memory address.
- * If the address is not aligned to 8 bytes (which is the size of a long), the double value is converted
- * to a long using Double.doubleToRawLongBits(d) and then written.
- *
- * @param address the memory address
- * @param d the double value to write
- */
+        /**
+         * Writes the specified double value to the specified memory address.
+         * If the address is not aligned to 8 bytes (which is the size of a long), the double value is converted
+         * to a long using Double.doubleToRawLongBits(d) and then written.
+         *
+         * @param address the memory address
+         * @param d       the double value to write
+         */
         @Override
         public void writeDouble(long address, double d) {
             assert SKIP_ASSERTIONS || address != 0;
@@ -2827,14 +2829,14 @@ public class UnsafeMemory implements Memory {
                 super.writeLong(address, Double.doubleToRawLongBits(d));
         }
 
-/**
- * Reads a double value from the specified memory address.
- * If the address is not aligned to 8 bytes (which is the size of a long), a long is read and then converted
- * to a double using Double.longBitsToDouble().
- *
- * @param address the memory address
- * @return the read double value
- */
+        /**
+         * Reads a double value from the specified memory address.
+         * If the address is not aligned to 8 bytes (which is the size of a long), a long is read and then converted
+         * to a double using Double.longBitsToDouble().
+         *
+         * @param address the memory address
+         * @return the read double value
+         */
         @Override
         public double readDouble(long address) {
             assert SKIP_ASSERTIONS || address != 0;
@@ -2843,15 +2845,15 @@ public class UnsafeMemory implements Memory {
             return Double.longBitsToDouble(super.readLong(address));
         }
 
-/**
- * Writes the specified double value to the specified offset within the given object.
- * If the offset is not aligned to 8 bytes (which is the size of a long), the double value is converted
- * to a long using Double.doubleToRawLongBits(d) and then written.
- *
- * @param object the object containing the double value
- * @param offset the offset of the double value within the object
- * @param d the double value to write
- */
+        /**
+         * Writes the specified double value to the specified offset within the given object.
+         * If the offset is not aligned to 8 bytes (which is the size of a long), the double value is converted
+         * to a long using Double.doubleToRawLongBits(d) and then written.
+         *
+         * @param object the object containing the double value
+         * @param offset the offset of the double value within the object
+         * @param d      the double value to write
+         */
         @Override
         public void writeDouble(Object object, long offset, double d) {
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
@@ -2861,15 +2863,15 @@ public class UnsafeMemory implements Memory {
                 super.writeLong(object, offset, Double.doubleToRawLongBits(d));
         }
 
-/**
- * Reads a double value from the specified offset within the given object.
- * If the offset is not aligned to 8 bytes (which is the size of a long), a long is read and then converted
- * to a double using Double.longBitsToDouble().
- *
- * @param object the object containing the double value
- * @param offset the offset of the double value within the object
- * @return the read double value
- */
+        /**
+         * Reads a double value from the specified offset within the given object.
+         * If the offset is not aligned to 8 bytes (which is the size of a long), a long is read and then converted
+         * to a double using Double.longBitsToDouble().
+         *
+         * @param object the object containing the double value
+         * @param offset the offset of the double value within the object
+         * @return the read double value
+         */
         @Override
         public double readDouble(Object object, long offset) {
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
@@ -2877,14 +2879,15 @@ public class UnsafeMemory implements Memory {
                 return super.readDouble(object, offset);
             return Double.longBitsToDouble(super.readLong(object, offset));
         }
-/**
- * Writes the specified long value to the specified memory address using an ordered/lazy write.
- * If the address is not aligned to 8 bytes (which is the size of a long), it falls back to
- * an unsafe put and store fence.
- *
- * @param address the memory address
- * @param i the long value to write
- */
+
+        /**
+         * Writes the specified long value to the specified memory address using an ordered/lazy write.
+         * If the address is not aligned to 8 bytes (which is the size of a long), it falls back to
+         * an unsafe put and store fence.
+         *
+         * @param address the memory address
+         * @param i       the long value to write
+         */
         @Override
         public void writeOrderedLong(long address, long i) {
             assert SKIP_ASSERTIONS || address != 0;
@@ -2896,14 +2899,14 @@ public class UnsafeMemory implements Memory {
             }
         }
 
-/**
- * Reads a volatile long value from the specified memory address.
- * If the address is not aligned to 8 bytes (which is the size of a long), it performs an unsafe load fence and
- * a normal read.
- *
- * @param address the memory address
- * @return the read long value
- */
+        /**
+         * Reads a volatile long value from the specified memory address.
+         * If the address is not aligned to 8 bytes (which is the size of a long), it performs an unsafe load fence and
+         * a normal read.
+         *
+         * @param address the memory address
+         * @return the read long value
+         */
         @Override
         public long readVolatileLong(long address) {
             assert SKIP_ASSERTIONS || address != 0;
@@ -2913,15 +2916,15 @@ public class UnsafeMemory implements Memory {
             return readLong(address);
         }
 
-/**
- * Writes the specified long value to the specified offset within the given object using an ordered/lazy write.
- * If the offset is not aligned to 8 bytes (which is the size of a long), it falls back to
- * an unsafe put and store fence.
- *
- * @param object the object containing the long value
- * @param offset the offset of the long value within the object
- * @param i the long value to write
- */
+        /**
+         * Writes the specified long value to the specified offset within the given object using an ordered/lazy write.
+         * If the offset is not aligned to 8 bytes (which is the size of a long), it falls back to
+         * an unsafe put and store fence.
+         *
+         * @param object the object containing the long value
+         * @param offset the offset of the long value within the object
+         * @param i      the long value to write
+         */
         @Override
         public void writeOrderedLong(Object object, long offset, long i) {
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
@@ -2933,15 +2936,15 @@ public class UnsafeMemory implements Memory {
             }
         }
 
-/**
- * Reads a volatile long value from the specified offset within the given object.
- * If the offset is not aligned to 8 bytes (which is the size of a long), it performs an unsafe load fence and
- * a normal read.
- *
- * @param object the object containing the long value
- * @param offset the offset of the long value within the object
- * @return the read long value
- */
+        /**
+         * Reads a volatile long value from the specified offset within the given object.
+         * If the offset is not aligned to 8 bytes (which is the size of a long), it performs an unsafe load fence and
+         * a normal read.
+         *
+         * @param object the object containing the long value
+         * @param offset the offset of the long value within the object
+         * @return the read long value
+         */
         @Override
         public long readVolatileLong(Object object, long offset) {
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
@@ -2951,14 +2954,14 @@ public class UnsafeMemory implements Memory {
             return readLong(object, offset);
         }
 
-/**
- * Reads a volatile double value from the specified memory address.
- * If the address is not aligned to 8 bytes (which is the size of a long), it performs an unsafe load fence and
- * a normal read.
- *
- * @param address the memory address
- * @return the read double value
- */
+        /**
+         * Reads a volatile double value from the specified memory address.
+         * If the address is not aligned to 8 bytes (which is the size of a long), it performs an unsafe load fence and
+         * a normal read.
+         *
+         * @param address the memory address
+         * @return the read double value
+         */
         @Override
         public double readVolatileDouble(long address) {
             assert SKIP_ASSERTIONS || address != 0;
@@ -2967,14 +2970,15 @@ public class UnsafeMemory implements Memory {
             UNSAFE.loadFence();
             return readDouble(address);
         }
-/**
- * Writes the specified long value to the given object at the specified offset in a volatile manner.
- * If the offset is not aligned to 8 bytes (which is the size of a long), it performs a non-atomic write and a store fence.
- *
- * @param object the object containing the long value
- * @param offset the offset of the long value within the object
- * @param i64 the long value to write
- */
+
+        /**
+         * Writes the specified long value to the given object at the specified offset in a volatile manner.
+         * If the offset is not aligned to 8 bytes (which is the size of a long), it performs a non-atomic write and a store fence.
+         *
+         * @param object the object containing the long value
+         * @param offset the offset of the long value within the object
+         * @param i64    the long value to write
+         */
         @Override
         public void writeVolatileLong(Object object, long offset, long i64) {
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
@@ -2986,13 +2990,13 @@ public class UnsafeMemory implements Memory {
             }
         }
 
-/**
- * Writes the specified long value to the specified memory address in a volatile manner.
- * If the address is not aligned to 8 bytes (which is the size of a long), it performs a non-atomic write and a store fence.
- *
- * @param address the memory address
- * @param i64 the long value to write
- */
+        /**
+         * Writes the specified long value to the specified memory address in a volatile manner.
+         * If the address is not aligned to 8 bytes (which is the size of a long), it performs a non-atomic write and a store fence.
+         *
+         * @param address the memory address
+         * @param i64     the long value to write
+         */
         @Override
         public void writeVolatileLong(long address, long i64) {
             assert SKIP_ASSERTIONS || address != 0;
@@ -3004,13 +3008,13 @@ public class UnsafeMemory implements Memory {
             }
         }
 
-/**
- * Writes the specified double value to the specified memory address in a volatile manner.
- * If the address is not aligned to 8 bytes (which is the size of a long), it performs a non-atomic write and a store fence.
- *
- * @param address the memory address
- * @param d the double value to write
- */
+        /**
+         * Writes the specified double value to the specified memory address in a volatile manner.
+         * If the address is not aligned to 8 bytes (which is the size of a long), it performs a non-atomic write and a store fence.
+         *
+         * @param address the memory address
+         * @param d       the double value to write
+         */
         @Override
         public void writeVolatileDouble(long address, double d) {
             assert SKIP_ASSERTIONS || address != 0;
@@ -3020,15 +3024,15 @@ public class UnsafeMemory implements Memory {
                 writeLong(address, Double.doubleToRawLongBits(d));
         }
 
-/**
- * Adds the specified increment to the long value at the specified memory address.
- * If the address is not aligned to 8 bytes (which is the size of a long), it throws a MisAlignedAssertionError.
- *
- * @param address the memory address
- * @param increment the increment to add
- * @return the result of the addition
- * @throws MisAlignedAssertionError if the address is not aligned to 8 bytes
- */
+        /**
+         * Adds the specified increment to the long value at the specified memory address.
+         * If the address is not aligned to 8 bytes (which is the size of a long), it throws a MisAlignedAssertionError.
+         *
+         * @param address   the memory address
+         * @param increment the increment to add
+         * @return the result of the addition
+         * @throws MisAlignedAssertionError if the address is not aligned to 8 bytes
+         */
         @Override
         public long addLong(long address, long increment) throws MisAlignedAssertionError {
             assert SKIP_ASSERTIONS || address != 0;
@@ -3036,17 +3040,18 @@ public class UnsafeMemory implements Memory {
                 return super.addLong(address, increment);
             throw new MisAlignedAssertionError();
         }
-/**
- * Atomically updates the long value at the given offset in the specified object if the current value equals the expected value.
- * If the offset is not aligned to 8 bytes (which is the size of a long), it throws a MisAlignedAssertionError.
- *
- * @param object the object containing the long value
- * @param offset the offset of the long value within the object
- * @param expected the expected current value
- * @param value the new value
- * @return true if the current value was equal to the expected value, false otherwise
- * @throws MisAlignedAssertionError if the offset is not aligned to 8 bytes
- */
+
+        /**
+         * Atomically updates the long value at the given offset in the specified object if the current value equals the expected value.
+         * If the offset is not aligned to 8 bytes (which is the size of a long), it throws a MisAlignedAssertionError.
+         *
+         * @param object   the object containing the long value
+         * @param offset   the offset of the long value within the object
+         * @param expected the expected current value
+         * @param value    the new value
+         * @return true if the current value was equal to the expected value, false otherwise
+         * @throws MisAlignedAssertionError if the offset is not aligned to 8 bytes
+         */
         @Override
         public boolean compareAndSwapLong(Object object, long offset, long expected, long value) throws MisAlignedAssertionError {
             assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), offset);
@@ -3055,16 +3060,16 @@ public class UnsafeMemory implements Memory {
             throw new MisAlignedAssertionError();
         }
 
-/**
- * Atomically updates the long value at the specified memory address if the current value equals the expected value.
- * If the address is not aligned to 8 bytes (which is the size of a long), it throws a MisAlignedAssertionError.
- *
- * @param address the memory address
- * @param expected the expected current value
- * @param value the new value
- * @return true if the current value was equal to the expected value, false otherwise
- * @throws MisAlignedAssertionError if the address is not aligned to 8 bytes
- */
+        /**
+         * Atomically updates the long value at the specified memory address if the current value equals the expected value.
+         * If the address is not aligned to 8 bytes (which is the size of a long), it throws a MisAlignedAssertionError.
+         *
+         * @param address  the memory address
+         * @param expected the expected current value
+         * @param value    the new value
+         * @return true if the current value was equal to the expected value, false otherwise
+         * @throws MisAlignedAssertionError if the address is not aligned to 8 bytes
+         */
         @Override
         public boolean compareAndSwapLong(long address, long expected, long value) throws MisAlignedAssertionError {
             assert SKIP_ASSERTIONS || address != 0;
@@ -3073,38 +3078,38 @@ public class UnsafeMemory implements Memory {
             throw new MisAlignedAssertionError();
         }
 
-/**
- * Checks if the specified memory address is aligned to 4 bytes (which is the size of an int).
- *
- * @param addr the memory address
- * @return true if the address is aligned to 4 bytes, false otherwise
- */
+        /**
+         * Checks if the specified memory address is aligned to 4 bytes (which is the size of an int).
+         *
+         * @param addr the memory address
+         * @return true if the address is aligned to 4 bytes, false otherwise
+         */
         @Override
         public boolean safeAlignedInt(long addr) {
             return (addr & 3) == 0;
         }
 
-/**
- * Checks if the specified memory address is aligned to 8 bytes (which is the size of a long).
- *
- * @param addr the memory address
- * @return true if the address is aligned to 8 bytes, false otherwise
- */
+        /**
+         * Checks if the specified memory address is aligned to 8 bytes (which is the size of a long).
+         *
+         * @param addr the memory address
+         * @return true if the address is aligned to 8 bytes, false otherwise
+         */
         @Override
         public boolean safeAlignedLong(long addr) {
             return (addr & 7) == 0;
         }
 
-/**
- * Adds the specified increment to the long value at the given offset in the specified object.
- * If the offset is not aligned to 8 bytes (which is the size of a long), it throws a MisAlignedAssertionError.
- *
- * @param object the object containing the long value
- * @param offset the offset of the long value within the object
- * @param increment the increment to add
- * @return the result of the addition
- * @throws MisAlignedAssertionError if the offset is not aligned to 8 bytes
- */
+        /**
+         * Adds the specified increment to the long value at the given offset in the specified object.
+         * If the offset is not aligned to 8 bytes (which is the size of a long), it throws a MisAlignedAssertionError.
+         *
+         * @param object    the object containing the long value
+         * @param offset    the offset of the long value within the object
+         * @param increment the increment to add
+         * @return the result of the addition
+         * @throws MisAlignedAssertionError if the offset is not aligned to 8 bytes
+         */
         @Override
         public long addLong(Object object, long offset, long increment) throws MisAlignedAssertionError {
             assert SKIP_ASSERTIONS || offset > 8;

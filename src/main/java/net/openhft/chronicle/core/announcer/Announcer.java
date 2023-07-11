@@ -36,7 +36,8 @@ public final class Announcer {
 
     public static final String LOGO = "logo";
 
-    private Announcer() {}
+    private Announcer() {
+    }
 
     /**
      * Announces the given artifact whereby useful information is printed pertaining
@@ -53,7 +54,7 @@ public final class Announcer {
      *     <li>info on net.openhtf:chronicle-map</li>
      * </ol>
      *
-     * @param groupId name of the group (e.g. net.openhft)
+     * @param groupId    name of the group (e.g. net.openhft)
      * @param artifactId name of the library (e.g. chronicle-queue)
      */
     public static void announce(@NotNull final String groupId, @NotNull final String artifactId) {

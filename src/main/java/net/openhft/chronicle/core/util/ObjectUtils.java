@@ -47,7 +47,7 @@ import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
  * such as instantiation, type conversion, class/interface handling, and more.
  * This class cannot be instantiated and is meant to serve as a collection of utility functions.
  *
- * <p>Some of the key features provided by this utility class include:</p>
+ * <p>Some of the key features provided by this utility class include:
  * <ul>
  *     <li>Creating new instances of classes</li>
  *     <li>Retrieving default values for given types</li>
@@ -60,9 +60,9 @@ import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
  *
  * <p>Note: This class is a part of the Chronicle core library and is intended to be used by
  * developers who need to perform various common operations on objects and classes within their
- * Java applications.</p>
+ * Java applications.
  */
- public final class ObjectUtils {
+public final class ObjectUtils {
 
     // Suppresses default constructor, ensuring non-instantiability.
     private ObjectUtils() {
@@ -184,6 +184,7 @@ import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
     public static void immutable(final Class<?> clazz, final boolean isImmutable) {
         IMMUTABILITY_MAP.put(clazz, isImmutable ? Immutability.YES : Immutability.NO);
     }
+
     @Deprecated(/* to be removed x.26 */)
     public static void immutabile(final Class<?> clazz, final boolean isImmutable) {
         immutable(clazz, isImmutable);
@@ -214,8 +215,8 @@ import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
         switch (s.length()) {
             case 1:
                 try {
-                char ch = Character.toLowerCase(s.charAt(0));
-                return ch == 't' || ch == 'y';
+                    char ch = Character.toLowerCase(s.charAt(0));
+                    return ch == 't' || ch == 'y';
                 } catch (IndexOutOfBoundsException e) {
                     throw new AssertionError(e);
                 }
@@ -681,12 +682,12 @@ import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
         return (tClass.getModifiers() & (Modifier.ABSTRACT | Modifier.INTERFACE)) == 0;
     }
 
-/**
- * Invokes the readResolve method on the given object if it exists.
- *
- * @param o The object on which to invoke readResolve.
- * @return  The result of the readResolve method, or the original object if readResolve does not exist.
- */
+    /**
+     * Invokes the readResolve method on the given object if it exists.
+     *
+     * @param o The object on which to invoke readResolve.
+     * @return The result of the readResolve method, or the original object if readResolve does not exist.
+     */
     public static Object readResolve(@NotNull Object o) {
         Method readResove = READ_RESOLVE.get(o.getClass());
         if (readResove == null)
@@ -700,12 +701,12 @@ import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
         }
     }
 
-/**
- * Converts a string to a Boolean.
- *
- * @param s The string to be converted.
- * @return  Boolean.TRUE if the string is "true", Boolean.FALSE if the string is "false", null otherwise.
- */
+    /**
+     * Converts a string to a Boolean.
+     *
+     * @param s The string to be converted.
+     * @return Boolean.TRUE if the string is "true", Boolean.FALSE if the string is "false", null otherwise.
+     */
     @Nullable
     public static Boolean toBoolean(@Nullable String s) {
         if (s == null)
@@ -721,13 +722,14 @@ import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
             Jvm.debug().on(ObjectUtils.class, "Treating '" + s + "' as false");
         return Boolean.FALSE;
     }
-/**
- * Retrieves all the interfaces implemented by the given object or class.
- *
- * @param o The object or class for which to retrieve the implemented interfaces.
- * @return An array of Class objects representing all the interfaces implemented by the given object or class.
- * @throws AssertionError If an illegal argument is encountered.
- */
+
+    /**
+     * Retrieves all the interfaces implemented by the given object or class.
+     *
+     * @param o The object or class for which to retrieve the implemented interfaces.
+     * @return An array of Class objects representing all the interfaces implemented by the given object or class.
+     * @throws AssertionError If an illegal argument is encountered.
+     */
     public static Class<?>[] getAllInterfaces(Object o) {
         try {
             Set<Class<?>> results = new HashSet<>();
@@ -738,13 +740,13 @@ import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
         }
     }
 
-/**
- * Recursively accumulates all interfaces implemented by the given object or class.
- *
- * @param o           The object or class for which to retrieve the implemented interfaces.
- * @param accumulator A function that accumulates the interfaces.
- * @throws IllegalArgumentException If the accumulator is null.
- */
+    /**
+     * Recursively accumulates all interfaces implemented by the given object or class.
+     *
+     * @param o           The object or class for which to retrieve the implemented interfaces.
+     * @param accumulator A function that accumulates the interfaces.
+     * @throws IllegalArgumentException If the accumulator is null.
+     */
     public static void getAllInterfaces(Object o, Function<Class<?>, Boolean> accumulator) throws IllegalArgumentException {
         if (null == o)
             return;
@@ -759,12 +761,12 @@ import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
         }
     }
 
-/**
- * Recursively accumulates all interfaces for a given class.
- *
- * @param clazz       The class for which to retrieve the implemented interfaces.
- * @param accumulator A function that accumulates the interfaces.
- */
+    /**
+     * Recursively accumulates all interfaces for a given class.
+     *
+     * @param clazz       The class for which to retrieve the implemented interfaces.
+     * @param accumulator A function that accumulates the interfaces.
+     */
     private static void getAllInterfacesForClass(Class<?> clazz, Function<Class<?>, Boolean> accumulator) {
         if (clazz.isInterface()) {
             if (Boolean.TRUE.equals(accumulator.apply(clazz))) {
@@ -781,11 +783,12 @@ import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
             }
         }
     }
-/**
- * Sets a default implementation to be used for interfaces.
- *
- * @param defaultObjectForInterface A function that takes a class and returns a default implementation for it.
- */
+
+    /**
+     * Sets a default implementation to be used for interfaces.
+     *
+     * @param defaultObjectForInterface A function that takes a class and returns a default implementation for it.
+     */
     public static synchronized void defaultObjectForInterface(ThrowingFunction<Class<?>, Class<?>, ClassNotFoundException> defaultObjectForInterface) {
         interfaceToDefaultClass = ClassLocal.withInitial(c -> {
             Class<?> c2;
@@ -801,12 +804,12 @@ import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
         supplierClassLocal = ClassLocal.withInitial(ObjectUtils::supplierForClass);
     }
 
-/**
- * Looks for a specific implementation of an interface and returns it.
- *
- * @param c2 The interface class for which to look for an implementation.
- * @return The implementation class, or the original class if no specific implementation is found.
- */
+    /**
+     * Looks for a specific implementation of an interface and returns it.
+     *
+     * @param c2 The interface class for which to look for an implementation.
+     * @return The implementation class, or the original class if no specific implementation is found.
+     */
     @NotNull
     static Class<?> lookForImplEnum(Class<?> c2) {
         if (c2.isInterface()) {
@@ -827,13 +830,13 @@ import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
         return c2;
     }
 
-/**
- * Retrieves the implementation class to use for a given class.
- *
- * @param <T>     The type of the class.
- * @param tClass  The class for which to retrieve the implementation.
- * @return The implementation class to use.
- */
+    /**
+     * Retrieves the implementation class to use for a given class.
+     *
+     * @param <T>    The type of the class.
+     * @param tClass The class for which to retrieve the implementation.
+     * @return The implementation class to use.
+     */
     public static <T> Class<T> implementationToUse(Class<T> tClass) {
         if (tClass.isInterface()) {
             Class<?> class2 = interfaceToDefaultClass.get(tClass);

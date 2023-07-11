@@ -156,8 +156,8 @@ public final class StringUtils {
     /**
      * Checks if the given {@link CharSequence} ends with the specified string, in a case-insensitive way.
      *
-     * @param source    the {@link CharSequence} to be checked.
-     * @param endsWith  the string to check if the {@link CharSequence} ends with.
+     * @param source   the {@link CharSequence} to be checked.
+     * @param endsWith the string to check if the {@link CharSequence} ends with.
      * @return {@code true} if the {@link CharSequence} ends with the specified string, {@code false} otherwise.
      */
     public static boolean endsWith(@NotNull final CharSequence source,
@@ -247,13 +247,14 @@ public final class StringUtils {
                 return false;
         return true;
     }
-/**
- * Compares two {@link CharSequence}s for equality ignoring case considerations.
- *
- * @param s  the first {@link CharSequence} to be compared.
- * @param cs the second {@link CharSequence} to be compared.
- * @return {@code true} if the {@link CharSequence}s are equal irrespective of case, {@code false} otherwise.
- */
+
+    /**
+     * Compares two {@link CharSequence}s for equality ignoring case considerations.
+     *
+     * @param s  the first {@link CharSequence} to be compared.
+     * @param cs the second {@link CharSequence} to be compared.
+     * @return {@code true} if the {@link CharSequence}s are equal irrespective of case, {@code false} otherwise.
+     */
     public static boolean equalsCaseIgnore(@Nullable CharSequence s, @NotNull CharSequence cs) {
         if (s == null) return false;
         if (s.length() != cs.length()) return false;
@@ -264,12 +265,12 @@ public final class StringUtils {
         return true;
     }
 
-/**
- * Returns the string representation of the specified object.
- *
- * @param o the object whose string representation is to be returned.
- * @return the string representation of the specified object or null if the object is null.
- */
+    /**
+     * Returns the string representation of the specified object.
+     *
+     * @param o the object whose string representation is to be returned.
+     * @return the string representation of the specified object or null if the object is null.
+     */
     @Nullable
     public static String toString(@Nullable Object o) {
         return o == null ? null : o.toString();
@@ -467,13 +468,14 @@ public final class StringUtils {
         }
         return true;
     }
-/**
- * Converts the given string to title case. It will capitalize the first letter
- * of the string and then replace spaces with underscores and adjust casing for subsequent characters.
- *
- * @param name the input string to be converted.
- * @return the converted string in title case with underscores, or null if the input is null.
- */
+
+    /**
+     * Converts the given string to title case. It will capitalize the first letter
+     * of the string and then replace spaces with underscores and adjust casing for subsequent characters.
+     *
+     * @param name the input string to be converted.
+     * @return the converted string in title case with underscores, or null if the input is null.
+     */
     @Nullable
     public static String toTitleCase(@Nullable String name) {
         if (name == null || name.isEmpty())
@@ -506,12 +508,12 @@ public final class StringUtils {
         return sb.toString();
     }
 
-/**
- * Reverses a portion of the content of a {@link StringBuilder} in place, from the given start index to the end.
- *
- * @param text  the {@link StringBuilder} whose content needs to be partially reversed.
- * @param start the index from which to start the reverse operation.
- */
+    /**
+     * Reverses a portion of the content of a {@link StringBuilder} in place, from the given start index to the end.
+     *
+     * @param text  the {@link StringBuilder} whose content needs to be partially reversed.
+     * @param start the index from which to start the reverse operation.
+     */
     public static void reverse(StringBuilder text, int start) {
         int end = text.length() - 1;
         int mid = (start + end + 1) / 2;
@@ -583,26 +585,27 @@ public final class StringUtils {
         }
         return negative ? result : -result;
     }
-/**
- * Constructs a {@link NumberFormatException} with the message "For input string: '[input]'"
- * where [input] is the content of the input CharSequence.
- *
- * @param s the input CharSequence that was attempted to be parsed.
- * @return a {@link NumberFormatException} with a detail message.
- */
+
+    /**
+     * Constructs a {@link NumberFormatException} with the message "For input string: '[input]'"
+     * where [input] is the content of the input CharSequence.
+     *
+     * @param s the input CharSequence that was attempted to be parsed.
+     * @return a {@link NumberFormatException} with a detail message.
+     */
     static NumberFormatException forInputString(CharSequence s) {
         return new NumberFormatException("For input string: \"" + s + "\"");
     }
 
-/**
- * Constructs a {@link NumberFormatException} with a message indicating that the given
- * radix is either less than {@link Character#MIN_RADIX} or greater than {@link Character#MAX_RADIX}.
- *
- * @param radix the radix value.
- * @param less  if true, indicates that the radix is less than {@link Character#MIN_RADIX},
- *              otherwise it indicates that the radix is greater than {@link Character#MAX_RADIX}.
- * @return a {@link NumberFormatException} with a detail message.
- */
+    /**
+     * Constructs a {@link NumberFormatException} with a message indicating that the given
+     * radix is either less than {@link Character#MIN_RADIX} or greater than {@link Character#MAX_RADIX}.
+     *
+     * @param radix the radix value.
+     * @param less  if true, indicates that the radix is less than {@link Character#MIN_RADIX},
+     *              otherwise it indicates that the radix is greater than {@link Character#MAX_RADIX}.
+     * @return a {@link NumberFormatException} with a detail message.
+     */
     static NumberFormatException forRadix(int radix, boolean less) {
         if (less)
             return new NumberFormatException("radix " + radix +

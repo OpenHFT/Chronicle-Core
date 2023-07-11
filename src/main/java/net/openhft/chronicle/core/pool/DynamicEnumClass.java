@@ -41,13 +41,13 @@ import java.util.function.Function;
  * while the {@code ordinal} represents the position of the enum instance in the declaration order.
  *
  * @param <E> the type of enum instances this class will manage. It must extend {@link CoreDynamicEnum}.
- * Example usage:
- * <pre>
- * {@code
- * EnumCache<YesNo> yesNoEnumCache = EnumCache.of(YesNo.class);
- * YesNo maybe = yesNoEnumCache.valueOf("Maybe"); // Dynamically creates a new enum instance with name "Maybe"
- * }
- * </pre>
+ *            Example usage:
+ *            <pre>
+ *            {@code
+ *            EnumCache<YesNo> yesNoEnumCache = EnumCache.of(YesNo.class);
+ *            YesNo maybe = yesNoEnumCache.valueOf("Maybe"); // Dynamically creates a new enum instance with name "Maybe"
+ *            }
+ *            </pre>
  */
 public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E> {
 
@@ -166,7 +166,7 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
     public E[] asArray() {
         if (values != null)
             return values;
-        return values = eList.toArray((E[])Array.newInstance(type, eList.size()));
+        return values = eList.toArray((E[]) Array.newInstance(type, eList.size()));
     }
 
     @Override

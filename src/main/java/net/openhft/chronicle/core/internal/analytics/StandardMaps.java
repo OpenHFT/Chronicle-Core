@@ -71,8 +71,8 @@ public final class StandardMaps {
     public static Map<String, String> standardEventParameters(@NotNull final String appVersion) {
         requireNonNull(appVersion);
         return Stream.of(
-                entry("app_version", appVersion)
-        )
+                        entry("app_version", appVersion)
+                )
                 .filter(e -> e.getValue() != null)
                 .collect(toOrderedMap());
     }
@@ -83,17 +83,17 @@ public final class StandardMaps {
 
     public static Map<String, String> standardUserProperties() {
         return Stream.of(
-                entryFor("java.runtime.name"),
-                entryFor("java.runtime.version"),
-                entryFor("os.name"),
-                entryFor("os.arch"),
-                entryFor("os.version"),
-                entry(replaceDotsWithUnderscore("timezone.default"), TimeZone.getDefault().getID()),
-                entry(replaceDotsWithUnderscore("available.processors"), Integer.toString(Runtime.getRuntime().availableProcessors())), // Must be strings...
-                entry(replaceDotsWithUnderscore("max.memory.gib"), Long.toString(Runtime.getRuntime().maxMemory() / GIB)),
-                entry(replaceDotsWithUnderscore("java.major.version"), Long.toString(Jvm.majorVersion())),
-                entry(replaceDotsWithUnderscore("max.direct.memory.gib"), Long.toString(Jvm.maxDirectMemory() / GIB))
-        )
+                        entryFor("java.runtime.name"),
+                        entryFor("java.runtime.version"),
+                        entryFor("os.name"),
+                        entryFor("os.arch"),
+                        entryFor("os.version"),
+                        entry(replaceDotsWithUnderscore("timezone.default"), TimeZone.getDefault().getID()),
+                        entry(replaceDotsWithUnderscore("available.processors"), Integer.toString(Runtime.getRuntime().availableProcessors())), // Must be strings...
+                        entry(replaceDotsWithUnderscore("max.memory.gib"), Long.toString(Runtime.getRuntime().maxMemory() / GIB)),
+                        entry(replaceDotsWithUnderscore("java.major.version"), Long.toString(Jvm.majorVersion())),
+                        entry(replaceDotsWithUnderscore("max.direct.memory.gib"), Long.toString(Jvm.maxDirectMemory() / GIB))
+                )
                 .filter(e -> e.getValue() != null)
                 .collect(toOrderedMap());
     }

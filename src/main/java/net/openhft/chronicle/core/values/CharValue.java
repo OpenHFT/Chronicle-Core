@@ -27,6 +27,7 @@ package net.openhft.chronicle.core.values;
  * <p>
  * The getValue method retrieves the current char value. The setValue method sets the char value.
  *
+ * @author Peter Lawrey
  * @see net.openhft.chronicle.core.values.BooleanValue
  * @see net.openhft.chronicle.core.values.ByteValue
  * @see net.openhft.chronicle.core.values.CharValue
@@ -39,7 +40,6 @@ package net.openhft.chronicle.core.values;
  * @see net.openhft.chronicle.core.values.LongArrayValues
  * @see net.openhft.chronicle.core.values.IntArrayValues
  * @see net.openhft.chronicle.core.values.UnsetLongValue
- * @author Peter Lawrey
  * @since 10/10/13
  */
 public interface CharValue {

@@ -28,7 +28,7 @@ import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
  * A wrapper for an {@link EventLoop} which is created on demand when any of its methods are called.
  * <p>
  * This can be used to lazily instantiate an EventLoop only when it's actually needed.
- * </p>
+ * 
  */
 public class OnDemandEventLoop implements EventLoop {
     private final Supplier<EventLoop> eventLoopSupplier;

@@ -2,33 +2,33 @@
  * Provides classes and interfaces for pooling and efficient access of various resources like classes, strings, and enum values.
  *
  * <p>The {@link net.openhft.chronicle.core.pool.ClassAliasPool} class is responsible for looking up classes
- * and associating them with aliases for more convenient referencing.</p>
+ * and associating them with aliases for more convenient referencing.
  *
  * <p>The {@link net.openhft.chronicle.core.pool.ClassLookup} interface defines contracts for looking up
- * classes by name and associating them with aliases.</p>
+ * classes by name and associating them with aliases.
  *
  * <p>The {@link net.openhft.chronicle.core.pool.DynamicEnumClass} class represents a dynamic enumeration class
  * that extends the capabilities of {@link net.openhft.chronicle.core.pool.EnumCache} and is capable of dynamically
- * creating and managing instances which resemble enumerations (enums) in behavior.</p>
+ * creating and managing instances which resemble enumerations (enums) in behavior.
  *
  * <p>The {@link net.openhft.chronicle.core.pool.EnumCache} class is an abstract base class for caching and efficient
- * access to enum-like instances.</p>
+ * access to enum-like instances.
  *
  * <p>The {@link net.openhft.chronicle.core.pool.EnumInterner} class represents a cache for enum values to improve
- * performance in scenarios where the same enum values are frequently looked up by name.</p>
+ * performance in scenarios where the same enum values are frequently looked up by name.
  *
- * <p>The {@link net.openhft.chronicle.core.pool.ParsingCache} class is a cache for parsed values that is optimized for fast lookup.</p>
+ * <p>The {@link net.openhft.chronicle.core.pool.ParsingCache} class is a cache for parsed values that is optimized for fast lookup.
  *
  * <p>The {@link net.openhft.chronicle.core.pool.StaticEnumClass} class represents a static enumeration class that
  * extends the capabilities of {@link net.openhft.chronicle.core.pool.EnumCache} and is designed to work with traditional
- * Java enum types.</p>
+ * Java enum types.
  *
  * <p>The {@link net.openhft.chronicle.core.pool.StringBuilderPool} class provides a pool of StringBuilder objects for
  * efficient string building operations. Each thread gets its own StringBuilder instance via a ThreadLocal, ensuring
- * thread-safety while avoiding synchronization overhead.</p>
+ * thread-safety while avoiding synchronization overhead.
  *
  * <p>The {@link net.openhft.chronicle.core.pool.StringInterner} class provides string interning functionality, optimizing
- * memory usage by caching strings and referring to them by index rather than storing duplicate strings.</p>
+ * memory usage by caching strings and referring to them by index rather than storing duplicate strings.
  *
  * @see net.openhft.chronicle.core.pool.ClassAliasPool
  * @see net.openhft.chronicle.core.pool.ClassLookup

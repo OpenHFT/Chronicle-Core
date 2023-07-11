@@ -23,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
+
 /**
  * Utility class for working with annotations on methods and classes.
  * <p>
@@ -32,15 +33,16 @@ import java.lang.reflect.Method;
  */
 @Deprecated(/* to be removed in x.26, replaced by Jvm.findAnnotation */)
 public final class Annotations {
-    private Annotations() { }
+    private Annotations() {
+    }
 
     /**
      * Finds the specified annotation on a method of a given class, its superclass, or interfaces.
      *
-     * @param <A> the type of the annotation to be fetched
-     * @param annoClass the Class object corresponding to the annotation type
-     * @param aClass the Class object in which to find the method
-     * @param name the name of the method
+     * @param <A>            the type of the annotation to be fetched
+     * @param annoClass      the Class object corresponding to the annotation type
+     * @param aClass         the Class object in which to find the method
+     * @param name           the name of the method
      * @param parameterTypes the parameter types of the method
      * @return the annotation of type {@code A} if present, or {@code null} otherwise
      */
@@ -72,8 +74,8 @@ public final class Annotations {
      * Fetches the specified annotation from a method. If the method does not have the annotation,
      * it attempts to find it in the declaring class, its superclass, or interfaces.
      *
-     * @param <A> the type of the annotation to be fetched
-     * @param method the method from which to fetch the annotation
+     * @param <A>             the type of the annotation to be fetched
+     * @param method          the method from which to fetch the annotation
      * @param annotationClass the Class object corresponding to the annotation type
      * @return the annotation of type {@code A} if present, or {@code null} otherwise
      */

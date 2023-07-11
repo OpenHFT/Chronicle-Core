@@ -33,9 +33,9 @@ import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
  * of exceptions. This can be particularly useful for logging or taking corrective action based on specific exceptions.
  *
  * <p>Implementations of this interface can provide custom strategies for handling exceptions,
- * such as logging them, ignoring them, or throwing them.</p>
+ * such as logging them, ignoring them, or throwing them.
  *
- * <p>By default, exceptions are logged using SLF4J logging framework, however, this behavior can be overridden.</p>
+ * <p>By default, exceptions are logged using SLF4J logging framework, however, this behavior can be overridden.
  */
 @FunctionalInterface
 public interface ExceptionHandler {
@@ -65,7 +65,7 @@ public interface ExceptionHandler {
      * @param clazz   the class where the error occurred. Must not be null.
      * @param message a custom message detailing the error.
      */
-    default void on(@NotNull final Class<?> clazz,  final String message) {
+    default void on(@NotNull final Class<?> clazz, final String message) {
         on(clazz, message, null);
     }
 

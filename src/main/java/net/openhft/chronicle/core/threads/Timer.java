@@ -45,8 +45,8 @@ public class Timer {
     /**
      * Constructs a Timer with a specified time provider.
      *
-     * @param eventLoop     the event loop on which the timer tasks are scheduled and run.
-     * @param timeProvider  the time provider used to control the scheduling.
+     * @param eventLoop    the event loop on which the timer tasks are scheduled and run.
+     * @param timeProvider the time provider used to control the scheduling.
      */
     public Timer(@NotNull EventLoop eventLoop, @NotNull TimeProvider timeProvider) {
         this.cancellableTimer = new CancellableTimer(eventLoop, timeProvider);

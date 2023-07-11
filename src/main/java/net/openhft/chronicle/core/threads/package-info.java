@@ -4,7 +4,7 @@
  * for scheduling tasks to run periodically, managing thread-local variables, and
  * handling events using an event loop.
  *
- * <p>Key classes and interfaces:</p>
+ * <p>Key classes and interfaces:
  * <ul>
  *     <li>{@link net.openhft.chronicle.core.threads.CancellableTimer}: A timer that can
  *     schedule tasks for periodic execution or execution after a delay.</li>

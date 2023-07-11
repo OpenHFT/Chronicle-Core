@@ -54,7 +54,6 @@ import java.nio.BufferUnderflowException;
  * @see net.openhft.chronicle.core.values.LongArrayValues
  * @see net.openhft.chronicle.core.values.IntArrayValues
  * @see net.openhft.chronicle.core.values.UnsetLongValue
- * @author Peter Lawrey
  * @since 10/10/13
  */
 public interface LongArrayValues extends Closeable {
@@ -70,7 +69,7 @@ public interface LongArrayValues extends Closeable {
      * Retrieves the number of used elements in the array.
      *
      * @return the number of used elements in the array
-     * @throws IllegalStateException if the array is closed
+     * @throws IllegalStateException    if the array is closed
      * @throws BufferUnderflowException if the array is empty
      */
     long getUsed() throws IllegalStateException, BufferUnderflowException;
@@ -79,7 +78,7 @@ public interface LongArrayValues extends Closeable {
      * Sets the number of used elements in the array.
      *
      * @param used the number of used elements in the array
-     * @throws IllegalStateException if the array is closed
+     * @throws IllegalStateException    if the array is closed
      * @throws BufferUnderflowException if the array is empty
      */
     void setUsed(long used) throws IllegalStateException, BufferUnderflowException;
@@ -88,7 +87,7 @@ public interface LongArrayValues extends Closeable {
      * Sets the maximum number of used elements in the array.
      *
      * @param usedAtLeast the minimum number of used elements in the array
-     * @throws IllegalStateException if the array is closed
+     * @throws IllegalStateException    if the array is closed
      * @throws BufferUnderflowException if the array is empty
      */
     void setMaxUsed(long usedAtLeast) throws IllegalStateException, BufferUnderflowException;
@@ -98,7 +97,7 @@ public interface LongArrayValues extends Closeable {
      *
      * @param index the index of the long value to retrieve
      * @return the long value at the specified index
-     * @throws IllegalStateException if the array is closed
+     * @throws IllegalStateException    if the array is closed
      * @throws BufferUnderflowException if the index is out of bounds
      */
     long getValueAt(long index) throws IllegalStateException, BufferUnderflowException;
@@ -108,7 +107,7 @@ public interface LongArrayValues extends Closeable {
      *
      * @param index the index at which to set the long value
      * @param value the long value to set
-     * @throws IllegalStateException if the array is closed
+     * @throws IllegalStateException   if the array is closed
      * @throws BufferOverflowException if the index is out of bounds
      */
     void setValueAt(long index, long value) throws IllegalStateException, BufferOverflowException;
@@ -118,7 +117,7 @@ public interface LongArrayValues extends Closeable {
      *
      * @param index the index of the long value to retrieve
      * @return the long value at the specified index
-     * @throws IllegalStateException if the array is closed
+     * @throws IllegalStateException    if the array is closed
      * @throws BufferUnderflowException if the index is out of bounds
      */
     long getVolatileValueAt(long index) throws IllegalStateException, BufferUnderflowException;
@@ -128,7 +127,7 @@ public interface LongArrayValues extends Closeable {
      *
      * @param index the index at which to set the long value
      * @param value the long value to set
-     * @throws IllegalStateException if the array is closed
+     * @throws IllegalStateException   if the array is closed
      * @throws BufferOverflowException if the index is out of bounds
      */
     void setOrderedValueAt(long index, long value) throws IllegalStateException, BufferOverflowException;
@@ -136,11 +135,11 @@ public interface LongArrayValues extends Closeable {
     /**
      * Atomically sets the value at a specified index to the given updated value if the current value equals the expected value.
      *
-     * @param index the index at which to set the long value
+     * @param index    the index at which to set the long value
      * @param expected the expected current value
-     * @param value the new value
+     * @param value    the new value
      * @return true if successful, false otherwise
-     * @throws IllegalStateException if the array is closed
+     * @throws IllegalStateException   if the array is closed
      * @throws BufferOverflowException if the index is out of bounds
      */
     boolean compareAndSet(long index, long expected, long value) throws IllegalStateException, BufferOverflowException;
@@ -150,7 +149,7 @@ public interface LongArrayValues extends Closeable {
      *
      * @param index the index at which to bind the LongValue
      * @param value the LongValue to bind
-     * @throws IllegalStateException if the array is closed
+     * @throws IllegalStateException   if the array is closed
      * @throws BufferOverflowException if the index is out of bounds
      */
     void bindValueAt(long index, LongValue value) throws IllegalStateException, BufferOverflowException;

@@ -29,12 +29,12 @@ package net.openhft.chronicle.core.io;
  * converted to or from a different representation, such as serialization, and
  * you need to ensure that the object adheres to its contract or the defined
  * schema.
- * </p>
+ * 
  * <p>
  * It can also be used in conjunction with the {@link Validatable} interface. When
  * an object implementing {@code Validatable} is validated using its {@code validate}
  * method, this exception can be thrown if the object does not meet the defined criteria.
- * </p>
+ * 
  * <p>
  * Example usage:
  * <pre>
@@ -50,7 +50,7 @@ package net.openhft.chronicle.core.io;
  *     }
  * }
  * </pre>
- * </p>
+ * 
  */
 public class InvalidMarshallableException extends RuntimeException {
 

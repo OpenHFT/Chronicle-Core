@@ -28,17 +28,17 @@ import net.openhft.chronicle.core.internal.CloseableUtils;
  * This abstract class extends {@link AbstractReferenceCounted} and implements {@link ManagedCloseable},
  * and is designed to manage a resource that requires reference counting to ensure proper cleanup
  * once it is no longer in use.
- * </p>
+ * 
  * <p>
  * Reference counting allows multiple users to share a single resource and ensures that the resource
  * is only closed when all references are released. Each user of the resource increments the reference
  * count upon acquiring the resource and decrements it upon releasing.
- * </p>
+ * 
  * <p>
  * This class integrates reference counting with the ability to close the resource. When the reference
  * count reaches zero, or if an explicit call to close is made, the resource transitions to the closed state
  * and cannot be used any further.
- * </p>
+ * 
  */
 public abstract class AbstractCloseableReferenceCounted
         extends AbstractReferenceCounted

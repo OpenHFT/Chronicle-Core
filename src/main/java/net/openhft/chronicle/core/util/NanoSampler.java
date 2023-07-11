@@ -26,12 +26,12 @@ import net.openhft.chronicle.core.annotation.SingleThreaded;
  * or method references.
  * <p>
  * Classes implementing this interface, such as {@link Histogram}, should record samples with nanosecond precision.
- * </p>
+ * 
  * <p>
  * The {@code NanoSampler} interface is marked as {@link SingleThreaded}, indicating that implementations are not
  * thread-safe and must only be accessed by a single thread at a time.
  */
- @SingleThreaded
+@SingleThreaded
 @FunctionalInterface
 public interface NanoSampler {
 
@@ -41,7 +41,7 @@ public interface NanoSampler {
      * This method must be called from a single thread only. If called from multiple threads
      * or if provided with a negative duration, the result is unspecified and no errors or exceptions
      * should be thrown.
-     * </p>
+     * 
      *
      * @param durationNs The duration of the sample in nanoseconds. Must be non-negative.
      */

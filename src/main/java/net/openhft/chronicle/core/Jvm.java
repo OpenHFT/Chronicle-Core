@@ -1157,7 +1157,7 @@ public final class Jvm {
      *         <tr><td>0.75GiB</td><td>768 MiB</td></tr>
      *         <tr><td>0.001TiB</td><td>1.024 GiB</td></tr>
      *     </table>
-     * </p>
+     * 
      *
      * @param value size to parse
      * @return the size
