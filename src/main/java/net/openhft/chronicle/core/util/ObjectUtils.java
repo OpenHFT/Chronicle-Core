@@ -213,8 +213,12 @@ import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
             return false;
         switch (s.length()) {
             case 1:
+                try {
                 char ch = Character.toLowerCase(s.charAt(0));
                 return ch == 't' || ch == 'y';
+                } catch (IndexOutOfBoundsException e) {
+                    throw new AssertionError(e);
+                }
             case 3:
                 return equalsCaseIgnore(s, "yes");
             case 4:
