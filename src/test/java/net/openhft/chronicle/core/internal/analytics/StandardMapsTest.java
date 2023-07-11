@@ -45,19 +45,19 @@ public class StandardMapsTest {
     public void standardAdditionalEventParameters() {
 
         final StackTraceElement[] stackTrace = Stream.of(
-                "a.Foo",
-                "software.chronicle.fix.demo.connections.example1.Main", // White listed
-                "software.chronicle.fix.Runner", // Black listed
-                java.lang.Thread.class.getName(),
-                "software.chronicle.enterprise.E",
-                "b.Foo",
-                java.lang.reflect.Method.class.getName(),
-                "w.x.y.z.Foo",
-                "jdk.internal.reflect.A",
-                "java.util.concurrent.A",
-                "org.apache.maven.A",
-                java.util.List.class.getName()
-        )
+                        "a.Foo",
+                        "software.chronicle.fix.demo.connections.example1.Main", // White listed
+                        "software.chronicle.fix.Runner", // Black listed
+                        java.lang.Thread.class.getName(),
+                        "software.chronicle.enterprise.E",
+                        "b.Foo",
+                        java.lang.reflect.Method.class.getName(),
+                        "w.x.y.z.Foo",
+                        "jdk.internal.reflect.A",
+                        "java.util.concurrent.A",
+                        "org.apache.maven.A",
+                        java.util.List.class.getName()
+                )
                 .map(s -> new StackTraceElement(s, "m", "m.java", 1))
                 .toArray(StackTraceElement[]::new);
 

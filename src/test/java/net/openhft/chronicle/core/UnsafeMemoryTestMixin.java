@@ -290,9 +290,9 @@ interface UnsafeMemoryTestMixin<T> {
 
     default IntStream interestingOffsets() {
         return IntStream.concat(
-                IntStream.of(0, 1),
-                IntStream.of(CACHE_LINE_SIZE_ARM, CACHE_LINE_SIZE)
-                        .flatMap(s -> IntStream.rangeClosed(s - Long.BYTES, s)))
+                        IntStream.of(0, 1),
+                        IntStream.of(CACHE_LINE_SIZE_ARM, CACHE_LINE_SIZE)
+                                .flatMap(s -> IntStream.rangeClosed(s - Long.BYTES, s)))
                 .filter(alignedToType());
     }
 
