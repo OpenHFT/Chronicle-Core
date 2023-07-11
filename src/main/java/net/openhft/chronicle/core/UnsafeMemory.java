@@ -72,13 +72,15 @@ public class UnsafeMemory implements Memory {
      */
     public static final UnsafeMemory INSTANCE;
     public static final UnsafeMemory MEMORY;
-    // TODO support big endian
-    public static final boolean IS_LITTLE_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
+
     // see java.nio.Bits.copyMemory
     // This number limits the number of bytes to copy per call to Unsafe's
     // copyMemory method. A limit is imposed to allow for safepoint polling
     // during a large copy
     static final long UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
+    // TODO support big endian
+    public static final boolean IS_LITTLE_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
+
     // Create a local copy of type long (instead of int) to optimize performance
     private static final long ARRAY_BYTE_BASE_OFFSET = Unsafe.ARRAY_BYTE_BASE_OFFSET;
     private static final long ARRAY_CHAR_BASE_OFFSET = Unsafe.ARRAY_CHAR_BASE_OFFSET;
