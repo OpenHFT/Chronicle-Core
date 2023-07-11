@@ -27,10 +27,26 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * A utility class for managing values in a {@link ThreadLocal}.
+ * <p>
+ * This class provides helper methods for fetching values from {@link ThreadLocal},
+ * taking care of initializing the value if not present.
+ */
 public final class ThreadLocalHelper {
+
+    // Private constructor to prevent instantiation of utility  class
     private ThreadLocalHelper() {
     }
 
+    /**
+     * Retrieves a thread-local weakly-referenced value, or creates a new one using a supplier if none exists.
+     *
+     * @param threadLocal The ThreadLocal object to retrieve or create a value for.
+     * @param supplier    The supplier to generate a new value if necessary.
+     * @param <T>         The type of the value.
+     * @return The retrieved or newly created value.
+     */
     @NotNull
     public static <T> T getTL(@NotNull ThreadLocal<WeakReference<T>> threadLocal, @NotNull Supplier<T> supplier) {
         @Nullable WeakReference<T> ref = threadLocal.get();
@@ -44,6 +60,14 @@ public final class ThreadLocalHelper {
         return ret;
     }
 
+    /**
+     * Retrieves a thread-local value, or creates a new one using a supplier if none exists.
+     *
+     * @param threadLocal The ThreadLocal object to retrieve or create a value for.
+     * @param supplier    The supplier to generate a new value if necessary.
+     * @param <T>         The type of the value.
+     * @return The retrieved or newly created value.
+     */
     @NotNull
     public static <T> T getSTL(@NotNull ThreadLocal<T> threadLocal, @NotNull Supplier<T> supplier) {
         @Nullable T ret = threadLocal.get();
@@ -54,11 +78,34 @@ public final class ThreadLocalHelper {
         return ret;
     }
 
+    /**
+     * Retrieves a thread-local weakly-referenced value, or creates a new one using a function if none exists.
+     *
+     * @param threadLocal The ThreadLocal object to retrieve or create a value for.
+     * @param a           The input for the function to generate a new value if necessary.
+     * @param function    The function to generate a new value if necessary.
+     * @param <T>         The type of the value.
+     * @param <A>         The type of the input to the function.
+     * @return The retrieved or newly created value.
+     */
     @NotNull
     public static <T, A> T getTL(@NotNull ThreadLocal<WeakReference<T>> threadLocal, A a, @NotNull Function<A, T> function) {
         return getTL(threadLocal, a, function, null, null);
     }
 
+    /**
+     * Retrieves a thread-local weakly-referenced value, or creates a new one using a function if none exists.
+     * Allows for the registration of the newly created weak reference in a reference queue via a registrar consumer.
+     *
+     * @param threadLocal     The ThreadLocal object to retrieve or create a value for.
+     * @param supplyingEntity The input for the function to generate a new value if necessary.
+     * @param constructor     The function to generate a new value if necessary.
+     * @param referenceQueue  The reference queue to register the weak reference in.
+     * @param registrar       The consumer to use for registration of the weak reference.
+     * @param <T>             The type of the value.
+     * @param <A>             The type of the input to the function.
+     * @return The retrieved or newly created value.
+     */
     @NotNull
     public static <T, A> T getTL(@NotNull final ThreadLocal<WeakReference<T>> threadLocal,
                                  @NotNull final A supplyingEntity,

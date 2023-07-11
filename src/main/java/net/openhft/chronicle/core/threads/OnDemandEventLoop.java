@@ -24,14 +24,30 @@ import java.util.function.Supplier;
 
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
+/**
+ * A wrapper for an {@link EventLoop} which is created on demand when any of its methods are called.
+ * <p>
+ * This can be used to lazily instantiate an EventLoop only when it's actually needed.
+ * 
+ */
 public class OnDemandEventLoop implements EventLoop {
     private final Supplier<EventLoop> eventLoopSupplier;
     private volatile EventLoop eventLoop;
 
+    /**
+     * Constructs an OnDemandEventLoop with the given supplier for creating the actual EventLoop.
+     *
+     * @param eventLoopSupplier The supplier to be used for creating the actual EventLoop on demand.
+     */
     public OnDemandEventLoop(@NotNull final Supplier<EventLoop> eventLoopSupplier) {
         this.eventLoopSupplier = requireNonNull(eventLoopSupplier);
     }
 
+    /**
+     * Gets the EventLoop, creating it if necessary.
+     *
+     * @return The EventLoop.
+     */
     EventLoop eventLoop() {
         EventLoop el = this.eventLoop;
         if (el != null)
@@ -45,6 +61,11 @@ public class OnDemandEventLoop implements EventLoop {
         }
     }
 
+    /**
+     * Checks if the EventLoop has been created.
+     *
+     * @return true if the EventLoop has been created, false otherwise.
+     */
     public boolean hasEventLoop() {
         return eventLoop != null;
     }
@@ -78,7 +99,7 @@ public class OnDemandEventLoop implements EventLoop {
 
     @Override
     public boolean isClosed() {
-        return !hasEventLoop() || eventLoop().isClosed();
+        return !hasEventLoop() && eventLoop().isClosed();
     }
 
     @Override
@@ -92,6 +113,9 @@ public class OnDemandEventLoop implements EventLoop {
         return el != null && el.isStopped();
     }
 
+    /**
+     * Waits until the EventLoop is terminated if it has been created.
+     */
     @SuppressWarnings("deprecation")
     @Override
     public void awaitTermination() {
@@ -99,6 +123,9 @@ public class OnDemandEventLoop implements EventLoop {
             eventLoop().awaitTermination();
     }
 
+    /**
+     * Closes the EventLoop if it has been created.
+     */
     @Override
     public void close() {
         if (hasEventLoop())

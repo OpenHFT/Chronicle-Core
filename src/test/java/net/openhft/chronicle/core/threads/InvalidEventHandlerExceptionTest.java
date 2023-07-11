@@ -59,7 +59,7 @@ public class InvalidEventHandlerExceptionTest {
                 sb.append((char) b);
             }
         };
-        PrintStream ps = new PrintStream(os)) {
+             PrintStream ps = new PrintStream(os)) {
             e.printStackTrace(ps);
         }
         final String stackTrace = sb.toString();

@@ -23,9 +23,17 @@ import net.openhft.chronicle.core.Jvm;
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
+/**
+ * Utility class for working with {@link ByteBuffer} instances.
+ * <p>
+ * Provides functionality to directly set the address and capacity of a ByteBuffer.
+ * <p>
+ * Note: This class is deprecated and will be removed in version x.26.
+ */
 @Deprecated(/* to be removed x.26 */)
 public final class ByteBuffers {
-    private ByteBuffers() {}
+    private ByteBuffers() {
+    }
 
     private static final Field ADDRESS;
     private static final Field CAPACITY;
@@ -36,6 +44,18 @@ public final class ByteBuffers {
         CAPACITY = Jvm.getField(direct.getClass(), "capacity");
     }
 
+    /**
+     * Sets the memory address and capacity of a {@link ByteBuffer} instance directly.
+     * <p>
+     * This method uses reflection to access and modify the address and capacity fields of the ByteBuffer.
+     * It should be used with caution as it bypasses the usual safety checks and can lead to undefined behavior
+     * if used improperly.
+     *
+     * @param buffer   the ByteBuffer whose address and capacity are to be set
+     * @param address  the memory address to be set
+     * @param capacity the capacity to be set
+     * @throws AssertionError if the operation fails due to IllegalAccessException or IllegalArgumentException
+     */
     public static void setAddressCapacity(ByteBuffer buffer, long address, long capacity) {
         int cap = Math.toIntExact(capacity);
         try {

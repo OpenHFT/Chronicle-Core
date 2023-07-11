@@ -26,7 +26,7 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
-// TODO Needs a test
+@Deprecated(/* to be moved in x.26 */)
 public class MonitorProfileAnalyserMain {
 
     private static final int MAX_LINES = Jvm.getInteger("st.maxlines", 8);

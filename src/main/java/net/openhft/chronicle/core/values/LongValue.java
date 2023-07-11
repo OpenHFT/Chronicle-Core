@@ -21,22 +21,79 @@ package net.openhft.chronicle.core.values;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.Closeable;
 
+/**
+ * The LongValue interface provides an abstraction for a mutable long value that supports atomic
+ * and concurrent modifications. It extends Closeable to allow releasing resources when they are
+ * no longer needed.
+ * <p>
+ * This interface offers various methods for getting and setting the long value, including
+ * atomic operations like compare-and-swap and mechanisms to set values with volatile semantics.
+ * <p>
+ * Implementations of this interface should ensure thread-safety for concurrent modifications.
+ *
+ * @see net.openhft.chronicle.core.values.BooleanValue
+ * @see net.openhft.chronicle.core.values.ByteValue
+ * @see net.openhft.chronicle.core.values.CharValue
+ * @see net.openhft.chronicle.core.values.DoubleValue
+ * @see net.openhft.chronicle.core.values.FloatValue
+ * @see net.openhft.chronicle.core.values.IntValue
+ * @see net.openhft.chronicle.core.values.LongValue
+ * @see net.openhft.chronicle.core.values.ShortValue
+ * @see net.openhft.chronicle.core.values.StringValue
+ * @see net.openhft.chronicle.core.values.LongArrayValues
+ * @see net.openhft.chronicle.core.values.IntArrayValues
+ * @see net.openhft.chronicle.core.values.UnsetLongValue
+ * @since 10/10/13
+ */
 public interface LongValue extends Closeable {
+
+    /**
+     * Retrieves the current long value.
+     *
+     * @return the current long value.
+     * @throws IllegalStateException if the value cannot be retrieved.
+     */
     long getValue() throws IllegalStateException;
 
+    /**
+     * Sets the long value.
+     *
+     * @param value the new long value.
+     * @throws IllegalStateException if the value cannot be set.
+     */
     void setValue(long value) throws IllegalStateException;
 
+    /**
+     * Retrieves the current long value with volatile semantics.
+     *
+     * @return the current long value.
+     * @throws IllegalStateException if the value cannot be retrieved.
+     */
+    @Deprecated(/* to be moved in x.25 */)
     default long getVolatileValue() throws IllegalStateException {
         return getValue();
     }
 
+    /**
+     * Sets the long value with volatile semantics.
+     *
+     * @param value the new long value.
+     * @throws IllegalStateException if the value cannot be set.
+     */
+    @Deprecated(/* to be moved in x.25 */)
     default void setVolatileValue(long value) throws IllegalStateException {
         setValue(value);
     }
 
     /**
-     * Value to return if the underlying resource isn't available.
+     * Retrieves the current long value with volatile semantics, or returns the given
+     * closedValue if the underlying resource is not available.
+     *
+     * @param closedValue the value to return if the underlying resource is not available.
+     * @return the current long value or the closedValue.
+     * @throws IllegalStateException if an unexpected error occurs.
      */
+    @Deprecated(/* to be moved in x.25 */)
     default long getVolatileValue(long closedValue) throws IllegalStateException {
         if (isClosed())
             return closedValue;
@@ -47,18 +104,55 @@ public interface LongValue extends Closeable {
         }
     }
 
+    /**
+     * Sets the long value with ordered or lazy set semantics.
+     *
+     * @param value the new long value.
+     * @throws IllegalStateException if the value cannot be set.
+     */
+    @Deprecated(/* to be moved in x.25 */)
     default void setOrderedValue(long value) throws IllegalStateException {
         setVolatileValue(value);
     }
 
+    /**
+     * Adds the specified delta to the current long value.
+     *
+     * @param delta the value to be added.
+     * @return the updated long value.
+     * @throws IllegalStateException if the value cannot be updated.
+     */
     long addValue(long delta) throws IllegalStateException;
 
+    /**
+     * Atomically adds the specified delta to the current long value.
+     *
+     * @param delta the value to be added.
+     * @return the updated long value.
+     * @throws IllegalStateException if the value cannot be updated atomically.
+     */
+    @Deprecated(/* to be moved in x.25 */)
     default long addAtomicValue(long delta) throws IllegalStateException {
         return addValue(delta);
     }
 
+    /**
+     * Atomically sets the value to the given updated value if the current value is equal to the expected value.
+     *
+     * @param expected the expected value.
+     * @param value    the new value.
+     * @return true if successful, false otherwise.
+     * @throws IllegalStateException if the operation cannot be completed.
+     */
     boolean compareAndSwapValue(long expected, long value) throws IllegalStateException;
 
+    /**
+     * Atomically sets the long value to the given value if it is greater than the current value.
+     *
+     * @param value the value to be set.
+     * @throws IllegalStateException if the value cannot be set atomically.
+     */
+    @Deprecated(/* to be moved in x.25 */)
     default void setMaxValue(long value) throws IllegalStateException {
         for (; ; ) {
             long pos = getVolatileValue();
@@ -70,6 +164,13 @@ public interface LongValue extends Closeable {
         }
     }
 
+    /**
+     * Atomically sets the long value to the given value if it is less than the current value.
+     *
+     * @param value the value to be set.
+     * @throws IllegalStateException if the value cannot be set atomically.
+     */
+    @Deprecated(/* to be moved in x.25 */)
     default void setMinValue(long value) throws IllegalStateException {
         for (; ; ) {
             long pos = getVolatileValue();
@@ -81,12 +182,22 @@ public interface LongValue extends Closeable {
         }
     }
 
+    /**
+     * Checks if the LongValue instance is closed.
+     *
+     * @return true if the instance is closed, false otherwise.
+     */
     @Override
+    @Deprecated(/* to be moved in x.25 */)
     default boolean isClosed() {
         return false;
     }
 
+    /**
+     * Closes the LongValue instance and releases any resources associated with it.
+     */
     @Override
+    @Deprecated(/* to be moved in x.25 */)
     default void close() {
     }
 }

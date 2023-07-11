@@ -38,7 +38,7 @@ import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
  * Analytics instances only provides a best-effort to propagate
  * events to the upstream receiver.
  * <p>
- * Analytics can be turned off buy setting the system property
+ * Analytics can be turned off by setting the system property
  * "chronicle.analytics.disable=true" prior to acquiring any Analytics
  * instances.
  */
@@ -184,7 +184,7 @@ public interface AnalyticsFacade {
          * <p>
          * The key will be used as a Google Analytics "user property" key with the
          * associated value.
-         * </p>
+         * 
          *
          * @param key   to associate
          * @param value to associate with the key
@@ -200,7 +200,7 @@ public interface AnalyticsFacade {
          * <p>
          * The key will be used as a Google Analytics "event parameter" key with the
          * associated value.
-         * </p>
+         * 
          *
          * @param key   to associate
          * @param value to associate with the key
@@ -279,7 +279,7 @@ public interface AnalyticsFacade {
         /**
          * Specifies a custom URL to use when connecting to Google Analytics.
          * <p>
-         * By default, the URL "https://www.google-analytics.com/mp/collect"
+         * By default, the URL "<a href="https://www.google-analytics.com/mp/collect">...</a>"
          * will be used.
          *
          * @param url used for remote connection

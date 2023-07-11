@@ -255,9 +255,9 @@ public final class OS {
     }
 
     /**
-     * Returns the user name of the current user.
+     * Returns the username of the current user.
      *
-     * @return the user name
+     * @return the username
      */
     public static String getUserName() {
         return USER_NAME;
@@ -335,8 +335,8 @@ public final class OS {
     /**
      * Aligns the specified offset for a memory-mapped file to the nearest higher multiple of the given pageAlignment.
      *
-     * @param offset         the offset to be aligned. It must be non-negative.
-     * @param pageAlignment  the alignment size, in bytes. This should typically be the operating system's page size or a multiple thereof.
+     * @param offset        the offset to be aligned. It must be non-negative.
+     * @param pageAlignment the alignment size, in bytes. This should typically be the operating system's page size or a multiple thereof.
      * @return the aligned offset.
      * @throws IllegalArgumentException if offset is negative or pageAlignment is non-positive.
      */
@@ -392,7 +392,7 @@ public final class OS {
      *
      * <p>
      * Note: Getting the process ID may be slow if the reserve DNS is not set up correctly.
-     * </p>
+     * 
      *
      * @return the process ID
      */
@@ -627,7 +627,7 @@ public final class OS {
         pb.redirectErrorStream(true);
         Process process = pb.start();
         @NotNull StringWriter sw = new StringWriter();
-        @NotNull char[] chars = new char[1024];
+        char @NotNull [] chars = new char[1024];
         try (@NotNull Reader r = new InputStreamReader(process.getInputStream())) {
             for (int len; (len = r.read(chars)) > 0; ) {
                 sw.write(chars, 0, len);

@@ -25,7 +25,7 @@ package net.openhft.chronicle.core.io;
  * Implementing this interface indicates that the object is capable of self-validation,
  * which is essential in contexts like serialization or communication where the integrity
  * and correctness of an object's state are crucial.
- * </p>
+ * 
  * <p>
  * Example usage:
  * <pre>
@@ -46,16 +46,24 @@ package net.openhft.chronicle.core.io;
  *     }
  * }
  * </pre>
- * </p>
+ * 
  */
 public interface Validatable {
+
     /**
-     * Validates the state of the object. Implementations should perform checks to
-     * ensure that the object's state is valid according to the defined constraints.
+     * Validates the state of the object.
      *
-     * @throws InvalidMarshallableException if a value is null or out of range, indicating an invalid state.
-     * @throws RuntimeException             if the object is in an invalid state, a general RuntimeException or a custom exception can be thrown.
+     * <p>This method should be called prior to writing the object via a method writer.
+     * Implementations should check the state of the object and throw an
+     * {@link InvalidMarshallableException} if the object is in an invalid state.
+     * <p>
+     * For example, this could involve checking for null values in required fields,
+     * validating that numerical values are within acceptable ranges, etc.
+     *
+     * @throws InvalidMarshallableException if the object is in an invalid state,
+     *                                      such as having null values in required fields or values
+     *                                      out of acceptable range.
+     * @throws RuntimeException             if an unexpected error occurs during validation.
      */
     void validate() throws InvalidMarshallableException;
-
 }

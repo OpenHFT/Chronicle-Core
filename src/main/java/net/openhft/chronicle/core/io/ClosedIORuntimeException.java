@@ -27,13 +27,13 @@ package net.openhft.chronicle.core.io;
  * wrapper for the standard checked {@link java.io.IOException}. {@code ClosedIORuntimeException}
  * specifically targets scenarios where the illegal operation is due to the underlying resource
  * being closed.
- * </p>
+ * 
  * <p>
  * {@code ClosedIORuntimeException} is used to report a runtime I/O exception that arises
  * from the closed state of the resource, without requiring the method to declare it in its
  * {@code throws} clause. This is useful in situations where reporting the exception is necessary
  * but forcing the calling code to catch it is not desired.
- * </p>
+ * 
  * <p>
  * Here's an example of how {@code ClosedIORuntimeException} might be used:
  * <pre>
@@ -47,7 +47,7 @@ package net.openhft.chronicle.core.io;
  *   }
  * }
  * </pre>
- * </p>
+ * 
  */
 public class ClosedIORuntimeException extends IORuntimeException {
 
@@ -66,7 +66,7 @@ public class ClosedIORuntimeException extends IORuntimeException {
      * <p>
      * Note that the detail message associated with {@code cause} is <i>not</i> automatically
      * incorporated into this exception's detail message.
-     * </p>
+     * 
      *
      * @param message The detail message, which is saved for later retrieval by the {@link #getMessage()} method.
      * @param thrown  The cause (which is saved for later retrieval by the {@link #getCause()} method).

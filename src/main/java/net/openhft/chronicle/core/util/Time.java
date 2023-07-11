@@ -29,7 +29,7 @@ import java.util.concurrent.locks.LockSupport;
  * <p>
  * For this to work, currentTimeMillis (or one of the methods that calls it) must be called more frequently than
  * every millisecond; the EventLoop implementations in chronicle-threads do this.
- * </p>
+ * 
  */
 public final class Time {
     private Time() {
@@ -45,6 +45,7 @@ public final class Time {
         return Long.toString(l, 36);
     }
 
+    @Deprecated(/* to be removed in x.25 */)
     public static void parkNanos(long nanos) {
         LockSupport.parkNanos(nanos);
     }
@@ -55,6 +56,7 @@ public final class Time {
      * @param time     to pause for at least.
      * @param timeUnit the time unit
      */
+    @Deprecated(/* to be removed in x.25 */)
     public static void sleep(long time, TimeUnit timeUnit) {
         int millis = (int) timeUnit.convert(time, TimeUnit.MILLISECONDS);
         for (int i = 0; i < millis; i++) {

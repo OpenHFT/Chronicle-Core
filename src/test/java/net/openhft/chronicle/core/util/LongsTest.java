@@ -70,7 +70,7 @@ public class LongsTest {
         test(0, 7, v -> Longs.require(Longs.longAligned(), v));
         test(8, 9, v -> Longs.require(Longs.longAligned(), v));
     }
-    
+
     private void test(final int happy,
                       final int sad,
                       @NotNull final LongUnaryOperator mapper) {

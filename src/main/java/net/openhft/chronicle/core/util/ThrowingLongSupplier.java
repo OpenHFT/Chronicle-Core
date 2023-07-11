@@ -27,19 +27,19 @@ import java.util.function.LongSupplier;
 /**
  * <p>
  * Represents a supplier of results which might throw an Exception
- * </p><p>
+ * <p>
  * There is no requirement that a new or distinct result be returned each
  * time the supplier is invoked.
- * </p><p>
+ * <p>
  * This is a <a href="package-summary.html">functional longerface</a>
  * whose functional method is {@link #getAsLong()}.
- * </p>
+ * 
  *
  * @param <T> the type of exception thrown by this supplier
  */
 @FunctionalInterface
 public interface ThrowingLongSupplier<T extends Throwable> {
-
+    @Deprecated(/* to be removed in x.26 */)
     static <T extends Throwable> LongSupplier asSupplier(@NotNull ThrowingLongSupplier<T> throwingSupplier) {
         return () -> {
             try {

@@ -32,6 +32,7 @@ import static java.util.Objects.requireNonNull;
  * A collection of functional compositions to check and assert various requirements
  * related to {@code int} values.
  */
+@Deprecated(/* to be moved in x.26 */)
 public final class Ints {
 
     // Suppresses default constructor, ensuring non-instantiability.
@@ -338,12 +339,12 @@ public final class Ints {
     }
 
     /**
-     * Returns a human readable form of a failure message provided that the provided {@code value} <em>did not</em>
+     * Returns a human-readable form of a failure message provided that the provided {@code value} <em>did not</em>
      * satisfy the provided {@code requirement}.
      *
      * @param requirement to imposed on the provided values
      * @param value       the value to check
-     * @return a human readable form of a failure message provided that the provided {@code value} <em>did not</em>
+     * @return a human-readable form of a failure message provided that the provided {@code value} <em>did not</em>
      * satisfy the provided {@code requirement}
      * @throws NullPointerException if the provided {@code requirement} is {@code null}.
      */
@@ -353,13 +354,13 @@ public final class Ints {
     }
 
     /**
-     * Returns a human readable form of a failure message provided that the provided {@code value} and
+     * Returns a human-readable form of a failure message provided that the provided {@code value} and
      * provided {@code otherValue} <em>did not</em> satisfy the provided {@code requirement}.
      *
      * @param requirement to imposed on the provided values
      * @param value       the value to check
      * @param otherValue  the other value to compare against the provided {@code value}
-     * @return a human readable form of a failure message provided that the provided {@code value} and
+     * @return a human-readable form of a failure message provided that the provided {@code value} and
      * provided {@code otherValue} <em>did not</em> satisfy the provided {@code requirement}
      * @throws NullPointerException if the provided {@code requirement} is {@code null}.
      */
@@ -370,13 +371,13 @@ public final class Ints {
     }
 
     /**
-     * Returns a human readable form of a failure message provided that the provided {@code value},
+     * Returns a human-readable form of a failure message provided that the provided {@code value},
      * provided {@code otherFirstValue} and provided {@code otherFirstValue} <em>did not</em> satisfy the
      * provided {@code requirement}.
      *
      * @param requirement to imposed on the provided values
      * @param value       the value to check
-     * @return a human readable form of a failure message provided that the provided {@code value} and
+     * @return a human-readable form of a failure message provided that the provided {@code value} and
      * provided {@code otherValue} <em>did not</em> satisfy the provided {@code requirement}
      * @throws NullPointerException if the provided {@code requirement} is {@code null}.
      */

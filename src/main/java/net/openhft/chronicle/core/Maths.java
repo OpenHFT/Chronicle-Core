@@ -140,7 +140,7 @@ public final class Maths {
      * @param d      The double value to be rounded down.
      * @param digits The number of decimal places to which the value is to be rounded.
      * @return The value rounded down to the nearest lower number.
- */
+     */
     public static double floorN(double d, int digits) {
         final long factor = roundingFactor(digits);
         double ulp = Math.ulp(d);
@@ -533,6 +533,7 @@ public final class Maths {
         return (int) h;
     }
 
+    @Deprecated(/* to be removed in x.25 */)
     public static int hash32(long l0) {
         long h = hash64(l0);
         h ^= h >> 32;
@@ -560,13 +561,14 @@ public final class Maths {
      * For Java 9 and later, if the string is represented as a byte array, each byte is incorporated into the hash.
      * Otherwise, each character is incorporated into the hash.
      * For Java 8 and earlier, each character is incorporated into the hash.
-     * The hash is then agitated using a function not shown in this code snippet.
+     * The hash value is agitated using a function not shown in this code snippet.
      *
      * @param s the string to compute the hash for
      * @return the 64-bit hash value
      * @throws IllegalArgumentException if {@code s} is {@code null}
      */
     public static long hash64(@NotNull String s) {
+        //noinspection ConstantValue
         if (s == null) throw new IllegalArgumentException();
         long hash = 0;
 
@@ -781,6 +783,7 @@ public final class Maths {
      * @param l1 to hash
      * @return hash value.
      */
+    @Deprecated(/* to be removed in x.25 */)
     public static long hash64(long l0, long l1) {
         int l0a = (int) (l0 >> 32);
         int l1a = (int) (l1 >> 32);

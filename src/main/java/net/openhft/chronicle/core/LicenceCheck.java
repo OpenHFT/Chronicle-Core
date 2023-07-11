@@ -35,8 +35,9 @@ public interface LicenceCheck {
 
     /**
      * Check for license expiry and log message with license and expiry details
+     *
      * @param product product
-     * @param caller caller
+     * @param caller  caller
      */
     static void check(String product, Class<?> caller) {
         final BiConsumer<Long, String> logLicenceExpiryDetails = (days, owner) -> {
@@ -48,7 +49,7 @@ public interface LicenceCheck {
                 message = expires + " in about " + (days / 365) + " years";
 
             if (days < 30)
-                warn().on(LicenceCheck.class, message  + ". At which point, this product will stop working, if you wish to renew this licence please contact sales@chronicle.software");
+                warn().on(LicenceCheck.class, message + ". At which point, this product will stop working, if you wish to renew this licence please contact sales@chronicle.software");
             else
                 startup().on(LicenceCheck.class, message + ".");
         };
@@ -58,8 +59,9 @@ public interface LicenceCheck {
 
     /**
      * Provide licence expiry details
-     * @param product product
-     * @param caller caller
+     *
+     * @param product              product
+     * @param caller               caller
      * @param licenceExpiryDetails callback to call with license days to run and license owner
      */
     static void licenceExpiry(String product, Class<?> caller, BiConsumer<Long, String> licenceExpiryDetails) {

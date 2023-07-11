@@ -37,12 +37,12 @@ import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
  * <p>This class encapsulates an ordered collection of {@code ExceptionHandler} instances and calls
  * each of them in turn when an exception occurs. If an {@code ExceptionHandler} in the chain
  * itself throws an exception, this exception will be logged and the next {@code ExceptionHandler}
- * in the chain will be called.</p>
+ * in the chain will be called.
  *
  * <p>When constructing a new instance, all {@code ExceptionHandler}s that are instances of
  * {@link IgnoresEverything} will be filtered out. Furthermore, any {@code ExceptionHandler} that
  * is an instance of {@link ThreadLocalisedExceptionHandler} will be unwrapped to its underlying
- * {@code ExceptionHandler}.</p>
+ * {@code ExceptionHandler}.
  */
 public class ChainedExceptionHandler implements ExceptionHandler {
     @NotNull

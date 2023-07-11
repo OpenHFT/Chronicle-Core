@@ -21,10 +21,48 @@ package net.openhft.chronicle.core.values;
 import java.nio.BufferUnderflowException;
 
 /**
- * User: peter.lawrey Date: 10/10/13 Time: 07:19
+ * This interface represents a reference to a boolean value. It provides methods to get and set the value.
+ * Implementations of this interface are expected to handle the storage and retrieval of the boolean value.
+ * <p>
+ * Implementations may store the value in different formats or mediums. For example, the value could be stored
+ * in binary format or text format, in memory or on disk.
+ * <p>
+ * The methods in this interface may throw an IllegalStateException if the underlying storage medium is not
+ * in a state where the operation can be performed. For example, if the storage medium has been closed or
+ * if it does not have enough capacity to store the value.
+ * <p>
+ * The getValue method may also throw a BufferUnderflowException if there is not enough data available to read
+ * the value.
+ *
+ * @see net.openhft.chronicle.core.values.BooleanValue
+ * @see net.openhft.chronicle.core.values.ByteValue
+ * @see net.openhft.chronicle.core.values.CharValue
+ * @see net.openhft.chronicle.core.values.DoubleValue
+ * @see net.openhft.chronicle.core.values.FloatValue
+ * @see net.openhft.chronicle.core.values.IntValue
+ * @see net.openhft.chronicle.core.values.LongValue
+ * @see net.openhft.chronicle.core.values.ShortValue
+ * @see net.openhft.chronicle.core.values.StringValue
+ * @see net.openhft.chronicle.core.values.LongArrayValues
+ * @see net.openhft.chronicle.core.values.IntArrayValues
+ * @see net.openhft.chronicle.core.values.UnsetLongValue
+ * @since 10/10/13
  */
 public interface BooleanValue {
+    /**
+     * Retrieves the boolean value.
+     *
+     * @return the boolean value
+     * @throws IllegalStateException    if the underlying storage medium is not in a state where the operation can be performed
+     * @throws BufferUnderflowException if there is not enough data available to read the value
+     */
     boolean getValue() throws IllegalStateException, BufferUnderflowException;
 
+    /**
+     * Sets the boolean value.
+     *
+     * @param value the boolean value to set
+     * @throws IllegalStateException if the underlying storage medium is not in a state where the operation can be performed
+     */
     void setValue(boolean value) throws IllegalStateException;
 }

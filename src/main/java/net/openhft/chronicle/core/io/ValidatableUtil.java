@@ -76,22 +76,24 @@ public class ValidatableUtil {
 
     /**
      * requires that a reference not be null, or throw an InvalidMarshallableException with an appropriate message
+     *
      * @param tested reference
-     * @param name of reference
+     * @param name   of reference
      * @throws InvalidMarshallableException if tested is null
      */
-    public static void requireNonNull(Object tested, String name) throws InvalidMarshallableException{
+    public static void requireNonNull(Object tested, String name) throws InvalidMarshallableException {
         if (tested == null)
-            throw new InvalidMarshallableException(name+" must not be null");
+            throw new InvalidMarshallableException(name + " must not be null");
     }
 
     /**
      * requires a test flag be true, otherwise throw an InvalidMarshallableException with the message provided
+     *
      * @param test to check for true
-     * @param msg to use if false
+     * @param msg  to use if false
      * @throws InvalidMarshallableException to throw is false
      */
-    public static void requireTrue(boolean test, String msg) throws InvalidMarshallableException{
+    public static void requireTrue(boolean test, String msg) throws InvalidMarshallableException {
         if (!test)
             throw new InvalidMarshallableException(msg);
     }

@@ -30,6 +30,21 @@ import java.lang.reflect.Field;
 
 import static java.lang.Character.toLowerCase;
 
+/**
+ * A utility class that provides a collection of static methods for advanced string manipulation.
+ * <p>
+ * This class contains methods for handling {@link CharSequence} and {@link StringBuilder} instances, including:
+ * <ul>
+ *   <li>Comparing {@link CharSequence}s for content equality.</li>
+ *   <li>Checking if a {@link CharSequence} starts or ends with a specific substring.</li>
+ *   <li>Setting the length and content of a {@link StringBuilder}.</li>
+ *   <li>Transforming a string to Title Case.</li>
+ *   <li>Reversing part of a StringBuilder's content.</li>
+ *   <li>Generating {@link NumberFormatException} with custom messages.</li>
+ * </ul>
+ * <p>
+ * Note: This class is not meant to be instantiated and therefore has a private constructor.
+ */
 public final class StringUtils {
 
     // Suppresses default constructor, ensuring non-instantiability.
@@ -91,6 +106,13 @@ public final class StringUtils {
         return UnsafeMemory.INSTANCE;
     }
 
+    /**
+     * Compares a {@link StringBuilder} and a {@link CharSequence} for content equality.
+     *
+     * @param s  the {@link StringBuilder} to be compared.
+     * @param cs the {@link CharSequence} to be compared.
+     * @return {@code true} if both character sequences are equal, {@code false} otherwise.
+     */
     public static boolean isEqual(@Nullable StringBuilder s, @Nullable CharSequence cs) {
         if (s == cs)
             return true;
@@ -104,6 +126,14 @@ public final class StringUtils {
                 : isEqualJava8(s, cs, length);
     }
 
+    /**
+     * Sets the length of a {@link StringBuilder} without altering its content.
+     * This operation has performance benefits compared to {@link StringBuilder#setLength(int)}.
+     *
+     * @param sb     the {@link StringBuilder} whose length needs to be set.
+     * @param length the new length.
+     * @throws AssertionError if there is an IllegalAccessException or IllegalArgumentException.
+     */
     public static void setLength(@NotNull StringBuilder sb, int length) {
         try {
             SB_COUNT.set(sb, length);
@@ -112,11 +142,24 @@ public final class StringUtils {
         }
     }
 
+    /**
+     * Sets the content of a {@link StringBuilder} to the content of the given {@link CharSequence}.
+     *
+     * @param sb the {@link StringBuilder} to be modified.
+     * @param cs the {@link CharSequence} whose content will be set in the {@link StringBuilder}.
+     */
     public static void set(@NotNull StringBuilder sb, CharSequence cs) {
         sb.setLength(0);
         sb.append(cs);
     }
 
+    /**
+     * Checks if the given {@link CharSequence} ends with the specified string, in a case-insensitive way.
+     *
+     * @param source   the {@link CharSequence} to be checked.
+     * @param endsWith the string to check if the {@link CharSequence} ends with.
+     * @return {@code true} if the {@link CharSequence} ends with the specified string, {@code false} otherwise.
+     */
     public static boolean endsWith(@NotNull final CharSequence source,
                                    @NotNull final String endsWith) {
         for (int i = 1; i <= endsWith.length(); i++) {
@@ -129,6 +172,13 @@ public final class StringUtils {
         return true;
     }
 
+    /**
+     * Checks if the given {@link CharSequence} starts with the specified string.
+     *
+     * @param source     the {@link CharSequence} to be checked.
+     * @param startsWith the string to check if the {@link CharSequence} starts with.
+     * @return {@code true} if the {@link CharSequence} starts with the specified string, {@code false} otherwise.
+     */
     public static boolean startsWith(@NotNull final CharSequence source,
                                      @NotNull final String startsWith) {
         for (int i = 0; i < startsWith.length(); i++) {
@@ -140,6 +190,13 @@ public final class StringUtils {
         return true;
     }
 
+    /**
+     * Compares two {@link CharSequence}s for content equality.
+     *
+     * @param s  the first {@link CharSequence} to be compared.
+     * @param cs the second {@link CharSequence} to be compared.
+     * @return {@code true} if both character sequences are equal, {@code false} otherwise.
+     */
     public static boolean isEqual(@Nullable CharSequence s, @Nullable CharSequence cs) {
         if (s instanceof StringBuilder) {
             return isEqual((StringBuilder) s, cs);
@@ -191,6 +248,13 @@ public final class StringUtils {
         return true;
     }
 
+    /**
+     * Compares two {@link CharSequence}s for equality ignoring case considerations.
+     *
+     * @param s  the first {@link CharSequence} to be compared.
+     * @param cs the second {@link CharSequence} to be compared.
+     * @return {@code true} if the {@link CharSequence}s are equal irrespective of case, {@code false} otherwise.
+     */
     public static boolean equalsCaseIgnore(@Nullable CharSequence s, @NotNull CharSequence cs) {
         if (s == null) return false;
         if (s.length() != cs.length()) return false;
@@ -201,6 +265,12 @@ public final class StringUtils {
         return true;
     }
 
+    /**
+     * Returns the string representation of the specified object.
+     *
+     * @param o the object whose string representation is to be returned.
+     * @return the string representation of the specified object or null if the object is null.
+     */
     @Nullable
     public static String toString(@Nullable Object o) {
         return o == null ? null : o.toString();
@@ -259,7 +329,7 @@ public final class StringUtils {
     }
 
     @NotNull
-    public static String newString(@NotNull char[] chars) {
+    public static String newString(char @NotNull [] chars) {
         if (Bootstrap.isJava9Plus()) {
             return new String(chars);
         }
@@ -283,7 +353,7 @@ public final class StringUtils {
 
     @Java9
     @NotNull
-    public static String newStringFromBytes(@NotNull byte[] bytes) {
+    public static String newStringFromBytes(byte @NotNull [] bytes) {
         ensureJava9Plus();
         //noinspection RedundantStringConstructorCall
         @NotNull String str = new String();
@@ -399,6 +469,13 @@ public final class StringUtils {
         return true;
     }
 
+    /**
+     * Converts the given string to title case. It will capitalize the first letter
+     * of the string and then replace spaces with underscores and adjust casing for subsequent characters.
+     *
+     * @param name the input string to be converted.
+     * @return the converted string in title case with underscores, or null if the input is null.
+     */
     @Nullable
     public static String toTitleCase(@Nullable String name) {
         if (name == null || name.isEmpty())
@@ -431,6 +508,12 @@ public final class StringUtils {
         return sb.toString();
     }
 
+    /**
+     * Reverses a portion of the content of a {@link StringBuilder} in place, from the given start index to the end.
+     *
+     * @param text  the {@link StringBuilder} whose content needs to be partially reversed.
+     * @param start the index from which to start the reverse operation.
+     */
     public static void reverse(StringBuilder text, int start) {
         int end = text.length() - 1;
         int mid = (start + end + 1) / 2;
@@ -503,10 +586,26 @@ public final class StringUtils {
         return negative ? result : -result;
     }
 
+    /**
+     * Constructs a {@link NumberFormatException} with the message "For input string: '[input]'"
+     * where [input] is the content of the input CharSequence.
+     *
+     * @param s the input CharSequence that was attempted to be parsed.
+     * @return a {@link NumberFormatException} with a detail message.
+     */
     static NumberFormatException forInputString(CharSequence s) {
         return new NumberFormatException("For input string: \"" + s + "\"");
     }
 
+    /**
+     * Constructs a {@link NumberFormatException} with a message indicating that the given
+     * radix is either less than {@link Character#MIN_RADIX} or greater than {@link Character#MAX_RADIX}.
+     *
+     * @param radix the radix value.
+     * @param less  if true, indicates that the radix is less than {@link Character#MIN_RADIX},
+     *              otherwise it indicates that the radix is greater than {@link Character#MAX_RADIX}.
+     * @return a {@link NumberFormatException} with a detail message.
+     */
     static NumberFormatException forRadix(int radix, boolean less) {
         if (less)
             return new NumberFormatException("radix " + radix +
