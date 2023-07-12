@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import static net.openhft.chronicle.core.internal.util.MapUtil.entry;
 import static net.openhft.chronicle.core.internal.util.MapUtil.ofUnmodifiable;
@@ -93,24 +94,24 @@ public final class ObjectUtils {
 
 
     private static final Map<Class<?>, Function<String, Number>> conversionMap = new HashMap<>();
-    private static final Map<Class<?>, Function<Number, Number>> numberConversionMap = new HashMap<>();
+    private static final Map<Class<?>, UnaryOperator<Number>> numberConversionMap = new HashMap<>();
 
     static {
-        conversionMap.put(Double.class, o -> Double.valueOf(o));
-        conversionMap.put(Long.class, o -> Long.valueOf(o));
-        conversionMap.put(Integer.class, o -> Integer.valueOf(o));
-        conversionMap.put(Float.class, o -> Float.valueOf(o));
-        conversionMap.put(Short.class, o -> Short.valueOf(o));
-        conversionMap.put(Byte.class, o -> Byte.valueOf(o));
-        conversionMap.put(BigDecimal.class, o -> new BigDecimal(o));
-        conversionMap.put(BigInteger.class, o -> new BigInteger(o));
+        conversionMap.put(Double.class, Double::valueOf);
+        conversionMap.put(Long.class, Long::valueOf);
+        conversionMap.put(Integer.class, Integer::valueOf);
+        conversionMap.put(Float.class, Float::valueOf);
+        conversionMap.put(Short.class, Short::valueOf);
+        conversionMap.put(Byte.class, Byte::valueOf);
+        conversionMap.put(BigDecimal.class, BigDecimal::new);
+        conversionMap.put(BigInteger.class, BigInteger::new);
 
-        numberConversionMap.put(Double.class, o -> o.doubleValue());
-        numberConversionMap.put(Long.class, o -> o.longValue());
-        numberConversionMap.put(Integer.class, o -> o.intValue());
-        numberConversionMap.put(Float.class, o -> o.floatValue());
-        numberConversionMap.put(Short.class, o -> o.shortValue());
-        numberConversionMap.put(Byte.class, o -> o.byteValue());
+        numberConversionMap.put(Double.class, Number::doubleValue);
+        numberConversionMap.put(Long.class, Number::longValue);
+        numberConversionMap.put(Integer.class, Number::intValue);
+        numberConversionMap.put(Float.class, Number::floatValue);
+        numberConversionMap.put(Short.class, Number::shortValue);
+        numberConversionMap.put(Byte.class, Number::byteValue);
         numberConversionMap.put(BigDecimal.class, n -> n instanceof Long ? BigDecimal.valueOf(n.longValue()) : BigDecimal.valueOf(n.doubleValue()));
         numberConversionMap.put(BigInteger.class, o -> new BigInteger(o.toString()));
     }
@@ -566,7 +567,7 @@ public final class ObjectUtils {
     static Number convertToNumber(Class<?> eClass, Object o) throws NumberFormatException {
         if (o instanceof Number) {
             @NotNull Number n = (Number) o;
-            Function<Number, Number> function = numberConversionMap.get(eClass);
+            UnaryOperator<Number> function = numberConversionMap.get(eClass);
             if (function != null)
                 return function.apply(n);
 
