@@ -31,7 +31,7 @@ import java.io.RandomAccessFile;
  * Weak references RAF can result in a resource leak when GC'ed which doesn't appear if the GC isn't running.
  */
 
-@Deprecated(/* to be moved to the io package x.26 */)
+// TODO to be moved to the io package x.25
 public class CleaningRandomAccessFile extends RandomAccessFile {
     public CleaningRandomAccessFile(String name, String mode) throws FileNotFoundException {
         super(name, mode);
