@@ -35,6 +35,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
 
 import static net.openhft.chronicle.core.internal.util.MapUtil.entry;
 import static net.openhft.chronicle.core.internal.util.MapUtil.ofUnmodifiable;
@@ -91,6 +92,30 @@ public final class ObjectUtils {
             entry(double.class, 0.0d)
     );
 
+
+    private static final Map<Class<?>, Function<String, Number>> conversionMap = new HashMap<>();
+    private static final Map<Class<?>, UnaryOperator<Number>> numberConversionMap = new HashMap<>();
+
+    static {
+        conversionMap.put(Double.class, Double::valueOf);
+        conversionMap.put(Long.class, Long::valueOf);
+        conversionMap.put(Integer.class, Integer::valueOf);
+        conversionMap.put(Float.class, Float::valueOf);
+        conversionMap.put(Short.class, Short::valueOf);
+        conversionMap.put(Byte.class, Byte::valueOf);
+        conversionMap.put(BigDecimal.class, BigDecimal::new);
+        conversionMap.put(BigInteger.class, BigInteger::new);
+
+        numberConversionMap.put(Double.class, Number::doubleValue);
+        numberConversionMap.put(Long.class, Number::longValue);
+        numberConversionMap.put(Integer.class, Number::intValue);
+        numberConversionMap.put(Float.class, Number::floatValue);
+        numberConversionMap.put(Short.class, Number::shortValue);
+        numberConversionMap.put(Byte.class, Number::byteValue);
+        numberConversionMap.put(BigDecimal.class, n -> n instanceof Long ? BigDecimal.valueOf(n.longValue()) : BigDecimal.valueOf(n.doubleValue()));
+        numberConversionMap.put(BigInteger.class, o -> new BigInteger(o.toString()));
+    }
+
     static final ClassLocal<ThrowingFunction<String, Object, Exception>> PARSER_CL = ClassLocal.withInitial(new ConversionFunction());
     static final ClassLocal<Map<String, Enum<?>>> CASE_IGNORE_LOOKUP = ClassLocal.withInitial(ObjectUtils::caseIgnoreLookup);
     static final ClassValue<Method> READ_RESOLVE = ClassLocal.withInitial(c -> {
@@ -128,39 +153,58 @@ public final class ObjectUtils {
      * @param c The class to create a supplier for.
      * @return A supplier that creates instances of the provided class.
      */
-    static Supplier<?> supplierForClass(Class<?> c) {
-        if (c == null)
-            throw new NullPointerException();
+    static <T> Supplier<T> supplierForClass(Class<T> c) {
+        Objects.requireNonNull(c);
+        if (isInternalPackage(c)) return supplierForInternalPackage();
+        if (c.isPrimitive()) return supplierForPrimitive(c);
+        if (c.isInterface()) return supplierForInterface(c);
+        if (c.isEnum()) return supplierForEnum(c);
+        if (Modifier.isAbstract(c.getModifiers())) return supplierForAbstractClass(c);
+        return defaultSupplier(c);
+    }
+
+    private static boolean isInternalPackage(Class<?> c) {
         Package pkg = c.getPackage();
-        if (pkg != null) {
-            String name = pkg.getName();
-            if ((name.startsWith("com.sun.") || name.startsWith("java")) && name.contains(".internal"))
-                return () -> {
-                    throw new IllegalArgumentException("Cannot create objects in JVM internal packages");
-                };
-        }
-        if (c.isPrimitive())
-            rethrow(new IllegalArgumentException("primitive: " + c.getName()));
-        if (c.isInterface()) {
-            return () -> {
-                Class<?> aClass = ObjectUtils.interfaceToDefaultClass.get(c);
-                if (aClass == null || aClass == c)
-                    rethrow(new IllegalArgumentException("interface: " + c.getName()));
-                return supplierForClass(aClass);
-            };
-        }
-        if (c.isEnum())
-            return () -> {
-                try {
-                    return OS.memory().allocateInstance(c);
-                } catch (Exception e) {
-                    throw new AssertionError(e);
-                }
-            };
-        if (Modifier.isAbstract(c.getModifiers()))
-            rethrow(new IllegalArgumentException("abstract class: " + c.getName()));
+        return pkg != null && ((pkg.getName().startsWith("com.sun.") || pkg.getName().startsWith("java"))
+                && pkg.getName().contains(".internal"));
+    }
+
+    private static <T> Supplier<T> supplierForInternalPackage() {
+        return () -> {
+            throw new IllegalArgumentException("Cannot create objects in JVM internal packages");
+        };
+    }
+
+    private static <T> Supplier<T> supplierForPrimitive(Class<T> c) {
+        return () -> (T) rethrow(new IllegalArgumentException("primitive: " + c.getName()));
+    }
+
+    private static <T> Supplier<T> supplierForInterface(Class<T> c) {
+        return () -> {
+            Class<?> aClass = ObjectUtils.interfaceToDefaultClass.get(c);
+            if (aClass == null || aClass == c)
+                rethrow(new IllegalArgumentException("interface: " + c.getName()));
+            return (T) supplierForClass(aClass);
+        };
+    }
+
+    private static <T> Supplier<T> supplierForEnum(Class<T> c) {
+        return () -> {
+            try {
+                return OS.memory().allocateInstance(c);
+            } catch (Exception e) {
+                throw new AssertionError(e);
+            }
+        };
+    }
+
+    private static <T> Supplier<T> supplierForAbstractClass(Class<T> c) {
+        return () -> (T) rethrow(new IllegalArgumentException("abstract class: " + c.getName()));
+    }
+
+    private static <T> Supplier<T> defaultSupplier(Class<T> c) {
         try {
-            Constructor<?> constructor = c.getDeclaredConstructor();
+            Constructor<T> constructor = c.getDeclaredConstructor();
             ClassUtil.setAccessible(constructor);
             return ThrowingSupplier.asSupplier(constructor::newInstance);
 
@@ -358,23 +402,7 @@ public final class ObjectUtils {
             return (E) valueOfIgnoreCase((Class) eClass, o.toString());
         }
         if (o instanceof CharSequence) {
-            @Nullable CharSequence cs = (CharSequence) o;
-            if (Character.class.equals(eClass)) {
-                if (cs.length() > 0)
-                        return (E) (Character) cs.charAt(0);
-                else
-                    return null;
-            }
-            @NotNull String s = cs.toString();
-            if (eClass == String.class)
-                return (E) s;
-
-            try {
-                return (E) PARSER_CL.get(eClass).apply(s);
-
-            } catch (Exception e) {
-                throw asCCE(e);
-            }
+            return convertCharSequence(eClass, (CharSequence) o);
         }
         if (Number.class.isAssignableFrom(eClass)) {
             return (E) convertToNumber(eClass, o);
@@ -388,11 +416,8 @@ public final class ObjectUtils {
             return (E) new LinkedHashSet<>((Collection) o);
         }
         if (Character.class == eClass) {
-            String s = o.toString();
-            if (s.length() == 1)
-                return (E) (Character) s.charAt(0);
-            if (s.isEmpty())
-                return (E) Character.valueOf((char) 0);
+            E s = convertChar(o);
+            if (s != null) return s;
         }
         if (CharSequence.class.isAssignableFrom(eClass)) {
             try {
@@ -406,6 +431,41 @@ public final class ObjectUtils {
             return (E) new Date((Long) o);
         }
         throw new ClassCastException("Unable to convert " + o.getClass() + " " + o + " to " + eClass);
+    }
+
+    @Nullable
+    private static <E> E convertChar(@NotNull Object o) {
+        String s = o.toString();
+        if (s.length() == 1)
+            return (E) (Character) s.charAt(0);
+        if (s.isEmpty())
+            return (E) Character.valueOf((char) 0);
+        return null;
+    }
+
+    @Nullable
+    private static <E> E convertCharSequence(Class<E> eClass, CharSequence o) {
+        @Nullable CharSequence cs = o;
+        if (Character.class.equals(eClass)) {
+            if (cs.length() > 0)
+                try {
+                    return (E) (Character) cs.charAt(0);
+                } catch (IndexOutOfBoundsException e) {
+                    throw new AssertionError(e);
+                }
+            else
+                return null;
+        }
+        @NotNull String s = cs.toString();
+        if (eClass == String.class)
+            return (E) s;
+
+        try {
+            return (E) PARSER_CL.get(eClass).apply(s);
+
+        } catch (Exception e) {
+            throw asCCE(e);
+        }
     }
 
     /**
@@ -503,42 +563,15 @@ public final class ObjectUtils {
     static Number convertToNumber(Class<?> eClass, Object o) throws NumberFormatException {
         if (o instanceof Number) {
             @NotNull Number n = (Number) o;
-            if (eClass == Double.class)
-                return n.doubleValue();
-            if (eClass == Long.class)
-                return n.longValue();
-            if (eClass == Integer.class)
-                return n.intValue();
-            if (eClass == Float.class)
-                return n.floatValue();
-            if (eClass == Short.class)
-                return n.shortValue();
-            if (eClass == Byte.class)
-                return n.byteValue();
-            if (eClass == BigDecimal.class)
-                return n instanceof Long ? BigDecimal.valueOf(n.longValue()) : BigDecimal.valueOf(n.doubleValue());
-            // TODO fix for large numbers.
-            if (eClass == BigInteger.class)
-                return new BigInteger(o.toString());
+            UnaryOperator<Number> function = numberConversionMap.get(eClass);
+            if (function != null)
+                return function.apply(n);
+
         } else {
             String s = o.toString();
-            if (eClass == Double.class)
-                return Double.parseDouble(s);
-            if (eClass == Long.class)
-                return Long.parseLong(s);
-            if (eClass == Integer.class)
-                return Integer.parseInt(s);
-            if (eClass == Float.class)
-                return Float.parseFloat(s);
-            if (eClass == Short.class)
-                return Short.parseShort(s);
-            if (eClass == Byte.class)
-                return Byte.parseByte(s);
-            if (eClass == BigDecimal.class)
-                return new BigDecimal(s);
-            // TODO fix for large numbers.
-            if (eClass == BigInteger.class)
-                return new BigInteger(s);
+            Function<String, Number> function = conversionMap.get(eClass);
+            if (function != null)
+                return function.apply(s);
         }
         throw new UnsupportedOperationException("Cannot convert " + o.getClass() + " to " + eClass);
     }
