@@ -69,7 +69,7 @@ public interface LongValue extends Closeable {
      * @return the current long value.
      * @throws IllegalStateException if the value cannot be retrieved.
      */
-    @Deprecated(/* to be moved in x.25 */)
+    // TODO Move to subclass so it's not a default in x.25
     default long getVolatileValue() throws IllegalStateException {
         return getValue();
     }
@@ -80,7 +80,7 @@ public interface LongValue extends Closeable {
      * @param value the new long value.
      * @throws IllegalStateException if the value cannot be set.
      */
-    @Deprecated(/* to be moved in x.25 */)
+    // TODO Move to subclass so it's not a default in x.25
     default void setVolatileValue(long value) throws IllegalStateException {
         setValue(value);
     }
@@ -93,7 +93,7 @@ public interface LongValue extends Closeable {
      * @return the current long value or the closedValue.
      * @throws IllegalStateException if an unexpected error occurs.
      */
-    @Deprecated(/* to be moved in x.25 */)
+    // TODO Move to subclass so it's not a default in x.25
     default long getVolatileValue(long closedValue) throws IllegalStateException {
         if (isClosed())
             return closedValue;
@@ -110,7 +110,7 @@ public interface LongValue extends Closeable {
      * @param value the new long value.
      * @throws IllegalStateException if the value cannot be set.
      */
-    @Deprecated(/* to be moved in x.25 */)
+    // TODO Move to subclass so it's not a default in x.25
     default void setOrderedValue(long value) throws IllegalStateException {
         setVolatileValue(value);
     }
@@ -131,7 +131,7 @@ public interface LongValue extends Closeable {
      * @return the updated long value.
      * @throws IllegalStateException if the value cannot be updated atomically.
      */
-    @Deprecated(/* to be moved in x.25 */)
+    // TODO Move to subclass so it's not a default in x.25
     default long addAtomicValue(long delta) throws IllegalStateException {
         return addValue(delta);
     }
@@ -152,7 +152,7 @@ public interface LongValue extends Closeable {
      * @param value the value to be set.
      * @throws IllegalStateException if the value cannot be set atomically.
      */
-    @Deprecated(/* to be moved in x.25 */)
+    // TODO Move to subclass so it's not a default in x.25
     default void setMaxValue(long value) throws IllegalStateException {
         for (; ; ) {
             long pos = getVolatileValue();
@@ -170,7 +170,7 @@ public interface LongValue extends Closeable {
      * @param value the value to be set.
      * @throws IllegalStateException if the value cannot be set atomically.
      */
-    @Deprecated(/* to be moved in x.25 */)
+    // TODO Move to subclass so it's not a default in x.25
     default void setMinValue(long value) throws IllegalStateException {
         for (; ; ) {
             long pos = getVolatileValue();
@@ -188,7 +188,7 @@ public interface LongValue extends Closeable {
      * @return true if the instance is closed, false otherwise.
      */
     @Override
-    @Deprecated(/* to be moved in x.25 */)
+    // TODO Move to subclass so it's not a default in x.25
     default boolean isClosed() {
         return false;
     }
@@ -197,7 +197,7 @@ public interface LongValue extends Closeable {
      * Closes the LongValue instance and releases any resources associated with it.
      */
     @Override
-    @Deprecated(/* to be moved in x.25 */)
+    // TODO Move to subclass so it's not a default in x.25
     default void close() {
     }
 }
