@@ -77,11 +77,7 @@ public class EnumInterner<E extends Enum<E>> {
     static <V extends Enum<V>> EnumInterner<V> create(Class<?> aClass) {
         @NotNull @SuppressWarnings("unchecked")
         Class<V> vClass = (Class<V>) aClass;
-        try {
-            return new EnumInterner<>(vClass);
-        } catch (IllegalArgumentException e) {
-            throw new AssertionError(e);
-        }
+        return new EnumInterner<>(vClass);
     }
 
     /**

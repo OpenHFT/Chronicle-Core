@@ -29,14 +29,25 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
+/**
+ * Provides utility methods for reflective operations on generic types.
+ *
+ * <p>This enum serves as a utility class for obtaining generic type information of methods
+ * and classes at runtime. This is especially useful for reflective operations that deal with
+ * generic types, as Java utilizes type erasure.
+ *
+ * <p>Note: This is an enum with a single instance (a singleton), but used purely as a namespace
+ * for utility methods, and cannot be instantiated.
+ */
 public enum GenericReflection {
     ;
 
     /**
-     * Obtain the return types for method on this type
+     * Obtains the return types of all the methods in the specified type.
      *
-     * @param type to scan
-     * @return set of types
+     * @param type the {@link Type} to scan for methods.
+     * @return a set of {@link Type} representing the return types of methods found in the specified type.
+     * @throws UnsupportedOperationException if the provided type is not a {@link Class} or {@link ParameterizedType}.
      */
     public static Set<Type> getMethodReturnTypes(Type type) {
         Set<Type> types = new LinkedHashSet<>();
@@ -50,11 +61,11 @@ public enum GenericReflection {
     }
 
     /**
-     * Obtain the return type of a method as defined by a class or interface
+     * Obtains the return type of the specified method as defined by a class or interface.
      *
-     * @param method to lookup
-     * @param type   to look for the definition.
-     * @return the return type
+     * @param method the {@link Method} to lookup.
+     * @param type   the {@link Type} in which to look for the method's definition.
+     * @return the {@link Type} representing the return type of the method.
      */
     public static Type getReturnType(Method method, Type type) {
         final Type genericReturnType = method.getGenericReturnType();
@@ -82,6 +93,13 @@ public enum GenericReflection {
         return genericReturnType;
     }
 
+    /**
+     * Obtains the parameter types of the specified method with generic type information.
+     *
+     * @param method the {@link Method} to lookup.
+     * @param type   the {@link Type} in which to look for the method's definition.
+     * @return an array of {@link Type} representing the parameter types of the method.
+     */
     public static Type[] getParameterTypes(Method method, Type type) {
         final Type[] parameterTypes = method.getGenericParameterTypes();
         for (int i = 0; i < parameterTypes.length; i++) {
@@ -109,10 +127,11 @@ public enum GenericReflection {
     }
 
     /**
-     * Obatin the raw type if available.
+     * Obtains the raw type representation of the specified generic type. If the type is already
+     * raw or if it's a type variable, the method returns the erasure of the type.
      *
-     * @param type to erase
-     * @return raw class
+     * @param type the {@link Type} to erase.
+     * @return the raw {@link Class} representation of the specified type.
      */
     public static Class<?> erase(Type type) {
         if (type instanceof TypeVariable) {

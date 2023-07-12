@@ -18,36 +18,45 @@
 
 package net.openhft.chronicle.core.threads;
 
+/**
+ * Enum representing different priority levels for event handlers in an event loop.
+ * The priority determines how frequently and in what order the handlers are executed.
+ */
 public enum HandlerPriority {
     /**
-     * Critical task run in a tight loop
+     * Represents critical tasks that need to be run in a tight loop.
+     * These tasks have the highest priority and are executed very frequently.
      */
     HIGH,
     /**
-     * Less critical tasks invoked approximately 1/4 as often as HIGH
+     * Represents less critical tasks.
+     * These tasks are invoked approximately 1/4 as often as tasks with HIGH priority.
      */
     MEDIUM,
     /**
-     * Timing based tasks called every given interval. Note: this task will not be called if the
-     * thread pauses e.g. due a GC or when debugging is used. This makes the timer more robust to
-     * delays than using absolute time differences.
+     * Represents timing-based tasks which are called at regular intervals.
+     * These tasks are not sensitive to thread pauses such as garbage collection or debugging,
+     * making them more robust against delays compared to using absolute time differences.
      */
     TIMER,
     /**
-     * Run when there is nothing else to do
+     * Represents tasks that are run only when there is nothing else to do.
+     * These tasks have a very low priority and are meant to be run in the background.
      */
     DAEMON,
     /**
-     * Task run in a back ground thread periodically
+     * Represents tasks that are run periodically in a background thread.
+     * These tasks are used for monitoring purposes.
      */
     MONITOR,
     /**
-     * Task is a blocking operation, added to a cached thread pool
+     * Represents tasks that involve blocking operations.
+     * These tasks are added to a cached thread pool to avoid blocking the main event loop.
      */
     BLOCKING,
-
-    /***
-     * used for replication, ensures that replication events run on separate thread
+    /**
+     * Used for replication tasks to ensure that replication events run on a separate thread.
+     * Alias for MEDIUM priority.
      */
     REPLICATION {
         @Override
@@ -56,7 +65,8 @@ public enum HandlerPriority {
         }
     },
     /**
-     * like {@link #TIMER} but for replication
+     * Similar to TIMER, but specifically used for replication tasks.
+     * Alias for TIMER priority.
      */
     REPLICATION_TIMER {
         @Override
@@ -64,9 +74,9 @@ public enum HandlerPriority {
             return TIMER;
         }
     },
-
     /**
-     * A task which can be performed concurrently especially as it might block for some time.
+     * Represents tasks that can be performed concurrently, especially as they might block for some time.
+     * Alias for MEDIUM priority.
      */
     CONCURRENT {
         @Override
@@ -75,6 +85,13 @@ public enum HandlerPriority {
         }
     };
 
+    /**
+     * Returns the effective priority for the handler.
+     * Some priority levels are aliases for other priorities (e.g., REPLICATION is an alias for MEDIUM).
+     * This method returns the actual priority that should be used for scheduling.
+     *
+     * @return the effective HandlerPriority.
+     */
     public HandlerPriority alias() {
         return this;
     }

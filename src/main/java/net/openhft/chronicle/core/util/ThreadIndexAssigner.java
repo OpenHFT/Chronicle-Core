@@ -26,6 +26,7 @@ import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 import java.security.SecureRandom;
 
+@Deprecated(/* to be removed in x.25 */)
 public class ThreadIndexAssigner {
     private final IntArrayValues values;
 
@@ -49,7 +50,7 @@ public class ThreadIndexAssigner {
             int value = values.getVolatileValueAt(index);
             boolean processAlive = Jvm.isProcessAlive(value);
             if ((value == 0 || !processAlive) && (values.compareAndSet(index, value, threadId)))
-                    return index;
+                return index;
             index++;
             if (index >= size) {
                 Thread.yield();

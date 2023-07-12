@@ -40,6 +40,7 @@ import java.util.function.Consumer;
 /**
  * The Mocker class provides utility methods for creating mocked instances of interfaces.
  */
+// TODO to be moved to the util package x.25
 public final class Mocker {
 
     private static final Class<?>[] NO_CLASSES = new Class[0];
@@ -156,13 +157,9 @@ public final class Mocker {
             @Override
             protected Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
                 consumer.accept(method.getName(), args);
-                try {
-                    if (t != null)
-                        return method.invoke(t, args);
-                    return null;
-                } catch (IllegalArgumentException e) {
-                    throw new AssertionError(e);
-                }
+                if (t != null)
+                    return method.invoke(t, args);
+                return null;
             }
         });
     }
@@ -223,12 +220,8 @@ public final class Mocker {
             // for exec-maven
             return Proxy.newProxyInstance(classLoader, classes, handler);
         } catch (IllegalArgumentException e) {
-            try {
-                // For Java 11+
-                return Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), classes, handler);
-            } catch (IllegalArgumentException e2) {
-                throw new AssertionError(e);
-            }
+            // For Java 11+
+            return Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), classes, handler);
         }
     }
 }

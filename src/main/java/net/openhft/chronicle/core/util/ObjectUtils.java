@@ -42,6 +42,26 @@ import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
 import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.MAYBE;
 import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
 
+/**
+ * A utility class providing various static methods to perform common operations on objects,
+ * such as instantiation, type conversion, class/interface handling, and more.
+ * This class cannot be instantiated and is meant to serve as a collection of utility functions.
+ *
+ * <p>Some of the key features provided by this utility class include:
+ * <ul>
+ *     <li>Creating new instances of classes</li>
+ *     <li>Retrieving default values for given types</li>
+ *     <li>Checking if a class is concrete</li>
+ *     <li>Performing conversions among types including numbers and booleans</li>
+ *     <li>Handling interfaces and obtaining all interfaces implemented by given objects or classes</li>
+ *     <li>Utility methods for handling exceptions</li>
+ *     <li>Creating dynamic proxies for method calls</li>
+ * </ul>
+ *
+ * <p>Note: This class is a part of the Chronicle core library and is intended to be used by
+ * developers who need to perform various common operations on objects and classes within their
+ * Java applications.
+ */
 public final class ObjectUtils {
 
     // Suppresses default constructor, ensuring non-instantiability.
@@ -114,10 +134,24 @@ public final class ObjectUtils {
     private static volatile ClassLocal<Class<?>> interfaceToDefaultClass = ClassLocal.withInitial(ObjectUtils::lookForImplEnum);
     private static volatile ClassLocal<Supplier<?>> supplierClassLocal = ClassLocal.withInitial(ObjectUtils::supplierForClass);
 
+    /**
+     * Rethrows the given Throwable as a RuntimeException.
+     *
+     * @param throwable Throwable to rethrow.
+     * @param <T>       The type of Throwable.
+     * @return Nothing. This method always throws an exception.
+     * @throws T The rethrown throwable.
+     */
     private static <T extends Throwable> RuntimeException rethrow(Throwable throwable) throws T {
         throw (T) throwable; // rely on vacuous cast
     }
 
+    /**
+     * Creates a supplier for the provided class.
+     *
+     * @param c The class to create a supplier for.
+     * @return A supplier that creates instances of the provided class.
+     */
     static <T> Supplier<T> supplierForClass(Class<T> c) {
         Objects.requireNonNull(c);
         if (isInternalPackage(c)) return supplierForInternalPackage();
@@ -198,6 +232,17 @@ public final class ObjectUtils {
         immutable(clazz, isImmutable);
     }
 
+    @Deprecated(/* to be removed x.26 */)
+    public static void immutabile(final Class<?> clazz, final boolean isImmutable) {
+        immutable(clazz, isImmutable);
+    }
+
+    /**
+     * Checks if a class is immutable.
+     *
+     * @param clazz The class to check.
+     * @return The immutability status of the class.
+     */
     public static Immutability isImmutable(@NotNull final Class<?> clazz) {
         final Immutability immutability = IMMUTABILITY_MAP.get(clazz);
         if (immutability == null)
@@ -205,13 +250,19 @@ public final class ObjectUtils {
         return immutability;
     }
 
+    /**
+     * Checks if the given CharSequence is considered 'true'.
+     *
+     * @param s The CharSequence to check.
+     * @return True if the CharSequence is considered 'true', false otherwise.
+     */
     public static boolean isTrue(CharSequence s) {
         if (s == null)
             return false;
         switch (s.length()) {
             case 1:
-                    char ch = Character.toLowerCase(s.charAt(0));
-                    return ch == 't' || ch == 'y';
+                char ch = Character.toLowerCase(s.charAt(0));
+                return ch == 't' || ch == 'y';
             case 3:
                 return equalsCaseIgnore(s, "yes");
             case 4:
@@ -221,6 +272,12 @@ public final class ObjectUtils {
         }
     }
 
+    /**
+     * Checks if the given CharSequence is considered 'false'.
+     *
+     * @param s The CharSequence to check.
+     * @return True if the CharSequence is considered 'false', false otherwise.
+     */
     public static boolean isFalse(CharSequence s) {
         if (s == null)
             return false;
@@ -260,6 +317,16 @@ public final class ObjectUtils {
         return eClass;
     }
 
+    /**
+     * Converts an object to the desired class if possible.
+     *
+     * @param eClass The target class to convert to.
+     * @param o      The object to be converted.
+     * @param <E>    The type of the target class.
+     * @return The converted object or null if the input object is null.
+     * @throws ClassCastException       if the object cannot be cast to the target class.
+     * @throws IllegalArgumentException if an illegal argument is provided.
+     */
     @Nullable
     public static <E> E convertTo(@Nullable Class<E> eClass, @Nullable Object o) throws ClassCastException, IllegalArgumentException {
         // shorter path.
@@ -268,6 +335,12 @@ public final class ObjectUtils {
                 : convertTo0(eClass, o);
     }
 
+    /**
+     * Creates a map with keys as enum constants in uppercase and values as the enum constants themselves.
+     *
+     * @param c The enum class.
+     * @return A map with enum constant names in uppercase as keys and enum constants as values.
+     */
     @NotNull
     private static Map<String, Enum<?>> caseIgnoreLookup(@NotNull Class<?> c) {
         @NotNull Map<String, Enum<?>> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -278,6 +351,14 @@ public final class ObjectUtils {
         return map;
     }
 
+    /**
+     * Returns the enum constant of the specified enum class with the specified name, case is ignored.
+     *
+     * @param eClass The enum class.
+     * @param name   The name of the enum constant to be returned.
+     * @param <E>    The type of the enum.
+     * @return The enum constant of the specified enum class with the specified name.
+     */
     @NotNull
     public static <E extends Enum<E>> E valueOfIgnoreCase(@NotNull Class<E> eClass, @NotNull String name) {
         final Map<String, Enum<?>> map = CASE_IGNORE_LOOKUP.get(eClass);
@@ -288,6 +369,13 @@ public final class ObjectUtils {
         return anEnum == null ? EnumCache.of(eClass).valueOf(name) : anEnum;
     }
 
+    /**
+     * Returns the single enum constant from the specified enum class, or the first one if there are multiple.
+     *
+     * @param eClass The enum class.
+     * @param <E>    The type of the enum.
+     * @return The single enum constant or the first one if multiple exist.
+     */
     public static <E extends Enum<E>> E getSingletonForEnum(Class<E> eClass) {
         E[] enumConstants = eClass.getEnumConstants();
         if (enumConstants.length == 0)
@@ -297,7 +385,17 @@ public final class ObjectUtils {
         return enumConstants[0];
     }
 
-    // throws ClassCastException, IllegalArgumentException
+    /**
+     * Helper method to convert an object to the desired class.
+     *
+     * @param eClass The target class to convert to.
+     * @param o      The object to be converted.
+     * @param <E>    The type of the target class.
+     * @return The converted object.
+     * @throws NumberFormatException    if the object is a CharSequence and cannot be converted to a number.
+     * @throws ClassCastException       if the object cannot be cast to the target class.
+     * @throws IllegalArgumentException if an illegal argument is provided.
+     */
     static <E> E convertTo0(Class<E> eClass, @Nullable Object o) throws NumberFormatException {
         eClass = primToWrapper(eClass);
         if (eClass.isInstance(o) || o == null) return (E) o;
@@ -373,6 +471,12 @@ public final class ObjectUtils {
         }
     }
 
+    /**
+     * Wraps the provided exception in a ClassCastException.
+     *
+     * @param e The exception to be wrapped.
+     * @return A ClassCastException with the provided exception set as its cause.
+     */
     @NotNull
     public static ClassCastException asCCE(Exception e) {
         @NotNull ClassCastException cce = new ClassCastException();
@@ -380,30 +484,48 @@ public final class ObjectUtils {
         return cce;
     }
 
-    // throws IllegalArgumentException
+    /**
+     * Converts an object to an array of a specified type.
+     *
+     * @param eClass The class object representing the desired array type.
+     * @param o      The object to be converted to an array.
+     * @param <E>    The type of the resulting array.
+     * @return The object converted to an array.
+     * @throws AssertionError if an array index is out of bounds or there is an illegal argument.
+     */
     @NotNull
     private static <E> E convertToArray(@NotNull Class<E> eClass, Object o) {
         final int len = sizeOf(o);
         final Object array = Array.newInstance(eClass.getComponentType(), len);
         final Iterator<?> iter = iteratorFor(o);
         final Class<?> elementType = elementType(eClass);
-        try {
-            for (int i = 0; i < len; i++) {
-                @Nullable Object value = convertTo(elementType, iter.next());
-                Array.set(array, i, value);
-            }
-        } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e) {
-            throw new AssertionError(e);
+        for (int i = 0; i < len; i++) {
+            @Nullable Object value = convertTo(elementType, iter.next());
+            Array.set(array, i, value);
         }
         return (E) array;
     }
 
+    /**
+     * Retrieves the element type of array class or Object if it's not an array.
+     *
+     * @param eClass The class to retrieve the element type from.
+     * @param <E>    The type of the class.
+     * @return The element type of the array class or Object if it's not an array.
+     */
     private static <E> Class<?> elementType(@NotNull Class<E> eClass) {
         if (Object[].class.isAssignableFrom(eClass))
             return eClass.getComponentType();
         return Object.class;
     }
 
+    /**
+     * Returns an iterator for the given object if it's iterable or an array.
+     *
+     * @param o The object to get an iterator for.
+     * @return An iterator for the given object.
+     * @throws UnsupportedOperationException if the object is not iterable or an array.
+     */
     private static Iterator<?> iteratorFor(Object o) {
         if (o instanceof Iterable) {
             return ((Iterable<?>) o).iterator();
@@ -414,18 +536,21 @@ public final class ObjectUtils {
         throw new UnsupportedOperationException();
     }
 
-    // throws IllegalArgumentException
-    private static int sizeOf(Object o) {
+    /**
+     * Determines the size of the given object if it's a collection, a map, or an array.
+     *
+     * @param o The object to determine the size of.
+     * @return The size of the given object.
+     * @throws AssertionError                if there is an illegal argument.
+     * @throws UnsupportedOperationException if the object is not a collection, map, or array.
+     */
+    static int sizeOf(Object o) {
         if (o instanceof Collection)
             return ((Collection<?>) o).size();
         if (o instanceof Map)
             return ((Map<?, ?>) o).size();
-        try {
-            if (o.getClass().isArray())
-                return Array.getLength(o);
-        } catch (IllegalArgumentException e) {
-            throw new AssertionError(e);
-        }
+        if (o.getClass().isArray())
+            return Array.getLength(o);
         throw new UnsupportedOperationException();
     }
 
@@ -454,17 +579,38 @@ public final class ObjectUtils {
         throw new UnsupportedOperationException("Cannot convert " + o.getClass() + " to " + eClass);
     }
 
+    /**
+     * Creates a new instance of the class with the given class name.
+     *
+     * @param <T>       The type of the class to be instantiated.
+     * @param className The fully qualified name of the class to be instantiated.
+     * @return A new instance of the specified class.
+     * @throws ClassCastException, if the class cannot be cast to the type T.
+     */
     @NotNull
     public static <T> T newInstance(@NotNull String className) {
         return newInstance((Class<T>) CLASS_ALIASES.forName(className));
     }
 
+    /**
+     * Creates a new instance of the specified class.
+     *
+     * @param <T>   The type of the class to be instantiated.
+     * @param clazz The class to be instantiated.
+     * @return A new instance of the specified class.
+     */
     @NotNull
     public static <T> T newInstance(@NotNull Class<T> clazz) {
         final Supplier<?> cons = supplierClassLocal.get(clazz);
         return (T) cons.get();
     }
 
+    /**
+     * Creates a new instance of the specified class, returning null if instantiation fails.
+     *
+     * @param type The class to be instantiated.
+     * @return A new instance of the specified class or null if instantiation fails.
+     */
     @Nullable
     public static Object newInstanceOrNull(final Class<?> type) {
         try {
@@ -474,6 +620,14 @@ public final class ObjectUtils {
         }
     }
 
+    /**
+     * Creates an array containing the given element followed by the elements of the additional array.
+     *
+     * @param <T>        The type of the elements in the arrays.
+     * @param first      The first element to be added to the array.
+     * @param additional Additional elements to be added after the first element.
+     * @return An array containing all the given elements.
+     */
     public static <T> T[] addAll(@NotNull T first, @NotNull T... additional) {
         T[] interfaces;
         if (additional.length == 0) {
@@ -488,16 +642,39 @@ public final class ObjectUtils {
         return interfaces;
     }
 
+    /**
+     * Checks if two classes are matching.
+     *
+     * @param base    The base class to be compared.
+     * @param toMatch The class to be matched against the base class.
+     * @return true if the classes match, false otherwise.
+     */
     public static boolean matchingClass(@NotNull Class<?> base, @NotNull Class<?> toMatch) {
         return base == toMatch
                 || base.isInterface() && interfaceToDefaultClass.get(base) == toMatch
                 || Enum.class.isAssignableFrom(toMatch) && base.equals(toMatch.getEnclosingClass());
     }
 
+    /**
+     * Returns the default value for the given class.
+     *
+     * @param type The class for which to return the default value.
+     * @return The default value for the given class.
+     */
     public static Object defaultValue(Class<?> type) {
         return DEFAULT_MAP.get(type);
     }
 
+    /**
+     * Creates a dynamic proxy instance that delegates method calls to the provided BiFunction.
+     *
+     * @param <T>        The type of the proxy instance.
+     * @param biFunction The BiFunction to which method calls will be delegated.
+     * @param tClass     The primary interface to be implemented by the proxy instance.
+     * @param additional Additional interfaces to be implemented by the proxy instance.
+     * @return A dynamic proxy instance implementing the specified interfaces.
+     * @throws IllegalArgumentException If the arguments are invalid.
+     */
     @NotNull
     public static <T> T onMethodCall(@NotNull final BiFunction<Method, Object[], Object> biFunction,
                                      @NotNull final Class<T> tClass,
@@ -515,10 +692,22 @@ public final class ObjectUtils {
         });
     }
 
+    /**
+     * Checks if the given class is a concrete class (not abstract or interface).
+     *
+     * @param tClass The class to check.
+     * @return true if the class is concrete, false otherwise.
+     */
     public static boolean isConcreteClass(@NotNull Class<?> tClass) {
         return (tClass.getModifiers() & (Modifier.ABSTRACT | Modifier.INTERFACE)) == 0;
     }
 
+    /**
+     * Invokes the readResolve method on the given object if it exists.
+     *
+     * @param o The object on which to invoke readResolve.
+     * @return The result of the readResolve method, or the original object if readResolve does not exist.
+     */
     public static Object readResolve(@NotNull Object o) {
         Method readResove = READ_RESOLVE.get(o.getClass());
         if (readResove == null)
@@ -532,6 +721,12 @@ public final class ObjectUtils {
         }
     }
 
+    /**
+     * Converts a string to a Boolean.
+     *
+     * @param s The string to be converted.
+     * @return Boolean.TRUE if the string is "true", Boolean.FALSE if the string is "false", null otherwise.
+     */
     @Nullable
     public static Boolean toBoolean(@Nullable String s) {
         if (s == null)
@@ -548,16 +743,26 @@ public final class ObjectUtils {
         return Boolean.FALSE;
     }
 
+    /**
+     * Retrieves all the interfaces implemented by the given object or class.
+     *
+     * @param o The object or class for which to retrieve the implemented interfaces.
+     * @return An array of Class objects representing all the interfaces implemented by the given object or class.
+     * @throws AssertionError If an illegal argument is encountered.
+     */
     public static Class<?>[] getAllInterfaces(Object o) {
-        try {
-            Set<Class<?>> results = new HashSet<>();
-            getAllInterfaces(o, results::add);
-            return results.toArray(new Class<?>[results.size()]);
-        } catch (IllegalArgumentException e) {
-            throw new AssertionError(e);
-        }
+        Set<Class<?>> results = new HashSet<>();
+        getAllInterfaces(o, results::add);
+        return results.toArray(new Class<?>[results.size()]);
     }
 
+    /**
+     * Recursively accumulates all interfaces implemented by the given object or class.
+     *
+     * @param o           The object or class for which to retrieve the implemented interfaces.
+     * @param accumulator A function that accumulates the interfaces.
+     * @throws IllegalArgumentException If the accumulator is null.
+     */
     public static void getAllInterfaces(Object o, Function<Class<?>, Boolean> accumulator) throws IllegalArgumentException {
         if (null == o)
             return;
@@ -572,6 +777,12 @@ public final class ObjectUtils {
         }
     }
 
+    /**
+     * Recursively accumulates all interfaces for a given class.
+     *
+     * @param clazz       The class for which to retrieve the implemented interfaces.
+     * @param accumulator A function that accumulates the interfaces.
+     */
     private static void getAllInterfacesForClass(Class<?> clazz, Function<Class<?>, Boolean> accumulator) {
         if (clazz.isInterface()) {
             if (Boolean.TRUE.equals(accumulator.apply(clazz))) {
@@ -589,6 +800,11 @@ public final class ObjectUtils {
         }
     }
 
+    /**
+     * Sets a default implementation to be used for interfaces.
+     *
+     * @param defaultObjectForInterface A function that takes a class and returns a default implementation for it.
+     */
     public static synchronized void defaultObjectForInterface(ThrowingFunction<Class<?>, Class<?>, ClassNotFoundException> defaultObjectForInterface) {
         interfaceToDefaultClass = ClassLocal.withInitial(c -> {
             Class<?> c2;
@@ -604,6 +820,12 @@ public final class ObjectUtils {
         supplierClassLocal = ClassLocal.withInitial(ObjectUtils::supplierForClass);
     }
 
+    /**
+     * Looks for a specific implementation of an interface and returns it.
+     *
+     * @param c2 The interface class for which to look for an implementation.
+     * @return The implementation class, or the original class if no specific implementation is found.
+     */
     @NotNull
     static Class<?> lookForImplEnum(Class<?> c2) {
         if (c2.isInterface()) {
@@ -624,6 +846,13 @@ public final class ObjectUtils {
         return c2;
     }
 
+    /**
+     * Retrieves the implementation class to use for a given class.
+     *
+     * @param <T>    The type of the class.
+     * @param tClass The class for which to retrieve the implementation.
+     * @return The implementation class to use.
+     */
     public static <T> Class<T> implementationToUse(Class<T> tClass) {
         if (tClass.isInterface()) {
             Class<?> class2 = interfaceToDefaultClass.get(tClass);

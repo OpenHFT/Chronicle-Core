@@ -20,8 +20,6 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.Maths;
 
-import java.math.BigDecimal;
-
 import static net.openhft.chronicle.core.UnsafeMemory.MEMORY;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 
@@ -29,6 +27,7 @@ import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
  * These are fast, unsafe ways to render text.
  * NOTE: The caller has to ensure there is always plenty of memory to perform this operation.
  */
+@Deprecated(/* to be removed in x.26 */)
 public final class UnsafeText {
 
     public static final long MASK32 = 0xFFFF_FFFFL;

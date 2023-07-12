@@ -51,7 +51,7 @@ public class IntsTest {
         test(6, 7, v -> Ints.require(Ints.shortAligned(), v));
         test(8, 9, v -> Ints.require(Ints.shortAligned(), v));
     }
-  @Test
+    @Test
     public void intAligned() {
         test(0, 1, v -> Ints.require(Ints.intAligned(), v));
         test(0, 2, v -> Ints.require(Ints.intAligned(), v));
@@ -59,7 +59,7 @@ public class IntsTest {
         test(4, 5, v -> Ints.require(Ints.intAligned(), v));
         test(4, 6, v -> Ints.require(Ints.intAligned(), v));
     }
-  @Test
+    @Test
     public void longAligned() {
         test(0, 1, v -> Ints.require(Ints.longAligned(), v));
         test(0, 2, v -> Ints.require(Ints.longAligned(), v));
@@ -74,12 +74,8 @@ public class IntsTest {
     private void test(final int happy,
                       final int sad,
                       @NotNull final IntUnaryOperator mapper) {
-        try {
-            final long result = mapper.applyAsInt(happy);
-            assertEquals(happy, result);
-        } catch (IllegalArgumentException e) {
-            throw new AssertionError(e);
-        }
+        final long result = mapper.applyAsInt(happy);
+        assertEquals(happy, result);
         try {
             final long result2 = mapper.applyAsInt(sad);
             fail(result2 + " is not valid!");

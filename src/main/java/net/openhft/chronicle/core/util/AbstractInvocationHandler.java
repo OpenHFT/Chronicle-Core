@@ -29,18 +29,49 @@ import java.lang.reflect.*;
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 
+/**
+ * Abstract base class for invocation handlers, which provides a mechanism for dynamically
+ * dispatching method calls to arbitrary targets.
+ * <p>
+ * Subclasses should override the {@link #doInvoke(Object, Method, Object[])} method to provide custom
+ * handling for method invocations.
+ */
 public abstract class AbstractInvocationHandler implements InvocationHandler {
-    // Lookup which allows access to default methods in another package.
+    /**
+     * Lookup which allows access to default methods in another package.
+     */
     private static final ClassLocal<MethodHandles.Lookup> PRIVATE_LOOKUP = ClassLocal.withInitial(AbstractInvocationHandler::acquireLookup);
+
+    /**
+     * Constant for representing no arguments.
+     */
     private static final Object[] NO_ARGS = {};
+
+    /**
+     * The type for which this invocation handler is defined.
+     */
     private final Type definedClass;
-    // called when close() is called.
+
+    /**
+     * Closeable to be invoked when close() is called.
+     */
     private Closeable closeable;
 
+    /**
+     * Constructs a new invocation handler for the specified type.
+     *
+     * @param definedClass The type for which the invocation handler is defined.
+     */
     protected AbstractInvocationHandler(Type definedClass) {
         this.definedClass = definedClass;
     }
 
+    /**
+     * Acquires a MethodHandles.Lookup instance for the specified class.
+     *
+     * @param c The class to get a MethodHandles.Lookup instance for.
+     * @return MethodHandles.Lookup instance.
+     */
     private static MethodHandles.Lookup acquireLookup(Class<?> c) {
         try {
             // try to create one using a constructor
@@ -64,6 +95,15 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
         }
     }
 
+    /**
+     * Handles method invocations on proxy instances.
+     *
+     * @param proxy  The proxy instance.
+     * @param method The method being called.
+     * @param args   The arguments for the method call.
+     * @return The result from the method call.
+     * @throws Throwable if an error occurs during method invocation.
+     */
     @Override
     public final Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Class<?> declaringClass = method.getDeclaringClass();
@@ -90,11 +130,32 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
     }
 
     /**
-     * Default handler for method call.
+     * Handles the actual invocation of the method. This method should be overridden by subclasses
+     * to implement custom invocation behavior.
+     *
+     * @param proxy  The proxy instance.
+     * @param method The method being called.
+     * @param args   The arguments for the method call.
+     * @return The result of the method invocation.
+     * @throws InvocationTargetException    if the method being called throws an exception.
+     * @throws IllegalAccessException       if this {@code InvocationHandler} does not have access to the method.
+     * @throws IllegalStateException        if the proxy is in an inappropriate state for the method call.
+     * @throws BufferOverflowException      if the buffer overflows during method invocation.
+     * @throws BufferUnderflowException     if the buffer underflows during method invocation.
+     * @throws IllegalArgumentException     if the method receives illegal arguments.
+     * @throws ArithmeticException          if an arithmetic exception occurs during method invocation.
+     * @throws InvalidMarshallableException if the object being marshaled is invalid.
      */
     protected abstract Object doInvoke(Object proxy, Method method, Object[] args)
             throws InvocationTargetException, IllegalAccessException, IllegalStateException, BufferOverflowException, BufferUnderflowException, IllegalArgumentException, ArithmeticException, InvalidMarshallableException;
 
+    /**
+     * Retrieves the MethodHandle for the specified method on the proxy.
+     *
+     * @param proxy The proxy instance.
+     * @param m     The method to get the handle for.
+     * @return The MethodHandle for the specified method on the proxy.
+     */
     @SuppressWarnings("WeakerAccess")
     MethodHandle methodHandleForProxy(Object proxy, Method m) {
         try {
@@ -109,6 +170,11 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
         }
     }
 
+    /**
+     * Sets a Closeable that should be called when close() is called on this invocation handler.
+     *
+     * @param closeable The Closeable to be invoked when close() is called.
+     */
     public void onClose(Closeable closeable) {
         this.closeable = closeable;
     }

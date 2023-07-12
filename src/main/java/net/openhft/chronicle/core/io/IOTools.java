@@ -206,7 +206,7 @@ public final class IOTools {
     }
 
     /**
-     * Canonical usage is to call this *before* your test so you fail fast if you can't delete
+     * Canonical usage is to call this *before* your test, so you fail fast if you can't delete
      *
      * @param dirs dirs
      */
@@ -216,7 +216,7 @@ public final class IOTools {
     }
 
     /**
-     * Canonical usage is to call this *before* your test so you fail fast if you can't delete
+     * Canonical usage is to call this *before* your test, so you fail fast if you can't delete
      *
      * @param dirs dirs
      */
@@ -361,7 +361,7 @@ public final class IOTools {
      * @param bytes    The byte array to write to the file
      * @throws IOException If an I/O error occurs
      */
-    public static void writeFile(@NotNull String filename, @NotNull byte[] bytes) throws IOException {
+    public static void writeFile(@NotNull String filename, byte @NotNull [] bytes) throws IOException {
         try (@NotNull OutputStream out0 = new FileOutputStream(filename)) {
             OutputStream out = out0;
             if (filename.endsWith(".gz"))

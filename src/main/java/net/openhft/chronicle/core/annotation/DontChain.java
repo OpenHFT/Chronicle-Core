@@ -25,7 +25,6 @@ import java.lang.annotation.Target;
 /**
  * This annotation, when applied to an interface, instructs that the interface should not be considered when MethodReaders and MethodWriters
  * are exploring interfaces to implement. It provides a mechanism to exclude certain interfaces from being processed by these components.
- * </p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

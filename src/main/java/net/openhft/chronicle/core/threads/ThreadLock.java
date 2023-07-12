@@ -20,12 +20,13 @@ package net.openhft.chronicle.core.threads;
 
 import net.openhft.posix.PosixAPI;
 
+@Deprecated(/* to be moved in x.26 */)
 public interface ThreadLock {
 
     /**
      * Try to lock once or fail using the current OS thread id.
      *
-     * @return true if the lock could be obtains, or false if not.
+     * @return true if the lock could be obtained, or false if not.
      * @throws IllegalStateException if the same threadId already holds the lock
      */
     default boolean tryLock() throws IllegalStateException {
@@ -47,7 +48,7 @@ public interface ThreadLock {
      * Try to lock once or fail
      *
      * @param osThreadId to attempt to lock for
-     * @return true if the lock could be obtains, or false if not.
+     * @return true if the lock could be obtained, or false if not.
      * @throws IllegalStateException if the same threadId already holds the lock
      */
     boolean tryLock(int osThreadId) throws IllegalStateException;

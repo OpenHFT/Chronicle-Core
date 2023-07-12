@@ -18,7 +18,8 @@ toc::[]
 
 == About Chronicle-Core
 
-Chronicle-Core is an advanced low-level library that equips developers with powerful tools to interact with the operating system, manage memory, handle resources, and more. However, it should be used with caution due to its low-level operations which, if misused, can lead to complex issues.
+Chronicle-Core is an advanced low-level library that equips developers with powerful tools to interact with the operating system, manage memory, handle resources, and more.
+However, it should be used with caution due to its low-level operations which, if misused, can lead to complex issues.
 
 Here is a summary of the library's key features:
 
@@ -49,7 +50,8 @@ OS.unmap(address, 64 << 10);
 
 **Deterministic Resource Management:** Chronicle-Core features components that can be closed or reference-counted, and released deterministically without waiting for garbage collection.
 
-**Closeable Resources:** Chronicle-Core provides an interface for managing closeable resources, which are open when created and can't be used once closed. This helps in preventing resource leaks.
+**Closeable Resources:** Chronicle-Core provides an interface for managing closeable resources, which are open when created and can't be used once closed.
+This helps in preventing resource leaks.
 
 [source,java]
 ----
@@ -67,7 +69,8 @@ public class AbstractCloseableTest {
 }
 ----
 
-**Resource Reference Counting:** The library enables the use of reference counting for deterministic resource release. A reference-counted resource can add reservations until it's closed.
+**Resource Reference Counting:** The library enables the use of reference counting for deterministic resource release.
+A reference-counted resource can add reservations until it's closed.
 
 [source,java]
 ----
@@ -99,7 +102,9 @@ This library also wraps up low level access to
 
 == System properties from file
 
-Chronicle-Core's `Jvm` class automatically loads system properties from a `system.properties` file if found in the current directory or parent directory. This feature aids in streamlining your command line. You can specify a different properties file with the `-Dsystem.properties=my.properties` command.
+Chronicle-Core's `Jvm` class automatically loads system properties from a `system.properties` file if found in the current directory or parent directory.
+This feature aids in streamlining your command line.
+You can specify a different properties file with the `-Dsystem.properties=my.properties` command.
 
 [source,java]
 ----
@@ -110,17 +115,20 @@ static {
 
 The choice of file to load can be overridden on the command line with `-Dsystem.properties=my.properties`
 
-In link:https://github.com/OpenHFT/Chronicle-Core/blob/ea/src/main/java/net/openhft/chronicle/core/Jvm.java[Jvm.java] it can be seen how to guarantee that JVM class is initialized before the system property is read. For example with Jvm.getInteger or Jvm.getLong.
+In link:https://github.com/OpenHFT/Chronicle-Core/blob/ea/src/main/java/net/openhft/chronicle/core/Jvm.java[Jvm.java] it can be seen how to guarantee that JVM class is initialized before the system property is read.
+For example with Jvm.getInteger or Jvm.getLong.
 
-A  number of relevant system properties are listed in link:https://github.com/OpenHFT/Chronicle-Core/blob/ea/systemProperties.adoc[systemProperties.adoc].
+A number of relevant system properties are listed in link:https://github.com/OpenHFT/Chronicle-Core/blob/ea/systemProperties.adoc[systemProperties.adoc].
 
 NOTE: Command line-specified system properties override those in the `system.properties` file.
 
 == Chronicle-Core Initialization
 
-Chronicle-Core offers an initialization class, link:https://github.com/OpenHFT/Chronicle-Core/blob/ea/src/main/java/net/openhft/chronicle/core/ChronicleInit.java[`ChronicleInit`], that enables developers to run their own code at startup. This code can be executed before and/or after the execution of Chronicle's static initializers, which perform tasks such as system property loading.
+Chronicle-Core offers an initialization class, link:https://github.com/OpenHFT/Chronicle-Core/blob/ea/src/main/java/net/openhft/chronicle/core/ChronicleInit.java[`ChronicleInit`], that enables developers to run their own code at startup.
+This code can be executed before and/or after the execution of Chronicle's static initializers, which perform tasks such as system property loading.
 
-`ChronicleInit` allows the developer to hook in their own code to be run at startup before and/or after the Chronicle static initialisers are run. Chronicle static initialisers perform tasks such as loading system properties, so it is possible, for example, to override system properties using `ChronicleInit`.
+`ChronicleInit` allows the developer to hook in their own code to be run at startup before and/or after the Chronicle static initialisers are run.
+Chronicle static initialisers perform tasks such as loading system properties, so it is possible, for example, to override system properties using `ChronicleInit`.
 To this end, `ChronicleInit` introduces the following system properties:
 
 . "*chronicle.init.runnable*"
@@ -447,14 +455,16 @@ assertEquals("refCount: 0, 0, 0", mf.referenceCounts());
 
 === Releasing Resources
 
-Releasing resources can be managed by starting the `BACKGROUND_RESOURCE_RELEASER` thread or alternatively it can be managed in a user defined thread. To start the `BACKGROUND_RESOURCE_RELEASER` thread, both system properties `background.releaser` and `background.releaser.thread` should be set to `true`.
+Releasing resources can be managed by starting the `BACKGROUND_RESOURCE_RELEASER` thread or alternatively it can be managed in a user defined thread.
+To start the `BACKGROUND_RESOURCE_RELEASER` thread, both system properties `background.releaser` and `background.releaser.thread` should be set to `true`.
 In this condition, the thread starts as a daemon thread and invokes `BackgroundResourceReleaser.runReleaseResources()`.
 
 If only `background.releaser.thread` is set to `false`, resources will still be queued for releasing, but they need to be released explicitly by calling `BackgroundResourceReleaser.releasePendingResources()`.
 
 If `background.releaser` is set to `false` regardless of `background.releaser.thread`, resources are not queued for release and release will be done synchronously (by calling the relevant close() function).
 
-Calling `BackgroundResourceReleaser.stop()` releases pending resources and then stops the `BACKGROUND_RESOURCE_RELEASER` thread. To make sure the shutdown hook does not prevent classes from unloading, deregister the shutdown hook by calling `PriorityHook.clear()`.
+Calling `BackgroundResourceReleaser.stop()` releases pending resources and then stops the `BACKGROUND_RESOURCE_RELEASER` thread.
+To make sure the shutdown hook does not prevent classes from unloading, deregister the shutdown hook by calling `PriorityHook.clear()`.
 
 .Resource Release Configurations
 [%header,cols=3]
@@ -468,6 +478,7 @@ Calling `BackgroundResourceReleaser.stop()` releases pending resources and then 
 == Object Pooling
 
 Chronicle-Core provides object pooling for strings and enums, allowing you to convert a `CharSequence` into a `String` of a specific `Enum` type efficiently.
+
 [source,java]
 ----
 Bytes<?> b = Bytes.from("Hello World");

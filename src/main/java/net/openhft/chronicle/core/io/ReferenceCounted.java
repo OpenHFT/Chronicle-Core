@@ -29,7 +29,7 @@ public interface ReferenceCounted extends ReferenceOwner {
      * Reserves the resource by incrementing its reference count by one.
      * <p>
      * It is required to reserve a resource before using it to prevent it from being freed.
-     * </p>
+     * 
      *
      * @param id The unique identifier representing the owner reserving the resource.
      * @throws IllegalStateException if the resource has already been freed.
@@ -45,6 +45,7 @@ public interface ReferenceCounted extends ReferenceOwner {
      * @param to   The unique identifier representing the owner acquiring the reservation.
      * @throws IllegalStateException if the resource has already been freed.
      */
+    // TODO move implementation to sub-classes in x.24
     default void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException {
         reserve(to);
         release(from);
@@ -57,7 +58,7 @@ public interface ReferenceCounted extends ReferenceOwner {
      *
      * @param id The unique identifier representing the owner attempting to reserve the resource.
      * @return {@code true} if the resource was successfully reserved, {@code false} otherwise.
-     * @throws IllegalStateException if the resource has already been freed.
+     * @throws IllegalStateException    if the resource has already been freed.
      * @throws IllegalArgumentException if the reference owner is invalid.
      */
     boolean tryReserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException;
@@ -66,7 +67,7 @@ public interface ReferenceCounted extends ReferenceOwner {
      * Checks if the resource is reserved by the specified owner. Returns {@code true} if unsure.
      * <p>
      * This method provides a best-effort check and may not be accurate.
-     * </p>
+     * 
      *
      * @param owner The unique identifier representing the owner to check.
      * @return {@code false} if it is certain that the owner does not have the resource reserved; {@code true} otherwise.
@@ -125,7 +126,7 @@ public interface ReferenceCounted extends ReferenceOwner {
      * <p>
      * Note: Object equality is used to determine which listener to remove, so be cautious if the listener
      * implements the equals method in a non-standard way.
-     * </p>
+     * 
      *
      * @param referenceChangeListener The listener to remove.
      */

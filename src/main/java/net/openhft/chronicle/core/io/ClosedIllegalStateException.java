@@ -26,7 +26,7 @@ package net.openhft.chronicle.core.io;
  * This exception is a specialized version of {@link IllegalStateException} specifically for cases
  * where the illegal state is due to the resource being closed. This makes the exception more
  * semantically meaningful when dealing with closeable resources.
- * </p>
+ * 
  * <p>
  * Here's a typical example of how {@code ClosedIllegalStateException} might be used:
  * <pre>
@@ -37,7 +37,7 @@ package net.openhft.chronicle.core.io;
  *     // ... read data ...
  * }
  * </pre>
- * </p>
+ * 
  */
 public class ClosedIllegalStateException extends IllegalStateException {
 
@@ -56,7 +56,7 @@ public class ClosedIllegalStateException extends IllegalStateException {
      * <p>
      * Note that the detail message associated with {@code cause} is <i>not</i> automatically
      * incorporated into this exception's detail message.
-     * </p>
+     * 
      *
      * @param message The detail message, which is saved for later retrieval by the {@link #getMessage()} method.
      * @param cause   The cause (which is saved for later retrieval by the {@link #getCause()} method).

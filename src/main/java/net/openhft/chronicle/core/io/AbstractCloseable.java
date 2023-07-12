@@ -34,26 +34,26 @@ import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEAS
  * This includes ensuring that close operations are thread-safe, providing hooks for custom cleanup logic, and supporting
  * diagnostic features for tracking resource usage. It supports resource tracing, thread safety checks, and ensures that
  * close operations are performed properly.
- * </p>
+ * 
  * <p>
  * The {@code AbstractCloseable} class implements the {@link ReferenceOwner}, {@link ManagedCloseable}, and {@link SingleThreadedChecked} interfaces.
  * The {@link ReferenceOwner} interface allows the class to have a unique reference identifier.
  * The {@link ManagedCloseable} interface ensures that this class provides mechanisms for proper resource management during close operations.
  * The {@link SingleThreadedChecked} interface ensures that the close operation is executed in a thread-safe manner.
- * </p>
+ * 
  * <p>
  * Implementations of this abstract class should override the {@link #performClose()} method to include the specific
  * cleanup logic needed for the resource. This ensures that custom cleanup logic is executed exactly once during the
  * closing of the resource.
- * </p>
+ * 
  * <p>
  * Additionally, {@code AbstractCloseable} supports resource tracing, which can be enabled or disabled to monitor and
  * diagnose resource allocation and deallocation. Resource tracing can help in identifying resource leaks and ensure
  * resources are properly managed.
- * </p>
+ * 
  * <p>
  * Subclasses can also control the behavior of thread safety checks and background closing through provided methods.
- * </p>
+ * 
  */
 public abstract class AbstractCloseable implements ReferenceOwner, ManagedCloseable, SingleThreadedChecked {
     @Deprecated(/* remove in x.25 */)

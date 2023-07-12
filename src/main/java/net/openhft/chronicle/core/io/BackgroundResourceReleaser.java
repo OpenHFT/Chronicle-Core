@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * This class helps in releasing the resources in the background when they are no longer needed.
  * It internally uses a background thread to perform the releasing operations. The background
  * thread can be disabled if needed by using system properties.
- * </p>
+ * 
  */
 public final class BackgroundResourceReleaser {
 
@@ -87,7 +87,7 @@ public final class BackgroundResourceReleaser {
      * <p>
      * It should be called during the shutdown process to release any resources that have not been
      * released yet.
-     * </p>
+     * 
      */
     public static void stop() {
         stopping = true;
@@ -143,7 +143,7 @@ public final class BackgroundResourceReleaser {
      * <p>
      * Should be called when you want to make sure that all the resources that have been
      * queued for release are actually released.
-     * </p>
+     * 
      */
     public static void releasePendingResources() {
         boolean interrupted = Thread.interrupted();

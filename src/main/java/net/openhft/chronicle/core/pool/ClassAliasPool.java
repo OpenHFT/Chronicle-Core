@@ -31,7 +31,11 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-
+/**
+ * A class responsible for looking up classes and associating them with aliases for
+ * more convenient referencing. ClassAliasPool supports custom class loaders and allows
+ * for modification of its lookup data without affecting parent lookups.
+ */
 public class ClassAliasPool implements ClassLookup {
     public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool(null).defaultAliases();
     static final ThreadLocal<CAPKey> CAP_KEY_TL = ThreadLocal.withInitial(() -> new CAPKey(null));
@@ -41,11 +45,25 @@ public class ClassAliasPool implements ClassLookup {
     private final Map<CAPKey, Class<?>> stringClassMap2 = new ConcurrentHashMap<>();
     private final Map<Class<?>, String> classStringMap = new ConcurrentHashMap<>();
 
+    /**
+     * Constructs a new ClassAliasPool with the specified parent ClassLookup and ClassLoader.
+     *
+     * @param parent The parent ClassLookup that can be consulted if a class cannot be found
+     *               in this ClassAliasPool.
+     * @param classLoader The ClassLoader to be used for loading classes.
+     */
     ClassAliasPool(ClassLookup parent, ClassLoader classLoader) {
         this.parent = parent;
         this.classLoader = classLoader;
     }
 
+    /**
+     * Constructs a new ClassAliasPool with the specified parent ClassLookup. The ClassLoader
+     * is derived from the parent if it is non-null, otherwise it is derived from this class.
+     *
+     * @param parent The parent ClassLookup that can be consulted if a class cannot be found
+     *               in this ClassAliasPool.
+     */
     ClassAliasPool(ClassLookup parent) {
         this.parent = parent;
         this.classLoader = (parent == null ? this : parent).getClass().getClassLoader();
@@ -60,6 +78,11 @@ public class ClassAliasPool implements ClassLookup {
         return aPackage != null && aPackage.getName().startsWith(pkgName);
     }
 
+    /**
+     * Populates this ClassAliasPool with a default set of aliases for commonly used classes.
+     *
+     * @return The ClassAliasPool instance populated with default aliases.
+     */
     @NotNull
     private ClassAliasPool defaultAliases() {
         addAlias(Set.class, "!set, Set");
@@ -94,7 +117,8 @@ public class ClassAliasPool implements ClassLookup {
     }
 
     /**
-     * remove classes which are not in the default class loaders.
+     * Removes classes from the lookup which are not loaded by the default class loaders.
+     * This is used to clean up the ClassAliasPool.
      */
     public void clean() {
         clean(stringClassMap.values());
@@ -268,12 +292,8 @@ public class ClassAliasPool implements ClassLookup {
             if (value instanceof String)
                 return value.hashCode();
             int h = 0;
-            try {
-                for (int i = 0; i < value.length(); i++) {
-                    h = 31 * h + charAt(i);
-                }
-            } catch (IndexOutOfBoundsException e) {
-                throw new AssertionError(e);
+            for (int i = 0; i < value.length(); i++) {
+                h = 31 * h + charAt(i);
             }
             return h;
         }
@@ -286,13 +306,9 @@ public class ClassAliasPool implements ClassLookup {
             CharSequence cs = (CharSequence) obj;
             if (length() != cs.length())
                 return false;
-            try {
-                for (int i = 0; i < length(); i++)
-                    if (charAt(i) != cs.charAt(i))
-                        return false;
-            } catch (IndexOutOfBoundsException e) {
-                throw new AssertionError(e);
-            }
+            for (int i = 0; i < length(); i++)
+                if (charAt(i) != cs.charAt(i))
+                    return false;
             return true;
         }
     }

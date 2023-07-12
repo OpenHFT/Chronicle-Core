@@ -36,6 +36,7 @@ import static java.lang.Runtime.getRuntime;
 /**
  * Contains the pieces which must be loaded first
  */
+// TODO to be moved to the internal package x.25
 final class Bootstrap {
 
     // Suppresses default constructor, ensuring non-instantiability.

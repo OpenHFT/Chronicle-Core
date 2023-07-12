@@ -25,7 +25,6 @@ import java.util.Objects;
  * Represents an operation that accepts a single {@code Boolean}-valued argument and returns no result.  This is the
  * primitive type specialization of {@link java.util.function.Consumer} for {@code Boolean}.  Unlike most other functional
  * interfaces, {@code BooleanConsumer} is expected to operate via side-effects.
- * <p>
  * <p>This is a <a href="package-summary.html">functional interface</a> whose functional method is
  * {@link #accept(Boolean)}.
  *
@@ -51,6 +50,7 @@ public interface BooleanConsumer {
      * operation
      * @throws NullPointerException if {@code after} is null
      */
+    @Deprecated(/* to be removed in x.26 */)
     @NotNull
     default BooleanConsumer andThen(@NotNull BooleanConsumer after) {
         Objects.requireNonNull(after);

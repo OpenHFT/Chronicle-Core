@@ -20,10 +20,25 @@ package net.openhft.chronicle.core.threads;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * This class is an implementation of the {@link EventLoop} interface
+ * that delegates all calls to an underlying {@link EventLoop} instance.
+ * <p>
+ * This can be used as a base class for implementations that need to override
+ * or add behavior to an existing {@link EventLoop} instance without modifying
+ * the original class.
+ * 
+ */
 public class DelegatingEventLoop implements EventLoop {
     @NotNull
     private final EventLoop inner;
 
+    /**
+     * Constructs a new {@code DelegatingEventLoop} instance that delegates to the specified
+     * {@link EventLoop}.
+     *
+     * @param eventLoop the underlying {@link EventLoop} to which this object delegates all calls.
+     */
     public DelegatingEventLoop(@NotNull EventLoop eventLoop) {
         this.inner = eventLoop;
     }

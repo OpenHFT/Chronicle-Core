@@ -23,18 +23,31 @@ import net.openhft.chronicle.core.time.SystemTimeProvider;
 import net.openhft.chronicle.core.time.TimeProvider;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Timer class used to schedule tasks to be executed periodically or after a certain delay.
+ * The scheduling is performed on the provided event loop, and the execution time is best-effort.
+ * This means that if the event loop thread is busy, the execution of the scheduled task may be delayed.
+ */
 public class Timer {
 
     @NotNull
     private final CancellableTimer cancellableTimer;
 
     /**
-     * @param eventLoop the event loop that the timer task is run on
+     * Constructs a Timer with the default system time provider.
+     *
+     * @param eventLoop the event loop on which the timer tasks are scheduled and run.
      */
     public Timer(@NotNull EventLoop eventLoop) {
         this(eventLoop, SystemTimeProvider.INSTANCE);
     }
 
+    /**
+     * Constructs a Timer with a specified time provider.
+     *
+     * @param eventLoop    the event loop on which the timer tasks are scheduled and run.
+     * @param timeProvider the time provider used to control the scheduling.
+     */
     public Timer(@NotNull EventLoop eventLoop, @NotNull TimeProvider timeProvider) {
         this.cancellableTimer = new CancellableTimer(eventLoop, timeProvider);
     }

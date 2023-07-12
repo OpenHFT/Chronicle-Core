@@ -33,7 +33,7 @@ import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEAS
  * This class provides the common functionality required for implementing
  * reference counting mechanisms in resources, such as managing the number of
  * references and releasing resources when they are no longer needed.
- * </p>
+ * 
  */
 public abstract class AbstractReferenceCounted implements ReferenceCountedTracer, ReferenceOwner, SingleThreadedChecked {
     // Constants
@@ -213,7 +213,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
      *
      * @param id The reference owner.
      * @return {@code true} if the reservation was successful, {@code false} otherwise.
-     * @throws IllegalStateException if the resource is already released.
+     * @throws IllegalStateException    if the resource is already released.
      * @throws IllegalArgumentException if the reference owner is not valid.
      */
     @Override

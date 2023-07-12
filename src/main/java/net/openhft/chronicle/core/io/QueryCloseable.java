@@ -4,7 +4,7 @@
 
 package net.openhft.chronicle.core.io;
 /**
- * A interface for querying the closeable state of an object.
+ * An interface for querying the closeable state of an object.
  * Provides methods to check if the object is closed or in the process of closing.
  */
 public interface QueryCloseable {

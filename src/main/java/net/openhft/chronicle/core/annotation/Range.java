@@ -24,32 +24,39 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicates that the value is in a range (i.e. {@code val ∈ [from, to)})
+ * Indicates that the annotated element is expected to hold a value within a specified range [from, to),
+ * where the "from" value is inclusive and the "to" value is exclusive (i.e. {@code from <= val < to}).
  * <p>
- * This annotation cannot be used for an inclusive "to" value == Long.MAX_VALUE
+ * Note that this annotation cannot be used to represent an inclusive upper bound of {@link Long#MAX_VALUE}.
+ * <p>
+ * This annotation can be applied to methods, fields, parameters, local variables, and types to enforce
+ * or document the range constraints for the values they hold.
  */
 @Retention(RetentionPolicy.CLASS)
 @Target({ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE, ElementType.TYPE_USE})
 public @interface Range {
 
     /**
-     * Returns a comment as to why this value must meet the condition.
+     * Specifies an optional comment to provide additional context or rationale for why the
+     * annotated element must be within the specified range.
      *
-     * @return a comment as to why this value must meet the condition
+     * @return the comment explaining why this range constraint is necessary
      */
     String value() default "";
 
     /**
-     * Returns the from value (inclusive).
+     * Specifies the lower bound of the range. The annotated element is expected to hold a value
+     * that is greater than or equal to this "from" value.
      *
-     * @return the from value (inclusive)
+     * @return the inclusive lower bound of the range
      */
     long from() default Long.MIN_VALUE;
 
     /**
-     * Returns the to value (exclusive).
+     * Specifies the upper bound of the range. The annotated element is expected to hold a value
+     * that is strictly less than this "to" value.
      *
-     * @return the to value (exclusive)
+     * @return the exclusive upper bound of the range
      */
     long to() default Long.MAX_VALUE;
 }

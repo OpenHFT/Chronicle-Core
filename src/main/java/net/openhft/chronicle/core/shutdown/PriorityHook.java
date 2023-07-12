@@ -29,15 +29,16 @@ public class PriorityHook {
     private final TreeMap<Hooklet, Hooklet> hookletPool = new TreeMap<>();
     private Thread shutdownThread;
 
-    private PriorityHook() { }
+    private PriorityHook() {
+    }
 
     /**
      * Add a shutdown hook with a specified priority.
-     *
+     * <p>
      * Will prevent adding the same hook (by parameter's class) more than once, return {@code false} in that case.
      *
      * @param priority See {@link Hooklet#priority()}
-     * @param hook Function that needs to be run during shutdown.
+     * @param hook     Function that needs to be run during shutdown.
      * @return {@code true} if hook was not present and is now added
      */
     public static boolean add(int priority, Runnable hook) {
@@ -46,7 +47,7 @@ public class PriorityHook {
 
     /**
      * Add a custom shutdown hook.
-     *
+     * <p>
      * Will prevent adding the same hook (by parameter's class) more than once, return the existing one in that case.
      * See {@link Hooklet#identity()}.
      *

@@ -27,6 +27,25 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+/**
+ * A cache for parsed values that is optimized for fast lookup. This class is used to cache objects
+ * that are constructed from strings, often as a result of parsing. The cache has a fixed capacity
+ * and uses a hash function for fast indexing.
+ *
+ * <p>Use case is when there is a need to repeatedly parse the same strings into objects,
+ * such as BigDecimal in the example test case, and would like to reuse the parsed object rather than
+ * creating a new one each time.
+ *
+ * <p>Example usage:
+ * <pre>
+ * {@code
+ * ParsingCache<BigDecimal> cache = new ParsingCache<>(128, BigDecimal::new);
+ * BigDecimal value = cache.intern("123.456");
+ * }
+ * </pre>
+ *
+ * @param <E> The type of object the cache stores. Typically, these are objects created from strings.
+ */
 public class ParsingCache<E> {
     protected final ParsedData<E>[] interner;
     protected final int mask;
@@ -34,8 +53,13 @@ public class ParsingCache<E> {
     private final Function<String, E> eFunction;
     protected boolean toggle = false;
 
-    // throws IllegalArgumentException
-    public ParsingCache(int capacity, Function<String, E> eFunction) throws IllegalArgumentException {
+    /**
+     * Constructs a new ParsingCache with the specified capacity.
+     *
+     * @param capacity  The capacity of the cache.
+     * @param eFunction A function that creates new instances of type E from a string.
+     */
+    public ParsingCache(int capacity, Function<String, E> eFunction) {
         this.eFunction = eFunction;
         int n = Maths.nextPower2(capacity, 128);
         shift = Maths.intLog2(n);
@@ -43,6 +67,14 @@ public class ParsingCache<E> {
         mask = n - 1;
     }
 
+    /**
+     * Retrieves the object associated with the given CharSequence from the cache. If the object
+     * does not exist in the cache, it is created using the function provided in the constructor,
+     * stored in the cache, and then returned.
+     *
+     * @param cs The CharSequence to be parsed.
+     * @return The object of type E corresponding to the provided CharSequence.
+     */
     @Nullable
     public E intern(@Nullable CharSequence cs) {
         if (cs == null)
@@ -68,6 +100,11 @@ public class ParsingCache<E> {
         return toggle;
     }
 
+    /**
+     * Returns the number of values currently in the cache.
+     *
+     * @return The number of values in the cache.
+     */
     public int valueCount() {
         return (int) Stream.of(interner).filter(Objects::nonNull).count();
     }

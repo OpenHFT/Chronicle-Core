@@ -29,11 +29,11 @@ import org.jetbrains.annotations.Nullable;
  * throwing exceptions.
  * <p>
  * It is encouraged to use this interface in a try-with-resources statement.
- * </p>
+ * 
  * <p>
  * Implementations of this interface should also consider extending {@link AbstractCloseable}
  * which provides common functionalities for closeable resources.
- * </p>
+ * 
  */
 public interface Closeable extends java.io.Closeable, QueryCloseable {
 
@@ -46,7 +46,7 @@ public interface Closeable extends java.io.Closeable, QueryCloseable {
      * <pre>
      * Closeable.closeQuietly(fileInputStream, socketChannel, listOfStreams);
      * </pre>
-     * </p>
+     * 
      *
      * @param closeables the array of objects to be closed
      * @see AbstractCloseable#performClose()
@@ -64,7 +64,7 @@ public interface Closeable extends java.io.Closeable, QueryCloseable {
      * <pre>
      * Closeable.closeQuietly(fileInputStream);
      * </pre>
-     * </p>
+     * 
      *
      * @param o the object to be closed
      * @see AbstractCloseable#performClose()
@@ -80,7 +80,7 @@ public interface Closeable extends java.io.Closeable, QueryCloseable {
      * <p>
      * Subclasses should override {@link AbstractCloseable#performClose()} to provide
      * the actual close logic.
-     * </p>
+     * 
      *
      * @throws IllegalStateException if the resource cannot be closed.
      * @see AbstractCloseable#performClose()
