@@ -162,6 +162,7 @@ public final class StringUtils {
      */
     public static boolean endsWith(@NotNull final CharSequence source,
                                    @NotNull final String endsWith) {
+        if (endsWith.length() > source.length()) return false;
         for (int i = 1; i <= endsWith.length(); i++) {
             if (toLowerCase(charAt(source, source.length() - i)) !=
                     toLowerCase(endsWith.charAt(endsWith.length() - i))) {
@@ -181,6 +182,7 @@ public final class StringUtils {
      */
     public static boolean startsWith(@NotNull final CharSequence source,
                                      @NotNull final String startsWith) {
+        if (startsWith.length() > source.length()) return false;
         for (int i = 0; i < startsWith.length(); i++) {
             if (toLowerCase(charAt(source, i)) != toLowerCase(startsWith.charAt(i))) {
                 return false;

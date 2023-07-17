@@ -24,6 +24,7 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
+import java.util.function.BiFunction;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -118,6 +119,73 @@ public class StringUtilsTest {
         assertEquals(0.0, StringUtils.parseDouble("-0"), 0);
         assertEquals(123.0, StringUtils.parseDouble("123"), 0);
         assertEquals(-1.0, StringUtils.parseDouble("-1"), 0);
+    }
+
+    @Test
+    public void testParseInt() {
+        validate((s, integer) -> (long) StringUtils.parseInt(s, integer));
+    }
+
+    @Test
+    public void testParseLong() {
+        validate(StringUtils::parseLong);
+    }
+
+    private static void validate(BiFunction<String, Integer, Long> method) {
+        assertEquals(100, (long) method.apply("100", 10));
+        assertEquals(-100, (long) method.apply("-100", 10));
+
+        // Lone char
+        NumberFormatException firstCharEx = assertThrows(NumberFormatException.class, () -> method.apply("+", 10));
+        assertEquals("For input string: \"+\"", firstCharEx.getMessage());
+
+        // Null
+        NumberFormatException nullEx = assertThrows(NumberFormatException.class, () -> method.apply(null, 0));
+        assertEquals("null", nullEx.getMessage());
+
+        // Max radix
+        NumberFormatException maxRadixEx = assertThrows(NumberFormatException.class, () -> method.apply("100", 37));
+        assertEquals("radix 37 greater than Character.MAX_RADIX", maxRadixEx.getMessage());
+
+        // Min radix
+        NumberFormatException minRadixEx = assertThrows(NumberFormatException.class, () -> method.apply("100", 0));
+        assertEquals("radix 0 less than Character.MIN_RADIX", minRadixEx.getMessage());
+    }
+
+    @Test
+    public void reverse() {
+        StringBuilder stringBuilder = new StringBuilder("test");
+        StringUtils.reverse(stringBuilder, 0);
+        assertEquals("tset", stringBuilder.toString());
+    }
+
+    @Test
+    public void equalsCaseIgnore_equals() {
+        assertTrue(StringUtils.equalsCaseIgnore("aaa", "AAA"));
+        assertFalse(StringUtils.equalsCaseIgnore("aaa", "AAAA"));
+        assertFalse(StringUtils.equalsCaseIgnore("aaa", "AA_"));
+    }
+
+    @Test
+    public void startsWith_isValidPrefix() {
+        assertTrue(StringUtils.startsWith("abcd", "ab"));
+        assertFalse(StringUtils.startsWith("abcd", "abe"));
+    }
+
+    @Test
+    public void startsWith_searchStringTooLong() {
+        assertFalse(StringUtils.startsWith("a", "ab"));
+    }
+
+    @Test
+    public void endsWith_isValidSuffix() {
+        assertTrue(StringUtils.endsWith("abcd", "cd"));
+        assertFalse(StringUtils.endsWith("abcd", "ed"));
+    }
+
+    @Test
+    public void endsWith_searchStringIsTooLong() {
+        assertFalse(StringUtils.endsWith("abcd", "aaabcd"));
     }
 
     @Test
