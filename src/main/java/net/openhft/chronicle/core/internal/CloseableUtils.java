@@ -93,12 +93,18 @@ public final class CloseableUtils {
             }
         };
 
-        System.gc();
-        AbstractCloseable.waitForCloseablesToClose(1000);
-
         try {
-            if (q.poll(5, TimeUnit.SECONDS) == null)
-                throw new AssertionError("Timed out waiting for the Finalizer");
+            // Zing JVM is not always satisfied with a single GC call:
+            for (int i = 1; i <= 10; i++) {
+                System.gc();
+                if (q.poll(500, TimeUnit.MILLISECONDS) != null)
+                    break;
+
+                if (i == 10)
+                    throw new AssertionError("Timed out waiting for the Finalizer");
+            }
+
+            AbstractCloseable.waitForCloseablesToClose(1000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new AssertionError(e);
