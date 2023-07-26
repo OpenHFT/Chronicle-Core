@@ -40,7 +40,7 @@ package net.openhft.chronicle.core.io;
  *         if (name == null || name.isEmpty()) {
  *             throw new InvalidMarshallableException("Name cannot be null or empty");
  *         }
- *         if (age == null || age < 0) {
+ *         if (age == null || age &lt; 0) {
  *             throw new InvalidMarshallableException("Age cannot be null or negative");
  *         }
  *     }

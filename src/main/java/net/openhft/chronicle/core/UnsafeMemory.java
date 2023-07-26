@@ -334,7 +334,6 @@ public class UnsafeMemory implements Memory {
      *
      * @param obj    the object containing the byte to fetch.
      * @param offset the offset to the byte within the object.
-     * @return the fetched byte value.
      */
     public static void unsafePutByte(Object obj, long offset, byte value) {
         assert SKIP_ASSERTIONS || obj == null || assertIfEnabled(Longs.nonNegative(), offset);
@@ -346,7 +345,6 @@ public class UnsafeMemory implements Memory {
      *
      * @param obj    the object in which to put the byte.
      * @param offset the offset at which to put the byte within the object.
-     * @param value  the byte value to put.
      */
     public static byte unsafeGetByte(Object obj, long offset) {
         assert SKIP_ASSERTIONS || obj == null || assertIfEnabled(Longs.nonNegative(), offset);

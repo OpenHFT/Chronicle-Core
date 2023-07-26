@@ -132,6 +132,8 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
      * 3. Waits for closeables to close with a specified timeout.
      * 4. Checks if the finalizer thread has finalized any objects.
      * If not, it throws an AssertionError.
+     * <p>
+     * NOTE: This is slower than waitForCloseablesToClose and it can clean up resources that should have be released deterministically.
      *
      * @throws AssertionError If the finalizer does not complete within the specified timeout.
      */

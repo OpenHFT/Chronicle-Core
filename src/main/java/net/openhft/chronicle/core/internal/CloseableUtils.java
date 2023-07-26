@@ -130,11 +130,8 @@ public final class CloseableUtils {
 
         long end = System.currentTimeMillis() + millis;
 
-        BackgroundResourceReleaser.releasePendingResources();
-
         toWait:
-        do {
-            CleaningThreadLocal.cleanupNonCleaningThreads();
+        while (true) {
             Collection<Closeable> traceSetCopy;
             synchronized (traceSet) {
                 traceSetCopy = new ArrayList<>(traceSet);
@@ -150,14 +147,21 @@ public final class CloseableUtils {
                     if (key instanceof ReferenceCountedTracer) {
                         ((ReferenceCountedTracer) key).throwExceptionIfNotReleased();
                     }
+
                 } catch (IllegalStateException e) {
+                    if (System.currentTimeMillis() > end)
+                        throw e;
+
+                    BackgroundResourceReleaser.releasePendingResources();
+
+                    CleaningThreadLocal.cleanupNonCleaningThreads();
+
                     Jvm.pause(1);
                     continue toWait;
                 }
             }
             return true;
-        } while (System.currentTimeMillis() < end);
-        return false;
+        }
     }
 
     /**

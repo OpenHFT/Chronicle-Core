@@ -463,7 +463,7 @@ public final class Maths {
      * Returns the next power of two.
      *
      * @param n   to find the next power of two from
-     * @param min if n < min then use min
+     * @param min if n &lt; min then use min
      * @return the next power of two
      * @throws IllegalArgumentException if the provided {@code min} value is not a power of two.
      */
@@ -475,7 +475,7 @@ public final class Maths {
      * Returns the next power of two.
      *
      * @param n   to find the next power of two from
-     * @param min if n < min then use min
+     * @param min if n &lt; min then use min
      * @return the next power of two
      * @throws IllegalArgumentException if the provided {@code min} value is not a power of two.
      */
