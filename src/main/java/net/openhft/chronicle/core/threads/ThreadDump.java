@@ -118,9 +118,11 @@ public class ThreadDump {
             Thread.yield();
             Thread[] group = getAllThreadsInGroup();
             List<Thread> extra = i == last ? new ArrayList<>() : null;
+            boolean ok = true;
             for (Thread t : group) {
                 if (t != null && t.isAlive() && !this.threads.contains(t) && isExtra(t.getName())) {
                     // a thread is alive that we didn't expect to be
+                    ok = false;
                     if (i == last) {
                         extra.add(t);
                     } else {
@@ -128,6 +130,8 @@ public class ThreadDump {
                     }
                 }
             }
+            if (ok)
+                return;
             if (i == last) {
                 if (extra.isEmpty())
                     break;
