@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.threads;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,7 +30,7 @@ import java.util.stream.Stream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class InvalidEventHandlerExceptionTest {
+public class InvalidEventHandlerExceptionTest extends CoreTestCommon {
 
     InvalidEventHandlerException e;
 

@@ -20,6 +20,7 @@ package net.openhft.chronicle.core.threads;
 
 import net.openhft.affinity.Affinity;
 import net.openhft.affinity.AffinityLock;
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
 import java.util.BitSet;
@@ -30,7 +31,7 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 
-public class CleaningThreadTest {
+public class CleaningThreadTest extends CoreTestCommon {
     @Test
     public void cleanupThreadLocal() throws InterruptedException {
         String threadName = "ctl-test";

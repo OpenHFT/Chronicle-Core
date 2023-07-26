@@ -135,23 +135,26 @@ public final class CloseableUtils {
         toWait:
         do {
             CleaningThreadLocal.cleanupNonCleaningThreads();
+            Collection<Closeable> traceSetCopy;
             synchronized (traceSet) {
-                for (Closeable key : traceSet) {
-                    try {
-                        // too late to be checking thread safety.
-                        if (key instanceof AbstractCloseable) {
-                            ((AbstractCloseable) key).singleThreadedCheckDisabled(true);
-                        }
-                        if (key instanceof ReferenceCountedTracer) {
-                            ((ReferenceCountedTracer) key).throwExceptionIfNotReleased();
-                        }
-                    } catch (IllegalStateException e) {
-                        Jvm.pause(1);
-                        continue toWait;
+                traceSetCopy = new ArrayList<>(traceSet);
+            }
+            for (Closeable key : traceSetCopy) {
+                if (key.isClosing())
+                    continue;
+                try {
+                    // too late to be checking thread safety.
+                    if (key instanceof AbstractCloseable) {
+                        ((AbstractCloseable) key).singleThreadedCheckDisabled(true);
                     }
+                    if (key instanceof ReferenceCountedTracer) {
+                        ((ReferenceCountedTracer) key).throwExceptionIfNotReleased();
+                    }
+                } catch (IllegalStateException e) {
+                    Jvm.pause(1);
+                    continue toWait;
                 }
             }
-            Jvm.pause(1);
             return true;
         } while (System.currentTimeMillis() < end);
         return false;

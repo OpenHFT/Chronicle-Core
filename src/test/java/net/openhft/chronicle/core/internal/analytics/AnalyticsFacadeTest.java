@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.internal.analytics;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.analytics.AnalyticsFacade;
 import okhttp3.HttpUrl;
 import okhttp3.mockwebserver.MockResponse;
@@ -33,7 +34,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
-public class AnalyticsFacadeTest {
+public class AnalyticsFacadeTest extends CoreTestCommon {
 
     private static final String TEST_RESPONSE = "A";
 

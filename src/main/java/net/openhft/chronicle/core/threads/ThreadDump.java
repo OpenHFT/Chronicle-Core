@@ -24,9 +24,7 @@ import net.openhft.chronicle.core.StackTrace;
 import net.openhft.chronicle.core.util.WeakIdentityHashMap;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -49,7 +47,7 @@ public class ThreadDump {
      * at the time of creation.
      */
     public ThreadDump() {
-        this.threads = new HashSet<>(Thread.getAllStackTraces().keySet());
+        this.threads = new HashSet<>(Arrays.asList(getAllThreadsInGroup()));
         ignored.add("Time-limited test");
         ignored.add("Attach Listener");
         ignored.add("process reaper");
@@ -110,75 +108,69 @@ public class ThreadDump {
      * this ThreadDump instance was created. This method waits for a specified delay
      * for threads to terminate before throwing an AssertionError if new threads are detected.
      *
-     * @param delay     the maximum time to wait for threads to terminate
+     * @param delay     the extra time to wait for threads to terminate
      * @param delayUnit the time unit of the delay parameter
      */
     public void assertNoNewThreads(int delay, @NotNull TimeUnit delayUnit) {
-        long start = System.nanoTime();
-        long delayNanos = delayUnit.toNanos(delay);
-
-        AssertionError assertionError = null;
         int last = 7;
-        for (int i = 1; i <= last; ) {
-            Jvm.pause(i * i * 50L);
-            Map<Thread, StackTraceElement[]> allStackTraces = collectThreadStackTraces();
-
-            if (allStackTraces.isEmpty())
-                return;
-
-            if (i == 1 && System.nanoTime() - start < delayNanos) {
-                continue;
-            }
-
-            i++;
-            if (i == last) {
-                assertionError = new AssertionError("Threads still running " + allStackTraces.keySet());
-            }
-
-            for (Map.Entry<Thread, StackTraceElement[]> threadEntry : allStackTraces.entrySet()) {
-                if (i == last) {
-                    addThreadErrorDetails(assertionError, threadEntry);
+        long delayMillis = (delayUnit.toMillis(delay) + last - 1) / last;
+        for (int i = 1; i <= last; i++) {
+            Thread.yield();
+            Thread[] group = getAllThreadsInGroup();
+            List<Thread> extra = i == last ? new ArrayList<>() : null;
+            for (Thread t : group) {
+                if (t != null && t.isAlive() && !this.threads.contains(t) && isExtra(t.getName())) {
+                    // a thread is alive that we didn't expect to be
+                    if (i == last) {
+                        extra.add(t);
+                    } else {
+                        break;
+                    }
                 }
             }
+            if (i == last) {
+                if (extra.isEmpty())
+                    break;
+
+                AssertionError assertionError = new AssertionError("Threads still running " + extra);
+                for (Thread thread : extra) {
+                    addThreadErrorDetails(assertionError, thread);
+                }
+                throw assertionError;
+            }
+            Jvm.pause(delayMillis + (1L << i));
         }
-
-        if (assertionError == null)
-            throw new NullPointerException("This should not happen as assertionError should be set.");
-
-        throw assertionError;
     }
 
-    private Map<Thread, StackTraceElement[]> collectThreadStackTraces() {
-        Map<Thread, StackTraceElement[]> allStackTraces = Thread.getAllStackTraces();
-        allStackTraces.keySet().removeAll(threads);
-
-        filterStackTraces(allStackTraces);
-
-        return allStackTraces;
+    private Thread[] getAllThreadsInGroup() {
+        ThreadGroup threadGroup = Thread.currentThread().getThreadGroup();
+        int threadCountEstimate = threadGroup.activeCount();
+        Thread[] threads = new Thread[threadCountEstimate + 8];
+        // one pass
+        threadGroup.enumerate(threads);
+        // NOTE: many entries will be null
+        return threads;
     }
 
-    private void filterStackTraces(Map<Thread, StackTraceElement[]> allStackTraces) {
-        allStackTraces.keySet()
-                .removeIf(next -> ignored.stream()
-                        .anyMatch(item -> next.getName().contains(item)));
-        allStackTraces.keySet()
-                .removeIf(next -> startsWith(next.getName(), "RMI ", "VM JFR ", "JFR ", "JMX ", "ForkJoinPool.commonPool-worker-", "JVMCI"));
-        allStackTraces.keySet()
-                .removeIf(next -> next.getName().startsWith("HttpClient-") && next.getName().endsWith("-SelectorManager"));
-        allStackTraces.keySet()
-                .removeIf(next -> next.getName().contains(IGNORE_THREAD_IF_IN_NAME));
+    private boolean isExtra(String name) {
+        if (name.contains(IGNORE_THREAD_IF_IN_NAME))
+            return false;
+        if (ignored.contains(name))
+            return false;
+        if (startsWith(name, "RMI ", "VM JFR ", "JFR ", "JMX ", "ForkJoinPool.commonPool-worker-", "JVMCI"))
+            return false;
+        if (name.startsWith("HttpClient-") && name.endsWith("-SelectorManager"))
+            return false;
+        return true;
     }
 
-    private void addThreadErrorDetails(AssertionError assertionError, Map.Entry<Thread, StackTraceElement[]> threadEntry) {
-        Thread thread = threadEntry.getKey();
-        StringBuilder sb = new StringBuilder();
-        sb.append("Thread still running ").append(thread);
-        Jvm.trimStackTrace(sb, threadEntry.getValue());
+    private void addThreadErrorDetails(AssertionError assertionError, Thread thread) {
+        StackTrace stackTrace0 = ThreadDump.createdHereFor(thread);
+        StackTrace st = new StackTrace(thread.toString(), stackTrace0);
 
-        StackTrace stackTrace = ThreadDump.createdHereFor(thread);
-        StackTrace st = new StackTrace(thread.toString(), stackTrace);
-        st.setStackTrace(threadEntry.getValue());
+        StackTraceElement[] stackTrace = thread.getStackTrace();
+        st.setStackTrace(stackTrace);
+
         assertionError.addSuppressed(st);
     }
-
 }

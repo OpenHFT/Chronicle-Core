@@ -16,7 +16,7 @@ import static net.openhft.chronicle.core.LicenceCheck.CHRONICLE_LICENSE;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class LicenceCheckTest {
+public class LicenceCheckTest extends CoreTestCommon {
 
     @After
     public void tearDown() {

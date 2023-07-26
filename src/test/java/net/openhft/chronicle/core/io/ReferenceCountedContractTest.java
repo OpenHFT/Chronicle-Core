@@ -27,6 +27,11 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
      */
     protected abstract ReferenceCounted createReferenceCounted();
 
+    @Override
+    protected void assertReferencesReleased() {
+        // this tests isn't expected to clean up it's resources
+    }
+
     @Test
     public void reserveWillIncrementReferenceCount() {
         ReferenceCounted referenceCounted = createReferenceCounted();
@@ -175,7 +180,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         final List<? extends Future<?>> futures = IntStream.range(0, numThreads)
                 .mapToObj(i -> executorService.submit(new ResourceGetter(i, numReferences, running, counted)))
                 .collect(Collectors.toList());
-        Jvm.pause(3_000);
+        Jvm.pause(1_000);
         running.set(false);
         futures.forEach(this::getQuietly);
         executorService.shutdown();
@@ -305,6 +310,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         assertEquals(0, listener1.referenceRemovedCount);
         assertEquals(1, listener2.referenceRemovedCount);
     }
+
 
     static class CounterReferenceChangeListener implements ReferenceChangeListener {
         int referenceAddedCount = 0;

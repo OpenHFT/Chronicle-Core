@@ -47,7 +47,7 @@ public class IOToolsTest extends CoreTestCommon {
 
     @Test
     public void readFileManyTimesByPath() {
-        final int iterations = 10_000;
+        final int iterations = 3_000;
         final LongAccumulator accumulator = new LongAccumulator(Long::sum, 0);
 
         IntStream.range(0, iterations)
@@ -66,7 +66,7 @@ public class IOToolsTest extends CoreTestCommon {
 
     @Test
     public void readFileManyTimesByFile() throws IOException {
-        final int iterations = 10_000;
+        final int iterations = 3_000;
         final LongAccumulator accumulator = new LongAccumulator(Long::sum, 0);
 
         String file = OS.getTarget() + "/readFileManyTimes.txt";

@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Mocker;
 import org.junit.Test;
 
@@ -27,7 +28,7 @@ import java.util.function.Consumer;
 
 import static org.junit.Assert.assertEquals;
 
-public class AbstractInvocationHandlerTest {
+public class AbstractInvocationHandlerTest extends CoreTestCommon {
     @Test
     public void testInvoke() {
         final List<String> messages = new ArrayList<>();

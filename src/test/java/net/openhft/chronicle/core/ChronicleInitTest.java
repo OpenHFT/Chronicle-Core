@@ -23,7 +23,7 @@ import org.junit.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ChronicleInitTest {
+public class ChronicleInitTest extends CoreTestCommon {
 
     public static void main(String[] args) {
         // Service loader implementation

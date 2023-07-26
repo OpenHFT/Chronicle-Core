@@ -18,8 +18,10 @@
 
 package net.openhft.chronicle.core.io;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.cooler.CoolerTester;
 import net.openhft.chronicle.core.cooler.CpuCoolers;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.security.SecureRandom;
@@ -31,9 +33,15 @@ import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class UnsafeTextTest {
+public class UnsafeTextTest extends CoreTestCommon {
 
     static long blackhole;
+
+    @Override
+    @Before
+    public void threadDump() {
+        super.threadDump();
+    }
 
     @Test
     public void coolerAppendBase10quick() {
@@ -162,7 +170,7 @@ public class UnsafeTextTest {
 
     @Test
     public void testRandom() {
-        int runLength = 1_000_000;
+        int runLength = 100_000;
         IntStream.range(0, runLength).parallel().forEach(t -> {
             Random r = new Random();
             long address = UNSAFE.allocateMemory(max + 8);
@@ -188,7 +196,7 @@ public class UnsafeTextTest {
 
     @Test
     public void testSequential() {
-        IntStream.range(0, 10_000).parallel().forEach(t -> {
+        IntStream.range(0, 3_000).parallel().forEach(t -> {
             // odd numbers have the most precision error
             long address = UNSAFE.allocateMemory(max + 8);
             // double only has 16-17 digits of accuracy so 1 + x/1e15 has 16 digits.

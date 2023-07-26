@@ -29,7 +29,7 @@ import java.util.Collection;
 import static org.junit.Assert.assertEquals;
 
 @RunWith(Parameterized.class)
-public class JvmParseSizeTest {
+public class JvmParseSizeTest extends CoreTestCommon {
     public static final String PROPERTY = "JvmParseSizeTest";
     private final String text;
     private final long value;

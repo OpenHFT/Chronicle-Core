@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.pool;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Maths;
 import org.junit.Assert;
 import org.junit.Test;
@@ -26,7 +27,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class EnumInternerTest {
+public class EnumInternerTest extends CoreTestCommon {
 
     static final int MASK = 63;
 

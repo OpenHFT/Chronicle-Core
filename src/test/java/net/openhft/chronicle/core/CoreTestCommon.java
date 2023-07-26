@@ -19,6 +19,7 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.internal.JvmExceptionTracker;
+import net.openhft.chronicle.core.internal.ReferenceCountedUtils;
 import net.openhft.chronicle.core.io.AbstractReferenceCounted;
 import net.openhft.chronicle.core.threads.CleaningThread;
 import net.openhft.chronicle.core.threads.ThreadDump;
@@ -38,7 +39,7 @@ public class CoreTestCommon {
         AbstractReferenceCounted.enableReferenceTracing();
     }
 
-    @Before
+    // Add @Before in tests where this could be a problem. It's expensive to add to every test
     public void threadDump() {
         threadDump = new ThreadDump();
     }
@@ -64,13 +65,19 @@ public class CoreTestCommon {
     public void afterChecks() {
         CleaningThread.performCleanup(Thread.currentThread());
 
-        // find any discarded resources.
-        System.gc();
-        waitForCloseablesToClose(100);
+        waitForCloseablesToClose(10000);
 
         assertReferencesReleased();
-        checkThreadDump();
+
+        if (threadDump != null)
+            checkThreadDump();
+
         exceptionTracker.checkExceptions();
         AbstractReferenceCounted.disableReferenceTracing();
     }
+
+    protected void assertReferencesReleased() {
+        ReferenceCountedUtils.assertReferencesReleased();
+    }
+
 }

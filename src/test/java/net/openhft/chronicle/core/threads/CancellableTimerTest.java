@@ -1,5 +1,6 @@
 package net.openhft.chronicle.core.threads;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.time.SetTimeProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,7 +17,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class CancellableTimerTest {
+class CancellableTimerTest extends CoreTestCommon {
 
     public static final int INITIAL_DELAY_MS = 1_000;
     public static final int PERIOD_MS = 2_000;

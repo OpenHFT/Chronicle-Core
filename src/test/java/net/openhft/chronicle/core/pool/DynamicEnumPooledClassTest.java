@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.pool;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Maths;
 import org.junit.Test;
 
@@ -25,7 +26,7 @@ import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
 
-public class DynamicEnumPooledClassTest {
+public class DynamicEnumPooledClassTest extends CoreTestCommon {
     @Test
     public void additionalEnum() {
         EnumCache<YesNo> yesNoEnumCache = EnumCache.of(YesNo.class);

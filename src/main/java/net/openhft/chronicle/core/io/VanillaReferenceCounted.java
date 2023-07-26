@@ -30,7 +30,7 @@ import static net.openhft.chronicle.core.internal.CloseableUtils.asString;
  * It is responsible for keeping track of reference counts and releasing resources
  * once they are no longer needed.
  */
-public final class VanillaReferenceCounted implements MonitorReferenceCounted {
+public final class  VanillaReferenceCounted implements MonitorReferenceCounted {
 
     private static final long VALUE;
 

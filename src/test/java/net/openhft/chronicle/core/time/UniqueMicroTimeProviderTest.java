@@ -18,12 +18,13 @@
 
 package net.openhft.chronicle.core.time;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-public class UniqueMicroTimeProviderTest {
+public class UniqueMicroTimeProviderTest extends CoreTestCommon {
 
     @Test
     public void currentTimeMicros() throws IllegalStateException {

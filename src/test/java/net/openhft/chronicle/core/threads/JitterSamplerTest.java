@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.threads;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import org.junit.Test;
 
@@ -26,7 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
 
-public class JitterSamplerTest {
+public class JitterSamplerTest extends CoreTestCommon {
 
     @Test
     public void takeSnapshot() throws InterruptedException {

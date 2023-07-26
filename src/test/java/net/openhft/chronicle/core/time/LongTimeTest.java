@@ -18,11 +18,12 @@
 
 package net.openhft.chronicle.core.time;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class LongTimeTest {
+public class LongTimeTest extends CoreTestCommon {
     @Test
     public void secs() {
         long epoch = LongTime.EPOCH_SECS;

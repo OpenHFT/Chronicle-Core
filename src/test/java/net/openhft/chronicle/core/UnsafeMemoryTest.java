@@ -34,7 +34,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(Parameterized.class)
-public class UnsafeMemoryTest {
+public class UnsafeMemoryTest extends CoreTestCommon {
 
     private static final float EPSILON = 1e-7f;
 

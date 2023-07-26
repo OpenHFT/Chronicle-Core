@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.annotation;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -27,7 +28,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-class ScopeConfinedTest {
+class ScopeConfinedTest extends CoreTestCommon {
 
     @Test
     void a() throws NoSuchMethodException {
