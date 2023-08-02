@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.internal.invariant.ints.IntCondition;
 import org.junit.Test;
 
@@ -29,7 +30,7 @@ import static net.openhft.chronicle.core.internal.invariant.ints.IntCondition.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
-public class IntConditionTest {
+public class IntConditionTest extends CoreTestCommon {
 
     @Test
     public void positive() {

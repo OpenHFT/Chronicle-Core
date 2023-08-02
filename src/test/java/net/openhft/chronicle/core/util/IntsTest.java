@@ -18,13 +18,14 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
-public class IntsTest {
+public class IntsTest extends CoreTestCommon {
 
     @Test
     public void require1Arg() {

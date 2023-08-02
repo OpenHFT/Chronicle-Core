@@ -15,18 +15,12 @@ import java.nio.ByteBuffer;
 
 import static org.junit.Assert.assertEquals;
 
-public class CleaningRandomAccessFileTest {
+public class CleaningRandomAccessFileTest extends CoreTestCommon {
 
     static int getFDs() {
         if (!OS.isLinux())
             return -1;
         return new File("/proc/self/fd").list().length;
-    }
-
-    @Before
-    public void cleanUp() {
-        System.gc();
-        Jvm.pause(100);
     }
 
     @Test

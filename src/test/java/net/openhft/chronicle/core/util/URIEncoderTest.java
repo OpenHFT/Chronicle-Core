@@ -18,11 +18,12 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class URIEncoderTest {
+public class URIEncoderTest extends CoreTestCommon {
     @Test
     public void encodeURI() throws Exception {
         assertEquals("~%25", URIEncoder.encodeURI("~%"));

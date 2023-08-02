@@ -497,7 +497,7 @@ public final class Jvm {
      * Pause in a busy loop for the provided {@code durationUs} microseconds.
      * <p>
      * This method is designed to be used when the time to be waited is very small,
-     * typically under a millisecond (@{code durationUs < 1_000}).
+     * typically under a millisecond (@{code durationUs &lt; 1_000}).
      *
      * @param durationUs Time in durationUs
      */
@@ -509,7 +509,7 @@ public final class Jvm {
      * Pauses the current thread in a busy loop until the provided {@code waitUntilNs} time is reached.
      * <p>
      * This method is designed to be used when the time to be waited is very small,
-     * typically under a millisecond (@{code durationNs < 1_000_000}).
+     * typically under a millisecond (@{code durationNs &lt; 1_000_000}).
      *
      * @param waitUntilNs nanosecond precision counter value to await.
      */

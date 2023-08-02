@@ -21,7 +21,7 @@ package net.openhft.chronicle.core;
 import net.openhft.chronicle.assertions.AssertUtil;
 import org.junit.jupiter.api.Test;
 
-class ZeroCostAssertionStatusTest {
+class ZeroCostAssertionStatusTest extends CoreTestCommon {
 
     @Test
     void show() {

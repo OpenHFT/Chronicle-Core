@@ -18,13 +18,14 @@
 
 package net.openhft.chronicle.core.onoes;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Mocker;
 import net.openhft.chronicle.core.util.IgnoresEverything;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 
-public class ExceptionHandlerTest {
+public class ExceptionHandlerTest extends CoreTestCommon {
     @Test
     public void ignoresEverything() {
         assertTrue(ExceptionHandler.ignoresEverything() instanceof IgnoresEverything);

@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * Each instance of Slf4jExceptionHandler logs at a specific level and corresponds to a LogLevel enum.
  * This is used to map LogLevel enums to their corresponding Slf4jExceptionHandler instances via the valueOf(LogLevel logLevel) method.
  * <p>
- * The DEBUG instance also overrides the isEnabled(@NotNull Class<?> clazz) method, using the isDebugEnabled() method from SLF4J's Logger class.
+ * The DEBUG instance also overrides the {@code isEnabled(Class clazz)} method, using the isDebugEnabled() method from SLF4J's Logger class.
  * <p>
  * There's also a utility method isJUnitTest() which is used to detect if the current execution context is a JUnit test.
  */

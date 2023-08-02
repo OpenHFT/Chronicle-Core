@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.io;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -29,7 +30,7 @@ import java.util.List;
 
 import static org.junit.Assert.assertTrue;
 
-public class CloseableTest {
+public class CloseableTest extends CoreTestCommon {
 
     @Test
     public void closeQuietlyHandlesNull() {

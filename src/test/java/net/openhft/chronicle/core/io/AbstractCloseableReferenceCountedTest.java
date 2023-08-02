@@ -19,12 +19,21 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
 public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTracerContractTest {
+
+    private MyCloseableReferenceCounted referenceCounted;
+
+    @Before
+    public void discardResources() {
+        ignoreException("Failed to release LAST, closing anyway");
+    }
 
     @Test
     public void reserve() throws IllegalStateException, IllegalArgumentException {
@@ -96,7 +105,14 @@ public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTrace
 
     @Override
     protected MyCloseableReferenceCounted createReferenceCounted() {
-        return new MyCloseableReferenceCounted();
+        referenceCounted = new MyCloseableReferenceCounted();
+        return referenceCounted;
+    }
+
+    @Override
+    public void afterChecks() {
+        Closeable.closeQuietly(referenceCounted);
+        super.afterChecks();
     }
 
     static class MyCloseableReferenceCounted extends AbstractCloseableReferenceCounted {

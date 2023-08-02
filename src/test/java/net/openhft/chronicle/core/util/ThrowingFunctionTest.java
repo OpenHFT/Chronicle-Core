@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
@@ -28,7 +29,7 @@ import java.util.function.Function;
 
 import static org.junit.Assert.fail;
 
-public class ThrowingFunctionTest {
+public class ThrowingFunctionTest extends CoreTestCommon {
     @Test
     public void asFunction() throws Exception {
         @NotNull Function<String, String> sc = ThrowingFunction.asFunction(s -> {

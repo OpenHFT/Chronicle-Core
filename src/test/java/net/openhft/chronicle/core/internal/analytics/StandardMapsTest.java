@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.internal.analytics;
 
+import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
 import java.util.*;
@@ -27,7 +28,7 @@ import java.util.stream.Stream;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
-public class StandardMapsTest {
+public class StandardMapsTest extends CoreTestCommon {
 
     @Test
     public void standardEventParameters() {
