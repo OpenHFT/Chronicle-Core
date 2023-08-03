@@ -58,10 +58,7 @@ public final class OS {
     static final ClassLocal<MethodHandle> MAP0_MH = ClassLocal.withInitial(c -> {
         try {
             Method map0;
-            if (Jvm.isJava20Plus()) {
-                Class<?> dispatcherClass = findClass("sun.nio.ch.UnixFileDispatcherImpl");
-                map0 = Jvm.getMethod(dispatcherClass, "map0", FileDescriptor.class, int.class, long.class, long.class, boolean.class);
-            } else if (Jvm.isJava19Plus()) {
+            if (Jvm.isJava19Plus()) {
                 map0 = Jvm.getMethod(c, "map0", FileDescriptor.class, int.class, long.class, long.class, boolean.class);
             } else if (Jvm.isJava14Plus()) {
                 map0 = Jvm.getMethod(c, "map0", int.class, long.class, long.class, boolean.class);
@@ -95,13 +92,7 @@ public final class OS {
         // make sure it is initialised first.
         Jvm.debug();
         try {
-            Method unmap0;
-            if (Jvm.isJava20Plus()) {
-                Class<?> dispatcherClass = findClass("sun.nio.ch.UnixFileDispatcherImpl");
-                unmap0 = Jvm.getMethod(dispatcherClass, "unmap0", long.class, long.class);
-            } else {
-                unmap0 = Jvm.getMethod(FileChannelImpl.class, "unmap0", long.class, long.class);
-            }
+            Method unmap0 = Jvm.getMethod(FileChannelImpl.class, "unmap0", long.class, long.class);
             UNMAPP0_MH = MethodHandles.lookup().unreflect(unmap0);
 
             Class<?> fdi = Class.forName("sun.nio.ch.FileDispatcherImpl");
