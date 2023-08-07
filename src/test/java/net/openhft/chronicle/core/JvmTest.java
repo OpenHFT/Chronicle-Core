@@ -20,7 +20,6 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
-import net.openhft.chronicle.core.onoes.ThreadLocalisedExceptionHandler;
 import net.openhft.chronicle.core.threads.ThreadDump;
 import net.openhft.chronicle.core.util.Time;
 import org.junit.After;

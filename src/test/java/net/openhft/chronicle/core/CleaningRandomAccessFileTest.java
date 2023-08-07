@@ -5,7 +5,6 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.io.IOTools;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;

@@ -28,7 +28,6 @@ import org.junit.After;
 import org.junit.Before;
 
 import static net.openhft.chronicle.core.io.AbstractCloseable.waitForCloseablesToClose;
-import static net.openhft.chronicle.core.io.AbstractReferenceCounted.assertReferencesReleased;
 
 public class CoreTestCommon {
     protected ThreadDump threadDump;

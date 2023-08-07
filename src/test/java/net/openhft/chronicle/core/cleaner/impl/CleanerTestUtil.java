@@ -19,7 +19,6 @@
 package net.openhft.chronicle.core.cleaner.impl;
 
 import net.openhft.chronicle.core.Jvm;
-import net.openhft.chronicle.core.internal.cleaner.Jdk9ByteBufferCleanerService;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
