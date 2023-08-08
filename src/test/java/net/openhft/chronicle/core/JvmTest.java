@@ -20,7 +20,6 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
-import net.openhft.chronicle.core.onoes.ThreadLocalisedExceptionHandler;
 import net.openhft.chronicle.core.threads.ThreadDump;
 import net.openhft.chronicle.core.util.Time;
 import org.junit.After;
@@ -303,6 +302,7 @@ public class JvmTest extends CoreTestCommon {
 
     @Test
     public void removingTag() {
+        // TODO FIX on MacOS. sysctl -a returned 141, https://github.com/OpenHFT/Chronicle-Core/issues/557
         final String actual = Bootstrap.CpuClass.removingTag().apply("tag: value");
         assertEquals("value", actual);
     }
