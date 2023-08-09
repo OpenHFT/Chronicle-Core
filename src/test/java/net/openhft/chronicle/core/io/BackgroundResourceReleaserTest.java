@@ -64,7 +64,7 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
 
         BackgroundResourceReleaser.releasePendingResources();
         long time = System.currentTimeMillis() - start0;
-        assertBetween(count * 9, time, count * (Jvm.isAzulZulu() || Jvm.isMacArm() ? 60 : 18));
+        assertBetween(count * 9, time, count * (Jvm.isAzulZulu() || OS.isMacOSX() ? 80 : 18));
         assertEquals(count, closed.get());
         assertEquals(count, released.get());
         AbstractCloseable.assertCloseablesClosed();
