@@ -24,7 +24,6 @@ import net.openhft.chronicle.core.cooler.CpuCoolers;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.security.SecureRandom;
 import java.util.Random;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
