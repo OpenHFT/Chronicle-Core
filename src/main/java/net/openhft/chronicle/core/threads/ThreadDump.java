@@ -112,7 +112,7 @@ public class ThreadDump {
      * @param delayUnit the time unit of the delay parameter
      */
     public void assertNoNewThreads(int delay, @NotNull TimeUnit delayUnit) {
-        int last = 7;
+        int last = Jvm.isArm() ? 18 : 14;
         long delayMillis = (delayUnit.toMillis(delay) + last - 1) / last;
         for (int i = 1; i <= last; i++) {
             Thread.yield();
@@ -142,7 +142,7 @@ public class ThreadDump {
                 }
                 throw assertionError;
             }
-            Jvm.pause(delayMillis + (1L << i));
+            Jvm.pause(delayMillis + (1L << (i/2)));
         }
     }
 
