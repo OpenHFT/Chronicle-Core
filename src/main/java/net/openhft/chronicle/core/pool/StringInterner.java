@@ -87,12 +87,13 @@ public class StringInterner {
             return null;
         if (cs.length() > interner.length)
             return cs.toString();
-        int hash = Maths.hash32(cs);
-        int h = hash & mask;
+        long h1 = Maths.hash64(cs);
+        h1 ^= h1 >> 32;
+        int h = (int) h1 & mask;
         String s = interner[h];
         if (StringUtils.isEqual(cs, s))
             return s;
-        int h2 = (hash >> shift) & mask;
+        int h2 = (int) (h1 >> shift) & mask;
         String s2 = interner[h2];
         if (StringUtils.isEqual(cs, s2))
             return s2;
@@ -136,13 +137,14 @@ public class StringInterner {
             return -1;
         if (cs.length() > interner.length)
             return -1;
-        int hash = Maths.hash32(cs);
-        int h = hash & mask;
+        long h1 = Maths.hash64(cs);
+        h1 ^= h1 >> 32;
+        int h = (int) h1 & mask;
         String s = interner[h];
         if (StringUtils.isEqual(cs, s))
             return h;
 
-        int h2 = (hash >> shift) & mask;
+        int h2 = (int) (h1 >> shift) & mask;
         String s2 = interner[h2];
         if (StringUtils.isEqual(cs, s2))
             return h2;
