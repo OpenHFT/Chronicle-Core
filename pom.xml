@@ -21,13 +21,13 @@
     <parent>
         <groupId>net.openhft</groupId>
         <artifactId>java-parent-pom</artifactId>
-        <version>1.1.36</version>
-        <relativePath />
+        <version>1.24.0-SNAPSHOT</version>
+        <relativePath></relativePath>
     </parent>
     <artifactId>chronicle-core</artifactId>
     <version>2.24ea25-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>OpenHFT/Chronicle-Core</name>
+    <name>OpenHFT/Chronicle Core</name>
     <description>Chronicle-Core</description>
 
     <scm>
@@ -48,7 +48,7 @@
             <dependency>
                 <groupId>net.openhft</groupId>
                 <artifactId>third-party-bom</artifactId>
-                <version>3.22.3</version>
+                <version>3.24.0-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -126,7 +126,6 @@
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>mockwebserver</artifactId>
-            <version>4.9.3</version>
             <scope>test</scope>
         </dependency>
 
@@ -216,7 +215,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-scm-publish-plugin</artifactId>
-                <version>3.1.0</version>
                 <configuration>
                     <checkoutDirectory>${project.build.directory}/scmpublish/javadoc</checkoutDirectory>
                     <checkinComment>Publishing javadoc for ${project.artifactId}:${project.version}</checkinComment>
@@ -232,7 +230,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
                 <configuration>
                     <compilerArgument>-Xlint:deprecation</compilerArgument>
                 </configuration>
@@ -260,7 +257,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.0</version>
                 <configuration>
                     <archive>
                         <manifestEntries>
@@ -289,7 +285,6 @@
             <plugin>
                 <groupId>org.apache.servicemix.tooling</groupId>
                 <artifactId>depends-maven-plugin</artifactId>
-                <version>1.4.0</version>
                 <executions>
                     <execution>
                         <id>generate-depends-file</id>
@@ -302,7 +297,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>3.0.0-M5</version>
                 <configuration>
                     <!-- This will give each test class its own JVM so you can safely set
                          e.g. system properties per test class but not method -->
@@ -314,7 +308,6 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>5.1.2</version>
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
@@ -363,12 +356,10 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-install-plugin</artifactId>
-                <version>3.0.0-M1</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.3.0</version>
                 <configuration>
                     <source>8</source>
                 </configuration>
@@ -393,7 +384,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-compiler-plugin</artifactId>
-                        <version>3.8.1</version>
                         <configuration>
                             <source>11</source>
                             <target>11</target>
@@ -442,7 +432,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-invoker-plugin</artifactId>
-                        <version>3.3.0</version>
                         <configuration>
                             <pom>benchmarks/pom.xml</pom>
                             <goals>clean,test</goals>
