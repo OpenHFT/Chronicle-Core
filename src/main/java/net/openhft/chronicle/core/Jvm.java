@@ -19,10 +19,8 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.annotation.DontChain;
+import net.openhft.chronicle.core.internal.*;
 import net.openhft.chronicle.core.internal.Bootstrap;
-import net.openhft.chronicle.core.internal.ClassUtil;
-import net.openhft.chronicle.core.internal.CpuClass;
-import net.openhft.chronicle.core.internal.ObjectHeaderSizeHolder;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
 import net.openhft.chronicle.core.onoes.*;
 import net.openhft.chronicle.core.util.ObjectUtils;
@@ -1445,61 +1443,7 @@ public final class Jvm {
     }
 
     public static <A extends Annotation> A findAnnotation(AnnotatedElement ae, Class<A> annotationType) {
-        return findAnnotation(ae, annotationType, new HashSet<>());
-    }
-
-    @SuppressWarnings("unchecked")
-    private static <A extends Annotation> A findAnnotation(AnnotatedElement ae, Class<A> annotationType, Set<Annotation> visited) {
-        try {
-            A annotation = findDirectAnnotation(ae, annotationType);
-            if (annotation != null) {
-                return annotation;
-            }
-
-            annotation = findNestedAnnotation(ae, annotationType, visited);
-            if (annotation != null) {
-                return annotation;
-            }
-        } catch (Exception ex) {
-            return null;
-        }
-
-        return ae instanceof Class ? findAnnotationInHierarchy((Class<?>) ae, annotationType, visited) : null;
-    }
-
-    private static <A extends Annotation> A findDirectAnnotation(AnnotatedElement ae, Class<A> annotationType) {
-        for (Annotation ann : ae.getDeclaredAnnotations()) {
-            if (ann.annotationType() == annotationType) {
-                return (A) ann;
-            }
-        }
-        return null;
-    }
-
-    private static <A extends Annotation> A findNestedAnnotation(AnnotatedElement ae, Class<A> annotationType, Set<Annotation> visited) {
-        for (Annotation ann : ae.getDeclaredAnnotations()) {
-            if (visited.add(ann)) {
-                A annotation = findAnnotation(ann.annotationType(), annotationType, visited);
-                if (annotation != null) {
-                    return annotation;
-                }
-            }
-        }
-        return null;
-    }
-
-    private static <A extends Annotation> A findAnnotationInHierarchy(Class<?> clazz, Class<A> annotationType, Set<Annotation> visited) {
-        for (Class<?> ifc : clazz.getInterfaces()) {
-            A annotation = findAnnotation(ifc, annotationType, visited);
-            if (annotation != null) {
-                return annotation;
-            }
-        }
-
-        Class<?> superclass = clazz.getSuperclass();
-        return superclass == null || Object.class == superclass
-                ? null
-                : findAnnotation(superclass, annotationType, visited);
+        return AnnotationFinder.findAnnotation(ae, annotationType);
     }
 
     public interface SignalHandler {
