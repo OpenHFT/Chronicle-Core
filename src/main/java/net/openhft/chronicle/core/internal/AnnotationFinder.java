@@ -7,18 +7,20 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * A utility class for handling annotation discovery on annotated elements.
+ * A utility class for handling annotation discovery on annotated elements, considering direct annotations,
+ * nested annotations, and inherited annotations.
  */
 public class AnnotationFinder {
 
     /**
      * Retrieve an annotation of the specified {@code annotationType} that is present on the given
-     * {@code annotatedElement}, or null if not found.
-     * 
-     * @param annotatedElement the annotated element to inspect.
-     * @param annotationType   the type of the annotation to retrieve.
-     * @param <A>              the type of the annotation.
-     * @return the annotation, or null if not found.
+     * {@code annotatedElement}, including considering nested annotations and method inheritance.
+     * If the annotation isn't found, this method returns {@code null}.
+     *
+     * @param annotatedElement the element (e.g., class, method, field) to inspect for annotations.
+     * @param annotationType   the desired annotation's type.
+     * @param <A>              denotes the annotation type.
+     * @return the found annotation of type {@code A} or null if not present.
      */
     public static <A extends Annotation> A findAnnotation(AnnotatedElement annotatedElement, Class<A> annotationType) {
         HashSet<Annotation> visited = new HashSet<>();
@@ -83,35 +85,43 @@ public class AnnotationFinder {
     }
 
     /**
-     * Finds the specified annotation on a method of a given class, its superclass, or interfaces.
+     * A recursive method that attempts to find a specific annotation on a method considering
+     * the given class, its superclass, and its interfaces.
      *
-     * @param <A>            the type of the annotation to be fetched
-     * @param annoClass      the Class object corresponding to the annotation type
-     * @param aClass         the Class object in which to find the method
-     * @param name           the name of the method
-     * @param parameterTypes the parameter types of the method
-     * @param visited          set of already checked annotations to avoid infinite loops.
-     * @return the annotation of type {@code A} if present, or {@code null} otherwise
+     * @param <A>            denotes the annotation type.
+     * @param annoClass      annotation type to find.
+     * @param aClass         class within which to search for the method and its annotation.
+     * @param name           method's name.
+     * @param parameterTypes method's parameter types.
+     * @param visited        keeps track of annotations already checked to prevent infinite loops.
+     * @return the found annotation of type {@code A} or null if not present.
      */
     private static <A extends Annotation> A findAnnotationForMethod(Class<A> annoClass, Class<?> aClass, String name, Class<?>[] parameterTypes, HashSet<Annotation> visited) {
         try {
             Method m = aClass.getMethod(name, parameterTypes);
-            A methodId = findAnnotationRecursively(m, annoClass, visited);
-            if (methodId != null)
-                return methodId;
+            A annotationOnMethod = findAnnotationRecursively(m, annoClass, visited);
+            if (annotationOnMethod != null) {
+                return annotationOnMethod;
+            }
         } catch (NoSuchMethodException e) {
-            // ignored
+            // Method not found in the current class, will proceed to check superclass/interfaces.
         }
+
+        // Check superclass
         Class<?> superclass = aClass.getSuperclass();
         if (!(superclass == null || superclass == Object.class)) {
-            A methodId = findAnnotationForMethod(annoClass, superclass, name, parameterTypes, visited);
-            if (methodId != null)
-                return methodId;
+            A annotationInSuperclass = findAnnotationForMethod(annoClass, superclass, name, parameterTypes, visited);
+            if (annotationInSuperclass != null) {
+                return annotationInSuperclass;
+            }
         }
+
+        // Check interfaces
         for (Class<?> iClass : aClass.getInterfaces()) {
-            A methodId = findAnnotationForMethod(annoClass, iClass, name, parameterTypes, visited);
-            if (methodId != null)
-                return methodId;
+            A annotationInInterface = findAnnotationForMethod(annoClass, iClass, name, parameterTypes, visited);
+            if (annotationInInterface != null) {
+                return annotationInInterface;
+            }
         }
         return null;
     }
