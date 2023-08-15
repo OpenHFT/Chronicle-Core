@@ -20,6 +20,7 @@ package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Maths;
+import org.jetbrains.annotations.NotNull;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -36,7 +37,9 @@ public class EnumInternerTest extends CoreTestCommon {
             String s = Long.toString(i, 36);
             if (!Character.isJavaIdentifierStart(s.charAt(0)))
                 continue;
-            int h = Maths.hash32(s) & MASK;
+            long h1 = Maths.hash64(s);
+            h1 ^= h1 >> 32;
+            int h = (int) h1 & MASK;
             if (h == 0)
                 System.out.println(s + ",");
         }
@@ -45,7 +48,10 @@ public class EnumInternerTest extends CoreTestCommon {
     @Test
     public void clashTest() {
         for (TestEnum value : TestEnum.values()) {
-            assertEquals(0, Maths.hash32(value.toString()) & MASK);
+            @NotNull String s = value.toString();
+            long h = Maths.hash64(s);
+            h ^= h >> 32;
+            assertEquals(0, (int) h & MASK);
         }
 
         final EnumInterner<TestEnum> testEnum
