@@ -345,6 +345,18 @@ public class JvmTest extends CoreTestCommon {
         assertEquals("G'Day", ra2.value());
     }
 
+    @Test
+    public void isLambdaClass() {
+        Runnable r = () -> System.out.println("Hello, Lambda!");
+
+        assertTrue(Jvm.isLambdaClass(r.getClass()));
+
+        class My$$Lambda$Class {
+
+        }
+
+        assertFalse(Jvm.isLambdaClass(My$$Lambda$Class.class));
+    }
     @Target(value = {ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     public @interface RealAnno {

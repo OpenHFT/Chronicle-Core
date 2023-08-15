@@ -1442,9 +1442,44 @@ public final class Jvm {
             LockSupport.park();
     }
 
-    public static <A extends Annotation> A findAnnotation(AnnotatedElement ae, Class<A> annotationType) {
-        return AnnotationFinder.findAnnotation(ae, annotationType);
+    /**
+     * Retrieve an annotation of the specified {@code annotationType} that is present on the given
+     * {@code annotatedElement}, including considering nested annotations and method inheritance.
+     * If the annotation isn't found, this method returns {@code null}.
+     *
+     * @param annotatedElement the element (e.g., class, method, field) to inspect for annotations.
+     * @param annotationType   the desired annotation's type.
+     * @param <A>              denotes the annotation type.
+     * @return the found annotation of type {@code A} or null if not present.
+     */
+    public static <A extends Annotation> A findAnnotation(AnnotatedElement annotatedElement, Class<A> annotationType) {
+        return AnnotationFinder.findAnnotation(annotatedElement, annotationType);
     }
+
+    /**
+     * Checks if the given class represents a lambda expression.
+     *
+     * <p>Java creates synthetic classes for lambda expressions.
+     * Typically, the name of these classes contains the "$$Lambda" substring.
+     * Note that this naming convention is JVM-specific and can change
+     * in future versions. The approach is known to work up to Java 21.
+     * </p>
+     *
+     * @param clazz the class to be checked.
+     * @return {@code true} if the class is a lambda, {@code false} otherwise.
+     */
+    public static boolean isLambdaClass(Class<?> clazz) {
+        // Lambdas are marked as synthetic in the JVM
+        if (!clazz.isSynthetic()) {
+            return false;
+        }
+
+    // Check for the typical lambda class name pattern.
+    // Note: Relying on the class name can be brittle as it's
+    // an implementation detail of the JVM.
+    return clazz.getName().contains("$$Lambda");
+}
+
 
     public interface SignalHandler {
         /**
