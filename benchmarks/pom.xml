@@ -110,8 +110,7 @@
                 <executions>
                     <execution>
                         <id>run-jmh</id>
-                        <!-- comment out below line as JMH not working "No matching benchmarks. Miss-spelled regexp?" -->
-                        <!-- <phase>integration-test</phase>-->
+                        <phase>integration-test</phase>
                         <goals>
                             <goal>exec</goal>
                         </goals>
@@ -132,7 +131,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.2</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -142,10 +140,10 @@
                         <configuration>
                             <finalName>${uberjar.name}</finalName>
                             <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>net.openhft.chronicle.core.benchmark.Main</mainClass>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>org.openjdk.jmh.Main</mainClass>
                                 </transformer>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                             </transformers>
                             <filters>
                                 <filter>
