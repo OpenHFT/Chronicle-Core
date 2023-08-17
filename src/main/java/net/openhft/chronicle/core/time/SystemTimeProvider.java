@@ -20,6 +20,10 @@ package net.openhft.chronicle.core.time;
 
 import net.openhft.chronicle.core.Jvm;
 
+/**
+ * SystemTimeProvider synthesises an approximation via System.nanoTime deltas in combination with System.currentTimeMillis.
+ */
+
 public enum SystemTimeProvider implements TimeProvider {
     INSTANCE;
 
