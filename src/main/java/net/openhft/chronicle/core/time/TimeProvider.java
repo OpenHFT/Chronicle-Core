@@ -21,13 +21,12 @@ package net.openhft.chronicle.core.time;
 import java.util.concurrent.TimeUnit;
 
 /**
- * When looking at PosixTimeProvider vs SystemTimeProvider, PosixTimeProvider improves on SystemTimeProvider by calling
- * directly into clock_gettime to get the nanosecond wall clock on platforms which support it.
- * SystemTimeProvider can only synthesise an approximation via System.nanoTime deltas in combination with System.currentTimeMillis.
+ * Provides a nanosecond resolution wall-clock timestamp.
  * <p>
- * Between the two, PosixTimeProvider is more accurate and more stable than SystemTimeProvider, where there's a choice.
+ * There are a number of implementations. The simplest and fastest are {@link PosixTimeProvider} and
+ * {@link SystemTimeProvider}, with {@link PosixTimeProvider} recommended as being faster, more accurate and
+ * more stable, although it does make use of native code.
  */
-
 @FunctionalInterface
 public interface TimeProvider {
 

@@ -24,7 +24,7 @@ import net.openhft.posix.PosixAPI;
 /**
  * This is the raw Posix time, if you need it to be unique or a multiple of 32 use a wrapper.
  * <p>
- * PosixTimeProvider calls directly into clock_gettime to get the nanosecond wall clock on platforms which support it.
+ * PosixTimeProvider calls directly into clock_gettime (native code) to get the nanosecond wall clock on platforms which support it.
  */
 public enum PosixTimeProvider implements TimeProvider {
     INSTANCE;
