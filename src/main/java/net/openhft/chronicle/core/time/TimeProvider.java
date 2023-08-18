@@ -20,6 +20,13 @@ package net.openhft.chronicle.core.time;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Provides a nanosecond resolution wall-clock timestamp.
+ * <p>
+ * There are a number of implementations. The simplest and fastest are {@link PosixTimeProvider} and
+ * {@link SystemTimeProvider}, with {@link PosixTimeProvider} recommended as being faster, more accurate and
+ * more stable, although it does make use of native code.
+ */
 @FunctionalInterface
 public interface TimeProvider {
 
