@@ -128,9 +128,11 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
 
         assertEquals(2, referenceCounted.refCount());
 
+        // not reserved is an ISE not a CISE
         assertThrows(IllegalStateException.class, referenceCounted::releaseLast);
 
         assertEquals(1, referenceCounted.refCount());
+        referenceCounted.releaseLast(a);
     }
 
     @Test
@@ -180,7 +182,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         final List<? extends Future<?>> futures = IntStream.range(0, numThreads)
                 .mapToObj(i -> executorService.submit(new ResourceGetter(i, numReferences, running, counted)))
                 .collect(Collectors.toList());
-        Jvm.pause(1_000);
+        Jvm.pause(500);
         running.set(false);
         futures.forEach(this::getQuietly);
         executorService.shutdown();
