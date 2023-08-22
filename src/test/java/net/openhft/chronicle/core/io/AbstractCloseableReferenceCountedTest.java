@@ -102,6 +102,18 @@ public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTrace
         }
     }
 
+    @Test
+    public void releaseLastWillReleaseThenFailWhenReferenceIsNotLast() {
+        super.releaseLastWillReleaseThenFailWhenReferenceIsNotLast();
+        referenceCounted = null;
+    }
+
+    @Test
+    public void listenersShouldNotBeNotifiedOnWarnAndReleaseIfNotReleased() {
+        super.listenersShouldNotBeNotifiedOnWarnAndReleaseIfNotReleased();
+        referenceCounted = null;
+    }
+
     @Override
     protected MyCloseableReferenceCounted createReferenceCounted() {
         referenceCounted = new MyCloseableReferenceCounted();

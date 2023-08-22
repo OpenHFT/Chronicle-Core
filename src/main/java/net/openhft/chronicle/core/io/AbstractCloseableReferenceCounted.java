@@ -133,7 +133,7 @@ public abstract class AbstractCloseableReferenceCounted
         if (!initReleased)
             try {
                 release(INIT);
-            } catch (ClosedIllegalStateException e) {
+            } catch (IllegalStateException e) {
                 Jvm.warn().on(getClass(), "Failed to release LAST, closing anyway", e);
             }
         setClosed();
