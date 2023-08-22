@@ -207,7 +207,7 @@ public final class OS {
      *
      * @param suffix the suffix of the directory
      * @return the path of the found directory
-     * @throws FileNotFoundException if no directory with the specified suffix is found
+     * @throws FileNotFoundException If no directory with the specified suffix is found
      */
     @NotNull
     public static String findDir(@NotNull String suffix) throws FileNotFoundException {
@@ -321,7 +321,7 @@ public final class OS {
      *
      * @param offset the offset to be aligned. It must be non-negative.
      * @return the aligned offset.
-     * @throws IllegalArgumentException if offset is negative.
+     * @throws IllegalArgumentException If offset is negative.
      * @see #mapAlignment()
      */
     public static long mapAlign(long offset) {
@@ -338,7 +338,7 @@ public final class OS {
      * @param offset        the offset to be aligned. It must be non-negative.
      * @param pageAlignment the alignment size, in bytes. This should typically be the operating system's page size or a multiple thereof.
      * @return the aligned offset.
-     * @throws IllegalArgumentException if offset is negative or pageAlignment is non-positive.
+     * @throws IllegalArgumentException If offset is negative or pageAlignment is non-positive.
      */
     public static long mapAlign(long offset, int pageAlignment) {
         if (offset < 0) {
@@ -492,8 +492,8 @@ public final class OS {
      * @param start       offset within a file
      * @param size        of region to map.
      * @return the address of the memory mapping.
-     * @throws IOException              if the mapping fails
-     * @throws IllegalArgumentException if the arguments are not valid
+     * @throws IOException              If the mapping fails
+     * @throws IllegalArgumentException If the arguments are not valid
      */
     public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode, long start, long size)
             throws IOException, IllegalArgumentException {
@@ -555,7 +555,7 @@ public final class OS {
      *
      * @param address of the start of the mapping.
      * @param size    of the region mapped.
-     * @throws IOException if the unmap fails.
+     * @throws IOException If the unmap fails.
      */
     public static void unmap(long address, long size) throws IOException {
         try {
@@ -691,9 +691,8 @@ public final class OS {
 
         private volatile long address;
 
-        public Unmapper(long address, long size) throws IllegalStateException {
-
-            assert (address != 0);
+        public Unmapper(long address, long size) {
+            assert address != 0;
             this.address = address;
             this.size = size;
         }

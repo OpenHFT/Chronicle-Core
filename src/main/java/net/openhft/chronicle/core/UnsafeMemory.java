@@ -537,7 +537,7 @@ public class UnsafeMemory implements Memory {
      * @param <E>   the type of the instance to allocate.
      * @param clazz the class to allocate an instance of.
      * @return an instance of the provided class.
-     * @throws InstantiationException if an instance of the class or interface represented by the specified {@code Class} object could not be instantiated.
+     * @throws InstantiationException If an instance of the class or interface represented by the specified {@code Class} object could not be instantiated.
      */
     @NotNull
     @Override
@@ -724,7 +724,7 @@ public class UnsafeMemory implements Memory {
      * @param b       the byte array to be written.
      * @param offset  the starting offset in the byte array.
      * @param length  the number of bytes to write.
-     * @throws IllegalArgumentException if offset + length exceeds the byte array's length.
+     * @throws IllegalArgumentException If offset + length exceeds the byte array's length.
      */
     @Override
     public void writeBytes(long address, byte[] b, int offset, int length) throws IllegalArgumentException {
@@ -743,7 +743,7 @@ public class UnsafeMemory implements Memory {
      * @param b       the byte array to be filled.
      * @param offset  the starting offset in the byte array.
      * @param length  the number of bytes to read.
-     * @throws IllegalArgumentException if offset + length exceeds the byte array's length.
+     * @throws IllegalArgumentException If offset + length exceeds the byte array's length.
      */
     @Override
     public void readBytes(long address, byte[] b, long offset, int length) throws IllegalArgumentException {
@@ -1635,7 +1635,7 @@ public class UnsafeMemory implements Memory {
      * @param offset   the offset of the integer value.
      * @param expected the expected integer value.
      * @param value    the new integer value.
-     * @throws IllegalStateException if the current value does not equal the expected value.
+     * @throws IllegalStateException If the current value does not equal the expected value.
      */
     @Override
     public void testAndSetInt(long address, long offset, int expected, int value) throws IllegalStateException {
@@ -1656,7 +1656,7 @@ public class UnsafeMemory implements Memory {
      * @param offset   the offset of the field.
      * @param expected the expected integer value.
      * @param value    the new integer value.
-     * @throws IllegalStateException if the current value does not equal the expected value.
+     * @throws IllegalStateException If the current value does not equal the expected value.
      */
     @Override
     public void testAndSetInt(Object object, long offset, int expected, int value) throws IllegalStateException {
@@ -1811,7 +1811,7 @@ public class UnsafeMemory implements Memory {
      *
      * @param address the memory address.
      * @return the short value read from the address.
-     * @note This method currently does not support a short split across cache lines.
+     * @implNote This method currently does not support a short split across cache lines.
      */
     @Override
     public short readVolatileShort(long address) {
@@ -1871,7 +1871,7 @@ public class UnsafeMemory implements Memory {
      *
      * @param address the memory address.
      * @return the float value read from the address.
-     * @note This method currently does not support a float split across cache lines.
+     * @implNote This method currently does not support a float split across cache lines.
      */
     @Override
     public float readVolatileFloat(long address) {
@@ -1929,7 +1929,7 @@ public class UnsafeMemory implements Memory {
      *
      * @param address the memory address.
      * @return the double value read from the address.
-     * @note This method currently does not support a double split across cache lines.
+     * @implNote This method currently does not support a double split across cache lines.
      */
     @Override
     public double readVolatileDouble(long address) {
@@ -2753,7 +2753,7 @@ public class UnsafeMemory implements Memory {
          * @param offset   the offset of the int value within the memory address
          * @param expected the expected current value
          * @param value    the new value
-         * @throws IllegalStateException if the address is not aligned to 4 bytes or if the current value is not the expected value
+         * @throws IllegalStateException If the address is not aligned to 4 bytes or if the current value is not the expected value
          */
         @Override
         public void testAndSetInt(long address, long offset, int expected, int value) throws IllegalStateException {
@@ -2786,7 +2786,7 @@ public class UnsafeMemory implements Memory {
          * @param offset   the offset of the int value within the object
          * @param expected the expected current value
          * @param value    the new value
-         * @throws IllegalStateException if the offset is not aligned to 4 bytes or if the current value is not the expected value
+         * @throws IllegalStateException If the offset is not aligned to 4 bytes or if the current value is not the expected value
          */
         @Override
         public void testAndSetInt(Object object, long offset, int expected, int value) throws IllegalStateException {

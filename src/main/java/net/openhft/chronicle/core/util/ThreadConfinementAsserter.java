@@ -26,7 +26,7 @@ public interface ThreadConfinementAsserter {
      * Asserts that this thread is the only thread that has ever called this
      * method.
      *
-     * @throws IllegalStateException if another thread called this method previously.
+     * @throws IllegalStateException If another thread called this method previously.
      */
     void assertThreadConfined();
 

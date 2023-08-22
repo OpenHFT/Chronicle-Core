@@ -36,7 +36,7 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void warnAndReleaseIfNotReleased() throws ClosedIllegalStateException {
+    public void warnAndReleaseIfNotReleased() throws IllegalStateException {
         a.warnAndReleaseIfNotReleased();
     }
 
@@ -62,12 +62,12 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
 
     @Deprecated(/* To be removed in x.25 */)
     @Override
-    public boolean reservedBy(ReferenceOwner owner) throws IllegalStateException {
+    public boolean reservedBy(ReferenceOwner owner) throws ClosedIllegalStateException {
         return a.reservedBy(owner);
     }
 
     @Override
-    public synchronized void reserve(ReferenceOwner id) throws IllegalStateException {
+    public synchronized void reserve(ReferenceOwner id) throws ClosedIllegalStateException {
         checkError();
         try {
             a.reserve(id);
@@ -76,7 +76,7 @@ public class DualReferenceCounted implements MonitorReferenceCounted {
             this.refCountB = b.refCount();
             if (this.refCount != refCountB)
                 throw newAssertionError(this.refCount, refCountB, id);
-        } catch (IllegalStateException e) {
+        } catch (ClosedIllegalStateException e) {
             throw e;
         } catch (Throwable e) {
             error = e;

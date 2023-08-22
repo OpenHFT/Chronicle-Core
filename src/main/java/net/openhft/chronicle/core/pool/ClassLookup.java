@@ -54,7 +54,7 @@ public interface ClassLookup {
      * @param classLoader The ClassLoader used to look up new classes.
      * @return a new ClassLookup instance wrapping this ClassLookup and using the
      * provided ClassLoader, ensuring that the underlying instance remains immutable.
-     * @throws NullPointerException if classLoader is null.
+     * @throws NullPointerException If classLoader is null.
      */
     @NotNull
     default ClassLookup wrap(@NotNull ClassLoader classLoader) {

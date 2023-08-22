@@ -129,7 +129,8 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     /**
      * Throws an exception if the resource has already been released.
      *
-     * @throws IllegalStateException if the resource has been released.
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     public void throwExceptionIfNotReleased() throws IllegalStateException {
         referenceCounted.throwExceptionIfNotReleased();
@@ -162,7 +163,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     /**
      * Releases the resource. Subclasses should provide the specific implementation.
      *
-     * @throws IllegalStateException if the resource cannot be released.
+     * @throws IllegalStateException If the resource cannot be released.
      */
     protected abstract void performRelease() throws IllegalStateException;
 
@@ -172,10 +173,10 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
      * When tracing is enabled, it checks the same owner doesn't try to reserve it twice (without releasing it in the meantime)
      *
      * @param id The reference owner.
-     * @throws IllegalStateException if the resource is already released.
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
      */
     @Override
-    public void reserve(ReferenceOwner id) throws IllegalStateException {
+    public void reserve(ReferenceOwner id) throws ClosedIllegalStateException, ThreadingIllegalStateException {
         if ((WARN_COUNT < Integer.MAX_VALUE && referenceCounted.refCount() >= WARN_COUNT) && (referenceCounted.refCount() - WARN_COUNT) % 10 == 0)
             Jvm.warn().on(getClass(), "high reserve count for " + referenceName() +
                     " was " + referenceCounted.refCount(), new StackTrace("reserved here"));
@@ -188,10 +189,10 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
      * When tracing is enabled, it checks the resource was an owner, and doesn't attempt to release twice.
      *
      * @param id The reference owner.
-     * @throws IllegalStateException if the reference count is already 0.
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
      */
     @Override
-    public void release(ReferenceOwner id) throws IllegalStateException {
+    public void release(ReferenceOwner id) throws ClosedIllegalStateException {
         referenceCounted.release(id);
     }
 
@@ -201,10 +202,10 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
      * When tracing is enabled, it checks the resource was an owner, and doesn't attempt to release twice.
      *
      * @param id The reference owner.
-     * @throws IllegalStateException if the reference count is already 0.
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
      */
     @Override
-    public void releaseLast(ReferenceOwner id) throws IllegalStateException {
+    public void releaseLast(ReferenceOwner id) throws ClosedIllegalStateException {
         referenceCounted.releaseLast(id);
     }
 
@@ -213,11 +214,11 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
      *
      * @param id The reference owner.
      * @return {@code true} if the reservation was successful, {@code false} otherwise.
-     * @throws IllegalStateException    if the resource is already released.
-     * @throws IllegalArgumentException if the reference owner is not valid.
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws IllegalArgumentException If the reference owner is not valid.
      */
     @Override
-    public boolean tryReserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException {
+    public boolean tryReserve(ReferenceOwner id) throws ClosedIllegalStateException, IllegalArgumentException {
         return referenceCounted.tryReserve(id);
     }
 
@@ -226,10 +227,10 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
      *
      * @param from The current reference owner.
      * @param to   The new reference owner.
-     * @throws IllegalStateException if the resource is already released.
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
      */
     @Override
-    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException {
+    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws ClosedIllegalStateException, ThreadingIllegalStateException {
         referenceCounted.reserveTransfer(from, to);
     }
 
@@ -246,7 +247,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     /**
      * Throws an exception if the resource has been released.
      *
-     * @throws ClosedIllegalStateException if the resource has been released.
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
      */
     @Override
     public void throwExceptionIfReleased() throws ClosedIllegalStateException {
@@ -256,15 +257,15 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     /**
      * If not released, logs a warning and releases the resource.
      *
-     * @throws ClosedIllegalStateException if the resource is already released.
+     * @throws IllegalStateException If the resource hadn't been released.
      */
     @Override
-    public void warnAndReleaseIfNotReleased() throws ClosedIllegalStateException {
+    public void warnAndReleaseIfNotReleased() throws IllegalStateException {
         referenceCounted.warnAndReleaseIfNotReleased();
     }
 
     @Deprecated(/* To be removed in 2.25 */)
-    public boolean reservedBy(ReferenceOwner owner) throws IllegalStateException {
+    public boolean reservedBy(ReferenceOwner owner) throws ClosedIllegalStateException {
         return referenceCounted.reservedBy(owner);
     }
 
@@ -283,14 +284,14 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         referenceCounted.removeReferenceChangeListener(referenceChangeListener);
     }
 
-    protected boolean threadSafetyCheck(boolean isUsed) throws IllegalStateException {
+    protected boolean threadSafetyCheck(boolean isUsed) throws ThreadingIllegalStateException {
         // most common check, and sometimes the only check
         if (DISABLE_SINGLE_THREADED_CHECK || singleThreadedCheckDisabled)
             return true;
         return threadSafetyCheck0(isUsed);
     }
 
-    private boolean threadSafetyCheck0(boolean isUsed) {
+    private boolean threadSafetyCheck0(boolean isUsed) throws ThreadingIllegalStateException {
         // not so common but very cheap
         if (usedByThread == null && !isUsed)
             return true;
@@ -304,7 +305,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         return threadSafetyCheck2(currentThread);
     }
 
-    private boolean threadSafetyCheck2(Thread currentThread) {
+    private boolean threadSafetyCheck2(Thread currentThread) throws ThreadingIllegalStateException {
         if (usedByThread == null || !usedByThread.isAlive()) {
             usedByThread = currentThread;
             usedByThreadHere = new StackTrace("Used here");
@@ -312,7 +313,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
 
         } else {
             final String message = getClass().getName() + " component which is not thread safe used by " + usedByThread + " and " + currentThread;
-            throw new IllegalStateException(message, usedByThreadHere);
+            throw new ThreadingIllegalStateException(message, usedByThreadHere);
         }
     }
 

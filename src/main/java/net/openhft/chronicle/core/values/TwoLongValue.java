@@ -18,6 +18,8 @@
 package net.openhft.chronicle.core.values;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.io.ClosedIllegalStateException;
+import net.openhft.chronicle.core.io.ThreadingIllegalStateException;
 
 /**
  * Represents a container for two {@code long} values, providing mechanisms for getting, setting, and
@@ -70,7 +72,8 @@ public interface TwoLongValue extends LongValue {
      * Retrieves the second long value.
      *
      * @return The second long value.
-     * @throws IllegalStateException if the retrieval fails due to illegal state.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     long getValue2() throws IllegalStateException;
 
@@ -78,7 +81,8 @@ public interface TwoLongValue extends LongValue {
      * Sets the second long value.
      *
      * @param value2 The value to set.
-     * @throws IllegalStateException if the setting fails due to illegal state.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     void setValue2(long value2) throws IllegalStateException;
 
@@ -87,7 +91,8 @@ public interface TwoLongValue extends LongValue {
      * Ensures that subsequent reads and writes are not reordered beyond this point.
      *
      * @return The second long value.
-     * @throws IllegalStateException if the retrieval fails due to illegal state.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     long getVolatileValue2() throws IllegalStateException;
 
@@ -96,7 +101,8 @@ public interface TwoLongValue extends LongValue {
      * Ensures that subsequent reads and writes are not reordered beyond this point.
      *
      * @param value The value to set.
-     * @throws IllegalStateException if the setting fails due to illegal state.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     void setVolatileValue2(long value) throws IllegalStateException;
 
@@ -105,7 +111,8 @@ public interface TwoLongValue extends LongValue {
      * Ensures that previous writes are not reordered beyond this point.
      *
      * @param value The value to set.
-     * @throws IllegalStateException if the setting fails due to illegal state.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     void setOrderedValue2(long value) throws IllegalStateException;
 
@@ -114,7 +121,8 @@ public interface TwoLongValue extends LongValue {
      *
      * @param delta The value to add.
      * @return The result after addition.
-     * @throws IllegalStateException if the addition fails due to illegal state.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     long addValue2(long delta) throws IllegalStateException;
 
@@ -124,7 +132,8 @@ public interface TwoLongValue extends LongValue {
      *
      * @param delta The value to add.
      * @return The result after the addition.
-     * @throws IllegalStateException if the addition fails due to illegal state.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     long addAtomicValue2(long delta) throws IllegalStateException;
 
@@ -135,7 +144,8 @@ public interface TwoLongValue extends LongValue {
      * @param expected The expected value.
      * @param value    The new value.
      * @return {@code true} if the swap was successful, otherwise {@code false}.
-     * @throws IllegalStateException if the operation fails due to illegal state.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     boolean compareAndSwapValue2(long expected, long value) throws IllegalStateException;
 
@@ -143,7 +153,8 @@ public interface TwoLongValue extends LongValue {
      * Sets the second long value to the maximum of the current value and the specified value.
      *
      * @param value The value to compare.
-     * @throws IllegalStateException if the setting fails due to illegal state.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     @Deprecated(/* to be moved in x.25 */)
     default void setMaxValue2(long value) throws IllegalStateException {
@@ -161,7 +172,8 @@ public interface TwoLongValue extends LongValue {
      * Sets the second long value to the minimum of the current value and the specified value.
      *
      * @param value The value to compare.
-     * @throws IllegalStateException if the setting fails due to illegal state.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     @Deprecated(/* to be moved in x.25 */)
     default void setMinValue2(long value) throws IllegalStateException {
@@ -180,7 +192,8 @@ public interface TwoLongValue extends LongValue {
      *
      * @param value1 The first value to set.
      * @param value2 The second value to set.
-     * @throws IllegalStateException if the setting fails due to illegal state.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     @Deprecated(/* to be moved in x.25 */)
     default void setValues(long value1, long value2) throws IllegalStateException {
@@ -193,7 +206,8 @@ public interface TwoLongValue extends LongValue {
      *
      * @param values An array where the values will be stored. The first value is stored at index 0,
      *               and the second value is stored at index 1.
-     * @throws IllegalStateException if the retrieval fails due to illegal state.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     @Deprecated(/* to be moved in x.25 */)
     default void getValues(long[] values) throws IllegalStateException {

@@ -58,7 +58,7 @@ public class StringInterner {
      * Constructs a new StringInterner with the specified capacity.
      *
      * @param capacity the initial capacity of the interner.
-     * @throws IllegalArgumentException if the capacity is invalid.
+     * @throws IllegalArgumentException If the capacity is invalid.
      */
     public StringInterner(int capacity) throws IllegalArgumentException {
         int n = Maths.nextPower2(capacity, 128);

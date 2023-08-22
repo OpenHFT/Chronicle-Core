@@ -32,10 +32,11 @@ public interface ReferenceCounted extends ReferenceOwner {
      * 
      *
      * @param id The unique identifier representing the owner reserving the resource.
-     * @throws IllegalStateException if the resource has already been freed.
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
      *                               I.e. its reference counter has as some point reached zero.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
-    void reserve(ReferenceOwner id) throws IllegalStateException;
+    void reserve(ReferenceOwner id) throws ClosedIllegalStateException, ThreadingIllegalStateException;
 
     /**
      * Atomically transfers a reservation from one owner to another by incrementing the reference
@@ -43,10 +44,11 @@ public interface ReferenceCounted extends ReferenceOwner {
      *
      * @param from The unique identifier representing the owner releasing the reservation.
      * @param to   The unique identifier representing the owner acquiring the reservation.
-     * @throws IllegalStateException if the resource has already been freed.
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     // TODO move implementation to sub-classes in x.24
-    default void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException {
+    default void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws ClosedIllegalStateException, ThreadingIllegalStateException {
         reserve(to);
         release(from);
     }
@@ -58,10 +60,11 @@ public interface ReferenceCounted extends ReferenceOwner {
      *
      * @param id The unique identifier representing the owner attempting to reserve the resource.
      * @return {@code true} if the resource was successfully reserved, {@code false} otherwise.
-     * @throws IllegalStateException    if the resource has already been freed.
-     * @throws IllegalArgumentException if the reference owner is invalid.
+     * @throws IllegalArgumentException If the reference owner is invalid.
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
-    boolean tryReserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException;
+    boolean tryReserve(ReferenceOwner id) throws ClosedIllegalStateException, IllegalArgumentException;
 
     /**
      * Checks if the resource is reserved by the specified owner. Returns {@code true} if unsure.
@@ -72,36 +75,41 @@ public interface ReferenceCounted extends ReferenceOwner {
      * @param owner The unique identifier representing the owner to check.
      * @return {@code false} if it is certain that the owner does not have the resource reserved; {@code true} otherwise.
      * @deprecated This method is deprecated and may be removed in future versions.
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     @Deprecated(/* to be removed in x.25 */)
-    boolean reservedBy(ReferenceOwner owner) throws IllegalStateException;
+    boolean reservedBy(ReferenceOwner owner) throws ClosedIllegalStateException;
 
     /**
      * Releases the resource by decrementing its reference count by one.
      * When the reference count reaches zero, the resource is freed.
      *
      * @param id The unique identifier representing the owner releasing the resource.
-     * @throws IllegalStateException if the resource has already been freed.
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
      *                               I.e. its reference counter has as some point reached zero.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
-    void release(ReferenceOwner id) throws IllegalStateException;
+    void release(ReferenceOwner id) throws ClosedIllegalStateException;
 
     /**
      * Releases the resource and ensures that this release is the last usage of the resource.
      * The reference count is decremented and checked to be zero after this release.
      *
      * @param id The unique identifier representing the owner releasing the resource.
-     * @throws IllegalStateException if the resource has already been freed or if the reference count is not zero after this release.
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
-    void releaseLast(ReferenceOwner id) throws IllegalStateException;
+    void releaseLast(ReferenceOwner id) throws ClosedIllegalStateException;
 
     /**
      * Releases the resource for the initial owner and ensures that this release is the last usage of the resource.
      * The reference count is decremented and checked to be zero after this release.
      *
-     * @throws IllegalStateException if the resource has already been freed or if the reference count is not zero after this release.
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
-    default void releaseLast() throws IllegalStateException {
+    default void releaseLast() throws ClosedIllegalStateException {
         releaseLast(INIT);
     }
 

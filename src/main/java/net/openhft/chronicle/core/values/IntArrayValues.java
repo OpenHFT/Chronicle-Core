@@ -19,6 +19,8 @@
 package net.openhft.chronicle.core.values;
 
 import net.openhft.chronicle.core.io.Closeable;
+import net.openhft.chronicle.core.io.ClosedIllegalStateException;
+import net.openhft.chronicle.core.io.ThreadingIllegalStateException;
 
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
@@ -62,7 +64,8 @@ public interface IntArrayValues extends Closeable {
      * Retrieves the capacity of the array.
      *
      * @return the capacity of the array
-     * @throws IllegalStateException if the array is closed
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     long getCapacity() throws IllegalStateException;
 
@@ -70,8 +73,9 @@ public interface IntArrayValues extends Closeable {
      * Retrieves the number of used elements in the array.
      *
      * @return the number of used elements in the array
-     * @throws IllegalStateException    if the array is closed
-     * @throws BufferUnderflowException if the array is empty
+     * @throws BufferUnderflowException If the array is empty
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     long getUsed() throws IllegalStateException, BufferUnderflowException;
 
@@ -79,8 +83,9 @@ public interface IntArrayValues extends Closeable {
      * Sets the maximum number of used elements in the array.
      *
      * @param usedAtLeast the minimum number of used elements in the array
-     * @throws IllegalStateException    if the array is closed
-     * @throws BufferUnderflowException if the array is empty
+     * @throws BufferUnderflowException If the array is empty
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     void setMaxUsed(long usedAtLeast) throws IllegalStateException, BufferUnderflowException;
 
@@ -89,8 +94,9 @@ public interface IntArrayValues extends Closeable {
      *
      * @param index the index of the int value to retrieve
      * @return the int value at the specified index
-     * @throws IllegalStateException    if the array is closed
-     * @throws BufferUnderflowException if the index is out of bounds
+     * @throws BufferUnderflowException If the index is out of bounds
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     int getValueAt(long index) throws IllegalStateException, BufferUnderflowException;
 
@@ -99,8 +105,9 @@ public interface IntArrayValues extends Closeable {
      *
      * @param index the index at which to set the int value
      * @param value the int value to set
-     * @throws IllegalStateException   if the array is closed
-     * @throws BufferOverflowException if the index is out of bounds
+     * @throws BufferOverflowException If the index is out of bounds
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     void setValueAt(long index, int value) throws IllegalStateException, BufferOverflowException;
 
@@ -109,8 +116,9 @@ public interface IntArrayValues extends Closeable {
      *
      * @param index the index of the int value to retrieve
      * @return the int value at the specified index
-     * @throws IllegalStateException    if the array is closed
-     * @throws BufferUnderflowException if the index is out of bounds
+     * @throws BufferUnderflowException If the index is out of bounds
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     int getVolatileValueAt(long index) throws IllegalStateException, BufferUnderflowException;
 
@@ -119,8 +127,9 @@ public interface IntArrayValues extends Closeable {
      *
      * @param index the index at which to set the int value
      * @param value the int value to set
-     * @throws IllegalStateException   if the array is closed
-     * @throws BufferOverflowException if the index is out of bounds
+     * @throws BufferOverflowException If the index is out of bounds
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     void setOrderedValueAt(long index, int value) throws IllegalStateException, BufferOverflowException;
 
@@ -131,8 +140,9 @@ public interface IntArrayValues extends Closeable {
      * @param expected the expected current value
      * @param value    the new value
      * @return true if successful, false otherwise
-     * @throws IllegalStateException   if the array is closed
-     * @throws BufferOverflowException if the index is out of bounds
+     * @throws BufferOverflowException If the index is out of bounds
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     boolean compareAndSet(long index, int expected, int value) throws IllegalStateException, BufferOverflowException;
 
@@ -141,9 +151,10 @@ public interface IntArrayValues extends Closeable {
      *
      * @param index the index at which to bind the IntValue
      * @param value the IntValue to bind
-     * @throws IllegalStateException    if the array is closed
-     * @throws BufferOverflowException  if the index is out of bounds
-     * @throws IllegalArgumentException if the value is not valid
+     * @throws BufferOverflowException  If the index is out of bounds
+     * @throws IllegalArgumentException If the value is not valid
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     void bindValueAt(long index, IntValue value) throws IllegalStateException, BufferOverflowException, IllegalArgumentException;
 
@@ -152,7 +163,8 @@ public interface IntArrayValues extends Closeable {
      *
      * @param capacity the capacity of the array
      * @return the size in bytes of the array
-     * @throws IllegalStateException if the array is closed
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     long sizeInBytes(long capacity) throws IllegalStateException;
 
@@ -160,14 +172,16 @@ public interface IntArrayValues extends Closeable {
      * Checks if the array is null.
      *
      * @return true if the array is null, false otherwise
-     * @throws IllegalStateException if the array is closed
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     boolean isNull() throws IllegalStateException;
 
     /**
      * Resets the array, clearing all values.
      *
-     * @throws IllegalStateException if the array is closed
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     void reset() throws IllegalStateException;
 }

@@ -57,9 +57,10 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      * Gets the long value stored at the memory address.
      *
      * @return The long value.
-     * @throws ClosedIllegalStateException if closed
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If used in a non thread safe way
      */
-    public long getLong() throws ClosedIllegalStateException {
+    public long getLong() throws ClosedIllegalStateException, ThreadingIllegalStateException {
         try {
             return unsafe.getLong(address);
         } catch (NullPointerException e) {
@@ -72,9 +73,10 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      * Sets the long value at the memory address.
      *
      * @param value The long value to set.
-     * @throws ClosedIllegalStateException if closed
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If used in a non thread safe way
      */
-    public void setLong(long value) throws ClosedIllegalStateException {
+    public void setLong(long value) throws ClosedIllegalStateException, ThreadingIllegalStateException {
         try {
             unsafe.putLong(address, value);
         } catch (NullPointerException e) {
@@ -87,9 +89,10 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      * Gets the volatile long value stored at the memory address.
      *
      * @return The volatile long value.
-     * @throws ClosedIllegalStateException if closed
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If used in a non thread safe way
      */
-    public long getVolatileLong() throws ClosedIllegalStateException {
+    public long getVolatileLong() throws ClosedIllegalStateException, ThreadingIllegalStateException {
         try {
             return unsafe.getLongVolatile(null, address);
         } catch (NullPointerException e) {
@@ -102,9 +105,10 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      * Sets the volatile long value at the memory address.
      *
      * @param value The volatile long value to set.
-     * @throws ClosedIllegalStateException if closed
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If used in a non thread safe way
      */
-    public void setVolatileLong(long value) throws ClosedIllegalStateException {
+    public void setVolatileLong(long value) throws ClosedIllegalStateException, ThreadingIllegalStateException {
         try {
             unsafe.putLongVolatile(null, address, value);
         } catch (NullPointerException e) {
@@ -118,7 +122,8 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      *
      * @param closedLong The default value to return if the resource is closed.
      * @return The volatile long value or the default value if closed.
-     * @throws ClosedIllegalStateException if closed
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If used in a non thread safe way
      */
     public long getVolatileLong(long closedLong) throws ClosedIllegalStateException {
         if (isClosed())
@@ -134,9 +139,10 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      * Sets the ordered long value at the memory address.
      *
      * @param value The ordered long value to set.
-     * @throws ClosedIllegalStateException if closed
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If used in a non thread safe way
      */
-    public void setOrderedLong(long value) throws ClosedIllegalStateException {
+    public void setOrderedLong(long value) throws ClosedIllegalStateException, ThreadingIllegalStateException {
         try {
             unsafe.putOrderedLong(null, address, value);
         } catch (NullPointerException e) {
@@ -150,9 +156,10 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      *
      * @param delta The value to add.
      * @return The updated value.
-     * @throws ClosedIllegalStateException if closed
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If used in a non thread safe way
      */
-    public long addLong(long delta) throws ClosedIllegalStateException {
+    public long addLong(long delta) throws ClosedIllegalStateException, ThreadingIllegalStateException {
         try {
             return unsafe.getAndAddLong(null, address, delta) + delta;
         } catch (NullPointerException e) {
@@ -167,9 +174,10 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      *
      * @param delta The value to add.
      * @return The updated value.
-     * @throws ClosedIllegalStateException if closed
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If used in a non thread safe way
      */
-    public long addAtomicLong(long delta) throws ClosedIllegalStateException {
+    public long addAtomicLong(long delta) throws ClosedIllegalStateException, ThreadingIllegalStateException {
         try {
             return addLong(delta);
         } catch (NullPointerException e) {
@@ -184,9 +192,10 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      * @param expected The expected value.
      * @param value    The new value to set.
      * @return {@code true} if the swap was successful, {@code false} otherwise.
-     * @throws ClosedIllegalStateException if closed
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If used in a non thread safe way
      */
-    public boolean compareAndSwapLong(long expected, long value) throws ClosedIllegalStateException {
+    public boolean compareAndSwapLong(long expected, long value) throws ClosedIllegalStateException, ThreadingIllegalStateException {
         try {
             return unsafe.compareAndSwapLong(null, address, expected, value);
         } catch (NullPointerException e) {

@@ -20,6 +20,8 @@ package net.openhft.chronicle.core.values;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.Closeable;
+import net.openhft.chronicle.core.io.ClosedIllegalStateException;
+import net.openhft.chronicle.core.io.ThreadingIllegalStateException;
 
 /**
  * The LongValue interface provides an abstraction for a mutable long value that supports atomic
@@ -51,7 +53,8 @@ public interface LongValue extends Closeable {
      * Retrieves the current long value.
      *
      * @return the current long value.
-     * @throws IllegalStateException if the value cannot be retrieved.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     long getValue() throws IllegalStateException;
 
@@ -59,7 +62,8 @@ public interface LongValue extends Closeable {
      * Sets the long value.
      *
      * @param value the new long value.
-     * @throws IllegalStateException if the value cannot be set.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     void setValue(long value) throws IllegalStateException;
 
@@ -67,7 +71,8 @@ public interface LongValue extends Closeable {
      * Retrieves the current long value with volatile semantics.
      *
      * @return the current long value.
-     * @throws IllegalStateException if the value cannot be retrieved.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     // TODO Move to subclass so it's not a default in x.25
     default long getVolatileValue() throws IllegalStateException {
@@ -78,7 +83,8 @@ public interface LongValue extends Closeable {
      * Sets the long value with volatile semantics.
      *
      * @param value the new long value.
-     * @throws IllegalStateException if the value cannot be set.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     // TODO Move to subclass so it's not a default in x.25
     default void setVolatileValue(long value) throws IllegalStateException {
@@ -91,7 +97,8 @@ public interface LongValue extends Closeable {
      *
      * @param closedValue the value to return if the underlying resource is not available.
      * @return the current long value or the closedValue.
-     * @throws IllegalStateException if an unexpected error occurs.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     // TODO Move to subclass so it's not a default in x.25
     default long getVolatileValue(long closedValue) throws IllegalStateException {
@@ -108,7 +115,8 @@ public interface LongValue extends Closeable {
      * Sets the long value with ordered or lazy set semantics.
      *
      * @param value the new long value.
-     * @throws IllegalStateException if the value cannot be set.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     // TODO Move to subclass so it's not a default in x.25
     default void setOrderedValue(long value) throws IllegalStateException {
@@ -120,7 +128,8 @@ public interface LongValue extends Closeable {
      *
      * @param delta the value to be added.
      * @return the updated long value.
-     * @throws IllegalStateException if the value cannot be updated.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     long addValue(long delta) throws IllegalStateException;
 
@@ -129,7 +138,8 @@ public interface LongValue extends Closeable {
      *
      * @param delta the value to be added.
      * @return the updated long value.
-     * @throws IllegalStateException if the value cannot be updated atomically.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     // TODO Move to subclass so it's not a default in x.25
     default long addAtomicValue(long delta) throws IllegalStateException {
@@ -142,7 +152,8 @@ public interface LongValue extends Closeable {
      * @param expected the expected value.
      * @param value    the new value.
      * @return true if successful, false otherwise.
-     * @throws IllegalStateException if the operation cannot be completed.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     boolean compareAndSwapValue(long expected, long value) throws IllegalStateException;
 
@@ -150,7 +161,8 @@ public interface LongValue extends Closeable {
      * Atomically sets the long value to the given value if it is greater than the current value.
      *
      * @param value the value to be set.
-     * @throws IllegalStateException if the value cannot be set atomically.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     // TODO Move to subclass so it's not a default in x.25
     default void setMaxValue(long value) throws IllegalStateException {
@@ -168,7 +180,8 @@ public interface LongValue extends Closeable {
      * Atomically sets the long value to the given value if it is less than the current value.
      *
      * @param value the value to be set.
-     * @throws IllegalStateException if the value cannot be set atomically.
+     * @throws ClosedIllegalStateException    if the resource has been released or closed.
+     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
      */
     // TODO Move to subclass so it's not a default in x.25
     default void setMinValue(long value) throws IllegalStateException {

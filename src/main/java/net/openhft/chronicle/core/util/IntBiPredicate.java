@@ -54,7 +54,7 @@ public interface IntBiPredicate {
      *              predicate
      * @return a composed predicate that represents the short-circuiting logical
      * AND of this predicate and the {@code other} predicate
-     * @throws NullPointerException if other is null
+     * @throws NullPointerException If other is null
      */
     default IntBiPredicate and(IntBiPredicate other) {
         Objects.requireNonNull(other);
@@ -86,7 +86,7 @@ public interface IntBiPredicate {
      *              predicate
      * @return a composed predicate that represents the short-circuiting logical
      * OR of this predicate and the {@code other} predicate
-     * @throws NullPointerException if other is null
+     * @throws NullPointerException If other is null
      */
     default IntBiPredicate or(IntBiPredicate other) {
         Objects.requireNonNull(other);

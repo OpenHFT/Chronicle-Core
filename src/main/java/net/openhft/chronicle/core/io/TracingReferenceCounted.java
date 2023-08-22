@@ -64,16 +64,16 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void reserve(ReferenceOwner id) throws IllegalStateException {
+    public void reserve(ReferenceOwner id) throws ClosedIllegalStateException, IllegalStateException {
         tryReserve(id, true);
     }
 
     @Override
-    public boolean tryReserve(ReferenceOwner id) throws IllegalStateException, IllegalArgumentException {
+    public boolean tryReserve(ReferenceOwner id) throws ClosedIllegalStateException, IllegalStateException, IllegalArgumentException {
         return tryReserve(id, false);
     }
 
-    private boolean tryReserve(ReferenceOwner id, boolean must) throws IllegalStateException {
+    private boolean tryReserve(ReferenceOwner id, boolean must) throws ClosedIllegalStateException, IllegalStateException {
         if (id == this)
             throw new AssertionError(type.getName() + " the counter cannot reserve itself");
         synchronized (references) {
@@ -95,7 +95,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void release(ReferenceOwner id) throws IllegalStateException {
+    public void release(ReferenceOwner id) throws IllegalStateException, ClosedIllegalStateException {
 
         boolean doOnRelease = false;
         synchronized (references) {
@@ -120,7 +120,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException {
+    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException, ClosedIllegalStateException {
         synchronized (references) {
             final StackTrace stackTrace = references.get(to);
             if (stackTrace != null) {
@@ -136,7 +136,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
         referenceChangeListeners.notifyTransferred(from, to);
     }
 
-    private IllegalStateException throwInvalidReleaseException(ReferenceOwner id) {
+    private IllegalStateException throwInvalidReleaseException(ReferenceOwner id) throws ClosedIllegalStateException {
         StackTrace stackTrace = releases.get(id);
         if (stackTrace == null) {
             Throwable cause = createdHere;
@@ -205,7 +205,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
         synchronized (references) {
             if (references.isEmpty())
                 return;
-            IllegalStateException ise = new ClosedIllegalStateException(type.getName() + " retained reference closed");
+            IllegalStateException ise = new IllegalStateException(type.getName() + " retained reference closed");
 
             for (Map.Entry<ReferenceOwner, StackTrace> entry : references.entrySet()) {
                 ReferenceOwner referenceOwner = entry.getKey();
@@ -228,28 +228,28 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
         if (referenceOwner instanceof Closeable) {
             try {
                 ((ManagedCloseable) referenceOwner).throwExceptionIfClosed();
-            } catch (IllegalStateException ise3) {
+            } catch (Throwable ise3) {
                 ise2.addSuppressed(ise3);
             }
         } else if (referenceOwner instanceof AbstractReferenceCounted) {
             try {
                 ((AbstractReferenceCounted) referenceOwner).throwExceptionIfReleased();
-            } catch (IllegalStateException ise3) {
+            } catch (Throwable ise3) {
                 ise2.addSuppressed(ise3);
             }
         }
         return ise2;
     }
 
-    private void addCloseableSuppressed(IllegalStateException ise, AbstractCloseable ac) {
+    private void addCloseableSuppressed(Exception ise, AbstractCloseable ac) {
         try {
             ac.throwExceptionIfClosed();
-        } catch (IllegalStateException e) {
+        } catch (Throwable e) {
             ise.addSuppressed(e);
         }
     }
 
-    private void addManagedCloseableSuppressed(IllegalStateException ise, ManagedCloseable mc) {
+    private void addManagedCloseableSuppressed(Exception ise, ManagedCloseable mc) {
         try {
             mc.throwExceptionIfClosed();
         } catch (Throwable t) {

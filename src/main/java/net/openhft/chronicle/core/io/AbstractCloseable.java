@@ -228,7 +228,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
      * Electing to throw an Exception might cause memory-leaks as there is no guarantee that the
      * close methods will ever be invoked again in the general case.
      *
-     * @throws IllegalStateException if the resource cannot be closed.
+     * @throws IllegalStateException If the resource cannot be closed.
      */
     protected void assertCloseable() {
         // Do nothing by default, allowing close() to complete unconditionally
@@ -275,17 +275,17 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
      * This method is used to ensure that the resource is open before attempting an operation
      * that requires it to be open.
      *
-     * @throws ClosedIllegalStateException if the resource is already closed.
-     * @throws IllegalStateException       if the thread safety check fails.
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException       If the thread safety check fails.
      */
     @Override
-    public void throwExceptionIfClosed() throws ClosedIllegalStateException, IllegalStateException {
+    public void throwExceptionIfClosed() throws ClosedIllegalStateException, ThreadingIllegalStateException {
         if (isClosed())
             throwClosed();
         threadSafetyCheck(true);
     }
 
-    private void throwClosed() {
+    private void throwClosed() throws ClosedIllegalStateException {
         throw new ClosedIllegalStateException(getClass().getName() + " closed for " + Thread.currentThread().getName(), closedHere);
     }
 
@@ -293,9 +293,10 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
      * Throws an exception if the resource is closed during a setter operation.
      * This method is used to ensure that the resource is open before attempting to modify its state.
      *
-     * @throws IllegalStateException if the resource is already closed.
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If the thread safety check fails.
      */
-    public void throwExceptionIfClosedInSetter() throws IllegalStateException {
+    public void throwExceptionIfClosedInSetter() throws ClosedIllegalStateException, ThreadingIllegalStateException {
         if (isClosed())
             throwClosed();
         threadSafetyCheck(false);
@@ -324,10 +325,8 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
      * overridden by subclasses to provide specific close logic.
      * <p>
      * Note: This method is called exactly once through {@code callPerformClose()}.
-     *
-     * @throws IllegalStateException if any error occurs during the close operation.
      */
-    protected abstract void performClose() throws IllegalStateException;
+    protected abstract void performClose();
 
     /**
      * Calls {@link #performClose()} and ensures that it is executed exactly once.
@@ -389,19 +388,19 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     /**
      * Performs a thread safety check on the component.
      * If the component is not thread-safe and is accessed by multiple threads,
-     * an {@link IllegalStateException} is thrown.
+     * an {@link ThreadingIllegalStateException} is thrown.
      * This method is intended to be called before operations that require thread safety.
      *
      * @param isUsed flag indicating whether the component is being used in the current operation.
-     * @throws IllegalStateException if the component is not thread-safe and accessed by multiple threads.
+     * @throws ThreadingIllegalStateException If the component is not thread-safe and accessed by multiple threads.
      */
-    protected void threadSafetyCheck(boolean isUsed) throws IllegalStateException {
+    protected void threadSafetyCheck(boolean isUsed) throws ThreadingIllegalStateException {
         if (DISABLE_SINGLE_THREADED_CHECK || singleThreadedCheckDisabled)
             return;
         threadSafetyCheck0(isUsed);
     }
 
-    private void threadSafetyCheck0(boolean isUsed) {
+    private void threadSafetyCheck0(boolean isUsed) throws ThreadingIllegalStateException {
         if (usedByThread == null && !isUsed)
             return;
 
@@ -412,7 +411,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
                 usedByThreadHere = new StackTrace(getClass().getName() + " used here");
         } else if (usedByThread != currentThread) {
             if (usedByThread.isAlive()) // really expensive call.
-                throw new IllegalStateException(getClass().getName() + " component which is not thread safe used by " + usedByThread + " and " + currentThread, usedByThreadHere);
+                throw new ThreadingIllegalStateException(getClass().getName() + " component which is not thread safe used by " + usedByThread + " and " + currentThread, usedByThreadHere);
             usedByThread = currentThread;
         }
     }

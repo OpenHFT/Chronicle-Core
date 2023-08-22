@@ -123,7 +123,7 @@ public final class IOTools {
      *
      * @param directory The directory to be deleted
      * @return true if deletion is successful, false otherwise
-     * @throws IORuntimeException if an I/O error occurs
+     * @throws IORuntimeException If an I/O error occurs
      */
     public static boolean shallowDeleteDirWithFiles(@NotNull String directory) throws IORuntimeException {
         return shallowDeleteDirWithFiles(new File(directory));
@@ -136,7 +136,7 @@ public final class IOTools {
      *
      * @param dir The directory to be deleted
      * @return true if deletion is successful, false otherwise
-     * @throws IORuntimeException if an I/O error occurs
+     * @throws IORuntimeException If an I/O error occurs
      */
     public static boolean shallowDeleteDirWithFiles(@NotNull File dir) throws IORuntimeException {
         return deleteDirWithFiles(dir, 1);
@@ -158,7 +158,7 @@ public final class IOTools {
      * @param dir      The directory to be deleted
      * @param maxDepth The maximum depth of directories to be deleted
      * @return true if deletion is successful, false otherwise
-     * @throws IORuntimeException if an I/O error occurs
+     * @throws IORuntimeException If an I/O error occurs
      */
     public static boolean deleteDirWithFiles(@NotNull String dir, int maxDepth) throws IORuntimeException {
         return deleteDirWithFiles(new File(dir), maxDepth);
@@ -169,7 +169,7 @@ public final class IOTools {
      * deleted successfully, throws an {@link AssertionError}.
      *
      * @param dir The directories to be deleted
-     * @throws IORuntimeException if an I/O error occurs
+     * @throws IORuntimeException If an I/O error occurs
      */
     public static boolean deleteDirWithFiles(@NotNull File dir) throws IORuntimeException {
         return deleteDirWithFiles(dir, 20);
@@ -181,7 +181,7 @@ public final class IOTools {
      *
      * @param dir      The directories to be deleted
      * @param maxDepth The maximum depth of directories to be deleted
-     * @throws IORuntimeException if an I/O error occurs
+     * @throws IORuntimeException If an I/O error occurs
      */
     public static boolean deleteDirWithFiles(@NotNull File dir, int maxDepth) throws IORuntimeException {
         final File[] entries = dir.listFiles();
@@ -256,7 +256,7 @@ public final class IOTools {
      * @param clazz file to use to determine the class loader.
      * @param name  Name of the file to find.
      * @return URL of the file.
-     * @throws FileNotFoundException if the file is not found.
+     * @throws FileNotFoundException If the file is not found.
      */
     @NotNull
     public static URL urlFor(Class<?> clazz, String name) throws FileNotFoundException {
@@ -269,7 +269,7 @@ public final class IOTools {
      * @param classLoader Class loader to use to find the file.
      * @param name        Name of the file to find.
      * @return URL of the file.
-     * @throws FileNotFoundException if the file is not found.
+     * @throws FileNotFoundException If the file is not found.
      */
     @NotNull
     public static URL urlFor(ClassLoader classLoader, String name) throws FileNotFoundException {
@@ -298,7 +298,7 @@ public final class IOTools {
      *
      * @param url to create an InputStream from
      * @return an InputStream
-     * @throws IOException if the URL cannot be opened
+     * @throws IOException If the URL cannot be opened
      */
     public static InputStream open(URL url) throws IOException {
         final InputStream in = url.openStream();

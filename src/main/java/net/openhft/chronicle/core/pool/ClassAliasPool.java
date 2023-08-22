@@ -170,7 +170,7 @@ public class ClassAliasPool implements ClassLookup {
      *
      * @param name The class name to lookup
      * @return The resolved class
-     * @throws ClassNotFoundRuntimeException if the class can't be loaded
+     * @throws ClassNotFoundRuntimeException If the class can't be loaded
      */
     private Class<?> doLookupWindowsOSX(String name) {
         try {
@@ -192,7 +192,7 @@ public class ClassAliasPool implements ClassLookup {
 
     @Override
     public String nameFor(Class<?> clazz) throws IllegalArgumentException {
-        if (clazz.getName().contains("$$Lambda$"))
+        if (clazz.getName().contains("$$Lambda"))
             throw new IllegalArgumentException("Class name for " + clazz + " isn't meaningful.");
         String name = classStringMap.get(clazz);
         if (name != null)

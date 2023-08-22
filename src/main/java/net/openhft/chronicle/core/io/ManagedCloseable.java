@@ -60,11 +60,11 @@ public interface ManagedCloseable extends Closeable {
      * <p>
      * If the resource is in the process of closing, a {@link ClosedIllegalStateException} is thrown.
      * The exception message indicates whether the resource is already closed or is currently in the process of closing.
-     * 
      *
-     * @throws ClosedIllegalStateException if the resource is closed or in the process of closing.
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException       If the thread safety check fails.
      */
-    default void throwExceptionIfClosed() throws ClosedIllegalStateException {
+    default void throwExceptionIfClosed() throws ClosedIllegalStateException, ThreadingIllegalStateException {
         if (isClosing())
             throw new ClosedIllegalStateException(isClosed() ? "Closed" : "Closing");
     }

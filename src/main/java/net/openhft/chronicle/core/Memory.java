@@ -19,6 +19,8 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.annotation.Positive;
+import net.openhft.chronicle.core.io.ClosedIllegalStateException;
+import net.openhft.chronicle.core.io.ThreadingIllegalStateException;
 import net.openhft.chronicle.core.util.MisAlignedAssertionError;
 import org.jetbrains.annotations.NotNull;
 import sun.misc.Unsafe;
@@ -88,7 +90,7 @@ public interface Memory {
      *
      * @param capacity to allocate
      * @return the low level base address of the newly allocated memory region
-     * @throws IllegalArgumentException if the capacity is non-positive
+     * @throws IllegalArgumentException If the capacity is non-positive
      * @throws OutOfMemoryError         if there are not enough memory to allocate
      */
     long allocate(@Positive long capacity);
@@ -133,7 +135,7 @@ public interface Memory {
      * @param b       The byte array containing the bytes to be written.
      * @param offset  The starting offset within the array.
      * @param length  The number of bytes to be written.
-     * @throws IllegalArgumentException if the offset or length is invalid.
+     * @throws IllegalArgumentException If the offset or length is invalid.
      */
     void writeBytes(long address, byte[] b, int offset, int length) throws IllegalArgumentException;
 
@@ -144,7 +146,7 @@ public interface Memory {
      * @param b       The byte array to store the read bytes.
      * @param offset  The starting offset within the byte array.
      * @param length  The number of bytes to be read.
-     * @throws IllegalArgumentException if the offset or length is invalid.
+     * @throws IllegalArgumentException If the offset or length is invalid.
      */
     void readBytes(long address, byte[] b, long offset, int length) throws IllegalArgumentException;
 
@@ -508,7 +510,7 @@ public interface Memory {
 
     /**
      * Atomically sets the value at the specified address to the given value if it equals the expected value.
-     * Throws an IllegalStateException if the value does not match the expected value.
+     * Throws an IllegalStateException If the value does not match the expected value.
      *
      * @param address  the memory address
      * @param offset   the offset in the memory address
@@ -520,7 +522,7 @@ public interface Memory {
 
     /**
      * Atomically sets the value at the specified offset in the object to the given value if it equals the expected value.
-     * Throws an IllegalStateException if the value does not match the expected value.
+     * Throws an IllegalStateException If the value does not match the expected value.
      *
      * @param object   the destination object
      * @param offset   the offset in the destination object
@@ -861,7 +863,7 @@ public interface Memory {
      * @param clazz the class to instantiate
      * @param <E>   the type of the class
      * @return a new instance of the specified class
-     * @throws InstantiationException if the class cannot be instantiated
+     * @throws InstantiationException If the class cannot be instantiated
      */
     @NotNull <E> E allocateInstance(Class<? extends E> clazz) throws InstantiationException;
 

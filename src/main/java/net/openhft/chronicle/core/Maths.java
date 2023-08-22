@@ -465,7 +465,7 @@ public final class Maths {
      * @param n   to find the next power of two from
      * @param min if n &lt; min then use min
      * @return the next power of two
-     * @throws IllegalArgumentException if the provided {@code min} value is not a power of two.
+     * @throws IllegalArgumentException If the provided {@code min} value is not a power of two.
      */
     public static int nextPower2(int n, int min) throws IllegalArgumentException {
         return (int) Math.min(1 << 30, nextPower2(n, (long) min));
@@ -477,7 +477,7 @@ public final class Maths {
      * @param n   to find the next power of two from
      * @param min if n &lt; min then use min
      * @return the next power of two
-     * @throws IllegalArgumentException if the provided {@code min} value is not a power of two.
+     * @throws IllegalArgumentException If the provided {@code min} value is not a power of two.
      */
     public static long nextPower2(long n, long min) throws IllegalArgumentException {
         if (!isPowerOf2(min))
@@ -511,7 +511,7 @@ public final class Maths {
      *
      * @param s the string to compute the hash for
      * @return the 32-bit hash value
-     * @throws IllegalArgumentException if {@code s} is {@code null}
+     * @throws IllegalArgumentException If {@code s} is {@code null}
      */
     @Deprecated(/* to be removed in x.25, inline this method */)
     public static int hash32(@NotNull String s) {
@@ -527,7 +527,7 @@ public final class Maths {
      *
      * @param s the StringBuilder to compute the hash for
      * @return the 32-bit hash value
-     * @throws IllegalArgumentException if {@code s} is {@code null}
+     * @throws IllegalArgumentException If {@code s} is {@code null}
      */
     @Deprecated(/* to be removed in x.25, inline this method */)
     public static int hash32(@NotNull StringBuilder s) {
@@ -565,7 +565,7 @@ public final class Maths {
      *
      * @param s the string to compute the hash for
      * @return the 64-bit hash value
-     * @throws IllegalArgumentException if {@code s} is {@code null}
+     * @throws IllegalArgumentException If {@code s} is {@code null}
      */
     public static long hash64(@NotNull String s) {
         //noinspection ConstantValue
@@ -599,7 +599,7 @@ public final class Maths {
      *
      * @param s the string to compute the hash for
      * @return the 64-bit hash value
-     * @throws IllegalArgumentException if {@code s} is {@code null}
+     * @throws IllegalArgumentException If {@code s} is {@code null}
      */
     public static long hash64(@NotNull StringBuilder s) {
         long hash = 0;
@@ -626,7 +626,7 @@ public final class Maths {
      * Returns rounded down log<sub>2</sub>{@code num}, e. g.: {@code intLog2(1) == 0},
      * {@code intLog2(2) == 1}, {@code intLog2(7) == 2}, {@code intLog2(8) == 3}, etc.
      *
-     * @throws IllegalArgumentException if the given number &lt;= 0
+     * @throws IllegalArgumentException If the given number &lt;= 0
      */
     public static int intLog2(long num) throws IllegalArgumentException {
         if (num <= 0)
@@ -640,7 +640,7 @@ public final class Maths {
      *
      * @param value the long value
      * @return the argument as a byte
-     * @throws ArithmeticException if the {@code argument} overflows a byte
+     * @throws ArithmeticException If the {@code argument} overflows a byte
      */
     public static byte toInt8(long value) throws ArithmeticException {
         if ((byte) value == value)
@@ -654,7 +654,7 @@ public final class Maths {
      *
      * @param value the long value
      * @return the argument as a short
-     * @throws ArithmeticException if the {@code argument} overflows a short
+     * @throws ArithmeticException If the {@code argument} overflows a short
      */
     public static short toInt16(long value) throws ArithmeticException {
         if ((short) value == value)
@@ -669,7 +669,7 @@ public final class Maths {
      * @param value the long value
      * @param msg   to use in a potential exception message
      * @return the argument as an int
-     * @throws ArithmeticException if the {@code argument} overflows an int
+     * @throws ArithmeticException If the {@code argument} overflows an int
      */
     public static int toInt32(long value, @NotNull String msg) throws ArithmeticException {
         if ((int) value == value)
@@ -683,7 +683,7 @@ public final class Maths {
      *
      * @param value the long value
      * @return the argument as an int
-     * @throws ArithmeticException if the {@code argument} overflows an int
+     * @throws ArithmeticException If the {@code argument} overflows an int
      */
     public static int toInt32(long value) throws ArithmeticException {
         if ((int) value == value)
@@ -697,7 +697,7 @@ public final class Maths {
      *
      * @param value the long value
      * @return the argument as a short
-     * @throws ArithmeticException if the {@code argument} overflows an unsigned byte
+     * @throws ArithmeticException If the {@code argument} overflows an unsigned byte
      */
     public static short toUInt8(long value) throws ArithmeticException {
         if ((value & 0xFF) == value)
@@ -711,7 +711,7 @@ public final class Maths {
      *
      * @param value the long value
      * @return the argument as an int
-     * @throws ArithmeticException if the {@code argument} overflows an unsigned short
+     * @throws ArithmeticException If the {@code argument} overflows an unsigned short
      */
     public static int toUInt16(long value) throws ArithmeticException {
         if ((value & 0xFFFF) == value)
@@ -725,7 +725,7 @@ public final class Maths {
      *
      * @param value the long value
      * @return the argument as a long
-     * @throws ArithmeticException if the {@code argument} overflows an unsigned int
+     * @throws ArithmeticException If the {@code argument} overflows an unsigned int
      */
     public static int toUInt31(long value) throws ArithmeticException {
         if ((value & 0x7FFFFFFFL) == value)
@@ -739,7 +739,7 @@ public final class Maths {
      *
      * @param value the long value
      * @return the argument as a long
-     * @throws ArithmeticException if the {@code argument} overflows an unsigned int
+     * @throws ArithmeticException If the {@code argument} overflows an unsigned int
      */
     public static long toUInt32(long value) throws ArithmeticException {
         if ((value & 0xFFFFFFFFL) == value)
@@ -811,7 +811,7 @@ public final class Maths {
      *
      * @param decimalPlaces the number of decimal places
      * @return the power of ten corresponding to the decimal places
-     * @throws IllegalArgumentException if the decimal places are less than 0 or greater than or equal to 19
+     * @throws IllegalArgumentException If the decimal places are less than 0 or greater than or equal to 19
      */
     public static long tens(int decimalPlaces) {
         if (decimalPlaces < 0 || decimalPlaces >= 19)

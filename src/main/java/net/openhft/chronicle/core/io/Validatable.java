@@ -60,10 +60,10 @@ public interface Validatable {
      * For example, this could involve checking for null values in required fields,
      * validating that numerical values are within acceptable ranges, etc.
      *
-     * @throws InvalidMarshallableException if the object is in an invalid state,
+     * @throws InvalidMarshallableException If the object is in an invalid state,
      *                                      such as having null values in required fields or values
      *                                      out of acceptable range.
-     * @throws RuntimeException             if an unexpected error occurs during validation.
+     * @throws RuntimeException             If an unexpected error occurs during validation.
      */
     void validate() throws InvalidMarshallableException;
 }
