@@ -51,7 +51,7 @@ public interface ReferenceCountedTracer extends ReferenceCounted {
     /**
      * Throws an exception if the object has been released.
      *
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ClosedIllegalStateException If the resource has been released or closed.
      */
     // TODO move implementation to sub-classes in x.24
     default void throwExceptionIfReleased() throws ClosedIllegalStateException {
@@ -63,10 +63,9 @@ public interface ReferenceCountedTracer extends ReferenceCounted {
      * Releases any remaining references and logs a warning if there were any references to release.
      * <p>
      * This method is intended to be called by a finalizer or in a test to confirm that references are being released correctly.
-     * 
+     *
      * <p>
      * Note: This method will not trigger any {@link ReferenceChangeListener}s as it is mainly used for sanity checks.
-     * 
      *
      * @throws IllegalStateException If the object hadn't been released.
      */

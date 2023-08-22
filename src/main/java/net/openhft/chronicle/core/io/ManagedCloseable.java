@@ -41,7 +41,6 @@ public interface ManagedCloseable extends Closeable {
      * When resource tracing is enabled and discard warnings are not disabled, a warning message is logged indicating that
      * the resource was discarded without being properly closed. The resource is then closed quietly, meaning that no
      * exception is thrown if an error occurs during the closing process.
-     * 
      */
     // TODO move implementation to sub-classes in x.24
     default void warnAndCloseIfNotClosed() {
@@ -62,7 +61,7 @@ public interface ManagedCloseable extends Closeable {
      * The exception message indicates whether the resource is already closed or is currently in the process of closing.
      *
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
-     * @throws ThreadingIllegalStateException       If the thread safety check fails.
+     * @throws ThreadingIllegalStateException If the thread safety check fails.
      */
     default void throwExceptionIfClosed() throws ClosedIllegalStateException, ThreadingIllegalStateException {
         if (isClosing())
@@ -75,7 +74,6 @@ public interface ManagedCloseable extends Closeable {
      * <p>
      * By default, this method returns {@code null}, indicating that the information is not available.
      * Implementations may override this method to provide the actual stack trace where the resource was created.
-     * 
      *
      * @return The stack trace of the location where the resource was created, or {@code null} if the information is not available.
      */

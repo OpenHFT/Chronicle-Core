@@ -27,7 +27,7 @@ public interface ThreadLock {
      * Try to lock once or fail using the current OS thread id.
      *
      * @return true if the lock could be obtained, or false if not.
-     * @throws IllegalStateException If the same threadId already holds the lock
+     * @throws IllegalStateException if the same threadId already holds the lock
      */
     default boolean tryLock() throws IllegalStateException {
         return tryLock(gettid());
@@ -49,15 +49,15 @@ public interface ThreadLock {
      *
      * @param osThreadId to attempt to lock for
      * @return true if the lock could be obtained, or false if not.
-     * @throws IllegalStateException If the same threadId already holds the lock
+     * @throws IllegalStateException if the same threadId already holds the lock
      */
     boolean tryLock(int osThreadId) throws IllegalStateException;
 
     /**
      * Lock the resource using the current OS thread id.
      *
-     * @throws InterruptedRuntimeException If an interrupt occurred before or during a busy loop retry. It won't throw this if the lock can be obtained immediately.
-     * @throws IllegalStateException       If the same threadId already holds the lock
+     * @throws InterruptedRuntimeException if an interrupt occurred before or during a busy loop retry. It won't throw this if the lock can be obtained immediately.
+     * @throws IllegalStateException       if the same threadId already holds the lock
      */
     default void lock() throws InterruptedRuntimeException, IllegalStateException {
         lock(gettid());
@@ -67,15 +67,15 @@ public interface ThreadLock {
      * Lock the resource using a threadId
      *
      * @param osThreadId to lock
-     * @throws InterruptedRuntimeException If an interrupt occurred before or during a busy loop retry. It won't throw this if the lock can be obtained immediately.
-     * @throws IllegalStateException       If the same threadId already holds the lock
+     * @throws InterruptedRuntimeException if an interrupt occurred before or during a busy loop retry. It won't throw this if the lock can be obtained immediately.
+     * @throws IllegalStateException       if the same threadId already holds the lock
      */
     void lock(int osThreadId) throws InterruptedRuntimeException, IllegalStateException;
 
     /**
      * Unlock for a threadId
      *
-     * @throws IllegalStateException If the thread previously held the lock but doesn't hold it now.
+     * @throws IllegalStateException if the thread previously held the lock but doesn't hold it now.
      */
     default void unlock() throws IllegalStateException {
         unlock(gettid());
@@ -85,7 +85,7 @@ public interface ThreadLock {
      * Unlock for a threadId
      *
      * @param osThreadId to unlock
-     * @throws IllegalStateException If the thread previously held the lock but doesn't hold it now.
+     * @throws IllegalStateException if the thread previously held the lock but doesn't hold it now.
      */
     void unlock(int osThreadId) throws IllegalStateException;
 }

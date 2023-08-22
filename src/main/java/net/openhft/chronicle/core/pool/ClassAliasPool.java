@@ -170,7 +170,7 @@ public class ClassAliasPool implements ClassLookup {
      *
      * @param name The class name to lookup
      * @return The resolved class
-     * @throws ClassNotFoundRuntimeException If the class can't be loaded
+     * @throws ClassNotFoundRuntimeException if the class can't be loaded
      */
     private Class<?> doLookupWindowsOSX(String name) {
         try {

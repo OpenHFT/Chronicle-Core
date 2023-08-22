@@ -49,7 +49,7 @@ public final class DirectBufferUtil {
      * instance of sun.nio.ch.DirectBuffer
      *
      * @param buffer to clean
-     * @throws NullPointerException If the provided {@code buffer } is {@code null}
+     * @throws NullPointerException if the provided {@code buffer } is {@code null}
      */
     public static void cleanIfInstanceOfDirectBuffer(final ByteBuffer buffer) {
         requireNonNull(buffer);
@@ -63,8 +63,8 @@ public final class DirectBufferUtil {
      * instance of sun.nio.ch.DirectBuffer, otherwise throws an exception.
      *
      * @param buffer to clean
-     * @throws NullPointerException If the provided {@code buffer } is {@code null}
-     * @throws ClassCastException   If the provided {@code buffer } is not an instance of sun.nio.ch.DirectBuffer
+     * @throws NullPointerException if the provided {@code buffer } is {@code null}
+     * @throws ClassCastException   if the provided {@code buffer } is not an instance of sun.nio.ch.DirectBuffer
      */
     public static long addressOrThrow(final ByteBuffer buffer) {
         requireNonNull(buffer);

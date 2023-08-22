@@ -73,7 +73,7 @@ public interface IntArrayValues extends Closeable {
      * Retrieves the number of used elements in the array.
      *
      * @return the number of used elements in the array
-     * @throws BufferUnderflowException If the array is empty
+     * @throws BufferUnderflowException       If the array is empty
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
@@ -83,7 +83,7 @@ public interface IntArrayValues extends Closeable {
      * Sets the maximum number of used elements in the array.
      *
      * @param usedAtLeast the minimum number of used elements in the array
-     * @throws BufferUnderflowException If the array is empty
+     * @throws BufferUnderflowException       If the array is empty
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
@@ -94,7 +94,7 @@ public interface IntArrayValues extends Closeable {
      *
      * @param index the index of the int value to retrieve
      * @return the int value at the specified index
-     * @throws BufferUnderflowException If the index is out of bounds
+     * @throws BufferUnderflowException       If the index is out of bounds
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
@@ -105,7 +105,7 @@ public interface IntArrayValues extends Closeable {
      *
      * @param index the index at which to set the int value
      * @param value the int value to set
-     * @throws BufferOverflowException If the index is out of bounds
+     * @throws BufferOverflowException        If the index is out of bounds
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
@@ -116,7 +116,7 @@ public interface IntArrayValues extends Closeable {
      *
      * @param index the index of the int value to retrieve
      * @return the int value at the specified index
-     * @throws BufferUnderflowException If the index is out of bounds
+     * @throws BufferUnderflowException       If the index is out of bounds
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
@@ -127,7 +127,7 @@ public interface IntArrayValues extends Closeable {
      *
      * @param index the index at which to set the int value
      * @param value the int value to set
-     * @throws BufferOverflowException If the index is out of bounds
+     * @throws BufferOverflowException        If the index is out of bounds
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
@@ -140,7 +140,7 @@ public interface IntArrayValues extends Closeable {
      * @param expected the expected current value
      * @param value    the new value
      * @return true if successful, false otherwise
-     * @throws BufferOverflowException If the index is out of bounds
+     * @throws BufferOverflowException        If the index is out of bounds
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
@@ -151,8 +151,8 @@ public interface IntArrayValues extends Closeable {
      *
      * @param index the index at which to bind the IntValue
      * @param value the IntValue to bind
-     * @throws BufferOverflowException  If the index is out of bounds
-     * @throws IllegalArgumentException If the value is not valid
+     * @throws BufferOverflowException        If the index is out of bounds
+     * @throws IllegalArgumentException       If the value is not valid
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */

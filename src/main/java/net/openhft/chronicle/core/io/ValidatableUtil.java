@@ -66,7 +66,7 @@ public class ValidatableUtil {
      * @param t   to test
      * @param <T> the original object
      * @return the same object
-     * @throws InvalidMarshallableException If validate() method fails
+     * @throws InvalidMarshallableException if validate() method fails
      */
     public static <T> T validate(T t) throws InvalidMarshallableException {
         if (t instanceof Validatable && validateEnabled())
@@ -79,7 +79,7 @@ public class ValidatableUtil {
      *
      * @param tested reference
      * @param name   of reference
-     * @throws InvalidMarshallableException If tested is null
+     * @throws InvalidMarshallableException if tested is null
      */
     public static void requireNonNull(Object tested, String name) throws InvalidMarshallableException {
         if (tested == null)

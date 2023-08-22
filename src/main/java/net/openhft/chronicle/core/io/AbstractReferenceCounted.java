@@ -33,7 +33,6 @@ import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEAS
  * This class provides the common functionality required for implementing
  * reference counting mechanisms in resources, such as managing the number of
  * references and releasing resources when they are no longer needed.
- * 
  */
 public abstract class AbstractReferenceCounted implements ReferenceCountedTracer, ReferenceOwner, SingleThreadedChecked {
     // Constants
@@ -163,7 +162,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     /**
      * Releases the resource. Subclasses should provide the specific implementation.
      *
-     * @throws IllegalStateException If the resource cannot be released.
+     * @throws IllegalStateException if the resource cannot be released.
      */
     protected abstract void performRelease() throws IllegalStateException;
 
@@ -173,7 +172,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
      * When tracing is enabled, it checks the same owner doesn't try to reserve it twice (without releasing it in the meantime)
      *
      * @param id The reference owner.
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ClosedIllegalStateException If the resource has been released or closed.
      */
     @Override
     public void reserve(ReferenceOwner id) throws ClosedIllegalStateException, ThreadingIllegalStateException {
@@ -189,7 +188,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
      * When tracing is enabled, it checks the resource was an owner, and doesn't attempt to release twice.
      *
      * @param id The reference owner.
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ClosedIllegalStateException If the resource has been released or closed.
      */
     @Override
     public void release(ReferenceOwner id) throws ClosedIllegalStateException {
@@ -202,7 +201,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
      * When tracing is enabled, it checks the resource was an owner, and doesn't attempt to release twice.
      *
      * @param id The reference owner.
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ClosedIllegalStateException If the resource has been released or closed.
      */
     @Override
     public void releaseLast(ReferenceOwner id) throws ClosedIllegalStateException {
@@ -214,8 +213,8 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
      *
      * @param id The reference owner.
      * @return {@code true} if the reservation was successful, {@code false} otherwise.
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
-     * @throws IllegalArgumentException If the reference owner is not valid.
+     * @throws ClosedIllegalStateException If the resource has been released or closed.
+     * @throws IllegalArgumentException    If the reference owner is not valid.
      */
     @Override
     public boolean tryReserve(ReferenceOwner id) throws ClosedIllegalStateException, IllegalArgumentException {
@@ -227,7 +226,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
      *
      * @param from The current reference owner.
      * @param to   The new reference owner.
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ClosedIllegalStateException If the resource has been released or closed.
      */
     @Override
     public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws ClosedIllegalStateException, ThreadingIllegalStateException {
@@ -247,7 +246,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     /**
      * Throws an exception if the resource has been released.
      *
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ClosedIllegalStateException If the resource has been released or closed.
      */
     @Override
     public void throwExceptionIfReleased() throws ClosedIllegalStateException {

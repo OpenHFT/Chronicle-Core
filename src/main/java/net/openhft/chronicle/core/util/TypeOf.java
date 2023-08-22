@@ -50,7 +50,7 @@ public class TypeOf<T> {
      * Extracts the type information by inspecting the class's generic superclass.
      *
      * @return The captured type as a {@link Type}.
-     * @throws RuntimeException If the class does not have type parameters or does not directly extend TypeOf.
+     * @throws RuntimeException if the class does not have type parameters or does not directly extend TypeOf.
      */
     private Type extractType() {
         Type t = getClass().getGenericSuperclass();

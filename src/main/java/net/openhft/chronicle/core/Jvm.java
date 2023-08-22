@@ -521,7 +521,7 @@ public final class Jvm {
 
     /**
      * Returns the Field for the provided {@code clazz} and the provided {@code fieldName} or
-     * throws an Exception If no such Field exists.
+     * throws an Exception if no such Field exists.
      *
      * @param clazz     to get the field for
      * @param fieldName of the field
@@ -980,7 +980,7 @@ public final class Jvm {
      *
      * @param clazz for which ClassMetrics shall be acquired
      * @return the ClassMetrics for the provided {@code clazz}
-     * @throws IllegalArgumentException If no ClassMetrics can be acquired
+     * @throws IllegalArgumentException if no ClassMetrics can be acquired
      * @see ClassMetrics
      */
     @NotNull
@@ -1161,7 +1161,7 @@ public final class Jvm {
      *
      * @param value size to parse
      * @return the size
-     * @throws IllegalArgumentException If the string could not be parsed
+     * @throws IllegalArgumentException if the string could not be parsed
      */
     public static long parseSize(@NotNull String value) throws IllegalArgumentException {
         long factor = 1;

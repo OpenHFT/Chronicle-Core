@@ -28,17 +28,16 @@ import net.openhft.chronicle.core.internal.CloseableUtils;
  * This abstract class extends {@link AbstractReferenceCounted} and implements {@link ManagedCloseable},
  * and is designed to manage a resource that requires reference counting to ensure proper cleanup
  * once it is no longer in use.
- * 
+ *
  * <p>
  * Reference counting allows multiple users to share a single resource and ensures that the resource
  * is only closed when all references are released. Each user of the resource increments the reference
  * count upon acquiring the resource and decrements it upon releasing.
- * 
+ *
  * <p>
  * This class integrates reference counting with the ability to close the resource. When the reference
  * count reaches zero, or if an explicit call to close is made, the resource transitions to the closed state
  * and cannot be used any further.
- * 
  */
 public abstract class AbstractCloseableReferenceCounted
         extends AbstractReferenceCounted
@@ -61,7 +60,7 @@ public abstract class AbstractCloseableReferenceCounted
      * Attempts to reserve the resource for the given unique id.
      *
      * @param id the unique identifier representing the owner of this reserve.
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ClosedIllegalStateException If the resource has been released or closed.
      */
     @Override
     public void reserve(ReferenceOwner id) throws ClosedIllegalStateException, ThreadingIllegalStateException {
@@ -91,7 +90,7 @@ public abstract class AbstractCloseableReferenceCounted
      * Releases the resource for the given id.
      *
      * @param id unique id for this release
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ClosedIllegalStateException If the resource has been released or closed.
      */
     @Override
     public void release(ReferenceOwner id) throws ClosedIllegalStateException {
@@ -103,7 +102,7 @@ public abstract class AbstractCloseableReferenceCounted
      * Releases the resource for the given id and checks the resource is now released.
      *
      * @param id unique id for this release
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ClosedIllegalStateException If the resource has been released or closed.
      */
     @Override
     public void releaseLast(ReferenceOwner id) throws ClosedIllegalStateException {
@@ -116,7 +115,7 @@ public abstract class AbstractCloseableReferenceCounted
      *
      * @param id unique id for this reserve
      * @return true if reserved
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ClosedIllegalStateException If the resource has been released or closed.
      */
     @Override
     public boolean tryReserve(ReferenceOwner id) throws ClosedIllegalStateException, IllegalArgumentException {
@@ -172,7 +171,7 @@ public abstract class AbstractCloseableReferenceCounted
     /**
      * Throws an exception if the resource is closed.
      *
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ClosedIllegalStateException If the resource has been released or closed.
      */
     @Override
     public void throwExceptionIfClosed() throws ClosedIllegalStateException, ThreadingIllegalStateException {
@@ -193,7 +192,7 @@ public abstract class AbstractCloseableReferenceCounted
     /**
      * Throws an exception if the resource is closed while in a setter method.
      *
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ClosedIllegalStateException If the resource has been released or closed.
      */
     protected void throwExceptionIfClosedInSetter() throws ClosedIllegalStateException, ThreadingIllegalStateException {
         throwExceptionIfClosed0();

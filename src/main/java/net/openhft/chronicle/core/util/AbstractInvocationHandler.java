@@ -137,14 +137,14 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
      * @param method The method being called.
      * @param args   The arguments for the method call.
      * @return The result of the method invocation.
-     * @throws InvocationTargetException    If the method being called throws an exception.
-     * @throws IllegalAccessException       If this {@code InvocationHandler} does not have access to the method.
-     * @throws IllegalStateException        If the proxy is in an inappropriate state for the method call.
-     * @throws BufferOverflowException      If the buffer overflows during method invocation.
-     * @throws BufferUnderflowException     If the buffer underflows during method invocation.
-     * @throws IllegalArgumentException     If the method receives illegal arguments.
-     * @throws ArithmeticException          If an arithmetic exception occurs during method invocation.
-     * @throws InvalidMarshallableException If the object being marshaled is invalid.
+     * @throws InvocationTargetException    if the method being called throws an exception.
+     * @throws IllegalAccessException       if this {@code InvocationHandler} does not have access to the method.
+     * @throws IllegalStateException        if the proxy is in an inappropriate state for the method call.
+     * @throws BufferOverflowException      if the buffer overflows during method invocation.
+     * @throws BufferUnderflowException     if the buffer underflows during method invocation.
+     * @throws IllegalArgumentException     if the method receives illegal arguments.
+     * @throws ArithmeticException          if an arithmetic exception occurs during method invocation.
+     * @throws InvalidMarshallableException if the object being marshaled is invalid.
      */
     protected abstract Object doInvoke(Object proxy, Method method, Object[] args)
             throws InvocationTargetException, IllegalAccessException, IllegalStateException, BufferOverflowException, BufferUnderflowException, IllegalArgumentException, ArithmeticException, InvalidMarshallableException;

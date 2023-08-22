@@ -47,7 +47,7 @@ public enum GenericReflection {
      *
      * @param type the {@link Type} to scan for methods.
      * @return a set of {@link Type} representing the return types of methods found in the specified type.
-     * @throws UnsupportedOperationException If the provided type is not a {@link Class} or {@link ParameterizedType}.
+     * @throws UnsupportedOperationException if the provided type is not a {@link Class} or {@link ParameterizedType}.
      */
     public static Set<Type> getMethodReturnTypes(Type type) {
         Set<Type> types = new LinkedHashSet<>();

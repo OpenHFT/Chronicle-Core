@@ -43,7 +43,7 @@ public final class Wget {
      *
      * @param url the URL of the HTTP GET request
      * @return the result of the request as a {@link CharSequence}
-     * @throws IOException If an error occurs while establishing the connection
+     * @throws IOException if an error occurs while establishing the connection
      */
     public static CharSequence url(String url) throws IOException {
 

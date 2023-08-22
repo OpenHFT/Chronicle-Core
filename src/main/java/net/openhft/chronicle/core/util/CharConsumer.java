@@ -49,7 +49,7 @@ public interface CharConsumer {
      * @param after the operation to perform after this operation
      * @return a composed {@code CharConsumer} that performs in sequence this operation followed by the {@code after}
      * operation
-     * @throws NullPointerException If {@code after} is null
+     * @throws NullPointerException if {@code after} is null
      */
     @Deprecated(/* to be removed in x.26 */)
     @NotNull

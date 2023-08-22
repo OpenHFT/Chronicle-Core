@@ -82,7 +82,7 @@ public interface Closeable extends java.io.Closeable, QueryCloseable {
      * the actual close logic.
      * 
      *
-     * @throws IllegalStateException If the resource cannot be closed.
+     * @throws IllegalStateException if the resource cannot be closed.
      * @see AbstractCloseable#performClose()
      */
     @Override

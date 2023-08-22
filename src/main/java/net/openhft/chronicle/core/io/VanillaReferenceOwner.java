@@ -31,7 +31,7 @@ public class VanillaReferenceOwner implements ReferenceOwner, QueryCloseable {
      * Constructs a new instance of {@code VanillaReferenceOwner} with the specified name.
      *
      * @param name the name of the reference owner, used for identification.
-     * @throws IllegalArgumentException If name is null.
+     * @throws IllegalArgumentException if name is null.
      */
     public VanillaReferenceOwner(String name) {
         if (name == null) {

@@ -68,7 +68,7 @@ public interface VanillaEventHandler {
      *                                      The InvalidEventHandlerException.reusable() method returns a reusable, pre-created,
      *                                      InvalidEventHandlerException that is unmodifiable and contains no stack trace.
      *                                      See {@link InvalidEventHandlerException#reusable()}.
-     * @throws InvalidMarshallableException If there is a failure in the validation of a DTO being read or written.
+     * @throws InvalidMarshallableException if there is a failure in the validation of a DTO being read or written.
      */
     boolean action() throws InvalidEventHandlerException, InvalidMarshallableException;
 }

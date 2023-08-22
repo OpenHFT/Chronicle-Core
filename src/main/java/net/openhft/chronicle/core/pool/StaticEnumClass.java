@@ -82,7 +82,7 @@ public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
      *
      * @param index the ordinal index of the enum instance to retrieve.
      * @return the enum instance at the given index.
-     * @throws ArrayIndexOutOfBoundsException If the index is out of range.
+     * @throws ArrayIndexOutOfBoundsException if the index is out of range.
      */
     @Override
     public E forIndex(int index) {

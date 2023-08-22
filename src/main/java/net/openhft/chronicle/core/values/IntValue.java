@@ -55,7 +55,7 @@ public interface IntValue extends Closeable {
      * Retrieves the current 32-bit integer value.
      *
      * @return the current value
-     * @throws BufferUnderflowException If there's not enough data available to read
+     * @throws BufferUnderflowException       If there's not enough data available to read
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
@@ -65,9 +65,9 @@ public interface IntValue extends Closeable {
      * Sets the 32-bit integer value.
      *
      * @param value the new value to set
-     * @throws ClosedIllegalStateException    if the resource has been released or closed.
-     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
-     * @throws BufferOverflowException If there's not enough space to write the data
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
+     * @throws BufferOverflowException        If there's not enough space to write the data
      */
     void setValue(int value) throws IllegalStateException, BufferOverflowException;
 
@@ -77,9 +77,9 @@ public interface IntValue extends Closeable {
      * are not reordered beyond this point.
      *
      * @return the current value
-     * @throws ClosedIllegalStateException    if the resource has been released or closed.
-     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
-     * @throws BufferUnderflowException If there's not enough data available to read
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
+     * @throws BufferUnderflowException       If there's not enough data available to read
      */
     int getVolatileValue() throws IllegalStateException, BufferUnderflowException;
 
@@ -89,9 +89,9 @@ public interface IntValue extends Closeable {
      * this point.
      *
      * @param value the new value to set
-     * @throws ClosedIllegalStateException    if the resource has been released or closed.
-     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
-     * @throws BufferOverflowException If there's not enough space to write the data
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
+     * @throws BufferOverflowException        If there's not enough space to write the data
      */
     void setOrderedValue(int value) throws IllegalStateException, BufferOverflowException;
 
@@ -100,9 +100,9 @@ public interface IntValue extends Closeable {
      *
      * @param delta the value to add to the current value
      * @return the updated value
-     * @throws ClosedIllegalStateException    if the resource has been released or closed.
-     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
-     * @throws BufferUnderflowException If there's not enough data available to read
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
+     * @throws BufferUnderflowException       If there's not enough data available to read
      */
     int addValue(int delta) throws IllegalStateException, BufferUnderflowException;
 
@@ -112,9 +112,9 @@ public interface IntValue extends Closeable {
      *
      * @param delta the value to add to the current value
      * @return the updated value
-     * @throws ClosedIllegalStateException    if the resource has been released or closed.
-     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
-     * @throws BufferUnderflowException If there's not enough data available to read
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
+     * @throws BufferUnderflowException       If there's not enough data available to read
      */
     int addAtomicValue(int delta) throws IllegalStateException, BufferUnderflowException;
 
@@ -125,9 +125,9 @@ public interface IntValue extends Closeable {
      * @param expected the value expected to be present
      * @param value    the new value to set if the expected value is found
      * @return true if successful, false otherwise
-     * @throws ClosedIllegalStateException    if the resource has been released or closed.
-     * @throws ThreadingIllegalStateException if this resource was accessed by multiple threads in an unsafe way
-     * @throws BufferOverflowException If there's not enough space to write the data
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
+     * @throws BufferOverflowException        If there's not enough space to write the data
      */
     boolean compareAndSwapValue(int expected, int value) throws IllegalStateException, BufferOverflowException;
 

@@ -98,7 +98,7 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      * Set the current time in milliseconds.
      *
      * @param millis New time value in milliseconds since the epoch. May not be less than the previous value.
-     * @throws IllegalArgumentException If time is set backwards
+     * @throws IllegalArgumentException if time is set backwards
      */
     public void currentTimeMillis(long millis) throws IllegalArgumentException {
         currentTimeNanos(TimeUnit.MILLISECONDS.toNanos(millis));
@@ -113,7 +113,7 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      * Set the current time in microseconds.
      *
      * @param micros New time value in microseconds since the epoch. May not be less than the previous value.
-     * @throws IllegalArgumentException If time is set backwards
+     * @throws IllegalArgumentException if time is set backwards
      */
     public void currentTimeMicros(long micros) throws IllegalArgumentException {
         currentTimeNanos(TimeUnit.MICROSECONDS.toNanos(micros));
@@ -128,7 +128,7 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      * Set the current time in nanoseconds.
      *
      * @param nanos New time value in nanoseconds since the epoch. May not be less than the previous value.
-     * @throws IllegalArgumentException If time is set backwards
+     * @throws IllegalArgumentException if time is set backwards
      */
     public void currentTimeNanos(long nanos) throws IllegalArgumentException {
         if (nanos < get())

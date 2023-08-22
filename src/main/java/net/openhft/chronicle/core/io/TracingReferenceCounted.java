@@ -64,16 +64,16 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void reserve(ReferenceOwner id) throws ClosedIllegalStateException, IllegalStateException {
+    public void reserve(ReferenceOwner id) throws ClosedIllegalStateException {
         tryReserve(id, true);
     }
 
     @Override
-    public boolean tryReserve(ReferenceOwner id) throws ClosedIllegalStateException, IllegalStateException, IllegalArgumentException {
+    public boolean tryReserve(ReferenceOwner id) throws ClosedIllegalStateException, IllegalArgumentException {
         return tryReserve(id, false);
     }
 
-    private boolean tryReserve(ReferenceOwner id, boolean must) throws ClosedIllegalStateException, IllegalStateException {
+    private boolean tryReserve(ReferenceOwner id, boolean must) throws ClosedIllegalStateException {
         if (id == this)
             throw new AssertionError(type.getName() + " the counter cannot reserve itself");
         synchronized (references) {
@@ -95,7 +95,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void release(ReferenceOwner id) throws IllegalStateException, ClosedIllegalStateException {
+    public void release(ReferenceOwner id) throws ClosedIllegalStateException {
 
         boolean doOnRelease = false;
         synchronized (references) {
@@ -120,7 +120,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws IllegalStateException, ClosedIllegalStateException {
+    public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws ClosedIllegalStateException {
         synchronized (references) {
             final StackTrace stackTrace = references.get(to);
             if (stackTrace != null) {

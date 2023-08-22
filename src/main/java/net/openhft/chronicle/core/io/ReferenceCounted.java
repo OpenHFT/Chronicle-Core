@@ -29,11 +29,10 @@ public interface ReferenceCounted extends ReferenceOwner {
      * Reserves the resource by incrementing its reference count by one.
      * <p>
      * It is required to reserve a resource before using it to prevent it from being freed.
-     * 
      *
      * @param id The unique identifier representing the owner reserving the resource.
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
-     *                               I.e. its reference counter has as some point reached zero.
+     *                                        I.e. its reference counter has as some point reached zero.
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     void reserve(ReferenceOwner id) throws ClosedIllegalStateException, ThreadingIllegalStateException;
@@ -60,7 +59,7 @@ public interface ReferenceCounted extends ReferenceOwner {
      *
      * @param id The unique identifier representing the owner attempting to reserve the resource.
      * @return {@code true} if the resource was successfully reserved, {@code false} otherwise.
-     * @throws IllegalArgumentException If the reference owner is invalid.
+     * @throws IllegalArgumentException       If the reference owner is invalid.
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
@@ -70,13 +69,12 @@ public interface ReferenceCounted extends ReferenceOwner {
      * Checks if the resource is reserved by the specified owner. Returns {@code true} if unsure.
      * <p>
      * This method provides a best-effort check and may not be accurate.
-     * 
      *
      * @param owner The unique identifier representing the owner to check.
      * @return {@code false} if it is certain that the owner does not have the resource reserved; {@code true} otherwise.
-     * @deprecated This method is deprecated and may be removed in future versions.
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
+     * @deprecated This method is deprecated and may be removed in future versions.
      */
     @Deprecated(/* to be removed in x.25 */)
     boolean reservedBy(ReferenceOwner owner) throws ClosedIllegalStateException;
@@ -87,7 +85,7 @@ public interface ReferenceCounted extends ReferenceOwner {
      *
      * @param id The unique identifier representing the owner releasing the resource.
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
-     *                               I.e. its reference counter has as some point reached zero.
+     *                                        I.e. its reference counter has as some point reached zero.
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     void release(ReferenceOwner id) throws ClosedIllegalStateException;
@@ -134,7 +132,6 @@ public interface ReferenceCounted extends ReferenceOwner {
      * <p>
      * Note: Object equality is used to determine which listener to remove, so be cautious if the listener
      * implements the equals method in a non-standard way.
-     * 
      *
      * @param referenceChangeListener The listener to remove.
      */

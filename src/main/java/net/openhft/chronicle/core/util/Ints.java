@@ -59,7 +59,7 @@ public final class Ints {
      *
      * @param value the value to check
      * @return the provided {@code value} if the check passes
-     * @throws IllegalArgumentException If the check fails
+     * @throws IllegalArgumentException if the check fails
      */
     public static int requireNonNegative(final int value) {
         if (value < 0)
@@ -82,8 +82,8 @@ public final class Ints {
      * @param requirement to impose on the provided {@code value}
      * @param value       the value to check
      * @return the provided {@code value} if the check passes
-     * @throws NullPointerException     If the provided {@code requirement} is {@code null}.
-     * @throws IllegalArgumentException If the check fails
+     * @throws NullPointerException     if the provided {@code requirement} is {@code null}.
+     * @throws IllegalArgumentException if the check fails
      */
     public static int require(final IntPredicate requirement,
                               final int value) {
@@ -107,7 +107,7 @@ public final class Ints {
      * @param value           the value to check
      * @param exceptionMapper to apply should the check fail
      * @return the provided {@code value} if the check passes
-     * @throws NullPointerException If the provided {@code requirement} is {@code null} or if the provided
+     * @throws NullPointerException if the provided {@code requirement} is {@code null} or if the provided
      *                              {@code exceptionMapper} is {@code null}.
      * @throws RuntimeException     of the specified type of the provided {@code exceptionMapper}
      */
@@ -138,8 +138,8 @@ public final class Ints {
      * @param value       the value to check
      * @param otherValue  the other value to compare against the provided {@code value}
      * @return the provided {@code value} if the check passes
-     * @throws NullPointerException     If the provided {@code requirement} is {@code null}.
-     * @throws IllegalArgumentException If the check fails
+     * @throws NullPointerException     if the provided {@code requirement} is {@code null}.
+     * @throws IllegalArgumentException if the check fails
      */
     public static int require(final IntBiPredicate requirement,
                               final int value,
@@ -169,8 +169,8 @@ public final class Ints {
      * @param otherValue      the other value to compare against the provided {@code value}
      * @param exceptionMapper to apply should the check fail
      * @return the provided {@code value} if the check passes
-     * @throws NullPointerException     If the provided {@code requirement} is {@code null}.
-     * @throws IllegalArgumentException If the check fails
+     * @throws NullPointerException     if the provided {@code requirement} is {@code null}.
+     * @throws IllegalArgumentException if the check fails
      */
     public static <X extends RuntimeException> int require(final IntBiPredicate requirement,
                                                            final int value,
@@ -200,8 +200,8 @@ public final class Ints {
      * @param otherFirstValue  the other first value to compare against the provided {@code value}
      * @param otherSecondValue the other first value to compare against the provided {@code value}
      * @return the provided {@code value} if the check passes
-     * @throws NullPointerException     If the provided {@code requirement} is {@code null}.
-     * @throws IllegalArgumentException If the check fails
+     * @throws NullPointerException     if the provided {@code requirement} is {@code null}.
+     * @throws IllegalArgumentException if the check fails
      */
     public static int require(final IntTriPredicate requirement,
                               final int value,
@@ -230,8 +230,8 @@ public final class Ints {
      * @param otherSecondValue the other first value to compare against the provided {@code value}
      * @param exceptionMapper  to apply should the check fail
      * @return the provided {@code value} if the check passes
-     * @throws NullPointerException     If the provided {@code requirement} is {@code null}.
-     * @throws IllegalArgumentException If the check fails
+     * @throws NullPointerException     if the provided {@code requirement} is {@code null}.
+     * @throws IllegalArgumentException if the check fails
      */
     public static <X extends RuntimeException> int require(final IntTriPredicate requirement,
                                                            final int value,
@@ -260,7 +260,7 @@ public final class Ints {
      * @param requirement to impose on the provided {@code value}
      * @param value       the value to check
      * @return {@code true}
-     * @throws NullPointerException If the provided {@code requirement} is {@code null}. There is no guarantee that this
+     * @throws NullPointerException if the provided {@code requirement} is {@code null}. There is no guarantee that this
      *                              exception is thrown. For example, if assertions are not enabled, then the exception
      *                              might not be thrown.
      * @throws AssertionError       if the check fails and assertions are enabled both via the {@code -ea} JVM command
@@ -290,7 +290,7 @@ public final class Ints {
      * @param value       the value to check
      * @param otherValue  the other value to compare against the provided {@code value}
      * @return {@code true}
-     * @throws NullPointerException If the provided {@code requirement} is {@code null}. There is no guarantee that this
+     * @throws NullPointerException if the provided {@code requirement} is {@code null}. There is no guarantee that this
      *                              exception is thrown. For example, if assertions are not enabled, then the exception
      *                              might not be thrown.
      * @throws AssertionError       if the check fails and assertions are enabled both via the {@code -ea} JVM command
@@ -323,7 +323,7 @@ public final class Ints {
      * @param otherFirstValue  the other first value to compare against the provided {@code value}
      * @param otherSecondValue the other first value to compare against the provided {@code value}
      * @return {@code true}
-     * @throws NullPointerException If the provided {@code requirement} is {@code null}. There is no guarantee that this
+     * @throws NullPointerException if the provided {@code requirement} is {@code null}. There is no guarantee that this
      *                              exception is thrown. For example, if assertions are not enabled, then the exception
      *                              might not be thrown.
      * @throws AssertionError       if the check fails and assertions are enabled both via the {@code -ea} JVM command
@@ -346,7 +346,7 @@ public final class Ints {
      * @param value       the value to check
      * @return a human-readable form of a failure message provided that the provided {@code value} <em>did not</em>
      * satisfy the provided {@code requirement}
-     * @throws NullPointerException If the provided {@code requirement} is {@code null}.
+     * @throws NullPointerException if the provided {@code requirement} is {@code null}.
      */
     public static String failDescription(final IntPredicate requirement,
                                          final int value) {
@@ -362,7 +362,7 @@ public final class Ints {
      * @param otherValue  the other value to compare against the provided {@code value}
      * @return a human-readable form of a failure message provided that the provided {@code value} and
      * provided {@code otherValue} <em>did not</em> satisfy the provided {@code requirement}
-     * @throws NullPointerException If the provided {@code requirement} is {@code null}.
+     * @throws NullPointerException if the provided {@code requirement} is {@code null}.
      */
     public static String failDescription(final IntBiPredicate requirement,
                                          final int value,
@@ -379,7 +379,7 @@ public final class Ints {
      * @param value       the value to check
      * @return a human-readable form of a failure message provided that the provided {@code value} and
      * provided {@code otherValue} <em>did not</em> satisfy the provided {@code requirement}
-     * @throws NullPointerException If the provided {@code requirement} is {@code null}.
+     * @throws NullPointerException if the provided {@code requirement} is {@code null}.
      */
     public static String failDescription(final IntTriPredicate requirement,
                                          final int value,

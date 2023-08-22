@@ -34,26 +34,25 @@ import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEAS
  * This includes ensuring that close operations are thread-safe, providing hooks for custom cleanup logic, and supporting
  * diagnostic features for tracking resource usage. It supports resource tracing, thread safety checks, and ensures that
  * close operations are performed properly.
- * 
+ *
  * <p>
  * The {@code AbstractCloseable} class implements the {@link ReferenceOwner}, {@link ManagedCloseable}, and {@link SingleThreadedChecked} interfaces.
  * The {@link ReferenceOwner} interface allows the class to have a unique reference identifier.
  * The {@link ManagedCloseable} interface ensures that this class provides mechanisms for proper resource management during close operations.
  * The {@link SingleThreadedChecked} interface ensures that the close operation is executed in a thread-safe manner.
- * 
+ *
  * <p>
  * Implementations of this abstract class should override the {@link #performClose()} method to include the specific
  * cleanup logic needed for the resource. This ensures that custom cleanup logic is executed exactly once during the
  * closing of the resource.
- * 
+ *
  * <p>
  * Additionally, {@code AbstractCloseable} supports resource tracing, which can be enabled or disabled to monitor and
  * diagnose resource allocation and deallocation. Resource tracing can help in identifying resource leaks and ensure
  * resources are properly managed.
- * 
+ *
  * <p>
  * Subclasses can also control the behavior of thread safety checks and background closing through provided methods.
- * 
  */
 public abstract class AbstractCloseable implements ReferenceOwner, ManagedCloseable, SingleThreadedChecked {
     @Deprecated(/* remove in x.25 */)
@@ -228,7 +227,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
      * Electing to throw an Exception might cause memory-leaks as there is no guarantee that the
      * close methods will ever be invoked again in the general case.
      *
-     * @throws IllegalStateException If the resource cannot be closed.
+     * @throws IllegalStateException if the resource cannot be closed.
      */
     protected void assertCloseable() {
         // Do nothing by default, allowing close() to complete unconditionally
@@ -276,7 +275,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
      * that requires it to be open.
      *
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
-     * @throws ThreadingIllegalStateException       If the thread safety check fails.
+     * @throws ThreadingIllegalStateException If the thread safety check fails.
      */
     @Override
     public void throwExceptionIfClosed() throws ClosedIllegalStateException, ThreadingIllegalStateException {

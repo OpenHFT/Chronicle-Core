@@ -45,7 +45,7 @@ public class EnumInterner<E extends Enum<E>> {
      * Constructs a new EnumInterner with a default capacity.
      *
      * @param eClass the enum class
-     * @throws IllegalArgumentException If an illegal argument is provided
+     * @throws IllegalArgumentException if an illegal argument is provided
      */
     public EnumInterner(Class<E> eClass) throws IllegalArgumentException {
         this(eClass, 64);
@@ -56,7 +56,7 @@ public class EnumInterner<E extends Enum<E>> {
      *
      * @param eClass   the enum class
      * @param capacity the initial capacity of the EnumInterner
-     * @throws IllegalArgumentException If an illegal argument is provided
+     * @throws IllegalArgumentException if an illegal argument is provided
      */
     public EnumInterner(Class<E> eClass, int capacity) throws IllegalArgumentException {
         enumCache = EnumCache.of(eClass);

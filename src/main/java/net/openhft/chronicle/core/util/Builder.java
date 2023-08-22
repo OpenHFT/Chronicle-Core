@@ -41,7 +41,7 @@ public interface Builder<T> {
      * meaning that this method can be invoked at most one time.
      *
      * @return a non-null instance of type T
-     * @throws IllegalStateException If the builder is unipotent
+     * @throws IllegalStateException if the builder is unipotent
      *                               and this method is invoked more than once.
      */
     @NotNull
