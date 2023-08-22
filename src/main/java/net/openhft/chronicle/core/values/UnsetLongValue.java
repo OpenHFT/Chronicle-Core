@@ -18,6 +18,9 @@
 
 package net.openhft.chronicle.core.values;
 
+import net.openhft.chronicle.core.io.ClosedIllegalStateException;
+import net.openhft.chronicle.core.io.ThreadingIllegalStateException;
+
 /**
  * Represents a long value that ignores attempts to modify it, and always returns the same value.
  * <p>
@@ -56,7 +59,8 @@ public class UnsetLongValue implements LongValue {
      * Retrieves the value set at construction.
      *
      * @return the long value
-     * @throws IllegalStateException if any condition makes retrieval illegal (e.g., if underlying resources are closed)
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     @Override
     public long getValue() throws IllegalStateException {
@@ -67,7 +71,8 @@ public class UnsetLongValue implements LongValue {
      * This method does not change the value. It is here to fulfill the LongValue interface but has no effect.
      *
      * @param value the value to set (ignored)
-     * @throws IllegalStateException if any condition makes setting illegal (e.g., if underlying resources are closed)
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     @Override
     public void setValue(long value) throws IllegalStateException {
@@ -79,7 +84,8 @@ public class UnsetLongValue implements LongValue {
      *
      * @param closedValue the volatile value to be retrieved
      * @return the closedValue parameter passed to this method
-     * @throws IllegalStateException if any condition makes retrieval illegal (e.g., if underlying resources are closed)
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     @Override
     public long getVolatileValue(long closedValue) throws IllegalStateException {
@@ -91,7 +97,8 @@ public class UnsetLongValue implements LongValue {
      *
      * @param delta the value to be added (ignored)
      * @return the long value set at construction
-     * @throws IllegalStateException if any condition makes this operation illegal (e.g., if underlying resources are closed)
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     @Override
     public long addValue(long delta) throws IllegalStateException {
@@ -104,7 +111,8 @@ public class UnsetLongValue implements LongValue {
      * @param expected the expected value (ignored)
      * @param value    the new value (ignored)
      * @return true
-     * @throws IllegalStateException if any condition makes this operation illegal (e.g., if underlying resources are closed)
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     @Override
     public boolean compareAndSwapValue(long expected, long value) throws IllegalStateException {

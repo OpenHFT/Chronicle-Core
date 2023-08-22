@@ -18,6 +18,9 @@
 
 package net.openhft.chronicle.core.values;
 
+import net.openhft.chronicle.core.io.ClosedIllegalStateException;
+import net.openhft.chronicle.core.io.ThreadingIllegalStateException;
+
 import java.nio.BufferUnderflowException;
 
 /**
@@ -53,8 +56,9 @@ public interface BooleanValue {
      * Retrieves the boolean value.
      *
      * @return the boolean value
-     * @throws IllegalStateException    if the underlying storage medium is not in a state where the operation can be performed
-     * @throws BufferUnderflowException if there is not enough data available to read the value
+     * @throws BufferUnderflowException       If there is not enough data available to read the value
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     boolean getValue() throws IllegalStateException, BufferUnderflowException;
 
@@ -62,7 +66,8 @@ public interface BooleanValue {
      * Sets the boolean value.
      *
      * @param value the boolean value to set
-     * @throws IllegalStateException if the underlying storage medium is not in a state where the operation can be performed
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     void setValue(boolean value) throws IllegalStateException;
 }
