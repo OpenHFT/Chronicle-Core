@@ -88,7 +88,9 @@ public class EnumInterner<E extends Enum<E>> {
      * @return the enum value corresponding to the given name
      */
     public E intern(@NotNull CharSequence cs) {
-        int h = Maths.hash32(cs) & mask;
+        long h1 = Maths.hash64(cs);
+        h1 ^= h1 >> 32;
+        int h = (int) h1 & mask;
         E e = interner[h];
         if (e != null && StringUtils.isEqual(e.name(), cs))
             return e;

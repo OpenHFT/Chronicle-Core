@@ -79,12 +79,14 @@ public class ParsingCache<E> {
     public E intern(@Nullable CharSequence cs) {
         if (cs == null)
             return null;
-        int hash = Maths.hash32(cs);
+        long h1 = Maths.hash64(cs);
+        h1 ^= h1 >> 32;
+        int hash = (int) h1;
         int h = hash & mask;
         ParsedData<E> s = interner[h];
         if (s != null && StringUtils.isEqual(s.string, cs))
             return s.e;
-        int h2 = (hash >> shift) & mask;
+        int h2 = (int) (h1 >> shift) & mask;
         ParsedData<E> s2 = interner[h2];
         if (s2 != null && StringUtils.isEqual(s2.string, cs))
             return s2.e;

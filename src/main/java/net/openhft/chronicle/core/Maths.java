@@ -497,6 +497,7 @@ public final class Maths {
         return Long.bitCount(n) == 1;
     }
 
+    @Deprecated(/* to be removed in x.25, inline this method */)
     public static int hash32(@NotNull CharSequence cs) {
         long h = hash64(cs);
         h ^= h >> 32;
@@ -512,6 +513,7 @@ public final class Maths {
      * @return the 32-bit hash value
      * @throws IllegalArgumentException if {@code s} is {@code null}
      */
+    @Deprecated(/* to be removed in x.25, inline this method */)
     public static int hash32(@NotNull String s) {
         long h = hash64(s);
         h ^= h >> 32;
@@ -527,13 +529,14 @@ public final class Maths {
      * @return the 32-bit hash value
      * @throws IllegalArgumentException if {@code s} is {@code null}
      */
+    @Deprecated(/* to be removed in x.25, inline this method */)
     public static int hash32(@NotNull StringBuilder s) {
         long h = hash64(s);
         h ^= h >> 32;
         return (int) h;
     }
 
-    @Deprecated(/* to be removed in x.25 */)
+    @Deprecated(/* to be removed in x.25, inline this method */)
     public static int hash32(long l0) {
         long h = hash64(l0);
         h ^= h >> 32;
