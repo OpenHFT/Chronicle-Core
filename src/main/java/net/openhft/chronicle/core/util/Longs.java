@@ -59,7 +59,7 @@ public final class Longs {
      *
      * @param value the value to check
      * @return the provided {@code value} if the check passes
-     * @throws IllegalArgumentException if the check fails
+     * @throws IllegalArgumentException If the check fails
      */
     public static long requireNonNegative(final long value) {
         if (value < 0)
@@ -82,8 +82,8 @@ public final class Longs {
      * @param requirement to impose on the provided {@code value}
      * @param value       the value to check
      * @return the provided {@code value} if the check passes
-     * @throws NullPointerException     if the provided {@code requirement} is {@code null}.
-     * @throws IllegalArgumentException if the check fails
+     * @throws NullPointerException     If the provided {@code requirement} is {@code null}.
+     * @throws IllegalArgumentException If the check fails
      */
     public static long require(final LongPredicate requirement,
                                final long value) {
@@ -107,7 +107,7 @@ public final class Longs {
      * @param value           the value to check
      * @param exceptionMapper to apply should the check fail
      * @return the provided {@code value} if the check passes
-     * @throws NullPointerException if the provided {@code requirement} is {@code null} or if the provided
+     * @throws NullPointerException If the provided {@code requirement} is {@code null} or if the provided
      *                              {@code exceptionMapper} is {@code null}.
      * @throws RuntimeException     of the specified type of the provided {@code exceptionMapper}
      */
@@ -138,8 +138,8 @@ public final class Longs {
      * @param value       the value to check
      * @param otherValue  the other value to compare against the provided {@code value}
      * @return the provided {@code value} if the check passes
-     * @throws NullPointerException     if the provided {@code requirement} is {@code null}.
-     * @throws IllegalArgumentException if the check fails
+     * @throws NullPointerException     If the provided {@code requirement} is {@code null}.
+     * @throws IllegalArgumentException If the check fails
      */
     public static long require(final LongBiPredicate requirement,
                                final long value,
@@ -169,8 +169,8 @@ public final class Longs {
      * @param otherValue      the other value to compare against the provided {@code value}
      * @param exceptionMapper to apply should the check fail
      * @return the provided {@code value} if the check passes
-     * @throws NullPointerException     if the provided {@code requirement} is {@code null}.
-     * @throws IllegalArgumentException if the check fails
+     * @throws NullPointerException     If the provided {@code requirement} is {@code null}.
+     * @throws IllegalArgumentException If the check fails
      */
     public static <X extends RuntimeException> long require(final LongBiPredicate requirement,
                                                             final long value,
@@ -200,8 +200,8 @@ public final class Longs {
      * @param otherFirstValue  the other first value to compare against the provided {@code value}
      * @param otherSecondValue the other first value to compare against the provided {@code value}
      * @return the provided {@code value} if the check passes
-     * @throws NullPointerException     if the provided {@code requirement} is {@code null}.
-     * @throws IllegalArgumentException if the check fails
+     * @throws NullPointerException     If the provided {@code requirement} is {@code null}.
+     * @throws IllegalArgumentException If the check fails
      */
     public static long require(final LongTriPredicate requirement,
                                final long value,
@@ -230,8 +230,8 @@ public final class Longs {
      * @param otherSecondValue the other first value to compare against the provided {@code value}
      * @param exceptionMapper  to apply should the check fail
      * @return the provided {@code value} if the check passes
-     * @throws NullPointerException     if the provided {@code requirement} is {@code null}.
-     * @throws IllegalArgumentException if the check fails
+     * @throws NullPointerException     If the provided {@code requirement} is {@code null}.
+     * @throws IllegalArgumentException If the check fails
      */
     public static <X extends RuntimeException> long require(final LongTriPredicate requirement,
                                                             final long value,
@@ -260,7 +260,7 @@ public final class Longs {
      * @param requirement to impose on the provided {@code value}
      * @param value       the value to check
      * @return {@code true}
-     * @throws NullPointerException if the provided {@code requirement} is {@code null}. There is no guarantee that this
+     * @throws NullPointerException If the provided {@code requirement} is {@code null}. There is no guarantee that this
      *                              exception is thrown. For example, if assertions are not enabled, then the exception
      *                              might not be thrown.
      * @throws AssertionError       if the check fails and assertions are enabled both via the {@code -ea} JVM command
@@ -290,7 +290,7 @@ public final class Longs {
      * @param value       the value to check
      * @param otherValue  the other value to compare against the provided {@code value}
      * @return {@code true}
-     * @throws NullPointerException if the provided {@code requirement} is {@code null}. There is no guarantee that this
+     * @throws NullPointerException If the provided {@code requirement} is {@code null}. There is no guarantee that this
      *                              exception is thrown. For example, if assertions are not enabled, then the exception
      *                              might not be thrown.
      * @throws AssertionError       if the check fails and assertions are enabled both via the {@code -ea} JVM command
@@ -323,7 +323,7 @@ public final class Longs {
      * @param otherFirstValue  the other first value to compare against the provided {@code value}
      * @param otherSecondValue the other first value to compare against the provided {@code value}
      * @return {@code true}
-     * @throws NullPointerException if the provided {@code requirement} is {@code null}. There is no guarantee that this
+     * @throws NullPointerException If the provided {@code requirement} is {@code null}. There is no guarantee that this
      *                              exception is thrown. For example, if assertions are not enabled, then the exception
      *                              might not be thrown.
      * @throws AssertionError       if the check fails and assertions are enabled both via the {@code -ea} JVM command
@@ -346,7 +346,7 @@ public final class Longs {
      * @param value       the value to check
      * @return a human-readable form of a failure message provided that the provided {@code value} <em>did not</em>
      * satisfy the provided {@code requirement}
-     * @throws NullPointerException if the provided {@code requirement} is {@code null}.
+     * @throws NullPointerException If the provided {@code requirement} is {@code null}.
      */
     public static String failDescription(final LongPredicate requirement,
                                          final long value) {
@@ -362,7 +362,7 @@ public final class Longs {
      * @param otherValue  the other value to compare against the provided {@code value}
      * @return a human-readable form of a failure message provided that the provided {@code value} and
      * provided {@code otherValue} <em>did not</em> satisfy the provided {@code requirement}
-     * @throws NullPointerException if the provided {@code requirement} is {@code null}.
+     * @throws NullPointerException If the provided {@code requirement} is {@code null}.
      */
     public static String failDescription(final LongBiPredicate requirement,
                                          final long value,
@@ -379,7 +379,7 @@ public final class Longs {
      * @param value       the value to check
      * @return a human-readable form of a failure message provided that the provided {@code value} and
      * provided {@code otherValue} <em>did not</em> satisfy the provided {@code requirement}
-     * @throws NullPointerException if the provided {@code requirement} is {@code null}.
+     * @throws NullPointerException If the provided {@code requirement} is {@code null}.
      */
     public static String failDescription(final LongTriPredicate requirement,
                                          final long value,

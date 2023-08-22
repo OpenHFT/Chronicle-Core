@@ -55,7 +55,7 @@ public interface IntTriPredicate {
      *              predicate
      * @return a composed predicate that represents the short-circuiting logical
      * AND of this predicate and the {@code other} predicate
-     * @throws NullPointerException if other is null
+     * @throws NullPointerException If other is null
      */
     default IntTriPredicate and(IntTriPredicate other) {
         Objects.requireNonNull(other);
@@ -87,7 +87,7 @@ public interface IntTriPredicate {
      *              predicate
      * @return a composed predicate that represents the short-circuiting logical
      * OR of this predicate and the {@code other} predicate
-     * @throws NullPointerException if other is null
+     * @throws NullPointerException If other is null
      */
     default IntTriPredicate or(IntTriPredicate other) {
         Objects.requireNonNull(other);

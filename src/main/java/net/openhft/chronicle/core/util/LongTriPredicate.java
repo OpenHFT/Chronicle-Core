@@ -56,7 +56,7 @@ public interface LongTriPredicate {
      *              predicate
      * @return a composed predicate that represents the short-circuiting logical
      * AND of this predicate and the {@code other} predicate
-     * @throws NullPointerException if other is null
+     * @throws NullPointerException If other is null
      */
     default LongTriPredicate and(LongTriPredicate other) {
         Objects.requireNonNull(other);
@@ -88,7 +88,7 @@ public interface LongTriPredicate {
      *              predicate
      * @return a composed predicate that represents the short-circuiting logical
      * OR of this predicate and the {@code other} predicate
-     * @throws NullPointerException if other is null
+     * @throws NullPointerException If other is null
      */
     default LongTriPredicate or(LongTriPredicate other) {
         Objects.requireNonNull(other);
