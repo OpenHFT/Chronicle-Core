@@ -19,10 +19,8 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.annotation.DontChain;
+import net.openhft.chronicle.core.internal.*;
 import net.openhft.chronicle.core.internal.Bootstrap;
-import net.openhft.chronicle.core.internal.ClassUtil;
-import net.openhft.chronicle.core.internal.CpuClass;
-import net.openhft.chronicle.core.internal.ObjectHeaderSizeHolder;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
 import net.openhft.chronicle.core.onoes.*;
 import net.openhft.chronicle.core.util.ObjectUtils;
@@ -1444,63 +1442,44 @@ public final class Jvm {
             LockSupport.park();
     }
 
-    public static <A extends Annotation> A findAnnotation(AnnotatedElement ae, Class<A> annotationType) {
-        return findAnnotation(ae, annotationType, new HashSet<>());
+    /**
+     * Retrieve an annotation of the specified {@code annotationType} that is present on the given
+     * {@code annotatedElement}, including considering nested annotations and method inheritance.
+     * If the annotation isn't found, this method returns {@code null}.
+     *
+     * @param annotatedElement the element (e.g., class, method, field) to inspect for annotations.
+     * @param annotationType   the desired annotation's type.
+     * @param <A>              denotes the annotation type.
+     * @return the found annotation of type {@code A} or null if not present.
+     */
+    public static <A extends Annotation> A findAnnotation(AnnotatedElement annotatedElement, Class<A> annotationType) {
+        return AnnotationFinder.findAnnotation(annotatedElement, annotationType);
     }
 
-    @SuppressWarnings("unchecked")
-    private static <A extends Annotation> A findAnnotation(AnnotatedElement ae, Class<A> annotationType, Set<Annotation> visited) {
-        try {
-            A annotation = findDirectAnnotation(ae, annotationType);
-            if (annotation != null) {
-                return annotation;
-            }
-
-            annotation = findNestedAnnotation(ae, annotationType, visited);
-            if (annotation != null) {
-                return annotation;
-            }
-        } catch (Exception ex) {
-            return null;
+    /**
+     * Checks if the given class represents a lambda expression.
+     *
+     * <p>Java creates synthetic classes for lambda expressions.
+     * Typically, the name of these classes contains the "$$Lambda" substring.
+     * Note that this naming convention is JVM-specific and can change
+     * in future versions. The approach is known to work up to Java 21.
+     * </p>
+     *
+     * @param clazz the class to be checked.
+     * @return {@code true} if the class is a lambda, {@code false} otherwise.
+     */
+    public static boolean isLambdaClass(Class<?> clazz) {
+        // Lambdas are marked as synthetic in the JVM
+        if (!clazz.isSynthetic()) {
+            return false;
         }
 
-        return ae instanceof Class ? findAnnotationInHierarchy((Class<?>) ae, annotationType, visited) : null;
-    }
+    // Check for the typical lambda class name pattern.
+    // Note: Relying on the class name can be brittle as it's
+    // an implementation detail of the JVM.
+    return clazz.getName().contains("$$Lambda");
+}
 
-    private static <A extends Annotation> A findDirectAnnotation(AnnotatedElement ae, Class<A> annotationType) {
-        for (Annotation ann : ae.getDeclaredAnnotations()) {
-            if (ann.annotationType() == annotationType) {
-                return (A) ann;
-            }
-        }
-        return null;
-    }
-
-    private static <A extends Annotation> A findNestedAnnotation(AnnotatedElement ae, Class<A> annotationType, Set<Annotation> visited) {
-        for (Annotation ann : ae.getDeclaredAnnotations()) {
-            if (visited.add(ann)) {
-                A annotation = findAnnotation(ann.annotationType(), annotationType, visited);
-                if (annotation != null) {
-                    return annotation;
-                }
-            }
-        }
-        return null;
-    }
-
-    private static <A extends Annotation> A findAnnotationInHierarchy(Class<?> clazz, Class<A> annotationType, Set<Annotation> visited) {
-        for (Class<?> ifc : clazz.getInterfaces()) {
-            A annotation = findAnnotation(ifc, annotationType, visited);
-            if (annotation != null) {
-                return annotation;
-            }
-        }
-
-        Class<?> superclass = clazz.getSuperclass();
-        return superclass == null || Object.class == superclass
-                ? null
-                : findAnnotation(superclass, annotationType, visited);
-    }
 
     public interface SignalHandler {
         /**
