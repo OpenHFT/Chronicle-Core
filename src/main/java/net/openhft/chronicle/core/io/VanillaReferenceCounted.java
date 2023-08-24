@@ -30,7 +30,7 @@ import static net.openhft.chronicle.core.internal.CloseableUtils.asString;
  * It is responsible for keeping track of reference counts and releasing resources
  * once they are no longer needed.
  */
-public final class  VanillaReferenceCounted implements MonitorReferenceCounted {
+public final class VanillaReferenceCounted implements MonitorReferenceCounted {
 
     private static final long VALUE;
 
@@ -71,7 +71,7 @@ public final class  VanillaReferenceCounted implements MonitorReferenceCounted {
 
     @Deprecated(/* To be removed in 2.25 */)
     @Override
-    public boolean reservedBy(ReferenceOwner owner) throws IllegalStateException {
+    public boolean reservedBy(ReferenceOwner owner) throws ClosedIllegalStateException {
         if (refCount() <= 0)
             throw new ClosedIllegalStateException(type.getName() + " no reservations for " + asString(owner));
         // otherwise, not sure.
@@ -82,7 +82,7 @@ public final class  VanillaReferenceCounted implements MonitorReferenceCounted {
      * Reserves the resource for the provided reference owner.
      *
      * @param id The reference owner.
-     * @throws ClosedIllegalStateException If the object has already been released.
+     * @throws ClosedIllegalStateException If the resource has been released or closed.
      */
     @Override
     public void reserve(ReferenceOwner id) throws ClosedIllegalStateException {
@@ -103,7 +103,7 @@ public final class  VanillaReferenceCounted implements MonitorReferenceCounted {
      *
      * @param from The current reference owner.
      * @param to   The new reference owner.
-     * @throws ClosedIllegalStateException If the object has already been released.
+     * @throws ClosedIllegalStateException If the resource has been released or closed.
      */
     @Override
     public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws ClosedIllegalStateException {
@@ -143,7 +143,7 @@ public final class  VanillaReferenceCounted implements MonitorReferenceCounted {
      * Releases the resource reserved by the provided reference owner.
      *
      * @param id The reference owner.
-     * @throws ClosedIllegalStateException If the object has already been released.
+     * @throws ClosedIllegalStateException If the resource has been released or closed.
      */
     @Override
     public void release(ReferenceOwner id) throws ClosedIllegalStateException {
@@ -214,11 +214,17 @@ public final class  VanillaReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
-    public void warnAndReleaseIfNotReleased() throws ClosedIllegalStateException {
-        if (valueGetAndSet(0) > 0) {
-            if (!unmonitored && !AbstractCloseable.DISABLE_DISCARD_WARNING)
-                Jvm.warn().on(type, "Discarded without being released");
+    public void warnAndReleaseIfNotReleased() throws IllegalStateException {
+        if (valueGetAndSet(0) <= 0)
+            return;
+
+        if (!unmonitored && !AbstractCloseable.DISABLE_DISCARD_WARNING)
+            Jvm.warn().on(type, "Discarded without being released");
+        try {
             callOnRelease();
+        } catch (ClosedIllegalStateException e) {
+            // this shouldn't happen given we just tested the refCount.
+            throw new AssertionError(e);
         }
     }
 

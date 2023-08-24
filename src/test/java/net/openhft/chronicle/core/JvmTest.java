@@ -314,19 +314,92 @@ public class JvmTest extends CoreTestCommon {
         assertEquals("Hello", ra.value());
     }
 
-    @Target(value = {ElementType.ANNOTATION_TYPE})
-    @Retention(RetentionPolicy.RUNTIME)
-    public @interface RealAnno {
-        String value();
+    @Test
+    public void findAnnotationOnMethod() throws NoSuchMethodException {
+        final RealAnno ra = findAnnotation(Foo.class.getDeclaredMethod("inheritedAnno"), RealAnno.class);
+        assertEquals("Hello", ra.value());
+
+        final RealAnno ra2 = findAnnotation(Foo.class.getDeclaredMethod("directAnno"), RealAnno.class);
+        assertEquals("G'Day", ra2.value());
+
+        final RealAnno rab = findAnnotation(Bar.class.getMethod("inheritedAnno"), RealAnno.class);
+        assertEquals("Hello", rab.value());
+
+        final RealAnno rab2 = findAnnotation(Bar.class.getMethod("directAnno"), RealAnno.class);
+        assertEquals("G'Day", rab2.value());
+
+        final RealAnno raz = findAnnotation(Baz.class.getMethod("inheritedAnno"), RealAnno.class);
+        assertEquals("Hello", raz.value());
+
+        // This case still fails
+         final RealAnno raz2 = findAnnotation(Baz.class.getMethod("directAnno"), RealAnno.class);
+         assertEquals("G'Day", raz2.value());
     }
 
-    @Target(value = {ElementType.TYPE})
+    @Test
+    public void findAnnotationOnField() throws NoSuchFieldException {
+        final RealAnno ra = findAnnotation(DTO.class.getDeclaredField("inheritedAnno"), RealAnno.class);
+        assertEquals("Hello", ra.value());
+
+        final RealAnno ra2 = findAnnotation(DTO.class.getDeclaredField("directAnno"), RealAnno.class);
+        assertEquals("G'Day", ra2.value());
+    }
+
+    @Test
+    public void isLambdaClass() {
+        Runnable r = () -> System.out.println("Hello, Lambda!");
+
+        assertTrue(Jvm.isLambdaClass(r.getClass()));
+
+        class My$$Lambda$Class {
+
+        }
+
+        assertFalse(Jvm.isLambdaClass(My$$Lambda$Class.class));
+    }
+    @Target(value = {ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.METHOD})
+    @Retention(RetentionPolicy.RUNTIME)
+    public @interface RealAnno {
+
+        String value();
+    }
+    @Target(value = {ElementType.FIELD, ElementType.TYPE, ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @RealAnno("Hello")
     public @interface AnnoAlias {
+
+    }
+    static class DTO {
+        @AnnoAlias
+        long inheritedAnno;
+
+        @RealAnno("G'Day")
+        double directAnno;
     }
 
     @AnnoAlias
-    class Foo {
+    interface Foo {
+
+        @AnnoAlias
+        void inheritedAnno();
+
+        @RealAnno("G'Day")
+        void directAnno();
+    }
+
+    interface Bar extends Foo {
+
+    }
+
+    static class Baz implements Bar {
+        @Override
+        public void inheritedAnno() {
+
+        }
+
+        @Override
+        public void directAnno() {
+
+        }
     }
 }

@@ -321,8 +321,8 @@ public final class ObjectUtils {
      * @param o      The object to be converted.
      * @param <E>    The type of the target class.
      * @return The converted object or null if the input object is null.
-     * @throws ClassCastException       if the object cannot be cast to the target class.
-     * @throws IllegalArgumentException if an illegal argument is provided.
+     * @throws ClassCastException       If the object cannot be cast to the target class.
+     * @throws IllegalArgumentException If an illegal argument is provided.
      */
     @Nullable
     public static <E> E convertTo(@Nullable Class<E> eClass, @Nullable Object o) throws ClassCastException, IllegalArgumentException {
@@ -389,9 +389,9 @@ public final class ObjectUtils {
      * @param o      The object to be converted.
      * @param <E>    The type of the target class.
      * @return The converted object.
-     * @throws NumberFormatException    if the object is a CharSequence and cannot be converted to a number.
-     * @throws ClassCastException       if the object cannot be cast to the target class.
-     * @throws IllegalArgumentException if an illegal argument is provided.
+     * @throws NumberFormatException    If the object is a CharSequence and cannot be converted to a number.
+     * @throws ClassCastException       If the object cannot be cast to the target class.
+     * @throws IllegalArgumentException If an illegal argument is provided.
      */
     static <E> E convertTo0(Class<E> eClass, @Nullable Object o) throws NumberFormatException {
         eClass = primToWrapper(eClass);
@@ -521,7 +521,7 @@ public final class ObjectUtils {
      *
      * @param o The object to get an iterator for.
      * @return An iterator for the given object.
-     * @throws UnsupportedOperationException if the object is not iterable or an array.
+     * @throws UnsupportedOperationException If the object is not iterable or an array.
      */
     private static Iterator<?> iteratorFor(Object o) {
         if (o instanceof Iterable) {
@@ -539,7 +539,7 @@ public final class ObjectUtils {
      * @param o The object to determine the size of.
      * @return The size of the given object.
      * @throws AssertionError                if there is an illegal argument.
-     * @throws UnsupportedOperationException if the object is not a collection, map, or array.
+     * @throws UnsupportedOperationException If the object is not a collection, map, or array.
      */
     static int sizeOf(Object o) {
         if (o instanceof Collection)
@@ -557,8 +557,8 @@ public final class ObjectUtils {
      * @param eClass The target class to convert to.
      * @param o      The object to be converted.
      * @return The object converted to a number of the specified class.
-     * @throws NumberFormatException         if the object cannot be converted to a number.
-     * @throws UnsupportedOperationException if the target class is not supported.
+     * @throws NumberFormatException         If the object cannot be converted to a number.
+     * @throws UnsupportedOperationException If the target class is not supported.
      */
     static Number convertToNumber(Class<?> eClass, Object o) throws NumberFormatException {
         if (o instanceof Number) {
@@ -907,7 +907,7 @@ public final class ObjectUtils {
      * and also decorated with {@link NotNull} so that IntelliJ and other static analysis tools can work their magic.
      *
      * @param o reference to check for nullity
-     * @throws NullPointerException if o is {@code null }
+     * @throws NullPointerException If o is {@code null }
      */
     @SuppressWarnings("UnusedReturnValue")
     public static <T> T requireNonNull(@NotNull T o) {

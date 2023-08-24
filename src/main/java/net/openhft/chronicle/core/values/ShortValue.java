@@ -18,6 +18,9 @@
 
 package net.openhft.chronicle.core.values;
 
+import net.openhft.chronicle.core.io.ClosedIllegalStateException;
+import net.openhft.chronicle.core.io.ThreadingIllegalStateException;
+
 import java.nio.BufferOverflowException;
 import java.nio.BufferUnderflowException;
 
@@ -51,8 +54,9 @@ public interface ShortValue {
      * Retrieves the current 16-bit short value.
      *
      * @return the current value as a short.
-     * @throws IllegalStateException    if the value is accessed after the underlying storage is released.
-     * @throws BufferUnderflowException if there's not enough data available to read.
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
+     * @throws BufferUnderflowException       If there's not enough data available to read.
      */
     short getValue() throws IllegalStateException, BufferUnderflowException;
 
@@ -60,8 +64,9 @@ public interface ShortValue {
      * Sets the current 16-bit short value.
      *
      * @param value the new value to set as a short.
-     * @throws IllegalStateException   if the value is modified after the underlying storage is released.
-     * @throws BufferOverflowException if there's not enough space to write the data.
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
+     * @throws BufferOverflowException        If there's not enough space to write the data.
      */
     void setValue(short value) throws IllegalStateException, BufferOverflowException;
 
@@ -72,9 +77,10 @@ public interface ShortValue {
      *
      * @param delta the value to add to the current value as a short.
      * @return the updated value as a short.
-     * @throws IllegalStateException    if the value is modified after the underlying storage is released.
-     * @throws BufferUnderflowException if there's not enough data available to read.
-     * @throws BufferOverflowException  if there's not enough space to write the data.
+     * @throws ClosedIllegalStateException    If the resource has been released or closed.
+     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
+     * @throws BufferUnderflowException       If there's not enough data available to read.
+     * @throws BufferOverflowException        If there's not enough space to write the data.
      */
     short addValue(short delta) throws IllegalStateException, BufferUnderflowException, BufferOverflowException;
 }
