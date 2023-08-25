@@ -111,7 +111,7 @@ public final class Jvm {
     );
     private static final MethodHandle onSpinWaitMH;
     private static final ChainedSignalHandler signalHandlerGlobal;
-    private static final boolean RESOURCE_TRACING;
+    private static boolean RESOURCE_TRACING;
     private static final boolean PROC_EXISTS = new File(PROC).exists();
 
     static {
@@ -1045,11 +1045,23 @@ public final class Jvm {
      * Tracing resources incurs slightly less performance but provides a means
      * of detecting proper release of resources.
      *
-     * @return if certain chronicle resources (such as memory regions) are traced
+     * @return true if specific chronicle resources are traced, false otherwise.
      */
     public static boolean isResourceTracing() {
         return RESOURCE_TRACING;
     }
+
+    /**
+     * Sets the state of resource tracing. This is especially useful for testing scenarios.
+     * <p>
+     * Note: Enabling resource tracing can exert significant pressure on the garbage collector during stress tests.
+     *
+     * @param resourceTracing true to enable resource tracing, false to disable.
+     */
+    public static void setResourceTracing(boolean resourceTracing) {
+        RESOURCE_TRACING = resourceTracing;
+    }
+
 
     /**
      * Guarantees that Jvm class is initialized before property is read.
