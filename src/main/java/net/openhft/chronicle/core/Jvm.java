@@ -1480,7 +1480,6 @@ public final class Jvm {
     return clazz.getName().contains("$$Lambda");
 }
 
-
     public interface SignalHandler {
         /**
          * Handle a Signal
@@ -1488,10 +1487,6 @@ public final class Jvm {
          * @param signal to handle
          */
         void handle(String signal);
-    }
-
-    private static final class ObjectHeaderSizeChecker {
-        private int a;
     }
 
     static final class CommonInterruptible {
