@@ -105,7 +105,9 @@ public class StringUtilsTest extends CoreTestCommon {
         assumeTrue(Jvm.isJava9Plus());
 
         final byte[] bytes = {'A', 'B', 'C'};
-        assertEquals(StringUtils.newStringFromBytes(bytes), new String(bytes));
+        String expected = new String(bytes,StandardCharsets.ISO_8859_1);
+        String actual = StringUtils.newStringFromBytes(bytes);
+        assertEquals(expected, actual);
     }
 
     @Test
