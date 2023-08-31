@@ -26,7 +26,9 @@ import net.openhft.chronicle.core.internal.ClassUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
 
 import static java.lang.Character.toLowerCase;
 
@@ -59,6 +61,7 @@ public final class StringUtils {
     private static final Field SB_COUNT;
     private static final Field S_CODER;
     private static final Field SB_CODER;
+    private static final boolean HAS_ONE_BYTE_PER_CHAR;
     private static final long S_VALUE_OFFSET;
     private static final long SB_VALUE_OFFSET;
     private static final long SB_COUNT_OFFSET;
@@ -73,9 +76,12 @@ public final class StringUtils {
             if (Bootstrap.isJava9Plus()) {
                 SB_CODER = ClassUtil.getField0(StringBuilder.class.getSuperclass(), CODER_FIELD_NAME, true);
                 S_CODER = ClassUtil.getField0(String.class, CODER_FIELD_NAME, true);
+                Object a = S_VALUE.get("A");
+                HAS_ONE_BYTE_PER_CHAR = Array.getLength(a) == 1;
             } else {
                 S_CODER = null;
                 SB_CODER = null;
+                HAS_ONE_BYTE_PER_CHAR = false;
             }
         } catch (Exception e) {
             throw new AssertionError(e);
@@ -317,6 +323,8 @@ public final class StringUtils {
 
     @Java9
     public static byte[] extractBytes(@NotNull String s) {
+        if (!HAS_ONE_BYTE_PER_CHAR)
+            return s.getBytes(StandardCharsets.ISO_8859_1);
         ensureJava9Plus();
 
         return getMemory().getObject(s, S_VALUE_OFFSET);
@@ -352,6 +360,8 @@ public final class StringUtils {
     @Java9
     @NotNull
     public static String newStringFromBytes(byte @NotNull [] bytes) {
+        if (!HAS_ONE_BYTE_PER_CHAR)
+            return new String(bytes, StandardCharsets.ISO_8859_1);
         ensureJava9Plus();
         //noinspection RedundantStringConstructorCall
         @NotNull String str = new String();
