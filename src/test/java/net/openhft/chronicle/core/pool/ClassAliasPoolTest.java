@@ -84,6 +84,17 @@ public class ClassAliasPoolTest extends CoreTestCommon {
         assertThrows(ClassNotFoundRuntimeException.class, () -> CLASS_ALIASES.forName(TestEnum.class.getName().toLowerCase()));
     }
 
+    @Test
+    public void banned() {
+        for (int i = 0; i < 2; i++) {
+            assertThrows(ClassNotFoundRuntimeException.class, () -> CLASS_ALIASES.forName("com.sun.xml.internal.bind.v2.runtime.unmarshaller.Base64Data"));
+            assertThrows(ClassNotFoundRuntimeException.class, () -> CLASS_ALIASES.forName("com.sun.istack.internal.ByteArrayDataSource"));
+            assertThrows(ClassNotFoundRuntimeException.class, () -> CLASS_ALIASES.forName("com.oracle.webservices.internal.api.databinding.DatabindingFactory"));
+            assertThrows(ClassNotFoundRuntimeException.class, () -> CLASS_ALIASES.forName("jdk.internal.util.xml.SAXParser"));
+            assertThrows(ClassNotFoundRuntimeException.class, () -> CLASS_ALIASES.forName("sun.corba.SharedSecrets"));
+        }
+    }
+
     enum TestEnum {
         FOO {
             @Override

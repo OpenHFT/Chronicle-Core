@@ -181,12 +181,30 @@ public class ClassAliasPool implements ClassLookup {
     }
 
     private Class<?> doLookup(String name) {
+        if (banned(name))
+            throw new ClassNotFoundRuntimeException(new ClassNotFoundException(name + " not available"));
         try {
             return Class.forName(name, true, classLoader);
         } catch (ClassNotFoundException e) {
             if (parent != null)
                 return parent.forName(name);
             throw new ClassNotFoundRuntimeException(e);
+        }
+    }
+
+    private boolean banned(String name) {
+        if (name.isEmpty())
+            return true;
+        switch (name.charAt(0)) {
+            case 'c':
+                return name.startsWith("com.sun.")
+                        || name.startsWith("com.oracle");
+            case 'j':
+                return name.startsWith("jdk.");
+            case 's':
+                return name.startsWith("sun.");
+            default:
+                return false;
         }
     }
 
