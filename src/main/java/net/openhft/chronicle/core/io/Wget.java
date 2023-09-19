@@ -19,6 +19,8 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.pool.StringBuilderPool;
+import net.openhft.chronicle.core.scoped.ScopedResource;
+import net.openhft.chronicle.core.scoped.ScopedResourcePool;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -33,7 +35,7 @@ import static net.openhft.chronicle.core.io.Closeable.closeQuietly;
  */
 public final class Wget {
 
-    private static final StringBuilderPool STRING_BUILDER_POOL = new StringBuilderPool();
+    private static final ScopedResourcePool<StringBuilder> STRING_BUILDER_POOL = StringBuilderPool.createThreadLocal();
 
     private Wget() {
     }
@@ -44,11 +46,24 @@ public final class Wget {
      * @param url the URL of the HTTP GET request
      * @return the result of the request as a {@link CharSequence}
      * @throws IOException if an error occurs while establishing the connection
+     * @deprecated Use {@link #url(String, StringBuilder)} instead, this implementation is very dangerous
      */
+    @Deprecated(/* To be removed in x.26 */)
     public static CharSequence url(String url) throws IOException {
+        try (final ScopedResource<StringBuilder> sbTl = STRING_BUILDER_POOL.get()) {
+            url(url, sbTl.get());
+            return sbTl.get();
+        }
+    }
 
-        final StringBuilder sb = STRING_BUILDER_POOL.acquireStringBuilder();
-
+    /**
+     * Performs an HTTP GET request to the specified URL.
+     *
+     * @param url the URL of the HTTP GET request
+     * @param sb  The StringBuilder to which the response will be written to
+     * @throws IOException if an error occurs while establishing the connection
+     */
+    public static void url(String url, StringBuilder sb) throws IOException {
         InputStream is = null;
         try {
             is = new URL(url).openStream();
@@ -59,10 +74,8 @@ public final class Wget {
                     sb.append(s);
                 }
             }
-            return sb;
         } finally {
             closeQuietly(is);
         }
     }
-
 }
