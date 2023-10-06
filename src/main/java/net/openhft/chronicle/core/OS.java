@@ -42,6 +42,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
+import static net.openhft.chronicle.core.util.Longs.*;
 
 /**
  * Low level access to OS class. The OS class provides utility methods related to the operating system.
@@ -146,7 +147,7 @@ public final class OS {
      *
      * @return the path of the temporary directory
      */
-    protected static String findTmp() {
+    private static String findTmp() {
         return asRelativePath(findTmp0());
     }
 
@@ -312,6 +313,15 @@ public final class OS {
     }
 
     /**
+     * Returns default OS page size.
+     */
+    public static int defaultOsPageSize() {
+        // Windows 10 produces this error for alignment of less than 64K
+        // java.io.IOException: The base address or the file offset specified does not have the proper alignment
+        // c.f. https://docs.microsoft.com/en-us/windows/win32/memory/creating-a-view-within-a-file
+        return isWindows() ? SAFE_PAGE_SIZE : pageSize();
+    }
+    /**
      * Aligns the specified offset for a memory-mapped file based on the operating system's page size.
      * Memory mapping typically requires that the offset be aligned to the operating system's page size.
      * This method calculates the nearest higher offset that meets this alignment requirement.
@@ -325,15 +335,15 @@ public final class OS {
      * @see #mapAlignment()
      */
     public static long mapAlign(long offset) {
-        if (offset < 0) {
-            throw new IllegalArgumentException("Offset cannot be negative.");
-        }
-        int chunkMultiple = (int) mapAlignment();
-        return mapAlign(offset, chunkMultiple);
+        return mapAlign(offset, defaultOsPageSize());
     }
 
     /**
      * Aligns the specified offset for a memory-mapped file to the nearest higher multiple of the given pageAlignment.
+     * This method calculates the nearest higher offset that meets this alignment requirement.
+     *
+     * <p>For example, if the provided alignment is 2M bytes and an offset of 2.5M is specified,
+     * this method would return 4M, as 4M is the next multiple of 2M greater than 2.5M.
      *
      * @param offset        the offset to be aligned. It must be non-negative.
      * @param pageAlignment the alignment size, in bytes. This should typically be the operating system's page size or a multiple thereof.
@@ -341,28 +351,21 @@ public final class OS {
      * @throws IllegalArgumentException if offset is negative or pageAlignment is non-positive.
      */
     public static long mapAlign(long offset, int pageAlignment) {
-        if (offset < 0) {
-            throw new IllegalArgumentException("Offset cannot be negative.");
-        }
-        if (pageAlignment <= 0) {
-            throw new IllegalArgumentException("Page alignment must be positive.");
-        }
+        requireNonNegative(offset);
+        require(positive(), pageAlignment);
+
         return (offset + pageAlignment - 1) / pageAlignment * pageAlignment;
     }
 
     /**
-     * Returns the alignment of offsets in file, from which memory mapping could start, based on
-     * OS.
+     * Returns the alignment of offsets in file, from which memory mapping could start, based on OS.
      *
      * @return granularity of an offset in a file
      * @see #mapAlign(long)
      */
     public static long mapAlignment() {
         if (mapAlignment == 0)
-            // Windows 10 produces this error for alignment of less than 64K
-            // java.io.IOException: The base address or the file offset specified does not have the proper alignment
-            // c.f. https://docs.microsoft.com/en-us/windows/win32/memory/creating-a-view-within-a-file
-            mapAlignment = isWindows() ? SAFE_PAGE_SIZE : pageSize();
+            mapAlignment = defaultOsPageSize();
         return mapAlignment;
     }
 

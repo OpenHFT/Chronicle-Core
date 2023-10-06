@@ -23,6 +23,7 @@ import net.openhft.chronicle.core.internal.invariant.longs.LongBiCondition;
 import net.openhft.chronicle.core.internal.invariant.longs.LongCondition;
 import net.openhft.chronicle.core.internal.invariant.longs.LongTriCondition;
 
+import java.util.function.BooleanSupplier;
 import java.util.function.Function;
 import java.util.function.LongPredicate;
 
@@ -92,6 +93,26 @@ public final class Longs {
 
     /**
      * Returns the provided {@code value} after checking that it satisfies the provided {@code requirement} throwing
+     * an {@link IllegalArgumentException} if the check fails.
+     * <p>
+     * This method is designed primarily for doing parameter validation in public methods
+     * and constructors, as demonstrated below:
+     * <blockquote><pre>
+     * public Foo(long bar) {
+     *     this.bar = require(() -> bar > 0, "bar should be positive");
+     * }
+     * </pre></blockquote>
+     *
+     * @param requirement to impose on the provided {@code value}
+     * @throws NullPointerException     If the provided {@code requirement} is {@code null}.
+     * @throws IllegalArgumentException If the check fails
+     */
+    public static void require(final BooleanSupplier requirement, final String msg) {
+        require(requirement, msg, IllegalArgumentException::new);
+    }
+
+    /**
+     * Returns the provided {@code value} after checking that it satisfies the provided {@code requirement} throwing
      * a custom exception if the check fails.
      * <p>
      * This method is designed primarily for doing parameter validation in public methods
@@ -118,6 +139,33 @@ public final class Longs {
         if (!requirement.test(value))
             throw exceptionMapper.apply(failDescription(requirement, value));
         return value;
+    }
+
+    /**
+     * Returns the provided {@code value} after checking that it satisfies the provided {@code requirement} throwing
+     * a custom exception if the check fails.
+     * <p>
+     * This method is designed primarily for doing parameter validation in public methods
+     * and constructors, as demonstrated below:
+     * <blockquote><pre>
+     * public Foo(long bar) {
+     *     this.bar = require(byteConvertible(), bar, ArithmeticException::new);
+     * }
+     * </pre></blockquote>
+     *
+     * @param <X>             Exception typ to throw if the check fails
+     * @param requirement     to impose on the provided {@code value}
+     * @param exceptionMapper to apply should the check fail
+     * @throws NullPointerException If the provided {@code requirement} is {@code null} or if the provided
+     *                              {@code exceptionMapper} is {@code null}.
+     * @throws RuntimeException     of the specified type of the provided {@code exceptionMapper}
+     */
+    public static <X extends RuntimeException> void require(final BooleanSupplier requirement,
+                                                            final String msg,
+                                                            final Function<String, X> exceptionMapper) {
+        requireNonNull(exceptionMapper);
+        if (!requirement.getAsBoolean())
+            throw exceptionMapper.apply(msg);
     }
 
     /**
