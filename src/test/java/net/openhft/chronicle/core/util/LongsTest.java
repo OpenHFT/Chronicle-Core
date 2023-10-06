@@ -22,10 +22,15 @@ import net.openhft.chronicle.core.CoreTestCommon;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class LongsTest extends CoreTestCommon {
+
+    @Test
+    public void requireBoolean() {
+        assertThrows(IllegalArgumentException.class, () -> Longs.require(() -> false, "Error"));
+        Longs.require(() -> true, "OK");
+    }
 
     @Test
     public void require1Arg() {

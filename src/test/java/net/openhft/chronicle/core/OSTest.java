@@ -245,4 +245,31 @@ public class OSTest extends CoreTestCommon {
         assertThrows(IllegalArgumentException.class, () -> OS.mapAlign(10, 0));
     }
 
+    @Test
+    public void pageAlign() {
+        // Testing for 64 bytes alignment
+        assertEquals(0, OS.pageAlign(0, 64)); // Perfectly aligned already
+        assertEquals(64, OS.pageAlign(1, 64)); // Not aligned, should round up to 64
+        assertEquals(128, OS.pageAlign(96, 64)); // Not aligned, should round up to 128
+
+        // Testing for 1024 bytes alignment
+        assertEquals(0, OS.pageAlign(0, 1024)); // Perfectly aligned already
+        assertEquals(1024, OS.pageAlign(1024, 1024)); // Perfectly aligned already
+        assertEquals(2048, OS.pageAlign(1025, 1024)); // Not aligned, should round up to 2048
+
+        // Testing for 4096 bytes alignment
+        assertEquals(0, OS.pageAlign(0, 4096)); // Perfectly aligned already
+        assertEquals(4096, OS.pageAlign(1, 4096)); // Not aligned, should round up to 4096
+        assertEquals(4096, OS.pageAlign(4096, 4096)); // Perfectly aligned already
+        assertEquals(8192, OS.pageAlign(4097, 4096)); // Not aligned, should round up to 8192
+
+        // Testing for 2M bytes alignment (hugetlbfs)
+        int customPageSize = 2 * 1024 * 1024;
+        assertEquals(0, OS.pageAlign(0, customPageSize)); // Perfectly aligned already
+        assertEquals(customPageSize, OS.pageAlign(1, customPageSize)); // Not aligned, should round up to higher closest
+        assertEquals(customPageSize, OS.pageAlign(customPageSize, customPageSize)); // Perfectly aligned already
+        assertEquals(2 * customPageSize, OS.pageAlign(customPageSize + 1, customPageSize)); // Not aligned, should round up to higher closest
+        assertEquals(2 * customPageSize, OS.pageAlign(2 * customPageSize - 1, customPageSize)); // Not aligned, should round up to higher closest
+    }
+
 }

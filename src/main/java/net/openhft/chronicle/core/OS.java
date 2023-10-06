@@ -42,6 +42,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
+import static net.openhft.chronicle.core.util.Longs.*;
 
 /**
  * Low level access to OS class. The OS class provides utility methods related to the operating system.
@@ -146,7 +147,7 @@ public final class OS {
      *
      * @return the path of the temporary directory
      */
-    protected static String findTmp() {
+    private static String findTmp() {
         return asRelativePath(findTmp0());
     }
 
@@ -292,13 +293,25 @@ public final class OS {
     /**
      * Align the size to page boundary
      *
+     * @param size     the size to align
+     * @param pageSize
+     * @return aligned size
+     * @see #pageSize()
+     */
+    public static long pageAlign(long size, int pageSize) {
+        final long mask = pageSize - 1L;
+        return (size + mask) & ~mask;
+    }
+
+    /**
+     * Align the size to page boundary
+     *
      * @param size the size to align
      * @return aligned size
      * @see #pageSize()
      */
     public static long pageAlign(long size) {
-        final long mask = pageSize() - 1L;
-        return (size + mask) & ~mask;
+        return pageAlign(size, pageSize());
     }
 
     /**
@@ -311,6 +324,15 @@ public final class OS {
         return pageSize;
     }
 
+    /**
+     * Returns default OS page size.
+     */
+    public static int defaultOsPageSize() {
+        // Windows 10 produces this error for alignment of less than 64K
+        // java.io.IOException: The base address or the file offset specified does not have the proper alignment
+        // c.f. https://docs.microsoft.com/en-us/windows/win32/memory/creating-a-view-within-a-file
+        return isWindows() ? SAFE_PAGE_SIZE : pageSize();
+    }
     /**
      * Aligns the specified offset for a memory-mapped file based on the operating system's page size.
      * Memory mapping typically requires that the offset be aligned to the operating system's page size.
@@ -325,11 +347,7 @@ public final class OS {
      * @see #mapAlignment()
      */
     public static long mapAlign(long offset) {
-        if (offset < 0) {
-            throw new IllegalArgumentException("Offset cannot be negative.");
-        }
-        int chunkMultiple = (int) mapAlignment();
-        return mapAlign(offset, chunkMultiple);
+        return mapAlign(offset, defaultOsPageSize());
     }
 
     /**
@@ -345,12 +363,9 @@ public final class OS {
      * @throws IllegalArgumentException if offset is negative or pageAlignment is non-positive.
      */
     public static long mapAlign(long offset, int pageAlignment) {
-        if (offset < 0) {
-            throw new IllegalArgumentException("Offset cannot be negative.");
-        }
-        if (pageAlignment <= 0) {
-            throw new IllegalArgumentException("Page alignment must be positive.");
-        }
+        requireNonNegative(offset);
+        require(positive(), pageAlignment);
+
         return (offset + pageAlignment - 1) / pageAlignment * pageAlignment;
     }
 
@@ -362,10 +377,7 @@ public final class OS {
      */
     public static long mapAlignment() {
         if (mapAlignment == 0)
-            // Windows 10 produces this error for alignment of less than 64K
-            // java.io.IOException: The base address or the file offset specified does not have the proper alignment
-            // c.f. https://docs.microsoft.com/en-us/windows/win32/memory/creating-a-view-within-a-file
-            mapAlignment = isWindows() ? SAFE_PAGE_SIZE : pageSize();
+            mapAlignment = defaultOsPageSize();
         return mapAlignment;
     }
 
@@ -498,11 +510,11 @@ public final class OS {
      * @throws IOException              if the mapping fails
      * @throws IllegalArgumentException if the arguments are not valid
      */
-    public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode, long start, long size)
+    public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode, long start, long size, int pageSize)
             throws IOException, IllegalArgumentException {
         if (isWindows() && size > 4L << 30)
             throw new IllegalArgumentException("Mapping more than 4096 MiB is unusable on Windows, size = " + (size >> 20) + " MiB");
-        final long address = map0(fileChannel, imodeFor(mode), mapAlign(start), pageAlign(size));
+        final long address = map0(fileChannel, imodeFor(mode), mapAlign(start, pageSize), pageAlign(size, pageSize));
         final long threshold = Math.min(64 * size, 32L << 40);
         if (isLinux() && (address > 0 && address < threshold) && Jvm.is64bit()) {
             double ratio = (double) threshold / address;
@@ -512,6 +524,12 @@ public final class OS {
         }
         return address;
     }
+
+    public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode, long start, long size)
+            throws IOException, IllegalArgumentException {
+        return map(fileChannel, mode, start, size, (int) mapAlignment());
+    }
+
 
     private static long invokeFileChannelMap0(@NotNull MethodHandle map0, @NotNull FileChannel fileChannel, int imode, long start, long size,
                                               @NotNull ThrowingFunction<OutOfMemoryError, Long, IOException> errorHandler) throws IOException {
@@ -560,15 +578,19 @@ public final class OS {
      * @param size    of the region mapped.
      * @throws IOException if the unmap fails.
      */
-    public static void unmap(long address, long size) throws IOException {
+    public static void unmap(long address, long size, int pageSize) throws IOException {
         try {
-            final long size2 = pageAlign(size);
+            final long size2 = pageAlign(size, pageSize);
             // n must be used here
             final int n = (int) UNMAPP0_MH.invokeExact(address, size2);
             memoryMapped.addAndGet(-size2);
         } catch (Throwable e) {
             throw asAnIOException(e);
         }
+    }
+
+    public static void unmap(long address, long size) throws IOException {
+        unmap(address, size, (int) mapAlignment());
     }
 
     /**
@@ -692,13 +714,16 @@ public final class OS {
     public static final class Unmapper implements Runnable {
         private final long size;
 
+        private final int pageSize;
+
         private volatile long address;
 
-        public Unmapper(long address, long size) throws IllegalStateException {
+        public Unmapper(long address, long size, int pageSize) throws IllegalStateException {
 
             assert (address != 0);
             this.address = address;
             this.size = size;
+            this.pageSize = pageSize;
         }
 
         @Override
@@ -707,7 +732,7 @@ public final class OS {
                 return;
 
             try {
-                unmap(address, size);
+                unmap(address, size, pageSize);
                 address = 0;
 
             } catch (@NotNull IOException e) {
