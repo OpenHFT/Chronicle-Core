@@ -334,6 +334,10 @@ public final class OS {
 
     /**
      * Aligns the specified offset for a memory-mapped file to the nearest higher multiple of the given pageAlignment.
+     * This method calculates the nearest higher offset that meets this alignment requirement.
+     *
+     * <p>For example, if the provided alignment is 2M bytes and an offset of 2.5M is specified,
+     * this method would return 4M, as 4M is the next multiple of 2M greater than 2.5M.
      *
      * @param offset        the offset to be aligned. It must be non-negative.
      * @param pageAlignment the alignment size, in bytes. This should typically be the operating system's page size or a multiple thereof.
@@ -351,8 +355,7 @@ public final class OS {
     }
 
     /**
-     * Returns the alignment of offsets in file, from which memory mapping could start, based on
-     * OS.
+     * Returns the alignment of offsets in file, from which memory mapping could start, based on OS.
      *
      * @return granularity of an offset in a file
      * @see #mapAlign(long)

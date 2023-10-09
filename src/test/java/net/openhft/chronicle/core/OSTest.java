@@ -225,6 +225,14 @@ public class OSTest extends CoreTestCommon {
         assertEquals(4096, OS.mapAlign(4096, 4096)); // Perfectly aligned already
         assertEquals(8192, OS.mapAlign(4097, 4096)); // Not aligned, should round up to 8192
 
+        // Testing for 2M bytes alignment (hugetlbfs)
+        int customPageSize = 2 * 1024 * 1024;
+        assertEquals(0, OS.mapAlign(0, customPageSize)); // Perfectly aligned already
+        assertEquals(customPageSize, OS.mapAlign(1, customPageSize)); // Not aligned, should round up to higher closest
+        assertEquals(customPageSize, OS.mapAlign(customPageSize, customPageSize)); // Perfectly aligned already
+        assertEquals(2 * customPageSize, OS.mapAlign(customPageSize + 1, customPageSize)); // Not aligned, should round up to higher closest
+        assertEquals(2 * customPageSize, OS.mapAlign(2 * customPageSize - 1, customPageSize)); // Not aligned, should round up to higher closest
+
         // Testing with page alignment equal to 1 (should not change the offset)
         assertEquals(42, OS.mapAlign(42, 1)); // Alignment of 1, no change
 
