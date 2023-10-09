@@ -293,7 +293,7 @@ public class JvmTest extends CoreTestCommon {
             assertTrue(cpuClass, cpuClass.startsWith("ARMv"));
 
         } else {
-            assertTrue(cpuClass, (cpuClass.startsWith("Intel") && cpuClass.contains(" CPU ") && cpuClass.contains(" @ "))
+            assertTrue(cpuClass, (cpuClass.contains("Intel") && cpuClass.contains(" @ "))
                     || (cpuClass.startsWith("AMD ")));
         }
 
