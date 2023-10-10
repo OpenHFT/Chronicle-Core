@@ -59,7 +59,7 @@ public final class OS {
         try {
             Method map0;
             if (Jvm.isJava20Plus()) {
-                Class<?> dispatcherClass = findClass("sun.nio.ch.UnixFileDispatcherImpl");
+                Class<?> dispatcherClass = findClass("sun.nio.ch.FileDispatcherImpl");
                 map0 = Jvm.getMethod(dispatcherClass, "map0", FileDescriptor.class, int.class, long.class, long.class, boolean.class);
             } else if (Jvm.isJava19Plus()) {
                 map0 = Jvm.getMethod(c, "map0", FileDescriptor.class, int.class, long.class, long.class, boolean.class);
