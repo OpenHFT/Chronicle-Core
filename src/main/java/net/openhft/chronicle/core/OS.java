@@ -59,7 +59,7 @@ public final class OS {
         try {
             Method map0;
             if (Jvm.isJava20Plus()) {
-                Class<?> dispatcherClass = findClass("sun.nio.ch.UnixFileDispatcherImpl");
+                Class<?> dispatcherClass = OS.isWindows() ? findClass("sun.nio.ch.FileDispatcherImpl") : findClass("sun.nio.ch.UnixFileDispatcherImpl");
                 map0 = Jvm.getMethod(dispatcherClass, "map0", FileDescriptor.class, int.class, long.class, long.class, boolean.class);
             } else if (Jvm.isJava19Plus()) {
                 map0 = Jvm.getMethod(c, "map0", FileDescriptor.class, int.class, long.class, long.class, boolean.class);
@@ -97,7 +97,7 @@ public final class OS {
         try {
             Method unmap0;
             if (Jvm.isJava20Plus()) {
-                Class<?> dispatcherClass = findClass("sun.nio.ch.UnixFileDispatcherImpl");
+                Class<?> dispatcherClass = OS.isWindows() ? findClass("sun.nio.ch.FileDispatcherImpl") : findClass("sun.nio.ch.UnixFileDispatcherImpl");
                 unmap0 = Jvm.getMethod(dispatcherClass, "unmap0", long.class, long.class);
             } else {
                 unmap0 = Jvm.getMethod(FileChannelImpl.class, "unmap0", long.class, long.class);
