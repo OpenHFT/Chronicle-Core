@@ -923,6 +923,8 @@ public final class Jvm {
 
     /**
      * Inserts a low-cost Java safe-point in the code path.
+     * <p>
+     * Note: this does nothing on Java 8.
      */
     public static void safepoint() {
         if (SAFEPOINT_ENABLED) {
