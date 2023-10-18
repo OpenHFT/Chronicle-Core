@@ -33,7 +33,7 @@ import static java.util.Objects.requireNonNull;
  * A collection of functional compositions to check and assert various requirements
  * related to {@code long} values.
  */
-@Deprecated(/* to be moved in x.26 */)
+@Deprecated(/* to be moved to internal in Chronicle-Bytes in x.26 as that is where it's used. One method is used in UnsafeMemory */)
 public final class Longs {
 
     // Suppresses default constructor, ensuring non-instantiability.
