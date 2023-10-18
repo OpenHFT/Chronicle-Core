@@ -477,11 +477,7 @@ public final class Jvm {
      */
     public static void nanoPause() {
         if (onSpinWaitMH == null) {
-            if (isJava9Plus())
-                Safepoint.force(); // 1 ns on Java 11
-            else
-                //noinspection removal
-                Compiler.enable(); // 5 ns on Java 8
+            Safepoint.force();
         } else {
             try {
                 onSpinWaitMH.invokeExact();
@@ -925,12 +921,7 @@ public final class Jvm {
      */
     public static void safepoint() {
         if (SAFEPOINT_ENABLED) {
-            if (Bootstrap.isJava9Plus()) {
-                Safepoint.force(); // 1 ns on Java 11
-            } else {
-                //noinspection removal
-                Compiler.enable(); // 5 ns on Java 8
-            }
+            Safepoint.force();
         }
     }
 
