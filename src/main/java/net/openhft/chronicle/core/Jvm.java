@@ -157,16 +157,7 @@ public final class Jvm {
         reservedMemory = reservedMemoryGetter;
         signalHandlerGlobal = new ChainedSignalHandler();
 
-        MethodHandle onSpinWait = null;
-        if (isJava9Plus()) {
-            try {
-                onSpinWait = MethodHandles.lookup()
-                        .findStatic(Thread.class, "onSpinWait", MethodType.methodType(Void.TYPE));
-            } catch (Exception ignored) {
-                // Ignore
-            }
-        }
-        onSpinWaitMH = onSpinWait;
+        onSpinWaitMH = getOnSpinWait();
 
         findAndLoadSystemProperties();
 
@@ -187,6 +178,23 @@ public final class Jvm {
         REPORT_UNOPTIMISED = Jvm.getBoolean("report.unoptimised");
 
         ChronicleInit.postInit();
+    }
+
+    @Nullable
+    private static MethodHandle getOnSpinWait() {
+        MethodType voidType = MethodType.methodType(void.class);
+        MethodHandles.Lookup lookup = MethodHandles.lookup();
+        try {
+            if (isJava9Plus())
+                return lookup.findStatic(Thread.class, "onSpinWait", voidType);
+            return lookup.findStatic(Class.forName("java.lang.Compiler"), "enable", voidType);
+        } catch (Exception ignored) {
+        }
+        try {
+            return lookup.findStatic(Safepoint.class, "force", voidType);
+        } catch (Exception ignored) {
+        }
+        return null;
     }
 
     // Suppresses default constructor, ensuring non-instantiability.
@@ -476,18 +484,11 @@ public final class Jvm {
      * Pause in a busy loop for a very short time.
      */
     public static void nanoPause() {
-        if (onSpinWaitMH == null) {
-            if (isJava9Plus())
-                Safepoint.force(); // 1 ns on Java 11
-            else
-                //noinspection removal
-                Compiler.enable(); // 5 ns on Java 8
-        } else {
-            try {
+        try {
+            if (onSpinWaitMH != null)
                 onSpinWaitMH.invokeExact();
-            } catch (Throwable throwable) {
-                throw new AssertionError(throwable);
-            }
+        } catch (Throwable throwable) {
+            Jvm.rethrow(throwable);
         }
     }
 
@@ -922,15 +923,12 @@ public final class Jvm {
 
     /**
      * Inserts a low-cost Java safe-point in the code path.
+     * <p>
+     * Note: this does nothing on Java 8.
      */
     public static void safepoint() {
         if (SAFEPOINT_ENABLED) {
-            if (Bootstrap.isJava9Plus()) {
-                Safepoint.force(); // 1 ns on Java 11
-            } else {
-                //noinspection removal
-                Compiler.enable(); // 5 ns on Java 8
-            }
+            Safepoint.force();
         }
     }
 
