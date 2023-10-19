@@ -109,7 +109,6 @@ public final class Jvm {
             entry(long.class, Long.BYTES),
             entry(double.class, Double.BYTES)
     );
-    private static final MethodHandle compilerEnableMH;
     private static final MethodHandle onSpinWaitMH;
     private static final ChainedSignalHandler signalHandlerGlobal;
     private static boolean RESOURCE_TRACING;
@@ -158,7 +157,6 @@ public final class Jvm {
         reservedMemory = reservedMemoryGetter;
         signalHandlerGlobal = new ChainedSignalHandler();
 
-        compilerEnableMH = getCompilerEnable();
         onSpinWaitMH = getOnSpinWait();
 
         findAndLoadSystemProperties();
@@ -182,24 +180,12 @@ public final class Jvm {
         ChronicleInit.postInit();
     }
 
-    @Nullable
-    private static MethodHandle getCompilerEnable() {
-        MethodType voidType = MethodType.methodType(void.class);
-        MethodHandles.Lookup lookup = MethodHandles.lookup();
-        try {
-            return lookup.findStatic(Class.forName("java.lang.Compiler"), "enable", voidType);
-        } catch (Exception ignored) {
-            return null;
-        }
-    }
-
     private static MethodHandle getOnSpinWait() {
         MethodType voidType = MethodType.methodType(void.class);
         MethodHandles.Lookup lookup = MethodHandles.lookup();
         try {
             if (isJava9Plus())
                 return lookup.findStatic(Thread.class, "onSpinWait", voidType);
-            return compilerEnableMH;
         } catch (Exception ignored) {
         }
         try {
@@ -938,15 +924,7 @@ public final class Jvm {
      */
     public static void safepoint() {
         if (SAFEPOINT_ENABLED) {
-            if (Jvm.isJava9Plus()) {
-                Safepoint.force();
-            } else {
-                try {
-                    if (compilerEnableMH != null)
-                        compilerEnableMH.invokeExact();
-                } catch (Throwable ignored) {
-                }
-            }
+            Safepoint.force();
         }
     }
 
