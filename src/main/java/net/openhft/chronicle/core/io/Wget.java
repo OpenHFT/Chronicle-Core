@@ -19,8 +19,6 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.pool.StringBuilderPool;
-import net.openhft.chronicle.core.scoped.ScopedResource;
-import net.openhft.chronicle.core.scoped.ScopedResourcePool;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -35,7 +33,8 @@ import static net.openhft.chronicle.core.io.Closeable.closeQuietly;
  */
 public final class Wget {
 
-    private static final ScopedResourcePool<StringBuilder> STRING_BUILDER_POOL = StringBuilderPool.createThreadLocal();
+    @Deprecated(/* To be removed in x.26 */)
+    private static final StringBuilderPool STRING_BUILDER_POOL = new StringBuilderPool();
 
     private Wget() {
     }
@@ -50,10 +49,9 @@ public final class Wget {
      */
     @Deprecated(/* To be removed in x.26 */)
     public static CharSequence url(String url) throws IOException {
-        try (final ScopedResource<StringBuilder> sbTl = STRING_BUILDER_POOL.get()) {
-            url(url, sbTl.get());
-            return sbTl.get();
-        }
+        final StringBuilder sb = STRING_BUILDER_POOL.acquireStringBuilder();
+        url(url, sb);
+        return sb;
     }
 
     /**
