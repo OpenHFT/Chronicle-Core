@@ -138,7 +138,7 @@ The class should contain an empty static `init()` method that is called to trigg
 
 . "*chronicle.postinit.runnable*"
 +
-This system property specifies a fully qualified class name that will run only once after the Jvm initialisation static class.
+This system property specifies a fully qualified class name that will run only once after the JVM initialisation static class.
 The class should contain an empty static `postInit()` method that is called to trigger class load.
 
 The alternative way to using the above system properties is to implement the `ChronicleInitRunnable` interface whose implementing classes may be listed in the `META-INF/services/net.openhft.chronicle.core.ChronicleInitRunnable` file in any JAR in classpath to be discovered via `ServiceLoader` JVM facility.
