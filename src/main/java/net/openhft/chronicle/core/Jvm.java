@@ -19,8 +19,8 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.annotation.DontChain;
-import net.openhft.chronicle.core.internal.*;
 import net.openhft.chronicle.core.internal.Bootstrap;
+import net.openhft.chronicle.core.internal.*;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
 import net.openhft.chronicle.core.onoes.*;
 import net.openhft.chronicle.core.util.ObjectUtils;
@@ -109,6 +109,7 @@ public final class Jvm {
             entry(long.class, Long.BYTES),
             entry(double.class, Double.BYTES)
     );
+    private static final MethodHandle compilerEnableMH;
     private static final MethodHandle onSpinWaitMH;
     private static final ChainedSignalHandler signalHandlerGlobal;
     private static boolean RESOURCE_TRACING;
@@ -157,6 +158,7 @@ public final class Jvm {
         reservedMemory = reservedMemoryGetter;
         signalHandlerGlobal = new ChainedSignalHandler();
 
+        compilerEnableMH = getCompilerEnable();
         onSpinWaitMH = getOnSpinWait();
 
         findAndLoadSystemProperties();
@@ -181,13 +183,23 @@ public final class Jvm {
     }
 
     @Nullable
+    private static MethodHandle getCompilerEnable() {
+        MethodType voidType = MethodType.methodType(void.class);
+        MethodHandles.Lookup lookup = MethodHandles.lookup();
+        try {
+            return lookup.findStatic(Class.forName("java.lang.Compiler"), "enable", voidType);
+        } catch (Exception ignored) {
+            return null;
+        }
+    }
+
     private static MethodHandle getOnSpinWait() {
         MethodType voidType = MethodType.methodType(void.class);
         MethodHandles.Lookup lookup = MethodHandles.lookup();
         try {
             if (isJava9Plus())
                 return lookup.findStatic(Thread.class, "onSpinWait", voidType);
-            return lookup.findStatic(Class.forName("java.lang.Compiler"), "enable", voidType);
+            return compilerEnableMH;
         } catch (Exception ignored) {
         }
         try {
@@ -922,13 +934,19 @@ public final class Jvm {
     }
 
     /**
-     * Inserts a low-cost Java safe-point in the code path.
-     * <p>
-     * Note: this does nothing on Java 8.
+     * Inserts a low-cost Java safe-point in the code path if -Djvm.safepoint.enabled
      */
     public static void safepoint() {
         if (SAFEPOINT_ENABLED) {
-            Safepoint.force();
+            if (Jvm.isJava9Plus()) {
+                Safepoint.force();
+            } else {
+                try {
+                    if (compilerEnableMH != null)
+                        compilerEnableMH.invokeExact();
+                } catch (Throwable ignored) {
+                }
+            }
         }
     }
 
