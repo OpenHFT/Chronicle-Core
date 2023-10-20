@@ -523,7 +523,7 @@ int i = Maths.toInt32(longValue);
 
 == Serializable Lambdas
 
-There is a number of FunctionalInterfaces you can utilise as method arguments.
+There is a number of Functional Interfaces you can utilise as method arguments.
 This allows implicitly making a lambda Serializable.
 
 [source,java]
