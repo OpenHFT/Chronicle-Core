@@ -73,34 +73,6 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
         }
     }
 
-    /**
-     * This is actually a deviation from the contract, it should return false rather than throwing
-     * <p>
-     * Should we fix the contract or fix the behaviour?
-     */
-    @Test
-    public void reservedByWillThrowIllegalStateExceptionWhenReferenceOwnerNeverHadAReference() {
-        TracingReferenceCounted referenceCounted = createReferenceCounted();
-
-        ReferenceOwner a = ReferenceOwner.temporary("a");
-        assertThrows(IllegalStateException.class, () -> referenceCounted.reservedBy(a));
-    }
-
-    /**
-     * This is actually a deviation from the contract, it should return false rather than throwing
-     * <p>
-     * Should we fix the contract or fix the behaviour?
-     */
-    @Test
-    public void reservedByWillThrowIllegalStateExceptionAfterReferenceOwnerReleasedItsReference() {
-        TracingReferenceCounted referenceCounted = createReferenceCounted();
-
-        ReferenceOwner a = ReferenceOwner.temporary("a");
-        referenceCounted.reserve(a);
-        referenceCounted.release(a);
-        assertThrows(IllegalStateException.class, () -> referenceCounted.reservedBy(a));
-    }
-
     @Test
     public void asStringWillIncludeReferenceCountedDetails() {
         final TracingReferenceCounted referenceCounted = createReferenceCounted();

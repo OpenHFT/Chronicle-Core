@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.util.ClassLocal;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

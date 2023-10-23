@@ -83,12 +83,6 @@ public class DelegatingEventLoop implements EventLoop {
         return inner.isAlive();
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    public void awaitTermination() {
-        inner.awaitTermination();
-    }
-
     @Override
     public void close() {
         inner.close();

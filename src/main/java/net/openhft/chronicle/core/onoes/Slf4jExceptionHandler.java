@@ -19,7 +19,7 @@
 
 package net.openhft.chronicle.core.onoes;
 
-import net.openhft.chronicle.core.ClassLocal;
+import net.openhft.chronicle.core.util.ClassLocal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;

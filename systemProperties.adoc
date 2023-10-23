@@ -15,7 +15,7 @@ NOTE: All boolean properties listed in the table are read using https://javadoc.
 | `disable.discard.warning` | `true` | Called from finalise() implementations. If `false`, message is displayed stating that resource cannot be closed, and IllegalStateException is thrown  | `DISABLE_DISCARD_WARNING` (boolean)
 | `disable.perf.info` | `false` | if enabled, returns NullExceptionHandler | `disablePerfInfo` (boolean)
 | `disable.resource.warning` | `false` | If enabled, returns that resource tracing is turned on | boolean
-| `disable.thread.safety` | `false` | If enabled, threadSafetyCheck throws `IllegalStateException` in AbstractReferenceCounted.java and message thrown stating which component is not thread safe | `DISABLE_THREAD_SAFETY` (boolean)
+| `disable.single.threaded.check` | `false` | Disables thread safety checks | boolean
 | `jfr` | `false` | Returns if the JVM is running in flight recorder mode | `IS_FLIGHT_RECORDER` (boolean)
 | `jvm.resources.tracing` | `false` | Returns if certain chronicle resources (such as memory regions) are traced. Reference counting can be enabled, which incurs slightly less performance, but it provides a means of detecting proper release of resources | RESOURCE_TRACING (boolean)
 | `jvm.safepoint.enabled` | `false` | If enabled, inserts a low-cost Java safe-point, which can help to find blockages. Jvm.safepoint can also be added when monitoring the event loop in link:https://github.com/OpenHFT/Chronicle-Threads#monitoring-the-event-loop[Chronicle-Threads] to help identify hotspots in the code | `SAFEPOINT_ENABLED` (boolean)

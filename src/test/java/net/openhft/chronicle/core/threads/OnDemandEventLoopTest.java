@@ -63,11 +63,6 @@ public class OnDemandEventLoopTest extends CoreTestCommon {
             }
 
             @Override
-            public void awaitTermination() {
-                throw new UnsupportedOperationException();
-            }
-
-            @Override
             public boolean isStopped() {
                 return false;
             }

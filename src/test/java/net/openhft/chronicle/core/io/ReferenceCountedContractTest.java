@@ -161,15 +161,6 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
     }
 
     @Test
-    public void reservedByWillReturnTrueWhenOwnerHasReferenceReserved() {
-        ReferenceCounted referenceCounted = createReferenceCounted();
-
-        ReferenceOwner a = ReferenceOwner.temporary("a");
-        referenceCounted.reserve(a);
-        assertTrue(referenceCounted.reservedBy(a));
-    }
-
-    @Test
     public void implementationsShouldBeThreadSafe() throws InterruptedException {
         int numThreads = Math.max(3, Math.min(6, Runtime.getRuntime().availableProcessors()));
         int numReferences = 10;
