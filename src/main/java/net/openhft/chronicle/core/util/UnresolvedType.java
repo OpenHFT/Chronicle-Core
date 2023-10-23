@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package net.openhft.chronicle.core;
+package net.openhft.chronicle.core.util;
 
 import java.lang.reflect.Type;
 
@@ -23,7 +23,6 @@ import java.lang.reflect.Type;
  * The UnresolvedType class represents an unresolved type.
  * It implements the Type interface.
  */
-// TODO to be moved to the util package x.25
 public class UnresolvedType implements Type {
     private final String typeName;
 

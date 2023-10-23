@@ -18,10 +18,21 @@
 
 package net.openhft.chronicle.core.internal;
 
+import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.OS;
+import net.openhft.posix.PosixAPI;
+import org.jetbrains.annotations.NotNull;
+
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.function.Function;
 
 import static java.lang.Runtime.getRuntime;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
@@ -59,6 +70,18 @@ public final class Bootstrap {
     public static final boolean IS_LINUX = LOWER_OS_NAME.startsWith("linux");
 
     static {
+        // Eagerly initialise Posix & Affinity
+        try {
+            PosixAPI.posix();
+        } catch (Error e) {
+            Jvm.warn().on(Bootstrap.class, "Unable to load PosixAPI " + e);
+        }
+
+        try {
+            Class.forName("net.openhft.affinity.Affinity");
+        } catch (ClassNotFoundException e) {
+            // Ignore, Affinity is an optional dependency
+        }
 
         JVM_JAVA_MAJOR_VERSION = Bootstrap.getMajorVersion0();
         IS_JAVA_9_PLUS = JVM_JAVA_MAJOR_VERSION >= 9; // IS_JAVA_9_PLUS value is used in maxDirectMemory0 method.
@@ -182,5 +205,84 @@ public final class Bootstrap {
         int rpid = 1;
         System.err.println(Bootstrap.class.getName() + ": Unable to determine PID, picked 1 as a PID");
         return rpid;
+    }
+
+    public static final class CpuClass {
+        static final String CPU_MODEL;
+
+        private static final String PROCESS = "process ";
+
+        static {
+            String model = Jvm.getProperty("os.arch", "unknown");
+            try {
+                final Path path = Paths.get("/proc/cpuinfo");
+                if (Files.isReadable(path)) {
+                    model = Files.lines(path)
+                            .filter(line -> line.startsWith("model name"))
+                            .map(removingTag())
+                            .findFirst().orElse(model);
+                } else if (OS.isWindows()) {
+                    String cmd = "wmic cpu get name";
+                    Process process = new ProcessBuilder(cmd.split(" "))
+                            .redirectErrorStream(true)
+                            .start();
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                        model = reader.lines()
+                                .map(String::trim)
+                                .filter(s -> !"Name".equals(s) && !s.isEmpty())
+                                .findFirst().orElse(model);
+                    }
+                    try {
+                        int ret = process.waitFor();
+                        if (ret != 0)
+                            Jvm.warn().on(net.openhft.chronicle.core.internal.Bootstrap.CpuClass.class, PROCESS + cmd + " returned " + ret);
+                    } catch (InterruptedException e) {
+                        Jvm.warn().on(net.openhft.chronicle.core.internal.Bootstrap.CpuClass.class, PROCESS + cmd + " waitFor threw ", e);
+                        // Restore the interrupt state...
+                        Thread.currentThread().interrupt();
+                    }
+                    process.destroy();
+
+                } else if (OS.isMacOSX()) {
+
+                    String cmd = "sysctl -a";
+                    Process process = new ProcessBuilder(cmd.split(" "))
+                            .redirectErrorStream(true)
+                            .start();
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                        model = reader.lines()
+                                .map(String::trim)
+                                .filter(s -> s.startsWith("machdep.cpu.brand_string"))
+                                .map(removingTag())
+                                .findFirst().orElse(model);
+                    }
+                    try {
+                        int ret = process.waitFor();
+                        if (ret != 0)
+                            Jvm.warn().on(net.openhft.chronicle.core.internal.Bootstrap.CpuClass.class, PROCESS + cmd + " returned " + ret);
+                    } catch (InterruptedException e) {
+                        Jvm.warn().on(net.openhft.chronicle.core.internal.Bootstrap.CpuClass.class, PROCESS + cmd + " waitFor threw ", e);
+                        // Restore the interrupt state...
+                        Thread.currentThread().interrupt();
+                    }
+                    process.destroy();
+
+                }
+
+            } catch (IOException e) {
+                Jvm.debug().on(net.openhft.chronicle.core.internal.Bootstrap.CpuClass.class, "Unable to read cpuinfo", e);
+            }
+            CPU_MODEL = model;
+        }
+
+        // Suppresses default constructor, ensuring non-instantiability.
+        private CpuClass() {
+        }
+
+        @SuppressWarnings("java:S5852") // Possessive quantifiers (*+) are used preventing catastrophic backtracking
+        @NotNull
+        public static Function<String, String> removingTag() {
+            return line -> line.replaceFirst("[^:]*+: ", "");
+        }
     }
 }

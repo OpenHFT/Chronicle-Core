@@ -4,6 +4,7 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.io.CleaningRandomAccessFile;
 import net.openhft.chronicle.core.io.IOTools;
 import org.junit.Test;
 

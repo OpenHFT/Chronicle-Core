@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.util.Mocker;
 import org.junit.Test;
 
 import java.io.StringWriter;
@@ -33,8 +34,7 @@ public class MockerTest extends CoreTestCommon {
         final ChainedChainingTerminal logging = Mocker.logging(ChainedChainingTerminal.class, "", out);
         logging.chains("one").alsoChains("two").end("three");
         logging.chains("111").alsoChains("222").end("333");
-        assertEquals(String.format("" +
-                        "chains[one]%n" +
+        assertEquals(String.format("chains[one]%n" +
                         "alsoChains[two]%n" +
                         "end[three]%n" +
                         "chains[111]%n" +

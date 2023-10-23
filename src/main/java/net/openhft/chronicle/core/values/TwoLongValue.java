@@ -17,7 +17,6 @@
  */
 package net.openhft.chronicle.core.values;
 
-import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.ClosedIllegalStateException;
 import net.openhft.chronicle.core.io.ThreadingIllegalStateException;
 
@@ -148,81 +147,4 @@ public interface TwoLongValue extends LongValue {
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     boolean compareAndSwapValue2(long expected, long value) throws IllegalStateException;
-
-    /**
-     * Sets the second long value to the maximum of the current value and the specified value.
-     *
-     * @param value The value to compare.
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
-     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
-     */
-    @Deprecated(/* to be moved in x.25 */)
-    default void setMaxValue2(long value) throws IllegalStateException {
-        for (; ; ) {
-            long pos = getVolatileValue2();
-            if (pos >= value)
-                break;
-            if (compareAndSwapValue2(pos, value))
-                break;
-            Jvm.nanoPause();
-        }
-    }
-
-    /**
-     * Sets the second long value to the minimum of the current value and the specified value.
-     *
-     * @param value The value to compare.
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
-     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
-     */
-    @Deprecated(/* to be moved in x.25 */)
-    default void setMinValue2(long value) throws IllegalStateException {
-        for (; ; ) {
-            long pos = getVolatileValue2();
-            if (pos <= value)
-                break;
-            if (compareAndSwapValue2(pos, value))
-                break;
-            Jvm.nanoPause();
-        }
-    }
-
-    /**
-     * Atomically sets both long values.
-     *
-     * @param value1 The first value to set.
-     * @param value2 The second value to set.
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
-     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
-     */
-    @Deprecated(/* to be moved in x.25 */)
-    default void setValues(long value1, long value2) throws IllegalStateException {
-        setValue2(value2);
-        setOrderedValue(value1);
-    }
-
-    /**
-     * Retrieves both long values atomically.
-     *
-     * @param values An array where the values will be stored. The first value is stored at index 0,
-     *               and the second value is stored at index 1.
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
-     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
-     */
-    @Deprecated(/* to be moved in x.25 */)
-    default void getValues(long[] values) throws IllegalStateException {
-        long value1 = getVolatileValue();
-        long value2 = getValue2();
-        while (true) {
-            long value1b = getVolatileValue();
-            long value2b = getValue2();
-            if (value1 == value1b && value2 == value2b) {
-                values[0] = value1;
-                values[1] = value2;
-                return;
-            }
-            value1 = value1b;
-            value2 = value2b;
-        }
-    }
 }

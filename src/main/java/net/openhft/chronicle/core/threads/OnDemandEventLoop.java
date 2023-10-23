@@ -114,16 +114,6 @@ public class OnDemandEventLoop implements EventLoop {
     }
 
     /**
-     * Waits until the EventLoop is terminated if it has been created.
-     */
-    @SuppressWarnings("deprecation")
-    @Override
-    public void awaitTermination() {
-        if (hasEventLoop())
-            eventLoop().awaitTermination();
-    }
-
-    /**
      * Closes the EventLoop if it has been created.
      */
     @Override

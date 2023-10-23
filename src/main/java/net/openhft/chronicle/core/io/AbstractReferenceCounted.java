@@ -263,11 +263,6 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         referenceCounted.warnAndReleaseIfNotReleased();
     }
 
-    @Deprecated(/* To be removed in 2.25 */)
-    public boolean reservedBy(ReferenceOwner owner) throws ClosedIllegalStateException {
-        return referenceCounted.reservedBy(owner);
-    }
-
     @Override
     public void singleThreadedCheckDisabled(boolean singleThreadedCheckDisabled) {
         this.singleThreadedCheckDisabled = singleThreadedCheckDisabled;
@@ -321,14 +316,6 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
      * that the resource can be used again by a different thread.
      */
     public void singleThreadedCheckReset() {
-        usedByThread = null;
-    }
-
-    /**
-     * @deprecated Use singleThreadedCheckReset() instead
-     */
-    @Deprecated(/* to be removed in x.25 */)
-    public void clearUsedByThread() {
         usedByThread = null;
     }
 

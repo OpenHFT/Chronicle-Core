@@ -497,52 +497,6 @@ public final class Maths {
         return Long.bitCount(n) == 1;
     }
 
-    @Deprecated(/* to be removed in x.25, inline this method */)
-    public static int hash32(@NotNull CharSequence cs) {
-        long h = hash64(cs);
-        h ^= h >> 32;
-        return (int) h;
-    }
-
-    /**
-     * Computes a 32-bit hash value for the given string.
-     * This is done by first computing a 64-bit hash using the {@link #hash64(String)} method,
-     * and then combining the upper and lower 32 bits of the hash using XOR.
-     *
-     * @param s the string to compute the hash for
-     * @return the 32-bit hash value
-     * @throws IllegalArgumentException if {@code s} is {@code null}
-     */
-    @Deprecated(/* to be removed in x.25, inline this method */)
-    public static int hash32(@NotNull String s) {
-        long h = hash64(s);
-        h ^= h >> 32;
-        return (int) h;
-    }
-
-    /**
-     * Computes a 32-bit hash value for the given StringBuilder.
-     * This is done by first computing a 64-bit hash using the {@link #hash64(StringBuilder)} method,
-     * and then combining the upper and lower 32 bits of the hash using XOR.
-     *
-     * @param s the StringBuilder to compute the hash for
-     * @return the 32-bit hash value
-     * @throws IllegalArgumentException if {@code s} is {@code null}
-     */
-    @Deprecated(/* to be removed in x.25, inline this method */)
-    public static int hash32(@NotNull StringBuilder s) {
-        long h = hash64(s);
-        h ^= h >> 32;
-        return (int) h;
-    }
-
-    @Deprecated(/* to be removed in x.25, inline this method */)
-    public static int hash32(long l0) {
-        long h = hash64(l0);
-        h ^= h >> 32;
-        return (int) h;
-    }
-
     public static long hash64(@Nullable CharSequence cs) {
         if (cs == null || cs.length() == 0)
             return 0;
@@ -771,27 +725,9 @@ public final class Maths {
     public static long hash64(long l0) {
         int l0a = (int) (l0 >> 32);
 
-        long h0 = l0 * M0 + l0a * M1;
+        long h0 = l0 * M0 + (long) l0a * M1;
 
         return agitate(h0);
-    }
-
-    /**
-     * A simple hashing algorithm for a 128-bit value
-     *
-     * @param l0 to hash
-     * @param l1 to hash
-     * @return hash value.
-     */
-    @Deprecated(/* to be removed in x.25 */)
-    public static long hash64(long l0, long l1) {
-        int l0a = (int) (l0 >> 32);
-        int l1a = (int) (l1 >> 32);
-
-        long h0 = (l0 + l1a) * M0;
-        long h1 = (l1 + l0a) * M1;
-
-        return agitate(h0) ^ agitate(h1);
     }
 
     /**

@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-package net.openhft.chronicle.core;
+package net.openhft.chronicle.core.util;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -27,7 +27,6 @@ import java.util.function.Function;
  *
  * @param <V> the type of value in this ClassLocal
  */
-// TODO to be moved to the util package x.25
 public class ClassLocal<V> extends ClassValue<V> {
     private final Function<Class<?>, V> classVFunction;
 

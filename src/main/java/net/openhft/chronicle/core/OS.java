@@ -19,6 +19,7 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.internal.Bootstrap;
+import net.openhft.chronicle.core.util.ClassLocal;
 import net.openhft.chronicle.core.util.ThrowingFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

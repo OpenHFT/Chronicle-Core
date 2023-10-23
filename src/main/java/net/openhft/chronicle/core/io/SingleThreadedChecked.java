@@ -29,13 +29,11 @@ public interface SingleThreadedChecked {
     /**
      * A flag indicating whether the single-threaded check is disabled.
      * By default, it reads the value from the system property "disable.single.threaded.check",
-     * falling back to "disable.thread.safety" if not found.
+     * falling back to false if not found.
      * It can be overridden or configured via the system properties.
-     * TODO: Remove "disable.thread.safety" property in version x.25
      */
     boolean DISABLE_SINGLE_THREADED_CHECK =
-            Jvm.getBoolean("disable.single.threaded.check",
-                    Jvm.getBoolean("disable.thread.safety", false));
+            Jvm.getBoolean("disable.single.threaded.check", false);
 
     /**
      * Resets the single-threaded check, forgetting about previous accesses.

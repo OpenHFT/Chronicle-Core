@@ -18,8 +18,8 @@
 
 package net.openhft.chronicle.core.pool;
 
-import net.openhft.chronicle.core.ClassLocal;
 import net.openhft.chronicle.core.Maths;
+import net.openhft.chronicle.core.util.ClassLocal;
 import net.openhft.chronicle.core.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 /**

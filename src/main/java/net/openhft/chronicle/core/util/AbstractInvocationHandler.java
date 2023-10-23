@@ -18,7 +18,6 @@
 
 package net.openhft.chronicle.core.util;
 
-import net.openhft.chronicle.core.ClassLocal;
 import net.openhft.chronicle.core.internal.ClassUtil;
 import net.openhft.chronicle.core.io.Closeable;
 import net.openhft.chronicle.core.io.InvalidMarshallableException;

@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.internal.Bootstrap;
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
 import net.openhft.chronicle.core.threads.ThreadDump;
@@ -203,7 +204,7 @@ public class JvmTest extends CoreTestCommon {
     @Test
     public void arrayByteBaseOffset() {
         byte[] bytes = {0};
-        UnsafeMemory.MEMORY.writeByte(bytes, (long) Jvm.arrayByteBaseOffset(), (byte) 1);
+        UnsafeMemory.MEMORY.writeByte(bytes, Jvm.arrayByteBaseOffset(), (byte) 1);
         assertEquals(1, bytes[0]);
     }
 

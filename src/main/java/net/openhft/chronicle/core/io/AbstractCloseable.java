@@ -55,16 +55,11 @@ import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEAS
  * Subclasses can also control the behavior of thread safety checks and background closing through provided methods.
  */
 public abstract class AbstractCloseable implements ReferenceOwner, ManagedCloseable, SingleThreadedChecked {
-    @Deprecated(/* remove in x.25 */)
-    protected static final boolean DISABLE_THREAD_SAFETY = DISABLE_SINGLE_THREADED_CHECK;
 
     /**
      * Flag indicating whether discard warning is disabled.
      */
     protected static final boolean DISABLE_DISCARD_WARNING = Jvm.getBoolean("disable.discard.warning", true);
-    @SuppressWarnings("DeprecatedIsStillUsed")
-    @Deprecated(/* remove in x.25 */)
-    protected static final boolean STRICT_DISCARD_WARNING;
 
     /**
      * The number of nanoseconds to warn before closing a resource.
@@ -80,10 +75,6 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         if (Jvm.isResourceTracing())
             enableCloseableTracing();
         CLOSED_OFFSET = UnsafeMemory.unsafeObjectFieldOffset(Jvm.getField(AbstractCloseable.class, "closed"));
-        if (Jvm.getProperty("strict.discard.warning") != null) {
-            Jvm.warn().on(AbstractCloseable.class, "strict.discard.warning is deprecated and has no effect, it will be removed in x.25");
-        }
-        STRICT_DISCARD_WARNING = Jvm.getBoolean("strict.discard.warning", false);
     }
 
     private final transient StackTrace createdHere;
@@ -416,22 +407,6 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     }
 
     /**
-     * @deprecated Use @{code singleThreadedCheckReset()} instead
-     */
-    @Deprecated(/* to be removed in x.25 */)
-    public void resetUsedByThread() {
-        singleThreadedCheckReset();
-    }
-
-    /**
-     * @deprecated Use @{code singleThreadedCheckReset()} instead
-     */
-    @Deprecated(/* to be removed in x.25 */)
-    public void clearUsedByThread() {
-        singleThreadedCheckReset();
-    }
-
-    /**
      * Resets the state of the thread safety check.
      * After calling this method, the component's thread safety check state will be cleared,
      * and it will no longer remember which thread it was last accessed by.
@@ -453,14 +428,6 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     }
 
     /**
-     * @deprecated Use @{code singleThreadedCheckDisabled()} instead
-     */
-    @Deprecated(/* to be removed in x.25 */)
-    public boolean disableThreadSafetyCheck() {
-        return singleThreadedCheckDisabled;
-    }
-
-    /**
      * Determines if the single-threaded safety check is disabled for this component.
      * If disabled, the component will not perform checks to ensure that it is being accessed
      * by a single thread.
@@ -469,15 +436,6 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
      */
     protected boolean singleThreadedCheckDisabled() {
         return singleThreadedCheckDisabled;
-    }
-
-    /**
-     * @deprecated Use @{code disableThreadSafetyCheck(boolean)} instead
-     */
-    @Deprecated(/* to be removed in x.25 */)
-    public AbstractCloseable disableThreadSafetyCheck(boolean disableThreadSafetyCheck) {
-        singleThreadedCheckDisabled(disableThreadSafetyCheck);
-        return this;
     }
 
     /**
