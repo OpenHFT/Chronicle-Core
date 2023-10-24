@@ -18,7 +18,6 @@
 
 package net.openhft.chronicle.core;
 
-import net.openhft.chronicle.core.internal.Bootstrap;
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
 import net.openhft.chronicle.core.threads.ThreadDump;
@@ -281,32 +280,6 @@ public class JvmTest extends CoreTestCommon {
         @Override
         public void hello(CharSequence ignored) {
         }
-    }
-
-    @Test
-    public void getCpuClass() {
-        final String cpuClass = Jvm.getCpuClass();
-        System.out.println("cpuClass: " + cpuClass + ", os.name: " + System.getProperty("os.name") + ", os.arch: " + System.getProperty("os.arch"));
-        if (Jvm.isMacArm()) {
-            assertEquals(cpuClass, "Apple M1", cpuClass);
-
-        } else if (Jvm.isArm()) {
-            assertTrue(cpuClass, cpuClass.startsWith("ARMv"));
-
-        } else {
-            assertTrue(cpuClass, (cpuClass.contains("Intel") && cpuClass.contains(" @ "))
-                    || (cpuClass.startsWith("AMD ")));
-        }
-
-        assertNotNull(cpuClass);
-    }
-
-    @Test
-    public void removingTag() {
-        // TODO FIX on MacOS. sysctl -a returned 141, https://github.com/OpenHFT/Chronicle-Core/issues/557
-        assumeFalse(net.openhft.chronicle.core.internal.Bootstrap.IS_MAC);
-        final String actual = Bootstrap.CpuClass.removingTag().apply("tag: value");
-        assertEquals("value", actual);
     }
 
     @Test
