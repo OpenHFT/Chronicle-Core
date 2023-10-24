@@ -19,7 +19,6 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.annotation.DontChain;
-import net.openhft.chronicle.core.internal.CpuClass;
 import net.openhft.chronicle.core.internal.*;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
 import net.openhft.chronicle.core.onoes.*;
