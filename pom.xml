@@ -33,7 +33,7 @@
     <scm>
         <connection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</connection>
         <developerConnection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</developerConnection>
-        <tag>ea</tag>
+        <tag>release/2.24</tag>
         <url>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</url>
     </scm>
     <properties>
