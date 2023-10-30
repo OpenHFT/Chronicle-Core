@@ -19,11 +19,11 @@
 package net.openhft.chronicle.core.onoes;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import net.openhft.chronicle.core.Mocker;
 import net.openhft.chronicle.core.util.IgnoresEverything;
+import net.openhft.chronicle.core.util.Mocker;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 public class ExceptionHandlerTest extends CoreTestCommon {
     @Test

@@ -66,20 +66,6 @@ public interface ReferenceCounted extends ReferenceOwner {
     boolean tryReserve(ReferenceOwner id) throws ClosedIllegalStateException, IllegalArgumentException;
 
     /**
-     * Checks if the resource is reserved by the specified owner. Returns {@code true} if unsure.
-     * <p>
-     * This method provides a best-effort check and may not be accurate.
-     *
-     * @param owner The unique identifier representing the owner to check.
-     * @return {@code false} if it is certain that the owner does not have the resource reserved; {@code true} otherwise.
-     * @throws ClosedIllegalStateException    If the resource has been released or closed.
-     * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
-     * @deprecated This method is deprecated and may be removed in future versions.
-     */
-    @Deprecated(/* to be removed in x.25 */)
-    boolean reservedBy(ReferenceOwner owner) throws ClosedIllegalStateException;
-
-    /**
      * Releases the resource by decrementing its reference count by one.
      * When the reference count reaches zero, the resource is freed.
      *

@@ -74,7 +74,6 @@ public interface LongValue extends Closeable {
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
-    // TODO Move to subclass so it's not a default in x.25
     default long getVolatileValue() throws IllegalStateException {
         return getValue();
     }
@@ -86,7 +85,6 @@ public interface LongValue extends Closeable {
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
-    // TODO Move to subclass so it's not a default in x.25
     default void setVolatileValue(long value) throws IllegalStateException {
         setValue(value);
     }
@@ -100,7 +98,6 @@ public interface LongValue extends Closeable {
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
-    // TODO Move to subclass so it's not a default in x.25
     default long getVolatileValue(long closedValue) throws IllegalStateException {
         if (isClosed())
             return closedValue;
@@ -118,7 +115,6 @@ public interface LongValue extends Closeable {
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
-    // TODO Move to subclass so it's not a default in x.25
     default void setOrderedValue(long value) throws IllegalStateException {
         setVolatileValue(value);
     }
@@ -141,7 +137,6 @@ public interface LongValue extends Closeable {
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
-    // TODO Move to subclass so it's not a default in x.25
     default long addAtomicValue(long delta) throws IllegalStateException {
         return addValue(delta);
     }
@@ -164,7 +159,6 @@ public interface LongValue extends Closeable {
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
-    // TODO Move to subclass so it's not a default in x.25
     default void setMaxValue(long value) throws IllegalStateException {
         for (; ; ) {
             long pos = getVolatileValue();
@@ -183,7 +177,6 @@ public interface LongValue extends Closeable {
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
-    // TODO Move to subclass so it's not a default in x.25
     default void setMinValue(long value) throws IllegalStateException {
         for (; ; ) {
             long pos = getVolatileValue();
@@ -201,7 +194,6 @@ public interface LongValue extends Closeable {
      * @return true if the instance is closed, false otherwise.
      */
     @Override
-    // TODO Move to subclass so it's not a default in x.25
     default boolean isClosed() {
         return false;
     }
@@ -210,7 +202,6 @@ public interface LongValue extends Closeable {
      * Closes the LongValue instance and releases any resources associated with it.
      */
     @Override
-    // TODO Move to subclass so it's not a default in x.25
     default void close() {
     }
 }

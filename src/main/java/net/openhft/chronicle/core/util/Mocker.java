@@ -16,11 +16,9 @@
  * limitations under the License.
  */
 
-package net.openhft.chronicle.core;
+package net.openhft.chronicle.core.util;
 
-import net.openhft.chronicle.core.util.AbstractInvocationHandler;
-import net.openhft.chronicle.core.util.GenericReflection;
-import net.openhft.chronicle.core.util.IgnoresEverything;
+import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.PrintStream;
@@ -40,7 +38,6 @@ import java.util.function.Consumer;
 /**
  * The Mocker class provides utility methods for creating mocked instances of interfaces.
  */
-// TODO to be moved to the util package x.25
 public final class Mocker {
 
     private static final Class<?>[] NO_CLASSES = new Class[0];

@@ -23,6 +23,7 @@ import net.openhft.chronicle.core.internal.Bootstrap;
 import net.openhft.chronicle.core.internal.*;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
 import net.openhft.chronicle.core.onoes.*;
+import net.openhft.chronicle.core.util.ClassMetrics;
 import net.openhft.chronicle.core.util.ObjectUtils;
 import net.openhft.chronicle.core.util.ThrowingSupplier;
 import net.openhft.posix.PosixAPI;

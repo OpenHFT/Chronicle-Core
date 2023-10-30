@@ -52,17 +52,6 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
         referenceChangeListeners.remove(referenceChangeListener);
     }
 
-    @Deprecated(/* To be removed in 2.25 */)
-    @Override
-    public boolean reservedBy(ReferenceOwner owner) throws IllegalStateException {
-        if (references.containsKey(owner))
-            return true;
-        StackTrace stackTrace = releases.get(owner);
-        if (stackTrace == null)
-            throw new IllegalStateException(type.getName() + " never reserved by " + asString(owner));
-        throw new IllegalStateException(type.getName() + " no longer reserved by " + asString(owner), stackTrace);
-    }
-
     @Override
     public void reserve(ReferenceOwner id) throws ClosedIllegalStateException {
         tryReserve(id, true);

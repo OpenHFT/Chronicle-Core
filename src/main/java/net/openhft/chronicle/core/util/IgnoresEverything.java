@@ -18,8 +18,6 @@
 
 package net.openhft.chronicle.core.util;
 
-import net.openhft.chronicle.core.Mocker;
-
 /**
  * A marker interface which shows this implementation ignores everything.
  * <p>

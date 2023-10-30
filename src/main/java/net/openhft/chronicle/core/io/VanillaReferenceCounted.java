@@ -23,8 +23,6 @@ import net.openhft.chronicle.core.StackTrace;
 import net.openhft.chronicle.core.UnsafeMemory;
 import net.openhft.chronicle.core.annotation.UsedViaReflection;
 
-import static net.openhft.chronicle.core.internal.CloseableUtils.asString;
-
 /**
  * This class provides a basic implementation of the {@link MonitorReferenceCounted} interface.
  * It is responsible for keeping track of reference counts and releasing resources
@@ -67,15 +65,6 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     @Override
     public StackTrace createdHere() {
         return null;
-    }
-
-    @Deprecated(/* To be removed in 2.25 */)
-    @Override
-    public boolean reservedBy(ReferenceOwner owner) throws ClosedIllegalStateException {
-        if (refCount() <= 0)
-            throw new ClosedIllegalStateException(type.getName() + " no reservations for " + asString(owner));
-        // otherwise, not sure.
-        return true;
     }
 
     /**

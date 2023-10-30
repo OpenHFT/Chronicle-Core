@@ -79,15 +79,6 @@ public interface EventLoop extends Closeable {
     boolean isStopped();
 
     /**
-     * Waits until the event loop has terminated (after {@link #stop()} has been called).
-     *
-     * @deprecated {@link #stop()} and {@link #close()} both block until the event handlers have
-     * finished running, there's no reason to call this method explicitly.
-     */
-    @Deprecated(/* for removal in x.25 */)
-    void awaitTermination();
-
-    /**
      * Checks if the current thread is executing inside an event loop.
      *
      * @return {@code true} if the current thread is executing inside an event loop, otherwise {@code false}.

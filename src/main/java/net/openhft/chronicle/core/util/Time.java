@@ -21,9 +21,6 @@ package net.openhft.chronicle.core.util;
 import net.openhft.chronicle.core.time.SystemTimeProvider;
 import net.openhft.chronicle.core.time.UniqueMicroTimeProvider;
 
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.locks.LockSupport;
-
 /**
  * A timer for timeouts which is resilient to pauses in the JVM, tickTime can only increase if the JVM hasn't been paused.
  * <p>
@@ -45,23 +42,4 @@ public final class Time {
         return Long.toString(l, 36);
     }
 
-    @Deprecated(/* to be removed in x.25 */)
-    public static void parkNanos(long nanos) {
-        LockSupport.parkNanos(nanos);
-    }
-
-    /**
-     * Sleeps in such a way that any long pause of the JVM, e.g. GC, will make it wait much longer to prevent timeouts being busted.
-     *
-     * @param time     to pause for at least.
-     * @param timeUnit the time unit
-     */
-    @Deprecated(/* to be removed in x.25 */)
-    public static void sleep(long time, TimeUnit timeUnit) {
-        int millis = (int) timeUnit.convert(time, TimeUnit.MILLISECONDS);
-        for (int i = 0; i < millis; i++) {
-            System.currentTimeMillis();
-            LockSupport.parkNanos(1_000_000);
-        }
-    }
 }

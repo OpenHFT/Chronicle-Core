@@ -17,9 +17,7 @@
  *
  */
 
-package net.openhft.chronicle.core;
-
-import net.openhft.chronicle.core.io.Closeable;
+package net.openhft.chronicle.core.io;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,8 +28,6 @@ import java.io.RandomAccessFile;
  * <p>
  * Weak references RAF can result in a resource leak when GC'ed which doesn't appear if the GC isn't running.
  */
-
-// TODO to be moved to the io package x.25
 public class CleaningRandomAccessFile extends RandomAccessFile {
     public CleaningRandomAccessFile(String name, String mode) throws FileNotFoundException {
         super(name, mode);
