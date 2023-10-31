@@ -19,6 +19,7 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.annotation.DontChain;
+import net.openhft.chronicle.core.internal.Bootstrap;
 import net.openhft.chronicle.core.internal.*;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
 import net.openhft.chronicle.core.onoes.*;
@@ -180,14 +181,12 @@ public final class Jvm {
         ChronicleInit.postInit();
     }
 
-    @Nullable
     private static MethodHandle getOnSpinWait() {
         MethodType voidType = MethodType.methodType(void.class);
         MethodHandles.Lookup lookup = MethodHandles.lookup();
         try {
             if (isJava9Plus())
                 return lookup.findStatic(Thread.class, "onSpinWait", voidType);
-            return lookup.findStatic(Class.forName("java.lang.Compiler"), "enable", voidType);
         } catch (Exception ignored) {
         }
         try {
@@ -922,9 +921,7 @@ public final class Jvm {
     }
 
     /**
-     * Inserts a low-cost Java safe-point in the code path.
-     * <p>
-     * Note: this does nothing on Java 8.
+     * Inserts a low-cost Java safe-point in the code path if -Djvm.safepoint.enabled
      */
     public static void safepoint() {
         if (SAFEPOINT_ENABLED) {
