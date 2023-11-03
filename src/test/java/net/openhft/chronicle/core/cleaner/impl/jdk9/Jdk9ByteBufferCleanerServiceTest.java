@@ -24,12 +24,10 @@ import net.openhft.chronicle.core.cleaner.impl.CleanerTestUtil;
 import net.openhft.chronicle.core.internal.cleaner.Jdk9ByteBufferCleanerService;
 import org.junit.Test;
 
-import static org.junit.Assume.assumeTrue;
-
 public class Jdk9ByteBufferCleanerServiceTest extends CoreTestCommon {
     @Test
     public void shouldCleanBuffer() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
-        assumeTrue(Jvm.isJava9Plus());
+        Jvm.setResourceTracing(true);
 
         CleanerTestUtil.test(new Jdk9ByteBufferCleanerService()::clean);
     }

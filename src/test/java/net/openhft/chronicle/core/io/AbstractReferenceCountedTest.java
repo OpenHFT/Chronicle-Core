@@ -23,13 +23,12 @@ import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
-import static org.junit.Assume.assumeTrue;
 
 public class AbstractReferenceCountedTest extends ReferenceCountedTracerContractTest {
 
     @Test
     public void reserve() throws IllegalStateException, IllegalArgumentException {
-        assumeTrue(Jvm.isResourceTracing());
+        Jvm.setResourceTracing(true);
 
         MyReferenceCounted rc = createReferenceCounted();
         assertEquals(1, rc.refCount());

@@ -23,7 +23,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
 
 public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTracerContractTest {
 
@@ -36,7 +35,8 @@ public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTrace
 
     @Test
     public void reserve() throws IllegalStateException, IllegalArgumentException {
-        assumeTrue(Jvm.isResourceTracing());
+        Jvm.setResourceTracing(true);
+
         MyCloseableReferenceCounted rc = createReferenceCounted();
         assertEquals(1, rc.refCount());
 

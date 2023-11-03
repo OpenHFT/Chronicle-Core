@@ -19,17 +19,13 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.Maths;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.util.function.BiFunction;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
 
 public class StringUtilsTest extends CoreTestCommon {
     @Test
@@ -81,10 +77,9 @@ public class StringUtilsTest extends CoreTestCommon {
 
     @Test
     public void shouldExtractBytesFromString() {
-        assumeTrue(Jvm.isJava9Plus());
-
-        assertThat("Is this test running on JDK9 with compact strings disabled?",
-                StringUtils.extractBytes("foobar"), is("foobar".getBytes(StandardCharsets.US_ASCII)));
+        assertEquals(
+                "foobar".getBytes(StandardCharsets.US_ASCII),
+                StringUtils.extractBytes("foobar"));
     }
 
     @Test
@@ -102,8 +97,6 @@ public class StringUtilsTest extends CoreTestCommon {
 
     @Test
     public void shouldCreateNewStringFromBytes() {
-        assumeTrue(Jvm.isJava9Plus());
-
         final byte[] bytes = {'A', 'B', 'C'};
         String expected = new String(bytes,StandardCharsets.ISO_8859_1);
         String actual = StringUtils.newStringFromBytes(bytes);
