@@ -42,12 +42,8 @@ public final class Bootstrap {
     public static final String PROC_SELF = "/proc/self";
     public static final int PROCESS_ID = getProcessId0();
     static final int JVM_JAVA_MAJOR_VERSION;
-    static final boolean IS_JAVA_9_PLUS;
-    static final boolean IS_JAVA_12_PLUS;
-    static final boolean IS_JAVA_14_PLUS;
-    static final boolean IS_JAVA_15_PLUS;
-    static final boolean IS_JAVA_19_PLUS;
-    static final boolean IS_JAVA_20_PLUS;
+    static final boolean IS_JAVA_9_PLUS, IS_JAVA_12_PLUS, IS_JAVA_14_PLUS, IS_JAVA_15_PLUS;
+    static final boolean IS_JAVA_19_PLUS, IS_JAVA_20_PLUS, IS_JAVA_21_PLUS;
     // Suppresses default constructor, ensuring non-instantiability.
     private static final String OS_NAME = System.getProperty("os.name");
     private static final String LOWER_OS_NAME = OS_NAME.toLowerCase();
@@ -67,6 +63,7 @@ public final class Bootstrap {
         IS_JAVA_15_PLUS = JVM_JAVA_MAJOR_VERSION >= 15;
         IS_JAVA_19_PLUS = JVM_JAVA_MAJOR_VERSION >= 19;
         IS_JAVA_20_PLUS = JVM_JAVA_MAJOR_VERSION >= 20;
+        IS_JAVA_21_PLUS = JVM_JAVA_MAJOR_VERSION >= 21;
 
         boolean assertEnabled = false;
         assert assertEnabled = true;
@@ -122,6 +119,10 @@ public final class Bootstrap {
 
     public static boolean isJava20Plus() {
         return IS_JAVA_20_PLUS;
+    }
+
+    public static boolean isJava21Plus() {
+        return IS_JAVA_21_PLUS;
     }
 
     private static int getMajorVersion0() {

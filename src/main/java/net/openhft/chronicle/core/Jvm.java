@@ -19,7 +19,6 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.annotation.DontChain;
-import net.openhft.chronicle.core.internal.Bootstrap;
 import net.openhft.chronicle.core.internal.*;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
 import net.openhft.chronicle.core.onoes.*;
@@ -338,6 +337,13 @@ public final class Jvm {
      */
     public static boolean isJava20Plus() {
         return Bootstrap.isJava20Plus();
+    }
+
+    /**
+     * @return if the major Java version is 21 or higher
+     */
+    public static boolean isJava21Plus() {
+        return Bootstrap.isJava21Plus();
     }
 
     /**
