@@ -23,6 +23,7 @@ import net.openhft.chronicle.core.Maths;
 import org.junit.Test;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.function.BiFunction;
 
 import static org.junit.Assert.*;
@@ -77,9 +78,10 @@ public class StringUtilsTest extends CoreTestCommon {
 
     @Test
     public void shouldExtractBytesFromString() {
-        assertEquals(
-                "foobar".getBytes(StandardCharsets.US_ASCII),
-                StringUtils.extractBytes("foobar"));
+        assertTrue(
+                Arrays.equals(
+                    "foobar".getBytes(StandardCharsets.US_ASCII),
+                    StringUtils.extractBytes("foobar")));
     }
 
     @Test
