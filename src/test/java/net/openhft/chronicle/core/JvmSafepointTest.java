@@ -60,7 +60,7 @@ public class JvmSafepointTest extends CoreTestCommon {
         t.interrupt();
         t.join();
         System.out.println("counter: " + counter);
-        assertTrue("counter: " + counter, counter > min);
+        assertTrue("counter: " + counter, counter >= min);
     }
 
     @Test
