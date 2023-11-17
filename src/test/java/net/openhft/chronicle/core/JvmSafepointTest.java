@@ -41,15 +41,16 @@ public class JvmSafepointTest extends CoreTestCommon {
         t.start();
         Jvm.pause(5);
         int counter = 0;
-        int min = Jvm.isAzulZing() ? 0 : 200;
+        int min = Jvm.isAzulZing() ? 20 : 200;
         while (t.isAlive() && counter <= min) {
             StackTraceElement[] stackTrace = t.getStackTrace();
             if (stackTrace.length > 1) {
-                String s = stackTrace[1].toString();
-                if (s.contains("safepoint"))
+                String s0 = stackTrace[0].toString();
+                String s1 = stackTrace[1].toString();
+                if (s0.contains("safepoint") || s1.contains("safepoint"))
                     counter++;
-                else if (t.isAlive() && !s.contains("interrupted"))
-                    System.out.println(s);
+                else if (t.isAlive() && !s0.contains("interrupted") && !s1.contains("interrupt"))
+                    System.out.println(s0 + "\n" + s1);
             }
         }
         t.interrupt();

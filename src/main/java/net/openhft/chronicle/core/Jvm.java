@@ -113,6 +113,7 @@ public final class Jvm {
     private static final ChainedSignalHandler signalHandlerGlobal;
     private static boolean RESOURCE_TRACING;
     private static final boolean PROC_EXISTS = new File(PROC).exists();
+    @SuppressWarnings("unused")
     private static volatile Thread s_blackHole;
 
     static {
