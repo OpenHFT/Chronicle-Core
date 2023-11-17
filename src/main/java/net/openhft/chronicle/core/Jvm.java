@@ -931,6 +931,8 @@ public final class Jvm {
      */
     public static void safepoint() {
         if (SAFEPOINT_ENABLED) {
+            if (Jvm.isAzulZing())
+                Thread.currentThread();
             Safepoint.force();
         }
     }
