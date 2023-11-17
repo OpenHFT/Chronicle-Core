@@ -23,11 +23,6 @@ import org.junit.Test;
 
 import static junit.framework.TestCase.assertTrue;
 
-/*
-@Ignore("see TC - https://github.com/OpenHFT/Chronicle-Core/issues/63, failing on release build " +
-        "http://teamcity.higherfrequencytrading" +
-        ".com:8111/repository/download/OpenHFT_ReleaseJob_ReleaseByArtifact/257026:id/ReleaseAutomation/projects/chronicle-core-runTests-1527606961685.log")
-*/
 public class JvmSafepointTest extends CoreTestCommon {
 
     @Test
@@ -38,29 +33,29 @@ public class JvmSafepointTest extends CoreTestCommon {
                 long start = System.currentTimeMillis();
                 while (System.currentTimeMillis() < start + 1000
                         && !Thread.interrupted()) {
-                    for (int i = 0; i < 10000; i++)
+                    for (int i = 0; i < 1000; i++)
                         Jvm.safepoint();
                 }
             }
         };
         t.start();
-        Jvm.pause(5);
         int counter = 0;
-        int min = Jvm.isAzulZing() ? 0 : 200;
-        while (t.isAlive() && counter <= min) {
+        int min = Jvm.isAzulZing() ? 20 : 200;
+        do {
             StackTraceElement[] stackTrace = t.getStackTrace();
             if (stackTrace.length > 1) {
-                String s = stackTrace[1].toString();
-                if (s.contains("safepoint"))
+                String s0 = stackTrace[0].toString();
+                String s1 = stackTrace[1].toString();
+                if (s0.contains("safepoint") || s1.contains("safepoint"))
                     counter++;
-                else if (t.isAlive() && !s.contains("interrupted"))
-                    System.out.println(s);
+                else if (!s0.contains("interrupted") && !s1.contains("interrupt"))
+                    System.out.println(s0 + "\n" + s1);
             }
-        }
+        } while (t.isAlive() && counter <= min);
         t.interrupt();
         t.join();
         System.out.println("counter: " + counter);
-        assertTrue("counter: " + counter, counter > min);
+        assertTrue("counter: " + counter, counter >= min);
     }
 
     @Test

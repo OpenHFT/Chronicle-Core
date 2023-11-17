@@ -113,6 +113,8 @@ public final class Jvm {
     private static final ChainedSignalHandler signalHandlerGlobal;
     private static boolean RESOURCE_TRACING;
     private static final boolean PROC_EXISTS = new File(PROC).exists();
+    @SuppressWarnings("unused")
+    private static volatile Thread s_blackHole;
 
     static {
         Logger logger = LoggerFactory.getLogger(Jvm.class);
@@ -931,6 +933,8 @@ public final class Jvm {
      */
     public static void safepoint() {
         if (SAFEPOINT_ENABLED) {
+            if (Jvm.isAzulZing())
+                s_blackHole = Thread.currentThread();
             Safepoint.force();
         }
     }
@@ -988,6 +992,7 @@ public final class Jvm {
     }
 
     private static ClassMetrics getClassMetrics(final Class<?> c) {
+        assert !c.isArray();
         final Class<?> superclass = c.getSuperclass();
         int start = Integer.MAX_VALUE;
         int end = 0;
@@ -1421,8 +1426,26 @@ public final class Jvm {
         return IS_AZUL_ZULU;
     }
 
+    /**
+     * Returns the size of the object header in the JVM.
+     * This size is calculated based on the offset of the first field of a class.
+     *
+     * @return The size of the object header.
+     */
     public static int objectHeaderSize() {
         return ObjectHeaderSizeHolder.getSize();
+    }
+
+
+    /**
+     * Calculates the object header size for a given class type.
+     * If the class type is an array, it returns the array base offset; otherwise, it returns the object header size.
+     *
+     * @param type The class for which the object header size is to be calculated.
+     * @return The object header size or array base offset, depending on the class type.
+     */
+    public static int objectHeaderSize(Class type) {
+        return ObjectHeaderSizeHolder.objectHeaderSize(type);
     }
 
     /**
