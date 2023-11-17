@@ -1432,6 +1432,7 @@ public final class Jvm {
      *
      * @return The size of the object header.
      */
+    @Deprecated(/* to be removed in x.27 */)
     public static int objectHeaderSize() {
         return ObjectHeaderSizeHolder.getSize();
     }
@@ -1444,6 +1445,7 @@ public final class Jvm {
      * @param type The class for which the object header size is to be calculated.
      * @return The object header size or array base offset, depending on the class type.
      */
+    @Deprecated(/* to be removed in x.27 */)
     public static int objectHeaderSize(Class type) {
         return ObjectHeaderSizeHolder.objectHeaderSize(type);
     }

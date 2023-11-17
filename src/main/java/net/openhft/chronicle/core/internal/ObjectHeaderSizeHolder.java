@@ -2,13 +2,13 @@ package net.openhft.chronicle.core.internal;
 
 import net.openhft.chronicle.core.UnsafeMemory;
 import net.openhft.chronicle.core.annotation.UsedViaReflection;
-import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
 /**
  * This class provides methods to obtain the size of the object header and the base offset for arrays in the JVM.
  * It uses the Unsafe API to calculate these values, which are essential for low-level memory operations.
  */
+@Deprecated(/* to be removed in x.27 */)
 public final class ObjectHeaderSizeHolder {
 
     private static final int OBJECT_HEADER_SIZE;
