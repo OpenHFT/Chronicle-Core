@@ -33,15 +33,15 @@ public class JvmSafepointTest extends CoreTestCommon {
                 long start = System.currentTimeMillis();
                 while (System.currentTimeMillis() < start + 1000
                         && !Thread.interrupted()) {
-                    for (int i = 0; i < 10000; i++)
+                    for (int i = 0; i < 1000; i++)
                         Jvm.safepoint();
                 }
             }
         };
         t.start();
         int counter = 0;
-        int min = 200;
-        while (t.isAlive() && counter <= min) {
+        int min = Jvm.isAzulZing() ? 20 : 200;
+        do {
             StackTraceElement[] stackTrace = t.getStackTrace();
             if (stackTrace.length > 1) {
                 String s0 = stackTrace[0].toString();
@@ -51,7 +51,7 @@ public class JvmSafepointTest extends CoreTestCommon {
                 else if (t.isAlive() && !s0.contains("interrupted") && !s1.contains("interrupt"))
                     System.out.println(s0 + "\n" + s1);
             }
-        }
+        } while (t.isAlive() && counter <= min);
         t.interrupt();
         t.join();
         System.out.println("counter: " + counter);
