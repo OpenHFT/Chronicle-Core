@@ -113,6 +113,7 @@ public final class Jvm {
     private static final ChainedSignalHandler signalHandlerGlobal;
     private static boolean RESOURCE_TRACING;
     private static final boolean PROC_EXISTS = new File(PROC).exists();
+    private static volatile Thread s_blackHole;
 
     static {
         Logger logger = LoggerFactory.getLogger(Jvm.class);
@@ -932,7 +933,7 @@ public final class Jvm {
     public static void safepoint() {
         if (SAFEPOINT_ENABLED) {
             if (Jvm.isAzulZing())
-                LockSupport.parkUntil(1);
+                s_blackHole = Thread.currentThread();
             Safepoint.force();
         }
     }
