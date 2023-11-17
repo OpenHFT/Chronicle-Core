@@ -12,21 +12,11 @@ import java.lang.reflect.Field;
 public final class ObjectHeaderSizeHolder {
 
     private static final int OBJECT_HEADER_SIZE;
-    private static final int ARRAY_BASE_OFFSET;
 
     static {
         try {
             final Field aField = ObjectHeaderSizeHolder.class.getDeclaredField("firstField");
             OBJECT_HEADER_SIZE = (int) UnsafeMemory.INSTANCE.getFieldOffset(aField);
-            ARRAY_BASE_OFFSET = Unsafe.ARRAY_BYTE_BASE_OFFSET;
-            assert ARRAY_BASE_OFFSET == Unsafe.ARRAY_BOOLEAN_BASE_OFFSET;
-            assert ARRAY_BASE_OFFSET == Unsafe.ARRAY_CHAR_BASE_OFFSET;
-            assert ARRAY_BASE_OFFSET == Unsafe.ARRAY_DOUBLE_BASE_OFFSET;
-            assert ARRAY_BASE_OFFSET == Unsafe.ARRAY_FLOAT_BASE_OFFSET;
-            assert ARRAY_BASE_OFFSET == Unsafe.ARRAY_INT_BASE_OFFSET;
-            assert ARRAY_BASE_OFFSET == Unsafe.ARRAY_LONG_BASE_OFFSET;
-            assert ARRAY_BASE_OFFSET == Unsafe.ARRAY_OBJECT_BASE_OFFSET;
-            assert ARRAY_BASE_OFFSET == Unsafe.ARRAY_SHORT_BASE_OFFSET;
         } catch (NoSuchFieldException e) {
             throw new AssertionError(e);
         }
@@ -49,16 +39,6 @@ public final class ObjectHeaderSizeHolder {
     }
 
     /**
-     * Returns the base offset for array types in the JVM.
-     * This value is essential for calculations involving direct memory access to arrays.
-     *
-     * @return The base offset for arrays.
-     */
-    public static int getArrayBaseOffset() {
-        return ARRAY_BASE_OFFSET;
-    }
-
-    /**
      * Calculates the object header size for a given class type.
      * If the class type is an array, it returns the array base offset; otherwise, it returns the object header size.
      *
@@ -66,6 +46,6 @@ public final class ObjectHeaderSizeHolder {
      * @return The object header size or array base offset, depending on the class type.
      */
     public static int objectHeaderSize(Class<?> type) {
-        return type.isArray() ? ARRAY_BASE_OFFSET : OBJECT_HEADER_SIZE;
+        return type.isArray() ? UnsafeMemory.UNSAFE.arrayBaseOffset(type) : OBJECT_HEADER_SIZE;
     }
 }

@@ -48,7 +48,7 @@ public class JvmSafepointTest extends CoreTestCommon {
                 String s1 = stackTrace[1].toString();
                 if (s0.contains("safepoint") || s1.contains("safepoint"))
                     counter++;
-                else if (t.isAlive() && !s0.contains("interrupted") && !s1.contains("interrupt"))
+                else if (!s0.contains("interrupted") && !s1.contains("interrupt"))
                     System.out.println(s0 + "\n" + s1);
             }
         } while (t.isAlive() && counter <= min);
