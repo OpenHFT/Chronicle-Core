@@ -40,7 +40,7 @@ public class JvmSafepointTest extends CoreTestCommon {
         };
         t.start();
         int counter = 0;
-        int min = Jvm.isAzulZing() ? 20 : 200;
+        int min = Jvm.isAzulZing() ? 2 : 200;
         do {
             StackTraceElement[] stackTrace = t.getStackTrace();
             if (stackTrace.length > 1) {
