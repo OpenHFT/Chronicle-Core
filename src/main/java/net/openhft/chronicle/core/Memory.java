@@ -365,19 +365,6 @@ public interface Memory {
     void copyMemory(long fromAddress, long address, long length);
 
     /**
-     * Deprecated method. Copies a range of bytes from the given byte array to the specified object at the given offset.
-     *
-     * @param bytes   the source byte array
-     * @param offset  the starting index in the byte array
-     * @param obj2    the destination object
-     * @param offset2 the starting offset in the destination object
-     * @param length  the number of bytes to copy
-     * @deprecated This method is deprecated and will be removed in a future version (x.24).
-     */
-    @Deprecated(/* to be removed in x.24 */)
-    void copyMemory(byte[] bytes, int offset, Object obj2, long offset2, int length);
-
-    /**
      * Copies a range of memory from the given object to the specified memory address.
      *
      * @param o         the source object

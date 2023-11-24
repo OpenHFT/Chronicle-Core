@@ -32,6 +32,7 @@ import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE_COPY_THRESHOLD;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
+import static sun.misc.Unsafe.ARRAY_BYTE_BASE_OFFSET;
 
 @RunWith(Parameterized.class)
 public class UnsafeMemory2Test extends CoreTestCommon {
@@ -392,7 +393,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
         final byte[] data = new byte[Integer.BYTES];
         data[0] = 98;
         MyDTO to = new MyDTO();
-        memory.copyMemory(data, 0, to, offset, Integer.BYTES);
+        memory.copyMemory(data, ARRAY_BYTE_BASE_OFFSET, to, offset, Integer.BYTES);
         assertEquals(data[0], to.num);
         to.num = 77;
         memory.copyMemory(to, offset, data, memory.arrayBaseOffset(data.getClass()), Integer.BYTES);
