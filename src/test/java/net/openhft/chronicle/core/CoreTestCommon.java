@@ -23,7 +23,7 @@ import net.openhft.chronicle.core.internal.ReferenceCountedUtils;
 import net.openhft.chronicle.core.io.AbstractReferenceCounted;
 import net.openhft.chronicle.core.threads.CleaningThread;
 import net.openhft.chronicle.core.threads.ThreadDump;
-import net.openhft.chronicle.testframework.internal.ExceptionTracker;
+import net.openhft.chronicle.testframework.exception.ExceptionTracker;
 import org.junit.After;
 import org.junit.Before;
 
