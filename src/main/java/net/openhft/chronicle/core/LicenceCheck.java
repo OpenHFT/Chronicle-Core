@@ -32,7 +32,7 @@ import static net.openhft.chronicle.core.Jvm.warn;
 public interface LicenceCheck {
 
     String CHRONICLE_LICENSE = "chronicle.license";
-
+    long milliSecondsInADay = 86400000;
     /**
      * Check for license expiry and log message with license and expiry details
      *
@@ -84,7 +84,7 @@ public interface LicenceCheck {
             LocalDate date = LocalDate.parse(key.substring(start, end));
             int start2 = key.indexOf("owner=") + 6;
             int end2 = key.indexOf(",", start2);
-            long days = date.toEpochDay() - System.currentTimeMillis() / 86400000;
+            long days = date.toEpochDay() - System.currentTimeMillis() / milliSecondsInADay;
             if (days < 0)
                 throw Jvm.rethrow(new TimeLimitExceededException());
             String owner = key.substring(start2, end2);
