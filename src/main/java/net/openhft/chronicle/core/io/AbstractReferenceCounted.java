@@ -176,10 +176,22 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
      */
     @Override
     public void reserve(ReferenceOwner id) throws ClosedIllegalStateException, ThreadingIllegalStateException {
-        if ((WARN_COUNT < Integer.MAX_VALUE && referenceCounted.refCount() >= WARN_COUNT) && (referenceCounted.refCount() - WARN_COUNT) % 10 == 0)
-            Jvm.warn().on(getClass(), "high reserve count for " + referenceName() +
-                    " was " + referenceCounted.refCount(), new StackTrace("reserved here"));
+        if (shouldWarnAboutHighReserveCount()) {
+            warnAboutHighReserveCount();
+        }
         referenceCounted.reserve(id);
+    }
+
+    private boolean shouldWarnAboutHighReserveCount() {
+        int currentRefCount = referenceCounted.refCount();
+        return WARN_COUNT < Integer.MAX_VALUE
+                && currentRefCount >= WARN_COUNT
+                && (currentRefCount - WARN_COUNT) % 10 == 0;
+    }
+
+    private void warnAboutHighReserveCount() {
+        Jvm.warn().on(getClass(), "High reserve count for " + referenceName() +
+                " was " + referenceCounted.refCount(), new StackTrace("Reserved here"));
     }
 
     /**
