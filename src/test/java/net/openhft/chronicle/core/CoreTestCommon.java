@@ -20,7 +20,7 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.internal.JvmExceptionTracker;
 import net.openhft.chronicle.core.internal.ReferenceCountedUtils;
-import net.openhft.chronicle.core.io.AbstractReferenceCounted;
+import net.openhft.chronicle.core.io.ReferenceCountMonitor;
 import net.openhft.chronicle.core.threads.CleaningThread;
 import net.openhft.chronicle.core.threads.ThreadDump;
 import net.openhft.chronicle.testframework.internal.ExceptionTracker;
@@ -35,7 +35,7 @@ public class CoreTestCommon {
 
     @Before
     public void enableReferenceTracing() {
-        AbstractReferenceCounted.enableReferenceTracing();
+        ReferenceCountMonitor.enableReferenceTracing();
     }
 
     // Add @Before in tests where this could be a problem. It's expensive to add to every test
@@ -72,7 +72,7 @@ public class CoreTestCommon {
             checkThreadDump();
 
         exceptionTracker.checkExceptions();
-        AbstractReferenceCounted.disableReferenceTracing();
+        ReferenceCountMonitor.disableReferenceTracing();
     }
 
     protected void assertReferencesReleased() {

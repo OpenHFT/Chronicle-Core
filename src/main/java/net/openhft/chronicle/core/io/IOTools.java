@@ -470,7 +470,7 @@ public final class IOTools {
         if (t instanceof Closeable)
             AbstractCloseable.unmonitor((Closeable) t);
         if (t instanceof ReferenceCounted)
-            AbstractReferenceCounted.unmonitor((ReferenceCounted) t);
+            ReferenceCountMonitor.unmonitor((ReferenceCounted) t);
         if (depth > 0)
             unmonitor(t.getClass(), t, depth - 1);
     }

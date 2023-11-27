@@ -40,7 +40,6 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     protected static final int WARN_COUNT = Jvm.getInteger("reference.warn.count", Integer.MAX_VALUE);
 
     // Fields
-    static volatile Set<AbstractReferenceCounted> referenceCountedSet;
     protected final transient MonitorReferenceCounted referenceCounted;
     private final int referenceId;
     private transient volatile Thread usedByThread;
@@ -69,40 +68,6 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         if (monitored) {
             ReferenceCountedUtils.add(this);
         }
-    }
-
-    /**
-     * Enables reference tracing.
-     */
-    public static void enableReferenceTracing() {
-        ReferenceCountedUtils.enableReferenceTracing();
-    }
-
-    /**
-     * Disables reference tracing.
-     * <p>
-     * <b>NOTE:</b> The resources will still be released appropriately, however if detailed tracing won't be recorded
-     */
-    public static void disableReferenceTracing() {
-        ReferenceCountedUtils.disableReferenceTracing();
-    }
-
-    /**
-     * Asserts that all references have been released.
-     */
-    public static void assertReferencesReleased() {
-        ReferenceCountedUtils.assertReferencesReleased();
-    }
-
-    /**
-     * Marks a reference-counted resource as unmonitored.
-     * <p>
-     * <b>NOTE:</b> The resource will still be released appropriately, however it won't give a warning if it is not.
-     *
-     * @param counted the resource to unmonitor.
-     */
-    public static void unmonitor(ReferenceCounted counted) {
-        ReferenceCountedUtils.unmonitor(counted);
     }
 
     /**
