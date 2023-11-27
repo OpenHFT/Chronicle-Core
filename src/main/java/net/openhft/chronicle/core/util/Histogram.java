@@ -345,32 +345,32 @@ public class Histogram implements NanoSampler {
     public String toMicrosFormat(@NotNull DoubleFunction<Double> toMicros) {
         if (totalCount < 1_000_000)
             return "50/90 99/99.9 99.99 - worst " + was() +
-                    p(toMicros.apply(percentile(0.5))) + " / " +
-                    p(toMicros.apply(percentile(0.9))) + "  " +
-                    p(toMicros.apply(percentile(0.99))) + " / " +
-                    p(toMicros.apply(percentile(0.999))) + "  " +
-                    p(toMicros.apply(percentile(0.9999))) + " - " +
-                    p(toMicros.apply(percentile(1)));
+                    formatDoubleValue(toMicros.apply(percentile(0.5))) + " / " +
+                    formatDoubleValue(toMicros.apply(percentile(0.9))) + "  " +
+                    formatDoubleValue(toMicros.apply(percentile(0.99))) + " / " +
+                    formatDoubleValue(toMicros.apply(percentile(0.999))) + "  " +
+                    formatDoubleValue(toMicros.apply(percentile(0.9999))) + " - " +
+                    formatDoubleValue(toMicros.apply(percentile(1)));
 
         if (totalCount < 10_000_000)
             return "50/90 99/99.9 99.99/99.999 - worst " + was() +
-                    p(toMicros.apply(percentile(0.5))) + " / " +
-                    p(toMicros.apply(percentile(0.9))) + "  " +
-                    p(toMicros.apply(percentile(0.99))) + " / " +
-                    p(toMicros.apply(percentile(0.999))) + "  " +
-                    p(toMicros.apply(percentile(0.9999))) + " / " +
-                    p(toMicros.apply(percentile(0.99999))) + " - " +
-                    p(toMicros.apply(percentile(1)));
+                    formatDoubleValue(toMicros.apply(percentile(0.5))) + " / " +
+                    formatDoubleValue(toMicros.apply(percentile(0.9))) + "  " +
+                    formatDoubleValue(toMicros.apply(percentile(0.99))) + " / " +
+                    formatDoubleValue(toMicros.apply(percentile(0.999))) + "  " +
+                    formatDoubleValue(toMicros.apply(percentile(0.9999))) + " / " +
+                    formatDoubleValue(toMicros.apply(percentile(0.99999))) + " - " +
+                    formatDoubleValue(toMicros.apply(percentile(1)));
 
         return "50/90 99/99.9 99.99/99.999 99.9999/worst " + was() +
-                p(toMicros.apply(percentile(0.5))) + " / " +
-                p(toMicros.apply(percentile(0.9))) + "  " +
-                p(toMicros.apply(percentile(0.99))) + " / " +
-                p(toMicros.apply(percentile(0.999))) + "  " +
-                p(toMicros.apply(percentile(0.9999))) + " / " +
-                p(toMicros.apply(percentile(0.99999))) + "  " +
-                p(toMicros.apply(percentile(0.999999))) + " / " +
-                p(toMicros.apply(percentile(1)));
+                formatDoubleValue(toMicros.apply(percentile(0.5))) + " / " +
+                formatDoubleValue(toMicros.apply(percentile(0.9))) + "  " +
+                formatDoubleValue(toMicros.apply(percentile(0.99))) + " / " +
+                formatDoubleValue(toMicros.apply(percentile(0.999))) + "  " +
+                formatDoubleValue(toMicros.apply(percentile(0.9999))) + " / " +
+                formatDoubleValue(toMicros.apply(percentile(0.99999))) + "  " +
+                formatDoubleValue(toMicros.apply(percentile(0.999999))) + " / " +
+                formatDoubleValue(toMicros.apply(percentile(1)));
     }
 
     /**
@@ -396,22 +396,22 @@ public class Histogram implements NanoSampler {
         if (totalCount < 1_000_000)
             return "50/90 97/99 99.7/99.9 99.97/99.99 - worst " + was() +
                     first4nines(toMicros) + " - " +
-                    p(toMicros.apply(percentile(1)));
+                    formatDoubleValue(toMicros.apply(percentile(1)));
 
         if (totalCount < 10_000_000)
             return "50/90 97/99 99.7/99.9 99.97/99.99 99.997/99.999 - worst " + was() +
                     first4nines(toMicros) + "  " +
-                    p(toMicros.apply(percentile(0.99997))) + " / " +
-                    p(toMicros.apply(percentile(0.99999))) + " - " +
-                    p(toMicros.apply(percentile(1)));
+                    formatDoubleValue(toMicros.apply(percentile(0.99997))) + " / " +
+                    formatDoubleValue(toMicros.apply(percentile(0.99999))) + " - " +
+                    formatDoubleValue(toMicros.apply(percentile(1)));
 
         return "50/90 97/99 99.7/99.9 99.97/99.99 99.997/99.999 99.9997/99.9999 - worst " + was() +
                 first4nines(toMicros) + "  " +
-                p(toMicros.apply(percentile(0.99997))) + " / " +
-                p(toMicros.apply(percentile(0.99999))) + "  " +
-                p(toMicros.apply(percentile(0.999997))) + " / " +
-                p(toMicros.apply(percentile(0.999999))) + " - " +
-                p(toMicros.apply(percentile(1)));
+                formatDoubleValue(toMicros.apply(percentile(0.99997))) + " / " +
+                formatDoubleValue(toMicros.apply(percentile(0.99999))) + "  " +
+                formatDoubleValue(toMicros.apply(percentile(0.999997))) + " / " +
+                formatDoubleValue(toMicros.apply(percentile(0.999999))) + " - " +
+                formatDoubleValue(toMicros.apply(percentile(1)));
     }
 
     protected String was() {
@@ -420,18 +420,18 @@ public class Histogram implements NanoSampler {
 
     @NotNull
     private String first4nines(@NotNull DoubleFunction<Double> toMicros) {
-        return p(toMicros.apply(percentile(0.5))) + " / " +
-                p(toMicros.apply(percentile(0.9))) + "  " +
-                p(toMicros.apply(percentile(0.97))) + " / " +
-                p(toMicros.apply(percentile(0.99))) + "  " +
-                p(toMicros.apply(percentile(0.997))) + " / " +
-                p(toMicros.apply(percentile(0.999))) + "  " +
-                p(toMicros.apply(percentile(0.9997))) + " / " +
-                p(toMicros.apply(percentile(0.9999)));
+        return formatDoubleValue(toMicros.apply(percentile(0.5))) + " / " +
+                formatDoubleValue(toMicros.apply(percentile(0.9))) + "  " +
+                formatDoubleValue(toMicros.apply(percentile(0.97))) + " / " +
+                formatDoubleValue(toMicros.apply(percentile(0.99))) + "  " +
+                formatDoubleValue(toMicros.apply(percentile(0.997))) + " / " +
+                formatDoubleValue(toMicros.apply(percentile(0.999))) + "  " +
+                formatDoubleValue(toMicros.apply(percentile(0.9997))) + " / " +
+                formatDoubleValue(toMicros.apply(percentile(0.9999)));
     }
 
     @NotNull
-    private String p(double v) {
+    private String formatDoubleValue(double v) {
         double v2 = v * 100 / (1 << fractionBits);
         // Uses non thread safe static fields.
         synchronized (Histogram.class) {
