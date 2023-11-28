@@ -21,6 +21,7 @@ package net.openhft.chronicle.core.threads;
 import net.openhft.affinity.Affinity;
 import net.openhft.affinity.AffinityLock;
 import net.openhft.chronicle.core.CoreTestCommon;
+import net.openhft.chronicle.core.scoped.ScopedThreadLocal;
 import org.junit.Test;
 
 import java.util.BitSet;
@@ -46,7 +47,7 @@ public class CleaningThreadTest extends CoreTestCommon {
     @Test
     public void testRemove() {
         int[] counter = {0};
-        CleaningThreadLocal<Integer> ctl = CleaningThreadLocal.withCloseQuietly(() -> counter[0]++);
+        CleaningThreadLocal<Integer> ctl = ScopedThreadLocal.withCloseQuietly(() -> counter[0]++);
         assertEquals(0, (int) ctl.get());
         CleaningThread.performCleanup(Thread.currentThread());
         assertEquals(1, (int) ctl.get());

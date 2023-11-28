@@ -1,6 +1,7 @@
 package net.openhft.chronicle.core.scoped;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.io.Closeable;
 import net.openhft.chronicle.core.threads.CleaningThreadLocal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -48,6 +49,15 @@ public class ScopedThreadLocal<T> implements ScopedResourcePool<T> {
     }
 
     /**
+     * Creates a CleaningThreadLocal with a Closeable cleanup strategy.
+     *
+     * @param supplier The supplier that provides the resource.
+     * @return A CleaningThreadLocal instance.
+     */
+    public static <T> CleaningThreadLocal<T> withCloseQuietly(Supplier<T> supplier) {
+        return new CleaningThreadLocal<>(supplier, Closeable::closeQuietly);
+    }
+    /**
      * Constructor
      *
      * @param supplier          The supplier of new instances
@@ -58,7 +68,7 @@ public class ScopedThreadLocal<T> implements ScopedResourcePool<T> {
     public ScopedThreadLocal(@NotNull Supplier<T> supplier, @NotNull Consumer<T> onAcquire, int maxInstances, boolean useWeakReferences) {
         this.supplier = supplier;
         this.onAcquire = onAcquire;
-        this.instancesTL = CleaningThreadLocal.withCloseQuietly(() -> new SimpleStack(maxInstances));
+        this.instancesTL = withCloseQuietly(() -> new SimpleStack(maxInstances));
         this.useWeakReferences = useWeakReferences;
     }
 

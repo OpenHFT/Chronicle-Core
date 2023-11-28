@@ -49,7 +49,7 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
      * @param supplier The supplier that provides the resource.
      * @param cleanup  The consumer that cleans up the resource.
      */
-    CleaningThreadLocal(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup) {
+    public CleaningThreadLocal(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup) {
         this(supplier, cleanup, UnaryOperator.identity());
     }
 
@@ -66,16 +66,6 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         this.getWrapper = getWrapper;
         // only do this for testing.
         assert trackNonCleaningThreads();
-    }
-
-    /**
-     * Creates a CleaningThreadLocal with a Closeable cleanup strategy.
-     *
-     * @param supplier The supplier that provides the resource.
-     * @return A CleaningThreadLocal instance.
-     */
-    public static <T> CleaningThreadLocal<T> withCloseQuietly(Supplier<T> supplier) {
-        return new CleaningThreadLocal<>(supplier, Closeable::closeQuietly);
     }
 
     /**
