@@ -267,9 +267,9 @@ public class Histogram implements NanoSampler {
     public double max() {
         return percentile(1.0);
     }
-
-    public double percentile(double fraction) {
-        if (fraction <= 0) {
+    public class FractionLessThanOrEqualToZero extends PercentileCalculator {
+        @Override
+        public double calculate(double fraction) {
             for (int i = 0; i < sampleCount.length; i++) {
                 if (sampleCount[i] <= 0)
                     continue;
@@ -278,20 +278,34 @@ public class Histogram implements NanoSampler {
             }
             return 1;
         }
-        long value = (long) (totalCount * (1 - fraction));
-        value -= overRange;
-        if (value < 0)
-            return Double.POSITIVE_INFINITY;
-        for (int i = sampleCount.length - 1; i >= 0; i--) {
-            value -= sampleCount[i];
-            if (value < 0) {
-                long bits = ((((i + floor) << 1) + 1) << (51 - fractionBits));
-                return Double.longBitsToDouble(bits);
-            }
-        }
-        return 1;
     }
 
+    public class FractionGreaterThanZero extends PercentileCalculator {
+        @Override
+        public double calculate(double fraction) {
+            long value = (long) (totalCount * (1 - fraction));
+            value -= overRange;
+            if (value < 0)
+                return Double.POSITIVE_INFINITY;
+            for (int i = sampleCount.length - 1; i >= 0; i--) {
+                value -= sampleCount[i];
+                if (value < 0) {
+                    long bits = ((((i + floor) << 1) + 1) << (51 - fractionBits));
+                    return Double.longBitsToDouble(bits);
+                }
+            }
+            return 1;
+        }
+    }
+    public double percentile(double fraction) {
+        PercentileCalculator calculator;
+        if (fraction <= 0) {
+            calculator = new FractionLessThanOrEqualToZero();
+        } else {
+            calculator = new FractionGreaterThanZero();
+        }
+        return calculator.calculate(fraction);
+    }
     /**
      * Calculates the percentage of values that are less than the given time.
      *
