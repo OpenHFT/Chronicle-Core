@@ -215,14 +215,14 @@
                 <groupId>software.chronicle</groupId>
                 <artifactId>chronicle-guarding-maven-plugin</artifactId>
                 <version>1.0.31-SNAPSHOT</version>
-                <!--<executions>
+                <executions>
                     <execution>
                         <goals>
-                            <goal>guard-files</goal>
+                            <goal>guard-all</goal>
                         </goals>
-                        <phase>prepare-package</phase>
+                        <phase>package</phase>
                     </execution>
-                </executions>-->
+                </executions>
             </plugin>
 
             <plugin>

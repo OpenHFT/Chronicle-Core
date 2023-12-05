@@ -247,6 +247,7 @@ public final class Jvm {
             System.out.println("Jar path=" + jarPath);
             Class.forName("software.chronicle.jguard.JGuard")
                     .getMethod("unguard_jar", String.class).invoke(null, jarPath);
+            isDecrypted = true;
         } catch (ClassNotFoundException cnfe) {
             // No-op.
         } catch (Exception ex) {

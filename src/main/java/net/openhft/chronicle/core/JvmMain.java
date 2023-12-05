@@ -4,7 +4,7 @@ public class JvmMain {
     private static boolean isDecrypted;
 
     public static void main(String[] args) throws Exception {
-        Jvm.bootstrap();
+        bootstrap();
     }
 
     public static void bootstrap() {
@@ -13,20 +13,19 @@ public class JvmMain {
         try {
             String jarPath = getJarPath();
             System.out.println("Jar path=" + jarPath);
+            Class.forName("software.chronicle.Bootstrap");
             Class.forName("software.chronicle.jguard.JGuard")
                     .getMethod("unguard_jar", String.class).invoke(null, jarPath);
+            isDecrypted = true;
         } catch (ClassNotFoundException cnfe) {
-            // No-op.
+            System.out.println("Class not found: software.chronicle.jguard.JGuard");
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
     }
 
     private static String getJarPath() {
-        String path = Jvm.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        if (OS.isWindows() && path.startsWith("/")) // "/C:/Program" is not a valid Path
-            path = path.substring(1);
-        return path;
+        return Jvm.class.getProtectionDomain().getCodeSource().getLocation().getPath();
     }
 
      /*public static void main(String[] args) throws Exception {
