@@ -179,6 +179,39 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>software.chronicle</groupId>
+                <artifactId>chronicle-maven-shade-plugin</artifactId>
+                <version>4.0.0</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Implementation-Version>chronicle-bom:${project.version}
+                                        </Implementation-Version>
+                                    </manifestEntries>
+                                </transformer>
+                            </transformers>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>net.openhft:chronicle-analytics</exclude>
+                                </excludes>
+                            </artifactSet>
+                            <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>com.github.ekryd.sortpom</groupId>
                 <artifactId>sortpom-maven-plugin</artifactId>
                 <version>3.0.1</version>
@@ -211,20 +244,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>software.chronicle</groupId>
-                <artifactId>chronicle-guarding-maven-plugin</artifactId>
-                <version>1.0.31-SNAPSHOT</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>guard-all</goal>
-                        </goals>
-                        <phase>package</phase>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-scm-publish-plugin</artifactId>

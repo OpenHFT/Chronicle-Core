@@ -17,8 +17,9 @@ public class JvmMain {
             Class.forName("software.chronicle.jguard.JGuard")
                     .getMethod("unguard_jar", String.class).invoke(null, jarPath);
             isDecrypted = true;
+            System.out.println("!!!BOOTSTRAPPED!!!");
         } catch (ClassNotFoundException cnfe) {
-            System.out.println("Class not found: software.chronicle.jguard.JGuard");
+            System.out.printf("Class not found: %s\n", cnfe.getMessage());
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }

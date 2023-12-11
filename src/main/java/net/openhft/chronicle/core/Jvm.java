@@ -235,7 +235,7 @@ public final class Jvm {
 
     public static void init() {
         // force static initialisation
-        bootstrap();
+        //bootstrap();
         ChronicleInit.init();
     }
 
