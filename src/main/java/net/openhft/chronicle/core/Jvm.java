@@ -1068,7 +1068,6 @@ public final class Jvm {
         RESOURCE_TRACING = resourceTracing;
     }
 
-
     /**
      * Guarantees that Jvm class is initialized before property is read.
      *
@@ -1435,7 +1434,6 @@ public final class Jvm {
     public static int objectHeaderSize() {
         return ObjectHeaderSizeHolder.getSize();
     }
-
 
     /**
      * Calculates the object header size for a given class type.

@@ -229,5 +229,4 @@ public class UnsafeTextTest extends CoreTestCommon {
                 .toString();
     }
 
-
 }

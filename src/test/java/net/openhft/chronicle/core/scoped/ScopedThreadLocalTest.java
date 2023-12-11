@@ -17,7 +17,6 @@ import static net.openhft.chronicle.core.io.Closeable.closeQuietly;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-
 public class ScopedThreadLocalTest extends CoreTestCommon {
 
     private static final int MAX_INSTANCES = 3;

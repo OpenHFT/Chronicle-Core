@@ -304,7 +304,6 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         assertEquals(1, listener2.referenceRemovedCount);
     }
 
-
     static class CounterReferenceChangeListener implements ReferenceChangeListener {
         int referenceAddedCount = 0;
         int referenceRemovedCount = 0;
