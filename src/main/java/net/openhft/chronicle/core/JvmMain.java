@@ -1,35 +1,14 @@
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.internal.ChronicleGuarding;
 import software.chronicle.internal.InternalApi;
 
 public class JvmMain {
-    private static boolean isDecrypted;
 
     public static void main(String[] args) throws Exception {
-        bootstrap();
-    }
-
-    public static void bootstrap() {
-        if (isDecrypted)
-            return;
-        try {
-            String jarPath = getJarPath();
-            System.out.println("Jar path=" + jarPath);
-            //Class.forName("software.chronicle.Bootstrap");
-            Class.forName("software.chronicle.jguard.JGuard")
-                    .getMethod("unguard_jar", String.class).invoke(null, jarPath);
-            isDecrypted = true;
-            System.out.println("!!!BOOTSTRAPPED!!!");
-            InternalApi.protectedMethod();
-        } catch (ClassNotFoundException cnfe) {
-            System.out.printf("Class not found: %s\n", cnfe.getMessage());
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    private static String getJarPath() {
-        return Jvm.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        ChronicleGuarding.bootstrap();
+        System.out.println("!!!BOOTSTRAPPED!!!");
+        InternalApi.protectedMethod();
     }
 
      /*public static void main(String[] args) throws Exception {

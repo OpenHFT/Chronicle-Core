@@ -115,7 +115,6 @@ public final class Jvm {
     private static final boolean PROC_EXISTS = new File(PROC).exists();
     @SuppressWarnings("unused")
     private static volatile Thread s_blackHole;
-    private static boolean isDecrypted;
 
     static {
         Logger logger = LoggerFactory.getLogger(Jvm.class);
@@ -235,33 +234,8 @@ public final class Jvm {
 
     public static void init() {
         // force static initialisation
-        //bootstrap();
         ChronicleInit.init();
     }
-
-    public static void bootstrap() {
-        if (isDecrypted)
-            return;
-        try {
-            String jarPath = getJarPath();
-            System.out.println("Jar path=" + jarPath);
-            Class.forName("software.chronicle.jguard.JGuard")
-                    .getMethod("unguard_jar", String.class).invoke(null, jarPath);
-            isDecrypted = true;
-        } catch (ClassNotFoundException cnfe) {
-            // No-op.
-        } catch (Exception ex) {
-            throw new RuntimeException(ex);
-        }
-    }
-
-    private static String getJarPath() {
-        String path = Jvm.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        if (OS.isWindows() && path.startsWith("/")) // "/C:/Program" is not a valid Path
-            path = path.substring(1);
-        return path;
-    }
-
 
     private static void loadSystemProperties(final String name, final boolean wasSet) {
         try {

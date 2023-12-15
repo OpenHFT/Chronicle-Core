@@ -181,7 +181,7 @@
             <plugin>
                 <groupId>software.chronicle</groupId>
                 <artifactId>chronicle-maven-shade-plugin</artifactId>
-                <version>4.0.0</version>
+                <version>3.5.2-SNAPSHOT</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
