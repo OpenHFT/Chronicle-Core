@@ -4,7 +4,7 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.UnsafeMemory;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ObjectHeaderSizeHolderTest {
     @Test
@@ -23,5 +23,23 @@ public class ObjectHeaderSizeHolderTest {
                 Jvm.objectHeaderSize(double[].class));
         assertEquals(UnsafeMemory.UNSAFE.ARRAY_OBJECT_BASE_OFFSET,
                 Jvm.objectHeaderSize(String[].class));
+    }
+
+    @Test
+    public void getSizeShouldReturnPositiveValue() {
+        int size = ObjectHeaderSizeHolder.getSize();
+        assertTrue(size > 0, "Object header size should be positive");
+    }
+
+    @Test
+    public void objectHeaderSizeShouldReturnPositiveForNonArrayClass() {
+        int size = ObjectHeaderSizeHolder.objectHeaderSize(Object.class);
+        assertTrue(size > 0, "Object header size for non-array class should be positive");
+    }
+
+    @Test
+    public void objectHeaderSizeShouldReturnPositiveForArrayClass() {
+        int size = ObjectHeaderSizeHolder.objectHeaderSize(int[].class);
+        assertTrue(size >= 0, "Array base offset for array class should be non-negative");
     }
 }

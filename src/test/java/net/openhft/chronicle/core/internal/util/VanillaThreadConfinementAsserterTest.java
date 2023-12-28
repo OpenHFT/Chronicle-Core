@@ -24,6 +24,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class VanillaThreadConfinementAsserterTest extends CoreTestCommon {
 
@@ -51,4 +52,28 @@ public class VanillaThreadConfinementAsserterTest extends CoreTestCommon {
         );
     }
 
+    @Test
+    public void shouldNotThrowExceptionForSameThreadAccess() {
+        VanillaThreadConfinementAsserter asserter = new VanillaThreadConfinementAsserter();
+        assertDoesNotThrow(asserter::assertThreadConfined, "Access by the same thread should not throw an exception");
+    }
+
+    @Test
+    public void shouldThrowExceptionForDifferentThreadAccess() throws InterruptedException {
+        VanillaThreadConfinementAsserter asserter = new VanillaThreadConfinementAsserter();
+        asserter.assertThreadConfined(); // Initialize with the current thread
+
+        Thread otherThread = new Thread(() -> {
+            assertThrows(IllegalStateException.class, asserter::assertThreadConfined);
+        });
+
+        otherThread.start();
+        otherThread.join();
+    }
+
+    @Test
+    public void toStringShouldReturnNonNullValue() {
+        VanillaThreadConfinementAsserter asserter = new VanillaThreadConfinementAsserter();
+        assertNotNull(asserter.toString(), "toString should return a non-null value");
+    }
 }

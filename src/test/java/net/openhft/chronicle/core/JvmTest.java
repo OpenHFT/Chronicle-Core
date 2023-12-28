@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core;
 
+import jnr.constants.platform.aix.Signal;
 import net.openhft.chronicle.core.internal.ObjectHeaderSizeHolder;
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
@@ -27,6 +28,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.verification.VerificationMode;
 import sun.nio.ch.DirectBuffer;
 
 import javax.naming.ConfigurationException;
@@ -43,9 +45,12 @@ import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static jdk.internal.org.objectweb.asm.util.CheckClassAdapter.verify;
 import static net.openhft.chronicle.core.Jvm.*;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 
 public class JvmTest extends CoreTestCommon {
 
@@ -332,6 +337,105 @@ public class JvmTest extends CoreTestCommon {
 
         assertFalse(Jvm.isLambdaClass(My$$Lambda$Class.class));
     }
+
+    @Test
+    public void testCompileThreshold() {
+        int threshold = Jvm.compileThreshold();
+        assertTrue(threshold > 0);
+    }
+
+    @Test
+    public void testMajorVersion() {
+        int majorVersion = Jvm.majorVersion();
+        assertTrue(majorVersion >= 8);
+    }
+
+    @Test
+    public void testJavaVersionChecks() {
+        assertFalse(Jvm.isJava9Plus());
+        assertFalse(Jvm.isJava12Plus());
+        assertFalse(Jvm.isJava14Plus());
+        assertFalse(Jvm.isJava15Plus());
+        assertFalse(Jvm.isJava19Plus());
+        assertFalse(Jvm.isJava20Plus());
+        assertFalse(Jvm.isJava21Plus());
+    }
+
+    @Test
+    public void testGetProcessId() {
+        int processId = Jvm.getProcessId();
+        assertTrue(processId > 0);
+    }
+
+    @Test
+    public void testTrimStackTrace() {
+        StringBuilder sb = new StringBuilder();
+        StackTraceElement[] stes = new StackTraceElement[] {
+                new StackTraceElement("Class1", "method1", "Class1.java", 1),
+                new StackTraceElement("Class2", "method2", "Class2.java", 2)
+        };
+        Jvm.trimStackTrace(sb, stes);
+        assertTrue(sb.toString().contains("Class1.method1"));
+        assertTrue(sb.toString().contains("Class2.method2"));
+    }
+
+    @Test
+    public void testUsedNativeMemory() {
+        long memory = Jvm.usedNativeMemory();
+        assertTrue(memory >= 0);
+    }
+
+    @Test
+    public void testDisableDebugHandler() {
+        Jvm.disableDebugHandler();
+    }
+
+    @Test
+    public void testDisablePerfHandler() {
+        Jvm.disablePerfHandler();
+    }
+
+    @Test
+    public void testDisableWarnHandler() {
+        Jvm.disableWarnHandler();
+    }
+
+    @Test
+    public void testSetThreadLocalExceptionHandlers() {
+        ExceptionHandler mockErrorHandler = mock(ExceptionHandler.class);
+        Jvm.setThreadLocalExceptionHandlers(mockErrorHandler, null, null);
+    }
+
+    @Test
+    public void testIsDebugEnabledAndIsPerfEnabled() {
+        assertTrue(Jvm.isDebugEnabled(SomeClass.class));
+        assertTrue(Jvm.isPerfEnabled(SomeClass.class));
+    }
+
+    @Test
+    public void testGetSize() {
+        long defaultValue = 1024;
+        assertEquals(defaultValue, Jvm.getSize("nonexistentProperty", defaultValue));
+    }
+
+    @Test
+    public void testGetCpuClass() {
+        String cpuClass = Jvm.getCpuClass();
+        assertNotNull(cpuClass);
+    }
+
+    @Test
+    public void testCommonInterruptible() {
+        FileChannel mockFileChannel = mock(FileChannel.class);
+        Jvm.CommonInterruptible commonInterruptible = new Jvm.CommonInterruptible(getClass(), mockFileChannel);
+
+        commonInterruptible.interrupt();
+    }
+
+    static class SomeClass {
+        private int somePrivateField;
+    }
+
     @Target(value = {ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     public @interface RealAnno {

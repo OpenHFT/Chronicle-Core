@@ -22,10 +22,12 @@ import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.util.IgnoresEverything;
 import net.openhft.chronicle.core.util.Mocker;
 import org.junit.Test;
-
-import static org.junit.Assert.assertTrue;
+import org.slf4j.Logger;
+import static org.mockito.Mockito.*;
+import static org.junit.Assert.*;
 
 public class ExceptionHandlerTest extends CoreTestCommon {
+
     @Test
     public void ignoresEverything() {
         assertTrue(ExceptionHandler.ignoresEverything() instanceof IgnoresEverything);
@@ -34,5 +36,50 @@ public class ExceptionHandlerTest extends CoreTestCommon {
     @Test
     public void ignoresEverything2() {
         assertTrue(Mocker.ignored(ExceptionHandler.class) instanceof IgnoresEverything);
+    }
+
+    @Test
+    public void onWithClassAndThrowableShouldDelegateProperly() {
+        ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
+        Class<?> clazz = this.getClass();
+        Throwable thrown = new RuntimeException();
+
+        handler.on(clazz, thrown);
+
+        verify(handler).on(clazz, "", thrown);
+    }
+
+    @Test
+    public void onWithClassAndMessageShouldDelegateProperly() {
+        ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
+        Class<?> clazz = this.getClass();
+        String message = "Test message";
+
+        handler.on(clazz, message);
+
+        verify(handler).on(clazz, message, null);
+    }
+
+    @Test
+    public void onWithLoggerAndMessageShouldDelegateProperly() {
+        ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
+        Logger logger = mock(Logger.class);
+        String message = "Test message";
+
+        handler.on(logger, message);
+
+        verify(handler).on(logger, message, null);
+    }
+
+    @Test
+    public void isEnabledShouldAlwaysReturnTrue() {
+        ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
+        assertTrue(handler.isEnabled(this.getClass()));
+    }
+
+    @Test
+    public void defaultHandlerShouldReturnSelf() {
+        ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
+        assertSame(handler, handler.defaultHandler());
     }
 }

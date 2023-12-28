@@ -26,6 +26,8 @@ import net.openhft.chronicle.core.util.Time;
 import org.junit.Assume;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -44,6 +46,97 @@ import java.util.stream.IntStream;
 import static org.junit.Assert.*;
 
 public class IOToolsTest extends CoreTestCommon {
+
+    @Test
+    public void testIsClosedException() {
+        Exception closedConnectionException = new IOException("Connection reset by peer");
+        assertTrue(IOTools.isClosedException(closedConnectionException));
+
+        Exception otherException = new IOException("Some other IO error");
+        assertFalse(IOTools.isClosedException(otherException));
+    }
+
+    @Test
+    public void testWriteFile() throws IOException {
+        String testFilename = "testFile.tmp";
+        String testData = "Test Data";
+
+        IOTools.writeFile(testFilename, testData.getBytes());
+
+        Path path = Paths.get(testFilename);
+        assertTrue(Files.exists(path));
+        assertArrayEquals(testData.getBytes(), Files.readAllBytes(path));
+
+        Files.deleteIfExists(path);
+    }
+
+    @Test
+    public void testTempName() {
+        String filename = "test.txt";
+        String tempFilename = IOTools.tempName(filename);
+
+        assertNotEquals(filename, tempFilename);
+        assertTrue(tempFilename.startsWith("test"));
+        assertTrue(tempFilename.endsWith(".txt"));
+    }
+
+    @Test
+    public void testClean() {
+        ByteBuffer bb = ByteBuffer.allocateDirect(1024);
+
+        IOTools.clean(bb);
+    }
+
+    @Test
+    public void testCreateDirectories() throws IOException {
+        Path tempDir = Paths.get("tempDir");
+        IOTools.createDirectories(tempDir);
+
+        assertTrue(Files.isDirectory(tempDir));
+
+        Files.deleteIfExists(tempDir);
+    }
+
+    @Test
+    public void testIsDirectBuffer() {
+        ByteBuffer directBuffer = ByteBuffer.allocateDirect(1024);
+        ByteBuffer nonDirectBuffer = ByteBuffer.allocate(1024);
+
+        assertTrue(IOTools.isDirectBuffer(directBuffer));
+        assertFalse(IOTools.isDirectBuffer(nonDirectBuffer));
+    }
+
+    @Test
+    public void testAddressFor() {
+        ByteBuffer directBuffer = ByteBuffer.allocateDirect(1024);
+        long address = IOTools.addressFor(directBuffer);
+
+        assertNotEquals(0, address);
+    }
+
+    @Test
+    public void testDeleteDirWithFiles() throws IOException {
+        Path tempDir = Files.createTempDirectory("testDir");
+        File tempFile = Files.createTempFile(tempDir, "test", ".tmp").toFile();
+
+        assertTrue(tempFile.exists());
+        assertTrue(IOTools.deleteDirWithFiles(tempDir.toFile()));
+
+        assertFalse(tempFile.exists());
+        assertFalse(tempDir.toFile().exists());
+    }
+
+    @Test
+    public void testReadAsBytes() throws IOException {
+        String testData = "Test Data";
+        ByteArrayInputStream bais = new ByteArrayInputStream(testData.getBytes());
+
+        byte[] bytes = IOTools.readAsBytes(bais);
+
+        assertArrayEquals(testData.getBytes(), bytes);
+    }
+
+
 
     @Test
     public void readFileManyTimesByPath() {

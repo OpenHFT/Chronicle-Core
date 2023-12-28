@@ -27,11 +27,42 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 public class InvalidEventHandlerExceptionTest extends CoreTestCommon {
 
+    @Test
+    public void testStandardConstructors() {
+        String message = "Error occurred";
+        Throwable cause = new RuntimeException("Cause of error");
+
+        InvalidEventHandlerException exceptionWithMessage = new InvalidEventHandlerException(message);
+        assertEquals(message, exceptionWithMessage.getMessage());
+
+        InvalidEventHandlerException exceptionWithCause = new InvalidEventHandlerException(cause);
+        assertSame(cause, exceptionWithCause.getCause());
+
+        InvalidEventHandlerException defaultException = new InvalidEventHandlerException();
+        assertNull(defaultException.getMessage());
+    }
+
+    @Test
+    public void testReusableInstance() {
+        InvalidEventHandlerException reusableInstance = InvalidEventHandlerException.reusable();
+        assertNotNull(reusableInstance);
+        assertEquals(0, reusableInstance.getStackTrace().length);
+
+        // Test immutability
+        Throwable newCause = new RuntimeException("New cause");
+        assertSame(reusableInstance, reusableInstance.initCause(newCause));
+        assertNull(reusableInstance.getCause());
+
+        // Attempt to set a new stack trace
+        reusableInstance.setStackTrace(new StackTraceElement[]{});
+        assertEquals(0, reusableInstance.getStackTrace().length);
+    }
     InvalidEventHandlerException e;
 
     @Before
