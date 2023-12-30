@@ -1,4 +1,4 @@
-package net.openhft.chronicle.wire.scoped;
+package net.openhft.chronicle.core.scoped;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
