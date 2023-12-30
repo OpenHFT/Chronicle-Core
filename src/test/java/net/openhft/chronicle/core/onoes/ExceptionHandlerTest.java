@@ -19,14 +19,25 @@
 package net.openhft.chronicle.core.onoes;
 
 import net.openhft.chronicle.core.CoreTestCommon;
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.util.IgnoresEverything;
 import net.openhft.chronicle.core.util.Mocker;
+import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
 import org.slf4j.Logger;
+
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
 
 public class ExceptionHandlerTest extends CoreTestCommon {
+
+    @Before
+    public void mockitoNotSupportedOnJava21() {
+        assumeTrue(Jvm.majorVersion() <= 17);
+    }
 
     @Test
     public void ignoresEverything() {

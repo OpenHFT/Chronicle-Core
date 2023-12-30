@@ -1,9 +1,12 @@
 package net.openhft.chronicle.core.internal;
 
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.Closeable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
 import org.mockito.stubbing.OngoingStubbing;
 
 import java.util.Set;
@@ -18,6 +21,7 @@ import java.util.List;
 
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.*;
 
 public class CloseableUtilsTest {
@@ -29,7 +33,13 @@ public class CloseableUtilsTest {
     private HttpURLConnection mockHttpURLConnection;
 
     @Before
+    public void mockitoNotSupportedOnJava21() {
+        assumeTrue(Jvm.majorVersion() <= 17);
+    }
+
+    @Before
     public void setUp() {
+        mockitoNotSupportedOnJava21();
         mockCloseable = mock(Closeable.class);
         CloseableUtils.enableCloseableTracing();
         mockCloseables = mock(Collection.class);
