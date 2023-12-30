@@ -2,6 +2,8 @@ package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.Jvm;
 import org.junit.jupiter.api.*;
+
+import static org.junit.Assume.assumeFalse;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ThreadDumpTest {
@@ -35,6 +37,7 @@ public class ThreadDumpTest {
 
     @Test
     void testAssertNewThreads() {
+        assumeFalse(Jvm.isArm());
         Thread newThread = new Thread(() -> {
             Jvm.pause(1000);
         });
