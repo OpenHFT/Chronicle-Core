@@ -36,5 +36,4 @@ class WeakReferenceScopedResourceTest {
         System.gc();
         assertNull(sr.get());
     }
-
 }

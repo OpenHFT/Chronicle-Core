@@ -373,7 +373,6 @@ public class IOToolsTest extends CoreTestCommon {
         }
     }
 
-
     @Test
     public void connectionClosed4() throws IOException {
         ServerSocket ss = new ServerSocket(0);

@@ -98,7 +98,6 @@ public class HistogramTest extends CoreTestCommon {
                 h.toMicrosFormat());
     }
 
-
     @Test
     public void testSamples() {
         @NotNull Histogram h = new Histogram(10, 5, 1000);

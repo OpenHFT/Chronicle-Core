@@ -531,7 +531,6 @@ public final class OS {
         return map(fileChannel, mode, start, size, (int) mapAlignment());
     }
 
-
     private static long invokeFileChannelMap0(@NotNull MethodHandle map0, @NotNull FileChannel fileChannel, int imode, long start, long size,
                                               @NotNull ThrowingFunction<OutOfMemoryError, Long, IOException> errorHandler) throws IOException {
         try {

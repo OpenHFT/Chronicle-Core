@@ -91,7 +91,6 @@ public final class ObjectUtils {
             entry(double.class, 0.0d)
     );
 
-
     private static final Map<Class<?>, Function<String, Number>> conversionMap = new HashMap<>();
     private static final Map<Class<?>, UnaryOperator<Number>> numberConversionMap = new HashMap<>();
 
