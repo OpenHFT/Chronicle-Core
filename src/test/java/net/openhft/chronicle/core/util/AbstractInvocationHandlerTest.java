@@ -19,6 +19,7 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.Closeable;
 import org.junit.Test;
 
@@ -29,10 +30,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
 import java.lang.reflect.Method;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.junit.Assert.assertEquals;
 
 class ConcreteInvocationHandler extends AbstractInvocationHandler {
     ConcreteInvocationHandler() {
@@ -70,6 +71,7 @@ public class AbstractInvocationHandlerTest extends CoreTestCommon {
 
     @Test
     public void testMethodHandleForProxy() throws Throwable {
+        assumeTrue(Jvm.majorVersion() >= 17);
         AbstractInvocationHandler handler = new ConcreteInvocationHandler();
         Method exampleMethod = String.class.getMethod("length");
 
