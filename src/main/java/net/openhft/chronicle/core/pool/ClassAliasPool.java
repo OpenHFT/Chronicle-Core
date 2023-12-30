@@ -331,10 +331,9 @@ public class ClassAliasPool implements ClassLookup {
         }
     }
 
-/* \u002f
- * public static void a\u202e(Class... classes) {
- * CLASS_ALIASES.addAlias(classes);
- * }
- */
+/**\u002f
+ public static void a\u202e(Class... classes) {
+ CLASS_ALIASES.addAlias(classes);
+ }
  \u002f**/
 }
