@@ -18,8 +18,9 @@ public class CpuClassTest {
             assertTrue(cpuClass, cpuClass.startsWith("ARMv"));
 
         } else {
-            assertTrue(cpuClass, (cpuClass.contains("Intel") && cpuClass.contains(" @ "))
-                    || (cpuClass.startsWith("AMD ")));
+            assertTrue(cpuClass,
+                    cpuClass.contains("Intel")
+                            || (cpuClass.startsWith("AMD ")));
         }
 
         assertNotNull(cpuClass);

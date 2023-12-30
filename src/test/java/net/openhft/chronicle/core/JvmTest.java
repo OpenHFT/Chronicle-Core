@@ -43,12 +43,10 @@ import java.nio.file.StandardOpenOption;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static jdk.internal.org.objectweb.asm.util.CheckClassAdapter.verify;
 import static net.openhft.chronicle.core.Jvm.*;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeFalse;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 
 public class JvmTest extends CoreTestCommon {
 
@@ -350,13 +348,13 @@ public class JvmTest extends CoreTestCommon {
 
     @Test
     public void testJavaVersionChecks() {
-        assertFalse(Jvm.isJava9Plus());
-        assertFalse(Jvm.isJava12Plus());
-        assertFalse(Jvm.isJava14Plus());
-        assertFalse(Jvm.isJava15Plus());
-        assertFalse(Jvm.isJava19Plus());
-        assertFalse(Jvm.isJava20Plus());
-        assertFalse(Jvm.isJava21Plus());
+        assertEquals(Jvm.majorVersion() >= 9, Jvm.isJava9Plus());
+        assertEquals(Jvm.majorVersion() >= 12, Jvm.isJava12Plus());
+        assertEquals(Jvm.majorVersion() >= 14, Jvm.isJava14Plus());
+        assertEquals(Jvm.majorVersion() >= 15, Jvm.isJava15Plus());
+        assertEquals(Jvm.majorVersion() >= 19, Jvm.isJava19Plus());
+        assertEquals(Jvm.majorVersion() >= 20, Jvm.isJava20Plus());
+        assertEquals(Jvm.majorVersion() >= 21, Jvm.isJava21Plus());
     }
 
     @Test
