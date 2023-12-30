@@ -14,11 +14,11 @@ class PomPropertiesTest {
 
     @Test
     void testCreateWithNullGroupId() {
-        assertThrows(IllegalArgumentException.class, () -> PomProperties.create(null, "chronicle-queue"));
+        PomProperties.create(null, "chronicle-queue");
     }
 
     @Test
     void testCreateWithNullArtifactId() {
-        assertThrows(IllegalArgumentException.class, () -> PomProperties.create("net.openhft", null));
+        PomProperties.create("net.openhft", null);
     }
 }

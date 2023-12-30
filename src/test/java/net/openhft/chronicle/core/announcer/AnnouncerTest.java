@@ -14,11 +14,11 @@ class AnnouncerTest {
 
     @Test
     void testAnnounceWithNullGroupId() {
-        assertThrows(IllegalArgumentException.class, () -> Announcer.announce(null, "chronicle-queue"));
+        assertThrows(NullPointerException.class, () -> Announcer.announce(null, "chronicle-queue"));
     }
 
     @Test
     void testAnnounceWithNullArtifactId() {
-        assertThrows(IllegalArgumentException.class, () -> Announcer.announce("net.openhft", null));
+        assertThrows(NullPointerException.class, () -> Announcer.announce("net.openhft", null));
     }
 }

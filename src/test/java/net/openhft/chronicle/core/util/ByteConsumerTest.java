@@ -34,7 +34,7 @@ class ByteConsumerTest {
     @Test
     void andThenShouldThrowNullPointerExceptionIfAfterIsNull() {
         ByteConsumer consumer = value -> { /* Do something */ };
-        assertThrows(IllegalArgumentException.class, () -> consumer.andThen(null));
+        assertThrows(NullPointerException.class, () -> consumer.andThen(null));
     }
 
     @Test
