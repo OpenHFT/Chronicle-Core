@@ -2,8 +2,6 @@ package net.openhft.chronicle.core.scoped;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
-import net.openhft.chronicle.core.scoped.ScopedResource;
-import net.openhft.chronicle.core.scoped.ScopedThreadLocal;
 import net.openhft.chronicle.core.threads.CleaningThread;
 import org.junit.Before;
 import org.junit.Test;
