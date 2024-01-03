@@ -19,6 +19,7 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.internal.ChronicleGuarding;
 import net.openhft.chronicle.core.io.IOTools;
 
 import javax.naming.TimeLimitExceededException;
@@ -40,6 +41,8 @@ public interface LicenceCheck {
      * @param caller  caller
      */
     static void check(String product, Class<?> caller) {
+        if (isJGuardProtected())
+            return;
         final BiConsumer<Long, String> logLicenceExpiryDetails = (days, owner) -> {
             String ownerId = owner == null ? "" : "for " + owner + " ";
             String expires = "The license " + ownerId + "expires";
@@ -55,6 +58,15 @@ public interface LicenceCheck {
         };
 
         licenceExpiry(product, caller, logLicenceExpiryDetails);
+    }
+
+    static boolean isJGuardProtected() {
+        try {
+            ChronicleGuarding.class.getDeclaredField("isDecrypted");
+            return true;
+        } catch (NoSuchFieldException e) {
+            return false;
+        }
     }
 
     /**
