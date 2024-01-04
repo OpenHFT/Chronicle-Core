@@ -330,6 +330,7 @@ public final class StringUtils {
         return getMemory().getObject(s, S_VALUE_OFFSET);
     }
 
+    @Deprecated(/* remove in x.26 */)
     public static void setCount(@NotNull StringBuilder sb, int count) {
         getMemory().writeInt(sb, SB_COUNT_OFFSET, count);
     }
