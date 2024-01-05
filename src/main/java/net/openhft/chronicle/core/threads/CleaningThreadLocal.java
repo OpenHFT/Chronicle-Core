@@ -35,7 +35,7 @@ import java.util.function.UnaryOperator;
  *
  * @param <T> The type of resource this CleaningThreadLocal holds.
  */
-public class  CleaningThreadLocal<T> extends ThreadLocal<T> {
+public class CleaningThreadLocal<T> extends ThreadLocal<T> {
     private static final Set<CleaningThreadLocal<?>> cleaningThreadLocals = Collections.synchronizedSet(new LinkedHashSet<>());
 
     private final Supplier<T> supplier;
