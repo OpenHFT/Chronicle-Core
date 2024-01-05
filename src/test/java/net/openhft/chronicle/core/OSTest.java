@@ -25,20 +25,23 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
+import org.mockito.*;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.lang.reflect.InvocationTargetException;
+import java.net.InetAddress;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -47,6 +50,41 @@ public class OSTest extends CoreTestCommon {
     @Rule
     public final TestName testName = new TestName();
     private ThreadDump threadDump;
+
+    @Before
+    public void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    public void testIsSparseFileSupported() {
+        // This test is environment-dependent and may need to be adjusted based on the target system
+        boolean expected = System.getProperty("os.name").toLowerCase().contains("linux") && OS.is64Bit();
+        assertEquals(expected, OS.isSparseFileSupported());
+    }
+
+    @Test
+    public void testFindTmp() {
+        String tmp = OS.findTmp();
+        assertNotNull(tmp);
+    }
+
+    @Test
+    public void testIPAddressHolder() {
+        String ipAddress = OS.IPAddressHolder.IP_ADDRESS;
+        assertNotNull(ipAddress);
+    }
+
+    @Test
+    public void testHostnameHolder() {
+        String hostname = OS.HostnameHolder.HOST_NAME;
+        assertNotNull(hostname);
+    }
+
+    @Test
+    public void testFindFile() {
+        assertEquals(new File("./last").getAbsolutePath(), OS.findFile("first", "last").getAbsolutePath());
+    }
 
     @Before
     public void threadDump() {
@@ -272,4 +310,67 @@ public class OSTest extends CoreTestCommon {
         assertEquals(2 * customPageSize, OS.pageAlign(2 * customPageSize - 1, customPageSize)); // Not aligned, should round up to higher closest
     }
 
+    @Test
+    public void testGetUserName() {
+        String expectedUserName = System.getProperty("user.name");
+        assertEquals(expectedUserName, OS.getUserName());
+    }
+
+    @Test
+    public void testPageAlign() {
+        long size = 12345;
+        long expectedAlignedSize = (size + OS.pageSize() - 1) & ~(OS.pageSize() - 1);
+        assertEquals(expectedAlignedSize, OS.pageAlign(size));
+    }
+
+    @Test
+    public void testMapAlign() {
+        long offset = 6000;
+        long expectedAlignedOffset = (offset + OS.defaultOsPageSize() - 1) & ~(OS.defaultOsPageSize() - 1);
+        assertEquals(expectedAlignedOffset, OS.mapAlign(offset));
+
+        assertThrows(IllegalArgumentException.class, () -> OS.mapAlign(-1));
+    }
+
+    @Test
+    public void testGetProcessId0() {
+        int processId = OS.getProcessId0();
+        assertTrue(processId > 0);
+        // Additional checks can be added if there are known constraints on the process ID.
+    }
+
+    @Test
+    public void testGetPidMax() {
+        long pidMax = OS.getPidMax();
+        assertTrue(pidMax > 0);
+        // Specific value checks can be added for different OS types if known.
+    }
+
+    @Test
+    public void testUserDir() {
+        String expectedUserDir = System.getProperty("user.dir");
+        assertEquals(expectedUserDir, OS.userDir());
+    }
+
+    @Test
+    public void testGetHostName0() {
+        String expectedHostName = null;
+
+        if (OS.isWindows()) {
+            expectedHostName = System.getenv("COMPUTERNAME");
+            if (expectedHostName != null) {
+                expectedHostName = expectedHostName.toLowerCase();
+            }
+        }
+
+        if (expectedHostName == null) {
+            try {
+                expectedHostName = InetAddress.getLocalHost().getHostName();
+            } catch (Throwable ignored) {
+                expectedHostName = "localhost"; // Fallback to localhost if all else fails
+            }
+        }
+
+        assertEquals(expectedHostName, OS.HostnameHolder.HOST_NAME);
+    }
 }

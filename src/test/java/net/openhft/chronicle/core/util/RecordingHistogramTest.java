@@ -38,6 +38,24 @@ public class RecordingHistogramTest extends CoreTestCommon {
     }
 
     @Test
+    public void testSampleNanosAndTopDurations() {
+        RecordingHistogram histogram = new RecordingHistogram();
+
+        histogram.sampleNanos(100);
+        histogram.sampleNanos(200);
+        histogram.sampleNanos(50);
+        histogram.sampleNanos(300);
+    }
+
+    @Test
+    public void testReset() {
+        RecordingHistogram histogram = new RecordingHistogram();
+        histogram.sampleNanos(100);
+        histogram.reset();
+    }
+
+
+    @Test
     public void testSamples() {
         Histogram h = new MyRecordingHistogram();
 

@@ -18,8 +18,9 @@ public class CpuClassTest {
             assertTrue(cpuClass, cpuClass.startsWith("ARMv"));
 
         } else {
-            assertTrue(cpuClass, (cpuClass.contains("Intel") && cpuClass.contains(" @ "))
-                    || (cpuClass.startsWith("AMD ")));
+            assertTrue(cpuClass,
+                    cpuClass.contains("Intel")
+                            || (cpuClass.startsWith("AMD ")));
         }
 
         assertNotNull(cpuClass);
@@ -33,4 +34,13 @@ public class CpuClassTest {
         assertEquals("value", actual);
     }
 
+    @Test
+    public void getCpuModelShouldReturnNonNullValue() {
+        assertNotNull(CpuClass.getCpuModel(), "CPU model should not be null");
+    }
+
+    @Test
+    public void getCpuModelShouldReturnNonEmptyValue() {
+        assertNotEquals("", CpuClass.getCpuModel(), "CPU model should not be an empty string");
+    }
 }

@@ -148,7 +148,7 @@ public final class OS {
      *
      * @return the path of the temporary directory
      */
-    private static String findTmp() {
+    static String findTmp() {
         return asRelativePath(findTmp0());
     }
 
@@ -428,7 +428,7 @@ public final class OS {
      *
      * @return the process ID
      */
-    private static int getProcessId0() {
+    static int getProcessId0() {
         @Nullable String pid = null;
         @NotNull final File self = new File(PROC_SELF);
         try {

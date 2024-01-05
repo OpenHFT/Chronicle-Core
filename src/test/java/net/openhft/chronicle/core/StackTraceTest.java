@@ -23,8 +23,7 @@ import org.junit.Test;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class StackTraceTest extends CoreTestCommon {
     private static final CountDownLatch threadStarted = new CountDownLatch(1);
@@ -32,6 +31,39 @@ public class StackTraceTest extends CoreTestCommon {
     static void thinking() {
         threadStarted.countDown();
         Jvm.pause(5_000);
+    }
+
+    @Test
+    public void testDefaultConstructor() {
+        StackTrace st = new StackTrace();
+        assertEquals("stack trace on " + Thread.currentThread().getName(), st.getMessage());
+    }
+
+    @Test
+    public void testConstructorWithMessage() {
+        String message = "test message";
+        StackTrace st = new StackTrace(message);
+        assertEquals(message + " on " + Thread.currentThread().getName(), st.getMessage());
+    }
+
+    @Test
+    public void testConstructorWithMessageAndCause() {
+        String message = "test message";
+        Throwable cause = new RuntimeException("cause");
+        StackTrace st = new StackTrace(message, cause);
+        assertEquals(message + " on " + Thread.currentThread().getName(), st.getMessage());
+        assertEquals(cause, st.getCause());
+    }
+
+    @Test
+    public void testForThread() {
+        Thread thread = new Thread();
+        StackTrace st = StackTrace.forThread(thread);
+        assertNotNull(st);
+        assertEquals(thread.toString(), st.getMessage().replace(" on " + Thread.currentThread().getName(), ""));
+
+        // Test null thread
+        assertNull(StackTrace.forThread(null));
     }
 
     @Test

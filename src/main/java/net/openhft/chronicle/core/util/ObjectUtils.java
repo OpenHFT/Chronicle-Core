@@ -167,7 +167,7 @@ public final class ObjectUtils {
                 && pkg.getName().contains(".internal"));
     }
 
-    private static <T> Supplier<T> supplierForInternalPackage() {
+    static <T> Supplier<T> supplierForInternalPackage() {
         return () -> {
             throw new IllegalArgumentException("Cannot create objects in JVM internal packages");
         };
@@ -186,7 +186,7 @@ public final class ObjectUtils {
         };
     }
 
-    private static <T> Supplier<T> supplierForEnum(Class<T> c) {
+    static <T> Supplier<T> supplierForEnum(Class<T> c) {
         return () -> {
             try {
                 return OS.memory().allocateInstance(c);
@@ -196,7 +196,7 @@ public final class ObjectUtils {
         };
     }
 
-    private static <T> Supplier<T> supplierForAbstractClass(Class<T> c) {
+    static <T> Supplier<T> supplierForAbstractClass(Class<T> c) {
         return () -> (T) rethrow(new IllegalArgumentException("abstract class: " + c.getName()));
     }
 
@@ -337,7 +337,7 @@ public final class ObjectUtils {
      * @return A map with enum constant names in uppercase as keys and enum constants as values.
      */
     @NotNull
-    private static Map<String, Enum<?>> caseIgnoreLookup(@NotNull Class<?> c) {
+    static Map<String, Enum<?>> caseIgnoreLookup(@NotNull Class<?> c) {
         @NotNull Map<String, Enum<?>> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         for (Object o : c.getEnumConstants()) {
             @NotNull Enum<?> e = (Enum<?>) o;
@@ -432,7 +432,7 @@ public final class ObjectUtils {
     }
 
     @Nullable
-    private static <E> E convertChar(@NotNull Object o) {
+    static <E> E convertChar(@NotNull Object o) {
         String s = o.toString();
         if (s.length() == 1)
             return (E) (Character) s.charAt(0);
