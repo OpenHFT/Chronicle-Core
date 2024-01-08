@@ -1,10 +1,12 @@
 package net.openhft.chronicle.core.internal.util;
 
+import net.openhft.chronicle.core.Jvm;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class DirectBufferUtilTest {
 
@@ -15,6 +17,7 @@ public class DirectBufferUtilTest {
 
     @Test
     public void cleanIfInstanceOfDirectBufferShouldCleanDirectBuffer() {
+        assumeFalse(Jvm.isJava9Plus());
         ByteBuffer directBuffer = ByteBuffer.allocateDirect(1024);
 
         assertDoesNotThrow(() -> DirectBufferUtil.cleanIfInstanceOfDirectBuffer(directBuffer), "Cleaning a direct buffer should not throw an exception");
