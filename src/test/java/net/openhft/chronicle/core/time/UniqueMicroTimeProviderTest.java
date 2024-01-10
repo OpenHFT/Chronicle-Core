@@ -27,6 +27,25 @@ import static org.junit.Assert.assertTrue;
 public class UniqueMicroTimeProviderTest extends CoreTestCommon {
 
     @Test
+    public void currentTimeMillis() throws IllegalStateException {
+        UniqueMicroTimeProvider tp = new UniqueMicroTimeProvider();
+        SetTimeProvider stp = new SetTimeProvider(SystemTimeProvider.INSTANCE.currentTimeNanos());
+        tp.provider(stp);
+        long last = 0;
+        for (int i = 0; i < 1_000; i++) {
+            stp.advanceNanos(i);
+            long time = tp.currentTimeMillis();
+            assertEquals(LongTime.toMicros(time), time);
+            assertTrue(time * 1000 > last);
+
+            long time2 = tp.currentTimeMicros();
+            assertTrue(time2 > last);
+
+            last = time2;
+        }
+    }
+
+    @Test
     public void currentTimeMicros() throws IllegalStateException {
         UniqueMicroTimeProvider tp = new UniqueMicroTimeProvider();
         SetTimeProvider stp = new SetTimeProvider(SystemTimeProvider.INSTANCE.currentTimeNanos());
