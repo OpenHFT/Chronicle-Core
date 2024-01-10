@@ -12,7 +12,7 @@ public class CpuClassTest {
         final String cpuClass = CpuClass.getCpuModel();
         System.out.println("cpuClass: " + cpuClass + ", os.name: " + System.getProperty("os.name") + ", os.arch: " + System.getProperty("os.arch"));
         if (Jvm.isMacArm()) {
-            assertTrue(cpuClass.startsWith("Apple M"));
+            assertTrue(cpuClass, cpuClass.startsWith("Apple M"));
 
         } else if (Jvm.isArm()) {
             assertTrue(cpuClass, cpuClass.startsWith("ARMv"));
