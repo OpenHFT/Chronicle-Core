@@ -378,7 +378,7 @@ public interface Memory {
          * @param length  the number of bytes to copy
          * @deprecated This method is deprecated and will be removed in a future version (x.24).
          */
-    @Deprecated(/* to be removed in x.24 */)
+    @Deprecated(/* to be removed in x.26 */)
     default void copyMemory(byte[] src, int srcOffset, @Nullable Object dest, long destOffset, int length) {
         assert SKIP_ASSERTIONS || nonNull(src);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), srcOffset);
