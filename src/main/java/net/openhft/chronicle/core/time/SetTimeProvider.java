@@ -26,62 +26,65 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * TimeProvider whose value can be explicitly set and advanced for testing purposes.  Supports time values in milliseconds, microseconds and nanoseconds.
- * <p>
- * Created by Peter Lawrey on 10/03/16.
- **/
+ * A {@link TimeProvider} implementation that allows explicit setting and manipulation of time values
+ * for testing purposes. This class supports time values in milliseconds, microseconds, and nanoseconds.
+ * It can be set to a specific time and can be auto-incremented at each call, which is useful for
+ * simulating time progression in a controlled testing environment.
+ */
 public class SetTimeProvider extends AtomicLong implements TimeProvider {
 
     private long autoIncrement = 0;
 
     /**
-     * Create a time provider which start as 0
+     * Constructs a time provider initialized to 0 nanoseconds.
      */
     public SetTimeProvider() {
         this(0L);
     }
 
     /**
-     * Create a time provider which starts at a specific time
+     * Constructs a time provider starting at a specific time in nanoseconds.
      *
-     * @param initialNanos in nano-seconds since epoch
+     * @param initialNanos Initial time in nanoseconds since the epoch.
      */
     public SetTimeProvider(long initialNanos) {
         super(initialNanos);
     }
 
     /**
-     * Create a timeprovider which starts a time specified as ISO8601 format
+     * Constructs a time provider starting at a time specified in ISO8601 format.
      *
-     * @param timestamp to start
+     * @param timestamp The initial timestamp in ISO8601 format.
      */
     public SetTimeProvider(String timestamp) {
         super(initialNanos(timestamp));
     }
 
     /**
-     * Create a time provider which starts at a given Instant
+     * Constructs a time provider starting at a given {@link Instant}.
      *
-     * @param instant to start
+     * @param instant The initial time instant.
      */
     public SetTimeProvider(Instant instant) {
         super(initialNanos(instant));
     }
 
     /**
-     * Create a time provider which starts now
+     * Constructs a time provider that starts now, using the current nanosecond time.
      *
-     * @return the SetTimeProvider
+     * @return A new {@code SetTimeProvider} initialized to the current time.
      */
     public SetTimeProvider now() {
         return new SetTimeProvider(SystemTimeProvider.CLOCK.currentTimeNanos());
     }
 
+    // Helper method to convert timestamp to initial nanoseconds
     static long initialNanos(String timestamp) {
         LocalDateTime dateTime = LocalDateTime.parse(timestamp.replace("/", "-"));
         return initialNanos(dateTime.toInstant(ZoneOffset.UTC));
     }
 
+    // Helper method to convert instant to initial nanoseconds
     static long initialNanos(Instant instant) {
         long initialNanos = instant.getEpochSecond() * 1_000_000_000L;
         if (instant.isSupported(ChronoField.NANO_OF_SECOND))
@@ -89,46 +92,63 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
         return initialNanos;
     }
 
+    /**
+     * Configures this time provider to auto-increment the time after each invocation.
+     *
+     * @param autoIncrement The amount of time to auto-increment after each time retrieval.
+     * @param timeUnit      The time unit of the autoIncrement value.
+     * @return The current {@code SetTimeProvider} instance for fluent method chaining.
+     */
     public SetTimeProvider autoIncrement(long autoIncrement, TimeUnit timeUnit) {
         this.autoIncrement = timeUnit.toNanos(autoIncrement);
         return this;
     }
 
     /**
-     * Set the current time in milliseconds.
+     * Explicitly sets the current time in milliseconds.
      *
-     * @param millis New time value in milliseconds since the epoch. May not be less than the previous value.
-     * @throws IllegalArgumentException if time is set backwards
+     * @param millis New time value in milliseconds since the epoch. It must not be less than the previous value.
+     * @throws IllegalArgumentException if the time is set to a value earlier than the current time.
      */
     public void currentTimeMillis(long millis) throws IllegalArgumentException {
         currentTimeNanos(TimeUnit.MILLISECONDS.toNanos(millis));
     }
 
+    /**
+     * Retrieves the current time in milliseconds.
+     *
+     * @return Current time in milliseconds since the epoch.
+     */
     @Override
     public long currentTimeMillis() {
         return currentTimeNanos() / 1_000_000;
     }
 
     /**
-     * Set the current time in microseconds.
+     * Explicitly sets the current time in microseconds.
      *
-     * @param micros New time value in microseconds since the epoch. May not be less than the previous value.
-     * @throws IllegalArgumentException if time is set backwards
+     * @param micros New time value in microseconds since the epoch. It must not be less than the previous value.
+     * @throws IllegalArgumentException if the time is set to a value earlier than the current time.
      */
     public void currentTimeMicros(long micros) throws IllegalArgumentException {
         currentTimeNanos(TimeUnit.MICROSECONDS.toNanos(micros));
     }
 
+    /**
+     * Retrieves the current time in microseconds.
+     *
+     * @return Current time in microseconds since the epoch.
+     */
     @Override
     public long currentTimeMicros() {
         return currentTimeNanos() / 1_000;
     }
 
     /**
-     * Set the current time in nanoseconds.
+     * Explicitly sets the current time in nanoseconds.
      *
-     * @param nanos New time value in nanoseconds since the epoch. May not be less than the previous value.
-     * @throws IllegalArgumentException if time is set backwards
+     * @param nanos New time value in nanoseconds since the epoch. It must not be less than the previous value.
+     * @throws IllegalArgumentException if the time is set to a value earlier than the current time.
      */
     public void currentTimeNanos(long nanos) throws IllegalArgumentException {
         if (nanos < get())
@@ -136,20 +156,32 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
         set(nanos);
     }
 
+    /**
+     * Retrieves the current time in nanoseconds.
+     *
+     * @return Current time in nanoseconds since the epoch.
+     */
     @Override
     public long currentTimeNanos() {
         return getAndAdd(autoIncrement);
     }
 
+    /**
+     * Converts and retrieves the current time in the specified time unit.
+     *
+     * @param unit The time unit to return the current time in.
+     * @return The current time in the specified time unit.
+     */
     @Override
     public long currentTime(TimeUnit unit) {
         return unit.convert(currentTimeNanos(), TimeUnit.NANOSECONDS);
     }
 
     /**
-     * Advances time in milliseconds.
+     * Advances the current time by the specified duration in milliseconds.
      *
-     * @param millis duration.
+     * @param millis The duration in milliseconds to advance the time.
+     * @return The current {@code SetTimeProvider} instance for fluent method chaining.
      */
     public SetTimeProvider advanceMillis(long millis) {
         advanceNanos(TimeUnit.MILLISECONDS.toNanos(millis));
@@ -157,9 +189,10 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
     }
 
     /**
-     * Advances time in microseconds.
+     * Advances the current time by the specified duration in microseconds.
      *
-     * @param micros duration.
+     * @param micros The duration in microseconds to advance the time.
+     * @return The current {@code SetTimeProvider} instance for fluent method chaining.
      */
     public SetTimeProvider advanceMicros(long micros) {
         advanceNanos(TimeUnit.MICROSECONDS.toNanos(micros));
@@ -167,15 +200,21 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
     }
 
     /**
-     * Advances time in nanoseconds.
+     * Advances the current time by the specified duration in nanoseconds.
      *
-     * @param nanos duration.
+     * @param nanos The duration in nanoseconds to advance the time.
+     * @return The current {@code SetTimeProvider} instance for fluent method chaining.
      */
     public SetTimeProvider advanceNanos(long nanos) {
         addAndGet(nanos);
         return this;
     }
 
+    /**
+     * Provides a string representation of the {@code SetTimeProvider} state.
+     *
+     * @return A string representation, including the auto-increment value and current nanosecond time.
+     */
     @Override
     public String toString() {
         return "SetTimeProvider{" +
