@@ -2,6 +2,7 @@ package net.openhft.chronicle.core.cooler;
 
 import org.junit.jupiter.api.Test;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class CpuCoolersTest {
@@ -89,6 +90,7 @@ public class CpuCoolersTest {
 
     @Test
     public void testAffinity() {
+        assertFalse(Runtime.getRuntime().availableProcessors() < 2);
         assertDoesNotThrow(CpuCoolers.AFFINITY::disturb);
     }
 
