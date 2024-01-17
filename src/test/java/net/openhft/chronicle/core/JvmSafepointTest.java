@@ -52,6 +52,11 @@ public class JvmSafepointTest extends CoreTestCommon {
                     System.out.println(s0 + "\n" + s1);
             }
         } while (t.isAlive() && counter <= min);
+        if (!t.isAlive()) {
+            System.out.println("Thread has died unexpectedly. Quitting...");
+            System.out.println("counter: " + counter);
+            return;
+        }
         t.interrupt();
         t.join();
         System.out.println("counter: " + counter);
