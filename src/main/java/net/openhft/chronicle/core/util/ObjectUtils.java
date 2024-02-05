@@ -331,6 +331,15 @@ public final class ObjectUtils {
     }
 
     /**
+     * Tests if there is a supported conversion from text to this type
+     * @param eClass to be tested
+     * @return true if it can be converted, false if it's not worth trying.
+     */
+    public static boolean canConvertText(Class eClass) {
+        return !(PARSER_CL.get(eClass) instanceof ThrowsCCE);
+    }
+
+    /**
      * Creates a map with keys as enum constants in uppercase and values as the enum constants themselves.
      *
      * @param c The enum class.
@@ -864,6 +873,8 @@ public final class ObjectUtils {
     private static final class ConversionFunction implements Function<Class<?>, ThrowingFunction<String, Object, Exception>> {
         @Override
         public ThrowingFunction<String, Object, Exception> apply(@NotNull Class<?> c) {
+            if (c == String.class)
+                return s -> s;
             if (c == Class.class)
                 return CLASS_ALIASES::forName;
             if (c == Boolean.class)
@@ -895,8 +906,24 @@ public final class ObjectUtils {
                 ClassUtil.setAccessible(constructor);
                 return constructor::newInstance;
             } catch (Exception e) {
-                throw asCCE(e);
+                return new ThrowsCCE(e);
             }
+        }
+    }
+
+    /**
+     * A function that throws a ClassCastException.
+     */
+    static class ThrowsCCE implements ThrowingFunction<String, Object, Exception> {
+        private final ClassCastException cce;
+
+        ThrowsCCE(Exception e) {
+            cce = asCCE(e);
+        }
+
+        @Override
+        public @NotNull Object apply(String in) throws Exception {
+            throw cce;
         }
     }
 

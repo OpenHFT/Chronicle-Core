@@ -20,15 +20,13 @@ package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
+import net.openhft.chronicle.core.pool.Ecn;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static org.junit.Assert.*;
@@ -51,6 +49,67 @@ public class ObjectUtilsTest extends CoreTestCommon {
                 HashMap.class,
         }) {
             assertEquals(c.getName(), ObjectUtils.Immutability.NO, ObjectUtils.isImmutable(c));
+        }
+    }
+
+    @Test
+    public void canConvertTo() {
+        assertTrue(ObjectUtils.canConvertText(String.class));
+        assertTrue(ObjectUtils.canConvertText(Class.class));
+        assertTrue(ObjectUtils.canConvertText(Boolean.class));
+        assertTrue(ObjectUtils.canConvertText(UUID.class));
+        assertTrue(ObjectUtils.canConvertText(byte[].class));
+        // an Enum
+        assertTrue(ObjectUtils.canConvertText(Ecn.class));
+        // a primitive wrapper
+        assertTrue(ObjectUtils.canConvertText(Long.class));
+        // a scalar with a String constructor
+        assertTrue(ObjectUtils.canConvertText(ClassWithString.class));
+        // a class with valueOf method
+        assertTrue(ObjectUtils.canConvertText(ClassWithValueOf.class));
+        // a class with parse method
+        assertTrue(ObjectUtils.canConvertText(ClassWithParse.class));
+
+        // a class with a setter method can't be used
+        assertFalse(ObjectUtils.canConvertText(ClassWithSetter.class));
+    }
+
+    static class ClassWithString {
+        private final String s;
+
+        public ClassWithString(String s) {
+            this.s = s;
+        }
+    }
+
+    static class ClassWithValueOf {
+        private final String s;
+
+        public ClassWithValueOf(String s) {
+            this.s = s;
+        }
+
+        public static ClassWithValueOf valueOf(String s) {
+            return new ClassWithValueOf(s);
+        }
+    }
+
+    static class ClassWithParse {
+        private final String s;
+
+        public ClassWithParse(String s) {
+            this.s = s;
+        }
+
+        public static ClassWithParse parse(CharSequence s) {
+            return new ClassWithParse(s.toString());
+        }
+    }
+    static class ClassWithSetter {
+        private String s;
+
+        public void setS(String s) {
+            this.s = s;
         }
     }
 
