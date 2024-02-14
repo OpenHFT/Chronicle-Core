@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.internal.ChronicleGuarding;
 import net.openhft.posix.PosixAPI;
 import org.jetbrains.annotations.NotNull;
 
@@ -37,7 +38,7 @@ import static java.lang.Runtime.getRuntime;
  * Contains the pieces which must be loaded first
  */
 // TODO to be moved to the internal package x.25
-final class Bootstrap {
+public final class Bootstrap {
 
     // Suppresses default constructor, ensuring non-instantiability.
 
@@ -75,9 +76,13 @@ final class Bootstrap {
         IS_JAVA_15_PLUS = JVM_JAVA_MAJOR_VERSION > 14;
         IS_JAVA_19_PLUS = JVM_JAVA_MAJOR_VERSION > 18;
         IS_JAVA_20_PLUS = JVM_JAVA_MAJOR_VERSION > 19;
+        ChronicleGuarding.bootstrap();
     }
 
     private Bootstrap() {
+    }
+
+    public static void bootstrap() {
     }
 
     // can't be in Jvm or causes a problem on initialisation.
