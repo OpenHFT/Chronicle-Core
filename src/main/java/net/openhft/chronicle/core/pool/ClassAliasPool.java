@@ -322,8 +322,13 @@ public class ClassAliasPool implements ClassLookup {
                 return false;
 
             CharSequence cs = (CharSequence) obj;
+            if (cs instanceof CAPKey)
+                cs = ((CAPKey) cs).value;
             if (length() != cs.length())
                 return false;
+            if (value instanceof String && obj instanceof String)
+                return value.equals(obj);
+
             for (int i = 0; i < length(); i++)
                 if (charAt(i) != cs.charAt(i))
                     return false;
