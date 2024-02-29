@@ -20,10 +20,29 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.testframework.process.JavaProcessBuilder;
 import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.ServiceLoader;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ChronicleInitTest extends CoreTestCommon {
+
+    private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
+    private final PrintStream originalErr = System.err;
+
+    @BeforeEach
+    public void setUpStream() {
+        System.setErr(new PrintStream(errContent));
+    }
+
+    @AfterEach
+    public void restoreStream() {
+        System.setErr(originalErr);
+    }
 
     public static void main(String[] args) {
         // Service loader implementation
@@ -33,6 +52,22 @@ public class ChronicleInitTest extends CoreTestCommon {
         assertFalse(Jvm.isResourceTracing());
         assertTrue(Jvm.areOptionalSafepointsEnabled());
         assertEquals("false", Jvm.getProperty("jvm.safepoint.enabled"));
+    }
+
+    @Test
+    public void initShouldNotThrowException() {
+        assertDoesNotThrow(ChronicleInit::init, "Calling init should not throw an exception");
+    }
+
+    @Test
+    public void postInitShouldNotThrowException() {
+        assertDoesNotThrow(ChronicleInit::postInit, "Calling postInit should not throw an exception");
+    }
+
+    @Test
+    public void shouldLoadServiceProviders() {
+        ServiceLoader<ChronicleInitRunnable> runnableLoader = ServiceLoader.load(ChronicleInitRunnable.class);
+        assertTrue(runnableLoader.iterator().hasNext(), "Service providers should be loaded");
     }
 
     @Test

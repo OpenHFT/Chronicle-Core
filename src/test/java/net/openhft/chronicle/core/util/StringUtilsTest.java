@@ -29,6 +29,91 @@ import java.util.function.BiFunction;
 import static org.junit.Assert.*;
 
 public class StringUtilsTest extends CoreTestCommon {
+
+    @Test
+    public void testIsEqualWithStringBuilderAndCharSequence() {
+        StringBuilder sb = new StringBuilder("test");
+        CharSequence cs = "test";
+
+        assertTrue(StringUtils.isEqual(sb, cs));
+        assertFalse(StringUtils.isEqual(sb, "different"));
+    }
+
+    @Test
+    public void testSetLengthOfStringBuilder() {
+        StringBuilder sb = new StringBuilder("test");
+        StringUtils.setLength(sb, 2);
+
+        assertEquals("te", sb.toString());
+    }
+
+    @Test
+    public void testSetStringBuilderContent() {
+        StringBuilder sb = new StringBuilder("original");
+        StringUtils.set(sb, "updated");
+
+        assertEquals("updated", sb.toString());
+    }
+
+    @Test
+    public void testEndsWith() {
+        CharSequence cs = "testString";
+        assertTrue(StringUtils.endsWith(cs, "String"));
+        assertTrue(StringUtils.endsWith(cs, "string")); // case-insensitive
+    }
+
+    @Test
+    public void testStartsWith() {
+        CharSequence cs = "testString";
+        assertTrue(StringUtils.startsWith(cs, "test"));
+        assertFalse(StringUtils.startsWith(cs, "String"));
+    }
+
+    @Test
+    public void testIsEqualWithCharSequences() {
+        CharSequence cs1 = "test";
+        CharSequence cs2 = "test";
+        CharSequence cs3 = "different";
+
+        assertTrue(StringUtils.isEqual(cs1, cs2));
+        assertFalse(StringUtils.isEqual(cs1, cs3));
+    }
+
+    @Test
+    public void testEqualsCaseIgnore() {
+        CharSequence cs1 = "TestString";
+        CharSequence cs2 = "teststring";
+
+        assertTrue(StringUtils.equalsCaseIgnore(cs1, cs2));
+        assertFalse(StringUtils.equalsCaseIgnore(cs1, "AnotherString"));
+    }
+
+    @Test
+    public void testToStringMethod() {
+        Object obj = "test";
+        assertNull(StringUtils.toString(null));
+        assertEquals("test", StringUtils.toString(obj));
+    }
+
+    @Test
+    public void testExtractBytesString() {
+        String str = "test";
+        byte[] expectedBytes = str.getBytes(StandardCharsets.ISO_8859_1);
+        assertArrayEquals(expectedBytes, StringUtils.extractBytes(str));
+    }
+
+    @Test
+    public void testNewStringFromChars() {
+        char[] chars = {'t', 'e', 's', 't'};
+        assertEquals("test", StringUtils.newString(chars));
+    }
+
+    @Test
+    public void testNewStringFromBytes() {
+        byte[] bytes = "test".getBytes(StandardCharsets.ISO_8859_1);
+        assertEquals("test", StringUtils.newStringFromBytes(bytes));
+    }
+
     @Test
     public void testFirstLowerCase() {
         assertEquals("", StringUtils.firstLowerCase(""));

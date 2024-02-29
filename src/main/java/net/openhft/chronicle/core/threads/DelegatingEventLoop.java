@@ -31,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
  */
 public class DelegatingEventLoop implements EventLoop {
     @NotNull
-    private final EventLoop inner;
+    public final EventLoop inner;
 
     /**
      * Constructs a new {@code DelegatingEventLoop} instance that delegates to the specified

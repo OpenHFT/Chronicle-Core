@@ -19,14 +19,18 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.annotation.Positive;
-import net.openhft.chronicle.core.io.ClosedIllegalStateException;
-import net.openhft.chronicle.core.io.ThreadingIllegalStateException;
+import net.openhft.chronicle.core.util.Longs;
 import net.openhft.chronicle.core.util.MisAlignedAssertionError;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
+
+import static java.util.Objects.nonNull;
+import static net.openhft.chronicle.assertions.AssertUtil.SKIP_ASSERTIONS;
+import static net.openhft.chronicle.core.util.Longs.assertIfEnabled;
 
 /**
  * The Memory interface provides low-level memory access methods.
@@ -363,6 +367,30 @@ public interface Memory {
      * @param length      the number of bytes to copy
      */
     void copyMemory(long fromAddress, long address, long length);
+
+    /**
+     * Deprecated method. Copies a range of bytes from the given byte array to the specified object at the given offset.
+     *
+     * @param bytes   the source byte array
+     * @param offset  the starting index in the byte array
+     * @param obj2    the destination object
+     * @param offset2 the starting offset in the destination object
+     * @param length  the number of bytes to copy
+     * @deprecated This method is deprecated and will be removed in a future version (x.24).
+     */
+    @Deprecated(/* to be removed in x.26 */)
+    default void copyMemory(byte[] src, int srcOffset, @Nullable Object dest, long destOffset, int length) {
+        assert SKIP_ASSERTIONS || nonNull(src);
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), srcOffset);
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), destOffset);
+        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), length);
+
+        if (dest instanceof byte[]) {
+            copyMemory(src, srcOffset, (byte[]) dest, Math.toIntExact(destOffset - Unsafe.ARRAY_BYTE_BASE_OFFSET), length);
+        } else {
+            copyMemory(src, Unsafe.ARRAY_BYTE_BASE_OFFSET + srcOffset, dest, destOffset, length);
+        }
+    }
 
     /**
      * Copies a range of memory from the given object to the specified memory address.

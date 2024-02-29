@@ -1,9 +1,7 @@
-package net.openhft.chronicle.wire.scoped;
+package net.openhft.chronicle.core.scoped;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
-import net.openhft.chronicle.core.scoped.ScopedResource;
-import net.openhft.chronicle.core.scoped.ScopedThreadLocal;
 import net.openhft.chronicle.core.threads.CleaningThread;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +14,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import static net.openhft.chronicle.core.io.Closeable.closeQuietly;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 
 public class ScopedThreadLocalTest extends CoreTestCommon {
 

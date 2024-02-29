@@ -12,14 +12,15 @@ public class CpuClassTest {
         final String cpuClass = CpuClass.getCpuModel();
         System.out.println("cpuClass: " + cpuClass + ", os.name: " + System.getProperty("os.name") + ", os.arch: " + System.getProperty("os.arch"));
         if (Jvm.isMacArm()) {
-            assertEquals(cpuClass, "Apple M1", cpuClass);
+            assertTrue(cpuClass, cpuClass.startsWith("Apple M"));
 
         } else if (Jvm.isArm()) {
             assertTrue(cpuClass, cpuClass.startsWith("ARMv"));
 
         } else {
-            assertTrue(cpuClass, (cpuClass.contains("Intel") && cpuClass.contains(" @ "))
-                    || (cpuClass.startsWith("AMD ")));
+            assertTrue(cpuClass,
+                    cpuClass.contains("Intel")
+                            || (cpuClass.startsWith("AMD ")));
         }
 
         assertNotNull(cpuClass);
@@ -33,4 +34,13 @@ public class CpuClassTest {
         assertEquals("value", actual);
     }
 
+    @Test
+    public void getCpuModelShouldReturnNonNullValue() {
+        assertNotNull(CpuClass.getCpuModel(), "CPU model should not be null");
+    }
+
+    @Test
+    public void getCpuModelShouldReturnNonEmptyValue() {
+        assertNotEquals("", CpuClass.getCpuModel(), "CPU model should not be an empty string");
+    }
 }

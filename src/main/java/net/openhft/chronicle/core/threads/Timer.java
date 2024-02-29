@@ -92,4 +92,3 @@ public class Timer {
         cancellableTimer.schedule(eventHandler, initialDelayMs);
     }
 }
-

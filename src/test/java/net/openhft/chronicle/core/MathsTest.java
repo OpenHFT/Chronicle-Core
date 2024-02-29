@@ -460,6 +460,93 @@ public class MathsTest extends CoreTestCommon {
     }
 
     @Test
+    public void testToInt8() {
+        assertEquals((byte) 127, Maths.toInt8(127));
+        assertEquals((byte) -128, Maths.toInt8(-128));
+        assertThrows(ArithmeticException.class, () -> Maths.toInt8(128));
+        assertThrows(ArithmeticException.class, () -> Maths.toInt8(-129));
+    }
+
+    @Test
+    public void testToInt16() {
+        assertEquals((short) 32767, Maths.toInt16(32767));
+        assertEquals((short) -32768, Maths.toInt16(-32768));
+        assertThrows(ArithmeticException.class, () -> Maths.toInt16(32768));
+        assertThrows(ArithmeticException.class, () -> Maths.toInt16(-32769));
+    }
+
+    @Test
+    public void testToInt32() {
+        assertEquals(2147483647, Maths.toInt32(2147483647L));
+        assertEquals(-2147483648, Maths.toInt32(-2147483648L));
+        assertThrows(ArithmeticException.class, () -> Maths.toInt32(2147483648L));
+        assertThrows(ArithmeticException.class, () -> Maths.toInt32(-2147483649L));
+    }
+
+    @Test
+    public void testToUInt8() {
+        assertEquals((short) 255, Maths.toUInt8(255));
+        assertThrows(ArithmeticException.class, () -> Maths.toUInt8(256));
+        assertThrows(ArithmeticException.class, () -> Maths.toUInt8(-1));
+    }
+
+    @Test
+    public void testToUInt16() {
+        assertEquals(65535, Maths.toUInt16(65535));
+        assertThrows(ArithmeticException.class, () -> Maths.toUInt16(65536));
+        assertThrows(ArithmeticException.class, () -> Maths.toUInt16(-1));
+    }
+
+    @Test
+    public void testToUInt31() {
+        assertEquals(2147483647, Maths.toUInt31(2147483647L));
+        assertThrows(ArithmeticException.class, () -> Maths.toUInt31(2147483648L));
+        assertThrows(ArithmeticException.class, () -> Maths.toUInt31(-1));
+    }
+
+    @Test
+    public void testToUInt32() {
+        assertEquals(4294967295L, Maths.toUInt32(4294967295L));
+        assertThrows(ArithmeticException.class, () -> Maths.toUInt32(4294967296L));
+        assertThrows(ArithmeticException.class, () -> Maths.toUInt32(-1));
+    }
+
+    @Test
+    public void testHash64() {
+        long hashValue1 = Maths.hash64(123456789L);
+        long hashValue2 = Maths.hash64(987654321L);
+        assertNotEquals(hashValue1, hashValue2);
+    }
+
+    @Test
+    public void testTens() {
+        assertEquals(100, Maths.tens(2));
+        assertEquals(1, Maths.tens(0));
+        assertThrows(IllegalArgumentException.class, () -> Maths.tens(-1));
+        assertThrows(IllegalArgumentException.class, () -> Maths.tens(19));
+    }
+
+    @Test
+    public void testHashMethods() {
+        Object o1 = "test1";
+        Object o2 = "test2";
+        Object o3 = "test3";
+        Object o4 = "test4";
+        Object o5 = "test5";
+
+        int hash1 = Maths.hash(o1);
+        int hash2 = Maths.hash(o1, o2);
+        int hash3 = Maths.hash(o1, o2, o3);
+        int hash4 = Maths.hash(o1, o2, o3, o4);
+        int hash5 = Maths.hash(o1, o2, o3, o4, o5);
+
+        assertNotEquals(hash1, hash2);
+        assertNotEquals(hash2, hash3);
+        assertNotEquals(hash3, hash4);
+        assertNotEquals(hash4, hash5);
+    }
+
+    @Test
     public void asDouble() {
         assertEquals(0.00017853, Maths.asDouble(17853, 0, false, 8), 0.0);
         assertEquals(0.00035706, Maths.asDouble(35706, 0, false, 8), 0.0);

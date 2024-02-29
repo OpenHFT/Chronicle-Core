@@ -146,7 +146,7 @@ public enum CpuCoolers implements CpuCooler {
 
         @Override
         public void disturb() {
-            Affinity.setAffinity(toogle ? 3 : 4);
+            Affinity.setAffinity(toogle ? 0 : 1);
             toogle = !toogle;
         }
     },

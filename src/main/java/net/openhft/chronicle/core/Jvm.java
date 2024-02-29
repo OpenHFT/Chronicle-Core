@@ -19,6 +19,7 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.annotation.DontChain;
+import net.openhft.chronicle.core.internal.Bootstrap;
 import net.openhft.chronicle.core.internal.*;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
 import net.openhft.chronicle.core.onoes.*;
@@ -1068,7 +1069,6 @@ public final class Jvm {
         RESOURCE_TRACING = resourceTracing;
     }
 
-
     /**
      * Guarantees that Jvm class is initialized before property is read.
      *
@@ -1432,10 +1432,10 @@ public final class Jvm {
      *
      * @return The size of the object header.
      */
+    @Deprecated(/* to be removed in x.27, use net.openhft.chronicle.bytes.BytesUtil.triviallyCopyableStart */)
     public static int objectHeaderSize() {
         return ObjectHeaderSizeHolder.getSize();
     }
-
 
     /**
      * Calculates the object header size for a given class type.
@@ -1444,6 +1444,7 @@ public final class Jvm {
      * @param type The class for which the object header size is to be calculated.
      * @return The object header size or array base offset, depending on the class type.
      */
+    @Deprecated(/* to be removed in x.27, use net.openhft.chronicle.bytes.BytesUtil.triviallyCopyableStart for POJOs */)
     public static int objectHeaderSize(Class type) {
         return ObjectHeaderSizeHolder.objectHeaderSize(type);
     }

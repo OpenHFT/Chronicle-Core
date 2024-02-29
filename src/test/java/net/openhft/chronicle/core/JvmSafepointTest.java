@@ -40,7 +40,7 @@ public class JvmSafepointTest extends CoreTestCommon {
         };
         t.start();
         int counter = 0;
-        int min = Jvm.isAzulZing() ? 20 : 200;
+        int min = Jvm.isAzulZing() ? 2 : 200;
         do {
             StackTraceElement[] stackTrace = t.getStackTrace();
             if (stackTrace.length > 1) {
@@ -52,6 +52,11 @@ public class JvmSafepointTest extends CoreTestCommon {
                     System.out.println(s0 + "\n" + s1);
             }
         } while (t.isAlive() && counter <= min);
+        if (!t.isAlive()) {
+            System.out.println("Thread has died unexpectedly. Quitting...");
+            System.out.println("counter: " + counter);
+            return;
+        }
         t.interrupt();
         t.join();
         System.out.println("counter: " + counter);

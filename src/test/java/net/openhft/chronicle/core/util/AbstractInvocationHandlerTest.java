@@ -19,15 +19,65 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
+import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.io.Closeable;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Mockito;
+import java.lang.reflect.Method;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
+import static org.junit.Assume.assumeTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+class ConcreteInvocationHandler extends AbstractInvocationHandler {
+    ConcreteInvocationHandler() {
+        super(String.class); // Example type
+    }
+
+    @Override
+    protected Object doInvoke(Object proxy, Method method, Object[] args) {
+        return "MockResult";
+    }
+}
 
 public class AbstractInvocationHandlerTest extends CoreTestCommon {
+
+    private AbstractInvocationHandler handler;
+    private Method exampleMethod;
+
+    @BeforeEach
+    public void setUp() throws NoSuchMethodException {
+        handler = new ConcreteInvocationHandler();
+        exampleMethod = String.class.getMethod("length");
+    }
+
+    @Test
+    public void testCloseable() throws Throwable {
+        AbstractInvocationHandler handler = new ConcreteInvocationHandler();
+        Closeable mockCloseable = mock(Closeable.class);
+        handler.onClose(mockCloseable);
+
+        Method closeMethod = Closeable.class.getMethod("close");
+        handler.invoke(mockCloseable, closeMethod, null);
+
+        verify(mockCloseable, times(1)).close();
+    }
+
+    @Test
+    public void testMethodHandleForProxy() throws Throwable {
+        assumeTrue(Jvm.majorVersion() >= 17);
+        AbstractInvocationHandler handler = new ConcreteInvocationHandler();
+        Method exampleMethod = String.class.getMethod("length");
+
+        assertNotNull(handler.methodHandleForProxy("example", exampleMethod));
+    }
+
     @Test
     public void testInvoke() {
         final List<String> messages = new ArrayList<>();

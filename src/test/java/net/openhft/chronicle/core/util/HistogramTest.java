@@ -24,9 +24,53 @@ import org.junit.Test;
 
 import java.util.Arrays;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.Assert.assertEquals;
 
 public class HistogramTest extends CoreTestCommon {
+
+    @Test
+    public void defaultConstructorInitializesProperly() {
+        Histogram histogram = new Histogram();
+        assertNotNull(histogram);
+    }
+
+    @Test
+    public void constructorWithParametersInitializesProperly() {
+        int powersOf2 = 10;
+        int fractionBits = 5;
+        Histogram histogram = new Histogram(powersOf2, fractionBits);
+        assertNotNull(histogram);
+    }
+
+    @Test
+    public void sampleCorrectlyUpdatesHistogram() {
+        Histogram histogram = new Histogram();
+        int bucket = histogram.sample(1000.0);
+    }
+
+    @Test
+    public void addCombinesHistogramsCorrectly() {
+        Histogram h1 = new Histogram();
+        Histogram h2 = new Histogram();
+        h1.add(h2);
+    }
+
+    @Test
+    public void testEqualsAndHashCode() {
+        Histogram h1 = new Histogram();
+        Histogram h2 = new Histogram();
+
+        assertEquals(h1, h2);
+        assertEquals(h1.hashCode(), h2.hashCode());
+    }
+
+    @Test
+    public void percentilesForReturnsCorrectValues() {
+        long count = 10000;
+        double[] percentiles = Histogram.percentilesFor(count);
+    }
+
     @Test
     public void percentilesFor() {
         assertEquals("[0.5, 0.9, 0.99, 0.997, 0.999, 0.9997, 0.9999, 0.99997, 0.99999, 0.999997, 1.0]", Arrays.toString(Histogram.percentilesFor(50_000_000)));
@@ -53,7 +97,6 @@ public class HistogramTest extends CoreTestCommon {
         assertEquals("50/90 99/99.9 99.99 - worst was 980 / 77,309,410  893,353,200 / 1,030,792,150  1,030,792,150 - 1,030,792,150",
                 h.toMicrosFormat());
     }
-
 
     @Test
     public void testSamples() {

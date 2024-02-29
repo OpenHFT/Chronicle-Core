@@ -225,7 +225,6 @@ interface UnsafeMemoryTestMixin<T> {
         }
     }
 
-
     final class NamedOperation<T> {
 
         private final String name;

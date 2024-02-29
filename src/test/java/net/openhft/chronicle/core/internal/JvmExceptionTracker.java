@@ -21,7 +21,7 @@ package net.openhft.chronicle.core.internal;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
 import net.openhft.chronicle.core.onoes.LogLevel;
-import net.openhft.chronicle.testframework.internal.ExceptionTracker;
+import net.openhft.chronicle.testframework.exception.ExceptionTracker;
 
 import java.util.EnumSet;
 import java.util.Map;

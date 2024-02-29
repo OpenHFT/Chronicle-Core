@@ -24,4 +24,22 @@ public class ObjectHeaderSizeHolderTest {
         assertEquals(UnsafeMemory.UNSAFE.ARRAY_OBJECT_BASE_OFFSET,
                 Jvm.objectHeaderSize(String[].class));
     }
+
+    @Test
+    public void getSizeShouldReturnPositiveValue() {
+        int size = ObjectHeaderSizeHolder.getSize();
+        assertTrue("Object header size should be positive", size > 0);
+    }
+
+    @Test
+    public void objectHeaderSizeShouldReturnPositiveForNonArrayClass() {
+        int size = ObjectHeaderSizeHolder.objectHeaderSize(Object.class);
+        assertTrue("Object header size for non-array class should be positive", size > 0);
+    }
+
+    @Test
+    public void objectHeaderSizeShouldReturnPositiveForArrayClass() {
+        int size = ObjectHeaderSizeHolder.objectHeaderSize(int[].class);
+        assertTrue("Array base offset for array class should be non-negative", size >= 0);
+    }
 }

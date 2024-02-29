@@ -30,8 +30,8 @@ import org.junit.runners.Parameterized;
 import java.util.*;
 
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
+
 
 @RunWith(Parameterized.class)
 public class UnsafeMemoryTest extends CoreTestCommon {
@@ -52,6 +52,11 @@ public class UnsafeMemoryTest extends CoreTestCommon {
     private Boolean onHeap;
     private Object object;
     private long addr;
+
+    private static class TestClass {
+        boolean booleanField = false;
+        double doubleField = 0.0;
+    }
 
     public UnsafeMemoryTest(String name, UnsafeMemory memory, Boolean onHeap) {
         this.name = name;
@@ -104,6 +109,170 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         }
         // check the state of the heap
         System.gc();
+    }
+
+    @Test
+    public void testUnsafeBooleanOperations() throws NoSuchFieldException {
+        TestClass testObj = new TestClass();
+        long offset = UnsafeMemory.UNSAFE.objectFieldOffset(TestClass.class.getDeclaredField("booleanField"));
+
+        UnsafeMemory.unsafePutBoolean(testObj, offset, true);
+        assertTrue(UnsafeMemory.unsafeGetBoolean(testObj, offset));
+    }
+
+    @Test
+    public void testUnsafeCharOperations() throws NoSuchFieldException {
+        class CharHolder { char value; }
+        CharHolder holder = new CharHolder();
+        long offset = UnsafeMemory.UNSAFE.objectFieldOffset(CharHolder.class.getDeclaredField("value"));
+
+        char testChar = 'A';
+        UnsafeMemory.unsafePutChar(holder, offset, testChar);
+        assertEquals(testChar, UnsafeMemory.unsafeGetChar(holder, offset));
+    }
+
+    @Test
+    public void testUnsafeFloatOperations() throws NoSuchFieldException {
+        class FloatHolder { float value; }
+        FloatHolder holder = new FloatHolder();
+        long offset = UnsafeMemory.UNSAFE.objectFieldOffset(FloatHolder.class.getDeclaredField("value"));
+
+        float testFloat = 1.23f;
+        UnsafeMemory.unsafePutFloat(holder, offset, testFloat);
+        assertEquals(testFloat, UnsafeMemory.unsafeGetFloat(holder, offset), 0.0f);
+    }
+
+    @Test
+    public void testUnsafeDoubleOperations() throws NoSuchFieldException {
+        TestClass testObj = new TestClass();
+        long offset = UnsafeMemory.UNSAFE.objectFieldOffset(TestClass.class.getDeclaredField("doubleField"));
+
+        double testValue = 123.456;
+        UnsafeMemory.unsafePutDouble(testObj, offset, testValue);
+        assertEquals(testValue, UnsafeMemory.unsafeGetDouble(testObj, offset), 0.0);
+    }
+
+    @Test
+    public void testUnsafeObjectOperations() throws NoSuchFieldException {
+        class ObjectHolder { Object value; }
+        ObjectHolder holder = new ObjectHolder();
+        long offset = UnsafeMemory.UNSAFE.objectFieldOffset(ObjectHolder.class.getDeclaredField("value"));
+
+        String testObject = "Hello, World!";
+        UnsafeMemory.unsafePutObject(holder, offset, testObject);
+        assertEquals(testObject, UnsafeMemory.unsafeGetObject(holder, offset));
+    }
+
+    @Test
+    public void testWriteReadBytes() {
+        UnsafeMemory memory = UnsafeMemory.INSTANCE;
+        byte[] originalBytes = {1, 2, 3, 4};
+        byte[] buffer = new byte[4];
+
+        long address = UnsafeMemory.UNSAFE.allocateMemory(4);
+
+        try {
+            memory.writeBytes(address, originalBytes, 0, originalBytes.length);
+
+            memory.readBytes(address, buffer, 0, buffer.length);
+
+            assertArrayEquals(originalBytes, buffer);
+        } finally {
+            UnsafeMemory.UNSAFE.freeMemory(address);
+        }
+    }
+
+    @Test
+    public void testTestAndSetInt() {
+        UnsafeMemory memory = UnsafeMemory.INSTANCE;
+        long address = UnsafeMemory.UNSAFE.allocateMemory(4);
+
+        try {
+            UnsafeMemory.UNSAFE.putInt(address, 0);
+
+            memory.testAndSetInt(address, 0, 0, 10);
+
+            assertEquals(10, UnsafeMemory.UNSAFE.getInt(address));
+
+            assertThrows(IllegalStateException.class, () -> memory.testAndSetInt(address, 0, 0, 20));
+        } finally {
+            UnsafeMemory.UNSAFE.freeMemory(address);
+        }
+    }
+
+    @Test
+    public void testCopy8bitAndIsEqual() {
+        UnsafeMemory memory = UnsafeMemory.INSTANCE;
+        String testString = "Hello, World!";
+        int length = testString.length();
+
+        long address = UnsafeMemory.UNSAFE.allocateMemory(length);
+
+        try {
+            memory.copy8bit(testString, 0, length, address);
+
+            assertTrue(memory.isEqual(address, testString, length));
+        } finally {
+            UnsafeMemory.UNSAFE.freeMemory(address);
+        }
+    }
+
+    @Test
+    public void testReadVolatileFloat() {
+        UnsafeMemory memory = UnsafeMemory.INSTANCE;
+        long address = UnsafeMemory.UNSAFE.allocateMemory(4);
+
+        try {
+            float expectedValue = 12.34f;
+            UnsafeMemory.UNSAFE.putFloat(address, expectedValue); // Simulate writing a float
+
+            float actualValue = memory.readVolatileFloat(address);
+
+            assertEquals(expectedValue, actualValue, 0.0f);
+        } finally {
+            UnsafeMemory.UNSAFE.freeMemory(address);
+        }
+    }
+
+    @Test
+    public void testTestAndSetIntMemoryAddress() {
+        UnsafeMemory memory = UnsafeMemory.INSTANCE;
+        long address = UnsafeMemory.UNSAFE.allocateMemory(4);
+
+        try {
+            int expected = 100;
+            int newValue = 200;
+            UnsafeMemory.UNSAFE.putInt(address, expected);
+
+            memory.testAndSetInt(address, 0, expected, newValue);
+
+            assertEquals(newValue, UnsafeMemory.UNSAFE.getInt(address));
+
+            assertThrows(IllegalStateException.class, () -> memory.testAndSetInt(address, 0, expected, 300));
+        } finally {
+            UnsafeMemory.UNSAFE.freeMemory(address);
+        }
+    }
+
+    @Test
+    public void testTestAndSetIntObjectField() throws NoSuchFieldException {
+        UnsafeMemory memory = UnsafeMemory.INSTANCE;
+        TestObject obj = new TestObject();
+        long offset = UnsafeMemory.UNSAFE.objectFieldOffset(TestObject.class.getDeclaredField("value"));
+
+        int expected = 10;
+        int newValue = 20;
+        obj.value = expected;
+
+        memory.testAndSetInt(obj, offset, expected, newValue);
+
+        assertEquals(newValue, obj.value);
+
+        assertThrows(IllegalStateException.class, () -> memory.testAndSetInt(obj, offset, expected, 30));
+    }
+
+    public static class TestObject {
+        public int value;
     }
 
     @Test
