@@ -97,4 +97,32 @@ public interface ClassLookup {
      * @param names A single alias or a comma-separated string of aliases for the class.
      */
     void addAlias(Class<?> clazz, String names);
+
+    /**
+     * Applies an alias transformation to the given class name if an alias exists. This method
+     * searches for an alias of the specified class name and returns the alias if found. If no alias
+     * is found, it returns the original class name. This mechanism allows for the flexible use of
+     * aliases in place of fully qualified class names, simplifying the referencing of classes within
+     * an application.
+     *
+     * <p>This method first looks up the provided class name in the internal alias mappings. If a direct
+     * match is found, it returns the corresponding class name as registered in the alias. If no direct
+     * match is found, it attempts to find a match using a case-insensitive search. This dual-step lookup
+     * ensures that aliases can be effectively used regardless of case sensitivity. If after both steps
+     * no alias is found, the method returns the original class name, ensuring that the operation is
+     * always safe and will not result in a loss of reference.</p>
+     *
+     * <p>Usage of this method can significantly reduce the verbosity of class references in scenarios
+     * where short, memorable aliases are preferred over full class names. It is particularly useful
+     * in configuration files, dynamic class loading scenarios, or any context where class names are
+     * used as strings and brevity or clarity is desired.</p>
+     *
+     * @param name The CharSequence representing the class name or alias to be transformed.
+     * @return A CharSequence representing the aliased class name if an alias exists, or the
+     *         original class name if no alias is found. This ensures that the method never returns
+     *         {@code null} or an invalid class name.
+     * @throws NullPointerException if the provided {@code name} is {@code null}.
+     * @see #addAlias(Class, String) for how aliases are added to the pool.
+     */
+    CharSequence applyAlias(CharSequence name);
 }
