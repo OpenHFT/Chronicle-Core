@@ -271,6 +271,20 @@ public class ClassAliasPool implements ClassLookup {
         }
     }
 
+    @Override
+    public CharSequence applyAlias(CharSequence name) {
+        Objects.requireNonNull(name);
+        CAPKey key = CAP_KEY_TL.get();
+        key.value = name;
+        Class<?> clazz = stringClassMap.get(key);
+        if (clazz != null)
+            return nameFor(clazz);
+        clazz = stringClassMap2.get(key);
+        if (clazz != null)
+            return nameFor(clazz);
+        return name;
+    }
+
     private void warnIfChanged(Class<?> prev, Class<?> clazz, String msg) {
         if (prev != null && prev != clazz)
             Jvm.warn().on(getClass(), msg + " " + prev + " with " + clazz);

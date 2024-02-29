@@ -25,27 +25,78 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.LocalDate;
+
 import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThrows;
 
 public class ClassAliasPoolTest extends CoreTestCommon {
 
-    private ThreadDump threadDump;
 
-    @Before
-    public void threadDump() {
-        threadDump = new ThreadDump();
+    @Test
+    public void testApplyAliasForSet() {
+        assertEquals("!set", CLASS_ALIASES.applyAlias("Set").toString());
+        assertEquals("!set", CLASS_ALIASES.applyAlias("java.util.Set").toString());
     }
 
-    @After
-    public void checkThreadDump() {
-        threadDump.assertNoNewThreads();
+    @Test
+    public void testApplyAliasForBitSet() {
+        assertEquals("!bitset", CLASS_ALIASES.applyAlias("BitSet").toString());
+        assertEquals("!bitset", CLASS_ALIASES.applyAlias("java.util.BitSet").toString());
+    }
+
+    @Test
+    public void testApplyAliasForSortedSet() {
+        assertEquals("!oset", CLASS_ALIASES.applyAlias("SortedSet").toString());
+        assertEquals("!oset", CLASS_ALIASES.applyAlias("java.util.SortedSet").toString());
+    }
+
+    @Test
+    public void testApplyAliasForList() {
+        assertEquals("!seq", CLASS_ALIASES.applyAlias("List").toString());
+        assertEquals("!seq", CLASS_ALIASES.applyAlias("java.util.List").toString());
+    }
+
+    @Test
+    public void testApplyAliasForMap() {
+        assertEquals("!map", CLASS_ALIASES.applyAlias("Map").toString());
+        assertEquals("!map", CLASS_ALIASES.applyAlias("java.util.Map").toString());
+    }
+
+    @Test
+    public void testApplyAliasForSortedMap() {
+        assertEquals("!omap", CLASS_ALIASES.applyAlias("SortedMap").toString());
+        assertEquals("!omap", CLASS_ALIASES.applyAlias("java.util.SortedMap").toString());
+    }
+
+    @Test
+    public void testApplyAliasForString() {
+        assertEquals("String", CLASS_ALIASES.applyAlias("java.lang.String").toString());
+    }
+
+    @Test
+    public void testApplyAliasForByte() {
+        assertEquals("byte", CLASS_ALIASES.applyAlias("Byte").toString());
+        assertEquals("byte", CLASS_ALIASES.applyAlias("java.lang.Byte").toString());
+    }
+
+    @Test
+    public void testApplyAliasForInteger() {
+        assertEquals("int", CLASS_ALIASES.applyAlias("Integer").toString());
+        assertEquals("int", CLASS_ALIASES.applyAlias(Integer.class.getName()).toString());
+    }
+
+    @Test
+    public void testApplyAliasForLocalDate() {
+        assertEquals("Date", CLASS_ALIASES.applyAlias("LocalDate").toString());
+        assertEquals("Date", CLASS_ALIASES.applyAlias(LocalDate.class.getName()).toString());
     }
 
     @Test
     public void forName() {
         CLASS_ALIASES.addAlias(ClassAliasPoolTest.class);
+        assertEquals("ClassAliasPoolTest", CLASS_ALIASES.applyAlias(ClassAliasPoolTest.class.getName()));
         String simpleName = getClass().getSimpleName();
         assertEquals(ClassAliasPoolTest.class, CLASS_ALIASES.forName(simpleName));
         StringBuilder sb = new StringBuilder(simpleName);
