@@ -124,5 +124,11 @@ public interface ClassLookup {
      * @throws NullPointerException if the provided {@code name} is {@code null}.
      * @see #addAlias(Class, String) for how aliases are added to the pool.
      */
-    CharSequence applyAlias(CharSequence name);
+    default CharSequence applyAlias(CharSequence name) {
+        try {
+            return nameFor(forName(name));
+        } catch (Exception cnfe) {
+            return name;
+        }
+    }
 }
