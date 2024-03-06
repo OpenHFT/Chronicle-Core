@@ -905,7 +905,7 @@ public final class Jvm {
 
             final Field f = getField(clz, "directMemory");
             return f.getLong(null);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             // ignore
         }
         System.err.println(Jvm.class.getName() + ": Unable to determine max direct memory");
