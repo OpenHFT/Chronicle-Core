@@ -140,6 +140,8 @@ public final class Jvm {
             DEBUG = new ThreadLocalisedExceptionHandler(DEFAULT_DEBUG_EXCEPTION_HANDLER);
         }
 
+        findAndLoadSystemProperties();
+
         MAX_DIRECT_MEMORY = maxDirectMemory0();
 
         Supplier<Long> reservedMemoryGetter;
@@ -161,8 +163,6 @@ public final class Jvm {
         signalHandlerGlobal = new ChainedSignalHandler();
 
         onSpinWaitMH = getOnSpinWait();
-
-        findAndLoadSystemProperties();
 
         boolean disablePerfInfo = Jvm.getBoolean("disable.perf.info");
         if (disablePerfInfo)
