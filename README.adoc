@@ -32,11 +32,11 @@ boolean isWindows = OS.isWindows();
 String hostname = OS.getHostName();
 ----
 
-See the section on <<_os_calls,OS Calls>>
+See the section on <<os-calls,OS Calls>>
 
 **JVM Access Methods:** To access platform specific features of the JVM.
 
-See the section on <<_jvm_access_methods,JVM Access Methods>>
+See the section on <<jvm-access-methods,JVM Access Methods>>
 
 **Memory Mapped Files:** The library offers an interface for managing memory mapped files, which is useful for high-performance I/O operations.
 
@@ -88,17 +88,20 @@ public class AbstractReferenceCountedTest {
 }
 ----
 
-See the section on <<_resource_reference_counting,Resource Reference Counting>>
+See the section on <<resource-reference-counting,Resource Reference Counting>>
+
+**Thread safety checks:** The library enables the use of thread safety checks for single-threaded components.
+See the section on <<thread-safety-checks,Thread Safety Checks>>
 
 This library also wraps up low level access to
 
-* <<_system_properties_from_file,System properties from a file>>
-* <<_off_heap_memory_access,Off Heap Memory Access>>
-* <<_object_pools,Object Pools>>
-* <<_class_local_caching,Class Local Caching>>
-* <<_maths_functions,Maths Functions>> for casting types, rounding double, faster hashing.
-* <<_serializable_lambdas,Serializable Lambdas>>
-* <<_histogram,Histogram>> A high performance wide range histogram.
+* <<system-properties-from-file,System properties from a file>>
+* <<off-heap-memory-access,Off Heap Memory Access>>
+* <<object-pools,Object Pools>>
+* <<class-local-caching,Class Local Caching>>
+* <<maths-functions,Maths Functions>> for casting types, rounding double, faster hashing.
+* <<serializable-lambdas,Serializable Lambdas>>
+* <<histogram,Histogram>> A high performance wide range histogram.
 
 == System properties from file
 
@@ -205,7 +208,7 @@ boolean isWindows = OS.isWindows();
 boolean is64bit = OS.is64Bit();
 String hostname = OS.getHostName();
 String username = OS.getUserName();
-String targetDir = OS.getTarget(); // where is the target directory during builds.
+String targetDir = OS.getTarget(); // location the target directory during builds
 ----
 
 Memory mapped files
@@ -366,16 +369,13 @@ public class AbstractReferenceCountedTest {
         rc.throwExceptionBadResourceOwner();
         try {
             rc.throwExceptionIfClosed();
-
- fail();
+            fail();
         } catch (IllegalStateException ignored) {
-
         }
         try {
             rc.throwExceptionIfReleased();
             fail();
         } catch (IllegalStateException ignored) {
-
         }
     }
 
@@ -474,6 +474,62 @@ To make sure the shutdown hook does not prevent classes from unloading, deregist
 | `false` | `true` | Rresources are queued but should be released in a user thread by calling `BackgroundResourceReleaser.releasePendingResources()`.
 | X | `false` | Resources are not queued and are released synchronously.
 |===
+
+== Thread Safety Checks
+
+Classes that are designed for single-threaded use can implement `net.openhft.chronicle.core.io.SingleThreadedChecked`.
+There are a number of implementations of this in Chronicle-Core, including `net.openhft.chronicle.core.io.AbstractCloseable`,
+and many Chronicle library classes extend this class. When the user calls a method which _must_ be called single-threaded, these methods call a private method to check that `Thread.currentThread()` is the same as the first thread that used the object, and throws an exception if not. `AbstractCloseable` also provides very helpful functionality (if resource tracing is on) to keep track of the stack trace of where it was used first by the use-by thread - this provides invaluable when diagnosing unexpected sharing of an object between threads.
+
+Thread safety checking can be turned off with the system property `disable.single.threaded.check`, once the application is thoroughly tested.
+
+An object can be handed-off between threads by calling `singleThreadedCheckReset`.
+
+=== Thread safety patterns
+
+Some patterns which are commonly used in Chronicle's libraries are below.
+
+==== Initialise in one thread, use in another
+
+If using an object which is single-threaded, a common pattern is to construct and initialise your object on the main thread before handing it off to an event loop or worker thread. Call `singleThreadedCheckReset` after initialisation.
+
+```
+// in the Main thread
+ChronicleQueue q = ...;
+ExcerptTailer tailer = q.createTailer().toEnd(); // toEnd() checks thread safety and thus initialises the used-by thread
+tailer.singleThreadedCheckReset();
+// now use the tailer in an event loop
+```
+
+==== Reset in constructor
+
+If writing an object to use `net.openhft.chronicle.core.io.SingleThreadedChecked` then a common pattern (and a variant
+of the above) is to call `singleThreadedCheckReset` at the end of the constructor e.g. from Chronicle Queue:
+
+```
+public ExcerptTailer createTailer(String id) {
+    ...
+    final StoreTailer storeTailer = new StoreTailer(this, pool, indexUpdater); // initialises state and sets the used-by thread
+    ...
+    storeTailer.singleThreadedCheckReset();
+    return storeTailer;
+}
+```
+
+==== Delegate through SingleThreadedCheck methods
+
+If implementing `SingleThreadedCheck` then any methods should also delegate to any contained `SingleThreadedCheck`
+objects i.e.
+
+```
+@Override
+public void singleThreadedCheckReset() {
+    // perform my reset
+    ...
+    // call singleThreadedCheckReset on any single-threaded fields
+    this.bytes.singleThreadedCheckReset();
+}
+```
 
 == Object Pooling
 
