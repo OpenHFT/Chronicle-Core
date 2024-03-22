@@ -22,7 +22,7 @@
         <groupId>net.openhft</groupId>
         <artifactId>java-parent-pom</artifactId>
         <version>1.25.4</version>
-        <relativePath></relativePath>
+        <relativePath/>
     </parent>
     <artifactId>chronicle-core</artifactId>
     <version>2.25ea13-SNAPSHOT</version>
