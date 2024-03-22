@@ -33,7 +33,6 @@ import static java.util.Objects.requireNonNull;
  * A collection of functional compositions to check and assert various requirements
  * related to {@code long} values.
  */
-@Deprecated(/* to be moved to internal in Chronicle-Bytes in x.26 as that is where it's used. One method is used in UnsafeMemory */)
 public final class Longs {
 
     // Suppresses default constructor, ensuring non-instantiability.
@@ -51,12 +50,6 @@ public final class Longs {
      *     this.bar = requireNonNegative(bar);
      * }
      * </pre></blockquote>
-     * <p>
-     * This method is functionally equivalent to:
-     * <blockquote><pre>
-     *     require(negative().negate(), value);
-     * </pre></blockquote>
-     * but is potentially optimized for performance.
      *
      * @param value the value to check
      * @return the provided {@code value} if the check passes
@@ -65,6 +58,28 @@ public final class Longs {
     public static long requireNonNegative(final long value) {
         if (value < 0)
             throw new IllegalArgumentException(failDescription(negative().negate(), value));
+        return value;
+    }
+
+    /**
+     * Returns the provided {@code value} after checking that it is <em>positive</em> throwing
+     * an {@link IllegalArgumentException} if the check fails.
+     * <p>
+     * This method is designed primarily for doing parameter validation in public methods
+     * and constructors, as demonstrated below:
+     * <blockquote><pre>
+     * public Foo(long bar) {
+     *     this.bar = requirePositive(bar);
+     * }
+     * </pre></blockquote>
+     *
+     * @param value the value to check
+     * @return the provided {@code value} if the check passes
+     * @throws IllegalArgumentException If the check fails
+     */
+    public static long requirePositive(final long value) {
+        if (value <= 0)
+            throw new IllegalArgumentException(failDescription(positive(), value));
         return value;
     }
 
@@ -86,6 +101,7 @@ public final class Longs {
      * @throws NullPointerException     If the provided {@code requirement} is {@code null}.
      * @throws IllegalArgumentException If the check fails
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static long require(final LongPredicate requirement,
                                final long value) {
         return require(requirement, value, IllegalArgumentException::new);
@@ -107,6 +123,7 @@ public final class Longs {
      * @throws NullPointerException     If the provided {@code requirement} is {@code null}.
      * @throws IllegalArgumentException If the check fails
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static void require(final BooleanSupplier requirement, final String msg) {
         require(requirement, msg, IllegalArgumentException::new);
     }
@@ -160,6 +177,7 @@ public final class Longs {
      *                              {@code exceptionMapper} is {@code null}.
      * @throws RuntimeException     of the specified type of the provided {@code exceptionMapper}
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static <X extends RuntimeException> void require(final BooleanSupplier requirement,
                                                             final String msg,
                                                             final Function<String, X> exceptionMapper) {
@@ -220,6 +238,7 @@ public final class Longs {
      * @throws NullPointerException     If the provided {@code requirement} is {@code null}.
      * @throws IllegalArgumentException If the check fails
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static <X extends RuntimeException> long require(final LongBiPredicate requirement,
                                                             final long value,
                                                             final long otherValue,
@@ -281,6 +300,7 @@ public final class Longs {
      * @throws NullPointerException     If the provided {@code requirement} is {@code null}.
      * @throws IllegalArgumentException If the check fails
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static <X extends RuntimeException> long require(final LongTriPredicate requirement,
                                                             final long value,
                                                             final long otherFirstValue,
@@ -314,6 +334,7 @@ public final class Longs {
      * @throws AssertionError       if the check fails and assertions are enabled both via the {@code -ea} JVM command
      *                              line option and by setting {@link AssertUtil#SKIP_ASSERTIONS} to {@code false}.
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static boolean assertIfEnabled(final LongPredicate requirement,
                                           final long value) {
         assert AssertUtil.SKIP_ASSERTIONS || requirement.test(value)
@@ -377,6 +398,7 @@ public final class Longs {
      * @throws AssertionError       if the check fails and assertions are enabled both via the {@code -ea} JVM command
      *                              line option and by setting {@link AssertUtil#SKIP_ASSERTIONS} to {@code false}.
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static boolean assertIfEnabled(final LongTriPredicate requirement,
                                           final long value,
                                           final long otherFirstValue,
@@ -396,6 +418,7 @@ public final class Longs {
      * satisfy the provided {@code requirement}
      * @throws NullPointerException If the provided {@code requirement} is {@code null}.
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static String failDescription(final LongPredicate requirement,
                                          final long value) {
         return String.format("The provided value (%d) is illegal because it does not satisfy the provided requirement: %d %s", value, value, requirement);
@@ -412,6 +435,7 @@ public final class Longs {
      * provided {@code otherValue} <em>did not</em> satisfy the provided {@code requirement}
      * @throws NullPointerException If the provided {@code requirement} is {@code null}.
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static String failDescription(final LongBiPredicate requirement,
                                          final long value,
                                          final long otherValue) {
@@ -429,6 +453,7 @@ public final class Longs {
      * provided {@code otherValue} <em>did not</em> satisfy the provided {@code requirement}
      * @throws NullPointerException If the provided {@code requirement} is {@code null}.
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static String failDescription(final LongTriPredicate requirement,
                                          final long value,
                                          final long otherFirstValue,
@@ -441,6 +466,7 @@ public final class Longs {
      *
      * @return a predicate that can test if a value is <em>positive</em> (i.e. value > 0)
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static LongPredicate positive() {
         return LongCondition.POSITIVE;
     }
@@ -450,6 +476,7 @@ public final class Longs {
      *
      * @return a predicate that can test if a value is <em>negative</em> (i.e. value < 0)
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static LongPredicate negative() {
         return LongCondition.NEGATIVE;
     }
@@ -470,6 +497,7 @@ public final class Longs {
      *
      * @return a predicate that can test if a value is <em>zero</em> (i.e. value == 0)
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static LongPredicate zero() {
         return LongCondition.ZERO;
     }
@@ -479,6 +507,7 @@ public final class Longs {
      *
      * @return a predicate that can test if a value can <em>fit in a {@code byte}</em> (i.e. value ∈ [-128, 127]")
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static LongPredicate byteConvertible() {
         return LongCondition.BYTE_CONVERTIBLE;
     }
@@ -488,6 +517,7 @@ public final class Longs {
      *
      * @return a predicate that can test if a value can <em>fit in a {@code short}</em> (i.e. value ∈ [-32768, 32767]")
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static LongPredicate shortConvertible() {
         return LongCondition.SHORT_CONVERTIBLE;
     }
@@ -499,6 +529,7 @@ public final class Longs {
      * @return a predicate that can test if a value is an <em>even power of two</em>
      * (i.e. log2(value) is an integer)
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static LongPredicate evenPowerOfTwo() {
         return LongCondition.EVEN_POWER_OF_TWO;
     }
@@ -510,6 +541,7 @@ public final class Longs {
      * @return a predicate that can test if a value is <em>short aligned</em>
      * (i.e. value & (Short.BYTES - 1) == 0)
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static LongPredicate shortAligned() {
         return LongCondition.SHORT_ALIGNED;
     }
@@ -521,6 +553,7 @@ public final class Longs {
      * @return a predicate that can test if a value is a <em>int aligned</em>
      * (i.e. value & (Integer.BYTES - 1) == 0)
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static LongPredicate intAligned() {
         return LongCondition.INT_ALIGNED;
     }
@@ -532,6 +565,7 @@ public final class Longs {
      * @return a predicate that can test if a value is a <em>long aligned</em>
      * (i.e. value & (Long.BYTES - 1) == 0)
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static LongPredicate longAligned() {
         return LongCondition.LONG_ALIGNED;
     }
@@ -541,6 +575,7 @@ public final class Longs {
      *
      * @return a predicate that can test if a value is <em>equal to</em> another value
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static LongBiPredicate equalTo() {
         return LongBiCondition.EQUAL_TO;
     }
@@ -550,6 +585,7 @@ public final class Longs {
      *
      * @return a predicate that can test if a value is <em>greater than</em> to another value
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static LongBiPredicate greaterThan() {
         return LongBiCondition.GREATER_THAN;
     }
@@ -559,6 +595,7 @@ public final class Longs {
      *
      * @return a predicate that can test if a value is <em>greater or equal</em> to another value
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static LongBiPredicate greaterOrEqual() {
         return LongBiCondition.GREATER_OR_EQUAL;
     }
@@ -568,6 +605,7 @@ public final class Longs {
      *
      * @return a predicate that can test if a value is <em>less than</em> to another value
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static LongBiPredicate lessThan() {
         return LongBiCondition.LESS_THAN;
     }
@@ -577,6 +615,7 @@ public final class Longs {
      *
      * @return a predicate that can test if a value is <em>less or equal</em> to another value
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static LongBiPredicate lessOrEqual() {
         return LongBiCondition.LESS_OR_EQUAL;
     }
@@ -588,6 +627,7 @@ public final class Longs {
      * @return a predicate that can test if a value is <em>between zero and</em> another value (exclusive)
      * (i.e value ∈ [0, other value) )
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static LongBiPredicate betweenZeroAnd() {
         return LongBiCondition.BETWEEN_ZERO_AND;
     }
@@ -599,6 +639,7 @@ public final class Longs {
      * @return a predicate that can test if a value is <em>between zero and</em> another value (inclusive)
      * (i.e value ∈ [0, other value] )
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static LongBiPredicate betweenZeroAndClosed() {
         return LongBiCondition.BETWEEN_ZERO_AND_CLOSED;
     }
@@ -612,6 +653,7 @@ public final class Longs {
      * @return a predicate that can test if a value is an <em>even power of two</em>
      * (i.e. an N exists such that value ^ N is an integer)
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static LongBiPredicate powerOfTwo() {
         return LongBiCondition.POWER_OF_TWO;
     }
@@ -626,6 +668,7 @@ public final class Longs {
      * @return a predicate that can test if a value is <em>log2</em> of another value
      * (i.e. value = log2(other value) ).
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static LongBiPredicate log2() {
         return LongBiCondition.LOG2;
     }
@@ -637,6 +680,7 @@ public final class Longs {
      * @return a predicate that can test if a value is <em>between</em> another first value (inclusive)
      * and another second value (exclusive) (i.e value ∈ [other first value , other second value) )
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static LongTriPredicate between() {
         return LongTriCondition.BETWEEN;
     }
@@ -648,6 +692,7 @@ public final class Longs {
      * @return a predicate that can test if a value is <em>between (closed)</em> another first value (inclusive)
      * and another second value (inclusive) (i.e value ∈ [other first value , other second value] ).
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static LongTriPredicate betweenClosed() {
         return LongTriCondition.BETWEEN_CLOSED;
     }
@@ -670,6 +715,7 @@ public final class Longs {
      * whilst ensuring a value of size defined by another second value can fit.
      * (i.e value ∈ [0, other first value - other second value] ).
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static LongTriPredicate betweenZeroAndReserving() {
         return LongTriCondition.BETWEEN_ZERO_AND_ENSURING;
     }

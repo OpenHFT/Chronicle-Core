@@ -27,10 +27,7 @@ import java.nio.ByteBuffer;
  * Utility class for working with {@link ByteBuffer} instances.
  * <p>
  * Provides functionality to directly set the address and capacity of a ByteBuffer.
- * <p>
- * Note: This class is deprecated and will be removed in version x.26.
  */
-@Deprecated(/* to be removed x.26 */)
 public final class ByteBuffers {
     private ByteBuffers() {
     }
