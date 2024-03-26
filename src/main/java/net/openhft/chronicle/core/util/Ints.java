@@ -32,7 +32,6 @@ import static java.util.Objects.requireNonNull;
  * A collection of functional compositions to check and assert various requirements
  * related to {@code int} values.
  */
-@Deprecated(/* to be moved in x.26 */)
 public final class Ints {
 
     // Suppresses default constructor, ensuring non-instantiability.
@@ -85,6 +84,7 @@ public final class Ints {
      * @throws NullPointerException     if the provided {@code requirement} is {@code null}.
      * @throws IllegalArgumentException if the check fails
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static int require(final IntPredicate requirement,
                               final int value) {
         return require(requirement, value, IllegalArgumentException::new);
@@ -111,6 +111,7 @@ public final class Ints {
      *                              {@code exceptionMapper} is {@code null}.
      * @throws RuntimeException     of the specified type of the provided {@code exceptionMapper}
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static <X extends RuntimeException> int require(final IntPredicate requirement,
                                                            final int value,
                                                            final Function<String, X> exceptionMapper) {
@@ -141,6 +142,7 @@ public final class Ints {
      * @throws NullPointerException     if the provided {@code requirement} is {@code null}.
      * @throws IllegalArgumentException if the check fails
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static int require(final IntBiPredicate requirement,
                               final int value,
                               final int otherValue) {
@@ -172,6 +174,7 @@ public final class Ints {
      * @throws NullPointerException     if the provided {@code requirement} is {@code null}.
      * @throws IllegalArgumentException if the check fails
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static <X extends RuntimeException> int require(final IntBiPredicate requirement,
                                                            final int value,
                                                            final int otherValue,
@@ -203,6 +206,7 @@ public final class Ints {
      * @throws NullPointerException     if the provided {@code requirement} is {@code null}.
      * @throws IllegalArgumentException if the check fails
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static int require(final IntTriPredicate requirement,
                               final int value,
                               final int otherFirstValue,
@@ -233,6 +237,7 @@ public final class Ints {
      * @throws NullPointerException     if the provided {@code requirement} is {@code null}.
      * @throws IllegalArgumentException if the check fails
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static <X extends RuntimeException> int require(final IntTriPredicate requirement,
                                                            final int value,
                                                            final int otherFirstValue,
@@ -296,6 +301,7 @@ public final class Ints {
      * @throws AssertionError       if the check fails and assertions are enabled both via the {@code -ea} JVM command
      *                              line option and by setting {@link AssertUtil#SKIP_ASSERTIONS} to {@code false}.
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static boolean assertIfEnabled(final IntBiPredicate requirement,
                                           final int value,
                                           final int otherValue) {
@@ -393,6 +399,7 @@ public final class Ints {
      *
      * @return a predicate that can test if a value is <em>positive</em> (i.e. value > 0)
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static IntPredicate positive() {
         return IntCondition.POSITIVE;
     }
@@ -402,6 +409,7 @@ public final class Ints {
      *
      * @return a predicate that can test if a value is <em>negative</em> (i.e. value < 0)
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static IntPredicate negative() {
         return IntCondition.NEGATIVE;
     }
@@ -422,6 +430,7 @@ public final class Ints {
      *
      * @return a predicate that can test if a value is <em>zero</em> (i.e. value == 0)
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static IntPredicate zero() {
         return IntCondition.ZERO;
     }
@@ -431,6 +440,7 @@ public final class Ints {
      *
      * @return a predicate that can test if a value can <em>fit in a {@code byte}</em> (i.e. value ∈ [-128, 127]")
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static IntPredicate byteConvertible() {
         return IntCondition.BYTE_CONVERTIBLE;
     }
@@ -440,6 +450,7 @@ public final class Ints {
      *
      * @return a predicate that can test if a value can <em>fit in a {@code short}</em> (i.e. value ∈ [-32768, 32767]")
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static IntPredicate shortConvertible() {
         return IntCondition.SHORT_CONVERTIBLE;
     }
@@ -451,6 +462,7 @@ public final class Ints {
      * @return a predicate that can test if a value is an <em>even power of two</em>
      * (i.e. log2(value) is an integer)
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static IntPredicate evenPowerOfTwo() {
         return IntCondition.EVEN_POWER_OF_TWO;
     }
@@ -462,6 +474,7 @@ public final class Ints {
      * @return a predicate that can test if a value is <em>short aligned</em>
      * (i.e. value & (Short.BYTES - 1) == 0)
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static IntPredicate shortAligned() {
         return IntCondition.SHORT_ALIGNED;
     }
@@ -473,6 +486,7 @@ public final class Ints {
      * @return a predicate that can test if a value is a <em>int aligned</em>
      * (i.e. value & (Integer.BYTES - 1) == 0)
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static IntPredicate intAligned() {
         return IntCondition.INT_ALIGNED;
     }
@@ -484,6 +498,7 @@ public final class Ints {
      * @return a predicate that can test if a value is a <em>long aligned</em>
      * (i.e. value & (Long.BYTES - 1) == 0)
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static IntPredicate longAligned() {
         return IntCondition.LONG_ALIGNED;
     }
@@ -493,6 +508,7 @@ public final class Ints {
      *
      * @return a predicate that can test if a value is <em>equal to</em> another value
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static IntBiPredicate equalTo() {
         return IntBiCondition.EQUAL_TO;
     }
@@ -502,6 +518,7 @@ public final class Ints {
      *
      * @return a predicate that can test if a value is <em>greater than</em> to another value
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static IntBiPredicate greaterThan() {
         return IntBiCondition.GREATER_THAN;
     }
@@ -511,6 +528,7 @@ public final class Ints {
      *
      * @return a predicate that can test if a value is <em>greater or equal</em> to another value
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static IntBiPredicate greaterOrEqual() {
         return IntBiCondition.GREATER_OR_EQUAL;
     }
@@ -520,6 +538,7 @@ public final class Ints {
      *
      * @return a predicate that can test if a value is <em>less than</em> to another value
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static IntBiPredicate lessThan() {
         return IntBiCondition.LESS_THAN;
     }
@@ -529,6 +548,7 @@ public final class Ints {
      *
      * @return a predicate that can test if a value is <em>less or equal</em> to another value
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static IntBiPredicate lessOrEqual() {
         return IntBiCondition.LESS_OR_EQUAL;
     }
@@ -540,6 +560,7 @@ public final class Ints {
      * @return a predicate that can test if a value is <em>between zero and</em> another value (exclusive)
      * (i.e value ∈ [0, other value) )
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static IntBiPredicate betweenZeroAnd() {
         return IntBiCondition.BETWEEN_ZERO_AND;
     }
@@ -551,6 +572,7 @@ public final class Ints {
      * @return a predicate that can test if a value is <em>between zero and</em> another value (inclusive)
      * (i.e value ∈ [0, other value] )
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static IntBiPredicate betweenZeroAndClosed() {
         return IntBiCondition.BETWEEN_ZERO_AND_CLOSED;
     }
@@ -564,6 +586,7 @@ public final class Ints {
      * @return a predicate that can test if a value is an <em>even power of two</em>
      * (i.e. an N exists such that value ^ N is an integer)
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static IntBiPredicate powerOfTwo() {
         return IntBiCondition.POWER_OF_TWO;
     }
@@ -578,6 +601,7 @@ public final class Ints {
      * @return a predicate that can test if a value is <em>log2</em> of another value
      * (i.e. value = log2(other value) ).
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static IntBiPredicate log2() {
         return IntBiCondition.LOG2;
     }
@@ -589,6 +613,7 @@ public final class Ints {
      * @return a predicate that can test if a value is <em>between</em> another first value (inclusive)
      * and another second value (exclusive) (i.e value ∈ [other first value , other second value) )
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static IntTriPredicate between() {
         return IntTriCondition.BETWEEN;
     }
@@ -600,6 +625,7 @@ public final class Ints {
      * @return a predicate that can test if a value is <em>between (closed)</em> another first value (inclusive)
      * and another second value (inclusive) (i.e value ∈ [other first value , other second value] ).
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static IntTriPredicate betweenClosed() {
         return IntTriCondition.BETWEEN_CLOSED;
     }
@@ -622,6 +648,7 @@ public final class Ints {
      * whilst ensuring a value of size defined by another second value can fit.
      * (i.e value ∈ [0, other first value - other second value] ).
      */
+    @Deprecated(/* to be removed in x.26 */)
     public static IntTriPredicate betweenZeroAndReserving() {
         return IntTriCondition.BETWEEN_ZERO_AND_ENSURING;
     }
