@@ -284,6 +284,12 @@ public final class OS {
     }
 
     /**
+     * @return the current working directory
+     */
+    public static String getUserDir() {
+        return USER_DIR;
+    }
+    /**
      * @return native memory accessor class
      */
     @NotNull
