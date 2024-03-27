@@ -1,11 +1,11 @@
 package net.openhft.chronicle.core.io;
 
-import net.openhft.chronicle.core.io.Wget;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class WgetTest {
 
@@ -17,16 +17,6 @@ public class WgetTest {
         Wget.url(testUrl, sb);
 
         assertFalse(sb.toString().isEmpty());
-    }
-
-    @Test
-    public void testDeprecatedMethod() throws IOException {
-        String testUrl = "http://example.com";
-
-        CharSequence result = Wget.url(testUrl);
-
-        assertNotNull(result);
-        assertFalse(result.toString().isEmpty());
     }
 
     @Test

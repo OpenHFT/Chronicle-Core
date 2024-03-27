@@ -1,8 +1,9 @@
 package net.openhft.chronicle.core.announcer;
 
 import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
-import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class AnnouncerTest {
 
@@ -14,11 +15,11 @@ class AnnouncerTest {
 
     @Test
     void testAnnounceWithNullGroupId() {
-        assertThrows(NullPointerException.class, () -> Announcer.announce(null, "chronicle-queue"));
+        assertThrows(IllegalArgumentException.class, () -> Announcer.announce(null, "chronicle-queue"));
     }
 
     @Test
     void testAnnounceWithNullArtifactId() {
-        assertThrows(NullPointerException.class, () -> Announcer.announce("net.openhft", null));
+        assertThrows(IllegalArgumentException.class, () -> Announcer.announce("net.openhft", null));
     }
 }
