@@ -1079,30 +1079,6 @@ public class UnsafeMemory implements Memory {
     }
 
     /**
-     * Copies memory from a byte array to an object.
-     *
-     * @param src        source byte array.
-     * @param srcOffset  offset of the source array from where to start copying.
-     * @param dest       destination object.
-     * @param destOffset offset of the destination object from where to place the copied memory.
-     * @param length     the length of memory to copy.
-     */
-    @Deprecated(/* for removal in x.26 */)
-    @Override
-    public void copyMemory(byte[] src, int srcOffset, @Nullable Object dest, long destOffset, int length) {
-        assert SKIP_ASSERTIONS || nonNull(src);
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), srcOffset);
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), destOffset);
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), length);
-
-        if (dest instanceof byte[]) {
-            copyMemory(src, srcOffset, (byte[]) dest, Math.toIntExact(destOffset - ARRAY_BYTE_BASE_OFFSET), length);
-        } else {
-            copyMemoryLoop(src, ARRAY_BYTE_BASE_OFFSET + srcOffset, dest, destOffset, length);
-        }
-    }
-
-    /**
      * Copies memory from one byte array to another.
      *
      * @param src        source byte array.
