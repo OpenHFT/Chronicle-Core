@@ -18,10 +18,7 @@
 
 package net.openhft.chronicle.core.util;
 
-import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.function.BiFunction;
 
 /**
  * Represents a function that accepts two arguments and produces a result.
@@ -37,16 +34,6 @@ import java.util.function.BiFunction;
  */
 @FunctionalInterface
 public interface ThrowingBiFunction<I, J, R, T extends Throwable> {
-    @Deprecated(/* to be removed in x.26 */)
-    static <I, J, T extends Throwable, R> BiFunction<I, J, R> asBiFunction(@NotNull ThrowingBiFunction<I, J, R, T> function) {
-        return (in, i2) -> {
-            try {
-                return function.apply(in, i2);
-            } catch (Throwable t) {
-                throw Jvm.rethrow(t);
-            }
-        };
-    }
 
     /**
      * Applies this function to the given arguments.

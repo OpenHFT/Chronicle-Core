@@ -49,11 +49,6 @@ import static net.openhft.chronicle.core.util.Longs.*;
  * Low level access to OS class. The OS class provides utility methods related to the operating system.
  */
 public final class OS {
-    @Deprecated(/* to be removed in x.26, use getUserDir() */)
-    public static final String USER_DIR = Jvm.getProperty("user.dir");
-
-    public static final String TMP = findTmp();
-
     public static final String USER_HOME = Jvm.getProperty("user.home");
     public static final Exception TIME_LIMIT = new TimeLimitExceededException();
     public static final int SAFE_PAGE_SIZE = 64 << 10;
@@ -75,6 +70,8 @@ public final class OS {
             throw new AssertionError(e);
         }
     });
+    private static final String USER_DIR = Jvm.getProperty("user.dir");
+    public static final String TMP = findTmp();
     private static final Field FD_FIELD = Jvm.getField(FileChannelImpl.class, "fd");
     private static final String TARGET = findTarget();
     private static final String USER_NAME = Jvm.getProperty("user.name");
@@ -712,37 +709,6 @@ public final class OS {
             } catch (AssertionError ae) {
                 Method write0 = Jvm.getMethod(fdi, "write0", FileDescriptor.class, long.class, int.class, boolean.class);
                 write0Mh2 = MethodHandles.lookup().unreflect(write0);
-            }
-        }
-    }
-
-    @Deprecated(/* to be moved in x.26 to an internal package of Chronicle-Bytes */)
-    public static final class Unmapper implements Runnable {
-        private final long size;
-
-        private final int pageSize;
-
-        private volatile long address;
-
-        public Unmapper(long address, long size, int pageSize) throws IllegalStateException {
-
-            assert (address != 0);
-            this.address = address;
-            this.size = size;
-            this.pageSize = pageSize;
-        }
-
-        @Override
-        public void run() {
-            if (address == 0)
-                return;
-
-            try {
-                unmap(address, size, pageSize);
-                address = 0;
-
-            } catch (@NotNull IOException e) {
-                Jvm.warn().on(OS.class, "Error on unmap and release", e);
             }
         }
     }
