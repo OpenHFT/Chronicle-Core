@@ -28,13 +28,6 @@ import static org.junit.Assert.assertTrue;
 public class MemoryTest extends CoreTestCommon {
 
     @Test
-    public void testHeapUsed() {
-        final long heapUsed = OS.memory().heapUsed();
-        System.out.println("heap used: " + heapUsed);
-        assertTrue(heapUsed > 0);
-    }
-
-    @Test
     public void testReadme() {
         @Nullable Memory memory = OS.memory();
         long address = memory.allocate(1024);

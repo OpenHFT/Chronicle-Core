@@ -1,8 +1,11 @@
 package net.openhft.chronicle.core.pom;
 
 import org.junit.jupiter.api.Test;
+
 import java.util.Properties;
-import static org.junit.jupiter.api.Assertions.*;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class PomPropertiesTest {
 
@@ -14,11 +17,11 @@ class PomPropertiesTest {
 
     @Test
     void testCreateWithNullGroupId() {
-        PomProperties.create(null, "chronicle-queue");
+        assertThrows(IllegalArgumentException.class, () -> PomProperties.create(null, "chronicle-queue"));
     }
 
     @Test
     void testCreateWithNullArtifactId() {
-        PomProperties.create("net.openhft", null);
+        assertThrows(IllegalArgumentException.class, () -> PomProperties.create("net.openhft", null));
     }
 }
