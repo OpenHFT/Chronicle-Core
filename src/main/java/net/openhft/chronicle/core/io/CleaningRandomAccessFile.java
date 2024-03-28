@@ -37,6 +37,7 @@ public class CleaningRandomAccessFile extends RandomAccessFile {
         super(file, mode);
     }
 
+    @SuppressWarnings("removal")
     @Override
     protected void finalize() throws Throwable {
         super.finalize();
