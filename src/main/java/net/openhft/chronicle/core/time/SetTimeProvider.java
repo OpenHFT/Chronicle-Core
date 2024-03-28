@@ -172,7 +172,6 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      * @param unit The time unit to return the current time in.
      * @return The current time in the specified time unit.
      */
-    @Override
     public long currentTime(TimeUnit unit) {
         return unit.convert(currentTimeNanos(), TimeUnit.NANOSECONDS);
     }

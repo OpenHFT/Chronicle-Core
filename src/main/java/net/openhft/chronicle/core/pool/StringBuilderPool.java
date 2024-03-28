@@ -34,33 +34,11 @@ public final class StringBuilderPool {
     private static final int DEFAULT_STRING_BUILDER_POOL_SIZE_PER_THREAD = Jvm.getInteger("chronicle.stringBuilderPool.instancesPerThread", 4);
 
     /**
-     * @deprecated Use {@link StringBuilderPool#createThreadLocal(int)}
-     */
-    @Deprecated(/* To be removed in x.26 */)
-    public StringBuilderPool() {
-    }
-
-    /**
      * Thread-local variable that holds a StringBuilder for each thread.
      * The initial capacity for each StringBuilder is 128.
      */
     private final ThreadLocal<StringBuilder> sbtl = withInitial(
             () -> new StringBuilder(128));
-
-    /**
-     * Returns a StringBuilder instance from the pool.
-     * If the current thread does not yet have a StringBuilder, it is created and added to the pool.
-     * The length of the StringBuilder is reset to 0 before being returned.
-     *
-     * @return a StringBuilder instance with length 0.
-     * @deprecated Use {@link StringBuilderPool#createThreadLocal(int)} and {@link ScopedResourcePool#get()} instead
-     */
-    @Deprecated(/* To be removed in x.26 */)
-    public StringBuilder acquireStringBuilder() {
-        StringBuilder sb = sbtl.get();
-        sb.setLength(0);
-        return sb;
-    }
 
     /**
      * Create a scoped-thread-local pool of StringBuilders

@@ -78,6 +78,7 @@ public final class CloseableUtils {
      *
      * @throws AssertionError If the finalizer does not complete within the specified timeout.
      */
+    @SuppressWarnings("removal")
     public static void gcAndWaitForCloseablesToClose() {
         CleaningThread.performCleanup(Thread.currentThread());
 

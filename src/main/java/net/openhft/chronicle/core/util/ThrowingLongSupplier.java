@@ -19,11 +19,6 @@
 
 package net.openhft.chronicle.core.util;
 
-import net.openhft.chronicle.core.Jvm;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.function.LongSupplier;
-
 /**
  * <p>
  * Represents a supplier of results which might throw an Exception
@@ -39,17 +34,6 @@ import java.util.function.LongSupplier;
  */
 @FunctionalInterface
 public interface ThrowingLongSupplier<T extends Throwable> {
-    @Deprecated(/* to be removed in x.26 */)
-    static <T extends Throwable> LongSupplier asSupplier(@NotNull ThrowingLongSupplier<T> throwingSupplier) {
-        return () -> {
-            try {
-                return throwingSupplier.getAsLong();
-
-            } catch (Throwable t) {
-                throw Jvm.rethrow(t);
-            }
-        };
-    }
 
     /**
      * Gets a result.

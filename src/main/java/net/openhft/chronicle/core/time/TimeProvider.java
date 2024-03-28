@@ -18,8 +18,6 @@
 
 package net.openhft.chronicle.core.time;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * Defines an interface for providing high-resolution wall-clock timestamps.
  * <p>
@@ -78,29 +76,4 @@ public interface TimeProvider {
         return currentTimeMicros() * 1000;
     }
 
-    /**
-     * Returns the current time in the specified {@link TimeUnit}.
-     * <p>
-     * This method is deprecated and will be removed in a future version.
-     * Use {@link #currentTimeMillis()}, {@link #currentTimeMicros()}, or {@link #currentTimeNanos()}
-     * as per the required precision.
-     *
-     * @param timeUnit the {@link TimeUnit} to return the current time in
-     * @return the current time in the specified time unit
-     * @throws IllegalStateException if the time cannot be determined or converted
-     * @deprecated to be removed in x.26
-     */
-    @Deprecated(/* to be removed in x.26 */)
-    default long currentTime(TimeUnit timeUnit) throws IllegalStateException {
-        switch (timeUnit) {
-            case NANOSECONDS:
-                return currentTimeNanos();
-            case MICROSECONDS:
-                return currentTimeMicros();
-            case MILLISECONDS:
-                return currentTimeMillis();
-            default:
-                return timeUnit.convert(currentTimeNanos(), TimeUnit.NANOSECONDS);
-        }
-    }
 }

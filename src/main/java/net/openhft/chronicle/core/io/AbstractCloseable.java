@@ -464,6 +464,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
          *
          * @throws Throwable if an error occurs during finalization.
          */
+        @SuppressWarnings("removal")
         @Override
         protected void finalize() throws Throwable {
             warnAndCloseIfNotClosed();

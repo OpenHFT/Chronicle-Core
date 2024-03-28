@@ -18,11 +18,6 @@
 
 package net.openhft.chronicle.core.util;
 
-import net.openhft.chronicle.core.Jvm;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.function.Consumer;
-
 /**
  * <p>
  * Represents an operation that accepts a single input argument and returns no
@@ -38,16 +33,6 @@ import java.util.function.Consumer;
  */
 @FunctionalInterface
 public interface ThrowingConsumer<I, T extends Throwable> {
-    @Deprecated(/* to be removed in x.26 */)
-    static <I, T extends Throwable> Consumer<I> asConsumer(@NotNull ThrowingConsumer<I, T> function) {
-        return in -> {
-            try {
-                function.accept(in);
-            } catch (Throwable t) {
-                throw Jvm.rethrow(t);
-            }
-        };
-    }
 
     /**
      * Performs this operation on the given argument.

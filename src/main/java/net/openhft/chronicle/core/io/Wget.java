@@ -18,8 +18,6 @@
 
 package net.openhft.chronicle.core.io;
 
-import net.openhft.chronicle.core.pool.StringBuilderPool;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,25 +31,7 @@ import static net.openhft.chronicle.core.io.Closeable.closeQuietly;
  */
 public final class Wget {
 
-    @Deprecated(/* To be removed in x.26 */)
-    private static final StringBuilderPool STRING_BUILDER_POOL = new StringBuilderPool();
-
     private Wget() {
-    }
-
-    /**
-     * Performs an HTTP GET request to the specified URL.
-     *
-     * @param url the URL of the HTTP GET request
-     * @return the result of the request as a {@link CharSequence}
-     * @throws IOException if an error occurs while establishing the connection
-     * @deprecated Use {@link #url(String, StringBuilder)} instead, this implementation is very dangerous
-     */
-    @Deprecated(/* To be removed in x.26 */)
-    public static CharSequence url(String url) throws IOException {
-        final StringBuilder sb = STRING_BUILDER_POOL.acquireStringBuilder();
-        url(url, sb);
-        return sb;
     }
 
     /**

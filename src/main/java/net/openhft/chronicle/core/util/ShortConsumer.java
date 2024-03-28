@@ -17,10 +17,6 @@
  */
 package net.openhft.chronicle.core.util;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.util.Objects;
-
 /**
  * Represents an operation that accepts a single {@code short}-valued argument and returns no result.  This is the
  * primitive type specialization of {@link java.util.function.Consumer} for {@code short}.  Unlike most other functional
@@ -41,23 +37,4 @@ public interface ShortConsumer {
      */
     void accept(short value);
 
-    /**
-     * Returns a composed {@code ShortConsumer} that performs, in sequence, this operation followed by the {@code after}
-     * operation. If performing either operation throws an exception, it is relayed to the caller of the composed
-     * operation.  If performing this operation throws an exception, the {@code after} operation will not be performed.
-     *
-     * @param after the operation to perform after this operation
-     * @return a composed {@code ShortConsumer} that performs in sequence this operation followed by the {@code after}
-     * operation
-     * @throws NullPointerException If {@code after} is null
-     */
-    @Deprecated(/* to be removed in x.26 */)
-    @NotNull
-    default ShortConsumer andThen(@NotNull ShortConsumer after) {
-        Objects.requireNonNull(after);
-        return (short t) -> {
-            accept(t);
-            after.accept(t);
-        };
-    }
 }

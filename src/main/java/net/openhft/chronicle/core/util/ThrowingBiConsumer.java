@@ -18,11 +18,7 @@
 
 package net.openhft.chronicle.core.util;
 
-import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.IORuntimeException;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.function.BiConsumer;
 
 /**
  * Represents an operation that accepts two input arguments and returns no
@@ -36,16 +32,6 @@ import java.util.function.BiConsumer;
  */
 @FunctionalInterface
 public interface ThrowingBiConsumer<I, J, T extends Throwable> {
-    @Deprecated(/* to be removed in x.26 */)
-    static <I, J, T extends Throwable> BiConsumer<I, J> asConsumer(@NotNull ThrowingBiConsumer<I, J, T> function) {
-        return (in, i2) -> {
-            try {
-                function.accept(in, i2);
-            } catch (Throwable t) {
-                throw Jvm.rethrow(t);
-            }
-        };
-    }
 
     /**
      * Performs this operation on the given arguments.

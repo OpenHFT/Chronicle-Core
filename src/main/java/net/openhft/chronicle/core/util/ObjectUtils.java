@@ -227,11 +227,6 @@ public final class ObjectUtils {
         IMMUTABILITY_MAP.put(clazz, isImmutable ? Immutability.YES : Immutability.NO);
     }
 
-    @Deprecated(/* to be removed x.26 */)
-    public static void immutabile(final Class<?> clazz, final boolean isImmutable) {
-        immutable(clazz, isImmutable);
-    }
-
     /**
      * Checks if a class is immutable.
      *

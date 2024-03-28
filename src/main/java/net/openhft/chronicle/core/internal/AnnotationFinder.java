@@ -42,7 +42,6 @@ public class AnnotationFinder {
      * @param <A>              the type of the annotation.
      * @return the annotation, or null if not found.
      */
-    @SuppressWarnings("unchecked")
     private static <A extends Annotation> A findAnnotationRecursively(AnnotatedElement annotatedElement, Class<A> annotationType, Set<Annotation> visited) {
         try {
             // Check for direct annotation

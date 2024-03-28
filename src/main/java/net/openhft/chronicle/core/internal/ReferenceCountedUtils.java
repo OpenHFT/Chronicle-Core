@@ -91,7 +91,6 @@ public final class ReferenceCountedUtils {
         assertCloseablesClosed();
 
         AssertionError openFiles = new AssertionError("Reference counted not released");
-        //noinspection SynchronizationOnLocalVariableOrMethodParameter
         synchronized (traceSet) {
             for (AbstractReferenceCounted key : traceSet) {
                 if (key == null || key.refCount() == 0)

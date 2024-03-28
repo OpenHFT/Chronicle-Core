@@ -108,11 +108,4 @@ public final class JitterSampler {
         time = Long.MAX_VALUE;
     }
 
-    /**
-     * @deprecated Use {@link Jvm#pause(long)} instead
-     */
-    @Deprecated(/* For removal in x.26 */)
-    public static void sleepSilently(int millis) {
-        Jvm.pause(millis);
-    }
 }

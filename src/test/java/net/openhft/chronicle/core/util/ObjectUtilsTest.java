@@ -147,13 +147,6 @@ public class ObjectUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    public void deprecatedImmutabileShouldStillFunction() {
-        Class<?> testClass = RegularClass.class;
-        ObjectUtils.immutabile(testClass, true);
-        // Verify the immutability status is correctly set as with immutable method
-    }
-
-    @Test
     public void caseIgnoreLookupShouldCreateCorrectMap() {
         // Assuming MyEnum is an enum class
         Map<String, Enum<?>> map = ObjectUtils.caseIgnoreLookup(MyEnum.class);

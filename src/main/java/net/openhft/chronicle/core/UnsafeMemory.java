@@ -1088,7 +1088,6 @@ public class UnsafeMemory implements Memory {
      * @param length     the length of memory to copy.
      */
     @Deprecated(/* for removal in x.26 */)
-    @Override
     public void copyMemory(byte[] src, int srcOffset, @Nullable Object dest, long destOffset, int length) {
         assert SKIP_ASSERTIONS || nonNull(src);
         assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), srcOffset);
