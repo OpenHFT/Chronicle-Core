@@ -87,6 +87,7 @@ public final class CloseableUtils {
 
         // Anonymous inner class overriding the finalize() method to track finalization.
         new Object() {
+            @SuppressWarnings("removal")
             @Override
             protected void finalize() throws Throwable {
                 super.finalize();
@@ -297,11 +298,11 @@ public final class CloseableUtils {
      */
     static void closeQuietly(@Nullable Object o) {
         if (o instanceof Collection) {
-            Collection coll = (Collection) o;
+            Collection<?> coll = (Collection<?>) o;
             if (coll.isEmpty())
                 return;
             // take a copy before removing
-            List list = new ArrayList<>(coll);
+            List<?> list = new ArrayList<>(coll);
             list.forEach(Closeable::closeQuietly);
 
         } else if (o instanceof Object[]) {
@@ -327,7 +328,7 @@ public final class CloseableUtils {
             }
 
         } else if (o instanceof Reference) {
-            closeQuietly(((Reference) o).get());
+            closeQuietly(((Reference<?>) o).get());
 
         } else if (o instanceof HttpURLConnection) {
             HttpURLConnection connection = (HttpURLConnection) o;

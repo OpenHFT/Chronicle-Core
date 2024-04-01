@@ -79,7 +79,7 @@ public final class ClassUtil {
 
     public static Method getMethod0(@NotNull final Class<?> clazz,
                                     @NotNull final String name,
-                                    final Class[] args,
+                                    final Class<?>[] args,
                                     final boolean first) {
         try {
             final Method method = clazz.getDeclaredMethod(name, args);

@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * simulating time progression in a controlled testing environment.
  */
 public class SetTimeProvider extends AtomicLong implements TimeProvider {
+    private static final long serialVersionUID = 0L;
 
     private long autoIncrement = 0;
 

@@ -50,6 +50,7 @@ package net.openhft.chronicle.core.io;
  * 
  */
 public class ClosedIORuntimeException extends IORuntimeException {
+    private static final long serialVersionUID = 0L;
 
     /**
      * Constructs a {@code ClosedIORuntimeException} with the specified detail message.
