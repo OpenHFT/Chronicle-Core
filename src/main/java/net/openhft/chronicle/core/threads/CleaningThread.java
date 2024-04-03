@@ -29,7 +29,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import static net.openhft.chronicle.core.Jvm.isResourceTracing;
-import static net.openhft.chronicle.core.internal.Bootstrap.uncheckedCast;
+import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 
 /**
  * The CleaningThread class extends the Thread class and provides functionality

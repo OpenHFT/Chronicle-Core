@@ -5,22 +5,16 @@ import net.openhft.chronicle.core.io.Closeable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeEach;
-import org.mockito.stubbing.OngoingStubbing;
 
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
-import java.io.IOException;
 import java.lang.ref.Reference;
 import java.net.HttpURLConnection;
 import java.nio.channels.ServerSocketChannel;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 
-import static net.openhft.chronicle.core.internal.Bootstrap.uncheckedCast;
+import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.*;
