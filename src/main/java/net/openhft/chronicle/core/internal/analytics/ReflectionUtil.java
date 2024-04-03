@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.stream.Stream;
 
-import static net.openhft.chronicle.core.internal.Bootstrap.uncheckedCast;
+import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 public final class ReflectionUtil {
