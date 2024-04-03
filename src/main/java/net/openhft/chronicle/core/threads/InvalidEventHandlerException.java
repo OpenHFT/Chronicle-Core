@@ -33,6 +33,7 @@ package net.openhft.chronicle.core.threads;
  * @see #reusable()
  */
 public class InvalidEventHandlerException extends Exception {
+    private static final long serialVersionUID = 0L;
 
     private static final InvalidEventHandlerException STATIC = new ReusableInvalidEventHandlerException();
 
@@ -79,6 +80,7 @@ public class InvalidEventHandlerException extends Exception {
     }
 
     private static final class ReusableInvalidEventHandlerException extends InvalidEventHandlerException {
+        private static final long serialVersionUID = 0L;
 
         public ReusableInvalidEventHandlerException() {
             super("Reusable InvalidEventHandlerException with no stack trace.");

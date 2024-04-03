@@ -40,6 +40,7 @@ package net.openhft.chronicle.core.io;
  * 
  */
 public class ClosedIllegalStateException extends IllegalStateException {
+    private static final long serialVersionUID = 0L;
 
     /**
      * Constructs a {@code ClosedIllegalStateException} with the specified detail message.

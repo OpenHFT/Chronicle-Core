@@ -76,7 +76,9 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
             // try to create one using a constructor
             Constructor<MethodHandles.Lookup> lookupConstructor =
                     MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, Integer.TYPE);
-            if (!lookupConstructor.isAccessible()) {
+            @SuppressWarnings("deprecation")
+            boolean accessible = lookupConstructor.isAccessible();
+            if (!accessible) {
                 ClassUtil.setAccessible(lookupConstructor);
             }
             return lookupConstructor.newInstance(c, MethodHandles.Lookup.PRIVATE);
@@ -120,7 +122,7 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
         Object o = doInvoke(proxy, method, args);
         if (o == null) {
             final Type returnType0 = GenericReflection.getReturnType(method, definedClass);
-            Class returnType = returnType0 instanceof Class ? (Class) returnType0 : method.getReturnType();
+            Class<?> returnType = returnType0 instanceof Class ? (Class<?>) returnType0 : method.getReturnType();
             if (returnType.isInstance(proxy))
                 return proxy; // assume it's a chained method.
             return ObjectUtils.defaultValue(method.getReturnType());

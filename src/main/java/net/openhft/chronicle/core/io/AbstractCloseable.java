@@ -91,6 +91,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
      * Constructs a new {@link AbstractCloseable} instance. Registers the instance
      * for resource tracing and monitoring if enabled.
      */
+    @SuppressWarnings("this-escape")
     protected AbstractCloseable() {
         createdHere = Jvm.isResourceTracing() ? new StackTrace(getClass().getName() + " created here") : null;
         CloseableUtils.add(this);
