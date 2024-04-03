@@ -42,6 +42,7 @@ package net.openhft.chronicle.core.io;
  * 
  */
 public class IORuntimeException extends RuntimeException {
+    private static final long serialVersionUID = 0L;
 
     /**
      * Constructs an {@code IORuntimeException} with the specified detail message.

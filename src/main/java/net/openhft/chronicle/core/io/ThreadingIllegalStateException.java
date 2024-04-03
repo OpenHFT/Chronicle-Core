@@ -26,6 +26,7 @@ package net.openhft.chronicle.core.io;
  * by encapsulating the offending sequence of operations, usually through a stack trace.
  */
 public class ThreadingIllegalStateException extends IllegalStateException {
+    private static final long serialVersionUID = 0L;
 
     /**
      * Constructs a new {@code ThreadingIllegalStateException} with the specified detail

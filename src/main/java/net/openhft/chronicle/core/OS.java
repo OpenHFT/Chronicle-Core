@@ -368,7 +368,7 @@ public final class OS {
      */
     public static long mapAlign(long offset, int pageAlignment) {
         requireNonNegative(offset);
-        require(positive(), pageAlignment);
+        requirePositive(pageAlignment);
 
         return (offset + pageAlignment - 1) / pageAlignment * pageAlignment;
     }
