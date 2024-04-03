@@ -59,6 +59,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
      *
      * @param monitored If true, the resource will be monitored for reference counted release.
      */
+    @SuppressWarnings("this-escape")
     protected AbstractReferenceCounted(boolean monitored) {
         Runnable performRelease = BG_RELEASER && canReleaseInBackground()
                 ? this::backgroundPerformRelease

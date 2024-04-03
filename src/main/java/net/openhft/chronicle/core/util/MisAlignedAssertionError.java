@@ -33,4 +33,5 @@ package net.openhft.chronicle.core.util;
  * @see AssertionError
  */
 public class MisAlignedAssertionError extends AssertionError {
+    private static final long serialVersionUID = 0L;
 }

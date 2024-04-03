@@ -29,6 +29,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import static net.openhft.chronicle.core.Jvm.isResourceTracing;
+import static net.openhft.chronicle.core.internal.Bootstrap.uncheckedCast;
 
 /**
  * The CleaningThread class extends the Thread class and provides functionality
@@ -148,7 +149,7 @@ public class CleaningThread extends Thread {
                 if (value == null)
                     continue;
 
-                CleaningThreadLocal<Object> ctlKey = (CleaningThreadLocal<Object>) key;
+                CleaningThreadLocal<Object> ctlKey = uncheckedCast(key);
                 ctlKey.cleanup(value);
 
                 remove.invoke(o, key);

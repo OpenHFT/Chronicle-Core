@@ -34,6 +34,7 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
     private ExceptionHandler eh;
     private ThreadLocal<ExceptionHandler> handlerTL;
 
+    @SuppressWarnings("this-escape")
     public ThreadLocalisedExceptionHandler(ExceptionHandler handler) {
         eh = handler;
         resetThreadLocalHandler();
