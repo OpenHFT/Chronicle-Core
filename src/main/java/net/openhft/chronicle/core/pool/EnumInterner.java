@@ -23,8 +23,6 @@ import net.openhft.chronicle.core.util.ClassLocal;
 import net.openhft.chronicle.core.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import static net.openhft.chronicle.core.internal.Bootstrap.uncheckedCast;
-
 /**
  * This class represents a cache for enum values to improve performance in scenarios where the same enum values
  * are frequently looked up by name. The class is generic, so it can be used with any enum type.
