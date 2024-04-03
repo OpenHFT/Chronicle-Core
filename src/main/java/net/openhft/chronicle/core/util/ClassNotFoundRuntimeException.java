@@ -29,6 +29,7 @@ package net.openhft.chronicle.core.util;
  * @see ClassNotFoundException
  */
 public class ClassNotFoundRuntimeException extends RuntimeException {
+    private static final long serialVersionUID = 0L;
 
     /**
      * Constructs a new runtime exception with the specified cause.

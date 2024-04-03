@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 
+import static net.openhft.chronicle.core.internal.Bootstrap.uncheckedCast;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.*;
@@ -42,7 +43,7 @@ public class CloseableUtilsTest {
         mockitoNotSupportedOnJava21();
         mockCloseable = mock(Closeable.class);
         CloseableUtils.enableCloseableTracing();
-        mockCloseables = mock(Collection.class);
+        mockCloseables = uncheckedCast(mock(Collection.class));
         mockServerSocketChannel = mock(ServerSocketChannel.class);
         mockAutoCloseable = mock(AutoCloseable.class);
         mockReference = mock(Reference.class);

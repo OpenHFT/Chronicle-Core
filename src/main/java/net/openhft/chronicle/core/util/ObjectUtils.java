@@ -36,6 +36,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import static net.openhft.chronicle.core.internal.Bootstrap.uncheckedCast;
 import static net.openhft.chronicle.core.internal.util.MapUtil.entry;
 import static net.openhft.chronicle.core.internal.util.MapUtil.ofUnmodifiable;
 import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
@@ -62,6 +63,7 @@ import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
  * developers who need to perform various common operations on objects and classes within their
  * Java applications.
  */
+@SuppressWarnings("unchecked")
 public final class ObjectUtils {
 
     // Suppresses default constructor, ensuring non-instantiability.
@@ -300,7 +302,7 @@ public final class ObjectUtils {
      * @param eClass to check
      * @return the wrapper class if eClass is a primitive type, or the eClass if not.
      */
-    public static Class primToWrapper(Class<?> eClass) {
+    public static Class<?> primToWrapper(Class<?> eClass) {
         final Class<?> clazz0 = PRIM_MAP.get(eClass);
         if (clazz0 != null)
             eClass = clazz0;
@@ -330,7 +332,7 @@ public final class ObjectUtils {
      * @param eClass to be tested
      * @return true if it can be converted, false if it's not worth trying.
      */
-    public static boolean canConvertText(Class eClass) {
+    public static boolean canConvertText(Class<?> eClass) {
         return !(PARSER_CL.get(eClass) instanceof ThrowsCCE);
     }
 
@@ -396,7 +398,7 @@ public final class ObjectUtils {
      * @throws IllegalArgumentException If an illegal argument is provided.
      */
     static <E> E convertTo0(Class<E> eClass, @Nullable Object o) throws NumberFormatException {
-        eClass = primToWrapper(eClass);
+        eClass = uncheckedCast(primToWrapper(eClass));
         if (eClass.isInstance(o) || o == null) return (E) o;
         if (eClass == Void.class) return null;
         if (eClass == String.class) return (E) o.toString();

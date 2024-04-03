@@ -186,4 +186,9 @@ public final class Bootstrap {
         System.err.println(Bootstrap.class.getName() + ": Unable to determine PID, picked 1 as a PID");
         return rpid;
     }
+
+    @SuppressWarnings("unchecked")
+    public static <T> T uncheckedCast(Object obj) {
+        return (T) obj;
+    }
 }

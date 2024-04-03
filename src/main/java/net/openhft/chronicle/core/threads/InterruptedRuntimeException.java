@@ -42,6 +42,7 @@ package net.openhft.chronicle.core.threads;
  * </pre>
  */
 public class InterruptedRuntimeException extends IllegalStateException {
+    private static final long serialVersionUID = 0L;
 
     /**
      * Constructs an {@code InterruptedRuntimeException} with no detail message or cause.

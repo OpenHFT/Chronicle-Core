@@ -53,6 +53,7 @@ package net.openhft.chronicle.core.io;
  * 
  */
 public class InvalidMarshallableException extends RuntimeException {
+    private static final long serialVersionUID = 0L;
 
     /**
      * Constructs an {@code InvalidMarshallableException} with the specified detail message.
