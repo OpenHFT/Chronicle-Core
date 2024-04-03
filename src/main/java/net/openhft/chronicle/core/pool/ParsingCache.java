@@ -28,6 +28,8 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+import static net.openhft.chronicle.core.Jvm.uncheckedCast;
+
 /**
  * A cache for parsed values that is optimized for fast lookup. This class is used to cache objects
  * that are constructed from strings, often as a result of parsing. The cache has a fixed capacity
@@ -66,7 +68,7 @@ public class ParsingCache<E> {
         shift = Maths.intLog2(n);
         @SuppressWarnings("rawtypes")
         ParsedData[] obj = new ParsedData[n];
-        interner = Jvm.uncheckedCast(obj);
+        interner = uncheckedCast(obj);
         mask = n - 1;
     }
 
