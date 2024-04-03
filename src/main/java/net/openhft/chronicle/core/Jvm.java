@@ -1536,6 +1536,25 @@ public final class Jvm {
         return (T) o;
     }
 
+    /**
+     * Retrieves the unique identifier of the current thread.
+     * <p>
+     * This method provides a straightforward way to obtain the ID of the thread
+     * from which the method is called. Currently, it uses {@link Thread#currentThread()}
+     * and {@link Thread#getId()} to accomplish this. The method is safe to use across
+     * various versions of Java.
+     * <p>
+     * Note: In future versions, this implementation may be updated to use {@code Thread.threadId()}
+     * or another updated mechanism for obtaining the thread ID, as newer Java versions from version 19
+     * deprecate the current approach.
+     *
+     * @return the identifier of the current thread
+     */
+    @SuppressWarnings("deprecation")
+    public static long currentThreadId() {
+        return Thread.currentThread().getId();
+    }
+
     public interface SignalHandler {
         /**
          * Handle a Signal
