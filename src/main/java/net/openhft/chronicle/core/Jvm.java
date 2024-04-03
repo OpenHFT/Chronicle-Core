@@ -1603,6 +1603,24 @@ public final class Jvm {
         return Thread.currentThread().getId();
     }
 
+    /**
+     * Performs an unchecked cast of an object to the target type {@code T}. This method
+     * bypasses generic type checks, allowing for casting without explicit type checking.
+     * <p>
+     * Note: Use with caution as improper use can lead to {@link ClassCastException} at runtime
+     * if the object is not of type {@code T}.
+     *
+     * @param <T>  the target type to cast to
+     * @param o    the object to be cast
+     * @return     the casted object of type {@code T}
+     * @throws ClassCastException if the object cannot be casted to the target type {@code T}
+     *                            (this is a runtime possibility due to type erasure)
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T uncheckedCast(Object o) {
+        return (T) o;
+    }
+
     public interface SignalHandler {
         /**
          * Handle a Signal
