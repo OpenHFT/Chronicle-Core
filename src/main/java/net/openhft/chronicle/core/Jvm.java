@@ -1223,7 +1223,7 @@ public final class Jvm {
             }
         }
         double number = Double.parseDouble(value.trim());
-        factor *= (long) number;
+        factor *= number;
         return factor;
     }
 
