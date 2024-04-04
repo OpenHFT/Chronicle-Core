@@ -18,9 +18,9 @@
 
 package net.openhft.chronicle.core.shutdown;
 
-import java.util.*;
+import net.openhft.chronicle.core.Jvm;
 
-import static net.openhft.chronicle.core.internal.Bootstrap.uncheckedCast;
+import java.util.*;
 
 /**
  * Collects all hook that need to be run during shutdown to execute them in controlled order.
@@ -63,7 +63,7 @@ public class PriorityHook {
             Runtime.getRuntime().addShutdownHook(registeredHook.shutdownThread());
         }
 
-        H registered = uncheckedCast(registeredHook.hookletPool.get(hooklet));
+        H registered = Jvm.uncheckedCast(registeredHook.hookletPool.get(hooklet));
         if (registered == null) {
             registeredHook.hookletPool.put(hooklet, hooklet);
 

@@ -97,7 +97,6 @@ public final class ReflectionUtil {
                         new ReflectiveInvocationHandler(delegate, false)));
     }
 
-    @SuppressWarnings("unchecked")
     @NotNull
     public static <T> T reflectiveProxy(@NotNull final Class<T> interf,
                                         @NotNull final Object delegate,
