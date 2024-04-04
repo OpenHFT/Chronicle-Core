@@ -392,7 +392,9 @@ public class UnsafeMemory2Test extends CoreTestCommon {
         final byte[] data = new byte[Integer.BYTES];
         data[0] = 98;
         MyDTO to = new MyDTO();
+
         memory.copyMemory(data, 0, to, offset, Integer.BYTES);
+
         assertEquals(data[0], to.num);
         to.num = 77;
         memory.copyMemory(to, offset, data, memory.arrayBaseOffset(data.getClass()), Integer.BYTES);

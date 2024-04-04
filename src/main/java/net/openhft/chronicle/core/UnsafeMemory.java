@@ -20,7 +20,6 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.internal.Bootstrap;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
-import net.openhft.chronicle.core.util.Ints;
 import net.openhft.chronicle.core.util.MisAlignedAssertionError;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -1071,29 +1070,6 @@ public class UnsafeMemory implements Memory {
             UNSAFE.copyMemory(srcAddress, destAddress, length);
         } else {
             copyMemory0(null, srcAddress, null, destAddress, length);
-        }
-    }
-
-    /**
-     * Copies memory from a byte array to an object.
-     *
-     * @param src        source byte array.
-     * @param srcOffset  offset of the source array from where to start copying.
-     * @param dest       destination object.
-     * @param destOffset offset of the destination object from where to place the copied memory.
-     * @param length     the length of memory to copy.
-     */
-    @Deprecated(/* for removal in x.26, don't just delete this method, it must be inlined. */)
-    public void copyMemory(byte[] src, int srcOffset, @Nullable Object dest, long destOffset, int length) {
-        assert SKIP_ASSERTIONS || nonNull(src);
-        assert SKIP_ASSERTIONS || srcOffset >= 0;
-        assert SKIP_ASSERTIONS || destOffset >= 0;
-        assert SKIP_ASSERTIONS || length >= 0;
-
-        if (dest instanceof byte[]) {
-            copyMemory(src, srcOffset, (byte[]) dest, Math.toIntExact(destOffset - ARRAY_BYTE_BASE_OFFSET), length);
-        } else {
-            copyMemoryLoop(src, ARRAY_BYTE_BASE_OFFSET + srcOffset, dest, destOffset, length);
         }
     }
 
