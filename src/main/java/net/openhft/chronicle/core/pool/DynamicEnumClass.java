@@ -28,8 +28,6 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.function.Function;
 
-import static net.openhft.chronicle.core.internal.Bootstrap.uncheckedCast;
-
 /**
  * Represents a dynamic enumeration class that extends the capabilities of {@link EnumCache}.
  * The class is capable of dynamically creating and managing instances which resemble enumerations
@@ -93,13 +91,13 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
                 try {
                     field.setAccessible(true);
                     Object o = field.get(null);
-                    fieldList.add(uncheckedCast(o));
+                    fieldList.add(Jvm.uncheckedCast(o));
                 } catch (IllegalAccessException | IllegalArgumentException e) {
                     Jvm.warn().on(getClass(), e.toString());
                 }
             }
         }
-        return uncheckedCast(fieldList.toArray(CORE_DYNAMIC_ENUMS));
+        return Jvm.uncheckedCast(fieldList.toArray(CORE_DYNAMIC_ENUMS));
     }
 
     /**

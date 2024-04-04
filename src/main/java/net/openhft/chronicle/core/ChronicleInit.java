@@ -20,8 +20,6 @@ package net.openhft.chronicle.core;
 
 import java.util.ServiceLoader;
 
-import static net.openhft.chronicle.core.internal.Bootstrap.uncheckedCast;
-
 /**
  * Handles application code which must be loaded first/run and may override system properties.
  * <p>
@@ -52,7 +50,7 @@ public final class ChronicleInit {
         String initRunnableClass = System.getProperty(CHRONICLE_INIT_CLASS);
         if (initRunnableClass != null && !initRunnableClass.isEmpty()) {
             try {
-                Class<? extends Runnable> descendant = uncheckedCast(Class.forName(initRunnableClass));
+                Class<? extends Runnable> descendant = Jvm.uncheckedCast(Class.forName(initRunnableClass));
                 Runnable chronicleInit = descendant.getConstructor().newInstance();
                 chronicleInit.run();
             } catch (Exception ex) {
@@ -91,7 +89,7 @@ public final class ChronicleInit {
         String initRunnableClass = System.getProperty(CHRONICLE_POSTINIT_CLASS);
         if (initRunnableClass != null && !initRunnableClass.isEmpty()) {
             try {
-                Class<? extends Runnable> descendant = uncheckedCast(Class.forName(initRunnableClass));
+                Class<? extends Runnable> descendant = Jvm.uncheckedCast(Class.forName(initRunnableClass));
                 Runnable chronicleInit = descendant.getConstructor().newInstance();
                 chronicleInit.run();
             } catch (Exception ex) {

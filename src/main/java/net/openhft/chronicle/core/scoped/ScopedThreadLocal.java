@@ -9,8 +9,6 @@ import java.lang.reflect.Array;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import static net.openhft.chronicle.core.internal.Bootstrap.uncheckedCast;
-
 /**
  * A thread-local {@link ScopedResourcePool}.
  * <p>
@@ -116,7 +114,7 @@ public class ScopedThreadLocal<T> implements ScopedResourcePool<T> {
         private int headIndex = -1;
 
         SimpleStack(int maxInstances) {
-            this.instances = uncheckedCast(Array.newInstance(AbstractScopedResource.class, maxInstances));
+            this.instances = Jvm.uncheckedCast(Array.newInstance(AbstractScopedResource.class, maxInstances));
         }
 
         AbstractScopedResource<T> pop() {
