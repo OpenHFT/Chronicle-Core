@@ -36,7 +36,7 @@ final class UnsafeMemoryLongTest implements UnsafeMemoryTestMixin<Long> {
 
     @Override
     public IntPredicate alignedToType() {
-        return Ints.longAligned();
+        return x -> x % 8 == 0;
     }
 
     @Override

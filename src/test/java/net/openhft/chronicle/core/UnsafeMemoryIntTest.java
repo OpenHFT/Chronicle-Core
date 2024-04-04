@@ -36,7 +36,7 @@ final class UnsafeMemoryIntTest implements UnsafeMemoryTestMixin<Integer> {
 
     @Override
     public IntPredicate alignedToType() {
-        return Ints.intAligned();
+        return x -> x % 4 == 0;
     }
 
     @Override
