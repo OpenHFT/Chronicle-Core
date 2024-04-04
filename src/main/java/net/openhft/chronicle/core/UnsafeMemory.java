@@ -1073,8 +1073,6 @@ public class UnsafeMemory implements Memory {
         }
     }
 
-    /* for removal in x.26, don't just delete this method, it must be inlined. */
-
     /**
      * Copies memory from one byte array to another.
      *
