@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.pool;
 
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.Maths;
 import net.openhft.chronicle.core.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -26,8 +27,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Stream;
-
-import static net.openhft.chronicle.core.internal.Bootstrap.uncheckedCast;
 
 /**
  * A cache for parsed values that is optimized for fast lookup. This class is used to cache objects
@@ -67,7 +66,7 @@ public class ParsingCache<E> {
         shift = Maths.intLog2(n);
         @SuppressWarnings("rawtypes")
         ParsedData[] obj = new ParsedData[n];
-        interner = uncheckedCast(obj);
+        interner = Jvm.uncheckedCast(obj);
         mask = n - 1;
     }
 
