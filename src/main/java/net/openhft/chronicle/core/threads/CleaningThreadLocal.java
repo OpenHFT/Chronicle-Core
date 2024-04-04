@@ -27,8 +27,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
-import static net.openhft.chronicle.core.internal.Bootstrap.uncheckedCast;
-
 /**
  * The CleaningThreadLocal class extends ThreadLocal and ensures that the resources held by
  * a CleaningThread are cleaned up if the thread dies.
@@ -127,7 +125,7 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
                 for (Iterator<Map.Entry<Thread, Object>> iter = nctl.nonCleaningThreadValues.entrySet().iterator(); iter.hasNext(); ) {
                     Map.Entry<Thread, Object> entry = iter.next();
                     if (!entry.getKey().isAlive()) {
-                        CleaningThreadLocal<Object> nctl2b = uncheckedCast(nctl2);
+                        CleaningThreadLocal<Object> nctl2b = Jvm.uncheckedCast(nctl2);
                         nctl2b.cleanup(entry.getValue());
                         iter.remove();
                     }
