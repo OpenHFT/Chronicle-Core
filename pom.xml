@@ -22,10 +22,10 @@
         <groupId>net.openhft</groupId>
         <artifactId>java-parent-pom</artifactId>
         <version>1.25.4</version>
-        <relativePath />
+        <relativePath></relativePath>
     </parent>
     <artifactId>chronicle-core</artifactId>
-    <version>2.24.38-SNAPSHOT</version>
+    <version>2.24.38</version>
     <packaging>bundle</packaging>
     <name>OpenHFT/Chronicle Core</name>
     <description>Chronicle-Core</description>
@@ -33,7 +33,7 @@
     <scm>
         <connection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</connection>
         <developerConnection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</developerConnection>
-        <tag>release/2.24</tag>
+        <tag>chronicle-core-2.24.38</tag>
         <url>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</url>
     </scm>
     <properties>
