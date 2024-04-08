@@ -38,6 +38,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class ClassAliasPool implements ClassLookup {
     public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool(null).defaultAliases();
+    private static final ClassNotFoundRuntimeException cachedEx = new ClassNotFoundRuntimeException(
+            new ClassNotFoundException("Cached resolution failure, will not retry"));
     static final ThreadLocal<CAPKey> CAP_KEY_TL = ThreadLocal.withInitial(() -> new CAPKey(null));
     private final ClassLookup parent;
     private final ClassLoader classLoader;
@@ -146,22 +148,39 @@ public class ClassAliasPool implements ClassLookup {
         Class<?> clazz = stringClassMap.get(key);
         if (clazz != null)
             return clazz;
-        clazz = stringClassMap2.get(key);
-        if (clazz != null) return clazz;
         return forName0(key);
     }
 
     @NotNull
     private synchronized Class<?> forName0(@NotNull CAPKey key) throws ClassNotFoundRuntimeException {
         Class<?> clazz = stringClassMap2.get(key);
-        if (clazz != null) return clazz;
+        if (clazz != null) {
+            if (clazz == ResolutionFailure.class)
+                throw cachedEx;
+
+            return clazz;
+        }
+
         String name0 = key.toString();
         CAPKey key2 = new CAPKey(name0);
 
-        clazz = OS.isWindows() || OS.isMacOSX() ? doLookupWindowsOSX(name0) : doLookup(name0);
+        try {
+            clazz = OS.isWindows() || OS.isMacOSX() ? doLookupWindowsOSX(name0) : doLookup(name0);
 
-        stringClassMap2.put(key2, clazz);
-        return clazz;
+            stringClassMap2.put(key2, clazz);
+            return clazz;
+        } catch (ClassNotFoundRuntimeException ex) {
+            stringClassMap2.put(key2, ResolutionFailure.class);
+
+            throw ex;
+        }
+    }
+
+    /**
+     * A method to reset previous resolution failures so they may be reattempted, e.g. after significant classpath change.
+     */
+    public void resetResolutionFailures() {
+        while (stringClassMap2.values().remove(ResolutionFailure.class));
     }
 
     /**
@@ -348,6 +367,10 @@ public class ClassAliasPool implements ClassLookup {
                     return false;
             return true;
         }
+    }
+
+    private static class ResolutionFailure {
+        // Intentionally left empty.
     }
 
 /**\u002f
