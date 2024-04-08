@@ -1180,22 +1180,28 @@ public class UnsafeMemory implements Memory {
     }
 
     private void copyMemoryLoop(Object src, long srcOffset, Object dest, long destOffset, int length) {
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.positive(), srcOffset);
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.positive(), destOffset);
-        assert SKIP_ASSERTIONS || assertIfEnabled(Longs.nonNegative(), length);
+        assert SKIP_ASSERTIONS || srcOffset > 0;
+        assert SKIP_ASSERTIONS || destOffset > 0;
+        assert SKIP_ASSERTIONS || length >= 0;
         if (src == dest && srcOffset < destOffset) {
             backwardCopyMemoryLoop(src, srcOffset, dest, destOffset, length);
             return;
         }
         int i = 0;
-        for (; i < length - 7; i += 8)
-            MEMORY.writeLong(dest, destOffset + i, UNSAFE.getLong(src, srcOffset + i));
-        if (i < length - 3) {
-            UNSAFE.putInt(dest, destOffset + i, UNSAFE.getInt(src, srcOffset + i));
-            i += 4;
+        for (; i < length - 15; i += 16) {
+            long a = UNSAFE.getLong(src, srcOffset + i);
+            long b = UNSAFE.getLong(src, srcOffset + i + 8);
+            UNSAFE.putLong(dest, destOffset + i, a);
+            UNSAFE.putLong(dest, destOffset + i + 8, b);
         }
-        for (; i < length; i++)
-            MEMORY.writeByte(dest, destOffset + i, UNSAFE.getByte(src, srcOffset + i));
+        for (; i < length - 3; i += 4) {
+            int anInt = UNSAFE.getInt(src, srcOffset + i);
+            UNSAFE.putInt(dest, destOffset + i, anInt);
+        }
+        for (; i < length; i++) {
+            byte b = UNSAFE.getByte(src, srcOffset + i);
+            UNSAFE.putByte(dest, destOffset + i, b);
+        }
     }
 
     private void backwardCopyMemoryLoop(Object src, long srcOffset, Object dest, long destOffset, int length) {
