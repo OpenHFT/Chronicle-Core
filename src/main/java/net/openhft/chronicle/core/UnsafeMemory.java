@@ -30,7 +30,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static java.util.Objects.nonNull;
 import static net.openhft.chronicle.assertions.AssertUtil.SKIP_ASSERTIONS;
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
@@ -162,9 +161,9 @@ public class UnsafeMemory implements Memory {
      * @param value  the integer value to insert.
      */
     public static void putInt(byte[] bytes, int offset, int value) {
-        assert SKIP_ASSERTIONS || nonNull(bytes);
+        assert SKIP_ASSERTIONS || bytes != null;
         assert SKIP_ASSERTIONS || offset + Integer.BYTES <= bytes.length;
-        UnsafeMemory.UNSAFE.putInt(bytes, ARRAY_BYTE_BASE_OFFSET + offset, value);
+        UNSAFE.putInt(bytes, ARRAY_BYTE_BASE_OFFSET + offset, value);
     }
 
     /**
@@ -259,7 +258,7 @@ public class UnsafeMemory implements Memory {
      * @param value  to put
      */
     public static void unsafePutLong(byte[] bytes, int offset, long value) {
-        assert SKIP_ASSERTIONS || nonNull(bytes);
+        assert SKIP_ASSERTIONS || bytes != null;
         assert SKIP_ASSERTIONS || offset + Long.BYTES <= bytes.length;
         UNSAFE.putLong(bytes, ARRAY_BYTE_BASE_OFFSET + offset, value);
     }
@@ -272,7 +271,7 @@ public class UnsafeMemory implements Memory {
      * @param value  to put
      */
     public static void unsafePutInt(byte[] bytes, int offset, int value) {
-        assert SKIP_ASSERTIONS || nonNull(bytes);
+        assert SKIP_ASSERTIONS || bytes != null;
         assert SKIP_ASSERTIONS || offset + Integer.BYTES <= bytes.length;
         UNSAFE.putInt(bytes, ARRAY_BYTE_BASE_OFFSET + offset, value);
     }
@@ -285,7 +284,7 @@ public class UnsafeMemory implements Memory {
      * @param value  to put
      */
     public static void unsafePutByte(byte[] bytes, int offset, byte value) {
-        assert SKIP_ASSERTIONS || nonNull(bytes);
+        assert SKIP_ASSERTIONS || bytes != null;
         assert SKIP_ASSERTIONS || offset + Byte.BYTES <= bytes.length;
         UNSAFE.putByte(bytes, ARRAY_BYTE_BASE_OFFSET + offset, value);
     }
@@ -526,7 +525,7 @@ public class UnsafeMemory implements Memory {
      * @return the offset of the field.
      */
     public static long unsafeObjectFieldOffset(Field field) {
-        assert SKIP_ASSERTIONS || nonNull(field);
+        assert SKIP_ASSERTIONS || field != null;
         return UNSAFE.objectFieldOffset(field);
     }
 
@@ -541,7 +540,7 @@ public class UnsafeMemory implements Memory {
     @NotNull
     @Override
     public <E> E allocateInstance(Class<? extends E> clazz) throws InstantiationException {
-        assert SKIP_ASSERTIONS || nonNull(clazz);
+        assert SKIP_ASSERTIONS || clazz != null;
         @NotNull
         E e = (E) UNSAFE.allocateInstance(clazz);
         return e;
@@ -555,7 +554,7 @@ public class UnsafeMemory implements Memory {
      */
     @Override
     public long getFieldOffset(Field field) {
-        assert SKIP_ASSERTIONS || nonNull(field);
+        assert SKIP_ASSERTIONS || field != null;
         return UNSAFE.objectFieldOffset(field);
     }
 
@@ -1083,9 +1082,9 @@ public class UnsafeMemory implements Memory {
      * @param length     the length of memory to copy.
      */
     public void copyMemory(byte[] src, int srcOffset, byte[] dest, int destOffset, int length) {
-        assert SKIP_ASSERTIONS || nonNull(src);
+        assert SKIP_ASSERTIONS || src != null;
         assert SKIP_ASSERTIONS || srcOffset >= 0;
-        assert SKIP_ASSERTIONS || nonNull(dest);
+        assert SKIP_ASSERTIONS || dest != null;
         assert SKIP_ASSERTIONS || destOffset >= 0;
         assert SKIP_ASSERTIONS || length >= 0;
         final long offsetB = ARRAY_BYTE_BASE_OFFSET + srcOffset;
@@ -1159,20 +1158,26 @@ public class UnsafeMemory implements Memory {
             return;
         }
         int i = 0;
-        for (; i < length - 7; i += 8)
-            MEMORY.writeLong(dest, destOffset + i, UNSAFE.getLong(src, srcOffset + i));
-        if (i < length - 3) {
-            UNSAFE.putInt(dest, destOffset + i, UNSAFE.getInt(src, srcOffset + i));
-            i += 4;
+        for (; i < length - 15; i += 16) {
+            long a = UNSAFE.getLong(src, srcOffset + i);
+            long b = UNSAFE.getLong(src, srcOffset + i + 8);
+            UNSAFE.putLong(dest, destOffset + i, a);
+            UNSAFE.putLong(dest, destOffset + i + 8, b);
         }
-        for (; i < length; i++)
-            MEMORY.writeByte(dest, destOffset + i, UNSAFE.getByte(src, srcOffset + i));
+        for (; i < length - 3; i += 4) {
+            int anInt = UNSAFE.getInt(src, srcOffset + i);
+            UNSAFE.putInt(dest, destOffset + i, anInt);
+        }
+        for (; i < length; i++) {
+            byte b = UNSAFE.getByte(src, srcOffset + i);
+            UNSAFE.putByte(dest, destOffset + i, b);
+        }
     }
 
     private void backwardCopyMemoryLoop(Object src, long srcOffset, Object dest, long destOffset, int length) {
-        assert SKIP_ASSERTIONS || nonNull(src);
+        assert SKIP_ASSERTIONS || src != null;
         assert SKIP_ASSERTIONS || srcOffset > 0;
-        assert SKIP_ASSERTIONS || nonNull(dest);
+        assert SKIP_ASSERTIONS || dest != null;
         assert SKIP_ASSERTIONS || destOffset > 0;
         assert SKIP_ASSERTIONS || length >= 0;
         srcOffset += length;
@@ -1301,7 +1306,7 @@ public class UnsafeMemory implements Memory {
      */
     @Override
     public long partialRead(byte[] bytes, int offset, int length) {
-        assert SKIP_ASSERTIONS || nonNull(bytes);
+        assert SKIP_ASSERTIONS || bytes != null;
         assert SKIP_ASSERTIONS || offset + length <= bytes.length;
         switch (length) {
             case 8:
@@ -1398,7 +1403,7 @@ public class UnsafeMemory implements Memory {
      */
     @Override
     public void partialWrite(byte[] bytes, int offset, long value, int length) {
-        assert SKIP_ASSERTIONS || nonNull(bytes);
+        assert SKIP_ASSERTIONS || bytes != null;
         assert SKIP_ASSERTIONS || offset >= 0;
         assert SKIP_ASSERTIONS || length >= 0;
         switch (length) {
@@ -1490,7 +1495,7 @@ public class UnsafeMemory implements Memory {
      */
     @Override
     public boolean is7Bit(byte[] bytes, int offset, int length) {
-        assert SKIP_ASSERTIONS || nonNull(bytes);
+        assert SKIP_ASSERTIONS || bytes != null;
         assert SKIP_ASSERTIONS || offset >= 0;
         assert SKIP_ASSERTIONS || length >= 0;
         final long offset2 = offset + ARRAY_BYTE_BASE_OFFSET;
@@ -1525,7 +1530,7 @@ public class UnsafeMemory implements Memory {
      */
     @Override
     public boolean is7Bit(char[] chars, int offset, int length) {
-        assert SKIP_ASSERTIONS || nonNull(chars);
+        assert SKIP_ASSERTIONS || chars != null;
         assert SKIP_ASSERTIONS || offset >= 0;
         assert SKIP_ASSERTIONS || length >= 0;
         final long offset2 = offset * 2L + ARRAY_CHAR_BASE_OFFSET;
@@ -1633,7 +1638,7 @@ public class UnsafeMemory implements Memory {
      */
     @Override
     public void testAndSetInt(Object object, long offset, int expected, int value) throws IllegalStateException {
-        assert SKIP_ASSERTIONS || nonNull(object);
+        assert SKIP_ASSERTIONS || object != null;
         assert SKIP_ASSERTIONS || offset > 0;
         if (UNSAFE.compareAndSwapInt(object, offset, expected, value))
             return;
@@ -2760,7 +2765,7 @@ public class UnsafeMemory implements Memory {
          */
         @Override
         public void testAndSetInt(Object object, long offset, int expected, int value) throws IllegalStateException {
-            assert SKIP_ASSERTIONS || nonNull(object);
+            assert SKIP_ASSERTIONS || object != null;
             assert SKIP_ASSERTIONS || offset > 0;
             if (safeAlignedInt(offset)) {
                 if (UNSAFE.compareAndSwapInt(object, offset, expected, value)) {

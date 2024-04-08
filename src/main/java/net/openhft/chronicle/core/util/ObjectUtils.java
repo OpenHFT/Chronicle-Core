@@ -36,7 +36,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
-import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 import static net.openhft.chronicle.core.internal.util.MapUtil.entry;
 import static net.openhft.chronicle.core.internal.util.MapUtil.ofUnmodifiable;
 import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
@@ -398,7 +397,9 @@ public final class ObjectUtils {
      * @throws IllegalArgumentException If an illegal argument is provided.
      */
     static <E> E convertTo0(Class<E> eClass, @Nullable Object o) throws NumberFormatException {
-        eClass = uncheckedCast(primToWrapper(eClass));
+        @SuppressWarnings("unchecked")
+        Class<E> eClass0 = (Class<E>) primToWrapper(eClass);
+        eClass = eClass0;
         if (eClass.isInstance(o) || o == null) return (E) o;
         if (eClass == Void.class) return null;
         if (eClass == String.class) return (E) o.toString();
