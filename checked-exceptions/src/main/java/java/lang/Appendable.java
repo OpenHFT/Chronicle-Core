@@ -23,7 +23,7 @@ public interface Appendable {
     /**
      * Appends the specified character sequence to this <code>Appendable</code>.
      * <p>
-     * <p> Depending on which class implements the character sequence
+     *  Depending on which class implements the character sequence
      * <code>csq</code>, the entire sequence may not be appended.  For
      * instance, if <code>csq</code> is a {@link java.nio.CharBuffer} then
      * the subsequence to append is defined by the buffer's position and limit.
@@ -40,7 +40,7 @@ public interface Appendable {
      * Appends a subsequence of the specified character sequence to this
      * <code>Appendable</code>.
      * <p>
-     * <p> An invocation of this method of the form <code>out.append(csq, start,
+     *  An invocation of this method of the form <code>out.append(csq, start,
      * end)</code> when <code>csq</code> is not <code>null</code>, behaves in
      * exactly the same way as the invocation
      * <p>

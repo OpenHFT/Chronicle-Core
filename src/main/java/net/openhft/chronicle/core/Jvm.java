@@ -1501,8 +1501,7 @@ public final class Jvm {
      * Typically, the name of these classes contains the "$$Lambda" substring.
      * Note that this naming convention is JVM-specific and can change
      * in future versions. The approach is known to work up to Java 21.
-     * </p>
-     *
+         *
      * @param clazz the class to be checked.
      * @return {@code true} if the class is a lambda, {@code false} otherwise.
      */

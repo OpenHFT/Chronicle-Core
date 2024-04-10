@@ -59,9 +59,6 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         referenceChangeListeners = new ReferenceChangeListenerManager(this);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public StackTrace createdHere() {
         return null;

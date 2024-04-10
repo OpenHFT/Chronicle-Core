@@ -48,8 +48,7 @@ public enum PosixTimeProvider implements TimeProvider {
      * Returns the current time in microseconds.
      * <p>
      * This method provides microsecond precision by dividing the nanosecond value by 1000.
-     * </p>
-     *
+         *
      * @return the current time in microseconds since the Unix epoch
      * @throws IllegalStateException if the time cannot be determined or converted
      */
@@ -64,8 +63,7 @@ public enum PosixTimeProvider implements TimeProvider {
      * This method directly calls the native {@code clock_gettime} function, providing
      * highly precise and accurate nanosecond resolution time. It uses {@link ClockId#CLOCK_REALTIME}
      * for fetching the current time.
-     * </p>
-     *
+         *
      * @return the current time in nanoseconds since the Unix epoch
      * @throws IllegalStateException if the native call fails
      */
