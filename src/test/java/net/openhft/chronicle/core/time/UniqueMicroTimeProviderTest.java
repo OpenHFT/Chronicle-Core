@@ -22,9 +22,7 @@ import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -46,18 +44,25 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
 
     @Test
     public void shouldProvideUniqueTimeAcrossThreads() throws InterruptedException {
-        final Set<Long> timeSet = ConcurrentHashMap.newKeySet();
-        final int numThreads = 100;
-        final int numIterations = 1_000;
-        ExecutorService executor = Executors.newFixedThreadPool(numThreads);
-        CountDownLatch latch = new CountDownLatch(numThreads);
+        final Set<Long> allGeneratedTimestamps = ConcurrentHashMap.newKeySet();
+        final int numberOfThreads = 50;
+        final int factor = 50;
+        final int iterationsPerThread = 500;
+        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
+        CountDownLatch latch = new CountDownLatch(numberOfThreads * factor);
 
-        for (int i = 0; i < numThreads; i++) {
+        for (int i = 0; i < numberOfThreads * factor; i++) {
             executor.execute(() -> {
-                for (int j = 0; j < numIterations; j++) {
+                List<Long> threadTimeSet = new ArrayList<>(iterationsPerThread);
+                long lastTimestamp = 0;
+                for (int j = 0; j < iterationsPerThread; j++) {
                     setTimeProvider.advanceNanos(j);
-                    timeSet.add(timeProvider.currentTimeMicros());
+                    long currentTimeMicros = timeProvider.currentTimeMicros();
+                    threadTimeSet.add(currentTimeMicros);
+                    assertTrue("Timestamps should always increase", currentTimeMicros > lastTimestamp);
+                    lastTimestamp = currentTimeMicros;
                 }
+                allGeneratedTimestamps.addAll(threadTimeSet);
                 latch.countDown();
             });
         }
@@ -65,7 +70,8 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
         latch.await();
         executor.shutdown();
 
-        assertEquals("All timestamps should be unique", numThreads * numIterations, timeSet.size());
+        assertEquals("All timestamps across all threads and iterations should be unique",
+         numberOfThreads * iterationsPerThread * factor, allGeneratedTimestamps.size());
     }
 
     @Test
@@ -103,6 +109,18 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
 
         for (int i = 0; i < 4_000; i++) {
             setTimeProvider.advanceNanos(i);
+            long currentTimeMicros = timeProvider.currentTimeMicros();
+            assertTrue("Microsecond timestamps must increase", currentTimeMicros > lastTimeMicros);
+            lastTimeMicros = currentTimeMicros;
+        }
+    }
+
+    @Test
+    public void currentTimeMicrosShouldBeCorrectBackwards() {
+        long lastTimeMicros = 0;
+
+        for (int i = 0; i < 4_000; i++) {
+            setTimeProvider.advanceNanos(-i);
             long currentTimeMicros = timeProvider.currentTimeMicros();
             assertTrue("Microsecond timestamps must increase", currentTimeMicros > lastTimeMicros);
             lastTimeMicros = currentTimeMicros;
