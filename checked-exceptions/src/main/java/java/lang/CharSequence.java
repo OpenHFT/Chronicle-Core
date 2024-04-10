@@ -32,7 +32,7 @@ public interface CharSequence {
      * index zero, the next at index one, and so on, as for array
      * indexing.
      * <p>
-     * <p>If the <code>char</code> value specified by the index is a
+     * If the <code>char</code> value specified by the index is a
      * <a href="{@docRoot}/java/lang/Character.html#unicode">surrogate</a>, the surrogate
      * value is returned.
      *

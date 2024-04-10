@@ -19,7 +19,6 @@
  *     <li>{@link net.openhft.chronicle.core.onoes.ExceptionKey} - Represents a unique key for an exception event.</li>
  *     <li>{@link net.openhft.chronicle.core.onoes.LogLevel} - Defines various levels of logging severity.</li>
  *     <li>{@link net.openhft.chronicle.core.onoes.NullExceptionHandler} - Implements ExceptionHandler as a null object.</li>
- *     <li>{@link net.openhft.chronicle.core.onoes.PrintExceptionHandler} - Logs exceptions to standard output or error streams.</li>
  *     <li>{@link net.openhft.chronicle.core.onoes.RecordingExceptionHandler} - Records exceptions by incrementing counts in a map.</li>
  *     <li>{@link net.openhft.chronicle.core.onoes.Slf4jExceptionHandler} - Uses SLF4J for logging exceptions based on severity levels.</li>
  *     <li>{@link net.openhft.chronicle.core.onoes.ThreadLocalisedExceptionHandler} - Provides thread-localized exception handling.</li>

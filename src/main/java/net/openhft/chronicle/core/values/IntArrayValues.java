@@ -56,7 +56,6 @@ import java.nio.BufferUnderflowException;
  * @see net.openhft.chronicle.core.values.StringValue
  * @see net.openhft.chronicle.core.values.LongArrayValues
  * @see net.openhft.chronicle.core.values.IntArrayValues
- * @see net.openhft.chronicle.core.values.UnsetLongValue
  * @since 10/10/13
  */
 public interface IntArrayValues extends Closeable {

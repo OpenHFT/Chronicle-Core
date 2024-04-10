@@ -298,7 +298,7 @@ public final class OS {
      * Align the size to page boundary
      *
      * @param size     the size to align
-     * @param pageSize
+     * @param pageSize the size of pages
      * @return aligned size
      * @see #pageSize()
      */
