@@ -22,7 +22,9 @@ import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -43,7 +45,44 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
     }
 
     @Test
-    public void shouldProvideUniqueTimeAcrossThreads() throws InterruptedException {
+    public void shouldProvideUniqueTimeAcrossThreadsMillis() throws InterruptedException {
+        final Set<Long> allGeneratedTimestamps = ConcurrentHashMap.newKeySet();
+        final int numberOfThreads = 50;
+        final int iterationsPerThread = 20;
+        final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
+        final CountDownLatch latch = new CountDownLatch(numberOfThreads);
+
+        for (int i = 0; i < numberOfThreads; i++) {
+            executor.execute(() -> {
+                try {
+                    List<Long> threadTimeSet = new ArrayList<>(iterationsPerThread);
+                    long lastTimestamp = 0;
+                    for (int j = 0; j < iterationsPerThread; j++) {
+
+                        // there could be a race condition for the next two methods, but it shouldn't matter for this test
+                        setTimeProvider.advanceMicros(j);
+                        long currentTimeMillis = timeProvider.currentTimeMillis();
+
+                        threadTimeSet.add(currentTimeMillis);
+                        assertTrue("Timestamps should always increase", currentTimeMillis > lastTimestamp);
+                        lastTimestamp = currentTimeMillis;
+                    }
+                    allGeneratedTimestamps.addAll(threadTimeSet);
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+        executor.shutdown();
+
+        assertEquals("All timestamps across all threads and iterations should be unique",
+                numberOfThreads * iterationsPerThread, allGeneratedTimestamps.size());
+    }
+
+    @Test
+    public void shouldProvideUniqueTimeAcrossThreadsMicros() throws InterruptedException {
         final Set<Long> allGeneratedTimestamps = ConcurrentHashMap.newKeySet();
         final int numberOfThreads = 50;
         final int factor = 50;
@@ -77,7 +116,45 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
         executor.shutdown();
 
         assertEquals("All timestamps across all threads and iterations should be unique",
-         numberOfThreads * iterationsPerThread * factor, allGeneratedTimestamps.size());
+                numberOfThreads * iterationsPerThread * factor, allGeneratedTimestamps.size());
+    }
+
+    @Test
+    public void shouldProvideUniqueTimeAcrossThreadsNanos() throws InterruptedException {
+        final Set<Long> allGeneratedTimestamps = ConcurrentHashMap.newKeySet();
+        final int numberOfThreads = 50;
+        final int factor = 50;
+        final int iterationsPerThread = 500;
+        final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
+        final CountDownLatch latch = new CountDownLatch(numberOfThreads * factor);
+
+        for (int i = 0; i < numberOfThreads * factor; i++) {
+            executor.execute(() -> {
+                try {
+                    List<Long> threadTimeSet = new ArrayList<>(iterationsPerThread);
+                    long lastTimestamp = 0;
+                    for (int j = 0; j < iterationsPerThread; j++) {
+
+                        // there could be a race condition for the next two methods, but it shouldn't matter for this test
+                        setTimeProvider.advanceNanos(j);
+                        long currentTimeNanos = timeProvider.currentTimeNanos();
+
+                        threadTimeSet.add(currentTimeNanos);
+                        assertTrue("Timestamps should always be in the next micros", currentTimeNanos / 1000 > lastTimestamp / 1000);
+                        lastTimestamp = currentTimeNanos;
+                    }
+                    allGeneratedTimestamps.addAll(threadTimeSet);
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+        executor.shutdown();
+
+        assertEquals("All timestamps across all threads and iterations should be unique",
+                numberOfThreads * iterationsPerThread * factor, allGeneratedTimestamps.size());
     }
 
     @Test
