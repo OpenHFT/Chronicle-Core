@@ -29,7 +29,6 @@
  *   <li>{@link net.openhft.chronicle.core.values.ShortValue} - Represents a reference to a 16-bit short value.
  *   <li>{@link net.openhft.chronicle.core.values.StringValue} - Represents a reference to a String value.
  *   <li>{@link net.openhft.chronicle.core.values.TwoLongValue} - Represents a reference to two long values.
- *   <li>{@link net.openhft.chronicle.core.values.UnsetLongValue} - Represents a long value that ignores attempts to modify it.
  * </ul>
  *
  * @since 10/10/13
