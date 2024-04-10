@@ -48,22 +48,28 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
         final int numberOfThreads = 50;
         final int factor = 50;
         final int iterationsPerThread = 500;
-        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
-        CountDownLatch latch = new CountDownLatch(numberOfThreads * factor);
+        final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
+        final CountDownLatch latch = new CountDownLatch(numberOfThreads * factor);
 
         for (int i = 0; i < numberOfThreads * factor; i++) {
             executor.execute(() -> {
-                List<Long> threadTimeSet = new ArrayList<>(iterationsPerThread);
-                long lastTimestamp = 0;
-                for (int j = 0; j < iterationsPerThread; j++) {
-                    setTimeProvider.advanceNanos(j);
-                    long currentTimeMicros = timeProvider.currentTimeMicros();
-                    threadTimeSet.add(currentTimeMicros);
-                    assertTrue("Timestamps should always increase", currentTimeMicros > lastTimestamp);
-                    lastTimestamp = currentTimeMicros;
+                try {
+                    List<Long> threadTimeSet = new ArrayList<>(iterationsPerThread);
+                    long lastTimestamp = 0;
+                    for (int j = 0; j < iterationsPerThread; j++) {
+
+                        // there could be a race condition for the next two methods, but it shouldn't matter for this test
+                        setTimeProvider.advanceNanos(j);
+                        long currentTimeMicros = timeProvider.currentTimeMicros();
+
+                        threadTimeSet.add(currentTimeMicros);
+                        assertTrue("Timestamps should always increase", currentTimeMicros > lastTimestamp);
+                        lastTimestamp = currentTimeMicros;
+                    }
+                    allGeneratedTimestamps.addAll(threadTimeSet);
+                } finally {
+                    latch.countDown();
                 }
-                allGeneratedTimestamps.addAll(threadTimeSet);
-                latch.countDown();
             });
         }
 
