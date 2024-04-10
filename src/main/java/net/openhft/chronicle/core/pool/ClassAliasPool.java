@@ -41,8 +41,9 @@ public class ClassAliasPool implements ClassLookup {
     static final ThreadLocal<CAPKey> CAP_KEY_TL = ThreadLocal.withInitial(() -> new CAPKey(null));
     private final ClassLookup parent;
     private final ClassLoader classLoader;
-    private final Map<CAPKey, Class<?>> stringClassMap = new ConcurrentHashMap<>();
-    private final Map<CAPKey, Class<?>> stringClassMap2 = new ConcurrentHashMap<>();
+    private final Map<CAPKey, Class<?>> aliasClassMap = new ConcurrentHashMap<>();
+    private final Map<CAPKey, Class<?>> nameClassMap = new ConcurrentHashMap<>();
+    private final Map<CAPKey, ClassNotFoundRuntimeException> nameExceptionMap = new ConcurrentHashMap<>();
     private final Map<Class<?>, String> classStringMap = new ConcurrentHashMap<>();
 
     /**
@@ -121,9 +122,10 @@ public class ClassAliasPool implements ClassLookup {
      * This is used to clean up the ClassAliasPool.
      */
     public void clean() {
-        clean(stringClassMap.values());
-        clean(stringClassMap2.values());
+        clean(aliasClassMap.values());
+        clean(nameClassMap.values());
         clean(classStringMap.keySet());
+        resetResolutionFailures();
     }
 
     private void clean(@NotNull Iterable<Class<?>> coll) {
@@ -143,25 +145,42 @@ public class ClassAliasPool implements ClassLookup {
         Objects.requireNonNull(name);
         CAPKey key = CAP_KEY_TL.get();
         key.value = name;
-        Class<?> clazz = stringClassMap.get(key);
+        Class<?> clazz = aliasClassMap.get(key);
         if (clazz != null)
             return clazz;
-        clazz = stringClassMap2.get(key);
-        if (clazz != null) return clazz;
         return forName0(key);
     }
 
     @NotNull
     private synchronized Class<?> forName0(@NotNull CAPKey key) throws ClassNotFoundRuntimeException {
-        Class<?> clazz = stringClassMap2.get(key);
-        if (clazz != null) return clazz;
+        ClassNotFoundRuntimeException resolutionFailure = nameExceptionMap.get(key);
+        if (resolutionFailure != null)
+            throw resolutionFailure; // cached
+
+        Class<?> clazz = nameClassMap.get(key);
+        if (clazz != null)
+            return clazz;
+
         String name0 = key.toString();
         CAPKey key2 = new CAPKey(name0);
 
-        clazz = OS.isWindows() || OS.isMacOSX() ? doLookupWindowsOSX(name0) : doLookup(name0);
+        try {
+            clazz = OS.isWindows() || OS.isMacOSX() ? doLookupWindowsOSX(name0) : doLookup(name0);
 
-        stringClassMap2.put(key2, clazz);
-        return clazz;
+            nameClassMap.put(key2, clazz);
+            return clazz;
+        } catch (ClassNotFoundRuntimeException ex) {
+            nameExceptionMap.put(key2, ex);
+
+            throw ex;
+        }
+    }
+
+    /**
+     * A method to reset previous resolution failures so they may be reattempted, e.g. after significant classpath change.
+     */
+    public void resetResolutionFailures() {
+        nameExceptionMap.clear();
     }
 
     /**
@@ -236,21 +255,23 @@ public class ClassAliasPool implements ClassLookup {
     }
 
     public void removePackage(String pkgName) {
-        stringClassMap.entrySet().removeIf(e -> testPackage(pkgName, e.getValue()));
-        stringClassMap2.entrySet().removeIf(e -> testPackage(pkgName, e.getValue()));
+        aliasClassMap.entrySet().removeIf(e -> testPackage(pkgName, e.getValue()));
+        nameClassMap.entrySet().removeIf(e -> testPackage(pkgName, e.getValue()));
         classStringMap.entrySet().removeIf(e -> testPackage(pkgName, e.getKey()));
+        resetResolutionFailures();
     }
 
     @Override
     public void addAlias(@NotNull Class<?>... classes) {
         for (@NotNull Class<?> clazz : classes) {
-            Class<?> prev = stringClassMap.putIfAbsent(new CAPKey(clazz.getName()), clazz);
+            Class<?> prev = aliasClassMap.putIfAbsent(new CAPKey(clazz.getName()), clazz);
             warnIfChanged(prev, clazz, "Did not replace by name");
-            prev = stringClassMap2.putIfAbsent(new CAPKey(clazz.getSimpleName()), clazz);
+            prev = nameClassMap.putIfAbsent(new CAPKey(clazz.getSimpleName()), clazz);
             warnIfChanged(prev, clazz, "Did not replace by simpleName");
-            stringClassMap2.putIfAbsent(new CAPKey(toCamelCase(clazz.getSimpleName())), clazz);
+            nameClassMap.putIfAbsent(new CAPKey(toCamelCase(clazz.getSimpleName())), clazz);
             classStringMap.computeIfAbsent(clazz, Class::getSimpleName);
         }
+        resetResolutionFailures();
     }
 
     // to lower camel case.
@@ -262,13 +283,14 @@ public class ClassAliasPool implements ClassLookup {
     @Override
     public void addAlias(Class<?> clazz, @NotNull String names) {
         for (@NotNull String name : names.split(", ?")) {
-            Class<?> prev = stringClassMap.put(new CAPKey(name), clazz);
+            Class<?> prev = aliasClassMap.put(new CAPKey(name), clazz);
             warnIfChanged(prev, clazz, "Replaced");
-            stringClassMap2.putIfAbsent(new CAPKey(toCamelCase(name)), clazz);
+            nameClassMap.putIfAbsent(new CAPKey(toCamelCase(name)), clazz);
             classStringMap.putIfAbsent(clazz, name);
-            Class<?> prev1 = stringClassMap.putIfAbsent(new CAPKey(clazz.getName()), clazz);
+            Class<?> prev1 = aliasClassMap.putIfAbsent(new CAPKey(clazz.getName()), clazz);
             warnIfChanged(prev1, clazz, "Did not replace by name");
         }
+        resetResolutionFailures();
     }
 
     @Override
@@ -276,10 +298,10 @@ public class ClassAliasPool implements ClassLookup {
         Objects.requireNonNull(name);
         CAPKey key = CAP_KEY_TL.get();
         key.value = name;
-        Class<?> clazz = stringClassMap.get(key);
+        Class<?> clazz = aliasClassMap.get(key);
         if (clazz != null)
             return nameFor(clazz);
-        clazz = stringClassMap2.get(key);
+        clazz = nameClassMap.get(key);
         if (clazz != null)
             return nameFor(clazz);
         return name;
