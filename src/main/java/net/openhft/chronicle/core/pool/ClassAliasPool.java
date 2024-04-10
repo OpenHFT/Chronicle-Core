@@ -271,6 +271,7 @@ public class ClassAliasPool implements ClassLookup {
             nameClassMap.putIfAbsent(new CAPKey(toCamelCase(clazz.getSimpleName())), clazz);
             classStringMap.computeIfAbsent(clazz, Class::getSimpleName);
         }
+        resetResolutionFailures();
     }
 
     // to lower camel case.
@@ -289,6 +290,7 @@ public class ClassAliasPool implements ClassLookup {
             Class<?> prev1 = aliasClassMap.putIfAbsent(new CAPKey(clazz.getName()), clazz);
             warnIfChanged(prev1, clazz, "Did not replace by name");
         }
+        resetResolutionFailures();
     }
 
     @Override
