@@ -119,7 +119,7 @@ public enum GenericReflection {
 
     static Type getGenericSuperclass(Type forClass) {
         if (forClass instanceof Class)
-            return ((Class) forClass).getGenericSuperclass();
+            return ((Class<?>) forClass).getGenericSuperclass();
         if (forClass instanceof ParameterizedType) {
             return null;
         }
