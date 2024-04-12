@@ -45,7 +45,7 @@ public interface ReadResolvable<T> {
     static <T> T readResolve(Object o) {
         // Pattern matching
         if (o instanceof ReadResolvable) {
-            return (T) ((ReadResolvable) o).readResolve();
+            return (T) ((ReadResolvable<?>) o).readResolve();
         } else if (o instanceof Serializable) {
             return (T) ObjectUtils.readResolve(o);
         } else {

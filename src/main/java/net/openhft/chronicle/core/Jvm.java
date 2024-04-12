@@ -1663,7 +1663,7 @@ public final class Jvm {
      *                            (a runtime risk inherent to unchecked casting)
      */
     @SuppressWarnings({"unchecked", "rawtypes"})
-    public static <T> Class<T> uncheckedCast(Class o) {
+    public static <T> Class<T> uncheckedCast(Class<?> o) {
         return (Class<T>) o;
     }
 
