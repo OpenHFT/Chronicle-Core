@@ -180,11 +180,11 @@ public final class Ints {
     }
 
     /**
-     * Returns a predicate that can test if a value is <em>non-negative</em> (i.e. value >= 0).
+     * Returns a predicate that can test if a value is <em>non-negative</em> (i.e. value &gt;= 0).
      * <p>
      * This is equivalent to: {@code negative().negate()}
      *
-     * @return a predicate that can test if a value is <em>non-negative</em> (i.e. value >= 0)
+     * @return a predicate that can test if a value is <em>non-negative</em> (i.e. value &gt;= 0)
      */
     public static IntPredicate nonNegative() {
         return IntCondition.NON_NEGATIVE;

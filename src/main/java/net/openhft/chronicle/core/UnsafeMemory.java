@@ -1786,10 +1786,10 @@ public class UnsafeMemory implements Memory {
 
     /**
      * Reads a short value in a volatile manner from the specified memory address.
+     * This method currently does not support a short split across cache lines.
      *
      * @param address the memory address.
      * @return the short value read from the address.
-     * @implNote This method currently does not support a short split across cache lines.
      */
     @Override
     public short readVolatileShort(long address) {
@@ -1845,10 +1845,11 @@ public class UnsafeMemory implements Memory {
 
     /**
      * Reads a float value in a volatile manner from the specified memory address.
+     * This method currently does not support a float split across cache lines.
      *
      * @param address the memory address.
      * @return the float value read from the address.
-     * @implNote This method currently does not support a float split across cache lines.
+     *
      */
     @Override
     public float readVolatileFloat(long address) {
@@ -1902,10 +1903,10 @@ public class UnsafeMemory implements Memory {
 
     /**
      * Reads a double value in a volatile manner from the specified memory address.
+     * This method currently does not support a double split across cache lines.
      *
      * @param address the memory address.
      * @return the double value read from the address.
-     * @implNote This method currently does not support a double split across cache lines.
      */
     @Override
     public double readVolatileDouble(long address) {

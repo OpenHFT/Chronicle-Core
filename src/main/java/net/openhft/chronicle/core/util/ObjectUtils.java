@@ -590,7 +590,7 @@ public final class ObjectUtils {
      * @throws ClassCastException if the class cannot be cast to the type T.
      */
     @NotNull
-    public static <T> T newInstance(@NotNull String className) {
+    public static <T> T newInstance(@NotNull String className) throws ClassCastException {
         return newInstance((Class<T>) CLASS_ALIASES.forName(className));
     }
 
@@ -603,7 +603,7 @@ public final class ObjectUtils {
      * @throws ClassCastException if the class cannot be cast to the type T.
      */
     @NotNull
-    public static <T> T newInstance(@NotNull Class<T> clazz) {
+    public static <T> T newInstance(@NotNull Class<T> clazz) throws ClassCastException {
         final Supplier<?> cons = supplierClassLocal.get(clazz);
         return (T) cons.get();
     }
