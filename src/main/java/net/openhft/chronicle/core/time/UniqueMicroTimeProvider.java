@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class UniqueMicroTimeProvider implements TimeProvider {
     public static final UniqueMicroTimeProvider INSTANCE = new UniqueMicroTimeProvider();
 
-    private final AtomicLong lastTime = new AtomicLong();
+    private final AtomicLong lastIssuedTimeMicros = new AtomicLong();
     private TimeProvider provider = SystemTimeProvider.INSTANCE;
 
     /**
@@ -51,11 +51,10 @@ public class UniqueMicroTimeProvider implements TimeProvider {
      *
      * @param provider The {@link TimeProvider} to use for time calculations.
      * @return The current {@code UniqueMicroTimeProvider} instance for fluent method chaining.
-     * @throws IllegalStateException If an issue occurs while setting the provider.
      */
-    public UniqueMicroTimeProvider provider(TimeProvider provider) throws IllegalStateException {
+    public UniqueMicroTimeProvider provider(TimeProvider provider) {
         this.provider = provider;
-        lastTime.set(provider.currentTimeMicros());
+        lastIssuedTimeMicros.set(provider.currentTimeMicros());
         return this;
     }
 
@@ -66,16 +65,16 @@ public class UniqueMicroTimeProvider implements TimeProvider {
      */
     @Override
     public long currentTimeMillis() {
-        long time = provider.currentTimeMillis();
+        long proposedTimeMillis = provider.currentTimeMillis();
         while (true) {
-            long time0 = lastTime.get();
-            long timeMS = time0 / 1000;
-            if (timeMS >= time) {
-                assertTimeMS(time, timeMS);
-                time = (timeMS + 1) * 1000;
+            long lastTimeMicros = lastIssuedTimeMicros.get();
+            long lastTimeMillis = lastTimeMicros / 1000;
+            if (lastTimeMillis >= proposedTimeMillis) {
+                validateMillisecondTimestamp(proposedTimeMillis, lastTimeMillis);
+                proposedTimeMillis = lastTimeMillis + 1;
             }
-            if (lastTime.compareAndSet(time0, time))
-                return time;
+            if (lastIssuedTimeMicros.compareAndSet(lastTimeMicros, proposedTimeMillis * 1000))
+                return proposedTimeMillis;
             Jvm.nanoPause();
         }
     }
@@ -85,19 +84,18 @@ public class UniqueMicroTimeProvider implements TimeProvider {
      * It increments the time value by one microsecond if necessary to guarantee uniqueness.
      *
      * @return The current unique time in microseconds since the epoch.
-     * @throws IllegalStateException If there is an issue in retrieving the time.
      */
     @Override
-    public long currentTimeMicros() throws IllegalStateException {
-        long time = provider.currentTimeMicros();
+    public long currentTimeMicros() {
+        long proposedTimeMicros = provider.currentTimeMicros();
         while (true) {
-            long lastTimeUS = lastTime.get();
-            if (lastTimeUS >= time) {
-                assertTime(time, lastTimeUS);
-                time = lastTimeUS + 1;
+            long lastTimeMicros = lastIssuedTimeMicros.get();
+            if (lastTimeMicros >= proposedTimeMicros) {
+                validateMicrosecondTimestamp(proposedTimeMicros, lastTimeMicros);
+                proposedTimeMicros = lastTimeMicros + 1;
             }
-            if (lastTime.compareAndSet(lastTimeUS, time))
-                return time;
+            if (lastIssuedTimeMicros.compareAndSet(lastTimeMicros, proposedTimeMicros))
+                return proposedTimeMicros;
             Jvm.nanoPause();
         }
     }
@@ -107,21 +105,20 @@ public class UniqueMicroTimeProvider implements TimeProvider {
      * It adapts the nanosecond time based on the microsecond value to maintain unique timestamps.
      *
      * @return The current unique time in nanoseconds since the epoch.
-     * @throws IllegalStateException If there is an issue in retrieving the time.
      */
     @Override
-    public long currentTimeNanos() throws IllegalStateException {
-        long time = provider.currentTimeNanos();
-        long timeUS = time / 1000;
+    public long currentTimeNanos() {
+        long proposedTimeNanos = provider.currentTimeNanos();
+        long proposedTimeMicros = proposedTimeNanos / 1000;
         while (true) {
-            long lastTimeUS = lastTime.get();
-            if (lastTimeUS >= time / 1000) {
-                assertTime(timeUS, lastTimeUS);
-                timeUS = lastTimeUS + 1;
-                time = timeUS * 1000;
+            long lastTimeMicros = lastIssuedTimeMicros.get();
+            if (lastTimeMicros >= proposedTimeNanos / 1000) {
+                validateMicrosecondTimestamp(proposedTimeMicros, lastTimeMicros);
+                proposedTimeMicros = lastTimeMicros + 1;
+                proposedTimeNanos = proposedTimeMicros * 1000;
             }
-            if (lastTime.compareAndSet(lastTimeUS, timeUS))
-                return time;
+            if (lastIssuedTimeMicros.compareAndSet(lastTimeMicros, proposedTimeMicros))
+                return proposedTimeNanos;
             Jvm.nanoPause();
         }
     }
@@ -132,7 +129,7 @@ public class UniqueMicroTimeProvider implements TimeProvider {
      * @param realTimeMS The actual time in milliseconds.
      * @param lastTimeMS The last time in milliseconds issued by this provider.
      */
-    private void assertTimeMS(long realTimeMS, long lastTimeMS) {
+    private void validateMillisecondTimestamp(long realTimeMS, long lastTimeMS) {
         assert (lastTimeMS - realTimeMS) < 1_000
                 : "Exceeding 1,000 calls per second will advance time by more than 1 second.";
     }
@@ -143,7 +140,7 @@ public class UniqueMicroTimeProvider implements TimeProvider {
      * @param realTimeUS The actual time in microseconds.
      * @param lastTimeUS The last time in microseconds issued by this provider.
      */
-    private void assertTime(long realTimeUS, long lastTimeUS) {
+    private void validateMicrosecondTimestamp(long realTimeUS, long lastTimeUS) {
         assert (lastTimeUS - realTimeUS) < 1_000_000
                 : "Exceeding 1 million calls per second will advance time by more than 1 second.";
     }
