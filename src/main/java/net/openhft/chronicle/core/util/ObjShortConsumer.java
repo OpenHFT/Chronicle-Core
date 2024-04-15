@@ -23,7 +23,7 @@ package net.openhft.chronicle.core.util;
  * {@code (reference, long)} specialization of {@link java.util.function.BiConsumer} for {@code short}.  Unlike most other functional
  * interfaces, {@code ObjShortConsumer} is expected to operate via side-effects.
  * <p>
- * <p>This is a <a href="package-summary.html">functional interface</a> whose functional method is
+ * This is a <a href="package-summary.html">functional interface</a> whose functional method is
  * {@link #accept(Object, short)}.
  *
  * @see java.util.function.BiConsumer

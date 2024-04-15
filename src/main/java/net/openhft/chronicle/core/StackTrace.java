@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
  * Represents a throwable stack trace which is created purely for reporting purposes.
  * <p>
  * This class is not designed as an Error or an Exception and is not intended to be thrown or caught.
- * 
+ * <p>
  * <a href="https://github.com/OpenHFT/Chronicle-Core/issues/75">...</a>
  */
 public class StackTrace extends Throwable {
