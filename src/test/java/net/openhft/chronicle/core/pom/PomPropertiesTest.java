@@ -8,17 +8,19 @@ class PomPropertiesTest {
 
     @Test
     void testCreateWithValidArguments() {
-        Properties properties = PomProperties.create("net.openhft", "chronicle-queue");
-        assertNotNull(properties);
+        assertEquals("{}",
+                PomProperties.create("net.openhft", "chronicle-queue").toString());
     }
 
     @Test
     void testCreateWithNullGroupId() {
-        PomProperties.create(null, "chronicle-queue");
+        assertEquals("{}",
+                PomProperties.create(null, "chronicle-queue").toString());
     }
 
     @Test
     void testCreateWithNullArtifactId() {
-        PomProperties.create("net.openhft", null);
+        assertEquals("{}",
+                PomProperties.create("net.openhft", null).toString());
     }
 }

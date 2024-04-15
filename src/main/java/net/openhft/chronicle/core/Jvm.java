@@ -1165,6 +1165,11 @@ public final class Jvm {
      * <p>
      * trailing B/b/iB/ib are ignored.
      *      <table>
+     *         <caption>
+     *             This table illustrates examples of various string inputs representing memory sizes and their corresponding parsed outputs in bytes.
+     *             It demonstrates how strings with different suffixes and formats are converted to their respective byte equivalents using factors
+     *             like kilobytes (KB), megabytes (MB), gigabytes (GB), and terabytes (TB), where these units are powers of 2.
+     *         </caption>
      *         <tr><td>100</td><td>100 bytes</td></tr>
      *         <tr><td>100b</td><td>100 bytes</td></tr>
      *         <tr><td>0.5kb</td><td>512 bytes</td></tr>

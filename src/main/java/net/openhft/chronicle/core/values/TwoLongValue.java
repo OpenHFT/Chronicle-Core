@@ -44,12 +44,11 @@ import net.openhft.chronicle.core.io.ThreadingIllegalStateException;
  * of the current value and a specified value, and for atomically setting and retrieving both values.
  * <p>
  * Implementations can also include additional behaviors or optimizations not specified in this interface.
+ * Note: The {@link #getValue()} and {@link #setValue(long)} methods inherited from {@link LongValue} are applicable
+ * to the first {@code long} value. Implementations must ensure that all methods are thread-safe and that changes
+ * to the values are correctly synchronized across threads.
  *
  * @author Peter Lawrey
- * @apiNote The {@link #getValue()} and {@link #setValue(long)} methods inherited from {@link LongValue} are applicable
- * to the first {@code long} value.
- * @implSpec Implementations must ensure that all methods are thread-safe and that changes to the values are correctly
- * synchronized across threads.
  * @see net.openhft.chronicle.core.values.LongValue
  * @see net.openhft.chronicle.core.values.BooleanValue
  * @see net.openhft.chronicle.core.values.ByteValue
