@@ -1,6 +1,7 @@
 package net.openhft.chronicle.core.pom;
 
 import org.junit.jupiter.api.Test;
+
 import java.util.Properties;
 import static org.junit.jupiter.api.Assertions.*;
 
