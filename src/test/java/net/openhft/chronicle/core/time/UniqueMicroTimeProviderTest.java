@@ -40,15 +40,15 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
     @Before
     public void setUp() {
         timeProvider = new UniqueMicroTimeProvider();
-        setTimeProvider = new SetTimeProvider(SystemTimeProvider.INSTANCE.currentTimeNanos());
+        setTimeProvider = new SetTimeProvider(0);
         timeProvider.provider(setTimeProvider);
     }
 
     @Test
     public void shouldProvideUniqueTimeAcrossThreadsMillis() throws InterruptedException {
         final Set<Long> allGeneratedTimestamps = ConcurrentHashMap.newKeySet();
-        final int numberOfThreads = 50;
-        final int iterationsPerThread = 20;
+        final int numberOfThreads = 100;
+        final int iterationsPerThread = 100;
         final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
         final CountDownLatch latch = new CountDownLatch(numberOfThreads);
 
@@ -60,7 +60,7 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
                     for (int j = 0; j < iterationsPerThread; j++) {
 
                         // there could be a race condition for the next two methods, but it shouldn't matter for this test
-                        setTimeProvider.advanceMicros(j);
+                        setTimeProvider.advanceMicros(j * 100);
                         long currentTimeMillis = timeProvider.currentTimeMillis();
 
                         threadTimeSet.add(currentTimeMillis);
@@ -86,7 +86,7 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
         final Set<Long> allGeneratedTimestamps = ConcurrentHashMap.newKeySet();
         final int numberOfThreads = 50;
         final int factor = 50;
-        final int iterationsPerThread = 500;
+        final int iterationsPerThread = 1000;
         final ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
         final CountDownLatch latch = new CountDownLatch(numberOfThreads * factor);
 
@@ -98,7 +98,7 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
                     for (int j = 0; j < iterationsPerThread; j++) {
 
                         // there could be a race condition for the next two methods, but it shouldn't matter for this test
-                        setTimeProvider.advanceNanos(j);
+                        setTimeProvider.advanceMicros(j);
                         long currentTimeMicros = timeProvider.currentTimeMicros();
 
                         threadTimeSet.add(currentTimeMicros);

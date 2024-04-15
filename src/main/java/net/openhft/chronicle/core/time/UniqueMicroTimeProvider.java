@@ -130,7 +130,7 @@ public class UniqueMicroTimeProvider implements TimeProvider {
      * @param lastTimeMS The last time in milliseconds issued by this provider.
      */
     private void validateMillisecondTimestamp(long realTimeMS, long lastTimeMS) {
-        assert (lastTimeMS - realTimeMS) < 1_000
+        assert (lastTimeMS - realTimeMS) < 1_000 || (lastTimeMS - provider.currentTimeMillis()) < 1_000
                 : "Exceeding 1,000 calls per second will advance time by more than 1 second.";
     }
 
@@ -141,7 +141,7 @@ public class UniqueMicroTimeProvider implements TimeProvider {
      * @param lastTimeUS The last time in microseconds issued by this provider.
      */
     private void validateMicrosecondTimestamp(long realTimeUS, long lastTimeUS) {
-        assert (lastTimeUS - realTimeUS) < 1_000_000
+        assert (lastTimeUS - realTimeUS) < 1_000_000 || (lastTimeUS - provider.currentTimeMicros()) < 1_000_000
                 : "Exceeding 1 million calls per second will advance time by more than 1 second.";
     }
 }
