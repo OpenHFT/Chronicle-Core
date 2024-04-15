@@ -40,7 +40,6 @@ public class UniqueMicroTimeProvider implements TimeProvider {
      * <p>
      * This constructor initializes the time provider with zero. New instances are typically created for
      * testing purposes, as this class is stateful and maintains the last time value issued.
-     * </p>
      */
     public UniqueMicroTimeProvider() {
         // Do nothing

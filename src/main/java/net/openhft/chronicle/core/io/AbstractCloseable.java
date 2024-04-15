@@ -88,7 +88,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     private int referenceId;
 
     /**
-     * Constructs a new {@link AbstractCloseable} instance. Registers the instance
+     * Constructs a new instance. Registers the instance
      * for resource tracing and monitoring if enabled.
      */
     protected AbstractCloseable() {

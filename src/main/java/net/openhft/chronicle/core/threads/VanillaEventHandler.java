@@ -47,12 +47,12 @@ public interface VanillaEventHandler {
      * <p>
      * Returning {@code true } when there is no actual work to do may waste cycles servicing a handler which has nothing
      * to do, at the expense of stealing cycles away from other handlers.
-     * Conversely, returning <code>false</code> when there is work to do will effectively increase latency as the event loop
+     * Conversely, returning {@code false} when there is work to do will effectively increase latency as the event loop
      * will take the "false" as a hint that several other handlers can be serviced ahead of this one.
      * <p>
      * As a rule of thumb, an action handler should do a certain amount of work then yield/return
      * If it knows for sure that there is remaining work to be done at the point of yielding then return {@code true}.
-     * Otherwise return <code>false</code> and the event loop will revisit based on the handler's priority and other work load.
+     * Otherwise return {@code false} and the event loop will revisit based on the handler's priority and other work load.
      * <p>
      * As with a lot of scheduling approaches there's no single answer and some experimentation under typical loads
      * would always be recommended. But the above rule of thumb is a good starting point.

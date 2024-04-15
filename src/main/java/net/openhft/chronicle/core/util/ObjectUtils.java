@@ -589,7 +589,7 @@ public final class ObjectUtils {
      * @param <T>       The type of the class to be instantiated.
      * @param className The fully qualified name of the class to be instantiated.
      * @return A new instance of the specified class.
-     * @throws ClassCastException, if the class cannot be cast to the type T.
+     * @throws ClassCastException if the class cannot be cast to the type T.
      */
     @NotNull
     public static <T> T newInstance(@NotNull String className) {
@@ -602,6 +602,7 @@ public final class ObjectUtils {
      * @param <T>   The type of the class to be instantiated.
      * @param clazz The class to be instantiated.
      * @return A new instance of the specified class.
+     * @throws ClassCastException if the class cannot be cast to the type T.
      */
     @NotNull
     public static <T> T newInstance(@NotNull Class<T> clazz) {
