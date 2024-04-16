@@ -928,13 +928,12 @@ public final class ObjectUtils {
 
     /**
      * Standard mechanism to determine objects as not null. Same method contract as {@link Objects#requireNonNull(Object)}
-     * and also decorated with {@link NotNull} so that IntelliJ and other static analysis tools can work their magic.
      *
      * @param o reference to check for nullity
      * @throws NullPointerException If o is {@code null }
      */
     @SuppressWarnings("UnusedReturnValue")
-    public static <T> T requireNonNull(@NotNull T o) {
+    public static <T> T requireNonNull(T o) {
         // see https://stackoverflow.com/questions/43115645/in-java-lambdas-why-is-getclass-called-on-a-captured-variable
         // Maybe calling Objects.requireNonNull is just as optimisable/intrinisfiable but I didn't do the research
         o.getClass();
