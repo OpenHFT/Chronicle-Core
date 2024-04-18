@@ -1,6 +1,7 @@
 package net.openhft.chronicle.core.scoped;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.StackTrace;
 import net.openhft.chronicle.core.threads.CleaningThreadLocal;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -135,8 +136,12 @@ public class ScopedThreadLocal<T> implements ScopedResourcePool<T> {
                 if (!warnedAboutCapacity) {
                     @Nullable
                     Class<?> containedType = instances[instances.length - 1].getType();
-                    Jvm.warn().on(ScopedThreadLocal.class,
-                            "Pool capacity exceeded, consider increasing maxInstances, maxInstances=" + instances.length + (containedType != null ? ", resourceType=" + containedType.getSimpleName() : ""));
+                    String message = "Pool capacity exceeded, consider increasing maxInstances, maxInstances=" + instances.length + (containedType != null ? ", resourceType=" + containedType.getSimpleName() : "");
+                    if (Jvm.isResourceTracing()) {
+                        Jvm.warn().on(ScopedThreadLocal.class, message, new StackTrace());
+                    } else {
+                        Jvm.warn().on(ScopedThreadLocal.class, message);
+                    }
                     warnedAboutCapacity = true;
                 }
                 replaceNewestInstance(instance).closeResource();
