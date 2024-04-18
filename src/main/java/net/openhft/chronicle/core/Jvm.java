@@ -1511,11 +1511,93 @@ public final class Jvm {
             return false;
         }
 
-    // Check for the typical lambda class name pattern.
-    // Note: Relying on the class name can be brittle as it's
-    // an implementation detail of the JVM.
-    return clazz.getName().contains("$$Lambda");
-}
+        // Check for the typical lambda class name pattern.
+        // Note: Relying on the class name can be brittle as it's
+        // an implementation detail of the JVM.
+        return clazz.getName().contains("$$Lambda");
+    }
+
+    /**
+     * Performs an unchecked cast of an object to the target type {@code T}. This method
+     * bypasses generic type checks, allowing for casting without explicit type checking,
+     * offering a convenient way to avoid compiler warnings for unchecked casts.
+     * <p>
+     * Note: Use with caution as improper use can lead to {@link ClassCastException} at runtime
+     * if the object is not of type {@code T}. Intended for situations where the type safety is
+     * guaranteed through other means but cannot be expressed without generic type warnings.
+     *
+     * @param <T> the target type to cast to
+     * @param o   the object to be cast
+     * @return the casted object of type {@code T}
+     * @throws ClassCastException if the object cannot be casted to the target type {@code T}
+     *                            (a runtime risk due to type erasure)
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T uncheckedCast(Object o) {
+        return (T) o;
+    }
+
+    /**
+     * Performs an unchecked cast of an array of objects to an array of the target type {@code T[]}.
+     * This method bypasses generic array type checks, facilitating casting without explicit array
+     * type checking.
+     * <p>
+     * Note: Use with caution as improper use can lead to {@link ClassCastException} at runtime
+     * if the objects in the array cannot be cast to type {@code T[]}. This method is useful when
+     * the programmer is confident in the implicit type safety of the operation but wishes to avoid
+     * compiler warnings about unchecked operations.
+     *
+     * @param <T> the target component type of the array to cast to
+     * @param o   the object array to be cast
+     * @return the casted object array of type {@code T[]}
+     * @throws ClassCastException if the objects in the array cannot be cast to the component type {@code T[]}
+     */
+    @SuppressWarnings("unchecked")
+    public static <T> T[] uncheckedCast(Object[] o) {
+        return (T[]) o;
+    }
+
+    /**
+     * Performs an unchecked cast of a {@code Class} object to {@code Class<T>}. This operation
+     * is particularly useful in scenarios involving reflection where generic type parameters are
+     * known but cannot be statically enforced by the compiler.
+     * <p>
+     * By bypassing compile-time generic type checks, it provides a way to work with generic types
+     * in a dynamic context at the cost of compile-time type safety.
+     * <p>
+     * Note: Use with caution as improper use can lead to a {@link ClassCastException} at runtime
+     * if the class object cannot actually be cast to {@code Class<T>}. This method should be
+     * employed when there is certainty about the underlying type compatibility.
+     *
+     * @param <T> the target generic type to cast the class to
+     * @param o   the class object to be cast
+     * @return the class object cast to {@code Class<T>}
+     * @throws ClassCastException if the class object cannot be cast to {@code Class<T>}
+     *                            (a runtime risk inherent to unchecked casting)
+     */
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    public static <T> Class<T> uncheckedCast(Class<?> o) {
+        return (Class<T>) o;
+    }
+
+    /**
+     * Retrieves the unique identifier of the current thread.
+     * <p>
+     * This method provides a straightforward way to obtain the ID of the thread
+     * from which the method is called. Currently, it uses {@link Thread#currentThread()}
+     * and {@link Thread#getId()} to accomplish this. The method is safe to use across
+     * various versions of Java.
+     * <p>
+     * Note: In future versions, this implementation may be updated to use {@code Thread.threadId()}
+     * or another updated mechanism for obtaining the thread ID, as newer Java versions from version 19
+     * deprecate the current approach.
+     *
+     * @return the identifier of the current thread
+     */
+    @SuppressWarnings("deprecation")
+    public static long currentThreadId() {
+        return Thread.currentThread().getId();
+    }
 
     public interface SignalHandler {
         /**
