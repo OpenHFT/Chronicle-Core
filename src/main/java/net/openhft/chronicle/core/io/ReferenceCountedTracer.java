@@ -63,13 +63,12 @@ public interface ReferenceCountedTracer extends ReferenceCounted {
      * Releases any remaining references and logs a warning if there were any references to release.
      * <p>
      * This method is intended to be called by a finalizer or in a test to confirm that references are being released correctly.
-     *
      * <p>
      * Note: This method will not trigger any {@link ReferenceChangeListener}s as it is mainly used for sanity checks.
      *
-     * @throws IllegalStateException If the object hadn't been released.
+     * @throws ClosedIllegalStateException If the object has not been released.
      */
-    void warnAndReleaseIfNotReleased() throws IllegalStateException;
+    void warnAndReleaseIfNotReleased() throws ClosedIllegalStateException;
 
     /**
      * Throws an exception if the object has not been released.
