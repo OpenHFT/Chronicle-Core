@@ -162,11 +162,19 @@ public class StringUtilsTest extends CoreTestCommon {
     }
 
     @Test
+    public void shouldGetCharsOfStringSplit() {
+        final String s = "foobar_nine";
+        String substring = (s + ",zzz").split(",")[0];
+        final char[] chars = StringUtils.extractChars(substring);
+        assertEquals(s, new String(chars));
+    }
+
+    @Test
     public void shouldExtractBytesFromString() {
         assertTrue(
                 Arrays.equals(
-                    "foobar".getBytes(StandardCharsets.US_ASCII),
-                    StringUtils.extractBytes("foobar")));
+                        "foobar".getBytes(StandardCharsets.US_ASCII),
+                        StringUtils.extractBytes("foobar")));
     }
 
     @Test
@@ -185,7 +193,7 @@ public class StringUtilsTest extends CoreTestCommon {
     @Test
     public void shouldCreateNewStringFromBytes() {
         final byte[] bytes = {'A', 'B', 'C'};
-        String expected = new String(bytes,StandardCharsets.ISO_8859_1);
+        String expected = new String(bytes, StandardCharsets.ISO_8859_1);
         String actual = StringUtils.newStringFromBytes(bytes);
         assertEquals(expected, actual);
     }

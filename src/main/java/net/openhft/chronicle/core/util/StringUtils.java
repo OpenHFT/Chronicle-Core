@@ -315,7 +315,7 @@ public final class StringUtils {
     }
 
     public static char[] extractChars(@NotNull String s) {
-        if (Bootstrap.isJava9Plus()) {
+        if (Bootstrap.isJava9Plus() || Bootstrap.IS_OPENJ9) {
             return s.toCharArray();
         }
         return getMemory().getObject(s, S_VALUE_OFFSET);
@@ -323,7 +323,7 @@ public final class StringUtils {
 
     @Java9
     public static byte[] extractBytes(@NotNull String s) {
-        if (!HAS_ONE_BYTE_PER_CHAR)
+        if (!HAS_ONE_BYTE_PER_CHAR || Bootstrap.IS_OPENJ9)
             return s.getBytes(StandardCharsets.ISO_8859_1);
         ensureJava9Plus();
 
