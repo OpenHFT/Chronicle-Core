@@ -38,6 +38,7 @@ public final class Bootstrap {
     public static final boolean IS_64BIT = is64bit0();
     public static final boolean IS_AZUL_ZING = Bootstrap.isAzulZing0();
     public static final boolean IS_AZUL_ZULU = Bootstrap.isAzulZulu0();
+    public static final boolean IS_OPENJ9 = Bootstrap.isOpenJ90();
     public static final boolean ASSERT_ENABLED;
     public static final String PROC_SELF = "/proc/self";
     public static final int PROCESS_ID = getProcessId0();
@@ -93,6 +94,10 @@ public final class Bootstrap {
 
     public static boolean isAzulZulu0() {
         return VM_VENDOR.startsWith("Azul ") && (VM_NAME.startsWith("OpenJDK ") || VM_NAME.startsWith("Zulu"));
+    }
+
+    public static boolean isOpenJ90() {
+        return VM_VENDOR.equals("Eclipse OpenJ9");
     }
 
     public static int getJvmJavaMajorVersion() {

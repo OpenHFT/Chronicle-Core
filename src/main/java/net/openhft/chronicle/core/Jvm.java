@@ -297,7 +297,7 @@ public final class Jvm {
      * @return the major Java version (e.g. 8, 11 or 17)
      */
     public static int majorVersion() {
-        return Bootstrap.getJvmJavaMajorVersion();
+        return getJvmJavaMajorVersion();
     }
 
     /**
@@ -1429,6 +1429,10 @@ public final class Jvm {
 
     public static boolean isAzulZulu() {
         return IS_AZUL_ZULU;
+    }
+
+    public static boolean isOpenJ9() {
+        return IS_OPENJ9;
     }
 
     /**

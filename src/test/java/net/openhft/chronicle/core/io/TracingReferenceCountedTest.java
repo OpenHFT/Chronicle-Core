@@ -1,5 +1,6 @@
 package net.openhft.chronicle.core.io;
 
+import net.openhft.chronicle.core.Jvm;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -8,6 +9,7 @@ import java.util.regex.Pattern;
 
 import static net.openhft.chronicle.core.internal.CloseableUtils.asString;
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeFalse;
 
 public class TracingReferenceCountedTest extends MonitorReferenceCountedContractTest {
 
@@ -75,6 +77,7 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
 
     @Test
     public void asStringWillIncludeReferenceCountedDetails() {
+        assumeFalse(Jvm.isOpenJ9());
         final TracingReferenceCounted referenceCounted = createReferenceCounted();
         assertTrue(Pattern.matches("TracingReferenceCounted@\\w+ refCount=1", asString(referenceCounted)));
     }

@@ -24,6 +24,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.*;
+import static org.junit.Assume.assumeFalse;
 
 public class StackTraceTest extends CoreTestCommon {
     private static final CountDownLatch threadStarted = new CountDownLatch(1);
@@ -68,6 +69,7 @@ public class StackTraceTest extends CoreTestCommon {
 
     @Test
     public void forThread() throws InterruptedException {
+        assumeFalse(Jvm.isOpenJ9());
         // load Jvm class before
         Jvm.init();
         Thread t = new Thread(StackTraceTest::thinking, "background");
