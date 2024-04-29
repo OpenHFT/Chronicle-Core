@@ -48,14 +48,14 @@ public interface ReferenceOwner {
     ReferenceOwner TMP = new VanillaReferenceOwner("tmp");
 
     /**
-     * Creates and returns a temporary  with the given name.
+     * Creates and returns a temporary {@link ReferenceOwner} with the given name.
      * <p>
      * When resource tracing is enabled, a new {@link VanillaReferenceOwner} is created with the specified name.
      * Otherwise, the predefined {@link ReferenceOwner#TMP} instance is returned, regardless of the provided name.
      * 
      *
      * @param name The name to be assigned to the temporary reference owner, used for identification and debugging purposes.
-     * @return A temporary  instance.
+     * @return A temporary {@link ReferenceOwner} instance.
      */
     static ReferenceOwner temporary(String name) {
         return Jvm.isResourceTracing() ? new VanillaReferenceOwner(name) : TMP;

@@ -32,14 +32,14 @@ import java.util.function.Supplier;
 public interface ReferenceCountedTracer extends ReferenceCounted {
 
     /**
-     * Factory method that creates a new instance of . The instance returned
+     * Factory method that creates a new instance of {@link ReferenceCountedTracer}. The instance returned
      * is based on the resource tracing configuration of the JVM.
      *
      * @param onRelease The {@link Runnable} that will be executed when the object is released.
      * @param uniqueId  A {@link Supplier} of unique identifiers for the object. It should provide a unique
      *                  string identifier for each invocation.
      * @param type      The {@link Class} representing the type of the object being reference counted.
-     * @return A new instance of .
+     * @return A new instance of {@link ReferenceCountedTracer}.
      */
     @NotNull
     static ReferenceCountedTracer onReleased(final Runnable onRelease, Supplier<String> uniqueId, Class<?> type) {
@@ -67,9 +67,9 @@ public interface ReferenceCountedTracer extends ReferenceCounted {
      * <p>
      * Note: This method will not trigger any {@link ReferenceChangeListener}s as it is mainly used for sanity checks.
      *
-     * @throws IllegalStateException If the object hadn't been released.
+     * @throws ClosedIllegalStateException If the object has been released.
      */
-    void warnAndReleaseIfNotReleased() throws IllegalStateException;
+    void warnAndReleaseIfNotReleased() throws ClosedIllegalStateException;
 
     /**
      * Throws an exception if the object has not been released.
