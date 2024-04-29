@@ -40,7 +40,7 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
     @Before
     public void setUp() {
         timeProvider = new UniqueMicroTimeProvider();
-        setTimeProvider = new SetTimeProvider(0);
+        setTimeProvider = new SetTimeProvider(SystemTimeProvider.INSTANCE.currentTimeNanos());
         timeProvider.provider(setTimeProvider);
     }
 
