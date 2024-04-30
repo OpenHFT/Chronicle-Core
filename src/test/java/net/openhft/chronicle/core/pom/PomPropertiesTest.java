@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class PomPropertiesTest {
 
@@ -15,13 +16,13 @@ class PomPropertiesTest {
 
     @Test
     void testCreateWithNullGroupId() {
-        assertEquals("{}",
-                PomProperties.create(null, "chronicle-queue").toString());
+        assertThrows(NullPointerException.class,
+                () -> PomProperties.create(null, "chronicle-queue").toString());
     }
 
     @Test
     void testCreateWithNullArtifactId() {
-        assertEquals("{}",
-                PomProperties.create("net.openhft", null).toString());
+        assertThrows(NullPointerException.class,
+                () -> PomProperties.create("net.openhft", null).toString());
     }
 }
