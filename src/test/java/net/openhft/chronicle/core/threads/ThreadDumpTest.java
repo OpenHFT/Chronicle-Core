@@ -39,12 +39,15 @@ public class ThreadDumpTest {
     void testAssertNewThreads() {
         assumeFalse(Jvm.isArm());
         Thread newThread = new Thread(() -> {
-            Jvm.pause(1000);
+            Jvm.pause(10000);
         });
         newThread.start();
 
+        // ensure the thread has started
+        Jvm.pause(100);
+
         // Expect an AssertionError since a new thread is running
-        assertThrows(AssertionError.class, threadDump::assertNoNewThreads);
+        assertThrows(AssertionError.class, threadDump::assertNoNewThreads, "newThread.isAlive()= " + newThread.isAlive());
 
         // Clean up
         newThread.interrupt();
