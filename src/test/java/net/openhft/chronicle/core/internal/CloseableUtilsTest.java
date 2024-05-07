@@ -13,7 +13,6 @@ import java.net.HttpURLConnection;
 import java.nio.channels.ServerSocketChannel;
 import java.util.Collection;
 
-
 import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;

@@ -72,4 +72,3 @@ public enum PosixTimeProvider implements TimeProvider {
         return PosixAPI.posix().clock_gettime(ClockId.CLOCK_REALTIME);
     }
 }
-

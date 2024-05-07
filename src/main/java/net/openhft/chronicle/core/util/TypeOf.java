@@ -64,4 +64,3 @@ public class TypeOf<T> {
         return pt.getActualTypeArguments()[0];
     }
 }
-

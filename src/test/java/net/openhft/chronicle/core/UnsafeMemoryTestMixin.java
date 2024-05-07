@@ -242,7 +242,6 @@ interface UnsafeMemoryTestMixin<T> {
         T operation() {
             return operation;
         }
-
     }
 
     @FunctionalInterface
@@ -368,7 +367,6 @@ interface UnsafeMemoryTestMixin<T> {
         public void close() {
             closer.run();
         }
-
     }
 
     static Mode mode(Arguments args) {
@@ -401,7 +399,5 @@ interface UnsafeMemoryTestMixin<T> {
         public boolean isDirectAddressing() {
             return this == NATIVE_ADDRESS;
         }
-
     }
-
 }

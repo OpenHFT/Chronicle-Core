@@ -75,5 +75,4 @@ public interface TimeProvider {
     default long currentTimeNanos() throws IllegalStateException {
         return currentTimeMicros() * 1000;
     }
-
 }

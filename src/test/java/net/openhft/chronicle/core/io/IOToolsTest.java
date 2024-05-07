@@ -136,8 +136,6 @@ public class IOToolsTest extends CoreTestCommon {
         assertArrayEquals(testData.getBytes(), bytes);
     }
 
-
-
     @Test
     public void readFileManyTimesByPath() {
         final int iterations = 3_000;

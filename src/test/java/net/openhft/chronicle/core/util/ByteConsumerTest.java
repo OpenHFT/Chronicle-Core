@@ -15,5 +15,4 @@ class ByteConsumerTest {
 
         assertEquals((byte) 10, resultContainer[0]);
     }
-
 }

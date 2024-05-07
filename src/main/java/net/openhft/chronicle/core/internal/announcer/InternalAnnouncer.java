@@ -121,5 +121,4 @@ public final class InternalAnnouncer {
             return properties.containsKey("logo");
         return true;
     }
-
 }

@@ -49,5 +49,4 @@ public interface ThreadConfinementAsserter {
     static ThreadConfinementAsserter createEnabled() {
         return ThreadConfinementLifecycle.createEnabled();
     }
-
 }

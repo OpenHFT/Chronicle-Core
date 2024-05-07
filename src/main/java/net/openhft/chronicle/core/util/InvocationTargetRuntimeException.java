@@ -55,4 +55,3 @@ public class InvocationTargetRuntimeException extends RuntimeException {
         super(cause instanceof InvocationTargetException ? cause.getCause() : cause);
     }
 }
-

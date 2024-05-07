@@ -48,5 +48,4 @@ class ScopeConfinedTest extends CoreTestCommon {
         Stream<@ScopeConfined T> stream();
 
     }
-
 }

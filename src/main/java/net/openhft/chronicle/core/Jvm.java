@@ -1682,7 +1682,6 @@ public final class Jvm {
                 Jvm.warn().on(signalHandler.getClass(), "Unable add a signal handler", e);
             }
         }
-
     }
 
     static final class ChainedSignalHandler implements sun.misc.SignalHandler {

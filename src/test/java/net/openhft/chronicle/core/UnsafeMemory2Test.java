@@ -616,5 +616,4 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     static class MyDTO {
         int num;
     }
-
 }

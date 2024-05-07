@@ -125,5 +125,4 @@ public class IntConditionTest extends CoreTestCommon {
     private static Map.Entry<Integer, Boolean> entry(int value, boolean expected) {
         return new AbstractMap.SimpleImmutableEntry<>(value, expected);
     }
-
 }

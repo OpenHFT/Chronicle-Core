@@ -41,5 +41,4 @@ public final class Time {
         }
         return Long.toString(l, 36);
     }
-
 }

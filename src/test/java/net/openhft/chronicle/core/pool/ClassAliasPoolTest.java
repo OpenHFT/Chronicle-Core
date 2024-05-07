@@ -33,7 +33,6 @@ import static org.junit.Assert.assertThrows;
 
 public class ClassAliasPoolTest extends CoreTestCommon {
 
-
     @Test
     public void testApplyAliasForSet() {
         assertEquals("!set", CLASS_ALIASES.applyAlias("Set").toString());

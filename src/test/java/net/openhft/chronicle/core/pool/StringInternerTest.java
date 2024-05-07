@@ -41,7 +41,6 @@ public class StringInternerTest extends CoreTestCommon {
         for (int i = 0; i < 100; i++) {
             assertEquals("" + i, si.get(si.index("" + i, null)));
         }
-
     }
 
     private String[] uppercase;
@@ -77,5 +76,4 @@ public class StringInternerTest extends CoreTestCommon {
         }
         return sb.toString();
     }
-
 }

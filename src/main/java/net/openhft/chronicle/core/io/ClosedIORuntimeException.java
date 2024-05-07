@@ -76,5 +76,4 @@ public class ClosedIORuntimeException extends IORuntimeException {
     public ClosedIORuntimeException(String message, Throwable thrown) {
         super(message, thrown);
     }
-
 }

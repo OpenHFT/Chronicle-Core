@@ -52,5 +52,4 @@ public final class ThreadConfinementLifecycle {
         ae.set(true);
         return true;
     }
-
 }

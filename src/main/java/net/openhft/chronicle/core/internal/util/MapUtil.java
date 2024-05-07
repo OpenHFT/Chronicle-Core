@@ -49,5 +49,4 @@ public final class MapUtil {
                 .map(ObjectUtils::requireNonNull)
                 .collect(collectingAndThen(toMap(Map.Entry::getKey, Map.Entry::getValue), Collections::unmodifiableMap));
     }
-
 }

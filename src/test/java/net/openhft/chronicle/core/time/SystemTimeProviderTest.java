@@ -139,6 +139,5 @@ public class SystemTimeProviderTest extends CoreTestCommon {
             // Performance test
             assertTrue(h.totalCount() > 0);
         }
-
     }
 }
