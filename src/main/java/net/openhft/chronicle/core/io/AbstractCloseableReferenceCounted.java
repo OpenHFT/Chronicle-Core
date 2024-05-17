@@ -53,6 +53,7 @@ public abstract class AbstractCloseableReferenceCounted
      * to the CloseableUtils set for tracking.
      */
     protected AbstractCloseableReferenceCounted() {
+        super(false);
         CloseableUtils.add(this);
     }
 
@@ -208,5 +209,10 @@ public abstract class AbstractCloseableReferenceCounted
     @Override
     public boolean isClosed() {
         return refCount() <= 0 || closed;
+    }
+
+    @Override
+    public void unmonitor() {
+        CloseableUtils.unmonitor(this);
     }
 }
