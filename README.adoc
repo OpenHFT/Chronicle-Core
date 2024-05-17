@@ -479,7 +479,7 @@ To make sure the shutdown hook does not prevent classes from unloading, deregist
 
 Classes that are designed for single-threaded use can implement `net.openhft.chronicle.core.io.SingleThreadedChecked`.
 There are a number of implementations of this in Chronicle-Core, including `net.openhft.chronicle.core.io.AbstractCloseable`,
-and many Chronicle library classes extend this class. When the user calls a method which _must_ be called single-threaded, these methods call a private method to check that `Thread.currentThread()` is the same as the first thread that used the object, and throws an exception if not. `AbstractCloseable` also provides very helpful functionality (if resource tracing is on) to keep track of the stack trace of where it was used first by the use-by thread - this provides invaluable when diagnosing unexpected sharing of an object between threads.
+and many Chronicle library classes extend this class. When the user calls a method which _must_ be called single-threaded, these methods call a private method to check that `Thread.currentThread()` is the same as the first thread that used the object, and throws an exception if not. `AbstractCloseable` also provides very helpful functionality (if resource tracing is on) to keep track of the stack trace of where it was used first by the use-by thread - this proves invaluable when diagnosing unexpected sharing of an object between threads.
 
 Thread safety checking can be turned off with the system property `disable.single.threaded.check`, once the application is thoroughly tested.
 
