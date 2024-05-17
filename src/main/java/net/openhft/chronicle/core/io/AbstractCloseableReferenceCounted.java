@@ -21,6 +21,7 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
 import net.openhft.chronicle.core.internal.CloseableUtils;
+import net.openhft.chronicle.core.internal.ReferenceCountedUtils;
 
 /**
  * Represents a closeable resource with reference counting capabilities.
@@ -53,7 +54,6 @@ public abstract class AbstractCloseableReferenceCounted
      * to the CloseableUtils set for tracking.
      */
     protected AbstractCloseableReferenceCounted() {
-        super(false);
         CloseableUtils.add(this);
     }
 
@@ -214,5 +214,6 @@ public abstract class AbstractCloseableReferenceCounted
     @Override
     public void unmonitor() {
         CloseableUtils.unmonitor(this);
+        ReferenceCountedUtils.unmonitor(this);
     }
 }

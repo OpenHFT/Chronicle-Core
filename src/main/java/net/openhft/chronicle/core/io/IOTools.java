@@ -456,7 +456,6 @@ public final class IOTools {
      *
      * @param t The object to stop monitoring
      */
-    @Deprecated(/* to be removed in x.27, use Monitorable.unmonitor */)
     public static void unmonitor(final Object t) {
         Monitorable.unmonitor(t);
     }
