@@ -457,26 +457,9 @@ public final class IOTools {
      *
      * @param t The object to stop monitoring
      */
+    @Deprecated(/* to be removed in x.27, use Monitorable.unmonitor */)
     public static void unmonitor(final Object t) {
-        if (t == null)
-            return;
-        if (t instanceof Serializable || t instanceof MonitorReferenceCounted) // old school.
-            return;
-        if (t instanceof Closeable)
-            AbstractCloseable.unmonitor((Closeable) t);
-        if (t instanceof ReferenceCounted)
-            AbstractReferenceCounted.unmonitor((ReferenceCounted) t);
-
-        try {
-            // special code to handle Bytes.byteStore, which also needs to be unmonitored.
-            // This method used to use reflection and recursion to try and unmonitor all fields, but only this one is required
-            final Field byteStore = Jvm.getField(t.getClass(), "bytesStore");
-            if (byteStore != null) {
-                unmonitor(byteStore.get(t));
-            }
-        } catch (Throwable e) {
-            // ignore
-        }
+        Monitorable.unmonitor(t);
     }
 
     /**

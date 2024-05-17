@@ -28,7 +28,7 @@ public final class CloseableUtils {
      * NOTE: This assumes the collection will not be replaced concurrently, and a particular lifecycle is used.
      * It is set and reset between tests in a single threaded manner. The set itself could be changed concurrently.
      */
-    private static final AtomicReference<Set<Closeable>> CLOSEABLES = new AtomicReference<>();
+    private static final AtomicReference<Set<ManagedCloseable>> CLOSEABLES = new AtomicReference<>();
 
     private CloseableUtils() {
     }
@@ -39,8 +39,8 @@ public final class CloseableUtils {
      *
      * @param closeable The closeable resource to add.
      */
-    public static void add(Closeable closeable) {
-        final Set<Closeable> set = CLOSEABLES.get();
+    public static void add(ManagedCloseable closeable) {
+        final Set<ManagedCloseable> set = CLOSEABLES.get();
         if (set != null)
             set.add(closeable);
     }
@@ -121,7 +121,7 @@ public final class CloseableUtils {
      * @return true if all closeable resources are closed within the time limit, false otherwise.
      */
     public static boolean waitForCloseablesToClose(long millis) {
-        final Set<Closeable> traceSet = CLOSEABLES.get();
+        final Set<ManagedCloseable> traceSet = CLOSEABLES.get();
         if (traceSet == null) {
             return true;
         }
@@ -170,7 +170,7 @@ public final class CloseableUtils {
      * If any resources are found to be open, an AssertionError is thrown.
      */
     public static void assertCloseablesClosed() {
-        final Set<Closeable> traceSet = CLOSEABLES.get();
+        final Set<ManagedCloseable> traceSet = CLOSEABLES.get();
         if (traceSet == null) {
             Jvm.warn().on(AbstractCloseable.class, "closable tracing disabled");
             return;
@@ -183,7 +183,7 @@ public final class CloseableUtils {
         AssertionError openFiles = new AssertionError("Closeables still open");
 
         synchronized (traceSet) {
-            Set<Closeable> traceSet2 = Collections.newSetFromMap(new IdentityHashMap<>());
+            Set<ManagedCloseable> traceSet2 = Collections.newSetFromMap(new IdentityHashMap<>());
             if (waitForTraceSet(traceSet, traceSet2))
                 return;
 
@@ -195,7 +195,7 @@ public final class CloseableUtils {
         }
     }
 
-    private static boolean waitForTraceSet(Set<Closeable> traceSet, Set<Closeable> traceSet2) {
+    private static boolean waitForTraceSet(Set<ManagedCloseable> traceSet, Set<ManagedCloseable> traceSet2) {
         traceSet.removeIf(o -> o == null || o.isClosing());
         Set<Closeable> nested = Collections.newSetFromMap(new IdentityHashMap<>());
         for (Closeable key : traceSet) {
@@ -213,7 +213,7 @@ public final class CloseableUtils {
         return false;
     }
 
-    private static void captureTheUnclosed(AssertionError openFiles, Set<Closeable> traceSet2) {
+    private static void captureTheUnclosed(AssertionError openFiles, Set<ManagedCloseable> traceSet2) {
         for (Closeable key : traceSet2) {
             Throwable t = null;
             try {
@@ -265,8 +265,8 @@ public final class CloseableUtils {
     /**
      * @param closeable to remove monitoring of
      */
-    public static void unmonitor(Closeable closeable) {
-        final Set<Closeable> set = CLOSEABLES.get();
+    public static void unmonitor(ManagedCloseable closeable) {
+        final Set<ManagedCloseable> set = CLOSEABLES.get();
         if (set != null)
             set.remove(closeable);
     }
