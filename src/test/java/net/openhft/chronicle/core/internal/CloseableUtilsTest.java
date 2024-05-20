@@ -10,7 +10,6 @@ import java.net.HttpURLConnection;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.*;
