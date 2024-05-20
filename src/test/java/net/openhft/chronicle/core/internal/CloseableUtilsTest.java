@@ -6,14 +6,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.HttpURLConnection;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
-import java.lang.ref.Reference;
-import java.net.HttpURLConnection;
-import java.nio.channels.ServerSocketChannel;
-import java.util.Collection;
 
-import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.*;
@@ -31,14 +27,14 @@ public class CloseableUtilsTest {
 
     @Before
     public void setUp() {
-        mockitoNotSupportedOnJava21();
-        mockCloseable = mock(ManagedCloseable.class);
         anonCloseable = new AbstractCloseable() {
             @Override
             protected void performClose() {
 
             }
         };
+        mockitoNotSupportedOnJava21();
+        mockCloseable = mock(ManagedCloseable.class);
         CloseableUtils.enableCloseableTracing();
         mockAutoCloseable = mock(AutoCloseable.class);
         mockHttpURLConnection = mock(HttpURLConnection.class);
@@ -47,7 +43,7 @@ public class CloseableUtilsTest {
     @After
     public void tearDown() {
         CloseableUtils.disableCloseableTracing();
-        anonCloseable.close();
+        Closeable.closeQuietly(anonCloseable);
     }
 
     @Test
