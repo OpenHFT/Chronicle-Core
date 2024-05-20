@@ -5,20 +5,10 @@ import net.openhft.chronicle.core.io.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeEach;
-import org.mockito.stubbing.OngoingStubbing;
 
+import java.net.HttpURLConnection;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
-import java.io.IOException;
-import java.lang.ref.Reference;
-import java.net.HttpURLConnection;
-import java.nio.channels.ServerSocketChannel;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
@@ -37,14 +27,14 @@ public class CloseableUtilsTest {
 
     @Before
     public void setUp() {
-        mockitoNotSupportedOnJava21();
-        mockCloseable = mock(ManagedCloseable.class);
         anonCloseable = new AbstractCloseable() {
             @Override
             protected void performClose() {
 
             }
         };
+        mockitoNotSupportedOnJava21();
+        mockCloseable = mock(ManagedCloseable.class);
         CloseableUtils.enableCloseableTracing();
         mockAutoCloseable = mock(AutoCloseable.class);
         mockHttpURLConnection = mock(HttpURLConnection.class);
@@ -53,7 +43,7 @@ public class CloseableUtilsTest {
     @After
     public void tearDown() {
         CloseableUtils.disableCloseableTracing();
-        anonCloseable.close();
+        Closeable.closeQuietly(anonCloseable);
     }
 
     @Test
