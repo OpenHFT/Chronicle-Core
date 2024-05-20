@@ -27,8 +27,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
-import static net.openhft.chronicle.core.internal.Bootstrap.uncheckedCast;
-
 import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 
 /**
