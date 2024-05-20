@@ -110,12 +110,12 @@ public interface ClassLookup {
      * match is found, it attempts to find a match using a case-insensitive search. This dual-step lookup
      * ensures that aliases can be effectively used regardless of case sensitivity. If after both steps
      * no alias is found, the method returns the original class name, ensuring that the operation is
-     * always safe and will not result in a loss of reference.</p>
+     * always safe and will not result in a loss of reference.
      *
      * <p>Usage of this method can significantly reduce the verbosity of class references in scenarios
      * where short, memorable aliases are preferred over full class names. It is particularly useful
      * in configuration files, dynamic class loading scenarios, or any context where class names are
-     * used as strings and brevity or clarity is desired.</p>
+     * used as strings and brevity or clarity is desired.
      *
      * @param name The CharSequence representing the class name or alias to be transformed.
      * @return A CharSequence representing the aliased class name if an alias exists, or the

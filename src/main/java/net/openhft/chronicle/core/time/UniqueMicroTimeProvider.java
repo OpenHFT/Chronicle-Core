@@ -27,7 +27,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * even across rapid successive calls.
  *
  * <p> This implementation is particularly useful in environments where unique time stamps are critical and
- * the application might request them at a high rate. </p>
+ * the application might request them at a high rate.
  */
 public class UniqueMicroTimeProvider implements TimeProvider {
     public static final UniqueMicroTimeProvider INSTANCE = new UniqueMicroTimeProvider();
