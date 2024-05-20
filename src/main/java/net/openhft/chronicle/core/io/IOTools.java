@@ -27,8 +27,6 @@ import org.jetbrains.annotations.NotNull;
 import sun.nio.ch.IOStatus;
 
 import java.io.*;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.Socket;
@@ -459,44 +457,7 @@ public final class IOTools {
      * @param t The object to stop monitoring
      */
     public static void unmonitor(final Object t) {
-        unmonitor(t, 4);
-    }
-
-    private static void unmonitor(final Object t, int depth) {
-        if (t == null)
-            return;
-        if (t instanceof Serializable || t instanceof MonitorReferenceCounted) // old school.
-            return;
-        if (t instanceof Closeable)
-            AbstractCloseable.unmonitor((Closeable) t);
-        if (t instanceof ReferenceCounted)
-            AbstractReferenceCounted.unmonitor((ReferenceCounted) t);
-        if (depth > 0)
-            unmonitor(t.getClass(), t, depth - 1);
-    }
-
-    private static void unmonitor(Class<?> aClass, Object t, int depth) {
-        if (aClass == null || aClass == Object.class)
-            return;
-        unmonitor(aClass.getSuperclass(), t, depth);
-        for (Field field : aClass.getDeclaredFields()) {
-            if (field.getType().isPrimitive() || Modifier.isStatic(field.getModifiers()))
-                continue;
-            try {
-                field.setAccessible(true);
-            } catch (Exception e) {
-                if (!Jvm.isJava9Plus())
-                    Jvm.warn().on(IOTools.class, e);
-                continue;
-            }
-            try {
-                Object o = field.get(t);
-                if (o != null)
-                    unmonitor(o, depth);
-            } catch (IllegalAccessException | IllegalArgumentException e) {
-                Jvm.warn().on(IOTools.class, e);
-            }
-        }
+        Monitorable.unmonitor(t);
     }
 
     /**

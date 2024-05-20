@@ -1,7 +1,7 @@
 package net.openhft.chronicle.core.internal;
 
 import net.openhft.chronicle.core.Jvm;
-import net.openhft.chronicle.core.io.Closeable;
+import net.openhft.chronicle.core.io.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,11 +19,9 @@ import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.*;
 
 public class CloseableUtilsTest {
-    private Closeable mockCloseable;
-    private Collection<Closeable> mockCloseables;
-    private ServerSocketChannel mockServerSocketChannel;
+    private ManagedCloseable mockCloseable;
+    private AbstractCloseable anonCloseable;
     private AutoCloseable mockAutoCloseable;
-    private Reference<?> mockReference;
     private HttpURLConnection mockHttpURLConnection;
 
     @Before
@@ -34,18 +32,22 @@ public class CloseableUtilsTest {
     @Before
     public void setUp() {
         mockitoNotSupportedOnJava21();
-        mockCloseable = mock(Closeable.class);
+        mockCloseable = mock(ManagedCloseable.class);
+        anonCloseable = new AbstractCloseable() {
+            @Override
+            protected void performClose() {
+
+            }
+        };
         CloseableUtils.enableCloseableTracing();
-        mockCloseables = uncheckedCast(mock(Collection.class));
-        mockServerSocketChannel = mock(ServerSocketChannel.class);
         mockAutoCloseable = mock(AutoCloseable.class);
-        mockReference = mock(Reference.class);
         mockHttpURLConnection = mock(HttpURLConnection.class);
     }
 
     @After
     public void tearDown() {
         CloseableUtils.disableCloseableTracing();
+        anonCloseable.close();
     }
 
     @Test
@@ -115,6 +117,16 @@ public class CloseableUtilsTest {
     public void testUnmonitor() {
         CloseableUtils.add(mockCloseable);
         CloseableUtils.unmonitor(mockCloseable);
+        AtomicReference<Set<Closeable>> closeablesRef = getCloseablesRef();
+        assertFalse(closeablesRef.get().contains(mockCloseable));
+    }
+
+    @Test
+    public void testIOToolsUnmonitor() {
+        IOTools.unmonitor(null);
+        IOTools.unmonitor("hello");
+        CloseableUtils.add(anonCloseable);
+        IOTools.unmonitor(anonCloseable);
         AtomicReference<Set<Closeable>> closeablesRef = getCloseablesRef();
         assertFalse(closeablesRef.get().contains(mockCloseable));
     }

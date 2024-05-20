@@ -34,7 +34,7 @@ import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEAS
  * reference counting mechanisms in resources, such as managing the number of
  * references and releasing resources when they are no longer needed.
  */
-public abstract class AbstractReferenceCounted implements ReferenceCountedTracer, ReferenceOwner, SingleThreadedChecked {
+public abstract class AbstractReferenceCounted implements ReferenceCountedTracer, ReferenceOwner, SingleThreadedChecked, Monitorable {
     // Constants
     protected static final long WARN_NS = (long) (Jvm.getDouble("reference.warn.secs", 0.003) * 1e9);
     protected static final int WARN_COUNT = Jvm.getInteger("reference.warn.count", Integer.MAX_VALUE);
@@ -333,5 +333,10 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
 
     public void referenceCountedUnmonitored(boolean unmonitored) {
         referenceCounted.unmonitored(unmonitored);
+    }
+
+    @Override
+    public void unmonitor() {
+        AbstractReferenceCounted.unmonitor(this);
     }
 }
