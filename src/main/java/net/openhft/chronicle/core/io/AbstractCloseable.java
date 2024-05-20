@@ -54,7 +54,7 @@ import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEAS
  * <p>
  * Subclasses can also control the behavior of thread safety checks and background closing through provided methods.
  */
-public abstract class AbstractCloseable implements ReferenceOwner, ManagedCloseable, SingleThreadedChecked {
+public abstract class AbstractCloseable implements ReferenceOwner, ManagedCloseable, SingleThreadedChecked, Monitorable {
 
     /**
      * Flag indicating whether discard warning is disabled.
@@ -157,8 +157,9 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
      *
      * @param closeable the closeable resource to unmonitor.
      */
+    @Deprecated(/* to be removed in x.27, use Monitorable.unmonitor */)
     public static void unmonitor(Closeable closeable) {
-        CloseableUtils.unmonitor(closeable);
+        Monitorable.unmonitor(closeable);
     }
 
     /**
@@ -450,6 +451,11 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         if (singleThreadedCheckDisabled) {
             singleThreadedCheckReset();
         }
+    }
+
+    @Override
+    public void unmonitor() {
+        CloseableUtils.unmonitor(this);
     }
 
     /**
