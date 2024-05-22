@@ -53,7 +53,7 @@ public class CloseableUtilsTest {
     @After
     public void tearDown() {
         CloseableUtils.disableCloseableTracing();
-        anonCloseable.close();
+        Closeable.closeQuietly(anonCloseable);
     }
 
     @Test
