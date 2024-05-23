@@ -78,7 +78,7 @@ public final class CloseableUtils {
      *
      * @throws AssertionError If the finalizer does not complete within the specified timeout.
      */
-    @SuppressWarnings("removal")
+    @SuppressWarnings({"deprecation", "removal"})
     public static void gcAndWaitForCloseablesToClose() {
         CleaningThread.performCleanup(Thread.currentThread());
 
@@ -87,7 +87,7 @@ public final class CloseableUtils {
 
         // Anonymous inner class overriding the finalize() method to track finalization.
         new Object() {
-            @SuppressWarnings("removal")
+            @SuppressWarnings({"deprecation", "removal"})
             @Override
             protected void finalize() throws Throwable {
                 super.finalize();
