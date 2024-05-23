@@ -15,7 +15,8 @@ public class CpuClassTest {
             assertTrue(cpuClass, cpuClass.startsWith("Apple M"));
 
         } else if (Jvm.isArm()) {
-            assertTrue(cpuClass, cpuClass.startsWith("ARMv"));
+            assertTrue(cpuClass, cpuClass.startsWith("ARMv")
+                            || cpuClass.startsWith("aarch64"));
 
         } else {
             assertTrue(cpuClass,
