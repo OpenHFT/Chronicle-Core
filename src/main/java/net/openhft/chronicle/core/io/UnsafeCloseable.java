@@ -34,6 +34,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      * Constructs a new UnsafeCloseable instance.
      * Disables the single-threaded check for thread safety.
      */
+    @SuppressWarnings("this-escape")
     protected UnsafeCloseable() {
         singleThreadedCheckDisabled(true);
     }

@@ -41,7 +41,7 @@ public final class PomProperties {
      * @return a new instance of Properties for the provided parameters.
      */
     @NotNull
-    public static Properties create(@NotNull final String groupId, @NotNull final String artifactId) {
+    public static Properties create(final String groupId, final String artifactId) {
         return InternalPomProperties.create(groupId, artifactId);
     }
 
@@ -58,7 +58,7 @@ public final class PomProperties {
      * the version cannot be determined
      * @see #create(String, String)
      */
-    public static String version(@NotNull final String groupId, @NotNull final String artifactId) {
+    public static String version(final String groupId, final String artifactId) {
         return InternalPomProperties.version(groupId, artifactId);
     }
 }

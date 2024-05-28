@@ -107,7 +107,8 @@ public class ClassAliasPool implements ClassLookup {
         addAlias(ZonedDateTime.class, "ZonedDateTime");
         addAlias(TimeUnit.class, "TimeUnit");
         addAlias(String[].class, "String[]");
-        for (@NotNull Class prim : new Class[]{boolean.class, byte.class, short.class, char.class, int.class, long.class, float.class, double.class})
+        Class<?>[] classes = {boolean.class, byte.class, short.class, char.class, int.class, long.class, float.class, double.class};
+        for (@NotNull Class<?> prim : classes)
             addAlias(Array.newInstance(prim, 0).getClass(), prim.getName() + "[]");
         // byte[] gets in before camel cased Byte[]
         addAlias(Byte[].class, "Byte[]");
@@ -373,7 +374,7 @@ public class ClassAliasPool implements ClassLookup {
     }
 
 /**\u002f
- public static void a\u202e(Class... classes) {
+ public static void a\u202e(Class<?>... classes) {
  CLASS_ALIASES.addAlias(classes);
  }
  \u002f**/

@@ -53,6 +53,7 @@ public abstract class AbstractCloseableReferenceCounted
      * Constructs a new AbstractCloseableReferenceCounted instance and adds the instance
      * to the CloseableUtils set for tracking.
      */
+    @SuppressWarnings("this-escaope")
     protected AbstractCloseableReferenceCounted() {
         CloseableUtils.add(this);
     }

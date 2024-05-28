@@ -53,7 +53,7 @@ public class JvmParseSizeTest extends CoreTestCommon {
                 {" 2 M", 2L << 20},
                 {"0.75GiB", 768L << 20},
                 {"1.5 GiB", 1536L << 20},
-                {"0.001TiB", (1L << 40) / 1000}
+                {"0.001TiB", Math.round((1L << 40) / 1000.0)}
         });
     }
 

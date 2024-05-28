@@ -35,14 +35,8 @@
  *     <li>{@link net.openhft.chronicle.core.threads.InvalidEventHandlerException}: Represents
  *     an exception thrown when an event handler is invalid or needs to be removed.</li>
  *
- *     <li>{@link net.openhft.chronicle.core.threads.JitterSampler}: Utility class for
- *     profiling and tracking the execution stages of threads.</li>
- *
  *     <li>{@link net.openhft.chronicle.core.threads.OnDemandEventLoop}: A wrapper for an
  *     EventLoop, which is created on-demand when any of its methods are called.</li>
- *
- *     <li>{@link net.openhft.chronicle.core.threads.StackSampler}: Utility class for sampling
- *     the stack traces of a target thread.</li>
  *
  *     <li>{@link net.openhft.chronicle.core.threads.ThreadDump}: Utility class for monitoring
  *     and managing threads.</li>

@@ -22,6 +22,7 @@ import net.openhft.chronicle.core.Maths;
 import net.openhft.chronicle.core.util.ClassLocal;
 import net.openhft.chronicle.core.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
+
 /**
  * This class represents a cache for enum values to improve performance in scenarios where the same enum values
  * are frequently looked up by name. The class is generic, so it can be used with any enum type.
@@ -62,7 +63,9 @@ public class EnumInterner<E extends Enum<E>> {
         enumCache = EnumCache.of(eClass);
         int initialSize = enumCache.size() * 3 / 2;
         int n = Maths.nextPower2(Math.max(initialSize, capacity), 16);
-        interner = (E[]) new Enum[n];
+        @SuppressWarnings({"unchecked", "rawtypes"})
+        E[] enumArray = (E[]) new Enum[n];
+        interner = enumArray;
         mask = n - 1;
     }
 

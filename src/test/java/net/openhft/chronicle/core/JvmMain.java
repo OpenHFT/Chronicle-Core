@@ -24,4 +24,3 @@ public class JvmMain {
         assertTrue(!isWarn.isInfoEnabled() && isWarn.isWarnEnabled());
     }
 }
-

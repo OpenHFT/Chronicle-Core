@@ -36,7 +36,7 @@ final class UnsafeMemoryShortTest implements UnsafeMemoryTestMixin<Short> {
 
     @Override
     public IntPredicate alignedToType() {
-        return Ints.shortAligned();
+        return x -> x % 2 == 0;
     }
 
     @Override

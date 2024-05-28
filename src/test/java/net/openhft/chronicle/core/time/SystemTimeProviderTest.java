@@ -27,7 +27,6 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import java.security.SecureRandom;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertTrue;
 
@@ -109,12 +108,10 @@ public class SystemTimeProviderTest extends CoreTestCommon {
     public void currentTime() throws IllegalStateException {
         for (int i = 3; i >= 0; i--) {
             TimeProvider tp = SystemTimeProvider.INSTANCE;
-            long time1 = tp.currentTime(TimeUnit.SECONDS);
             long time2 = tp.currentTimeMillis();
             long time3 = tp.currentTimeMicros();
             long time4 = tp.currentTimeNanos();
             try {
-                assertBetween(time2 / 1000, time1, time2 / 1000 + 2);
                 assertBetween(time3 / 1000 - 8, time2, time3 / 1000 + 20);
                 assertBetween(time4 / 1000 - 100, time3, time4 / 1000 + 2_000);
             } catch (AssertionError ae) {
@@ -142,6 +139,5 @@ public class SystemTimeProviderTest extends CoreTestCommon {
             // Performance test
             assertTrue(h.totalCount() > 0);
         }
-
     }
 }

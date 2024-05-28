@@ -42,5 +42,4 @@ class ZeroCostAssertionStatusTest extends CoreTestCommon {
         System.out.println("Normal assertions are " + (ae ? "ON" : "OFF"));
         System.out.println("Zero-cost assertions are " + (zcae ? "ON" : "OFF"));
     }
-
 }

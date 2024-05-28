@@ -78,5 +78,4 @@ public class CoreTestCommon {
     protected void assertReferencesReleased() {
         ReferenceCountedUtils.assertReferencesReleased();
     }
-
 }

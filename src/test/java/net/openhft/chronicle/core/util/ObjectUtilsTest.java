@@ -34,7 +34,7 @@ import static org.junit.Assert.*;
 public class ObjectUtilsTest extends CoreTestCommon {
     @Test
     public void testImmutable() {
-        for (@NotNull Class c : new Class[]{
+        for (@NotNull Class<?> c: new Class[]{
                 String.class,
                 Integer.class,
                 Date.class,
@@ -43,7 +43,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
         }) {
             assertEquals(c.getName(), ObjectUtils.Immutability.MAYBE, ObjectUtils.isImmutable(c));
         }
-        for (@NotNull Class c : new Class[]{
+        for (@NotNull Class<?> c: new Class[]{
                 // StringBuilder.class, // StringBuilder implements Comparable in Java 11
                 ArrayList.class,
                 HashMap.class,
@@ -144,13 +144,6 @@ public class ObjectUtilsTest extends CoreTestCommon {
         Class<?> testClass = RegularClass.class;
         ObjectUtils.immutable(testClass, true);
         // Verify the immutability status is correctly set (requires a way to check the status)
-    }
-
-    @Test
-    public void deprecatedImmutabileShouldStillFunction() {
-        Class<?> testClass = RegularClass.class;
-        ObjectUtils.immutabile(testClass, true);
-        // Verify the immutability status is correctly set as with immutable method
     }
 
     @Test

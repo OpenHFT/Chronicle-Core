@@ -35,12 +35,14 @@ import java.util.concurrent.BlockingQueue;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import static net.openhft.chronicle.core.Jvm.uncheckedCast;
+
 /**
  * The Mocker class provides utility methods for creating mocked instances of interfaces.
  */
 public final class Mocker {
 
-    private static final Class<?>[] NO_CLASSES = new Class[0];
+    private static final Class<?>[] NO_CLASSES = {};
 
     // Suppresses default constructor, ensuring non-instantiability.
     private Mocker() {
@@ -149,16 +151,16 @@ public final class Mocker {
     public static <T> T intercepting(@NotNull Class<T> interfaceType, @NotNull BiConsumer<String, Object[]> consumer, T t) {
         final Set<Class<?>> classes = new LinkedHashSet<>();
         addInterface(classes, interfaceType);
-        //noinspection unchecked
-        return (T) newProxyInstance(interfaceType.getClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler(interfaceType) {
-            @Override
-            protected Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
-                consumer.accept(method.getName(), args);
-                if (t != null)
-                    return method.invoke(t, args);
-                return null;
-            }
-        });
+        return uncheckedCast(
+                newProxyInstance(interfaceType.getClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler(interfaceType) {
+                    @Override
+                    protected Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
+                        consumer.accept(method.getName(), args);
+                        if (t != null)
+                            return method.invoke(t, args);
+                        return null;
+                    }
+                }));
     }
 
     private static <T> void addInterface(Set<Class<?>> interfaceType, Class<T> tClass) {
@@ -194,14 +196,14 @@ public final class Mocker {
             addInterface(classes, aClass);
         classes.add(IgnoresEverything.class);
         ClassLoader tClassLoader = interfaceType.getClassLoader();
-        //noinspection unchecked
-        return (T) newProxyInstance(tClassLoader != null ? tClassLoader : Mocker.class.getClassLoader(),
-                classes.toArray(NO_CLASSES), new AbstractInvocationHandler(interfaceType) {
-                    @Override
-                    protected Object doInvoke(Object proxy, Method method, Object[] args) {
-                        return null;
-                    }
-                });
+        return uncheckedCast(
+                newProxyInstance(tClassLoader != null ? tClassLoader : Mocker.class.getClassLoader(),
+                        classes.toArray(NO_CLASSES), new AbstractInvocationHandler(interfaceType) {
+                            @Override
+                            protected Object doInvoke(Object proxy, Method method, Object[] args) {
+                                return null;
+                            }
+                        }));
     }
 
     /**

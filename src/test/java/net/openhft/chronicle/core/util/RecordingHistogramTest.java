@@ -54,7 +54,6 @@ public class RecordingHistogramTest extends CoreTestCommon {
         histogram.reset();
     }
 
-
     @Test
     public void testSamples() {
         Histogram h = new MyRecordingHistogram();

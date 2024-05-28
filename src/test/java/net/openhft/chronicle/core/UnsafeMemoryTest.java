@@ -32,7 +32,6 @@ import java.util.*;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 import static org.junit.Assert.*;
 
-
 @RunWith(Parameterized.class)
 public class UnsafeMemoryTest extends CoreTestCommon {
 

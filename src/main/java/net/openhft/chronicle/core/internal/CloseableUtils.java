@@ -78,6 +78,7 @@ public final class CloseableUtils {
      *
      * @throws AssertionError If the finalizer does not complete within the specified timeout.
      */
+    @SuppressWarnings({"deprecation", "removal"})
     public static void gcAndWaitForCloseablesToClose() {
         CleaningThread.performCleanup(Thread.currentThread());
 
@@ -86,6 +87,7 @@ public final class CloseableUtils {
 
         // Anonymous inner class overriding the finalize() method to track finalization.
         new Object() {
+            @SuppressWarnings({"deprecation", "removal"})
             @Override
             protected void finalize() throws Throwable {
                 super.finalize();
@@ -296,11 +298,11 @@ public final class CloseableUtils {
      */
     static void closeQuietly(@Nullable Object o) {
         if (o instanceof Collection) {
-            Collection coll = (Collection) o;
+            Collection<?> coll = (Collection<?>) o;
             if (coll.isEmpty())
                 return;
             // take a copy before removing
-            List list = new ArrayList<>(coll);
+            List<?> list = new ArrayList<>(coll);
             list.forEach(Closeable::closeQuietly);
 
         } else if (o instanceof Object[]) {
@@ -326,7 +328,7 @@ public final class CloseableUtils {
             }
 
         } else if (o instanceof Reference) {
-            closeQuietly(((Reference) o).get());
+            closeQuietly(((Reference<?>) o).get());
 
         } else if (o instanceof HttpURLConnection) {
             HttpURLConnection connection = (HttpURLConnection) o;

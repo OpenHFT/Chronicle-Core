@@ -27,6 +27,7 @@ import java.util.function.Predicate;
  *
  * @see Predicate
  */
+@Deprecated(/*to be removed in x.27*/)
 @FunctionalInterface
 public interface IntTriPredicate {
 

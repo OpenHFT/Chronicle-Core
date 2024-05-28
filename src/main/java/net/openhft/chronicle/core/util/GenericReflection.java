@@ -119,7 +119,7 @@ public enum GenericReflection {
 
     static Type getGenericSuperclass(Type forClass) {
         if (forClass instanceof Class)
-            return ((Class) forClass).getGenericSuperclass();
+            return ((Class<?>) forClass).getGenericSuperclass();
         if (forClass instanceof ParameterizedType) {
             return null;
         }
@@ -135,11 +135,11 @@ public enum GenericReflection {
      */
     public static Class<?> erase(Type type) {
         if (type instanceof TypeVariable) {
-            TypeVariable tv = (TypeVariable) type;
+            TypeVariable<?> tv = (TypeVariable<?>) type;
             return erase(tv.getBounds()[0]);
         }
         if (type instanceof ParameterizedType)
             return erase(((ParameterizedType) type).getRawType());
-        return (Class) type;
+        return (Class<?>) type;
     }
 }

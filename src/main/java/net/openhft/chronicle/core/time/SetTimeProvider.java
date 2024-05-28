@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * simulating time progression in a controlled testing environment.
  */
 public class SetTimeProvider extends AtomicLong implements TimeProvider {
+    private static final long serialVersionUID = 0L;
 
     private long autoIncrement = 0;
 
@@ -172,7 +173,6 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      * @param unit The time unit to return the current time in.
      * @return The current time in the specified time unit.
      */
-    @Override
     public long currentTime(TimeUnit unit) {
         return unit.convert(currentTimeNanos(), TimeUnit.NANOSECONDS);
     }

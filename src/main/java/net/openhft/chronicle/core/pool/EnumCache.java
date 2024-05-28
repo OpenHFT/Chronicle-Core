@@ -138,5 +138,4 @@ public abstract class EnumCache<E> {
                 ? new DynamicEnumClass<>((Class<D>) eClass)
                 : new StaticEnumClass<>((Class<S>) eClass));
     }
-
 }

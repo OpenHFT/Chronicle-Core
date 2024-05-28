@@ -62,10 +62,10 @@ public final class CompilerUtils {
      * @return The {@link Class} object representing the defined class.
      * @throws AssertionError if the class could not be defined for any reason.
      */
-    public static Class defineClass(
+    public static Class<?> defineClass(
             @NotNull ClassLoader classLoader, @NotNull String className, byte @NotNull [] bytes) {
         try {
-            return (Class) DEFINE_CLASS_METHOD
+            return (Class<?>) DEFINE_CLASS_METHOD
                     .invoke(classLoader, className, bytes, 0, bytes.length);
         } catch (IllegalAccessException e) {
             throw new AssertionError(e);

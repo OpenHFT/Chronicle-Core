@@ -26,6 +26,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.stream.Stream;
 
+import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 public final class ReflectionUtil {
@@ -84,22 +85,30 @@ public final class ReflectionUtil {
         }
     }
 
-    @SuppressWarnings("unchecked")
     @NotNull
     public static <T> T reflectiveProxy(@NotNull final Class<T> interf, @NotNull final Object delegate) throws IllegalArgumentException {
         requireNonNull(interf);
         requireNonNull(delegate);
-        return (T) Proxy.newProxyInstance(delegate.getClass().getClassLoader(), new Class[]{interf}, new ReflectiveInvocationHandler(delegate, false));
+        Class<?>[] interfaces = {interf};
+        return uncheckedCast(
+                Proxy.newProxyInstance(
+                        delegate.getClass().getClassLoader(),
+                        interfaces,
+                        new ReflectiveInvocationHandler(delegate, false)));
     }
 
-    @SuppressWarnings("unchecked")
     @NotNull
     public static <T> T reflectiveProxy(@NotNull final Class<T> interf,
                                         @NotNull final Object delegate,
                                         final boolean returnProxy) throws IllegalArgumentException {
         requireNonNull(interf);
         requireNonNull(delegate);
-        return (T) Proxy.newProxyInstance(delegate.getClass().getClassLoader(), new Class[]{interf}, new ReflectiveInvocationHandler(delegate, returnProxy));
+        Class<?>[] interfaces = {interf};
+        return uncheckedCast(
+                Proxy.newProxyInstance(
+                        delegate.getClass().getClassLoader(),
+                        interfaces,
+                        new ReflectiveInvocationHandler(delegate, returnProxy)));
     }
 
     private static final class ReflectiveInvocationHandler implements InvocationHandler {

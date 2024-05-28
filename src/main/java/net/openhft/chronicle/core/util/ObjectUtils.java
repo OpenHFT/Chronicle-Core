@@ -36,6 +36,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 import static net.openhft.chronicle.core.internal.util.MapUtil.entry;
 import static net.openhft.chronicle.core.internal.util.MapUtil.ofUnmodifiable;
 import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
@@ -62,6 +63,7 @@ import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
  * developers who need to perform various common operations on objects and classes within their
  * Java applications.
  */
+@SuppressWarnings("unchecked")
 public final class ObjectUtils {
 
     // Suppresses default constructor, ensuring non-instantiability.
@@ -227,11 +229,6 @@ public final class ObjectUtils {
         IMMUTABILITY_MAP.put(clazz, isImmutable ? Immutability.YES : Immutability.NO);
     }
 
-    @Deprecated(/* to be removed x.26 */)
-    public static void immutabile(final Class<?> clazz, final boolean isImmutable) {
-        immutable(clazz, isImmutable);
-    }
-
     /**
      * Checks if a class is immutable.
      *
@@ -305,7 +302,7 @@ public final class ObjectUtils {
      * @param eClass to check
      * @return the wrapper class if eClass is a primitive type, or the eClass if not.
      */
-    public static Class primToWrapper(Class<?> eClass) {
+    public static Class<?> primToWrapper(Class<?> eClass) {
         final Class<?> clazz0 = PRIM_MAP.get(eClass);
         if (clazz0 != null)
             eClass = clazz0;
@@ -335,7 +332,7 @@ public final class ObjectUtils {
      * @param eClass to be tested
      * @return true if it can be converted, false if it's not worth trying.
      */
-    public static boolean canConvertText(Class eClass) {
+    public static boolean canConvertText(Class<?> eClass) {
         return !(PARSER_CL.get(eClass) instanceof ThrowsCCE);
     }
 
@@ -401,7 +398,9 @@ public final class ObjectUtils {
      * @throws IllegalArgumentException If an illegal argument is provided.
      */
     static <E> E convertTo0(Class<E> eClass, @Nullable Object o) throws NumberFormatException {
-        eClass = primToWrapper(eClass);
+        @SuppressWarnings("unchecked")
+        Class<E> eClass0 = (Class<E>) primToWrapper(eClass);
+        eClass = eClass0;
         if (eClass.isInstance(o) || o == null) return (E) o;
         if (eClass == Void.class) return null;
         if (eClass == String.class) return (E) o.toString();
@@ -592,7 +591,7 @@ public final class ObjectUtils {
      * @throws ClassCastException if the class cannot be cast to the type T.
      */
     @NotNull
-    public static <T> T newInstance(@NotNull String className) {
+    public static <T> T newInstance(@NotNull String className) throws ClassCastException {
         return newInstance((Class<T>) CLASS_ALIASES.forName(className));
     }
 
@@ -605,7 +604,7 @@ public final class ObjectUtils {
      * @throws ClassCastException if the class cannot be cast to the type T.
      */
     @NotNull
-    public static <T> T newInstance(@NotNull Class<T> clazz) {
+    public static <T> T newInstance(@NotNull Class<T> clazz) throws ClassCastException {
         final Supplier<?> cons = supplierClassLocal.get(clazz);
         return (T) cons.get();
     }
@@ -930,17 +929,15 @@ public final class ObjectUtils {
 
     /**
      * Standard mechanism to determine objects as not null. Same method contract as {@link Objects#requireNonNull(Object)}
-     * and also decorated with {@link NotNull} so that IntelliJ and other static analysis tools can work their magic.
      *
      * @param o reference to check for nullity
      * @throws NullPointerException If o is {@code null }
      */
     @SuppressWarnings("UnusedReturnValue")
-    public static <T> T requireNonNull(@NotNull T o) {
+    public static <T> T requireNonNull(T o) {
         // see https://stackoverflow.com/questions/43115645/in-java-lambdas-why-is-getclass-called-on-a-captured-variable
         // Maybe calling Objects.requireNonNull is just as optimisable/intrinisfiable but I didn't do the research
         o.getClass();
         return o;
     }
-
 }

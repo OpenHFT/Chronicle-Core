@@ -70,5 +70,4 @@ public final class DirectBufferUtil {
         requireNonNull(buffer);
         return ((DirectBuffer) buffer).address();
     }
-
 }

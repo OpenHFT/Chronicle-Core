@@ -18,6 +18,7 @@
 
 package net.openhft.chronicle.core.internal.pom;
 
+import net.openhft.chronicle.core.util.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.InputStream;
@@ -34,7 +35,9 @@ public final class InternalPomProperties {
     private static final Map<String, String> VERSION_CACHE = new ConcurrentHashMap<>();
 
     @NotNull
-    public static Properties create(@NotNull final String groupId, @NotNull final String artifactId) {
+    public static Properties create(final String groupId, final String artifactId) {
+        ObjectUtils.requireNonNull(groupId);
+        ObjectUtils.requireNonNull(artifactId);
         final Properties properties = new Properties();
         try {
             final String resourceName = resourceName(groupId, artifactId);

@@ -58,5 +58,4 @@ public class Randomness {
         System.out.println("Average score: " + scoreSum / 500);
         System.out.printf("Average time %.3f us%n", time / timeCount / 1e3);
     }
-
 }

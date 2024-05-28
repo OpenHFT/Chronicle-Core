@@ -39,6 +39,7 @@ import java.lang.reflect.InvocationTargetException;
  * @see InvocationTargetException
  */
 public class InvocationTargetRuntimeException extends RuntimeException {
+    private static final long serialVersionUID = 0L;
 
     /**
      * Constructs a new {@code InvocationTargetRuntimeException} with the
@@ -54,4 +55,3 @@ public class InvocationTargetRuntimeException extends RuntimeException {
         super(cause instanceof InvocationTargetException ? cause.getCause() : cause);
     }
 }
-

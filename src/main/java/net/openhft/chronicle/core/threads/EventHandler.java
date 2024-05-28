@@ -81,4 +81,3 @@ public interface EventHandler extends VanillaEventHandler {
         return HandlerPriority.MEDIUM;
     }
 }
-

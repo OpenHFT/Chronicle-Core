@@ -574,7 +574,7 @@ public final class Jvm {
     @NotNull
     public static Method getMethod(@NotNull final Class<?> clazz,
                                    @NotNull final String methodName,
-                                   final Class... argTypes) {
+                                   final Class<?>... argTypes) {
         return ClassUtil.getMethod0(clazz, methodName, argTypes, true);
     }
 
@@ -618,7 +618,7 @@ public final class Jvm {
             }
             aClass = target.getClass();
         }
-        return (V) target;
+        return uncheckedCast(target);
     }
 
     /**
@@ -1223,8 +1223,7 @@ public final class Jvm {
             }
         }
         double number = Double.parseDouble(value.trim());
-        factor *= number;
-        return factor;
+        return Math.round(factor * number);
     }
 
     /**
@@ -1310,9 +1309,10 @@ public final class Jvm {
             final Class<?> interruptibleClass = field.getType();
             ClassUtil.setAccessible(field);
             final CommonInterruptible ci = new CommonInterruptible(clazz, fc);
+            Class<?>[] interfaces = {interruptibleClass};
             field.set(fc, Proxy.newProxyInstance(
                     interruptibleClass.getClassLoader(),
-                    new Class[]{interruptibleClass},
+                    interfaces,
                     (p, m, a) -> {
                         if (m.getDeclaringClass() != Object.class)
                             ci.interrupt();
@@ -1450,7 +1450,7 @@ public final class Jvm {
      * @return The object header size or array base offset, depending on the class type.
      */
     @Deprecated(/* to be removed in x.27, use net.openhft.chronicle.bytes.BytesUtil.triviallyCopyableStart for POJOs */)
-    public static int objectHeaderSize(Class type) {
+    public static int objectHeaderSize(Class<?> type) {
         return ObjectHeaderSizeHolder.objectHeaderSize(type);
     }
 
@@ -1505,7 +1505,6 @@ public final class Jvm {
      * Typically, the name of these classes contains the "$$Lambda" substring.
      * Note that this naming convention is JVM-specific and can change
      * in future versions. The approach is known to work up to Java 21.
-     * </p>
      *
      * @param clazz the class to be checked.
      * @return {@code true} if the class is a lambda, {@code false} otherwise.
@@ -1683,7 +1682,6 @@ public final class Jvm {
                 Jvm.warn().on(signalHandler.getClass(), "Unable add a signal handler", e);
             }
         }
-
     }
 
     static final class ChainedSignalHandler implements sun.misc.SignalHandler {

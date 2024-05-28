@@ -31,4 +31,3 @@ public class StrongReferenceScopedResource<T> extends AbstractScopedResource<T> 
         return resource.getClass();
     }
 }
-
