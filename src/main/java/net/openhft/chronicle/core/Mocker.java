@@ -26,6 +26,7 @@ import java.util.concurrent.BlockingQueue;
 
 /**
  * The Mocker class provides utility methods for creating mocked instances of interfaces.
+ * This class was left here for backward compatibility.
  * @see net.openhft.chronicle.core.util.Mocker
  */
 public final class Mocker {
