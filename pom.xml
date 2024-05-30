@@ -191,7 +191,7 @@
                         </goals>
                         <phase>verify</phase>
                         <configuration>
-                            <referenceVersion>2.25ea0</referenceVersion>
+                            <referenceVersion>2.26ea0</referenceVersion>
                             <artifactsURI>https://teamcity.chronicle.software/repository/download</artifactsURI>
                             <binaryCompatibilityPercentageRequired>100</binaryCompatibilityPercentageRequired>
                         </configuration>
