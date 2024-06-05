@@ -22,12 +22,13 @@
     <parent>
         <groupId>net.openhft</groupId>
         <artifactId>java-parent-pom</artifactId>
-        <version>1.26.0</version>
+        <!-- processing annotations is off on 1.26.0, and turning it on requires Java 11 -->
+        <version>1.25.4</version>
         <relativePath />
     </parent>
 
     <artifactId>chronicle-core-benchmarks</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>2.26ea-SNAPSHOT</version>
     <name>OpenHFT/Chronicle-Core/Benchmarks</name>
     <description>Chronicle-Core-Benchmarks</description>
 
