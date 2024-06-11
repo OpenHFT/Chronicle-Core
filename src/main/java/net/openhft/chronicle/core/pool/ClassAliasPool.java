@@ -75,8 +75,7 @@ public class ClassAliasPool implements ClassLookup {
     }
 
     protected static boolean testPackage(String pkgName, Class<?> clazz) {
-        Package aPackage = clazz.getPackage();
-        return aPackage != null && aPackage.getName().startsWith(pkgName);
+        return Jvm.getPackageName(clazz).startsWith(pkgName);
     }
 
     /**
