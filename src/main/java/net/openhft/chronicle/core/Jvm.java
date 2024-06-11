@@ -1603,6 +1603,19 @@ public final class Jvm {
         return Thread.currentThread().getId();
     }
 
+    /**
+     * Returns the package name of the specified class.
+     * <p>
+     * This method uses {@code Class.getPackageName()} if running on Java 9 or newer.
+     * For older versions, it uses a cached value determined by the class name.
+     *
+     * @param clazz the class whose package name is to be determined
+     * @return the package name of the specified class
+     */
+    public static String getPackageName(Class clazz) {
+        return PackageNameUtil.getPackageName(clazz);
+    }
+
     public interface SignalHandler {
         /**
          * Handle a Signal

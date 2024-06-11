@@ -428,6 +428,11 @@ public class JvmTest extends CoreTestCommon {
         commonInterruptible.interrupt();
     }
 
+    @Test
+    public void getPackageName() {
+        assertEquals("net.openhft.chronicle.core", Jvm.getPackageName(Jvm.class));
+    }
+
     static class SomeClass {
         private int somePrivateField;
     }

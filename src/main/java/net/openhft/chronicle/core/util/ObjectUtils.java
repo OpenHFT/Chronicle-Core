@@ -163,10 +163,10 @@ public final class ObjectUtils {
         return defaultSupplier(c);
     }
 
-    private static boolean isInternalPackage(Class<?> c) {
-        Package pkg = c.getPackage();
-        return pkg != null && ((pkg.getName().startsWith("com.sun.") || pkg.getName().startsWith("java"))
-                && pkg.getName().contains(".internal"));
+    private static boolean isInternalPackage(Class<?> clazz) {
+        String packageName = Jvm.getPackageName(clazz);
+        return ((packageName.startsWith("com.sun.") || packageName.startsWith("java"))
+                && packageName.contains(".internal"));
     }
 
     static <T> Supplier<T> supplierForInternalPackage() {
