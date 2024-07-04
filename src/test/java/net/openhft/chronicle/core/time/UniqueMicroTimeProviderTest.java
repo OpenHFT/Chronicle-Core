@@ -22,6 +22,7 @@ import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +30,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.locks.LockSupport;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -219,6 +221,40 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
             long currentTimeNanos = timeProvider.currentTimeNanos();
             assertTrue("Nanosecond timestamps adjusted to microsecond level should increase", currentTimeNanos / 1000 > lastTimeMicros);
             lastTimeMicros = currentTimeNanos / 1000;
+        }
+    }
+
+    /* prints
+now 1720082371 1720082371.000116654 diff 1.1682510375976562E-4
+now 1720082372 1720082372.000126830 diff 1.2683868408203125E-4
+now 1720082373 1720082373.000039087 diff 3.910064697265625E-5
+now 1720082374 1720082374.000082835 diff 8.296966552734375E-5
+now 1720082375 1720082375.000135960 diff 1.3589859008789062E-4
+now 1720082376 1720082376.000064154 diff 6.437301635742188E-5
+now 1720082377 1720082377.000150545 diff 1.5044212341308594E-4
+     */
+    // Long running test for drift
+    public static void main(String[] args) {
+        UniqueMicroTimeProvider tp = UniqueMicroTimeProvider.INSTANCE;
+        long last = 0;
+        long print = 0;
+        while (true) {
+            for (int i = 0; i < 100; i++) {
+                long now = tp.currentTimeNanos();
+                if (now <= last)
+                    assertTrue("Should be positive" + now + " " + last + " diff " + (now - last), now > last);
+                last = now;
+                long nowSec = System.currentTimeMillis() / 1000;
+                if (nowSec > print)
+                    break;
+            }
+            long nowSec = System.currentTimeMillis() / 1000;
+            if (nowSec > print) {
+                print = nowSec;
+                BigDecimal lastSec = BigDecimal.valueOf(last).divide(BigDecimal.valueOf(1_000_000_000), 9, BigDecimal.ROUND_HALF_UP);
+                System.out.println("now " + nowSec + " " + lastSec + " diff " + (last / 1e9 - nowSec));
+            }
+            LockSupport.parkNanos(100_000);
         }
     }
 }
