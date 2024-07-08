@@ -69,7 +69,7 @@ public final class Bootstrap {
         assert assertEnabled = true;
         ASSERT_ENABLED = assertEnabled;
 
-        ChronicleGuarding.bootstrap();
+        ChronicleGuardingOne.bootstrap();
     }
 
     private Bootstrap() {

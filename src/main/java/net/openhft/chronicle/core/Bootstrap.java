@@ -18,11 +18,11 @@
 
 package net.openhft.chronicle.core;
 
-import net.openhft.chronicle.core.internal.ChronicleGuarding;
+import net.openhft.chronicle.core.internal.ChronicleGuardingOne;
 
 public class Bootstrap {
     static {
-        ChronicleGuarding.bootstrap();
+        ChronicleGuardingOne.bootstrap();
     }
 
     public static void bootstrap() {
