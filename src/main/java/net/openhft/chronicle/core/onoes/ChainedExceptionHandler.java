@@ -14,7 +14,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package net.openhft.chronicle.core.onoes;
@@ -43,13 +42,35 @@ import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
  * {@link IgnoresEverything} will be filtered out. Furthermore, any {@code ExceptionHandler} that
  * is an instance of {@link ThreadLocalisedExceptionHandler} will be unwrapped to its underlying
  * {@code ExceptionHandler}.
+ *
+ * <p>This design allows for flexible and robust exception handling by chaining together multiple
+ * handlers that can perform different actions in response to exceptions.
  */
 public class ChainedExceptionHandler implements ExceptionHandler {
+
+    /**
+     * An array of {@code ExceptionHandler} objects that form the chain of handlers.
+     */
     @NotNull
     private final ExceptionHandler[] chain;
 
+    /**
+     * Constructs a new {@code ChainedExceptionHandler} with the specified array of {@code ExceptionHandler} instances.
+     *
+     * <p>Each provided {@code ExceptionHandler} will be filtered and unwrapped as follows:
+     * <ul>
+     *     <li>Instances of {@link IgnoresEverything} are excluded from the chain.</li>
+     *     <li>Instances of {@link ThreadLocalisedExceptionHandler} are unwrapped to obtain their underlying {@code ExceptionHandler}.</li>
+     * </ul>
+     *
+     * @param chain the array of {@code ExceptionHandler} instances to chain together.
+     * @throws NullPointerException if the {@code chain} array or any of its elements are {@code null}.
+     */
     public ChainedExceptionHandler(@NotNull ExceptionHandler... chain) {
+        // Ensure the input array is not null.
         requireNonNull(chain);
+
+        // Filter and unwrap the exception handlers, then store them in the chain.
         this.chain = Stream.of(chain)
                 .filter(e -> !(e instanceof IgnoresEverything))
                 .map(ObjectUtils::requireNonNull)
@@ -57,6 +78,16 @@ public class ChainedExceptionHandler implements ExceptionHandler {
                 .toArray(ExceptionHandler[]::new);
     }
 
+    /**
+     * Handles an exception by invoking each {@code ExceptionHandler} in the chain with the provided class, message, and throwable.
+     *
+     * <p>If any {@code ExceptionHandler} in the chain throws an exception during its execution, the exception is logged,
+     * and the next handler in the chain is called.
+     *
+     * @param clazz   the class where the exception occurred.
+     * @param message the exception message, which can be {@code null}.
+     * @param thrown  the {@code Throwable} object representing the exception, which can be {@code null}.
+     */
     @Override
     public void on(@NotNull Class<?> clazz, @Nullable String message, @Nullable Throwable thrown) {
         for (ExceptionHandler eh : chain) {
@@ -68,6 +99,16 @@ public class ChainedExceptionHandler implements ExceptionHandler {
         }
     }
 
+    /**
+     * Handles an exception by invoking each {@code ExceptionHandler} in the chain with the provided logger, message, and throwable.
+     *
+     * <p>If any {@code ExceptionHandler} in the chain throws an exception during its execution, the exception is logged,
+     * and the next handler in the chain is called.
+     *
+     * @param logger  the {@code Logger} used for logging the exception.
+     * @param message the exception message, which can be {@code null}.
+     * @param thrown  the {@code Throwable} object representing the exception, which can be {@code null}.
+     */
     @Override
     public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
         for (ExceptionHandler eh : chain)
@@ -78,7 +119,13 @@ public class ChainedExceptionHandler implements ExceptionHandler {
             }
     }
 
-    public @NotNull ExceptionHandler[] chain() {
+    /**
+     * Returns the array of {@code ExceptionHandler} objects that form the chain.
+     *
+     * @return the array of {@code ExceptionHandler} objects in the chain.
+     */
+    @NotNull
+    public ExceptionHandler[] chain() {
         return chain;
     }
 }

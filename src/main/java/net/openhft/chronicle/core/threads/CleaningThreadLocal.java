@@ -28,12 +28,13 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
 /**
- * The CleaningThreadLocal class extends ThreadLocal and ensures that the resources held by
- * a CleaningThread are cleaned up if the thread dies.
+ * The {@code CleaningThreadLocal} class extends {@link ThreadLocal} and ensures that the resources held by
+ * a {@link CleaningThread} are cleaned up if the thread dies.
  * <p>
- * Note that this class does not clean up resources if the ThreadLocal instance itself is discarded.
+ * Note that this class does not clean up resources if the {@code ThreadLocal} instance itself is discarded.
+ * It is designed to manage resources that need to be explicitly released when a thread is no longer alive.
  *
- * @param <T> The type of resource this CleaningThreadLocal holds.
+ * @param <T> The type of resource this {@code CleaningThreadLocal} holds.
  */
 public class  CleaningThreadLocal<T> extends ThreadLocal<T> {
     private static final Set<CleaningThreadLocal<?>> cleaningThreadLocals = Collections.synchronizedSet(new LinkedHashSet<>());
@@ -44,7 +45,7 @@ public class  CleaningThreadLocal<T> extends ThreadLocal<T> {
     private Map<Thread, Object> nonCleaningThreadValues = null;
 
     /**
-     * Private constructor for CleaningThreadLocal.
+     * Private constructor for {@code CleaningThreadLocal}.
      *
      * @param supplier The supplier that provides the resource.
      * @param cleanup  The consumer that cleans up the resource.
@@ -54,11 +55,11 @@ public class  CleaningThreadLocal<T> extends ThreadLocal<T> {
     }
 
     /**
-     * Private constructor for CleaningThreadLocal.
+     * Private constructor for {@code CleaningThreadLocal}.
      *
      * @param supplier   The supplier that provides the resource.
      * @param cleanup    The consumer that cleans up the resource.
-     * @param getWrapper The function to apply when the get method is called.
+     * @param getWrapper The function to apply when the {@code get} method is called.
      */
     CleaningThreadLocal(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup, UnaryOperator<T> getWrapper) {
         this.supplier = supplier;
@@ -69,50 +70,55 @@ public class  CleaningThreadLocal<T> extends ThreadLocal<T> {
     }
 
     /**
-     * Creates a CleaningThreadLocal with a Closeable cleanup strategy.
+     * Creates a {@code CleaningThreadLocal} with a {@link Closeable} cleanup strategy.
      *
      * @param supplier The supplier that provides the resource.
-     * @return A CleaningThreadLocal instance.
+     * @param <T>      The type of the resource.
+     * @return A {@code CleaningThreadLocal} instance.
      */
     public static <T> CleaningThreadLocal<T> withCloseQuietly(Supplier<T> supplier) {
         return new CleaningThreadLocal<>(supplier, Closeable::closeQuietly);
     }
 
     /**
-     * Creates a CleaningThreadLocal with a custom cleanup strategy.
+     * Creates a {@code CleaningThreadLocal} with a custom cleanup strategy.
      *
      * @param cleanup The consumer that cleans up the resource.
-     * @return A CleaningThreadLocal instance.
+     * @param <T>     The type of the resource.
+     * @return A {@code CleaningThreadLocal} instance.
      */
     public static <T> CleaningThreadLocal<T> withCleanup(ThrowingConsumer<T, Exception> cleanup) {
         return new CleaningThreadLocal<>(() -> null, cleanup);
     }
 
     /**
-     * Creates a CleaningThreadLocal with a supplier and a custom cleanup strategy.
+     * Creates a {@code CleaningThreadLocal} with a supplier and a custom cleanup strategy.
      *
      * @param supplier The supplier that provides the resource.
      * @param cleanup  The consumer that cleans up the resource.
-     * @return A CleaningThreadLocal instance.
+     * @param <T>      The type of the resource.
+     * @return A {@code CleaningThreadLocal} instance.
      */
     public static <T> CleaningThreadLocal<T> withCleanup(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup) {
         return new CleaningThreadLocal<>(supplier, cleanup);
     }
 
     /**
-     * Creates a CleaningThreadLocal with a supplier, a custom cleanup strategy, and a function to apply when the get method is called.
+     * Creates a {@code CleaningThreadLocal} with a supplier, a custom cleanup strategy, and a function to apply when the {@code get} method is called.
      *
      * @param supplier   The supplier that provides the resource.
      * @param cleanup    The consumer that cleans up the resource.
-     * @param getWrapper The function to apply when the get method is called.
-     * @return A CleaningThreadLocal instance.
+     * @param getWrapper The function to apply when the {@code get} method is called.
+     * @param <T>        The type of the resource.
+     * @return A {@code CleaningThreadLocal} instance.
      */
     public static <T> CleaningThreadLocal<T> withCleanup(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup, Function<T, T> getWrapper) {
         return new CleaningThreadLocal<>(supplier, cleanup, getWrapper::apply);
     }
 
     /**
-     * Cleans up resources held by threads that are no longer alive.
+     * Cleans up resources held by threads that are no longer alive. This method scans through all
+     * non-cleaning threads that have been tracked and invokes the cleanup action on each thread-local value.
      */
     public static void cleanupNonCleaningThreads() {
         if (cleaningThreadLocals.isEmpty())
@@ -135,6 +141,11 @@ public class  CleaningThreadLocal<T> extends ThreadLocal<T> {
         }
     }
 
+    /**
+     * Tracks non-cleaning threads by adding this instance to the set of cleaning thread locals.
+     *
+     * @return Always returns {@code true} to allow this method to be used in assertions.
+     */
     private boolean trackNonCleaningThreads() {
         cleaningThreadLocals.add(this);
         nonCleaningThreadValues = Collections.synchronizedMap(new LinkedHashMap<>());
@@ -142,35 +153,39 @@ public class  CleaningThreadLocal<T> extends ThreadLocal<T> {
     }
 
     /**
-     * Returns the initial value of this CleaningThreadLocal.
-     * This method is called once per thread when the thread first uses the get() method.
+     * Returns the initial value of this {@code CleaningThreadLocal}.
+     * This method is called once per thread when the thread first uses the {@code get()} method.
      *
      * @return The initial value.
      */
     @Override
     protected T initialValue() {
         final T t = supplier.get();
+        // Store the initial value in non-cleaning thread values if applicable.
         if (nonCleaningThreadValues != null) {
             Thread thread = Thread.currentThread();
             if (thread instanceof CleaningThread)
+                // Do not store for CleaningThread instances.
                 return t;
+            // Store the initial value associated with the current thread.
             nonCleaningThreadValues.put(thread, t);
         }
         return t;
     }
 
     /**
-     * Returns the value of this CleaningThreadLocal.
+     * Returns the value of this {@code CleaningThreadLocal}.
      *
-     * @return The current value.
+     * @return The current value, wrapped by the {@code getWrapper} function.
      */
     @Override
     public T get() {
+        // Apply the wrapper function to the value returned by ThreadLocal's get().
         return getWrapper.apply(super.get());
     }
 
     /**
-     * Sets the value of this CleaningThreadLocal and performs cleanup if necessary.
+     * Sets the value of this {@code CleaningThreadLocal} and performs cleanup if necessary.
      *
      * @param value The new value to be set.
      */
@@ -178,8 +193,10 @@ public class  CleaningThreadLocal<T> extends ThreadLocal<T> {
     public void set(T value) {
         final Thread thread = Thread.currentThread();
         if (thread instanceof CleaningThread) {
+            // Perform cleanup for CleaningThread instances.
             CleaningThread.performCleanup(thread, this);
         } else if (nonCleaningThreadValues != null) {
+            // Perform cleanup for non-cleaning threads.
             final T o = (T) nonCleaningThreadValues.put(thread, value);
             cleanup(o);
         }
@@ -187,14 +204,16 @@ public class  CleaningThreadLocal<T> extends ThreadLocal<T> {
     }
 
     /**
-     * Removes the value for this CleaningThreadLocal from the current thread and performs cleanup.
+     * Removes the value for this {@code CleaningThreadLocal} from the current thread and performs cleanup.
      */
     @Override
     public void remove() {
         final Thread thread = Thread.currentThread();
         if (thread instanceof CleaningThread) {
+            // Perform cleanup for CleaningThread instances.
             CleaningThread.performCleanup(thread, this);
         } else if (nonCleaningThreadValues != null) {
+            // Perform cleanup for non-cleaning threads.
             final T o = (T) nonCleaningThreadValues.remove(thread);
             cleanup(o);
         }
@@ -211,8 +230,10 @@ public class  CleaningThreadLocal<T> extends ThreadLocal<T> {
         try {
             ThrowingConsumer<T, Exception> lCleanup = this.cleanup;
             if (lCleanup != null && value != null)
+                // Perform the cleanup action.
                 lCleanup.accept(value);
         } catch (Exception e) {
+            // Log any exceptions that occur during cleanup.
             Jvm.warn().on(getClass(), "Exception cleaning up " + value.getClass(), e);
         }
     }

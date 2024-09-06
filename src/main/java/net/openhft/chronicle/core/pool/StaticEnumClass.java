@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.openhft.chronicle.core.pool;
 
 import java.util.EnumMap;
@@ -42,6 +43,9 @@ import java.util.Set;
  */
 public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
 
+    /**
+     * An array containing all enum constants for the managed enum type.
+     */
     private final E[] values;
 
     /**
@@ -51,6 +55,7 @@ public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
      */
     StaticEnumClass(Class<E> eClass) {
         super(eClass);
+        // Initialize the array of enum constants from the given enum class.
         this.values = eClass.getEnumConstants();
     }
 
@@ -63,6 +68,7 @@ public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
      */
     @Override
     public E valueOf(String name) {
+        // Check if the name is null or empty and return null if true.
         return name == null || name.isEmpty() ? null : Enum.valueOf(type, name);
     }
 
@@ -74,6 +80,7 @@ public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
      */
     @Override
     public int size() {
+        // Return the length of the values array, which holds all enum constants.
         return values.length;
     }
 
@@ -86,6 +93,7 @@ public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
      */
     @Override
     public E forIndex(int index) {
+        // Retrieve the enum instance by its ordinal index from the values array.
         return values[index];
     }
 
@@ -97,26 +105,30 @@ public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
      */
     @Override
     public E[] asArray() {
+        // Return the array of enum constants.
         return values;
     }
 
     /**
-     * Creates a map with enum instances as keys.
+     * Creates a map with enum instances as keys. This is particularly useful
+     * for scenarios where enums are used as keys for quick lookup.
      *
      * @return a map where the keys are enum instances.
      */
     @Override
     public <T> Map<E, T> createMap() {
+        // Create and return a new EnumMap using the enum type.
         return new EnumMap<>(type);
     }
 
     /**
-     * Creates a set for holding enum instances.
+     * Creates a set for holding enum instances. The set is typically empty initially.
      *
      * @return a set for holding enum instances.
      */
     @Override
     public Set<E> createSet() {
+        // Create and return an empty EnumSet for the enum type.
         return EnumSet.noneOf(type);
     }
 }

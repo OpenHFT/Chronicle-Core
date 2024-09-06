@@ -31,11 +31,25 @@ import static net.openhft.chronicle.core.io.AbstractCloseable.*;
 
 /**
  * Utility class for managing reference counted resources and related operations.
+ * <p>
+ * This class provides methods for tracking, tracing, and asserting the release of reference counted resources.
+ * It uses a synchronized set of {@link AbstractReferenceCounted} objects to monitor resources and ensures that
+ * they are properly released when no longer needed.
+ * </p>
+ * <p>
+ * This class is particularly useful for debugging and resource management, as it can detect and report
+ * any resource leaks by tracking the lifecycle of reference counted objects.
+ * </p>
+ * <p>
+ * The class is not intended to be instantiated and provides static utility methods.
+ * </p>
  */
 public final class ReferenceCountedUtils {
+    // Atomic reference to a set of tracked reference-counted resources.
     private static final AtomicReference<Set<AbstractReferenceCounted>> REFERENCE_COUNTED_SET
             = new AtomicReference<>();
 
+    // Private constructor to prevent instantiation of this utility class.
     private ReferenceCountedUtils() {
     }
 

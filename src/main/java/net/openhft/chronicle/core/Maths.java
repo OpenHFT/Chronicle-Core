@@ -26,6 +26,13 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
+/**
+ * Utility class providing various mathematical functions and constants for
+ * handling rounding and precision operations in numerical computations.
+ * <p>
+ * This class is not meant to be instantiated. All methods are static and provide
+ * utility functions that operate on primitive data types and simple structures.
+ */
 public final class Maths {
 
     // Suppresses default constructor, ensuring non-instantiability.
@@ -33,11 +40,13 @@ public final class Maths {
     }
 
     /**
-     * Numbers larger than this are whole numbers due to representation error.
+     * Threshold beyond which numbers are considered whole due to representation error.
      */
     private static final double WHOLE_NUMBER = 1L << 52;
     private static final int M0 = 0x5bc80bad;
     private static final int M1 = 0xea7585d7;
+
+    // Arrays storing powers of ten and five used in rounding calculations.
     private static final long[] TENS = new long[19];
     private static final long[] FIVES = new long[28];
     private static final String OUT_OF_RANGE = " out of range";
@@ -45,19 +54,20 @@ public final class Maths {
     static {
         TENS[0] = FIVES[0] = 1;
         for (int i = 1; i < TENS.length; i++)
-            TENS[i] = 10 * TENS[i - 1];
+            TENS[i] = 10 * TENS[i - 1];  // Populate TENS array with powers of 10.
         for (int i = 1; i < FIVES.length; i++)
-            FIVES[i] = 5 * FIVES[i - 1];
+            FIVES[i] = 5 * FIVES[i - 1];  // Populate FIVES array with powers of 5.
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
-     * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
-     * assumed you are not working on the edge of the precision of double.
+     * Rounds a double value to the specified number of decimal places.
+     * <p>
+     * The rounding is accurate to within 1 ulp (unit in the last place). This method is optimized for performance
+     * assuming operations are not performed at the edge of double precision.
      *
-     * @param d      value to round
-     * @param digits 0 to 18 digits of precision
-     * @return rounded value
+     * @param d      The double value to round.
+     * @param digits The number of decimal places to round to (0 to 18).
+     * @return The rounded value.
      */
     public static double roundN(double d, int digits) {
         final long factor = roundingFactor(digits);
@@ -66,13 +76,13 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp.
-     * The value 0.5 should round up however the value one ulp less might round up or down.
-     * This is a pragmatic choice for performance reasons as it is
-     * assumed you are not working on the edge of the precision of double.
+     * Rounds a double value upwards to the nearest higher number, accurate to within 1 ulp.
+     * <p>
+     * For values close to 0.5, it may round up or down due to precision errors.
      *
-     * @param d value to round
-     * @return rounded value
+     * @param d      The double value to round.
+     * @param digits The number of decimal places to round to.
+     * @return The rounded up value.
      */
     public static double roundNup(double d, int digits) {
         if (d < 0)
@@ -88,10 +98,22 @@ public final class Maths {
         return ldf / (double) factor;
     }
 
+    /**
+     * Computes the rounding factor for the specified number of decimal places.
+     *
+     * @param digits The number of decimal places.
+     * @return The rounding factor.
+     */
     public static long roundingFactor(int digits) {
         return tens(digits);
     }
 
+    /**
+     * Computes a dynamic rounding factor based on the fractional part of the given digits.
+     *
+     * @param digits The decimal precision (can be fractional).
+     * @return The computed rounding factor.
+     */
     public static long roundingFactor(double digits) {
         int iDigits = (int) digits;
         long ten = tens(iDigits);
@@ -149,12 +171,26 @@ public final class Maths {
                 ? Math.floor((d + ulp) * factor) / factor : d;
     }
 
+    /**
+     * Rounds a double value to the specified decimal places with fractional precision.
+     *
+     * @param d      The double value to round.
+     * @param digits The number of decimal places to round to (can be fractional).
+     * @return The rounded value.
+     */
     public static double roundN(double d, double digits) {
         final long factor = roundingFactor(digits);
         return Math.abs(d) < (double) Long.MAX_VALUE / factor
                 ? (double) (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor : d;
     }
 
+    /**
+     * Rounds up a double value to the nearest higher number with fractional precision.
+     *
+     * @param d      The double value to round up.
+     * @param digits The number of decimal places to round up to (can be fractional).
+     * @return The rounded up value.
+     */
     public static double ceilN(double d, double digits) {
         final long factor = roundingFactor(digits + 8);
         final long factor2 = roundingFactor(digits);
@@ -162,6 +198,13 @@ public final class Maths {
                 ? Math.ceil(Math.round(d * factor) / 1e8) / factor2 : d;
     }
 
+    /**
+     * Rounds down a double value to the nearest lower number with fractional precision.
+     *
+     * @param d      The double value to round down.
+     * @param digits The number of decimal places to round down to (can be fractional).
+     * @return The rounded down value.
+     */
     public static double floorN(double d, double digits) {
         final long factor = roundingFactor(digits + 8);
         final long factor2 = roundingFactor(digits);
@@ -493,10 +536,26 @@ public final class Maths {
         return i;
     }
 
+    /**
+     * Checks if a given number is a power of two.
+     *
+     * @param n The number to check.
+     * @return true if the number is a power of two, otherwise false.
+     */
     public static boolean isPowerOf2(long n) {
         return Long.bitCount(n) == 1;
     }
 
+    /**
+     * Computes a 64-bit hash value for the given CharSequence.
+     *
+     * This method computes the hash using a custom algorithm for CharSequence
+     * inputs, including strings. It ensures that similar CharSequences produce
+     * different hash values by mixing the character values and positions.
+     *
+     * @param cs The CharSequence to hash. If null or empty, returns 0.
+     * @return A 64-bit hash value.
+     */
     public static long hash64(@Nullable CharSequence cs) {
         if (cs == null || cs.length() == 0)
             return 0;
@@ -755,6 +814,12 @@ public final class Maths {
         return TENS[decimalPlaces];
     }
 
+    /**
+     * Generates an IllegalArgumentException with a specific message for invalid decimal places.
+     *
+     * @param decimalPlaces The invalid decimal places value.
+     * @return An IllegalArgumentException with a descriptive message.
+     */
     @NotNull
     private static IllegalArgumentException decimalPlacesIAE(int decimalPlaces) {
         return new IllegalArgumentException("decimalPlaces=" + decimalPlaces);
@@ -803,41 +868,82 @@ public final class Maths {
         return Float.isNaN(a) ? Float.isNaN(b) : a == b;
     }
 
+    /**
+     * Computes the hash code for an object.
+     *
+     * @param o The object to compute the hash code for.
+     * @return The hash code, or 0 if the object is null.
+     */
     public static int hash(Object o) {
         return o == null ? 0 : o.hashCode();
     }
 
+    /**
+     * Computes a combined hash code for two objects.
+     *
+     * @param o1 The first object.
+     * @param o2 The second object.
+     * @return The combined hash code.
+     */
     public static int hash(Object o1, Object o2) {
         return hash(o1) * M0 + hash(o2);
     }
 
+    /**
+     * Computes a combined hash code for three objects.
+     *
+     * @param o1 The first object.
+     * @param o2 The second object.
+     * @param o3 The third object.
+     * @return The combined hash code.
+     */
     public static int hash(Object o1, Object o2, Object o3) {
         return hash(o1, o2) * M0 + hash(o3);
     }
 
+    /**
+     * Computes a combined hash code for four objects.
+     *
+     * @param o1 The first object.
+     * @param o2 The second object.
+     * @param o3 The third object.
+     * @param o4 The fourth object.
+     * @return The combined hash code.
+     */
     public static int hash(Object o1, Object o2, Object o3, Object o4) {
         return hash(o1, o2, o3) * M0 + hash(o4);
     }
 
+    /**
+     * Computes a combined hash code for five objects.
+     *
+     * @param o1 The first object.
+     * @param o2 The second object.
+     * @param o3 The third object.
+     * @param o4 The fourth object.
+     * @param o5 The fifth object.
+     * @return The combined hash code.
+     */
     public static int hash(Object o1, Object o2, Object o3, Object o4, Object o5) {
         return hash(o1, o2, o3, o4) * M0 + hash(o5);
     }
 
     /**
-     * Convert components to a double value
+     * Converts the given components to a double value, taking into account
+     * the integer value, exponent, whether the number is negative, and the number of decimal places.
      *
-     * @param value         The integer value
-     * @param exponent      The exponent
-     * @param negative      Whether it is negative or not
-     * @param decimalPlaces The number of decimal places
-     * @return The value as a double
+     * @param value         The integer value.
+     * @param exponent      The exponent to apply.
+     * @param negative      Whether the resulting number should be negative.
+     * @param decimalPlaces The number of decimal places to consider.
+     * @return The computed double value.
      */
 
     public static double asDouble(@NonNegative long value, int exponent, boolean negative, int decimalPlaces) {
         assert AssertUtil.SKIP_ASSERTIONS || value >= 0;
-        // these numbers were determined empirically.
+        // Determine the leading zeros in the binary representation of the value
         int leading =
-                Long.numberOfLeadingZeros(value) - 1;
+                   Long.numberOfLeadingZeros(value) - 1;
 
         int scale2 = 0;
         if (leading > 0) {
@@ -878,6 +984,15 @@ public final class Maths {
         return negative ? -scalb : scalb;
     }
 
+    /**
+     * Helper method to add the remaining fractional value during conversion to double.
+     *
+     * @param fives   The divisor for the fractional part.
+     * @param whole   The whole part of the number.
+     * @param rem     The remainder part of the number.
+     * @param leading2 The number of leading zeros for scaling.
+     * @return The double value including the fractional part.
+     */
     private static double addRemainingFraction(long fives, long whole, long rem, int leading2) {
         double d;
         rem <<= leading2;
@@ -886,6 +1001,14 @@ public final class Maths {
         return d;
     }
 
+    /**
+     * Helper method to round up a value by one ULP (unit in the last place).
+     *
+     * @param whole     The whole part of the number.
+     * @param rem       The remainder part of the number.
+     * @param wholeZero The number of leading zeros in the whole part.
+     * @return The double value rounded up by one ULP if needed.
+     */
     private static double roundUpOneUlp(long whole, long rem, int wholeZero) {
         double d;
         d = whole;
@@ -898,7 +1021,12 @@ public final class Maths {
     }
 
     /**
-     * return a + b / c as a double
+     * Returns a + b / c as a double value.
+     *
+     * @param a The whole part of the value.
+     * @param b The numerator of the fractional part.
+     * @param c The denominator of the fractional part.
+     * @return The resulting double value.
      */
     public static double add(long a, long b, long c) {
         double d = a;

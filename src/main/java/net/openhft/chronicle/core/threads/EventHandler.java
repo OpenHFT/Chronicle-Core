@@ -26,59 +26,69 @@ import java.io.Closeable;
  * Represents a handler for events within an event loop.
  * <p>
  * This interface should be implemented by classes that handle specific events within an event loop.
- * <p>
  * An {@code EventHandler} can be registered to an {@link EventLoop} for processing events.
+ * </p>
  */
 @FunctionalInterface
 public interface EventHandler extends VanillaEventHandler {
 
     /**
-     * This method is called once when it is added to an eventLoop, which might be before the EventLoop has started
-     * This could be called in any thread.
+     * Called once when this handler is added to an {@link EventLoop}.
+     * <p>
+     * This method might be invoked before the {@link EventLoop} has started and could be called from any thread.
+     * </p>
      *
      * @param eventLoop The event loop to which this handler has been added.
      */
     default void eventLoop(EventLoop eventLoop) {
+        // Default implementation does nothing.
     }
 
     /**
-     * This handler has begun being executed on the event loop. This will be called after the call to {@link #eventLoop(EventLoop)}
-     * and will always be called on the EventLoop thread.
+     * Called when the handler has begun being executed on the event loop.
      * <p>
-     * This call will be followed by zero or more invocations of {@link #action()} and then an invocation of {@link #loopFinished()}
+     * This method will always be called on the {@link EventLoop} thread and is invoked after {@link #eventLoop(EventLoop)}.
+     * It will be followed by zero or more invocations of {@link #action()} and then an invocation of {@link #loopFinished()}.
+     * </p>
      * <p>
-     * Exceptions thrown by loopStarted will be logged and the handler will be removed from the event loop.
+     * If this method throws an exception, it will be logged and the handler will be removed from the event loop.
+     * </p>
      */
     default void loopStarted() {
+        // Default implementation does nothing.
     }
 
     /**
-     * Notify handler that the event handler's action method will not be called again. It will be called
-     * if and only if {@link #loopStarted()} was called, and will always be called on the event loop thread.
+     * Notifies the handler that its action method will not be called again.
      * <p>
-     * This is called either when the event loop is terminating, or if this EventHandler is being
-     * removed from the event loop.
+     * This method will be called if and only if {@link #loopStarted()} was called, and it will always be called on the event loop thread.
+     * It is invoked when the event loop is terminating or if this {@code EventHandler} is being removed from the event loop.
+     * </p>
      * <p>
-     * If this handler implements {@link Closeable} then the event loop will call close (once only) on this after
-     * loopFinished has been called.
+     * If this handler implements {@link Closeable}, the event loop will call {@link Closeable#close()} (once only) after {@code loopFinished()} has been called.
+     * </p>
      * <p>
-     * loopFinished is the place to put any clean-up that MUST be performed on the event loop thread, or
-     * cleanup that only needs to occur if {@link #loopStarted()} was called. All other clean up can be put into
-     * {@link Closeable#close()}.
+     * The {@code loopFinished()} method is intended for any cleanup that must be performed on the event loop thread or cleanup that only needs to occur if {@link #loopStarted()} was called.
+     * All other cleanup should be done in {@link Closeable#close()}.
+     * </p>
      * <p>
-     * Exceptions thrown by loopFinished or close are caught and logged (at warning level) and cleanup continues.
+     * Exceptions thrown by {@code loopFinished()} or {@code close()} are caught, logged at the warning level, and cleanup continues.
+     * </p>
      */
     default void loopFinished() {
+        // Default implementation does nothing.
     }
 
     /**
      * Returns the priority level of this event handler within the event loop.
+     * <p>
+     * The priority determines the order in which handlers are executed within the event loop.
+     * </p>
      *
-     * @return The priority level of this event handler.
+     * @return The priority level of this event handler. Default is {@link HandlerPriority#MEDIUM}.
      */
     @NotNull
     default HandlerPriority priority() {
         return HandlerPriority.MEDIUM;
     }
 }
-

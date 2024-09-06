@@ -19,16 +19,24 @@
 package net.openhft.chronicle.core.util;
 
 /**
+ * Represents an operation that accepts a single input argument and two additional context arguments,
+ * and can throw a checked exception. This is a specialized version of a consumer that is capable of
+ * throwing exceptions, allowing for lambda expressions and method references that might throw checked exceptions.
+ *
  * @param <I> the type of the input to the function
  * @param <T> the type of Throwable thrown
+ * @param <U> the type of the third argument (context) used in the function
  */
 
 public interface ThrowingConsumerNonCapturing<I, T extends Throwable, U> {
 
     /**
-     * Performs this operation on the given argument.
+     * Performs this operation on the given argument and additional context arguments.
      *
-     * @param in the input argument
+     * @param in     the input argument
+     * @param sb     the {@link CharSequence} used in the function
+     * @param toBytes the third argument providing additional context, such as a transformation or configuration object
+     * @throws T if the operation throws a checked exception
      */
     void accept(I in, CharSequence sb, U toBytes) throws T;
 }

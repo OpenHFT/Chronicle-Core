@@ -28,6 +28,15 @@ import java.util.stream.Stream;
 
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
+/**
+ * Utility class for handling reflection-based operations, such as method invocations
+ * and proxy creation. This class simplifies reflective operations for the Analytics module
+ * and related components.
+ * <p>
+ * It checks the presence of the analytics class, dynamically invokes methods, and creates
+ * proxies using Java Reflection API. It also supports returning proxies for chaining methods.
+ * </p>
+ */
 public final class ReflectionUtil {
 
     private static final String ANALYTICS_NAME = "net.openhft.chronicle.analytics.Analytics";
@@ -36,6 +45,11 @@ public final class ReflectionUtil {
     private ReflectionUtil() {
     }
 
+    /**
+     * Checks whether the Analytics class is present in the classpath.
+     *
+     * @return true if the Analytics class is present, false otherwise.
+     */
     public static boolean analyticsPresent() {
         try {
             Class.forName(ANALYTICS_NAME);
@@ -45,6 +59,13 @@ public final class ReflectionUtil {
         }
     }
 
+    /**
+     * Dynamically builds an analytics object using the provided measurement ID and API secret.
+     *
+     * @param measurementId The measurement ID for analytics.
+     * @param apiSecret     The API secret for analytics.
+     * @return The analytics builder object.
+     */
     @NotNull
     public static Object analyticsBuilder(@NotNull final String measurementId, @NotNull final String apiSecret) {
         requireNonNull(measurementId);
@@ -57,6 +78,14 @@ public final class ReflectionUtil {
         }
     }
 
+    /**
+     * Retrieves a method from the specified class by name and parameter types.
+     *
+     * @param className    The fully qualified name of the class.
+     * @param methodName   The name of the method to retrieve.
+     * @param parameterTypes The parameter types of the method.
+     * @return The Method object representing the specified method.
+     */
     @NotNull
     public static Method methodOrThrow(@NotNull final String className,
                                        @NotNull final String methodName,
@@ -71,6 +100,14 @@ public final class ReflectionUtil {
         }
     }
 
+    /**
+     * Invokes the specified method on the target object, passing in the provided parameters.
+     *
+     * @param method The method to invoke.
+     * @param target The target object to invoke the method on.
+     * @param params The parameters to pass to the method.
+     * @return The result of the method invocation.
+     */
     public static Object invokeOrThrow(@NotNull final Method method,
                                        @NotNull final Object target,
                                        Object... params) {
@@ -84,6 +121,15 @@ public final class ReflectionUtil {
         }
     }
 
+    /**
+     * Creates a dynamic proxy that forwards method calls to the provided delegate object.
+     *
+     * @param interf   The interface class the proxy should implement.
+     * @param delegate The delegate object to forward method calls to.
+     * @param <T>      The type of the interface.
+     * @return A proxy instance implementing the specified interface.
+     * @throws IllegalArgumentException If the proxy cannot be created.
+     */
     @SuppressWarnings("unchecked")
     @NotNull
     public static <T> T reflectiveProxy(@NotNull final Class<T> interf, @NotNull final Object delegate) throws IllegalArgumentException {
@@ -92,6 +138,17 @@ public final class ReflectionUtil {
         return (T) Proxy.newProxyInstance(delegate.getClass().getClassLoader(), new Class[]{interf}, new ReflectiveInvocationHandler(delegate, false));
     }
 
+    /**
+     * Creates a dynamic proxy that forwards method calls to the provided delegate object,
+     * with the option to return the proxy instance itself for chaining methods.
+     *
+     * @param interf      The interface class the proxy should implement.
+     * @param delegate    The delegate object to forward method calls to.
+     * @param returnProxy If true, the proxy instance is returned for method chaining.
+     * @param <T>         The type of the interface.
+     * @return A proxy instance implementing the specified interface.
+     * @throws IllegalArgumentException If the proxy cannot be created.
+     */
     @SuppressWarnings("unchecked")
     @NotNull
     public static <T> T reflectiveProxy(@NotNull final Class<T> interf,
@@ -102,16 +159,34 @@ public final class ReflectionUtil {
         return (T) Proxy.newProxyInstance(delegate.getClass().getClassLoader(), new Class[]{interf}, new ReflectiveInvocationHandler(delegate, returnProxy));
     }
 
+    /**
+     * An internal invocation handler that dynamically dispatches method calls to the delegate object.
+     */
     private static final class ReflectiveInvocationHandler implements InvocationHandler {
 
         private final Object delegate;
         private final boolean returnProxy;
 
+        /**
+         * Constructs a new ReflectiveInvocationHandler.
+         *
+         * @param delegate    The object that method calls are forwarded to.
+         * @param returnProxy If true, the proxy itself is returned for method chaining.
+         */
         public ReflectiveInvocationHandler(@NotNull final Object delegate, final boolean returnProxy) {
             this.delegate = requireNonNull(delegate);
             this.returnProxy = requireNonNull(returnProxy);
         }
 
+        /**
+         * Handles method invocation on the proxy instance by dispatching it to the delegate.
+         *
+         * @param proxy  The proxy instance.
+         * @param method The method being called.
+         * @param args   The arguments for the method call.
+         * @return The result of the method call, or the proxy itself if method chaining is enabled.
+         * @throws Throwable If an exception occurs during method invocation.
+         */
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
 

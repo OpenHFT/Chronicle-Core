@@ -78,6 +78,10 @@ public class InvalidEventHandlerException extends Exception {
         return STATIC;
     }
 
+    /**
+     * A subclass of InvalidEventHandlerException designed to be used as a reusable,
+     * immutable exception instance for flow control.
+     */
     private static final class ReusableInvalidEventHandlerException extends InvalidEventHandlerException {
 
         public ReusableInvalidEventHandlerException() {
@@ -87,13 +91,13 @@ public class InvalidEventHandlerException extends Exception {
 
         @Override
         public synchronized Throwable initCause(Throwable cause) {
-            return this;
+            return this; // Prevents modification of the cause
         }
 
         @Override
         public void setStackTrace(StackTraceElement[] stackTrace) {
             if (stackTrace.length == 0)
-                super.setStackTrace(stackTrace);
+                super.setStackTrace(stackTrace); // Only allow setting an empty stack trace
         }
     }
 }

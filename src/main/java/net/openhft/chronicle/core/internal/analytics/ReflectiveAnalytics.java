@@ -26,16 +26,40 @@ import java.util.Map;
 
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
+/**
+ * A reflective implementation of the {@link AnalyticsFacade} interface. This class dynamically
+ * invokes methods on an underlying analytics object using reflection. It is designed to work
+ * with the Chronicle Analytics module, even if it is not directly available at compile time.
+ *
+ * <p>This class acts as a bridge between the {@code AnalyticsFacade} interface and an actual
+ * analytics implementation, allowing the Chronicle core to interact with analytics features
+ * dynamically through reflection.</p>
+ */
 final class ReflectiveAnalytics implements AnalyticsFacade {
 
     private static final String CLASS_NAME = "net.openhft.chronicle.analytics.Analytics";
 
     private final Object delegate;
 
+    /**
+     * Constructs a new {@code ReflectiveAnalytics} instance.
+     *
+     * @param delegate The underlying analytics object that this class reflects upon. Must not be null.
+     * @throws NullPointerException If the delegate is null.
+     */
     public ReflectiveAnalytics(@NotNull final Object delegate) {
         this.delegate = requireNonNull(delegate);
     }
 
+    /**
+     * Sends an analytics event by invoking the underlying analytics implementation's
+     * {@code sendEvent} method using reflection.
+     *
+     * @param name                   The name of the event. Must not be null.
+     * @param additionalEventParameters A map of additional parameters to send with the event. Must not be null.
+     * @throws NullPointerException If the event name or additional parameters are null.
+     * @throws RuntimeException     If the reflective method invocation fails.
+     */
     @Override
     public void sendEvent(@NotNull final String name, @NotNull final Map<String, String> additionalEventParameters) {
         requireNonNull(name);

@@ -22,6 +22,17 @@ import net.openhft.chronicle.core.util.LongBiPredicate;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ * Enum representing various comparison conditions for long values, implementing {@link LongBiPredicate}.
+ * <p>
+ * This enum provides a set of predefined comparison operations between two long values, such as equality,
+ * greater than, less than, and more. Each condition is represented by a symbolic operation and an associated
+ * {@link LongBiPredicate} that performs the comparison.
+ * </p>
+ * <p>
+ * It also supports negating certain conditions, returning the logical opposite of the current condition.
+ * </p>
+ */
 public enum LongBiCondition implements LongBiPredicate {
 
     EQUAL_TO("==", (value, other) -> value == other),
@@ -30,26 +41,67 @@ public enum LongBiCondition implements LongBiPredicate {
     GREATER_OR_EQUAL(">=", (value, other) -> value >= other),
     LESS_THAN("<", (value, other) -> value < other),
     LESS_OR_EQUAL("<=", (value, other) -> value <= other),
-    BETWEEN_ZERO_AND("∈ [0, toExclusive), toExclusive =", (value, other) -> value >= 0 && value < other),
-    BETWEEN_ZERO_AND_CLOSED("∈ [0, toInclusive], where toInclusive =", (value, other) -> value >= 0 && value < other),
+
+    /**
+     * Condition representing that a value is between 0 (inclusive) and another value (exclusive).
+     */
+    BETWEEN_ZERO_AND("∈ [0, toExclusive), toExclusive = ", (value, other) -> value >= 0 && value < other),
+
+    /**
+     * Condition representing that a value is between 0 (inclusive) and another value (inclusive).
+     */
+    BETWEEN_ZERO_AND_CLOSED("∈ [0, toInclusive], where toInclusive = ", (value, other) -> value >= 0 && value <= other),
+
+    /**
+     * Condition representing that a value is a power of two (value = 2^other).
+     */
     POWER_OF_TWO(" = 2^", (value, other) -> other < (Integer.SIZE - 1) && value == (1L << other)),
+
+    /**
+     * Condition representing that a value is the logarithm base 2 of another value (value = log2(other)).
+     */
     LOG2(" = log2(other), other = ", (value, other) -> value < (Integer.SIZE - 1) && other == (1L << value));
 
+    // Symbolic representation of the condition
     private final String operation;
+
+    // Predicate that defines the condition
     private final LongBiPredicate predicate;
 
+    /**
+     * Constructor for creating a {@link LongBiCondition} based on an operation string and predicate.
+     *
+     * @param operation The symbolic representation of the comparison operation.
+     * @param predicate The predicate that performs the comparison.
+     */
     LongBiCondition(final String operation,
                     final LongBiPredicate predicate) {
         this.operation = requireNonNull(operation);
         this.predicate = requireNonNull(predicate);
     }
 
+    /**
+     * Tests the comparison condition between two long values.
+     *
+     * @param value The first long value.
+     * @param other The second long value.
+     * @return {@code true} if the condition holds for the two values, {@code false} otherwise.
+     */
     @Override
     public boolean test(final long value,
                         final long other) {
         return predicate.test(value, other);
     }
 
+    /**
+     * Returns the negation of this condition.
+     * <p>
+     * For certain predefined conditions (e.g., EQUAL_TO, LESS_THAN), this method returns the logical negation.
+     * For other conditions, it uses the default implementation of {@link LongBiPredicate#negate()}.
+     * </p>
+     *
+     * @return The negated {@link LongBiPredicate} for this condition.
+     */
     @Override
     public LongBiPredicate negate() {
         switch (this) {
@@ -70,6 +122,11 @@ public enum LongBiCondition implements LongBiPredicate {
         }
     }
 
+    /**
+     * Returns the symbolic representation of this condition.
+     *
+     * @return The string representation of the comparison operation (e.g., "==", ">=").
+     */
     @Override
     public String toString() {
         return operation;

@@ -68,6 +68,9 @@ public final class ObjectUtils {
     private ObjectUtils() {
     }
 
+    /**
+     * A map that associates primitive types with their corresponding wrapper classes.
+     */
     static final Map<Class<?>, Class<?>> PRIM_MAP = ofUnmodifiable(
             entry(boolean.class, Boolean.class),
             entry(byte.class, Byte.class),
@@ -80,6 +83,9 @@ public final class ObjectUtils {
             entry(void.class, Void.class)
     );
 
+    /**
+     * A map that provides default values for primitive types.
+     */
     static final Map<Class<?>, Object> DEFAULT_MAP = ofUnmodifiable(
             entry(boolean.class, false),
             entry(byte.class, (byte) 0),
@@ -91,11 +97,13 @@ public final class ObjectUtils {
             entry(double.class, 0.0d)
     );
 
-
+    // Maps for type conversion
     private static final Map<Class<?>, Function<String, Number>> conversionMap = new HashMap<>();
     private static final Map<Class<?>, UnaryOperator<Number>> numberConversionMap = new HashMap<>();
 
+    // Static initializer block for populating conversion maps
     static {
+        // String to Number conversion mappings
         conversionMap.put(Double.class, Double::valueOf);
         conversionMap.put(Long.class, Long::valueOf);
         conversionMap.put(Integer.class, Integer::valueOf);
@@ -105,6 +113,7 @@ public final class ObjectUtils {
         conversionMap.put(BigDecimal.class, BigDecimal::new);
         conversionMap.put(BigInteger.class, BigInteger::new);
 
+        // Number to Number conversion mappings
         numberConversionMap.put(Double.class, Number::doubleValue);
         numberConversionMap.put(Long.class, Number::longValue);
         numberConversionMap.put(Integer.class, Number::intValue);
@@ -115,8 +124,19 @@ public final class ObjectUtils {
         numberConversionMap.put(BigInteger.class, o -> new BigInteger(o.toString()));
     }
 
+    /**
+     * ClassLocal for caching parsing functions based on string input and expected type.
+     */
     static final ClassLocal<ThrowingFunction<String, Object, Exception>> PARSER_CL = ClassLocal.withInitial(new ConversionFunction());
+
+    /**
+     * ClassLocal for caching case-insensitive lookup maps for enums.
+     */
     static final ClassLocal<Map<String, Enum<?>>> CASE_IGNORE_LOOKUP = ClassLocal.withInitial(ObjectUtils::caseIgnoreLookup);
+
+    /**
+     * ClassValue for caching readResolve methods if present in classes.
+     */
     static final ClassValue<Method> READ_RESOLVE = ClassLocal.withInitial(c -> {
         try {
             Method m = c.getDeclaredMethod("readResolve");
@@ -128,9 +148,14 @@ public final class ObjectUtils {
             throw new AssertionError(e);
         }
     });
+
+    /**
+     * A map that stores immutability statuses for various classes, allowing for thread-safe
+     * checks and updates.
+     */
     private static final Map<Class<?>, Immutability> IMMUTABILITY_MAP = new ConcurrentHashMap<>();
 
-    // these should only ever be changed on startup.
+    // ClassLocals for caching default classes and suppliers, intended for use during application startup.
     private static volatile ClassLocal<Class<?>> interfaceToDefaultClass = ClassLocal.withInitial(ObjectUtils::lookForImplEnum);
     private static volatile ClassLocal<Supplier<?>> supplierClassLocal = ClassLocal.withInitial(ObjectUtils::supplierForClass);
 
@@ -162,22 +187,52 @@ public final class ObjectUtils {
         return defaultSupplier(c);
     }
 
+    /**
+     * Checks if the given class belongs to an internal JVM package.
+     * This method determines if the class's package name starts with "com.sun." or "java"
+     * and contains ".internal", indicating that it is part of a JVM internal package.
+     *
+     * @param c The class to check.
+     * @return {@code true} if the class is in an internal JVM package; {@code false} otherwise.
+     */
     private static boolean isInternalPackage(Class<?> c) {
         Package pkg = c.getPackage();
         return pkg != null && ((pkg.getName().startsWith("com.sun.") || pkg.getName().startsWith("java"))
                 && pkg.getName().contains(".internal"));
     }
 
+    /**
+     * Provides a supplier that throws an exception if an attempt is made to create objects
+     * from classes in JVM internal packages.
+     *
+     * @param <T> The type of the object to be supplied.
+     * @return A supplier that throws an IllegalArgumentException.
+     */
     static <T> Supplier<T> supplierForInternalPackage() {
         return () -> {
             throw new IllegalArgumentException("Cannot create objects in JVM internal packages");
         };
     }
 
+    /**
+     * Provides a supplier that throws an exception when attempting to create an object of a primitive type.
+     *
+     * @param c The class representing the primitive type.
+     * @param <T> The type of the object to be supplied.
+     * @return A supplier that throws an IllegalArgumentException.
+     */
     private static <T> Supplier<T> supplierForPrimitive(Class<T> c) {
         return () -> (T) rethrow(new IllegalArgumentException("primitive: " + c.getName()));
     }
 
+    /**
+     * Provides a supplier that throws an exception when attempting to create an object of an interface type.
+     * If the interface has a default implementation in the ObjectUtils map, it attempts to use that instead.
+     *
+     * @param c The class representing the interface type.
+     * @param <T> The type of the object to be supplied.
+     * @return A supplier for the default implementation class, or throws an IllegalArgumentException if none is found.
+     */
     private static <T> Supplier<T> supplierForInterface(Class<T> c) {
         return () -> {
             Class<?> aClass = ObjectUtils.interfaceToDefaultClass.get(c);
@@ -187,6 +242,13 @@ public final class ObjectUtils {
         };
     }
 
+    /**
+     * Provides a supplier for an enum type, using unsafe memory allocation to create an instance.
+     *
+     * @param c The class representing the enum type.
+     * @param <T> The type of the object to be supplied.
+     * @return A supplier that allocates an instance of the enum type.
+     */
     static <T> Supplier<T> supplierForEnum(Class<T> c) {
         return () -> {
             try {
@@ -197,10 +259,25 @@ public final class ObjectUtils {
         };
     }
 
+    /**
+     * Provides a supplier that throws an exception when attempting to create an object of an abstract class.
+     *
+     * @param c The class representing the abstract class.
+     * @param <T> The type of the object to be supplied.
+     * @return A supplier that throws an IllegalArgumentException.
+     */
     static <T> Supplier<T> supplierForAbstractClass(Class<T> c) {
         return () -> (T) rethrow(new IllegalArgumentException("abstract class: " + c.getName()));
     }
 
+    /**
+     * Provides a default supplier for creating instances of the specified class.
+     * This method first attempts to use the no-arg constructor. If that fails, it uses unsafe memory allocation.
+     *
+     * @param c The class for which to provide a supplier.
+     * @param <T> The type of the object to be supplied.
+     * @return A supplier for creating instances of the class.
+     */
     private static <T> Supplier<T> defaultSupplier(Class<T> c) {
         try {
             Constructor<T> constructor = c.getDeclaredConstructor();
@@ -220,9 +297,10 @@ public final class ObjectUtils {
 
     /**
      * Registers the immutability status of a class.
+     * This method updates a map that tracks whether classes are immutable or not.
      *
      * @param clazz       The class whose immutability status is to be registered.
-     * @param isImmutable True if the class is immutable, false otherwise.
+     * @param isImmutable {@code true} if the class is immutable; {@code false} otherwise.
      */
     public static void immutable(final Class<?> clazz, final boolean isImmutable) {
         IMMUTABILITY_MAP.put(clazz, isImmutable ? Immutability.YES : Immutability.NO);
@@ -294,9 +372,19 @@ public final class ObjectUtils {
         }
     }
 
+    /**
+     * Compares a {@link CharSequence} to a {@link String} while ignoring case.
+     * If the {@link CharSequence} is an instance of {@link String}, it directly uses {@link String#equalsIgnoreCase(String)}.
+     * Otherwise, it delegates to a utility method to handle the comparison.
+     *
+     * @param cs The {@link CharSequence} to compare.
+     * @param s  The {@link String} to compare against.
+     * @return {@code true} if the characters are equal ignoring case, {@code false} otherwise.
+     */
     private static boolean equalsCaseIgnore(CharSequence cs, String s) {
         if (cs instanceof String)
             return ((String) cs).equalsIgnoreCase(s);
+        // Delegate to utility method for other CharSequence types
         return StringUtils.equalsCaseIgnore(cs, s);
     }
 
@@ -432,6 +520,15 @@ public final class ObjectUtils {
         throw new ClassCastException("Unable to convert " + o.getClass() + " " + o + " to " + eClass);
     }
 
+    /**
+     * Converts an object to a {@link Character}, if possible.
+     * If the object's string representation is a single character, it returns that character.
+     * If the string is empty, it returns the null character. Otherwise, it returns null.
+     *
+     * @param o The object to convert.
+     * @param <E> The type of the object.
+     * @return The converted character or null if conversion is not possible.
+     */
     @Nullable
     static <E> E convertChar(@NotNull Object o) {
         String s = o.toString();
@@ -442,9 +539,21 @@ public final class ObjectUtils {
         return null;
     }
 
+    /**
+     * Converts a {@link CharSequence} to the specified class type, if possible.
+     * This method handles conversion to {@link Character} and {@link String} specifically, and attempts
+     * to use a parser for other types.
+     *
+     * @param eClass The class type to convert to.
+     * @param o      The {@link CharSequence} to convert.
+     * @param <E>    The type of the object.
+     * @return The converted object or null if conversion is not possible.
+     */
     @Nullable
     private static <E> E convertCharSequence(Class<E> eClass, CharSequence o) {
         @Nullable CharSequence cs = o;
+
+        // Convert to Character type if applicable
         if (Character.class.equals(eClass)) {
             if (cs.length() > 0)
                 try {
@@ -455,10 +564,12 @@ public final class ObjectUtils {
             else
                 return null;
         }
+
+        // Convert to String type if applicable
         @NotNull String s = cs.toString();
         if (eClass == String.class)
             return (E) s;
-
+        // Attempt to parse other types using registered parsers
         try {
             return (E) PARSER_CL.get(eClass).apply(s);
 
@@ -468,10 +579,10 @@ public final class ObjectUtils {
     }
 
     /**
-     * Wraps the provided exception in a ClassCastException.
+     * Wraps the provided exception in a {@link ClassCastException}.
      *
      * @param e The exception to be wrapped.
-     * @return A ClassCastException with the provided exception set as its cause.
+     * @return A {@link ClassCastException} with the provided exception set as its cause.
      */
     @NotNull
     public static ClassCastException asCCE(Exception e) {
@@ -858,13 +969,34 @@ public final class ObjectUtils {
         return tClass;
     }
 
+    /**
+     * Enum representing the immutability status of a class or object.
+     * <ul>
+     *     <li>{@code YES} - The class or object is immutable.</li>
+     *     <li>{@code NO} - The class or object is not immutable.</li>
+     *     <li>{@code MAYBE} - The immutability of the class or object is uncertain or conditional.</li>
+     * </ul>
+     */
     public enum Immutability {
         YES, NO, MAYBE
     }
 
+    /**
+     * A function that provides a conversion mechanism for various classes.
+     * This function attempts to find an appropriate method to convert a {@link String} into an instance of a specified class.
+     * It supports several standard types, dynamic enums, and other classes with suitable static methods or constructors.
+     */
     private static final class ConversionFunction implements Function<Class<?>, ThrowingFunction<String, Object, Exception>> {
+
+        /**
+         * Applies the conversion function to a given class to obtain a function that converts a {@link String} into an instance of that class.
+         *
+         * @param c The class for which the conversion function is to be created.
+         * @return A {@link ThrowingFunction} that converts a {@link String} to an instance of the specified class.
+         */
         @Override
         public ThrowingFunction<String, Object, Exception> apply(@NotNull Class<?> c) {
+            // Conversion logic for specific types
             if (c == Class.class)
                 return CLASS_ALIASES::forName;
             if (c == Boolean.class)
@@ -875,38 +1007,46 @@ public final class ObjectUtils {
                 return String::getBytes;
             if (CoreDynamicEnum.class.isAssignableFrom(c))
                 return EnumCache.of(c)::get;
+            // Attempt to use a static 'valueOf' method if available
             try {
                 Method valueOf = c.getDeclaredMethod("valueOf", String.class);
                 ClassUtil.setAccessible(valueOf);
                 return s -> valueOf.invoke(null, s);
             } catch (NoSuchMethodException e) {
-                // ignored
+                // Method not found, continue to next check
             }
 
+            // Attempt to use a static 'parse' method if available
             try {
                 Method parse = c.getDeclaredMethod("parse", CharSequence.class);
                 ClassUtil.setAccessible(parse);
                 return s -> parse.invoke(null, s);
 
             } catch (NoSuchMethodException e) {
-                // ignored
+                // Method not found, continue to next check
             }
+
+            // Attempt to use a constructor that accepts a String if available
             try {
                 final Constructor<?> constructor = c.getDeclaredConstructor(String.class);
                 ClassUtil.setAccessible(constructor);
                 return constructor::newInstance;
             } catch (Exception e) {
+                // Throw a ClassCastException if no suitable conversion method was found
                 throw asCCE(e);
             }
         }
     }
 
     /**
-     * Standard mechanism to determine objects as not null. Same method contract as {@link Objects#requireNonNull(Object)}
-     * and also decorated with {@link NotNull} so that IntelliJ and other static analysis tools can work their magic.
+     * Ensures that the provided object reference is not null.
+     * This method serves the same purpose as {@link Objects#requireNonNull(Object)}, but is also annotated with {@link NotNull}
+     * to facilitate better static analysis and null-checking by IDEs like IntelliJ IDEA.
      *
-     * @param o reference to check for nullity
-     * @throws NullPointerException If o is {@code null }
+     * @param o The object reference to check for nullity.
+     * @param <T> The type of the object.
+     * @return The non-null object reference that was validated.
+     * @throws NullPointerException If the object reference is {@code null}.
      */
     @SuppressWarnings("UnusedReturnValue")
     public static <T> T requireNonNull(@NotNull T o) {

@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.util.ClassLocal;
@@ -43,8 +44,10 @@ import java.util.Set;
  */
 public abstract class EnumCache<E> {
 
+    // ClassLocal instance to cache EnumCache instances by class.
     private static final ClassLocal<EnumCache<?>> ENUM_CACHE_CL = ClassLocal.withInitial(EnumCache::createFromUnknownClass);
 
+    // The class of the enum type this cache manages.
     protected final Class<E> type;
 
     /**
@@ -132,6 +135,18 @@ public abstract class EnumCache<E> {
      */
     public abstract Set<E> createSet();
 
+    /**
+     * Creates an EnumCache instance based on the class type.
+     * <p>
+     * If the class extends {@link CoreDynamicEnum}, a {@link DynamicEnumClass} is created.
+     * Otherwise, a {@link StaticEnumClass} is created for standard enums.
+     *
+     * @param eClass the class type to create the cache for.
+     * @param <E> the type of the enum.
+     * @param <D> the type for dynamic enums.
+     * @param <S> the type for static enums.
+     * @return a new instance of EnumCache appropriate for the class type.
+     */
     @SuppressWarnings("unchecked")
     private static <E, D extends CoreDynamicEnum<D>, S extends Enum<S> & CoreDynamicEnum<S>> EnumCache<E> createFromUnknownClass(Class<E> eClass) {
         return (EnumCache<E>) (CoreDynamicEnum.class.isAssignableFrom(eClass)

@@ -23,49 +23,61 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 /**
- * A shutdown hook that allows running in controlled order.
+ * A shutdown hook that allows running in a controlled order.
+ * <p>
+ * This abstract class represents a hook that can be registered to run during the shutdown process.
+ * Each hook has a priority, which determines the order in which it will be executed relative to other hooks.
+ * Lower priority hooks are executed before higher priority ones. The `Hooklet` also provides a mechanism
+ * to ensure that hooks are only registered once, even if added multiple times.
+ * </p>
  */
 public abstract class Hooklet implements Comparable<Hooklet> {
+
     /**
      * The callback which will be invoked on shutdown.
+     * <p>
+     * Subclasses must implement this method to define the behavior that should occur when the hook is triggered during shutdown.
+     * </p>
      */
     public abstract void onShutdown();
 
     /**
-     * Hooks with lesser priority will be called before hooks with greater priority.
+     * Returns the priority of the hook.
      * <p>
-     * It is advised to allocate an unique priority in the range of 0-100.
-     * In general, more high level code needs to do its shutdown routines before lower level code.
-     * An example priority layout is given below:
-     * <p>
-     * 0: Run before all hooks. For test/example use.
-     * 1-49: Release of network resources and stopping distributed activity.
-     * 50-89: Release of local resources and stopping data structures.
-     * 90-99 Cleanup of file system resources such as temporary directories.
-     * 100: Run after all hooks. For test/example use.
+     * Hooks with a lower priority value will be executed before hooks with a higher priority value.
+     * It is recommended to assign a unique priority in the range of 0-100. The priority helps in organizing
+     * the shutdown process where higher-level code (e.g., network resource release) should be executed
+     * before lower-level code (e.g., cleanup of temporary files).
+     * </p>
+     *
+     * @return The priority of the hook.
      */
     public abstract int priority();
 
     /**
-     * Hooks are only called once but may be registered multiple times.
-     * To determine if hook is already present, an object returned by this method is compared.
+     * Provides an identity object to determine if the hook is already registered.
      * <p>
-     * The default implementation returns this instance's class and should usually be sufficient.
+     * Hooks are only executed once but can be registered multiple times. To check if a hook is already present,
+     * the object returned by this method is used for comparison. By default, the identity is the class of the instance,
+     * but this can be overridden if a different comparison logic is needed.
+     * </p>
      *
-     * @return Identity object.
+     * @return An identity object used to determine if the hook is already registered.
      */
     protected Object identity() {
         return getClass();
     }
 
     /**
-     * Accepts callback and priority to produce shutdown hook object.
+     * Creates a new Hooklet instance with the specified priority and shutdown behavior.
      * <p>
-     * Hook callback class is used to check for identity, see {@link #identity()}.
+     * This method is a convenient way to create Hooklet instances without needing to subclass it.
+     * The hook's identity is determined by the class of the provided runnable.
+     * </p>
      *
-     * @param priority See {@link #priority()}
-     * @param hook     See {@link #onShutdown()}
-     * @return Shutdown hook object. See {@link PriorityHook#addAndGet(Hooklet)}
+     * @param priority The priority of the hook. See {@link #priority()} for more details.
+     * @param hook     The runnable to be executed on shutdown. See {@link #onShutdown()} for more details.
+     * @return A new Hooklet instance configured with the provided priority and runnable.
      */
     public static Hooklet of(int priority, Runnable hook) {
         return new Hooklet() {
@@ -86,16 +98,35 @@ public abstract class Hooklet implements Comparable<Hooklet> {
         };
     }
 
+    /**
+     * Compares this hook with another hook for order based on priority.
+     * <p>
+     * If two hooks have the same priority, they are further compared by their identity hash codes.
+     * </p>
+     *
+     * @param other The other hook to be compared.
+     * @return A negative integer, zero, or a positive integer as this hook's priority
+     * is less than, equal to, or greater than the specified hook's priority.
+     */
     @Override
     public int compareTo(@NotNull Hooklet other) {
         int delta = priority() - other.priority();
 
-        if (delta == 0)
+        if (delta == 0) // If priorities are equal, compare by identity hash code
             return identity().hashCode() - other.identity().hashCode();
 
         return delta;
     }
 
+    /**
+     * Checks if this hook is equal to another object.
+     * <p>
+     * Two hooks are considered equal if they have the same priority and the same identity.
+     * </p>
+     *
+     * @param obj The object to be compared with this hook.
+     * @return true if the specified object is equal to this hook; false otherwise.
+     */
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Hooklet))
@@ -107,11 +138,27 @@ public abstract class Hooklet implements Comparable<Hooklet> {
                 this.identity().equals(that.identity());
     }
 
+    /**
+     * Returns the hash code value for this hook.
+     * <p>
+     * The hash code is computed based on the priority and identity of the hook.
+     * </p>
+     *
+     * @return The hash code value for this hook.
+     */
     @Override
     public int hashCode() {
         return Objects.hash(priority(), identity());
     }
 
+    /**
+     * Returns a string representation of the hook.
+     * <p>
+     * The string representation includes the hook's priority and identity.
+     * </p>
+     *
+     * @return A string representation of the hook.
+     */
     @Override
     public String toString() {
         return "Hooklet{ priority: " + priority() + ", identity: " + identity() + " }";

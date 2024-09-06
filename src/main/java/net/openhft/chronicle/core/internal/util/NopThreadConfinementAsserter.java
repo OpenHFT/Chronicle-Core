@@ -20,9 +20,32 @@ package net.openhft.chronicle.core.internal.util;
 
 import net.openhft.chronicle.core.util.ThreadConfinementAsserter;
 
+/**
+ * A no-operation (NOP) implementation of {@link ThreadConfinementAsserter}.
+ * <p>
+ * This class is used in scenarios where thread confinement assertions are not required.
+ * The {@link #assertThreadConfined()} method does nothing, effectively acting as a placeholder
+ * or default implementation when thread confinement checks are unnecessary.
+ * </p>
+ * <p>
+ * This implementation follows the Singleton design pattern and uses an enum for ensuring a single instance
+ * (as enum singletons are inherently thread-safe and serialization-proof).
+ * </p>
+ */
 enum NopThreadConfinementAsserter implements ThreadConfinementAsserter {
+
+    /**
+     * The single instance of this no-op asserter.
+     */
     INSTANCE;
 
+    /**
+     * No-op implementation of the thread confinement assertion.
+     * <p>
+     * This method is a placeholder and performs no actual thread confinement checks. It is used
+     * when thread confinement assertions are not needed or are deliberately ignored.
+     * </p>
+     */
     @Override
     public void assertThreadConfined() {
         // Do nothing

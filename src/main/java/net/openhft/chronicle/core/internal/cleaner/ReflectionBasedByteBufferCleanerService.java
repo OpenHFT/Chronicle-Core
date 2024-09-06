@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.openhft.chronicle.core.internal.cleaner;
 
 import net.openhft.chronicle.core.Jvm;
@@ -28,10 +29,27 @@ import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * A {@link ByteBufferCleanerService} implementation that uses reflection to invoke the cleaner on {@link ByteBuffer} instances.
+ * <p>
+ * This implementation works across Java 8 and Java 9+ environments by dynamically detecting and using
+ * the appropriate cleaner mechanism. It supports the cleaning of direct buffers to free up native memory.
+ * </p>
+ * <p>
+ * For Java 9+, the cleaner class used is {@code jdk.internal.ref.Cleaner}, whereas for Java 8, it uses {@code sun.misc.Cleaner}.
+ * </p>
+ * <p>
+ * Users should ensure the appropriate JVM arguments are set, such as:
+ * {@code --illegal-access=permit --add-exports java.base/jdk.internal.ref=ALL-UNNAMED}, to allow access to internal classes.
+ * </p>
+ */
 public final class ReflectionBasedByteBufferCleanerService implements ByteBufferCleanerService {
+
+    // Class names for Java 8 and Java 9+ cleaner classes
     private static final String JDK8_CLEANER_CLASS_NAME = "sun.misc.Cleaner";
     private static final String JDK9_CLEANER_CLASS_NAME = "jdk.internal.ref.Cleaner";
 
+    // Method handles for invoking the cleaner
     private static final MethodHandle CLEANER_METHOD;
     private static final MethodHandle CLEAN_METHOD;
     private static final Impact IMPACT;
@@ -64,6 +82,15 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
         IMPACT = impact;
     }
 
+    /**
+     * Cleans the specified direct {@link ByteBuffer} by invoking the cleaner using reflection.
+     * <p>
+     * If the cleaner is not available, a warning will be logged, and the buffer will remain uncleaned until garbage collection occurs.
+     * </p>
+     *
+     * @param buffer The direct {@link ByteBuffer} to clean.
+     * @throws RuntimeException If any error occurs during the invocation of the cleaner method.
+     */
     @Override
     public void clean(final ByteBuffer buffer) {
         if (IMPACT == Impact.UNAVAILABLE) {
@@ -82,6 +109,14 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
         }
     }
 
+    /**
+     * Indicates the impact of using this cleaner service.
+     * <p>
+     * The impact could be either {@link Impact#SOME_IMPACT} or {@link Impact#UNAVAILABLE}, depending on whether the cleaner could be initialized.
+     * </p>
+     *
+     * @return The {@link Impact} of using this cleaner service.
+     */
     @Override
     public Impact impact() {
         return IMPACT;

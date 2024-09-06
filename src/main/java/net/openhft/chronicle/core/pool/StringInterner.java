@@ -26,60 +26,96 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
- * <p>
- * StringInterner only guarantees it will behave in a correct manner. When you ask it for a String for a given input, it must return a String which matches the toString() of that CharSequence.
- * <p>
- * It doesn't guarantee that all threads see the same data, nor that multiple threads will return the same String object for the same string. It is designed to be a best-effort basis so it can be as lightweight as possible.
- * <p>
- * So while technically not thread safe, it doesn't prevent it operating correctly when used from multiple threads, but it is faster than added explicit locking or thread safety. NOTE: It does rely on String being thread safe, something which was guaranteed from Java 5.0 onwards c.f. JSR 133.
- * <p>
- * Discussion <a href="https://stackoverflow.com/questions/63383745/string-array-needless-synchronization/63383983">...</a>
- * <p>
- * This class provides string interning functionality.
- * It's used to optimize memory usage by caching strings and
- * referring to them by index, rather than storing duplicate strings.
- * When you 'intern' a string, it's looked up in the cache and
- * if an equal string is found, it's returned instead of creating a new one.
+ * The {@code StringInterner} class provides string interning functionality to optimize memory usage by caching strings.
+ * When a string is interned, it is looked up in the cache, and if an equal string is found, it is returned instead of creating a new one.
  *
- * @author peter.lawrey
+ * <p>This class only guarantees correct behavior in terms of interning. When you ask it for a {@code String} for a given input,
+ * it must return a {@code String} that matches the {@code toString()} of that {@code CharSequence}.
+ *
+ * <p>It does not guarantee that all threads will see the same data, nor that multiple threads will return the same {@code String} object for the same string.
+ * It is designed to be a best-effort basis to be as lightweight as possible.
+ *
+ * <p>While technically not thread-safe, it can operate correctly when used from multiple threads without explicit locking or thread safety,
+ * leveraging the thread safety of {@code String} in Java from version 5.0 onwards (JSR 133).
+ *
+ * <p>For more discussion on this, see: <a href="https://stackoverflow.com/questions/63383745/string-array-needless-synchronization/63383983">...</a>
+ *
+ * <p>Example usage:
+ * <pre>
+ * {@code
+ * StringInterner si = new StringInterner(128);
+ * String internedString = si.intern("example");
+ * }
+ * </pre>
+ *
+ * <p>The {@code StringInterner} is used to optimize memory usage by caching strings and referring to them by index, rather than storing duplicate strings.
+ * When you 'intern' a string, it is looked up in the cache, and if an equal string is found, it is returned instead of creating a new one.
+ * </p>
+ *
  */
-
 public class StringInterner {
+
+    /**
+     * Array that stores the interned strings.
+     */
     protected final String[] interner;
+
+    /**
+     * A bit mask used for index calculation in the cache array.
+     */
     protected final int mask;
+
+    /**
+     * The number of bits to shift when calculating the secondary index.
+     */
     protected final int shift;
+
+    /**
+     * A toggle used to determine which slot to replace on a cache miss.
+     */
     protected boolean toggle = false;
 
+    /**
+     * Functional interface for handling changes in interned strings.
+     */
     public interface Changed {
         void onChanged(int index, String value);
     }
 
     /**
-     * Constructs a new StringInterner with the specified capacity.
+     * Constructs a new {@code StringInterner} with the specified capacity.
      *
      * @param capacity the initial capacity of the interner.
      * @throws IllegalArgumentException if the capacity is invalid.
      */
     public StringInterner(int capacity) throws IllegalArgumentException {
+        // Calculate the nearest power of two greater than or equal to the specified capacity.
         int n = Maths.nextPower2(capacity, 128);
+        // Calculate the number of bits needed to represent the cache size.
         shift = Maths.intLog2(n);
+        // Initialize the interner array with the calculated size.
         interner = new String[n];
+        // Set the mask for fast index calculation.
         mask = n - 1;
     }
 
     /**
-     * @return the size of interner[]
+     * Returns the size of the interner array.
+     *
+     * @return the size of the interner array.
      */
     public int capacity() {
         return interner.length;
     }
 
     /**
-     * Interns the specified CharSequence.
+     * Interns the specified {@code CharSequence}.
+     * If an equal string is found in the cache, it is returned; otherwise,
+     * the provided {@code CharSequence} is added to the cache.
      *
-     * @param cs the CharSequence to intern.
-     * @return the interned string, or the original CharSequence
-     * if it's not interned.
+     * @param cs the {@code CharSequence} to intern.
+     * @return the interned string, or the original {@code CharSequence}
+     * if it is not interned.
      */
     @Nullable
     public String intern(@Nullable CharSequence cs) {
@@ -87,16 +123,28 @@ public class StringInterner {
             return null;
         if (cs.length() > interner.length)
             return cs.toString();
+
+        // Compute a 64-bit hash of the CharSequence.
         long h1 = Maths.hash64(cs);
         h1 ^= h1 >> 32;
+
+        // Calculate the primary index using the mask.
         int h = (int) h1 & mask;
         String s = interner[h];
+
+        // Check if the cached string matches the given CharSequence.
         if (StringUtils.isEqual(cs, s))
             return s;
+
+        // Calculate the secondary index using the hash shift and mask.
         int h2 = (int) (h1 >> shift) & mask;
         String s2 = interner[h2];
+
+        // Check if the cached string at the secondary index matches the CharSequence.
         if (StringUtils.isEqual(cs, s2))
             return s2;
+
+        // Convert the CharSequence to a String and add it to the cache.
         String s3 = cs.toString();
         interner[s == null || (s2 != null && toggle()) ? h : h2] = s3;
 
@@ -104,77 +152,90 @@ public class StringInterner {
     }
 
     /**
-     * provide
+     * Returns the index of the interned string in the cache, or -1 if not stored.
+     * This method can be used in conjunction with the {@code Changed} interface to handle
+     * cache changes.
      *
-     * @param cs a source string
-     * @return the index that the internered string is stored in, or -1 if not stored
-     * <p>
-     * An example of the StringInterner used in conjunction with the uppercase[] to cache another value
+     * <p>Example usage:
      * <pre>
+     * {@code
+     * StringInterner si = new StringInterner(128);
+     * String[] uppercase = new String[si.capacity()];
      *
-     * private String[] uppercase;
+     * String lowerCaseString = "example";
      *
-     * public void myMethod() throws IllegalArgumentException {
-     *
-     *         StringInterner si = new StringInterner(128);
-     *         uppercase = new String[si.capacity()];
-     *
-     *         String lowerCaseString = ...
-     *
-     *         int index = si.index(lowerCaseString, this::changed);
-     *         if (index != -1)
-     *             assertEquals(lowerCaseString.toUpperCase(), uppercase[index]);
+     * int index = si.index(lowerCaseString, (i, value) -> uppercase[i] = value.toUpperCase());
+     * if (index != -1)
+     *     assertEquals(lowerCaseString.toUpperCase(), uppercase[index]);
      * }
-     *
-     * private void changed(int index, String value) {
-     *      uppercase[index] = value.toUpperCase();
-     * }
-     *
      * </pre>
+     *
+     * @param cs        a source string to be interned.
+     * @param onChanged a callback function invoked when the interned string changes.
+     * @return the index where the interned string is stored, or -1 if not stored.
      */
     public int index(@Nullable CharSequence cs, @Nullable Changed onChanged) {
         if (cs == null)
             return -1;
         if (cs.length() > interner.length)
             return -1;
+
+        // Compute a 64-bit hash of the CharSequence.
         long h1 = Maths.hash64(cs);
         h1 ^= h1 >> 32;
+
+        // Calculate the primary index using the mask.
         int h = (int) h1 & mask;
         String s = interner[h];
+
+        // Check if the cached string matches the given CharSequence.
         if (StringUtils.isEqual(cs, s))
             return h;
 
+        // Calculate the secondary index using the hash shift and mask.
         int h2 = (int) (h1 >> shift) & mask;
         String s2 = interner[h2];
+
+        // Check if the cached string at the secondary index matches the CharSequence.
         if (StringUtils.isEqual(cs, s2))
             return h2;
 
+        // Convert the CharSequence to a String and add it to the cache.
         String s3 = cs.toString();
         final int i = s == null || (s2 != null && toggle()) ? h : h2;
 
         interner[i] = s3;
+
+        // Notify the onChanged callback if provided.
         if (onChanged != null)
             onChanged.onChanged(i, s3);
+
         return i;
     }
 
     /**
-     * get an intered string based on the index
+     * Retrieves an interned string based on the specified index.
      *
-     * @param index the index of the  interner string, to acquire an index call  {@link net.openhft.chronicle.core.pool.StringInterner#index}
-     * @return interned String
+     * @param index the index of the interned string, obtained via {@link #index}.
+     * @return the interned string at the specified index.
      */
     public String get(int index) {
         return interner[index];
     }
 
+    /**
+     * Toggles the internal state between true and false, used to alternate
+     * cache slot replacement between two possible slots.
+     *
+     * @return the new state of the toggle after toggling.
+     */
     protected boolean toggle() {
         toggle = !toggle;
         return toggle;
     }
 
     /**
-     * Returns the number of values in the interner.
+     * Returns the number of values currently stored in the interner.
      *
      * @return the count of non-null strings in the interner.
      */

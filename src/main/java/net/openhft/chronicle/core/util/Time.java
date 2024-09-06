@@ -22,23 +22,43 @@ import net.openhft.chronicle.core.time.SystemTimeProvider;
 import net.openhft.chronicle.core.time.UniqueMicroTimeProvider;
 
 /**
- * A timer for timeouts which is resilient to pauses in the JVM, tickTime can only increase if the JVM hasn't been paused.
+ * A utility class providing timing functions that are resilient to pauses in the JVM. This class
+ * ensures that the generated time-based unique identifiers (`uniqueId()`) are monotonically increasing,
+ * even if the JVM experiences pauses.
  * <p>
- * For this to work, currentTimeMillis (or one of the methods that calls it) must be called more frequently than
- * every millisecond; the EventLoop implementations in chronicle-threads do this.
- * 
+ * The timing logic depends on the {@link UniqueMicroTimeProvider} and falls back to
+ * {@link SystemTimeProvider} if necessary. For accurate time tracking, the `currentTimeMillis()`
+ * method (or one of its callers) should be invoked more frequently than every millisecond. This
+ * requirement is typically met in systems using the EventLoop implementations in the
+ * chronicle-threads library.
  */
 public final class Time {
+
+    /**
+     * Private constructor to prevent instantiation of this utility class.
+     */
     private Time() {
     }
 
+    /**
+     * Generates a unique identifier based on the current time in microseconds. The identifier
+     * is derived from the current time provided by {@link UniqueMicroTimeProvider} or
+     * {@link SystemTimeProvider} in case of an {@link IllegalStateException}.
+     * <p>
+     * The identifier is returned as a base-36 encoded string for compactness.
+     *
+     * @return A unique identifier string based on the current time in microseconds.
+     */
     public static String uniqueId() {
         long l;
         try {
+            // Attempt to get the current time in microseconds from the unique time provider
             l = UniqueMicroTimeProvider.INSTANCE.currentTimeMicros();
         } catch (IllegalStateException e) {
+            // Fallback to the system time provider in case of an exception
             l = SystemTimeProvider.INSTANCE.currentTimeMicros();
         }
+        // Convert the time to a base-36 string for a compact unique identifier
         return Long.toString(l, 36);
     }
 

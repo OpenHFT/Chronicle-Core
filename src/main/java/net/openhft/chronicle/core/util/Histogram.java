@@ -41,15 +41,18 @@ import java.util.stream.IntStream;
  */
 @SingleThreaded
 public class Histogram implements NanoSampler {
+    // Decimal formats for various precisions
     private static final DecimalFormat F3 = new DecimalFormat("0.000");
     private static final DecimalFormat F2 = new DecimalFormat("0.00");
     private static final DecimalFormat F1 = new DecimalFormat("0.0");
-    private int fractionBits;
-    private int powersOf2;
-    private long overRange;
-    private long totalCount;
-    private long floor;
-    private int[] sampleCount;
+
+    // Parameters defining the histogram
+    private int fractionBits; // Number of bits used for fractions
+    private int powersOf2; // Number of powers of 2 to use
+    private long overRange; // Count of samples over the maximum range
+    private long totalCount; // Total count of all samples
+    private long floor; // Minimum value bucketed in the histogram
+    private int[] sampleCount; // Array to hold sample counts for each bucket
 
     /**
      * Creates a new Histogram with default parameters. The default number of powers of 2 is 42 and the default
@@ -79,12 +82,16 @@ public class Histogram implements NanoSampler {
     public Histogram(int powersOf2, int fractionBits, double minValue) {
         this.powersOf2 = powersOf2;
         this.fractionBits = fractionBits;
+        // Initialize the sample count array based on powers of 2 and fraction bits
         sampleCount = new int[powersOf2 << fractionBits];
+        // Calculate the floor based on the minimum value and fraction bits
         floor = Double.doubleToRawLongBits(minValue) >> (52 - fractionBits);
     }
 
     /**
-     * @return Histogram for use with System.nanoTime() up to 4 second delay.
+     * Returns a Histogram designed for use with System.nanoTime() for timing up to 4 seconds delay.
+     *
+     * @return A Histogram configured for microsecond precision timing.
      */
     @NotNull
     public static Histogram timeMicros() {
@@ -243,8 +250,9 @@ public class Histogram implements NanoSampler {
 
     /**
      * Gets the minimum value in the histogram.
+     * This is equivalent to the 0th percentile.
      *
-     * @return the minimum value
+     * @return The minimum value represented in the histogram.
      */
     public double min() {
         return percentile(0.0);
@@ -252,8 +260,9 @@ public class Histogram implements NanoSampler {
 
     /**
      * Gets the median value in the histogram.
+     * This is equivalent to the 50th percentile, also known as the typical value.
      *
-     * @return the median value
+     * @return The median value represented in the histogram.
      */
     public double typical() {
         return percentile(0.5);
@@ -261,35 +270,51 @@ public class Histogram implements NanoSampler {
 
     /**
      * Gets the maximum value in the histogram.
+     * This is equivalent to the 100th percentile.
      *
-     * @return the maximum value
+     * @return The maximum value represented in the histogram.
      */
     public double max() {
         return percentile(1.0);
     }
 
+    /**
+     * Calculates the value at a given percentile in the histogram.
+     * The percentile is represented as a fraction between 0.0 and 1.0, where 0.0 corresponds to the minimum value,
+     * 0.5 corresponds to the median, and 1.0 corresponds to the maximum value.
+     *
+     * @param fraction The percentile as a fraction (0.0 for the minimum, 1.0 for the maximum).
+     * @return The value at the given percentile.
+     */
     public double percentile(double fraction) {
         if (fraction <= 0) {
+            // Find the smallest value in the histogram that has a non-zero count
             for (int i = 0; i < sampleCount.length; i++) {
                 if (sampleCount[i] <= 0)
-                    continue;
+                    continue; // Skip empty buckets
+                // Calculate the double value corresponding to the histogram bucket
                 long bits = ((((i + floor) << 1) + 1) << (51 - fractionBits));
                 return Double.longBitsToDouble(bits);
             }
-            return 1;
+            return 1; // Return default value if all buckets are empty
         }
+
+        // Calculate the target count based on the total count and the desired percentile
         long value = (long) (totalCount * (1 - fraction));
-        value -= overRange;
+        value -= overRange; // Adjust for samples that are over the maximum range
         if (value < 0)
-            return Double.POSITIVE_INFINITY;
+            return Double.POSITIVE_INFINITY; // Return infinity if value is less than zero
+        // Find the histogram bucket corresponding to the desired percentile
         for (int i = sampleCount.length - 1; i >= 0; i--) {
             value -= sampleCount[i];
             if (value < 0) {
+                // Calculate the double value corresponding to the histogram bucket
                 long bits = ((((i + floor) << 1) + 1) << (51 - fractionBits));
                 return Double.longBitsToDouble(bits);
             }
         }
-        return 1;
+
+        return 1; // Return default value if no bucket is found
     }
 
     /**
@@ -414,10 +439,22 @@ public class Histogram implements NanoSampler {
                 p(toMicros.apply(percentile(1)));
     }
 
+    /**
+     * Returns a string indicating a past tense state, used for formatting.
+     *
+     * @return A string "was ".
+     */
     protected String was() {
         return "was ";
     }
 
+    /**
+     * Generates a string representation of specific percentile values, formatted to show precision up to four nines (99.99%).
+     * This method converts percentile values to microseconds and formats them using predefined precision rules.
+     *
+     * @param toMicros A function to convert the percentile values to microseconds.
+     * @return A formatted string representing the percentile values at various levels of precision.
+     */
     @NotNull
     private String first4nines(@NotNull DoubleFunction<Double> toMicros) {
         return p(toMicros.apply(percentile(0.5))) + " / " +
@@ -430,10 +467,17 @@ public class Histogram implements NanoSampler {
                 p(toMicros.apply(percentile(0.9999)));
     }
 
+    /**
+     * Formats a double value according to its range, using different precision formats for different ranges.
+     * This method uses static non-thread-safe fields for formatting, hence it is synchronized on the {@link Histogram} class.
+     *
+     * @param v The value to be formatted.
+     * @return The formatted string representation of the value.
+     */
     @NotNull
     private String p(double v) {
         double v2 = v * 100 / (1 << fractionBits);
-        // Uses non thread safe static fields.
+        // Uses non thread-safe static fields for formatting, hence synchronized.
         synchronized (Histogram.class) {
             return v2 < 1 ? F3.format(v) :
                     v2 < 10 ? F2.format(v) :
@@ -443,18 +487,30 @@ public class Histogram implements NanoSampler {
         }
     }
 
+    /**
+     * Returns the total count of samples in the histogram.
+     *
+     * @return The total count of samples.
+     */
     public long totalCount() {
         return totalCount;
     }
 
+    /**
+     * Returns the minimum value bucketed in the histogram (floor value).
+     *
+     * @return The floor value.
+     */
     public long floor() {
         return floor;
     }
 
+    /**
+     * Resets the histogram, clearing all samples and resetting counts.
+     */
     public void reset() {
-        totalCount = overRange = 0;
-
-        Arrays.fill(sampleCount, 0);
+        totalCount = overRange = 0; // Reset total count and over-range count
+        Arrays.fill(sampleCount, 0); // Reset all bucket counts to zero
     }
 
     @Override

@@ -18,11 +18,22 @@
 
 package net.openhft.chronicle.core;
 
+/**
+ * A specialized {@link Runnable} interface that provides a default method to perform an action after the
+ * static initialization of the {@link Jvm} class.
+ *
+ * This interface is intended for use with classes that need to run some initialization code after the
+ * {@code Jvm} class has completed its static initialization. Implementing classes can override the
+ * {@link #postInit()} method to provide custom post-initialization logic.
+ */
 public interface ChronicleInitRunnable extends Runnable {
     /**
-     * This method will be run once at the end of Jvm.class static initialization.
+     * This method is called once at the end of the static initialization of the {@link Jvm} class.
+     *
+     * By default, this method does nothing (no-op). Implementing classes can override this method
+     * to execute any necessary post-initialization tasks after the {@code Jvm} class has been initialized.
      */
     default void postInit() {
-        // No-op.
+        // No-op (No operation by default)
     }
 }

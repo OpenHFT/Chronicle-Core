@@ -37,12 +37,16 @@ import java.util.function.Consumer;
 
 /**
  * The Mocker class provides utility methods for creating mocked instances of interfaces.
+ * It allows the creation of proxies that can log, queue, or intercept method invocations
+ * for testing and debugging purposes.
  */
 public final class Mocker {
 
     private static final Class<?>[] NO_CLASSES = new Class[0];
 
-    // Suppresses default constructor, ensuring non-instantiability.
+    /**
+     * Suppresses default constructor, ensuring non-instantiability.
+     */
     private Mocker() {
     }
 
@@ -57,6 +61,7 @@ public final class Mocker {
      */
     @NotNull
     public static <T> T logging(@NotNull Class<T> interfaceType, String description, @NotNull PrintStream out) {
+        // Uses println method of PrintStream to log the method invocations
         return intercepting(interfaceType, description, out::println);
     }
 
@@ -71,6 +76,7 @@ public final class Mocker {
      */
     @NotNull
     public static <T> T logging(@NotNull Class<T> interfaceType, String description, @NotNull PrintWriter out) {
+        // Uses println method of PrintWriter to log the method invocations
         return intercepting(interfaceType, description, out::println);
     }
 
@@ -85,6 +91,7 @@ public final class Mocker {
      */
     @NotNull
     public static <T> T logging(@NotNull Class<T> interfaceType, String description, @NotNull StringWriter out) {
+        // Delegates logging to the PrintWriter created with the provided StringWriter
         return logging(interfaceType, description, new PrintWriter(out));
     }
 
@@ -99,6 +106,7 @@ public final class Mocker {
      */
     @NotNull
     public static <T> T queuing(@NotNull Class<T> interfaceType, String description, @NotNull BlockingQueue<String> queue) {
+        // Uses add method of BlockingQueue to enqueue the method invocations
         return intercepting(interfaceType, description, queue::add);
     }
 
@@ -113,6 +121,7 @@ public final class Mocker {
      */
     @NotNull
     public static <T> T intercepting(@NotNull Class<T> interfaceType, String description, @NotNull Consumer<String> consumer) {
+        // Intercepts invocations with no delegate object
         return intercepting(interfaceType, description, consumer, null);
     }
 
@@ -130,6 +139,7 @@ public final class Mocker {
      */
     @NotNull
     public static <T> T intercepting(@NotNull Class<T> interfaceType, @NotNull final String description, @NotNull Consumer<String> consumer, T t) {
+        // Intercepts invocations and optionally delegates them
         return intercepting(interfaceType,
                 (name, args) -> consumer.accept(description + name + (args == null ? "()" : Arrays.toString(args))),
                 t);
@@ -153,14 +163,23 @@ public final class Mocker {
         return (T) newProxyInstance(interfaceType.getClassLoader(), classes.toArray(NO_CLASSES), new AbstractInvocationHandler(interfaceType) {
             @Override
             protected Object doInvoke(Object proxy, Method method, Object[] args) throws InvocationTargetException, IllegalAccessException {
+                // Intercept and handle the method invocation
                 consumer.accept(method.getName(), args);
                 if (t != null)
+                    // Delegate the method invocation if a delegate object is provided
                     return method.invoke(t, args);
                 return null;
             }
         });
     }
 
+    /**
+     * Adds the specified interface and all its superinterfaces to the set of interfaces to be proxied.
+     *
+     * @param interfaceType The set of interfaces to be proxied.
+     * @param tClass        The interface to add to the set.
+     * @param <T>           The type of the interface.
+     */
     private static <T> void addInterface(Set<Class<?>> interfaceType, Class<T> tClass) {
         if (Jvm.dontChain(tClass))
             return;
@@ -199,6 +218,7 @@ public final class Mocker {
                 classes.toArray(NO_CLASSES), new AbstractInvocationHandler(interfaceType) {
                     @Override
                     protected Object doInvoke(Object proxy, Method method, Object[] args) {
+                        // Ignore all method invocations
                         return null;
                     }
                 });
@@ -214,10 +234,10 @@ public final class Mocker {
      */
     private static Object newProxyInstance(ClassLoader classLoader, Class<?>[] classes, AbstractInvocationHandler handler) {
         try {
-            // for exec-maven
+            // Creates a new proxy instance with the specified class loader and interfaces
             return Proxy.newProxyInstance(classLoader, classes, handler);
         } catch (IllegalArgumentException e) {
-            // For Java 11+
+            // Fallback for Java 11+ where the provided class loader may not be compatible
             return Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), classes, handler);
         }
     }

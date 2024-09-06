@@ -27,18 +27,42 @@ import java.util.function.Consumer;
 
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
+/**
+ * A reflective implementation of the {@link AnalyticsFacade.Builder} interface. This class
+ * dynamically builds analytics objects through reflection, interacting with the underlying
+ * analytics API.
+ *
+ * <p>This builder supports configuring analytics parameters, including user properties,
+ * event parameters, logging, and more. The reflection mechanism allows the builder to
+ * interface with an external analytics library, even when it is not available at compile-time.</p>
+ */
 public final class ReflectiveBuilder implements AnalyticsFacade.Builder {
 
     private static final String CLASS_NAME = "net.openhft.chronicle.analytics.Analytics$Builder";
 
     private final Object delegate;
 
+    /**
+     * Constructs a new {@code ReflectiveBuilder} instance.
+     *
+     * @param measurementId The measurement ID for the analytics service. Must not be null.
+     * @param apiSecret     The API secret for the analytics service. Must not be null.
+     * @throws NullPointerException If either parameter is null.
+     */
     public ReflectiveBuilder(@NotNull final String measurementId, @NotNull final String apiSecret) {
         requireNonNull(measurementId);
         requireNonNull(apiSecret);
         this.delegate = ReflectionUtil.analyticsBuilder(measurementId, apiSecret);
     }
 
+    /**
+     * Adds a user property to the analytics configuration.
+     *
+     * @param key   The user property key. Must not be null.
+     * @param value The user property value. Must not be null.
+     * @return The builder instance, allowing for method chaining.
+     * @throws NullPointerException If either the key or value is null.
+     */
     @Override
     public AnalyticsFacade.@NotNull Builder putUserProperty(@NotNull final String key, @NotNull final String value) {
         requireNonNull(key);
@@ -48,6 +72,14 @@ public final class ReflectiveBuilder implements AnalyticsFacade.Builder {
         return this;
     }
 
+    /**
+     * Adds an event parameter to the analytics configuration.
+     *
+     * @param key   The event parameter key. Must not be null.
+     * @param value The event parameter value. Must not be null.
+     * @return The builder instance, allowing for method chaining.
+     * @throws NullPointerException If either the key or value is null.
+     */
     @Override
     public AnalyticsFacade.@NotNull Builder putEventParameter(@NotNull final String key, @NotNull final String value) {
         requireNonNull(key);
@@ -57,6 +89,15 @@ public final class ReflectiveBuilder implements AnalyticsFacade.Builder {
         return this;
     }
 
+    /**
+     * Configures the frequency limit for sending analytics events.
+     *
+     * @param messages The maximum number of messages.
+     * @param duration The time duration for the limit.
+     * @param timeUnit The unit of time for the duration. Must not be null.
+     * @return The builder instance, allowing for method chaining.
+     * @throws NullPointerException If the {@code timeUnit} is null.
+     */
     @Override
     public AnalyticsFacade.@NotNull Builder withFrequencyLimit(final int messages,
                                                                final long duration,
@@ -67,6 +108,13 @@ public final class ReflectiveBuilder implements AnalyticsFacade.Builder {
         return this;
     }
 
+    /**
+     * Sets a logger for error messages.
+     *
+     * @param errorLogger The logger for error messages. Must not be null.
+     * @return The builder instance, allowing for method chaining.
+     * @throws NullPointerException If the {@code errorLogger} is null.
+     */
     @Override
     public AnalyticsFacade.@NotNull Builder withErrorLogger(@NotNull final Consumer<? super String> errorLogger) {
         requireNonNull(errorLogger);
@@ -75,6 +123,13 @@ public final class ReflectiveBuilder implements AnalyticsFacade.Builder {
         return this;
     }
 
+    /**
+     * Sets a logger for debug messages.
+     *
+     * @param debugLogger The logger for debug messages. Must not be null.
+     * @return The builder instance, allowing for method chaining.
+     * @throws NullPointerException If the {@code debugLogger} is null.
+     */
     @Override
     public AnalyticsFacade.@NotNull Builder withDebugLogger(@NotNull Consumer<? super String> debugLogger) {
         requireNonNull(debugLogger);
@@ -83,6 +138,13 @@ public final class ReflectiveBuilder implements AnalyticsFacade.Builder {
         return this;
     }
 
+    /**
+     * Sets the filename for the client ID.
+     *
+     * @param clientIdFileName The filename for the client ID. Must not be null.
+     * @return The builder instance, allowing for method chaining.
+     * @throws NullPointerException If {@code clientIdFileName} is null.
+     */
     @Override
     public AnalyticsFacade.@NotNull Builder withClientIdFileName(@NotNull String clientIdFileName) {
         requireNonNull(clientIdFileName);
@@ -91,6 +153,13 @@ public final class ReflectiveBuilder implements AnalyticsFacade.Builder {
         return this;
     }
 
+    /**
+     * Sets the URL for sending analytics data.
+     *
+     * @param url The URL to use. Must not be null.
+     * @return The builder instance, allowing for method chaining.
+     * @throws NullPointerException If {@code url} is null.
+     */
     @Override
     public AnalyticsFacade.@NotNull Builder withUrl(@NotNull String url) {
         requireNonNull(url);
@@ -99,6 +168,11 @@ public final class ReflectiveBuilder implements AnalyticsFacade.Builder {
         return this;
     }
 
+    /**
+     * Enables reporting analytics data even when running under JUnit.
+     *
+     * @return The builder instance, allowing for method chaining.
+     */
     @Override
     public AnalyticsFacade.@NotNull Builder withReportDespiteJUnit() {
         final Method m = ReflectionUtil.methodOrThrow(CLASS_NAME, "withReportDespiteJUnit");
@@ -106,6 +180,11 @@ public final class ReflectiveBuilder implements AnalyticsFacade.Builder {
         return this;
     }
 
+    /**
+     * Builds the {@link AnalyticsFacade} instance using the current configuration.
+     *
+     * @return A new {@link AnalyticsFacade} instance.
+     */
     @Override
     public @NotNull AnalyticsFacade build() {
         final Method m = ReflectionUtil.methodOrThrow(CLASS_NAME, "build");

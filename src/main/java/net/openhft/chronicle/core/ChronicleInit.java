@@ -21,44 +21,52 @@ package net.openhft.chronicle.core;
 import java.util.ServiceLoader;
 
 /**
- * Handles application code which must be loaded first/run and may override system properties.
+ * Handles application code which must be loaded first or run, potentially overriding system properties.
  * <p>
- * A {@link Runnable} fully qualified class name may be provided via {@code chronicle.init.runnable} property,
- * to be run before initialization of {@link Jvm} class.
+ * A {@link Runnable} fully qualified class name may be provided via the {@code chronicle.init.runnable} property,
+ * to be run before the initialization of the {@link Jvm} class.
  * <p>
- * A {@link Runnable} fully qualified class name may be provided via {@code chronicle.postinit.runnable} property,
- * to be run last in the  {@link Jvm} initialization static block.
+ * A {@link Runnable} fully qualified class name may be provided via the {@code chronicle.postinit.runnable} property,
+ * to be run last in the {@link Jvm} initialization static block.
  * <p>
- * Alternatively, a {@link ChronicleInitRunnable} implementing class name may be listed in
- * {@code META-INF/services/net.openhft.chronicle.core.ChronicleInitRunnable} file in any JAR in classpath to be
- * discovered via {@link ServiceLoader} JVM facility. It may provide both init (via {@link Runnable#run()})
+ * Alternatively, a {@link ChronicleInitRunnable} implementing class name may be listed in the
+ * {@code META-INF/services/net.openhft.chronicle.core.ChronicleInitRunnable} file in any JAR on the classpath to be
+ * discovered via the {@link ServiceLoader} JVM facility. It may provide both init (via {@link Runnable#run()})
  * and post-init (via {@link ChronicleInitRunnable#postInit()}, see above).
  * <p>
- * This class may also be replaced with different concrete implementation. Code should reside in a static block to
- * be run once. It should contain empty static init() method called to trigger class load.
+ * This class may also be replaced with a different concrete implementation. Code should reside in a static block to
+ * be run once. It should contain an empty static init() method called to trigger class loading.
  */
 public final class ChronicleInit {
+    // Property keys for init and post-init runnables
     public static final String CHRONICLE_INIT_CLASS = "chronicle.init.runnable";
     public static final String CHRONICLE_POSTINIT_CLASS = "chronicle.postinit.runnable";
 
+    /**
+     * Suppresses default constructor, ensuring non-instantiability.
+     */
     private ChronicleInit() {
-        // Suppresses default constructor, ensuring non-instantiability.
+        // Prevent instantiation
     }
 
+    // Static block to initialize runnables specified by system properties or ServiceLoader
     static {
-        // Jvm#getProperty() does not make sense here - not initialized yet
+        // Initialization logic for classes specified via system properties
         String initRunnableClass = System.getProperty(CHRONICLE_INIT_CLASS);
         if (initRunnableClass != null && !initRunnableClass.isEmpty()) {
             try {
+                // Load and instantiate the specified Runnable class
                 Class<? extends Runnable> descendant = (Class<? extends Runnable>) Class.forName(initRunnableClass);
                 Runnable chronicleInit = descendant.newInstance();
+                // Execute the init method of the Runnable
                 chronicleInit.run();
             } catch (Exception ex) {
-                // System.err since the logging subsystem may not be up at this point
+                // Print stack trace to System.err since logging may not be initialized yet
                 ex.printStackTrace();
             }
         }
 
+        // Load and execute all ChronicleInitRunnable implementations found via ServiceLoader
         try {
             ServiceLoader<ChronicleInitRunnable> runnableLoader = ServiceLoader.load(ChronicleInitRunnable.class);
 
@@ -66,49 +74,62 @@ public final class ChronicleInit {
                 try {
                     runnable.run();
                 } catch (Exception ex) {
+                    // Print stack trace to System.err
                     ex.printStackTrace();
                 }
             }
         } catch (Exception ex) {
+            // Print stack trace to System.err
             ex.printStackTrace();
         }
     }
 
     /**
-     * May be run multiple times, supposed to be idempotent
+     * A method intended to trigger class loading and static initialization.
+     * <p>
+     * This method is designed to be idempotent and may be called multiple times without any side effects.
      */
     static void init() {
-        // No-op unless class is replaced
+        // No operation; serves only to trigger class loading
     }
 
     /**
-     * Should be only run once by Jvm.class static block
+     * Executes post-initialization logic. This should be run only once in the static block of the {@link Jvm} class.
+     * <p>
+     * This method loads and executes any post-initialization runnables specified by system properties or
+     * discovered via the {@link ServiceLoader}.
      */
     static void postInit() {
-        // Jvm#getProperty() does not make sense here - not initialized yet
+        // Post-initialization logic for classes specified via system properties
         String initRunnableClass = System.getProperty(CHRONICLE_POSTINIT_CLASS);
         if (initRunnableClass != null && !initRunnableClass.isEmpty()) {
             try {
+                // Load and instantiate the specified Runnable class
                 Class<? extends Runnable> descendant = (Class<? extends Runnable>) Class.forName(initRunnableClass);
                 Runnable chronicleInit = descendant.newInstance();
+                // Execute the post-init method of the Runnable
                 chronicleInit.run();
             } catch (Exception ex) {
-                // System.err since the logging subsystem may not be up at this point
+                // Print stack trace to System.err since logging may not be initialized yet
                 ex.printStackTrace();
             }
         }
 
+        // Load and execute all ChronicleInitRunnable implementations found via ServiceLoader
         try {
             ServiceLoader<ChronicleInitRunnable> runnableLoader = ServiceLoader.load(ChronicleInitRunnable.class);
 
             for (ChronicleInitRunnable runnable : runnableLoader) {
                 try {
+                    // Execute post-initialization logic
                     runnable.postInit();
                 } catch (Exception ex) {
+                    // Print stack trace to System.err
                     ex.printStackTrace();
                 }
             }
         } catch (Exception ex) {
+            // Print stack trace to System.err
             ex.printStackTrace();
         }
     }

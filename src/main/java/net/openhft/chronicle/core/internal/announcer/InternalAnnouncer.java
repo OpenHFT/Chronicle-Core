@@ -28,18 +28,44 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+/**
+ * Utility class responsible for announcing JVM and artifact information during the startup of a Chronicle application.
+ * <p>
+ * The announcements include details such as the JVM version, available processors, and artifact information.
+ * Announcements are made only once per JVM instance, with subsequent artifact announcements being deduplicated
+ * per group ID and artifact ID.
+ * </p>
+ */
 public final class InternalAnnouncer {
 
     // Suppresses default constructor, ensuring non-instantiability.
     private InternalAnnouncer() {
     }
 
+    // Flag to disable announcements based on a system property
     private static final boolean DISABLE_ANNOUNCEMENT = Jvm.getBoolean("chronicle.announcer.disable");
+
+    // Function to print messages (either no-op or prints to Jvm startup log)
     private static final Consumer<String> LINE_PRINTER = DISABLE_ANNOUNCEMENT ? s -> {
     } : m -> Jvm.startup().on(InternalAnnouncer.class, m);
+
+    // Tracks whether JVM information has already been announced
     private static final AtomicBoolean JVM_ANNOUNCED = new AtomicBoolean();
+
+    // Map to track announced artifacts by group ID
     private static final Map<String, Set<String>> ANNOUNCED_GROUP_IDS = new ConcurrentHashMap<>();
 
+    /**
+     * Announces the artifact information for the given group and artifact IDs, along with additional properties.
+     * <p>
+     * The first time this method is called, JVM details will also be announced. Subsequent announcements
+     * are limited to new artifact IDs, unless the properties indicate that it should always announce.
+     * </p>
+     *
+     * @param groupId    The group ID of the artifact to announce.
+     * @param artifactId The artifact ID to announce.
+     * @param properties A map of properties associated with the artifact.
+     */
     public static void announce(@NotNull final String groupId,
                                 @NotNull final String artifactId,
                                 @NotNull final Map<String, String> properties) {
@@ -57,6 +83,10 @@ public final class InternalAnnouncer {
         }
     }
 
+    /**
+     * Announces JVM information, such as the runtime name, version, and available processors.
+     * This is only done once per JVM instance.
+     */
     private static void announceJvm() {
         LINE_PRINTER.accept(String.format("Running under %s %s with %d processors reported.",
                 Jvm.getProperty("java.runtime.name", Jvm.getProperty("java.vm.name")),
@@ -65,6 +95,14 @@ public final class InternalAnnouncer {
         LINE_PRINTER.accept("Leave your e-mail to get information about the latest releases and patches at https://chronicle.software/release-notes/");
     }
 
+    /**
+     * Announces artifact information, including the group ID, artifact ID, version, and additional properties.
+     * The announcement includes a formatted artifact ID and version, as well as any provided properties.
+     *
+     * @param groupId    The group ID of the artifact.
+     * @param artifactId The artifact ID.
+     * @param properties A map of properties to include in the announcement.
+     */
     private static void announceArtifact(@NotNull final String groupId,
                                          @NotNull final String artifactId,
                                          @NotNull final Map<String, String> properties) {
@@ -90,7 +128,14 @@ public final class InternalAnnouncer {
 
     }
 
-    // Convert "chronicle-queue" to "Chronicle Queue"
+    /**
+     * Converts an artifact ID from kebab-case to a more human-readable format, capitalizing each word.
+     * <p>
+     * Example: "chronicle-queue" becomes "Chronicle Queue".
+     *
+     * @param artifactId The artifact ID to format.
+     * @return The formatted artifact ID.
+     */
     private static String pretty(@NotNull final String artifactId) {
         final StringBuilder sb = new StringBuilder();
         boolean makeUpperCase = true;
@@ -100,7 +145,7 @@ public final class InternalAnnouncer {
                 makeUpperCase = false;
                 continue;
             }
-            if ('-' == c) {
+            if (c == '-') {
                 makeUpperCase = true;
                 sb.append(' ');
                 continue;
@@ -110,6 +155,13 @@ public final class InternalAnnouncer {
         return sb.toString();
     }
 
+    /**
+     * Determines if the artifact should always be announced based on the provided properties.
+     * If the properties contain only the "logo" key, the artifact will only be announced once.
+     *
+     * @param properties The properties to check.
+     * @return {@code true} if the artifact should always be announced, {@code false} otherwise.
+     */
     private static boolean alwaysAnnounce(@NotNull final Map<String, String> properties) {
         if (properties.isEmpty())
             return false;

@@ -53,60 +53,90 @@ public final class StringUtils {
     private StringUtils() {
     }
 
+    /**
+     * Field name constants used for reflective access to internal string data.
+     */
     private static final String VALUE_FIELD_NAME = "value";
     private static final String COUNT_FIELD_NAME = "count";
     private static final String CODER_FIELD_NAME = "coder";
 
-    private static final Field S_VALUE;
-    private static final Field SB_COUNT;
-    private static final Field S_CODER;
-    private static final Field SB_CODER;
+    /**
+     * Reflection-based field references for string manipulation.
+     */
+    private static final Field S_VALUE;        // For accessing String.value[]
+    private static final Field SB_COUNT;       // For accessing StringBuilder.count
+    private static final Field S_CODER;        // For accessing String.coder (Java 9+)
+    private static final Field SB_CODER;       // For accessing StringBuilder.coder (Java 9+)
+
+    /**
+     * Boolean flag indicating whether strings have one byte per character.
+     * This is true for certain Java versions (Java 9+ with compact strings).
+     */
     private static final boolean HAS_ONE_BYTE_PER_CHAR;
-    private static final long S_VALUE_OFFSET;
-    private static final long SB_VALUE_OFFSET;
-    private static final long SB_COUNT_OFFSET;
-    private static final long S_COUNT_OFFSET;
+
+    /**
+     * Memory offsets for accessing internal string data directly.
+     */
+    private static final long S_VALUE_OFFSET;  // Offset for String.value[]
+    private static final long SB_VALUE_OFFSET; // Offset for StringBuilder.value[]
+    private static final long SB_COUNT_OFFSET; // Offset for StringBuilder.count
+    private static final long S_COUNT_OFFSET;  // Offset for String.count (Java 8 and earlier)
     private static final long MAX_VALUE_DIVIDE_10 = Long.MAX_VALUE / 10;
 
+    // Static initialization block to set up field references and offsets.
     static {
         try {
+            // Access the 'value' field of String for direct manipulation
             S_VALUE = String.class.getDeclaredField(VALUE_FIELD_NAME);
             ClassUtil.setAccessible(S_VALUE);
             S_VALUE_OFFSET = getMemory().getFieldOffset(S_VALUE);
             if (Bootstrap.isJava9Plus()) {
+                // Access Java 9+ specific fields for compact strings
                 SB_CODER = ClassUtil.getField0(StringBuilder.class.getSuperclass(), CODER_FIELD_NAME, true);
                 S_CODER = ClassUtil.getField0(String.class, CODER_FIELD_NAME, true);
+
+                // Determine if Java 9+ uses one byte per character
                 Object a = S_VALUE.get("A");
                 HAS_ONE_BYTE_PER_CHAR = Array.getLength(a) == 1;
             } else {
+                // For Java versions prior to 9
                 S_CODER = null;
                 SB_CODER = null;
                 HAS_ONE_BYTE_PER_CHAR = false;
             }
         } catch (Exception e) {
+            // AssertionError if any reflection setup fails
             throw new AssertionError(e);
         }
 
         long sCountOffset = -1;
         try {
+            // Attempt to access the 'count' field of String (Java 8 and earlier)
             Field sCount = String.class.getDeclaredField(COUNT_FIELD_NAME);
             ClassUtil.setAccessible(sCount);
             sCountOffset = getMemory().getFieldOffset(sCount);
         } catch (Exception ignored) {
-            // Do nothing
+            // This field is not present in Java 9+
         }
         S_COUNT_OFFSET = sCountOffset;
 
         try {
+            // Access fields for StringBuilder manipulation
             final SbFields sbFields = new SbFields();
             SB_COUNT = sbFields.sbCount;
             SB_VALUE_OFFSET = sbFields.sbValOffset;
             SB_COUNT_OFFSET = sbFields.sbCountOffset;
         } catch (Exception e) {
+            // AssertionError if any reflection setup fails
             throw new AssertionError(e);
         }
     }
 
+    /**
+     * Provides access to the {@link UnsafeMemory} instance used for direct memory operations.
+     *
+     * @return The {@link UnsafeMemory} instance.
+     */
     @NotNull
     private static UnsafeMemory getMemory() {
         return UnsafeMemory.INSTANCE;
@@ -222,31 +252,70 @@ public final class StringUtils {
         return true;
     }
 
+    /**
+     * Returns the character at the specified index from the provided {@link CharSequence}.
+     *
+     * @param s The {@link CharSequence} from which to retrieve the character.
+     * @param i The index of the character to retrieve.
+     * @return The character at the specified index.
+     */
     private static char charAt(@NotNull CharSequence s, int i) {
         return s.charAt(i);
     }
 
+    /**
+     * Extracts the character array from a {@link StringBuilder}.
+     * For Java 9 and above, this method uses {@link StringBuilder#getChars(int, int, char[], int)} to
+     * retrieve the characters. For Java 8 and earlier, it uses direct memory access to obtain the
+     * internal character array.
+     *
+     * @param sb The {@link StringBuilder} from which to extract characters.
+     * @return A character array containing the characters of the {@link StringBuilder}.
+     */
     public static char[] extractChars(StringBuilder sb) {
         if (Bootstrap.isJava9Plus()) {
+            // For Java 9+, use StringBuilder's getChars method to extract characters
             final char[] data = new char[sb.length()];
             sb.getChars(0, sb.length(), data, 0);
             return data;
         }
 
+        // For Java 8 and below, use UnsafeMemory to directly access the internal character array
         return getMemory().getObject(sb, SB_VALUE_OFFSET);
     }
 
+    /**
+     * Compares the content of a {@link StringBuilder} with a {@link CharSequence} for equality.
+     * This method is optimized for Java 8 and earlier, using direct character array access.
+     *
+     * @param s The {@link StringBuilder} to compare.
+     * @param cs The {@link CharSequence} to compare against.
+     * @param length The number of characters to compare.
+     * @return {@code true} if the contents are equal; {@code false} otherwise.
+     */
     private static boolean isEqualJava8(@NotNull StringBuilder s, @NotNull CharSequence cs, int length) {
+        // Extract internal character array from StringBuilder
         char[] chars = StringUtils.extractChars(s);
+        // Compare each character for equality
         for (int i = 0; i < length; i++)
             if (chars[i] != charAt(cs, i))
                 return false;
         return true;
     }
 
+    /**
+     * Compares the content of a {@link StringBuilder} with a {@link CharSequence} for equality.
+     * This method is optimized for Java 9 and above, using the {@link StringBuilder#charAt(int)} method.
+     *
+     * @param s The {@link StringBuilder} to compare.
+     * @param cs The {@link CharSequence} to compare against.
+     * @param length The number of characters to compare.
+     * @return {@code true} if the contents are equal; {@code false} otherwise.
+     */
     private static boolean isEqualJava9(@NotNull StringBuilder s, @NotNull CharSequence cs, int length) {
+        // Compare each character using StringBuilder's charAt method
         for (int i = 0; i < length; i++)
-            // This is not as fast as it could be.
+            // Note: This may not be as fast as direct array access
             if (s.charAt(i) != charAt(cs, i))
                 return false;
         return true;
@@ -280,6 +349,15 @@ public final class StringUtils {
         return o == null ? null : o.toString();
     }
 
+    /**
+     * Retrieves the coder byte value for a {@link String} or {@link StringBuilder}.
+     * This method is specific to Java 9 and above, where strings and string builders can have different coders
+     * to represent character encoding schemes (e.g., LATIN1 or UTF16).
+     *
+     * @param charSequence The {@link CharSequence} for which to get the coder.
+     * @return The coder byte value of the {@link CharSequence}.
+     * @throws AssertionError If the field cannot be accessed or an illegal argument is encountered.
+     */
     @Java9
     private static byte getStringCoderForStringOrStringBuilder(@NotNull CharSequence charSequence) {
         try {
@@ -297,16 +375,38 @@ public final class StringUtils {
         }
     }
 
+    /**
+     * Retrieves the coder byte value for a {@link String}.
+     * This method is only supported on Java 9 and above.
+     *
+     * @param str The {@link String} for which to get the coder.
+     * @return The coder byte value of the {@link String}.
+     */
     @Java9
     public static byte getStringCoder(@NotNull String str) {
         return getStringCoderForStringOrStringBuilder(str);
     }
 
+    /**
+     * Retrieves the coder byte value for a {@link StringBuilder}.
+     * This method is only supported on Java 9 and above.
+     *
+     * @param str The {@link StringBuilder} for which to get the coder.
+     * @return The coder byte value of the {@link StringBuilder}.
+     */
     @Java9
     public static byte getStringCoder(@NotNull StringBuilder str) {
         return getStringCoderForStringOrStringBuilder(str);
     }
 
+    /**
+     * Extracts the byte array from a {@link StringBuilder}.
+     * This method is only supported on Java 9 and above.
+     *
+     * @param sb The {@link StringBuilder} from which to extract the byte array.
+     * @return The byte array representing the internal content of the {@link StringBuilder}.
+     * @throws UnsupportedOperationException If called on a Java version below 9.
+     */
     @Java9
     public static byte[] extractBytes(@NotNull StringBuilder sb) {
         ensureJava9Plus();
@@ -314,6 +414,14 @@ public final class StringUtils {
         return getMemory().getObject(sb, SB_VALUE_OFFSET);
     }
 
+    /**
+     * Extracts the character array from a {@link String}.
+     * If running on Java 9 or above, it uses {@link String#toCharArray()}.
+     * Otherwise, it uses direct memory access to obtain the internal character array.
+     *
+     * @param s The {@link String} from which to extract characters.
+     * @return A character array containing the characters of the {@link String}.
+     */
     public static char[] extractChars(@NotNull String s) {
         if (Bootstrap.isJava9Plus()) {
             return s.toCharArray();
@@ -321,6 +429,14 @@ public final class StringUtils {
         return getMemory().getObject(s, S_VALUE_OFFSET);
     }
 
+    /**
+     * Extracts the byte array from a {@link String}.
+     * This method is only supported on Java 9 and above.
+     *
+     * @param s The {@link String} from which to extract the byte array.
+     * @return The byte array representing the internal content of the {@link String}.
+     * @throws UnsupportedOperationException If called on a Java version below 9.
+     */
     @Java9
     public static byte[] extractBytes(@NotNull String s) {
         if (!HAS_ONE_BYTE_PER_CHAR)
@@ -330,10 +446,25 @@ public final class StringUtils {
         return getMemory().getObject(s, S_VALUE_OFFSET);
     }
 
+    /**
+     * Sets the internal count of a {@link StringBuilder}.
+     * This method allows manipulation of the internal state of the {@link StringBuilder}.
+     *
+     * @param sb The {@link StringBuilder} for which to set the count.
+     * @param count The new count value to set.
+     */
     public static void setCount(@NotNull StringBuilder sb, int count) {
         getMemory().writeInt(sb, SB_COUNT_OFFSET, count);
     }
 
+    /**
+     * Creates a new {@link String} from a character array.
+     * If running on Java 9 or above, it uses the standard {@link String} constructor.
+     * Otherwise, it uses reflection to directly set the internal character array.
+     *
+     * @param chars The character array to convert into a {@link String}.
+     * @return A new {@link String} containing the characters from the provided array.
+     */
     @NotNull
     public static String newString(char @NotNull [] chars) {
         if (Bootstrap.isJava9Plus()) {
@@ -351,12 +482,26 @@ public final class StringUtils {
         }
     }
 
+    /**
+     * Ensures that the code is running on Java 9 or above.
+     * Throws an exception if not running on a Java 9+ runtime.
+     *
+     * @throws UnsupportedOperationException If the runtime is below Java 9.
+     */
     private static void ensureJava9Plus() {
         if (!Bootstrap.isJava9Plus()) {
             throw new UnsupportedOperationException("This method is only supported on Java9+ runtimes");
         }
     }
 
+    /**
+     * Creates a new {@link String} from a byte array.
+     * This method is specific to Java 9 and above, and assumes one byte per character.
+     *
+     * @param bytes The byte array to convert into a {@link String}.
+     * @return A new {@link String} created from the provided byte array.
+     * @throws UnsupportedOperationException If called on a Java version below 9.
+     */
     @Java9
     @NotNull
     public static String newStringFromBytes(byte @NotNull [] bytes) {
@@ -373,15 +518,33 @@ public final class StringUtils {
         }
     }
 
+    /**
+     * Converts the first character of the provided string to lowercase if it is not already lowercase.
+     * If the string is null or empty, it returns the original string.
+     *
+     * @param str The string to convert.
+     * @return The string with the first character in lowercase, or the original string if it is null or empty.
+     */
     @Nullable
     public static String firstLowerCase(@Nullable String str) {
         if (str == null || str.isEmpty())
             return str;
         final char ch = str.charAt(0);
         final char c2 = Character.toLowerCase(ch);
+
+        // Return the string unchanged if the first character is already lowercase
         return ch == c2 ? str : c2 + str.substring(1);
     }
 
+    /**
+     * Parses a double value from the provided {@link CharSequence}.
+     * This method handles special cases like "NaN", "Infinity", and negative numbers.
+     * It also parses standard numeric representations including those with decimal points.
+     *
+     * @param in The {@link CharSequence} to parse.
+     * @return The parsed double value.
+     * @throws NumberFormatException if the {@link CharSequence} does not contain a parsable double.
+     */
     public static double parseDouble(@NotNull CharSequence in) {
         long value = 0;
         int exp = 0;
@@ -390,17 +553,18 @@ public final class StringUtils {
 
         int ch = charAt(in, 0);
         int pos = 1;
+
+        // Handle special cases for NaN and Infinity
         switch (ch) {
             case 'N':
                 if (compareRest(in, 1, "aN"))
                     return Double.NaN;
-                return Double.NaN;
+                return Double.NaN; // Default to NaN for any unrecognized "N"
             case 'I':
                 //noinspection SpellCheckingInspection
                 if (compareRest(in, 1, "nfinity"))
                     return Double.POSITIVE_INFINITY;
-
-                return Double.NaN;
+                return Double.NaN; // Default to NaN for any unrecognized "I"
             case '-':
                 if (compareRest(in, 1, "Infinity"))
                     return Double.NEGATIVE_INFINITY;
@@ -408,10 +572,13 @@ public final class StringUtils {
                 ch = charAt(in, pos++);
                 break;
             default:
-                // Continue below
+                // Continue parsing below for standard numeric input
         }
+
+        // Parse the numeric value
         while (true) {
             if (ch >= '0' && ch <= '9') {
+                // Prevent overflow by shifting value and incrementing exponent
                 while (value >= MAX_VALUE_DIVIDE_10) {
                     value >>>= 1;
                     exp++;
@@ -420,31 +587,47 @@ public final class StringUtils {
                 decimalPlaces++;
 
             } else if (ch == '.') {
+                // Start counting decimal places after the point
                 decimalPlaces = 0;
 
             } else {
                 break;
             }
+
+            // Break if we have reached the end of the input
             if (pos == in.length())
                 break;
             ch = charAt(in, pos++);
         }
 
+        // Adjust decimalPlaces to 0 if no decimal point was encountered
         if (decimalPlaces < 0)
             decimalPlaces = 0;
 
+        // Convert the parsed value to double using the Maths utility method
         return Maths.asDouble(value, exp, negative, decimalPlaces);
     }
 
+    /**
+     * Internal utility class for accessing and manipulating fields of {@link StringBuilder} and AbstractStringBuilder.
+     * This class uses reflection to obtain and modify private fields directly.
+     */
     private static final class SbFields {
 
-        private Field sbValue;
-        private long sbValOffset;
-        private Field sbCount;
-        private long sbCountOffset;
+        private Field sbValue;       // Field reference for the character array
+        private long sbValOffset;    // Memory offset for the character array field
+        private Field sbCount;       // Field reference for the count field
+        private long sbCountOffset;  // Memory offset for the count field
 
+        /**
+         * Initializes field references and offsets for {@link StringBuilder} and AbstractStringBuilder.
+         *
+         * @throws ClassNotFoundException If the {@link StringBuilder} or AbstractStringBuilder classes cannot be found.
+         * @throws NoSuchFieldException If the expected fields are not found in the classes.
+         */
         public SbFields() throws ClassNotFoundException, NoSuchFieldException {
             try {
+                // Attempt to access fields from AbstractStringBuilder
                 sbValue = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField(VALUE_FIELD_NAME);
                 ClassUtil.setAccessible(sbValue);
                 sbValOffset = getMemory().getFieldOffset(sbValue);
@@ -452,6 +635,7 @@ public final class StringUtils {
                 ClassUtil.setAccessible(sbCount);
                 sbCountOffset = getMemory().getFieldOffset(sbCount);
             } catch (NoSuchFieldException e) {
+                // Fallback to StringBuilder if AbstractStringBuilder fields are not found
                 sbValue = Class.forName("java.lang.StringBuilder").getDeclaredField(VALUE_FIELD_NAME);
                 ClassUtil.setAccessible(sbValue);
                 sbValOffset = getMemory().getFieldOffset(sbValue);
@@ -462,13 +646,19 @@ public final class StringUtils {
         }
     }
 
-    private static boolean compareRest(@NotNull CharSequence in,
-                                       final int pos,
-                                       @NotNull String s) {
-
+    /**
+     * Compares the remaining characters of a {@link CharSequence} with a given string starting from a specified position.
+     *
+     * @param in The {@link CharSequence} to compare.
+     * @param pos The starting position in the {@link CharSequence}.
+     * @param s The string to compare against.
+     * @return {@code true} if the remaining characters match the string; {@code false} otherwise.
+     */
+    private static boolean compareRest(@NotNull CharSequence in, final int pos, @NotNull String s) {
         if (s.length() > in.length() - pos)
             return false;
 
+        // Compare each character for equality
         for (int i = 0; i < s.length(); i++) {
             if (charAt(in, i + pos) != s.charAt(i)) {
                 return false;
@@ -532,6 +722,16 @@ public final class StringUtils {
         }
     }
 
+    /**
+     * Parses the {@link CharSequence} argument as a signed integer in the specified radix.
+     * This method is adapted for various radices, from binary (radix 2) to hexadecimal (radix 16),
+     * and supports both positive and negative numbers.
+     *
+     * @param s The {@link CharSequence} containing the integer representation to be parsed.
+     * @param radix The radix to be used while parsing the integer.
+     * @return The integer value represented by the {@link CharSequence} in the specified radix.
+     * @throws NumberFormatException If the {@link CharSequence} does not contain a parsable integer or the radix is out of range.
+     */
     public static int parseInt(CharSequence s, int radix)
             throws NumberFormatException {
         /*
@@ -540,10 +740,12 @@ public final class StringUtils {
          * the valueOf method.
          */
 
+        // Check for null input
         if (s == null) {
             throw new NumberFormatException("null");
         }
 
+        // Check if the radix is within the valid range
         if (radix < Character.MIN_RADIX) {
             throw forRadix(radix, true);
         }
@@ -552,19 +754,20 @@ public final class StringUtils {
             throw forRadix(radix, false);
         }
 
-        int result = 0;
-        boolean negative = false;
-        int i = 0, len = s.length();
-        int limit = -Integer.MAX_VALUE;
-        int multmin;
-        int digit;
+        int result = 0; // Result accumulator
+        boolean negative = false; // Flag for negative numbers
+        int i = 0, len = s.length(); // String position and length
+        int limit = -Integer.MAX_VALUE; // Limit for negative accumulation
+        int multmin; // Minimum multiplier for the given radix
+        int digit; // Current digit being processed
 
         if (len > 0) {
+            // Check for leading sign
             char firstChar = charAt(s, 0);
             if (firstChar < '0') { // Possible leading "+" or "-"
                 if (firstChar == '-') {
                     negative = true;
-                    limit = Integer.MIN_VALUE;
+                    limit = Integer.MIN_VALUE; // Adjust limit for negative numbers
                 } else if (firstChar != '+')
                     throw forInputString(s);
 
@@ -591,6 +794,8 @@ public final class StringUtils {
         } else {
             throw forInputString(s);
         }
+
+        // Return the accumulated result
         return negative ? result : -result;
     }
 
@@ -623,12 +828,24 @@ public final class StringUtils {
                     " greater than Character.MAX_RADIX");
     }
 
+    /**
+     * Parses the {@link CharSequence} argument as a signed long in the specified radix.
+     * This method is adapted for various radices, from binary (radix 2) to hexadecimal (radix 16),
+     * and supports both positive and negative numbers.
+     *
+     * @param s The {@link CharSequence} containing the long representation to be parsed.
+     * @param radix The radix to be used while parsing the long.
+     * @return The long value represented by the {@link CharSequence} in the specified radix.
+     * @throws NumberFormatException If the {@link CharSequence} does not contain a parsable long or the radix is out of range.
+     */
     public static long parseLong(CharSequence s, int radix)
             throws NumberFormatException {
+        // Check for null input
         if (s == null) {
             throw new NumberFormatException("null");
         }
 
+        // Check if the radix is within the valid range
         if (radix < Character.MIN_RADIX) {
             throw forRadix(radix, true);
         }
@@ -636,19 +853,20 @@ public final class StringUtils {
             throw forRadix(radix, false);
         }
 
-        long result = 0;
-        boolean negative = false;
-        int i = 0, len = s.length();
-        long limit = -Long.MAX_VALUE;
-        long multmin;
-        int digit;
+        long result = 0; // Result accumulator
+        boolean negative = false; // Flag for negative numbers
+        int i = 0, len = s.length(); // String position and length
+        long limit = -Long.MAX_VALUE; // Limit for negative accumulation
+        long multmin; // Minimum multiplier for the given radix
+        int digit; // Current digit being processed
 
         if (len > 0) {
+            // Check for leading sign
             char firstChar = charAt(s, 0);
             if (firstChar < '0') { // Possible leading "+" or "-"
                 if (firstChar == '-') {
                     negative = true;
-                    limit = Long.MIN_VALUE;
+                    limit = Long.MIN_VALUE; // Adjust limit for negative numbers
                 } else if (firstChar != '+')
                     throw forInputString(s);
 
@@ -675,6 +893,8 @@ public final class StringUtils {
         } else {
             throw forInputString(s);
         }
+
+        // Return the accumulated result
         return negative ? result : -result;
     }
 }

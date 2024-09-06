@@ -14,7 +14,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package net.openhft.chronicle.core.onoes;
@@ -26,36 +25,53 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Slf4jExceptionHandler is an enum implementation of the ExceptionHandler interface.
- * It uses SLF4J (Simple Logging Facade for Java) to handle exceptions based on the level of logging severity.
- * It supports four levels of logging severity: ERROR, WARN, PERF and DEBUG.
- * <p>
- * Each instance of Slf4jExceptionHandler logs at a specific level and corresponds to a LogLevel enum.
- * This is used to map LogLevel enums to their corresponding Slf4jExceptionHandler instances via the valueOf(LogLevel logLevel) method.
- * <p>
- * The DEBUG instance also overrides the {@code isEnabled(Class clazz)} method, using the isDebugEnabled() method from SLF4J's Logger class.
- * <p>
- * There's also a utility method isJUnitTest() which is used to detect if the current execution context is a JUnit test.
+ * {@code Slf4jExceptionHandler} is an enum implementation of the {@link ExceptionHandler} interface that uses SLF4J
+ * (Simple Logging Facade for Java) to handle exceptions based on the level of logging severity.
+ *
+ * <p>It supports four levels of logging severity: ERROR, WARN, PERF, and DEBUG. Each instance of {@code Slf4jExceptionHandler}
+ * logs at a specific level and corresponds to a {@link LogLevel} enum. This mapping allows exceptions to be logged
+ * appropriately based on their severity.
+ *
+ * <p>The {@code DEBUG} instance also overrides the {@link #isEnabled(Class)} method, using the {@code isDebugEnabled()}
+ * method from SLF4J's {@link Logger} class to determine if debug-level logging is enabled for the given class.
+ *
+ * <p>Additionally, there is a utility method {@code isJUnitTest()} (not shown in the provided code) which is used to
+ * detect if the current execution context is a JUnit test.
  */
 public enum Slf4jExceptionHandler implements ExceptionHandler {
+    /**
+     * Logs exceptions at the ERROR level.
+     */
     ERROR {
         @Override
         public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
             logger.error(message, thrown);
         }
     },
+
+    /**
+     * Logs exceptions at the WARN level.
+     */
     WARN {
         @Override
         public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
             logger.warn(message, thrown);
         }
     },
+
+    /**
+     * Logs exceptions at the INFO level, typically used for performance-related messages.
+     */
     PERF {
         @Override
         public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
             logger.info(message, thrown);
         }
     },
+
+    /**
+     * Logs exceptions at the DEBUG level and checks if debug logging is enabled for a given class.
+     */
     DEBUG {
         @Override
         public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
@@ -68,17 +84,26 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
         }
     };
 
+    /**
+     * Retrieves the {@link Logger} associated with the specified class.
+     *
+     * @param clazz the class for which to retrieve the logger.
+     * @return the logger associated with the specified class.
+     */
     static Logger getLogger(Class<?> clazz) {
         return CLASS_LOGGER.get(clazz);
     }
 
+    /**
+     * A {@link ClassLocal} cache for SLF4J {@link Logger} instances, initialized per class.
+     */
     static final ClassLocal<Logger> CLASS_LOGGER = ClassLocal.withInitial(LoggerFactory::getLogger);
 
     /**
-     * Returns the appropriate Slf4jExceptionHandler value based on the given LogLevel.
+     * Returns the appropriate {@code Slf4jExceptionHandler} value based on the given {@link LogLevel}.
      *
-     * @param logLevel the LogLevel enum to convert.
-     * @return the corresponding Slf4jExceptionHandler value.
+     * @param logLevel the {@code LogLevel} to convert.
+     * @return the corresponding {@code Slf4jExceptionHandler} value.
      */
     public static Slf4jExceptionHandler valueOf(LogLevel logLevel) {
         if (logLevel == LogLevel.ERROR)

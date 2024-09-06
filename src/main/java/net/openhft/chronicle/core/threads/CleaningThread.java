@@ -31,9 +31,10 @@ import java.lang.reflect.Method;
 import static net.openhft.chronicle.core.Jvm.isResourceTracing;
 
 /**
- * The CleaningThread class extends the Thread class and provides functionality
+ * The {@code CleaningThread} class extends the {@link Thread} class and provides functionality
  * to clean up thread-local variables when the thread completes its execution.
- * It is particularly useful for avoiding memory leaks associated with thread-local variables.
+ * It is particularly useful for avoiding memory leaks associated with thread-local variables,
+ * especially when these are not automatically cleaned up by the garbage collector.
  */
 public class CleaningThread extends Thread {
     private static final Field THREAD_LOCALS;
@@ -52,9 +53,9 @@ public class CleaningThread extends Thread {
     }
 
     /**
-     * Constructs a new CleaningThread with the specified target Runnable.
+     * Constructs a new {@code CleaningThread} with the specified target {@link Runnable}.
      *
-     * @param target The Runnable object to execute in the new thread.
+     * @param target The {@link Runnable} object to execute in the new thread.
      */
     public CleaningThread(Runnable target) {
         super(target);
@@ -62,9 +63,9 @@ public class CleaningThread extends Thread {
     }
 
     /**
-     * Constructs a new CleaningThread with the specified target Runnable and name.
+     * Constructs a new {@code CleaningThread} with the specified target {@link Runnable} and name.
      *
-     * @param target The Runnable object to execute in the new thread.
+     * @param target The {@link Runnable} object to execute in the new thread.
      * @param name   The name for the new thread.
      */
     public CleaningThread(Runnable target, String name) {
@@ -72,9 +73,9 @@ public class CleaningThread extends Thread {
     }
 
     /**
-     * Constructs a new CleaningThread with the specified target Runnable, name, and inEventLoop flag.
+     * Constructs a new {@code CleaningThread} with the specified target {@link Runnable}, name, and inEventLoop flag.
      *
-     * @param target      The Runnable object to execute in the new thread.
+     * @param target      The {@link Runnable} object to execute in the new thread.
      * @param name        The name for the new thread.
      * @param inEventLoop The flag indicating whether the thread is in an event loop.
      */
@@ -89,12 +90,19 @@ public class CleaningThread extends Thread {
      * {@link WeakReference} to get to its destination. Note that if a garbage collection has occurred,
      * this method may not be able to clean up effectively.
      *
-     * @param thread The thread whose CleaningThreadLocal instances are to be cleaned up.
+     * @param thread The thread whose {@link CleaningThreadLocal} instances are to be cleaned up.
      */
     public static void performCleanup(Thread thread) {
         performCleanup(thread, null);
     }
 
+    /**
+     * Retrieves the {@code remove} method for a given object, if it exists.
+     * This method is used to remove a specific {@link ThreadLocal} from a thread's local variables.
+     *
+     * @param o The object for which the {@code remove} method is being retrieved.
+     * @return The {@code remove} method if found, otherwise {@code null}.
+     */
     @Nullable
     private static Method getRemoveMethod(Object o) {
         Method remove;
@@ -110,8 +118,8 @@ public class CleaningThread extends Thread {
     /**
      * Cleans up a specific {@link CleaningThreadLocal} instance associated with the given thread.
      *
-     * @param thread The thread whose specific CleaningThreadLocal instance is to be cleaned up.
-     * @param ctl    The specific CleaningThreadLocal instance to clean up. If null, cleans all.
+     * @param thread The thread whose specific {@link CleaningThreadLocal} instance is to be cleaned up.
+     * @param ctl    The specific {@link CleaningThreadLocal} instance to clean up. If {@code null}, cleans all.
      */
     public static void performCleanup(Thread thread, CleaningThreadLocal<?> ctl) {
         WeakReference<?>[] table;
@@ -135,7 +143,12 @@ public class CleaningThread extends Thread {
     }
 
     /**
-     * Iterates through the references in the table, cleaning up and removing the CleaningThreadLocal instances.
+     * Iterates through the references in the table, cleaning up and removing the {@link CleaningThreadLocal} instances.
+     *
+     * @param ctl    The specific {@link CleaningThreadLocal} instance to clean up, or {@code null} to clean all.
+     * @param table  The table of {@link WeakReference} entries to iterate over.
+     * @param o      The thread local map object from which to remove entries.
+     * @param remove The method used to remove entries from the thread local map.
      */
     private static void scanReferences(CleaningThreadLocal<?> ctl, WeakReference<?>[] table, Object o, Method remove) {
         for (WeakReference<?> reference : table.clone()) {
@@ -163,18 +176,18 @@ public class CleaningThread extends Thread {
     }
 
     /**
-     * Checks if the given thread is an instance of CleaningThread and if it is in an event loop.
+     * Checks if the given thread is an instance of {@code CleaningThread} and if it is in an event loop.
      *
      * @param t The thread to check.
-     * @return true if the thread is an instance of CleaningThread and in an event loop, false otherwise.
+     * @return {@code true} if the thread is an instance of {@code CleaningThread} and in an event loop, {@code false} otherwise.
      */
     public static boolean inEventLoop(Thread t) {
         return t instanceof CleaningThread && ((CleaningThread) t).inEventLoop();
     }
 
     /**
-     * Overrides the run method to reset the thread affinity, execute the target runnable
-     * and then perform clean up of thread locals.
+     * Overrides the {@link Thread#run()} method to reset the thread affinity, execute the target {@link Runnable},
+     * and then perform cleanup of thread-local variables.
      */
     @Override
     public void run() {
@@ -193,9 +206,9 @@ public class CleaningThread extends Thread {
     }
 
     /**
-     * Returns the inEventLoop flag, indicating whether this thread is in an event loop.
+     * Returns the {@code inEventLoop} flag, indicating whether this thread is in an event loop.
      *
-     * @return true if this thread is in an event loop, false otherwise.
+     * @return {@code true} if this thread is in an event loop, {@code false} otherwise.
      */
     public boolean inEventLoop() {
         return inEventLoop;

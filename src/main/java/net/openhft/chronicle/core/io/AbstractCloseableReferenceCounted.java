@@ -43,14 +43,29 @@ public abstract class AbstractCloseableReferenceCounted
         extends AbstractReferenceCounted
         implements ManagedCloseable {
 
+    /**
+     * Indicates whether the resource is in the process of being closed.
+     */
     private transient volatile boolean closing;
+
+    /**
+     * Indicates whether the resource is closed.
+     */
     private transient volatile boolean closed;
+
+    /**
+     * Stack trace indicating where the resource was closed.
+     */
     private transient volatile StackTrace closedHere;
+
+    /**
+     * Indicates whether the initial reference has been released.
+     */
     private boolean initReleased;
 
     /**
-     * Constructs a new AbstractCloseableReferenceCounted instance and adds the instance
-     * to the CloseableUtils set for tracking.
+     * Constructs a new {@code AbstractCloseableReferenceCounted} instance and adds the instance
+     * to the {@link CloseableUtils} set for tracking.
      */
     protected AbstractCloseableReferenceCounted() {
         CloseableUtils.add(this);
@@ -65,17 +80,16 @@ public abstract class AbstractCloseableReferenceCounted
     @Override
     public void reserve(ReferenceOwner id) throws ClosedIllegalStateException, ThreadingIllegalStateException {
         throwExceptionIfClosed();
-
         super.reserve(id);
     }
 
     /**
-     * Reserves the resource for the given id.
+     * Transfers the reservation of the resource from one owner to another.
      *
-     * @param from resource
-     * @param to   resource
+     * @param from the current owner of the resource.
+     * @param to   the new owner of the resource.
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
-     * @throws ThreadingIllegalStateException If used in a non thread safe way
+     * @throws ThreadingIllegalStateException If used in a non thread safe way.
      */
     @Override
     public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws ClosedIllegalStateException, ThreadingIllegalStateException {
@@ -114,8 +128,8 @@ public abstract class AbstractCloseableReferenceCounted
      * Tries to reserve the resource for the given id.
      *
      * @param id unique id for this reserve
-     * @return true if reserved
-     * @throws ClosedIllegalStateException If the resource has been released or closed.
+     * @return {@code true} if the resource was successfully reserved; {@code false} otherwise
+     * @throws ClosedIllegalStateException If the resource has been released or closed
      */
     @Override
     public boolean tryReserve(ReferenceOwner id) throws ClosedIllegalStateException, IllegalArgumentException {
@@ -139,7 +153,7 @@ public abstract class AbstractCloseableReferenceCounted
     }
 
     /**
-     * Closes the resource in the background.
+     * Closes the resource in the background by marking it as closing and performing release operations.
      */
     @Override
     protected void backgroundPerformRelease() {
@@ -148,13 +162,18 @@ public abstract class AbstractCloseableReferenceCounted
     }
 
     /**
-     * Sets the resource as closing in case it is being released in the background.
+     * Sets the resource as closing, indicating it is in the process of being released in the background.
      */
     protected void setClosing() {
         closing = true;
         setClosedHere(" closing here");
     }
 
+    /**
+     * Sets the location in the code where the resource was closed.
+     *
+     * @param message a message to be included in the stack trace.
+     */
     private void setClosedHere(String s) {
         if (closedHere == null)
             closedHere = Jvm.isResourceTracing() ? new StackTrace(getClass().getName() + s) : null;
@@ -180,11 +199,21 @@ public abstract class AbstractCloseableReferenceCounted
         assert AbstractCloseable.DISABLE_SINGLE_THREADED_CHECK || threadSafetyCheck(true);
     }
 
+    /**
+     * Throws a {@link ClosedIllegalStateException} if the resource is currently closing or closed.
+     *
+     * @throws ClosedIllegalStateException If the resource has been released or closed.
+     */
     private void throwExceptionIfClosed0() throws ClosedIllegalStateException {
         if (closing)
             throwClosing();
     }
 
+    /**
+     * Throws a {@link ClosedIllegalStateException} if the resource is closed or in the process of closing.
+     *
+     * @throws ClosedIllegalStateException If the resource has been released or closed.
+     */
     private void throwClosing() throws ClosedIllegalStateException {
         throw new ClosedIllegalStateException(getClass().getName() + (closed ? " closed" : " closing"), closedHere);
     }

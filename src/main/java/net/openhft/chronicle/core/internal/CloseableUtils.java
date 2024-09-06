@@ -1,3 +1,21 @@
+/*
+ * Copyright 2016-2022 chronicle.software
+ *
+ *       https://chronicle.software
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package net.openhft.chronicle.core.internal;
 
 import net.openhft.chronicle.core.Jvm;
@@ -19,25 +37,44 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Utility class for managing closeable resources and related operations.
+ * Utility class for managing {@link Closeable} resources and related operations.
+ * <p>
+ * This class provides methods for tracking, managing, and waiting for closeable resources to close.
+ * It enables tracing of resources to ensure proper resource management, especially in environments
+ * where resources need to be explicitly closed.
+ * </p>
+ * <p>
+ * The class is designed for internal use and assists in handling cleanup tasks such as garbage collection
+ * and resource finalization, ensuring that resources are properly released before continuing execution.
+ * </p>
+ * <p>
+ * This class cannot be instantiated and is intended to provide static utility methods.
+ * </p>
  */
 public final class CloseableUtils {
     /**
-     * Set of closeable resources being tracked.
+     * Atomic reference to a set of closeable resources being tracked.
      * <p>
-     * NOTE: This assumes the collection will not be replaced concurrently, and a particular lifecycle is used.
-     * It is set and reset between tests in a single threaded manner. The set itself could be changed concurrently.
+     * NOTE: This assumes that the collection will not be replaced concurrently, and its lifecycle
+     * is managed in a single-threaded manner between tests. The set itself may be modified concurrently.
+     * </p>
      */
     private static final AtomicReference<Set<Closeable>> CLOSEABLES = new AtomicReference<>();
 
+    /**
+     * Private constructor to prevent instantiation of this utility class.
+     */
     private CloseableUtils() {
     }
 
     /**
      * Adds a closeable resource to the set of tracked resources.
+     * <p>
      * If tracing is enabled, the closeable resource is added to the set for monitoring purposes.
+     * This method should be called whenever a closeable resource is created and needs to be tracked.
+     * </p>
      *
-     * @param closeable The closeable resource to add.
+     * @param closeable The closeable resource to add to the tracking set.
      */
     public static void add(Closeable closeable) {
         final Set<Closeable> set = CLOSEABLES.get();
@@ -47,8 +84,10 @@ public final class CloseableUtils {
 
     /**
      * Enables tracing of closeable resources.
-     * Tracked resources will be stored in a set.
-     * This method should be called to enable tracing before using closeable resources.
+     * <p>
+     * Tracked resources will be stored in a {@link WeakIdentityHashMap}, ensuring that they are
+     * monitored for proper closure and release. This method should be called before using closeable resources.
+     * </p>
      */
     public static void enableCloseableTracing() {
         CLOSEABLES.set(
@@ -59,8 +98,10 @@ public final class CloseableUtils {
 
     /**
      * Disables tracing of closeable resources.
-     * Tracked resources will no longer be stored in the set.
-     * This method should be called to disable tracing when no longer needed.
+     * <p>
+     * After this method is called, closeable resources will no longer be tracked, and any existing
+     * tracked resources will be cleared from the tracking set.
+     * </p>
      */
     public static void disableCloseableTracing() {
         CLOSEABLES.set(null);
@@ -68,23 +109,26 @@ public final class CloseableUtils {
 
     /**
      * Performs garbage collection and waits for closeables to close.
-     * This method is useful for ensuring that closeable resources are properly closed before continuing.
-     * It performs the following steps:
-     * 1. Performs cleanup on the current thread.
-     * 2. Performs garbage collection.
-     * 3. Waits for closeables to close with a specified timeout.
-     * 4. Checks if the finalizer thread has finalized any objects.
-     * If not, it throws an AssertionError.
+     * <p>
+     * This method ensures that all tracked closeable resources are properly closed. It performs the following steps:
+     * <ul>
+     *     <li>Performs cleanup on the current thread using {@link CleaningThread#performCleanup(Thread)}</li>
+     *     <li>Triggers garbage collection to finalize objects</li>
+     *     <li>Waits for closeables to close with a specified timeout</li>
+     *     <li>Verifies that the finalizer thread has processed any finalizable objects</li>
+     * </ul>
+     * If the finalizer thread does not complete within the specified timeout, it throws an {@link AssertionError}.
      *
      * @throws AssertionError If the finalizer does not complete within the specified timeout.
      */
     public static void gcAndWaitForCloseablesToClose() {
+        // Perform cleanup on the current thread
         CleaningThread.performCleanup(Thread.currentThread());
 
-        // find any discarded resources.
+        // Queue to track finalization of anonymous objects
         final BlockingQueue<String> q = new LinkedBlockingQueue<>();
 
-        // Anonymous inner class overriding the finalize() method to track finalization.
+        // Anonymous object to track finalization using finalize() method
         new Object() {
             @Override
             protected void finalize() throws Throwable {
@@ -94,7 +138,7 @@ public final class CloseableUtils {
         };
 
         try {
-            // Zing JVM is not always satisfied with a single GC call:
+            // Trigger garbage collection and wait for finalization
             for (int i = 1; i <= 10; i++) {
                 System.gc();
                 if (q.poll(500, TimeUnit.MILLISECONDS) != null)
@@ -104,6 +148,7 @@ public final class CloseableUtils {
                     throw new AssertionError("Timed out waiting for the Finalizer");
             }
 
+            // Wait for closeables to close
             AbstractCloseable.waitForCloseablesToClose(1000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -113,12 +158,14 @@ public final class CloseableUtils {
 
     /**
      * Waits for closeable resources to close within a specified time limit.
-     * This method checks if the closeable resources in the trace set have been closed.
-     * If all resources are closed within the specified time limit, it returns true.
-     * If the time limit is exceeded before all resources are closed, it returns false.
+     * <p>
+     * This method checks the closeable resources in the tracking set to determine if they have been closed.
+     * If all resources are closed within the specified time limit, it returns {@code true}. If the time limit
+     * is exceeded before all resources are closed, an {@link IllegalStateException} is thrown.
+     * </p>
      *
      * @param millis The time limit in milliseconds to wait for the closeable resources to close.
-     * @return true if all closeable resources are closed within the time limit, false otherwise.
+     * @return {@code true} if all closeable resources are closed within the time limit, {@code false} otherwise.
      */
     public static boolean waitForCloseablesToClose(long millis) {
         final Set<Closeable> traceSet = CLOSEABLES.get();
@@ -140,7 +187,7 @@ public final class CloseableUtils {
                 if (key.isClosing())
                     continue;
                 try {
-                    // too late to be checking thread safety.
+                    // Disable single-threaded checks and ensure resources are released
                     if (key instanceof AbstractCloseable) {
                         ((AbstractCloseable) key).singleThreadedCheckDisabled(true);
                     }
@@ -152,6 +199,7 @@ public final class CloseableUtils {
                     if (System.currentTimeMillis() > end)
                         throw e;
 
+                    // Release pending resources and perform cleanup
                     BackgroundResourceReleaser.releasePendingResources();
 
                     CleaningThreadLocal.cleanupNonCleaningThreads();
@@ -166,8 +214,14 @@ public final class CloseableUtils {
 
     /**
      * Asserts that all closeable resources are closed.
-     * This method checks if there are any remaining open closeable resources.
-     * If any resources are found to be open, an AssertionError is thrown.
+     * <p>
+     * This method checks if there are any remaining open closeable resources that have not been closed.
+     * It waits briefly for resources to close in the background and verifies if all tracked resources are closed.
+     * If any resources remain open, an {@link AssertionError} is thrown, providing detailed information
+     * about the resources that were not properly closed.
+     * </p>
+     *
+     * @throws AssertionError If any resources remain open after the assertion check.
      */
     public static void assertCloseablesClosed() {
         final Set<Closeable> traceSet = CLOSEABLES.get();
@@ -195,6 +249,19 @@ public final class CloseableUtils {
         }
     }
 
+    /**
+     * Waits for closeable resources to close by periodically checking their status.
+     * If all resources are closed, the method returns {@code true}.
+     * <p>
+     * It checks the state of closeable resources in the provided trace set and waits briefly for resources
+     * to close in the background. If resources close within the allotted time (250 milliseconds), the method
+     * returns {@code true}, indicating success.
+     * </p>
+     *
+     * @param traceSet  The set of tracked closeable resources.
+     * @param traceSet2 A temporary set for tracking nested resources.
+     * @return {@code true} if all closeable resources are closed, {@code false} otherwise.
+     */
     private static boolean waitForTraceSet(Set<Closeable> traceSet, Set<Closeable> traceSet2) {
         traceSet.removeIf(o -> o == null || o.isClosing());
         Set<Closeable> nested = Collections.newSetFromMap(new IdentityHashMap<>());
@@ -213,6 +280,17 @@ public final class CloseableUtils {
         return false;
     }
 
+    /**
+     * Captures information about unclosed resources.
+     * <p>
+     * This method adds detailed information about the resources that have not been closed,
+     * including where they were created or held references. It closes the unclosed resources and
+     * adds exceptions to the provided {@link AssertionError}.
+     * </p>
+     *
+     * @param openFiles The {@link AssertionError} to which unclosed resources are added.
+     * @param traceSet2 The set of closeable resources that remain unclosed.
+     */
     private static void captureTheUnclosed(AssertionError openFiles, Set<Closeable> traceSet2) {
         for (Closeable key : traceSet2) {
             Throwable t = null;
@@ -235,6 +313,17 @@ public final class CloseableUtils {
         }
     }
 
+    /**
+     * Recursively adds nested closeable resources to the provided set for tracking.
+     * <p>
+     * This method searches for nested closeable resources within the fields of the given resource and adds them
+     * to the tracking set if they are not already closing. It also handles recursive nesting of resources.
+     * </p>
+     *
+     * @param nested The set of nested closeable resources to track.
+     * @param key    The top-level closeable resource.
+     * @param depth  The depth of recursion to search for nested resources.
+     */
     private static void addNested(Set<Closeable> nested, Closeable key, int depth) {
         if (key.isClosing())
             return;
@@ -253,6 +342,12 @@ public final class CloseableUtils {
         }
     }
 
+    /**
+     * Retrieves all {@link Closeable} fields from the given class and its superclasses.
+     *
+     * @param keyClass The class to inspect for {@link Closeable} fields.
+     * @param fields   The set to which the found fields are added.
+     */
     private static void getCloseableFields(Class<?> keyClass, Set<Field> fields) {
         if (keyClass == null || keyClass == Object.class)
             return;
@@ -263,7 +358,12 @@ public final class CloseableUtils {
     }
 
     /**
-     * @param closeable to remove monitoring of
+     * Removes the specified closeable from monitoring.
+     * <p>
+     * This method is useful if a resource should no longer be tracked as a closeable resource.
+     * </p>
+     *
+     * @param closeable The closeable resource to remove from monitoring.
      */
     public static void unmonitor(Closeable closeable) {
         final Set<Closeable> set = CLOSEABLES.get();
@@ -272,12 +372,12 @@ public final class CloseableUtils {
     }
 
     /**
-     * Close a closeable quietly, i.e. without throwing an exception.
-     * If the closeable is a collection, close all the elements.
-     * If the closeable is an array, close all the elements.
-     * If the closeable is a ServerSocketChannel, close it quietly.
+     * Closes multiple closeable resources quietly without throwing an exception.
+     * <p>
+     * If the resource is a collection or array, this method will close all elements within it.
+     * </p>
      *
-     * @param closeables the objects to close
+     * @param closeables The closeable resources to close.
      */
     public static void closeQuietly(@Nullable Object... closeables) {
         if (closeables == null)
@@ -287,12 +387,13 @@ public final class CloseableUtils {
     }
 
     /**
-     * Close a closeable quietly, i.e. without throwing an exception.
-     * If the closeable is a collection, close all the elements.
-     * If the closeable is an array, close all the elements.
-     * If the closeable is a ServerSocketChannel, close it quietly.
+     * Closes a single closeable resource quietly without throwing an exception.
+     * <p>
+     * This method handles collections, arrays, {@link ServerSocketChannel}, {@link HttpURLConnection}, and other
+     * {@link AutoCloseable} resources. It logs any errors encountered during the closing operation.
+     * </p>
      *
-     * @param o the object to close
+     * @param o The object to close.
      */
     static void closeQuietly(@Nullable Object o) {
         if (o instanceof Collection) {
@@ -334,10 +435,21 @@ public final class CloseableUtils {
         }
     }
 
+    /**
+     * Logs any errors encountered during the closing of resources.
+     *
+     * @param e The exception or error that occurred during closing.
+     */
     static void logErrorOnClose(Throwable e) {
         Jvm.warn().on(Closeable.class, "Error occurred closing resources", e);
     }
 
+    /**
+     * Returns a string representation of the closeable or reference owner.
+     *
+     * @param id The object to represent as a string.
+     * @return A string representation of the object, including its reference count and closed status if applicable.
+     */
     public static String asString(Object id) {
         if (id == ReferenceOwner.INIT) return "INIT";
         String s = id instanceof ReferenceOwner

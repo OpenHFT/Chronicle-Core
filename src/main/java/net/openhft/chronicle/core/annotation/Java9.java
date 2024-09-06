@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.openhft.chronicle.core.annotation;
 
 import java.lang.annotation.ElementType;
@@ -23,7 +24,28 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marker annotation to label methods that are expected to be called by java-9+ specific code paths.
+ * Marker annotation to label methods that are intended for use in Java 9 and later environments.
+ *
+ * <p>This annotation helps in distinguishing methods that are part of code paths specific to Java 9+,
+ * which can be useful when maintaining codebases that support both older and newer Java versions.
+ *
+ * <p>It serves as a hint to developers and tools that these methods may utilize APIs introduced in Java 9,
+ * or rely on behavior only available in those versions or later.</p>
+ *
+ * <p><b>Retention Policy:</b> {@code RetentionPolicy.SOURCE} indicates that this annotation is for
+ * documentation and analysis purposes only, and will not be retained in the compiled class files.</p>
+ *
+ * <p><b>Usage Example:</b>
+ * <pre>
+ * {@code
+ * @Java9
+ * public void java9SpecificMethod() {
+ *     // Code relying on Java 9+ APIs
+ * }
+ * }
+ * </pre>
+ *
+ * <p>This annotation does not enforce any checks but serves as a documentation tool within the codebase.</p>
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.METHOD)

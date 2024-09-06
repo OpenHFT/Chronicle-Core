@@ -24,11 +24,38 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to document that a class is intended to be used in a single-threaded context.
- * Classes marked with this annotation are not designed for concurrent access and should
- * be accessed by only one thread at a time.
+ * Annotation to indicate that a class is designed to be used in a single-threaded context.
  * <p>
- * Created by Peter Lawrey on 18/05/2015.
+ * Classes or components marked with this annotation are not thread-safe and should only
+ * be accessed by a single thread at any given time. Attempting to access such a class
+ * from multiple threads concurrently may result in undefined behavior, data races, or
+ * inconsistencies.
+ * </p>
+ *
+ * <p>By marking a class as {@code @SingleThreaded}, developers are clearly conveying
+ * the expectation that the class's methods and state are intended to be managed
+ * within a single thread. As such, any effort to synchronize access or use the class
+ * in multi-threaded scenarios should be avoided.</p>
+ *
+ * <p><b>Retention Policy:</b> {@code RetentionPolicy.RUNTIME} ensures that this
+ * annotation is retained at runtime and can be accessed via reflection.</p>
+ *
+ * <p><b>Use Cases:</b></p>
+ * <ul>
+ *     <li>Low-latency systems where thread-safety mechanisms (like locks) are deliberately avoided to maximize performance.</li>
+ *     <li>Components in real-time or embedded systems where multi-threaded behavior is not expected or required.</li>
+ *     <li>Development environments where components are known to be single-threaded but could be mistakenly used in concurrent scenarios.</li>
+ * </ul>
+ *
+ * <p>Example usage:</p>
+ * <pre>
+ * {@code
+ * @SingleThreaded
+ * public class SingleThreadOnlyResource {
+ *     // Class implementation
+ * }
+ * }
+ * </pre>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

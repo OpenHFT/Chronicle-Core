@@ -65,8 +65,13 @@ import java.util.zip.GZIPOutputStream;
  * concurrently.
  */
 public final class IOTools {
+    // Constant for interrupted IO status code
     public static final int IOSTATUS_INTERRUPTED = IOStatus.INTERRUPTED;
+
+    // Map to keep track of object counts for specific types
     private static final Map<Class<?>, AtomicInteger> COUNTER_MAP = new ConcurrentHashMap<>();
+
+    // Set of messages indicating closed connections or streams
     private static final Set<String> CLOSED_MESSAGES =
             new HashSet<>(
                     Arrays.asList(
@@ -142,6 +147,16 @@ public final class IOTools {
         return deleteDirWithFiles(dir, 1);
     }
 
+    /**
+     * Deletes directories and their files specified by the given directory paths.
+     * <p>
+     * This method attempts to delete each directory and its contents. If a deletion fails,
+     * the method continues to attempt to delete the remaining directories.
+     *
+     * @param dirs The directory paths to delete.
+     * @return {@code true} if all directories were deleted successfully, {@code false} otherwise.
+     * @throws IORuntimeException If an IO error occurs during deletion.
+     */
     public static boolean deleteDirWithFiles(@NotNull String... dirs) throws IORuntimeException {
         boolean result = true;
         for (String dir : dirs) {
@@ -462,6 +477,15 @@ public final class IOTools {
         unmonitor(t, 4);
     }
 
+    /**
+     * Unmonitors the specified object, allowing it to be garbage collected if it is no longer in use.
+     * <p>
+     * This method recursively processes the object's fields up to a specified depth to ensure all
+     * monitorable resources are properly unmonitored.
+     *
+     * @param t     The object to unmonitor.
+     * @param depth The depth to which the fields should be processed.
+     */
     private static void unmonitor(final Object t, int depth) {
         if (t == null)
             return;
@@ -475,6 +499,16 @@ public final class IOTools {
             unmonitor(t.getClass(), t, depth - 1);
     }
 
+    /**
+     * Recursively unmonitors fields of a specified class and its superclass up to a specified depth.
+     * <p>
+     * This method processes each non-primitive, non-static field of the class to ensure that
+     * monitorable resources are unmonitored.
+     *
+     * @param aClass The class to process.
+     * @param t      The object whose fields are to be unmonitored.
+     * @param depth  The depth to which the fields should be processed.
+     */
     private static void unmonitor(Class<?> aClass, Object t, int depth) {
         if (aClass == null || aClass == Object.class)
             return;
@@ -529,7 +563,15 @@ public final class IOTools {
         return IOStatus.normalize(n);
     }
 
-    // has to be moved to another class to avoid a live lock
+    /**
+     * Returns a {@link Runnable} that closes two specified {@link SocketChannel}s with pauses in between.
+     * <p>
+     * This method has to be moved to another class to avoid a live lock.
+     *
+     * @param sc The first socket channel to close.
+     * @param s2 The second socket channel to close.
+     * @return A {@link Runnable} that closes the socket channels.
+     */
     @NotNull
     static Runnable close3(SocketChannel sc, SocketChannel s2) {
         return () -> {
@@ -541,7 +583,16 @@ public final class IOTools {
         };
     }
 
-    // has to be moved to another class to avoid a live lock
+    /**
+     * Returns a {@link Runnable} that interrupts the main thread and closes two specified {@link SocketChannel}s with pauses in between.
+     * <p>
+     * This method has to be moved to another class to avoid a live lock.
+     *
+     * @param sc   The first socket channel to close.
+     * @param s2   The second socket channel to close.
+     * @param main The main thread to interrupt.
+     * @return A {@link Runnable} that interrupts the main thread and closes the socket channels.
+     */
     @NotNull
     static Runnable close4(SocketChannel sc, SocketChannel s2, Thread main) {
         return () -> {
@@ -553,6 +604,12 @@ public final class IOTools {
         };
     }
 
+    /**
+     * Inner class {@code Language} contains methods for handling locale-specific exceptions.
+     * <p>
+     * It initializes additional closed messages for non-English locales by simulating socket operations.
+     * </p>
+     */
     private static final class Language {
         static {
             if (!Locale.getDefault().getLanguage().equals(Locale.ENGLISH.getLanguage())) {
@@ -566,6 +623,14 @@ public final class IOTools {
             }
         }
 
+        /**
+         * Adds regional messages for closed connections based on the current locale.
+         * <p>
+         * This method simulates various socket operations to capture locale-specific exception messages.
+         * </p>
+         *
+         * @throws IOException If an I/O error occurs during socket operations.
+         */
         static void addRegionalMessages() throws IOException {
             try (ServerSocketChannel ssc = ServerSocketChannel.open()) {
                 ssc.bind(new InetSocketAddress(0));
@@ -645,6 +710,12 @@ public final class IOTools {
             }
         }
 
+        /**
+         * A placeholder method for potential future warnings related to language settings.
+         * <p>
+         * Currently, this method does nothing.
+         * </p>
+         */
         static void warnOnce() {
             // No-op.
         }

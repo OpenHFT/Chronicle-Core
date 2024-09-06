@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.Jvm;
@@ -51,15 +52,20 @@ import java.util.function.Function;
  */
 public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E> {
 
-    // The map and list that holds the enum instances.
+    // The map that holds enum instances keyed by their names.
     private final Map<String, E> eMap = Collections.synchronizedMap(new LinkedHashMap<>());
+
+    // The list that holds enum instances in the order they were created.
     private final List<E> eList = new ArrayList<>();
-    // Fields to reflectively set properties on new instances.
+
+    // Fields used to reflectively set properties on new instances.
     private final Field nameField;
-    // An array of enum values
-    private E[] values = null;
     private final Field ordinalField;
-    // The function used to create new enum instances
+
+    // An array of enum values, lazily initialized.
+    private E[] values = null;
+
+    // Function used to create new enum instances dynamically.
     private final Function<String, E> create = this::create;
 
     /**
@@ -74,6 +80,9 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
         ordinalField = Jvm.getFieldOrNull(eClass, "ordinal");
     }
 
+    /**
+     * Initializes the internal state with the predefined enum constants, if any.
+     */
     private void reset0() {
         E[] enumConstants = type.isEnum() ? type.getEnumConstants() : getStaticConstants(type);
         for (E e : enumConstants) {
@@ -82,6 +91,12 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
         }
     }
 
+    /**
+     * Retrieves static constants defined in the class using reflection.
+     *
+     * @param eClass the class to retrieve constants from.
+     * @return an array of enum constants.
+     */
     private E[] getStaticConstants(Class<E> eClass) {
         final List<E> fieldList = new ArrayList<>();
         Field[] fields = eClass.getDeclaredFields();
@@ -123,15 +138,24 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
         return eMap.computeIfAbsent(name, create);
     }
 
-    // called while holding a lock on eMap
+    /**
+     * Creates a new enum instance with the specified name. This method is called while
+     * holding a lock on eMap to ensure thread safety.
+     *
+     * @param name the name for the new enum instance.
+     * @return the newly created enum instance.
+     */
     private E create(String name) {
         try {
+            // Use low-level memory operations to instantiate the class without calling its constructor.
             E e = OS.memory().allocateInstance(type);
+
+            // Set the name and ordinal fields using reflection.
             nameField.set(e, name);
             if (ordinalField != null) {
                 ordinalField.set(e, eMap.size());
                 eList.add(e);
-                values = null;
+                values = null;  // Reset cached array to force regeneration.
             }
             return e;
 
@@ -151,16 +175,22 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
     }
 
     /**
-     * Returns an array containing the enum instances managed by this class in
-     * the order they were created.
+     * Returns the enum instance at the specified index.
      *
-     * @return an array containing the enum instances.
+     * @param index the index of the enum instance to return.
+     * @return the enum instance at the specified index.
      */
     @Override
     public E forIndex(int index) {
         return eList.get(index);
     }
 
+    /**
+     * Returns an array containing the enum instances managed by this class in
+     * the order they were created.
+     *
+     * @return an array containing the enum instances.
+     */
     @SuppressWarnings("unchecked")
     @Override
     public E[] asArray() {
@@ -169,15 +199,26 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
         return values = eList.toArray((E[]) Array.newInstance(type, eList.size()));
     }
 
+    /**
+     * Creates a map for associating enum instances with values.
+     *
+     * @param <T> the type of the values to be associated with the enum instances.
+     * @return a new sorted map for enum instances.
+     */
     @Override
     public <T> Map<E, T> createMap() {
-        // needs to be a SortedMap to behave as similarly to EnumMap as possible
+        // Needs to be a SortedMap to behave as similarly to EnumMap as possible.
         return new TreeMap<>();
     }
 
+    /**
+     * Creates a set for holding enum instances.
+     *
+     * @return a new sorted set for enum instances.
+     */
     @Override
     public Set<E> createSet() {
-        // see comment in createMap
+        // See comment in createMap.
         return new TreeSet<>();
     }
 

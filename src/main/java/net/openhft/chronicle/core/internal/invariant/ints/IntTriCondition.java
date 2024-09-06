@@ -22,21 +22,66 @@ import net.openhft.chronicle.core.util.IntTriPredicate;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ * Enum representing various conditions or predicates on three integer values, implementing {@link IntTriPredicate}.
+ * <p>
+ * This enum provides a set of predefined conditions for testing relationships between three integer values,
+ * such as checking whether a value is between two other values. Each condition is defined by a symbolic operation
+ * and an associated {@link IntTriPredicate} that performs the test.
+ * </p>
+ */
 public enum IntTriCondition implements IntTriPredicate {
 
-    BETWEEN("∈ [fromInclusive, toExclusive), where (fromInclusive, toExclusive) = ", (value, otherFirst, otherSecond) -> value >= otherFirst && value < otherSecond),
-    BETWEEN_CLOSED("∈ [fromInclusive, toInclusive], where (fromInclusive, toInclusive) = ", (value, otherFirst, otherSecond) -> value >= otherFirst && value <= otherSecond),
-    BETWEEN_ZERO_AND_ENSURING("∈ [0, index - size ], where (index, size) = ", (value, otherFirst, otherSecond) -> value >= 0 && value <= (otherFirst - otherSecond));
+    /**
+     * Condition representing that a value is between two other values (inclusive of the lower bound, exclusive of the upper bound).
+     * <p>
+     * Example: The condition checks whether {@code value} is in the range [fromInclusive, toExclusive).
+     */
+    BETWEEN("∈ [fromInclusive, toExclusive), where (fromInclusive, toExclusive) = ",
+            (value, otherFirst, otherSecond) -> value >= otherFirst && value < otherSecond),
 
+    /**
+     * Condition representing that a value is between two other values (inclusive of both bounds).
+     * <p>
+     * Example: The condition checks whether {@code value} is in the range [fromInclusive, toInclusive].
+     */
+    BETWEEN_CLOSED("∈ [fromInclusive, toInclusive], where (fromInclusive, toInclusive) = ",
+            (value, otherFirst, otherSecond) -> value >= otherFirst && value <= otherSecond),
+
+    /**
+     * Condition representing that a value is between 0 and the result of subtracting one value from another.
+     * <p>
+     * Example: The condition checks whether {@code value} is in the range [0, index - size].
+     */
+    BETWEEN_ZERO_AND_ENSURING("∈ [0, index - size], where (index, size) = ",
+            (value, otherFirst, otherSecond) -> value >= 0 && value <= (otherFirst - otherSecond));
+
+    // Symbolic representation of the condition
     private final String operation;
+
+    // Predicate that defines the condition
     private final IntTriPredicate predicate;
 
+    /**
+     * Constructor for creating an {@link IntTriCondition} based on an operation string and predicate.
+     *
+     * @param operation The symbolic representation of the condition.
+     * @param predicate The predicate defining the condition.
+     */
     IntTriCondition(final String operation,
                     final IntTriPredicate predicate) {
         this.operation = requireNonNull(operation);
         this.predicate = requireNonNull(predicate);
     }
 
+    /**
+     * Tests the condition on the provided three integer values.
+     *
+     * @param value       The integer value to test.
+     * @param otherFirst  The first comparison value.
+     * @param otherSecond The second comparison value.
+     * @return {@code true} if the condition holds, {@code false} otherwise.
+     */
     @Override
     public boolean test(final int value,
                         final int otherFirst,
@@ -44,6 +89,11 @@ public enum IntTriCondition implements IntTriPredicate {
         return predicate.test(value, otherFirst, otherSecond);
     }
 
+    /**
+     * Returns the symbolic representation of this condition.
+     *
+     * @return The string representation of the condition.
+     */
     @Override
     public String toString() {
         return operation;

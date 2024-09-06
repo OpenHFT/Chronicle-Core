@@ -25,19 +25,38 @@ import java.util.Map;
 
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
+/**
+ * A mute implementation of the {@link AnalyticsFacade} interface that ignores all analytics events.
+ * <p>
+ * This singleton enum is used in scenarios where analytics tracking is disabled, and thus
+ * all event submissions are no-ops. The class is primarily useful for testing and ensuring that
+ * analytics calls do not perform any actions when analytics are muted.
+ * </p>
+ * <p>
+ * The class also tracks the number of times the {@link #sendEvent(String, Map)} method is invoked,
+ * which can be useful for testing purposes.
+ * </p>
+ */
 enum MuteAnalytics implements AnalyticsFacade {
 
-    INSTANCE;
+    INSTANCE;  // Singleton instance for mute analytics
 
-    // Used for testing only
+    // Counter to track how many times the sendEvent method has been called (for testing purposes).
     int invocationCounter;
 
+    /**
+     * Mute implementation of the sendEvent method. This method ignores the provided event name
+     * and parameters, and only increments the invocation counter for testing purposes.
+     *
+     * @param name                    The name of the event being sent (ignored).
+     * @param additionalEventParameters A map of additional parameters for the event (ignored).
+     */
     @Override
     public void sendEvent(@NotNull String name, @NotNull Map<String, String> additionalEventParameters) {
         requireNonNull(name);
         requireNonNull(additionalEventParameters);
 
-        // Ignore the call as this instance is mute
+        // Ignore the event, but increment the invocation counter for testing purposes
         invocationCounter++;
     }
 }

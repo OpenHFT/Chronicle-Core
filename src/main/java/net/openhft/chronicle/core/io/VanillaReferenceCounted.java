@@ -25,25 +25,41 @@ import net.openhft.chronicle.core.annotation.UsedViaReflection;
 
 /**
  * This class provides a basic implementation of the {@link MonitorReferenceCounted} interface.
+ * <p>
  * It is responsible for keeping track of reference counts and releasing resources
- * once they are no longer needed.
+ * once they are no longer needed. This implementation uses low-level atomic operations
+ * provided by {@link UnsafeMemory} to manage the reference count in a thread-safe manner.
+ * </p>
  */
 public final class VanillaReferenceCounted implements MonitorReferenceCounted {
 
     private static final long VALUE;
 
     static {
+        // Initialize VALUE to the memory offset of the 'value' field
         VALUE = UnsafeMemory.unsafeObjectFieldOffset(Jvm.getField(VanillaReferenceCounted.class, "value"));
     }
 
+    // Action to be executed when the resource is released
     private final Runnable onRelease;
+
+    // The class type of the resource being reference counted
     private final Class<?> type;
+
+    // Manager for reference change listeners
     private final ReferenceChangeListenerManager referenceChangeListeners;
-    // must be volatile
+
+    // Volatile field to keep track of the reference count
     @UsedViaReflection
     private volatile int value = 1;
+
+    // Volatile flag indicating whether the resource has been released
     private volatile boolean released = false;
+
+    // Flag indicating whether this object is unmonitored
     private boolean unmonitored;
+
+    // Stack trace of where the object was released, if available
     private StackTrace releasedHere;
 
     /**
@@ -60,7 +76,9 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     }
 
     /**
-     * {@inheritDoc}
+     * Returns {@code null} as this class does not track the creation stack trace.
+     *
+     * @return {@code null}.
      */
     @Override
     public StackTrace createdHere() {
@@ -69,6 +87,10 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
 
     /**
      * Reserves the resource for the provided reference owner.
+     * <p>
+     * Increments the reference count atomically. If the resource has already been released,
+     * an exception is thrown.
+     * </p>
      *
      * @param id The reference owner.
      * @throws ClosedIllegalStateException If the resource has been released or closed.
@@ -89,6 +111,10 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
 
     /**
      * Transfers the reservation of the resource from one reference owner to another.
+     * <p>
+     * This operation does not modify the reference count but notifies listeners of the transfer.
+     * If the resource has already been released, an exception is thrown.
+     * </p>
      *
      * @param from The current reference owner.
      * @param to   The new reference owner.
@@ -102,6 +128,9 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
 
     /**
      * Attempts to reserve the resource for the provided reference owner.
+     * <p>
+     * Increments the reference count atomically if the resource has not been released.
+     * </p>
      *
      * @param id The reference owner.
      * @return {@code true} if the reservation was successful, {@code false} if the object has already been released.
@@ -120,16 +149,34 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         }
     }
 
+    /**
+     * Atomically compares the current reference count with the expected value and, if they are equal,
+     * sets it to the new value.
+     *
+     * @param from The expected current value.
+     * @param to   The new value to set.
+     * @return {@code true} if the operation was successful, {@code false} otherwise.
+     */
     private boolean valueCompareAndSet(int from, int to) {
         return UnsafeMemory.INSTANCE.compareAndSwapInt(this, VALUE, from, to);
     }
 
+    /**
+     * Atomically sets the reference count to the new value and returns the old value.
+     *
+     * @param to The new value to set.
+     * @return The previous value.
+     */
     private int valueGetAndSet(int to) {
         return UnsafeMemory.INSTANCE.getAndSetInt(this, VALUE, to);
     }
 
     /**
      * Releases the resource reserved by the provided reference owner.
+     * <p>
+     * Decrements the reference count atomically. If the reference count reaches zero, the resource
+     * is released by executing the specified release action.
+     * </p>
      *
      * @param id The reference owner.
      * @throws ClosedIllegalStateException If the resource has been released or closed.
@@ -152,6 +199,11 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         }
     }
 
+    /**
+     * Executes the release action when the reference count reaches zero.
+     *
+     * @throws ClosedIllegalStateException If the resource has already been released.
+     */
     private void callOnRelease() throws ClosedIllegalStateException {
         if (released && !Jvm.supportThread())
             throw new ClosedIllegalStateException(type.getName() + " already released", releasedHere);
@@ -163,6 +215,10 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
 
     /**
      * Releases the last reference of the resource.
+     * <p>
+     * This method should be called when a reference owner knows it holds the last reference
+     * to the resource. If any other references are still held, an exception is thrown.
+     * </p>
      *
      * @param id The reference owner.
      * @throws IllegalStateException If the object has more references.
@@ -187,21 +243,45 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         }
     }
 
+    /**
+     * Returns the current reference count.
+     *
+     * @return The current reference count.
+     */
     @Override
     public int refCount() {
         return value;
     }
 
+    /**
+     * Returns a string representation of the current reference count.
+     *
+     * @return A string representing the current reference count.
+     */
     public String toString() {
         return Integer.toString(value);
     }
 
+    /**
+     * Throws an exception if the resource has not been released, indicating that references are still held.
+     *
+     * @throws IllegalStateException If the resource has not been released.
+     */
     @Override
     public void throwExceptionIfNotReleased() throws IllegalStateException {
         if (refCount() > 0)
             throw new IllegalStateException(type.getName() + " still reserved, count=" + refCount());
     }
 
+    /**
+     * Logs a warning and releases all resources if they have not been released.
+     * <p>
+     * This method sets the reference count to zero and runs the release action, logging a warning
+     * if the resource was discarded without being properly released.
+     * </p>
+     *
+     * @throws IllegalStateException If the resource has been released or closed.
+     */
     @Override
     public void warnAndReleaseIfNotReleased() throws IllegalStateException {
         if (valueGetAndSet(0) <= 0)
@@ -212,16 +292,26 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         try {
             callOnRelease();
         } catch (ClosedIllegalStateException e) {
-            // this shouldn't happen given we just tested the refCount.
+            // This shouldn't happen given we just tested the refCount.
             throw new AssertionError(e);
         }
     }
 
+    /**
+     * Sets whether the object is unmonitored.
+     *
+     * @param unmonitored {@code true} if the object is unmonitored, {@code false} otherwise.
+     */
     @Override
     public void unmonitored(boolean unmonitored) {
         this.unmonitored = unmonitored;
     }
 
+    /**
+     * Returns whether the object is unmonitored.
+     *
+     * @return {@code true} if the object is unmonitored, {@code false} otherwise.
+     */
     @Override
     public boolean unmonitored() {
         return unmonitored;
@@ -245,6 +335,11 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         referenceChangeListeners.remove(referenceChangeListener);
     }
 
+    /**
+     * Creates a new {@link ClosedIllegalStateException} indicating that the resource has already been released.
+     *
+     * @return A new {@link ClosedIllegalStateException}.
+     */
     private ClosedIllegalStateException newReleasedClosedIllegalStateException() {
         return new ClosedIllegalStateException(type.getName() + " released");
     }

@@ -20,6 +20,17 @@ package net.openhft.chronicle.core.util;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * A functional interface similar to {@link java.util.function.BiFunction}, but it accepts three arguments and
+ * can throw a checked exception. This interface is useful for lambda expressions and method references
+ * that operate on three input arguments and can throw exceptions.
+ *
+ * @param <I> the type of the first input argument
+ * @param <J> the type of the second input argument
+ * @param <A> the type of the third input argument
+ * @param <R> the type of the result of the function
+ * @param <T> the type of throwable that may be thrown by the function
+ */
 @FunctionalInterface
 public interface ThrowingTriFunction<I, J, A, R, T extends Throwable> {
 
@@ -28,8 +39,9 @@ public interface ThrowingTriFunction<I, J, A, R, T extends Throwable> {
      *
      * @param in the first function argument
      * @param i2 the second function argument
+     * @param i3 the third function argument
      * @return the function result
-     * @throws T on an error.
+     * @throws T if an error occurs during function execution
      */
     @NotNull
     R apply(I in, J i2, A i3) throws T;

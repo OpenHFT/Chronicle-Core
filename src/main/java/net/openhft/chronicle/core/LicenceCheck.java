@@ -14,7 +14,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package net.openhft.chronicle.core;
@@ -29,56 +28,64 @@ import java.util.function.BiConsumer;
 import static net.openhft.chronicle.core.Jvm.startup;
 import static net.openhft.chronicle.core.Jvm.warn;
 
+/**
+ * The {@code LicenceCheck} interface provides mechanisms for checking the validity of a product's license.
+ * It includes methods to verify license expiration and to log appropriate warnings or information based on the license status.
+ */
 public interface LicenceCheck {
 
     String CHRONICLE_LICENSE = "chronicle.license";
 
     /**
-     * Check for license expiry and log message with license and expiry details
+     * Checks for license expiry and logs a message with the license and expiry details.
+     * If the license is nearing expiry, a warning is issued. Otherwise, startup information is logged.
      *
-     * @param product product
-     * @param caller  caller
+     * @param product the product name associated with the license
+     * @param caller  the class initiating the license check
      */
     static void check(String product, Class<?> caller) {
+        // Logs license expiry details based on the number of days left and the owner's information.
         final BiConsumer<Long, String> logLicenceExpiryDetails = (days, owner) -> {
-            String ownerId = owner == null ? "" : "for " + owner + " ";
+            String ownerId = owner == null ? "" : "for " + owner + " "; // Determines the owner information if available.
             String expires = "The license " + ownerId + "expires";
-            String message = days <= 1 ? expires + " in 1 day" : expires + " in " + days + " days";
+            String message = days <= 1 ? expires + " in 1 day" : expires + " in " + days + " days"; // Constructs the expiry message.
 
-            if (days > 500)
+            if (days > 500) // If more than 500 days remain, show the expiry in years.
                 message = expires + " in about " + (days / 365) + " years";
 
-            if (days < 30)
+            if (days < 30) // Logs a warning if less than 30 days remain.
                 warn().on(LicenceCheck.class, message + ". At which point, this product will stop working, if you wish to renew this licence please contact sales@chronicle.software");
-            else
+            else // Logs startup information for other cases.
                 startup().on(LicenceCheck.class, message + ".");
         };
 
-        licenceExpiry(product, caller, logLicenceExpiryDetails);
+        licenceExpiry(product, caller, logLicenceExpiryDetails); // Calls the method to get the expiry details and logs them.
     }
 
     /**
-     * Provide licence expiry details
+     * Provides license expiry details by reading the expiry date from a file or system property.
+     * It then invokes a callback with the number of days remaining until expiry and the license owner's information.
      *
-     * @param product              product
-     * @param caller               caller
-     * @param licenceExpiryDetails callback to call with license days to run and license owner
+     * @param product              the product name associated with the license
+     * @param caller               the class initiating the license check
+     * @param licenceExpiryDetails a callback that receives the number of days until license expiry and the owner's name
      */
     static void licenceExpiry(String product, Class<?> caller, BiConsumer<Long, String> licenceExpiryDetails) {
-        String key = Jvm.getProperty(CHRONICLE_LICENSE); // make sure this was loaded first.
-        if (key == null || !key.contains(product + '.')) {
-            String expiryDateFile = product + ".expiry-date";
+        String key = Jvm.getProperty(CHRONICLE_LICENSE); // Retrieves the license key from system properties.
+        if (key == null || !key.contains(product + '.')) { // If the key is not found or doesn't match the product.
+            String expiryDateFile = product + ".expiry-date"; // Determines the expiry date file for the product.
             try {
-                String source = new String(IOTools.readFile(LicenceCheck.class, expiryDateFile));
-                LocalDate expiryDate = LocalDate.parse(source.trim());
-                long days = ChronoUnit.DAYS.between(LocalDate.now(), expiryDate);
+                String source = new String(IOTools.readFile(LicenceCheck.class, expiryDateFile)); // Reads the expiry date from the file.
+                LocalDate expiryDate = LocalDate.parse(source.trim()); // Parses the expiry date.
+                long days = ChronoUnit.DAYS.between(LocalDate.now(), expiryDate); // Calculates days between now and expiry.
                 if (days < 0)
                     throw Jvm.rethrow(new TimeLimitExceededException("Failed to read '" + expiryDateFile));
-                licenceExpiryDetails.accept(days, null);
-            } catch (Throwable t) {
+                licenceExpiryDetails.accept(days, null); // Passes the days remaining to the callback.
+            } catch (Throwable t) { // Handles any errors during file reading or parsing.
                 throw Jvm.rethrow(new TimeLimitExceededException("Failed to read expiry date, from '" + expiryDateFile + "'"));
             }
         } else {
+            // Extracts expiry date and owner information from the license key.
             int start = key.indexOf("expires=") + 8;
             int end = key.indexOf(",", start);
             LocalDate date = LocalDate.parse(key.substring(start, end));
@@ -87,17 +94,22 @@ public interface LicenceCheck {
             long days = date.toEpochDay() - System.currentTimeMillis() / 86400000;
             if (days < 0)
                 throw Jvm.rethrow(new TimeLimitExceededException());
-            String owner = key.substring(start2, end2);
-            licenceExpiryDetails.accept(days, owner);
+            String owner = key.substring(start2, end2); // Extracts the owner name from the key.
+            licenceExpiryDetails.accept(days, owner); // Passes the days remaining and owner to the callback.
         }
     }
 
     /**
-     * checks if the function you are about to call is part of an enterprise product, if the licence
-     * fails a runtime exception will be thrown
+     * Checks if the function about to be called is part of an enterprise product.
+     * If the license validation fails, a runtime exception will be thrown.
      */
     void licenceCheck();
 
+    /**
+     * Indicates whether the product is available, likely based on license validation.
+     *
+     * @return {@code true} if the product is available; {@code false} otherwise
+     */
     boolean isAvailable();
 
 }

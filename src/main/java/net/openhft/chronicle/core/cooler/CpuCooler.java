@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.openhft.chronicle.core.cooler;
 
 /**
@@ -24,6 +25,8 @@ package net.openhft.chronicle.core.cooler;
 public interface CpuCooler {
     /**
      * Performs an operation that "disturbs" the CPU, causing it to do some work.
+     * The implementation of this method should include actions that consume CPU resources,
+     * simulating load or interference for performance testing.
      */
     void disturb();
 }

@@ -14,7 +14,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package net.openhft.chronicle.core.threads;
@@ -29,7 +28,11 @@ import java.io.Closeable;
 
 /**
  * A timer that can schedule tasks to be executed periodically or after a delay.
- * The timer can be used to perform tasks in a non-blocking manner using an event loop.
+ * The timer operates using an event loop, allowing tasks to be performed in a non-blocking manner.
+ * <p>
+ * The {@code CancellableTimer} provides mechanisms to schedule tasks with fixed delays between executions,
+ * as well as single execution after a specified delay. Tasks are scheduled on the provided {@link EventLoop}.
+ * </p>
  */
 public class CancellableTimer {
 
@@ -39,7 +42,7 @@ public class CancellableTimer {
     private final TimeProvider timeProvider;
 
     /**
-     * Constructs a CancellableTimer with the given event loop and system time provider.
+     * Constructs a {@link CancellableTimer} with the given event loop and the default system time provider.
      *
      * @param eventLoop the event loop that the timer tasks will run on.
      */
@@ -48,7 +51,7 @@ public class CancellableTimer {
     }
 
     /**
-     * Constructs a CancellableTimer with the given event loop and custom time provider.
+     * Constructs a {@link CancellableTimer} with the given event loop and custom time provider.
      *
      * @param eventLoop    the event loop that the timer tasks will run on.
      * @param timeProvider the custom time provider to use for scheduling.
@@ -59,13 +62,14 @@ public class CancellableTimer {
     }
 
     /**
-     * uses the event loop thread to call the event handler periodically, the time that the event is
-     * called back is best-effort, but if the thread is busy that call back maybe delayed
+     * Schedules a {@link VanillaEventHandler} to be executed periodically using the event loop thread.
+     * The handler will be called at a fixed rate based on the specified initial delay and period.
+     * The actual execution time is best-effort and may be delayed if the event loop is busy.
      *
-     * @param eventHandler   the handler to be called back
-     * @param initialDelayMs how long in milliseconds to wait before being called back
-     * @param periodMs       the poll interval of being called
-     * @return a {@link Closeable} that when closed will abort any remaining scheduled calls
+     * @param eventHandler   the handler to be called periodically.
+     * @param initialDelayMs the initial delay in milliseconds before the first execution.
+     * @param periodMs       the period in milliseconds between subsequent executions.
+     * @return a {@link Closeable} that, when closed, will cancel any remaining scheduled executions.
      */
     public Closeable scheduleAtFixedRate(@NotNull VanillaEventHandler eventHandler,
                                          long initialDelayMs,
@@ -77,14 +81,15 @@ public class CancellableTimer {
     }
 
     /**
-     * uses the event loop thread to call the event handler periodically, the time that the event is
-     * called back is best-effort, but if the thread is busy that call back maybe delayed
+     * Schedules a {@link VanillaEventHandler} to be executed periodically using the event loop thread with a specified priority.
+     * The handler will be called at a fixed rate based on the specified initial delay, period, and priority.
+     * The actual execution time is best-effort and may be delayed if the event loop is busy.
      *
-     * @param eventHandler   the handler to be called back
-     * @param initialDelayMs how long in milliseconds to wait before being called back
-     * @param periodMs       the poll interval of being called
-     * @param priority       the priority of the event handler
-     * @return a {@link Closeable} that when closed will abort any remaining scheduled calls
+     * @param eventHandler   the handler to be called periodically.
+     * @param initialDelayMs the initial delay in milliseconds before the first execution.
+     * @param periodMs       the period in milliseconds between subsequent executions.
+     * @param priority       the priority of the event handler.
+     * @return a {@link Closeable} that, when closed, will cancel any remaining scheduled executions.
      */
     public Closeable scheduleAtFixedRate(@NotNull VanillaEventHandler eventHandler,
                                          long initialDelayMs,
@@ -97,11 +102,11 @@ public class CancellableTimer {
     }
 
     /**
-     * Schedule a handler to run once after a delay
+     * Schedules a {@link Runnable} handler to run once after a specified delay.
      *
-     * @param eventHandler   the handler to be called back
-     * @param initialDelayMs how long in milliseconds to wait before being called back
-     * @return a {@link Closeable} that when closed will abort any remaining scheduled calls
+     * @param eventHandler   the handler to be executed once after the delay.
+     * @param initialDelayMs the delay in milliseconds before the handler is executed.
+     * @return a {@link Closeable} that, when closed, will cancel the scheduled execution if it has not yet occurred.
      */
     public Closeable schedule(@NotNull Runnable eventHandler, long initialDelayMs) {
         final ScheduledEventHandler handler = new ScheduledEventHandler(timeProvider, () -> {
@@ -112,6 +117,10 @@ public class CancellableTimer {
         return handler;
     }
 
+    /**
+     * Internal class that represents a scheduled event handler. This class is used to wrap an event handler and
+     * manage its execution based on the specified delay and period.
+     */
     protected static final class ScheduledEventHandler implements EventHandler, Closeable {
 
         @NotNull
@@ -127,6 +136,15 @@ public class CancellableTimer {
 
         private final HandlerPriority priority;
 
+        /**
+         * Constructs a new {@link ScheduledEventHandler} with the specified time provider, event handler, initial delay, and period.
+         * The handler priority is set to {@link HandlerPriority#TIMER}.
+         *
+         * @param timeProvider   the time provider used to get the current time.
+         * @param eventHandler   the event handler to be executed.
+         * @param initialDelayMs the initial delay in milliseconds before the first execution.
+         * @param periodMs       the period in milliseconds between subsequent executions.
+         */
         private ScheduledEventHandler(@NotNull TimeProvider timeProvider,
                                       @NotNull VanillaEventHandler eventHandler,
                                       long initialDelayMs,
@@ -134,6 +152,15 @@ public class CancellableTimer {
             this(timeProvider, eventHandler, initialDelayMs, periodMs, HandlerPriority.TIMER);
         }
 
+        /**
+         * Constructs a new {@link ScheduledEventHandler} with the specified time provider, event handler, initial delay, period, and priority.
+         *
+         * @param timeProvider   the time provider used to get the current time.
+         * @param eventHandler   the event handler to be executed.
+         * @param initialDelayMs the initial delay in milliseconds before the first execution.
+         * @param periodMs       the period in milliseconds between subsequent executions.
+         * @param priority       the priority of the event handler.
+         */
         private ScheduledEventHandler(@NotNull TimeProvider timeProvider,
                                       @NotNull VanillaEventHandler eventHandler,
                                       long initialDelayMs,
@@ -169,6 +196,11 @@ public class CancellableTimer {
             return false;
         }
 
+        /**
+         * Calculates the time to wait before the next execution based on whether this is the first execution or a subsequent one.
+         *
+         * @return the wait time in milliseconds.
+         */
         private long waitTimeMs() {
             if (!isFirstTime)
                 return periodMs;

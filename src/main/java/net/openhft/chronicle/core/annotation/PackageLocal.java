@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.openhft.chronicle.core.annotation;
 
 import java.lang.annotation.Documented;
@@ -25,9 +26,35 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 /**
- * Annotation to indicate that the annotated element has package-local visibility
- * intentionally, usually to avoid accessor methods. This annotation serves as
- * documentation to inform others of the deliberate design choice.
+ * Indicates that the annotated element (method, field, constructor, or class)
+ * has intentionally been given package-local visibility, meaning it is only
+ * accessible within its own package.
+ *
+ * <p>This annotation is primarily used for documentation purposes to inform
+ * developers that the package-local visibility is a deliberate design choice
+ * to restrict access, rather than an oversight. By marking elements with this
+ * annotation, it signals that no accessor methods or wider visibility (e.g.,
+ * public or protected) are required or intended for this element.
+ *
+ * <p><b>Retention Policy:</b> {@code RetentionPolicy.SOURCE} ensures that this
+ * annotation is only retained in the source code and is not included in the
+ * compiled bytecode. It is used purely for documentation and tooling purposes.</p>
+ *
+ * <p><b>Usage Example:</b>
+ * <pre>
+ * {@code
+ * @PackageLocal
+ * class InternalClass {
+ *     @PackageLocal
+ *     void packageLocalMethod() {
+ *         // Method intentionally restricted to package scope
+ *     }
+ * }
+ * }
+ * </pre>
+ *
+ * <p>Note: This annotation does not alter the actual visibility of the element.
+ * It merely serves to document the intent behind the chosen visibility.</p>
  */
 @Documented
 @Retention(SOURCE)

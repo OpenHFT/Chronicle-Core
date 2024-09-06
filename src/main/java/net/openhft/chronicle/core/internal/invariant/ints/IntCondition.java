@@ -22,6 +22,17 @@ import java.util.function.IntPredicate;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ * Enum representing various conditions or predicates on integers, implementing {@link IntPredicate}.
+ * <p>
+ * This enum provides a set of predefined conditions to test against integer values (e.g., positivity, negativity,
+ * zero, alignment, etc.). Each condition is defined by a symbolic operation and an associated {@link IntPredicate}
+ * that performs the test.
+ * </p>
+ * <p>
+ * It also supports negating certain conditions, returning the logical opposite of the current condition.
+ * </p>
+ */
 public enum IntCondition implements IntPredicate {
 
     POSITIVE("> 0", value -> value > 0),
@@ -39,26 +50,56 @@ public enum IntCondition implements IntPredicate {
     INT_ALIGNED("int aligned", value -> (value & (Integer.BYTES - 1)) == 0),
     LONG_ALIGNED("long aligned", value -> (value & (Long.BYTES - 1)) == 0);
 
+    // Symbolic representation of the condition
     private final String operation;
+
+    // Predicate that defines the condition
     private final IntPredicate predicate;
 
+    /**
+     * Constructor for creating an {@link IntCondition} based on an operation string and predicate.
+     *
+     * @param operation The symbolic representation of the condition.
+     * @param predicate The predicate defining the condition.
+     */
     IntCondition(final String operation,
                  final IntPredicate predicate) {
         this.operation = requireNonNull(operation);
         this.predicate = requireNonNull(predicate);
     }
 
+    /**
+     * Constructor for creating an {@link IntCondition} that checks if a value is within a given range.
+     *
+     * @param fromInclusive The inclusive lower bound of the range.
+     * @param toInclusive   The inclusive upper bound of the range.
+     */
     IntCondition(final int fromInclusive,
                  final int toInclusive) {
         this.operation = "∈ [" + fromInclusive + ", " + toInclusive + "]";
         this.predicate = value -> value >= fromInclusive && value <= toInclusive;
     }
 
+    /**
+     * Tests the condition on the provided integer value.
+     *
+     * @param value The integer value to test.
+     * @return {@code true} if the value satisfies the condition, {@code false} otherwise.
+     */
     @Override
     public boolean test(final int value) {
         return predicate.test(value);
     }
 
+    /**
+     * Returns the negation of this condition.
+     * <p>
+     * For certain predefined conditions (e.g., POSITIVE, ZERO), this method returns the logical opposite.
+     * For other conditions, it uses the default implementation of {@link IntPredicate#negate()}.
+     * </p>
+     *
+     * @return The negated {@link IntPredicate} for this condition.
+     */
     @Override
     public IntPredicate negate() {
         switch (this) {
@@ -79,6 +120,11 @@ public enum IntCondition implements IntPredicate {
         }
     }
 
+    /**
+     * Returns the symbolic representation of this condition.
+     *
+     * @return The string representation of the condition.
+     */
     @Override
     public String toString() {
         return operation;

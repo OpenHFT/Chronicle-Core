@@ -71,6 +71,10 @@ public class UnsafeMemory implements Memory {
      * Singleton instance of UnsafeMemory for use in memory operations.
      */
     public static final UnsafeMemory INSTANCE;
+
+    /**
+     * Alias for the singleton instance of UnsafeMemory.
+     */
     public static final UnsafeMemory MEMORY;
 
     // see java.nio.Bits.copyMemory
@@ -79,6 +83,9 @@ public class UnsafeMemory implements Memory {
     // during a large copy
     static final long UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
     // TODO support big endian
+    /**
+     * Indicates if the current platform is little-endian.
+     */
     public static final boolean IS_LITTLE_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
 
     // Create a local copy of type long (instead of int) to optimize performance
@@ -91,6 +98,7 @@ public class UnsafeMemory implements Memory {
 
     static {
         try {
+            // Access the Unsafe object by reflection.
             Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
             theUnsafe.setAccessible(true);
             UNSAFE = (Unsafe) theUnsafe.get(null);
@@ -98,17 +106,26 @@ public class UnsafeMemory implements Memory {
             e.printStackTrace();
             throw new AssertionError(e);
         }
+        // Initialize INSTANCE based on the architecture or Java version.
         INSTANCE = Bootstrap.isArm0() ? new ARMMemory() : new UnsafeMemory();
         MEMORY = INSTANCE;
     }
 
+    /**
+     * Tracks the amount of native memory used.
+     */
     private final AtomicLong nativeMemoryUsed = new AtomicLong();
+
+    /**
+     * Interface for copying memory from one object to another using memory addresses.
+     */
     private final ObjectToAddress copyMemoryObjectToAddress;
 
     /**
      * Creates a new instance of UnsafeMemory.
      */
     public UnsafeMemory() {
+        // Initialize the memory copying mechanism based on Java version or architecture.
         copyMemoryObjectToAddress = (Bootstrap.isJava9Plus() || Bootstrap.isArm0()) ?
                 (src, srcOffset, dest, length) -> copyMemoryLoop(src, srcOffset, null, dest, length) :
                 (src, srcOffset, dest, length) -> copyMemory0(src, srcOffset, null, dest, length);
@@ -122,16 +139,26 @@ public class UnsafeMemory implements Memory {
      * @return the consistent value read.
      */
     private static int retryReadVolatileInt(long address, int value) {
+        // Ensure the address is valid when assertions are enabled.
         assert SKIP_ASSERTIONS || address != 0;
+
+        // Read the volatile integer from the specified memory address.
         int value2 = UNSAFE.getIntVolatile(null, address);
+
+        // Loop until the read value matches the expected value.
         while (value2 != value) {
+            // Log a warning if the value does not match and is not a special value.
             if (value != 0 && value != 0x80000000)
                 Jvm.warn().on(UnsafeMemory.class, "Int@" + Long.toHexString(address) + " (" + (address & 63) + ") " +
                         "was " + Integer.toHexString(value) +
                         " is now " + Integer.toHexString(value2));
+
+            // Update the expected value and re-read.
             value = value2;
             value2 = UNSAFE.getIntVolatile(null, address);
         }
+
+        // Return the consistent value.
         return value;
     }
 

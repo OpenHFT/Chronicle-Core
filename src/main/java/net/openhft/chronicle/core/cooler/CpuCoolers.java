@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.openhft.chronicle.core.cooler;
 
 import net.openhft.affinity.Affinity;
@@ -28,12 +29,17 @@ import java.util.concurrent.locks.LockSupport;
 
 /**
  * An enumeration of various CPU cooler implementations, each of which disturbs the CPU in a
- * different way. The exact way in which the CPU is disturbed is defined by the `disturb()` method
- * of each enum constant.
+ * different way. The exact way in which the CPU is disturbed is defined by the {@link #disturb()}
+ * method of each enum constant.
+ * <p>
+ * These coolers simulate different types of CPU work, such as parking the thread, busy-waiting,
+ * or serializing and deserializing objects. Some constants involve waiting, others involve spinning
+ * on work, while some engage in memory operations.
  */
 public enum CpuCoolers implements CpuCooler {
     /**
      * Causes the CPU to wait without doing work for a very short period of time.
+     * Uses {@link LockSupport#parkNanos(long)} to pause the thread for 200,000 nanoseconds.
      */
     PARK {
         @Override
@@ -41,12 +47,20 @@ public enum CpuCoolers implements CpuCooler {
             LockSupport.parkNanos(200_000);
         }
     },
+
+    /**
+     * Causes the CPU to pause for 1 nanosecond.
+     * Uses {@link Jvm#pause(long)} to simulate work.
+     */
     PAUSE1 {
         @Override
         public void disturb() {
             Jvm.pause(1);
         }
     },
+
+    // Additional CPU coolers for varying pause durations
+
     PAUSE3 {
         @Override
         public void disturb() {
@@ -77,12 +91,19 @@ public enum CpuCoolers implements CpuCooler {
             Jvm.pause(1000);
         }
     },
+
+    /**
+     * Causes the CPU to yield control to other threads, simulating a disturbance by thread yielding.
+     */
     YIELD {
         @Override
         public void disturb() {
             Thread.yield();
         }
     },
+
+    // Various CPU coolers that simulate busy-waiting, performing work in the loop
+
     BUSY {
         @Override
         public void disturb() {
@@ -138,8 +159,8 @@ public enum CpuCoolers implements CpuCooler {
         }
     },
     /**
-     * Switches the CPU affinity back and forth between two cores, causing the CPU to do work in
-     * moving the executing thread from one core to the other.
+     * Switches the CPU affinity between two cores (core 3 and core 4).
+     * This simulates a disturbance by causing the thread to switch between cores.
      */
     AFFINITY {
         boolean toogle;
@@ -150,6 +171,11 @@ public enum CpuCoolers implements CpuCooler {
             toogle = !toogle;
         }
     },
+
+    /**
+     * Serializes and deserializes system properties using XML.
+     * This simulates CPU disturbance through memory and I/O operations.
+     */
     SERIALIZATION {
         @Override
         public void disturb() {
@@ -158,20 +184,27 @@ public enum CpuCoolers implements CpuCooler {
             oos.writeObject(System.getProperties());
             oos.close();
             XMLDecoder ois = new XMLDecoder(new ByteArrayInputStream(out.toByteArray()));
-            blackhole = ois.readObject();
+            blackhole = ois.readObject();  // Store result in blackhole to avoid optimization
         }
     },
+
+    /**
+     * Copies a large array of longs from one array to another.
+     * This simulates a memory operation disturbance by repeatedly copying large blocks of memory.
+     */
     MEMORY_COPY {
-        final long[] from = new long[8 << 20];
-        final long[] to = new long[8 << 20];
+        final long[] from = new long[8 << 20];  // Source array of 8MB
+        final long[] to = new long[8 << 20];    // Destination array of 8MB
 
         @Override
         public void disturb() {
-            System.arraycopy(from, 0, to, 0, from.length);
+            System.arraycopy(from, 0, to, 0, from.length);  // Copy entire array
         }
     },
+
     /**
-     * Performs multiple disturbing operations at once.
+     * Performs multiple disturbances: serialization, memory copy, and pausing.
+     * This combines different types of disturbances for a more complex CPU interaction.
      */
     ALL {
         @Override
@@ -181,8 +214,18 @@ public enum CpuCoolers implements CpuCooler {
             PAUSE10.disturb();
         }
     };
+
+    /**
+     * A shared volatile object to prevent certain disturbances from being optimized away by the JVM.
+     */
     static volatile Object blackhole;
 
+    /**
+     * Performs a busy-wait for a specified number of nanoseconds.
+     * This method repeatedly calls {@link Jvm#safepoint()} to avoid JVM optimizations.
+     *
+     * @param nanos The number of nanoseconds to busy-wait.
+     */
     public static void busyWait(double nanos) {
         long start = System.nanoTime();
         while (System.nanoTime() - start < nanos) {

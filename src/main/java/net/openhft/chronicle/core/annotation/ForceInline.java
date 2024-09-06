@@ -24,9 +24,27 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marker annotation for some methods and constructors in the JSR 292 implementation.
+ * A marker annotation used for methods and constructors in the JSR 292 implementation.
  * <p>
- * To utilise this annotation see Chronicle Enterprise Warmup module.
+ * Applying this annotation indicates that the method or constructor is a candidate for inlining by the JIT (Just-In-Time) compiler.
+ * This may help optimize performance by suggesting the compiler should inline the method where possible, avoiding the overhead of a method call.
+ * <p>
+ * This annotation is primarily utilized in specific modules such as the Chronicle Enterprise Warmup module, which is part of Chronicle's
+ * performance optimization framework.
+ * <p>
+ * <b>Note:</b> The effectiveness of this annotation depends on the JIT compiler and JVM optimization settings. It serves as a hint and does not guarantee inlining.
+ *
+ * <p>Example usage:
+ * <pre>
+ * {@code
+ * @ForceInline
+ * public void criticalMethod() {
+ *     // Code that is performance-critical and should be inlined if possible
+ * }
+ * }
+ * </pre>
+ *
+ * @see Chronicle Enterprise Warmup module for detailed usage and application.
  */
 @Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.RUNTIME)

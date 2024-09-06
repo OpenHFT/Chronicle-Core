@@ -15,13 +15,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.openhft.chronicle.core.util;
 
 import java.lang.reflect.Type;
 
 /**
- * The UnresolvedType class represents an unresolved type.
- * It implements the Type interface.
+ * Represents an unresolved type in a Java program, implementing the {@link Type} interface.
+ * This class is used when a type name is known, but the type itself is not yet resolved at runtime.
+ * <p>
+ * The primary purpose of this class is to provide a way to represent types that cannot be resolved
+ * using standard Java reflection mechanisms. It allows developers to create type placeholders
+ * with just a name, facilitating operations that need type information without necessarily having
+ * the class loaded.
  */
 public class UnresolvedType implements Type {
     private final String typeName;
@@ -29,17 +35,19 @@ public class UnresolvedType implements Type {
     /**
      * Constructs an UnresolvedType with the specified type name.
      *
-     * @param typeName the name of the unresolved type
+     * @param typeName The name of the unresolved type. This is a string representation of the type
+     *                 that has not been resolved to a specific {@link Class} object.
      */
     protected UnresolvedType(String typeName) {
         this.typeName = typeName;
     }
 
     /**
-     * Creates a new instance of UnresolvedType with the specified type name.
+     * Creates a new instance of {@link UnresolvedType} with the specified type name.
+     * This method provides a convenient factory method for creating instances of {@link UnresolvedType}.
      *
-     * @param typeName the name of the unresolved type
-     * @return the created UnresolvedType instance
+     * @param typeName The name of the unresolved type.
+     * @return The created {@link UnresolvedType} instance.
      */
     public static Type of(String typeName) {
         return new UnresolvedType(typeName);
@@ -47,8 +55,10 @@ public class UnresolvedType implements Type {
 
     /**
      * Returns the name of the unresolved type.
+     * This method is required by the {@link Type} interface and returns the string representation
+     * of the type name that this {@link UnresolvedType} instance represents.
      *
-     * @return the name of the unresolved type
+     * @return The name of the unresolved type.
      */
     @Override
     public String getTypeName() {
@@ -57,8 +67,9 @@ public class UnresolvedType implements Type {
 
     /**
      * Returns a string representation of the unresolved type.
+     * This implementation returns the type name, providing a simple way to view the type as a string.
      *
-     * @return a string representation of the unresolved type
+     * @return A string representation of the unresolved type.
      */
     @Override
     public String toString() {

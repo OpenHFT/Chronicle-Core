@@ -26,20 +26,38 @@ import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-// Based WeakHashMap but using identity
+/**
+ * A hash map that uses weak references for its keys and compares keys using identity equality.
+ * This class is based on the concept of a {@link WeakHashMap} but uses identity equality (via {@code ==})
+ * instead of the default equality (via {@code equals}).
+ * <p>
+ * Keys in this map are held with {@link WeakReference}s, allowing them to be garbage-collected
+ * when there are no strong references to the key elsewhere. When a key is collected, its entry
+ * is removed from the map automatically.
+ * <p>
+ * This implementation is thread-safe, using a {@link ConcurrentHashMap} for storage.
+ *
+ * @param <K> the type of keys maintained by this map
+ * @param <V> the type of mapped values
+ */
 public class WeakIdentityHashMap<K, V> extends AbstractMap<K, V> {
     private final Map<WeakKey<K>, V> map;
     private final transient ReferenceQueue<K> queue = new ReferenceQueue<>();
 
     /**
-     * Constructs a new, empty identity hash map with a default initial
-     * size (16).
+     * Constructs a new, empty identity hash map with a default initial size of 16.
      */
     public WeakIdentityHashMap() {
         map = new ConcurrentHashMap<>(16);
     }
 
+    /**
+     * Retrieves the internal map and cleans up any entries whose keys have been garbage-collected.
+     *
+     * @return The underlying map with any collected keys removed.
+     */
     private Map<WeakKey<K>, V> getMap() {
+        // Clean up collected keys
         for (Reference<? extends K> ref; (ref = this.queue.poll()) != null; ) {
             map.remove(ref);
         }
@@ -53,16 +71,19 @@ public class WeakIdentityHashMap<K, V> extends AbstractMap<K, V> {
 
     @Override
     public V get(Object key) {
+        // Lookup using a WeakKey with the given key
         return getMap().get(new WeakKey<>(key, null));
     }
 
     @Override
     public V put(K key, V value) {
+        // Insert the value with a WeakKey referencing the provided key
         return getMap().put(new WeakKey<>(key, queue), value);
     }
 
     @Override
     public V remove(Object key) {
+        // Remove the entry associated with the WeakKey referencing the provided key
         return getMap().remove(new WeakKey<>(key, null));
     }
 
@@ -161,9 +182,21 @@ public class WeakIdentityHashMap<K, V> extends AbstractMap<K, V> {
         };
     }
 
+    /**
+     * A wrapper for keys that are stored in the map as weak references. The hash code is cached
+     * when the key is created, so it does not change after the key is garbage-collected.
+     *
+     * @param <K> the type of the key
+     */
     private static final class WeakKey<K> extends WeakReference<K> {
         private final int hash;
 
+        /**
+         * Creates a new {@code WeakKey} with a given key and a reference queue.
+         *
+         * @param key the key to wrap in a weak reference
+         * @param q   the reference queue to register the key with, or null if no queue is needed
+         */
         WeakKey(K key, ReferenceQueue<K> q) {
             super(key, q);
             hash = System.identityHashCode(key);

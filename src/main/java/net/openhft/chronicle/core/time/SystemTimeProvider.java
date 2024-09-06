@@ -21,17 +21,30 @@ package net.openhft.chronicle.core.time;
 import net.openhft.chronicle.core.Jvm;
 
 /**
- * SystemTimeProvider synthesises a nanosecond wall-clock time via System.nanoTime deltas in combination with System.currentTimeMillis.
+ * Provides a system-based time provider that synthesizes nanosecond-precision wall-clock time
+ * using `System.nanoTime` in combination with `System.currentTimeMillis`. This implementation
+ * ensures that the time is generally monotonically increasing, adjusting for discrepancies
+ * between the nanoTime and currentTimeMillis readings.
+ * <p>
+ * This enum implements the {@link TimeProvider} interface and is used for scenarios where
+ * high-resolution time is required and a monotonic clock is beneficial.
+ * </p>
  */
 public enum SystemTimeProvider implements TimeProvider {
+    /**
+     * Singleton instance of {@link SystemTimeProvider}.
+     */
     INSTANCE;
 
     private static final int NANOS_PER_MILLI = 1_000_000;
-    // Can be overridden for testing purposes.
+
+    /**
+     * This can be overridden for testing purposes to provide a different time provider implementation.
+     */
     public static TimeProvider CLOCK = INSTANCE;
 
     static {
-        // warmUp()
+        // Warm up the time provider to stabilize initial readings
         long start = System.currentTimeMillis();
         while (System.currentTimeMillis() < start + 5) {
             INSTANCE.currentTimeNanos();
@@ -41,25 +54,47 @@ public enum SystemTimeProvider implements TimeProvider {
 
     private long delta = 0;
 
+    /**
+     * Returns the current time in milliseconds since the Unix epoch.
+     * This method delegates to {@link System#currentTimeMillis()} to get the time.
+     *
+     * @return the current time in milliseconds since the Unix epoch.
+     */
     @Override
     public long currentTimeMillis() {
         return System.currentTimeMillis();
     }
 
+    /**
+     * Returns the current time in microseconds since the Unix epoch.
+     * This method derives the time in microseconds by dividing the nanosecond time by 1,000.
+     *
+     * @return the current time in microseconds since the Unix epoch.
+     */
     @Override
     public long currentTimeMicros() {
         return currentTimeNanos() / 1000;
     }
 
     /**
-     * @return a nanosecond time stamp which is generally monotonically increasing
+     * Returns a synthesized nanosecond-precision time stamp that is generally
+     * monotonically increasing. This method combines `System.nanoTime()` with
+     * `System.currentTimeMillis()` to produce a time that approximates the wall-clock
+     * time but with nanosecond precision.
+     * <p>
+     * If the estimated time is less than the current milliseconds time, it adjusts
+     * the delta to match. If it is more than a millisecond ahead, it also adjusts the delta.
+     * </p>
+     *
+     * @return the current time in nanoseconds since the Unix epoch.
      */
     @Override
     public long currentTimeNanos() {
-        long nowNS = System.nanoTime();
-        long nowMS = currentTimeMillis() * NANOS_PER_MILLI;
-        long estimate = nowNS + delta;
+        long nowNS = System.nanoTime();  // Current time in nanoseconds
+        long nowMS = currentTimeMillis() * NANOS_PER_MILLI;  // Current time in milliseconds converted to nanoseconds
+        long estimate = nowNS + delta;  // Estimated time based on nanoTime and delta
 
+        // Adjust delta if estimated time is behind or ahead of the millisecond time
         if (estimate < nowMS) {
             delta = nowMS - nowNS;
             return nowMS;
@@ -69,6 +104,6 @@ public enum SystemTimeProvider implements TimeProvider {
             delta = nowMS - nowNS;
             return nowMS;
         }
-        return estimate;
+        return estimate;  // Return the estimated time if within a valid range
     }
 }

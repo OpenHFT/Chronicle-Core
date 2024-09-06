@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
@@ -66,9 +67,24 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
      */
     protected static final long WARN_NS = (long) (Jvm.getDouble("closeable.warn.secs", 0.02) * 1e9);
 
+    /**
+     * Offset for the `closed` field in memory, used for atomic operations.
+     */
     private static final long CLOSED_OFFSET;
+
+    /**
+     * State indicating that the resource is not closed.
+     */
     private static final int STATE_NOT_CLOSED = 0;
+
+    /**
+     * State indicating that the resource is in the process of closing.
+     */
     private static final int STATE_CLOSING = ~0;
+
+    /**
+     * State indicating that the resource is closed.
+     */
     private static final int STATE_CLOSED = 1;
 
     static {
@@ -77,14 +93,45 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         CLOSED_OFFSET = UnsafeMemory.unsafeObjectFieldOffset(Jvm.getField(AbstractCloseable.class, "closed"));
     }
 
+    /**
+     * Stack trace indicating where the resource was created.
+     */
     private final transient StackTrace createdHere;
+
+    /**
+     * A finalizer object used to perform cleanup when the resource is garbage collected.
+     */
     @UsedViaReflection
     private final transient Finalizer finalizer = DISABLE_DISCARD_WARNING ? null : new Finalizer();
+
+    /**
+     * Stack trace indicating where the resource was closed.
+     */
     protected transient volatile StackTrace closedHere;
+
+    /**
+     * Field indicating the state of the resource (not closed, closing, or closed).
+     */
     private transient volatile int closed = 0;
+
+    /**
+     * Thread that is currently using the resource, used for thread safety checks.
+     */
     private transient volatile Thread usedByThread;
+
+    /**
+     * Stack trace indicating where the current thread started using the resource.
+     */
     private transient volatile StackTrace usedByThreadHere;
+
+    /**
+     * Flag indicating whether single-threaded checks are disabled.
+     */
     private transient boolean singleThreadedCheckDisabled;
+
+    /**
+     * Unique identifier for the reference.
+     */
     private int referenceId;
 
     /**
@@ -275,6 +322,11 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         threadSafetyCheck(true);
     }
 
+    /**
+     * Throws a {@link ClosedIllegalStateException} indicating that the resource is closed.
+     *
+     * @throws ClosedIllegalStateException if the resource is closed.
+     */
     private void throwClosed() throws ClosedIllegalStateException {
         throw new ClosedIllegalStateException(getClass().getName() + " closed for " + Thread.currentThread().getName(), closedHere);
     }
@@ -390,6 +442,13 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         threadSafetyCheck0(isUsed);
     }
 
+    /**
+     * Performs a thread safety check to ensure that the resource is being used by a single thread.
+     * If the resource is already being used by another thread, a {@link ThreadingIllegalStateException} is thrown.
+     *
+     * @param isUsed boolean indicating if the resource is currently in use.
+     * @throws ThreadingIllegalStateException if the resource is being used by multiple threads.
+     */
     private void threadSafetyCheck0(boolean isUsed) throws ThreadingIllegalStateException {
         if (usedByThread == null && !isUsed)
             return;
@@ -400,7 +459,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
             if (Jvm.isResourceTracing())
                 usedByThreadHere = new StackTrace(getClass().getName() + " used here");
         } else if (usedByThread != currentThread) {
-            if (usedByThread.isAlive()) // really expensive call.
+            if (usedByThread.isAlive()) // Check if the previous thread is still alive
                 throw new ThreadingIllegalStateException(getClass().getName() + " component which is not thread safe used by " + usedByThread + " and " + currentThread, usedByThreadHere);
             usedByThread = currentThread;
         }

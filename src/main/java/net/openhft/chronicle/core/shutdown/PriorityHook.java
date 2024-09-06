@@ -21,76 +21,112 @@ package net.openhft.chronicle.core.shutdown;
 import java.util.*;
 
 /**
- * Collects all hook that need to be run during shutdown to execute them in controlled order.
+ * Collects all hooks that need to be run during shutdown to execute them in a controlled order.
+ * <p>
+ * This class manages shutdown hooks with specific priorities, ensuring that they are executed
+ * in the correct order when the JVM shuts down. It provides functionality to add hooks, prevent duplicate
+ * hooks from being registered, and clear all hooks if necessary.
+ * </p>
  */
 public class PriorityHook {
-    private static PriorityHook registeredHook;
 
-    private final TreeMap<Hooklet, Hooklet> hookletPool = new TreeMap<>();
-    private Thread shutdownThread;
+    private static PriorityHook registeredHook;  // Singleton instance to manage shutdown hooks
 
+    private final TreeMap<Hooklet, Hooklet> hookletPool = new TreeMap<>();  // Map to store hooks based on priority
+    private Thread shutdownThread;  // Thread to execute hooks during shutdown
+
+    /**
+     * Private constructor to prevent instantiation.
+     * Use static methods to interact with the class.
+     */
     private PriorityHook() {
     }
 
     /**
-     * Add a shutdown hook with a specified priority.
+     * Adds a shutdown hook with a specified priority.
      * <p>
-     * Will prevent adding the same hook (by parameter's class) more than once, return {@code false} in that case.
+     * Prevents adding the same hook (by parameter's class) more than once and returns {@code false} in that case.
+     * </p>
      *
-     * @param priority See {@link Hooklet#priority()}
-     * @param hook     Function that needs to be run during shutdown.
-     * @return {@code true} if hook was not present and is now added
+     * @param priority The priority of the hook. Hooks with lower values are executed first.
+     * @param hook     The function that needs to be run during shutdown.
+     * @return {@code true} if the hook was not present and is now added; {@code false} otherwise.
      */
     public static boolean add(int priority, Runnable hook) {
         return addAndGet(Hooklet.of(priority, hook)).equals(hook);
     }
 
     /**
-     * Add a custom shutdown hook.
+     * Adds a custom shutdown hook.
      * <p>
-     * Will prevent adding the same hook (by parameter's class) more than once, return the existing one in that case.
-     * See {@link Hooklet#identity()}.
+     * Prevents adding the same hook (by parameter's class) more than once and returns the existing one in that case.
+     * Uses {@link Hooklet#identity()} to check for duplicates.
+     * </p>
      *
-     * @param hooklet Hook that needs to be run during shutdown in predictable order.
+     * @param hooklet The hook that needs to be run during shutdown in a predictable order.
+     * @param <H>     The type of the hooklet extending {@link Hooklet}.
      * @return The {@link Hooklet} instance that will be called during shutdown.
      */
     public static synchronized <H extends Hooklet> H addAndGet(H hooklet) {
         if (registeredHook == null) {
             registeredHook = new PriorityHook();
-
+            // Register shutdown thread with the runtime
             Runtime.getRuntime().addShutdownHook(registeredHook.shutdownThread());
         }
 
+        // Check if the hooklet is already registered
         H registered = (H) registeredHook.hookletPool.get(hooklet);
         if (registered == null) {
-            registeredHook.hookletPool.put(hooklet, hooklet);
-
+            registeredHook.hookletPool.put(hooklet, hooklet);  // Add new hooklet if not already present
             return hooklet;
         }
 
-        return registered;
+        return registered;  // Return existing hooklet if already registered
     }
 
+    /**
+     * Creates a thread to handle the shutdown process if it hasn't been created yet.
+     *
+     * @return The shutdown thread.
+     */
     private Thread shutdownThread() {
         if (shutdownThread != null)
             return shutdownThread;
 
+        // Initialize the shutdown thread with the onShutdown method
         this.shutdownThread = new Thread(registeredHook::onShutdown);
-
         return shutdownThread;
     }
 
+    /**
+     * Clears all registered shutdown hooks.
+     * <p>
+     * This method removes the shutdown hook from the runtime and resets the registered hook instance.
+     * </p>
+     */
     public static synchronized void clear() {
         if (registeredHook != null)
             Runtime.getRuntime().removeShutdownHook(registeredHook.shutdownThread());
-        registeredHook = null;
+        registeredHook = null;  // Reset the registered hook
     }
 
+    /**
+     * Executes all registered hooks in order based on their priority.
+     * <p>
+     * This method is called during the JVM shutdown process to ensure that all hooks are executed in
+     * the correct order.
+     * </p>
+     */
     public void onShutdown() {
-        for (Hooklet hooklet : hookletPool.keySet())
+        for (Hooklet hooklet : hookletPool.keySet())  // Execute each hook in the order of their priority
             hooklet.onShutdown();
     }
 
+    /**
+     * Retrieves the currently registered {@link PriorityHook} instance.
+     *
+     * @return The registered {@link PriorityHook} instance, or {@code null} if none is registered.
+     */
     public static PriorityHook getRegisteredHook() {
         return registeredHook;
     }

@@ -15,24 +15,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.openhft.chronicle.core.annotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Indicates that modifications to the annotated class should be made with caution
- * as it is known to be used by a client. This annotation serves as a warning to
- * developers, reminding them of the implications of changes to the annotated element.
+ * Annotation to signal that the annotated class is critical for a client,
+ * meaning modifications to this class should be made with extra caution.
+ * This annotation serves as a warning to developers, reminding them of the
+ * potential downstream impact of changes to this element, as it is known
+ * to be relied upon by external systems or clients.
+ *
+ * <p>By marking a class with this annotation, developers are alerted that
+ * the class is part of a client-facing API or functionality. As such, changes
+ * like method signatures, behavior, or even performance optimizations could
+ * affect external clients, requiring careful consideration, backward compatibility,
+ * or additional communication with the client before proceeding with changes.</p>
+ *
+ * <p><b>Retention Policy:</b> {@code RetentionPolicy.SOURCE} ensures that this
+ * annotation is only available in the source code and not retained in the compiled
+ * bytecode. It is used for documentation and development purposes.</p>
+ *
+ * <p><b>Optional Comment:</b> The {@code value} attribute can be used to provide
+ * additional context or details regarding where this class is being used or why it
+ * is critical for the client.</p>
+ *
+ * <p>Example:</p>
+ * <pre>
+ * {@code
+ * @RequiredForClient("Used by critical client integration.")
+ * public class ImportantClientClass {
+ *     // Be cautious with changes in this class
+ * }
+ * }
+ * </pre>
  */
 @Retention(RetentionPolicy.SOURCE)
 public @interface RequiredForClient {
 
     /**
-     * Specifies an optional comment to provide additional context or information
-     * about where this class is referred to.
+     * Provides an optional comment that offers more details or context about
+     * why this class is required for the client or where it is referred to.
      *
-     * @return the comment providing more details
+     * @return the comment offering additional details
      */
     String value() default "";
 }

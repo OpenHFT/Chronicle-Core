@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package net.openhft.chronicle.core.annotation;
 
 import java.lang.annotation.ElementType;
@@ -23,8 +24,26 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation, when applied to an interface, instructs that the interface should not be considered when MethodReaders and MethodWriters
- * are exploring interfaces to implement. It provides a mechanism to exclude certain interfaces from being processed by these components.
+ * Indicates that an interface should be excluded from being considered by {@code MethodReader} and {@code MethodWriter}
+ * when they are scanning and chaining interfaces.
+ *
+ * <p>This annotation is particularly useful in scenarios where you want certain interfaces to be ignored
+ * during the generation or processing of method readers and writers within the Chronicle software stack.
+ *
+ * <p>For example, applying this annotation prevents the interface from being included in automatic interface chaining logic.
+ *
+ * <p>Retention policy is set to {@link RetentionPolicy#RUNTIME}, meaning the annotation is available at runtime
+ * and can be processed by frameworks or tools during runtime.
+ *
+ * <p>Usage:
+ * <pre>
+ * {@code
+ * @DontChain
+ * public interface ExcludedInterface {
+ *     // Methods that should not be chained by MethodReader/Writer
+ * }
+ * }
+ * </pre>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

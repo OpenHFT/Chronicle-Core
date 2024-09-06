@@ -32,6 +32,15 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
+/**
+ * Utility class for creating standard parameter maps used in analytics and logging events.
+ * This class provides methods to generate standard event parameters, user properties,
+ * and additional event parameters based on the current runtime environment and stack trace.
+ *
+ * <p>The class collects system properties, memory usage details, and package information,
+ * and ensures that only relevant data is included in analytics events based on predefined
+ * white and blacklists of package names.</p>
+ */
 public final class StandardMaps {
 
     // Suppresses default constructor, ensuring non-instantiability.
@@ -68,6 +77,13 @@ public final class StandardMaps {
                     // Add third party libs
             )).collect(toSet());
 
+    /**
+     * Creates a map of standard event parameters for analytics events.
+     *
+     * @param appVersion The version of the application being tracked. Must not be null.
+     * @return A map containing standard event parameters, such as the application version.
+     * @throws NullPointerException If {@code appVersion} is null.
+     */
     public static Map<String, String> standardEventParameters(@NotNull final String appVersion) {
         requireNonNull(appVersion);
         return Stream.of(
@@ -77,10 +93,21 @@ public final class StandardMaps {
                 .collect(toOrderedMap());
     }
 
+    /**
+     * Generates a map of additional event parameters based on the current thread's stack trace.
+     *
+     * @return A map containing package names extracted from the stack trace as additional event parameters.
+     */
     public static Map<String, String> standardAdditionalEventParameters() {
         return standardAdditionalEventParameters(Thread.currentThread().getStackTrace());
     }
 
+    /**
+     * Generates a map of standard user properties for analytics based on system properties
+     * and runtime information, such as the Java version, operating system, and available memory.
+     *
+     * @return A map containing user properties for analytics, such as the runtime environment and system specs.
+     */
     public static Map<String, String> standardUserProperties() {
         return Stream.of(
                         entryFor("java.runtime.name"),
@@ -98,6 +125,13 @@ public final class StandardMaps {
                 .collect(toOrderedMap());
     }
 
+    /**
+     * Helper method to create a map of additional event parameters based on a provided stack trace.
+     *
+     * @param stackTraceElements The stack trace to extract package names from. Must not be null.
+     * @return A map containing package names from the stack trace as event parameters.
+     * @throws NullPointerException If {@code stackTraceElements} is null.
+     */
     static Map<String, String> standardAdditionalEventParameters(@NotNull final StackTraceElement[] stackTraceElements) {
         requireNonNull(stackTraceElements);
         final AtomicInteger cnt = new AtomicInteger();
@@ -111,19 +145,39 @@ public final class StandardMaps {
                 .collect(toOrderedMap(s -> "package_name_" + cnt.getAndIncrement(), Function.identity()));
     }
 
+    /**
+     * Ensures that package names are distinct up to the third level, to reduce redundancy
+     * in event parameter package names.
+     *
+     * @param name The package name to check.
+     * @param set  A set of package names already included in the parameters.
+     * @return True if the package name is distinct, false otherwise.
+     */
     static boolean distinctUpToMaxLevel3(final String name, final Set<String> set) {
         final String packageNameUpToMaxLevel3 = packageNameUpToMaxLevel3(name);
         return set.add(packageNameUpToMaxLevel3);
     }
 
+    /**
+     * Extracts the package name from a fully qualified class name.
+     *
+     * @param className The fully qualified class name.
+     * @return The package name.
+     */
     static String packageName(final String className) {
         final int lastDotIndex = className.lastIndexOf('.');
-        if (lastDotIndex>0)
+        if (lastDotIndex > 0)
             return className.substring(0, lastDotIndex);
         else
             return className;
     }
 
+    /**
+     * Extracts the package name up to the third level (e.g., "com.example.foo").
+     *
+     * @param className The fully qualified class name.
+     * @return The package name up to the third level.
+     */
     static String packageNameUpToMaxLevel3(final String className) {
         if (className.isEmpty())
             return className;
@@ -145,6 +199,13 @@ public final class StandardMaps {
         return className.substring(0, lastDotIndex);
     }
 
+    /**
+     * Determines if a package name should be included in event parameters based on white
+     * and blacklists.
+     *
+     * @param packageName The package name to check.
+     * @return True if the package name should be included, false otherwise.
+     */
     static boolean shouldBeSent(final String packageName) {
         return WHITE_LIST_CONTAINS.stream().anyMatch(packageName::contains)
                 || (!BLACK_LIST_EXACT.contains(packageName)

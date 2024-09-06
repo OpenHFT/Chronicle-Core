@@ -31,25 +31,28 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+
 /**
  * A class responsible for looking up classes and associating them with aliases for
  * more convenient referencing. ClassAliasPool supports custom class loaders and allows
  * for modification of its lookup data without affecting parent lookups.
  */
 public class ClassAliasPool implements ClassLookup {
+
     public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool(null).defaultAliases();
     static final ThreadLocal<CAPKey> CAP_KEY_TL = ThreadLocal.withInitial(() -> new CAPKey(null));
-    private final ClassLookup parent;
-    private final ClassLoader classLoader;
-    private final Map<CAPKey, Class<?>> stringClassMap = new ConcurrentHashMap<>();
-    private final Map<CAPKey, Class<?>> stringClassMap2 = new ConcurrentHashMap<>();
-    private final Map<Class<?>, String> classStringMap = new ConcurrentHashMap<>();
+
+    private final ClassLookup parent; // Parent ClassLookup used as a fallback if class isn't found
+    private final ClassLoader classLoader; // ClassLoader for loading classes
+    private final Map<CAPKey, Class<?>> stringClassMap = new ConcurrentHashMap<>(); // Map of class names to classes
+    private final Map<CAPKey, Class<?>> stringClassMap2 = new ConcurrentHashMap<>(); // Secondary map for class name lookups
+    private final Map<Class<?>, String> classStringMap = new ConcurrentHashMap<>(); // Map of classes to their string aliases
 
     /**
      * Constructs a new ClassAliasPool with the specified parent ClassLookup and ClassLoader.
      *
-     * @param parent The parent ClassLookup that can be consulted if a class cannot be found
-     *               in this ClassAliasPool.
+     * @param parent      The parent ClassLookup that can be consulted if a class cannot be found
+     *                    in this ClassAliasPool.
      * @param classLoader The ClassLoader to be used for loading classes.
      */
     ClassAliasPool(ClassLookup parent, ClassLoader classLoader) {
@@ -69,10 +72,22 @@ public class ClassAliasPool implements ClassLookup {
         this.classLoader = (parent == null ? this : parent).getClass().getClassLoader();
     }
 
+    /**
+     * Throws an assertion error with the provided class.
+     *
+     * @param clazz The class to include in the assertion error message.
+     */
     public static void a(Class<?> clazz) {
         throw Jvm.rethrow(new AssertionError(clazz));
     }
 
+    /**
+     * Checks if the class belongs to a specific package.
+     *
+     * @param pkgName The package name to check against.
+     * @param clazz   The class to verify.
+     * @return True if the class belongs to the specified package, false otherwise.
+     */
     protected static boolean testPackage(String pkgName, Class<?> clazz) {
         Package aPackage = clazz.getPackage();
         return aPackage != null && aPackage.getName().startsWith(pkgName);
@@ -126,6 +141,12 @@ public class ClassAliasPool implements ClassLookup {
         clean(classStringMap.keySet());
     }
 
+    /**
+     * Cleans the provided collection of classes by removing those not loaded
+     * by the default class loader.
+     *
+     * @param coll Collection of classes to be cleaned.
+     */
     private void clean(@NotNull Iterable<Class<?>> coll) {
         ClassLoader classLoader2 = ClassAliasPool.class.getClassLoader();
         for (Iterator<Class<?>> iter = coll.iterator(); iter.hasNext(); ) {
@@ -133,10 +154,17 @@ public class ClassAliasPool implements ClassLookup {
             ClassLoader cl = clazz.getClassLoader();
             if (cl == null || cl == classLoader2)
                 continue;
-            iter.remove();
+            iter.remove(); // Remove classes not loaded by the default class loader
         }
     }
 
+    /**
+     * Finds the class corresponding to the provided name.
+     *
+     * @param name The name of the class to find.
+     * @return The class corresponding to the name.
+     * @throws ClassNotFoundRuntimeException if the class cannot be found.
+     */
     @Override
     @NotNull
     public Class<?> forName(@NotNull CharSequence name) throws ClassNotFoundRuntimeException {
@@ -151,6 +179,14 @@ public class ClassAliasPool implements ClassLookup {
         return forName0(key);
     }
 
+    /**
+     * Looks up the class by its name, handling cases where the class
+     * might not be initially found in the primary or secondary maps.
+     *
+     * @param key The key representing the class name.
+     * @return The class corresponding to the key.
+     * @throws ClassNotFoundRuntimeException if the class cannot be found.
+     */
     @NotNull
     private synchronized Class<?> forName0(@NotNull CAPKey key) throws ClassNotFoundRuntimeException {
         Class<?> clazz = stringClassMap2.get(key);
@@ -166,7 +202,7 @@ public class ClassAliasPool implements ClassLookup {
 
     /**
      * On Windows & OSX, if you ask for a class with the wrong case, it will throw
-     * this instead of ClassNotFoundException
+     * this instead of ClassNotFoundException.
      *
      * @param name The class name to lookup
      * @return The resolved class
@@ -176,22 +212,39 @@ public class ClassAliasPool implements ClassLookup {
         try {
             return doLookup(name);
         } catch (NoClassDefFoundError e) {
+            // Wraps the NoClassDefFoundError in a ClassNotFoundRuntimeException
             throw new ClassNotFoundRuntimeException(new ClassNotFoundException(e.getMessage(), e));
         }
     }
 
+    /**
+     * Attempts to find and load the class with the specified name.
+     *
+     * @param name The fully qualified name of the class to look up
+     * @return The class object for the specified name
+     * @throws ClassNotFoundRuntimeException if the class cannot be found or is banned
+     */
     private Class<?> doLookup(String name) {
         if (banned(name))
+            // Throws an exception if the class is banned
             throw new ClassNotFoundRuntimeException(new ClassNotFoundException(name + " not available"));
         try {
+            // Attempts to load the class using the class loader
             return Class.forName(name, true, classLoader);
         } catch (ClassNotFoundException e) {
+            // Fallback to parent ClassLookup if available
             if (parent != null)
                 return parent.forName(name);
             throw new ClassNotFoundRuntimeException(e);
         }
     }
 
+    /**
+     * Determines if the class with the specified name is banned from loading.
+     *
+     * @param name The name of the class to check
+     * @return true if the class is banned, false otherwise
+     */
     private boolean banned(String name) {
         if (name.isEmpty())
             return true;
@@ -208,9 +261,17 @@ public class ClassAliasPool implements ClassLookup {
         }
     }
 
+    /**
+     * Gets the name associated with a class.
+     *
+     * @param clazz The class whose name is to be retrieved
+     * @return The name of the class
+     * @throws IllegalArgumentException if the class is a lambda class
+     */
     @Override
     public String nameFor(Class<?> clazz) throws IllegalArgumentException {
         if (Jvm.isLambdaClass(clazz))
+            // Lambda classes do not have meaningful names
             throw new IllegalArgumentException("Class name for " + clazz + " isn't meaningful.");
         String name = classStringMap.get(clazz);
         if (name != null)
@@ -220,6 +281,12 @@ public class ClassAliasPool implements ClassLookup {
         return nameFor0(clazz);
     }
 
+    /**
+     * Retrieves or computes the canonical name for the specified class.
+     *
+     * @param clazz The class whose name is to be determined
+     * @return The canonical name of the class
+     */
     private String nameFor0(Class<?> clazz) {
         if (Enum.class.isAssignableFrom(clazz)) {
             Class<?> clazz2 = clazz.getSuperclass();
@@ -235,12 +302,22 @@ public class ClassAliasPool implements ClassLookup {
         return clazz.getName();
     }
 
+    /**
+     * Removes all classes from the lookup maps that belong to the specified package.
+     *
+     * @param pkgName The package name to remove
+     */
     public void removePackage(String pkgName) {
         stringClassMap.entrySet().removeIf(e -> testPackage(pkgName, e.getValue()));
         stringClassMap2.entrySet().removeIf(e -> testPackage(pkgName, e.getValue()));
         classStringMap.entrySet().removeIf(e -> testPackage(pkgName, e.getKey()));
     }
 
+    /**
+     * Adds the specified classes to the alias lookup maps.
+     *
+     * @param classes The classes to add
+     */
     @Override
     public void addAlias(@NotNull Class<?>... classes) {
         for (@NotNull Class<?> clazz : classes) {
@@ -253,12 +330,23 @@ public class ClassAliasPool implements ClassLookup {
         }
     }
 
-    // to lower camel case.
+    /**
+     * Converts the given string to lower camel case.
+     *
+     * @param name The string to convert
+     * @return The string converted to lower camel case
+     */
     @NotNull
     private String toCamelCase(@NotNull String name) {
         return Character.toLowerCase(name.charAt(0)) + name.substring(1);
     }
 
+    /**
+     * Adds the specified class to the alias lookup maps with the given alias names.
+     *
+     * @param clazz The class to add
+     * @param names The alias names for the class
+     */
     @Override
     public void addAlias(Class<?> clazz, @NotNull String names) {
         for (@NotNull String name : names.split(", ?")) {
@@ -271,14 +359,29 @@ public class ClassAliasPool implements ClassLookup {
         }
     }
 
+    /**
+     * Logs a warning if the previous class associated with an alias was replaced.
+     *
+     * @param prev  The previous class associated with the alias
+     * @param clazz The new class associated with the alias
+     * @param msg   The warning message
+     */
     private void warnIfChanged(Class<?> prev, Class<?> clazz, String msg) {
         if (prev != null && prev != clazz)
             Jvm.warn().on(getClass(), msg + " " + prev + " with " + clazz);
     }
 
+    /**
+     * A key class for class alias lookups that implements CharSequence.
+     */
     static final class CAPKey implements CharSequence {
         CharSequence value;
 
+        /**
+         * Constructs a new CAPKey with the specified value.
+         *
+         * @param name The value of the key
+         */
         CAPKey(String name) {
             value = name;
         }
