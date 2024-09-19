@@ -105,6 +105,7 @@ public class JvmTest extends CoreTestCommon {
             Jvm.reportUnoptimised();
         }
 
+        @SuppressWarnings("EmptyMethod")
         static void reportOnce() {
             // Do nothing as reports are made in the static initializer
         }
@@ -271,6 +272,7 @@ public class JvmTest extends CoreTestCommon {
     }
 
     interface InterfaceWithDefaultMethod {
+        @SuppressWarnings("EmptyMethod")
         void hello(CharSequence ignored);
 
         default void helloDefault(CharSequence cs) {
@@ -460,9 +462,11 @@ public class JvmTest extends CoreTestCommon {
     @AnnoAlias
     interface Foo {
 
+        @SuppressWarnings("EmptyMethod")
         @AnnoAlias
         void inheritedAnno();
 
+        @SuppressWarnings("EmptyMethod")
         @RealAnno("G'Day")
         void directAnno();
     }

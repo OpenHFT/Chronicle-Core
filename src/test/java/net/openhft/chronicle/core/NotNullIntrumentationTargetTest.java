@@ -36,6 +36,7 @@ public class NotNullIntrumentationTargetTest extends CoreTestCommon {
         test(null);
     }
 
+    @SuppressWarnings("EmptyMethod")
     private static void test(@NotNull String nn) {
         // This should throw an NPE if called with a null argument
     }

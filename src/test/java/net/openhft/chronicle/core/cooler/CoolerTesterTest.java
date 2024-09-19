@@ -48,17 +48,6 @@ class CoolerTesterTest {
     }
 
     @Test
-    void shouldRecordExecutionTimesInHistograms() throws Exception {
-        // This test would involve verifying that execution times are recorded in the histograms.
-        // This can be complex as it involves measuring time and may require a more integration-style test.
-    }
-
-    @Test
-    void configurationMethodsShouldAffectExecution() {
-        // Test the configuration methods to ensure they correctly alter the behavior of the test execution.
-    }
-
-    @Test
     void runMethodShouldExecuteWithoutErrors() {
         Callable<?> mockTask = mock(Callable.class);
         CpuCooler mockCooler = mock(CpuCooler.class);

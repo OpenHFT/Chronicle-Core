@@ -606,8 +606,9 @@ public final class IOTools {
             }
         }
 
+        @SuppressWarnings("EmptyMethod")
         static void warnOnce() {
-            // No-op.
+            // required to trigger the static block
         }
     }
 }

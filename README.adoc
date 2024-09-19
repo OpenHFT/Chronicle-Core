@@ -493,9 +493,9 @@ Some patterns which are commonly used in Chronicle's libraries are below.
 
 If using an object which is single-threaded, a common pattern is to construct and initialise your object on the main thread before handing it off to an event loop or worker thread. Call `singleThreadedCheckReset` after initialisation.
 
-```
+```java
 // in the Main thread
-ChronicleQueue q = ...;
+ChronicleQueue q = createMyQueue();
 ExcerptTailer tailer = q.createTailer().toEnd(); // toEnd() checks thread safety and thus initialises the used-by thread
 tailer.singleThreadedCheckReset();
 // now use the tailer in an event loop
@@ -506,11 +506,11 @@ tailer.singleThreadedCheckReset();
 If writing an object to use `net.openhft.chronicle.core.io.SingleThreadedChecked` then a common pattern (and a variant
 of the above) is to call `singleThreadedCheckReset` at the end of the constructor e.g. from Chronicle Queue:
 
-```
+```java
 public ExcerptTailer createTailer(String id) {
-    ...
+    ///
     final StoreTailer storeTailer = new StoreTailer(this, pool, indexUpdater); // initialises state and sets the used-by thread
-    ...
+    ///
     storeTailer.singleThreadedCheckReset();
     return storeTailer;
 }
@@ -521,11 +521,11 @@ public ExcerptTailer createTailer(String id) {
 If implementing `SingleThreadedCheck` then any methods should also delegate to any contained `SingleThreadedCheck`
 objects i.e.
 
-```
+```java
 @Override
 public void singleThreadedCheckReset() {
     // perform my reset
-    ...
+    ///
     // call singleThreadedCheckReset on any single-threaded fields
     this.bytes.singleThreadedCheckReset();
 }

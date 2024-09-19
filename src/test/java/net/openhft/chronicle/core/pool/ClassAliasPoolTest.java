@@ -153,6 +153,7 @@ public class ClassAliasPoolTest extends CoreTestCommon {
         },
         BAR;
 
+        @SuppressWarnings("EmptyMethod")
         void foo() {
         }
     }

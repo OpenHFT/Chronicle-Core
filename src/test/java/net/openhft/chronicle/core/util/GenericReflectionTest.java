@@ -99,6 +99,7 @@ class GenericReflectionTest extends CoreTestCommon {
     }
 
     interface GenericMethod<A, B> {
+        @SuppressWarnings("EmptyMethod")
         void method(A a, B b);
     }
 
