@@ -103,6 +103,7 @@ public class ScopedThreadLocal<T> implements ScopedResourcePool<T> {
     /**
      * The default onAcquire function
      */
+    @SuppressWarnings("EmptyMethod")
     private static <T> void noOp(T instance) {
         // Do nothing
     }

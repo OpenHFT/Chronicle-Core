@@ -1680,6 +1680,7 @@ public final class Jvm {
         private InitSignalHandlers() {
         }
 
+        @SuppressWarnings("EmptyMethod")
         static void init() {
             // trigger static block
         }
