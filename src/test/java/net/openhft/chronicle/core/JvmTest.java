@@ -460,13 +460,12 @@ public class JvmTest extends CoreTestCommon {
     }
 
     @AnnoAlias
+    @SuppressWarnings("EmptyMethod")
     interface Foo {
 
-        @SuppressWarnings("EmptyMethod")
         @AnnoAlias
         void inheritedAnno();
 
-        @SuppressWarnings("EmptyMethod")
         @RealAnno("G'Day")
         void directAnno();
     }
