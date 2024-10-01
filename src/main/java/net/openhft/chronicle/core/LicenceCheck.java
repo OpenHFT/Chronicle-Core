@@ -41,8 +41,6 @@ public interface LicenceCheck {
      * @param caller  caller
      */
     static void check(String product, Class<?> caller) {
-        if (isJGuardProtected())
-            return;
         final BiConsumer<Long, String> logLicenceExpiryDetails = (days, owner) -> {
             String ownerId = owner == null ? "" : "for " + owner + " ";
             String expires = "The license " + ownerId + "expires";
@@ -77,6 +75,8 @@ public interface LicenceCheck {
      * @param licenceExpiryDetails callback to call with license days to run and license owner
      */
     static void licenceExpiry(String product, Class<?> caller, BiConsumer<Long, String> licenceExpiryDetails) {
+        if (isJGuardProtected())
+            return;
         String key = Jvm.getProperty(CHRONICLE_LICENSE); // make sure this was loaded first.
         if (key == null || !key.contains(product + '.')) {
             String expiryDateFile = product + ".expiry-date";
