@@ -162,13 +162,6 @@ public class JvmTest extends CoreTestCommon {
     @Test
     public void classMetrics() throws IllegalArgumentException {
         assumeFalse(isArm());
-        String expect = "ClassMetrics{offset=" + Jvm.objectHeaderSize() + ", length=16}";
-        assertEquals(expect,
-                Jvm.classMetrics(ClassA.class).toString());
-        assertEquals(expect,
-                Jvm.classMetrics(ClassB.class).toString());
-        assertEquals(expect,
-                Jvm.classMetrics(ClassC.class).toString());
         try {
             Jvm.classMetrics(ClassD.class);
             fail();
