@@ -111,37 +111,6 @@ public final class Longs {
     }
 
     /**
-     * Asserts that the provided {@code value} and provided {@code otherValue} satisfies the provided {@code requirement}
-     * if assertions is enabled (i.e. {@code -ea}) and {@link AssertUtil#SKIP_ASSERTIONS} is {@code false}.
-     * <p>
-     * This method is designed primarily for doing parameter validation in private methods
-     * and constructors, as demonstrated below:
-     * <blockquote><pre>
-     * private Foo(long bar) {
-     *     assertIfEnabled(betweenZeroAnd(), bar, 32);
-     *     this.bar = bar;
-     * }
-     * </pre></blockquote>
-     *
-     * @param requirement to impose on the provided {@code value} and {@code otherValue}
-     * @param value       the value to check
-     * @param otherValue  the other value to compare against the provided {@code value}
-     * @return {@code true}
-     * @throws NullPointerException If the provided {@code requirement} is {@code null}. There is no guarantee that this
-     *                              exception is thrown. For example, if assertions are not enabled, then the exception
-     *                              might not be thrown.
-     * @throws AssertionError       if the check fails and assertions are enabled both via the {@code -ea} JVM command
-     *                              line option and by setting {@link AssertUtil#SKIP_ASSERTIONS} to {@code false}.
-     */
-    public static boolean assertIfEnabled(final LongBiPredicate requirement,
-                                          final long value,
-                                          final long otherValue) {
-        assert AssertUtil.SKIP_ASSERTIONS || requirement.test(value, otherValue)
-                : failDescription(requirement, value, otherValue);
-        return true;
-    }
-
-    /**
      * Returns a human-readable form of a failure message provided that the provided {@code value} <em>did not</em>
      * satisfy the provided {@code requirement}.
      *
@@ -154,23 +123,6 @@ public final class Longs {
     private static String failDescription(final LongPredicate requirement,
                                          final long value) {
         return String.format("The provided value (%d) is illegal because it does not satisfy the provided requirement: %d %s", value, value, requirement);
-    }
-
-    /**
-     * Returns a human-readable form of a failure message provided that the provided {@code value} and
-     * provided {@code otherValue} <em>did not</em> satisfy the provided {@code requirement}.
-     *
-     * @param requirement to imposed on the provided values
-     * @param value       the value to check
-     * @param otherValue  the other value to compare against the provided {@code value}
-     * @return a human-readable form of a failure message provided that the provided {@code value} and
-     * provided {@code otherValue} <em>did not</em> satisfy the provided {@code requirement}
-     * @throws NullPointerException If the provided {@code requirement} is {@code null}.
-     */
-    private static String failDescription(final LongBiPredicate requirement,
-                                         final long value,
-                                         final long otherValue) {
-        return String.format("The provided value (%d) is illegal because it does not satisfy the provided requirement: %d %s %d", value, value, requirement, otherValue);
     }
 
     /**

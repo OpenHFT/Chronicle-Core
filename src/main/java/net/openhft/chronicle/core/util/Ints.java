@@ -96,40 +96,6 @@ public final class Ints {
     }
 
     /**
-     * Asserts that the provided {@code value}, provided {@code otherFirstValue} and provided {@code otherSecondValue}
-     * satisfies the provided {@code requirement} if assertions is enabled (i.e. {@code -ea}) and
-     * {@link AssertUtil#SKIP_ASSERTIONS} is {@code false}.
-     * <p>
-     * This method is designed primarily for doing parameter validation in private methods
-     * and constructors, as demonstrated below:
-     * <blockquote><pre>
-     * public private(int bar) {
-     *     assertIfEnabled(between(), bar, 13, 42);
-     *     this.bar = bar;
-     * }
-     * </pre></blockquote>
-     *
-     * @param requirement      to impose on the provided values
-     * @param value            the value to check
-     * @param otherFirstValue  the other first value to compare against the provided {@code value}
-     * @param otherSecondValue the other first value to compare against the provided {@code value}
-     * @return {@code true}
-     * @throws NullPointerException if the provided {@code requirement} is {@code null}. There is no guarantee that this
-     *                              exception is thrown. For example, if assertions are not enabled, then the exception
-     *                              might not be thrown.
-     * @throws AssertionError       if the check fails and assertions are enabled both via the {@code -ea} JVM command
-     *                              line option and by setting {@link AssertUtil#SKIP_ASSERTIONS} to {@code false}.
-     */
-    public static boolean assertIfEnabled(final IntTriPredicate requirement,
-                                          final int value,
-                                          final int otherFirstValue,
-                                          final int otherSecondValue) {
-        assert AssertUtil.SKIP_ASSERTIONS || requirement.test(value, otherFirstValue, otherSecondValue)
-                : failDescription(requirement, value, otherFirstValue, otherSecondValue);
-        return true;
-    }
-
-    /**
      * Returns a human-readable form of a failure message provided that the provided {@code value} <em>did not</em>
      * satisfy the provided {@code requirement}.
      *
@@ -142,41 +108,6 @@ public final class Ints {
     public static String failDescription(final IntPredicate requirement,
                                          final int value) {
         return String.format("The provided value (%d) is illegal because it does not satisfy the provided requirement: %d %s", value, value, requirement);
-    }
-
-    /**
-     * Returns a human-readable form of a failure message provided that the provided {@code value} and
-     * provided {@code otherValue} <em>did not</em> satisfy the provided {@code requirement}.
-     *
-     * @param requirement to imposed on the provided values
-     * @param value       the value to check
-     * @param otherValue  the other value to compare against the provided {@code value}
-     * @return a human-readable form of a failure message provided that the provided {@code value} and
-     * provided {@code otherValue} <em>did not</em> satisfy the provided {@code requirement}
-     * @throws NullPointerException if the provided {@code requirement} is {@code null}.
-     */
-    public static String failDescription(final IntBiPredicate requirement,
-                                         final int value,
-                                         final int otherValue) {
-        return String.format("The provided value (%d) is illegal because it does not satisfy the provided requirement: %d %s %d", value, value, requirement, otherValue);
-    }
-
-    /**
-     * Returns a human-readable form of a failure message provided that the provided {@code value},
-     * provided {@code otherFirstValue} and provided {@code otherFirstValue} <em>did not</em> satisfy the
-     * provided {@code requirement}.
-     *
-     * @param requirement to imposed on the provided values
-     * @param value       the value to check
-     * @return a human-readable form of a failure message provided that the provided {@code value} and
-     * provided {@code otherValue} <em>did not</em> satisfy the provided {@code requirement}
-     * @throws NullPointerException if the provided {@code requirement} is {@code null}.
-     */
-    public static String failDescription(final IntTriPredicate requirement,
-                                         final int value,
-                                         final int otherFirstValue,
-                                         final int otherSecondValue) {
-        return String.format("The provided value (%d) is illegal because it does not satisfy the provided requirement: %d %s (%d, %d)", value, value, requirement, otherFirstValue, otherSecondValue);
     }
 
     /**
