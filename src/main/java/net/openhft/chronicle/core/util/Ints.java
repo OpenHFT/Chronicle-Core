@@ -19,14 +19,9 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.assertions.AssertUtil;
-import net.openhft.chronicle.core.internal.invariant.ints.IntBiCondition;
 import net.openhft.chronicle.core.internal.invariant.ints.IntCondition;
-import net.openhft.chronicle.core.internal.invariant.ints.IntTriCondition;
 
-import java.util.function.Function;
 import java.util.function.IntPredicate;
-
-import static java.util.Objects.requireNonNull;
 
 /**
  * A collection of functional compositions to check and assert various requirements
