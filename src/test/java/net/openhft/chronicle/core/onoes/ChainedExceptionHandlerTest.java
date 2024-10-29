@@ -1,12 +1,12 @@
 package net.openhft.chronicle.core.onoes;
 
-import net.openhft.chronicle.core.util.IgnoresEverything;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
-import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 class ChainedExceptionHandlerTest {
 
@@ -54,5 +54,17 @@ class ChainedExceptionHandlerTest {
 
         // This call should not throw an exception
         chained.on(String.class, "message", new RuntimeException());
+    }
+
+    @Test
+    void testOn_withLoggerMessageAndThrowable() {
+        Logger logger = LoggerFactory.getLogger(ChainedExceptionHandlerTest.class);
+        String message = "Test message";
+        Throwable thrown = new RuntimeException("Test exception");
+
+        chainedHandler.on(logger, message, thrown);
+
+        verify(handler1).on(logger, message, thrown);
+        verify(handler2).on(logger, message, thrown);
     }
 }
