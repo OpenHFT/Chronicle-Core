@@ -154,16 +154,6 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     }
 
     /**
-     * Removes the specified closeable resource from monitoring.
-     *
-     * @param closeable the closeable resource to unmonitor.
-     */
-    @Deprecated(/* to be removed in x.27, use Monitorable.unmonitor */)
-    public static void unmonitor(Closeable closeable) {
-        Monitorable.unmonitor(closeable);
-    }
-
-    /**
      * Returns the unique reference ID of this closeable resource.
      *
      * @return the unique reference ID.

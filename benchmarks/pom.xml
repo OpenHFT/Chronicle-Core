@@ -28,7 +28,7 @@
     </parent>
 
     <artifactId>chronicle-core-benchmarks</artifactId>
-    <version>2.26ea-SNAPSHOT</version>
+    <version>2.27ea-SNAPSHOT</version>
     <name>OpenHFT/Chronicle-Core/Benchmarks</name>
     <description>Chronicle-Core-Benchmarks</description>
 
@@ -42,7 +42,7 @@
             <dependency>
                 <groupId>net.openhft</groupId>
                 <artifactId>third-party-bom</artifactId>
-                <version>3.26.0</version>
+                <version>3.27ea0-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -50,7 +50,7 @@
             <dependency>
                 <groupId>net.openhft</groupId>
                 <artifactId>chronicle-bom</artifactId>
-                <version>2.26ea-SNAPSHOT</version>
+                <version>2.27ea-SNAPSHOT</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>

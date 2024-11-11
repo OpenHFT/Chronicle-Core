@@ -1432,29 +1432,6 @@ public final class Jvm {
     }
 
     /**
-     * Returns the size of the object header in the JVM.
-     * This size is calculated based on the offset of the first field of a class.
-     *
-     * @return The size of the object header.
-     */
-    @Deprecated(/* to be removed in x.27, use net.openhft.chronicle.bytes.BytesUtil.triviallyCopyableStart */)
-    public static int objectHeaderSize() {
-        return ObjectHeaderSizeHolder.getSize();
-    }
-
-    /**
-     * Calculates the object header size for a given class type.
-     * If the class type is an array, it returns the array base offset; otherwise, it returns the object header size.
-     *
-     * @param type The class for which the object header size is to be calculated.
-     * @return The object header size or array base offset, depending on the class type.
-     */
-    @Deprecated(/* to be removed in x.27, use net.openhft.chronicle.bytes.BytesUtil.triviallyCopyableStart for POJOs */)
-    public static int objectHeaderSize(Class<?> type) {
-        return ObjectHeaderSizeHolder.objectHeaderSize(type);
-    }
-
-    /**
      * @return Obtain the model of CPU on Linux or the os.arch on other OSes.
      */
     public static String getCpuClass() {

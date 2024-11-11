@@ -569,4 +569,111 @@ public class MathsTest extends CoreTestCommon {
         assertEquals(1234500, Maths.asDouble(12345, 0, false, -2), 0.0);
         assertEquals(1.23E30, Maths.asDouble(123, 0, false, -28), 0.0);
     }
+
+    @Test
+    public void testNextPower2Int() {
+        // Test cases where n is less than min
+        assertEquals(8, Maths.nextPower2(3, 8));
+        assertEquals(16, Maths.nextPower2(5, 16));
+
+        // Test cases where n is equal to min
+        assertEquals(8, Maths.nextPower2(8, 8));
+        assertEquals(16, Maths.nextPower2(16, 16));
+
+        // Test cases where n is already a power of two
+        assertEquals(32, Maths.nextPower2(32, 16));
+        assertEquals(64, Maths.nextPower2(64, 32));
+
+        // Test cases where n is not a power of two
+        assertEquals(128, Maths.nextPower2(70, 16));
+        assertEquals(256, Maths.nextPower2(130, 64));
+
+        // Test maximum int value
+        assertEquals(1 << 30, Maths.nextPower2(Integer.MAX_VALUE, 1));
+
+        // Test minimum n and min
+        assertEquals(1, Maths.nextPower2(0, 1));
+        assertEquals(1, Maths.nextPower2(1, 1));
+    }
+
+    @Test
+    public void testNextPower2Long() {
+        // Test cases where n is less than min
+        assertEquals(16L, Maths.nextPower2(9L, 16L));
+        assertEquals(32L, Maths.nextPower2(17L, 32L));
+
+        // Test cases where n is equal to min
+        assertEquals(64L, Maths.nextPower2(64L, 64L));
+        assertEquals(128L, Maths.nextPower2(128L, 128L));
+
+        // Test cases where n is already a power of two
+        assertEquals(256L, Maths.nextPower2(256L, 128L));
+        assertEquals(512L, Maths.nextPower2(512L, 256L));
+
+        // Test cases where n is not a power of two
+        assertEquals(1024L, Maths.nextPower2(777L, 256L));
+        assertEquals(2048L, Maths.nextPower2(1300L, 1024L));
+
+        // Test large values
+        assertEquals(1L << 62, Maths.nextPower2(Long.MAX_VALUE, 1L));
+
+        // Test minimum n and min
+        assertEquals(1L, Maths.nextPower2(0L, 1L));
+        assertEquals(1L, Maths.nextPower2(1L, 1L));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNextPower2IntInvalidMin() {
+        // min is not a power of two
+        Maths.nextPower2(10, 7);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testNextPower2LongInvalidMin() {
+        // min is not a power of two
+        Maths.nextPower2(20L, 9L);
+    }
+
+    @Test
+    public void testIsPowerOf2() {
+        assertTrue(Maths.isPowerOf2(1));
+        assertTrue(Maths.isPowerOf2(2));
+        assertTrue(Maths.isPowerOf2(4));
+        assertTrue(Maths.isPowerOf2(8));
+        assertTrue(Maths.isPowerOf2(16));
+        assertTrue(Maths.isPowerOf2(32));
+        assertTrue(Maths.isPowerOf2(64));
+        assertTrue(Maths.isPowerOf2(128));
+        assertTrue(Maths.isPowerOf2(256));
+        assertTrue(Maths.isPowerOf2(512));
+        assertTrue(Maths.isPowerOf2(1024));
+
+        assertFalse(Maths.isPowerOf2(0));
+        assertFalse(Maths.isPowerOf2(3));
+        assertFalse(Maths.isPowerOf2(5));
+        assertFalse(Maths.isPowerOf2(6));
+        assertFalse(Maths.isPowerOf2(7));
+        assertFalse(Maths.isPowerOf2(9));
+        assertFalse(Maths.isPowerOf2(10));
+        assertFalse(Maths.isPowerOf2(12));
+        assertFalse(Maths.isPowerOf2(15));
+        assertFalse(Maths.isPowerOf2(18));
+        assertFalse(Maths.isPowerOf2(20));
+    }
+
+    @Test
+    public void testEdgeCasesInt() {
+        // Test when n is negative
+        assertEquals(16, Maths.nextPower2(-5, 16));
+        // Test when min is greater than n and is the next power of two
+        assertEquals(32, Maths.nextPower2(17, 32));
+    }
+
+    @Test
+    public void testEdgeCasesLong() {
+        // Test when n is negative
+        assertEquals(64L, Maths.nextPower2(-10L, 64L));
+        // Test when min is greater than n and is the next power of two
+        assertEquals(128L, Maths.nextPower2(65L, 128L));
+    }
 }

@@ -155,6 +155,13 @@ public final class Maths {
                 ? (double) (long) (d < 0 ? d * factor - 0.5 : d * factor + 0.5) / factor : d;
     }
 
+    /**
+     * Rounds up the given value to the nearest higher number with specified decimal places.
+     *
+     * @param d      the value to ceil
+     * @param digits number of decimal places
+     * @return the ceiled value
+     */
     public static double ceilN(double d, double digits) {
         final long factor = roundingFactor(digits + 8);
         final long factor2 = roundingFactor(digits);
@@ -162,6 +169,13 @@ public final class Maths {
                 ? Math.ceil(Math.round(d * factor) / 1e8) / factor2 : d;
     }
 
+    /**
+     * Rounds down the given value to the nearest lower number with specified decimal places.
+     *
+     * @param d      the value to floor
+     * @param digits number of decimal places
+     * @return the floored value
+     */
     public static double floorN(double d, double digits) {
         final long factor = roundingFactor(digits + 8);
         final long factor2 = roundingFactor(digits);
@@ -460,41 +474,78 @@ public final class Maths {
     }
 
     /**
-     * Returns the next power of two.
+     * Returns the next power of two greater than or equal to the given number, with a specified minimum.
      *
-     * @param n   to find the next power of two from
-     * @param min if n &lt; min then use min
-     * @return the next power of two
-     * @throws IllegalArgumentException if the provided {@code min} value is not a power of two.
+     * @param n   the number to find the next power of two for
+     * @param min the minimum power of two to return if n is less than min
+     * @return the next power of two greater than or equal to n, but at least min
+     * @throws IllegalArgumentException if the provided {@code min} value is not a positive power of two
      */
     public static int nextPower2(int n, int min) throws IllegalArgumentException {
-        return (int) Math.min(1 << 30, nextPower2(n, (long) min));
+        if (min <= 0 || (min & (min - 1)) != 0)
+            throw new IllegalArgumentException("min (" + min + ") must be a positive power of 2");
+
+        if (n <= min) return min;
+        if ((n & (n - 1)) == 0)
+            return n;
+
+        n--;
+        n |= n >>> 1;
+        n |= n >>> 2;
+        n |= n >>> 4;
+        n |= n >>> 8;
+        n |= n >>> 16;
+        n++;
+
+        // Limit to the maximum power of two that fits in an int (2^30)
+        if (n <= 0 || n > (1 << 30)) {
+            return 1 << 30;
+        }
+
+        return n;
     }
 
     /**
-     * Returns the next power of two.
+     * Returns the next power of two greater than or equal to the given number, with a specified minimum.
      *
-     * @param n   to find the next power of two from
-     * @param min if n &lt; min then use min
-     * @return the next power of two
-     * @throws IllegalArgumentException if the provided {@code min} value is not a power of two.
+     * @param n   the number to find the next power of two for
+     * @param min the minimum power of two to return if n is less than min
+     * @return the next power of two greater than or equal to n, but at least min
+     * @throws IllegalArgumentException if the provided {@code min} value is not a positive power of two
      */
     public static long nextPower2(long n, long min) throws IllegalArgumentException {
-        if (!isPowerOf2(min))
-            throw new IllegalArgumentException(min + " must be a power of 2");
-        if (n < min) return min;
-        if (isPowerOf2(n))
+        if (min <= 0 || (min & (min - 1)) != 0)
+            throw new IllegalArgumentException("min (" + min + ") must be a positive power of 2");
+
+        if (n <= min) return min;
+        if ((n & (n - 1)) == 0)
             return n;
-        long i = min;
-        while (i < n) {
-            i *= 2;
-            if (i <= 0) return 1L << 62;
+
+        n--;
+        n |= n >>> 1;
+        n |= n >>> 2;
+        n |= n >>> 4;
+        n |= n >>> 8;
+        n |= n >>> 16;
+        n |= n >>> 32;
+        n++;
+
+        // Handle potential overflow
+        if (n <= 0) {
+            return 1L << 62;
         }
-        return i;
+
+        return n;
     }
 
+    /**
+     * Checks if a number is a power of two.
+     *
+     * @param n the number to check
+     * @return true if n is a positive power of two, false otherwise
+     */
     public static boolean isPowerOf2(long n) {
-        return Long.bitCount(n) == 1;
+        return n > 0 && (n & (n - 1)) == 0;
     }
 
     public static long hash64(@Nullable CharSequence cs) {
