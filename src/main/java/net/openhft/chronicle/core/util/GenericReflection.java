@@ -24,9 +24,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.util.LinkedHashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -77,9 +75,7 @@ public enum GenericReflection {
         if (genericReturnType instanceof Class)
             return genericReturnType;
         final Class<?> declaringClass = method.getDeclaringClass();
-        final Optional<? extends Type> extendsType = Stream.of(
-                        Stream.of(getGenericSuperclass(type)), Stream.of(getGenericInterfaces(type)))
-                .flatMap(s -> s)
+        final Optional<? extends Type> extendsType = getGenericClassesSuperclassesAndInterfaces(type)
                 .filter(t -> declaringClass.equals(erase(t)))
                 .findFirst();
         final Type[] typeParameters = declaringClass.getTypeParameters();
@@ -108,22 +104,28 @@ public enum GenericReflection {
         return parameterTypes;
     }
 
-    static Type[] getGenericInterfaces(Type forClass) {
-        if (forClass instanceof Class)
-            return ((Class) forClass).getGenericInterfaces();
-        if (forClass instanceof ParameterizedType) {
-            return new Type[]{forClass};
-        }
-        throw new UnsupportedOperationException();
+    static Stream<Type> getGenericClassesSuperclassesAndInterfaces(Type forClass) {
+        Set<Type> result = new HashSet<>();
+        getGenericClassesSuperclassesAndInterfaces(forClass, result);
+        return result.stream();
     }
 
-    static Type getGenericSuperclass(Type forClass) {
-        if (forClass instanceof Class)
-            return ((Class<?>) forClass).getGenericSuperclass();
+    private static void getGenericClassesSuperclassesAndInterfaces(Type forClass, Set<Type> collectedTypes) {
         if (forClass instanceof ParameterizedType) {
-            return null;
+            collectedTypes.add(forClass);
+            getGenericClassesSuperclassesAndInterfaces(((ParameterizedType) forClass).getRawType(), collectedTypes);
+            return;
         }
-        throw new UnsupportedOperationException();
+
+        if (!(forClass instanceof Class))
+            throw new UnsupportedOperationException();
+
+        for (Type genericInterface : ((Class) forClass).getGenericInterfaces())
+            getGenericClassesSuperclassesAndInterfaces(genericInterface, collectedTypes);
+
+        Type superclass = ((Class) forClass).getGenericSuperclass();
+        if (superclass != null)
+            getGenericClassesSuperclassesAndInterfaces(superclass, collectedTypes);
     }
 
     /**
