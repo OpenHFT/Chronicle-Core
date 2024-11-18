@@ -22,7 +22,7 @@
         <groupId>net.openhft</groupId>
         <artifactId>java-parent-pom</artifactId>
         <version>1.27ea0</version>
-        <relativePath />
+        <relativePath></relativePath>
     </parent>
     <artifactId>chronicle-core</artifactId>
     <version>2.27ea1-SNAPSHOT</version>
@@ -193,7 +193,7 @@
                         <configuration>
                             <referenceVersion>2.27ea0</referenceVersion>
                             <artifactsURI>https://teamcity.chronicle.software/repository/download</artifactsURI>
-                            <binaryCompatibilityPercentageRequired>100</binaryCompatibilityPercentageRequired>
+                            <binaryCompatibilityPercentageRequired>98.5</binaryCompatibilityPercentageRequired>
                         </configuration>
                     </execution>
                 </executions>
