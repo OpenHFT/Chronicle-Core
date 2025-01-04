@@ -207,6 +207,19 @@
                         </configuration>
                         <executions>
                             <execution>
+                                <id>StringUtilsEqualsCaseIgnoreJLBH</id>
+                                <phase>test</phase>
+                                <goals>
+                                    <goal>exec</goal>
+                                </goals>
+                                <configuration>
+                                    <executable>${java.home}/bin/java</executable>
+                                    <commandlineArgs>${jvm.requiredArgs} -Djvm.resource.tracing=false -classpath
+                                        %classpath net.openhft.chronicle.core.benchmark.StringUtilsEqualsCaseIgnoreJLBH
+                                    </commandlineArgs>
+                                </configuration>
+                            </execution>
+                            <execution>
                                 <id>copyMemory20</id>
                                 <phase>test</phase>
                                 <goals>
