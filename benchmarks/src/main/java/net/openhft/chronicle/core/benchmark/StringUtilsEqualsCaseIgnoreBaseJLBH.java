@@ -7,13 +7,18 @@ import net.openhft.chronicle.jlbh.JLBHOptions;
 import net.openhft.chronicle.jlbh.JLBHTask;
 import net.openhft.chronicle.jlbh.TeamCityHelper;
 
-public class StringUtilsEqualsCaseIgnoreJLBH implements JLBHTask {
+import java.util.function.Supplier;
 
-    private static String input;
+public class StringUtilsEqualsCaseIgnoreBaseJLBH implements JLBHTask {
+
+    private final CharSequence left;
+    private final CharSequence right;
     private final int iterations;
     private JLBH jlbh;
 
-    private StringUtilsEqualsCaseIgnoreJLBH(int iterations) {
+    private StringUtilsEqualsCaseIgnoreBaseJLBH(CharSequence left, CharSequence right, int iterations) {
+        this.left = left;
+        this.right = right;
         this.iterations = iterations;
     }
 
@@ -24,7 +29,7 @@ public class StringUtilsEqualsCaseIgnoreJLBH implements JLBHTask {
 
     @Override
     public void run(long startTimeNS) {
-        StringUtils.equalsCaseIgnore(input, input);
+        StringUtils.equalsCaseIgnore(left, right);
         jlbh.sample(System.nanoTime() - startTimeNS);
     }
 
@@ -33,14 +38,7 @@ public class StringUtilsEqualsCaseIgnoreJLBH implements JLBHTask {
         TeamCityHelper.teamCityStatsLastRun(this.getClass().getSimpleName(), jlbh, iterations, System.out);
     }
 
-    public static void main(String[] args) {
-
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < 1024; i++) {
-            sb.append((byte) 0);
-        }
-        input = sb.toString();
-
+    public static void run(Supplier<CharSequence> left, Supplier<CharSequence> right) {
         System.setProperty("jvm.resource.tracing", "false");
         Jvm.init();
         final int throughput = Integer.getInteger("throughput", 500_000);
@@ -54,9 +52,17 @@ public class StringUtilsEqualsCaseIgnoreJLBH implements JLBHTask {
                 iterations(iterations).
                 pauseAfterWarmupMS(100).
                 recordOSJitter(false).
-                jlbhTask(new StringUtilsEqualsCaseIgnoreJLBH(iterations));
+                jlbhTask(new StringUtilsEqualsCaseIgnoreBaseJLBH(left.get(), right.get(), iterations));
         JLBH jlbh = new JLBH(jlbhOptions);
         jlbh.start();
+    }
+
+    public static CharSequence generate(Supplier<Character> characterSupplier, int length) {
+        StringBuilder buffer = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            buffer.append(characterSupplier.get());
+        }
+        return buffer.toString();
     }
 
 }
