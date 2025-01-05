@@ -11,12 +11,17 @@ import java.util.function.Supplier;
 
 public class StringUtilsEqualsCaseIgnoreBaseJLBH implements JLBHTask {
 
+    private final Class<?> klass;
     private final CharSequence left;
     private final CharSequence right;
     private final int iterations;
     private JLBH jlbh;
 
-    private StringUtilsEqualsCaseIgnoreBaseJLBH(CharSequence left, CharSequence right, int iterations) {
+    private StringUtilsEqualsCaseIgnoreBaseJLBH(Class<?> klass,
+                                                CharSequence left,
+                                                CharSequence right,
+                                                int iterations) {
+        this.klass = klass;
         this.left = left;
         this.right = right;
         this.iterations = iterations;
@@ -35,10 +40,12 @@ public class StringUtilsEqualsCaseIgnoreBaseJLBH implements JLBHTask {
 
     @Override
     public void complete() {
-        TeamCityHelper.teamCityStatsLastRun(this.getClass().getSimpleName(), jlbh, iterations, System.out);
+        TeamCityHelper.teamCityStatsLastRun(klass.getSimpleName(), jlbh, iterations, System.out);
     }
 
-    public static void run(Supplier<CharSequence> left, Supplier<CharSequence> right) {
+    public static void run(Class<?> klass,
+                           Supplier<CharSequence> left,
+                           Supplier<CharSequence> right) {
         System.setProperty("jvm.resource.tracing", "false");
         Jvm.init();
         final int throughput = Integer.getInteger("throughput", 500_000);
@@ -52,7 +59,7 @@ public class StringUtilsEqualsCaseIgnoreBaseJLBH implements JLBHTask {
                 iterations(iterations).
                 pauseAfterWarmupMS(100).
                 recordOSJitter(false).
-                jlbhTask(new StringUtilsEqualsCaseIgnoreBaseJLBH(left.get(), right.get(), iterations));
+                jlbhTask(new StringUtilsEqualsCaseIgnoreBaseJLBH(klass, left.get(), right.get(), iterations));
         JLBH jlbh = new JLBH(jlbhOptions);
         jlbh.start();
     }

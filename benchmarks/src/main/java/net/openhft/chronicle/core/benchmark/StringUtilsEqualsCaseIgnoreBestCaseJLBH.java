@@ -5,6 +5,7 @@ import static net.openhft.chronicle.core.benchmark.StringUtilsEqualsCaseIgnoreBa
 public class StringUtilsEqualsCaseIgnoreBestCaseJLBH {
     public static void main(String[] args) {
         StringUtilsEqualsCaseIgnoreBaseJLBH.run(
+                StringUtilsEqualsCaseIgnoreBestCaseJLBH.class,
                 () -> generate(() -> 'a', 100),
                 () -> generate(() -> 'a', 100)
         );
