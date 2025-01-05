@@ -253,23 +253,19 @@ public final class StringUtils {
     }
 
     /**
-     * Compares two {@link CharSequence}s1 for equality ignoring case considerations.
+     * Compares two {@link CharSequence}s for equality ignoring case considerations.
      *
-     * @param s1  the first {@link CharSequence} to be compared.
-     * @param s2 the second {@link CharSequence} to be compared.
-     * @return {@code true} if the {@link CharSequence}s1 are equal irrespective of case, {@code false} otherwise.
+     * @param s  the first {@link CharSequence} to be compared.
+     * @param cs the second {@link CharSequence} to be compared.
+     * @return {@code true} if the {@link CharSequence}s are equal irrespective of case, {@code false} otherwise.
      */
-    public static boolean equalsCaseIgnore(@Nullable CharSequence s1, @NotNull CharSequence s2) {
-        if (s1 == null) return false;
-        if (s1.length() != s2.length()) return false;
-        for (int i = 0; i < s2.length(); i++) {
-            char c1 = charAt(s1, i);
-            char c2 = charAt(s2, i);
-            if (c1 == c2)
-                continue;
-            if (Character.toLowerCase(c1) != Character.toLowerCase(c2))
+    public static boolean equalsCaseIgnore(@Nullable CharSequence s, @NotNull CharSequence cs) {
+        if (s == null) return false;
+        if (s.length() != cs.length()) return false;
+        for (int i = 0; i < cs.length(); i++)
+            if (Character.toLowerCase(charAt(s, i)) !=
+                    Character.toLowerCase(charAt(cs, i)))
                 return false;
-        }
         return true;
     }
 
