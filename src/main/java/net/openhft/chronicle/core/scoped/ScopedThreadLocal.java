@@ -140,11 +140,7 @@ public class ScopedThreadLocal<T> implements ScopedResourcePool<T> {
                     @Nullable
                     Class<?> containedType = instances[instances.length - 1].getType();
                     String message = "Pool capacity exceeded, consider increasing maxInstances, maxInstances=" + instances.length + (containedType != null ? ", resourceType=" + containedType.getSimpleName() : "");
-                    if (Jvm.isResourceTracing()) {
-                        Jvm.warn().on(ScopedThreadLocal.class, message, new StackTrace());
-                    } else {
-                        Jvm.warn().on(ScopedThreadLocal.class, message);
-                    }
+                    Jvm.warn().on(ScopedThreadLocal.class, message, Jvm.isResourceTracing() ? new StackTrace() : null);
                     warnedAboutCapacity = true;
                 }
                 replaceNewestInstance(instance).closeResource();

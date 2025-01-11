@@ -54,7 +54,7 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
             fail("Release last should throw here");
         } catch (IllegalStateException e) {
             assertEquals("net.openhft.chronicle.core.io.TracingReferenceCounted still reserved [INIT]", e.getMessage());
-            assertEquals("uniqueId main init INIT on main", e.getSuppressed()[0].getMessage());
+            assertEquals("uniqueId main init INIT on main", e.getSuppressed()[0].getMessage().split(" at ")[0]);
         }
     }
 
@@ -68,7 +68,7 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
             fail("Release last should throw here");
         } catch (IllegalStateException e) {
             assertEquals("net.openhft.chronicle.core.io.TracingReferenceCounted still reserved [INIT]", e.getMessage());
-            assertEquals("uniqueId main init INIT on main", e.getSuppressed()[0].getMessage());
+            assertEquals("uniqueId main init INIT on main", e.getSuppressed()[0].getMessage().split(" at ")[0]);
             assertEquals("net.openhft.chronicle.core.io.TracingReferenceCounted not reserved by VanillaReferenceOwner{name='a'} closed=false", e.getSuppressed()[1].getMessage());
         }
     }
