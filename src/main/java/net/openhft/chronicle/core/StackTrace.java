@@ -21,7 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Instant;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
@@ -91,7 +90,7 @@ public class StackTrace extends Throwable {
     public static StackTrace forThread(Thread t) {
         if (t == null) return null;
         // Create a specialized instance that doesn't fill in this constructor's own frames
-        StackTrace st = new SetStackTrace(t);
+        StackTrace st = new Less(t.toString());
         StackTraceElement[] stackTrace = t.getStackTrace();
         // Prune the top native method if present
         if (stackTrace.length > 2 && stackTrace[0].isNativeMethod()) {
@@ -121,23 +120,23 @@ public class StackTrace extends Throwable {
      * call frames, so we can later call {@code setStackTrace(...)} with
      * another thread's frames.
      */
-    static class SetStackTrace extends StackTrace {
+    public static class Less extends StackTrace {
         private static final long serialVersionUID = 1L;
 
         /**
-         * Constructs a new {@link StackTrace} whose message is the thread’s {@code toString()}.
-         *
-         * @param thread the thread whose toString() is used for the message
+         * @param message the detail message for this stack trace.
          */
-        SetStackTrace(Thread thread) {
-            super(thread.toString());
+        public Less(String message) {
+            super(message);
         }
 
         /**
-         * Overridden to avoid filling in the current thread’s frames.
+         * Overrides the default behavior of {@code Throwable} to avoid filling in the stack trace.
+         *
+         * @return this instance, without filling in the stack trace.
          */
         @Override
-        public synchronized Throwable fillInStackTrace() {
+        public Throwable fillInStackTrace() {
             return this;
         }
     }
