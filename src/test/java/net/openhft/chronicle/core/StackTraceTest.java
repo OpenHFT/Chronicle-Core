@@ -128,7 +128,7 @@ public class StackTraceTest extends CoreTestCommon {
 
         if (Jvm.isJava20Plus()) {
             // The exact string might differ in Java 20+ if the thread is displayed differently
-            assertTrue(st.getMessage().endsWith("background,5,main] on main at 2024-01-02T03:04:05.006007008"));
+            assertTrue(st.getMessage().endsWith("background,5,main] on main at 2024-01-02T03:04:05.006007008Z"));
             assertEquals(
                     "net.openhft.chronicle.core.Jvm.pause",
                     st.getStackTrace()[1].toString().split("\\(")[0].replaceAll("^app//", "")
