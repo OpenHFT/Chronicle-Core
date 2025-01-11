@@ -316,4 +316,44 @@ public class ObjectUtilsTest extends CoreTestCommon {
     public class ImplementingClass {}
     public class AbstractTestClass {}
     public class RegularClass {}
+
+    @Test
+    public void testDefaultValueForPrimitives() {
+        assertEquals(false, ObjectUtils.defaultValue(boolean.class));
+        assertEquals((byte) 0, (byte) ObjectUtils.defaultValue(byte.class));
+        assertEquals((short) 0, (short) ObjectUtils.defaultValue(short.class));
+        assertEquals((char) 0, (char) ObjectUtils.defaultValue(char.class));
+        assertEquals(0, (int) ObjectUtils.defaultValue(int.class));
+        assertEquals(0L, (long) ObjectUtils.defaultValue(long.class));
+        assertEquals(0.0f, ObjectUtils.defaultValue(float.class), 0.0f);
+        assertEquals(0.0d, ObjectUtils.defaultValue(double.class), 0.0d);
+    }
+
+    @Test
+    public void testDefaultValueForWrapperTypes() {
+        assertNull(ObjectUtils.defaultValue(Boolean.class));
+        assertNull(ObjectUtils.defaultValue(Byte.class));
+        assertNull(ObjectUtils.defaultValue(Short.class));
+        assertNull(ObjectUtils.defaultValue(Character.class));
+        assertNull(ObjectUtils.defaultValue(Integer.class));
+        assertNull(ObjectUtils.defaultValue(Long.class));
+        assertNull(ObjectUtils.defaultValue(Float.class));
+        assertNull(ObjectUtils.defaultValue(Double.class));
+    }
+
+    @Test
+    public void testDefaultValueForCustomObjects() {
+        assertNull(ObjectUtils.defaultValue(String.class));
+        assertNull(ObjectUtils.defaultValue(BigDecimal.class));
+    }
+
+    @Test
+    public void testDefaultValueForUnsupportedType() {
+        assertNull(ObjectUtils.defaultValue(Object.class));
+    }
+
+    @Test
+    public void testDefaultValueWithNullClass() {
+        assertNull(ObjectUtils.defaultValue(null));
+    }
 }

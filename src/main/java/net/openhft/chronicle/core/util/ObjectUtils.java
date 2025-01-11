@@ -660,13 +660,16 @@ public final class ObjectUtils {
     }
 
     /**
-     * Returns the default value for the given class.
+     * Returns the default value associated with the specified primitive type.
      *
-     * @param type The class for which to return the default value.
-     * @return The default value for the given class.
+     * @param type The class type for which to return the default value.
+     *             Must be a primitive type or its corresponding wrapper type.
+     * @param <T>  The type of the class. Note: primitive classes return their boxed type.
+     * @return The default value for the given primitive class, or null for object classes.
      */
-    public static Object defaultValue(Class<?> type) {
-        return DEFAULT_MAP.get(type);
+
+    public static <T> T defaultValue(Class<T> type) {
+        return (T) DEFAULT_MAP.get(type);
     }
 
     /**
