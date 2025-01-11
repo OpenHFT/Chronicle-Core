@@ -28,7 +28,7 @@ import java.util.Arrays;
 import static net.openhft.chronicle.core.time.SystemTimeProvider.CLOCK;
 
 /**
- * Represents a throwable stack trace which is created purely for reporting purposes.
+ * Represents a throwable stack trace, of the current thread or another thread, purely for reporting purposes.
  * <p>
  * This class is not designed as an Error or an Exception and is not intended to be thrown or caught.
  * StackTrace extends Throwable as a “blank slate” that still retains the stack trace machinery for monitoring
