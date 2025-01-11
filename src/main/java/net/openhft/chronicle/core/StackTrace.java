@@ -136,7 +136,7 @@ public class StackTrace extends Throwable {
          * @return this instance, without filling in the stack trace.
          */
         @Override
-        public Throwable fillInStackTrace() {
+        public synchronized Throwable fillInStackTrace() {
             return this;
         }
     }
