@@ -2,6 +2,10 @@
 # This is copied from OpenHFT/.gitignore
 # update the original and run OpenHFT/update_gitignore.sh
 
+### AIDE
+aide/
+aide.ignore
+
 ### Compiled class file
 *.class
 
