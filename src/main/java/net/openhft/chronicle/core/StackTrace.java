@@ -35,14 +35,41 @@ import static net.openhft.chronicle.core.time.SystemTimeProvider.CLOCK;
  * and tracing purposes, but doesn’t carry the semantic baggage of being an error state or a normal exception.
  * <p>
  * To log this StackTrace, treat it as a Throwable and call {@link Throwable#printStackTrace()} or
- * use a standard logger:
+ * use a standard logger. E.g. when montioring a thread:
  * <pre>{@code
  * LOGGER.warn("Thread is stalled here", StackTrace.forThread(monitoredThread));
  * }</pre>
+ * <p>
+ * To highlight why a resource can't be used anymore, use the following pattern:
+ * <pre>{@code
+ * // in close()
+ * closedHere = new StackTrace("Resource was closed here");
+ * // in use()
+ * if (closed)
+ *    throw new IllegalStateException("Resource is closed", closedHere));
+ * }</pre>
+ * <p>
+ * To highlight where a resource was created, use the following pattern:
+ * <pre>{@code
+ * private final StackTrace createdHere = new StackTrace("Resource was created here");
+ * // in warnIfNotClosed()
+ * if (!closed)
+ *   LOGGER.warn("Resource was not closed", createdHere);
+ * }</pre>
+ * To combine with StackWalker, use the following pattern:
+ * <pre>{@code
+ * StackWalker walker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
+ * // Skip the first element, which is the current method
+ * StackTraceElement[] stackTrace = walker.walk(s -> s.skip(1).toArray(StackTraceElement[]::new));
+ * StackTrace st = new StackTrace.Less("Resource was created here", stackTrace);
+ * }</pre>
+ *
  * StackTrace can be used to diagnose resource leaks, single-threaded resource enforcement,
  * diagnosing when a resource is used after closing and monitoring long-running threads on demand.
  * Taking a StackTrace isn't free; however, if used judiciously, it can be utilized in production
  * to provide on-demand profiling.
+ * <p>
+ * For a deep dive into the StackTrace class see <a href="https://github.com/OpenHFT/Chronicle-Core/tree/ea/src/main/adoc/StackTrace-user-guide.adoc">StackTrace User Guide.adoc</a>
  */
 public class StackTrace extends Throwable {
     private static final long serialVersionUID = 1L;
@@ -89,16 +116,13 @@ public class StackTrace extends Throwable {
     @Nullable
     public static StackTrace forThread(Thread t) {
         if (t == null) return null;
-        // Create a specialized instance that doesn't fill in this constructor's own frames
-        StackTrace st = new Less(t.toString());
         StackTraceElement[] stackTrace = t.getStackTrace();
         // Prune the top native method if present
         if (stackTrace.length > 2 && stackTrace[0].isNativeMethod()) {
             stackTrace = Arrays.copyOfRange(stackTrace, 1, stackTrace.length);
         }
 
-        st.setStackTrace(stackTrace);
-        return st;
+        return new Less(t.toString(), stackTrace);
     }
 
     /**
@@ -128,6 +152,15 @@ public class StackTrace extends Throwable {
          */
         public Less(String message) {
             super(message);
+        }
+
+        /**
+         * @param message the detail message for this stack trace.
+         * @param stackTrace the stack trace elements for this stack trace.
+         */
+        public Less(String message, StackTraceElement[] stackTrace) {
+            this(message);
+            setStackTrace(stackTrace);
         }
 
         /**
