@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
+ * Copyright 2016-2024 chronicle.software
  *
  *       https://chronicle.software
  *
@@ -17,26 +17,75 @@
  */
 package net.openhft.chronicle.core;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
+
+import static net.openhft.chronicle.core.time.SystemTimeProvider.CLOCK;
+
 /**
- * Represents a throwable stack trace which is created purely for reporting purposes.
+ * Represents a throwable stack trace, of the current thread or another thread, purely for reporting purposes.
  * <p>
- * This class is not designed as an {@link Exception} or an {@link Error}, nor is it intended to be thrown or caught.
- * Instead, it serves as a lightweight representation of a stack trace that can be created and inspected without
- * incurring the performance cost of typical exception handling mechanisms.
+ * This class is not designed as an Error or an Exception and is not intended to be thrown or caught.
+ * StackTrace extends Throwable as a “blank slate” that still retains the stack trace machinery for monitoring
+ * and tracing purposes, but doesn’t carry the semantic baggage of being an error state or a normal exception.
+ * <p>
+ * To log this StackTrace, treat it as a Throwable and call {@link Throwable#printStackTrace()} or
+ * use a standard logger. E.g. when montioring a thread:
+ * <pre>{@code
+ * LOGGER.warn("Thread is stalled here", StackTrace.forThread(monitoredThread));
+ * }</pre>
+ * <p>
+ * To highlight why a resource can't be used anymore, use the following pattern:
+ * <pre>{@code
+ * // in close()
+ * closedHere = new StackTrace("Resource was closed here");
+ * // in use()
+ * if (closed)
+ *    throw new IllegalStateException("Resource is closed", closedHere));
+ * }</pre>
+ * <p>
+ * To highlight where a resource was created, use the following pattern:
+ * <pre>{@code
+ * private final StackTrace createdHere = new StackTrace("Resource was created here");
+ * // in warnIfNotClosed()
+ * if (!closed)
+ *   LOGGER.warn("Resource was not closed", createdHere);
+ * }</pre>
+ * To combine with StackWalker, use the following pattern:
+ * <pre>{@code
+ * StackWalker walker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
+ * // Skip the first element, which is the current method
+ * StackTraceElement[] stackTrace = walker.walk(s -> s.skip(1).toArray(StackTraceElement[]::new));
+ * StackTrace st = new StackTrace.Less("Resource was created here", stackTrace);
+ * }</pre>
+ *
+ * StackTrace can be used to diagnose resource leaks, single-threaded resource enforcement,
+ * diagnosing when a resource is used after closing and monitoring long-running threads on demand.
+ * Taking a StackTrace isn't free; however, if used judiciously, it can be utilized in production
+ * to provide on-demand profiling.
+ * <p>
+ * For a deep dive into the StackTrace class see <a href="https://github.com/OpenHFT/Chronicle-Core/tree/ea/src/main/adoc/StackTrace-user-guide.adoc">StackTrace User Guide.adoc</a>
  */
 public class StackTrace extends Throwable {
+    private static final long serialVersionUID = 1L;
+    private static final long NANOS_PER_SECOND = TimeUnit.SECONDS.toNanos(1);
 
     /**
-     * Constructs a new {@code StackTrace} with a default message "stack trace".
+     * Constructs a new {@code StackTrace} for the current thread with the
+     * default message "stack trace".
      */
     public StackTrace() {
         this("stack trace");
     }
 
     /**
-     * Constructs a new {@code StackTrace} with the specified message.
+     * Constructs a new {@code StackTrace} for the current thread with the specified message.
      *
      * @param message the detail message for this stack trace.
      */
@@ -51,7 +100,7 @@ public class StackTrace extends Throwable {
      * @param cause   the cause of this stack trace, or {@code null} if the cause is unknown or nonexistent.
      */
     public StackTrace(String message, Throwable cause) {
-        super(message + " on " + Thread.currentThread().getName(), cause);
+        super(message + " on " + Thread.currentThread().getName() + " at " + nanosAsZonedDateTime(), cause);
     }
 
     /**
@@ -69,32 +118,36 @@ public class StackTrace extends Throwable {
     @Nullable
     public static StackTrace forThread(Thread t) {
         if (t == null) return null;
-        String threadString = t.toString();
-
-        if (t == Thread.currentThread())
-            return new StackTrace(threadString);
-
-        StackTrace st = new Less(threadString);
         StackTraceElement[] stackTrace = t.getStackTrace();
-
-        int start = 0;
-        // Skip native method frames at the top of the stack trace, if any.
+        // Prune the top native method if present
         if (stackTrace.length > 2 && stackTrace[0].isNativeMethod()) {
-            start++;
+            stackTrace = Arrays.copyOfRange(stackTrace, 1, stackTrace.length);
         }
-        if (start > 0) {
-            StackTraceElement[] adjustedStackTrace = new StackTraceElement[stackTrace.length - start];
-            System.arraycopy(stackTrace, start, adjustedStackTrace, 0, adjustedStackTrace.length);
-            stackTrace = adjustedStackTrace;
-        }
-        st.setStackTrace(stackTrace);
-        return st;
+
+        return new Less(t.toString(), stackTrace);
     }
 
     /**
-     * A lightweight version of {@code StackTrace} that avoids filling in the stack trace.
+     * Converts the current (nano-precision) time from the system CLOCK to a {@link ZonedDateTime}.
+     *
+     * @return the current time as a {@link ZonedDateTime}, with nanosecond precision
+     */
+    @NotNull
+    private static ZonedDateTime nanosAsZonedDateTime() {
+        long nowNanos = CLOCK.currentTimeNanos();
+        return ZonedDateTime.ofInstant(
+                Instant.ofEpochSecond(nowNanos / NANOS_PER_SECOND, nowNanos % NANOS_PER_SECOND),
+                ZoneOffset.UTC);
+    }
+
+    /**
+     * A specialized {@link StackTrace} that doesn't automatically fill in its own
+     * call frames, so we can later call {@code setStackTrace(...)} with
+     * another thread's frames.
      */
     public static class Less extends StackTrace {
+        private static final long serialVersionUID = 1L;
+
         /**
          * @param message the detail message for this stack trace.
          */
@@ -103,12 +156,21 @@ public class StackTrace extends Throwable {
         }
 
         /**
+         * @param message the detail message for this stack trace.
+         * @param stackTrace the stack trace elements for this stack trace.
+         */
+        public Less(String message, StackTraceElement[] stackTrace) {
+            this(message);
+            setStackTrace(stackTrace);
+        }
+
+        /**
          * Overrides the default behavior of {@code Throwable} to avoid filling in the stack trace.
          *
          * @return this instance, without filling in the stack trace.
          */
         @Override
-        public Throwable fillInStackTrace() {
+        public synchronized Throwable fillInStackTrace() {
             return this;
         }
     }
