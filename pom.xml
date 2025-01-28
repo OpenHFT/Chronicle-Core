@@ -22,7 +22,7 @@
         <groupId>net.openhft</groupId>
         <artifactId>java-parent-pom</artifactId>
         <version>1.27ea0</version>
-        <relativePath />
+        <relativePath></relativePath>
     </parent>
     <artifactId>chronicle-core</artifactId>
     <version>2.27ea2-SNAPSHOT</version>
@@ -289,7 +289,7 @@
                     <!-- This will give each test class its own JVM so you can safely set
                          e.g. system properties per test class but not method -->
                     <forkCount>4</forkCount>
-                    <reuseForks>true</reuseForks>
+                    <reuseForks>false</reuseForks>
                 </configuration>
             </plugin>
 
