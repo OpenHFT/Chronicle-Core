@@ -289,7 +289,7 @@
                     <!-- This will give each test class its own JVM so you can safely set
                          e.g. system properties per test class but not method -->
                     <forkCount>4</forkCount>
-                    <reuseForks>true</reuseForks>
+                    <reuseForks>false</reuseForks>
                 </configuration>
             </plugin>
 
