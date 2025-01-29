@@ -26,8 +26,6 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
-import static net.openhft.chronicle.core.time.SystemTimeProvider.CLOCK;
-
 /**
  * Represents a throwable stack trace, of the current thread or another thread, purely for reporting purposes.
  * <p>
@@ -75,6 +73,7 @@ import static net.openhft.chronicle.core.time.SystemTimeProvider.CLOCK;
 public class StackTrace extends Throwable {
     private static final long serialVersionUID = 1L;
     private static final long NANOS_PER_SECOND = TimeUnit.SECONDS.toNanos(1);
+    private static final int NANOS_PER_MILLI = 1_000_000;
 
     /**
      * Constructs a new {@code StackTrace} for the current thread with the
@@ -134,7 +133,8 @@ public class StackTrace extends Throwable {
      */
     @NotNull
     private static ZonedDateTime nanosAsZonedDateTime() {
-        long nowNanos = CLOCK.currentTimeNanos();
+        // temporary change to confirm effect - only creates time at millisecond precision
+        long nowNanos = System.currentTimeMillis() * NANOS_PER_MILLI;
         return ZonedDateTime.ofInstant(
                 Instant.ofEpochSecond(nowNanos / NANOS_PER_SECOND, nowNanos % NANOS_PER_SECOND),
                 ZoneOffset.UTC);
