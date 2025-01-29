@@ -39,7 +39,7 @@ public class StackTraceTest extends CoreTestCommon {
 
     @Test
     public void testDefaultConstructor() {
-        StackTrace st = new StackTrace();
+        StackTrace st = new StackTrace(true);
         String currentThreadName = Thread.currentThread().getName();
         assertTrue(
                 String.format("%s must match regular expression expecting 'stack trace on %s at' with following timestamp", st.getMessage(), currentThreadName),
@@ -50,7 +50,7 @@ public class StackTraceTest extends CoreTestCommon {
     @Test
     public void testConstructorWithMessage() {
         String message = "test message";
-        StackTrace st = new StackTrace(message);
+        StackTrace st = new StackTrace(message, true);
 
         assertTrue(
                 String.format("%s must match regular expression expecting '%s on %s at' with following timestamp", st.getMessage(), message, Thread.currentThread().getName()),
@@ -62,7 +62,7 @@ public class StackTraceTest extends CoreTestCommon {
     public void testConstructorWithMessageAndCause() {
         String message = "test message";
         Throwable cause = new RuntimeException("cause");
-        StackTrace st = new StackTrace(message, cause);
+        StackTrace st = new StackTrace(message, cause, true);
 
         assertTrue(
                 String.format("%s must match regular expression expecting '%s on %s at' with following timestamp", st.getMessage(), message, Thread.currentThread().getName()),
@@ -133,7 +133,7 @@ public class StackTraceTest extends CoreTestCommon {
     @Test
     public void testTimeIsUTC() {
         // Confirm the appended timestamp is in UTC
-        StackTrace st = new StackTrace();
+        StackTrace st = new StackTrace(true);
         String msg = st.getMessage(); // e.g. "... at 2030-12-31T23:59:59.999999999Z"
         assertTrue("Timestamp should end with 'Z' for UTC", msg.endsWith("Z"));
     }
