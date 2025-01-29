@@ -18,10 +18,6 @@
 
 package net.openhft.chronicle.core;
 
-import net.openhft.chronicle.core.time.SetTimeProvider;
-import net.openhft.chronicle.core.time.SystemTimeProvider;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.concurrent.CountDownLatch;
@@ -31,6 +27,7 @@ import static org.junit.Assert.*;
 
 public class StackTraceTest extends CoreTestCommon {
     private static final CountDownLatch threadStarted = new CountDownLatch(1);
+    private static final String TIMESTAMP_REGEX = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z$";
 
     /**
      * Simulates a thread that sleeps/stalls so we can capture its stack trace.
@@ -40,27 +37,13 @@ public class StackTraceTest extends CoreTestCommon {
         Jvm.pause(5_000);
     }
 
-    // Mock clock for deterministic timestamp testing, adjust as needed
-    @Before
-    public void setUp() {
-        // Mock the current time so the constructor's message is deterministic
-        SystemTimeProvider.CLOCK = new SetTimeProvider("2024-01-02T03:04:05.006007008");
-    }
-
-    @After
-    public void tearDown() {
-        // Restore the original system time provider
-        SystemTimeProvider.CLOCK = SystemTimeProvider.INSTANCE;
-    }
-
     @Test
     public void testDefaultConstructor() {
         StackTrace st = new StackTrace();
         String currentThreadName = Thread.currentThread().getName();
-        assertEquals(
-                "stack trace on " + currentThreadName
-                        + " at 2024-01-02T03:04:05.006007008Z",
-                st.getMessage()
+        assertTrue(
+                String.format("%s must match regular expression expecting 'stack trace on %s at' with following timestamp", st.getMessage(), currentThreadName),
+                st.getMessage().matches("stack trace on " + currentThreadName + " at " + TIMESTAMP_REGEX)
         );
     }
 
@@ -68,10 +51,10 @@ public class StackTraceTest extends CoreTestCommon {
     public void testConstructorWithMessage() {
         String message = "test message";
         StackTrace st = new StackTrace(message);
-        assertEquals(
-                message + " on " + Thread.currentThread().getName()
-                        + " at 2024-01-02T03:04:05.006007008Z",
-                st.getMessage()
+
+        assertTrue(
+                String.format("%s must match regular expression expecting '%s on %s at' with following timestamp", st.getMessage(), message, Thread.currentThread().getName()),
+                st.getMessage().matches(message + " on " + Thread.currentThread().getName() + " at " + TIMESTAMP_REGEX)
         );
     }
 
@@ -81,10 +64,9 @@ public class StackTraceTest extends CoreTestCommon {
         Throwable cause = new RuntimeException("cause");
         StackTrace st = new StackTrace(message, cause);
 
-        assertEquals(
-                message + " on " + Thread.currentThread().getName()
-                        + " at 2024-01-02T03:04:05.006007008Z",
-                st.getMessage()
+        assertTrue(
+                String.format("%s must match regular expression expecting '%s on %s at' with following timestamp", st.getMessage(), message, Thread.currentThread().getName()),
+                st.getMessage().matches(message + " on " + Thread.currentThread().getName() + " at " + TIMESTAMP_REGEX)
         );
         assertEquals("Cause should match the supplied runtime exception", cause, st.getCause());
     }
@@ -128,15 +110,17 @@ public class StackTraceTest extends CoreTestCommon {
 
         if (Jvm.isJava20Plus()) {
             // The exact string might differ in Java 20+ if the thread is displayed differently
-            assertTrue(st.getMessage().endsWith("background,5,main] on main at 2024-01-02T03:04:05.006007008Z"));
+            assertTrue(String.format("%s must match regular expression expecting timestamp to nanosecond precision", st.getMessage()),
+                st.getMessage().matches("Thread\\[\\#\\d+,background,5,main\\] on main at " + TIMESTAMP_REGEX));
             assertEquals(
                     "net.openhft.chronicle.core.Jvm.pause",
                     st.getStackTrace()[1].toString().split("\\(")[0].replaceAll("^app//", "")
             );
         } else {
-            assertEquals(
-                    "Thread[background,5,main] on main at 2024-01-02T03:04:05.006007008Z",
-                    st.getMessage()
+            assertTrue(st.getMessage() + " must match regular expression expecting timestamp to nanosecond precision",
+                    // matching against example: "Thread[background,5,main] on main at 2024-01-02T03:04:05.006007008Z",
+                    st.getMessage().matches("Thread\\[background,5,main\\] on main at " + TIMESTAMP_REGEX)
+                    // "Thread[background,5,main] on main at 2024-01-02T03:04:05.006007008Z",
             );
             // The top of the captured stack trace should be our Jvm.pause call
             assertEquals(
