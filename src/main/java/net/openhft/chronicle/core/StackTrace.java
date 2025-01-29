@@ -80,7 +80,17 @@ public class StackTrace extends Throwable {
      * default message "stack trace".
      */
     public StackTrace() {
-        this("stack trace");
+        this("stack trace", false);
+    }
+
+    /**
+     * Constructs a new {@code StackTrace} for the current thread with the
+     * default message "stack trace", optionally including a timestamp in the stack trace message.
+     *
+     * @param addTimestamp whether to add a timestamp to the stack trace message
+     */
+    public StackTrace(boolean addTimestamp) {
+        this("stack trace", null, addTimestamp);
     }
 
     /**
@@ -93,13 +103,33 @@ public class StackTrace extends Throwable {
     }
 
     /**
+     * Constructs a new {@code StackTrace} for the current thread with the specified message, optionally including a timestamp in the stack trace message.
+     *
+     * @param message the detail message for this stack trace.
+     * @param addTimestamp whether to add a timestamp to the stack trace message*
+     */
+    public StackTrace(String message, boolean addTimestamp) { this(message, null, addTimestamp); }
+
+
+    /**
      * Constructs a new {@code StackTrace} with the specified message and cause.
      *
      * @param message the detail message for this stack trace.
      * @param cause   the cause of this stack trace, or {@code null} if the cause is unknown or nonexistent.
      */
     public StackTrace(String message, Throwable cause) {
-        super(message + " on " + Thread.currentThread().getName() + " at " + nanosAsZonedDateTime(), cause);
+        this(message, cause, false);
+    }
+
+    /**
+     * Constructs a new {@code StackTrace} with the specified message and cause, optionally including a timestamp in the stack trace message.
+     *
+     * @param message the detail message for this stack trace.
+     * @param cause   the cause of this stack trace, or {@code null} if the cause is unknown or nonexistent.
+     * @param addTimestamp whether to add a timestamp to the stack trace message
+     */
+    public StackTrace(String message, Throwable cause, boolean addTimestamp) {
+        super(message + " on " + Thread.currentThread().getName() + (addTimestamp ? " at " + nanosAsZonedDateTime() : ""), cause);
     }
 
     /**
@@ -152,7 +182,7 @@ public class StackTrace extends Throwable {
          * @param message the detail message for this stack trace.
          */
         public Less(String message) {
-            super(message);
+            super(message, true);
         }
 
         /**
