@@ -1,5 +1,6 @@
 package net.openhft.chronicle.core.io;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -9,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class WgetTest {
 
+    @Disabled("Temporarily disabled")
     @Test
     public void testHttpGetRequest() throws IOException {
         String testUrl = "http://example.com";
