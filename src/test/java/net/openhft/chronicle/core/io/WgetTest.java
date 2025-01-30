@@ -8,7 +8,7 @@ import java.io.IOException;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class WgetTest {
+public class WgetTest {
 
     @Disabled("Temporarily disabled")
     @Test
