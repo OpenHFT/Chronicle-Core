@@ -54,14 +54,32 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
         this.logMethod = logMethod;
     }
 
+    @SuppressWarnings("CallToPrintStackTrace")
     @Override
     public void on(@NotNull Logger logger, @Nullable String message, @Nullable Throwable thrown) {
-        logMethod.log(logger, message, thrown);
+        try {
+            logMethod.log(logger, message, thrown);
+        } catch (Throwable t) {
+            System.err.println("Failed to write to logger: " + logger.getName() + ", message: " + message);
+            if (thrown != null) {
+                System.err.println("Original exception: " + thrown.getMessage());
+            }
+            t.printStackTrace();
+        }
     }
 
+    @SuppressWarnings("CallToPrintStackTrace")
     @Override
     public void on(@NotNull Class<?> clazz, @Nullable String message, @Nullable Throwable thrown) {
-        on(getLogger(clazz), message, thrown);
+        try {
+            on(getLogger(clazz), message, thrown);
+        } catch (Throwable t) {
+            System.err.println("Failed to write to logger: " + clazz + ", message: " + message);
+            if (thrown != null) {
+                System.err.println("Original exception: " + thrown.getMessage());
+            }
+            t.printStackTrace();
+        }
     }
 
     static Logger getLogger(Class<?> clazz) {

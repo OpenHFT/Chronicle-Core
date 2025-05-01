@@ -65,14 +65,8 @@ class Slf4jExceptionHandlerTest {
                 .when(bad)
                 .error(anyString(), same(boom));
 
-        // 3. Now call on(logger, message, thrown) with that same Throwable
-        RuntimeException ex = assertThrows(RuntimeException.class, () ->
-                Slf4jExceptionHandler.ERROR.on(bad, "msg", boom)
-        );
-
-        // 4. And it must be *that* exception
-        assertSame(boom, ex);
-
+        // 3. Writes to stderr, but doesn't throw an exception
+        Slf4jExceptionHandler.ERROR.on(bad, "msg", boom);
     }
 
     @Test
