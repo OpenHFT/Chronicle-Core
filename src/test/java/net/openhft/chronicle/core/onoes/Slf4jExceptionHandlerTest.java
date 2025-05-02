@@ -54,5 +54,29 @@ class Slf4jExceptionHandlerTest {
         assertEquals(Slf4jExceptionHandler.DEBUG, Slf4jExceptionHandler.valueOf(LogLevel.DEBUG));
     }
 
-    // Additional tests as necessary...
+    @Test
+    void testDirectLoggerOverrideThrowsOnce() {
+        // 1. Create a real exception instance to throw
+        RuntimeException boom = new RuntimeException("boom");
+
+        // 2. Make a logger that throws when error(String, Throwable) is invoked
+        Logger bad = mock(Logger.class);
+        doThrow(boom)
+                .when(bad)
+                .error(anyString(), same(boom));
+
+        // 3. Writes to stderr, but doesn't throw an exception
+        Slf4jExceptionHandler.ERROR.on(bad, "msg", boom);
+    }
+
+    @Test
+    void testOnClassSucceedsUnderNormalConditions() {
+        // Should never throw (uses the same DEFAULT logger, which is healthy)
+        assertDoesNotThrow(() ->
+                Slf4jExceptionHandler.WARN.on(Slf4jExceptionHandlerTest.class, "all good", null)
+        );
+        assertDoesNotThrow(() ->
+                Slf4jExceptionHandler.ERROR.on(Slf4jExceptionHandlerTest.class, "all good", null)
+        );
+    }
 }
