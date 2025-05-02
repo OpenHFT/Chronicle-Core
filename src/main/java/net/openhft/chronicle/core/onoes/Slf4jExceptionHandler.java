@@ -38,35 +38,49 @@ import org.slf4j.LoggerFactory;
  * There's also a utility method isJUnitTest() which is used to detect if the current execution context is a JUnit test.
  */
 public enum Slf4jExceptionHandler implements ExceptionHandler {
-    ERROR {
-        @Override
-        public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
-            logger.error(message, thrown);
-        }
-    },
-    WARN {
-        @Override
-        public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
-            logger.warn(message, thrown);
-        }
-    },
-    PERF {
-        @Override
-        public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
-            logger.info(message, thrown);
-        }
-    },
-    DEBUG {
-        @Override
-        public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
-            logger.debug(message, thrown);
-        }
-
+    ERROR(Logger::error),
+    WARN(Logger::warn),
+    PERF(Logger::info),
+    DEBUG(Logger::debug) {
         @Override
         public boolean isEnabled(@NotNull Class<?> clazz) {
             return getLogger(clazz).isDebugEnabled();
         }
     };
+
+    private final LogMethod logMethod;
+
+    Slf4jExceptionHandler(LogMethod logMethod) {
+        this.logMethod = logMethod;
+    }
+
+    @SuppressWarnings("CallToPrintStackTrace")
+    @Override
+    public void on(@NotNull Logger logger, @Nullable String message, @Nullable Throwable thrown) {
+        try {
+            logMethod.log(logger, message, thrown);
+        } catch (Throwable t) {
+            System.err.println("Failed to write to logger: " + logger.getName() + ", message: " + message);
+            if (thrown != null) {
+                System.err.println("Original exception: " + thrown.getMessage());
+            }
+            t.printStackTrace();
+        }
+    }
+
+    @SuppressWarnings("CallToPrintStackTrace")
+    @Override
+    public void on(@NotNull Class<?> clazz, @Nullable String message, @Nullable Throwable thrown) {
+        try {
+            on(getLogger(clazz), message, thrown);
+        } catch (Throwable t) {
+            System.err.println("Failed to write to logger: " + clazz + ", message: " + message);
+            if (thrown != null) {
+                System.err.println("Original exception: " + thrown.getMessage());
+            }
+            t.printStackTrace();
+        }
+    }
 
     static Logger getLogger(Class<?> clazz) {
         return CLASS_LOGGER.get(clazz);
@@ -88,5 +102,10 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
         if (logLevel == LogLevel.PERF)
             return PERF;
         return DEBUG;
+    }
+
+    @FunctionalInterface
+    interface LogMethod {
+        void log(Logger logger, String message, Throwable thrown);
     }
 }
