@@ -43,6 +43,30 @@ public class CleaningThreadLocalTest {
     }
 
     @Test
+    public void testResourceCleanup_disableViaSystemProperty() {
+        try {
+
+            System.setProperty(CleaningThreadLocal.CHRONICLE_TRACK_NON_CLEANING_THREADS_ENABLED, "false");
+
+            Runnable cleanupAction = mock(Runnable.class);
+            CleaningThreadLocal<Runnable> ctl = CleaningThreadLocal.withCleanup(() -> cleanupAction, Runnable::run);
+
+            Thread thread = new Thread(() -> {
+                ctl.set(cleanupAction);
+                ctl.remove();
+            });
+            thread.start();
+            joinThread(thread);
+
+            // Clean up action *should not* be run as it has been disabled
+            verify(cleanupAction, times(0)).run();
+
+        } finally {
+            System.clearProperty(CleaningThreadLocal.CHRONICLE_TRACK_NON_CLEANING_THREADS_ENABLED);
+        }
+    }
+
+    @Test
     public void testThreadSafety() throws InterruptedException {
         Supplier<String> supplier = () -> "test";
         ThrowingConsumer<String, Exception> cleanup = value -> { /* cleanup logic */ };

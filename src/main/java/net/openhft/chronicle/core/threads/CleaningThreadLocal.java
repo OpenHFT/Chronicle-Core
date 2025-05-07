@@ -38,6 +38,7 @@ import static net.openhft.chronicle.core.Jvm.uncheckedCast;
  * @param <T> The type of resource this CleaningThreadLocal holds.
  */
 public class CleaningThreadLocal<T> extends ThreadLocal<T> {
+    protected static final String CHRONICLE_TRACK_NON_CLEANING_THREADS_ENABLED = "chronicle.trackNonCleaningThreads.enabled";
     private static final Set<CleaningThreadLocal<?>> cleaningThreadLocals = Collections.synchronizedSet(new LinkedHashSet<>());
 
     private final Supplier<T> supplier;
@@ -139,8 +140,10 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
     }
 
     private boolean trackNonCleaningThreads() {
-        cleaningThreadLocals.add(this);
-        nonCleaningThreadValues = Collections.synchronizedMap(new LinkedHashMap<>());
+        if (Jvm.getBoolean(CHRONICLE_TRACK_NON_CLEANING_THREADS_ENABLED, true)) {
+            cleaningThreadLocals.add(this);
+            nonCleaningThreadValues = Collections.synchronizedMap(new LinkedHashMap<>());
+        }
         return true;
     }
 
