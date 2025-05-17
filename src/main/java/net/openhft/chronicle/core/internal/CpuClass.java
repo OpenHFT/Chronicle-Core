@@ -93,6 +93,6 @@ public final class CpuClass {
     @SuppressWarnings("java:S5852") // Possessive quantifiers (*+) are used preventing catastrophic backtracking
     @NotNull
     static Function<String, String> removingTag() {
-        return line -> line.replaceFirst("[^:]*+: ", "");
+        return line -> line.replaceFirst("^(?:[^:]+:\\s*)+", "");
     }
 }
