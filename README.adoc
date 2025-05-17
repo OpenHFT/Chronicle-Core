@@ -11,6 +11,7 @@ image:https://javadoc.io/badge2/net.openhft/chronicle-core/javadoc.svg[link="htt
 image:https://img.shields.io/github/license/OpenHFT/Chronicle-Core[GitHub]
 image:https://img.shields.io/badge/release%20notes-subscribe-brightgreen[link="https://chronicle.software/release-notes/"]
 image:https://sonarcloud.io/api/project_badges/measure?project=OpenHFT_Chronicle-Core&metric=alert_status[link="https://sonarcloud.io/dashboard?id=OpenHFT_Chronicle-Core"]
+image:https://github.com/OpenHFT/Chronicle-Core/actions/workflows/ci.yml/badge.svg[link=https://github.com/OpenHFT/Chronicle-Core/actions/workflows/ci.yml]
 
 image::images/Core_line.png[width=20%]
 
@@ -618,3 +619,7 @@ JLBH has moved home and now lives in its own project, see https://github.com/Ope
 The tool to summarise the thread stack traces is here.
 
 `net.openhft.chronicle.core.threads.MonitorProfileAnalyserMain`
+
+== Continuous Integration
+
+This project uses GitHub Actions to build and test against JDK 11, 17 and 21 using Maven.
