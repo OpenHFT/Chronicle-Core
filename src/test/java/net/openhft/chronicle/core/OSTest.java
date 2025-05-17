@@ -245,6 +245,26 @@ public class OSTest extends CoreTestCommon {
     }
 
     @Test
+    public void testMemoryMappedCounter() throws IOException {
+        File file = IOTools.createTempFile(getClass().getName() + "." + testName.getMethodName());
+
+        try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
+            FileChannel fc = raf.getChannel();
+
+            long length = 64;
+            long aligned = OS.pageAlign(length, (int) OS.mapAlignment());
+            raf.setLength(aligned);
+
+            long baseline = OS.memoryMapped();
+            long address = OS.map(fc, MapMode.READ_WRITE, 0, length);
+            assertEquals(baseline + aligned, OS.memoryMapped());
+
+            OS.unmap(address, length);
+            assertEquals(baseline, OS.memoryMapped());
+        }
+    }
+
+    @Test
     public void mapAlign() {
         // Testing for 64 bytes alignment
         assertEquals(0, OS.mapAlign(0, 64)); // Perfectly aligned already
