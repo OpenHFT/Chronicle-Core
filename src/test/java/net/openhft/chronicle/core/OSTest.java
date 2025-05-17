@@ -132,7 +132,7 @@ public class OSTest extends CoreTestCommon {
             MappedByteBuffer anchor = fc.map(MapMode.READ_WRITE, 0, length);
             anchor.order(ByteOrder.nativeOrder());
 
-            long address = OS.map0(fc, OS.imodeFor(FileChannel.MapMode.READ_WRITE), 0, length);
+            long address = OS.map0(fc, OS.imodeFor(FileChannel.MapMode.READ_WRITE), 0, length, false);
 
             OS.memory().writeLong(address, 0);
             OS.unmap(address, length);
@@ -167,7 +167,7 @@ public class OSTest extends CoreTestCommon {
                 anchorTotalRemain -= anchorSize;
             }
 
-            long address = OS.map0(fc, OS.imodeFor(FileChannel.MapMode.READ_WRITE), 0, length);
+            long address = OS.map0(fc, OS.imodeFor(FileChannel.MapMode.READ_WRITE), 0, length, false);
             for (long offset = 0; offset < length; offset += OS.pageSize()) {
                 OS.memory().writeLong(address + offset, offset);
             }
@@ -190,7 +190,7 @@ public class OSTest extends CoreTestCommon {
             MappedByteBuffer anchor = fc.map(MapMode.READ_WRITE, 0, length);
             anchor.order(ByteOrder.nativeOrder());
 
-            long address = OS.map0(fc, OS.imodeFor(FileChannel.MapMode.READ_WRITE), 0, length);
+            long address = OS.map0(fc, OS.imodeFor(FileChannel.MapMode.READ_WRITE), 0, length, true);
 
             long value = System.currentTimeMillis();
             value ^= (value << 32);

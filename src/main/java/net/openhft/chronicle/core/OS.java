@@ -510,15 +510,18 @@ public final class OS {
      * @param mode        of access
      * @param start       offset within a file
      * @param size        of region to map.
+     * @param synchronous if true a synchronous mapping should be created
      * @return the address of the memory mapping.
      * @throws IOException              if the mapping fails
      * @throws IllegalArgumentException if the arguments are not valid
      */
-    public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode, long start, long size, int pageSize)
+    public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode,
+                           long start, long size, int pageSize, boolean synchronous)
             throws IOException, IllegalArgumentException {
         if (isWindows() && size > 4L << 30)
             throw new IllegalArgumentException("Mapping more than 4096 MiB is unusable on Windows, size = " + (size >> 20) + " MiB");
-        final long address = map0(fileChannel, imodeFor(mode), mapAlign(start, pageSize), pageAlign(size, pageSize));
+        final long address = map0(fileChannel, imodeFor(mode), mapAlign(start, pageSize),
+                pageAlign(size, pageSize), synchronous);
         final long threshold = Math.min(64 * size, 32L << 40);
         if (isLinux() && (address > 0 && address < threshold) && Jvm.is64bit()) {
             double ratio = (double) threshold / address;
@@ -529,26 +532,36 @@ public final class OS {
         return address;
     }
 
-    public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode, long start, long size)
-            throws IOException, IllegalArgumentException {
-        return map(fileChannel, mode, start, size, (int) mapAlignment());
+    public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode,
+                           long start, long size, int pageSize) throws IOException, IllegalArgumentException {
+        return map(fileChannel, mode, start, size, pageSize, false);
     }
 
-    private static long invokeFileChannelMap0(@NotNull MethodHandle map0, @NotNull FileChannel fileChannel, int imode, long start, long size,
+    public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode,
+                           long start, long size, boolean synchronous) throws IOException, IllegalArgumentException {
+        return map(fileChannel, mode, start, size, (int) mapAlignment(), synchronous);
+    }
+
+    public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode, long start, long size)
+            throws IOException, IllegalArgumentException {
+        return map(fileChannel, mode, start, size, (int) mapAlignment(), false);
+    }
+
+    private static long invokeFileChannelMap0(@NotNull MethodHandle map0, @NotNull FileChannel fileChannel, int imode,
+                                              long start, long size, boolean synchronous,
                                               @NotNull ThrowingFunction<OutOfMemoryError, Long, IOException> errorHandler) throws IOException {
         try {
-            // For now, access is assumed to be non-synchronous
-            // TODO - Support passing/deducing synchronous flag externally
             if (Jvm.isJava20Plus()) {
                 final FileDescriptor fd = (FileDescriptor) FD_FIELD.get(fileChannel);
-                return (long) map0.invokeExact(fd, imode, start, size, false);
+                return (long) map0.invokeExact(fd, imode, start, size, synchronous);
             } else if (Jvm.isJava19Plus()) {
                 final FileDescriptor fd = (FileDescriptor) FD_FIELD.get(fileChannel);
-                return (long) map0.invokeExact((FileChannelImpl) fileChannel, fd, imode, start, size, false);
-            } else if (Jvm.isJava14Plus())
-                return (long) map0.invokeExact((FileChannelImpl) fileChannel, imode, start, size, false);
-            else
+                return (long) map0.invokeExact((FileChannelImpl) fileChannel, fd, imode, start, size, synchronous);
+            } else if (Jvm.isJava14Plus()) {
+                return (long) map0.invokeExact((FileChannelImpl) fileChannel, imode, start, size, synchronous);
+            } else {
                 return (long) map0.invokeExact((FileChannelImpl) fileChannel, imode, start, size);
+            }
         } catch (IllegalAccessException e) {
             throw new AssertionError("Method map0 is not accessible", e);
         } catch (OutOfMemoryError oom) {
@@ -560,18 +573,22 @@ public final class OS {
         }
     }
 
-    static long map0(@NotNull FileChannel fileChannel, int imode, long start, long size) throws IOException {
+    static long map0(@NotNull FileChannel fileChannel, int imode, long start, long size, boolean synchronous) throws IOException {
         MethodHandle map0 = MAP0_MH.get(fileChannel.getClass());
-        final long address = invokeFileChannelMap0(map0, fileChannel, imode, start, size, oome1 -> {
+        final long address = invokeFileChannelMap0(map0, fileChannel, imode, start, size, synchronous, oome1 -> {
             System.gc();
             Jvm.pause(100);
 
-            return invokeFileChannelMap0(map0, fileChannel, imode, start, size, oome2 -> {
+            return invokeFileChannelMap0(map0, fileChannel, imode, start, size, synchronous, oome2 -> {
                 throw new IOException("Map failed", oome2);
             });
         });
         memoryMapped.addAndGet(size);
         return address;
+    }
+
+    static long map0(@NotNull FileChannel fileChannel, int imode, long start, long size) throws IOException {
+        return map0(fileChannel, imode, start, size, false);
     }
 
     /**
