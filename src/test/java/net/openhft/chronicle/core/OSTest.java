@@ -19,6 +19,7 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.io.IOTools;
+import net.openhft.chronicle.core.FindFileMain;
 import net.openhft.chronicle.core.threads.ThreadDump;
 import org.junit.After;
 import org.junit.Before;
@@ -27,8 +28,10 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 import org.mockito.MockitoAnnotations;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
@@ -36,6 +39,8 @@ import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -83,6 +88,34 @@ public class OSTest extends CoreTestCommon {
     @Test
     public void testFindFile() {
         assertEquals(new File("./last").getAbsolutePath(), OS.findFile("first", "last").getAbsolutePath());
+    }
+
+    @Test
+    public void testFindFileNestedDirectories() throws IOException, InterruptedException {
+        Path tmpDir = Files.createTempDirectory("findFile");
+        try {
+            Path dir1 = tmpDir.resolve("dir1");
+            Path dir2 = dir1.resolve("dir2");
+            Files.createDirectories(dir2);
+            Path target = dir2.resolve("target");
+            Files.createFile(target);
+
+            ProcessBuilder pb = new ProcessBuilder("java", "-cp", System.getProperty("java.class.path"),
+                    FindFileMain.class.getName());
+            pb.directory(tmpDir.toFile());
+            pb.redirectErrorStream(true);
+
+            Process process = pb.start();
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            try (InputStream in = process.getInputStream()) {
+                in.transferTo(out);
+            }
+            int exit = process.waitFor();
+            assertEquals(0, exit);
+            assertEquals(target.toAbsolutePath().toString(), out.toString().trim());
+        } finally {
+            IOTools.deleteDirWithFiles(tmpDir.toFile());
+        }
     }
 
     @Before
