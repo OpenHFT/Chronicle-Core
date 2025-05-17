@@ -35,4 +35,32 @@ public class CleaningRandomAccessFileTest {
 
         assertTrue(tempFile.delete());
     }
+
+    @Test
+    public void testFileDescriptorClosedAfterGC() throws Exception {
+        File tempFile = File.createTempFile("testFD", "raf");
+
+        CleaningRandomAccessFile raf = new CleaningRandomAccessFile(tempFile, "rw");
+
+        // access the protected getFD method via reflection
+        java.lang.reflect.Method getFD = java.io.RandomAccessFile.class.getDeclaredMethod("getFD");
+        getFD.setAccessible(true);
+        FileDescriptor fd = (FileDescriptor) getFD.invoke(raf);
+
+        assertTrue(fd.valid());
+
+        // drop the reference without closing the file
+        raf = null;
+
+        // force GC and finalization
+        for (int i = 0; i < 10 && fd.valid(); i++) {
+            System.gc();
+            System.runFinalization();
+            Thread.sleep(50);
+        }
+
+        assertFalse(fd.valid(), "File descriptor should be closed after GC");
+
+        assertTrue(tempFile.delete());
+    }
 }
