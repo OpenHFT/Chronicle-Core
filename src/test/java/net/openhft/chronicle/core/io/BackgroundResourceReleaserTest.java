@@ -25,7 +25,10 @@ import net.openhft.chronicle.testframework.process.JavaProcessBuilder;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
 import static org.junit.Assert.*;
@@ -121,6 +124,22 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
         recorder.close();
         assertValueBecomes(false, recorder::wasClosedInBackgroundResourceReleaserThread);
         assertFalse(recorder.wasClosedInBackgroundResourceReleaserThread());
+    }
+
+    @Test
+    public void runExecutesOnBackgroundResourceReleaserThread() throws InterruptedException {
+        assumeTrue(BackgroundResourceReleaser.BG_RELEASER);
+        CountDownLatch latch = new CountDownLatch(1);
+        AtomicReference<Boolean> executedInBg = new AtomicReference<>();
+
+        BackgroundResourceReleaser.run(() -> {
+            executedInBg.set(BackgroundResourceReleaser.isOnBackgroundResourceReleaserThread());
+            latch.countDown();
+        });
+
+        assertTrue(latch.await(5, TimeUnit.SECONDS));
+        assertTrue(executedInBg.get());
+        assertFalse(BackgroundResourceReleaser.isOnBackgroundResourceReleaserThread());
     }
 
     private void assertValueBecomes(boolean expectedValue, Supplier<Boolean> supplier) {
