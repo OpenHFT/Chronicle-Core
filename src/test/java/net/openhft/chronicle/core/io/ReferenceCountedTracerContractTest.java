@@ -60,4 +60,20 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
         rc.warnAndReleaseIfNotReleased();
         assertEquals(0, listener.referenceRemovedCount);
     }
+
+    @Test
+    public void releaseWillThrowWhenCalledMoreTimesThanReserved() {
+        ReferenceCountedTracer rc = createReferenceCounted();
+
+        rc.release(ReferenceOwner.INIT);
+        assertThrows(IllegalStateException.class, () -> rc.release(ReferenceOwner.INIT));
+    }
+
+    @Test
+    public void releaseLastWillThrowWhenCalledMoreTimesThanReserved() {
+        ReferenceCountedTracer rc = createReferenceCounted();
+
+        rc.releaseLast(ReferenceOwner.INIT);
+        assertThrows(IllegalStateException.class, () -> rc.releaseLast(ReferenceOwner.INIT));
+    }
 }
