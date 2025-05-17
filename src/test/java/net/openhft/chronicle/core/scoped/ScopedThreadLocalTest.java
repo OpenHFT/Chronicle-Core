@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static net.openhft.chronicle.core.io.Closeable.closeQuietly;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 public class ScopedThreadLocalTest extends CoreTestCommon {
@@ -83,6 +84,18 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
         try (ScopedResource<AtomicLong> l1 = scopedThreadLocal.get()) {
             assertEquals(0L, l1.get().get());
             assertEquals(objectId, System.identityHashCode(l1.get()));
+        }
+    }
+
+    @Test
+    public void reusesResourceWhenCapacityIsOne() {
+        ScopedThreadLocal<Object> stl = new ScopedThreadLocal<>(Object::new, 1);
+        Object first;
+        try (ScopedResource<Object> r1 = stl.get()) {
+            first = r1.get();
+        }
+        try (ScopedResource<Object> r2 = stl.get()) {
+            assertSame(first, r2.get());
         }
     }
 
