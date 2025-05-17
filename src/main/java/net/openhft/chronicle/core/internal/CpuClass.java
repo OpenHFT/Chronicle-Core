@@ -52,15 +52,13 @@ public final class CpuClass {
 
             } else if (Bootstrap.IS_MAC) {
 
-                String cmd = "sysctl -a";
+                String cmd = "sysctl -n machdep.cpu.brand_string";
                 Process process = new ProcessBuilder(cmd.split(" "))
                         .redirectErrorStream(true)
                         .start();
                 try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
                     model = reader.lines()
                             .map(String::trim)
-                            .filter(s -> s.startsWith("machdep.cpu.brand_string"))
-                            .map(removingTag())
                             .findFirst().orElse(model);
                 }
                 try {
