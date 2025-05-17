@@ -12,6 +12,7 @@ NOTE: All boolean properties listed in the table are read using https://javadoc.
 | `background.releaser` | `true` | Turn off the BackgroundResourceReleaser thread to manage resource releasing in your own thread | `BG_RELEASER` (boolean)
 | `chronicle.announcer.disable` | `false` | If enabled, disables the InternalAnnouncer | `DISABLE_ANNOUNCEMENT` (boolean)
 | `debug` | `false` | Returns if the JVM is running in debug mode | `IS_DEBUG` (boolean)
+| `disable.debug.info` | `false` | If enabled, disables debug exception logging | `DISABLE_DEBUG` (boolean)
 | `disable.discard.warning` | `true` | Called from finalise() implementations. If `false`, message is displayed stating that resource cannot be closed, and IllegalStateException is thrown  | `DISABLE_DISCARD_WARNING` (boolean)
 | `disable.perf.info` | `false` | if enabled, returns NullExceptionHandler | `disablePerfInfo` (boolean)
 | `disable.resource.warning` | `false` | If enabled, returns that resource tracing is turned on | boolean
