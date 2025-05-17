@@ -47,4 +47,22 @@ class ThreadConfinementAsserterTest {
         assertNotNull(asserter);
         // Further testing of functionality.
     }
+
+    @Test
+    void nopAsserterAllowsCallsFromMultipleThreads() throws InterruptedException {
+        ThreadConfinementAsserter asserter = ThreadConfinementAsserter.create();
+        int threadCount = 3;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        CountDownLatch latch = new CountDownLatch(threadCount);
+
+        for (int i = 0; i < threadCount; i++) {
+            executorService.execute(() -> {
+                assertDoesNotThrow(asserter::assertThreadConfined);
+                latch.countDown();
+            });
+        }
+
+        latch.await();
+        executorService.shutdown();
+    }
 }
