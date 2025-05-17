@@ -26,6 +26,7 @@ package net.openhft.chronicle.core.onoes;
  * <ul>
  *     <li>{@link #ERROR} - Designates error events that might still allow the application to continue running.</li>
  *     <li>{@link #WARN} - Designates potentially harmful situations which should still allow the application to continue.</li>
+ *     <li>{@link #STARTUP} - Designates informational messages printed during application start-up.</li>
  *     <li>{@link #PERF} - Designates performance events that could be used for performance optimization and diagnosis.</li>
  *     <li>{@link #DEBUG} - Designates fine-grained informational events that are most useful to debug an application.</li>
  * </ul>
@@ -33,6 +34,7 @@ package net.openhft.chronicle.core.onoes;
 public enum LogLevel {
     ERROR,
     WARN,
+    STARTUP,
     PERF,
     DEBUG
 }

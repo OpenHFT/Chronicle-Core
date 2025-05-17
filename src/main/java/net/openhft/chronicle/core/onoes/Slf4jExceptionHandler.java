@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Slf4jExceptionHandler is an enum implementation of the ExceptionHandler interface.
  * It uses SLF4J (Simple Logging Facade for Java) to handle exceptions based on the level of logging severity.
- * It supports four levels of logging severity: ERROR, WARN, PERF and DEBUG.
+ * It supports five levels of logging severity: ERROR, WARN, STARTUP, PERF and DEBUG.
  * <p>
  * Each instance of Slf4jExceptionHandler logs at a specific level and corresponds to a LogLevel enum.
  * This is used to map LogLevel enums to their corresponding Slf4jExceptionHandler instances via the valueOf(LogLevel logLevel) method.
@@ -40,6 +40,7 @@ import org.slf4j.LoggerFactory;
 public enum Slf4jExceptionHandler implements ExceptionHandler {
     ERROR(Logger::error),
     WARN(Logger::warn),
+    STARTUP(Logger::info),
     PERF(Logger::info),
     DEBUG(Logger::debug) {
         @Override
@@ -99,6 +100,8 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
             return ERROR;
         if (logLevel == LogLevel.WARN)
             return WARN;
+        if (logLevel == LogLevel.STARTUP)
+            return STARTUP;
         if (logLevel == LogLevel.PERF)
             return PERF;
         return DEBUG;

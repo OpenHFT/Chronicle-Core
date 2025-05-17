@@ -77,6 +77,7 @@ public final class Jvm {
     private static final ExceptionHandler DEFAULT_ERROR_EXCEPTION_HANDLER = Slf4jExceptionHandler.ERROR;
     private static final ExceptionHandler DEFAULT_WARN_EXCEPTION_HANDLER = Slf4jExceptionHandler.WARN;
     private static final ExceptionHandler DEFAULT_PERF_EXCEPTION_HANDLER = Slf4jExceptionHandler.PERF;
+    private static final ExceptionHandler DEFAULT_STARTUP_EXCEPTION_HANDLER = Slf4jExceptionHandler.STARTUP;
     private static final ExceptionHandler DEFAULT_DEBUG_EXCEPTION_HANDLER = Slf4jExceptionHandler.DEBUG;
     private static final String PROC = "/proc";
     private static final List<String> INPUT_ARGUMENTS = getRuntimeMXBean().getInputArguments();
@@ -95,6 +96,8 @@ public final class Jvm {
     private static final ThreadLocalisedExceptionHandler WARN = new ThreadLocalisedExceptionHandler(DEFAULT_WARN_EXCEPTION_HANDLER);
     @NotNull
     private static final ThreadLocalisedExceptionHandler PERF = new ThreadLocalisedExceptionHandler(DEFAULT_PERF_EXCEPTION_HANDLER);
+    @NotNull
+    private static final ThreadLocalisedExceptionHandler STARTUP = new ThreadLocalisedExceptionHandler(DEFAULT_STARTUP_EXCEPTION_HANDLER);
     @NotNull
     private static final ExceptionHandler DEBUG;
     private static final long MAX_DIRECT_MEMORY;
@@ -697,6 +700,7 @@ public final class Jvm {
     public static void resetExceptionHandlers() {
         setErrorExceptionHandler(DEFAULT_ERROR_EXCEPTION_HANDLER);
         setWarnExceptionHandler(DEFAULT_WARN_EXCEPTION_HANDLER);
+        setStartupExceptionHandler(DEFAULT_STARTUP_EXCEPTION_HANDLER);
         setDebugExceptionHandler(DEFAULT_DEBUG_EXCEPTION_HANDLER);
         setPerfExceptionHandler(DEFAULT_PERF_EXCEPTION_HANDLER);
     }
@@ -707,6 +711,10 @@ public final class Jvm {
 
     public static void setWarnExceptionHandler(ExceptionHandler exceptionHandler) {
         WARN.defaultHandler(exceptionHandler).resetThreadLocalHandler();
+    }
+
+    public static void setStartupExceptionHandler(ExceptionHandler exceptionHandler) {
+        STARTUP.defaultHandler(exceptionHandler).resetThreadLocalHandler();
     }
 
     public static void setDebugExceptionHandler(ExceptionHandler exceptionHandler) {
@@ -724,6 +732,10 @@ public final class Jvm {
 
     public static void disablePerfHandler() {
         setPerfExceptionHandler(null);
+    }
+
+    public static void disableStartupHandler() {
+        setStartupExceptionHandler(null);
     }
 
     public static void disableWarnHandler() {
@@ -776,7 +788,7 @@ public final class Jvm {
         final Iterator<ExceptionKey> iterator = exceptions.keySet().iterator();
         while (iterator.hasNext()) {
             final ExceptionKey k = iterator.next();
-            if (k.level() != LogLevel.DEBUG && k.level() != LogLevel.PERF)
+            if (k.level() != LogLevel.DEBUG && k.level() != LogLevel.PERF && k.level() != LogLevel.STARTUP)
                 return true;
         }
 
@@ -848,8 +860,7 @@ public final class Jvm {
      */
     @NotNull
     public static ExceptionHandler startup() {
-        // TODO, add a startup level?
-        return PERF;
+        return STARTUP;
     }
 
     /**

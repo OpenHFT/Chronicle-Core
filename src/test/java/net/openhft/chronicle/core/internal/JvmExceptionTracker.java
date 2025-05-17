@@ -37,7 +37,7 @@ import static net.openhft.chronicle.core.onoes.LogLevel.PERF;
 public enum JvmExceptionTracker {
     ;
 
-    private static final Set<LogLevel> IGNORED_LOG_LEVELS = EnumSet.of(DEBUG, PERF);
+    private static final Set<LogLevel> IGNORED_LOG_LEVELS = EnumSet.of(DEBUG, PERF, LogLevel.STARTUP);
 
     /**
      * Create a JvmExceptionTracker

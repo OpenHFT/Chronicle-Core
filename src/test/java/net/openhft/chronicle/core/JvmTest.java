@@ -92,6 +92,7 @@ public class JvmTest extends CoreTestCommon {
         Jvm.resetExceptionHandlers();
         assertSame(Jvm.getField(Jvm.class, "DEFAULT_PERF_EXCEPTION_HANDLER").get(null), Jvm.perf().defaultHandler());
         assertSame(Jvm.getField(Jvm.class, "DEFAULT_WARN_EXCEPTION_HANDLER").get(null), Jvm.warn().defaultHandler());
+        assertSame(Jvm.getField(Jvm.class, "DEFAULT_STARTUP_EXCEPTION_HANDLER").get(null), Jvm.startup().defaultHandler());
         assertSame(Jvm.getField(Jvm.class, "DEFAULT_ERROR_EXCEPTION_HANDLER").get(null), Jvm.error().defaultHandler());
         assertSame(Jvm.getField(Jvm.class, "DEFAULT_DEBUG_EXCEPTION_HANDLER").get(null), Jvm.debug().defaultHandler());
     }

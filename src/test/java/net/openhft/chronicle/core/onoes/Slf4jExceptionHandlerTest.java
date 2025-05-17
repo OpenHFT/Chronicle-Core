@@ -39,6 +39,14 @@ class Slf4jExceptionHandlerTest {
     }
 
     @Test
+    void testStartupLogLevel() {
+        Throwable throwable = new RuntimeException("Test exception");
+        Slf4jExceptionHandler.STARTUP.on(logger, "Startup message", throwable);
+
+        verify(logger).info("Startup message", throwable);
+    }
+
+    @Test
     void testDebugLogLevel() {
         Throwable throwable = new RuntimeException("Test exception");
         Slf4jExceptionHandler.DEBUG.on(logger, "Debug message", throwable);
@@ -50,6 +58,7 @@ class Slf4jExceptionHandlerTest {
     void testValueOfLogLevel() {
         assertEquals(Slf4jExceptionHandler.ERROR, Slf4jExceptionHandler.valueOf(LogLevel.ERROR));
         assertEquals(Slf4jExceptionHandler.WARN, Slf4jExceptionHandler.valueOf(LogLevel.WARN));
+        assertEquals(Slf4jExceptionHandler.STARTUP, Slf4jExceptionHandler.valueOf(LogLevel.STARTUP));
         assertEquals(Slf4jExceptionHandler.PERF, Slf4jExceptionHandler.valueOf(LogLevel.PERF));
         assertEquals(Slf4jExceptionHandler.DEBUG, Slf4jExceptionHandler.valueOf(LogLevel.DEBUG));
     }
