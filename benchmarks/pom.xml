@@ -23,7 +23,7 @@
         <groupId>net.openhft</groupId>
         <artifactId>java-parent-pom</artifactId>
         <!-- processing annotations is off on 1.26.0, and turning it on requires Java 11 -->
-        <version>1.25.4</version>
+        <version>1.27ea0</version>
         <relativePath />
     </parent>
 
