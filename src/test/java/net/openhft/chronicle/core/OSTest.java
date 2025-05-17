@@ -352,6 +352,36 @@ public class OSTest extends CoreTestCommon {
     }
 
     @Test
+    public void testWrite0Read0() throws IOException {
+        File file = File.createTempFile("os", "tmp");
+
+        try (RandomAccessFile raf = new RandomAccessFile(file, "rw")) {
+            FileDescriptor fd = raf.getFD();
+            byte[] bytes = "hello".getBytes(StandardCharsets.UTF_8);
+            ByteBuffer buffer = ByteBuffer.allocateDirect(bytes.length);
+            long address = IOTools.addressFor(buffer);
+
+            OS.memory().writeBytes(address, bytes, 0, bytes.length);
+
+            int written = OS.write0(fd, address, bytes.length);
+            assertEquals(bytes.length, written);
+
+            raf.getChannel().position(0);
+
+            OS.memory().setMemory(address, bytes.length, (byte) 0);
+            int read = OS.read0(fd, address, bytes.length);
+            assertEquals(bytes.length, read);
+
+            byte[] readBytes = new byte[bytes.length];
+            OS.memory().readBytes(address, readBytes, 0, bytes.length);
+
+            assertArrayEquals(bytes, readBytes);
+        } finally {
+            file.delete();
+        }
+    }
+
+    @Test
     public void testGetHostName0() {
         String expectedHostName = null;
 
