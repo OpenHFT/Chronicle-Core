@@ -379,6 +379,7 @@ public class JvmTest extends CoreTestCommon {
     @Test
     public void testDisableDebugHandler() {
         Jvm.disableDebugHandler();
+        assertTrue(Jvm.debug().defaultHandler() instanceof net.openhft.chronicle.core.onoes.NullExceptionHandler);
     }
 
     @Test
