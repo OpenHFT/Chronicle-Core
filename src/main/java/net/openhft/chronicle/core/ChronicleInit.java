@@ -115,4 +115,22 @@ public final class ChronicleInit {
             ex.printStackTrace();
         }
     }
+
+    /**
+     * Entry point used for simple verification of the initialisation hooks. It
+     * triggers {@link Jvm#init()} and prints the value of the system property
+     * supplied as the first argument.
+     *
+     * @param args first element is the property key to print
+     */
+    public static void main(String[] args) {
+        String key = args.length > 0 ? args[0] : "";
+        Jvm.init();
+        if (!key.isEmpty()) {
+            String value = System.getProperty(key);
+            if (value != null) {
+                System.out.println(key + "=" + value);
+            }
+        }
+    }
 }
