@@ -372,4 +372,13 @@ public class OSTest extends CoreTestCommon {
 
         assertEquals(expectedHostName, OS.HostnameHolder.HOST_NAME);
     }
+
+    @Test
+    public void testMapAlignmentConsistentAndPositive() {
+        long alignment1 = OS.mapAlignment();
+        long alignment2 = OS.mapAlignment();
+
+        assertTrue(alignment1 > 0);
+        assertEquals(alignment1, alignment2);
+    }
 }
