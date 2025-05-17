@@ -31,6 +31,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.net.InetAddress;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
@@ -40,6 +42,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
+import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.internal.Bootstrap;
 
 import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
@@ -371,5 +375,27 @@ public class OSTest extends CoreTestCommon {
         }
 
         assertEquals(expectedHostName, OS.HostnameHolder.HOST_NAME);
+    }
+
+    @Test
+    public void testDefaultOsPageSize() throws Exception {
+        Field isWin = Bootstrap.class.getDeclaredField("IS_WIN");
+        Field modifiers = Field.class.getDeclaredField("modifiers");
+        Jvm.setAccessible(isWin);
+        Jvm.setAccessible(modifiers);
+        boolean original = isWin.getBoolean(null);
+        int originalModifiers = isWin.getModifiers();
+        try {
+            modifiers.setInt(isWin, originalModifiers & ~Modifier.FINAL);
+
+            isWin.set(null, true);
+            assertEquals(OS.SAFE_PAGE_SIZE, OS.defaultOsPageSize());
+
+            isWin.set(null, false);
+            assertEquals(OS.pageSize(), OS.defaultOsPageSize());
+        } finally {
+            isWin.set(null, original);
+            modifiers.setInt(isWin, originalModifiers);
+        }
     }
 }
