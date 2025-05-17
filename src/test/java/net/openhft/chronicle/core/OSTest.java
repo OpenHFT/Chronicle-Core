@@ -352,6 +352,26 @@ public class OSTest extends CoreTestCommon {
     }
 
     @Test
+    public void testSpaceUsedForSmallFile() throws IOException {
+        File tempFile = java.nio.file.Files.createTempFile("spaceUsed", ".tmp").toFile();
+        tempFile.deleteOnExit();
+
+        byte[] data = "hello world".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        try (java.io.FileOutputStream fos = new java.io.FileOutputStream(tempFile)) {
+            fos.write(data);
+        }
+
+        long length = tempFile.length();
+        long used = OS.spaceUsed(tempFile.getPath());
+
+        assertTrue(used > 0);
+
+        long usedBytes = OS.isWindows() ? used : used * 1024;
+        long tolerance = Math.max(OS.pageSize(), length);
+        assertTrue(Math.abs(usedBytes - length) <= tolerance);
+    }
+
+    @Test
     public void testGetHostName0() {
         String expectedHostName = null;
 
