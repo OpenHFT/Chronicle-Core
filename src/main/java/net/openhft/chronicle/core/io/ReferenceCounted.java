@@ -47,6 +47,7 @@ public interface ReferenceCounted extends ReferenceOwner {
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
     // TODO move implementation to sub-classes in x.24
+    @Deprecated(/* to be removed in the next major release */)
     default void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws ClosedIllegalStateException, ThreadingIllegalStateException {
         reserve(to);
         release(from);

@@ -54,6 +54,7 @@ public interface ReferenceCountedTracer extends ReferenceCounted {
      * @throws ClosedIllegalStateException If the resource has been released or closed.
      */
     // TODO move implementation to sub-classes in x.24
+    @Deprecated(/* to be removed in the next major release */)
     default void throwExceptionIfReleased() throws ClosedIllegalStateException {
         if (refCount() <= 0)
             throw new ClosedIllegalStateException("Released");

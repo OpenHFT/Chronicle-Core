@@ -22,6 +22,8 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
 import net.openhft.chronicle.core.internal.CloseableUtils;
 import net.openhft.chronicle.core.internal.ReferenceCountedUtils;
+import net.openhft.chronicle.core.onoes.ExceptionHandler;
+import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 
 /**
  * Represents a closeable resource with reference counting capabilities.
@@ -210,6 +212,22 @@ public abstract class AbstractCloseableReferenceCounted
     @Override
     public boolean isClosed() {
         return refCount() <= 0 || closed;
+    }
+
+    @Override
+    public void warnAndCloseIfNotClosed() {
+        if (!isClosing()) {
+            if (Jvm.isResourceTracing() && !AbstractCloseable.DISABLE_DISCARD_WARNING) {
+                ExceptionHandler warn = Jvm.getBoolean("warnAndCloseIfNotClosed") ? Jvm.warn() : Slf4jExceptionHandler.WARN;
+                warn.on(getClass(), "Discarded without closing " + this);
+            }
+            Closeable.closeQuietly(this);
+        }
+    }
+
+    @Override
+    public StackTrace createdHere() {
+        return null;
     }
 
     @Override

@@ -194,6 +194,12 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
+    public void throwExceptionIfReleased() throws ClosedIllegalStateException {
+        if (refCount() <= 0)
+            throw new ClosedIllegalStateException(type.getName() + " released", releasedHere);
+    }
+
+    @Override
     public void throwExceptionIfNotReleased() throws IllegalStateException {
         if (refCount() > 0)
             throw new IllegalStateException(type.getName() + " still reserved, count=" + refCount());
