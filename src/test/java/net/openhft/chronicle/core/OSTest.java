@@ -33,6 +33,7 @@ import java.io.RandomAccessFile;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.nio.ByteOrder;
+import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
@@ -371,5 +372,15 @@ public class OSTest extends CoreTestCommon {
         }
 
         assertEquals(expectedHostName, OS.HostnameHolder.HOST_NAME);
+    }
+
+    @Test
+    public void testMemoryPageSizeMatches() {
+        assertEquals(OS.pageSize(), OS.memory().pageSize());
+    }
+
+    @Test
+    public void testDirectBufferAddressNonZero() {
+        assertNotEquals(0L, OS.memory().address(ByteBuffer.allocateDirect(64)));
     }
 }
