@@ -44,4 +44,12 @@ public class CpuClassTest {
     public void getCpuModelShouldReturnNonEmptyValue() {
         assertNotEquals("", CpuClass.getCpuModel(), "CPU model should not be an empty string");
     }
+
+    @Test
+    public void getCpuModelShouldRemainConstantAcrossCalls() {
+        final String cpuModel = CpuClass.getCpuModel();
+        for (int i = 0; i < 3; i++) {
+            assertEquals("CPU model should remain constant across calls", cpuModel, CpuClass.getCpuModel());
+        }
+    }
 }
