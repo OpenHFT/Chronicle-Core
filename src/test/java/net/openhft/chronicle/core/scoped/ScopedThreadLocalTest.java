@@ -129,6 +129,23 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
                 retrieveAndReturnNValues(MAX_INSTANCES + 2, ints));
     }
 
+    @Test
+    public void resourcesAreReusedAndOnAcquireCalledEachTime() {
+        AtomicInteger onAcquireCount = new AtomicInteger();
+        ScopedThreadLocal<AtomicInteger> ints = new ScopedThreadLocal<>(AtomicInteger::new,
+                ai -> onAcquireCount.incrementAndGet(), MAX_INSTANCES);
+
+        Set<Integer> uniqueIds = new HashSet<>();
+        for (int i = 0; i < MAX_INSTANCES * 2; i++) {
+            try (ScopedResource<AtomicInteger> r = ints.get()) {
+                uniqueIds.add(System.identityHashCode(r.get()));
+            }
+        }
+
+        assertEquals(MAX_INSTANCES, uniqueIds.size());
+        assertEquals(MAX_INSTANCES * 2, onAcquireCount.get());
+    }
+
     private Set<Integer> retrieveAndReturnNValues(int numberToRetrieve, ScopedThreadLocal<Integer> scopedInts) {
         Set<Integer> values = new HashSet<>();
         retrieveAndRecord(values, scopedInts, numberToRetrieve);
