@@ -3,6 +3,7 @@ package net.openhft.chronicle.core.scoped;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.threads.CleaningThread;
+import net.openhft.chronicle.core.onoes.ExceptionKey;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,12 +29,17 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
 
     @Test
     public void warningWillBeDisplayedWhenWeUseMoreThanMaxInstances() {
-        expectException("Pool capacity exceeded, consider increasing maxInstances, maxInstances=3");
+        Map<ExceptionKey, Integer> events = Jvm.recordExceptions();
+
         ArrayList<ScopedResource<AtomicLong>> allLongs = new ArrayList<>();
         for (int i = 0; i < MAX_INSTANCES + 1; i++) {
             allLongs.add(scopedThreadLocal.get());
         }
         closeQuietly(allLongs);
+
+        Jvm.resetExceptionHandlers();
+        String actual = events.keySet().toString();
+        assertTrue(actual, actual.contains("Pool capacity exceeded"));
     }
 
     @Test
