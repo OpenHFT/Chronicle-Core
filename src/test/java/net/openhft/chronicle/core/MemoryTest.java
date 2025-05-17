@@ -54,4 +54,19 @@ public class MemoryTest extends CoreTestCommon {
         assertEquals(Unsafe.ARRAY_LONG_INDEX_SCALE, Memory.sizeOf(long.class));
         assertEquals(Unsafe.ARRAY_OBJECT_INDEX_SCALE, Memory.sizeOf(Long.class));
     }
+
+    @Test
+    public void allocateSetAndFree() {
+        Memory memory = OS.memory();
+        long address = memory.allocate(16);
+        byte val = (byte) 0x5A;
+        try {
+            memory.setMemory(address, 16, val);
+            for (int i = 0; i < 16; i++) {
+                assertEquals(val, memory.readByte(address + i));
+            }
+        } finally {
+            memory.freeMemory(address, 16);
+        }
+    }
 }
