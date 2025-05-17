@@ -35,6 +35,20 @@ class ThreadConfinementAsserterTest {
     }
 
     @Test
+    void assertThreadSafeFromTwoThreadsThrowsException() throws InterruptedException {
+        ThreadConfinementAsserter asserter = ThreadConfinementAsserter.createEnabled();
+
+        // first thread initializes the asserter
+        asserter.assertThreadConfined();
+
+        Thread other = new Thread(() ->
+                assertThrows(IllegalStateException.class, asserter::assertThreadConfined));
+
+        other.start();
+        other.join();
+    }
+
+    @Test
     void createShouldReturnCorrectTypeBasedOnAssertions() {
         // This test's behavior will depend on whether assertions are enabled in the JVM.
         ThreadConfinementAsserter asserter = ThreadConfinementAsserter.create();
