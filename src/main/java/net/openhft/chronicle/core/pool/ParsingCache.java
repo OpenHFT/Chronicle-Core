@@ -76,7 +76,8 @@ public class ParsingCache<E> {
      * stored in the cache, and then returned.
      *
      * @param cs The CharSequence to be parsed.
-     * @return The object of type E corresponding to the provided CharSequence.
+     * @return The object of type E corresponding to the provided CharSequence,
+     * or {@code null} if {@code cs} is {@code null}.
      */
     @Nullable
     public E intern(@Nullable CharSequence cs) {

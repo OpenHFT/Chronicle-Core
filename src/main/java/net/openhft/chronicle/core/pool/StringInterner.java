@@ -159,9 +159,11 @@ public class StringInterner {
     /**
      * get an intered string based on the index
      *
-     * @param index the index of the  interner string, to acquire an index call  {@link net.openhft.chronicle.core.pool.StringInterner#index}
-     * @return interned String
+     * @param index the index of the interner string; acquire an index via
+     *              {@link net.openhft.chronicle.core.pool.StringInterner#index}
+     * @return the interned string, or {@code null} if no value is stored at that index
      */
+    @Nullable
     public String get(int index) {
         return interner[index];
     }
