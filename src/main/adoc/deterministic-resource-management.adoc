@@ -1,0 +1,55 @@
+= Deterministic Resource Management
+:toc: left
+:toclevels: 2
+:sectnums:
+
+This guide summarises how Chronicle Core manages the lifecycle of native resources.
+It highlights the key abstractions used for deterministic cleanup and how they
+interact with the optional `BackgroundResourceReleaser` thread.
+
+== Lifecycle with `AbstractCloseable`
+
+`AbstractCloseable` is the base class for resources that need a definite close
+operation. It records where the resource was created, checks that only one
+thread performs the work and invokes a subclass specific `performClose()`
+method exactly once. If resource tracing is enabled, instances are tracked so
+that leaked resources can be reported. Implementations may override
+`shouldPerformCloseInBackground()` and `shouldWaitForClosed()` to control
+whether the cleanup occurs on the calling thread or on the background releaser.
+
+== `ReferenceCounted` and `AbstractReferenceCounted`
+
+The `ReferenceCounted` interface defines a simple reservation protocol.
+A call to `reserve(owner)` increments the reference count, while `release(owner)`
+decrements it. `releaseLast(owner)` ensures the final release and throws if the
+count is not zero. `refCount()` returns the current count and listeners may be
+registered for diagnostics. `AbstractReferenceCounted` supplies an implementation
+that integrates with resource tracing and can off-load `performRelease()` to the
+background releaser if desired.
+
+== `BackgroundResourceReleaser`
+
+Large resources can take milliseconds to free. When the system property
+`background.releaser=true` is set, heavy cleanup is queued to the
+`BackgroundResourceReleaser` thread. Setting `background.releaser.thread=false`
+disables the thread but still queues objects so callers must invoke
+`BackgroundResourceReleaser.releasePendingResources()` themselves. If
+`background.releaser` is `false`, resources are released synchronously.
+
+== Reservation Example
+
+[source,java]
+----
+MyReferenceCounted rc = new MyReferenceCounted();
+ReferenceOwner a = ReferenceOwner.temporary("a");
+ReferenceOwner b = ReferenceOwner.temporary("b");
+
+rc.reserve(a);
+rc.reserve(b);
+assert rc.refCount() == 3;
+
+rc.release(b);
+rc.release(a);
+rc.releaseLast();
+assert rc.refCount() == 0;
+----
