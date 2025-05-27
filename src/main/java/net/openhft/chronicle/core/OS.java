@@ -507,7 +507,7 @@ public final class OS {
      * @param fileChannel file to map
      * @param mode        access mode
      * @param start       start offset, page aligned
-     * @param size        length of region. On Windows this must be \<= 4096 MiB
+     * @param size        length of region. On Windows this must be &lt;= 4096 MiB
      * @return address of the mapping
      * @throws IOException              if the mapping fails
      * @throws IllegalArgumentException if the arguments are invalid
