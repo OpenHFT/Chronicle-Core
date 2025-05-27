@@ -28,7 +28,7 @@ package net.openhft.chronicle.core.time;
  * This interface is crucial in contexts where precise time measurements are vital, such as in performance
  * monitoring, timestamping events, or handling time-sensitive operations.
  *
- * @apiNote Use {@link UniqueMicroTimeProvider} if monotonic timestamps are required.
+ * <p>Use {@link UniqueMicroTimeProvider} if monotonic timestamps are required.
  * @see PosixTimeProvider
  * @see SystemTimeProvider
  */
@@ -42,7 +42,6 @@ public interface TimeProvider {
      * (00:00:00 UTC on 1 January 1970). Implementations must guarantee thread-safe access.
      *
      * @return the current time in milliseconds since the Unix epoch
-     * @implSpec Implementations must be thread-safe. Values may overflow after year 2262.
      */
     long currentTimeMillis();
 
@@ -55,7 +54,6 @@ public interface TimeProvider {
      *
      * @return the current time in microseconds since the Unix epoch
      * @throws IllegalStateException if the time value cannot be accurately determined or converted
-     * @implSpec Thread-safe if {@link #currentTimeMillis()} is thread-safe. Values may overflow after year 2262.
      */
     default long currentTimeMicros() throws IllegalStateException {
         return currentTimeMillis() * 1000;
@@ -70,7 +68,6 @@ public interface TimeProvider {
      *
      * @return the current time in nanoseconds since the Unix epoch
      * @throws IllegalStateException if the time value cannot be accurately determined or converted
-     * @implSpec Thread-safe if {@link #currentTimeMicros()} is thread-safe. Values may overflow after year 2262.
      */
     default long currentTimeNanos() throws IllegalStateException {
         return currentTimeMicros() * 1000;

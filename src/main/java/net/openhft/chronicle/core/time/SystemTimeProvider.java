@@ -30,10 +30,10 @@ import net.openhft.chronicle.core.Jvm;
  *
  * <pre>
  * System.currentTimeMillis : |----|----|----|
- * System.nanoTime          : --------->
+ * System.nanoTime          : ---------&gt;
  *                             ^
  *                             | delta
- * currentTimeNanos()         : --------->
+ * currentTimeNanos()         : ---------&gt;
  * </pre>
  *
  * Typical call latency is about 250 ns on modern hardware.
@@ -60,8 +60,6 @@ public enum SystemTimeProvider implements TimeProvider {
      * Returns the current wall-clock time in milliseconds.
      *
      * @return milliseconds since the Unix epoch
-     * @implSpec Thread-safe; the method holds no state.
-     * @implNote Values may overflow after year 2262.
      */
     @Override
     public long currentTimeMillis() {
@@ -72,8 +70,6 @@ public enum SystemTimeProvider implements TimeProvider {
      * Returns the current wall-clock time in microseconds.
      *
      * @return microseconds since the Unix epoch
-     * @implSpec Thread-safe; the method holds no state.
-     * @implNote Values may overflow after year 2262.
      */
     @Override
     public long currentTimeMicros() {

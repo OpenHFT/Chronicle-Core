@@ -36,8 +36,6 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
 
     /**
      * Constructs a time provider initialised to zero nanoseconds.
-     *
-     * @implSpec Thread-safe via {@link AtomicLong}.
      */
     public SetTimeProvider() {
         this(0L);
@@ -47,8 +45,6 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      * Constructs a time provider starting at a specific time in nanoseconds.
      *
      * @param initialNanos starting time in nanoseconds, non-negative
-     * @implSpec Thread-safe via {@link AtomicLong}.
-     * @implNote Values beyond {@code Long.MAX_VALUE} wrap due to overflow.
      */
     public SetTimeProvider(long initialNanos) {
         super(initialNanos);
@@ -58,7 +54,6 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      * Constructs a time provider starting at a time specified in ISO8601 format.
      *
      * @param timestamp ISO8601 timestamp, not {@code null}
-     * @implSpec Thread-safe via {@link AtomicLong}.
      */
     public SetTimeProvider(String timestamp) {
         super(initialNanos(timestamp));
@@ -68,7 +63,6 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      * Constructs a time provider starting at a given {@link Instant}.
      *
      * @param instant initial time instant, not {@code null}
-     * @implSpec Thread-safe via {@link AtomicLong}.
      */
     public SetTimeProvider(Instant instant) {
         super(initialNanos(instant));
@@ -78,7 +72,6 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      * Constructs a time provider that starts now.
      *
      * @return a new provider initialised to the current time
-     * @implSpec Thread-safe. Each instance is independent.
      */
     public SetTimeProvider now() {
         return new SetTimeProvider(SystemTimeProvider.CLOCK.currentTimeNanos());
@@ -113,8 +106,6 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      * @param autoIncrement increment amount, non-negative
      * @param timeUnit unit of {@code autoIncrement}
      * @return this instance for chaining
-     * @implSpec Thread-safe for the time value but not for concurrent changes to {@code autoIncrement}.
-     * @implNote Overflow is unchecked and wraps.
      */
     public SetTimeProvider autoIncrement(long autoIncrement, TimeUnit timeUnit) {
         this.autoIncrement = timeUnit.toNanos(autoIncrement);
@@ -126,8 +117,6 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      *
      * @param millis new time in milliseconds, not less than the current value
      * @throws IllegalArgumentException if the time would go backwards
-     * @implSpec Thread-safe via {@link AtomicLong}.
-     * @implNote Overflow is unchecked.
      */
     public void currentTimeMillis(long millis) throws IllegalArgumentException {
         currentTimeNanos(TimeUnit.MILLISECONDS.toNanos(millis));
@@ -137,8 +126,6 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      * Retrieves the current time in milliseconds.
      *
      * @return the current time in milliseconds since the epoch
-     * @implSpec Thread-safe via {@link AtomicLong}.
-     * @implNote Overflow is unchecked.
      */
     @Override
     public long currentTimeMillis() {
@@ -150,8 +137,6 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      *
      * @param micros new time in microseconds, not less than the current value
      * @throws IllegalArgumentException if the time would go backwards
-     * @implSpec Thread-safe via {@link AtomicLong}.
-     * @implNote Overflow is unchecked.
      */
     public void currentTimeMicros(long micros) throws IllegalArgumentException {
         currentTimeNanos(TimeUnit.MICROSECONDS.toNanos(micros));
@@ -161,8 +146,6 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      * Retrieves the current time in microseconds.
      *
      * @return the current time in microseconds since the epoch
-     * @implSpec Thread-safe via {@link AtomicLong}.
-     * @implNote Overflow is unchecked.
      */
     @Override
     public long currentTimeMicros() {
@@ -174,8 +157,6 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      *
      * @param nanos new time in nanoseconds, not less than the current value
      * @throws IllegalArgumentException if the time would go backwards
-     * @implSpec Thread-safe via {@link AtomicLong}.
-     * @implNote Overflow is unchecked.
      */
     public void currentTimeNanos(long nanos) throws IllegalArgumentException {
         if (nanos < get())
@@ -187,8 +168,6 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      * Retrieves the current time in nanoseconds.
      *
      * @return the current time in nanoseconds since the epoch
-     * @implSpec Thread-safe via {@link AtomicLong}.
-     * @implNote Overflow is unchecked.
      */
     @Override
     public long currentTimeNanos() {
@@ -200,8 +179,6 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      *
      * @param unit target unit, not {@code null}
      * @return the current time in that unit
-     * @implSpec Thread-safe via {@link AtomicLong}.
-     * @implNote Overflow is unchecked.
      */
     public long currentTime(TimeUnit unit) {
         return unit.convert(currentTimeNanos(), TimeUnit.NANOSECONDS);
@@ -212,8 +189,6 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      *
      * @param millis duration to add, may be negative
      * @return this instance for chaining
-     * @implSpec Thread-safe via {@link AtomicLong}.
-     * @implNote Overflow is unchecked.
      */
     public SetTimeProvider advanceMillis(long millis) {
         advanceNanos(TimeUnit.MILLISECONDS.toNanos(millis));
@@ -225,8 +200,6 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      *
      * @param micros duration to add, may be negative
      * @return this instance for chaining
-     * @implSpec Thread-safe via {@link AtomicLong}.
-     * @implNote Overflow is unchecked.
      */
     public SetTimeProvider advanceMicros(long micros) {
         advanceNanos(TimeUnit.MICROSECONDS.toNanos(micros));
@@ -238,8 +211,6 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      *
      * @param nanos duration to add, may be negative
      * @return this instance for chaining
-     * @implSpec Thread-safe via {@link AtomicLong}.
-     * @implNote Overflow is unchecked.
      */
     public SetTimeProvider advanceNanos(long nanos) {
         addAndGet(nanos);
@@ -250,7 +221,6 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      * Provides a string representation of the provider state.
      *
      * @return summary of auto-increment value and current time
-     * @implSpec Thread-safe via {@link AtomicLong}.
      */
     @Override
     public String toString() {
