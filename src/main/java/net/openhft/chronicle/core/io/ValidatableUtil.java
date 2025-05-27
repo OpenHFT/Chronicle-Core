@@ -17,7 +17,8 @@
 package net.openhft.chronicle.core.io;
 
 /**
- * Utility class for validating objects and managing validation settings.
+ * Utility methods to validate {@link Validatable} objects and control when the
+ * checks occur.
  */
 public class ValidatableUtil {
     static final ThreadLocal<int[]> VALIDATE_DISABLED = ThreadLocal.withInitial(() -> new int[1]);
@@ -32,15 +33,16 @@ public class ValidatableUtil {
     }
 
     /**
-     * Starts a nestable block where validation is disabled.
-     * This method can be used to temporarily disable validation for a specific code block.
+     * Starts a nestable block where validation is disabled. Use this around
+     * logging or diagnostic code that might operate on a partially initialised
+     * object.
      */
     public static void startValidateDisabled() {
         VALIDATE_DISABLED.get()[0]++;
     }
 
     /**
-     * End a nestable block where validation is disabled
+     * Ends the block started with {@link #startValidateDisabled()}.
      */
     public static void endValidateDisabled() {
         int[] val = VALIDATE_DISABLED.get();
@@ -49,9 +51,10 @@ public class ValidatableUtil {
     }
 
     /**
-     * Check an object is valid, if it is Validatable, do nothing
+     * Check an object is valid if it implements {@link Validatable}.
      * <p>
-     * For logging purposes validate() can be turned off e.g. for toString() with the following patten
+     * For logging purposes validation can be turned off e.g. for {@code toString()}
+     * with the following pattern
      * <pre>
      * ValidatableUtil.startValidatableDisabled();
      * try {
@@ -61,8 +64,8 @@ public class ValidatableUtil {
      * }
      * </pre>
      *
-     * @param t   to test
-     * @param <T> the original object
+     * @param t   object to validate
+     * @param <T> type of object
      * @return the same object
      * @throws InvalidMarshallableException if validate() method fails
      */
