@@ -49,12 +49,12 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
-     * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
-     * assumed you are not working on the edge of the precision of double.
+     * Rounds the value to a fixed number of decimal places.
+     * The result is within one ulp of the mathematical rounding and
+     * may round values very close to 0.5 either way for speed.
      *
      * @param d      value to round
-     * @param digits 0 to 18 digits of precision
+     * @param digits precision from 0 to 18 digits
      * @return rounded value
      */
     public static double roundN(double d, int digits) {
@@ -147,6 +147,14 @@ public final class Maths {
                 ? Math.floor((d + ulp) * factor) / factor : d;
     }
 
+    /**
+     * Rounds the value using a fractional number of decimal places.
+     * Behaviour matches {@link #roundN(double, int)} when {@code digits} is an integer.
+     *
+     * @param d      value to round
+     * @param digits fractional digits of precision
+     * @return rounded value
+     */
     public static double roundN(double d, double digits) {
         final long factor = roundingFactor(digits);
         return Math.abs(d) < (double) Long.MAX_VALUE / factor
@@ -182,9 +190,8 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
-     * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
-     * assumed you are not working on the edge of the precision of double.
+     * Rounds to one decimal place.
+     * Accuracy is within one ulp so values close to 0.5 may round either way.
      *
      * @param d value to round
      * @return rounded value
@@ -212,9 +219,8 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
-     * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
-     * assumed you are not working on the edge of the precision of double.
+     * Rounds to two decimal places.
+     * Accuracy is within one ulp so values close to 0.5 may round either way.
      *
      * @param d value to round
      * @return rounded value

@@ -502,15 +502,15 @@ public final class OS {
     }
 
     /**
-     * Map a region of a file into memory.
+     * Maps part of a file into memory.
      *
-     * @param fileChannel to map
-     * @param mode        of access
-     * @param start       offset within a file
-     * @param size        of region to map.
-     * @return the address of the memory mapping.
+     * @param fileChannel file to map
+     * @param mode        access mode
+     * @param start       start offset, page aligned
+     * @param size        length of region. On Windows this must be \<= 4096 MiB
+     * @return address of the mapping
      * @throws IOException              if the mapping fails
-     * @throws IllegalArgumentException if the arguments are not valid
+     * @throws IllegalArgumentException if the arguments are invalid
      */
     public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode, long start, long size, int pageSize)
             throws IOException, IllegalArgumentException {
@@ -573,11 +573,11 @@ public final class OS {
     }
 
     /**
-     * Unmap a region of memory.
+     * Releases a previously mapped memory region.
      *
-     * @param address of the start of the mapping.
-     * @param size    of the region mapped.
-     * @throws IOException if the unmap fails.
+     * @param address start of the mapping, page aligned
+     * @param size    length of the region
+     * @throws IOException if the unmap fails
      */
     public static void unmap(long address, long size, int pageSize) throws IOException {
         try {
@@ -595,9 +595,9 @@ public final class OS {
     }
 
     /**
-     * Returns the number of bytes that is memory mapped.
+     * Reports how many bytes are currently mapped using {@link #map}.
      *
-     * @return bytes memory mapped
+     * @return number of bytes mapped
      */
     public static long memoryMapped() {
         return memoryMapped.get();
