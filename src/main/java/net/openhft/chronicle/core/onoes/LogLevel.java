@@ -30,8 +30,6 @@ package net.openhft.chronicle.core.onoes;
  * </table>
  *
  * Used by {@link Slf4jExceptionHandler}.
- *
- * @since 3.25ea
  */
 public enum LogLevel {
     ERROR,

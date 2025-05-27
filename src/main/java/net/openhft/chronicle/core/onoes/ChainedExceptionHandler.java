@@ -46,8 +46,6 @@ import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
  *     new RecordingExceptionHandler(LogLevel.ERROR, map, true)
  * );
  * </pre>
- *
- * @since 3.25ea
  */
 public class ChainedExceptionHandler implements ExceptionHandler {
     @NotNull

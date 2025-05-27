@@ -32,7 +32,6 @@ import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
  *
  * @see NullExceptionHandler
  * @see Slf4jExceptionHandler
- * @since 3.25ea
  */
 @FunctionalInterface
 public interface ExceptionHandler {
@@ -41,7 +40,6 @@ public interface ExceptionHandler {
      * Creates an {@code ExceptionHandler} that ignores all exceptions.
      *
      * @return an instance of {@link NullExceptionHandler} which ignores all exceptions.
-     * @since 3.25ea
      */
     static ExceptionHandler ignoresEverything() {
         return NullExceptionHandler.NOTHING;
@@ -53,7 +51,6 @@ public interface ExceptionHandler {
      * @param clazz  the class where the error occurred
      * @param thrown the throwable instance representing the error, may be {@code null}
      * @throws NullPointerException if {@code clazz} is {@code null}
-     * @since 3.25ea
      */
     default void on(@NotNull final Class<?> clazz, final Throwable thrown) {
         on(clazz, "", thrown);
@@ -65,7 +62,6 @@ public interface ExceptionHandler {
      * @param clazz   the class where the error occurred
      * @param message a custom message detailing the error, may be {@code null}
      * @throws NullPointerException if {@code clazz} is {@code null}
-     * @since 3.25ea
      */
     default void on(@NotNull final Class<?> clazz, final String message) {
         on(clazz, message, null);
@@ -79,7 +75,6 @@ public interface ExceptionHandler {
      * @param message a custom message providing additional information or {@code null}
      * @param thrown  the exception that needs to be handled, may be {@code null}
      * @throws NullPointerException if {@code clazz} is {@code null}
-     * @since 3.25ea
      */
     default void on(@NotNull Class<?> clazz, @Nullable String message, @Nullable Throwable thrown) {
         requireNonNull(clazz);
@@ -102,7 +97,6 @@ public interface ExceptionHandler {
      * @param message a custom message detailing the error, may be {@code null}
      * @param thrown  the throwable instance representing the error, may be {@code null}
      * @throws NullPointerException if {@code logger} is {@code null}
-     * @since 3.25ea
      */
     void on(@NotNull Logger logger, @Nullable String message, @Nullable Throwable thrown);
 
@@ -112,7 +106,6 @@ public interface ExceptionHandler {
      * @param logger  the logger used to record the error
      * @param message a custom message detailing the error, may be {@code null}
      * @throws NullPointerException if {@code logger} is {@code null}
-     * @since 3.25ea
      */
     default void on(@NotNull Logger logger, @Nullable String message) {
         on(logger, message, null);
@@ -124,7 +117,6 @@ public interface ExceptionHandler {
      * @param aClass the class to test
      * @return {@code true} if this handler should be invoked for the class
      * @throws NullPointerException if {@code aClass} is {@code null}
-     * @since 3.25ea
      */
     default boolean isEnabled(@NotNull Class<?> aClass) {
         requireNonNull(aClass);
@@ -135,7 +127,6 @@ public interface ExceptionHandler {
      * Retrieves the default underlying exception handler.
      *
      * @return the default exception handler, usually {@code this}
-     * @since 3.25ea
      */
     default ExceptionHandler defaultHandler() {
         return this;

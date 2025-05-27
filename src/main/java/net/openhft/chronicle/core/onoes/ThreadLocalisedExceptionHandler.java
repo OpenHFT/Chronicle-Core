@@ -33,7 +33,6 @@ import org.slf4j.Logger;
  * per-thread handlers are isolated using {@link ThreadLocal}.
  *
  * @see ChainedExceptionHandler
- * @since 3.25ea
  */
 public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
     private ExceptionHandler eh;

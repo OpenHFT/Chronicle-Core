@@ -31,7 +31,6 @@ import java.util.Objects;
  *
  * @implNote The {@link #toString()} method builds a stack trace string and may
  * be expensive.
- * @since 3.25ea
  */
 public class ExceptionKey {
 

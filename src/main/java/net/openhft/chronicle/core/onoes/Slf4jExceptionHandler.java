@@ -35,8 +35,6 @@ import org.slf4j.LoggerFactory;
  * <p>The {@link #DEBUG} constant overrides
  * {@link #isEnabled(Class)} and only logs when the underlying logger has
  * debug level enabled. Every constant is a singleton within the JVM.
- *
- * @since 3.25ea
  */
 public enum Slf4jExceptionHandler implements ExceptionHandler {
     ERROR(Logger::error),

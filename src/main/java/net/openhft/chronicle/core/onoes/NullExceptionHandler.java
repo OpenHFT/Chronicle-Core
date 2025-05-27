@@ -25,8 +25,6 @@ import org.slf4j.Logger;
 /**
  * Null-Object implementation of {@link ExceptionHandler} that ignores every event.
  * <p>{@code isEnabled} always returns {@code false}.</p>
- *
- * @since 3.25ea
  * @see ExceptionHandler
  */
 public enum NullExceptionHandler implements ExceptionHandler, IgnoresEverything {

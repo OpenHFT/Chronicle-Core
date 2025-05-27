@@ -27,7 +27,6 @@
  * }</pre>
  *
  * @author OpenHFT - part of Chronicle-Core
- * @since 3.25ea
  * @see net.openhft.chronicle.core.onoes.ExceptionHandler
  */
 package net.openhft.chronicle.core.onoes;

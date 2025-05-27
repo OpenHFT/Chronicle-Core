@@ -32,8 +32,6 @@ import java.util.Map;
  *
  * @apiNote The map may grow without bound if unique keys keep being added.
  * Periodically evict infrequently used entries to control memory usage.
- *
- * @since 3.25ea
  */
 public class RecordingExceptionHandler implements ExceptionHandler {
     private final LogLevel level;
