@@ -28,9 +28,7 @@ import java.lang.annotation.Target;
  * <p><b>Retention and effect:</b> Persisted in the class file but ignored by
  * the runtime unless Chronicle tooling enforces it.</p>
  *
- * <pre>{@code
- * @NonPositive int offset;
- * }</pre>
+ * {@code @NonPositive int offset; }
  *
  * <table>
  *   <caption>Sign-related annotations</caption>

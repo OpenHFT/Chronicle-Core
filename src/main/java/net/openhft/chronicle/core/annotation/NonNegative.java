@@ -29,9 +29,7 @@ import java.lang.annotation.Target;
  * <p><b>Retention and effect:</b> Stored in the class file but ignored by the
  * runtime unless Chronicle tooling checks it.</p>
  *
- * <pre>{@code
- * @NonNegative long size;
- * }</pre>
+ * {@code @NonNegative long size;}
  *
  * <table>
  *   <caption>Sign-related annotations</caption>
