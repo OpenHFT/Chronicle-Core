@@ -1,0 +1,21 @@
+= JVM and OS Utility Highlights
+:sectnums:
+
+== Jvm essentials
+* `Jvm.isDebug()` returns if the process is running under a debugger.
+* `Jvm.maxDirectMemory()` reports the maximum direct memory limit.
+* `Jvm.is64bit()` indicates whether the JVM runs in 64 bit mode.
+
+== Loading system properties
+`Jvm` looks for a file named `system.properties` on the classpath or in the current directory. Any values found are loaded unless a property has already been specified on the command line with `-D`.
+
+== `Jvm.rethrow()` for unchecked exceptions
+The `rethrow(Throwable)` method lets any checked exception be thrown as a `RuntimeException` without wrapping. The generic signature performs a vacuous cast and the method never returns.
+
+== OS helper methods
+* `OS.getProcessId()` returns the current process identifier.
+* `OS.pageSize()` yields the native page size used for memory operations. `OS.defaultOsPageSize()` handles Windows alignment rules.
+* `OS.getTmp()` locates the temporary directory used for files.
+
+== Notes on `IOTools`
+`IOTools` provides helpers for common file and socket operations. It can detect connection reset messages, delete directories recursively, read or write files (supporting `.gz` compression), create temporary files or folders and clean direct buffers.
