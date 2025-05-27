@@ -42,7 +42,7 @@ public class WeakReferenceScopedResource<T> extends AbstractScopedResource<T> {
     }
 
     /**
-     * {@implSpec} Ensures a strong reference exists before the caller receives
+     * Ensures a strong reference exists before the caller receives
      * the resource. If the previous instance was reclaimed, a new one is
      * obtained from the supplier.
      */

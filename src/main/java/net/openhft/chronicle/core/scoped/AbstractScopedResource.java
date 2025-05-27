@@ -48,11 +48,11 @@ abstract class AbstractScopedResource<T> implements ScopedResource<T> {
     /**
      * Prepare the resource before it is handed to the caller.
      *
-     * @implSpec
+     * <p>
      * Invoked by {@link ScopedThreadLocal#get()} on the owning thread just
      * before returning the resource. The default implementation does nothing.
      *
-     * @implNote
+     * <p>
      * Implementations may assume thread confinement and should avoid heavy
      * allocation if possible.
      */
@@ -63,11 +63,11 @@ abstract class AbstractScopedResource<T> implements ScopedResource<T> {
     /**
      * Close the contained resource and clear any references.
      *
-     * @implSpec
+     * <p>
      * Called when a resource is permanently discarded from the pool or when the
      * thread-local stack is closed.
      *
-     * @implNote
+     * <p>
      * Implementations should release all state and must be idempotent.
      */
     abstract void closeResource();
