@@ -22,12 +22,13 @@ import java.lang.ref.WeakReference;
 import java.util.function.Supplier;
 
 /**
- * A weak-referenced {@link ScopedResource} when the resource is acquired, we create
- * a strong reference to prevent it being GC'd while it's "in use". Upon return, the
- * strong reference is cleared, leaving only the weak reference thus allowing the
- * resource to be GC'd.
+ * A {@link ScopedResource} backed by a {@link WeakReference}. When the resource
+ * is acquired a strong reference is taken and released again on
+ * {@link #close()}. This allows the object to be reclaimed between usages. In
+ * contrast {@link StrongReferenceScopedResource} retains a strong reference for
+ * the lifetime of the wrapper.
  *
- * @param <T> The type of the contained resource
+ * @param <T> the type of the contained resource
  */
 public class WeakReferenceScopedResource<T> extends AbstractScopedResource<T> {
 
@@ -41,7 +42,9 @@ public class WeakReferenceScopedResource<T> extends AbstractScopedResource<T> {
     }
 
     /**
-     * Before acquire we check that the reference is populated and populate it if not
+     * {@implSpec} Ensures a strong reference exists before the caller receives
+     * the resource. If the previous instance was reclaimed, a new one is
+     * obtained from the supplier.
      */
     @Override
     void preAcquire() {
@@ -56,6 +59,7 @@ public class WeakReferenceScopedResource<T> extends AbstractScopedResource<T> {
         return strongRef;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() {
         strongRef = null;
