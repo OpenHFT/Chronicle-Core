@@ -22,13 +22,20 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation that indicates the annotated element is expected to hold a positive value (i.e. {@code val > 0}).
- * This can be applied to methods, fields, parameters, local variables, and types to specify constraints
- * or document the intended usage.
+ * {@code @Positive} states that the annotated value must be greater than zero.
+ * It helps library maintainers and tools document numeric expectations.
+ *
+ * <p><b>Retention and effect:</b> Persisted in the class file with no direct
+ * runtime effect unless Chronicle tooling interprets it.</p>
+ *
+ * <pre>
+ * {@code @Positive} long count;
+ * </pre>
  *
  * @see Negative
  * @see NonNegative
  * @see NonPositive
+ * @see Range
  */
 @Retention(RetentionPolicy.CLASS)
 @Target({ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE, ElementType.TYPE_USE})

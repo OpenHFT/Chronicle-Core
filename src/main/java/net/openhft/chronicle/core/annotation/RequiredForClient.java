@@ -19,9 +19,17 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Indicates that modifications to the annotated class should be made with caution
- * as it is known to be used by a client. This annotation serves as a warning to
- * developers, reminding them of the implications of changes to the annotated element.
+ * {@code @RequiredForClient} warns that the annotated class is relied upon by
+ * external code. Its audience is library maintainers reviewing potential
+ * breaking changes.
+ *
+ * <p><b>Retention and effect:</b> Kept in the source only. There is no runtime
+ * effect unless build tooling checks for it.</p>
+ *
+ * <pre>
+ * {@code @RequiredForClient}
+ * public class ApiEntry { }
+ * </pre>
  */
 @Retention(RetentionPolicy.SOURCE)
 public @interface RequiredForClient {
