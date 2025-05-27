@@ -19,7 +19,6 @@ package net.openhft.chronicle.core.io;
 /**
  * Represents a resource that is reference counted. The resource is freed when
  * the reference count drops to zero.
- * <p>
  * <h2>Lifecycle</h2>
  * <ul>
  *     <li>{@link #reserve(ReferenceOwner)} increments the reference count.</li>
@@ -37,7 +36,6 @@ package net.openhft.chronicle.core.io;
  * <p>
  * Cleanup may occur on a background thread managed by
  * {@link BackgroundResourceReleaser}.
- * <p>
  * <h3>Example</h3>
  * <pre>{@code
  * ReferenceOwner owner = ReferenceOwner.INIT;
