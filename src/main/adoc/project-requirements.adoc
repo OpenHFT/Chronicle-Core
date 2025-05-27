@@ -1,4 +1,4 @@
-= Chronicle Core – Requirements Specification
+= Chronicle Core - Requirements Specification
 :toc: left
 :toclevels: 2
 :scope: CORE
@@ -6,7 +6,7 @@
 This document captures all *CORE*-scoped requirements for the Chronicle Core
 library.  Requirement identifiers follow the company-wide *Nine-Box* taxonomy:
 
-  <Scope>-<Tag>-xxx   ⇒   CORE-FN-001, CORE-NF-P-006, …
+  <Scope>-<Tag>-xxx   ->   CORE-FN-001, CORE-NF-P-006, ...
 
 Only the primary tag is shown when several could apply.
 All numbers are unique within the *CORE* scope.
@@ -64,7 +64,7 @@ Concurrency:: Concurrency & Threading Support
 * CORE-FN-040:: The system shall provide a mechanism for components to declare single-threaded access requirements (`SingleThreadedChecked`).
 * CORE-FN-041:: Single-threaded components shall perform runtime checks for concurrent-access violations.
 * CORE-FN-042:: The single-threaded check shall be resettable to enable safe thread hand-off.
-* CORE-FN-043:: The library shall document and support the *initialise → reset → hand-off* pattern for such objects.
+* CORE-FN-043:: The library shall document and support the *initialise -> reset -> hand-off* pattern for such objects.
 
 Utils:: Low-Level Utilities
 * CORE-FN-044:: The system shall provide mechanisms for pooling and reusing `String` instances.
@@ -75,7 +75,7 @@ Utils:: Low-Level Utilities
 * CORE-FN-049:: The system shall provide utility methods for optimised hashing.
 * CORE-FN-050:: The system shall provide functional interfaces that extend `java.io.Serializable` for serialisable lambdas.
 * CORE-FN-051:: The system shall provide a histogram implementation optimised for low-overhead value recording.
-* CORE-FN-052:: The histogram shall support a wide dynamic range (nanoseconds → seconds).
+* CORE-FN-052:: The histogram shall support a wide dynamic range (nanoseconds -> seconds).
 * CORE-FN-053:: The histogram shall allow configurable precision or accuracy.
 
 Interfaces:: Interfaces & Dependencies
