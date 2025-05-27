@@ -130,12 +130,6 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
      * @return the enum instance with the specified name. This method never
      * returns {@code null}; unknown names are created on demand.
      */
-    /**
-     * Returns the enum instance with the specified name, creating one if absent.
-     *
-     * @param name the name of the enum instance to be retrieved or created
-     * @return the enum instance with the specified name
-     */
     @Override
     public E valueOf(String name) {
         return eMap.computeIfAbsent(name, create);
