@@ -50,11 +50,6 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
         resetThreadLocalHandler();
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @implSpec The interrupt status is cleared before delegation and restored afterwards.
-     */
     @Override
     public void on(@NotNull Class<?> clazz, @Nullable String message, @Nullable Throwable thrown) {
         ExceptionHandler exceptionHandler = exceptionHandler();
@@ -69,11 +64,6 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @implSpec The interrupt status is cleared before delegation and restored afterwards.
-     */
     @Override
     public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
         ExceptionHandler exceptionHandler = exceptionHandler();
