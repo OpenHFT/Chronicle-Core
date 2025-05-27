@@ -28,6 +28,9 @@ import java.util.concurrent.TimeUnit;
 /**
  * Utility class for monitoring and managing threads.
  * <p>
+ * Intended for unit and integration test assertions to detect stray threads and
+ * should not be used on hot paths as the checks are relatively expensive.
+ * <p>
  * Provides functionality for collecting stack traces of threads and detecting
  * unexpected thread creation, which can be useful in testing and debugging scenarios.
  */
@@ -91,23 +94,26 @@ public class ThreadDump {
     }
 
     /**
-     * Asserts that no new threads are running beyond the ones that existed at the time
-     * this ThreadDump instance was created. This method waits for a short period
-     * of time for threads to terminate before throwing an AssertionError if new threads are detected.
-     * <p>
-     * This method can be used in testing scenarios to ensure that no unexpected threads have been left running.
+     * Fail if any new threads still exist after an adaptive wait.
+     *
+     * <p>The initial set of threads is captured when this object is constructed.
+     * The method waits in a loop with exponentially increasing pauses to give
+     * short-lived threads time to finish.
      */
     public void assertNoNewThreads() {
         assertNoNewThreads(0, TimeUnit.NANOSECONDS);
     }
 
     /**
-     * Asserts that no new threads are running beyond the ones that existed at the time
-     * this ThreadDump instance was created. This method waits for a specified delay
-     * for threads to terminate before throwing an AssertionError if new threads are detected.
+     * Fail if any new threads remain after a supplied delay.
      *
-     * @param delay     the extra time to wait for threads to terminate
-     * @param delayUnit the time unit of the delay parameter
+     * <p>The wait is adaptive: up to fourteen iterations (eighteen on ARM) are
+     * performed, each pausing for {@code delay} divided across the loop plus an
+     * exponential back-off of {@code 1L << (i/2)} milliseconds. Longer delays on
+     * ARM compensate for slower context switching.
+     *
+     * @param delay     total extra time to wait across all iterations
+     * @param delayUnit unit of {@code delay}
      */
     public void assertNoNewThreads(int delay, @NotNull TimeUnit delayUnit) {
         int last = Jvm.isArm() ? 18 : 14;
