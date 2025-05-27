@@ -1,0 +1,22 @@
+= Common Pitfalls and Debugging
+:toc:
+
+== Frequent Off-Heap Mistakes
+* Failing to `release()` reference-counted objects which leads to native memory leaks.
+* Forgetting to `unmap()` a memory-mapped region before closing the file.
+* Over-allocating direct buffers and relying on GC to clean them up.
+* Using `Cleaner` without understanding the performance cost and latency impact.
+
+== Diagnosing `ClosedIllegalStateException`
+A `ClosedIllegalStateException` signals that a resource was used after it was closed or released. Enable resource tracing via system properties to capture the stack trace of the close site. When the exception occurs, inspect the suppressed stack traces to find where the resource was originally allocated and where it was closed.
+
+== Thread Debugging
+Chronicle components throw `ThreadingIllegalStateException` if an object is accessed from multiple threads when single-threaded access was expected. Check thread ownership in your logs and ensure you are not sharing objects between threads without coordination.
+
+== Loop Block Monitor
+The Loop Block Monitor helps identify threads stuck in long running loops. Run `net.openhft.chronicle.core.threads.MonitorProfileAnalyserMain` to summarise thread stack traces.
+
+== Performance Analysis Tips
+* Capture short bursts of profiling data rather than long traces.
+* Use the histogram utilities to record event latencies and spot outliers.
+* Track off-heap memory usage with `Jvm`.getUsedDirectMemory(); compare it against expected levels.
