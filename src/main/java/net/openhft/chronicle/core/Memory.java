@@ -30,14 +30,13 @@ import java.nio.ByteBuffer;
 public interface Memory {
 
     /**
-     * Ensures that all previous writes to memory are completed before any
-     * subsequent memory access instruction.
+     * Ensures writes before the call become visible to other threads before
+     * writes that follow.
      */
     void storeFence();
 
     /**
-     * Ensures that all previous reads from memory are completed before any
-     * subsequent memory access instruction.
+     * Ensures reads after the call see updates published before the fence.
      */
     void loadFence();
 
@@ -331,52 +330,52 @@ public interface Memory {
     double readDouble(Object object, long offset);
 
     /**
-     * Copies a range of bytes from the given byte array to the specified memory address.
+     * Copies bytes from an array to a native address.
      *
-     * @param bytes   the source byte array
-     * @param offset  the starting index in the byte array
-     * @param address the destination memory address
-     * @param length  the number of bytes to copy
+     * @param bytes   source array
+     * @param offset  first byte to copy, non-negative and within {@code bytes}
+     * @param address destination address
+     * @param length  number of bytes to copy
      */
     void copyMemory(byte[] bytes, int offset, long address, int length);
 
     /**
-     * Copies a range of memory from one address to another.
+     * Copies memory from one address to another.
      *
-     * @param fromAddress the source memory address
-     * @param address     the destination memory address
-     * @param length      the number of bytes to copy
+     * @param fromAddress source address
+     * @param address     destination address
+     * @param length      number of bytes to copy
      */
     void copyMemory(long fromAddress, long address, long length);
 
     /**
-     * Copies a range of memory from the given object to the specified memory address.
+     * Copies memory from an object to a native address.
      *
-     * @param o         the source object
-     * @param offset    the starting offset in the source object
-     * @param toAddress the destination memory address
-     * @param length    the number of bytes to copy
+     * @param o         source object
+     * @param offset    start offset within {@code o}
+     * @param toAddress destination address
+     * @param length    number of bytes to copy
      */
     void copyMemory(Object o, long offset, long toAddress, int length);
 
     /**
-     * Copies a range of memory from one object to another at the specified offsets.
+     * Copies memory between two objects at the given offsets.
      *
-     * @param o       the source object
-     * @param offset  the starting offset in the source object
-     * @param o2      the destination object
-     * @param offset2 the starting offset in the destination object
-     * @param length  the number of bytes to copy
+     * @param o       source object
+     * @param offset  offset within {@code o}
+     * @param o2      destination object
+     * @param offset2 offset within {@code o2}
+     * @param length  number of bytes to copy
      */
     void copyMemory(Object o, long offset, Object o2, long offset2, int length);
 
     /**
-     * Copies a range of memory from the given memory address to the specified object at the given offset.
+     * Copies memory from a native address into an object.
      *
-     * @param fromAddress the source memory address
-     * @param obj2        the destination object
-     * @param offset2     the starting offset in the destination object
-     * @param length      the number of bytes to copy
+     * @param fromAddress source address
+     * @param obj2        destination object
+     * @param offset2     offset within {@code obj2}
+     * @param length      number of bytes to copy
      */
     void copyMemory(long fromAddress, Object obj2, long offset2, int length);
 

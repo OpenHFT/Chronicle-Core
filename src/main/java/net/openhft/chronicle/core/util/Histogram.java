@@ -171,36 +171,28 @@ public class Histogram implements NanoSampler {
     }
 
     /**
-     * Gets the number of fraction bits used by the histogram.
-     *
-     * @return the number of fraction bits
+     * Returns the fractional precision used to subdivide each power-of-two bucket.
      */
     public int fractionBits() {
         return fractionBits;
     }
 
     /**
-     * Gets the number of powers of 2 used by the histogram.
-     *
-     * @return the number of powers of 2
+     * Returns the exponent controlling the number of power-of-two buckets.
      */
     public int powersOf2() {
         return powersOf2;
     }
 
     /**
-     * Gets the number of values that are over the range of the histogram's buckets.
-     *
-     * @return the over range count
+     * Returns how many samples exceeded the top bucket.
      */
     public long overRange() {
         return overRange;
     }
 
     /**
-     * Gets the array of sample counts per bucket.
-     *
-     * @return the array of sample counts
+     * Provides direct access to the bucket counters.
      */
     public int[] sampleCount() {
         return sampleCount;
