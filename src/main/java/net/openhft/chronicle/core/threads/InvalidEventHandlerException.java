@@ -28,6 +28,19 @@ package net.openhft.chronicle.core.threads;
  * <p>It is important to note that the reusable instance should not be used where
  * error information or stack traces are needed, as it doesn't provide these details.
  *
+ * Example usage:
+ * <pre>
+ * class SampleHandler implements EventHandler {
+ *     @Override
+ *     public boolean action() throws InvalidEventHandlerException {
+ *         // perform work
+ *         if (done)
+ *             throw InvalidEventHandlerException.reusable();
+ *         return true;
+ *     }
+ * }
+ * </pre>
+ *
  * @see #reusable()
  */
 public class InvalidEventHandlerException extends Exception {
@@ -70,8 +83,7 @@ public class InvalidEventHandlerException extends Exception {
      * <p>Note that this reusable instance contains no stack trace information and
      * should not be used in scenarios where error information is necessary.
      *
-     * @return a reusable, pre-created, InvalidEventHandlerException that is
-     * unmodifiable and contains no stack trace
+     * @return a singleton without stack trace - use only for flow control
      */
     public static InvalidEventHandlerException reusable() {
         return STATIC;
