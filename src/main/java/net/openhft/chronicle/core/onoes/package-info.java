@@ -1,13 +1,13 @@
 /**
  * Exception-handling and logging utilities.
- *
+ * <p>
  * This package contains classes that enable handling exceptions in a uniform way
  * throughout an application. This includes mechanisms for chaining handlers,
  * logging, per-thread handling and recording exceptions.
- *
+ * <p>
  * The core of this package is the {@link net.openhft.chronicle.core.onoes.ExceptionHandler}
  * interface which allows custom logic for dealing with different exception types.
- *
+ * <p>
  * Other classes and enumerations within the package include:
  * <ul>
  *     <li>{@link net.openhft.chronicle.core.onoes.ChainedExceptionHandler} - chains multiple ExceptionHandler objects for sequential invocation.</li>
