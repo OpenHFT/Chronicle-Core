@@ -22,16 +22,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * {@code @Negative} indicates that the annotated value must be strictly below
- * zero. It is intended for library maintainers and tooling that check numeric
- * contracts.
- *
- * <p><b>Retention and effect:</b> Stored in the class file with no direct
- * runtime effect unless Chronicle tooling interprets it.</p>
- *
- * <pre>
- * {@code @Negative} int errorCode;
- * </pre>
+ * Annotation that indicates the annotated element is expected to hold a negative value (i.e. {@code val < 0}).
+ * This can be applied to methods, fields, parameters, local variables, and types to specify constraints
+ * or document the intended usage.
  *
  * @see NonNegative
  * @see NonPositive

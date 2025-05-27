@@ -24,19 +24,9 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.CLASS;
 
 /**
- * {@code @UsedViaReflection} notes that an element is accessed through
- * reflection or tests. It warns library maintainers against removing or hiding
- * the member.
- *
- * <p><b>Retention and effect:</b> Retained in the class file and ignored at
- * runtime unless tooling looks for it.</p>
- *
- * <pre>
- * {@code @UsedViaReflection}
- * public void setAccessible() { }
- * </pre>
- *
- * @see PackageLocal
+ * Annotation to indicate that the annotated member is accessed via reflection, or
+ * that it must be public for tests to work. This annotation can be used as a marker
+ * to prevent accidental removal or modification of elements that are used dynamically.
  */
 @Documented
 @Retention(CLASS)

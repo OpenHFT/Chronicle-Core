@@ -21,19 +21,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * {@code @TargetMajorVersion} specifies which Java major version a type targets.
- * It is useful for library maintainers managing backwards compatibility.
- *
- * <p><b>Retention and effect:</b> Retained at runtime but has no behaviour
- * unless tooling inspects it.</p>
- *
- * <pre>
- * {@code @TargetMajorVersion(11)}
- * class ModernOnly { }
- * </pre>
- *
- * @see Java9
- * @see ChronicleFeature
+ * Annotation to specify the target major version for the annotated type. It allows
+ * defining a range of major versions including, excluding, or specific to the provided
+ * version.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

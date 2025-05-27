@@ -22,17 +22,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * {@code @SingleThreaded} documents that a class is not thread-safe and should
- * be used by one thread only. Library maintainers can employ it to flag
- * non-concurrent designs.
- *
- * <p><b>Retention and effect:</b> Retained at runtime but imposes no automatic
- * restrictions unless Chronicle tooling validates it.</p>
- *
- * <pre>
- * {@code @SingleThreaded}
- * final class IdGenerator { }
- * </pre>
+ * Annotation to document that a class is intended to be used in a single-threaded context.
+ * Classes marked with this annotation are not designed for concurrent access and should
+ * be accessed by only one thread at a time.
+ * <p>
+ * Created by Peter Lawrey on 18/05/2015.
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

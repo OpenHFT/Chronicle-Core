@@ -21,18 +21,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * {@code @Java9} marks a method that is only used when running on Java&nbsp;9
- * or later. It is primarily for tooling authors and library maintainers.
- *
- * <p><b>Retention and effect:</b> Present only in the source and discarded by
- * the compiler. It has no runtime effect unless recognised by build tooling.</p>
- *
- * <pre>
- * {@code @Java9}
- * void newApiCall();
- * </pre>
- *
- * @see TargetMajorVersion
+ * Marker annotation to label methods that are expected to be called by java-9+ specific code paths.
  */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.METHOD)
