@@ -170,16 +170,10 @@ public class Histogram implements NanoSampler {
             sampleCount = new int[minSampleCountLength];
     }
 
-    /**
-     * Returns the fractional precision used to subdivide each power-of-two bucket.
-     */
     public int fractionBits() {
         return fractionBits;
     }
 
-    /**
-     * Returns the exponent controlling the number of power-of-two buckets.
-     */
     public int powersOf2() {
         return powersOf2;
     }
@@ -191,9 +185,6 @@ public class Histogram implements NanoSampler {
         return overRange;
     }
 
-    /**
-     * Provides direct access to the bucket counters.
-     */
     public int[] sampleCount() {
         return sampleCount;
     }
