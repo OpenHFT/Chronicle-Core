@@ -29,23 +29,36 @@ import java.util.stream.Stream;
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 /**
- * An implementation of {@link ExceptionHandler} that chains multiple {@link ExceptionHandler} objects
- * to be invoked in sequence.
+ * Chains exception handlers.
+ * <p>
+ * Handlers are evaluated left to right. If a handler throws, the failure is
+ * logged at error level and the next handler is called.
+ * <p>
+ * Construction prunes instances of {@link IgnoresEverything} and unwraps any
+ * {@link ThreadLocalisedExceptionHandler}.
  *
- * <p>This class encapsulates an ordered collection of {@code ExceptionHandler} instances and calls
- * each of them in turn when an exception occurs. If an {@code ExceptionHandler} in the chain
- * itself throws an exception, this exception will be logged and the next {@code ExceptionHandler}
- * in the chain will be called.
+ * @implNote The chain is immutable and has no internal synchronisation. It is
+ * thread-safe provided the supplied handlers are thread-safe.
  *
- * <p>When constructing a new instance, all {@code ExceptionHandler}s that are instances of
- * {@link IgnoresEverything} will be filtered out. Furthermore, any {@code ExceptionHandler} that
- * is an instance of {@link ThreadLocalisedExceptionHandler} will be unwrapped to its underlying
- * {@code ExceptionHandler}.
+ * <pre>
+ * ExceptionHandler chain = new ChainedExceptionHandler(
+ *     Slf4jExceptionHandler.ERROR,
+ *     new RecordingExceptionHandler(LogLevel.ERROR, map, true)
+ * );
+ * </pre>
+ *
+ * @since 3.25ea
  */
 public class ChainedExceptionHandler implements ExceptionHandler {
     @NotNull
     private final ExceptionHandler[] chain;
 
+    /**
+     * Creates a new chain of handlers.
+     *
+     * @param chain the handlers to evaluate from left to right
+     * @throws NullPointerException if {@code chain} or any element is null
+     */
     public ChainedExceptionHandler(@NotNull ExceptionHandler... chain) {
         requireNonNull(chain);
         this.chain = Stream.of(chain)
@@ -55,6 +68,15 @@ public class ChainedExceptionHandler implements ExceptionHandler {
                 .toArray(ExceptionHandler[]::new);
     }
 
+    /**
+     * Passes the event to each handler.
+     *
+     * @param clazz   the originating class, not null
+     * @param message an optional message
+     * @param thrown  an optional throwable
+     * @return void
+     * @throws NullPointerException if {@code clazz} is null
+     */
     @Override
     public void on(@NotNull Class<?> clazz, @Nullable String message, @Nullable Throwable thrown) {
         for (ExceptionHandler eh : chain) {
@@ -66,6 +88,15 @@ public class ChainedExceptionHandler implements ExceptionHandler {
         }
     }
 
+    /**
+     * Passes the event to each handler.
+     *
+     * @param logger  the logger to use, not null
+     * @param message an optional message
+     * @param thrown  an optional throwable
+     * @return void
+     * @throws NullPointerException if {@code logger} is null
+     */
     @Override
     public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
         for (ExceptionHandler eh : chain)
@@ -76,6 +107,11 @@ public class ChainedExceptionHandler implements ExceptionHandler {
             }
     }
 
+    /**
+     * Returns the handlers in evaluation order.
+     *
+     * @return the immutable handler array
+     */
     public @NotNull ExceptionHandler[] chain() {
         return chain;
     }
