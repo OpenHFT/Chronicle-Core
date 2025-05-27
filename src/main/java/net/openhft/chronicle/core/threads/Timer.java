@@ -22,9 +22,9 @@ import net.openhft.chronicle.core.time.TimeProvider;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Timer class used to schedule tasks to be executed periodically or after a certain delay.
- * The scheduling is performed on the provided event loop, and the execution time is best-effort.
- * This means that if the event loop thread is busy, the execution of the scheduled task may be delayed.
+ * Timer schedules tasks on an {@link EventLoop} for best-effort execution. If the
+ * loop thread is busy the invocation is delayed but no backlog of missed runs is
+ * executed.
  */
 public class Timer {
 
@@ -51,42 +51,48 @@ public class Timer {
     }
 
     /**
-     * Uses the event loop thread to call the event handler periodically. The time that the event is
-     * called back is best-effort, but if the thread is busy that call back may be delayed.
+     * Schedules {@code eventHandler} to run at a fixed-rate on the event loop.
+     * Timing is best-effort and any delay does not trigger multiple catch-up
+     * invocations. The underlying call returns a {@link java.io.Closeable};
+     * closing it aborts future executions.
      *
-     * @param eventHandler   The handler to be called back.
-     * @param initialDelayMs How long in milliseconds to wait before being called back.
-     * @param periodMs       The poll interval of being called.
+     * @param eventHandler The handler to be invoked.
+     * @param initialDelay first wait in milliseconds before the handler runs.
+     * @param period       interval in milliseconds between executions.
      */
     public void scheduleAtFixedRate(@NotNull VanillaEventHandler eventHandler,
-                                    long initialDelayMs,
-                                    long periodMs) {
-        cancellableTimer.scheduleAtFixedRate(eventHandler, initialDelayMs, periodMs);
+                                    long initialDelay,
+                                    long period) {
+        cancellableTimer.scheduleAtFixedRate(eventHandler, initialDelay, period);
     }
 
     /**
-     * Uses the event loop thread to call the event handler periodically. The time that the event is
-     * called back is best-effort, but if the thread is busy that call back may be delayed.
+     * Schedules {@code eventHandler} to run at a fixed-rate on the event loop.
+     * Timing is best-effort and any delay does not trigger multiple catch-up
+     * invocations. The underlying call returns a {@link java.io.Closeable};
+     * closing it aborts future executions.
      *
-     * @param eventHandler   The handler to be called back.
-     * @param initialDelayMs How long in milliseconds to wait before being called back.
-     * @param periodMs       The poll interval of being called.
+     * @param eventHandler The handler to be invoked.
+     * @param initialDelay first wait in milliseconds before the handler runs.
+     * @param period       interval in milliseconds between executions.
      * @param priority       The priority of the event handler.
      */
     public void scheduleAtFixedRate(@NotNull VanillaEventHandler eventHandler,
-                                    long initialDelayMs,
-                                    long periodMs,
+                                    long initialDelay,
+                                    long period,
                                     HandlerPriority priority) {
-        cancellableTimer.scheduleAtFixedRate(eventHandler, initialDelayMs, periodMs, priority);
+        cancellableTimer.scheduleAtFixedRate(eventHandler, initialDelay, period, priority);
     }
 
     /**
-     * Schedule a handler to run once after a delay.
+     * Schedule {@code eventHandler} to run once after {@code delay} milliseconds.
+     * Internally an {@link InvalidEventHandlerException} is thrown after the
+     * execution to remove the handler.
      *
-     * @param eventHandler   The handler to be called back.
-     * @param initialDelayMs How long in milliseconds to wait before being called back.
+     * @param eventHandler The handler to be invoked once.
+     * @param delay        how long in milliseconds to wait before the handler runs.
      */
-    public void schedule(@NotNull Runnable eventHandler, long initialDelayMs) {
-        cancellableTimer.schedule(eventHandler, initialDelayMs);
+    public void schedule(@NotNull Runnable eventHandler, long delay) {
+        cancellableTimer.schedule(eventHandler, delay);
     }
 }
