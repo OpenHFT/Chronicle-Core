@@ -29,6 +29,14 @@
  *
  * <p>The {@link net.openhft.chronicle.core.pool.StringInterner} class provides string interning functionality, optimizing
  * memory usage by caching strings and referring to them by index rather than storing duplicate strings.
+ * This interner is a <em>best-effort</em> concurrent structure and does not
+ * offer strong thread-safety guarantees.
+ *
+ * <p>Unless otherwise stated, parameters and return values in this package are
+ * non-null by default. Use {@link org.jetbrains.annotations.Nullable} to
+ * indicate when {@code null} is permitted.
+ * The {@link net.openhft.chronicle.core.pool.DynamicEnumClass} implementation
+ * is thread-safe and ensures each name maps to a single instance.
  *
  * @see net.openhft.chronicle.core.pool.ClassAliasPool
  * @see net.openhft.chronicle.core.pool.ClassLookup

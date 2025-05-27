@@ -18,6 +18,7 @@ package net.openhft.chronicle.core.pool;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.CoreDynamicEnum;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
 
 import java.lang.reflect.Array;
@@ -42,10 +43,12 @@ import static net.openhft.chronicle.core.Jvm.uncheckedCast;
  *
  * @param <E> the type of enum instances this class will manage. It must extend {@link CoreDynamicEnum}.
  *            Example usage:
- *            <pre>
- *            {@code
- *            EnumCache<YesNo> yesNoEnumCache = EnumCache.of(YesNo.class);
- *            YesNo maybe = yesNoEnumCache.valueOf("Maybe"); // Dynamically creates a new enum instance with name "Maybe"
+ *            <pre>{@code
+ *            EnumCache<YesNo> c =
+ *                EnumCache.of(
+ *                    YesNo.class);
+ *            YesNo maybe =
+ *                c.valueOf("Maybe");
  *            }
  *            </pre>
  */
@@ -114,6 +117,7 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
      * @return the enum instance or {@code null}
      */
     @Override
+    @Nullable
     public E get(String name) {
         return eMap.get(name);
     }
@@ -123,7 +127,8 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
      * name does not exist, this method dynamically creates a new one.
      *
      * @param name the name of the enum instance to be retrieved or created.
-     * @return the enum instance with the specified name.
+     * @return the enum instance with the specified name. This method never
+     * returns {@code null}; unknown names are created on demand.
      */
     /**
      * Returns the enum instance with the specified name, creating one if absent.

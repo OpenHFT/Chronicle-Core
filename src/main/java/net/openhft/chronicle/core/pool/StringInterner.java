@@ -147,8 +147,9 @@ public class StringInterner {
      * Returns the interned string held at the given index.
      *
      * @param index the slot obtained from {@link #index(CharSequence, Changed)}
-     * @return the interned string
+     * @return the interned string, or {@code null} if no value is stored at that index
      */
+    @Nullable
     public String get(int index) {
         return interner[index];
     }

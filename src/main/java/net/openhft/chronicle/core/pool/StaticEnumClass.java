@@ -15,6 +15,8 @@
  */
 package net.openhft.chronicle.core.pool;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.EnumMap;
 import java.util.EnumSet;
 import java.util.Map;
@@ -66,6 +68,7 @@ public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
      * @return the enum instance or {@code null}
      */
     @Override
+    @Nullable
     public E valueOf(String name) {
         return name == null || name.isEmpty() ? null : Enum.valueOf(type, name);
     }
