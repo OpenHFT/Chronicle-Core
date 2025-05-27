@@ -41,24 +41,16 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 /**
- * IOTools is a utility class containing a variety of methods and constants
- * designed for handling input/output (IO) operations, especially regarding
- * file and directory manipulation.
+ * Utility methods for common IO tasks used throughout the tests and tools.
  * <p>
- * It provides functionality such as:
+ * Methods are grouped by purpose:
  * <ul>
- *     <li>Determining if an exception is due to a closed connection</li>
- *     <li>Deleting directories and their files</li>
- *     <li>Reading files from classpath or file system</li>
- *     <li>Writing files to file system</li>
- *     <li>Creating temporary files and directories</li>
+ *     <li><em>File operations</em> such as directory deletion and temporary file creation.</li>
+ *     <li><em>Resource loading</em> utilities for locating and reading files.</li>
+ *     <li><em>Buffer handling</em> helpers for working with {@link ByteBuffer} instances.</li>
  * </ul>
- * <p>
- * It also handles some specific byte buffer operations and manages a
- * {@link ConcurrentHashMap} for tracking object counts of specific types.
- * <p>
- * Note: This class is designed to be thread-safe and is intended to be used
- * concurrently.
+ * Typical usage is to call {@link #deleteDirWithFilesOrThrow(File...)} before a
+ * test starts to ensure any previous state has been removed.
  */
 public final class IOTools {
     public static final int IOSTATUS_INTERRUPTED = IOStatus.INTERRUPTED;
@@ -95,15 +87,16 @@ public final class IOTools {
     }
 
     /**
-     * Is the passed exception one that results from reading from or writing to
-     * a reset or closed connection?
+     * Tests whether an exception was thrown because a network channel was
+     * already closed.
      * <p>
-     * NOTE: This is not reliable and shouldn't be used for anything critical. We use it
-     * to make logging less noisy, false negatives are acceptable and expected. It should
-     * not produce false positives, but there's no guarantees it doesn't.
+     * The check compares the message against a set of operating system specific
+     * texts. It is therefore best-efforts and may return {@code false} even when
+     * the connection is gone. It is intended only to quieten logging once the
+     * application has detected a disconnect.
      *
-     * @param e The exception
-     * @return true if the exception is one that signifies the connection was reset/closed
+     * @param e candidate exception
+     * @return {@code true} if the message matches a known closed connection error
      */
     public static boolean isClosedException(Exception e) {
         Language.warnOnce();
@@ -111,6 +104,10 @@ public final class IOTools {
                 && (CLOSED_MESSAGES.contains(e.getMessage())
                 || e.getClass().getName().contains("Close"));
     }
+
+    // ------------------------------------------------------------
+    // File operations
+    // ------------------------------------------------------------
 
     /**
      * Attempts to delete a directory with its files. If the directory or any
@@ -138,6 +135,10 @@ public final class IOTools {
         return deleteDirWithFiles(dir, 1);
     }
 
+    /**
+     * Deletes each supplied directory and its contents. This is commonly used
+     * by tests to clear previous output before recreating files.
+     */
     public static boolean deleteDirWithFiles(@NotNull String... dirs) throws IORuntimeException {
         boolean result = true;
         for (String dir : dirs) {
@@ -202,9 +203,10 @@ public final class IOTools {
     }
 
     /**
-     * Canonical usage is to call this *before* your test, so you fail fast if you can't delete
+     * Removes the supplied directories and throws if any remain. Tests usually
+     * invoke this at start-up to clean the output of a previous run.
      *
-     * @param dirs dirs
+     * @param dirs directories to remove
      */
     public static void deleteDirWithFilesOrThrow(@NotNull String... dirs) throws IORuntimeException {
         final File[] files = Arrays.stream(dirs).map(File::new).toArray(File[]::new);
@@ -212,9 +214,10 @@ public final class IOTools {
     }
 
     /**
-     * Canonical usage is to call this *before* your test, so you fail fast if you can't delete
+     * Variant accepting {@link File} objects. Behaviour matches the
+     * string-based method.
      *
-     * @param dirs dirs
+     * @param dirs directories to remove
      */
     public static void deleteDirWithFilesOrThrow(@NotNull File... dirs) throws IORuntimeException {
         for (File dir : dirs) {
@@ -224,11 +227,12 @@ public final class IOTools {
     }
 
     /**
-     * Ensures that directory is absent or deleted, awaits for given timeout if necessary.
+     * Polls until the supplied directory disappears or the timeout elapses.
+     * Useful when another process might still hold a handle to a file.
      *
-     * @param timeoutMs Time to ensure that the directory is absent.
-     * @param dir       Dir to delete.
-     * @throws AssertionError If timeout passed and the directory is still present.
+     * @param timeoutMs maximum time in milliseconds to wait
+     * @param dir       directory to remove
+     * @throws AssertionError if the directory remains after the timeout
      */
     public static void deleteDirWithFilesOrWait(long timeoutMs, @NotNull File dir) {
         long startTs = System.currentTimeMillis();
@@ -245,6 +249,28 @@ public final class IOTools {
 
         throw new AssertionError("Failed to delete dir " + dir + " within " + timeoutMs + "ms");
     }
+
+    /**
+     * Writes the given byte array to a file with the specified name.
+     *
+     * @param filename The name of the file to write to
+     * @param bytes    The byte array to write to the file
+     * @throws IOException If an I/O error occurs
+     */
+    public static void writeFile(@NotNull String filename, byte @NotNull [] bytes) throws IOException {
+        try (@NotNull OutputStream out0 = new FileOutputStream(filename)) {
+            OutputStream out = out0;
+            if (filename.endsWith(".gz"))
+                out = new GZIPOutputStream(out);
+            out.write(bytes);
+            out.close();
+        }
+    }
+
+
+    // ------------------------------------------------------------
+    // Resource loading
+    // ------------------------------------------------------------
 
     /**
      * Ensures that directory is absent or deleted, awaits for given timeout if necessary.
@@ -350,22 +376,6 @@ public final class IOTools {
         }
     }
 
-    /**
-     * Writes the given byte array to a file with the specified name.
-     *
-     * @param filename The name of the file to write to
-     * @param bytes    The byte array to write to the file
-     * @throws IOException If an I/O error occurs
-     */
-    public static void writeFile(@NotNull String filename, byte @NotNull [] bytes) throws IOException {
-        try (@NotNull OutputStream out0 = new FileOutputStream(filename)) {
-            OutputStream out = out0;
-            if (filename.endsWith(".gz"))
-                out = new GZIPOutputStream(out);
-            out.write(bytes);
-            out.close();
-        }
-    }
 
     /**
      * Creates a temporary name for a file by appending the system's current
@@ -381,15 +391,6 @@ public final class IOTools {
             return filename.substring(0, ext) + System.nanoTime() + filename.substring(ext);
         }
         return filename + System.nanoTime();
-    }
-
-    /**
-     * Calls the system's Cleaner Service to clean the given ByteBuffer.
-     *
-     * @param bb The ByteBuffer to clean
-     */
-    public static void clean(ByteBuffer bb) {
-        CleanerServiceLocator.cleanerService().clean(bb);
     }
 
     /**
@@ -456,6 +457,19 @@ public final class IOTools {
      */
     public static void unmonitor(final Object t) {
         Monitorable.unmonitor(t);
+    }
+
+    // ------------------------------------------------------------
+    // Buffer handling
+    // ------------------------------------------------------------
+
+    /**
+     * Calls the system's Cleaner Service to clean the given ByteBuffer.
+     *
+     * @param bb The ByteBuffer to clean
+     */
+    public static void clean(ByteBuffer bb) {
+        CleanerServiceLocator.cleanerService().clean(bb);
     }
 
     /**
