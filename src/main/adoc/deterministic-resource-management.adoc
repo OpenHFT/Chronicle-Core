@@ -1,4 +1,5 @@
 = Deterministic Resource Management
+[[deterministic-resource-management]]
 :toc: left
 :toclevels: 2
 :sectnums:

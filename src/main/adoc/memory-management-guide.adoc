@@ -1,4 +1,5 @@
 = Chronicle Core - Memory Management Guide
+[[memory-management-guide]]
 :sectnums:
 
 This guide covers Chronicle-Core utilities for managing off-heap memory and memory-mapped files.

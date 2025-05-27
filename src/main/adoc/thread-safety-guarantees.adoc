@@ -1,4 +1,5 @@
 = Thread Safety Guarantees
+[[thread-safety-guarantees]]
 :toc: left
 :toclevels: 2
 
