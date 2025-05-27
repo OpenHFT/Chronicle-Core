@@ -5,12 +5,10 @@
  * in a uniform manner throughout an application. This includes mechanisms for
  * chaining multiple exception handlers together, logging exceptions, handling
  * exceptions on a per-thread basis, and recording exceptions.
- * 
  * <p>
  * The core of this package is the {@link net.openhft.chronicle.core.onoes.ExceptionHandler}
  * interface which allows for custom logic to be defined for handling different
  * types of exceptions.
- * 
  * <p>
  * Other classes and enumerations within the package include:
  * 
@@ -25,7 +23,6 @@
  * </ul>
  * <p>
  * This package is part of the Chronicle-Core library by OpenHFT.
- * 
  *
  * @see net.openhft.chronicle.core.onoes.ExceptionHandler
  */
