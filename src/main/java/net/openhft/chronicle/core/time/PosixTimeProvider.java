@@ -36,6 +36,8 @@ public enum PosixTimeProvider implements TimeProvider {
      * Returns the current time in milliseconds using the standard Java system clock.
      *
      * @return the current time in milliseconds since the Unix epoch
+     * @implSpec Thread-safe; the method holds no state.
+     * @implNote Values may overflow after year 2262.
      */
     @Override
     public long currentTimeMillis() {
@@ -49,6 +51,8 @@ public enum PosixTimeProvider implements TimeProvider {
      *
      * @return the current time in microseconds since the Unix epoch
      * @throws IllegalStateException if the time cannot be determined or converted
+     * @implSpec Thread-safe; the method holds no state.
+     * @implNote Values may overflow after year 2262.
      */
     @Override
     public long currentTimeMicros() throws IllegalStateException {
@@ -64,6 +68,8 @@ public enum PosixTimeProvider implements TimeProvider {
      *
      * @return the current time in nanoseconds since the Unix epoch
      * @throws IllegalStateException if the native call fails
+     * @implSpec Thread-safe; the method holds no state.
+     * @implNote Values may overflow after year 2262.
      */
     @Override
     public long currentTimeNanos() {

@@ -29,22 +29,58 @@ public final class LongTime {
     public static final long EPOCH_MICROS = EPOCH_MILLIS * 1000; // 1970-04-17T18:02:52.037
     public static final long EPOCH_NANOS = EPOCH_MICROS * 1000; // 1970-04-17T18:02:52.037
 
+    /**
+     * Tests whether the supplied value appears to be a second based timestamp.
+     *
+     * @param time candidate timestamp, expected to be no earlier than {@link #EPOCH_SECS}
+     * @return {@code true} if {@code time} falls between {@link #EPOCH_SECS} and {@link #MAX_SECS}
+     * @implSpec This method is thread-safe as it holds no state.
+     */
     public static boolean isSecs(long time) {
         return EPOCH_SECS <= time && time <= MAX_SECS;
     }
 
+    /**
+     * Tests whether the supplied value appears to be a millisecond based timestamp.
+     *
+     * @param time candidate timestamp, expected to be within the millisecond range
+     * @return {@code true} if {@code time} lies between {@link #EPOCH_MILLIS} and {@link #MAX_MILLIS}
+     * @implSpec This method is thread-safe as it holds no state.
+     */
     public static boolean isMillis(long time) {
         return EPOCH_MILLIS <= time && time <= MAX_MILLIS;
     }
 
+    /**
+     * Tests whether the supplied value appears to be a microsecond based timestamp.
+     *
+     * @param time candidate timestamp, expected to be within the microsecond range
+     * @return {@code true} if {@code time} lies between {@link #EPOCH_MICROS} and {@link #MAX_MICROS}
+     * @implSpec This method is thread-safe as it holds no state.
+     */
     public static boolean isMicros(long time) {
         return EPOCH_MICROS <= time && time <= MAX_MICROS;
     }
 
+    /**
+     * Tests whether the supplied value appears to be a nanosecond based timestamp.
+     *
+     * @param time candidate timestamp, expected to be at least {@link #EPOCH_NANOS}
+     * @return {@code true} if {@code time} is not less than {@link #EPOCH_NANOS}
+     * @implSpec This method is thread-safe as it holds no state.
+     */
     public static boolean isNanos(long time) {
         return EPOCH_NANOS <= time /*&& time <= MAX_NANOS*/;
     }
 
+    /**
+     * Converts the supplied time to seconds.
+     *
+     * @param time timestamp in seconds, milliseconds, microseconds or nanoseconds
+     * @return the equivalent value in seconds
+     * @implSpec This method is thread-safe as it holds no state.
+     * @implNote Values greater than {@link #MAX_NANOS} may overflow and wrap.
+     */
     public static long toSecs(long time) {
         if (time < EPOCH_MILLIS) // || time < EPOCH_SECS
             return time;
@@ -55,6 +91,14 @@ public final class LongTime {
         return time / 1000_000_000;
     }
 
+    /**
+     * Converts the supplied time to milliseconds.
+     *
+     * @param time timestamp in seconds, milliseconds, microseconds or nanoseconds
+     * @return the equivalent value in milliseconds
+     * @implSpec This method is thread-safe as it holds no state.
+     * @implNote Multiplication may overflow if {@code time} is very large.
+     */
     public static long toMillis(long time) {
         if (time < EPOCH_SECS)
             return time;
@@ -67,6 +111,14 @@ public final class LongTime {
         return time / 1000_000;
     }
 
+    /**
+     * Converts the supplied time to microseconds.
+     *
+     * @param time timestamp in seconds, milliseconds, microseconds or nanoseconds
+     * @return the equivalent value in microseconds
+     * @implSpec This method is thread-safe as it holds no state.
+     * @implNote Multiplication may overflow if {@code time} is very large.
+     */
     public static long toMicros(long time) {
         if (time < EPOCH_SECS)
             return time;
@@ -79,6 +131,14 @@ public final class LongTime {
         return time / 1_000;
     }
 
+    /**
+     * Converts the supplied time to nanoseconds.
+     *
+     * @param time timestamp in seconds, milliseconds, microseconds or nanoseconds
+     * @return the equivalent value in nanoseconds
+     * @implSpec This method is thread-safe as it holds no state.
+     * @implNote Multiplication may overflow for values approaching {@link Long#MAX_VALUE}.
+     */
     public static long toNanos(long time) {
         if (time >= EPOCH_NANOS)
             return time;
