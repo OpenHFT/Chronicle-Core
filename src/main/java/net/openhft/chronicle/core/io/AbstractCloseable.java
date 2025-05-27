@@ -239,6 +239,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
                     break;
                 }
                 try {
+                    //noinspection BusyWait
                     Thread.sleep(1);
                 } catch (InterruptedException ie) {
                     interrupted = true;

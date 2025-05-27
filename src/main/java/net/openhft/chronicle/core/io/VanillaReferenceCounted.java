@@ -38,6 +38,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     private final Class<?> type;
     private final ReferenceChangeListenerManager referenceChangeListeners;
     // must be volatile
+    @SuppressWarnings("FieldMayBeFinal")
     @UsedViaReflection
     private volatile int value = 1;
     private volatile boolean released = false;
