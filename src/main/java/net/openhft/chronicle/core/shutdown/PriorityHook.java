@@ -27,7 +27,7 @@ import static net.openhft.chronicle.core.Jvm.uncheckedCast;
  * dedicated thread when the JVM terminates. All modifications are
  * synchronised to make the class thread-safe.
  *
- * @apiNote Use unique priorities between {@code 0-100} so that unrelated
+ * <p> Use unique priorities between {@code 0-100} so that unrelated
  * components do not interfere with each other's shutdown ordering.
  */
 public class PriorityHook {
@@ -40,7 +40,9 @@ public class PriorityHook {
     }
 
     /**
-     * Convenience method for adding a simple {@link Runnable}.
+     * Add a shutdown hook with a specified priority.
+     * <p>
+     * Will prevent adding the same hook (by parameter's class) more than once, return {@code false} in that case.
      *
      * @param priority value passed to {@link Hooklet#priority()}
      * @param hook     action to run on shutdown
@@ -52,7 +54,10 @@ public class PriorityHook {
     }
 
     /**
-     * Register a custom hooklet.
+     * Add a custom shutdown hook.
+     * <p>
+     * Will prevent adding the same hook (by parameter's class) more than once, return the existing one in that case.
+     * See {@link Hooklet#identity()}.
      *
      * @param hooklet instance to register
      * @param <H>     hooklet subtype

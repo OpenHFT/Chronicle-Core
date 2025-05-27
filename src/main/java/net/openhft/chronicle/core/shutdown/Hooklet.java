@@ -27,7 +27,7 @@ import java.util.Objects;
  * many threads but each hooklet is executed sequentially by the shutdown
  * thread.
  *
- * @apiNote Allocate unique priorities in the range {@code 0-100}. Smaller
+ * <p>Allocate unique priorities in the range {@code 0-100}. Smaller
  * values execute first and should be used for higher-level components.
  */
 public abstract class Hooklet implements Comparable<Hooklet> {
@@ -39,16 +39,25 @@ public abstract class Hooklet implements Comparable<Hooklet> {
     public abstract void onShutdown();
 
     /**
-     * Priority value used to order execution.
-     * Lower values execute first. Suggested range is {@code 0-100}.
-     *
-     * @return integer value representing priority
+     * Hooks with lesser priority will be called before hooks with greater priority.
+     * <p>
+     * It is advised to allocate an unique priority in the range of 0-100.
+     * In general, more high level code needs to do its shutdown routines before lower level code.
+     * An example priority layout is given below:
+     * <p>
+     * 0: Run before all hooks. For test/example use.
+     * 1-49: Release of network resources and stopping distributed activity.
+     * 50-89: Release of local resources and stopping data structures.
+     * 90-99 Cleanup of file system resources such as temporary directories.
+     * 100: Run after all hooks. For test/example use.
      */
     public abstract int priority();
 
     /**
-     * Used to detect duplicates when registering with {@link PriorityHook}.
-     * The default implementation returns the runtime class of this instance.
+     * Hooks are only called once but may be registered multiple times.
+     * To determine if hook is already present, an object returned by this method is compared.
+     * <p>
+     * The default implementation returns this instance's class and should usually be sufficient.
      *
      * @return object used to identify the hooklet
      */
@@ -57,7 +66,9 @@ public abstract class Hooklet implements Comparable<Hooklet> {
     }
 
     /**
-     * Factory method for simple hooks.
+     * Accepts callback and priority to produce shutdown hook object.
+     * <p>
+     * Hook callback class is used to check for identity, see {@link #identity()}.
      *
      * @param priority value returned by {@link #priority()}
      * @param hook     action to run on shutdown

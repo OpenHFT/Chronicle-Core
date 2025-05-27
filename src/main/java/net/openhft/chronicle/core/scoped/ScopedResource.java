@@ -29,7 +29,6 @@ import java.io.Closeable;
  * @param <T> the type of the resource contained
  * @see ScopedResourcePool
  * @see ScopedThreadLocal
- * @since 2.27ea3
  */
 public interface ScopedResource<T> extends Closeable {
 

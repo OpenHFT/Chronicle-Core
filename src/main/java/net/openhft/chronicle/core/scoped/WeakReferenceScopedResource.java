@@ -59,7 +59,6 @@ public class WeakReferenceScopedResource<T> extends AbstractScopedResource<T> {
         return strongRef;
     }
 
-    /** {@inheritDoc} */
     @Override
     public void close() {
         strongRef = null;
