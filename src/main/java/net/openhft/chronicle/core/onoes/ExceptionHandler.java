@@ -25,15 +25,14 @@ import org.slf4j.LoggerFactory;
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 /**
- * {@code ExceptionHandler} is a functional interface that provides a mechanism
- * for handling exceptions in a uniform way throughout an application.
- * It allows defining custom logic for exception handling depending on different levels and types
- * of exceptions. This can be particularly useful for logging or taking corrective action based on specific exceptions.
+ * Strategy interface for pluggable exception handling, suitable for use with lambdas.
  *
- * <p>Implementations of this interface can provide custom strategies for handling exceptions,
- * such as logging them, ignoring them, or throwing them.
+ * <p>The overloads delegate to {@link #on(Class, String, Throwable)}. Implementations must
+ * be non-blocking and re-entrant.</p>
  *
- * <p>By default, exceptions are logged using SLF4J logging framework, however, this behavior can be overridden.
+ * @see NullExceptionHandler
+ * @see Slf4jExceptionHandler
+ * @since 3.25ea
  */
 @FunctionalInterface
 public interface ExceptionHandler {
@@ -42,38 +41,45 @@ public interface ExceptionHandler {
      * Creates an {@code ExceptionHandler} that ignores all exceptions.
      *
      * @return an instance of {@link NullExceptionHandler} which ignores all exceptions.
+     * @since 3.25ea
      */
     static ExceptionHandler ignoresEverything() {
         return NullExceptionHandler.NOTHING;
     }
 
     /**
-     * Handles an exception occurred in a specific class, with a specific message.
+     * Convenience overload delegating to {@link #on(Class, String, Throwable)} with an empty message.
      *
-     * @param clazz  the class where the error occurred. Must not be null.
-     * @param thrown the throwable instance representing the error.
+     * @param clazz  the class where the error occurred
+     * @param thrown the throwable instance representing the error, may be {@code null}
+     * @throws NullPointerException if {@code clazz} is {@code null}
+     * @since 3.25ea
      */
     default void on(@NotNull final Class<?> clazz, final Throwable thrown) {
         on(clazz, "", thrown);
     }
 
     /**
-     * Handles an exception occurred in a specific class, with a specific message.
+     * Convenience overload delegating to {@link #on(Class, String, Throwable)} with a {@code null} throwable.
      *
-     * @param clazz   the class where the error occurred. Must not be null.
-     * @param message a custom message detailing the error.
+     * @param clazz   the class where the error occurred
+     * @param message a custom message detailing the error, may be {@code null}
+     * @throws NullPointerException if {@code clazz} is {@code null}
+     * @since 3.25ea
      */
     default void on(@NotNull final Class<?> clazz, final String message) {
         on(clazz, message, null);
     }
 
     /**
-     * The default method to call when an exception occurs.
-     * It attempts to log the exception using SLF4J, and if this fails, it falls back to a secondary logging mechanism.
+     * Handles an exception for the given class, message and throwable.
+     * If logging fails this method attempts to log again at {@link Slf4jExceptionHandler#ERROR} level.
      *
-     * @param clazz   the class where the exception occurred. Must not be null.
-     * @param message a custom message providing additional information about the exception, or an empty string if not available.
-     * @param thrown  the exception that needs to be handled, or null if there is no exception.
+     * @param clazz   the class where the exception occurred
+     * @param message a custom message providing additional information or {@code null}
+     * @param thrown  the exception that needs to be handled, may be {@code null}
+     * @throws NullPointerException if {@code clazz} is {@code null}
+     * @since 3.25ea
      */
     default void on(@NotNull Class<?> clazz, @Nullable String message, @Nullable Throwable thrown) {
         requireNonNull(clazz);
@@ -90,19 +96,23 @@ public interface ExceptionHandler {
     }
 
     /**
-     * Handles an exception occurred with a specific logger, message and throwable.
+     * Handles an exception with the given logger, message and throwable.
      *
-     * @param logger  the logger instance to log the error. Must not be null.
-     * @param message a custom message detailing the error, or null.
-     * @param thrown  the throwable instance representing the error, or null.
+     * @param logger  the logger used to record the error
+     * @param message a custom message detailing the error, may be {@code null}
+     * @param thrown  the throwable instance representing the error, may be {@code null}
+     * @throws NullPointerException if {@code logger} is {@code null}
+     * @since 3.25ea
      */
     void on(@NotNull Logger logger, @Nullable String message, @Nullable Throwable thrown);
 
     /**
-     * Handles an exception occurred with a specific logger and message.
+     * Convenience overload delegating to {@link #on(Logger, String, Throwable)} with a {@code null} throwable.
      *
-     * @param logger  the logger instance to log the error. Must not be null.
-     * @param message a custom message detailing the error, or null.
+     * @param logger  the logger used to record the error
+     * @param message a custom message detailing the error, may be {@code null}
+     * @throws NullPointerException if {@code logger} is {@code null}
+     * @since 3.25ea
      */
     default void on(@NotNull Logger logger, @Nullable String message) {
         on(logger, message, null);
@@ -111,8 +121,10 @@ public interface ExceptionHandler {
     /**
      * Checks if the exception handler is enabled for the given class.
      *
-     * @param aClass the class to check if the exception handler is enabled for. Must not be null.
-     * @return true, as the exception handler is enabled by default for all classes.
+     * @param aClass the class to test
+     * @return {@code true} if this handler should be invoked for the class
+     * @throws NullPointerException if {@code aClass} is {@code null}
+     * @since 3.25ea
      */
     default boolean isEnabled(@NotNull Class<?> aClass) {
         requireNonNull(aClass);
@@ -122,7 +134,8 @@ public interface ExceptionHandler {
     /**
      * Retrieves the default underlying exception handler.
      *
-     * @return the default exception handler, which is the current instance by default.
+     * @return the default exception handler, usually {@code this}
+     * @since 3.25ea
      */
     default ExceptionHandler defaultHandler() {
         return this;
