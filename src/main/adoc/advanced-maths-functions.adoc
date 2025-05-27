@@ -2,48 +2,76 @@
 [[advanced-maths-functions]]
 Chronicle Core
 :toc:
-:toclevels: 2
+:lang: en-GB
+:source-highlighter: rouge
 
 == Overview
 
-The `Maths` utility class provides a series of helpers beyond those covered in the README.
-This document explains rounding helpers, integer conversion checks, hashing and power-of-two utilities.
+The `Maths` utility class in Chronicle Core provides a range of static helper methods for numerical operations, extending beyond standard Java Math capabilities.
+This document details these functions, including various rounding helpers, robust integer conversion checks, specialized hashing functions, and power-of-two utilities.
+These utilities are designed for performance, often avoiding object creation.
 
 == Rounding Helpers
 
-`Maths` includes methods that operate on doubles with a chosen number of decimal places.
+`Maths` includes several methods for rounding `double` values to a specified precision.
+These methods are optimized to avoid object allocations.
 
-* `roundN(double, int)`\
-  rounds a value to the nearest digit, rounding halves away from zero.
-* `roundNup(double, int)`\
-  rounds a value, ensuring that `0.5` is always rounded up.
-* `ceilN(double, int)`\
-  returns the smallest value not less than the argument for the given precision.
-* `floorN(double, int)`\
-  returns the largest value not greater than the argument for the given precision.
+* `roundN(double d, int digits)`: Performs a round accurate to within 1 ulp.
+For values very close to 0.5, it might round up or down.
+It's suitable for 0 to 18 digits of precision.
+* `roundN(double d, double digits)`: Similar to the above, but `digits` can be a `double` to specify fractional rounding factors (e.g., 0.3 for rounding to nearest 1/2, 1/5, etc. via `roundingFactor(double)`).
+* `roundNup(double d, int digits)`: Ensures that values of 0.5 and greater (at the specified digit) are always rounded up (away from zero for negative numbers).
+* `ceilN(double d, int digits)` / `ceilN(double d, double digits)`: Returns the smallest value (closest to negative infinity) that is not less than the argument and is a multiple of the precision defined by `digits`.
+* `floorN(double d, int digits)` / `floorN(double d, double digits)`: Returns the largest value (closest to positive infinity) that is not greater than the argument and is a multiple of the precision defined by `digits`.
+* Specific precision rounders: Methods like `round2(double)`, `round6up(double)` are provided for common decimal place rounding (e.g., 2 or 6 places).
 
-These methods use powers of ten internally and avoid creating objects.
+These methods internally use `roundingFactor(int)` or `roundingFactor(double)` which leverage `tens(int)` and `fives(int)` for calculating scaling factors.
+
+=== Decimal Representation
+
+* `asDouble(long value, int exponent, boolean negative, int decimalPlaces)`: Converts integer components (mantissa, exponent, sign, and decimal place scaling) into a `double` value.
+This is useful for precise reconstruction of decimal numbers.
+* `add(long a, long b, long c)`: A helper for `asDouble` to compute `a + b / c` with care for precision.
 
 == Integer Conversion Checks
 
-`Maths` validates that narrowing conversions do not overflow. If a value exceeds the target range an `ArithmeticException` is thrown.
+To prevent data loss or unexpected behavior from narrowing numeric conversions, `Maths` provides validation methods.
+These throw an `ArithmeticException` if the input `long` value would overflow the target integer type.
 
-* `toInt8(long)` and `toInt16(long)` check conversion to signed byte and short.
-* `toInt32(long)` converts to `int`. The overload with a format string allows custom messages.
-* `toUInt8(long)` and `toUInt16(long)` validate unsigned 8- and 16-bit values.
-* `toUInt31(long)` checks that a value fits in 31 bits.
-* `toUInt32(long)` ensures a value fits in an unsigned 32-bit range.
+* `toInt8(long value)`: Checks conversion to signed `byte`.
+* `toInt16(long value)`: Checks conversion to signed `short`.
+* `toInt32(long value)`: Converts to `int`.
+An overload `toInt32(long, String msg)` allows custom exception messages.
+* `toUInt8(long value)`: Validates if the value fits in an unsigned 8-bit range (0-255), returned as `short`.
+* `toUInt16(long value)`: Validates if the value fits in an unsigned 16-bit range (0-65535), returned as `int`.
+* `toUInt31(long value)`: Checks that a value fits in 31 bits (0 to 0x7FFFFFFF), returned as `int`.
+* `toUInt32(long value)`: Ensures a value fits in an unsigned 32-bit range (0 to 0xFFFFFFFFL), returned as `long`.
 
 == Hashing Helpers
 
-`hash64` computes a 64-bit hash for numbers, strings and `StringBuilder` instances.
-It multiplies by constants and agitates the result to distribute the bits.
-The method respects the internal representation of strings on different Java versions.
+The `Maths` class offers utility methods for generating 64-bit hash codes.
 
-== Power-of-two Utilities
+* `hash64(CharSequence cs)` / `hash64(String s)` / `hash64(StringBuilder sb)`: Computes a 64-bit hash for various character sequences.
+These methods are optimized to handle internal String representations across different Java versions (e.g., byte-array vs char-array).
+* `hash64(long l0)`: Computes a 64-bit hash for a `long` value.
+* `agitate(long l)`: A helper function used internally by hashing methods to improve bit distribution.
+* `hash(Object o1, Object o2, ...)`: A series of overloaded methods to compute a combined hash code for multiple objects (up to 5).
 
-* `nextPower2(int, int)` and `nextPower2(long, long)` return the next power of two that is at least the specified minimum.
-* `isPowerOf2(long)` checks whether a value is a positive power of two.
-* `intLog2(long)` returns the truncated base-two logarithm, throwing if the input is not positive.
+== Power-of-Two Utilities
 
-These helpers are useful when working with arrays or buffers that benefit from power-of-two sizing.
+These utilities are often used when dealing with data structures or memory allocations that require sizes to be powers of two for efficiency.
+
+* `nextPower2(int n, int min)` / `nextPower2(long n, long min)`: Return the smallest power of two that is greater than or equal to `n`, but not less than `min`. `min` must be a positive power of two.
+* `isPowerOf2(long n)`: Checks if a `long` value is a positive power of two.
+* `intLog2(long num)`: Returns the mathematical integer logarithm base 2 of `num`.
+Throws an `IllegalArgumentException` if `num` is not positive.
+
+== Other Numerical Utilities
+
+* `tens(int decimalPlaces)`: Returns 10 raised to the power of `decimalPlaces`.
+Supports 0 to 18 decimal places.
+* `fives(int decimalPlaces)`: Returns 5 raised to the power of `decimalPlaces`.
+Used internally for rounding.
+* `digits(long num)`: Calculates the number of decimal digits in a `long` value.
+* `divideRoundUp(long dividend, long divisor)`: Divides `dividend` by `divisor`, rounding the result up towards positive infinity if the division is not integral (e.g., `divideRoundUp(11, 5) == 3`).
+* `same(double a, double b)` / `same(float a, float b)`: Compares two floating-point numbers for equality, treating NaNs as equal to each other.

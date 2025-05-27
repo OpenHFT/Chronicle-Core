@@ -1,10 +1,10 @@
 = Chronicle Core - Requirements Specification
-:toc: left
-:toclevels: 2
-:scope: CORE
+:toc:
+:lang: en-GB
+:source-highlighter: rouge
 
-This document captures all *CORE*-scoped requirements for the Chronicle Core
-library.  Requirement identifiers follow the company-wide *Nine-Box* taxonomy:
+This document captures all *CORE*-scoped requirements for the Chronicle Core library.
+Requirement identifiers follow the company-wide *Nine-Box* taxonomy:
 
   <Scope>-<Tag>-xxx   ->   CORE-FN-001, CORE-NF-P-006, ...
 
