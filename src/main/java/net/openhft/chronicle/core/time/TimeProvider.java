@@ -39,10 +39,10 @@ public interface TimeProvider {
      * Retrieves the current time in milliseconds.
      * <p>
      * This method returns the current time with millisecond precision, measured from the Unix epoch
-     * (00:00:00 UTC on 1 January 1970). It is expected to be implemented by all subclasses, providing
-     * the baseline precision for time measurements.
+     * (00:00:00 UTC on 1 January 1970). Implementations must guarantee thread-safe access.
      *
      * @return the current time in milliseconds since the Unix epoch
+     * @implSpec Implementations must be thread-safe. Values may overflow after year 2262.
      */
     long currentTimeMillis();
 
@@ -53,8 +53,9 @@ public interface TimeProvider {
      * {@link #currentTimeMillis()} by a factor of 1000. Implementations may override this for higher
      * accuracy if available.
      *
-     * @return The current time in microseconds since the Unix epoch.
-     * @throws IllegalStateException if the time value cannot be accurately determined or converted.
+     * @return the current time in microseconds since the Unix epoch
+     * @throws IllegalStateException if the time value cannot be accurately determined or converted
+     * @implSpec Thread-safe if {@link #currentTimeMillis()} is thread-safe. Values may overflow after year 2262.
      */
     default long currentTimeMicros() throws IllegalStateException {
         return currentTimeMillis() * 1000;
@@ -67,8 +68,9 @@ public interface TimeProvider {
      * from {@link #currentTimeMicros()} by 1000. Implementations may provide more precise or direct
      * measurements if their underlying system supports it.
      *
-     * @return The current time in nanoseconds since the Unix epoch.
-     * @throws IllegalStateException if the time value cannot be accurately determined or converted.
+     * @return the current time in nanoseconds since the Unix epoch
+     * @throws IllegalStateException if the time value cannot be accurately determined or converted
+     * @implSpec Thread-safe if {@link #currentTimeMicros()} is thread-safe. Values may overflow after year 2262.
      */
     default long currentTimeNanos() throws IllegalStateException {
         return currentTimeMicros() * 1000;

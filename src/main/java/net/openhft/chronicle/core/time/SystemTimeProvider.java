@@ -39,18 +39,36 @@ public enum SystemTimeProvider implements TimeProvider {
 
     private long delta = 0;
 
+    /**
+     * Returns the current wall-clock time in milliseconds.
+     *
+     * @return milliseconds since the Unix epoch
+     * @implSpec Thread-safe; the method holds no state.
+     * @implNote Values may overflow after year 2262.
+     */
     @Override
     public long currentTimeMillis() {
         return System.currentTimeMillis();
     }
 
+    /**
+     * Returns the current wall-clock time in microseconds.
+     *
+     * @return microseconds since the Unix epoch
+     * @implSpec Thread-safe; the method holds no state.
+     * @implNote Values may overflow after year 2262.
+     */
     @Override
     public long currentTimeMicros() {
         return currentTimeNanos() / 1000;
     }
 
     /**
-     * @return a nanosecond time stamp which is generally monotonically increasing
+     * Returns a nanosecond timestamp which is generally monotonically increasing.
+     *
+     * @return nanoseconds since the Unix epoch
+     * @implSpec Thread-safe; the method holds no state.
+     * @implNote Values may overflow after year 2262.
      */
     @Override
     public long currentTimeNanos() {

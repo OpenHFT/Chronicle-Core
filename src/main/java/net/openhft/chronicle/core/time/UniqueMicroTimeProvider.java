@@ -36,18 +36,22 @@ public class UniqueMicroTimeProvider implements TimeProvider {
     /**
      * Constructs a new UniqueMicroTimeProvider.
      * <p>
-     * This constructor initializes the time provider with zero. New instances are typically created for
-     * testing purposes, as this class is stateful and maintains the last time value issued.
-         */
+     * This constructor initialises the provider with zero. Instances are typically used for testing as
+     * the class maintains the last issued time.
+     *
+     * @implSpec Thread-safe via {@link AtomicLong}.
+     */
     public UniqueMicroTimeProvider() {
         // Do nothing
     }
 
     /**
-     * Sets the underlying time provider for this instance and initializes the last time value.
+     * Sets the underlying time provider for this instance and initialises the last time value.
      *
-     * @param provider The {@link TimeProvider} to use for time calculations.
-     * @return The current {@code UniqueMicroTimeProvider} instance for fluent method chaining.
+     * @param provider delegate provider, not {@code null}
+     * @return this instance for chaining
+     * @implSpec Thread-safe via {@link AtomicLong}. Changing the provider while other threads read the time
+     *           may produce non-monotonic values.
      */
     public UniqueMicroTimeProvider provider(TimeProvider provider) {
         this.provider = provider;
@@ -58,7 +62,9 @@ public class UniqueMicroTimeProvider implements TimeProvider {
     /**
      * Retrieves the current time in milliseconds, ensuring uniqueness across threads.
      *
-     * @return The current unique time in milliseconds since the epoch.
+     * @return the current unique time in milliseconds since the epoch
+     * @implSpec Thread-safe via {@link AtomicLong}. The method may spin until a unique value is obtained.
+     * @implNote Values may overflow after year 2262.
      */
     @Override
     public long currentTimeMillis() {
@@ -80,7 +86,9 @@ public class UniqueMicroTimeProvider implements TimeProvider {
      * Retrieves the current time in microseconds, ensuring uniqueness across threads.
      * It increments the time value by one microsecond if necessary to guarantee uniqueness.
      *
-     * @return The current unique time in microseconds since the epoch.
+     * @return the current unique time in microseconds since the epoch
+     * @implSpec Thread-safe via {@link AtomicLong}. The method may spin until a unique value is obtained.
+     * @implNote Values may overflow after year 2262.
      */
     @Override
     public long currentTimeMicros() {
@@ -101,7 +109,9 @@ public class UniqueMicroTimeProvider implements TimeProvider {
      * Retrieves the current time in nanoseconds, ensuring uniqueness across threads.
      * It adapts the nanosecond time based on the microsecond value to maintain unique timestamps.
      *
-     * @return The current unique time in nanoseconds since the epoch.
+     * @return the current unique time in nanoseconds since the epoch
+     * @implSpec Thread-safe via {@link AtomicLong}. The method may spin until a unique value is obtained.
+     * @implNote Values may overflow after year 2262.
      */
     @Override
     public long currentTimeNanos() {
