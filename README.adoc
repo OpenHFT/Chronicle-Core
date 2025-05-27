@@ -100,6 +100,7 @@ This library also wraps up low level access to
 * <<object-pools,Object Pools>>
 * <<class-local-caching,Class Local Caching>>
 * <<maths-functions,Maths Functions>> for casting types, rounding double, faster hashing.
+* <<advanced-maths-functions,Advanced Maths Functions>> for detailed rounding helpers, integer checks and hashing utilities.
 * <<serializable-lambdas,Serializable Lambdas>>
 * <<histogram,Histogram>> A high performance wide range histogram.
 
