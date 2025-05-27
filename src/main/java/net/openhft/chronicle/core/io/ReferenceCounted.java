@@ -17,9 +17,37 @@
 package net.openhft.chronicle.core.io;
 
 /**
- * Represents a resource that is reference counted. The resource is freed when the reference count drops to 0.
- * This can be used for efficiently managing resources, such as memory buffers or file handles,
- * by ensuring that they are not released until they are no longer in use.
+ * Represents a resource that is reference counted. The resource is freed when
+ * the reference count drops to zero.
+ * <p>
+ * <h2>Lifecycle</h2>
+ * <ul>
+ *     <li>{@link #reserve(ReferenceOwner)} increments the reference count.</li>
+ *     <li>{@link #tryReserve(ReferenceOwner)} conditionally increments without
+ *     throwing if the resource has already been released.</li>
+ *     <li>{@link #release(ReferenceOwner)} decrements the reference count and
+ *     frees the resource when it reaches zero.</li>
+ *     <li>{@link #releaseLast(ReferenceOwner)} asserts that the caller holds the
+ *     final reference.</li>
+ * </ul>
+ * Calling any of these methods on a resource that is already released or closed
+ * results in {@link ClosedIllegalStateException}. If a resource is used from an
+ * unexpected thread, implementations may throw
+ * {@link ThreadingIllegalStateException}.
+ * <p>
+ * Cleanup may occur on a background thread managed by
+ * {@link BackgroundResourceReleaser}.
+ * <p>
+ * <h3>Example</h3>
+ * <pre>{@code
+ * ReferenceOwner owner = ReferenceOwner.INIT;
+ * resource.reserve(owner);
+ * try {
+ *     // use resource
+ * } finally {
+ *     resource.release(owner);
+ * }
+ * }</pre>
  */
 public interface ReferenceCounted extends ReferenceOwner {
 

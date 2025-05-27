@@ -26,11 +26,17 @@ import java.util.Set;
 import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEASER;
 
 /**
- * Abstract base class for managing reference-counted resources.
+ * Abstract base class for managing reference counted resources.
  * <p>
- * This class provides the common functionality required for implementing
- * reference counting mechanisms in resources, such as managing the number of
- * references and releasing resources when they are no longer needed.
+ * Subclasses hold the actual resource and implement {@link #performRelease()}
+ * which is invoked when the reference count reaches zero. Release may occur on
+ * the thread calling {@link #release(ReferenceOwner)} or on a background thread
+ * via {@link BackgroundResourceReleaser} if {@link #canReleaseInBackground()}
+ * returns {@code true}.
+ * <p>
+ * Any attempt to reserve or release after the resource has been freed results
+ * in {@link ClosedIllegalStateException}. Using a subclass from more than one
+ * thread without synchronisation can cause {@link ThreadingIllegalStateException}.
  */
 public abstract class AbstractReferenceCounted implements ReferenceCountedTracer, ReferenceOwner, SingleThreadedChecked, Monitorable {
     // Constants
