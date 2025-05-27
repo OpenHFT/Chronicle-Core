@@ -20,5 +20,9 @@
  * <p>
  * These annotations may be used to convey intentions, constraints, and additional information
  * about elements in the codebase which can be beneficial for documentation, analysis or runtime behavior.
+ *
+ * <p>Unless otherwise stated, parameters and return values in this package are
+ * non-null by default. Use {@link org.jetbrains.annotations.Nullable} to
+ * indicate when {@code null} is permitted.
  */
 package net.openhft.chronicle.core.annotation;

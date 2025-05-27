@@ -12,6 +12,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
+ * <p>Unless otherwise stated, parameters and return values in this package are
+ * non-null by default. Use {@link org.jetbrains.annotations.Nullable} to
+ * indicate when {@code null} is permitted.
  */
 
 /**

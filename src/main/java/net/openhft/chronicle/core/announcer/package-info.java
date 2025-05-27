@@ -13,5 +13,9 @@
  * for higher-level components.
  *
  * @see net.openhft.chronicle.core.announcer.Announcer
+ *
+ * <p>Unless otherwise stated, parameters and return values in this package are
+ * non-null by default. Use {@link org.jetbrains.annotations.Nullable} to
+ * indicate when {@code null} is permitted.
  */
 package net.openhft.chronicle.core.announcer;
