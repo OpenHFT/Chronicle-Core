@@ -29,7 +29,7 @@ import java.util.Objects;
  * It encapsulates the log level, the originating class, a message and the
  * associated {@link Throwable}.
  *
- * @implNote The {@link #toString()} method builds a stack trace string and may
+ * <p> The {@link #toString()} method builds a stack trace string and may
  * be expensive.
  */
 public class ExceptionKey {

@@ -37,7 +37,7 @@ import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
  * Construction prunes instances of {@link IgnoresEverything} and unwraps any
  * {@link ThreadLocalisedExceptionHandler}.
  *
- * @implNote The chain is immutable and has no internal synchronisation. It is
+ * <p> The chain is immutable and has no internal synchronisation. It is
  * thread-safe provided the supplied handlers are thread-safe.
  *
  * <pre>
@@ -72,7 +72,6 @@ public class ChainedExceptionHandler implements ExceptionHandler {
      * @param clazz   the originating class, not null
      * @param message an optional message
      * @param thrown  an optional throwable
-     * @return void
      * @throws NullPointerException if {@code clazz} is null
      */
     @Override
@@ -92,7 +91,6 @@ public class ChainedExceptionHandler implements ExceptionHandler {
      * @param logger  the logger to use, not null
      * @param message an optional message
      * @param thrown  an optional throwable
-     * @return void
      * @throws NullPointerException if {@code logger} is null
      */
     @Override

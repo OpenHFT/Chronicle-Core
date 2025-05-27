@@ -29,8 +29,7 @@ import org.slf4j.LoggerFactory;
  * <p>Each enum constant represents a logging level and calls the matching
  * method on the SLF4J {@link Logger}. When SLF4J fails to initialise, or
  * the logger throws at runtime, the implementation writes to
- * {@code System.err} instead. This dynamic fallback is demonstrated in
- * {@link ExceptionHandlerFallbackTest}.
+ * {@code System.err} instead.
  *
  * <p>The {@link #DEBUG} constant overrides
  * {@link #isEnabled(Class)} and only logs when the underlying logger has

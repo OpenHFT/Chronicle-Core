@@ -29,8 +29,8 @@ import java.util.Map;
  * The supplied {@code exceptionKeyCountMap} <em>must</em> be thread-safe - for
  * example a {@link java.util.concurrent.ConcurrentHashMap}. The handler itself
  * is thread-safe.
- *
- * @apiNote The map may grow without bound if unique keys keep being added.
+ * <p>
+ * The map may grow without bound if unique keys keep being added.
  * Periodically evict infrequently used entries to control memory usage.
  */
 public class RecordingExceptionHandler implements ExceptionHandler {
