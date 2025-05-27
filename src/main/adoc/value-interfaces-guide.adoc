@@ -1,0 +1,72 @@
+= Chronicle Core - Value Interfaces Guide
+:sectnums:
+
+== Introduction
+
+Chronicle Core defines small "value" interfaces that model primitive fields or
+arrays.  Implementations of these interfaces may operate on direct memory so that
+longs, ints or Strings can be read or written without creating Java objects.
+They are typically used by higher level libraries to manipulate memory-mapped
+files or off-heap buffers.
+
+== LongValue
+
+`LongValue` represents a single 64-bit value.  In addition to normal get and set
+methods it provides atomic operations such as `compareAndSwapValue` and ordered
+writes.  A minimal usage is illustrated below.
+
+[source,java]
+----
+LongValue value = new LongValueImpl();
+value.setValue(42L);
+long current = value.getValue();
+----
+
+== StringValue
+
+`StringValue` models a mutable String stored in direct memory.  The `setValue`
+method accepts a `CharSequence` and may enforce a maximum size via the
+`@MaxBytes` annotation.  The value can be retrieved directly or copied into a
+`StringBuilder` to avoid extra allocations.
+
+[source,java]
+----
+StringValue sv = /* implementation supplied by Chronicle Bytes */;
+sv.setValue("example");
+String text = sv.getValue();
+----
+
+== LongArrayValues
+
+`LongArrayValues` is a typed view over an array of long values.  It exposes the
+array capacity, allows random access and offers atomic operations.  Individual
+entries may be bound to a reusable `LongValue` instance with `bindValueAt`.
+
+[source,java]
+----
+LongArrayValues la = /* implementation supplied by Chronicle Bytes */;
+long capacity = la.getCapacity();
+la.setValueAt(0, 123L);
+long first = la.getValueAt(0);
+----
+
+== Mapping to Direct Memory
+
+Concrete implementations of these interfaces use the `Memory` API from
+Chronicle Core to operate on raw addresses.  For example, a mapped file can be
+accessed via `OS.map` and manipulated through a value interface:
+
+[source,java]
+----
+try (RandomAccessFile raf = new RandomAccessFile("data.bin", "rw")) {
+    FileChannel fc = raf.getChannel();
+    long address = OS.map(fc, MapMode.READ_WRITE, 0, 64);
+    Memory memory = OS.memory();
+    memory.writeLong(address, 0L);
+    // a LongValue implementation could wrap this address
+    memory.freeMemory(address, 64);
+}
+----
+
+These interfaces allow higher level components to treat direct memory as simple
+Java objects while retaining low-level control over allocation and layout.
