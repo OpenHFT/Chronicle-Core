@@ -21,8 +21,19 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation, when applied to an interface, instructs that the interface should not be considered when MethodReaders and MethodWriters
- * are exploring interfaces to implement. It provides a mechanism to exclude certain interfaces from being processed by these components.
+ * {@code @DontChain} indicates that an interface should be ignored by
+ * Chronicle method readers and writers. It is intended for library maintainers
+ * when excluding ancillary APIs from tooling.
+ *
+ * <p><b>Retention and effect:</b> Retained at runtime but only acted upon by
+ * Chronicle tooling. It has no direct runtime behaviour.</p>
+ *
+ * <pre>
+ * {@code @DontChain}
+ * interface Helper { }
+ * </pre>
+ *
+ * @see UsedViaReflection
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
