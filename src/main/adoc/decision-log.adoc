@@ -6,7 +6,15 @@ Chronicle Core library.  Identifiers follow the
 `<Scope>-<Tag>-xxx` pattern mandated by the company-wide guidelines;
 numbers are unique within the *CORE* scope.
 
+== Decision Index
+* link:#CORE-DOC-001[CORE-DOC-001 Adopt Nine-Box Requirement & Decision Taxonomy]
+* link:#CORE-OPS-002[CORE-OPS-002 Enforce Deterministic Resource Lifecycle]
+* link:#CORE-RISK-003[CORE-RISK-003 Guard Native-Memory Mapping with Directory Whitelist]
+* link:#CORE-NF-O-004[CORE-NF-O-004 Background Resource Releaser Thread (Opt-In)]
+* link:#CORE-FN-005[CORE-FN-005 ChronicleInit for Pre/Post Application Hooks]
 
+
+[[CORE-DOC-001]]
 == CORE-DOC-001 Adopt Nine-Box Requirement & Decision Taxonomy
 
 Context::
@@ -27,6 +35,7 @@ Notes/Links::
 * link:../requirements/core-requirements.adoc[Requirements Spec]
 * link:https://internal/wiki/NineBox[Nine-Box explainer]
 
+[[CORE-OPS-002]]
 == CORE-OPS-002 Enforce Deterministic Resource Lifecycle via `AbstractCloseable` & `ReferenceCounted`
 
 Context::
@@ -46,7 +55,10 @@ Impact & Consequences::
 * Library will throw `ClosedIllegalStateException` sooner, surfacing bugs earlier.
 Notes/Links::
 * link:../src/main/java/net/openhft/chronicle/core/io/AbstractCloseable.java[Source]
+* link:project-requirements.adoc#CORE-FN-030[CORE-FN-030]
+* link:project-requirements.adoc#CORE-FN-034[CORE-FN-034]
 
+[[CORE-RISK-003]]
 == CORE-RISK-003 Guard Native-Memory Mapping with Directory Whitelist
 
 Context::
@@ -68,8 +80,10 @@ Impact & Consequences::
 * Adds a branch in `OS.java`; micro-benchmark shows < 1 ns overhead.
 Notes/Links::
 * Jira SEC-417 link to internal audit ticket.
+* link:project-requirements.adoc#CORE-FN-006[CORE-FN-006]
 
 
+[[CORE-NF-O-004]]
 == CORE-NF-O-004 Background Resource Releaser Thread (Opt-In)
 
 Context::
@@ -90,4 +104,27 @@ Impact & Consequences::
 * Resource leak detector must join on the thread before JVM exit in tests.
 Notes/Links::
 * Performance numbers in attached JMH `munmap-benchmark.md`.
+* link:project-requirements.adoc#CORE-FN-030[CORE-FN-030]
+
+[[CORE-FN-005]]
+== CORE-FN-005 ChronicleInit for Pre/Post Application Hooks
+
+Context::
+* Initialisation steps for some applications must run before Chronicle reads any system properties.
+* Other hooks must execute after `Jvm` static initialisation completes.
+Decision Statement::
+* Provide `ChronicleInit` to load and run classes specified by
+`chronicle.init.runnable` and `chronicle.postinit.runnable` system properties.
+* Support `ChronicleInitRunnable` implementations discovered via `ServiceLoader`.
+Alternatives Considered::
+* *Static blocks in `Jvm`* - simple but hard to extend by user code.
+* *External bootstrap scripts* - violate embedability and complicate deployment.
+Rationale for Decision::
+* Gives applications controlled extension points without requiring code changes.
+Impact & Consequences::
+* Hooks may modify system properties or start services during startup.
+* Misconfigured hooks could delay application launch or throw exceptions.
+Notes/Links::
+* link:project-requirements.adoc#CORE-FN-015[CORE-FN-015]
+* link:project-requirements.adoc#CORE-FN-016[CORE-FN-016]
 
