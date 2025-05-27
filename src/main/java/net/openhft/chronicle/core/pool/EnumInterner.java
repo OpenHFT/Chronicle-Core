@@ -25,6 +25,13 @@ import org.jetbrains.annotations.NotNull;
  * This class represents a cache for enum values to improve performance in scenarios where the same enum values
  * are frequently looked up by name. The class is generic, so it can be used with any enum type.
  *
+ * Example:
+ * <pre>{@code
+ * for (Colour c : Colour.values()) {
+ *     interner.intern(c.name());
+ * }
+ * }</pre>
+ *
  * @param <E> the type of the enum
  */
 public class EnumInterner<E extends Enum<E>> {
