@@ -36,7 +36,7 @@ import net.openhft.chronicle.core.Jvm;
  * currentTimeNanos()         : ---------&gt;
  * </pre>
  *
- * Typical call latency is about 250 ns on modern hardware.
+ * Typical call latency is about 40 ns on modern hardware.
  */
 public enum SystemTimeProvider implements TimeProvider {
     INSTANCE;
