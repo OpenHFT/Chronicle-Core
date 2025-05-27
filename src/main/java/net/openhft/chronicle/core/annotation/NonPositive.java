@@ -32,6 +32,23 @@ import java.lang.annotation.Target;
  * {@code @NonPositive} int offset;
  * </pre>
  *
+ * <table>
+ * <tr><th>Annotation</th><th>Constraint</th></tr>
+ * <tr><td>{@link Negative}</td><td>val &lt; 0</td></tr>
+ * <tr><td>{@code @NonPositive}</td><td>val &lt;= 0</td></tr>
+ * <tr><td>{@link NonNegative}</td><td>val &gt;= 0</td></tr>
+ * <tr><td>{@link Positive}</td><td>val &gt; 0</td></tr>
+ * </table>
+ *
+ * <pre>
+ * void clear(@NonPositive int count) {
+ *     assert count <= 0;
+ * }
+ * </pre>
+ *
+ * <p>These annotations are advisory and may be enforced with
+ * {@code ChronicleAssertions} or Java {@code assert}.</p>
+ *
  * @see Negative
  * @see NonNegative
  * @see Positive

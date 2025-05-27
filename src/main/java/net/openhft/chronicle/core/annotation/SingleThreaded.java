@@ -33,6 +33,11 @@ import java.lang.annotation.Target;
  * {@code @SingleThreaded}
  * final class IdGenerator { }
  * </pre>
+ *
+ * <p>Chronicle runtime checks this contract unless
+ * {@link net.openhft.chronicle.core.io.AbstractCloseable#singleThreadedCheckDisabled()}
+ * is enabled. Call {@code singleThreadedCheckReset()} before handing the
+ * instance to another thread. Violations may lead to subtle data races.</p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

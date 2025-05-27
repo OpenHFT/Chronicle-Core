@@ -32,6 +32,16 @@ import java.lang.annotation.Target;
  * class ModernOnly { }
  * </pre>
  *
+ * <p>Major version {@code 0} means any version. Common values are 8, 11, 17
+ * and 21.</p>
+ *
+ * <pre>
+ * Class<?> impl = ImplementationPicker.pick(TargetInterface.class);
+ * </pre>
+ *
+ * <p>When multiple classes match, {@code includeOlder} and
+ * {@code includeNewer} determine precedence.</p>
+ *
  * @see Java9
  * @see ChronicleFeature
  */

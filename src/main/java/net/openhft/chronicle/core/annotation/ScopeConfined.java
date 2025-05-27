@@ -30,6 +30,14 @@ import java.lang.annotation.*;
  * {@code @ScopeConfined}
  * void accept(Buffer b) { }
  * </pre>
+ *
+ * <p>Object contents will be scrubbed after hand-off. When used with off-heap
+ * resources such as {@code Bytes}, the Cleaner may reclaim memory once the
+ * callback completes.</p>
+ *
+ * <pre>
+ * void onMessage(@ScopeConfined Bytes<?> b) { ringBuffer.write(b); }
+ * </pre>
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)

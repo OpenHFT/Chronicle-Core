@@ -33,6 +33,10 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
  * {@code @PackageLocal} class Helper { }
  * </pre>
  *
+ * <p>Package-private access avoids {@code SecurityManager} checks and can
+ * enable sealed hierarchies. Use this annotation to silence IDE warnings such
+ * as "access can be private".</p>
+ *
  * @see UsedViaReflection
  */
 @Documented
