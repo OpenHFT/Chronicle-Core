@@ -29,23 +29,28 @@ import java.lang.annotation.Target;
  * <p><b>Retention and effect:</b> Stored in the class file but ignored by the
  * runtime unless Chronicle tooling checks it.</p>
  *
- * <pre>
- * {@code @NonNegative} long size;
- * </pre>
+ * <pre>{@code
+ * @NonNegative long size;
+ * }</pre>
  *
  * <table>
- * <tr><th>Annotation</th><th>Constraint</th></tr>
- * <tr><td>{@link Negative}</td><td>val &lt; 0</td></tr>
- * <tr><td>{@link NonPositive}</td><td>val &lt;= 0</td></tr>
- * <tr><td>{@code @NonNegative}</td><td>val &gt;= 0</td></tr>
- * <tr><td>{@link Positive}</td><td>val &gt; 0</td></tr>
+ *   <caption>Sign-related annotations</caption>
+ *   <thead>
+ *     <tr><th>Annotation</th><th>Constraint</th></tr>
+ *   </thead>
+ *   <tbody>
+ *     <tr><td>{@link Negative}</td><td>{@code val &lt; 0}</td></tr>
+ *     <tr><td>{@link NonPositive}</td><td>{@code val &lt;= 0}</td></tr>
+ *     <tr><td>{@code @NonNegative}</td><td>{@code val &gt;= 0}</td></tr>
+ *     <tr><td>{@link Positive}</td><td>{@code val &gt; 0}</td></tr>
+ *   </tbody>
  * </table>
  *
- * <pre>
+ * <pre>{@code
  * void setSize(@NonNegative int size) {
- *     assert size >= 0;
+ *     assert size &gt;= 0;
  * }
- * </pre>
+ * }</pre>
  *
  * <p>These annotations are advisory and may be enforced with
  * {@code ChronicleAssertions} or Java {@code assert}.</p>

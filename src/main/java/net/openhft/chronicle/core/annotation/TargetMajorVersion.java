@@ -36,7 +36,7 @@ import java.lang.annotation.Target;
  * and 21.</p>
  *
  * <pre>
- * Class<?> impl = ImplementationPicker.pick(TargetInterface.class);
+ * Class&lt;?&gt; impl = ImplementationPicker.pick(TargetInterface.class);
  * </pre>
  *
  * <p>When multiple classes match, {@code includeOlder} and

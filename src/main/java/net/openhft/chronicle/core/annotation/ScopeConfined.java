@@ -36,7 +36,7 @@ import java.lang.annotation.*;
  * callback completes.</p>
  *
  * <pre>
- * void onMessage(@ScopeConfined Bytes<?> b) { ringBuffer.write(b); }
+ * void onMessage(@ScopeConfined Bytes&lt;?&gt; b) { ringBuffer.write(b); }
  * </pre>
  */
 @Documented

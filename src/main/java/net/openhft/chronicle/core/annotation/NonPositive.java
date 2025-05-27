@@ -28,23 +28,28 @@ import java.lang.annotation.Target;
  * <p><b>Retention and effect:</b> Persisted in the class file but ignored by
  * the runtime unless Chronicle tooling enforces it.</p>
  *
- * <pre>
- * {@code @NonPositive} int offset;
- * </pre>
+ * <pre>{@code
+ * @NonPositive int offset;
+ * }</pre>
  *
  * <table>
- * <tr><th>Annotation</th><th>Constraint</th></tr>
- * <tr><td>{@link Negative}</td><td>val &lt; 0</td></tr>
- * <tr><td>{@code @NonPositive}</td><td>val &lt;= 0</td></tr>
- * <tr><td>{@link NonNegative}</td><td>val &gt;= 0</td></tr>
- * <tr><td>{@link Positive}</td><td>val &gt; 0</td></tr>
+ *   <caption>Sign-related annotations</caption>
+ *   <thead>
+ *     <tr><th>Annotation</th><th>Constraint</th></tr>
+ *   </thead>
+ *   <tbody>
+ *     <tr><td>{@link Negative}</td><td>{@code val &lt; 0}</td></tr>
+ *     <tr><td>{@code @NonPositive}</td><td>{@code val &lt;= 0}</td></tr>
+ *     <tr><td>{@link NonNegative}</td><td>{@code val &gt;= 0}</td></tr>
+ *     <tr><td>{@link Positive}</td><td>{@code val &gt; 0}</td></tr>
+ *   </tbody>
  * </table>
  *
- * <pre>
+ * <pre>{@code
  * void clear(@NonPositive int count) {
- *     assert count <= 0;
+ *     assert count &lt;= 0;
  * }
- * </pre>
+ * }</pre>
  *
  * <p>These annotations are advisory and may be enforced with
  * {@code ChronicleAssertions} or Java {@code assert}.</p>
@@ -54,6 +59,7 @@ import java.lang.annotation.Target;
  * @see Positive
  * @see Range
  */
+
 @Retention(RetentionPolicy.CLASS)
 @Target({ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE, ElementType.TYPE_USE})
 public @interface NonPositive {

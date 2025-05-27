@@ -28,13 +28,8 @@ import java.lang.annotation.Target;
  * <p><b>Retention and effect:</b> Present only in the source and discarded by
  * the compiler. It has no runtime effect unless recognised by build tooling.</p>
  *
- * <pre>
  * {@code @Java9}
  * void newApiCall();
- *
- * @Deprecated(forRemoval = true)
- * void oldApiCall();
- * </pre>
  *
  * <p>Use {@code Jvm.isJava9Plus()} to guard such calls at runtime.</p>
  *

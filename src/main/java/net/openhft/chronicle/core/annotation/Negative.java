@@ -34,16 +34,21 @@ import java.lang.annotation.Target;
  * </pre>
  *
  * <table>
- * <tr><th>Annotation</th><th>Constraint</th></tr>
- * <tr><td>{@code @Negative}</td><td>val &lt; 0</td></tr>
- * <tr><td>{@link NonPositive}</td><td>val &lt;= 0</td></tr>
- * <tr><td>{@link NonNegative}</td><td>val &gt;= 0</td></tr>
- * <tr><td>{@link Positive}</td><td>val &gt; 0</td></tr>
+ *   <caption>Sign-related annotations</caption>
+ *   <thead>
+ *     <tr><th>Annotation</th><th>Constraint</th></tr>
+ *   </thead>
+ *   <tbody>
+ *     <tr><td>{@code @Negative}</td><td>{@code val &lt; 0}</td></tr>
+ *     <tr><td>{@link NonPositive}</td><td>{@code val &lt;= 0}</td></tr>
+ *     <tr><td>{@link NonNegative}</td><td>{@code val &gt;= 0}</td></tr>
+ *     <tr><td>{@link Positive}</td><td>{@code val &gt; 0}</td></tr>
+ *   </tbody>
  * </table>
  *
  * <pre>
  * void setLevel(@Negative int level) {
- *     assert level < 0;
+ *     assert level &lt; 0;
  * }
  * </pre>
  *
