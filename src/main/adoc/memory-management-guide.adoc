@@ -1,0 +1,56 @@
+= Chronicle Core - Memory Management Guide
+:sectnums:
+
+This guide covers Chronicle-Core utilities for managing off-heap memory and memory-mapped files.
+
+== Off-Heap Allocation with `OS.memory()`
+
+`OS.memory()` returns a `Memory` instance backed by `UnsafeMemory`. It provides primitives for allocating and freeing native memory.
+
+[source,java]
+----
+Memory memory = OS.memory();
+long address = memory.allocate(128);
+try {
+    memory.writeLong(address, 0x1234);
+    long v = memory.readLong(address);
+    assert v == 0x1234;
+} finally {
+    memory.freeMemory(address, 128);
+}
+----
+
+Off-heap memory is not managed by the garbage collector, so it must be released manually. Failing to free native memory can lead to process crashes.
+
+== Memory-Mapped Files with `OS.map()` and `OS.unmap()`
+
+Memory-mapped files let you work on disk data as if it were in memory. Use `OS.map()` to create a mapping and `OS.unmap()` to release it.
+
+[source,java]
+----
+FileChannel fc = new CleaningRandomAccessFile(fileName, "rw").getChannel();
+long address = OS.map(fc, MapMode.READ_WRITE, 0, 64 << 10);
+// operate on the mapped region
+OS.unmap(address, 64 << 10);
+----
+
+The `OS.memoryMapped()` method reports the total number of bytes currently mapped. Always unmap regions when finished to avoid leaking virtual memory.
+
+== Page Alignment Helpers
+
+Many operating systems require page-aligned sizes and offsets for mappings. `OS.pageAlign()` rounds a size up to a page boundary. `OS.mapAlign()` performs the same adjustment for file offsets.
+
+[source,java]
+----
+long size = OS.pageAlign(requestedSize);
+long offset = OS.mapAlign(fileOffset);
+----
+
+Pass a custom page size to these methods when working with huge pages or specialised hardware.
+
+== Freeing Memory and Debugging Issues
+
+* Always call `freeMemory` on addresses allocated with `OS.memory()`.
+* Use `OS.unmap()` for every successful `OS.map()` call.
+* `OS.memoryMapped()` helps diagnose leaks of memory-mapped regions.
+* Enable `Jvm.isResourceTracing()` to capture stack traces of resource creation and closure when tracking down leaks.
