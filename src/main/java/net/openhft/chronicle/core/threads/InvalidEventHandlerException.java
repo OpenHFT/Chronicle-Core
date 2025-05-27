@@ -29,19 +29,16 @@ package net.openhft.chronicle.core.threads;
  * error information or stack traces are needed, as it doesn't provide these details.
  * <p>
  * Example usage:
- * {@code
+ * <pre>
  * class SampleHandler implements EventHandler {
- *     @Override
+ *     {@code @Override}
  *     public boolean action() throws InvalidEventHandlerException {
  *         // perform work
  *         if (done)
  *             throw InvalidEventHandlerException.reusable();
  *         return true;
  *     }
- * }
- * }
- *
- * @see #reusable()
+ * }</pre>
  */
 public class InvalidEventHandlerException extends Exception {
     private static final long serialVersionUID = 0L;
