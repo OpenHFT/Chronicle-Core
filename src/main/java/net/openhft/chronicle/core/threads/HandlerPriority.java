@@ -19,42 +19,58 @@ package net.openhft.chronicle.core.threads;
 /**
  * Enum representing different priority levels for event handlers in an event loop.
  * The priority determines how frequently and in what order the handlers are executed.
+ * The {@link #alias()} method exposes the effective priority used by the scheduler
+ * where an enum constant is an alias for another priority.
  */
 public enum HandlerPriority {
     /**
-     * Represents critical tasks that need to be run in a tight loop.
-     * These tasks have the highest priority and are executed very frequently.
+     * Critical tasks executed in a tight loop.
+     * Typical call frequency is on every scheduler cycle.
+     *
+     * @see <a href="https://github.com/OpenHFT/Chronicle-Threads/wiki/Priorities">Chronicle Threads Priorities</a>
      */
     HIGH,
     /**
-     * Represents less critical tasks.
-     * These tasks are invoked approximately 1/4 as often as tasks with HIGH priority.
+     * Tasks run about one quarter as often as {@link #HIGH}.
+     * Typical call frequency is four times slower than {@link #HIGH}.
+     *
+     * @see <a href="https://github.com/OpenHFT/Chronicle-Threads/wiki/Priorities">Chronicle Threads Priorities</a>
      */
     MEDIUM,
     /**
-     * Represents timing-based tasks which are called at regular intervals.
-     * These tasks are not sensitive to thread pauses such as garbage collection or debugging,
-     * making them more robust against delays compared to using absolute time differences.
+     * Timing-based tasks executed at regular intervals.
+     * Typical interval is tens of milliseconds and the relative timing is resilient to pauses.
+     *
+     * @see <a href="https://github.com/OpenHFT/Chronicle-Threads/wiki/Priorities">Chronicle Threads Priorities</a>
      */
     TIMER,
     /**
-     * Represents tasks that are run only when there is nothing else to do.
-     * These tasks have a very low priority and are meant to be run in the background.
+     * Tasks run only when there is nothing else to do.
+     * Typical call frequency is when the event loop is otherwise idle.
+     *
+     * @see <a href="https://github.com/OpenHFT/Chronicle-Threads/wiki/Priorities">Chronicle Threads Priorities</a>
      */
     DAEMON,
     /**
-     * Represents tasks that are run periodically in a background thread.
-     * These tasks are used for monitoring purposes.
+     * Background monitoring tasks.
+     * Typical call frequency is about once per second.
+     *
+     * @see <a href="https://github.com/OpenHFT/Chronicle-Threads/wiki/Priorities">Chronicle Threads Priorities</a>
      */
     MONITOR,
     /**
-     * Represents tasks that involve blocking operations.
-     * These tasks are added to a cached thread pool to avoid blocking the main event loop.
+     * Tasks involving blocking operations executed on a cached thread pool.
+     * Frequency depends on submitted blocking work.
+     *
+     * @see <a href="https://github.com/OpenHFT/Chronicle-Threads/wiki/Priorities">Chronicle Threads Priorities</a>
      */
     BLOCKING,
     /**
-     * Used for replication tasks to ensure that replication events run on a separate thread.
-     * Alias for MEDIUM priority.
+     * Replication events processed on their own thread.
+     *
+     * @apiNote Alias for {@link #MEDIUM}; use {@link #alias()} for the effective priority.
+     * Typical call frequency follows {@link #MEDIUM}.
+     * @see <a href="https://github.com/OpenHFT/Chronicle-Threads/wiki/Priorities">Chronicle Threads Priorities</a>
      */
     REPLICATION {
         @Override
@@ -63,8 +79,11 @@ public enum HandlerPriority {
         }
     },
     /**
-     * Similar to TIMER, but specifically used for replication tasks.
-     * Alias for TIMER priority.
+     * Timing based replication tasks.
+     *
+     * @apiNote Alias for {@link #TIMER}; use {@link #alias()} for the effective priority.
+     * Typical call frequency follows {@link #TIMER}.
+     * @see <a href="https://github.com/OpenHFT/Chronicle-Threads/wiki/Priorities">Chronicle Threads Priorities</a>
      */
     REPLICATION_TIMER {
         @Override
@@ -73,8 +92,11 @@ public enum HandlerPriority {
         }
     },
     /**
-     * Represents tasks that can be performed concurrently, especially as they might block for some time.
-     * Alias for MEDIUM priority.
+     * Tasks that can be performed concurrently and may block for some time.
+     *
+     * @apiNote Alias for {@link #MEDIUM}; use {@link #alias()} for the effective priority.
+     * Typical call frequency follows {@link #MEDIUM}.
+     * @see <a href="https://github.com/OpenHFT/Chronicle-Threads/wiki/Priorities">Chronicle Threads Priorities</a>
      */
     CONCURRENT {
         @Override
@@ -84,11 +106,10 @@ public enum HandlerPriority {
     };
 
     /**
-     * Returns the effective priority for the handler.
-     * Some priority levels are aliases for other priorities (e.g., REPLICATION is an alias for MEDIUM).
-     * This method returns the actual priority that should be used for scheduling.
+     * Returns the effective priority used by the scheduler.
+     * Constants such as {@link #REPLICATION} are aliases for other priorities.
      *
-     * @return the effective HandlerPriority.
+     * @return the priority the scheduler employs
      */
     public HandlerPriority alias() {
         return this;
