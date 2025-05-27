@@ -15,26 +15,25 @@
  */
 package net.openhft.chronicle.core.io;
 /**
- * An interface for querying the closeable state of an object.
- * Provides methods to check if the object is closed or in the process of closing.
+ * Minimal contract to query the closing state of a resource.
+ * It is used by {@link Closeable} and {@link ManagedCloseable}.
  */
 public interface QueryCloseable {
 
     /**
-     * Checks if this object is in the process of closing.
-     * <p>
-     * This method should always return true if {@link #isClosed()} returns true.
+     * Indicates whether the resource is in the process of closing.
+     * This method should return {@code true} once {@link #isClosed()} does.
      *
-     * @return true if the {@code close()} method has been called (but not necessarily completed)
+     * @return {@code true} if {@code close()} has been invoked
      */
     default boolean isClosing() {
         return isClosed();
     }
 
     /**
-     * Checks if this object is closed.
+     * Reports whether the resource has finished closing.
      *
-     * @return true if the {@code close()} method has completed, false otherwise
+     * @return {@code true} once the resource is closed
      */
     boolean isClosed();
 }

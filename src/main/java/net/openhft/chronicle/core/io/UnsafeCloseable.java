@@ -20,8 +20,9 @@ import net.openhft.chronicle.core.UnsafeMemory;
 import sun.misc.Unsafe;
 
 /**
- * An abstract base class for resources that use the {@link Unsafe} class for low-level memory operations.
- * Provides methods for manipulating long values stored at a specific memory address.
+ * Convenience base for memory backed resources using {@link Unsafe}.
+ * Not thread-safe. The memory address is set via {@link #address(long)} and the
+ * clean-up is performed in {@link #performClose()}.
  */
 public abstract class UnsafeCloseable extends AbstractCloseable {
 
@@ -29,8 +30,8 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
     protected Unsafe unsafe = null;
 
     /**
-     * Constructs a new UnsafeCloseable instance.
-     * Disables the single-threaded check for thread safety.
+     * Disable the single-threaded check because these resources are typically
+     * accessed from multiple threads.
      */
     @SuppressWarnings("this-escape")
     protected UnsafeCloseable() {
@@ -38,9 +39,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
     }
 
     /**
-     * Sets the memory address for this resource.
-     *
-     * @param address The memory address.
+     * Assign the backing memory address.
      */
     protected void address(long address) {
         this.address = address;

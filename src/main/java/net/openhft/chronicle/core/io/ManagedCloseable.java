@@ -24,11 +24,12 @@ import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 import static net.openhft.chronicle.core.io.AbstractCloseable.DISABLE_DISCARD_WARNING;
 
 /**
- * The {@code ManagedCloseable} interface extends the {@link Closeable} interface and provides additional methods
- * that are primarily intended for expert use cases involving resource lifecycle management.
+ * Adds expert lifecycle hooks to {@link Closeable}.
+ * Implementations may inspect their creation site and warn when discarded
+ * without being closed. Users typically interact with such resources via
+ * {@code try}-with-resources.
  * <p>
- * This interface is designed for scenarios where more fine-grained control over the closing process of a resource
- * is needed, or where it is necessary to perform advanced operations based on the state of the resource.
+ * Thread safety is left to the concrete implementation.
  */
 public interface ManagedCloseable extends Closeable {
 
