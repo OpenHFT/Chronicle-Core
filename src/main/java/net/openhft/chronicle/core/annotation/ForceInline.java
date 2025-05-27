@@ -22,9 +22,19 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Marker annotation for some methods and constructors in the JSR 292 implementation.
- * <p>
- * To utilise this annotation see Chronicle Enterprise Warmup module.
+ * {@code @ForceInline} requests that a method or constructor be inlined where
+ * possible. It targets library maintainers controlling performance
+ * characteristics.
+ *
+ * <p><b>Retention and effect:</b> Retained at runtime but has no direct effect
+ * unless recognised by Chronicle warm-up tooling.</p>
+ *
+ * <pre>
+ * {@code @ForceInline}
+ * void busyLoop() { }
+ * </pre>
+ *
+ * @see HotMethod
  */
 @Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.RUNTIME)
