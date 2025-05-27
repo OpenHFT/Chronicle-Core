@@ -1,0 +1,93 @@
+= Chronicle Core – Decision Log
+:toc:
+
+This file captures *component-specific* architectural decisions for the
+Chronicle Core library.  Identifiers follow the
+`<Scope>-<Tag>-xxx` pattern mandated by the company-wide guidelines;
+numbers are unique within the *CORE* scope.
+
+
+== CORE-DOC-001 Adopt Nine-Box Requirement & Decision Taxonomy
+
+Context::
+* Numerous Chronicle projects expressed difficulty tracing requirements to code and to ADRs.
+* A single, cross-project taxonomy is required for tooling (link-checks, changelogs).
+Decision Statement::
+* Chronicle Core **adopts** the Nine-Box tag set (`FN`, `NF-P`, `NF-S`, `NF-O`, `TEST`, `DOC`, `OPS`, `UX`, `RISK`) for all requirement and decision identifiers.
+Alternatives Considered::
+* *Free-form tags* – flexible but unsearchable; high risk of duplication.
+* *SAFe epic/capability IDs* – too coarse for low-level library work.
+Rationale for Decision::
+* Provides immediate traceability across projects with minimal ceremony.
+* Aligns with company-wide governance already approved under `ALL-DOC-100`.
+Impact & Consequences::
+* Existing requirement IDs were renumbered (see requirements-spec).
+* Tooling scripts must update regexes to recognise new tag set.
+Notes/Links::
+* link:../requirements/core-requirements.adoc[Requirements Spec]
+* link:https://internal/wiki/NineBox[Nine-Box explainer]
+
+== CORE-OPS-002 Enforce Deterministic Resource Lifecycle via `AbstractCloseable` & `ReferenceCounted`
+
+Context::
+* Off-heap memory and mmap handles are invisible to the JVM GC.
+* Production leaks previously caused kernel `ENFILE` (too many open files) errors.
+Decision Statement::
+* All classes that manage native resources **MUST** extend `AbstractCloseable`
+*and* implement `ReferenceCounted` when those resources are shareable.
+Alternatives Considered::
+* *Rely on `finalize()`* – deprecated in JDK 18; unpredictable latency.
+* *Cleaner API* – safer, but incurs allocation‐heavy reachability fences.
+Rationale for Decision::
+* `AbstractCloseable` already proven in Queue/Bytes with µs-level overhead.
+* Reference counting guarantees orderly teardown in multi-thread/process use cases.
+Impact & Consequences::
+* API surface grows (extra methods), but IDE templates mitigate ergonomic cost.
+* Library will throw `ClosedIllegalStateException` sooner, surfacing bugs earlier.
+Notes/Links::
+* link:../src/main/java/net/openhft/chronicle/core/io/AbstractCloseable.java[Source]
+
+== CORE-RISK-003 Guard Native-Memory Mapping with Directory Whitelist
+
+Context::
+* FinReg audit highlighted potential breakout via malicious path traversal
+in `OS.map(FileChannel,…)`.
+Decision Statement::
+* Introduce optional system property `chronicle.core.mmap.allowedDirs`
+(comma-separated list).
+When set, **any** attempt to memory-map a file outside these directories fails fast
+with a `SecurityException`.
+Alternatives Considered::
+* *Do nothing* – cheaper but fails compliance for tier-1 banks.
+* *Java SecurityManager checks* – SecurityManager removed in JDK 18.
+Rationale for Decision::
+* Simple, zero-allocation check; satisfies audit without penalising normal users
+(property unset = current behaviour).
+Impact & Consequences::
+* Deployment pipelines must populate the property in regulated environments.
+* Adds a branch in `OS.java`; micro-benchmark shows < 1 ns overhead.
+Notes/Links::
+* Jira SEC-417 link to internal audit ticket.
+
+
+== CORE-NF-O-004 Background Resource Releaser Thread (Opt-In)
+
+Context::
+* Large queues (> 64 GiB) experience 5–10 ms stalls during `munmap`.
+* Trading paths are sensitive to > 100 µs hiccups.
+Decision Statement::
+* Provide `BackgroundResourceReleaser` singleton.
+When system property `chronicle.core.backgroundRelease=true` is set,
+`AbstractCloseable.performClose()` submits the heavy deallocation to this
+low-priority thread, returning immediately.
+Alternatives Considered::
+* *Always release synchronously* – simplest, but violates latency SLOs.
+* *Thread-pool per caller* – avoids single bottleneck but over-complex.
+Rationale for Decision::
+* Keeps hot path predictable; opt-in preserves zero-thread baseline for most users.
+Impact & Consequences::
+* One extra daemon thread when enabled; must be listed in operations run-books.
+* Resource leak detector must join on the thread before JVM exit in tests.
+Notes/Links::
+* Performance numbers in attached JMH `munmap-benchmark.md`.
+
