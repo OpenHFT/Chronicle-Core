@@ -71,7 +71,7 @@ or divides as needed to stay aligned to the µs mesh.
 
 == 6. Usage Examples
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 // 1.  Default (monotonic µs in-JVM)
 UniqueMicroTimeProvider clock = UniqueMicroTimeProvider.INSTANCE;
