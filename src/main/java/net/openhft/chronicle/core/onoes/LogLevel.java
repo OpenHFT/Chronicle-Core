@@ -18,15 +18,20 @@
 package net.openhft.chronicle.core.onoes;
 
 /**
- * LogLevel is an enumeration that defines various levels of logging within an application.
- * These levels allow for granularity and control over what types of messages should be logged.
+ * Levels used by Chronicle when reporting messages.
  *
- * <ul>
- *     <li>{@link #ERROR} - Designates error events that might still allow the application to continue running.</li>
- *     <li>{@link #WARN} - Designates potentially harmful situations which should still allow the application to continue.</li>
- *     <li>{@link #PERF} - Designates performance events that could be used for performance optimization and diagnosis.</li>
- *     <li>{@link #DEBUG} - Designates fine-grained informational events that are most useful to debug an application.</li>
- * </ul>
+ * <table>
+ *     <caption>Usage and SLF4J mapping</caption>
+ *     <tr><th>Level</th><th>When to use</th><th>SLF4J level</th></tr>
+ *     <tr><td>{@link #ERROR}</td><td>Something failed and may impact progress.</td><td>{@code error}</td></tr>
+ *     <tr><td>{@link #WARN}</td><td>An unexpected condition that does not stop work.</td><td>{@code warn}</td></tr>
+ *     <tr><td>{@link #PERF}</td><td>Performance event.</td><td>{@code info}</td></tr>
+ *     <tr><td>{@link #DEBUG}</td><td>Diagnostic detail for developers.</td><td>{@code debug}</td></tr>
+ * </table>
+ *
+ * Used by {@link Slf4jExceptionHandler}.
+ *
+ * @since 3.25ea
  */
 public enum LogLevel {
     ERROR,
