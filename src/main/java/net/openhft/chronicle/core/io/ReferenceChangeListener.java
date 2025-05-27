@@ -18,44 +18,55 @@ package net.openhft.chronicle.core.io;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * An interface to be notified when references to a {@link ReferenceCounted} are added, removed, or transferred.
- * Implement this interface to receive notifications about changes in the reference counts of objects.
+ * Receives callbacks whenever the reference count of a {@link ReferenceCounted}
+ * changes. Typical uses include tracking resource ownership and diagnosing
+ * reference leaks during development.
+ * <p>
+ * Callbacks are invoked by {@link ReferenceCounted} implementations via
+ * {@link ReferenceChangeListenerManager} in the order that listeners were
+ * registered. Implementations must avoid long or blocking work as callbacks can
+ * be triggered while the owning object is holding internal locks, risking
+ * deadlock.
  */
 public interface ReferenceChangeListener {
 
     /**
-     * Called when a reference is added to a {@link ReferenceCounted} object.
+     * Invoked immediately after a reservation is made on the supplied
+     * {@link ReferenceCounted} instance.
      * <p>
-     * WARNING: This may be called from a synchronized block in DualReferenceCounted, so be careful
-     * what you do here that might introduce a deadlock!
+     * The call may occur while the owner object is synchronized. Keep the
+     * implementation short and non-blocking to avoid deadlock.
      *
-     * @param referenceCounted The ReferenceCounted to which the reference was added
-     * @param referenceOwner   The owner of the reference added
+     * @param referenceCounted the resource whose reference count increased
+     * @param referenceOwner   the owner of the new reference
      */
     default void onReferenceAdded(ReferenceCounted referenceCounted, ReferenceOwner referenceOwner) {
     }
 
     /**
-     * Called when a reference is removed from a {@link ReferenceCounted} object.
+     * Invoked after a reservation is released from the supplied
+     * {@link ReferenceCounted} instance.
      * <p>
-     * WARNING: This may be called from a synchronized block in DualReferenceCounted, so be careful
-     * what you do here that might introduce a deadlock!
+     * As above, the call can happen whilst the owner is holding locks, so avoid
+     * blocking operations.
      *
-     * @param referenceCounted The ReferenceCounted to which the reference was removed
-     * @param referenceOwner   The owner whose reference was removed, or null if that is not known
+     * @param referenceCounted the resource whose reference count decreased
+     * @param referenceOwner   the owner whose reference was removed or {@code null}
+     *                         if unknown
      */
     default void onReferenceRemoved(@Nullable ReferenceCounted referenceCounted, ReferenceOwner referenceOwner) {
     }
 
     /**
-     * Called when a reference is transferred from one owner to another for a {@link ReferenceCounted} object.
+     * Invoked after a reservation is moved from one owner to another on the
+     * supplied {@link ReferenceCounted} instance.
      * <p>
-     * WARNING: This may be called from a synchronized block in DualReferenceCounted, so be careful
-     * what you do here that might introduce a deadlock!
+     * Implementations should again avoid lengthy work as the call may be made
+     * within the {@code ReferenceCounted}'s critical section.
      *
-     * @param referenceCounted The ReferenceCounted object on which the reference was transferred.
-     * @param fromOwner        The previous owner from whom the reference was transferred.
-     * @param toOwner          The new owner to whom the reference was transferred.
+     * @param referenceCounted the resource whose reference was transferred
+     * @param fromOwner        the previous owner of the reference
+     * @param toOwner          the new owner of the reference
      */
     default void onReferenceTransferred(ReferenceCounted referenceCounted, ReferenceOwner fromOwner, ReferenceOwner toOwner) {
     }
