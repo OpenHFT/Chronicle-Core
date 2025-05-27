@@ -928,7 +928,7 @@ public final class Jvm {
     }
 
     /**
-     * Inserts a low-cost Java safe-point in the code path if -Djvm.safepoint.enabled
+     * Inserts a low-cost Java safepoint when the {@code jvm.safepoint.enabled} property is set.
      */
     public static void safepoint() {
         if (SAFEPOINT_ENABLED) {
