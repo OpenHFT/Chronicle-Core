@@ -1,4 +1,5 @@
 = Object Pooling and Caching
+[[object-pooling-and-caching]]
 :sectnums:
 
 Chronicle-Core avoids needless allocation by pooling commonly used objects.  This document summarises the key helper classes.
