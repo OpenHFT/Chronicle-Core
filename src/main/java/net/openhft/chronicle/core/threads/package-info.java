@@ -1,57 +1,41 @@
 /**
- * Provides classes and interfaces for thread management and scheduling in an
- * event-driven programming model. The classes in this package offer functionality
- * for scheduling tasks to run periodically, managing thread-local variables, and
- * handling events using an event loop.
+ * Cooperative single-thread event processing utilities.
  *
- * <p>Key classes and interfaces:
- * <ul>
- *     <li>{@link net.openhft.chronicle.core.threads.CancellableTimer}: A timer that can
- *     schedule tasks for periodic execution or execution after a delay.</li>
+ * <p>An {@link net.openhft.chronicle.core.threads.EventLoop EventLoop} runs each
+ * {@link net.openhft.chronicle.core.threads.EventHandler} on its dedicated core
+ * thread. Successive calls to {@code action()} occur on the same thread and thus
+ * form a happens-before relationship.
  *
- *     <li>{@link net.openhft.chronicle.core.threads.CleaningThread}: Extends the Thread
- *     class to clean up thread-local variables when the thread completes its execution.</li>
+ * <p>The {@link net.openhft.chronicle.core.threads.HandlerPriority} enum orders
+ * handlers. Some values are aliases &ndash; for example {@code REPLICATION}
+ * resolves to {@code MEDIUM}. Implementations use the value returned by
+ * {@link net.openhft.chronicle.core.threads.HandlerPriority#alias()}.
  *
- *     <li>{@link net.openhft.chronicle.core.threads.CleaningThreadLocal}: Extends
- *     ThreadLocal and ensures that resources held by a CleaningThread are cleaned
- *     up when the thread dies.</li>
+ * <p>Affinity can pin the core thread to a specific processor using the
+ * Java&nbsp;Thread&nbsp;Affinity library. {@link net.openhft.chronicle.core.threads.CleaningThread}
+ * resets the affinity to {@link net.openhft.affinity.AffinityLock#BASE_AFFINITY}
+ * after running the task.
  *
- *     <li>{@link net.openhft.chronicle.core.threads.DelegatingEventLoop}: An implementation
- *     of EventLoop that delegates calls to an underlying EventLoop instance. Useful as a base
- *     class for custom implementations.</li>
+ * <p>Parameters and return values are non-null unless annotated with
+ * {@link org.jetbrains.annotations.Nullable}.
  *
- *     <li>{@link net.openhft.chronicle.core.threads.EventHandler}: Interface representing
- *     a handler for events within an event loop.</li>
+ * @apiNote Handlers should perform small units of work and return promptly.
+ * @implSpec Implementations must honour the alias mapping defined by
+ * {@code HandlerPriority}.
+ * @implNote The default loop executes on a {@code CleaningThread} which also
+ * clears thread-local state.
  *
- *     <li>{@link net.openhft.chronicle.core.threads.EventLoop}: Represents an event-driven
- *     loop responsible for processing event handlers based on their priority.</li>
- *
- *     <li>{@link net.openhft.chronicle.core.threads.HandlerPriority}: Enum representing
- *     different priority levels for event handlers in an event loop.</li>
- *
- *     <li>{@link net.openhft.chronicle.core.threads.InterruptedRuntimeException}: A runtime
- *     exception representing the interruption of a thread.</li>
- *
- *     <li>{@link net.openhft.chronicle.core.threads.InvalidEventHandlerException}: Represents
- *     an exception thrown when an event handler is invalid or needs to be removed.</li>
- *
- *     <li>{@link net.openhft.chronicle.core.threads.OnDemandEventLoop}: A wrapper for an
- *     EventLoop, which is created on-demand when any of its methods are called.</li>
- *
- *     <li>{@link net.openhft.chronicle.core.threads.ThreadDump}: Utility class for monitoring
- *     and managing threads.</li>
- *
- *     <li>{@link net.openhft.chronicle.core.threads.ThreadLocalHelper}: A utility class for
- *     managing values in a ThreadLocal.</li>
- *
- *     <li>{@link net.openhft.chronicle.core.threads.Timer}: A timer used to schedule tasks
- *     for periodic execution or execution after a delay.</li>
- *
- *     <li>{@link net.openhft.chronicle.core.threads.VanillaEventHandler}: Represents an event
- *     handler that performs actions within an event loop.</li>
- * </ul>
- *
- * @see java.lang.Thread
- * @see java.lang.ThreadLocal
+ * <pre>{@code
+ * EventLoop loop = ...;
+ * loop.start();
+ * Timer timer = new Timer(loop);
+ * java.io.Closeable handle = timer.scheduleAtFixedRate(() -> {
+ *     System.out.println("tick");
+ *     return false;
+ * }, 0, 100);
+ * handle.close();
+ * loop.stop();
+ * loop.close();
+ * }</pre>
  */
 package net.openhft.chronicle.core.threads;
