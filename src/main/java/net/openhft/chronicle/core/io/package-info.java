@@ -1,30 +1,46 @@
 /**
- * The resource management package provides classes and interfaces for managing the lifecycle of
- * resources such as files, streams, and memory buffers. It includes abstractions for reference counting,
- * closing resources, and utilities for background resource release.
+ * Tools to manage resource lifecycles.
+ *
+ * <p>This package formalises how resources are acquired, shared and eventually
+ * released. Implementations typically extend
+ * {@link net.openhft.chronicle.core.io.AbstractCloseable} or use
+ * {@link net.openhft.chronicle.core.io.ReferenceCounted} to guard access with
+ * reference counts. Thread-safety is enforced by optional checks and
+ * {@link net.openhft.chronicle.core.io.BackgroundResourceReleaser} can offload
+ * clean up work to a background thread.</p>
  *
  * <h2>Features</h2>
  * <ul>
- *     <li>Abstract base classes for resources requiring close operations with thread-safety guarantees.</li>
- *     <li>Reference counting capabilities for efficient resource management.</li>
- *     <li>Utilities for managing reference counted resources in the background.</li>
+ *     <li>Abstract base classes for close operations with single-threaded or
+ *     multi-threaded safety guarantees.</li>
+ *     <li>Reference counting to ensure resources are released exactly once.</li>
+ *     <li>Background releasing via
+ *     {@link net.openhft.chronicle.core.io.BackgroundResourceReleaser}.</li>
  *     <li>Interfaces for querying the closeable state of an object.</li>
- *     <li>Interfaces for validating objects before serialization or deserialization.</li>
- *     <li>Custom exceptions for indicating illegal state due to resource closure.</li>
- *     <li>Support for tracking and monitoring reference counts and resource owners.</li>
- *     <li>Support for single-threaded access checking.</li>
+ *     <li>Validation hooks for serialization or deserialization.</li>
+ *     <li>Custom exceptions for illegal state caused by resource closure.</li>
+ *     <li>Tracking and monitoring of reference counts and resource owners.</li>
  * </ul>
  *
  * <h2>Key Classes and Interfaces</h2>
  * <ul>
- *     <li>{@link net.openhft.chronicle.core.io.AbstractCloseable} - Base class for closeable resources with additional utilities for managing the resource lifecycle.</li>
- *     <li>{@link net.openhft.chronicle.core.io.AbstractCloseableReferenceCounted} - Represents a closeable resource with reference counting capabilities.</li>
- *     <li>{@link net.openhft.chronicle.core.io.BackgroundResourceReleaser} - Utility class for managing reference counted resources and related operations in the background.</li>
- *     <li>{@link net.openhft.chronicle.core.io.Closeable} - Interface for a source or destination of data that can be closed.</li>
- *     <li>{@link net.openhft.chronicle.core.io.ReferenceOwner} - Represents an entity that owns a reference.</li>
- *     <li>{@link net.openhft.chronicle.core.io.ManagedCloseable} - Extends the Closeable interface providing additional methods for expert use cases involving resource lifecycle management.</li>
- *     <li>{@link net.openhft.chronicle.core.io.ReferenceCounted} - Represents a resource that is reference counted.</li>
- *     <li>{@link net.openhft.chronicle.core.io.Validatable} - Interface for objects that require validation of their state before being written through a method writer.</li>
+ *     <li>{@link net.openhft.chronicle.core.io.AbstractCloseable} &ndash; base
+ *     class for deterministic closeable resources.</li>
+ *     <li>{@link net.openhft.chronicle.core.io.BackgroundResourceReleaser}
+ *     &ndash; assists releasing reference counted resources off the critical
+ *     path.</li>
+ *     <li>{@link net.openhft.chronicle.core.io.ReferenceCounted} &ndash;
+ *     interface for resources that track active users.</li>
+ *     <li>{@link net.openhft.chronicle.core.io.AbstractCloseableReferenceCounted}
+ *     &ndash; convenience base integrating both closing and reference counting.</li>
+ *     <li>{@link net.openhft.chronicle.core.io.Closeable}
+ *     &ndash; simple interface for a closeable destination or source.</li>
+ *     <li>{@link net.openhft.chronicle.core.io.ReferenceOwner} &ndash; identifies
+ *     an owner of a reservation.</li>
+ *     <li>{@link net.openhft.chronicle.core.io.ManagedCloseable}
+ *     &ndash; expert closeable API offering more control.</li>
+ *     <li>{@link net.openhft.chronicle.core.io.Validatable} &ndash; allows state
+ *     checks before using method writers.</li>
  * </ul>
  *
  * <h2>Custom Exceptions</h2>
@@ -45,12 +61,15 @@
  *     <li>Database connections pooling.</li>
  * </ul>
  *
- * <h2>Examples</h2>
+ * <h2>Example</h2>
  * <pre>{@code
- * try (CloseableResource resource = new CloseableResource()) {
- *     // use the resource
- * } catch (IORuntimeException e) {
- *     // handle exception
+ * try (MyResource resource = new MyResource()) {
+ *     resource.reserve(this);
+ *     try {
+ *         // use the resource
+ *     } finally {
+ *         resource.release(this);
+ *     }
  * }
  * }</pre>
  *
