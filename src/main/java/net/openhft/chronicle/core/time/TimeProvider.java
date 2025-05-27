@@ -17,18 +17,18 @@
 package net.openhft.chronicle.core.time;
 
 /**
- * Defines an interface for providing high-resolution wall-clock timestamps.
+ * Supplies wall clock timestamps in milliseconds, microseconds and nanoseconds.
  * <p>
- * This interface specifies methods to retrieve the current time with varying degrees of precision,
- * namely in milliseconds, microseconds, and nanoseconds. Implementations of this interface are expected
- * to provide time values with the highest accuracy and precision feasible. Key implementations include
+ * Implementations typically delegate to the operating system clock, so the value returned can
+ * move backwards if the wall clock is corrected. Key implementations include
  * {@link PosixTimeProvider} and {@link SystemTimeProvider}. The {@code PosixTimeProvider} is often
- * preferred for its enhanced speed, accuracy, and stability, though it relies on native code and thus
- * may have platform-specific dependencies.
+ * preferred for its enhanced speed, accuracy and stability, though it relies on native code and thus
+ * may have platform specific dependencies.
  * <p>
  * This interface is crucial in contexts where precise time measurements are vital, such as in performance
  * monitoring, timestamping events, or handling time-sensitive operations.
  *
+ * @apiNote Use {@link UniqueMicroTimeProvider} if monotonic timestamps are required.
  * @see PosixTimeProvider
  * @see SystemTimeProvider
  */

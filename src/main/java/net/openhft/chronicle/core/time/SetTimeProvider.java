@@ -99,7 +99,16 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
     }
 
     /**
-     * Configures this provider to auto-increment after each invocation.
+     * Enables time auto-increment after each call to {@link #currentTimeNanos()}.
+     *
+     * <p>Example usage in a JUnit test:</p>
+     * <pre>{@code
+     * SetTimeProvider tp = new SetTimeProvider("2023-01-01T00:00:00")
+     *         .autoIncrement(1, TimeUnit.MILLISECONDS);
+     * }
+     * </pre>
+     * <p>Every read of the current time now advances by one millisecond. When
+     * running tests concurrently, coordinate access to avoid unexpected jumps.</p>
      *
      * @param autoIncrement increment amount, non-negative
      * @param timeUnit unit of {@code autoIncrement}
