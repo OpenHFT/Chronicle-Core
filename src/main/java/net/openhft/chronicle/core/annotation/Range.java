@@ -34,6 +34,13 @@ import java.lang.annotation.Target;
  * int level;
  * </pre>
  *
+ * <p><b>Limitations:</b> Using {@code Long.MAX_VALUE} as {@code to()} can lead
+ * to overflow. Use {@code Long.MAX_VALUE - 1} when an inclusive upper bound is
+ * required.</p>
+ *
+ * <p>This annotation is also used by Chronicle-Values for bit-packing to
+ * optimise memory layout. The {@code to()} value is exclusive by default.</p>
+ *
  * @see Positive
  * @see Negative
  * @see NonNegative

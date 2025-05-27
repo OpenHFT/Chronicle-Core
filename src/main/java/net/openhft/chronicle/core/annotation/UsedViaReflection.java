@@ -36,6 +36,14 @@ import static java.lang.annotation.RetentionPolicy.CLASS;
  * public void setAccessible() { }
  * </pre>
  *
+ * <p>Typical sources include YAML deserialisation, JMH harnesses and Spring
+ * tests. Annotate the member with {@code @SuppressWarnings("unused")} to silence
+ * compiler and IDE warnings.</p>
+ *
+ * <pre>
+ * -keep class ** { @UsedViaReflection *; }
+ * </pre>
+ *
  * @see PackageLocal
  */
 @Documented

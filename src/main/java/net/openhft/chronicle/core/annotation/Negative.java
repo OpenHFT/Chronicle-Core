@@ -33,6 +33,23 @@ import java.lang.annotation.Target;
  * {@code @Negative} int errorCode;
  * </pre>
  *
+ * <table>
+ * <tr><th>Annotation</th><th>Constraint</th></tr>
+ * <tr><td>{@code @Negative}</td><td>val &lt; 0</td></tr>
+ * <tr><td>{@link NonPositive}</td><td>val &lt;= 0</td></tr>
+ * <tr><td>{@link NonNegative}</td><td>val &gt;= 0</td></tr>
+ * <tr><td>{@link Positive}</td><td>val &gt; 0</td></tr>
+ * </table>
+ *
+ * <pre>
+ * void setLevel(@Negative int level) {
+ *     assert level < 0;
+ * }
+ * </pre>
+ *
+ * <p>These annotations are advisory and may be enforced with
+ * {@code ChronicleAssertions} or Java {@code assert}.</p>
+ *
  * @see NonNegative
  * @see NonPositive
  * @see Positive

@@ -33,6 +33,23 @@ import java.lang.annotation.Target;
  * {@code @NonNegative} long size;
  * </pre>
  *
+ * <table>
+ * <tr><th>Annotation</th><th>Constraint</th></tr>
+ * <tr><td>{@link Negative}</td><td>val &lt; 0</td></tr>
+ * <tr><td>{@link NonPositive}</td><td>val &lt;= 0</td></tr>
+ * <tr><td>{@code @NonNegative}</td><td>val &gt;= 0</td></tr>
+ * <tr><td>{@link Positive}</td><td>val &gt; 0</td></tr>
+ * </table>
+ *
+ * <pre>
+ * void setSize(@NonNegative int size) {
+ *     assert size >= 0;
+ * }
+ * </pre>
+ *
+ * <p>These annotations are advisory and may be enforced with
+ * {@code ChronicleAssertions} or Java {@code assert}.</p>
+ *
  * @see Negative
  * @see NonPositive
  * @see Positive
