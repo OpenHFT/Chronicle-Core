@@ -1,0 +1,49 @@
+= Advanced Maths Functions
+[[advanced-maths-functions]]
+Chronicle Core
+:toc:
+:toclevels: 2
+
+== Overview
+
+The `Maths` utility class provides a series of helpers beyond those covered in the README.
+This document explains rounding helpers, integer conversion checks, hashing and power-of-two utilities.
+
+== Rounding Helpers
+
+`Maths` includes methods that operate on doubles with a chosen number of decimal places.
+
+* `roundN(double, int)`\
+  rounds a value to the nearest digit, rounding halves away from zero.
+* `roundNup(double, int)`\
+  rounds a value, ensuring that `0.5` is always rounded up.
+* `ceilN(double, int)`\
+  returns the smallest value not less than the argument for the given precision.
+* `floorN(double, int)`\
+  returns the largest value not greater than the argument for the given precision.
+
+These methods use powers of ten internally and avoid creating objects.
+
+== Integer Conversion Checks
+
+`Maths` validates that narrowing conversions do not overflow. If a value exceeds the target range an `ArithmeticException` is thrown.
+
+* `toInt8(long)` and `toInt16(long)` check conversion to signed byte and short.
+* `toInt32(long)` converts to `int`. The overload with a format string allows custom messages.
+* `toUInt8(long)` and `toUInt16(long)` validate unsigned 8- and 16-bit values.
+* `toUInt31(long)` checks that a value fits in 31 bits.
+* `toUInt32(long)` ensures a value fits in an unsigned 32-bit range.
+
+== Hashing Helpers
+
+`hash64` computes a 64-bit hash for numbers, strings and `StringBuilder` instances.
+It multiplies by constants and agitates the result to distribute the bits.
+The method respects the internal representation of strings on different Java versions.
+
+== Power-of-two Utilities
+
+* `nextPower2(int, int)` and `nextPower2(long, long)` return the next power of two that is at least the specified minimum.
+* `isPowerOf2(long)` checks whether a value is a positive power of two.
+* `intLog2(long)` returns the truncated base-two logarithm, throwing if the input is not positive.
+
+These helpers are useful when working with arrays or buffers that benefit from power-of-two sizing.
