@@ -48,7 +48,7 @@ public enum IntCondition implements IntPredicate {
 
     IntCondition(final int fromInclusive,
                  final int toInclusive) {
-        this.operation = " [" + fromInclusive + ", " + toInclusive + "]";
+        this.operation = "in [" + fromInclusive + ", " + toInclusive + "]";
         this.predicate = value -> value >= fromInclusive && value <= toInclusive;
     }
 
