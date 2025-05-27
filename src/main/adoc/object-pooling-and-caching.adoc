@@ -1,0 +1,62 @@
+= Object Pooling and Caching
+:sectnums:
+
+Chronicle-Core avoids needless allocation by pooling commonly used objects.  This document summarises the key helper classes.
+
+== StringInterner
+
+`StringInterner` deduplicates `CharSequence` instances.  A small hashed array stores recently seen strings so repeated conversions return the same object.
+
+[source,java]
+----
+StringInterner si = new StringInterner(128);
+String pooled = si.intern(buffer);
+----
+
+== EnumInterner
+
+`EnumInterner` maps a name to an enum value via an internal array.  Lookups become cheap once values are cached.
+
+[source,java]
+----
+EnumInterner<Day> days = new EnumInterner<>(Day.class);
+Day d = days.intern("MON");
+----
+
+== EnumCache
+
+`EnumCache.of(Class)` returns a cache of enum instances.  It supports both static enums and dynamic ones that can grow at runtime.
+
+[source,java]
+----
+EnumCache<Day> dayCache = EnumCache.of(Day.class);
+Day tuesday = dayCache.valueOf("TUE");
+----
+
+== ClassLocal
+
+`ClassLocal` associates a value with a `Class` in a similar way to how `ThreadLocal` works for threads.  It is typically used to hold caches per enum type.
+
+[source,java]
+----
+public static final ClassLocal<EnumInterner<?>> ENUM_INTERNER =
+        ClassLocal.withInitial(EnumInterner::create);
+
+Day e = ENUM_INTERNER.get(Day.class).intern("MON");
+----
+
+== StringBuilderPool
+
+`StringBuilderPool.createThreadLocal()` provides a scoped pool of `StringBuilder` objects.  Each thread reuses a small stack of builders, cleared upon release.  This reduces allocation pressure when assembling temporary strings.
+
+[source,java]
+----
+ScopedResourcePool<StringBuilder> pool = StringBuilderPool.createThreadLocal();
+try (ScopedResource<StringBuilder> sr = pool.get()) {
+    StringBuilder sb = sr.get();
+    sb.append("cost-effective");
+    // use sb
+}
+----
+
+Pooling strings and enums via these utilities keeps allocation consistent and lookup times fast.
