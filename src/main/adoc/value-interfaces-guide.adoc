@@ -132,12 +132,12 @@ Represents a single 64-bit double value.
 
 [source,java]
 ----
-// StringValue sv = /* implementation supplied by Chronicle Bytes or similar */;
-// sv.setValue("example");
-// String text = sv.getValue();
-// StringBuilder sb = new StringBuilder();
-// sv.getUsingValue(sb);
-// assert "example".contentEquals(sb);
+ StringValue sv = /* implementation supplied by Chronicle Bytes or similar */;
+ sv.setValue("example");
+ String text = sv.getValue();
+ StringBuilder sb = new StringBuilder();
+ sv.getUsingValue(sb);
+ assert "example".contentEquals(sb);
 ----
 
 === 2.10. `TwoLongValue`
@@ -189,14 +189,14 @@ Represents an array of 32-bit integer values.
 
 [source,java]
 ----
-// LongArrayValues la = /* implementation supplied by Chronicle Bytes */;
-// long capacity = la.getCapacity();
-// if (capacity > 0) {
-//     la.setValueAt(0, 123L);
-//     long first = la.getValueAt(0);
-//     assert first == 123L;
-// }
-// la.close(); // If it's Closeable
+ LongArrayValues la = /* implementation supplied by Chronicle Bytes */;
+ long capacity = la.getCapacity();
+ if (capacity > 0) {
+     la.setValueAt(0, 123L);
+     long first = la.getValueAt(0);
+     assert first == 123L;
+ }
+ la.close(); // If it's Closeable
 ----
 
 == 4. `@MaxBytes` Annotation
@@ -218,24 +218,22 @@ Concrete implementations of these value interfaces, often found in libraries lik
 The following example illustrates the low-level operations an implementation might use:
 [source,java]
 ----
-// try (RandomAccessFile raf = new RandomAccessFile("data.bin", "rw")) { // File operations for context
-//     FileChannel fc = raf.getChannel();
-//     long regionSize = 64; // Bytes
-//     long address = OS.map(fc, FileChannel.MapMode.READ_WRITE, 0, regionSize); // Get native address
-//     try {
-//         Memory memory = OS.memory();
-//         // A LongValue implementation could wrap 'address' and 'memory'
-//         // For example, LongValue.setValue(long) could do:
-//         memory.writeLong(address, 12345L);
-//         // And LongValue.getValue() could do:
-//         // long val = memory.readLong(address);
-//         // System.out.println(val);
-//     } finally {
-//         OS.unmap(address, regionSize);
-//     }
-// } catch (IOException e) {
-//     e.printStackTrace();
-// }
+ try (RandomAccessFile raf = new RandomAccessFile("data.bin", "rw")) { // File operations for context
+     FileChannel fc = raf.getChannel();
+     long regionSize = 64; // Bytes
+     long address = OS.map(fc, FileChannel.MapMode.READ_WRITE, 0, regionSize); // Get native address
+     try {
+         Memory memory = OS.memory();
+         // A LongValue implementation could wrap 'address' and 'memory'
+         // For example, LongValue.setValue(long) could do:
+         memory.writeLong(address, 12345L);
+         // And LongValue.getValue() could do:
+         long val = memory.readLong(address);
+         System.out.println(val);
+     } finally {
+         OS.unmap(address, regionSize);
+     }
+ } catch (IOException e) {
+     e.printStackTrace();
+ }
 ----
-
-These interfaces provide a powerful abstraction, allowing high-level components to treat direct memory regions as if they were simple Java value holders or arrays, while retaining the performance benefits and control of low-level memory manipulation.

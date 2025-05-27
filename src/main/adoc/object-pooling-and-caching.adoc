@@ -162,5 +162,3 @@ assert bd1 != null;
 assert bd1.equals(new BigDecimal(numberStr));
 assert bd1 == bd2; // Should return the same cached BigDecimal object
 ----
-
-These pooling and caching utilities are integral to Chronicle Core's philosophy of minimizing garbage creation and maximizing performance in critical application paths.

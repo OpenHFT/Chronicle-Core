@@ -112,5 +112,3 @@ Use it judiciously for debugging or when explicitly enabled.
 
 * **Assertions**: Chronicle Core supports zero-cost assertions.
 Ensure you understand the difference between standard Java assertions (`-ea`) and Chronicle's `AssertUtil.SKIP_ASSERTIONS` mechanism to verify code correctly during testing without performance impact in production if assertions are compiled out.
-
-By being aware of these common issues and employing the suggested debugging strategies, developers can more effectively use Chronicle Core and build robust, high-performance applications.
