@@ -27,9 +27,9 @@ package net.openhft.chronicle.core.threads;
  *
  * <p>It is important to note that the reusable instance should not be used where
  * error information or stack traces are needed, as it doesn't provide these details.
- *
+ * <p>
  * Example usage:
- * <pre>
+ * {@code
  * class SampleHandler implements EventHandler {
  *     @Override
  *     public boolean action() throws InvalidEventHandlerException {
@@ -39,7 +39,7 @@ package net.openhft.chronicle.core.threads;
  *         return true;
  *     }
  * }
- * </pre>
+ * }
  *
  * @see #reusable()
  */

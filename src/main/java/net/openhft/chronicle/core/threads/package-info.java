@@ -19,10 +19,10 @@
  * <p>Parameters and return values are non-null unless annotated with
  * {@link org.jetbrains.annotations.Nullable}.
  *
- * @apiNote Handlers should perform small units of work and return promptly.
- * @implSpec Implementations must honour the alias mapping defined by
+ * <p> Handlers should perform small units of work and return promptly.
+ * <p> Implementations must honour the alias mapping defined by
  * {@code HandlerPriority}.
- * @implNote The default loop executes on a {@code CleaningThread} which also
+ * <p> The default loop executes on a {@code CleaningThread} which also
  * clears thread-local state.
  *
  * <pre>{@code

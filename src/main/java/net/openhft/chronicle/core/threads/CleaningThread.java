@@ -186,7 +186,7 @@ public class CleaningThread extends Thread {
      * reset to {@link AffinityLock#BASE_AFFINITY} before user code runs so the
      * binding does not leak once the loop has finished.
      *
-     * @implSpec Sub-classes overriding this method should call
+     * <p> Sub-classes overriding this method should call
      * {@code super.run()} to retain the affinity reset and cleanup behaviour.
      */
     @Override

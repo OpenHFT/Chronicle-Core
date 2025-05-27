@@ -35,7 +35,7 @@ public interface VanillaEventHandler {
      * Performs a unit of work on the event loop thread.
      * This method should return quickly without blocking.
      *
-     * @implSpec Returning {@code true} biases the scheduler to call this handler again
+     * <p> Returning {@code true} biases the scheduler to call this handler again
      *           without delay. Throwing {@link InvalidEventHandlerException#reusable()}
      *           removes the handler from the {@link EventLoop} and must have no side
      *           effects.

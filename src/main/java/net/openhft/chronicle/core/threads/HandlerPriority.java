@@ -68,7 +68,7 @@ public enum HandlerPriority {
     /**
      * Replication events processed on their own thread.
      *
-     * @apiNote Alias for {@link #MEDIUM}; use {@link #alias()} for the effective priority.
+     * <p> Alias for {@link #MEDIUM}; use {@link #alias()} for the effective priority.
      * Typical call frequency follows {@link #MEDIUM}.
      * @see <a href="https://github.com/OpenHFT/Chronicle-Threads/wiki/Priorities">Chronicle Threads Priorities</a>
      */
@@ -81,7 +81,7 @@ public enum HandlerPriority {
     /**
      * Timing based replication tasks.
      *
-     * @apiNote Alias for {@link #TIMER}; use {@link #alias()} for the effective priority.
+     * <p> Alias for {@link #TIMER}; use {@link #alias()} for the effective priority.
      * Typical call frequency follows {@link #TIMER}.
      * @see <a href="https://github.com/OpenHFT/Chronicle-Threads/wiki/Priorities">Chronicle Threads Priorities</a>
      */
@@ -94,7 +94,7 @@ public enum HandlerPriority {
     /**
      * Tasks that can be performed concurrently and may block for some time.
      *
-     * @apiNote Alias for {@link #MEDIUM}; use {@link #alias()} for the effective priority.
+     * <p> Alias for {@link #MEDIUM}; use {@link #alias()} for the effective priority.
      * Typical call frequency follows {@link #MEDIUM}.
      * @see <a href="https://github.com/OpenHFT/Chronicle-Threads/wiki/Priorities">Chronicle Threads Priorities</a>
      */
