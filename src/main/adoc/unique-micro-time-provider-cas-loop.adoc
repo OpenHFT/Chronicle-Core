@@ -1,0 +1,19 @@
+= UniqueMicroTimeProvider CAS Loop
+:toc: macro
+:toclevels: 1
+
+The diagram below summarises the compare-and-swap loop used to ensure that each timestamp is unique across threads.
+
+[mermaid]
+....
+flowchart TD
+    Init["Fetch time from underlying provider"] --> ReadLast["Read lastIssuedTimeMicros"]
+    ReadLast --> Check{last >= proposed?}
+    Check -- yes --> Adjust["validate and set proposed = last + 1"]
+    Check -- no --> AttemptCAS
+    Adjust --> AttemptCAS["compareAndSet(last, proposed)"]
+    AttemptCAS --> Success{CAS successful?}
+    Success -- yes --> Return["return proposed"]
+    Success -- no --> Pause["Jvm.nanoPause"]
+    Pause --> ReadLast
+....
