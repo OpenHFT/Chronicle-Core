@@ -16,17 +16,17 @@ The primary way to interact with raw off-heap memory is via `OS.memory()`, which
 This is typically backed by `net.openhft.chronicle.core.UnsafeMemory`.
 
 * **Allocation and Deallocation**:
-** `long address = memory.allocate(long capacity)`: Allocates a block of native memory[cite: 629].
-** `memory.freeMemory(long address, long size)`: Releases the allocated memory[cite: 628]. *It is crucial to manually free this memory to prevent leaks.*
+** `long address = memory.allocate(long capacity)`: Allocates a block of native memory.
+** `memory.freeMemory(long address, long size)`: Releases the allocated memory. *It is crucial to manually free this memory to prevent leaks.*
 * **Tracking**:
-** `memory.nativeMemoryUsed()`: Returns the total bytes allocated via `memory.allocate()` that haven't been freed[cite: 629, 910].
+** `memory.nativeMemoryUsed()`: Returns the total bytes allocated via `memory.allocate()` that haven't been freed.
 * **Operations**: The `Memory` interface provides a rich set of methods for:
 ** Reading and writing all Java primitive types (e.g., `readInt(long address)`, `writeLong(Object obj, long offset, long value)`).
 ** Volatile reads/writes for thread safety (e.g., `readVolatileInt(long address)`, `writeVolatileLong(Object obj, long offset, long value)`).
 ** Ordered writes for specific memory ordering guarantees (e.g., `writeOrderedInt(long address)`).
 ** Compare-and-Swap (CAS) operations (e.g., `compareAndSwapLong(long address, long expected, long value)`).
 ** Memory copying (`copyMemory(...)` overloads).
-** Memory fences (`storeFence()`, `loadFence()`)[cite: 627].
+** Memory fences (`storeFence()`, `loadFence()`).
 
 [source,java]
 ----
@@ -65,25 +65,25 @@ Memory-mapped files allow sections of a file to be treated as if they were in-me
 ** `mode`: Can be `MapMode.READ_ONLY`, `MapMode.READ_WRITE`, or `MapMode.PRIVATE`.
 ** `start` and `size` define the region of the file to map.
 These may be adjusted by page alignment requirements.
-* `OS.unmap(long address, long size)`: Releases the mapping[cite: 192, 196]. *This is crucial to avoid resource leaks (virtual memory and file handles).*
+* `OS.unmap(long address, long size)`: Releases the mapping. *This is crucial to avoid resource leaks (virtual memory and file handles).*
 
 [source,java]
 ----
 String fileName = "my-mapped-file.dat";
 long fileSize = OS.pageSize() * 10; // Example size: 10 pages
-try (FileChannel fc = new CleaningRandomAccessFile(fileName, "rw").getChannel()) { // [cite: 192]
+try (FileChannel fc = new CleaningRandomAccessFile(fileName, "rw").getChannel()) {
     // Ensure file has the desired size for mapping, e.g., by writing to it or truncating
     // For brevity, direct fc.truncate(fileSize) might be used if appropriate for the use case
     // or write initial data up to fileSize.
-    // fc.truncate(fileSize); // If the intent is to set the size explicitly.
+    fc.truncate(fileSize); // If the intent is to set the size explicitly.
 
-    long address = OS.map(fc, FileChannel.MapMode.READ_WRITE, 0, fileSize); [cite: 192, 196]
+    long address = OS.map(fc, FileChannel.MapMode.READ_WRITE, 0, fileSize);
     try {
         // Operate on the mapped region using OS.memory() or UnsafeMemory
-        OS.memory().writeLong(address, System.nanoTime()); [cite: 192, 196]
+        OS.memory().writeLong(address, System.nanoTime());
         System.out.println("Value from mapped file: " + OS.memory().readLong(address));
     } finally {
-        OS.unmap(address, fileSize); [cite: 192, 196]
+        OS.unmap(address, fileSize);
     }
 } catch (IOException e) {
     e.printStackTrace();
@@ -93,8 +93,8 @@ new File(fileName).delete(); // Clean up the example file
 
 === 2.2. `CleaningRandomAccessFile`
 
-When working with `FileChannel` for mapping, it's recommended to use `net.openhft.chronicle.core.io.CleaningRandomAccessFile`[cite: 400].
-This class extends `RandomAccessFile` and attempts to close the file descriptor in its `finalize()` method as a safeguard against leaks, though explicit closing via try-with-resources is always the best practice[cite: 400].
+When working with `FileChannel` for mapping, it's recommended to use `net.openhft.chronicle.core.io.CleaningRandomAccessFile`.
+This class extends `RandomAccessFile` and attempts to close the file descriptor in its `finalize()` method as a safeguard against leaks, though explicit closing via try-with-resources is always the best practice.
 
 === 2.3. Tracking Mapped Memory
 
@@ -104,7 +104,7 @@ Useful for diagnosing leaks of mapped regions.
 === 2.4. Security Considerations for Memory Mapping
 
 * The system property `chronicle.core.mmap.allowedDirs` can be set to a comma-separated list of directory paths.
-* If this property is set, `OS.map()` will only allow mapping files located within these whitelisted directories, throwing a `SecurityException` otherwise[cite: 206].
+* If this property is set, `OS.map()` will only allow mapping files located within these whitelisted directories, throwing a `SecurityException` otherwise.
 This helps mitigate potential path traversal vulnerabilities.
 
 == 3. Page Alignment
@@ -112,8 +112,8 @@ This helps mitigate potential path traversal vulnerabilities.
 Operating systems typically require memory-mapped regions and sometimes direct memory accesses to be aligned to page boundaries.
 
 * `OS.pageSize()`: Returns the OS's native memory page size (e.g., 4KB).
-* `OS.defaultOsPageSize()`: Returns `OS.pageSize()`, but provides a safer default (often 64KB [cite: 703]) on Windows due to its stricter alignment requirements for `MapViewOfFile`[cite: 703].
-* `OS.mapAlignment()`: Returns the granularity for memory map offsets, typically `OS.defaultOsPageSize()`[cite: 705].
+* `OS.defaultOsPageSize()`: Returns `OS.pageSize()`, but provides a safer default (often 64KB) on Windows due to its stricter alignment requirements for `MapViewOfFile`.
+* `OS.mapAlignment()`: Returns the granularity for memory map offsets, typically `OS.defaultOsPageSize()`.
 * `OS.pageAlign(long size)` / `OS.pageAlign(long size, int pageSize)`: Rounds a given `size` up to the nearest multiple of the page size.
 * `OS.mapAlign(long offset)` / `OS.mapAlign(long offset, int pageAlignment)`: Rounds a given file `offset` up to the nearest valid alignment for memory mapping.
 
@@ -123,7 +123,7 @@ long requestedSize = 1000; // bytes
 long alignedSize = OS.pageAlign(requestedSize); // Aligns to OS.pageSize()
 
 long fileOffset = 5000;
-long alignedOffset = OS.mapAlign(fileOffset); // Aligns to OS.mapAlignment() [cite: 704]
+long alignedOffset = OS.mapAlign(fileOffset); // Aligns to OS.mapAlignment()
 
 System.out.println("OS Page Size: " + OS.pageSize());
 System.out.println("OS Map Alignment: " + OS.mapAlignment());
@@ -138,7 +138,7 @@ While Chronicle Core often uses its own `Memory` abstraction, you might interact
 * **Creation**: `ByteBuffer.allocateDirect(capacity)` allocates off-heap memory.
 * **Cleanup**: Relies on `sun.misc.Cleaner` and GC, which can be unpredictable.
 * **Chronicle Core Utilities for Direct `ByteBuffer`s**:
-** `IOTools.clean(ByteBuffer bb)`: Attempts to invoke the cleaner of a direct `ByteBuffer` more promptly using `CleanerServiceLocator`[cite: 430].
+** `IOTools.clean(ByteBuffer bb)`: Attempts to invoke the cleaner of a direct `ByteBuffer` more promptly using `CleanerServiceLocator`.
 ** `CleanerServiceLocator`: Dynamically finds a `ByteBufferCleanerService` (e.g., `Jdk9ByteBufferCleanerService` or `ReflectionBasedByteBufferCleanerService`) to invoke the `clean()` method of a `DirectBuffer`'s cleaner.
 ** `DirectBufferUtil`: Provides utility methods to interact with `sun.nio.ch.DirectBuffer` like getting its address or cleaning it.
 * **Caution**: Manually cleaning `ByteBuffer`s can be dangerous if the buffer (or its memory region) is still in use.
