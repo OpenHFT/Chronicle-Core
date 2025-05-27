@@ -183,7 +183,6 @@ public class CleaningThread extends Thread {
             Affinity.setAffinity(AffinityLock.BASE_AFFINITY);
         }
 
-        // Execute the target Runnable and perform cleanup
         try {
             super.run();
         } finally {

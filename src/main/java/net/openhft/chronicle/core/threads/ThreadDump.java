@@ -148,7 +148,6 @@ public class ThreadDump {
         ThreadGroup threadGroup = Thread.currentThread().getThreadGroup();
         int threadCountEstimate = threadGroup.activeCount();
         Thread[] threads = new Thread[threadCountEstimate + 8];
-        // one pass
         threadGroup.enumerate(threads);
         // NOTE: many entries will be null
         return threads;
