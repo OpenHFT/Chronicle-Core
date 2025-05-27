@@ -43,10 +43,12 @@ import static net.openhft.chronicle.core.Jvm.uncheckedCast;
  *
  * @param <E> the type of enum instances this class will manage. It must extend {@link CoreDynamicEnum}.
  *            Example usage:
- *            <pre>
- *            {@code
- *            EnumCache<YesNo> yesNoEnumCache = EnumCache.of(YesNo.class);
- *            YesNo maybe = yesNoEnumCache.valueOf("Maybe"); // Dynamically creates a new enum instance with name "Maybe"
+ *            <pre>{@code
+ *            EnumCache<YesNo> c =
+ *                EnumCache.of(
+ *                    YesNo.class);
+ *            YesNo maybe =
+ *                c.valueOf("Maybe");
  *            }
  *            </pre>
  */
@@ -108,6 +110,12 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
      * @param name the name of the enum instance to be retrieved.
      * @return the enum instance with the specified name, or {@code null} if not present.
      */
+    /**
+     * Returns the enum instance if it exists in the map.
+     *
+     * @param name the enum name to retrieve
+     * @return the enum instance or {@code null}
+     */
     @Override
     @Nullable
     public E get(String name) {
@@ -147,7 +155,7 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
     /**
      * Returns the number of enum instances currently managed by this class.
      *
-     * @return the size of enum instances.
+     * @return the size of enum instances
      */
     @Override
     public int size() {
@@ -158,13 +166,18 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
      * Returns an array containing the enum instances managed by this class in
      * the order they were created.
      *
-     * @return an array containing the enum instances.
+     * @return an array containing the enum instances
      */
     @Override
     public E forIndex(int index) {
         return eList.get(index);
     }
 
+    /**
+     * Returns all enum instances in creation order.
+     *
+     * @return an array of enum instances
+     */
     @SuppressWarnings("unchecked")
     @Override
     public E[] asArray() {
@@ -173,12 +186,23 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
         return values = eList.toArray((E[]) Array.newInstance(type, eList.size()));
     }
 
+    /**
+     * Creates a map keyed by enum values.
+     *
+     * @param <T> map value type
+     * @return a map keyed by the enums
+     */
     @Override
     public <T> Map<E, T> createMap() {
         // needs to be a SortedMap to behave as similarly to EnumMap as possible
         return new TreeMap<>();
     }
 
+    /**
+     * Creates a set for storing enum values.
+     *
+     * @return a set holding the enums
+     */
     @Override
     public Set<E> createSet() {
         // see comment in createMap
@@ -186,11 +210,9 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
     }
 
     /**
-     * Resets the internal state of this class by clearing the stored enum instances
-     * and resetting them to the initial state. Use with caution as this will
-     * delete any dynamically created enum instances.
+     * Resets the internal state by discarding any dynamic instances.
+     * Intended for use in tests only.
      *
-     * <p>This method is intended to be used for testing purposes.
      */
     @TestOnly
     public void reset() {
