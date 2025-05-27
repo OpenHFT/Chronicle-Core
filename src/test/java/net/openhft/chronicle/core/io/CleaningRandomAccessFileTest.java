@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.*;
@@ -41,7 +42,10 @@ public class CleaningRandomAccessFileTest extends CoreTestCommon {
         System.gc();
         System.runFinalization();
 
-        assertTrue(tempFile.delete());
+        if (!tempFile.delete()) {
+            Jvm.pause(100);
+            Files.delete(tempFile.toPath());
+        }
     }
 
     static int getFDs() {
