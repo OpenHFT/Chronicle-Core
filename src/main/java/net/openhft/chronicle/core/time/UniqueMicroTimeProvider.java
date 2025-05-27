@@ -26,6 +26,14 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * <p> This implementation is particularly useful in environments where unique time stamps are critical and
  * the application might request them at a high rate.
+ * <p>
+ * Each call spins in a compare-and-set loop. After a failed attempt the code
+ * invokes {@link Jvm#nanoPause()} as a short back-off before retrying. This
+ * reduces contention when multiple threads compete to update the timestamp.
+ * <p>
+ * See the white paper "Unique IDs at 10 M/s" at
+ * https://chronicle.software/wp-content/uploads/Unique-IDs-at-10M_s.pdf
+ * for background on the algorithm.
  */
 public class UniqueMicroTimeProvider implements TimeProvider {
     public static final UniqueMicroTimeProvider INSTANCE = new UniqueMicroTimeProvider();
