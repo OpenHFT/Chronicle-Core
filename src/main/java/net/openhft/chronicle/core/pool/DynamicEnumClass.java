@@ -42,10 +42,12 @@ import static net.openhft.chronicle.core.Jvm.uncheckedCast;
  *
  * @param <E> the type of enum instances this class will manage. It must extend {@link CoreDynamicEnum}.
  *            Example usage:
- *            <pre>
- *            {@code
- *            EnumCache<YesNo> yesNoEnumCache = EnumCache.of(YesNo.class);
- *            YesNo maybe = yesNoEnumCache.valueOf("Maybe"); // Dynamically creates a new enum instance with name "Maybe"
+ *            <pre>{@code
+ *            EnumCache<YesNo> c =
+ *                EnumCache.of(
+ *                    YesNo.class);
+ *            YesNo maybe =
+ *                c.valueOf("Maybe");
  *            }
  *            </pre>
  */
