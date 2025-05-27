@@ -39,7 +39,7 @@ public class CancellableTimer {
     /**
      * Constructs a CancellableTimer with the given event loop and system time provider.
      *
-     * @param eventLoop the event loop that the timer tasks will run on.
+     * @param eventLoop The event loop that the timer tasks will run on.
      */
     public CancellableTimer(@NotNull EventLoop eventLoop) {
         this(eventLoop, SystemTimeProvider.INSTANCE);
@@ -48,8 +48,8 @@ public class CancellableTimer {
     /**
      * Constructs a CancellableTimer with the given event loop and custom time provider.
      *
-     * @param eventLoop    the event loop that the timer tasks will run on.
-     * @param timeProvider the custom time provider to use for scheduling.
+     * @param eventLoop    The event loop that the timer tasks will run on.
+     * @param timeProvider The custom time provider to use for scheduling.
      */
     public CancellableTimer(@NotNull EventLoop eventLoop, @NotNull TimeProvider timeProvider) {
         this.eventLoop = eventLoop;
@@ -57,13 +57,13 @@ public class CancellableTimer {
     }
 
     /**
-     * uses the event loop thread to call the event handler periodically, the time that the event is
-     * called back is best-effort, but if the thread is busy that call back maybe delayed
+     * Uses the event loop thread to call the event handler periodically. The time that the event is
+     * called back is best-effort, but if the thread is busy that call back may be delayed.
      *
-     * @param eventHandler   the handler to be called back
-     * @param initialDelayMs how long in milliseconds to wait before being called back
-     * @param periodMs       the poll interval of being called
-     * @return a {@link Closeable} that when closed will abort any remaining scheduled calls
+     * @param eventHandler   The handler to be called back.
+     * @param initialDelayMs How long in milliseconds to wait before being called back.
+     * @param periodMs       The poll interval of being called.
+     * @return A {@link Closeable} that when closed will abort any remaining scheduled calls.
      */
     public Closeable scheduleAtFixedRate(@NotNull VanillaEventHandler eventHandler,
                                          long initialDelayMs,
@@ -75,14 +75,14 @@ public class CancellableTimer {
     }
 
     /**
-     * uses the event loop thread to call the event handler periodically, the time that the event is
-     * called back is best-effort, but if the thread is busy that call back maybe delayed
+     * Uses the event loop thread to call the event handler periodically. The time that the event is
+     * called back is best-effort, but if the thread is busy that call back may be delayed.
      *
-     * @param eventHandler   the handler to be called back
-     * @param initialDelayMs how long in milliseconds to wait before being called back
-     * @param periodMs       the poll interval of being called
-     * @param priority       the priority of the event handler
-     * @return a {@link Closeable} that when closed will abort any remaining scheduled calls
+     * @param eventHandler   The handler to be called back.
+     * @param initialDelayMs How long in milliseconds to wait before being called back.
+     * @param periodMs       The poll interval of being called.
+     * @param priority       The priority of the event handler.
+     * @return A {@link Closeable} that when closed will abort any remaining scheduled calls.
      */
     public Closeable scheduleAtFixedRate(@NotNull VanillaEventHandler eventHandler,
                                          long initialDelayMs,
@@ -95,11 +95,11 @@ public class CancellableTimer {
     }
 
     /**
-     * Schedule a handler to run once after a delay
+     * Schedule a handler to run once after a delay.
      *
-     * @param eventHandler   the handler to be called back
-     * @param initialDelayMs how long in milliseconds to wait before being called back
-     * @return a {@link Closeable} that when closed will abort any remaining scheduled calls
+     * @param eventHandler   The handler to be called back.
+     * @param initialDelayMs How long in milliseconds to wait before being called back.
+     * @return A {@link Closeable} that when closed will abort any remaining scheduled calls.
      */
     public Closeable schedule(@NotNull Runnable eventHandler, long initialDelayMs) {
         final ScheduledEventHandler handler = new ScheduledEventHandler(timeProvider, () -> {

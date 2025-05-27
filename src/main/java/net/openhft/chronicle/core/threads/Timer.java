@@ -34,7 +34,7 @@ public class Timer {
     /**
      * Constructs a Timer with the default system time provider.
      *
-     * @param eventLoop the event loop on which the timer tasks are scheduled and run.
+     * @param eventLoop The event loop on which the timer tasks are scheduled and run.
      */
     public Timer(@NotNull EventLoop eventLoop) {
         this(eventLoop, SystemTimeProvider.INSTANCE);
@@ -43,20 +43,20 @@ public class Timer {
     /**
      * Constructs a Timer with a specified time provider.
      *
-     * @param eventLoop    the event loop on which the timer tasks are scheduled and run.
-     * @param timeProvider the time provider used to control the scheduling.
+     * @param eventLoop    The event loop on which the timer tasks are scheduled and run.
+     * @param timeProvider The time provider used to control the scheduling.
      */
     public Timer(@NotNull EventLoop eventLoop, @NotNull TimeProvider timeProvider) {
         this.cancellableTimer = new CancellableTimer(eventLoop, timeProvider);
     }
 
     /**
-     * uses the event loop thread to call the event handler periodically, the time that the event is
-     * called back is best-effort, but if the thread is busy that call back maybe delayed
+     * Uses the event loop thread to call the event handler periodically. The time that the event is
+     * called back is best-effort, but if the thread is busy that call back may be delayed.
      *
-     * @param eventHandler   the handler to be called back
-     * @param initialDelayMs how long in milliseconds to wait before being called back
-     * @param periodMs       the poll interval of being called
+     * @param eventHandler   The handler to be called back.
+     * @param initialDelayMs How long in milliseconds to wait before being called back.
+     * @param periodMs       The poll interval of being called.
      */
     public void scheduleAtFixedRate(@NotNull VanillaEventHandler eventHandler,
                                     long initialDelayMs,
@@ -65,13 +65,13 @@ public class Timer {
     }
 
     /**
-     * uses the event loop thread to call the event handler periodically, the time that the event is
-     * called back is best-effort, but if the thread is busy that call back maybe delayed
+     * Uses the event loop thread to call the event handler periodically. The time that the event is
+     * called back is best-effort, but if the thread is busy that call back may be delayed.
      *
-     * @param eventHandler   the handler to be called back
-     * @param initialDelayMs how long in milliseconds to wait before being called back
-     * @param periodMs       the poll interval of being called
-     * @param priority       the priority of the event handler
+     * @param eventHandler   The handler to be called back.
+     * @param initialDelayMs How long in milliseconds to wait before being called back.
+     * @param periodMs       The poll interval of being called.
+     * @param priority       The priority of the event handler.
      */
     public void scheduleAtFixedRate(@NotNull VanillaEventHandler eventHandler,
                                     long initialDelayMs,
@@ -81,10 +81,10 @@ public class Timer {
     }
 
     /**
-     * Schedule a handler to run once after a delay
+     * Schedule a handler to run once after a delay.
      *
-     * @param eventHandler   the handler to be called back
-     * @param initialDelayMs how long in milliseconds to wait before being called back
+     * @param eventHandler   The handler to be called back.
+     * @param initialDelayMs How long in milliseconds to wait before being called back.
      */
     public void schedule(@NotNull Runnable eventHandler, long initialDelayMs) {
         cancellableTimer.schedule(eventHandler, initialDelayMs);
