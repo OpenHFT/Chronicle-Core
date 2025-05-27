@@ -24,10 +24,10 @@ package net.openhft.chronicle.core.threads;
  * However, in scenarios where handling checked exceptions is not feasible or desirable, this
  * class can be used to represent thread interruption without being subject to the checked
  * exception requirements.
- * <p>
- * When converting from {@link InterruptedException} to {@code InterruptedRuntimeException}, it is
- * important to preserve the interrupt status by calling {@link Thread#interrupt()} before
- * throwing this exception.
+ *
+ * @apiNote When converting from {@link InterruptedException} to this runtime
+ * exception, invoke {@code Thread.currentThread().interrupt()} before creating
+ * the {@code InterruptedRuntimeException} so the interrupt status is preserved.
  * <p>
  * Example usage:
  * <pre>
