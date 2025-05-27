@@ -21,51 +21,51 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 /**
- * A shutdown hook that allows running in controlled order.
+ * Unit of work that can be registered with {@link PriorityHook}.
+ * <p>
+ * Implementations should be effectively immutable. Registration may occur from
+ * many threads but each hooklet is executed sequentially by the shutdown
+ * thread.
+ *
+ * @apiNote Allocate unique priorities in the range {@code 0-100}. Smaller
+ * values execute first and should be used for higher-level components.
  */
 public abstract class Hooklet implements Comparable<Hooklet> {
     /**
-     * The callback which will be invoked on shutdown.
+     * Callback invoked by the shutdown thread.
+     * Implementations should return quickly and avoid long blocking
+     * operations.
      */
     public abstract void onShutdown();
 
     /**
-     * Hooks with lesser priority will be called before hooks with greater priority.
-     * <p>
-     * It is advised to allocate a unique priority in the range of 0-100.
-     * In general, more high level code needs to do its shutdown routines before lower level code.
-     * An example priority layout is given below:
-     * <p>
-     * 0: Run before all hooks. For test/example use.
-     * 1-49: Release of network resources and stopping distributed activity.
-     * 50-89: Release of local resources and stopping data structures.
-     * 90-99 Cleanup of file system resources such as temporary directories.
-     * 100: Run after all hooks. For test/example use.
+     * Priority value used to order execution.
+     * Lower values execute first. Suggested range is {@code 0-100}.
+     *
+     * @return integer value representing priority
      */
     public abstract int priority();
 
     /**
-     * Hooks are only called once but may be registered multiple times.
-     * To determine if hook is already present, an object returned by this method is compared.
-     * <p>
-     * The default implementation returns this instance's class and should usually be sufficient.
+     * Used to detect duplicates when registering with {@link PriorityHook}.
+     * The default implementation returns the runtime class of this instance.
      *
-     * @return Identity object.
+     * @return object used to identify the hooklet
      */
     protected Object identity() {
         return getClass();
     }
 
     /**
-     * Accepts callback and priority to produce shutdown hook object.
-     * <p>
-     * Hook callback class is used to check for identity, see {@link #identity()}.
+     * Factory method for simple hooks.
      *
-     * @param priority See {@link #priority()}
-     * @param hook     See {@link #onShutdown()}
-     * @return Shutdown hook object. See {@link PriorityHook#addAndGet(Hooklet)}
+     * @param priority value returned by {@link #priority()}
+     * @param hook     action to run on shutdown
+     * @return hooklet wrapping the given action
+     * @throws NullPointerException if {@code hook} is {@code null}
      */
     public static Hooklet of(int priority, Runnable hook) {
+        Objects.requireNonNull(hook);
         return new Hooklet() {
             @Override
             public void onShutdown() {
@@ -84,6 +84,12 @@ public abstract class Hooklet implements Comparable<Hooklet> {
         };
     }
 
+    /**
+     * Orders hooklets by priority then identity.
+     *
+     * @param other hooklet to compare
+     * @return negative if this should run before {@code other}
+     */
     @Override
     public int compareTo(@NotNull Hooklet other) {
         int delta = priority() - other.priority();
