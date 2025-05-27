@@ -1,0 +1,26 @@
+= Thread Safety Guarantees
+:toc: left
+:toclevels: 2
+
+This note summarises how Chronicle-Core enforces single-threaded use of certain objects.
+
+== SingleThreadedChecked
+
+`SingleThreadedChecked` is an interface for components that must only be used by one thread at a time. Implementations record the first thread that touches the object and compare it with later callers. If another thread tries to use the object a `ThreadingIllegalStateException` is thrown.
+
+Thread checking can be disabled globally with the system property `disable.single.threaded.check` or per instance by calling `singleThreadedCheckDisabled(true)`.
+
+== Initialise, reset, hand-off
+
+A common pattern is:
+
+. Initialise the object on the creating thread. Any first use sets the "used by" thread.
+. Call `singleThreadedCheckReset()` after initialisation.
+. Hand the object off to a worker thread. The next call sets the new "used by" thread.
+
+This lets initial setup run on one thread and regular work on another whilst still catching accidental sharing.
+
+== Integration with core classes
+
+`AbstractCloseable` and `AbstractReferenceCounted` both implement `SingleThreadedChecked`. Their internal operations call `threadSafetyCheck()` before performing work. Developers extending these classes automatically gain thread checks and can override or disable them if required.
+
