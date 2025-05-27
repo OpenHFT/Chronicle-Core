@@ -276,7 +276,7 @@ With the updated `StackTrace` class, you can:
 
 * Create a standard `StackTrace` for your current thread, including a message, cause, and timestamp.
 * Use `forThread(Thread)` to capture another thread's frames (pruning the top-level native frame).
-* Integrate with Java 9+ `StackWalker` by leveraging `Less(String, StackTraceElement[])` to set precisely the frames you want—particularly helpful if you wish to filter or skip frames.
+* Integrate with Java 9+ `StackWalker` by leveraging `Less(String, StackTraceElement[])` to set precisely the frames you want-particularly helpful if you wish to filter or skip frames.
 
 `StackTrace` remains a valuable diagnostic tool for resource tracking, thread analysis, and targeted production debugging. Use it judiciously to avoid performance overhead and log bloat in high-throughput applications.
 

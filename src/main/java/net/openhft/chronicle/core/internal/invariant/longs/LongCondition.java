@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -50,7 +48,7 @@ public enum LongCondition implements LongPredicate {
 
     LongCondition(final long fromInclusive,
                   final long toInclusive) {
-        this.operation = "∈ [" + fromInclusive + ", " + toInclusive + "]";
+        this.operation = " [" + fromInclusive + ", " + toInclusive + "]";
         this.predicate = value -> value >= fromInclusive && value <= toInclusive;
     }
 

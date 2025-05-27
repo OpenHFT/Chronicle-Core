@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -585,7 +583,7 @@ public final class Jvm {
      * The setting of the accessible flag might be subject to security manager approval.
      *
      * @param accessibleObject to modify
-     * @throws SecurityException – if the request is denied.
+     * @throws SecurityException - if the request is denied.
      * @see SecurityManager#checkPermission
      * @see RuntimePermission
      */
