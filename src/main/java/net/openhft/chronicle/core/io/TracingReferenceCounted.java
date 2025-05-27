@@ -29,6 +29,10 @@ import java.util.stream.Collectors;
 
 import static net.openhft.chronicle.core.internal.CloseableUtils.asString;
 
+/**
+ * Records each reservation and release with a {@link StackTrace} so incorrect
+ * usage can be diagnosed. Used when resource tracing is switched on.
+ */
 public final class TracingReferenceCounted implements MonitorReferenceCounted {
     private final Map<ReferenceOwner, StackTrace> references = Collections.synchronizedMap(new IdentityHashMap<>());
     private final Map<ReferenceOwner, StackTrace> releases = Collections.synchronizedMap(new IdentityHashMap<>());

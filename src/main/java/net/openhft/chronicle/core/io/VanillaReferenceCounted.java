@@ -22,9 +22,9 @@ import net.openhft.chronicle.core.UnsafeMemory;
 import net.openhft.chronicle.core.annotation.UsedViaReflection;
 
 /**
- * This class provides a basic implementation of the {@link MonitorReferenceCounted} interface.
- * It is responsible for keeping track of reference counts and releasing resources
- * once they are no longer needed.
+ * Lightweight implementation of {@link MonitorReferenceCounted} used when
+ * resource tracing is disabled. It simply counts references and runs the given
+ * {@link Runnable} when the count reaches zero.
  */
 public final class VanillaReferenceCounted implements MonitorReferenceCounted {
 
