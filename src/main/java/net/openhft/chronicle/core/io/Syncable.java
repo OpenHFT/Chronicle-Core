@@ -17,16 +17,18 @@
 package net.openhft.chronicle.core.io;
 
 /**
- * An interface for objects that can be synced to underlying media if supported.
- * Implementations can perform a sync operation to ensure data is flushed to the underlying media.
+ * Implement for resources that are able to flush data to the underlying
+ * medium.  Memory-mapped files and some {@code Bytes} implementations provide
+ * this facility.
  */
 public interface Syncable {
 
     /**
-     * Performs a sync operation if the given object implements the {@code Syncable} interface.
-     * This method provides a convenient way to invoke the sync operation on an object without explicitly checking its type.
+     * Performs a sync operation if the supplied object implements
+     * {@code Syncable}.  Use when the concrete type may or may not support
+     * syncing.
      *
-     * @param o The object to sync, if it implements the {@code Syncable} interface.
+     * @param o object to sync if possible
      */
     static void syncIfAvailable(Object o) {
         if (o instanceof Syncable)
@@ -34,10 +36,8 @@ public interface Syncable {
     }
 
     /**
-     * Performs a sync operation up to the point that this handle has read or written.
-     * The behavior of this method depends on whether syncing is supported and the underlying implementation.
-     * There might be data beyond this point that isn't synced.
-     * It may not perform any action if syncing is not supported or has been turned off through configuration.
+     * Flush data to the backing store up to the point that this handle has read
+     * or written. Some implementations may ignore this call.
      */
     void sync();
 }
