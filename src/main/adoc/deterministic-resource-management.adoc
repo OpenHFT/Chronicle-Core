@@ -22,7 +22,8 @@ Alternatively, call `AbstractCloseable.enableCloseableTracing()` and `AbstractRe
 
 == 2. `Closeable` Resources with `AbstractCloseable`
 
-The `net.openhft.chronicle.core.io.Closeable` interface extends `java.io.Closeable` and `QueryCloseable`. `AbstractCloseable` is the primary base class for resources requiring a definitive cleanup action upon closing.
+The `net.openhft.chronicle.core.io.Closeable` interface extends `java.io.Closeable` and `QueryCloseable`.
+`AbstractCloseable` is the primary base class for resources requiring a definitive cleanup action upon closing.
 
 === 2.1. Lifecycle and Features
 
@@ -56,7 +57,9 @@ Default is `false`.
 
 == 3. `ReferenceCounted` Resources
 
-The `ReferenceCounted` interface provides a contract for managing shared resources through reference counting. `AbstractReferenceCounted` is a common base implementation. `ReferenceCountedTracer` extends `ReferenceCounted` to add diagnostic capabilities.
+The `ReferenceCounted` interface provides a contract for managing shared resources through reference counting.
+`AbstractReferenceCounted` is a common base implementation.
+`ReferenceCountedTracer` extends `ReferenceCounted` to add diagnostic capabilities.
 
 === 3.1. Core Operations
 
@@ -69,8 +72,7 @@ Throws `IllegalStateException` if not the last release.
 * **`tryReserve(ReferenceOwner owner)`**: Attempts to reserve; returns `false` if the resource is already released, rather than throwing.
 * **`reserveTransfer(ReferenceOwner from, ReferenceOwner to)`**: Atomically moves a reservation from one owner to another without changing the total reference count.
 * **`refCount()`**: Returns the current number of active reservations.
-* **`ReferenceOwner`**: Identifies the entity holding a reference.
-Common instances include `ReferenceOwner.INIT` (for the initial reference held by the creator) and `ReferenceOwner.TMP` (or `ReferenceOwner.temporary("name")`) for short-lived, identifiable reservations. `referenceName()` and `referenceId()` help in debugging.
+* **`ReferenceOwner`**: Identifies the entity holding a reference. Common instances include `ReferenceOwner.INIT` (for the initial reference held by the creator) and `ReferenceOwner.TMP` (or `ReferenceOwner.temporary("name")`) for short-lived, identifiable reservations. `referenceName()` and `referenceId()` help in debugging.
 
 === 3.2. `AbstractReferenceCounted` Implementation Details
 

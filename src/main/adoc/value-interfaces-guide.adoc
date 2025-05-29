@@ -6,7 +6,9 @@
 
 == 1. Introduction
 
-Chronicle Core defines a set of small "value" interfaces that model primitive fields or arrays of primitives. These interfaces, found in the `net.openhft.chronicle.core.values` package, are designed to allow direct manipulation of memory regions, such as memory-mapped files or off-heap buffers. This approach enables reading and writing data like `long`s, `int`s, or `String`s without the overhead of creating intermediate Java wrapper objects for each access.
+Chronicle Core defines a set of small "value" interfaces that model primitive fields or arrays of primitives.
+These interfaces, found in the `net.openhft.chronicle.core.values` package, are designed to allow direct manipulation of memory regions, such as memory-mapped files or off-heap buffers.
+This approach enables reading and writing data like `long`s, `int`s, or `String`s without the overhead of creating intermediate Java wrapper objects for each access.
 
 Implementations of these interfaces (often found in higher-level Chronicle libraries like Chronicle Bytes) typically operate on raw memory addresses using Chronicle Core's `Memory` API.
 
@@ -66,7 +68,8 @@ Represents a single 16-bit short value.
 ** `short addValue(short delta)`
 
 === 2.5. `IntValue`
-Represents a single 32-bit integer value. Implements `java.io.Closeable`.
+Represents a single 32-bit integer value.
+Implements `java.io.Closeable`.
 
 * **Key Methods**:
 ** `int getValue()`
@@ -78,7 +81,8 @@ Represents a single 32-bit integer value. Implements `java.io.Closeable`.
 ** `boolean compareAndSwapValue(int expected, int value)`
 
 === 2.6. `LongValue`
-`LongValue` represents a single 64-bit value. Implements `java.io.Closeable`.
+`LongValue` represents a single 64-bit value.
+Implements `java.io.Closeable`.
 In addition to normal get and set methods, it provides atomic operations and ordered writes for concurrent access scenarios.
 
 * **Key Methods**:
@@ -141,7 +145,8 @@ Represents a single 64-bit double value.
 ----
 
 === 2.10. `TwoLongValue`
-`TwoLongValue` extends `LongValue` to represent a pair of 64-bit values. It inherits all methods for the first long value and adds corresponding methods for the second.
+`TwoLongValue` extends `LongValue` to represent a pair of 64-bit values.
+It inherits all methods for the first long value and adds corresponding methods for the second.
 
 * **Key Additional Methods**:
 ** `long getValue2()`
@@ -155,7 +160,8 @@ Represents a single 64-bit double value.
 
 == 3. Array Value Interfaces
 
-These interfaces provide a typed view over an array of primitive values, often in direct memory. They implement `java.io.Closeable`.
+These interfaces provide a typed view over an array of primitive values, often in direct memory.
+They implement `java.io.Closeable`.
 
 === 3.1. `IntArrayValues`
 Represents an array of 32-bit integer values.
@@ -201,7 +207,8 @@ Represents an array of 32-bit integer values.
 
 == 4. `@MaxBytes` Annotation
 
-The `@MaxBytes` annotation can be applied to parameters of methods, particularly in interfaces like `StringValue`, to indicate the maximum number of encoded bytes allowed for a variable-length data type. Implementations can use this information to enforce size limits.
+The `@MaxBytes` annotation can be applied to parameters of methods, particularly in interfaces like `StringValue`, to indicate the maximum number of encoded bytes allowed for a variable-length data type.
+Implementations can use this information to enforce size limits.
 
 [source,java]
 ----
@@ -213,7 +220,8 @@ public interface MyStringStorage {
 
 == 5. Mapping to Direct Memory
 
-Concrete implementations of these value interfaces, often found in libraries like Chronicle Bytes, use the `Memory` API from Chronicle Core (`OS.memory()`) to operate on raw memory addresses. This allows them to directly manipulate off-heap memory or memory-mapped file regions.
+Concrete implementations of these value interfaces, often found in libraries like Chronicle Bytes, use the `Memory` API from Chronicle Core (`OS.memory()`) to operate on raw memory addresses.
+This allows them to directly manipulate off-heap memory or memory-mapped file regions.
 
 The following example illustrates the low-level operations an implementation might use:
 [source,java]

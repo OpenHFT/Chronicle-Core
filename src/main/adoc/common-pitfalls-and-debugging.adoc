@@ -13,8 +13,7 @@ Chronicle Core heavily relies on explicit resource management, especially for of
 
 * **Failing to `release()` reference-counted objects**:
 * **Pitfall**: Forgetting to call `release(owner)` or `releaseLast(owner)` on `ReferenceCounted` objects (like those extending `AbstractReferenceCounted`) leads to native memory leaks, as the underlying resources are not freed until the reference count drops to zero.
-* **Debugging**: Enable resource tracing (`-Djvm.resource.tracing=true`).
-Use `AbstractReferenceCounted.assertReferencesReleased()` in tests. `TracingReferenceCounted` can provide detailed information about who reserved and released a resource.
+* **Debugging**: Enable resource tracing (`-Djvm.resource.tracing=true`).Use `AbstractReferenceCounted.assertReferencesReleased()` in tests. `TracingReferenceCounted` can provide detailed information about who reserved and released a resource.
 * **Relying on `warnAndCloseIfNotClosed` or `warnAndReleaseIfNotReleased`**:
 * **Pitfall**: These methods (`AbstractCloseable.warnAndCloseIfNotClosed()`, `ReferenceCountedTracer.warnAndReleaseIfNotReleased()`) are safety nets, often called from finalizers or test cleanups.
 Relying on them for normal resource cleanup in application logic indicates a design flaw and can lead to unpredictable resource release.

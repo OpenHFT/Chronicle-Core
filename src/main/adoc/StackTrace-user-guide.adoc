@@ -38,25 +38,25 @@ Otherwise, you can add it as a separate dependency.
 
 === Class Highlights
 
-1. **Extends `Throwable`**
+. **Extends `Throwable`**
 Retains the capability to capture and store stack frames while avoiding the semantic overhead of a "real" exception.
 
-2. **Constructors**
+. **Constructors**
 * `StackTrace()` defaults to `"stack trace"`.
 * `StackTrace(String message)` and `StackTrace(String message, Throwable cause)` append the thread name and a UTC timestamp to the message.
 The timestamp currently has millisecond precision unless the code changes.
 * `Less(String message, StackTraceElement[] stackTrace)` is a specialised constructor for setting frames directly.
 
-3. **`forThread(Thread t)`**
+. **`forThread(Thread t)`**
 A static method that creates a `StackTrace` for the given thread (or returns `null` if the thread itself is `null`).
 If the top frame is a native method, it's pruned.
 The resulting object is a `Less` instance with frames set via the `Less(String, StackTraceElement[])` constructor.
 
-4. **`fillInStackTrace()` Overridden**
+. **`fillInStackTrace()` Overridden**
 `Less` does not auto-populate its frames on construction.
 That way, you can set them manually from, for instance, a remote thread or `StackWalker`.
 
-5. **Timestamps**
+. **Timestamps**
 Each normal `StackTrace` constructor (not `Less`) automatically appends a UTC timestamp derived from `SystemTimeProvider.CLOCK`.
 At present this timestamp is millisecond-precision.
 
@@ -232,58 +232,58 @@ You could skip more frames, filter out certain packages, etc.
 
 == Best Practices
 
-1. **Use `StackTrace` Judiciously**
+. **Use `StackTrace` Judiciously**
 Capturing stacks is not free.
 Use it to diagnose potential issues, not in hot loops.
 
-2. **One-Time Capture**
+. **One-Time Capture**
 For resource debugging, capture at creation and/or closure.
 Repeated captures in the same flow may be expensive.
 
-3. **Attach or Log**
+. **Attach or Log**
 If you do not need to throw an exception, consider logging it (`LOGGER.warn("...", myStackTrace)`).
 If you do need an exception, set the `StackTrace` instance as the cause or a suppressed exception.
 
-4. **Filtering Frames**
+. **Filtering Frames**
 If you only care about your application classes, use `StackWalker` or manually filter `StackTraceElement[]` arrays.
 
-5. **Pruning Native Frames**
+. **Pruning Native Frames**
 `forThread(Thread)` automatically prunes a top-level native method.
 You can overwrite the array or rely on `StackWalker` to prune more frames.
 
 == Performance Considerations
 
-1. **Overhead**
+. **Overhead**
 Creating a stack trace typically takes microseconds to milliseconds.
 Benchmark in your environment.
 
-2. **Memory**
+. **Memory**
 Each `StackTraceElement` can hold a class name, method name, file name, line number, etc.
 A large number of frames can consume memory.
 
-3. **Thread-Safety**
+. **Thread-Safety**
 `forThread(Thread)` is thread-safe, but if the thread is in native code or unwinding, frames might be incomplete.
 This is normal JVM behavior.
 
-4. **Integration with Logging**
+. **Integration with Logging**
 Printing full traces can bloat logs quickly.
 Configure your logging or sample captures.
 
 == Common Pitfalls
 
-1. **Throwing `StackTrace` Instead of an Exception**
+. **Throwing `StackTrace` Instead of an Exception**
 It works, but `StackTrace` is not conceptually an error.
 Prefer throwing a regular exception with a `StackTrace` cause.
 
-2. **Null Threads**
+. **Null Threads**
 `forThread(null)` returns `null`.
 Always handle that case.
 
-3. **Duplicate Captures**
+. **Duplicate Captures**
 Capturing a trace in multiple places quickly grows logs.
 Do you need them before capturing?
 
-4. **Overwriting Frames**
+. **Overwriting Frames**
 If you normally create a `StackTrace` (auto-populating frames) and then call it `setStackTrace(...)`, you lose the automatically captured frames.
 Decide whether you want to combine them or overwrite them fully.
 
