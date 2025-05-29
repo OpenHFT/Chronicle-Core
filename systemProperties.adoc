@@ -5,8 +5,8 @@ Chronicle-Core recognises a variety of system properties to tune behaviour at ru
 Properties may be supplied on the command line with `-D` or loaded from a
 link:jvm-and-os-utilities.adoc#loading-system-properties[`system.properties` file].
 
-`Jvm.getBoolean()` considers a property `true` when it is present with no value,
-set to `true` or set to `yes`. Any other value is treated as `false`.
+`Jvm.getBoolean()` considers a property `true` when it is present with no value, set to `true` or set to `yes`.
+Any other value is treated as `false`.
 
 == Startup hooks
 [cols="1,1,3,1,1",options="header"]

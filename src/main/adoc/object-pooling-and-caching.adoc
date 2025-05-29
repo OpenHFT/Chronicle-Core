@@ -16,9 +16,7 @@ This can save memory by ensuring that identical string values share the same `St
 
 * **Key Methods**:
 ** `intern(@Nullable CharSequence cs)`: Returns a cached `String` equivalent to the input `CharSequence`, or caches and returns `cs.toString()` if not already present.
-** `index(@Nullable CharSequence cs, @Nullable Changed onChanged)`: Returns the internal array index for the interned string.
-If the string is new to the cache and `onChanged` is provided, the callback is invoked with the index and the new string value.
-This is useful for associating other cached data with the interned string.
+** `index(@Nullable CharSequence cs, @Nullable Changed onChanged)`: Returns the internal array index for the interned string. If the string is new to the cache and `onChanged` is provided, the callback is invoked with the index and the new string value. This is useful for associating other cached data with the interned string.
 ** `get(int index)`: Retrieves an interned string by its index.
 ** `capacity()`: Returns the size of the internal array used for caching.
 * **Thread Safety**: `StringInterner` is designed for high performance and uses a "best-effort" approach to thread safety for its cache updates, relying on the thread safety of `String` itself.
@@ -70,8 +68,7 @@ It supports both standard Java (static) enums and dynamic enums (which can have 
 * **Factory Method**: `EnumCache.of(Class<E> eClass)` is the primary way to obtain an `EnumCache` instance for a given enum type.
 It automatically provides the correct cache implementation (`StaticEnumClass` for standard enums, `DynamicEnumClass` for enums implementing `CoreDynamicEnum`).
 * **Key Methods**:
-** `valueOf(String name)`: Returns the enum instance for the given name.
-For `DynamicEnumClass`, it can create new instances if the name is not found.
+** `valueOf(String name)`: Returns the enum instance for the given name. For `DynamicEnumClass`, it can create new instances if the name is not found.
 ** `get(String name)`: Similar to `valueOf`, often an alias.
 ** `forIndex(int index)`: Retrieves an enum instance by its ordinal (for static enums) or creation index (for dynamic enums).
 ** `asArray()`: Returns an array containing all known enum instances.

@@ -8,7 +8,8 @@ This document outlines Chronicle Core's mechanisms for helping developers manage
 
 == 1. The `SingleThreadedChecked` Interface
 
-`SingleThreadedChecked` is an interface designed for components that are intended for use by only one thread at a time. This is a common pattern for resources that are not inherently thread-safe or where the overhead of full concurrency control is undesirable.
+`SingleThreadedChecked` is an interface designed for components that are intended for use by only one thread at a time.
+This is a common pattern for resources that are not inherently thread-safe or where the overhead of full concurrency control is undesirable.
 
 * **Mechanism**:
 ** Implementations typically record the `Thread` that first accesses or "touches" the object.
@@ -22,8 +23,10 @@ This document outlines Chronicle Core's mechanisms for helping developers manage
 
 A common and supported pattern for using `SingleThreadedChecked` objects across different threads in a controlled manner involves the following steps:
 
-. **Initialise**: The object is created and fully initialized by a "creating" thread. The first use of a method that performs a thread-safety check will typically set the initial "owner" thread.
-. **Reset**: Before passing the object to another thread for subsequent use, the creating thread calls `singleThreadedCheckReset()` on the object. This clears the recorded "owner" thread.
+. **Initialise**: The object is created and fully initialized by a "creating" thread.
+The first use of a method that performs a thread-safety check will typically set the initial "owner" thread.
+. **Reset**: Before passing the object to another thread for subsequent use, the creating thread calls `singleThreadedCheckReset()` on the object.
+This clears the recorded "owner" thread.
 . **Hand-off**: The object is then safely passed to a "worker" or "event loop" thread.
 . **Worker Usage**: The first use of the object by the worker thread will then establish it as the new "owner" thread for subsequent checks.
 
