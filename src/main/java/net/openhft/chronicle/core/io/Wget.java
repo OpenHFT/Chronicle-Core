@@ -7,6 +7,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.CharBuffer;
 import java.util.Objects;
 
 public final class Wget {
@@ -26,9 +27,8 @@ public final class Wget {
     /* ───────── Builder ───────── */
 
     public static final class Builder {
-        private static final ConnectionProvider DEFAULT_PROVIDER = URL::openStream;
-
-        private ConnectionProvider connectionProvider = DEFAULT_PROVIDER;
+        // if null, a default provider with timeouts will be created in build()
+        private ConnectionProvider connectionProvider = null;
         private CharsetDetector charsetDetector = (in, ct) -> StandardCharsets.UTF_8;
         private int connectTimeoutMs = 10_000;
         private int readTimeoutMs = 10_000;
@@ -54,6 +54,10 @@ public final class Wget {
             return this;
         }
 
+        /**
+         * Set the maximum response body size allowed when fetching. The default
+         * value is {@code 10 MiB}.
+         */
         public Builder maxResponseBytes(long v) {
             if (v < 0)
                 throw new IllegalArgumentException("maxResponseBytes must be ≥ 0");
@@ -63,7 +67,7 @@ public final class Wget {
 
         public Wget build() {
             ConnectionProvider cp = this.connectionProvider;
-            if (cp == DEFAULT_PROVIDER) {
+            if (cp == null) {
                 final int ct = connectTimeoutMs;
                 final int rt = readTimeoutMs;
                 cp = url -> {
@@ -118,8 +122,10 @@ public final class Wget {
             if (cs == null) cs = StandardCharsets.UTF_8;           // ← Java-8 safe fallback
 
             Reader reader = new BufferedReader(new InputStreamReader(limited, cs));
-            for (int ch; (ch = reader.read()) != -1; )
-                out.append((char) ch);
+            char[] buf = new char[4096];
+            int n;
+            while ((n = reader.read(buf)) != -1)
+                out.append(java.nio.CharBuffer.wrap(buf, 0, n));
         }
     }
 }
