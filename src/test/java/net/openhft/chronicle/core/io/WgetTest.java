@@ -8,16 +8,11 @@ import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.Test;
-
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for the Wget class, which provides a simple way to fetch content from URLs.
@@ -65,18 +60,19 @@ class WgetTest {
     }
 
     @Test
-    void unknown_content_length_still_enforced() {
-        InputStream neverEnding = new InputStream() {
+    void unknown_content_length_still_enforced() throws IOException {
+        try (InputStream neverEnding = new InputStream() {
             @Override
             public int read() {
                 return 'A';
             }
-        };
-        Wget wget = new Wget.Builder()
-                .connectionProvider(u -> neverEnding)
-                .maxResponseBytes(128)
-                .build();
-        assertThrows(IOException.class, () -> wget.fetch("http://x", new StringBuilder()));
+        }) {
+            Wget wget = new Wget.Builder()
+                    .connectionProvider(u -> neverEnding)
+                    .maxResponseBytes(128)
+                    .build();
+            assertThrows(IOException.class, () -> wget.fetch("http://x", new StringBuilder()));
+        }
     }
 
     @Test
@@ -91,9 +87,9 @@ class WgetTest {
 
     @Test
     void null_charset_detector_result_falls_back_to_utf8() throws IOException {
-        byte[] café = "Café".getBytes(StandardCharsets.UTF_8);
+        byte[] cafe = "Café".getBytes(StandardCharsets.UTF_8);
         Wget wget = new Wget.Builder()
-                .connectionProvider(u -> new ByteArrayInputStream(café))
+                .connectionProvider(u -> new ByteArrayInputStream(cafe))
                 .charsetDetector((in, ct) -> null)
                 .build();
         StringBuilder sb = new StringBuilder();
