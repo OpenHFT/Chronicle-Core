@@ -1,5 +1,7 @@
 package net.openhft.chronicle.core.io;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,7 +55,7 @@ final class LimitedInputStream extends FilterInputStream {
     /* ------------------------------------------ read(byte[], …) bulk -------------- */
 
     @Override
-    public int read(final byte[] buf, final int off, final int len) throws IOException {
+    public int read(final byte @NotNull [] buf, final int off, final int len) throws IOException {
         // Classic Java‑8 bounds checks
         Objects.requireNonNull(buf, "buffer");
         if (off < 0 || len < 0 || len > buf.length - off)
