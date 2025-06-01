@@ -88,11 +88,11 @@ class WgetEdgeCaseTest {
     @Test
     void appendable_exception_is_propagated() {
         Appendable broken = new Appendable() {
-            @Override public Appendable append(char c) throws IOException {   // ← throw here
+            @Override public Appendable append(CharSequence csq) throws IOException {
                 throw new IOException("disk full");
             }
-            @Override public Appendable append(CharSequence csq)              { return this; }
-            @Override public Appendable append(CharSequence csq,int s,int e)  { return this; }
+            @Override public Appendable append(CharSequence csq, int s, int e) { return this; }
+            @Override public Appendable append(char c) { return this; }
         };
 
         Wget wget = new Wget.Builder()
