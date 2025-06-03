@@ -32,9 +32,8 @@ import java.io.Closeable;
  *   <li>{@link Closeable#close()}</li>
  * </ol>
  * <p>
- * The {@code action()} method must be quick and non-blocking. Long running work
- * should be delegated to a {@link HandlerPriority#BLOCKING} handler or to
- * another executor.
+ * The {@code action()} method must be quick and non-blocking unless it's a long-running work
+ * delegated to a {@link HandlerPriority#BLOCKING} handler or to another executor.
  */
 @FunctionalInterface
 public interface EventHandler extends VanillaEventHandler {
