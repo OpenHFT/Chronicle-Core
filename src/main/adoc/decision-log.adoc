@@ -25,7 +25,6 @@ Impact & Consequences::
 * Tooling scripts must update regexes to recognise new tag set.
 Notes/Links::
 * link:../requirements/core-requirements.adoc[Requirements Spec]
-* link:https://internal/wiki/NineBox[Nine-Box explainer]
 
 == CORE-OPS-002 Enforce Deterministic Resource Lifecycle via `AbstractCloseable` & `ReferenceCounted`
 

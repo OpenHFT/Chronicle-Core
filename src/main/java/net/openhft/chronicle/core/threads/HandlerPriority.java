@@ -26,43 +26,31 @@ public enum HandlerPriority {
     /**
      * Critical tasks executed in a tight loop.
      * Typical call frequency is on every scheduler cycle.
-     *
-     * @see <a href="https://github.com/OpenHFT/Chronicle-Threads/wiki/Priorities">Chronicle Threads Priorities</a>
      */
     HIGH,
     /**
      * Tasks run about one quarter as often as {@link #HIGH}.
      * Typical call frequency is four times slower than {@link #HIGH}.
-     *
-     * @see <a href="https://github.com/OpenHFT/Chronicle-Threads/wiki/Priorities">Chronicle Threads Priorities</a>
      */
     MEDIUM,
     /**
      * Timing-based tasks executed at regular intervals.
      * Typical interval is tens of milliseconds and the relative timing is resilient to pauses.
-     *
-     * @see <a href="https://github.com/OpenHFT/Chronicle-Threads/wiki/Priorities">Chronicle Threads Priorities</a>
      */
     TIMER,
     /**
      * Tasks run only when there is nothing else to do.
      * Typical call frequency is when the event loop is otherwise idle.
-     *
-     * @see <a href="https://github.com/OpenHFT/Chronicle-Threads/wiki/Priorities">Chronicle Threads Priorities</a>
      */
     DAEMON,
     /**
      * Background monitoring tasks.
      * Typical call frequency is about once per second.
-     *
-     * @see <a href="https://github.com/OpenHFT/Chronicle-Threads/wiki/Priorities">Chronicle Threads Priorities</a>
      */
     MONITOR,
     /**
      * Tasks involving blocking operations executed on a cached thread pool.
      * Frequency depends on submitted blocking work.
-     *
-     * @see <a href="https://github.com/OpenHFT/Chronicle-Threads/wiki/Priorities">Chronicle Threads Priorities</a>
      */
     BLOCKING,
     /**
@@ -70,7 +58,6 @@ public enum HandlerPriority {
      *
      * <p> Alias for {@link #MEDIUM}; use {@link #alias()} for the effective priority.
      * Typical call frequency follows {@link #MEDIUM}.
-     * @see <a href="https://github.com/OpenHFT/Chronicle-Threads/wiki/Priorities">Chronicle Threads Priorities</a>
      */
     REPLICATION {
         @Override
@@ -83,7 +70,6 @@ public enum HandlerPriority {
      *
      * <p> Alias for {@link #TIMER}; use {@link #alias()} for the effective priority.
      * Typical call frequency follows {@link #TIMER}.
-     * @see <a href="https://github.com/OpenHFT/Chronicle-Threads/wiki/Priorities">Chronicle Threads Priorities</a>
      */
     REPLICATION_TIMER {
         @Override
@@ -96,7 +82,6 @@ public enum HandlerPriority {
      *
      * <p> Alias for {@link #MEDIUM}; use {@link #alias()} for the effective priority.
      * Typical call frequency follows {@link #MEDIUM}.
-     * @see <a href="https://github.com/OpenHFT/Chronicle-Threads/wiki/Priorities">Chronicle Threads Priorities</a>
      */
     CONCURRENT {
         @Override
