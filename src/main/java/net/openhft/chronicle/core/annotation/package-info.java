@@ -3,22 +3,22 @@
  * They help library maintainers and tooling reason about code usage.
  *
  * <ul>
- * <li>{@link Negative} &ndash; value &lt; 0</li>
- * <li>{@link NonPositive} &ndash; value &lt;= 0</li>
- * <li>{@link NonNegative} &ndash; value &gt;= 0</li>
- * <li>{@link Positive} &ndash; value &gt; 0</li>
- * <li>{@link Range} &ndash; numeric range</li>
- * <li>{@link ForceInline} &ndash; request JVM inlining</li>
- * <li>{@link HotMethod} &ndash; performance sensitive method</li>
- * <li>{@link DontChain} &ndash; skip interface chaining</li>
- * <li>{@link UsedViaReflection} &ndash; accessed by reflection</li>
- * <li>{@link PackageLocal} &ndash; intentionally package private</li>
- * <li>{@link RequiredForClient} &ndash; class name appears on wire</li>
- * <li>{@link SingleThreaded} &ndash; not thread safe</li>
- * <li>{@link ScopeConfined} &ndash; object scrubbed after use</li>
- * <li>{@link ChronicleFeature} &ndash; compile-time feature toggle</li>
- * <li>{@link TargetMajorVersion} &ndash; required Java version</li>
- * <li>{@link Java9} &ndash; method used on Java&nbsp;9+</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.Negative} &ndash; value &lt; 0</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.NonPositive} &ndash; value &lt;= 0</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.NonNegative} &ndash; value &gt;= 0</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.Positive} &ndash; value &gt; 0</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.Range} &ndash; numeric range</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.ForceInline} &ndash; request JVM inlining</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.HotMethod} &ndash; performance sensitive method</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.DontChain} &ndash; skip interface chaining</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.UsedViaReflection} &ndash; accessed by reflection</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.PackageLocal} &ndash; intentionally package private</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.RequiredForClient} &ndash; class name appears on wire</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.SingleThreaded} &ndash; not thread safe</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.ScopeConfined} &ndash; object scrubbed after use</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.ChronicleFeature} &ndash; compile-time feature toggle</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.TargetMajorVersion} &ndash; required Java version</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.Java9} &ndash; method used on Java&nbsp;9+</li>
  * </ul>
  *
  * <p>Annotations with {@code RetentionPolicy.CLASS} are not visible via
@@ -26,8 +26,5 @@
  *
  * <p>Design goal: make hidden performance and safety constraints
  * self-documenting without polluting the public API surface.</p>
- *
- * @author Chronicle Software
- * @since 2.23
  */
 package net.openhft.chronicle.core.annotation;
