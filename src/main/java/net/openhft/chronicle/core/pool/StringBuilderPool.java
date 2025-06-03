@@ -39,7 +39,9 @@ public final class StringBuilderPool {
             () -> new StringBuilder(128));
 
     /**
-     * Create a scoped-thread-local pool of StringBuilders
+     * Returns a scoped-thread-local pool of StringBuilders.
+     *
+     * @return a new pool for the current thread
      */
     public static ScopedResourcePool<StringBuilder> createThreadLocal() {
         return createThreadLocal(DEFAULT_STRING_BUILDER_POOL_SIZE_PER_THREAD);

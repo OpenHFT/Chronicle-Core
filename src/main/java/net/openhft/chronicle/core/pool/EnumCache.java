@@ -70,7 +70,8 @@ public abstract class EnumCache<E> {
      * Returns the enum instance with the specified name.
      *
      * @param name the name of the enum instance to be returned.
-     * @return the enum instance with the specified name.
+     * @return the enum instance with the specified name, or {@code null}
+     *         if no such instance exists.
      */
     public E get(String name) {
         return valueOf(name);
@@ -80,7 +81,8 @@ public abstract class EnumCache<E> {
      * Returns the enum instance with the specified name.
      *
      * @param name the name of the enum instance to be returned.
-     * @return the enum instance with the specified name.
+     * @return the enum instance with the specified name, or {@code null}
+     *         if no such instance exists.
      */
     public abstract E valueOf(String name);
 

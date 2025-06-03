@@ -48,7 +48,16 @@ public class StringInterner {
     protected final int shift;
     protected boolean toggle = false;
 
+    /**
+     * Callback for receiving notification when a value is stored.
+     */
     public interface Changed {
+        /**
+         * Invoked when a value is inserted or replaced.
+         *
+         * @param index the slot used for storage
+         * @param value the interned string
+         */
         void onChanged(int index, String value);
     }
 
@@ -102,33 +111,11 @@ public class StringInterner {
     }
 
     /**
-     * provide
+     * Returns the slot index for the given text, adding it if absent.
      *
-     * @param cs a source string
-     * @return the index that the internered string is stored in, or -1 if not stored
-     * <p>
-     * An example of the StringInterner used in conjunction with the uppercase[] to cache another value
-     * <pre>
-     *
-     * private String[] uppercase;
-     *
-     * public void myMethod() throws IllegalArgumentException {
-     *
-     *         StringInterner si = new StringInterner(128);
-     *         uppercase = new String[si.capacity()];
-     *
-     *         String lowerCaseString = ...
-     *
-     *         int index = si.index(lowerCaseString, this::changed);
-     *         if (index != -1)
-     *             assertEquals(lowerCaseString.toUpperCase(), uppercase[index]);
-     * }
-     *
-     * private void changed(int index, String value) {
-     *      uppercase[index] = value.toUpperCase();
-     * }
-     *
-     * </pre>
+     * @param cs        the source text
+     * @param onChanged callback invoked when a new value is stored
+     * @return the slot index or {@code -1} if the text is too long
      */
     public int index(@Nullable CharSequence cs, @Nullable Changed onChanged) {
         if (cs == null)
@@ -157,11 +144,12 @@ public class StringInterner {
     }
 
     /**
-     * get an intered string based on the index
+     * Returns the interned string held at the given index.
      *
-     * @param index the index of the  interner string, to acquire an index call  {@link net.openhft.chronicle.core.pool.StringInterner#index}
-     * @return interned String
+     * @param index the slot obtained from {@link #index(CharSequence, Changed)}
+     * @return the interned string, or {@code null} if no value is stored at that index
      */
+    @Nullable
     public String get(int index) {
         return interner[index];
     }

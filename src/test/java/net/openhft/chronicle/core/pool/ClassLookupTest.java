@@ -34,6 +34,4 @@ class ClassLookupTest {
         Runnable lambda = () -> {};
         assertThrows(IllegalArgumentException.class, () -> classLookup.nameFor(lambda.getClass()));
     }
-
-    // Additional tests as necessary...
 }
