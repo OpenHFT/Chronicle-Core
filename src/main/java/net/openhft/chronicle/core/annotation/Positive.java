@@ -28,9 +28,7 @@ import java.lang.annotation.Target;
  * <p><b>Retention and effect:</b> Persisted in the class file with no direct
  * runtime effect unless Chronicle tooling interprets it.</p>
  *
- * <pre>{@code
- * @Positive long count;
- * }</pre>
+ * <pre>{@code @Positive long count; }</pre>
  *
  * <table>
  *   <caption>Sign-related annotations</caption>
