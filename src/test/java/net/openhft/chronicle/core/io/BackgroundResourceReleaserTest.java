@@ -35,18 +35,18 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
 
     @Test
     public void testResourcesCleanedUp() throws IllegalStateException {
-        assumeTrue(BackgroundResourceReleaser.BG_RELEASER);
         int count = 20;
-        for (int i = 1; i < count; i++) {
+        for (int i = 0; i < count - 1; i++) {
             new BGCloseable().close();
             new BGReferenceCounted().releaseLast();
         }
-        assertEquals(1, closed.get(), 1);
-        assertEquals(1, released.get(), 1);
+        int expectedCount = BackgroundResourceReleaser.BG_RELEASER ? 2 : count;
+        assertEquals(expectedCount, closed.get(), 2);
+        assertEquals(expectedCount, released.get(), 2);
         BGCloseable bgc = new BGCloseable();
         bgc.close();
         assertTrue(bgc.isClosing());
-        assertFalse(bgc.isClosed());
+        assertEquals(!BackgroundResourceReleaser.BG_RELEASER, bgc.isClosed());
 
         BGReferenceCounted bgr = new BGReferenceCounted();
         bgr.releaseLast();
@@ -62,17 +62,19 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
 
         BackgroundResourceReleaser.releasePendingResources();
         long time = System.currentTimeMillis() - start0;
-        int factor = count * (Jvm.isAzulZulu() || OS.isMacOSX() ? 80 : OS.isWindows() ? 20: 18);
-        assertBetween(count * 9, time, factor);
+        if (BackgroundResourceReleaser.BG_RELEASER) {
+            int factor = count * (Jvm.isAzulZulu() || OS.isMacOSX() ? 80 : OS.isWindows() ? 20 : 18);
+            assertBetween(count * 9, time, factor);
+        }
         assertEquals(count, closed.get());
         assertEquals(count, released.get());
         AbstractCloseable.assertCloseablesClosed();
     }
 
     @Test
-    public void testResourcesCleanedUpManually() throws IllegalStateException, IOException, InterruptedException {
+    public void testResourcesCleanedUpManually() throws IllegalStateException, InterruptedException {
         Process process = JavaProcessBuilder.create(BackgroundResourceReleaserMain.class)
-                .withJvmArguments("-Dbackground.releaser.thread=false").withProgramArguments("manual").start();
+                .withJvmArguments("-Dbackground.releaser=false").withProgramArguments("manual").start();
 
         try {
             assertEquals(0, process.waitFor());
@@ -82,7 +84,7 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
     }
 
     @Test
-    public void testResourcesCleanedUpAndThreadStopped() throws IllegalStateException, IOException, InterruptedException {
+    public void testResourcesCleanedUpAndThreadStopped() throws IllegalStateException, InterruptedException {
         Process process = JavaProcessBuilder.create(BackgroundResourceReleaserMain.class).withProgramArguments("stop").start();
 
         try {
@@ -93,7 +95,7 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
     }
 
     @Test
-    public void testResourcesCleanedUpInForeground() throws IllegalStateException, IOException, InterruptedException {
+    public void testResourcesCleanedUpInForeground() throws IllegalStateException, InterruptedException {
         Process process = JavaProcessBuilder.create(BackgroundResourceReleaserMain.class)
                 .withJvmArguments("-Dbackground.releaser=false").withProgramArguments("foreground").start();
 
