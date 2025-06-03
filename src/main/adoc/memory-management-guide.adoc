@@ -105,6 +105,7 @@ Useful for diagnosing leaks of mapped regions.
 
 * The system property `chronicle.core.mmap.allowedDirs` can be set to a comma-separated list of directory paths.
 * If this property is set, `OS.map()` will only allow mapping files located within these whitelisted directories, throwing a `SecurityException` otherwise.
+* When the property is absent or empty, mapping is unrestricted (current behaviour).
 This helps mitigate potential path traversal vulnerabilities.
 
 == 3. Page Alignment
