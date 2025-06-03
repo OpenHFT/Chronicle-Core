@@ -35,6 +35,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.channels.FileChannel;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -71,6 +73,9 @@ public final class OS {
     private static final String USER_DIR = Jvm.getProperty("user.dir");
     public static final String TMP = findTmp();
     private static final Field FD_FIELD = Jvm.getField(FileChannelImpl.class, "fd");
+    private static final Field PATH_FIELD = Jvm.getFieldOrNull(FileChannelImpl.class, "path");
+    private static final String MMAP_ALLOWED_DIRS_PROP = "chronicle.core.mmap.allowedDirs";
+    private static final Path[] MMAP_ALLOWED_DIRS;
     private static final String TARGET = findTarget();
     private static final String USER_NAME = Jvm.getProperty("user.name");
     private static final int MAP_RO = 0;
@@ -108,6 +113,16 @@ public final class OS {
             final WriteZero wz = new WriteZero(fdi);
             WRITE0_MH = wz.write0Mh;
             WRITE0_MH2 = wz.write0Mh2;
+
+            String allowed = Jvm.getProperty(MMAP_ALLOWED_DIRS_PROP);
+            if (allowed == null || allowed.trim().isEmpty()) {
+                MMAP_ALLOWED_DIRS = null;
+            } else {
+                String[] parts = allowed.split(",");
+                MMAP_ALLOWED_DIRS = new Path[parts.length];
+                for (int i = 0; i < parts.length; i++)
+                    MMAP_ALLOWED_DIRS[i] = Paths.get(parts[i].trim()).toAbsolutePath().normalize();
+            }
 
             TIME_LIMIT.setStackTrace(new StackTraceElement[0]);
 
@@ -514,6 +529,7 @@ public final class OS {
      */
     public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode, long start, long size, int pageSize)
             throws IOException, IllegalArgumentException {
+        enforceMMapWhitelist(fileChannel);
         if (isWindows() && size > 4L << 30)
             throw new IllegalArgumentException("Mapping more than 4096 MiB is unusable on Windows, size = " + (size >> 20) + " MiB");
         final long address = map0(fileChannel, imodeFor(mode), mapAlign(start, pageSize), pageAlign(size, pageSize));
@@ -610,6 +626,25 @@ public final class OS {
         if (e instanceof IOException)
             return (IOException) e;
         return new IOException(e);
+    }
+
+    private static void enforceMMapWhitelist(FileChannel fileChannel) {
+        if (MMAP_ALLOWED_DIRS == null)
+            return;
+        if (PATH_FIELD == null)
+            throw new SecurityException("Cannot verify mapping directory");
+        try {
+            String pathStr = (String) PATH_FIELD.get(fileChannel);
+            if (pathStr == null)
+                throw new SecurityException("Unknown mapping path");
+            Path filePath = Paths.get(pathStr).toAbsolutePath().normalize();
+            for (Path dir : MMAP_ALLOWED_DIRS)
+                if (filePath.startsWith(dir))
+                    return;
+        } catch (IllegalAccessException e) {
+            throw new SecurityException("Cannot access mapping path", e);
+        }
+        throw new SecurityException("Mapping outside whitelisted directories: " + fileChannel);
     }
 
     static int imodeFor(FileChannel.MapMode mode) {

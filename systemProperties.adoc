@@ -45,7 +45,7 @@ Any other value is treated as `false`.
 | `reference.warn.count` | `Integer.MAX_VALUE` | Emit a warning once the reference count reaches this level. | integer | `WARN_COUNT`
 | `reference.warn.secs` | `0.003` | Threshold before warning about slow release. | decimal seconds | `WARN_NS`
 | `warnAndCloseIfNotClosed` | `true` | Automatically close leaked resources at shutdown. | boolean | -
-| `chronicle.core.mmap.allowedDirs` | | Whitelist of directories for memory mapping. | comma-separated paths | -
+| `chronicle.core.mmap.allowedDirs` | | Whitelist of directories for memory mapping. | comma-separated paths (empty = unrestricted) | -
 | `system.properties` | `system.properties` | External file to load system properties. | file path | `SYSTEM_PROPERTIES`
 | `chronicle.stringBuilderPool.instancesPerThread` | `4` | Size of the per-thread `StringBuilder` pool. | integer | `DEFAULT_STRING_BUILDER_POOL_SIZE_PER_THREAD`
 |===
