@@ -15,6 +15,14 @@
  */
 package net.openhft.chronicle.core.scoped;
 
+/**
+ * Base implementation of {@link ScopedResource} instances returned by
+ * {@link ScopedThreadLocal}. Each instance is confined to the thread that
+ * created it and records the creation time using {@link System#nanoTime()}.
+ * The timestamp allows {@link ScopedThreadLocal} to discard the oldest
+ * resource when the per-thread capacity is exceeded.
+ */
+
 import org.jetbrains.annotations.Nullable;
 
 abstract class AbstractScopedResource<T> implements ScopedResource<T> {
@@ -22,6 +30,11 @@ abstract class AbstractScopedResource<T> implements ScopedResource<T> {
     private final long createdTimeNanos;
     private final ScopedThreadLocal<T> scopedThreadLocal;
 
+    /**
+     * Create a new instance bound to the provided {@code scopedThreadLocal}.
+     *
+     * @param scopedThreadLocal the pool managing this resource for the current thread
+     */
     protected AbstractScopedResource(ScopedThreadLocal<T> scopedThreadLocal) {
         this.scopedThreadLocal = scopedThreadLocal;
         this.createdTimeNanos = System.nanoTime();
@@ -33,14 +46,29 @@ abstract class AbstractScopedResource<T> implements ScopedResource<T> {
     }
 
     /**
-     * Do anything that needs to be done before returning a resource to a caller
+     * Prepare the resource before it is handed to the caller.
+     *
+     * <p>
+     * Invoked by {@link ScopedThreadLocal#get()} on the owning thread just
+     * before returning the resource. The default implementation does nothing.
+     *
+     * <p>
+     * Implementations may assume thread confinement and should avoid heavy
+     * allocation if possible.
      */
     void preAcquire() {
         // Do nothing by default
     }
 
     /**
-     * Close the contained resource and clear any references
+     * Close the contained resource and clear any references.
+     *
+     * <p>
+     * Called when a resource is permanently discarded from the pool or when the
+     * thread-local stack is closed.
+     *
+     * <p>
+     * Implementations should release all state and must be idempotent.
      */
     abstract void closeResource();
 

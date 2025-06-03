@@ -28,7 +28,7 @@ public class PriorityHookTest {
         PriorityHook.getRegisteredHook().onShutdown();
 
         InOrder inOrder = inOrder(hook1, hook2);
-        ((InOrder) inOrder).verify(hook1).run();
+        inOrder.verify(hook1).run();
         inOrder.verify(hook2).run();
     }
 
