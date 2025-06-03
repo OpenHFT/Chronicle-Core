@@ -1293,7 +1293,16 @@ public final class Jvm {
                     .getDeclaredField("interruptor");
             ClassUtil.setAccessible(field);
             final CommonInterruptible ci = new CommonInterruptible(clazz, fc);
-            field.set(fc, (Interruptible) thread -> ci.interrupt());
+            field.set(fc, new Interruptible() {
+                @Override
+                public void interrupt(Thread target) {
+                    ci.interrupt();
+                }
+
+                public void postInterrupt() {
+                    // added in Java 23+
+                }
+            });
         } catch (Throwable e) {
             Jvm.warn().on(clazz, "Couldn't disable close on interrupt", e);
         }
