@@ -30,7 +30,7 @@
  * <p>The {@link net.openhft.chronicle.core.pool.StringInterner} class provides string interning functionality, optimizing
  * memory usage by caching strings and referring to them by index rather than storing duplicate strings.
  * This interner is a <em>best-effort</em> concurrent structure and does not
- * offer strong thread-safety guarantees.
+ * require strong thread-safety guarantees to function as intended.
  *
  * <p>Unless otherwise stated, parameters and return values in this package are
  * non-null by default. Use {@link org.jetbrains.annotations.Nullable} to
