@@ -17,18 +17,18 @@
 package net.openhft.chronicle.core.time;
 
 /**
- * Defines an interface for providing high-resolution wall-clock timestamps.
+ * Supplies wall clock timestamps in milliseconds, microseconds and nanoseconds.
  * <p>
- * This interface specifies methods to retrieve the current time with varying degrees of precision,
- * namely in milliseconds, microseconds, and nanoseconds. Implementations of this interface are expected
- * to provide time values with the highest accuracy and precision feasible. Key implementations include
+ * Implementations typically delegate to the operating system clock, so the value returned can
+ * move backwards if the wall clock is corrected. Key implementations include
  * {@link PosixTimeProvider} and {@link SystemTimeProvider}. The {@code PosixTimeProvider} is often
- * preferred for its enhanced speed, accuracy, and stability, though it relies on native code and thus
- * may have platform-specific dependencies.
+ * preferred for its enhanced speed, accuracy and stability, though it relies on native code and thus
+ * may have platform specific dependencies.
  * <p>
  * This interface is crucial in contexts where precise time measurements are vital, such as in performance
  * monitoring, timestamping events, or handling time-sensitive operations.
  *
+ * <p>Use {@link UniqueMicroTimeProvider} if monotonic timestamps are required.
  * @see PosixTimeProvider
  * @see SystemTimeProvider
  */
@@ -39,8 +39,7 @@ public interface TimeProvider {
      * Retrieves the current time in milliseconds.
      * <p>
      * This method returns the current time with millisecond precision, measured from the Unix epoch
-     * (00:00:00 UTC on 1 January 1970). It is expected to be implemented by all subclasses, providing
-     * the baseline precision for time measurements.
+     * (00:00:00 UTC on 1 January 1970). Implementations must guarantee thread-safe access.
      *
      * @return the current time in milliseconds since the Unix epoch
      */
@@ -53,8 +52,8 @@ public interface TimeProvider {
      * {@link #currentTimeMillis()} by a factor of 1000. Implementations may override this for higher
      * accuracy if available.
      *
-     * @return The current time in microseconds since the Unix epoch.
-     * @throws IllegalStateException if the time value cannot be accurately determined or converted.
+     * @return the current time in microseconds since the Unix epoch
+     * @throws IllegalStateException if the time value cannot be accurately determined or converted
      */
     default long currentTimeMicros() throws IllegalStateException {
         return currentTimeMillis() * 1000;
@@ -67,8 +66,8 @@ public interface TimeProvider {
      * from {@link #currentTimeMicros()} by 1000. Implementations may provide more precise or direct
      * measurements if their underlying system supports it.
      *
-     * @return The current time in nanoseconds since the Unix epoch.
-     * @throws IllegalStateException if the time value cannot be accurately determined or converted.
+     * @return the current time in nanoseconds since the Unix epoch
+     * @throws IllegalStateException if the time value cannot be accurately determined or converted
      */
     default long currentTimeNanos() throws IllegalStateException {
         return currentTimeMicros() * 1000;

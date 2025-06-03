@@ -39,9 +39,10 @@ public class StackTraceTest extends CoreTestCommon {
     public void testDefaultConstructor() {
         StackTrace st = new StackTrace(true);
         String currentThreadName = Thread.currentThread().getName();
+        String regex = "stack trace on " + currentThreadName + " at " + TIMESTAMP_REGEX;
         assertTrue(
-                String.format("%s must match regular expression expecting 'stack trace on %s at' with following timestamp", st.getMessage(), currentThreadName),
-                st.getMessage().matches("stack trace on " + currentThreadName + " at " + TIMESTAMP_REGEX)
+                st.getMessage() + " expected to match " + regex,
+                st.getMessage().matches(regex)
         );
     }
 
