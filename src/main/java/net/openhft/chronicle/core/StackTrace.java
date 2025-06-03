@@ -74,16 +74,14 @@ public class StackTrace extends Throwable {
     private static final int NANOS_PER_MILLI = 1_000_000;
 
     /**
-     * Constructs a new {@code StackTrace} for the current thread with the
-     * default message "stack trace".
+     * Creates a stack trace for the current thread using the message "stack trace".
      */
     public StackTrace() {
         this("stack trace", false);
     }
 
     /**
-     * Constructs a new {@code StackTrace} for the current thread with the
-     * default message "stack trace", optionally including a timestamp in the stack trace message.
+     * Creates a stack trace for the current thread using the message "stack trace" and optionally adds a timestamp.
      *
      * @param addTimestamp whether to add a timestamp to the stack trace message
      */
@@ -92,38 +90,38 @@ public class StackTrace extends Throwable {
     }
 
     /**
-     * Constructs a new {@code StackTrace} for the current thread with the specified message.
+     * Creates a stack trace for the current thread with the specified message.
      *
-     * @param message the detail message for this stack trace.
+     * @param message the detail message for this stack trace
      */
     public StackTrace(String message) {
         this(message, null);
     }
 
     /**
-     * Constructs a new {@code StackTrace} for the current thread with the specified message, optionally including a timestamp in the stack trace message.
+     * Creates a stack trace for the current thread with the specified message and an optional timestamp.
      *
-     * @param message the detail message for this stack trace.
-     * @param addTimestamp whether to add a timestamp to the stack trace message*
+     * @param message      the detail message for this stack trace
+     * @param addTimestamp whether to add a timestamp to the stack trace message
      */
     public StackTrace(String message, boolean addTimestamp) { this(message, null, addTimestamp); }
 
 
     /**
-     * Constructs a new {@code StackTrace} with the specified message and cause.
+     * Creates a stack trace with the specified message and cause.
      *
-     * @param message the detail message for this stack trace.
-     * @param cause   the cause of this stack trace, or {@code null} if the cause is unknown or nonexistent.
+     * @param message the detail message for this stack trace
+     * @param cause   the underlying cause, or {@code null} if unknown
      */
     public StackTrace(String message, Throwable cause) {
         this(message, cause, false);
     }
 
     /**
-     * Constructs a new {@code StackTrace} with the specified message and cause, optionally including a timestamp in the stack trace message.
+     * Creates a stack trace with the specified message and cause and can add a timestamp.
      *
-     * @param message the detail message for this stack trace.
-     * @param cause   the cause of this stack trace, or {@code null} if the cause is unknown or nonexistent.
+     * @param message      the detail message for this stack trace
+     * @param cause        the underlying cause, or {@code null} if unknown
      * @param addTimestamp whether to add a timestamp to the stack trace message
      */
     public StackTrace(String message, Throwable cause, boolean addTimestamp) {

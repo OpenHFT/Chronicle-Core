@@ -399,10 +399,10 @@ public final class Jvm {
     }
 
     /**
-     * Append the provided {@code StackTraceElements} to the provided {@code stringBuilder} trimming some internal methods.
+     * Appends stack trace elements to the builder while skipping Chronicle internal frames.
      *
-     * @param stringBuilder      to append to
-     * @param stackTraceElements stack trace elements
+     * @param stringBuilder      destination for the stack trace
+     * @param stackTraceElements elements to append
      */
     public static void trimStackTrace(@NotNull final StringBuilder stringBuilder, @NotNull final StackTraceElement... stackTraceElements) {
         final int first = trimFirst(stackTraceElements);
@@ -928,7 +928,7 @@ public final class Jvm {
     }
 
     /**
-     * Inserts a low-cost Java safe-point in the code path if -Djvm.safepoint.enabled
+     * Inserts a low-cost Java safepoint when the {@code jvm.safepoint.enabled} property is set.
      */
     public static void safepoint() {
         if (SAFEPOINT_ENABLED) {
