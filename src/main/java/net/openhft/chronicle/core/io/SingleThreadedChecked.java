@@ -19,8 +19,8 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.Jvm;
 
 /**
- * An interface indicating that the implementing resource supports single-threaded access checking.
- * It provides methods to reset the check and disable the single-threaded check.
+ * Implement for components that are intended for single-threaded use.  The
+ * checks help diagnose accidental sharing between threads.
  */
 public interface SingleThreadedChecked {
 
@@ -34,8 +34,9 @@ public interface SingleThreadedChecked {
             Jvm.getBoolean("disable.single.threaded.check", false);
 
     /**
-     * Resets the single-threaded check, forgetting about previous accesses.
-     * Subsequent accesses will be checked from the point of this reset.
+     * Forget the thread that last used this component. Call when ownership is
+     * transferred, for example after constructing an object on one thread and
+     * handing it to another.
      */
     void singleThreadedCheckReset();
 

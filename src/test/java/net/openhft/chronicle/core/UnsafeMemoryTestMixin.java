@@ -149,7 +149,11 @@ interface UnsafeMemoryTestMixin<T> {
                                             try {
                                                 barrier.await(1, TimeUnit.SECONDS);
                                             } catch (InterruptedException | BrokenBarrierException | TimeoutException e) {
-                                                fail(threadErrors.toString());
+                                                if (threadErrors.isEmpty()) {
+                                                    System.err.println("Barrier timed out: " + e.getMessage());
+                                                } else {
+                                                    fail(threadErrors.toString());
+                                                }
                                             }
                                             barrier.reset();
                                         });

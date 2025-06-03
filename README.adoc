@@ -414,6 +414,14 @@ To make sure the shutdown hook does not prevent classes from unloading, deregist
 | X | `false` | Resources are not queued and are released synchronously.
 |===
 
+=== Syncing Data
+
+Some resources implement `net.openhft.chronicle.core.io.Syncable`. After
+writing to a memory-mapped file or similar structure you can call
+`Syncable.sync()` to flush changes to the backing store. When operating on an
+object that may or may not implement this interface use
+`Syncable.syncIfAvailable(obj)`.
+
 == Thread Safety Checks
 
 Classes that are designed for single-threaded use can implement `net.openhft.chronicle.core.io.SingleThreadedChecked`.
@@ -475,6 +483,13 @@ public void singleThreadedCheckReset() {
     this.bytes.singleThreadedCheckReset();
 }
 ----
+
+== Object Validation
+
+Some DTOs implement `net.openhft.chronicle.core.io.Validatable`. Call
+`ValidatableUtil.validate(obj)` before serialising or logging to ensure the
+object is consistent. Validation can be suppressed using
+`ValidatableUtil.startValidateDisabled()`.
 
 == Object Pooling
 

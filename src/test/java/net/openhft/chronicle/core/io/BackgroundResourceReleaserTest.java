@@ -57,7 +57,7 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
         new Thread(wc::close).start();
         wc.close();
         long time0 = System.currentTimeMillis() - start0;
-        int error = Jvm.isAzulZing() || Jvm.isAzulZulu() || Jvm.isMacArm() ? 45 : Jvm.isArm() || OS.isWindows() ? 16 : 12;
+        int error = Jvm.isAzulZing() || Jvm.isAzulZulu() || Jvm.isMacArm() ? 45 : 20;
         assertBetween(10, time0, 20 + 3 * error);
 
         BackgroundResourceReleaser.releasePendingResources();

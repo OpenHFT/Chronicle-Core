@@ -25,7 +25,11 @@ import java.net.URL;
 import static net.openhft.chronicle.core.io.Closeable.closeQuietly;
 
 /**
- * Utility class for performing an HTTP GET request.
+ * Minimal helper for issuing a blocking HTTP GET request. It simply wraps
+ * {@link URL#openStream()} and copies the response into a {@link StringBuilder}.
+ * <p>
+ * No redirects or status codes are handled. It is intended for small test
+ * utilities rather than production use.
  */
 public final class Wget {
 
@@ -33,11 +37,12 @@ public final class Wget {
     }
 
     /**
-     * Performs an HTTP GET request to the specified URL.
+     * Reads the content of the given URL into the provided builder.
+     * The call blocks until the entire response has been read.
      *
-     * @param url the URL of the HTTP GET request
-     * @param sb  The StringBuilder to which the response will be written to
-     * @throws IOException if an error occurs while establishing the connection
+     * @param url textual representation of the HTTP URL
+     * @param sb  container for the characters returned by the server
+     * @throws IOException if the connection fails or the stream cannot be read
      */
     public static void url(String url, StringBuilder sb) throws IOException {
         InputStream is = null;

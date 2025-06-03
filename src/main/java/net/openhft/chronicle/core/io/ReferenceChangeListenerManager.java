@@ -21,8 +21,13 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * Manages the reference change listeners for a {@link ReferenceCounted} object.
- * It allows adding, removing, and notifying the listeners about reference changes.
+ * Utility that invokes {@link ReferenceChangeListener} callbacks for a
+ * particular {@link ReferenceCounted} instance. Listeners are stored in a
+ * {@link CopyOnWriteArrayList}, so callbacks execute sequentially in the order
+ * they were added. This avoids holding locks during notification and ensures
+ * predictable ordering even when listeners are added or removed concurrently.
+ * Typical usage is for a {@link ReferenceCounted} implementation to delegate to
+ * this manager after each change to its reference count.
  */
 class ReferenceChangeListenerManager {
 
@@ -40,27 +45,31 @@ class ReferenceChangeListenerManager {
     }
 
     /**
-     * Adds a ReferenceChangeListener to this manager.
+     * Registers a {@link ReferenceChangeListener}. Listeners are kept in the
+     * order added so that notifications occur predictably.
      *
-     * @param referenceChangeListener The ReferenceChangeListener to add.
+     * @param referenceChangeListener the listener to add
      */
     void add(ReferenceChangeListener referenceChangeListener) {
         referenceChangeListeners.add(referenceChangeListener);
     }
 
     /**
-     * Removes a ReferenceChangeListener from this manager.
+     * Deregisters a {@link ReferenceChangeListener} previously added with
+     * {@link #add(ReferenceChangeListener)}.
      *
-     * @param referenceChangeListener The ReferenceChangeListener to remove.
+     * @param referenceChangeListener the listener to remove
      */
     void remove(ReferenceChangeListener referenceChangeListener) {
         referenceChangeListeners.remove(referenceChangeListener);
     }
 
     /**
-     * Notifies the reference change listeners about a reference being added.
+     * Invokes {@link ReferenceChangeListener#onReferenceAdded(ReferenceCounted,
+     * ReferenceOwner)} on each registered listener. This should be called once
+     * the underlying reference count has been incremented.
      *
-     * @param referenceOwner The owner of the added reference.
+     * @param referenceOwner the owner of the added reference
      */
     void notifyAdded(ReferenceOwner referenceOwner) {
         this.callReferenceChangeListeners(
@@ -69,9 +78,11 @@ class ReferenceChangeListenerManager {
     }
 
     /**
-     * Notifies the reference change listeners about a reference being removed.
+     * Invokes {@link ReferenceChangeListener#onReferenceRemoved(ReferenceCounted,
+     * ReferenceOwner)} on each registered listener. Call after the reference
+     * count has been decremented.
      *
-     * @param referenceOwner The owner of the removed reference, or null if not known.
+     * @param referenceOwner the owner of the removed reference, or {@code null} if unknown
      */
     void notifyRemoved(@Nullable ReferenceOwner referenceOwner) {
         this.callReferenceChangeListeners(
@@ -80,10 +91,11 @@ class ReferenceChangeListenerManager {
     }
 
     /**
-     * Notifies the reference change listeners about a reference being transferred.
+     * Invokes {@link ReferenceChangeListener#onReferenceTransferred(ReferenceCounted,
+     * ReferenceOwner, ReferenceOwner)} on each registered listener.
      *
-     * @param from The owner from whom the reference was transferred.
-     * @param to   The owner to whom the reference was transferred.
+     * @param from the owner from whom the reference was transferred
+     * @param to   the owner to whom the reference was transferred
      */
     void notifyTransferred(ReferenceOwner from, ReferenceOwner to) {
         this.callReferenceChangeListeners(ReferenceChangeListener::onReferenceTransferred, from, to);
