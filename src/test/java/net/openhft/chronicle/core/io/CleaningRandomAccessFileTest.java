@@ -54,7 +54,7 @@ public class CleaningRandomAccessFileTest extends CoreTestCommon {
         return new File("/proc/self/fd").list().length;
     }
 
-    @org.junit.Test
+    @Test
     public void resourceLeak() throws IOException {
         File tempDir = IOTools.createTempFile("resourceLeak");
         tempDir.mkdir();
