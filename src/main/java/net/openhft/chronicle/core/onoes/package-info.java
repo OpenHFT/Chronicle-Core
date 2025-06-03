@@ -26,7 +26,6 @@
  * Jvm.resetExceptionHandlers();
  * }</pre>
  *
- * @author OpenHFT - part of Chronicle-Core
  * @see net.openhft.chronicle.core.onoes.ExceptionHandler
  */
 package net.openhft.chronicle.core.onoes;
