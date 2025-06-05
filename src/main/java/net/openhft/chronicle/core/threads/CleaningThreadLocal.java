@@ -20,6 +20,7 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.Closeable;
 import net.openhft.chronicle.core.util.ThrowingConsumer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Function;
@@ -48,31 +49,49 @@ import static net.openhft.chronicle.core.Jvm.uncheckedCast;
  * </ol>
  *
  * <p>This class is typically used for off-heap buffers, direct I/O handles,
- * {@code Closeable}s, or any resource that must be released deterministically
- * even when user code forgets to call {@code close()}.
+ * {@link java.io.Closeable Closeable}s, or any resource that must be released
+ * deterministically even when user code forgets to call {@code close()}.</p>
  *
  * <h2>Controlling orphan tracking</h2>
  *
- * <p>Tracking of "orphan" values (those created by non-{@code CleaningThread}s)
- * is enabled by default <em>only when JVM assertions are enabled</em>
- * (i.e.&nbsp;{@code -ea}). This keeps the production fast-path allocation-free.
- * To change the behaviour:</p>
+ * <p>Orphan tracking can be toggled in two mutually-aware ways (highest
+ * precedence first):</p>
  *
- * <ul>
- *   <li>Enable tracking in production by constructing the instance via the
- *       package-private constructor that passes {@code Boolean.TRUE} for
- *       {@code overrideTrackNonCleaningThreads}; or simply run with {@code -ea}
- *       or {@code -ea:net.openhft.chronicle.core.threads.CleaningThreadLocal}.</li>
- *   <li>Disable tracking while keeping assertions on with<br>
- *       {@code -da:net.openhft.chronicle.core.threads.CleaningThreadLocal}</li>
- * </ul>
+ * <ol>
+ *   <li><b>System property</b><br>
+ *       Setting <code>-Ddisable.ctl.orphan.tracking</code>
+ *       <strong>globally disables</strong> orphan tracking for every
+ *       {@code CleaningThreadLocal} in the JVM, regardless of assertions or
+ *       constructor flags.  This is the easiest "set-and-forget" option for
+ *       ultra-low-latency production deployments.</li>
+ *
+ *   <li><b>JVM assertions</b><br>
+ *       When above mechanisms is not used, orphan tracking is
+ *       enabled <em>only</em> when assertions are turned on ( {@code -ea} ).
+ *       This keeps the production fast path allocation-free by default.</li>
+ * </ol>
+ *
+ * <p>Summary of common launch options:</p>
+ *
+ * <pre>
+ *   # production, no tracking
+ *   java -Ddisable.ctl.orphan.tracking  ...
+ *
+ *   # production, tracking ON for diagnostics
+ *   java -ea:net.openhft.chronicle.core.threads.CleaningThreadLocal -cp ...
+ *
+ *   # tests: assertions on, but tracking OFF for this one class
+ *   java -ea -da:net.openhft.chronicle.core.threads.CleaningThreadLocal ...
+ * </pre>
  *
  * @param <T> the type stored in the thread-local variable
- *
  * @see CleaningThread
  * @see #cleanupNonCleaningThreads()
  */
+
 public class CleaningThreadLocal<T> extends ThreadLocal<T> {
+    private static final boolean DISABLE_CTL_ORPHAN_TRACKING =
+            Jvm.getBoolean("disable.ctl.orphan.tracking");
     /**
      * All {@code CleaningThreadLocal} instances that may currently hold orphan values.
      * Guarded by the set's intrinsic monitor; contention is minimal because items are
@@ -131,25 +150,26 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
      * force orphan-tracking on or off regardless of the JVM's assertion flags.
      *
      * @param overrideTrackNonCleaningThreads {@code Boolean.TRUE} to force
-     *            orphan-tracking ON, {@code Boolean.FALSE} to force it OFF,
-     *            or {@code null} to accept the default "track only when -ea".
+     *                                        orphan-tracking ON, {@code Boolean.FALSE} to force it OFF,
+     *                                        or {@code null} to accept the default "track only when -ea".
      */
     CleaningThreadLocal(Supplier<T> supplier,
                         ThrowingConsumer<T, Exception> cleanup,
                         UnaryOperator<T> getWrapper,
                         Boolean overrideTrackNonCleaningThreads) {
 
-        this.supplier   = Objects.requireNonNull(supplier,  "supplier");
-        this.cleanup    = Objects.requireNonNull(cleanup,   "cleanup");
-        this.getWrapper = Objects.requireNonNull(getWrapper,"getWrapper");
+        this.supplier = Objects.requireNonNull(supplier, "supplier");
+        this.cleanup = Objects.requireNonNull(cleanup, "cleanup");
+        this.getWrapper = Objects.requireNonNull(getWrapper, "getWrapper");
 
         // decide whether to gather orphan values
         boolean track = false;
         assert track = enableOrphanTracking();   // NOP when -ea is absent
         this.trackNonCleaningThreads =
-                overrideTrackNonCleaningThreads != null
-                        ? overrideTrackNonCleaningThreads
-                        : track;
+                !DISABLE_CTL_ORPHAN_TRACKING &&
+                        (overrideTrackNonCleaningThreads != null
+                                ? overrideTrackNonCleaningThreads
+                                : track);
     }
 
     /**
@@ -233,7 +253,7 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
     protected T initialValue() {
         T value = supplier.get();
         if (trackNonCleaningThreads &&
-            !(Thread.currentThread() instanceof CleaningThread)) {
+                !(Thread.currentThread() instanceof CleaningThread)) {
             nonCleaningThreadValues.put(Thread.currentThread(), value);
         }
         return value;
@@ -294,13 +314,13 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
      * Any exception thrown by user code is swallowed and logged so that
      * cleanup can never compromise the core invariant of this class.
      */
-    public synchronized void cleanup(T value) {
+    public synchronized void cleanup(@Nullable T value) {
+        if (value == null) return;
         try {
-            if (cleanup != null && value != null)
-                cleanup.accept(value);
+            cleanup.accept(value);
         } catch (Exception ex) {
             Jvm.warn().on(getClass(),
-                          "Exception during cleanup of " + value.getClass(), ex);
+                    "Exception during cleanup of " + value.getClass(), ex);
         }
     }
 
