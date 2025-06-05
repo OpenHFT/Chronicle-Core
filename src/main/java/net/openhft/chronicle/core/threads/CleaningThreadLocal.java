@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 Chronicle Software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +19,7 @@ package net.openhft.chronicle.core.threads;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.Closeable;
 import net.openhft.chronicle.core.util.ThrowingConsumer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.function.Function;
@@ -30,198 +29,287 @@ import java.util.function.UnaryOperator;
 import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 
 /**
- * The CleaningThreadLocal class extends ThreadLocal and ensures that the resources held by
- * a CleaningThread are cleaned up if the thread dies.
- * <p>
- * Note that this class does not clean up resources if the ThreadLocal instance itself is discarded.
+ * <h1>CleaningThreadLocal - a ThreadLocal that never leaks native resources</h1>
  *
- * @param <T> The type of resource this CleaningThreadLocal holds.
+ * <p>{@code CleaningThreadLocal} augments {@link ThreadLocal} with two additional
+ * capabilities:</p>
+ *
+ * <ol>
+ *   <li><b>In-thread cleanup for {@link CleaningThread}s.</b><br>
+ *       A value attached to a {@code CleaningThread} is cleaned immediately
+ *       (still on that same thread) when it is replaced or {@code remove()} is called.</li>
+ *
+ *   <li><b>Best-effort cleanup for <em>ordinary</em> threads.</b><br>
+ *       Values produced by threads that are <em>not</em> instances of
+ *       {@code CleaningThread} are registered globally. The static method
+ *       {@link #cleanupNonCleaningThreads()} can be invoked-on a timer, in a
+ *       background executor, or during JVM shutdown-to free resources that
+ *       belong to threads which have already terminated.</li>
+ * </ol>
+ *
+ * <p>This class is typically used for off-heap buffers, direct I/O handles,
+ * {@code Closeable}s, or any resource that must be released deterministically
+ * even when user code forgets to call {@code close()}.
+ *
+ * <h2>Controlling orphan tracking</h2>
+ *
+ * <p>Tracking of "orphan" values (those created by non-{@code CleaningThread}s)
+ * is enabled by default <em>only when JVM assertions are enabled</em>
+ * (i.e.&nbsp;{@code -ea}). This keeps the production fast-path allocation-free.
+ * To change the behaviour:</p>
+ *
+ * <ul>
+ *   <li>Enable tracking in production by constructing the instance via the
+ *       package-private constructor that passes {@code Boolean.TRUE} for
+ *       {@code overrideTrackNonCleaningThreads}; or simply run with {@code -ea}
+ *       or {@code -ea:net.openhft.chronicle.core.threads.CleaningThreadLocal}.</li>
+ *   <li>Disable tracking while keeping assertions on with<br>
+ *       {@code -da:net.openhft.chronicle.core.threads.CleaningThreadLocal}</li>
+ * </ul>
+ *
+ * @param <T> the type stored in the thread-local variable
+ *
+ * @see CleaningThread
+ * @see #cleanupNonCleaningThreads()
  */
 public class CleaningThreadLocal<T> extends ThreadLocal<T> {
-    protected static final String CHRONICLE_TRACK_NON_CLEANING_THREADS_ENABLED = "chronicle.trackNonCleaningThreads.enabled";
-    private static final Set<CleaningThreadLocal<?>> cleaningThreadLocals = Collections.synchronizedSet(new LinkedHashSet<>());
-
-    private final Supplier<T> supplier;
-    private final Function<T, T> getWrapper;
-    private final ThrowingConsumer<T, Exception> cleanup;
-    private Map<Thread, Object> nonCleaningThreadValues = null;
+    /**
+     * All {@code CleaningThreadLocal} instances that may currently hold orphan values.
+     * Guarded by the set's intrinsic monitor; contention is minimal because items are
+     * added only at construction time and removed when empty.
+     */
+    private static final Set<CleaningThreadLocal<?>> cleaningThreadLocals =
+            Collections.synchronizedSet(new LinkedHashSet<>());
 
     /**
-     * Private constructor for CleaningThreadLocal.
-     *
-     * @param supplier The supplier that provides the resource.
-     * @param cleanup  The consumer that cleans up the resource.
+     * Factory for the initial value. Never returns {@code null}.
      */
-    CleaningThreadLocal(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup) {
+    @NotNull
+    private final Supplier<T> supplier;
+
+    /**
+     * Optional transformation applied by {@link #get()}.  A common use-case is
+     * {@code ByteBuffer::duplicate} to hide internal position/limit mutations
+     * from callers.
+     */
+    @NotNull
+    private final Function<T, T> getWrapper;
+
+    /**
+     * Action that releases or closes the resource.
+     */
+    @NotNull
+    private final ThrowingConsumer<T, Exception> cleanup;
+
+    /**
+     * {@code true} when we should record values belonging to non-CleaningThreads
+     * so they can be cleaned up later.
+     */
+    private final boolean trackNonCleaningThreads;
+    /**
+     * Map &lt;Thread,value&gt; that holds the latest resource produced by each
+     * <em>non-CleaningThread</em>.  Only initialised when tracking is enabled
+     * to keep the memory overhead tiny in the common case.
+     *
+     * <p>Guarded by {@link #cleaningThreadLocals}.
+     */
+    private Map<Thread, Object> nonCleaningThreadValues;
+
+    private CleaningThreadLocal(Supplier<T> supplier,
+                                ThrowingConsumer<T, Exception> cleanup) {
         this(supplier, cleanup, UnaryOperator.identity());
     }
 
-    /**
-     * Private constructor for CleaningThreadLocal.
-     *
-     * @param supplier   The supplier that provides the resource.
-     * @param cleanup    The consumer that cleans up the resource.
-     * @param getWrapper The function to apply when the get method is called.
-     */
-    CleaningThreadLocal(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup, UnaryOperator<T> getWrapper) {
-        this.supplier = supplier;
-        this.cleanup = cleanup;
-        this.getWrapper = getWrapper;
-        // only do this for testing.
-        assert trackNonCleaningThreads();
+    private CleaningThreadLocal(Supplier<T> supplier,
+                                ThrowingConsumer<T, Exception> cleanup,
+                                UnaryOperator<T> getWrapper) {
+        this(supplier, cleanup, getWrapper, null);
     }
 
     /**
-     * Creates a CleaningThreadLocal with a Closeable cleanup strategy.
+     * Package-private constructor that allows unit tests (or power users) to
+     * force orphan-tracking on or off regardless of the JVM's assertion flags.
      *
-     * @param supplier The supplier that provides the resource.
-     * @return A CleaningThreadLocal instance.
+     * @param overrideTrackNonCleaningThreads {@code Boolean.TRUE} to force
+     *            orphan-tracking ON, {@code Boolean.FALSE} to force it OFF,
+     *            or {@code null} to accept the default "track only when -ea".
+     */
+    CleaningThreadLocal(Supplier<T> supplier,
+                        ThrowingConsumer<T, Exception> cleanup,
+                        UnaryOperator<T> getWrapper,
+                        Boolean overrideTrackNonCleaningThreads) {
+
+        this.supplier   = Objects.requireNonNull(supplier,  "supplier");
+        this.cleanup    = Objects.requireNonNull(cleanup,   "cleanup");
+        this.getWrapper = Objects.requireNonNull(getWrapper,"getWrapper");
+
+        // decide whether to gather orphan values
+        boolean track = false;
+        assert track = enableOrphanTracking();   // NOP when -ea is absent
+        this.trackNonCleaningThreads =
+                overrideTrackNonCleaningThreads != null
+                        ? overrideTrackNonCleaningThreads
+                        : track;
+    }
+
+    /**
+     * Creates a {@code CleaningThreadLocal} whose cleanup simply calls
+     * {@link Closeable#closeQuietly}.
+     *
+     * @param supplier supplies the resource (may return {@code null})
+     * @param <T>      any subtype of {@link Closeable}
+     * @return a new {@code CleaningThreadLocal}
      */
     public static <T> CleaningThreadLocal<T> withCloseQuietly(Supplier<T> supplier) {
         return new CleaningThreadLocal<>(supplier, Closeable::closeQuietly);
     }
 
     /**
-     * Creates a CleaningThreadLocal with a custom cleanup strategy.
+     * Creates a {@code CleaningThreadLocal} with a custom cleanup action but
+     * without an initial-value supplier.
      *
-     * @param cleanup The consumer that cleans up the resource.
-     * @return A CleaningThreadLocal instance.
+     * @param cleanup consumer that frees the resource
      */
     public static <T> CleaningThreadLocal<T> withCleanup(ThrowingConsumer<T, Exception> cleanup) {
         return new CleaningThreadLocal<>(() -> null, cleanup);
     }
 
     /**
-     * Creates a CleaningThreadLocal with a supplier and a custom cleanup strategy.
-     *
-     * @param supplier The supplier that provides the resource.
-     * @param cleanup  The consumer that cleans up the resource.
-     * @return A CleaningThreadLocal instance.
+     * Creates a {@code CleaningThreadLocal} with supplier and cleanup.
      */
-    public static <T> CleaningThreadLocal<T> withCleanup(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup) {
+    public static <T> CleaningThreadLocal<T> withCleanup(Supplier<T> supplier,
+                                                         ThrowingConsumer<T, Exception> cleanup) {
         return new CleaningThreadLocal<>(supplier, cleanup);
     }
 
     /**
-     * Creates a CleaningThreadLocal with a supplier, a custom cleanup strategy, and a function to apply when the get method is called.
-     *
-     * @param supplier   The supplier that provides the resource.
-     * @param cleanup    The consumer that cleans up the resource.
-     * @param getWrapper The function to apply when the get method is called.
-     * @return A CleaningThreadLocal instance.
+     * Creates a {@code CleaningThreadLocal} with supplier, cleanup and a
+     * transformation applied every time {@link #get()} is called.
      */
-    public static <T> CleaningThreadLocal<T> withCleanup(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup, Function<T, T> getWrapper) {
+    public static <T> CleaningThreadLocal<T> withCleanup(Supplier<T> supplier,
+                                                         ThrowingConsumer<T, Exception> cleanup,
+                                                         Function<T, T> getWrapper) {
         return new CleaningThreadLocal<>(supplier, cleanup, getWrapper::apply);
     }
 
     /**
-     * Cleans up resources held by threads that are no longer alive.
+     * Performs a single orphan-sweep:
+     * <ol>
+     *   <li>Iterates through all live {@code CleaningThreadLocal}s that track
+     *       non-CleaningThreads.</li>
+     *   <li>Identifies threads that have terminated.</li>
+     *   <li>Invokes the configured cleanup for each stale value.</li>
+     *   <li>Purges the entry from internal bookkeeping.</li>
+     * </ol>
+     *
+     * <p>Call at whatever cadence suits your application (e.g.&nbsp;every few
+     * seconds, once a minute, or only at JVM shutdown).</p>
      */
     public static void cleanupNonCleaningThreads() {
         if (cleaningThreadLocals.isEmpty())
             return;
 
-        synchronized (cleaningThreadLocals) {
-            for (Iterator<CleaningThreadLocal<?>> iterator = cleaningThreadLocals.iterator(); iterator.hasNext(); ) {
-                CleaningThreadLocal<?> nctl = iterator.next();
-                final CleaningThreadLocal<?> nctl2 = nctl;
-                for (Iterator<Map.Entry<Thread, Object>> iter = nctl.nonCleaningThreadValues.entrySet().iterator(); iter.hasNext(); ) {
-                    Map.Entry<Thread, Object> entry = iter.next();
-                    if (!entry.getKey().isAlive()) {
-                        CleaningThreadLocal<Object> nctl2b = uncheckedCast(nctl2);
-                        nctl2b.cleanup(entry.getValue());
-                        iter.remove();
-                    }
-                }
-                if (nctl.nonCleaningThreadValues.isEmpty())
-                    iterator.remove();
+        cleaningThreadLocals.removeIf(CleaningThreadLocal::doCleanupNonCleaningThreads);
+    }
+
+    private boolean doCleanupNonCleaningThreads() {
+        if (!trackNonCleaningThreads)
+            return true;
+
+        for (Iterator<Map.Entry<Thread, Object>> mapIt =
+             nonCleaningThreadValues.entrySet().iterator();
+             mapIt.hasNext(); ) {
+
+            Map.Entry<Thread, Object> e = mapIt.next();
+            if (!e.getKey().isAlive()) {
+                cleanup(uncheckedCast(e.getValue()));
+                mapIt.remove();
             }
         }
+        return nonCleaningThreadValues.isEmpty();
     }
 
-    private boolean trackNonCleaningThreads() {
-        if (Jvm.getBoolean(CHRONICLE_TRACK_NON_CLEANING_THREADS_ENABLED, true)) {
-            cleaningThreadLocals.add(this);
-            nonCleaningThreadValues = Collections.synchronizedMap(new LinkedHashMap<>());
-        }
-        return true;
-    }
-
-    /**
-     * Returns the initial value of this CleaningThreadLocal.
-     * This method is called once per thread when the thread first uses the get() method.
-     *
-     * @return The initial value.
-     */
     @Override
     protected T initialValue() {
-        final T t = supplier.get();
-        if (nonCleaningThreadValues != null) {
-            Thread thread = Thread.currentThread();
-            if (thread instanceof CleaningThread)
-                return t;
-            nonCleaningThreadValues.put(thread, t);
+        T value = supplier.get();
+        if (trackNonCleaningThreads &&
+            !(Thread.currentThread() instanceof CleaningThread)) {
+            nonCleaningThreadValues.put(Thread.currentThread(), value);
         }
-        return t;
+        return value;
     }
 
-    /**
-     * Returns the value of this CleaningThreadLocal.
-     *
-     * @return The current value.
-     */
     @Override
     public T get() {
         return getWrapper.apply(super.get());
     }
 
-    /**
-     * Sets the value of this CleaningThreadLocal and performs cleanup if necessary.
-     *
-     * @param value The new value to be set.
-     */
     @Override
     public void set(T value) {
-        final Thread thread = Thread.currentThread();
+        Thread thread = Thread.currentThread();
+
         if (thread instanceof CleaningThread) {
             CleaningThread.performCleanup(thread, this);
-        } else if (nonCleaningThreadValues != null) {
+        } else if (trackNonCleaningThreads) {
             @SuppressWarnings("unchecked")
-            final T o = (T) nonCleaningThreadValues.put(thread, value);
-            cleanup(o);
+            T previous = (T) nonCleaningThreadValues.put(thread, value);
+            cleanup(previous);
         }
         super.set(value);
     }
 
-    /**
-     * Removes the value for this CleaningThreadLocal from the current thread and performs cleanup.
-     */
     @Override
     public void remove() {
-        final Thread thread = Thread.currentThread();
+        Thread thread = Thread.currentThread();
+
         if (thread instanceof CleaningThread) {
             CleaningThread.performCleanup(thread, this);
-        } else if (nonCleaningThreadValues != null) {
+        } else if (trackNonCleaningThreads) {
             @SuppressWarnings("unchecked")
-            final T o = (T) nonCleaningThreadValues.remove(thread);
-            cleanup(o);
+            T previous = (T) nonCleaningThreadValues.remove(thread);
+            cleanup(previous);
         }
         super.remove();
     }
 
     /**
-     * Performs cleanup of the provided value. It can be safely called multiple times,
-     * as cleanup will only be performed the first time for a given value.
+     * Runs exactly once per instance <em>when assertions are enabled</em>.
+     * Registers {@code this} in the global set and initialises the orphan map.
+     * No code executes when {@code -ea} is absent, so production performance
+     * is unaffected.
      *
-     * @param value The value to be cleaned up.
+     * @return always {@code true}; used only for the assignment in the assert.
+     */
+    private boolean enableOrphanTracking() {
+        // prune any stale CTLs before adding a new one
+        cleanupNonCleaningThreads();
+
+        cleaningThreadLocals.add(this);
+        nonCleaningThreadValues = Collections.synchronizedMap(new LinkedHashMap<>());
+        return true;
+    }
+
+    /**
+     * Idempotent helper that applies {@link #cleanup} to {@code value}.
+     * Any exception thrown by user code is swallowed and logged so that
+     * cleanup can never compromise the core invariant of this class.
      */
     public synchronized void cleanup(T value) {
         try {
-            ThrowingConsumer<T, Exception> lCleanup = this.cleanup;
-            if (lCleanup != null && value != null)
-                lCleanup.accept(value);
-        } catch (Exception e) {
-            Jvm.warn().on(getClass(), "Exception cleaning up " + value.getClass(), e);
+            if (cleanup != null && value != null)
+                cleanup.accept(value);
+        } catch (Exception ex) {
+            Jvm.warn().on(getClass(),
+                          "Exception during cleanup of " + value.getClass(), ex);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "CleaningThreadLocal{" +
+                "trackedNonCleaningThreads=" +
+                (nonCleaningThreadValues == null ? 0 : nonCleaningThreadValues.size()) +
+                ", tracking=" + trackNonCleaningThreads +
+                '}';
     }
 }
