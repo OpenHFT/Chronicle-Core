@@ -11,13 +11,13 @@ import java.util.Objects;
  * <p>An {@link InputStream} decorator that enforces an upper bound on the number of bytes
  * that can be consumed from the underlying stream.  Once the budget is exhausted:</p>
  * <ul>
- *   <li>If the wrapped stream is at true end‑of‑file, {@code -1} is returned (normal EOF).</li>
+ *   <li>If the wrapped stream is at true end-of-file, {@code -1} is returned (normal EOF).</li>
  *   <li>If additional data is still available, an {@link IOException} with the message
  *       <q>Size limit exceeded</q> is thrown.  This ensures the caller can never read past
  *       the configured limit.</li>
  * </ul>
  *
- * <p>The class is package‑private on purpose; use it through public APIs such as
+ * <p>The class is package-private on purpose; use it through public APIs such as
  * {@link Wget} instead of referencing it directly.</p>
  */
 final class LimitedInputStream extends FilterInputStream {
@@ -28,8 +28,8 @@ final class LimitedInputStream extends FilterInputStream {
     /**
      * Creates a new wrapper.
      *
-     * @param in        source stream (non‑null)
-     * @param maxBytes  maximum number of bytes that may be read &gt;= 0
+     * @param in        source stream (non-null)
+     * @param maxBytes  maximum number of bytes that may be read &gt;=0
      */
     LimitedInputStream(final InputStream in, final long maxBytes) {
         super(Objects.requireNonNull(in, "in"));
@@ -37,8 +37,6 @@ final class LimitedInputStream extends FilterInputStream {
             throw new IllegalArgumentException("maxBytes must be >= 0");
         this.remainingBytes = maxBytes;
     }
-
-    /* ------------------------------------------------ read() one byte -------------- */
 
     @Override
     public int read() throws IOException {
@@ -52,11 +50,9 @@ final class LimitedInputStream extends FilterInputStream {
         return b;
     }
 
-    /* ------------------------------------------ read(byte[], …) bulk -------------- */
-
     @Override
     public int read(final byte @NotNull [] buf, final int off, final int len) throws IOException {
-        // Classic Java‑8 bounds checks
+        // Classic Java-8 bounds checks
         Objects.requireNonNull(buf, "buffer");
         if (off < 0 || len < 0 || len > buf.length - off)
             throw new IndexOutOfBoundsException();
@@ -74,8 +70,6 @@ final class LimitedInputStream extends FilterInputStream {
             remainingBytes -= n;
         return n;
     }
-
-    /* ------------------------------------------------ helper ----------------------- */
 
     private static int throwExceeded() throws IOException {
         throw new IOException("Size limit exceeded");

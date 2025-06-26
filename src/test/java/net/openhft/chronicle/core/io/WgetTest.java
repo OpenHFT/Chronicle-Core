@@ -46,7 +46,6 @@ class WgetTest {
         assertThrows(NullPointerException.class, () -> wget.fetch("http://x", null));
     }
 
-
     @Test
     void body_equal_to_limit_is_allowed() throws IOException {
         byte[] five = "12345".getBytes(StandardCharsets.UTF_8);

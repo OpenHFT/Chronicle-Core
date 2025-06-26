@@ -30,8 +30,8 @@ import java.util.concurrent.TimeUnit;
  * Represents a throwable stack trace, of the current thread or another thread, purely for reporting purposes.
  * <p>
  * This class is not designed as an Error or an Exception and is not intended to be thrown or caught.
- * StackTrace extends Throwable as a “blank slate” that still retains the stack trace machinery for monitoring
- * and tracing purposes, but doesn’t carry the semantic baggage of being an error state or a normal exception.
+ * StackTrace extends Throwable as a "blank slate" that still retains the stack trace machinery for monitoring
+ * and tracing purposes, but doesn't carry the semantic baggage of being an error state or a normal exception.
  * <p>
  * To log this StackTrace, treat it as a Throwable and call {@link Throwable#printStackTrace()} or
  * use a standard logger. E.g. when montioring a thread:
@@ -109,7 +109,6 @@ public class StackTrace extends Throwable {
      * @param addTimestamp whether to add a timestamp to the stack trace message*
      */
     public StackTrace(String message, boolean addTimestamp) { this(message, null, addTimestamp); }
-
 
     /**
      * Constructs a new {@code StackTrace} with the specified message and cause.

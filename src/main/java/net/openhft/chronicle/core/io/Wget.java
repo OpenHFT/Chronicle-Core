@@ -14,10 +14,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
- * <h2>Minimal HTTP‑GET helper with a hard response cap</h2>
+ * <h2>Minimal HTTP-GET helper with a hard response cap</h2>
  *
- * <p>{@code Wget} is intentionally simple and dependency‑free.  It opens a connection to
- * an {@code http://} or {@code https://} URL, honours user‑defined time‑outs, and streams
+ * <p>{@code Wget} is intentionally simple and dependency-free.  It opens a connection to
+ * an {@code http://} or {@code https://} URL, honours user-defined time-outs, and streams
  * at most <em>N</em> bytes into a supplied {@link Appendable}.  Everything that touches
  * the outside world can be replaced via the {@link Builder} for predictable tests.</p>
  */
@@ -44,12 +44,12 @@ public final class Wget {
         public Builder charsetDetector   (final CharsetDetector d)    { this.charsetDetector    = Objects.requireNonNull(d); return this; }
         public Builder connectTimeoutMs  (final int v)                { this.connectTimeoutMs   = v; return this; }
         public Builder readTimeoutMs     (final int v)                { this.readTimeoutMs      = v; return this; }
-        public Builder maxResponseBytes  (final long v)               { if (v < 0) throw new IllegalArgumentException("maxResponseBytes must be ≥ 0"); this.maxResponseBytes = v; return this; }
+        public Builder maxResponseBytes  (final long v)               { if (v < 0) throw new IllegalArgumentException("maxResponseBytes must be >= 0"); this.maxResponseBytes = v; return this; }
 
-        /** Creates a {@link Wget} with defaults or caller‑supplied overrides. */
+        /** Creates a {@link Wget} with defaults or caller-supplied overrides. */
         public Wget build() {
             ConnectionProvider cp = this.connectionProvider;
-            if (cp == DEFAULT_PROVIDER) {                      // wrap default provider to apply time‑outs
+            if (cp == DEFAULT_PROVIDER) {                      // wrap default provider to apply time-outs
                 final int ct = connectTimeoutMs;
                 final int rt = readTimeoutMs;
                 cp = url -> {

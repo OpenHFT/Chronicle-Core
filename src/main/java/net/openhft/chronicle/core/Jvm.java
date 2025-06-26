@@ -566,7 +566,7 @@ public final class Jvm {
      * The setting of the accessible flag might be subject to security manager approval.
      *
      * @param accessibleObject to modify
-     * @throws SecurityException – if the request is denied.
+     * @throws SecurityException - if the request is denied.
      * @see SecurityManager#checkPermission
      * @see RuntimePermission
      */
