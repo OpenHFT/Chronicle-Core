@@ -2,7 +2,7 @@
 
 This section provides an overview of the key system properties that can be configured to modify the behavior of the application.
 
-NOTE: All boolean properties listed in the table are read using https://javadoc.io/static/net.openhft/chronicle-core/2.23ea13/net/openhft/chronicle/core/Jvm.html#getBoolean-java.lang.String-[`net.openhft.chronicle.core.Jvm.getBoolean(java.lang.String)`]method.
+NOTE: All boolean properties listed in the table are read using `Jvm.getBoolean(java.lang.String)` method.
 A property is considered enabled if it is set using `-Dflag`, `-Dflag=true`, or `-Dflag=yes`.
 
 .System properties
