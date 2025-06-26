@@ -23,8 +23,6 @@ import java.util.Objects;
  */
 public final class Wget {
 
-    /* ───────── Functional seams ───────── */
-
     /** Opens a (potentially mocked) connection for the given URL. */
     @FunctionalInterface
     public interface ConnectionProvider { InputStream open(URL url) throws IOException; }
@@ -32,8 +30,6 @@ public final class Wget {
     /** Decides which charset to use when decoding the response body. */
     @FunctionalInterface
     public interface CharsetDetector   { Charset detect(InputStream response, String contentTypeHeader); }
-
-    /* ───────── Builder ───────── */
 
     public static final class Builder {
         private static final ConnectionProvider DEFAULT_PROVIDER = URL::openStream;
@@ -69,8 +65,6 @@ public final class Wget {
         }
     }
 
-    /* ───────── Internal state ───────── */
-
     private final ConnectionProvider connectionProvider;
     private final CharsetDetector    charsetDetector;
     private final long               maxResponseBytes;
@@ -83,8 +77,6 @@ public final class Wget {
         this.maxResponseBytes   = maxBytes;
     }
 
-    /* ───────── Static façade (back‑compat) ───────── */
-
     private static final int MAX_URL_LENGTH = 2_048;
 
     /** Shortcut that uses the default configuration. */
@@ -93,8 +85,6 @@ public final class Wget {
             throw new IllegalArgumentException("URL too long (" + url.length() + ")");
         new Builder().build().fetch(url, sb);
     }
-
-    /* ───────── Core logic ───────── */
 
     public void fetch(final String url, final Appendable out) throws IOException {
         Objects.requireNonNull(out, "out");
