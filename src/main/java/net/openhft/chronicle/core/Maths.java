@@ -577,7 +577,7 @@ public final class Maths {
         if (s == null) throw new IllegalArgumentException();
         long hash = 0;
 
-        if (Jvm.isJava9Plus()) {
+        if (Jvm.isJava9Plus() && Jvm.maxDirectMemory() > 0) {
             if (StringUtils.getStringCoder(s) == 0) {
                 final byte[] bytes = StringUtils.extractBytes(s);
                 for (int i = 0, len = s.length(); i < len; i++)
@@ -610,12 +610,11 @@ public final class Maths {
         long hash = 0;
 
         if (Jvm.isJava9Plus()) {
-            if (StringUtils.getStringCoder(s) == 0) {
+            if (Jvm.maxDirectMemory() > 0 && StringUtils.getStringCoder(s) == 0) {
                 final byte[] bytes = StringUtils.extractBytes(s);
                 for (int i = 0, len = s.length(); i < len; i++)
                     hash = hash * 0x32246e3d + bytes[i];
             } else {
-                final byte[] bytes = StringUtils.extractBytes(s);
                 for (int i = 0, len = s.length(); i < len; i++)
                     hash = hash * 0x32246e3d + s.charAt(i);
             }
