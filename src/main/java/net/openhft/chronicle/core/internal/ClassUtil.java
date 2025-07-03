@@ -37,10 +37,12 @@ public final class ClassUtil {
 
     public static Field getField0(@NotNull final Class<?> clazz,
                                   @NotNull final String name,
-                                  final boolean error) {
+                                  final boolean error,
+                                  final boolean setAccessible) {
         try {
             final Field field = clazz.getDeclaredField(name);
-            setAccessible(field);
+            if (setAccessible)
+                setAccessible(field);
             return field;
 
         } catch (IllegalAccessError e) {
@@ -50,7 +52,7 @@ public final class ClassUtil {
         } catch (NoSuchFieldException e) {
             final Class<?> superclass = clazz.getSuperclass();
             if (superclass != null) {
-                final Field field = getField0(superclass, name, false);
+                final Field field = getField0(superclass, name, false, setAccessible);
                 if (field != null)
                     return field;
             }
