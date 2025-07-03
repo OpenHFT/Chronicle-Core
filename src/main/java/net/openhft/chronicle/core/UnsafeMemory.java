@@ -524,6 +524,7 @@ public class UnsafeMemory implements Memory {
      * @param field the field whose offset should be fetched.
      * @return the offset of the field.
      */
+    @SuppressWarnings("deprecation")
     public static long unsafeObjectFieldOffset(Field field) {
         assert SKIP_ASSERTIONS || field != null;
         return UNSAFE.objectFieldOffset(field);
@@ -552,6 +553,7 @@ public class UnsafeMemory implements Memory {
      * @param field the field whose offset should be fetched.
      * @return the offset of the field.
      */
+    @SuppressWarnings("deprecation")
     @Override
     public long getFieldOffset(Field field) {
         assert SKIP_ASSERTIONS || field != null;
@@ -2279,6 +2281,7 @@ public class UnsafeMemory implements Memory {
      * @param field the field object.
      * @return the offset of the field.
      */
+    @SuppressWarnings("deprecation")
     @Override
     public long objectFieldOffset(Field field) {
         return UNSAFE.objectFieldOffset(field);

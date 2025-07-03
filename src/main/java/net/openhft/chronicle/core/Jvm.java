@@ -624,6 +624,7 @@ public final class Jvm {
      * @param fieldName the name of the field
      * @return the offset
      */
+    @SuppressWarnings("deprecation")
     public static long fieldOffset(final Class<?> clazz, final String fieldName) {
         try {
             return UNSAFE.objectFieldOffset(clazz.getDeclaredField(fieldName));
@@ -1384,6 +1385,7 @@ public final class Jvm {
         throw new UnsupportedOperationException("Not supported on this OS");
     }
 
+    @SuppressWarnings("deprecation")
     private static boolean isProcessAlive0(final long pid, final String command) {
 
         try {
@@ -1570,7 +1572,7 @@ public final class Jvm {
      * @param clazz the class whose package name is to be determined
      * @return the package name of the specified class
      */
-    public static String getPackageName(Class clazz) {
+    public static String getPackageName(Class<?> clazz) {
         return PackageNameUtil.getPackageName(clazz);
     }
 
@@ -1715,6 +1717,6 @@ public final class Jvm {
         }
     }
     static class MaxMemoryHolder {
-        static final long MAX_DIRECT_MEMORY = maxDirectMemory();
+        static final long MAX_DIRECT_MEMORY = maxDirectMemory0();
     }
 }

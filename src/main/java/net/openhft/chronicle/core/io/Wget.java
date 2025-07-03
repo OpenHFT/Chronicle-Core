@@ -41,6 +41,7 @@ public final class Wget {
      * @param sb  The StringBuilder to which the response will be written to
      * @throws IOException if an error occurs while establishing the connection
      */
+    @SuppressWarnings("deprecation")
     public static void url(String url, StringBuilder sb) throws IOException {
         InputStream is = null;
         try {

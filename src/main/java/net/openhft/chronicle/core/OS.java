@@ -759,6 +759,7 @@ public final class OS {
             }
         }
 
+        @SuppressWarnings("deprecation")
         static String execHostname() throws IOException {
             try (BufferedReader br = new BufferedReader(
                     new InputStreamReader(

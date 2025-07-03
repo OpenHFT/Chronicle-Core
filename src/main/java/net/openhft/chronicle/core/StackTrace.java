@@ -189,6 +189,7 @@ public class StackTrace extends Throwable {
          * @param message the detail message for this stack trace.
          * @param stackTrace the stack trace elements for this stack trace.
          */
+        @SuppressWarnings("this-escape")
         public Less(String message, StackTraceElement[] stackTrace) {
             this(message);
             setStackTrace(stackTrace);
