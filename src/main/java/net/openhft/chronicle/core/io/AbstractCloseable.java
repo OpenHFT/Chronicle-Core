@@ -21,6 +21,7 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
 import net.openhft.chronicle.core.UnsafeMemory;
 import net.openhft.chronicle.core.annotation.UsedViaReflection;
+import net.openhft.chronicle.core.internal.ClassUtil;
 import net.openhft.chronicle.core.internal.CloseableUtils;
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
@@ -74,7 +75,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     static {
         if (Jvm.isResourceTracing())
             enableCloseableTracing();
-        CLOSED_OFFSET = UnsafeMemory.unsafeObjectFieldOffset(Jvm.getField(AbstractCloseable.class, "closed"));
+        CLOSED_OFFSET = UnsafeMemory.unsafeObjectFieldOffset(ClassUtil.getField0(AbstractCloseable.class, "closed", true, false));
     }
 
     private final transient StackTrace createdHere;

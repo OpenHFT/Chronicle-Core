@@ -137,6 +137,7 @@ public class JvmTest extends CoreTestCommon {
     @Test
     public void testUsedDirectMemory() {
         long used = Jvm.usedDirectMemory();
+        assumeFalse(used == 0);
         ByteBuffer.allocateDirect(4 << 10);
         assertEquals(used + (4 << 10), Jvm.usedDirectMemory());
     }

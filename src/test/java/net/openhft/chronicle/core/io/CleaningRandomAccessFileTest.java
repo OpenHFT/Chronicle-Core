@@ -24,6 +24,7 @@ public class CleaningRandomAccessFileTest {
         assertTrue(tempFile.delete());
     }
 
+    @SuppressWarnings("removal")
     @Test
     public void testFinalizeAndCleanup() throws IOException {
         File tempFile = File.createTempFile("test", "raf");
