@@ -65,7 +65,11 @@ public final class DirectBufferUtil {
      * @throws ClassCastException   if the provided {@code buffer } is not an instance of sun.nio.ch.DirectBuffer
      */
     public static long addressOrThrow(final ByteBuffer buffer) {
-        requireNonNull(buffer);
-        return ((DirectBuffer) buffer).address();
+        try {
+            requireNonNull(buffer);
+            return ((DirectBuffer) buffer).address();
+        } catch (IllegalAccessError e) {
+            throw new ClassCastException(e.toString());
+        }
     }
 }

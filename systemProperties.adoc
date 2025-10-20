@@ -1,58 +1,26 @@
 = System Properties Overview
-[[system-properties]]
 
-Chronicle-Core recognises a variety of system properties to tune behaviour at runtime.
-Properties may be supplied on the command line with `-D` or loaded from a
-link:jvm-and-os-utilities.adoc#loading-system-properties[`system.properties` file].
+This section provides an overview of the key system properties that can be configured to modify the behavior of the application.
 
-`Jvm.getBoolean()` considers a property `true` when it is present with no value, set to `true` or set to `yes`.
-Any other value is treated as `false`.
+NOTE: All boolean properties listed in the table are read using `Jvm.getBoolean(java.lang.String)` method.
+A property is considered enabled if it is set using `-Dflag`, `-Dflag=true`, or `-Dflag=yes`.
 
-== Startup hooks
-[cols="1,1,3,1,1",options="header"]
+.System properties
+[cols="2a,1,3a,2",options="header"]
 |===
-| Key | Default | Description | Valid Values | Variable
-| `chronicle.init.runnable` | | Run before Chronicle reads any properties. | Fully qualified class name | `CHRONICLE_INIT_CLASS`
-| `chronicle.postinit.runnable` | | Run after `Jvm` static initialisation. | Fully qualified class name | `CHRONICLE_POSTINIT_CLASS`
-|===
-
-== Debugging & Tracing
-[cols="1,1,3,1,1",options="header"]
-|===
-| Key | Default | Description | Valid Values | Variable
-| `chronicle.analytics.disable` | `false` | Disable analytics reporting. | boolean | -
-| `chronicle.announcer.disable` | `false` | Turn off announcer logging. | boolean | `DISABLE_ANNOUNCEMENT`
-| `debug` | `false` | JVM is running under a debugger. | boolean | `IS_DEBUG`
-| `debug.adding.handlers` | `false` | Log handler registration. | boolean | `DEBUG_ADDING_HANDLERS`
-| `disable.debug.info` | `false` | Suppress debug level logging. | boolean | `DISABLE_DEBUG`
-| `disable.perf.info` | `false` | Suppress performance level logging. | boolean | -
-| `disable.resource.warning` | `false` | Suppress resource tracing warnings. | boolean | -
-| `jfr` | `false` | JVM is running with Flight Recorder. | boolean | `IS_FLIGHT_RECORDER`
-| `jvm.resource.tracing` | `false` | Enable resource tracing of allocations. | boolean | `RESOURCE_TRACING`
-| `jvm.safepoint.enabled` | `false` | Insert low-cost JVM safepoints. | boolean | `SAFEPOINT_ENABLED`
-| `report.unoptimised` | `false` | Warn when unoptimised methods are used. | boolean | `REPORT_UNOPTIMISED`
-|===
-
-== Resource Management
-[cols="1,1,3,1,1",options="header"]
-|===
-| Key | Default | Description | Valid Values | Variable
-| `background.releaser` | `true` | Queue heavy cleanup to a background thread. | boolean | `BG_RELEASER`
-| `background.releaser.thread` | `true` | Start the background releaser thread. | boolean | `BG_RELEASER_THREAD`
-| `closeable.warn.secs` | `0.02` | Threshold before warning about slow `close()`. | decimal seconds | `WARN_NS`
-| `disable.discard.warning` | `true` | Suppress warnings when objects are discarded. | boolean | `DISABLE_DISCARD_WARNING`
-| `disable.single.threaded.check` | `false` | Turn off thread ownership checks. | boolean | `DISABLE_SINGLE_THREADED_CHECK`
-| `reference.warn.count` | `Integer.MAX_VALUE` | Emit a warning once the reference count reaches this level. | integer | `WARN_COUNT`
-| `reference.warn.secs` | `0.003` | Threshold before warning about slow release. | decimal seconds | `WARN_NS`
-| `warnAndCloseIfNotClosed` | `true` | Automatically close leaked resources at shutdown. | boolean | -
-| `chronicle.core.mmap.allowedDirs` | | Whitelist of directories for memory mapping. | comma-separated paths | -
-| `system.properties` | `system.properties` | External file to load system properties. | file path | `SYSTEM_PROPERTIES`
-| `chronicle.stringBuilderPool.instancesPerThread` | `4` | Size of the per-thread `StringBuilder` pool. | integer | `DEFAULT_STRING_BUILDER_POOL_SIZE_PER_THREAD`
-|===
-
-== Performance Tuning
-[cols="1,1,3,1,1",options="header"]
-|===
-| Key | Default | Description | Valid Values | Variable
-| `chronicle.core.backgroundRelease` | `false` | Use the `BackgroundResourceReleaser` (see link:decision-log.adoc#core-nf-o-004-background-resource-releaser-thread-opt-in[ADR]). | boolean | -
+| Property Key | Default Value | Description | Java Variable Name (Type)
+| `background.releaser` | `true` | Turn off the BackgroundResourceReleaser thread to manage resource releasing in your own thread | `BG_RELEASER` (boolean)
+| `chronicle.announcer.disable` | `false` | If enabled, disables the InternalAnnouncer | `DISABLE_ANNOUNCEMENT` (boolean)
+| `debug` | `false` | Returns if the JVM is running in debug mode | `IS_DEBUG` (boolean)
+| `disable.discard.warning` | `true` | Called from finalise() implementations. If `false`, message is displayed stating that resource cannot be closed, and IllegalStateException is thrown  | `DISABLE_DISCARD_WARNING` (boolean)
+| `disable.perf.info` | `false` | if enabled, returns NullExceptionHandler | `disablePerfInfo` (boolean)
+| `disable.resource.warning` | `false` | If enabled, returns that resource tracing is turned on | boolean
+| `disable.single.threaded.check` | `false` | Disables thread safety checks | boolean
+| `jfr` | `false` | Returns if the JVM is running in flight recorder mode | `IS_FLIGHT_RECORDER` (boolean)
+| `jvm.resources.tracing` | `false` | Returns if certain chronicle resources (such as memory regions) are traced. Reference counting can be enabled, which incurs slightly less performance, but it provides a means of detecting proper release of resources | RESOURCE_TRACING (boolean)
+| `jvm.safepoint.enabled` | `false` | If enabled, inserts a low-cost Java safe-point, which can help to find blockages. Jvm.safepoint can also be added when monitoring the event loop in link:https://github.com/OpenHFT/Chronicle-Threads#monitoring-the-event-loop[Chronicle-Threads] to help identify hotspots in the code | `SAFEPOINT_ENABLED` (boolean)
+| `reference.warn.count` | unknown | If there is a high reserve count (relative to referenceCounted), warning is thrown stating the referenceName with the high reserve count | `WARN_COUNT` (int)
+| `reference.warn.secs` | 0.003 | If time of inThreadPerformanceRelease is greater than default, message is thrown to state the ms it takes to performRelease | `WARN_NS` (long)
+| `report.unoptimised` | `false` | If enabled, reports usage of unoptimised method | `REPORT_UNOPTIMISED` (boolean)
+| `warnAndCloseIfNotClosed` | `true` |If 'false', returns the DEBUG exception handler, which prints as System.out or DEBUG level logging | boolean
 |===

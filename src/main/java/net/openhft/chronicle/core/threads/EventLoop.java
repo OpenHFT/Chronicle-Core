@@ -54,6 +54,7 @@ import net.openhft.chronicle.core.io.Closeable;
 public interface EventLoop extends Closeable {
 
     boolean DEBUG_ADDING_HANDLERS = Jvm.getBoolean("debug.adding.handlers");
+    boolean DEBUG_REMOVING_HANDLERS = Jvm.getBoolean("debug.removing.handlers");
 
     /**
      * Retrieves the name of the event loop.

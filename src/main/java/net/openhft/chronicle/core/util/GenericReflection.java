@@ -97,7 +97,18 @@ public enum GenericReflection {
     public static Type[] getParameterTypes(Method method, Type type) {
         final Type[] parameterTypes = method.getGenericParameterTypes();
         for (int i = 0; i < parameterTypes.length; i++) {
-            parameterTypes[i] = findType(method, type, parameterTypes[i]);
+            Type typeI = findType(method, type, parameterTypes[i]);
+            if (typeI instanceof TypeVariable) {
+                TypeVariable<?> typeVariable = (TypeVariable<?>) typeI;
+                Type[] bounds = typeVariable.getBounds();
+                if (bounds.length > 0) {
+                    typeI = bounds[0];
+                } else {
+                    // If no bounds, use Object as a fallback
+                    typeI = Object.class;
+                }
+            }
+            parameterTypes[i] = typeI;
         }
         return parameterTypes;
     }
@@ -118,10 +129,11 @@ public enum GenericReflection {
         if (!(forClass instanceof Class))
             throw new UnsupportedOperationException();
 
-        for (Type genericInterface : ((Class) forClass).getGenericInterfaces())
+        Class<?> forClass2 = (Class<?>) forClass;
+        for (Type genericInterface : forClass2.getGenericInterfaces())
             getGenericClassesSuperclassesAndInterfaces(genericInterface, collectedTypes);
 
-        Type superclass = ((Class) forClass).getGenericSuperclass();
+        Type superclass = forClass2.getGenericSuperclass();
         if (superclass != null)
             getGenericClassesSuperclassesAndInterfaces(superclass, collectedTypes);
     }

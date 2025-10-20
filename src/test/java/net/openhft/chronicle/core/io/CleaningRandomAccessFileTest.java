@@ -34,6 +34,7 @@ public class CleaningRandomAccessFileTest extends CoreTestCommon {
         assertTrue(tempFile.delete());
     }
 
+    @SuppressWarnings("removal")
     @Test
     public void testFinalizeAndCleanup() throws IOException {
         File tempFile = File.createTempFile("test", "raf");

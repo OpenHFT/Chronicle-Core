@@ -58,6 +58,7 @@ import java.util.function.Supplier;
 import static java.lang.Runtime.getRuntime;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 import static java.util.stream.Collectors.toList;
+import static net.openhft.chronicle.core.Jvm.MaxMemoryHolder.MAX_DIRECT_MEMORY;
 import static net.openhft.chronicle.core.OS.*;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 import static net.openhft.chronicle.core.internal.Bootstrap.*;
@@ -85,7 +86,6 @@ public final class Jvm {
     private static final boolean IS_COVERAGE = INPUT_ARGUMENTS2.contains("coverage");
     private static final int COMPILE_THRESHOLD = getCompileThreshold0();
     private static final boolean REPORT_UNOPTIMISED;
-    private static final Supplier<Long> reservedMemory;
     private static final boolean DISABLE_DEBUG = Jvm.getBoolean("disable.debug.info");
     @NotNull
     private static final ThreadLocalisedExceptionHandler ERROR = new ThreadLocalisedExceptionHandler(DEFAULT_ERROR_EXCEPTION_HANDLER);
@@ -95,7 +95,6 @@ public final class Jvm {
     private static final ThreadLocalisedExceptionHandler PERF = new ThreadLocalisedExceptionHandler(DEFAULT_PERF_EXCEPTION_HANDLER);
     @NotNull
     private static final ExceptionHandler DEBUG;
-    private static final long MAX_DIRECT_MEMORY;
     private static final boolean SAFEPOINT_ENABLED;
     private static final Map<Class<?>, ClassMetrics> CLASS_METRICS_MAP = new ConcurrentHashMap<>();
     private static final Map<Class<?>, Integer> PRIMITIVE_SIZE = ofUnmodifiable(
@@ -140,24 +139,6 @@ public final class Jvm {
 
         findAndLoadSystemProperties();
 
-        MAX_DIRECT_MEMORY = maxDirectMemory0();
-
-        Supplier<Long> reservedMemoryGetter;
-        try {
-            final Class<?> bitsClass = Class.forName("java.nio.Bits");
-            final Field firstTry = getFieldOrNull(bitsClass, "reservedMemory");
-            final Field f = firstTry != null ? firstTry : getField(bitsClass, "RESERVED_MEMORY");
-            if (f.getType() == AtomicLong.class) {
-                AtomicLong reservedMemory = (AtomicLong) f.get(null);
-                reservedMemoryGetter = reservedMemory::get;
-            } else {
-                reservedMemoryGetter = ThrowingSupplier.asSupplier(() -> f.getLong(null));
-            }
-        } catch (Exception e) {
-            System.err.println(Jvm.class.getName() + ": Unable to determine the reservedMemory value, will always report 0");
-            reservedMemoryGetter = () -> 0L;
-        }
-        reservedMemory = reservedMemoryGetter;
         signalHandlerGlobal = new ChainedSignalHandler();
 
         onSpinWaitMH = getOnSpinWait();
@@ -536,7 +517,7 @@ public final class Jvm {
     // Todo: Should not throw an AssertionError but rather a RuntimeException
     @NotNull
     public static Field getField(@NotNull final Class<?> clazz, @NotNull final String fieldName) {
-        return ClassUtil.getField0(clazz, fieldName, true);
+        return ClassUtil.getField0(clazz, fieldName, true, true);
     }
 
     /**
@@ -550,7 +531,7 @@ public final class Jvm {
      */
     @Nullable
     public static Field getFieldOrNull(@NotNull final Class<?> clazz, @NotNull final String fieldName) {
-        return ClassUtil.getField0(clazz, fieldName, false);
+        return ClassUtil.getField0(clazz, fieldName, false, true);
     }
 
     /**
@@ -641,6 +622,7 @@ public final class Jvm {
      * @param fieldName the name of the field
      * @return the offset
      */
+    @SuppressWarnings("deprecation")
     public static long fieldOffset(final Class<?> clazz, final String fieldName) {
         try {
             return UNSAFE.objectFieldOffset(clazz.getDeclaredField(fieldName));
@@ -659,7 +641,7 @@ public final class Jvm {
      * or 0 if the value cannot be determined
      */
     public static long usedDirectMemory() {
-        return reservedMemory.get();
+        return ReserveMemoryHolder.reservedMemory.get();
     }
 
     /**
@@ -906,7 +888,7 @@ public final class Jvm {
         } catch (Exception e) {
             // ignore
         }
-        System.err.println(Jvm.class.getName() + ": Unable to determine max direct memory");
+        System.err.println(Jvm.class.getName() + ": Unable to determine max direct memory, will always report 0");
         return 0L;
     }
 
@@ -1410,6 +1392,7 @@ public final class Jvm {
         throw new UnsupportedOperationException("Not supported on this OS");
     }
 
+    @SuppressWarnings("deprecation")
     private static boolean isProcessAlive0(final long pid, final String command) {
 
         try {
@@ -1596,7 +1579,7 @@ public final class Jvm {
      * @param clazz the class whose package name is to be determined
      * @return the package name of the specified class
      */
-    public static String getPackageName(Class clazz) {
+    public static String getPackageName(Class<?> clazz) {
         return PackageNameUtil.getPackageName(clazz);
     }
 
@@ -1716,5 +1699,31 @@ public final class Jvm {
             }
         }
         return false;
+    }
+
+    static class ReserveMemoryHolder {
+        static final Supplier<Long> reservedMemory;
+        static {
+            Supplier<Long> reservedMemoryGetter;
+            try {
+                final Class<?> bitsClass = Class.forName("java.nio.Bits");
+                final Field firstTry = getFieldOrNull(bitsClass, "reservedMemory");
+                final Field f = firstTry != null ? firstTry : getField(bitsClass, "RESERVED_MEMORY");
+                if (f.getType() == AtomicLong.class) {
+                    AtomicLong reservedMemory = (AtomicLong) f.get(null);
+                    reservedMemoryGetter = reservedMemory::get;
+                } else {
+                    reservedMemoryGetter = ThrowingSupplier.asSupplier(() -> f.getLong(null));
+                }
+            } catch (Exception e) {
+                if (MAX_DIRECT_MEMORY > 0)
+                    System.err.println(Jvm.class.getName() + ": Unable to determine the reservedMemory value, will always report 0");
+                reservedMemoryGetter = () -> 0L;
+            }
+            reservedMemory = reservedMemoryGetter;
+        }
+    }
+    static class MaxMemoryHolder {
+        static final long MAX_DIRECT_MEMORY = maxDirectMemory0();
     }
 }

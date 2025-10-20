@@ -318,6 +318,7 @@ public class MathsTest extends CoreTestCommon {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Test
     public void testRounding() {
         @NotNull Random rand = new Random(1);
