@@ -119,9 +119,6 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
      */
     @NotNull
     private final ThrowingConsumer<T, Exception> cleanup;
-    /** values from threads that are not {@link CleaningThread} */
-    private Map<Thread, Object> nonCleaningThreadValues = null;
-
     /**
      * {@code true} when we should record values belonging to non-CleaningThreads
      * so they can be cleaned up later.
@@ -190,27 +187,33 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
      * Creates a {@code CleaningThreadLocal} with a custom cleanup action but
      * without an initial-value supplier.
      *
-     * @param cleanup consumer that frees the resource
+     * @param cleanup The consumer that cleans up the resource.
+     * @return A CleaningThreadLocal instance.
      */
     public static <T> CleaningThreadLocal<T> withCleanup(ThrowingConsumer<T, Exception> cleanup) {
         return new CleaningThreadLocal<>(() -> null, cleanup);
     }
 
     /**
-     * Creates a {@code CleaningThreadLocal} with supplier and cleanup.
+     * Creates a CleaningThreadLocal with a supplier and a custom cleanup strategy.
+     *
+     * @param supplier The supplier that provides the resource.
+     * @param cleanup  The consumer that cleans up the resource.
+     * @return A CleaningThreadLocal instance.
      */
-    public static <T> CleaningThreadLocal<T> withCleanup(Supplier<T> supplier,
-                                                         ThrowingConsumer<T, Exception> cleanup) {
+    public static <T> CleaningThreadLocal<T> withCleanup(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup) {
         return new CleaningThreadLocal<>(supplier, cleanup);
     }
 
     /**
-     * Creates a {@code CleaningThreadLocal} with supplier, cleanup and a
-     * transformation applied every time {@link #get()} is called.
+     * Creates a CleaningThreadLocal with a supplier, a custom cleanup strategy, and a function to apply when the get method is called.
+     *
+     * @param supplier   The supplier that provides the resource.
+     * @param cleanup    The consumer that cleans up the resource.
+     * @param getWrapper The function to apply when the get method is called.
+     * @return A CleaningThreadLocal instance.
      */
-    public static <T> CleaningThreadLocal<T> withCleanup(Supplier<T> supplier,
-                                                         ThrowingConsumer<T, Exception> cleanup,
-                                                         Function<T, T> getWrapper) {
+    public static <T> CleaningThreadLocal<T> withCleanup(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup, Function<T, T> getWrapper) {
         return new CleaningThreadLocal<>(supplier, cleanup, getWrapper::apply);
     }
 
@@ -265,15 +268,24 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         return value;
     }
 
+    /**
+     * Returns the value of this CleaningThreadLocal.
+     *
+     * @return The current value.
+     */
     @Override
     public T get() {
         return getWrapper.apply(super.get());
     }
 
+    /**
+     * Sets the value of this CleaningThreadLocal and performs cleanup if necessary.
+     *
+     * @param value The new value to be set.
+     */
     @Override
     public void set(T value) {
-        Thread thread = Thread.currentThread();
-
+        final Thread thread = Thread.currentThread();
         if (thread instanceof CleaningThread) {
             CleaningThread.performCleanup(thread, this);
         } else if (trackNonCleaningThreads) {
@@ -284,10 +296,12 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         super.set(value);
     }
 
+    /**
+     * Removes the value for this CleaningThreadLocal from the current thread and performs cleanup.
+     */
     @Override
     public void remove() {
-        Thread thread = Thread.currentThread();
-
+        final Thread thread = Thread.currentThread();
         if (thread instanceof CleaningThread) {
             CleaningThread.performCleanup(thread, this);
         } else if (trackNonCleaningThreads) {
