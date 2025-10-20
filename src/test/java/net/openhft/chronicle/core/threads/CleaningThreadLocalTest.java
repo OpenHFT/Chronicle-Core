@@ -1,11 +1,14 @@
 package net.openhft.chronicle.core.threads;
 
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import java.util.function.Supplier;
 import net.openhft.chronicle.core.util.ThrowingConsumer;
+import org.junit.jupiter.api.Test;
+
+import java.util.function.Supplier;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 public class CleaningThreadLocalTest {
 
@@ -14,7 +17,7 @@ public class CleaningThreadLocalTest {
         Supplier<String> supplier = () -> "test";
         ThrowingConsumer<String, Exception> cleanup = value -> { /* cleanup logic */ };
 
-        CleaningThreadLocal<String> ctl = new CleaningThreadLocal<>(supplier, cleanup);
+        CleaningThreadLocal<String> ctl = CleaningThreadLocal.withCleanup(supplier, cleanup);
 
         assertNotNull(ctl);
     }
@@ -46,7 +49,7 @@ public class CleaningThreadLocalTest {
     public void testThreadSafety() throws InterruptedException {
         Supplier<String> supplier = () -> "test";
         ThrowingConsumer<String, Exception> cleanup = value -> { /* cleanup logic */ };
-        CleaningThreadLocal<String> ctl = new CleaningThreadLocal<>(supplier, cleanup);
+        CleaningThreadLocal<String> ctl = CleaningThreadLocal.withCleanup(supplier, cleanup);
 
         Thread t1 = new Thread(() -> ctl.set("Thread 1"));
         Thread t2 = new Thread(() -> ctl.set("Thread 2"));
@@ -64,7 +67,7 @@ public class CleaningThreadLocalTest {
         ThrowingConsumer<String, Exception> cleanup = value -> {
             throw new RuntimeException("Cleanup failed");
         };
-        CleaningThreadLocal<String> ctl = new CleaningThreadLocal<>(supplier, cleanup);
+        CleaningThreadLocal<String> ctl = CleaningThreadLocal.withCleanup(supplier, cleanup);
     }
 
     @Test
