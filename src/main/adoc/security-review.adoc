@@ -1,0 +1,103 @@
+= Chronicle-Core: Security Review
+:toc:
+:sectnums:
+
+== Unsafe & Off-Heap Access
+
+Why ::
+Ultra-low latency is achieved with `sun.misc.Unsafe` and memory-mapped files.
+
+Core risks ::
+* Memory corruption / JVM crash
+* Data leakage in pooled native buffers
+* Native-memory or file-handle exhaustion
+
+Key mitigations ::
+* Central `UnsafeMemory` wrapper (tracks alloc/free)
+* Deterministic lifecycle via `ReferenceCounted`, `AbstractCloseable`; optional `BackgroundResourceReleaser`
+* Mapping whitelist (`chronicle.core.mmap.allowedDirs`); ARM alignment fences
+* Zero sensitive memory before reuse
+
+Review hot-spots ::
+* Offset/size mis-calculations
+* `reserve` / `release` balance
+* Idempotent `performClose()`
+* Memory not cleared before pool return
+
+== Reflection & Runtime Code Generation
+
+Why ::
+Avoid per-call reflection overhead; support proxies and class aliasing.
+
+Core risks ::
+* Access-control bypass (`setAccessible`)
+* Constructor skipping (`Unsafe.allocateInstance`)
+* Untrusted bytecode via `defineClass`
+* Startup hook hijack (`ChronicleInit`)
+
+Key mitigations ::
+* `ClassAliasPool.banned()` blocks critical JDK packages
+* Private `MethodHandles.Lookup` contexts
+* Strict control of system-property runnables
+
+Review hot-spots ::
+* External input → class / method names
+* Bytecode origin for `defineClass`
+* Static initializers with side effects
+
+== Thread-Local Caches & Resource Pools
+
+Why ::
+Reduce allocation and contention.
+
+Core risks ::
+* Leaks when non-`CleaningThread`s hold `CleaningThreadLocal` values
+* Cross-tenant data bleed
+* Pool exhaustion in `ScopedThreadLocal`
+
+Key mitigations ::
+* `CleaningThread` auto-cleanup; `cleanupNonCleaningThreads()` fallback
+* Try-with-resources for `ScopedResource`; optional weak references
+* Resource reset via `onAcquire`
+* Production code should either use CleaningThread for worker threads or schedule periodic calls to cleanupNonCleaningThreads() when assertions are off
+
+Review hot-spots ::
+* Long-lived third-party threads
+* Missing `close()` on all paths
+* Resource state after recycling
+
+== Internal JDK APIs (`sun.*`, `jdk.internal.*`)
+
+Why ::
+Direct buffer ops, `FileChannelImpl.map0`, cleaner hacks for speed.
+
+Core risks ::
+* Breakage with new JDK versions / modules
+* Security-manager bypass
+* Hard-to-debug crashes
+
+Key mitigations ::
+* Version checks (`Jvm.isJavaXPlus`) + fall-backs
+* Documentation for required `--add-opens`, etc.
+
+Review hot-spots ::
+* Every new JDK release
+* `setAccessible(true)` usage
+* Field-name assumptions (e.g., `String.value`)
+
+== Minimal Validation on Hot Paths
+
+Why ::
+Validation is pushed to the application perimeter to save nanoseconds.
+
+Core risks ::
+* Malformed lengths/offsets ⇒ OOB access or huge allocations
+* Invalid enums/sentinels ⇒ undefined logic
+
+Key mitigations ::
+* Caller validates all untrusted data
+* Optional assertions (`-ea`) and `Validatable` interface
+
+Review hot-spots ::
+* Unvalidated external input reaching `UnsafeMemory` or `BytesStore`
+* Parsing followed by unchecked use
