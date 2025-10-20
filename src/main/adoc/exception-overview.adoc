@@ -1,0 +1,65 @@
+= Chronicle-Core Exception Overview
+Chronicle Software
+:toc: left
+:toclevels: 2
+
+This document summarises the main runtime exceptions used in Chronicle-Core.
+They surface misuse of resources or invalid state.
+
+== ClosedIllegalStateException
+
+Thrown when a method is called on a resource that has already been closed.
+Used by link:../src/main/java/net/openhft/chronicle/core/io/AbstractCloseable.java[AbstractCloseable]
+and other closeable components.
+
+[source,java]
+----
+if (isClosed()) {
+    throw new ClosedIllegalStateException("Attempted to read from a closed resource.");
+}
+----
+
+== ClosedIORuntimeException
+
+Raised when an I/O operation targets a closed file or socket.  It is an
+unchecked variant built on link:../src/main/java/net/openhft/chronicle/core/io/IORuntimeException.java[IORuntimeException].
+Often returned from `IORuntimeException.newIORuntimeException` when the
+underlying `IOException` indicates a closed resource.
+
+[source,java]
+----
+try {
+    stream.write(data);
+} catch (IOException e) {
+    if (stream.isClosed())
+        throw new ClosedIORuntimeException("Stream is closed", e);
+}
+----
+
+== IORuntimeException
+
+Generic wrapper for `IOException` failures.  Many utility methods rethrow
+checked I/O errors using this unchecked form.  Its helper method can return a
+`ClosedIORuntimeException` when appropriate.
+
+== InvalidMarshallableException
+
+Signifies that an object being marshalled or unmarshalled violates its
+constraints.  Commonly thrown by implementations of
+link:../src/main/java/net/openhft/chronicle/core/io/Validatable.java[Validatable].
+
+[source,java]
+----
+public void validate() {
+    if (name == null)
+        throw new InvalidMarshallableException("Name cannot be null");
+}
+----
+
+== ThreadingIllegalStateException
+
+Indicates an illegal operation due to concurrent access on a single-threaded
+component.  The stack trace helps identify where the unsafe access occurred.
+Classes implementing
+link:../src/main/java/net/openhft/chronicle/core/io/SingleThreadedChecked.java[SingleThreadedChecked]
+may throw this exception.

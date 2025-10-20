@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,21 +22,13 @@ import net.openhft.chronicle.core.internal.CloseableUtils;
 import net.openhft.chronicle.core.internal.ReferenceCountedUtils;
 
 /**
- * Represents a closeable resource with reference counting capabilities.
+ * Represents a closeable resource with reference counting.
  * <p>
- * This abstract class extends {@link AbstractReferenceCounted} and implements {@link ManagedCloseable},
- * and is designed to manage a resource that requires reference counting to ensure proper cleanup
- * once it is no longer in use.
- *
- * <p>
- * Reference counting allows multiple users to share a single resource and ensures that the resource
- * is only closed when all references are released. Each user of the resource increments the reference
- * count upon acquiring the resource and decrements it upon releasing.
- *
- * <p>
- * This class integrates reference counting with the ability to close the resource. When the reference
- * count reaches zero, or if an explicit call to close is made, the resource transitions to the closed state
- * and cannot be used any further.
+ * The resource starts reserved by {@link ReferenceOwner#INIT}. Once all calls
+ * to {@link #release(ReferenceOwner)} (or {@link #releaseLast(ReferenceOwner)})
+ * have balanced earlier {@link #reserve(ReferenceOwner)} calls the resource is
+ * closed. If {@link #canReleaseInBackground()} is {@code true} the cleanup is
+ * delegated to {@link BackgroundResourceReleaser}.
  */
 public abstract class AbstractCloseableReferenceCounted
         extends AbstractReferenceCounted
@@ -53,7 +43,7 @@ public abstract class AbstractCloseableReferenceCounted
      * Constructs a new AbstractCloseableReferenceCounted instance and adds the instance
      * to the CloseableUtils set for tracking.
      */
-    @SuppressWarnings("this-escaope")
+    @SuppressWarnings("this-escape")
     protected AbstractCloseableReferenceCounted() {
         CloseableUtils.add(this);
     }

@@ -86,7 +86,6 @@ class CancellableTimerTest extends CoreTestCommon {
     void willThrowInvalidEventHandlerWhenCloseIsCalled() throws InvalidEventHandlerException, IOException {
         final Closeable closeable = timer.scheduleAtFixedRate(handler, INITIAL_DELAY_MS, PERIOD_MS);
 
-        // This should not throw
         scheduledEventHandler.action();
 
         closeable.close();

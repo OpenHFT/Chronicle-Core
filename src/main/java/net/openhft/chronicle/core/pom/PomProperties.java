@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +21,22 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Properties;
 
+/**
+ * Access to Maven build metadata at runtime.
+ *
+ * <p>It loads the {@code pom.properties} resource for a given
+ * {@code groupId} and {@code artifactId}, allowing callers to
+ * inspect version and other build-time information.</p>
+ *
+ * <p>All methods require non-null parameters. Passing {@code null}
+ * results in a {@link NullPointerException}.</p>
+ *
+ * <p>Example:</p>
+ * <pre>{@code
+ * Properties props = PomProperties.create("net.openhft", "chronicle-core");
+ * String version = props.getProperty("version");
+ * }</pre>
+ */
 public final class PomProperties {
 
     private PomProperties() {
@@ -41,7 +55,7 @@ public final class PomProperties {
      * @return a new instance of Properties for the provided parameters.
      */
     @NotNull
-    public static Properties create(final String groupId, final String artifactId) {
+    public static Properties create(@NotNull final String groupId, @NotNull final String artifactId) {
         return InternalPomProperties.create(groupId, artifactId);
     }
 
@@ -58,7 +72,7 @@ public final class PomProperties {
      * the version cannot be determined
      * @see #create(String, String)
      */
-    public static String version(final String groupId, final String artifactId) {
+    public static String version(@NotNull final String groupId, @NotNull final String artifactId) {
         return InternalPomProperties.version(groupId, artifactId);
     }
 }

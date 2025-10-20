@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +24,7 @@ import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class GenericReflectionTest extends CoreTestCommon {
 
@@ -88,6 +85,21 @@ class GenericReflectionTest extends CoreTestCommon {
                 Arrays.toString(GenericReflection.getParameterTypes(method0, MassivelyNestedExtendsGenericMethod.class)));
     }
 
+    @Test
+    public void getParameterTypesExtends() {
+        Method method = null;
+        for (Method m : GenericMethodExtends.class.getMethods()) {
+            if (m.getName().equals("method")) {
+                method = m;
+                break;
+            }
+        }
+        assertNotNull(method);
+        final String expected = "[" + Number.class + ", " + CharSequence.class + "]";
+        assertEquals(expected,
+                Arrays.toString(GenericReflection.getParameterTypes(method, GenericMethodExtends.class)));
+    }
+
     interface Returns<A> {
         A ret();
     }
@@ -97,6 +109,10 @@ class GenericReflectionTest extends CoreTestCommon {
     }
 
     interface ReturnsString extends Returns<String> {
+    }
+
+    interface GenericMethodExtends<A extends Number, B extends CharSequence> {
+        void method(A a, B b);
     }
 
     interface GenericMethod<A, B> {

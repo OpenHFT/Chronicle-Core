@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +19,20 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Indicates that modifications to the annotated class should be made with caution
- * as it is known to be used by a client. This annotation serves as a warning to
- * developers, reminding them of the implications of changes to the annotated element.
+ * {@code @RequiredForClient} warns that the annotated class name is baked into
+ * on-wire YAML/JSON or a class-alias pool. Its audience is library maintainers
+ * reviewing potential breaking changes.
+ *
+ * <p><b>Retention and effect:</b> Kept in the source only. There is no runtime
+ * effect unless build tooling checks for it.</p>
+ *
+ * <pre>
+ * {@code @RequiredForClient("chronicle-queue-dump tool")}
+ * public class ApiEntry { }
+ * </pre>
+ *
+ * <p>Renaming or deleting such classes can break clients and should follow
+ * semantic-versioning rules.</p>
  */
 @Retention(RetentionPolicy.SOURCE)
 public @interface RequiredForClient {

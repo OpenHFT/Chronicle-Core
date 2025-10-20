@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,13 +12,13 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
+
 
 package net.openhft.chronicle.core.io;
 /**
- * Functional interface representing a closed state.
- * This interface provides a method to check if an object is in a closed state.
+ * Functional interface used to query whether a resource has been closed.  It is
+ * typically implemented with a lambda or method reference.
  */
 @FunctionalInterface
 public interface ClosedState {

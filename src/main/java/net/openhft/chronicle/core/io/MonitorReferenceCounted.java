@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +16,10 @@
 
 package net.openhft.chronicle.core.io;
 /**
- * This interface extends {@link ReferenceCountedTracer} and provides methods for monitoring the reference counted object.
+ * Extends {@link ReferenceCountedTracer} with the ability to suppress discard
+ * warnings. When a resource is marked as unmonitored the
+ * {@link ReferenceCountedTracer#warnAndReleaseIfNotReleased()} path will not log
+ * a warning if the user forgets to release a reservation.
  */
 public interface MonitorReferenceCounted extends ReferenceCountedTracer {
 

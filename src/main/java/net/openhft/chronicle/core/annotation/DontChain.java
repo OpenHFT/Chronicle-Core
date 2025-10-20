@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,8 +21,28 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * This annotation, when applied to an interface, instructs that the interface should not be considered when MethodReaders and MethodWriters
- * are exploring interfaces to implement. It provides a mechanism to exclude certain interfaces from being processed by these components.
+ * {@code @DontChain} indicates that an interface should be ignored by the
+ * {@code chronicle-wire} {@code MethodReader} and {@code MethodWriter}
+ * utilities. It is intended for library maintainers when excluding ancillary
+ * APIs from tooling. Chaining increases reflection cost and can break
+ * polymorphic dispatch.
+ *
+ * <p><b>Retention and effect:</b> Retained at runtime but only acted upon by
+ * Chronicle tooling. It has no direct runtime behaviour.</p>
+ *
+ * <pre>
+ * // Chained interface
+ * interface Service extends A, B { }
+ *
+ * // Not chained
+ * {@code @DontChain}
+ * interface Helper extends A, B { }
+ * </pre>
+
+ * <p>See {@link net.openhft.chronicle.core.Jvm#dontChain(Class)} for the
+ * programmatic equivalent.</p>
+ *
+ * @see UsedViaReflection
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

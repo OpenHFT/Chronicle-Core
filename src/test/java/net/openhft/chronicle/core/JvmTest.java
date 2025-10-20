@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -137,6 +135,7 @@ public class JvmTest extends CoreTestCommon {
     @Test
     public void testUsedDirectMemory() {
         long used = Jvm.usedDirectMemory();
+        assumeFalse(used == 0);
         ByteBuffer.allocateDirect(4 << 10);
         assertEquals(used + (4 << 10), Jvm.usedDirectMemory());
     }

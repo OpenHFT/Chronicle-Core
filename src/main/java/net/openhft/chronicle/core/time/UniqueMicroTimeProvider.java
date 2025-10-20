@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,6 +26,14 @@ import java.util.concurrent.atomic.AtomicLong;
  *
  * <p> This implementation is particularly useful in environments where unique time stamps are critical and
  * the application might request them at a high rate.
+ * <p>
+ * Each call spins in a compare-and-set loop. After a failed attempt the code
+ * invokes {@link Jvm#nanoPause()} as a short back-off before retrying. This
+ * reduces contention when multiple threads compete to update the timestamp.
+ * <p>
+ * See the white paper "Unique IDs at 10 M/s" at
+ * https://chronicle.software/wp-content/uploads/Unique-IDs-at-10M_s.pdf
+ * for background on the algorithm.
  */
 public class UniqueMicroTimeProvider implements TimeProvider {
     public static final UniqueMicroTimeProvider INSTANCE = new UniqueMicroTimeProvider();
@@ -38,18 +44,18 @@ public class UniqueMicroTimeProvider implements TimeProvider {
     /**
      * Constructs a new UniqueMicroTimeProvider.
      * <p>
-     * This constructor initializes the time provider with zero. New instances are typically created for
-     * testing purposes, as this class is stateful and maintains the last time value issued.
-         */
+     * This constructor initialises the provider with zero. Instances are typically used for testing as
+     * the class maintains the last issued time.
+     */
     public UniqueMicroTimeProvider() {
         // Do nothing
     }
 
     /**
-     * Sets the underlying time provider for this instance and initializes the last time value.
+     * Sets the underlying time provider for this instance and initialises the last time value.
      *
-     * @param provider The {@link TimeProvider} to use for time calculations.
-     * @return The current {@code UniqueMicroTimeProvider} instance for fluent method chaining.
+     * @param provider delegate provider, not {@code null}
+     * @return this instance for chaining
      */
     public UniqueMicroTimeProvider provider(TimeProvider provider) {
         this.provider = provider;
@@ -60,7 +66,7 @@ public class UniqueMicroTimeProvider implements TimeProvider {
     /**
      * Retrieves the current time in milliseconds, ensuring uniqueness across threads.
      *
-     * @return The current unique time in milliseconds since the epoch.
+     * @return the current unique time in milliseconds since the epoch
      */
     @Override
     public long currentTimeMillis() {
@@ -82,7 +88,7 @@ public class UniqueMicroTimeProvider implements TimeProvider {
      * Retrieves the current time in microseconds, ensuring uniqueness across threads.
      * It increments the time value by one microsecond if necessary to guarantee uniqueness.
      *
-     * @return The current unique time in microseconds since the epoch.
+     * @return the current unique time in microseconds since the epoch
      */
     @Override
     public long currentTimeMicros() {
@@ -103,7 +109,7 @@ public class UniqueMicroTimeProvider implements TimeProvider {
      * Retrieves the current time in nanoseconds, ensuring uniqueness across threads.
      * It adapts the nanosecond time based on the microsecond value to maintain unique timestamps.
      *
-     * @return The current unique time in nanoseconds since the epoch.
+     * @return the current unique time in nanoseconds since the epoch
      */
     @Override
     public long currentTimeNanos() {

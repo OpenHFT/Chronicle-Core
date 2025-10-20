@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,17 +21,28 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 /**
- * This class provides a thread-localized ExceptionHandler. The actual ExceptionHandler used for handling
- * exceptions can vary per thread and can be configured using the threadLocalHandler method.
- * If no thread-local ExceptionHandler has been set, it will fall back to a default ExceptionHandler.
- * <p>
- * The default ExceptionHandler can be set using the defaultHandler method, and is initially passed to
- * the constructor when creating a new instance of this class.
+ * Provides a per-thread {@link ExceptionHandler}.
+ *
+ * <p>The handler supplied to the constructor becomes the default. Each thread may
+ * override this via {@link #threadLocalHandler(ExceptionHandler)} and the override can
+ * be removed with {@link #resetThreadLocalHandler()}.
+ * Nested {@link ChainedExceptionHandler} instances are rejected by
+ * {@link #defaultHandler(ExceptionHandler)}.
+ *
+ * <p>This class is <em>conditionally thread-safe</em>: the default handler is shared while
+ * per-thread handlers are isolated using {@link ThreadLocal}.
+ *
+ * @see ChainedExceptionHandler
  */
 public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
     private ExceptionHandler eh;
     private ThreadLocal<ExceptionHandler> handlerTL;
 
+    /**
+     * Creates a new instance using the supplied handler as the default.
+     *
+     * @param handler the handler used when no thread-local handler is present
+     */
     @SuppressWarnings("this-escape")
     public ThreadLocalisedExceptionHandler(ExceptionHandler handler) {
         eh = handler;
@@ -75,42 +84,78 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
         return exceptionHandler;
     }
 
+    /**
+     * Returns the current default handler.
+     *
+     * @return the default handler in use
+     */
     public ExceptionHandler defaultHandler() {
         return eh;
     }
 
+    /**
+     * Unwraps the supplied handler if it is an instance of this class.
+     *
+     * @param eh the handler to unwrap
+     * @return the underlying handler or the supplied instance if it is not wrapped
+     */
     public static ExceptionHandler unwrap(ExceptionHandler eh) {
         if (eh instanceof ThreadLocalisedExceptionHandler)
             return ((ThreadLocalisedExceptionHandler) eh).exceptionHandler();
         return eh;
     }
 
+    /**
+     * Sets the default handler to use when no thread-local handler is present.
+     * Nested {@link ChainedExceptionHandler} instances are rejected.
+     *
+     * @param defaultHandler the new default handler, or {@code null} to use
+     *                       {@link NullExceptionHandler#NOTHING}
+     * @return {@code this} for chaining
+     */
     public ThreadLocalisedExceptionHandler defaultHandler(ExceptionHandler defaultHandler) {
         defaultHandler = unwrap(defaultHandler);
         if (defaultHandler instanceof ChainedExceptionHandler) {
             ChainedExceptionHandler ceh = (ChainedExceptionHandler) defaultHandler;
             for (ExceptionHandler handler : ceh.chain()) {
                 if (handler instanceof ThreadLocalisedExceptionHandler)
-                    throw new AssertionError("Recursive used of "+getClass());
+                    throw new AssertionError("Recursive used of " + getClass());
             }
         }
         this.eh = defaultHandler == null ? NullExceptionHandler.NOTHING : defaultHandler;
         return this;
     }
 
+    /**
+     * Returns the handler specific to the current thread or {@code null} if none is set.
+     *
+     * @return the thread-local handler or {@code null}
+     */
     public ExceptionHandler threadLocalHandler() {
         return handlerTL.get();
     }
 
+    /**
+     * Overrides the handler for the current thread.
+     *
+     * @param handler the handler to install for this thread, may be {@code null}
+     * @return {@code this} for chaining
+     */
     public ThreadLocalisedExceptionHandler threadLocalHandler(ExceptionHandler handler) {
         handlerTL.set(handler);
         return this;
     }
 
+    /**
+     * Clears any thread specific handler so the default will be used.
+     */
     public void resetThreadLocalHandler() {
         handlerTL = new InheritableThreadLocal<>();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isEnabled(@NotNull Class<?> aClass) {
         ExceptionHandler exceptionHandler = exceptionHandler();

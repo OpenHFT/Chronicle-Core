@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +22,29 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Indicates that the annotated element is expected to hold a value within a specified range [from, to),
- * where the "from" value is inclusive and the "to" value is exclusive (i.e. {@code from <= val < to}).
- * <p>
- * Note that this annotation cannot be used to represent an inclusive upper bound of {@link Long#MAX_VALUE}.
- * <p>
- * This annotation can be applied to methods, fields, parameters, local variables, and types to enforce
- * or document the range constraints for the values they hold.
+ * {@code @Range} asserts that a value falls within {@code [from, to)}. It is
+ * aimed at library maintainers and static analysis tools that verify argument
+ * ranges.
+ *
+ * <p><b>Retention and effect:</b> Stored in the class file. There is no runtime
+ * impact unless Chronicle tooling reads the metadata.</p>
+ *
+ * <pre>
+ * {@code @Range(from = 0, to = 10)}
+ * int level;
+ * </pre>
+ *
+ * <p><b>Limitations:</b> Using {@code Long.MAX_VALUE} as {@code to()} can lead
+ * to overflow. Use {@code Long.MAX_VALUE - 1} when an inclusive upper bound is
+ * required.</p>
+ *
+ * <p>This annotation is also used by Chronicle-Values for bit-packing to
+ * optimise memory layout. The {@code to()} value is exclusive by default.</p>
+ *
+ * @see Positive
+ * @see Negative
+ * @see NonNegative
+ * @see NonPositive
  */
 @Retention(RetentionPolicy.CLASS)
 @Target({ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE, ElementType.TYPE_USE})

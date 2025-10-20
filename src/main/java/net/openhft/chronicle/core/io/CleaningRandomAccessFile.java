@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -14,8 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
+
 
 package net.openhft.chronicle.core.io;
 
@@ -24,9 +22,13 @@ import java.io.FileNotFoundException;
 import java.io.RandomAccessFile;
 
 /**
- * A RandomAccessFile must be explicitly close or cause a resources leak.
+ * {@link RandomAccessFile} that quietly closes itself during finalisation if it
+ * has not already been closed. This guards against leaks when a test forgets to
+ * close the file, although callers should still use try-with-resources wherever
+ * possible.
  * <p>
- * Weak references RAF can result in a resource leak when GC'ed which doesn't appear if the GC isn't running.
+ * Finalisation is deprecated in recent JDKs so this class is only a safety net
+ * for legacy code.
  */
 public class CleaningRandomAccessFile extends RandomAccessFile {
     public CleaningRandomAccessFile(String name, String mode) throws FileNotFoundException {
@@ -40,6 +42,7 @@ public class CleaningRandomAccessFile extends RandomAccessFile {
     @SuppressWarnings({"deprecation", "removal"})
     @Override
     protected void finalize() throws Throwable {
+        // best-efforts attempt to close the file if the owner forgot
         super.finalize();
         Closeable.closeQuietly(this);
     }

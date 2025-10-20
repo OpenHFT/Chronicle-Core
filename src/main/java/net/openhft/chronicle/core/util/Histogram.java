@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -172,38 +170,21 @@ public class Histogram implements NanoSampler {
             sampleCount = new int[minSampleCountLength];
     }
 
-    /**
-     * Gets the number of fraction bits used by the histogram.
-     *
-     * @return the number of fraction bits
-     */
     public int fractionBits() {
         return fractionBits;
     }
 
-    /**
-     * Gets the number of powers of 2 used by the histogram.
-     *
-     * @return the number of powers of 2
-     */
     public int powersOf2() {
         return powersOf2;
     }
 
     /**
-     * Gets the number of values that are over the range of the histogram's buckets.
-     *
-     * @return the over range count
+     * Returns how many samples exceeded the top bucket.
      */
     public long overRange() {
         return overRange;
     }
 
-    /**
-     * Gets the array of sample counts per bucket.
-     *
-     * @return the array of sample counts
-     */
     public int[] sampleCount() {
         return sampleCount;
     }

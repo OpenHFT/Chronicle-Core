@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -70,6 +68,12 @@ public class ClassAliasPool implements ClassLookup {
         this.classLoader = (parent == null ? this : parent).getClass().getClassLoader();
     }
 
+    /**
+     * Always throws an AssertionError for the given class.
+     *
+     * @param clazz the class used to produce the error
+     * @throws AssertionError always thrown
+     */
     public static void a(Class<?> clazz) {
         throw Jvm.rethrow(new AssertionError(clazz));
     }
@@ -120,6 +124,7 @@ public class ClassAliasPool implements ClassLookup {
     /**
      * Removes classes from the lookup which are not loaded by the default class loaders.
      * This is used to clean up the ClassAliasPool.
+     *
      */
     public void clean() {
         clean(aliasClassMap.values());
@@ -139,6 +144,13 @@ public class ClassAliasPool implements ClassLookup {
         }
     }
 
+    /**
+     * Looks up a class using its name or registered alias.
+     *
+     * @param name the class name or alias
+     * @return the resolved class
+     * @throws ClassNotFoundRuntimeException if the class cannot be found
+     */
     @Override
     @NotNull
     public Class<?> forName(@NotNull CharSequence name) throws ClassNotFoundRuntimeException {
@@ -177,7 +189,8 @@ public class ClassAliasPool implements ClassLookup {
     }
 
     /**
-     * A method to reset previous resolution failures so they may be reattempted, e.g. after significant classpath change.
+     * Clears any cached lookup failures so a subsequent search can retry.
+     *
      */
     public void resetResolutionFailures() {
         nameExceptionMap.clear();
@@ -227,6 +240,13 @@ public class ClassAliasPool implements ClassLookup {
         }
     }
 
+    /**
+     * Returns the primary alias for a given class.
+     *
+     * @param clazz the class to query
+     * @return the registered alias
+     * @throws IllegalArgumentException if the class represents a lambda
+     */
     @Override
     public String nameFor(Class<?> clazz) throws IllegalArgumentException {
         if (Jvm.isLambdaClass(clazz))
@@ -254,6 +274,11 @@ public class ClassAliasPool implements ClassLookup {
         return clazz.getName();
     }
 
+    /**
+     * Removes all aliases from the given package.
+     *
+     * @param pkgName the package prefix to remove
+     */
     public void removePackage(String pkgName) {
         aliasClassMap.entrySet().removeIf(e -> testPackage(pkgName, e.getValue()));
         nameClassMap.entrySet().removeIf(e -> testPackage(pkgName, e.getValue()));
@@ -261,6 +286,11 @@ public class ClassAliasPool implements ClassLookup {
         resetResolutionFailures();
     }
 
+    /**
+     * Registers the provided classes using their simple names as aliases.
+     *
+     * @param classes the classes to register
+     */
     @Override
     public void addAlias(@NotNull Class<?>... classes) {
         for (@NotNull Class<?> clazz : classes) {
@@ -280,6 +310,12 @@ public class ClassAliasPool implements ClassLookup {
         return Character.toLowerCase(name.charAt(0)) + name.substring(1);
     }
 
+    /**
+     * Registers a class with one or more explicit aliases.
+     *
+     * @param clazz  the class to register
+     * @param names  comma separated list of aliases
+     */
     @Override
     public void addAlias(Class<?> clazz, @NotNull String names) {
         for (@NotNull String name : names.split(", ?")) {
@@ -293,6 +329,12 @@ public class ClassAliasPool implements ClassLookup {
         resetResolutionFailures();
     }
 
+    /**
+     * Applies an alias if one has been registered for the given name.
+     *
+     * @param name the original class name or alias
+     * @return the resolved alias or the input if none exists
+     */
     @Override
     public CharSequence applyAlias(CharSequence name) {
         Objects.requireNonNull(name);

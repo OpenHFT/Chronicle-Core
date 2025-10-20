@@ -1,5 +1,5 @@
 /*
- * Copyright 2016-2025 Chronicle Software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,6 +119,8 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
      */
     @NotNull
     private final ThrowingConsumer<T, Exception> cleanup;
+    /** values from threads that are not {@link CleaningThread} */
+    private Map<Thread, Object> nonCleaningThreadValues = null;
 
     /**
      * {@code true} when we should record values belonging to non-CleaningThreads
@@ -249,6 +251,10 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         return nonCleaningThreadValues.isEmpty();
     }
 
+    /**
+     * Returns the initial value and records it for later cleanup when the
+     * thread is not a {@link CleaningThread}.
+     */
     @Override
     protected T initialValue() {
         T value = supplier.get();

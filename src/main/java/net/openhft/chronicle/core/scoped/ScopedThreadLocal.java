@@ -1,3 +1,18 @@
+/*
+ * Copyright 2025 chronicle.software
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.openhft.chronicle.core.scoped;
 
 import net.openhft.chronicle.core.Jvm;
@@ -13,14 +28,16 @@ import java.util.function.Supplier;
 import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 
 /**
- * A thread-local {@link ScopedResourcePool}.
+ * Bounded per-thread pool of {@link ScopedResource} instances.
  * <p>
- * This is used for small, tightly-scoped thread-local resource "pools", a safer alternative
- * to a thread-local singleton.
+ * Every thread owns its own stack of resources supplied by {@code supplier}. An
+ * instance is taken from the stack when {@link #get()} is called and returned to
+ * it when the scope closes. If the stack is full the newest resource is
+ * discarded.
  * <p>
- * Holds a limited-depth stack of instances local to each thread, which are allocated as
- * acquired and returned to the stack as the scopes close. If too many are acquired, a warning
- * is logged and the extra instances are made eligible for garbage collection.
+ * The stack is confined to a single thread and so is not synchronised. The
+ * resources themselves may not be thread-safe and must only be used by one
+ * thread at a time unless they implement their own safety rules.
  */
 public class ScopedThreadLocal<T> implements ScopedResourcePool<T> {
 
@@ -30,33 +47,33 @@ public class ScopedThreadLocal<T> implements ScopedResourcePool<T> {
     private final boolean useWeakReferences;
 
     /**
-     * Constructor
+     * Creates a pool with the given supplier and capacity.
      *
-     * @param supplier     The supplier of new instances
-     * @param maxInstances The maximum number of instances that will be retained for re-use
+     * @param supplier     provides new instances when the stack is empty
+     * @param maxInstances maximum number of retained instances per thread
      */
     public ScopedThreadLocal(Supplier<T> supplier, int maxInstances) {
         this(supplier, ScopedThreadLocal::noOp, maxInstances);
     }
 
     /**
-     * Constructor
+     * Creates a pool with an action run on every acquisition.
      *
-     * @param supplier     The supplier of new instances
-     * @param onAcquire    A function to run on each instance upon it's acquisition
-     * @param maxInstances The maximum number of instances that will be retained for re-use
+     * @param supplier     provides new instances when the stack is empty
+     * @param onAcquire    invoked each time an instance is retrieved from the pool
+     * @param maxInstances maximum number of retained instances per thread
      */
     public ScopedThreadLocal(@NotNull Supplier<T> supplier, @NotNull Consumer<T> onAcquire, int maxInstances) {
         this(supplier, onAcquire, maxInstances, false);
     }
 
     /**
-     * Constructor
+     * Creates a pool with fine-grained control over resource retention.
      *
-     * @param supplier          The supplier of new instances
-     * @param onAcquire         A function to run on each instance upon it's acquisition
-     * @param maxInstances      The maximum number of instances that will be retained for re-use
-     * @param useWeakReferences Whether to allow resources to be garbage collected when they're not in use
+     * @param supplier          provides new instances when the stack is empty
+     * @param onAcquire         invoked each time an instance is retrieved from the pool
+     * @param maxInstances      maximum number of retained instances per thread
+     * @param useWeakReferences if {@code true} weak references allow garbage collection
      */
     public ScopedThreadLocal(@NotNull Supplier<T> supplier, @NotNull Consumer<T> onAcquire, int maxInstances, boolean useWeakReferences) {
         this.supplier = supplier;
@@ -66,9 +83,9 @@ public class ScopedThreadLocal<T> implements ScopedResourcePool<T> {
     }
 
     /**
-     * Get a scoped instance of the shared resource
+     * Obtains a scoped handle to a pooled instance.
      *
-     * @return the {@link ScopedResource}, to be closed once it is finished being used
+     * @return the handle that must be closed to return the instance to this thread
      */
     public ScopedResource<T> get() {
         final SimpleStack scopedThreadLocalResources = instancesTL.get();
@@ -91,9 +108,9 @@ public class ScopedThreadLocal<T> implements ScopedResourcePool<T> {
     }
 
     /**
-     * Return a {@link ScopedResource} to the "pool"
+     * Returns a resource to the current thread's stack.
      *
-     * @param scopedResource The resource to return
+     * @param scopedResource resource being released
      */
     void returnResource(AbstractScopedResource<T> scopedResource) {
         final SimpleStack scopedThreadLocalResources = instancesTL.get();
@@ -109,7 +126,8 @@ public class ScopedThreadLocal<T> implements ScopedResourcePool<T> {
     }
 
     /**
-     * A simple array-based stack for managing retained {@link ScopedResource}s
+     * Simple array-based stack holding retained resources for one thread.
+     * Not thread-safe and relies on {@link ThreadLocal} confinement.
      */
     class SimpleStack implements java.io.Closeable {
 

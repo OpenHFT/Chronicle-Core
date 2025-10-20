@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +25,7 @@ import static org.junit.Assert.*;
 
 public class StackTraceTest extends CoreTestCommon {
     private static final CountDownLatch threadStarted = new CountDownLatch(1);
-    private static final String TIMESTAMP_REGEX = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z$";
+    private static final String TIMESTAMP_REGEX = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$";
 
     /**
      * Simulates a thread that sleeps/stalls so we can capture its stack trace.
@@ -41,9 +39,10 @@ public class StackTraceTest extends CoreTestCommon {
     public void testDefaultConstructor() {
         StackTrace st = new StackTrace(true);
         String currentThreadName = Thread.currentThread().getName();
+        String regex = "stack trace on " + currentThreadName + " at " + TIMESTAMP_REGEX;
         assertTrue(
-                String.format("%s must match regular expression expecting 'stack trace on %s at' with following timestamp", st.getMessage(), currentThreadName),
-                st.getMessage().matches("stack trace on " + currentThreadName + " at " + TIMESTAMP_REGEX)
+                st.getMessage() + " expected to match " + regex,
+                st.getMessage().matches(regex)
         );
     }
 

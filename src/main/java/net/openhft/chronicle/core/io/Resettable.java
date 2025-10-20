@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,14 +16,13 @@
 package net.openhft.chronicle.core.io;
 
 /**
- * An interface representing a DTO (Data Transfer Object) or component that can be reset to its initial state.
- * Implementations of this interface provide a {@code reset()} method to reset the state of the object.
+ * An interface for components that support reuse by resetting their state.
+ * Typical implementations are simple DTOs used in object pools.
  */
 public interface Resettable {
     /**
-     * Resets the state of the object to its initial state.
-     * Implementations should restore the object's internal fields or properties
-     * to their default values or the values set during initialization.
+     * Restore the object to its initial state. Called before returning an object
+     * to a pool or when reusing the instance for another operation.
      */
     void reset();
 }

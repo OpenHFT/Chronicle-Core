@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +19,7 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
 import net.openhft.chronicle.core.UnsafeMemory;
 import net.openhft.chronicle.core.annotation.UsedViaReflection;
+import net.openhft.chronicle.core.internal.ClassUtil;
 import net.openhft.chronicle.core.internal.CloseableUtils;
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
@@ -28,31 +27,13 @@ import net.openhft.chronicle.core.onoes.Slf4jExceptionHandler;
 import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEASER;
 
 /**
- * An abstract class that represents a closeable resource with additional utilities for managing the resource lifecycle.
+ * Base class for Chronicle components that need deterministic shutdown.
+ * It implements {@link ManagedCloseable} and performs thread-safety checks.
+ * Concrete subclasses implement their clean-up in {@link #performClose()}.
  * <p>
- * The class provides base functionalities for resources that require proper management, especially when being closed.
- * This includes ensuring that close operations are thread-safe, providing hooks for custom cleanup logic, and supporting
- * diagnostic features for tracking resource usage. It supports resource tracing, thread safety checks, and ensures that
- * close operations are performed properly.
- *
- * <p>
- * The {@code AbstractCloseable} class implements the {@link ReferenceOwner}, {@link ManagedCloseable}, and {@link SingleThreadedChecked} interfaces.
- * The {@link ReferenceOwner} interface allows the class to have a unique reference identifier.
- * The {@link ManagedCloseable} interface ensures that this class provides mechanisms for proper resource management during close operations.
- * The {@link SingleThreadedChecked} interface ensures that the close operation is executed in a thread-safe manner.
- *
- * <p>
- * Implementations of this abstract class should override the {@link #performClose()} method to include the specific
- * cleanup logic needed for the resource. This ensures that custom cleanup logic is executed exactly once during the
- * closing of the resource.
- *
- * <p>
- * Additionally, {@code AbstractCloseable} supports resource tracing, which can be enabled or disabled to monitor and
- * diagnose resource allocation and deallocation. Resource tracing can help in identifying resource leaks and ensure
- * resources are properly managed.
- *
- * <p>
- * Subclasses can also control the behavior of thread safety checks and background closing through provided methods.
+ * Resource tracing and optional background closing are provided for debugging
+ * and performance tuning. See {@link Closeable#closeQuietly(Object)} for a
+ * helper that ignores exceptions from {@link #performClose()}.
  */
 public abstract class AbstractCloseable implements ReferenceOwner, ManagedCloseable, SingleThreadedChecked, Monitorable {
 
@@ -74,7 +55,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     static {
         if (Jvm.isResourceTracing())
             enableCloseableTracing();
-        CLOSED_OFFSET = UnsafeMemory.unsafeObjectFieldOffset(Jvm.getField(AbstractCloseable.class, "closed"));
+        CLOSED_OFFSET = UnsafeMemory.unsafeObjectFieldOffset(ClassUtil.getField0(AbstractCloseable.class, "closed", true, false));
     }
 
     private final transient StackTrace createdHere;
@@ -176,7 +157,8 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     }
 
     /**
-     * Closes this resource and releases any associated system resources.
+     * Idempotent close entry point used by try-with-resources. Delegates to
+     * {@link #performClose()}.
      */
     @Override
     public final void close() {
@@ -241,6 +223,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
                     break;
                 }
                 try {
+                    //noinspection BusyWait
                     Thread.sleep(1);
                 } catch (InterruptedException ie) {
                     interrupted = true;
@@ -285,11 +268,8 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     }
 
     /**
-     * Checks if the resource is not closed, and if so, logs a warning and closes it.
-     * This method is typically called from the finalizer to ensure that resources are not
-     * garbage collected without being properly closed.
-     * <p>
-     * Called from finalise() implementations.
+     * If the resource is still open a warning is logged and it is closed using
+     * {@link Closeable#closeQuietly(Object)}. Intended for use from finalisers.
      */
     @Override
     public void warnAndCloseIfNotClosed() {
@@ -303,16 +283,14 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     }
 
     /**
-     * Contains the actual logic for closing the resource. This method is intended to be
-     * overridden by subclasses to provide specific close logic.
-     * <p>
-     * Note: This method is called exactly once through {@code callPerformClose()}.
+     * Implement the clean-up logic. {@code close()} invokes this method exactly
+     * once via {@link #callPerformClose()}.
      */
     protected abstract void performClose();
 
     /**
-     * Calls {@link #performClose()} and ensures that it is executed exactly once.
-     * Any exceptions thrown by {@link #performClose()} are caught and logged.
+     * Invoked by {@link #close()}. Ensures {@link #performClose()} runs once and
+     * swallows any exception by logging it.
      */
     void callPerformClose() {
         try {

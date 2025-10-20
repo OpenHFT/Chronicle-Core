@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +22,22 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation to document that a class is intended to be used in a single-threaded context.
- * Classes marked with this annotation are not designed for concurrent access and should
- * be accessed by only one thread at a time.
- * <p>
- * Created by Peter Lawrey on 18/05/2015.
+ * {@code @SingleThreaded} documents that a class is not thread-safe and should
+ * be used by one thread only. Library maintainers can employ it to flag
+ * non-concurrent designs.
+ *
+ * <p><b>Retention and effect:</b> Retained at runtime but imposes no automatic
+ * restrictions unless Chronicle tooling validates it.</p>
+ *
+ * <pre>
+ * {@code @SingleThreaded}
+ * final class IdGenerator { }
+ * </pre>
+ *
+ * <p>Chronicle runtime checks this contract unless
+ * {@link net.openhft.chronicle.core.io.AbstractCloseable#singleThreadedCheckDisabled()}
+ * is enabled. Call {@code singleThreadedCheckReset()} before handing the
+ * instance to another thread. Violations may lead to subtle data races.</p>
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)

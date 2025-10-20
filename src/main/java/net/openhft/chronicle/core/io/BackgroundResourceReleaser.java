@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,12 +25,23 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Utility class for managing reference counted resources and related operations.
+ * Performs close and release operations on a background thread.
  * <p>
- * This class helps in releasing the resources in the background when they are no longer needed.
- * It internally uses a background thread to perform the releasing operations. The background
- * thread can be disabled if needed by using system properties.
- * 
+ * Closing in the background reduces worst case pause times because the caller
+ * does not have to perform the tidy up work. The behaviour is controlled by two
+ * system properties:
+ * <ul>
+ *   <li>{@code background.releaser} &mdash; set to {@code false} to disable
+ *   queuing and release resources on the caller's thread.</li>
+ *   <li>{@code background.releaser.thread} &mdash; set to {@code false} to queue
+ *   work but require manual calls to {@link #releasePendingResources()}.</li>
+ * </ul>
+ * <p>
+ * Example usage:
+ * <pre>{@code
+ * MyCloseable closeable = new MyCloseable();
+ * BackgroundResourceReleaser.release(closeable);
+ * }</pre>
  */
 public final class BackgroundResourceReleaser {
 
@@ -160,6 +169,7 @@ public final class BackgroundResourceReleaser {
 
             if (!interrupted)
                 for (int i = 0; i < 1000 && COUNTER.get() > 0; i++)
+                    //noinspection BusyWait
                     Thread.sleep(1);
             long left = COUNTER.get();
             if (left != 0)

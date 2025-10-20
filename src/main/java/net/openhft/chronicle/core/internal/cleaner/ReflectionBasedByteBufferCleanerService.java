@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +46,7 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
             final Class<?> cleanerClass = Class.forName(cleanerClassname);
             cleaner = lookup.findVirtual(DirectBufferUtil.directBufferClass(), "cleaner", MethodType.methodType(cleanerClass));
             clean = lookup.findVirtual(cleanerClass, "clean", MethodType.methodType(void.class));
-        } catch (NoSuchMethodException | ClassNotFoundException | IllegalAccessException e) {
+        } catch (IllegalAccessError | NoSuchMethodException | ClassNotFoundException | IllegalAccessException e) {
             // Don't want to record this in tests so just send to slf4j
             final Logger logger = Logger.getLogger(ReflectionBasedByteBufferCleanerService.class.getName());
             if (logger.isLoggable(Level.WARNING)) {

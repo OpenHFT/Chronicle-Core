@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +23,21 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 /**
- * Annotation to indicate that the annotated element has package-local visibility
- * intentionally, usually to avoid accessor methods. This annotation serves as
- * documentation to inform others of the deliberate design choice.
+ * {@code @PackageLocal} marks an element as intentionally package scoped. The
+ * audience is library maintainers documenting visibility choices.
+ *
+ * <p><b>Retention and effect:</b> Retained only in the source and discarded by
+ * the compiler. There is no runtime effect unless tooling inspects the source.</p>
+ *
+ * <pre>
+ * {@code @PackageLocal} class Helper { }
+ * </pre>
+ *
+ * <p>Package-private access avoids {@code SecurityManager} checks and can
+ * enable sealed hierarchies. Use this annotation to silence IDE warnings such
+ * as "access can be private".</p>
+ *
+ * @see UsedViaReflection
  */
 @Documented
 @Retention(SOURCE)

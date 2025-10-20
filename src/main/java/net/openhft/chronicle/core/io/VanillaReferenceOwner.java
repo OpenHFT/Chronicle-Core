@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,9 +17,9 @@
 package net.openhft.chronicle.core.io;
 
 /**
- * A simple implementation of the {@link ReferenceOwner} and {@link QueryCloseable} interfaces.
- * This class represents an object that can own references, but is not closeable.
- * It holds a name for identification purposes.
+ * Simple {@link ReferenceOwner} that carries a name. It is not closeable and is
+ * typically used in examples or tests to demonstrate {@link ReferenceCounted}
+ * usage.
  */
 public class VanillaReferenceOwner implements ReferenceOwner, QueryCloseable {
 

@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,33 +20,27 @@ import net.openhft.chronicle.core.internal.CloseableUtils;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * A {@code Closeable} is a source or destination of data that can be closed. The close method
- * is invoked to release resources that the object is holding (such as open files).
- * This interface is an extension of {@link java.io.Closeable} and {@link QueryCloseable},
- * adding functionality for handling more resource types and closing them quietly without
- * throwing exceptions.
+ * Extension of {@link java.io.Closeable} that participates in the Chronicle
+ * resource lifecycle.
  * <p>
- * It is encouraged to use this interface in a try-with-resources statement.
- * 
+ * Typical usage is via <em>try-with-resources</em> where {@link #close()} is
+ * invoked automatically. Implementations normally extend
+ * {@link AbstractCloseable} to delegate their cleanup to
+ * {@link AbstractCloseable#performClose()}.
  * <p>
- * Implementations of this interface should also consider extending {@link AbstractCloseable}
- * which provides common functionalities for closeable resources.
- * 
+ * Thread safety is implementation specific; callers should assume instances are
+ * not thread-safe unless stated otherwise.
  */
 public interface Closeable extends java.io.Closeable, QueryCloseable {
 
     /**
-     * Closes multiple closeable objects quietly, without throwing exceptions.
-     * If a closeable object is a collection or an array, all the elements within it are closed.
-     * If a closeable object is a ServerSocketChannel, it is closed quietly.
-     * <p>
-     * Example:
+     * Close the supplied resources without propagating any exception.
+     * Elements of arrays or collections are closed recursively.
      * <pre>
-     * Closeable.closeQuietly(fileInputStream, socketChannel, listOfStreams);
+     * Closeable.closeQuietly(in, socket);
      * </pre>
-     * 
      *
-     * @param closeables the array of objects to be closed
+     * @param closeables resources to close
      * @see AbstractCloseable#performClose()
      */
     static void closeQuietly(@Nullable Object... closeables) {
@@ -56,17 +48,11 @@ public interface Closeable extends java.io.Closeable, QueryCloseable {
     }
 
     /**
-     * Closes a single closeable object quietly, without throwing exceptions.
-     * If the closeable object is a collection or an array, all the elements within it are closed.
-     * If the closeable object is a ServerSocketChannel, it is closed quietly.
-     * <p>
-     * Example:
-     * <pre>
-     * Closeable.closeQuietly(fileInputStream);
-     * </pre>
-     * 
+     * Variant for a single resource.
+     * Arrays, collections and {@link java.nio.channels.ServerSocketChannel}
+     * are handled transparently.
      *
-     * @param o the object to be closed
+     * @param o resource to close
      * @see AbstractCloseable#performClose()
      */
     static void closeQuietly(@Nullable Object o) {
@@ -74,15 +60,10 @@ public interface Closeable extends java.io.Closeable, QueryCloseable {
     }
 
     /**
-     * Closes this resource, releasing any system resources associated with it.
-     * If the resource is already closed, then invoking this method has no effect.
-     * This method should be idempotent.
-     * <p>
-     * Subclasses should override {@link AbstractCloseable#performClose()} to provide
-     * the actual close logic.
-     * 
+     * Release any underlying resources. The call is idempotent and may be made
+     * from a try-with-resources block.
      *
-     * @throws IllegalStateException if the resource cannot be closed.
+     * @throws IllegalStateException if the resource refuses to close
      * @see AbstractCloseable#performClose()
      */
     @Override

@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,12 +49,12 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
-     * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
-     * assumed you are not working on the edge of the precision of double.
+     * Rounds the value to a fixed number of decimal places.
+     * The result is within one ulp of the mathematical rounding and
+     * may round values very close to 0.5 either way for speed.
      *
      * @param d      value to round
-     * @param digits 0 to 18 digits of precision
+     * @param digits precision from 0 to 18 digits
      * @return rounded value
      */
     public static double roundN(double d, int digits) {
@@ -149,6 +147,14 @@ public final class Maths {
                 ? Math.floor((d + ulp) * factor) / factor : d;
     }
 
+    /**
+     * Rounds the value using a fractional number of decimal places.
+     * Behaviour matches {@link #roundN(double, int)} when {@code digits} is an integer.
+     *
+     * @param d      value to round
+     * @param digits fractional digits of precision
+     * @return rounded value
+     */
     public static double roundN(double d, double digits) {
         final long factor = roundingFactor(digits);
         return Math.abs(d) < (double) Long.MAX_VALUE / factor
@@ -184,9 +190,8 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
-     * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
-     * assumed you are not working on the edge of the precision of double.
+     * Rounds to one decimal place.
+     * Accuracy is within one ulp so values close to 0.5 may round either way.
      *
      * @param d value to round
      * @return rounded value
@@ -214,9 +219,8 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
-     * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
-     * assumed you are not working on the edge of the precision of double.
+     * Rounds to two decimal places.
+     * Accuracy is within one ulp so values close to 0.5 may round either way.
      *
      * @param d value to round
      * @return rounded value
@@ -577,7 +581,7 @@ public final class Maths {
         if (s == null) throw new IllegalArgumentException();
         long hash = 0;
 
-        if (Jvm.isJava9Plus()) {
+        if (Jvm.isJava9Plus() && Jvm.maxDirectMemory() > 0) {
             if (StringUtils.getStringCoder(s) == 0) {
                 final byte[] bytes = StringUtils.extractBytes(s);
                 for (int i = 0, len = s.length(); i < len; i++)
@@ -610,12 +614,11 @@ public final class Maths {
         long hash = 0;
 
         if (Jvm.isJava9Plus()) {
-            if (StringUtils.getStringCoder(s) == 0) {
+            if (Jvm.maxDirectMemory() > 0 && StringUtils.getStringCoder(s) == 0) {
                 final byte[] bytes = StringUtils.extractBytes(s);
                 for (int i = 0, len = s.length(); i < len; i++)
                     hash = hash * 0x32246e3d + bytes[i];
             } else {
-                final byte[] bytes = StringUtils.extractBytes(s);
                 for (int i = 0, len = s.length(); i < len; i++)
                     hash = hash * 0x32246e3d + s.charAt(i);
             }

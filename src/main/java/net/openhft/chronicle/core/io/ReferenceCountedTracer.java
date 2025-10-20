@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,9 +23,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Supplier;
 
 /**
- * An interface for monitoring and tracing the reference counting of objects. It extends the {@link ReferenceCounted}
- * interface by providing additional methods for tracing and throwing exceptions in certain conditions.
- * This can be helpful in debugging and identifying issues related to resource management and reference counting.
+ * Extends {@link ReferenceCounted} with tracing utilities.
+ * Implementations record which {@link ReferenceOwner} reserved or released a
+ * resource and can report where an unexpected release occurred. Tracing is
+ * useful when diagnosing {@link ClosedIllegalStateException} or
+ * {@link ThreadingIllegalStateException} thrown by misused resources.
  */
 public interface ReferenceCountedTracer extends ReferenceCounted {
 

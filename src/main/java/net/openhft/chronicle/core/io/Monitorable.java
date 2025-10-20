@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +17,9 @@
 package net.openhft.chronicle.core.io;
 
 /**
- * Interface for objects that can be monitored and unmonitored.
- * <p>
- * This is useful for managing resources that need to be tracked and potentially cleaned up
- * when they are no longer needed.
+ * Implement for resources that may be tracked by tooling such as
+ * {@code CloseableUtils}. Calling {@link #unmonitor()} stops that tracking and
+ * is typically used just before a resource is discarded.
  */
 public interface Monitorable {
 

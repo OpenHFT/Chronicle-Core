@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,7 +39,9 @@ public final class StringBuilderPool {
             () -> new StringBuilder(128));
 
     /**
-     * Create a scoped-thread-local pool of StringBuilders
+     * Returns a scoped-thread-local pool of StringBuilders.
+     *
+     * @return a new pool for the current thread
      */
     public static ScopedResourcePool<StringBuilder> createThreadLocal() {
         return createThreadLocal(DEFAULT_STRING_BUILDER_POOL_SIZE_PER_THREAD);

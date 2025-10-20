@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +16,8 @@
 package net.openhft.chronicle.core.io;
 
 /**
- * An abstract class providing a basic implementation of the {@link Closeable}, {@link ReferenceOwner}, and {@link ManagedCloseable} interfaces.
- * It maintains a flag to track the closed state of the resource and provides methods for closing the resource.
+ * Lightweight helper implementing {@link Closeable} and {@link ManagedCloseable}.
+ * A boolean tracks the closed state. Override {@link #performClose()} for custom clean-up.
  */
 public abstract class SimpleCloseable implements Closeable, ReferenceOwner, ManagedCloseable {
     private transient volatile boolean closed;
@@ -32,8 +30,7 @@ public abstract class SimpleCloseable implements Closeable, ReferenceOwner, Mana
     }
 
     /**
-     * Closes the resource so that it cannot be used again.
-     * Once closed, subsequent calls to this method will have no effect.
+     * Idempotent close for use with try-with-resources.
      */
     @Override
     public final void close() {
@@ -44,11 +41,7 @@ public abstract class SimpleCloseable implements Closeable, ReferenceOwner, Mana
     }
 
     /**
-     * Performs the actual close operation.
-     * Subclasses can override this method to provide custom close logic.
-     * The default implementation does nothing.
-     * <p>
-     * Call close() to ensure this is called exactly once.
+     * Hook for subclasses to release resources. Called once from {@link #close()}.
      */
     protected void performClose() {
         // might be nothing.

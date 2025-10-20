@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,8 +27,18 @@ package net.openhft.chronicle.core.threads;
  *
  * <p>It is important to note that the reusable instance should not be used where
  * error information or stack traces are needed, as it doesn't provide these details.
- *
- * @see #reusable()
+ * <p>
+ * Example usage:
+ * <pre>
+ * class SampleHandler implements EventHandler {
+ *     {@code @Override}
+ *     public boolean action() throws InvalidEventHandlerException {
+ *         // perform work
+ *         if (done)
+ *             throw InvalidEventHandlerException.reusable();
+ *         return true;
+ *     }
+ * }</pre>
  */
 public class InvalidEventHandlerException extends Exception {
     private static final long serialVersionUID = 0L;
@@ -72,8 +80,7 @@ public class InvalidEventHandlerException extends Exception {
      * <p>Note that this reusable instance contains no stack trace information and
      * should not be used in scenarios where error information is necessary.
      *
-     * @return a reusable, pre-created, InvalidEventHandlerException that is
-     * unmodifiable and contains no stack trace
+     * @return a singleton without stack trace - use only for flow control
      */
     public static InvalidEventHandlerException reusable() {
         return STATIC;

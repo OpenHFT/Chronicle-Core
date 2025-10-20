@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2020 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,11 +21,19 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Closeable;
 
 /**
- * Represents a handler for events within an event loop.
+ * Represents a handler for events within an {@link EventLoop}.
  * <p>
- * This interface should be implemented by classes that handle specific events within an event loop.
+ * The typical sequence of calls is:
+ * <ol>
+ *   <li>{@link #eventLoop(EventLoop)}</li>
+ *   <li>{@link #loopStarted()}</li>
+ *   <li>zero or more {@link #action()} invocations</li>
+ *   <li>{@link #loopFinished()}</li>
+ *   <li>{@link Closeable#close()}</li>
+ * </ol>
  * <p>
- * An {@code EventHandler} can be registered to an {@link EventLoop} for processing events.
+ * The {@code action()} method must be quick and non-blocking unless it's a long-running work
+ * delegated to a {@link HandlerPriority#BLOCKING} handler or to another executor.
  */
 @FunctionalInterface
 public interface EventHandler extends VanillaEventHandler {

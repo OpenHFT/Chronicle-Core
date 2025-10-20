@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -407,13 +405,13 @@ public class UnsafeMemory2Test extends CoreTestCommon {
         long offset = memory.objectFieldOffset(num);
         final long addr = memory.allocate(Integer.BYTES);
         int expected = 97;
-        memory.unsafePutInt(addr, expected);
+        UnsafeMemory.unsafePutInt(addr, expected);
         MyDTO to = new MyDTO();
         memory.copyMemory(addr, to, offset, Integer.BYTES);
         assertEquals(expected, to.num);
         to.num = 75;
         memory.copyMemory(to, offset, addr, Integer.BYTES);
-        assertEquals(to.num, memory.unsafeGetInt(addr));
+        assertEquals(to.num, UnsafeMemory.unsafeGetInt(addr));
     }
 
     @Test

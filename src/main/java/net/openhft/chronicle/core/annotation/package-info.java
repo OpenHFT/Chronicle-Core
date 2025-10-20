@@ -1,24 +1,30 @@
 /**
- * Provides annotations for specifying and documenting constraints, expected behavior, and
- * meta-information for elements within the Chronicle Core library.
- * <p>
- * The annotations in this package can be used for a range of purposes such as:
+ * Chronicle Core provides annotations describing constraints and design intent.
+ * They help library maintainers and tooling reason about code usage.
+ *
  * <ul>
- *     <li>Specifying expected value ranges or conditions for variables and parameters.</li>
- *     <li>Documenting intended usage scenarios, such as single-threaded access.</li>
- *     <li>Conveying information about the design decisions, such as package-local access.</li>
- *     <li>Indicating implications of modifying elements referred to by clients or accessed through reflection.</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.Negative} &ndash; value &lt; 0</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.NonPositive} &ndash; value &lt;= 0</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.NonNegative} &ndash; value &gt;= 0</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.Positive} &ndash; value &gt; 0</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.Range} &ndash; numeric range</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.ForceInline} &ndash; request JVM inlining</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.HotMethod} &ndash; performance sensitive method</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.DontChain} &ndash; skip interface chaining</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.UsedViaReflection} &ndash; accessed by reflection</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.PackageLocal} &ndash; intentionally package private</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.RequiredForClient} &ndash; class name appears on wire</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.SingleThreaded} &ndash; not thread safe</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.ScopeConfined} &ndash; object scrubbed after use</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.ChronicleFeature} &ndash; compile-time feature toggle</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.TargetMajorVersion} &ndash; required Java version</li>
+ * <li>{@link net.openhft.chronicle.core.annotation.Java9} &ndash; method used on Java&nbsp;9+</li>
  * </ul>
- * <p>
- * Examples of annotations provided in this package include:
- * <ul>
- *     <li>{@link net.openhft.chronicle.core.annotation.Negative}</li>
- *     <li>{@link net.openhft.chronicle.core.annotation.NonNegative}</li>
- *     <li>{@link net.openhft.chronicle.core.annotation.SingleThreaded}</li>
- *     <li>{@link net.openhft.chronicle.core.annotation.PackageLocal}</li>
- * </ul>
- * <p>
- * These annotations may be used to convey intentions, constraints, and additional information
- * about elements in the codebase which can be beneficial for documentation, analysis or runtime behavior.
+ *
+ * <p>Annotations with {@code RetentionPolicy.CLASS} are not visible via
+ * standard reflection. Tools may read them from the class file.</p>
+ *
+ * <p>Design goal: make hidden performance and safety constraints
+ * self-documenting without polluting the public API surface.</p>
  */
 package net.openhft.chronicle.core.annotation;

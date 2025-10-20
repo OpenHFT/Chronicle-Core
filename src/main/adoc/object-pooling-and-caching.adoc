@@ -1,0 +1,161 @@
+= Object Pooling and Caching in Chronicle Core
+[[object-pooling-and-caching]]
+:toc:
+:lang: en-GB
+:source-highlighter: rouge
+
+Chronicle Core provides several utility classes designed to reduce unnecessary object allocations and improve performance by pooling or caching frequently used objects.
+This document summarizes these key helper classes.
+
+== 1. `StringInterner`
+
+`StringInterner` helps in deduplicating `String` instances from `CharSequence` inputs.
+It maintains an internal hashed array to store recently encountered strings.
+When a `CharSequence` is "interned," if an equal `String` is already in the cache, the cached instance is returned, otherwise, the new `String` is cached and returned.
+This can save memory by ensuring that identical string values share the same `String` object.
+
+* **Key Methods**:
+** `intern(@Nullable CharSequence cs)`: Returns a cached `String` equivalent to the input `CharSequence`, or caches and returns `cs.toString()` if not already present.
+** `index(@Nullable CharSequence cs, @Nullable Changed onChanged)`: Returns the internal array index for the interned string. If the string is new to the cache and `onChanged` is provided, the callback is invoked with the index and the new string value. This is useful for associating other cached data with the interned string.
+** `get(int index)`: Retrieves an interned string by its index.
+** `capacity()`: Returns the size of the internal array used for caching.
+* **Thread Safety**: `StringInterner` is designed for high performance and uses a "best-effort" approach to thread safety for its cache updates, relying on the thread safety of `String` itself.
+It doesn't guarantee that all threads will always see the exact same cached `String` object for identical inputs if interning concurrently, but it ensures functional correctness (i.e., the returned string will be equal to the input).
+* **Cache Mechanism**: Uses a simple hashing mechanism with a toggle for placing new entries, aiming to balance cache utilization.
+
+[source,java]
+----
+StringInterner si = new StringInterner(128); // Capacity of 128
+String s1 = "hello";
+CharSequence cs = new StringBuilder("hello");
+
+String internedS1 = si.intern(s1);
+String internedCS = si.intern(cs);
+
+assert internedS1 == internedCS; // Both point to the same String object in the cache
+----
+
+== 2. `EnumInterner`
+
+`EnumInterner<E extends Enum<E>>` provides an efficient way to look up enum constants by their string names.
+It uses an internal cache (an array) to store enum values, making subsequent lookups for the same name very fast.
+This is particularly useful when deserializing enums or parsing them from external string sources.
+
+* **Key Methods**:
+** `EnumInterner(Class<E> eClass)` / `EnumInterner(Class<E> eClass, int capacity)`: Constructors to create an interner for a specific enum class, optionally with a suggested initial capacity for the internal cache.
+** `intern(@NotNull CharSequence cs)`: Takes a `CharSequence` representing an enum name and returns the corresponding enum constant.
+If the name is encountered for the first time, it resolves the enum constant (using an underlying `EnumCache`) and caches it.
+* **Static Factory**: `EnumInterner.ENUM_INTERNER` is a `ClassLocal` instance that provides a global, per-enum-type cache of `EnumInterner` instances.
+
+[source,java]
+----
+// Using the ClassLocal factory
+EnumInterner<DayOfWeek> daysInterner = (EnumInterner<DayOfWeek>) EnumInterner.ENUM_INTERNER.get(DayOfWeek.class);
+DayOfWeek d = daysInterner.intern("MONDAY");
+assert d == DayOfWeek.MONDAY;
+
+// Direct instantiation
+EnumInterner<RoundingMode> roundingModeInterner = new EnumInterner<>(RoundingMode.class);
+RoundingMode rm = roundingModeInterner.intern("HALF_UP");
+assert rm == RoundingMode.HALF_UP;
+----
+
+== 3. `EnumCache`
+
+`EnumCache<E>` is an abstraction for caching enum instances, providing efficient access by name or ordinal index.
+It supports both standard Java (static) enums and dynamic enums (which can have instances defined at runtime).
+
+* **Factory Method**: `EnumCache.of(Class<E> eClass)` is the primary way to obtain an `EnumCache` instance for a given enum type.
+It automatically provides the correct cache implementation (`StaticEnumClass` for standard enums, `DynamicEnumClass` for enums implementing `CoreDynamicEnum`).
+* **Key Methods**:
+** `valueOf(String name)`: Returns the enum instance for the given name. For `DynamicEnumClass`, it can create new instances if the name is not found.
+** `get(String name)`: Similar to `valueOf`, often an alias.
+** `forIndex(int index)`: Retrieves an enum instance by its ordinal (for static enums) or creation index (for dynamic enums).
+** `asArray()`: Returns an array containing all known enum instances.
+** `size()`: Returns the number of enum instances in the cache.
+** `type()`: Returns the enum `Class` object managed by this cache.
+** `createMap()` / `createSet()`: Utility methods to create `EnumMap`-like or `EnumSet`-like collections.
+
+[source,java]
+----
+// For a standard enum
+EnumCache<TimeUnit> timeUnitCache = EnumCache.of(TimeUnit.class);
+TimeUnit seconds = timeUnitCache.valueOf("SECONDS");
+assert seconds == TimeUnit.SECONDS;
+assert timeUnitCache.forIndex(TimeUnit.MILLISECONDS.ordinal()) == TimeUnit.MILLISECONDS;
+
+// For a dynamic enum (assuming MyDynamicEnum implements CoreDynamicEnum)
+// EnumCache<MyDynamicEnum> dynamicEnumCache = EnumCache.of(MyDynamicEnum.class);
+// MyDynamicEnum instance = dynamicEnumCache.valueOf("NEW_INSTANCE_NAME");
+----
+
+== 4. `ClassLocal`
+
+`ClassLocal<V>` provides a way to associate a lazily-initialized value with a specific `Class` object, much like `ThreadLocal` does for threads.
+It's particularly useful for caching class-specific information or helper objects.
+The value for each class is computed only once, the first time it's requested for that class.
+
+* **Factory Method**: `ClassLocal.withInitial(Function<Class<?>, V> classVFunction)` creates a `ClassLocal` where the function provides the initial value for each class.
+* **Usage**:
+** `get(Class<?> type)`: Retrieves the value associated with the given class, computing it via the initial-value function if it's the first access for this class.
+
+[source,java]
+----
+// Example: Caching a specific parser for different data types
+ClassLocal<Function<String, ?>> parsers = ClassLocal.withInitial(clazz -> {
+    if (clazz == Integer.class) return Integer::parseInt;
+    if (clazz == Double.class) return Double::parseDouble;
+    return s -> s; // Default parser
+});
+
+Function<String, Integer> intParser = (Function<String, Integer>) parsers.get(Integer.class);
+assert intParser.apply("123") == 123;
+----
+
+The example from `EnumInterner` itself, `public static final ClassLocal<EnumInterner<?>> ENUM_INTERNER = ClassLocal.withInitial(EnumInterner::create);`, is a prime use case.
+
+== 5. `StringBuilderPool`
+
+`StringBuilderPool` helps reduce allocations when performing many string concatenation operations by providing a thread-local pool of `StringBuilder` instances.
+These are acquired as `ScopedResource`, ensuring they are automatically reset (cleared) and returned to the pool when the scope (try-with-resources block) is exited.
+
+* **Factory Method**: `StringBuilderPool.createThreadLocal()` or `StringBuilderPool.createThreadLocal(int instancesPerThread)`.
+* **Configuration**: The default number of `StringBuilder` instances retained per thread is configurable via the system property `chronicle.stringBuilderPool.instancesPerThread` (default is 4).
+* **Behavior**: Acquired `StringBuilder`s are reset (length set to 0) upon release back to the pool.
+
+[source,java]
+----
+ScopedResourcePool<StringBuilder> pool = StringBuilderPool.createThreadLocal();
+try (ScopedResource<StringBuilder> sr = pool.get()) {
+    StringBuilder sb = sr.get(); // sb is cleared and ready for use
+    sb.append("This is a ");
+    sb.append("cost-effective way to build strings.");
+    // use sb.toString() or pass sb to another method
+    System.out.println(sb.toString());
+} // sb is automatically returned to the pool and cleared here
+----
+
+== 6. `ParsingCache`
+
+`ParsingCache<E>` is designed to cache the results of parsing strings into objects of type `E`, particularly for types where parsing is expensive (e.g., `BigDecimal`).
+It uses a fixed-size array and a hash function for quick lookups.
+
+* **Constructor**: `ParsingCache(int capacity, Function<String, E> eFunction)` where `eFunction` is used to create new objects when a string is not found in the cache.
+* **Key Method**:
+** `intern(@Nullable CharSequence cs)`: Returns the cached object for `cs`.
+If `cs` is not in the cache, it's parsed using `eFunction`, the result is cached, and then returned.
+* **Capacity**: The cache has a fixed capacity, determined at construction (rounded up to the next power of 2, min 128).
+* `valueCount()`: Returns the number of items currently in the cache.
+
+[source,java]
+----
+ParsingCache<BigDecimal> bigDecimalCache = new ParsingCache<>(256, BigDecimal::new);
+
+String numberStr = "12345.6789";
+BigDecimal bd1 = bigDecimalCache.intern(numberStr);
+BigDecimal bd2 = bigDecimalCache.intern(new StringBuilder(numberStr)); // Using a different CharSequence instance
+
+assert bd1 != null;
+assert bd1.equals(new BigDecimal(numberStr));
+assert bd1 == bd2; // Should return the same cached BigDecimal object
+----

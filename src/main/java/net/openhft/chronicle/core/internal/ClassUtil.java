@@ -1,5 +1,21 @@
+/*
+ * Copyright 2025 chronicle.software
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.openhft.chronicle.core.internal;
 
+import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,41 +26,48 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.*;
 
 public final class ClassUtil {
-    public static final MethodHandle setAccessible0_Method = getSetAccessible0Method();
+    static class SetAccessibleHolder {
+        static final MethodHandle setAccessible0_Method = getSetAccessible0Method();
 
-    private ClassUtil() {
+        private static MethodHandle getSetAccessible0Method() {
+            if (!Bootstrap.isJava9Plus()) {
+                return null;
+            }
+            final MethodType signature = MethodType.methodType(boolean.class, boolean.class);
+            try {
+                // Access privateLookupIn() reflectively to support compilation with JDK 8
+                Method privateLookupIn = MethodHandles.class.getDeclaredMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
+                MethodHandles.Lookup lookup = (MethodHandles.Lookup) privateLookupIn.invoke(null, AccessibleObject.class, MethodHandles.lookup());
+                return lookup.findVirtual(AccessibleObject.class, "setAccessible0", signature);
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException |
+                     IllegalArgumentException e) {
+                Logger logger = LoggerFactory.getLogger(ClassUtil.class);
+                logger.error("Chronicle products may require command line arguments to be provided for Java 11 and above. See https://chronicle.software/chronicle-support-java-17");
+                return null;
+            }
+        }
     }
-
-    private static MethodHandle getSetAccessible0Method() {
-        if (!Bootstrap.isJava9Plus()) {
-            return null;
-        }
-        final MethodType signature = MethodType.methodType(boolean.class, boolean.class);
-        try {
-            // Access privateLookupIn() reflectively to support compilation with JDK 8
-            Method privateLookupIn = MethodHandles.class.getDeclaredMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
-            MethodHandles.Lookup lookup = (MethodHandles.Lookup) privateLookupIn.invoke(null, AccessibleObject.class, MethodHandles.lookup());
-            return lookup.findVirtual(AccessibleObject.class, "setAccessible0", signature);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException |
-                 IllegalArgumentException e) {
-            Logger logger = LoggerFactory.getLogger(ClassUtil.class);
-            logger.error("Chronicle products require command line arguments to be provided for Java 11 and above. See https://chronicle.software/chronicle-support-java-17");
-            throw new ExceptionInInitializerError(e);
-        }
+    private ClassUtil() {
     }
 
     public static Field getField0(@NotNull final Class<?> clazz,
                                   @NotNull final String name,
-                                  final boolean error) {
+                                  final boolean error,
+                                  final boolean setAccessible) {
         try {
             final Field field = clazz.getDeclaredField(name);
-            setAccessible(field);
+            if (setAccessible)
+                setAccessible(field);
             return field;
 
+        } catch (IllegalAccessError e) {
+            if (error)
+                Jvm.warn().on(clazz, "Unable to access " + name + " " + e.getMessage());
+            return null;
         } catch (NoSuchFieldException e) {
             final Class<?> superclass = clazz.getSuperclass();
             if (superclass != null) {
-                final Field field = getField0(superclass, name, false);
+                final Field field = getField0(superclass, name, false, setAccessible);
                 if (field != null)
                     return field;
             }
@@ -61,14 +84,16 @@ public final class ClassUtil {
      * The setting of the accessible flag might be subject to security manager approval.
      *
      * @param accessibleObject to modify
-     * @throws SecurityException – if the request is denied.
+     * @throws SecurityException - if the request is denied.
      * @see SecurityManager#checkPermission
      * @see RuntimePermission
      */
     public static void setAccessible(@NotNull final AccessibleObject accessibleObject) {
         if (Bootstrap.isJava9Plus())
             try {
-                boolean newFlag = (boolean) setAccessible0_Method.invokeExact(accessibleObject, true);
+                if (SetAccessibleHolder.setAccessible0_Method == null)
+                    return;
+                boolean newFlag = (boolean) SetAccessibleHolder.setAccessible0_Method.invokeExact(accessibleObject, true);
                 assert newFlag;
             } catch (Throwable throwable) {
                 throw new AssertionError(throwable);

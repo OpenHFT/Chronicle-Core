@@ -1,14 +1,21 @@
 package net.openhft.chronicle.core.internal.util;
 
 import net.openhft.chronicle.core.Jvm;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
+import static org.junit.Assume.assumeTrue;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 public class DirectBufferUtilTest {
+
+    @BeforeEach
+    public void addOpens() {
+        assumeTrue(Jvm.maxDirectMemory() > 0);
+    }
 
     @Test
     public void directBufferClassShouldReturnCorrectClass() {

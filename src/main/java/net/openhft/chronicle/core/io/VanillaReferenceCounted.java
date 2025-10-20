@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +22,9 @@ import net.openhft.chronicle.core.UnsafeMemory;
 import net.openhft.chronicle.core.annotation.UsedViaReflection;
 
 /**
- * This class provides a basic implementation of the {@link MonitorReferenceCounted} interface.
- * It is responsible for keeping track of reference counts and releasing resources
- * once they are no longer needed.
+ * Lightweight implementation of {@link MonitorReferenceCounted} used when
+ * resource tracing is disabled. It simply counts references and runs the given
+ * {@link Runnable} when the count reaches zero.
  */
 public final class VanillaReferenceCounted implements MonitorReferenceCounted {
 
@@ -40,6 +38,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     private final Class<?> type;
     private final ReferenceChangeListenerManager referenceChangeListeners;
     // must be volatile
+    @SuppressWarnings("FieldMayBeFinal")
     @UsedViaReflection
     private volatile int value = 1;
     private volatile boolean released = false;

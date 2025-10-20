@@ -1,7 +1,5 @@
 /*
- * Copyright 2016-2022 chronicle.software
- *
- *       https://chronicle.software
+ * Copyright 2016-2025 chronicle.software
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,7 +65,11 @@ public final class DirectBufferUtil {
      * @throws ClassCastException   if the provided {@code buffer } is not an instance of sun.nio.ch.DirectBuffer
      */
     public static long addressOrThrow(final ByteBuffer buffer) {
-        requireNonNull(buffer);
-        return ((DirectBuffer) buffer).address();
+        try {
+            requireNonNull(buffer);
+            return ((DirectBuffer) buffer).address();
+        } catch (IllegalAccessError e) {
+            throw new ClassCastException(e.toString());
+        }
     }
 }
