@@ -40,6 +40,8 @@ import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import static net.openhft.chronicle.core.io.Closeable.closeQuietly;
+
 /**
  * Utility methods for common IO tasks used throughout the tests and tools.
  * <p>
@@ -372,7 +374,7 @@ public final class IOTools {
                 out.write(bytes, 0, len);
             return out.toByteArray();
         } finally {
-            Closeable.closeQuietly(is);
+            closeQuietly(is);
         }
     }
 
@@ -508,9 +510,9 @@ public final class IOTools {
         return () -> {
             Jvm.pause(50);
             System.out.println("Close " + sc);
-            Closeable.closeQuietly(sc);
+            closeQuietly(sc);
             Jvm.pause(10);
-            Closeable.closeQuietly(s2);
+            closeQuietly(s2);
         };
     }
 
@@ -521,8 +523,8 @@ public final class IOTools {
             Jvm.pause(50);
             main.interrupt();
             Jvm.pause(10);
-            Closeable.closeQuietly(sc);
-            Closeable.closeQuietly(s2);
+            closeQuietly(sc);
+            closeQuietly(s2);
         };
     }
 
@@ -547,7 +549,7 @@ public final class IOTools {
                 try (Socket s = new Socket("localhost", port);
                      SocketChannel s2 = ssc.accept()) {
                     final OutputStream os = s.getOutputStream();
-                    s2.close();
+                    closeQuietly(s2);
                     final byte[] bytes = new byte[512];
                     try {
                         for (int i = 0; i < 100; i++) {
@@ -556,7 +558,7 @@ public final class IOTools {
                     } catch (IOException ioe) {
                         CLOSED_MESSAGES.add(ioe.getMessage());
                     } finally {
-                        s.close();
+                        closeQuietly(s);
                     }
                     try {
                         s.getOutputStream().write(bytes);
@@ -566,6 +568,7 @@ public final class IOTools {
                 }
                 try (Socket s = new Socket("localhost", port);
                      SocketChannel s2 = ssc.accept()) {
+                    assert s2 != null;
                     OutputStream os = s.getOutputStream();
                     os.close();
                     os.write(1);
@@ -575,6 +578,7 @@ public final class IOTools {
                 ByteBuffer bytes = ByteBuffer.allocateDirect(1024);
                 try (SocketChannel sc = SocketChannel.open(address);
                      SocketChannel s2 = ssc.accept()) {
+                    assert s2 != null;
                     try {
                         for (int i = 0; i < 100; i++) {
                             bytes.clear();

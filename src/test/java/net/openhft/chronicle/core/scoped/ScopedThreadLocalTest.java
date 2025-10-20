@@ -12,8 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static net.openhft.chronicle.core.io.Closeable.closeQuietly;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ScopedThreadLocalTest extends CoreTestCommon {
 
@@ -98,6 +97,8 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
             try (final ScopedResource<CloseableResource> cr1 = stl.get();
                  final ScopedResource<CloseableResource> cr2 = stl.get()) {
                 // Create two resources, do nothing
+                assertNotNull(cr1);
+                assertNotNull(cr2);
             }
             // None should be closed
             assertTrue(allResources.stream().noneMatch(cr -> cr.closed));

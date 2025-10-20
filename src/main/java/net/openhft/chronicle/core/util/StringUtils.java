@@ -16,6 +16,7 @@
 
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.Maths;
 import net.openhft.chronicle.core.UnsafeMemory;
 import net.openhft.chronicle.core.annotation.Java9;
@@ -71,9 +72,9 @@ public final class StringUtils {
             S_VALUE = String.class.getDeclaredField(VALUE_FIELD_NAME);
             ClassUtil.setAccessible(S_VALUE);
             S_VALUE_OFFSET = getMemory().getFieldOffset(S_VALUE);
-            if (Bootstrap.isJava9Plus()) {
-                SB_CODER = ClassUtil.getField0(StringBuilder.class.getSuperclass(), CODER_FIELD_NAME, true);
-                S_CODER = ClassUtil.getField0(String.class, CODER_FIELD_NAME, true);
+            if (Bootstrap.isJava9Plus() && Jvm.maxDirectMemory() > 0) {
+                SB_CODER = ClassUtil.getField0(StringBuilder.class.getSuperclass(), CODER_FIELD_NAME, true, true);
+                S_CODER = ClassUtil.getField0(String.class, CODER_FIELD_NAME, true, true);
                 Object a = S_VALUE.get("A");
                 HAS_ONE_BYTE_PER_CHAR = Array.getLength(a) == 1;
             } else {
@@ -139,6 +140,10 @@ public final class StringUtils {
      * @throws AssertionError if there is an IllegalAccessException or IllegalArgumentException.
      */
     public static void setLength(@NotNull StringBuilder sb, int length) {
+        if (Jvm.maxDirectMemory() == 0) {
+            sb.setLength(length);
+            return;
+        }
         try {
             SB_COUNT.set(sb, length);
         } catch (IllegalAccessException | IllegalArgumentException e) {
@@ -291,7 +296,7 @@ public final class StringUtils {
             else if (charSequence instanceof StringBuilder)
                 coder = SB_CODER;
             else
-                coder = ClassUtil.getField0(charSequence.getClass(), CODER_FIELD_NAME, true);
+                coder = ClassUtil.getField0(charSequence.getClass(), CODER_FIELD_NAME, true, true);
             assert coder != null;
             return coder.getByte(charSequence);
         } catch (IllegalArgumentException | IllegalAccessException e) {

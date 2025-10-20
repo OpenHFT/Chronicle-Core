@@ -1,17 +1,5 @@
 /*
- * Copyright 2025 chronicle.software
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * Copyright 2016-2025 chronicle.software
  */
 
 package net.openhft.chronicle.core.io;
@@ -29,10 +17,6 @@ import java.util.stream.Collectors;
 
 import static net.openhft.chronicle.core.internal.CloseableUtils.asString;
 
-/**
- * Records each reservation and release with a {@link StackTrace} so incorrect
- * usage can be diagnosed. Used when resource tracing is switched on.
- */
 public final class TracingReferenceCounted implements MonitorReferenceCounted {
     private final Map<ReferenceOwner, StackTrace> references = Collections.synchronizedMap(new IdentityHashMap<>());
     private final Map<ReferenceOwner, StackTrace> releases = Collections.synchronizedMap(new IdentityHashMap<>());
@@ -172,7 +156,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
         } catch (Exception e) {
             e0 = e;
         }
-        if (!references.isEmpty()) {
+        if (references.size() > 0) {
             IllegalStateException ise = new IllegalStateException(type.getName() + " still reserved " + referencesAsString(), createdHere);
             synchronized (references) {
                 references.values().forEach(ise::addSuppressed);

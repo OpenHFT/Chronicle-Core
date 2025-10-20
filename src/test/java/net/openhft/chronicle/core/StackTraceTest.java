@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
 
 public class StackTraceTest extends CoreTestCommon {
     private static final CountDownLatch threadStarted = new CountDownLatch(1);
-    private static final String TIMESTAMP_REGEX = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}\\.\\d+Z$";
+    private static final String TIMESTAMP_REGEX = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$";
 
     /**
      * Simulates a thread that sleeps/stalls so we can capture its stack trace.

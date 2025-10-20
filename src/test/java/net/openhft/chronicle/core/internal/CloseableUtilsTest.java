@@ -65,6 +65,7 @@ public class CloseableUtilsTest {
     }
 
     // Private helper to access the private CLOSEABLES field in CloseableUtils
+    @SuppressWarnings("unchecked")
     private AtomicReference<Set<Closeable>> getCloseablesRef() {
         try {
             java.lang.reflect.Field field = CloseableUtils.class.getDeclaredField("CLOSEABLES");

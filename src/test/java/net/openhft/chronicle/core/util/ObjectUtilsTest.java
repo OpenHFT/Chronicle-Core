@@ -30,6 +30,7 @@ import java.util.function.Supplier;
 import static org.junit.Assert.*;
 
 public class ObjectUtilsTest extends CoreTestCommon {
+    @SuppressWarnings("rawtypes")
     @Test
     public void testImmutable() {
         for (@NotNull Class<?> c: new Class[]{

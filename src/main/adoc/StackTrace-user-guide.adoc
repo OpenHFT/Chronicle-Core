@@ -1,7 +1,5 @@
 = StackTrace Comprehensive User Guide
-:toc:
-:lang: en-GB
-:source-highlighter: rouge
+:sectnums:
 
 NOTE TO READER:
 The content here is intentionally overly detailed to illustrate multiple usage scenarios, best practices, and integrations.
@@ -17,17 +15,17 @@ Its typical use cases include identifying where a resource was allocated or clos
 
 === Use Cases
 
-* **Resource Tracking**
+* *Resource Tracking*
 Track where a resource (file handle, socket, buffer, etc.) was allocated and closed.
 Attach a `StackTrace` to a real exception if a resource is misused after closure.
 
-* **Thread Monitoring**
+* *Thread Monitoring*
 Capture what a suspicious or slow-moving thread is doing via `StackTrace.forThread(someThread)`.
 
-* **On-Demand Profiling**
+* *On-Demand Profiling*
 Instead of full profiling, capture targeted traces in production for debugging or performance analysis.
 
-* **Single-Threaded Resource Enforcement**
+* *Single-Threaded Resource Enforcement*
 Attach a `StackTrace` at resource creation and verify usage remains confined to the creating thread.
 
 == Understanding the StackTrace Class
@@ -38,27 +36,25 @@ Otherwise, you can add it as a separate dependency.
 
 === Class Highlights
 
-. **Extends `Throwable`**
+. *Extends `Throwable`*
 Retains the capability to capture and store stack frames while avoiding the semantic overhead of a "real" exception.
 
-. **Constructors**
+. *Constructors*
 * `StackTrace()` defaults to `"stack trace"`.
-* `StackTrace(String message)` and `StackTrace(String message, Throwable cause)` append the thread name and a UTC timestamp to the message.
-The timestamp currently has millisecond precision unless the code changes.
-* `Less(String message, StackTraceElement[] stackTrace)` is a specialised constructor for setting frames directly.
+* `StackTrace(String message)` and `StackTrace(String message, Throwable cause)` append thread name and a nanosecond-precision UTC timestamp to the message.
+* `Less(String message, StackTraceElement[] stackTrace)` is a specialized constructor for setting frames directly.
 
-. **`forThread(Thread t)`**
+. *`forThread(Thread t)`*
 A static method that creates a `StackTrace` for the given thread (or returns `null` if the thread itself is `null`).
 If the top frame is a native method, it's pruned.
 The resulting object is a `Less` instance with frames set via the `Less(String, StackTraceElement[])` constructor.
 
-. **`fillInStackTrace()` Overridden**
+. *`fillInStackTrace()` Overridden*
 `Less` does not auto-populate its frames on construction.
 That way, you can set them manually from, for instance, a remote thread or `StackWalker`.
 
-. **Timestamps**
+. *Nanosecond Timestamps*
 Each normal `StackTrace` constructor (not `Less`) automatically appends a UTC timestamp derived from `SystemTimeProvider.CLOCK`.
-At present this timestamp is millisecond-precision.
 
 == Installation & Setup
 
@@ -69,13 +65,13 @@ You can include this updated `StackTrace` by adding the latest `chronicle-core` 
 <dependency>
     <groupId>net.openhft</groupId>
     <artifactId>chronicle-core</artifactId>
-    <version>LATEST_VERSION</version>
+    <version>2.26eaXX</version> <!-- or newer -->
 </dependency>
 ----
 
 [source,groovy]
 ----
-implementation' net.openhft:chronicle-core:LATEST_VERSION'
+implementation' net.openhft:chronicle-core:2.26eaXX'
 ----
 
 Then, in your code:
@@ -96,11 +92,9 @@ For the simplest scenario, use any of the normal `StackTrace` constructors:
 
 [source,java]
 ----
-import net.openhft.chronicle.core.StackTrace;
-
 public void captureCurrentThread() {
     StackTrace st = new StackTrace("Capturing current thread");
-    // st includes frames, thread name, and a millisecond UTC timestamp
+    // st includes frames, thread name, and UTC timestamp
     st.printStackTrace();
 }
 ----
@@ -109,8 +103,6 @@ public void captureCurrentThread() {
 
 [source,java]
 ----
-import net.openhft.chronicle.core.StackTrace;
-
 public void diagnoseOtherThread(Thread t) {
     StackTrace st = StackTrace.forThread(t);
     if (st != null) {
@@ -126,12 +118,7 @@ This can be invaluable when diagnosing stalling or suspect threads.
 
 [source,java]
 ----
-import net.openhft.chronicle.core.StackTrace;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class ThreadMonitor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ThreadMonitor.class);
     private final Thread threadToMonitor;
 
     public ThreadMonitor(Thread thread) {
@@ -141,7 +128,7 @@ public class ThreadMonitor {
     public void check() {
         StackTrace st = StackTrace.forThread(threadToMonitor);
         if (st != null) {
-            LOGGER.warn("Thread is stalled here", st);
+            someLogger.warn("Thread is stalled here", st);
         }
     }
 }
@@ -158,8 +145,6 @@ If it's stuck for too long, capture a `StackTrace` for later analysis.
 
 [source,java]
 ----
-import net.openhft.chronicle.core.StackTrace;
-
 public class AnotherResource {
     private boolean closed;
     private StackTrace closedHere;
@@ -185,10 +170,8 @@ public class AnotherResource {
 Java 9+ introduced `StackWalker` for more flexible stack frame introspection.
 The updated `StackTrace` class now shows a recommended approach using `Less(String, StackTraceElement[])` to set frames from `StackWalker`:
 
-[source,java]
+[source, java]
 ----
-import java.lang.StackWalker;
-
 StackWalker walker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
 // Skip the first element, which is the current method
 StackTraceElement[] stackTrace = walker.walk(s -> s.skip(1).toArray(StackTraceElement[]::new));
@@ -197,16 +180,17 @@ StackTrace st = new StackTrace.Less("Resource was created here", stackTrace);
 
 === Why Use StackWalker?
 
-* **Filtering** out undesired frames (e.g., internal JDK calls).
-* **Skipping** the top frames to omit the capture method itself.
-* Potentially **transforming** frames or storing only partial frames.
+* *Filtering* out undesired frames (e.g., internal JDK calls).
+* *Skipping* the top frames to omit the capture method itself.
+* Potentially *transforming* frames or storing only partial frames.
 
 === Full Example with StackWalker
 
 [source,java]
 ----
 import net.openhft.chronicle.core.StackTrace;
-import java.lang.StackWalker;
+
+import java.util.Arrays;
 
 public class StackWalkerIntegration {
 
@@ -232,58 +216,57 @@ You could skip more frames, filter out certain packages, etc.
 
 == Best Practices
 
-. **Use `StackTrace` Judiciously**
+. *Use `StackTrace` Judiciously*
 Capturing stacks is not free.
 Use it to diagnose potential issues, not in hot loops.
 
-. **One-Time Capture**
+. *One-Time Capture*
 For resource debugging, capture at creation and/or closure.
 Repeated captures in the same flow may be expensive.
 
-. **Attach or Log**
+. *Attach or Log*
 If you do not need to throw an exception, consider logging it (`LOGGER.warn("...", myStackTrace)`).
 If you do need an exception, set the `StackTrace` instance as the cause or a suppressed exception.
 
-. **Filtering Frames**
+. *Filtering Frames*
 If you only care about your application classes, use `StackWalker` or manually filter `StackTraceElement[]` arrays.
 
-. **Pruning Native Frames**
+. *Pruning Native Frames*
 `forThread(Thread)` automatically prunes a top-level native method.
 You can overwrite the array or rely on `StackWalker` to prune more frames.
 
 == Performance Considerations
 
-. **Overhead**
-Creating a stack trace typically takes microseconds to milliseconds.
-Benchmark in your environment.
+. *Overhead*
+Creating a stack trace can take microseconds to milliseconds.
+Test in your environment.
 
-. **Memory**
-Each `StackTraceElement` can hold a class name, method name, file name, line number, etc.
-A large number of frames can consume memory.
+. *Memory*
+Each `StackTraceElement` can hold a class name, method name, file name, line number, etc. A large number of frames can consume memory.
 
-. **Thread-Safety**
+. *Thread-Safety*
 `forThread(Thread)` is thread-safe, but if the thread is in native code or unwinding, frames might be incomplete.
 This is normal JVM behavior.
 
-. **Integration with Logging**
+. *Integration with Logging*
 Printing full traces can bloat logs quickly.
 Configure your logging or sample captures.
 
 == Common Pitfalls
 
-. **Throwing `StackTrace` Instead of an Exception**
+. *Throwing `StackTrace` Instead of an Exception*
 It works, but `StackTrace` is not conceptually an error.
 Prefer throwing a regular exception with a `StackTrace` cause.
 
-. **Null Threads**
+. *Null Threads*
 `forThread(null)` returns `null`.
 Always handle that case.
 
-. **Duplicate Captures**
+. *Duplicate Captures*
 Capturing a trace in multiple places quickly grows logs.
 Do you need them before capturing?
 
-. **Overwriting Frames**
+. *Overwriting Frames*
 If you normally create a `StackTrace` (auto-populating frames) and then call it `setStackTrace(...)`, you lose the automatically captured frames.
 Decide whether you want to combine them or overwrite them fully.
 
@@ -291,12 +274,7 @@ Decide whether you want to combine them or overwrite them fully.
 
 [source,java]
 ----
-import net.openhft.chronicle.core.StackTrace;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class ThreadMonitor {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ThreadMonitor.class);
     private final Thread threadToMonitor;
 
     public ThreadMonitor(Thread threadToMonitor) {
@@ -308,7 +286,7 @@ public class ThreadMonitor {
         if (st != null) {
             // st is a Less instance
             // Log or store st
-            LOGGER.warn("Thread is stalled", st);
+            logger.warn("Thread is stalled", st);
         }
     }
 }
@@ -321,7 +299,7 @@ This is more lightweight than taking a full JVM thread dump.
 
 With the updated `StackTrace` class, you can:
 
-* Create a standard `StackTrace` for your current thread, including a message, cause, and a millisecond timestamp.
+* Create a standard `StackTrace` for your current thread, including a message, cause, and timestamp.
 * Use `forThread(Thread)` to capture another thread's frames (pruning the top-level native frame).
 * Integrate with Java 9+ `StackWalker` by leveraging `Less(String, StackTraceElement[])` to set precisely the frames you want-particularly helpful if you wish to filter or skip frames.
 
@@ -330,15 +308,14 @@ Use it judiciously to avoid performance overhead and log bloat in high-throughpu
 
 == Further Reading
 
-* *Official Chronicle Core Docs* - https://github.com/OpenHFT/Chronicle-Core
+* _Official Chronicle Core Docs_
 Learn about other low-latency and concurrency utilities in `chronicle-core`.
 
-* *Java Language Specification - Exceptions*
+* _Java Language Specification - Exceptions_
 Understand how stack traces are captured under the hood.
 
-* *StackWalker API (Java 9+)* - https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/StackWalker.html
-See the official Java docs for walking and filtering frames.
+* _StackWalker API (Java 9+)_
+See the official Java docs for details on walking and filtering frames.
 
-* *Logging Framework Guides* - https://www.slf4j.org/manual.html
-SLF4J, Log4j, Chronicle Logger, etc.
-Configure how exceptions and stack traces are formatted or suppressed.
+* _Logging Framework Guides_
+SLF4J, Log4j, Chronicle Logger, etc. Configure how exceptions and stack traces are formatted or suppressed.

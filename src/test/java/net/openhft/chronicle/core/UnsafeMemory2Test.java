@@ -405,13 +405,13 @@ public class UnsafeMemory2Test extends CoreTestCommon {
         long offset = memory.objectFieldOffset(num);
         final long addr = memory.allocate(Integer.BYTES);
         int expected = 97;
-        memory.unsafePutInt(addr, expected);
+        UnsafeMemory.unsafePutInt(addr, expected);
         MyDTO to = new MyDTO();
         memory.copyMemory(addr, to, offset, Integer.BYTES);
         assertEquals(expected, to.num);
         to.num = 75;
         memory.copyMemory(to, offset, addr, Integer.BYTES);
-        assertEquals(to.num, memory.unsafeGetInt(addr));
+        assertEquals(to.num, UnsafeMemory.unsafeGetInt(addr));
     }
 
     @Test

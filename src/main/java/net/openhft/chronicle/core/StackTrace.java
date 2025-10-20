@@ -106,7 +106,6 @@ public class StackTrace extends Throwable {
      */
     public StackTrace(String message, boolean addTimestamp) { this(message, null, addTimestamp); }
 
-
     /**
      * Creates a stack trace with the specified message and cause.
      *
@@ -185,6 +184,7 @@ public class StackTrace extends Throwable {
          * @param message the detail message for this stack trace.
          * @param stackTrace the stack trace elements for this stack trace.
          */
+        @SuppressWarnings("this-escape")
         public Less(String message, StackTraceElement[] stackTrace) {
             this(message);
             setStackTrace(stackTrace);

@@ -49,6 +49,7 @@ class ReadResolvableTest {
         }
     }
 
+    @SuppressWarnings("serial")
     // Serializable object not implementing ReadResolvable
     static class SerializableObject implements Serializable {
     }

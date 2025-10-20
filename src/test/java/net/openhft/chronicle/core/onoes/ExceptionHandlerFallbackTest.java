@@ -1,6 +1,7 @@
 package net.openhft.chronicle.core.onoes;
 
 import net.openhft.chronicle.core.Jvm;
+import org.junit.AssumptionViolatedException;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
@@ -18,8 +19,13 @@ class ExceptionHandlerFallbackTest {
     @Test
     void classShouldFallBackWhenDelegateThrows() throws IllegalAccessException {
         Field initializationState = Jvm.getField(LoggerFactory.class, "INITIALIZATION_STATE");
-        int state = initializationState.getInt(null);
-        initializationState.setInt(null, FAILED_INITIALIZATION);
+        int state;
+        try {
+            state = initializationState.getInt(null);
+            initializationState.setInt(null, FAILED_INITIALIZATION);
+        } catch (IllegalAccessException e) {
+            throw new AssumptionViolatedException(e.toString());
+        }
         try {
             Slf4jExceptionHandler.WARN.on(
                     ExceptionHandlerFallbackTest.class,

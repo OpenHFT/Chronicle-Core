@@ -17,10 +17,12 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.internal.Bootstrap;
+import net.openhft.chronicle.core.io.IORuntimeException;
 import net.openhft.chronicle.core.util.ClassLocal;
 import net.openhft.chronicle.core.util.ThrowingFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.LoggerFactory;
 import sun.nio.ch.FileChannelImpl;
 
 import javax.naming.TimeLimitExceededException;
@@ -35,15 +37,14 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.channels.FileChannel;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
-import static net.openhft.chronicle.core.util.Longs.*;
+import static net.openhft.chronicle.core.util.Longs.requireNonNegative;
+import static net.openhft.chronicle.core.util.Longs.requirePositive;
 
 /**
  * Low level access to OS class. The OS class provides utility methods related to the operating system.
@@ -72,10 +73,6 @@ public final class OS {
     });
     private static final String USER_DIR = Jvm.getProperty("user.dir");
     public static final String TMP = findTmp();
-    private static final Field FD_FIELD = Jvm.getField(FileChannelImpl.class, "fd");
-    private static final Field PATH_FIELD = Jvm.getFieldOrNull(FileChannelImpl.class, "path");
-    private static final String MMAP_ALLOWED_DIRS_PROP = "chronicle.core.mmap.allowedDirs";
-    private static final Path[] MMAP_ALLOWED_DIRS;
     private static final String TARGET = findTarget();
     private static final String USER_NAME = Jvm.getProperty("user.name");
     private static final int MAP_RO = 0;
@@ -84,10 +81,6 @@ public final class OS {
     private static final boolean IS64BIT = is64Bit0();
     private static final AtomicInteger PROCESS_ID = new AtomicInteger();
     private static final AtomicLong memoryMapped = new AtomicLong();
-    private static final MethodHandle UNMAPP0_MH;
-    private static final MethodHandle READ0_MH;
-    private static final MethodHandle WRITE0_MH;
-    private static final MethodHandle WRITE0_MH2;
     private static final String PROC_SELF = "/proc/self";
     private static final String PROC_SYS_KERNEL_PID_MAX = "/proc/sys/kernel/pid_max";
     private static int pageSize; // avoid circular initialisation
@@ -96,39 +89,7 @@ public final class OS {
     static {
         // make sure it is initialised first.
         Jvm.debug();
-        try {
-            Method unmap0;
-            if (Jvm.isJava20Plus()) {
-                Class<?> dispatcherClass = OS.isWindows() ? findClass("sun.nio.ch.FileDispatcherImpl") : findClass("sun.nio.ch.UnixFileDispatcherImpl");
-                unmap0 = Jvm.getMethod(dispatcherClass, "unmap0", long.class, long.class);
-            } else {
-                unmap0 = Jvm.getMethod(FileChannelImpl.class, "unmap0", long.class, long.class);
-            }
-            UNMAPP0_MH = MethodHandles.lookup().unreflect(unmap0);
-
-            Class<?> fdi = Class.forName("sun.nio.ch.FileDispatcherImpl");
-            Method read0 = Jvm.getMethod(fdi, "read0", FileDescriptor.class, long.class, int.class);
-            READ0_MH = MethodHandles.lookup().unreflect(read0);
-
-            final WriteZero wz = new WriteZero(fdi);
-            WRITE0_MH = wz.write0Mh;
-            WRITE0_MH2 = wz.write0Mh2;
-
-            String allowed = Jvm.getProperty(MMAP_ALLOWED_DIRS_PROP);
-            if (allowed == null || allowed.trim().isEmpty()) {
-                MMAP_ALLOWED_DIRS = null;
-            } else {
-                String[] parts = allowed.split(",");
-                MMAP_ALLOWED_DIRS = new Path[parts.length];
-                for (int i = 0; i < parts.length; i++)
-                    MMAP_ALLOWED_DIRS[i] = Paths.get(parts[i].trim()).toAbsolutePath().normalize();
-            }
-
-            TIME_LIMIT.setStackTrace(new StackTraceElement[0]);
-
-        } catch (IllegalAccessException | ClassNotFoundException e) {
-            throw new AssertionError(e);
-        }
+        TIME_LIMIT.setStackTrace(new StackTraceElement[0]);
     }
 
     // Suppresses default constructor, ensuring non-instantiability.
@@ -299,6 +260,7 @@ public final class OS {
     public static String getUserDir() {
         return USER_DIR;
     }
+
     /**
      * @return native memory accessor class
      */
@@ -350,6 +312,7 @@ public final class OS {
         // c.f. https://docs.microsoft.com/en-us/windows/win32/memory/creating-a-view-within-a-file
         return isWindows() ? SAFE_PAGE_SIZE : pageSize();
     }
+
     /**
      * Aligns the specified offset for a memory-mapped file based on the operating system's page size.
      * Memory mapping typically requires that the offset be aligned to the operating system's page size.
@@ -424,7 +387,6 @@ public final class OS {
      *
      * <p>
      * Note: Getting the process ID may be slow if the reserve DNS is not set up correctly.
-     * 
      *
      * @return the process ID
      */
@@ -529,7 +491,6 @@ public final class OS {
      */
     public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode, long start, long size, int pageSize)
             throws IOException, IllegalArgumentException {
-        enforceMMapWhitelist(fileChannel);
         if (isWindows() && size > 4L << 30)
             throw new IllegalArgumentException("Mapping more than 4096 MiB is unusable on Windows, size = " + (size >> 20) + " MiB");
         final long address = map0(fileChannel, imodeFor(mode), mapAlign(start, pageSize), pageAlign(size, pageSize));
@@ -554,10 +515,10 @@ public final class OS {
             // For now, access is assumed to be non-synchronous
             // TODO - Support passing/deducing synchronous flag externally
             if (Jvm.isJava20Plus()) {
-                final FileDescriptor fd = (FileDescriptor) FD_FIELD.get(fileChannel);
+                final FileDescriptor fd = (FileDescriptor) getFdField().get(fileChannel);
                 return (long) map0.invokeExact(fd, imode, start, size, false);
             } else if (Jvm.isJava19Plus()) {
-                final FileDescriptor fd = (FileDescriptor) FD_FIELD.get(fileChannel);
+                final FileDescriptor fd = (FileDescriptor) getFdField().get(fileChannel);
                 return (long) map0.invokeExact((FileChannelImpl) fileChannel, fd, imode, start, size, false);
             } else if (Jvm.isJava14Plus())
                 return (long) map0.invokeExact((FileChannelImpl) fileChannel, imode, start, size, false);
@@ -572,6 +533,10 @@ public final class OS {
         } catch (Throwable e) {
             throw new IOException(e);
         }
+    }
+
+    private static Field getFdField() {
+        return FDFieldHolder.FD_FIELD;
     }
 
     static long map0(@NotNull FileChannel fileChannel, int imode, long start, long size) throws IOException {
@@ -599,11 +564,15 @@ public final class OS {
         try {
             final long size2 = pageAlign(size, pageSize);
             // n must be used here
-            final int n = (int) UNMAPP0_MH.invokeExact(address, size2);
+            final int n = (int) getUnmapp0Mh().invokeExact(address, size2);
             memoryMapped.addAndGet(-size2);
         } catch (Throwable e) {
             throw asAnIOException(e);
         }
+    }
+
+    private static MethodHandle getUnmapp0Mh() {
+        return Unmapp0Holder.UNMAPP0_MH;
     }
 
     public static void unmap(long address, long size) throws IOException {
@@ -626,25 +595,6 @@ public final class OS {
         if (e instanceof IOException)
             return (IOException) e;
         return new IOException(e);
-    }
-
-    private static void enforceMMapWhitelist(FileChannel fileChannel) {
-        if (MMAP_ALLOWED_DIRS == null)
-            return;
-        if (PATH_FIELD == null)
-            throw new SecurityException("Cannot verify mapping directory");
-        try {
-            String pathStr = (String) PATH_FIELD.get(fileChannel);
-            if (pathStr == null)
-                throw new SecurityException("Unknown mapping path");
-            Path filePath = Paths.get(pathStr).toAbsolutePath().normalize();
-            for (Path dir : MMAP_ALLOWED_DIRS)
-                if (filePath.startsWith(dir))
-                    return;
-        } catch (IllegalAccessException e) {
-            throw new SecurityException("Cannot access mapping path", e);
-        }
-        throw new SecurityException("Mapping outside whitelisted directories: " + fileChannel);
     }
 
     static int imodeFor(FileChannel.MapMode mode) {
@@ -706,7 +656,7 @@ public final class OS {
 
     public static int read0(FileDescriptor fd, long address, int len) throws IOException {
         try {
-            return (int) READ0_MH.invokeExact(fd, address, len);
+            return (int) getRead0Mh().invokeExact(fd, address, len);
         } catch (IOException ioe) {
             throw ioe;
         } catch (Throwable e) {
@@ -714,12 +664,16 @@ public final class OS {
         }
     }
 
+    private static MethodHandle getRead0Mh() {
+        return Read0Holder.READ0_MH;
+    }
+
     public static int write0(FileDescriptor fd, long address, int len) throws IOException {
         try {
-            if (WRITE0_MH2 == null)
-                return (int) WRITE0_MH.invokeExact(fd, address, len);
+            if (Write0Holder.WRITE0_MH2 == null)
+                return (int) Write0Holder.WRITE0_MH.invokeExact(fd, address, len);
             else
-                return (int) WRITE0_MH2.invokeExact(fd, address, len, false);
+                return (int) Write0Holder.WRITE0_MH2.invokeExact(fd, address, len, false);
         } catch (IOException ioe) {
             throw ioe;
         } catch (Throwable e) {
@@ -729,21 +683,6 @@ public final class OS {
 
     private static boolean isSet(String s) {
         return !(s == null || s.isEmpty());
-    }
-
-    private static final class WriteZero {
-        private MethodHandle write0Mh = null;
-        private MethodHandle write0Mh2 = null;
-
-        public WriteZero(final Class<?> fdi) throws IllegalAccessException {
-            try {
-                Method write0 = Jvm.getMethod(fdi, "write0", FileDescriptor.class, long.class, int.class);
-                write0Mh = MethodHandles.lookup().unreflect(write0);
-            } catch (AssertionError ae) {
-                Method write0 = Jvm.getMethod(fdi, "write0", FileDescriptor.class, long.class, int.class, boolean.class);
-                write0Mh2 = MethodHandles.lookup().unreflect(write0);
-            }
-        }
     }
 
     static class IPAddressHolder {
@@ -818,6 +757,7 @@ public final class OS {
             }
         }
 
+        @SuppressWarnings("deprecation")
         static String execHostname() throws IOException {
             try (BufferedReader br = new BufferedReader(
                     new InputStreamReader(
@@ -825,6 +765,64 @@ public final class OS {
                                     .getInputStream()))) {
                 return br.readLine();
             }
+        }
+    }
+
+    static class FDFieldHolder {
+        static final Field FD_FIELD = Jvm.getField(FileChannelImpl.class, "fd");
+    }
+
+    static class Unmapp0Holder {
+        static final MethodHandle UNMAPP0_MH;
+
+        static {
+            Method unmap0;
+            if (Jvm.isJava20Plus()) {
+                Class<?> dispatcherClass = OS.isWindows() ? findClass("sun.nio.ch.FileDispatcherImpl") : findClass("sun.nio.ch.UnixFileDispatcherImpl");
+                unmap0 = Jvm.getMethod(dispatcherClass, "unmap0", long.class, long.class);
+            } else {
+                unmap0 = Jvm.getMethod(FileChannelImpl.class, "unmap0", long.class, long.class);
+            }
+            try {
+                UNMAPP0_MH = MethodHandles.lookup().unreflect(unmap0);
+            } catch (IllegalAccessException e) {
+                throw new IORuntimeException(e);
+            }
+        }
+    }
+
+    static class Read0Holder {
+        static final MethodHandle READ0_MH;
+        static {
+            try {
+                Class<?> fdi = Class.forName("sun.nio.ch.FileDispatcherImpl");
+                Method read0 = Jvm.getMethod(fdi, "read0", FileDescriptor.class, long.class, int.class);
+                READ0_MH = MethodHandles.lookup().unreflect(read0);
+            } catch (Throwable t) {
+                throw new IORuntimeException(t);
+            }
+        }
+    }
+
+    static class Write0Holder {
+        static final MethodHandle WRITE0_MH;
+        static final MethodHandle WRITE0_MH2;
+        static {
+            MethodHandle write0Mh = null, write0Mh2 = null;
+            try {
+                Class<?> fdi = Class.forName("sun.nio.ch.FileDispatcherImpl");
+                try {
+                    Method write0 = Jvm.getMethod(fdi, "write0", FileDescriptor.class, long.class, int.class);
+                    write0Mh = MethodHandles.lookup().unreflect(write0);
+                } catch (AssertionError ae) {
+                    Method write0 = Jvm.getMethod(fdi, "write0", FileDescriptor.class, long.class, int.class, boolean.class);
+                    write0Mh2 = MethodHandles.lookup().unreflect(write0);
+                }
+            } catch (Throwable t) {
+                throw new IORuntimeException(t);
+            }
+            WRITE0_MH = write0Mh;
+            WRITE0_MH2 = write0Mh2;
         }
     }
 }
