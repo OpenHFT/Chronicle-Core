@@ -12,8 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
+
 
 package net.openhft.chronicle.core.onoes;
 
@@ -23,37 +23,32 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 /**
- * NullExceptionHandler is an enumeration implementing the ExceptionHandler and IgnoresEverything interfaces.
- * It serves as a null object for the ExceptionHandler, providing default behavior that essentially does nothing
- * when an exception occurs. This is often used as a safer alternative to null.
- *
- * <ul>
- *     <li>{@link #NOTHING} - An ExceptionHandler that does nothing when an exception occurs and is not enabled for any class.</li>
- * </ul>
+ * Null-Object implementation of {@link ExceptionHandler} that ignores every event.
+ * <p>{@code isEnabled} always returns {@code false}.</p>
+ * @see ExceptionHandler
  */
 public enum NullExceptionHandler implements ExceptionHandler, IgnoresEverything {
     /**
-     * The NOTHING instance of this enumeration represents a no-op implementation of the ExceptionHandler.
+     * A no-op handler that is always disabled.
      */
     NOTHING {
         /**
-         * This implementation of {@link ExceptionHandler#on(Logger, String, Throwable)} does nothing.
+         * Ignores the supplied event.
          *
-         * @param logger  the logger instance. Must not be null.
-         * @param message a custom message detailing the error, or null.
-         * @param thrown  the throwable instance representing the error, or null.
+         * @param logger  ignored
+         * @param message ignored
+         * @param thrown  ignored
          */
         @Override
         public void on(@NotNull Logger logger, @Nullable String message, Throwable thrown) {
-            // Do nothing
+            // ignored
         }
 
         /**
-         * This implementation of {@link ExceptionHandler#isEnabled(Class)} always returns false,
-         * indicating that this handler is not enabled for any class.
+         * Always returns {@code false}.
          *
-         * @param aClass the class to check if the exception handler is enabled for. Must not be null.
-         * @return false, as this handler is not enabled for any class.
+         * @param aClass the class being checked
+         * @return {@code false}
          */
         @Override
         public boolean isEnabled(@NotNull Class<?> aClass) {

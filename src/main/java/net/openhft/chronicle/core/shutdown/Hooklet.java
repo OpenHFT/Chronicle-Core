@@ -21,11 +21,20 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 /**
- * A shutdown hook that allows running in controlled order.
+ * Unit of work that can be registered with {@link PriorityHook}.
+ * <p>
+ * Implementations should be effectively immutable. Registration may occur from
+ * many threads but each hooklet is executed sequentially by the shutdown
+ * thread.
+ *
+ * <p>Allocate unique priorities in the range {@code 0-100}. Smaller
+ * values execute first and should be used for higher-level components.
  */
 public abstract class Hooklet implements Comparable<Hooklet> {
     /**
-     * The callback which will be invoked on shutdown.
+     * Callback invoked by the shutdown thread.
+     * Implementations should return quickly and avoid long blocking
+     * operations.
      */
     public abstract void onShutdown();
 
@@ -50,7 +59,7 @@ public abstract class Hooklet implements Comparable<Hooklet> {
      * <p>
      * The default implementation returns this instance's class and should usually be sufficient.
      *
-     * @return Identity object.
+     * @return object used to identify the hooklet
      */
     protected Object identity() {
         return getClass();
@@ -61,11 +70,13 @@ public abstract class Hooklet implements Comparable<Hooklet> {
      * <p>
      * Hook callback class is used to check for identity, see {@link #identity()}.
      *
-     * @param priority See {@link #priority()}
-     * @param hook     See {@link #onShutdown()}
-     * @return Shutdown hook object. See {@link PriorityHook#addAndGet(Hooklet)}
+     * @param priority value returned by {@link #priority()}
+     * @param hook     action to run on shutdown
+     * @return hooklet wrapping the given action
+     * @throws NullPointerException if {@code hook} is {@code null}
      */
     public static Hooklet of(int priority, Runnable hook) {
+        Objects.requireNonNull(hook);
         return new Hooklet() {
             @Override
             public void onShutdown() {
@@ -84,6 +95,12 @@ public abstract class Hooklet implements Comparable<Hooklet> {
         };
     }
 
+    /**
+     * Orders hooklets by priority then identity.
+     *
+     * @param other hooklet to compare
+     * @return negative if this should run before {@code other}
+     */
     @Override
     public int compareTo(@NotNull Hooklet other) {
         int delta = priority() - other.priority();

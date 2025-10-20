@@ -48,7 +48,7 @@ public enum LongCondition implements LongPredicate {
 
     LongCondition(final long fromInclusive,
                   final long toInclusive) {
-        this.operation = "∈ [" + fromInclusive + ", " + toInclusive + "]";
+        this.operation = "in [" + fromInclusive + ", " + toInclusive + "]";
         this.predicate = value -> value >= fromInclusive && value <= toInclusive;
     }
 

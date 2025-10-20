@@ -19,16 +19,15 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.Jvm;
 
 /**
- * Represents an entity that owns a reference, typically for resource management. This interface
- * provides default methods for generating unique reference IDs and human-readable names for reference owners.
+ * Represents an entity that owns a reference, typically for resource management.
+ * Implementations supply a stable identity used when reserving or releasing a
+ * {@link ReferenceCounted} resource.
  * <p>
- * This can be useful, for example, in scenarios where it's necessary to track the owners of resources
- * such as file handles, network sockets, or any other entities that need to be managed throughout their lifecycle.
- * 
- * <p>
- * Implementations of this interface can be used to associate owners with references,
- * making it easier to monitor, debug, and manage resource ownership and ensure that resources are released properly.
- * 
+ * A {@code ReferenceOwner} is often passed to
+ * {@link ReferenceCounted#reserve(ReferenceOwner)} and later to
+ * {@link ReferenceCounted#release(ReferenceOwner)}. It enables tools such as
+ * {@link BackgroundResourceReleaser} to identify which owner failed to release
+ * its reservation.
  */
 public interface ReferenceOwner {
 

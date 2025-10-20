@@ -12,8 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
+
 
 package net.openhft.chronicle.core.onoes;
 
@@ -24,14 +24,13 @@ import java.io.StringWriter;
 import java.util.Objects;
 
 /**
- * Represents a unique key for an exception event. This key includes the log level,
- * the class where the exception occurred, a message associated with the exception,
- * and the Throwable instance. This key can be used to identify unique exceptions
- * for logging, monitoring, or other purposes.
- * <p>
- * The {@code ExceptionKey} class implements custom {@code equals} and {@code hashCode}
- * methods ensuring that two keys are equal if and only if all their fields are equal.
- * 
+ * Immutable key for an exception event.
+ * This class is thread-safe because all its fields are final.
+ * It encapsulates the log level, the originating class, a message and the
+ * associated {@link Throwable}.
+ *
+ * <p> The {@link #toString()} method builds a stack trace string and may
+ * be expensive.
  */
 public class ExceptionKey {
 

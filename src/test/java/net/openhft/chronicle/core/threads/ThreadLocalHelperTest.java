@@ -16,7 +16,6 @@ class ThreadLocalHelperTest {
         String value = ThreadLocalHelper.getTL(threadLocal, () -> "Value" + counter.incrementAndGet());
 
         assertEquals("Value1", value);
-        // Ensure the same value is retrieved and not recreated
         assertEquals("Value1", ThreadLocalHelper.getTL(threadLocal, () -> "Value" + counter.incrementAndGet()));
     }
 
@@ -27,7 +26,6 @@ class ThreadLocalHelperTest {
         String value = ThreadLocalHelper.getSTL(threadLocal, () -> "Value" + counter.incrementAndGet());
 
         assertEquals("Value1", value);
-        // Ensure the same value is retrieved and not recreated
         assertEquals("Value1", ThreadLocalHelper.getSTL(threadLocal, () -> "Value" + counter.incrementAndGet()));
     }
 
@@ -38,7 +36,6 @@ class ThreadLocalHelperTest {
         Integer value = ThreadLocalHelper.getTL(threadLocal, input, Integer::valueOf);
 
         assertEquals(123, value);
-        // Ensure the same value is retrieved and not recreated
         assertEquals(123, ThreadLocalHelper.getTL(threadLocal, "456", Integer::valueOf));
     }
 }

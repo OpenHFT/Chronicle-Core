@@ -28,12 +28,16 @@ import java.util.function.UnaryOperator;
 import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 
 /**
- * The CleaningThreadLocal class extends ThreadLocal and ensures that the resources held by
- * a CleaningThread are cleaned up if the thread dies.
+ * ThreadLocal whose values are cleaned when the owning {@link CleaningThread} terminates.
  * <p>
- * Note that this class does not clean up resources if the ThreadLocal instance itself is discarded.
+ * Discarding the CleaningThreadLocal instance without removing values can leak resources.
+ * <pre>
+ * final CleaningThreadLocal&lt;ExcerptAppender&gt; tl =
+ *         CleaningThreadLocal.withCloseQuietly(queue::acquireAppender);
+ * </pre>
+ * When the thread using the appender ends the instance is closed.
  *
- * @param <T> The type of resource this CleaningThreadLocal holds.
+ * @param <T> type of resource held
  */
 public class CleaningThreadLocal<T> extends ThreadLocal<T> {
     private static final Set<CleaningThreadLocal<?>> cleaningThreadLocals = Collections.synchronizedSet(new LinkedHashSet<>());
@@ -41,6 +45,7 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
     private final Supplier<T> supplier;
     private final Function<T, T> getWrapper;
     private final ThrowingConsumer<T, Exception> cleanup;
+    /** values from threads that are not {@link CleaningThread} */
     private Map<Thread, Object> nonCleaningThreadValues = null;
 
     /**
@@ -143,10 +148,8 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
     }
 
     /**
-     * Returns the initial value of this CleaningThreadLocal.
-     * This method is called once per thread when the thread first uses the get() method.
-     *
-     * @return The initial value.
+     * Returns the initial value and records it for later cleanup when the
+     * thread is not a {@link CleaningThread}.
      */
     @Override
     protected T initialValue() {

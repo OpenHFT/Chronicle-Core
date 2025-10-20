@@ -1,3 +1,18 @@
+/*
+ * Copyright 2025 chronicle.software
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package net.openhft.chronicle.core.scoped;
 
 import net.openhft.chronicle.core.io.Closeable;
@@ -7,12 +22,13 @@ import java.lang.ref.WeakReference;
 import java.util.function.Supplier;
 
 /**
- * A weak-referenced {@link ScopedResource} when the resource is acquired, we create
- * a strong reference to prevent it being GC'd while it's "in use". Upon return, the
- * strong reference is cleared, leaving only the weak reference thus allowing the
- * resource to be GC'd.
+ * A {@link ScopedResource} backed by a {@link WeakReference}. When the resource
+ * is acquired a strong reference is taken and released again on
+ * {@link #close()}. This allows the object to be reclaimed between usages. In
+ * contrast {@link StrongReferenceScopedResource} retains a strong reference for
+ * the lifetime of the wrapper.
  *
- * @param <T> The type of the contained resource
+ * @param <T> the type of the contained resource
  */
 public class WeakReferenceScopedResource<T> extends AbstractScopedResource<T> {
 
@@ -26,7 +42,9 @@ public class WeakReferenceScopedResource<T> extends AbstractScopedResource<T> {
     }
 
     /**
-     * Before acquire we check that the reference is populated and populate it if not
+     * Ensures a strong reference exists before the caller receives
+     * the resource. If the previous instance was reclaimed, a new one is
+     * obtained from the supplier.
      */
     @Override
     void preAcquire() {

@@ -380,10 +380,10 @@ public final class Jvm {
     }
 
     /**
-     * Append the provided {@code StackTraceElements} to the provided {@code stringBuilder} trimming some internal methods.
+     * Appends stack trace elements to the builder while skipping Chronicle internal frames.
      *
-     * @param stringBuilder      to append to
-     * @param stackTraceElements stack trace elements
+     * @param stringBuilder      destination for the stack trace
+     * @param stackTraceElements elements to append
      */
     public static void trimStackTrace(@NotNull final StringBuilder stringBuilder, @NotNull final StackTraceElement... stackTraceElements) {
         final int first = trimFirst(stackTraceElements);
@@ -910,7 +910,7 @@ public final class Jvm {
     }
 
     /**
-     * Inserts a low-cost Java safe-point in the code path if -Djvm.safepoint.enabled
+     * Inserts a low-cost Java safepoint when the {@code jvm.safepoint.enabled} property is set.
      */
     public static void safepoint() {
         if (SAFEPOINT_ENABLED) {
@@ -1275,7 +1275,16 @@ public final class Jvm {
                     .getDeclaredField("interruptor");
             ClassUtil.setAccessible(field);
             final CommonInterruptible ci = new CommonInterruptible(clazz, fc);
-            field.set(fc, (Interruptible) thread -> ci.interrupt());
+            field.set(fc, new Interruptible() {
+                @Override
+                public void interrupt(Thread target) {
+                    ci.interrupt();
+                }
+
+                public void postInterrupt() {
+                    // added in Java 23+
+                }
+            });
         } catch (Throwable e) {
             Jvm.warn().on(clazz, "Couldn't disable close on interrupt", e);
         }

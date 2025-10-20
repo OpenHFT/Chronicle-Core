@@ -17,13 +17,13 @@
 package net.openhft.chronicle.core.io;
 
 /**
- * The {@code Validatable} interface should be implemented by classes that require
- * validation of their state before being written through a method writer.
+ * Implement to provide a validation hook for the object.
  * <p>
- * Implementing this interface indicates that the object is capable of self-validation,
- * which is essential in contexts like serialization or communication where the integrity
- * and correctness of an object's state are crucial.
- * 
+ * Chronicle libraries call {@link ValidatableUtil#validate(Object)} before
+ * serialising method-writer arguments and it is common to invoke it from
+ * {@code toString()} whilst debugging. Validation can be temporarily disabled
+ * by wrapping the call in {@link ValidatableUtil#startValidateDisabled()} and
+ * {@link ValidatableUtil#endValidateDisabled()}.
  * <p>
  * Example usage:
  * <pre>
@@ -35,16 +35,13 @@ package net.openhft.chronicle.core.io;
  *
  *     {@literal @}Override
  *     public void validate() throws InvalidMarshallableException {
- *         if (name == null || name.isEmpty()) {
+ *         if (name == null || name.isEmpty())
  *             throw new InvalidMarshallableException("Name cannot be null or empty");
- *         }
- *         if (age == null || age &lt; 0) {
+ *         if (age == null || age &lt; 0)
  *             throw new InvalidMarshallableException("Age cannot be null or negative");
- *         }
  *     }
  * }
  * </pre>
- * 
  */
 public interface Validatable {
 

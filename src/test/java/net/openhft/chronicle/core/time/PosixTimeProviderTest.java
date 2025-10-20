@@ -26,17 +26,12 @@ import net.openhft.posix.PosixAPI;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
+import static net.openhft.chronicle.core.time.SystemTimeProviderTest.assertBetween;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 
 public class PosixTimeProviderTest extends CoreTestCommon {
-
-    static void assertBetween(long min, long actual, long max) {
-        if (min <= actual && actual <= max)
-            return;
-        throw new AssertionError("Not in range " + min + " <= " + actual + " <= " + max);
-    }
 
     public static void main(String[] args) {
         for (ClockId value : ClockId.values()) {

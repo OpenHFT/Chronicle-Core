@@ -12,8 +12,8 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
+
 
 package net.openhft.chronicle.core.threads;
 
@@ -26,8 +26,15 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Closeable;
 
 /**
- * A timer that can schedule tasks to be executed periodically or after a delay.
- * The timer can be used to perform tasks in a non-blocking manner using an event loop.
+ * A timer that schedules tasks on an {@link EventLoop}. Execution is best-effort;
+ * missed times do not accumulate a backlog.
+ *
+ * <p>Example usage:
+ * <pre>{@code
+ * try (Closeable c = timer.scheduleAtFixedRate(handler, 0L, 1000L)) {
+ *     // work while the handler runs
+ * }
+ * }</pre>
  */
 public class CancellableTimer {
 
@@ -39,7 +46,7 @@ public class CancellableTimer {
     /**
      * Constructs a CancellableTimer with the given event loop and system time provider.
      *
-     * @param eventLoop the event loop that the timer tasks will run on.
+     * @param eventLoop The event loop that the timer tasks will run on.
      */
     public CancellableTimer(@NotNull EventLoop eventLoop) {
         this(eventLoop, SystemTimeProvider.INSTANCE);
@@ -48,8 +55,8 @@ public class CancellableTimer {
     /**
      * Constructs a CancellableTimer with the given event loop and custom time provider.
      *
-     * @param eventLoop    the event loop that the timer tasks will run on.
-     * @param timeProvider the custom time provider to use for scheduling.
+     * @param eventLoop    The event loop that the timer tasks will run on.
+     * @param timeProvider The custom time provider to use for scheduling.
      */
     public CancellableTimer(@NotNull EventLoop eventLoop, @NotNull TimeProvider timeProvider) {
         this.eventLoop = eventLoop;
@@ -57,55 +64,57 @@ public class CancellableTimer {
     }
 
     /**
-     * uses the event loop thread to call the event handler periodically, the time that the event is
-     * called back is best-effort, but if the thread is busy that call back maybe delayed
+     * Schedules {@code eventHandler} for fixed-rate execution on the event loop.
+     * Timing is best-effort; missed runs are not queued.
      *
-     * @param eventHandler   the handler to be called back
-     * @param initialDelayMs how long in milliseconds to wait before being called back
-     * @param periodMs       the poll interval of being called
-     * @return a {@link Closeable} that when closed will abort any remaining scheduled calls
+     * @param eventHandler The handler to be invoked.
+     * @param initialDelay first wait in milliseconds before the handler runs.
+     * @param period       interval in milliseconds between executions.
+     * @return A {@link Closeable} that when closed aborts future executions.
      */
     public Closeable scheduleAtFixedRate(@NotNull VanillaEventHandler eventHandler,
-                                         long initialDelayMs,
-                                         long periodMs) {
+                                         long initialDelay,
+                                         long period) {
         final ScheduledEventHandler handler =
-                new ScheduledEventHandler(timeProvider, eventHandler, initialDelayMs, periodMs, HandlerPriority.TIMER);
+                new ScheduledEventHandler(timeProvider, eventHandler, initialDelay, period, HandlerPriority.TIMER);
         eventLoop.addHandler(handler);
         return handler;
     }
 
     /**
-     * uses the event loop thread to call the event handler periodically, the time that the event is
-     * called back is best-effort, but if the thread is busy that call back maybe delayed
+     * Schedules {@code eventHandler} for fixed-rate execution on the event loop.
+     * Timing is best-effort; missed runs are not queued.
      *
-     * @param eventHandler   the handler to be called back
-     * @param initialDelayMs how long in milliseconds to wait before being called back
-     * @param periodMs       the poll interval of being called
-     * @param priority       the priority of the event handler
-     * @return a {@link Closeable} that when closed will abort any remaining scheduled calls
+     * @param eventHandler The handler to be invoked.
+     * @param initialDelay first wait in milliseconds before the handler runs.
+     * @param period       interval in milliseconds between executions.
+     * @param priority     The priority of the event handler.
+     * @return A {@link Closeable} that when closed aborts future executions.
      */
     public Closeable scheduleAtFixedRate(@NotNull VanillaEventHandler eventHandler,
-                                         long initialDelayMs,
-                                         long periodMs,
+                                         long initialDelay,
+                                         long period,
                                          HandlerPriority priority) {
         final ScheduledEventHandler handler =
-                new ScheduledEventHandler(timeProvider, eventHandler, initialDelayMs, periodMs, priority);
+                new ScheduledEventHandler(timeProvider, eventHandler, initialDelay, period, priority);
         eventLoop.addHandler(handler);
         return handler;
     }
 
     /**
-     * Schedule a handler to run once after a delay
+     * Schedule {@code eventHandler} to run once after {@code delay} milliseconds.
+     * After the task executes an {@link InvalidEventHandlerException} is thrown
+     * internally to remove it from the event loop.
      *
-     * @param eventHandler   the handler to be called back
-     * @param initialDelayMs how long in milliseconds to wait before being called back
-     * @return a {@link Closeable} that when closed will abort any remaining scheduled calls
+     * @param eventHandler The handler to be invoked once.
+     * @param delay        how long in milliseconds to wait before the handler runs.
+     * @return A {@link Closeable} that when closed aborts future executions.
      */
-    public Closeable schedule(@NotNull Runnable eventHandler, long initialDelayMs) {
+    public Closeable schedule(@NotNull Runnable eventHandler, long delay) {
         final ScheduledEventHandler handler = new ScheduledEventHandler(timeProvider, () -> {
             eventHandler.run();
             throw new InvalidEventHandlerException("just runs once");
-        }, initialDelayMs, 0);
+        }, delay, 0);
         eventLoop.addHandler(handler);
         return handler;
     }

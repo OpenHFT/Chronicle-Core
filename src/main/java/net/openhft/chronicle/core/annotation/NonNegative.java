@@ -22,9 +22,36 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation that indicates the annotated element is expected to hold a non-negative value (i.e. {@code val >= 0}).
- * This can be applied to methods, fields, parameters, local variables, and types to specify constraints
- * or document the intended usage.
+ * {@code @NonNegative} declares that the annotated value must be zero or
+ * positive. It aids library maintainers and analysis tools in enforcing
+ * numerical contracts.
+ *
+ * <p><b>Retention and effect:</b> Stored in the class file but ignored by the
+ * runtime unless Chronicle tooling checks it.</p>
+ *
+ * {@code @NonNegative long size;}
+ *
+ * <table>
+ *   <caption>Sign-related annotations</caption>
+ *   <thead>
+ *     <tr><th>Annotation</th><th>Constraint</th></tr>
+ *   </thead>
+ *   <tbody>
+ *     <tr><td>{@link Negative}</td><td>{@code val &lt; 0}</td></tr>
+ *     <tr><td>{@link NonPositive}</td><td>{@code val &lt;= 0}</td></tr>
+ *     <tr><td>{@code @NonNegative}</td><td>{@code val &gt;= 0}</td></tr>
+ *     <tr><td>{@link Positive}</td><td>{@code val &gt; 0}</td></tr>
+ *   </tbody>
+ * </table>
+ *
+ * <pre>{@code
+ * void setSize(@NonNegative int size) {
+ *     assert size &gt;= 0;
+ * }
+ * }</pre>
+ *
+ * <p>These annotations are advisory and may be enforced with
+ * {@code ChronicleAssertions} or Java {@code assert}.</p>
  *
  * @see Negative
  * @see NonPositive
