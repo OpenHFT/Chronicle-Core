@@ -31,7 +31,7 @@ import java.util.function.Consumer;
  *            List&lt;String&gt; myList = new ArrayList&lt;&gt;();
  *            appender.update(myList);
  *            </pre>
- *            
+ *
  */
 @FunctionalInterface
 public interface Updater<T> extends Consumer<T> {

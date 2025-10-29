@@ -26,7 +26,7 @@ package net.openhft.chronicle.core.util;
  * <p>
  * This is a <a href="package-summary.html">functional longerface</a>
  * whose functional method is {@link #getAsLong()}.
- * 
+ *
  *
  * @param <T> the type of exception thrown by this supplier
  */

@@ -182,7 +182,7 @@ public interface AnalyticsFacade {
          * <p>
          * The key will be used as a Google Analytics "user property" key with the
          * associated value.
-         * 
+         *
          *
          * @param key   to associate
          * @param value to associate with the key
@@ -198,7 +198,7 @@ public interface AnalyticsFacade {
          * <p>
          * The key will be used as a Google Analytics "event parameter" key with the
          * associated value.
-         * 
+         *
          *
          * @param key   to associate
          * @param value to associate with the key

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- CORE-SB-201: GC retry path required for low-level mapping. Replace with segmented mapping once CORE-NF-P-201 lands. -->
+    <Match>
+        <Class name="net.openhft.chronicle.core.OS"/>
+        <Method name="lambda$map0$2"/>
+        <Bug pattern="DM_GC"/>
+    </Match>
+
+    <!-- CORE-SB-202: XmlDecoder stress path exercised locally; replace with safe harness under CORE-TEST-202. -->
+    <Match>
+        <Class name="net.openhft.chronicle.core.cooler.CpuCoolers$19"/>
+        <Method name="disturb"/>
+        <Bug pattern="XML_DECODER"/>
+    </Match>
+
+    <!-- CORE-SB-203: Clock override remains mutable for deterministic testing. Track injection redesign under CORE-TEST-203. -->
+    <Match>
+        <Class name="net.openhft.chronicle.core.time.SystemTimeProvider"/>
+        <Field name="CLOCK"/>
+        <Bug pattern="MS_SHOULD_BE_FINAL"/>
+    </Match>
+</FindBugsFilter>

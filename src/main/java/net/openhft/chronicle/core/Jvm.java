@@ -42,6 +42,7 @@ import java.lang.reflect.*;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.nio.channels.FileChannel;
 import java.nio.channels.spi.AbstractInterruptibleChannel;
 import java.nio.file.Paths;
@@ -1158,7 +1159,7 @@ public final class Jvm {
      *         <tr><td>0.75GiB</td><td>768 MiB</td></tr>
      *         <tr><td>0.001TiB</td><td>1.024 GiB</td></tr>
      *     </table>
-     * 
+     *
      *
      * @param value size to parse
      * @return the size
@@ -1397,7 +1398,7 @@ public final class Jvm {
 
         try {
             InputStreamReader isReader = new InputStreamReader(
-                    getRuntime().exec(command).getInputStream());
+                    getRuntime().exec(command).getInputStream(), Charset.defaultCharset());
 
             final BufferedReader bReader = new BufferedReader(isReader);
             String strLine;

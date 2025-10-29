@@ -1,0 +1,98 @@
+= UniqueMicroTimeProvider CAS Loop
+:lang: en-GB
+:source-highlighter: rouge
+
+The diagram below summarises the compare-and-swap loop used to ensure that each timestamp is unique across threads.
+
+ifdef::env-github[[source, mermaid]]
+ifndef::env-github[[mermaid]]
+....
+flowchart TD
+    Init["Fetch time from underlying provider"] --> ReadLast["Read lastIssuedTimeMicros"]
+    ReadLast --> Check{last >= proposed?}
+    Check -- yes --> Adjust["validate and set proposed = last + 1"]
+    Check -- no --> AttemptCAS
+    Adjust --> AttemptCAS["compareAndSet(last, proposed)"]
+    AttemptCAS --> Success{CAS successful?}
+    Success -- yes --> Return["return proposed"]
+    Success -- no --> Pause["Jvm.nanoPause"]
+    Pause --> ReadLast
+....
+
+== 1. Quick Overview
+
+`UniqueMicroTimeProvider` wraps another `TimeProvider` (by default `SystemTimeProvider`) and
+ensures _monotonic micro-second_ timestamps within a single JVM by holding the last value in an
+`AtomicLong`.
+The CAS loop guarantees *(a)* forward-only progression and *(b)* at most one micro-second of
+artificial skew, even when the underlying provider regresses or multiple threads call the method
+concurrently.
+
+== 2. Algorithm Walk-Through
+
+. _Fetch wall-clock_ – read `provider.currentTimeMicros()` into `proposed`.
+. _Read_ `lastIssuedTimeMicros` *atomically* to obtain `last`.
+. _Compare:_
+* If `last >= proposed` the wall clock did not advance (or went backwards).
+    `proposed` is bumped to `last + 1` to preserve uniqueness.
+* Otherwise keep the original `proposed`.
+. _CAS attempt_ – `compareAndSet(last, proposed)`.
+. _Success?_
+* *Yes:* return `proposed`.
+* *No:* some other thread inserted a newer value; execute a short
+    `Jvm.nanoPause()` spin and retry.
+
+NOTE: The _nanosecond_ and _millisecond_ methods follow the same logic; the ns flavour multiplies
+or divides as needed to stay aligned to the µs mesh.
+
+== 3. Formal Guarantees
+
+* *Uniqueness* – Two successive calls (`t1 < t2`) in any thread order yield `value(t1) < value(t2)`.
+* *Bounded Drift* – The timestamp can be ahead of the real wall clock by &lt; 1 µs ×
+  `MAX_CONCURRENT_CALLS_PER_MICROSECOND` (validated with assertions at runtime).
+* *Lock-free* – Only uses a single compare-and-swap; no blocking locks.
+
+== 4. Performance
+
+* _Typical latency:_ 45-80 ns on a modern x86_64 CPU (CAS hit + cache-hit).
+* _Worst case:_ &lt; 200 ns under heavy contention (retry loop adds an extra CAS and a nanospin).
+* _GC pressure:_ one `AtomicLong` field, no heap allocations.
+
+
+== 5. Common Pitfalls
+
+* *Micro vs Nano confusion* – `currentTimeNanos()` _may_ return a value that is _not_ strictly
+greater than the previous nano call if both happen inside the same microsecond.
+If you need
+  monotonic *ns* resolution, add another CAS layer or use `DistributedUniqueTimeProvider`.
+* *Clock leap-back* – When the system clock jumps backwards by &gt; 1 s the provider will “run
+hot” (issue future-looking timestamps) until real time catches up.
+This is usually harmless but
+  can surprise log readers.
+* *Mis-configuring tests* – Using `SetTimeProvider` under `UniqueMicroTimeProvider` can break
+  determinism unless you freeze the backing clock (`autoIncrement(0, NANOSECONDS)`).
+
+== 6. Usage Examples
+
+[source,java,opts=novalidate]
+----
+// 1.  Default (monotonic µs in-JVM)
+UniqueMicroTimeProvider clock = UniqueMicroTimeProvider.INSTANCE;
+
+// 2.  Swap in native clock for lower jitter
+clock.provider(PosixTimeProvider.INSTANCE);
+
+// 3.  Inject into Chronicle Queue builder
+SingleChronicleQueue queue = SingleChronicleQueueBuilder
+        .single("/var/queue/trades")
+        .timeProvider(clock)
+        .build();
+----
+
+== 7. Testing Strategy
+
+* *Unit tests* – Chronicle Core already contains `UniqueMicroTimeProviderTest` which spawns 50×50
+  threads and checks for uniqueness across 1 000 000 calls.
+* *Stress* – Use JLBH with a synthetic workload to assert that 99.99-ile latency ≤ 150 ns on your hardware.
+* *Fault injection* – Wrap a `SetTimeProvider` that deliberately moves backwards every 10 µs and
+  verify the returned sequence is still strictly increasing.

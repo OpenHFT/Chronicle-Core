@@ -23,7 +23,8 @@ However, it should be used with caution due to its low-level operations which, i
 
 Here is a summary of the library's key features:
 
-*Operating System Calls:* Chronicle-Core provides access to various system calls such as retrieving the process ID, checking the operating system, and obtaining the hostname, among others.
+=== Operating System Calls
+Chronicle-Core provides access to various system calls such as retrieving the process ID, checking the operating system, and obtaining the hostname, among others.
 
 [source,java]
 ----
@@ -34,11 +35,13 @@ String hostname = OS.getHostName();
 
 See the section on <<os-calls,OS Calls>>
 
-*JVM Access Methods:* To access platform specific features of the JVM.
+=== JVM Access Methods
+To access platform specific features of the JVM.
 
 See the section on <<jvm-access-methods,JVM Access Methods>>
 
-*Memory Mapped Files:* The library offers an interface for managing memory mapped files, which is useful for high-performance I/O operations.
+=== Memory Mapped Files
+The library offers an interface for managing memory mapped files, which is useful for high-performance I/O operations.
 
 [source,java]
 ----
@@ -48,9 +51,11 @@ OS.memory().writeLong(1024L, 0x1234567890ABCDEFL);
 OS.unmap(address, 64 << 10);
 ----
 
-*Deterministic Resource Management:* Chronicle-Core features components that can be closed or reference-counted, and released deterministically without waiting for garbage collection.
+=== Deterministic Resource Management
+Chronicle-Core features components that can be closed or reference-counted, and released deterministically without waiting for garbage collection.
 
-*Closeable Resources:* Chronicle-Core provides an interface for managing closeable resources, which are open when created and can't be used once closed.
+=== Closeable Resources
+Chronicle-Core provides an interface for managing closeable resources, which are open when created and can't be used once closed.
 This helps in preventing resource leaks.
 
 [source,java]
@@ -69,7 +74,8 @@ public class AbstractCloseableTest {
 }
 ----
 
-*Resource Reference Counting:* The library enables the use of reference counting for deterministic resource release.
+=== Resource Reference Counting
+The library enables the use of reference counting for deterministic resource release.
 A reference-counted resource can add reservations until it's closed.
 
 [source,java]
@@ -90,7 +96,8 @@ public class AbstractReferenceCountedTest {
 
 See the section on <<resource-reference-counting,Resource Reference Counting>>
 
-*Thread safety checks:* The library enables the use of thread safety checks for single-threaded components.
+=== Thread safety checks
+The library enables the use of thread safety checks for single-threaded components.
 See the section on <<thread-safety-checks,Thread Safety Checks>>
 
 This library also wraps up low level access to

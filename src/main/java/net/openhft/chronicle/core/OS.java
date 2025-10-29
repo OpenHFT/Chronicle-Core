@@ -22,7 +22,6 @@ import net.openhft.chronicle.core.util.ClassLocal;
 import net.openhft.chronicle.core.util.ThrowingFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.LoggerFactory;
 import sun.nio.ch.FileChannelImpl;
 
 import javax.naming.TimeLimitExceededException;
@@ -37,10 +36,12 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.channels.FileChannel;
-import java.security.SecureRandom;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 import static net.openhft.chronicle.core.util.Longs.requireNonNegative;
@@ -425,7 +426,7 @@ public final class OS {
             }
         }
         final int minPid = 2;
-        final int rpid = minPid + new SecureRandom().nextInt((1 << 16) - minPid);
+        final int rpid = minPid + ThreadLocalRandom.current().nextInt((1 << 16) - minPid);
         Jvm.warn().on(OS.class, "Unable to determine PID, picked a random number=" + rpid);
         return rpid;
     }
@@ -465,7 +466,7 @@ public final class OS {
             @NotNull File file = new File(PROC_SYS_KERNEL_PID_MAX);
             if (file.canRead())
                 try {
-                    try (Scanner scanner = new Scanner(file)) {
+                    try (Scanner scanner = new Scanner(file, StandardCharsets.US_ASCII.name())) {
                         return Maths.nextPower2(scanner.nextLong(), 1);
                     }
                 } catch (FileNotFoundException e) {
@@ -637,7 +638,7 @@ public final class OS {
         Process process = pb.start();
         @NotNull StringWriter sw = new StringWriter();
         char @NotNull [] chars = new char[1024];
-        try (@NotNull Reader r = new InputStreamReader(process.getInputStream())) {
+        try (@NotNull Reader r = new InputStreamReader(process.getInputStream(), Charset.defaultCharset())) {
             for (int len; (len = r.read(chars)) > 0; ) {
                 sw.write(chars, 0, len);
             }
@@ -762,7 +763,7 @@ public final class OS {
             try (BufferedReader br = new BufferedReader(
                     new InputStreamReader(
                             Runtime.getRuntime().exec("hostname")
-                                    .getInputStream()))) {
+                                    .getInputStream(), Charset.defaultCharset()))) {
                 return br.readLine();
             }
         }

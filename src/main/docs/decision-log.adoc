@@ -3,9 +3,9 @@
 :lang: en-GB
 :source-highlighter: rouge
 
-This file captures *component-specific* architectural decisions for the Chronicle Core library.
+This file captures _component-specific_ architectural decisions for the Chronicle Core library.
 Identifiers follow the
-`<Scope>-<Tag>-xxx` pattern mandated by the company-wide guidelines; numbers are unique within the *CORE* scope.
+`<Scope>-<Tag>-xxx` pattern mandated by the company-wide guidelines; numbers are unique within the _CORE_ scope.
 
 == Decision Index
 
@@ -22,10 +22,10 @@ Context::
 * Numerous Chronicle projects expressed difficulty tracing requirements to code and to ADRs.
 * A single, cross-project taxonomy is required for tooling (link-checks, changelogs).
 Decision Statement::
-* Chronicle Core **adopts** the Nine-Box tag set (`FN`, `NF-P`, `NF-S`, `NF-O`, `TEST`, `DOC`, `OPS`, `UX`, `RISK`) for all requirement and decision identifiers.
+* Chronicle Core *adopts* the Nine-Box tag set (`FN`, `NF-P`, `NF-S`, `NF-O`, `TEST`, `DOC`, `OPS`, `UX`, `RISK`) for all requirement and decision identifiers.
 Alternatives Considered::
-* *Free-form tags* - flexible but unsearchable; high risk of duplication.
-* *SAFe epic/capability IDs* - too coarse for low-level library work.
+* _Free-form tags_ - flexible but unsearchable; high risk of duplication.
+* _SAFe epic/capability IDs_ - too coarse for low-level library work.
 Rationale for Decision::
 * Provides immediate traceability across projects with minimal ceremony.
 * Aligns with company-wide governance already approved under `ALL-DOC-100`.
@@ -42,11 +42,11 @@ Context::
 * Off-heap memory and mmap handles are invisible to the JVM GC.
 * Production leaks previously caused kernel `ENFILE` (too many open files) errors.
 Decision Statement::
-* All classes that manage native resources **MUST** extend `AbstractCloseable`
-*and* implement `ReferenceCounted` when those resources are shareable.
+* All classes that manage native resources *MUST* extend `AbstractCloseable`
+_and_ implement `ReferenceCounted` when those resources are shareable.
 Alternatives Considered::
-* *Rely on `finalize()`* - deprecated in JDK 18; unpredictable latency.
-* *Cleaner API* - safer, but incurs allocation-heavy reachability fences.
+* _Rely on `finalize()`_ - deprecated in JDK 18; unpredictable latency.
+* _Cleaner API_ - safer, but incurs allocation-heavy reachability fences.
 Rationale for Decision::
 * `AbstractCloseable` already proven in Queue/Bytes with micros-level overhead.
 * Reference counting guarantees orderly teardown in multi-thread/process use cases.
@@ -66,10 +66,10 @@ Context::
 Decision Statement::
 * Introduce optional system property `chronicle.core.mmap.allowedDirs`
 (comma-separated list).
-When set, **any** attempt to memory-map a file outside these directories fails fast with a `SecurityException`.
+When set, *any* attempt to memory-map a file outside these directories fails fast with a `SecurityException`.
 Alternatives Considered::
-* *Do nothing* - cheaper but fails compliance for tier-1 banks.
-* *Java SecurityManager checks* - SecurityManager removed in JDK 18.
+* _Do nothing_ - cheaper but fails compliance for tier-1 banks.
+* _Java SecurityManager checks_ - SecurityManager removed in JDK 18.
 Rationale for Decision::
 * Simple, zero-allocation check; satisfies audit without penalising normal users (property unset = current behaviour).
 Impact & Consequences::
@@ -90,8 +90,8 @@ Decision Statement::
 When system property `chronicle.core.backgroundRelease=true` is set,
 `AbstractCloseable.performClose()` submits the heavy deallocation to this low-priority thread, returning immediately.
 Alternatives Considered::
-* *Always release synchronously* - simplest, but violates latency SLOs.
-* *Thread-pool per caller* - avoids single bottleneck but over-complex.
+* _Always release synchronously_ - simplest, but violates latency SLOs.
+* _Thread-pool per caller_ - avoids single bottleneck but over-complex.
 Rationale for Decision::
 * Keeps hot path predictable; opt-in preserves zero-thread baseline for most users.
 Impact & Consequences::
@@ -112,8 +112,8 @@ Decision Statement::
 `chronicle.init.runnable` and `chronicle.postinit.runnable` system properties.
 * Support `ChronicleInitRunnable` implementations discovered via `ServiceLoader`.
 Alternatives Considered::
-* *Static blocks in `Jvm`* - simple but hard to extend by user code.
-* *External bootstrap scripts* - violate embedability and complicate deployment.
+* _Static blocks in `Jvm`_ - simple but hard to extend by user code.
+* _External bootstrap scripts_ - violate embedability and complicate deployment.
 Rationale for Decision::
 * Gives applications controlled extension points without requiring code changes.
 Impact & Consequences::

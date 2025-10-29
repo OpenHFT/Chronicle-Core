@@ -24,7 +24,7 @@ import net.openhft.chronicle.core.time.UniqueMicroTimeProvider;
  * <p>
  * For this to work, currentTimeMillis (or one of the methods that calls it) must be called more frequently than
  * every millisecond; the EventLoop implementations in chronicle-threads do this.
- * 
+ *
  */
 public final class Time {
     private Time() {
