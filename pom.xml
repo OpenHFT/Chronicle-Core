@@ -48,6 +48,7 @@
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
         <jacoco.line.coverage>0.80</jacoco.line.coverage>
         <jacoco.branch.coverage>0.70</jacoco.branch.coverage>
+        <chronicle-quality-rules.version>1.23ea6</chronicle-quality-rules.version>
         <mockito.version>4.9.0</mockito.version>
     </properties>
 
@@ -342,8 +343,8 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-                <jacoco.line.coverage>0.0</jacoco.line.coverage>
-                <jacoco.branch.coverage>0.0</jacoco.branch.coverage>
+                <jacoco.line.coverage>0.73</jacoco.line.coverage>
+                <jacoco.branch.coverage>0.62</jacoco.branch.coverage>
             </properties>
             <build>
                 <plugins>
@@ -352,7 +353,7 @@
                         <artifactId>maven-checkstyle-plugin</artifactId>
                         <version>${checkstyle.version}</version>
                         <configuration>
-                            <configLocation>src/main/config/checkstyle.xml</configLocation>
+                            <configLocation>net/openhft/quality/checkstyle/checkstyle.xml</configLocation>
                             <consoleOutput>true</consoleOutput>
                             <failOnViolation>true</failOnViolation>
                             <violationSeverity>warning</violationSeverity>
@@ -363,6 +364,11 @@
                                 <groupId>com.puppycrawl.tools</groupId>
                                 <artifactId>checkstyle</artifactId>
                                 <version>${puppycrawl.version}</version>
+                            </dependency>
+                            <dependency>
+                                <groupId>net.openhft</groupId>
+                                <artifactId>chronicle-quality-rules</artifactId>
+                                <version>${chronicle-quality-rules.version}</version>
                             </dependency>
                         </dependencies>
                         <executions>
@@ -381,7 +387,6 @@
                         <version>${spotbugs.version}</version>
                         <configuration>
                             <effort>Max</effort>
-                            <threshold>High</threshold>
                             <failOnError>true</failOnError>
                             <excludeFilterFile>src/main/config/spotbugs-exclude.xml</excludeFilterFile>
                             <plugins>

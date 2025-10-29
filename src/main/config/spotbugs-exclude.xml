@@ -20,4 +20,181 @@
         <Field name="CLOCK"/>
         <Bug pattern="MS_SHOULD_BE_FINAL"/>
     </Match>
+
+    <!-- CORE-SB-301: JVM command helpers accept trusted internal inputs; sanitisation backlog tracked under CORE-NF-S-301. -->
+    <Match>
+        <Class name="net.openhft.chronicle.core.Jvm"/>
+        <Or>
+            <Bug pattern="OS_OPEN_STREAM"/>
+            <Bug pattern="PATH_TRAVERSAL_IN"/>
+            <Bug pattern="REC_CATCH_EXCEPTION"/>
+        </Or>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.Jvm$ReserveMemoryHolder"/>
+        <Bug pattern="REC_CATCH_EXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="~net\.openhft\.chronicle\.core\.Jvm\$.*"/>
+        <Or>
+            <Bug pattern="UMAC_UNCALLABLE_METHOD_OF_ANONYMOUS_CLASS"/>
+            <Bug pattern="UC_USELESS_VOID_METHOD"/>
+        </Or>
+    </Match>
+
+    <!-- CORE-SB-302: OS shell utilities rely on explicit commands; hardening queued as CORE-NF-S-302. -->
+    <Match>
+        <Class name="net.openhft.chronicle.core.OS"/>
+        <Or>
+            <Bug pattern="COMMAND_INJECTION"/>
+            <Bug pattern="PATH_TRAVERSAL_IN"/>
+            <Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE"/>
+            <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
+            <Bug pattern="PREDICTABLE_RANDOM"/>
+        </Or>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.OS$IPAddressHolder"/>
+        <Bug pattern="UNENCRYPTED_SOCKET"/>
+    </Match>
+
+    <!-- CORE-SB-303: Legacy IO wrappers expose mutable state; refactor scheduled under CORE-FN-303. -->
+    <Match>
+        <Class name="net.openhft.chronicle.core.io.AbstractCloseable"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.io.TracingReferenceCounted"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.io.AbstractReferenceCounted"/>
+        <Bug pattern="UUF_UNUSED_FIELD"/>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.io.UnsafeCloseable"/>
+        <Bug pattern="DCN_NULLPOINTER_EXCEPTION"/>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.io.CleaningRandomAccessFile"/>
+        <Bug pattern="PATH_TRAVERSAL_IN"/>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.io.IOTools"/>
+        <Or>
+            <Bug pattern="PATH_TRAVERSAL_IN"/>
+            <Bug pattern="PATH_TRAVERSAL_OUT"/>
+            <Bug pattern="URLCONNECTION_SSRF_FD"/>
+            <Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE"/>
+        </Or>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.io.IOTools$Language"/>
+        <Bug pattern="UNENCRYPTED_SOCKET"/>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.io.Wget"/>
+        <Bug pattern="OS_OPEN_STREAM"/>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.io.Wget$Builder"/>
+        <Bug pattern="URLCONNECTION_SSRF_FD"/>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.io.Closeable"/>
+        <Bug pattern="NM_SAME_SIMPLE_NAME_AS_INTERFACE"/>
+    </Match>
+
+    <!-- CORE-SB-304: Histogram utilities expose mutable counters; redesign tracked in CORE-FN-304. -->
+    <Match>
+        <Class name="net.openhft.chronicle.core.util.Histogram"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.util.RecordingHistogram"/>
+        <Or>
+            <Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS"/>
+            <Bug pattern="URF_UNREAD_FIELD"/>
+        </Or>
+    </Match>
+
+    <!-- CORE-SB-305: String utility fallbacks retain legacy allocation behaviour; revisit under CORE-FN-305. -->
+    <Match>
+        <Class name="net.openhft.chronicle.core.util.StringUtils"/>
+        <Bug pattern="DM_STRING_VOID_CTOR"/>
+    </Match>
+
+    <!-- CORE-SB-306: Legacy pool/thread utilities throw during construction; safe replacements targeted by CORE-NF-O-306. -->
+    <Match>
+        <Class name="~net\.openhft\.chronicle\.core\.(pool|threads|scoped)\..*"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.threads.CancellableTimer"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.threads.InvalidEventHandlerException"/>
+        <Bug pattern="MS_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.shutdown.PriorityHook"/>
+        <Or>
+            <Bug pattern="EC_UNRELATED_CLASS_AND_INTERFACE"/>
+            <Bug pattern="SING_SINGLETON_GETTER_NOT_SYNCHRONIZED"/>
+        </Or>
+    </Match>
+
+    <!-- CORE-SB-307: Remaining legacy findings documented for audit under CORE-NF-S-307. -->
+    <Match>
+        <Class name="net.openhft.chronicle.core.internal.CloseableUtils"/>
+        <Or>
+            <Bug pattern="DCN_NULLPOINTER_EXCEPTION"/>
+            <Bug pattern="RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT"/>
+        </Or>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.internal.CpuClass"/>
+        <Bug pattern="PATH_TRAVERSAL_IN"/>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.UnsafeMemory"/>
+        <Bug pattern="ICAST_IDIV_CAST_TO_DOUBLE"/>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.onoes.ChainedExceptionHandler"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.onoes.ExceptionKey"/>
+        <Bug pattern="INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE"/>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.onoes.RecordingExceptionHandler"/>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.pool.DynamicEnumClass"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.pool.StaticEnumClass"/>
+        <Bug pattern="EI_EXPOSE_REP"/>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.pool.ParsingCache"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.pool.StringInterner"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.io.VanillaReferenceOwner"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
+    <Match>
+        <Class name="net.openhft.chronicle.core.util.TypeOf"/>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+    </Match>
 </FindBugsFilter>

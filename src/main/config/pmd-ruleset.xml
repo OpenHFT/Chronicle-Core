@@ -4,7 +4,7 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.net/ruleset_2_0_0.xsd">
 
-    <description>Baseline Chronicle rule selection used by the code-review profile.</description>
+    <description>Baseline Chronicle rule selection used by the code-review profile. Additional rules (NullAssignment, AvoidInstantiatingObjectsInLoops) remain tracked in TODO for follow-up once legacy cleanup lands.</description>
 
     <rule ref="category/java/errorprone.xml/EmptyCatchBlock">
         <properties>
