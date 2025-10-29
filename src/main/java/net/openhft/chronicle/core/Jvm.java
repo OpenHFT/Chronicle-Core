@@ -1716,9 +1716,11 @@ public final class Jvm {
                 } else {
                     reservedMemoryGetter = ThrowingSupplier.asSupplier(() -> f.getLong(null));
                 }
-            } catch (Exception e) {
-                if (MAX_DIRECT_MEMORY > 0)
+            } catch (ReflectiveOperationException | SecurityException e) {
+                if (MAX_DIRECT_MEMORY > 0) {
+                    Jvm.warn().on(Jvm.class, "Unable to determine reserved direct memory", e);
                     System.err.println(Jvm.class.getName() + ": Unable to determine the reservedMemory value, will always report 0");
+                }
                 reservedMemoryGetter = () -> 0L;
             }
             reservedMemory = reservedMemoryGetter;

@@ -24,6 +24,7 @@ class WgetTest {
         String expected = "hello world";
         Wget wget = new Wget.Builder()
                 .connectionProvider(u -> new ByteArrayInputStream(expected.getBytes(StandardCharsets.UTF_8)))
+                .allowLocalHosts()
                 .build();
         StringBuilder sb = new StringBuilder();
         wget.fetch("http://does.not.matter", sb);
@@ -34,6 +35,7 @@ class WgetTest {
     void invalid_scheme_throws_MalformedURLException() {
         Wget wget = new Wget.Builder()
                 .connectionProvider(u -> new ByteArrayInputStream(new byte[0]))
+                .allowLocalHosts()
                 .build();
         assertThrows(IOException.class, () -> wget.fetch("ftp://example.com", new StringBuilder()));
     }
@@ -42,6 +44,7 @@ class WgetTest {
     void null_appendable_throws() {
         Wget wget = new Wget.Builder()
                 .connectionProvider(u -> new ByteArrayInputStream(new byte[0]))
+                .allowLocalHosts()
                 .build();
         assertThrows(NullPointerException.class, () -> wget.fetch("http://x", null));
     }
@@ -52,6 +55,7 @@ class WgetTest {
         Wget wget = new Wget.Builder()
                 .connectionProvider(u -> new ByteArrayInputStream(five))
                 .maxResponseBytes(5)
+                .allowLocalHosts()
                 .build();
         StringBuilder sb = new StringBuilder();
         wget.fetch("http://x", sb);
@@ -69,6 +73,7 @@ class WgetTest {
             Wget wget = new Wget.Builder()
                     .connectionProvider(u -> neverEnding)
                     .maxResponseBytes(128)
+                    .allowLocalHosts()
                     .build();
             assertThrows(IOException.class, () -> wget.fetch("http://x", new StringBuilder()));
         }
@@ -80,6 +85,7 @@ class WgetTest {
                 .connectionProvider(u -> {
                     throw new IOException("boom");
                 })
+                .allowLocalHosts()
                 .build();
         assertThrows(IOException.class, () -> wget.fetch("http://x", new StringBuilder()));
     }
@@ -90,6 +96,7 @@ class WgetTest {
         Wget wget = new Wget.Builder()
                 .connectionProvider(u -> new ByteArrayInputStream(cafe))
                 .charsetDetector((in, ct) -> null)
+                .allowLocalHosts()
                 .build();
         StringBuilder sb = new StringBuilder();
         wget.fetch("http://x", sb);
@@ -116,6 +123,7 @@ class WgetTest {
         };
         Wget wget = new Wget.Builder()
                 .connectionProvider(u -> new ByteArrayInputStream("x".getBytes()))
+                .allowLocalHosts()
                 .build();
         assertThrows(IOException.class, () -> wget.fetch("http://x", broken));
     }
@@ -131,6 +139,7 @@ class WgetTest {
     void fetch_is_thread_safe_when_instance_is_shared() throws Exception {
         Wget wget = new Wget.Builder()
                 .connectionProvider(u -> new ByteArrayInputStream("ok".getBytes()))
+                .allowLocalHosts()
                 .build();
         ExecutorService pool = Executors.newFixedThreadPool(4);
         AtomicInteger successes = new AtomicInteger();
@@ -161,6 +170,7 @@ class WgetTest {
         Wget empty = new Wget.Builder()
                 .connectionProvider(u -> new ByteArrayInputStream(new byte[0]))
                 .maxResponseBytes(0)
+                .allowLocalHosts()
                 .build();
         StringBuilder sb = new StringBuilder();
         empty.fetch("http://x", sb);
@@ -169,6 +179,7 @@ class WgetTest {
         Wget tooMuch = new Wget.Builder()
                 .connectionProvider(u -> new ByteArrayInputStream("x".getBytes()))
                 .maxResponseBytes(0)
+                .allowLocalHosts()
                 .build();
         assertThrows(IOException.class, () -> tooMuch.fetch("http://x", new StringBuilder()));
     }
@@ -196,6 +207,7 @@ class WgetTest {
                 .charsetDetector((in, ct) -> {
                     throw new RuntimeException("boom");
                 })
+                .allowLocalHosts()
                 .build();
         assertThrows(RuntimeException.class, () -> wget.fetch("http://x", new StringBuilder()));
     }

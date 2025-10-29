@@ -22,9 +22,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.UnknownHostException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -55,6 +57,7 @@ public final class Wget {
         private int  connectTimeoutMs = 10_000;
         private int  readTimeoutMs    = 10_000;
         private long maxResponseBytes = 10L << 20; // 10 MiB
+        private boolean enforcePublicEndpoints = true;
 
         public Builder connectionProvider(final ConnectionProvider p) { this.connectionProvider = Objects.requireNonNull(p); return this; }
         public Builder charsetDetector   (final CharsetDetector d)    { this.charsetDetector    = Objects.requireNonNull(d); return this; }
@@ -63,6 +66,11 @@ public final class Wget {
         public Builder maxResponseBytes  (final long v)               { if (v < 0) throw new IllegalArgumentException("maxResponseBytes must be >= 0"); this.maxResponseBytes = v; return this; }
 
         /** Creates a {@link Wget} with defaults or caller-supplied overrides. */
+        public Builder allowLocalHosts() {
+            this.enforcePublicEndpoints = false;
+            return this;
+        }
+
         public Wget build() {
             ConnectionProvider cp = this.connectionProvider;
             if (cp == DEFAULT_PROVIDER) {                      // wrap default provider to apply time-outs
@@ -77,20 +85,23 @@ public final class Wget {
                     return conn.getInputStream();
                 };
             }
-            return new Wget(cp, charsetDetector, maxResponseBytes);
+            return new Wget(cp, charsetDetector, maxResponseBytes, enforcePublicEndpoints);
         }
     }
 
     private final ConnectionProvider connectionProvider;
     private final CharsetDetector    charsetDetector;
     private final long               maxResponseBytes;
+    private final boolean            enforcePublicEndpoints;
 
     private Wget(final ConnectionProvider cp,
                  final CharsetDetector cd,
-                 final long maxBytes) {
+                 final long maxBytes,
+                 final boolean enforcePublicEndpoints) {
         this.connectionProvider = cp;
         this.charsetDetector    = cd;
         this.maxResponseBytes   = maxBytes;
+        this.enforcePublicEndpoints = enforcePublicEndpoints;
     }
 
     private static final int MAX_URL_LENGTH = 2_048;
@@ -109,6 +120,8 @@ public final class Wget {
         final String scheme = u.getProtocol();
         if (!"http".equals(scheme) && !"https".equals(scheme))
             throw new MalformedURLException("Only http/https allowed, not " + scheme);
+        if (enforcePublicEndpoints)
+            enforcePublicEndpoint(u);
 
         try (InputStream raw     = connectionProvider.open(u);
              InputStream limited = new LimitedInputStream(raw, maxResponseBytes)) {
@@ -119,6 +132,27 @@ public final class Wget {
             Reader reader = new BufferedReader(new InputStreamReader(limited, cs));
             for (int ch; (ch = reader.read()) != -1; )
                 out.append((char) ch);
+        }
+    }
+
+    /**
+     * Rejects URLs that resolve to loopback, link-local, site-local or wildcard addresses.
+     * Callers that genuinely need to talk to such endpoints can supply a custom
+     * {@link ConnectionProvider}.
+     */
+    private static void enforcePublicEndpoint(final URL url) throws MalformedURLException {
+        final String host = url.getHost();
+        if (host == null || host.isEmpty())
+            throw new MalformedURLException("URL must include a host");
+        try {
+            final InetAddress resolved = InetAddress.getByName(host);
+            if (resolved.isAnyLocalAddress() ||
+                    resolved.isLoopbackAddress() ||
+                    resolved.isLinkLocalAddress() ||
+                    resolved.isSiteLocalAddress())
+                throw new MalformedURLException("Refusing to connect to non-public host: " + host);
+        } catch (UnknownHostException e) {
+            throw new MalformedURLException("Unable to resolve host: " + host);
         }
     }
 }
