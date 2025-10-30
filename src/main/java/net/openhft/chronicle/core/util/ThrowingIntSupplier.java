@@ -27,7 +27,6 @@ package net.openhft.chronicle.core.util;
  * This is a <a href="package-summary.html">functional interface</a>
  * whose functional method is {@link #getAsInt()}.
  *
- *
  * @param <T> the type of exception thrown by this supplier
  */
 @FunctionalInterface

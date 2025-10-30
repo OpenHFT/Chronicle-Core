@@ -50,7 +50,6 @@ public interface ReferenceOwner {
      * When resource tracing is enabled, a new {@link VanillaReferenceOwner} is created with the specified name.
      * Otherwise, the predefined {@link ReferenceOwner#TMP} instance is returned, regardless of the provided name.
      *
-     *
      * @param name The name to be assigned to the temporary reference owner, used for identification and debugging purposes.
      * @return A temporary  instance.
      */
@@ -64,7 +63,6 @@ public interface ReferenceOwner {
      * <p>
      * The default implementation uses the identity hash code of this reference owner instance as the ID.
      *
-     *
      * @return An integer representing the unique reference ID of this owner.
      */
     default int referenceId() {
@@ -77,7 +75,6 @@ public interface ReferenceOwner {
      * <p>
      * The default implementation generates a name using the simple class name of the reference owner,
      * followed by '@', and then the reference ID encoded in base 36.
-     *
      *
      * @return A string representing the human-readable name of this reference owner.
      */

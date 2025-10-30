@@ -22,16 +22,15 @@ import java.util.function.Consumer;
  *
  * <p>Similar to {@link Consumer}, but unlike Consumer, Updater is explicitly
  * expected to perform modifications on its argument.
+ * <p>
+ * Example usage:
+ * <pre>
+ * Updater&lt;List&lt;String&gt;&gt; appender = list -&gt; list.add("newElement");
+ * List&lt;String&gt; myList = new ArrayList&lt;&gt;();
+ * appender.update(myList);
+ * </pre>
  *
  * @param <T> the type of the input to the operation
- *
- *            <p>Example usage:
- *            <pre>
- *            Updater&lt;List&lt;String&gt;&gt; appender = list -&gt; list.add("newElement");
- *            List&lt;String&gt; myList = new ArrayList&lt;&gt;();
- *            appender.update(myList);
- *            </pre>
- *
  */
 @FunctionalInterface
 public interface Updater<T> extends Consumer<T> {

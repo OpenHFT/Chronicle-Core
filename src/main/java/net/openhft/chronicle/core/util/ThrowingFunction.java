@@ -28,7 +28,6 @@ import java.util.function.Function;
  * This is a <a href="package-summary.html">functional interface</a>
  * whose functional method is {@link #apply(Object)}.
  *
- *
  * @param <I> the type of the input to the function
  * @param <T> the type of Throwable thrown
  * @param <R> the type of the result of the function
