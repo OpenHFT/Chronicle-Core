@@ -96,7 +96,7 @@ public final class BackgroundResourceReleaser {
      * <p>
      * It should be called during the shutdown process to release any resources that have not been
      * released yet.
-     * 
+     *
      */
     public static void stop() {
         stopping = true;
@@ -152,7 +152,7 @@ public final class BackgroundResourceReleaser {
      * <p>
      * Should be called when you want to make sure that all the resources that have been
      * queued for release are actually released.
-     * 
+     *
      */
     public static void releasePendingResources() {
         boolean interrupted = Thread.interrupted();

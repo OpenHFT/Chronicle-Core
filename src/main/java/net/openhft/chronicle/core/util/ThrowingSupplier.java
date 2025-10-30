@@ -32,7 +32,6 @@ import java.util.function.Supplier;
  * <p>
  * This is a <a href="package-summary.html">functional interface</a>
  * whose functional method is {@link #get()}.
- * 
  *
  * @param <V> the type of results supplied by this supplier
  * @param <T> the type of exception thrown by this supplier

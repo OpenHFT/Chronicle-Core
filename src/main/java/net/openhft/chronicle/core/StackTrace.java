@@ -66,7 +66,7 @@ import java.util.concurrent.TimeUnit;
  * Taking a StackTrace isn't free; however, if used judiciously, it can be utilized in production
  * to provide on-demand profiling.
  * <p>
- * For a deep dive into the StackTrace class see <a href="https://github.com/OpenHFT/Chronicle-Core/tree/ea/src/main/adoc/StackTrace-user-guide.adoc">StackTrace User Guide.adoc</a>
+ * For a deep dive into the StackTrace class see <a href="https://github.com/OpenHFT/Chronicle-Core/tree/ea/src/main/docs/StackTrace-user-guide.adoc">StackTrace User Guide.adoc</a>
  */
 public class StackTrace extends Throwable {
     private static final long serialVersionUID = 1L;

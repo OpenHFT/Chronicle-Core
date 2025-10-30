@@ -22,7 +22,6 @@ import net.openhft.chronicle.core.util.ClassLocal;
 import net.openhft.chronicle.core.util.ThrowingFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.slf4j.LoggerFactory;
 import sun.nio.ch.FileChannelImpl;
 
 import javax.naming.TimeLimitExceededException;

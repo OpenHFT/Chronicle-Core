@@ -17,8 +17,8 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.annotation.DontChain;
-import net.openhft.chronicle.core.internal.Bootstrap;
 import net.openhft.chronicle.core.internal.*;
+import net.openhft.chronicle.core.internal.Bootstrap;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
 import net.openhft.chronicle.core.onoes.*;
 import net.openhft.chronicle.core.util.ClassMetrics;
@@ -571,6 +571,7 @@ public final class Jvm {
     public static void setAccessible(@NotNull final AccessibleObject accessibleObject) {
         ClassUtil.setAccessible(accessibleObject);
     }
+
     /**
      * Returns the value of the provided {@code fieldName} extracted from the provided {@code target}.
      * <p>
@@ -1144,21 +1145,20 @@ public final class Jvm {
      *
      * <p>
      * trailing B/b/iB/ib are ignored.
-     *      <table>
-     *         <caption>
-     *             This table illustrates examples of various string inputs representing memory sizes and their corresponding parsed outputs in bytes.
-     *             It demonstrates how strings with different suffixes and formats are converted to their respective byte equivalents using factors
-     *             like kilobytes (KB), megabytes (MB), gigabytes (GB), and terabytes (TB), where these units are powers of 2.
-     *         </caption>
-     *         <tr><td>100</td><td>100 bytes</td></tr>
-     *         <tr><td>100b</td><td>100 bytes</td></tr>
-     *         <tr><td>0.5kb</td><td>512 bytes</td></tr>
-     *         <tr><td>0.125MB</td><td>128 KiB</td></tr>
-     *         <tr><td>2M</td><td>2 MiB</td></tr>
-     *         <tr><td>0.75GiB</td><td>768 MiB</td></tr>
-     *         <tr><td>0.001TiB</td><td>1.024 GiB</td></tr>
-     *     </table>
-     * 
+     *  <table>
+     *     <caption>
+     *         This table illustrates examples of various string inputs representing memory sizes and their corresponding parsed outputs in bytes.
+     *         It demonstrates how strings with different suffixes and formats are converted to their respective byte equivalents using factors
+     *         like kilobytes (KB), megabytes (MB), gigabytes (GB), and terabytes (TB), where these units are powers of 2.
+     *     </caption>
+     *     <tr><td>100</td><td>100 bytes</td></tr>
+     *     <tr><td>100b</td><td>100 bytes</td></tr>
+     *     <tr><td>0.5kb</td><td>512 bytes</td></tr>
+     *     <tr><td>0.125MB</td><td>128 KiB</td></tr>
+     *     <tr><td>2M</td><td>2 MiB</td></tr>
+     *     <tr><td>0.75GiB</td><td>768 MiB</td></tr>
+     *     <tr><td>0.001TiB</td><td>1.024 GiB</td></tr>
+     * </table>
      *
      * @param value size to parse
      * @return the size

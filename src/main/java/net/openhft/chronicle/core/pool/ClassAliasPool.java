@@ -404,8 +404,8 @@ public class ClassAliasPool implements ClassLookup {
                 cs = ((CAPKey) cs).value;
             if (length() != cs.length())
                 return false;
-            if (value instanceof String && obj instanceof String)
-                return value.equals(obj);
+            if (value instanceof String && cs instanceof String)
+                return value.equals(cs);
 
             for (int i = 0; i < length(); i++)
                 if (charAt(i) != cs.charAt(i))
