@@ -57,7 +57,7 @@ public final class Wget {
         private int  connectTimeoutMs = 10_000;
         private int  readTimeoutMs    = 10_000;
         private long maxResponseBytes = 10L << 20; // 10 MiB
-        private boolean enforcePublicEndpoints = true;
+        private boolean requirePublicEndpoints = false;
 
         public Builder connectionProvider(final ConnectionProvider p) { this.connectionProvider = Objects.requireNonNull(p); return this; }
         public Builder charsetDetector   (final CharsetDetector d)    { this.charsetDetector    = Objects.requireNonNull(d); return this; }
@@ -66,14 +66,29 @@ public final class Wget {
         public Builder maxResponseBytes  (final long v)               { if (v < 0) throw new IllegalArgumentException("maxResponseBytes must be >= 0"); this.maxResponseBytes = v; return this; }
 
         /** Creates a {@link Wget} with defaults or caller-supplied overrides. */
+        /**
+         * @deprecated Local hosts are now permitted by default. Use {@link #requirePublicEndpoints()}
+         * if you need to restrict connections to non-local addresses.
+         */
+        @Deprecated
         public Builder allowLocalHosts() {
-            this.enforcePublicEndpoints = false;
+            this.requirePublicEndpoints = false;
+            return this;
+        }
+
+        /**
+         * Instructs the resulting {@link Wget} instance to reject loopback, link-local and site-local
+         * hosts whenever the default connection provider is used.
+         */
+        public Builder requirePublicEndpoints() {
+            this.requirePublicEndpoints = true;
             return this;
         }
 
         public Wget build() {
+            final boolean usingDefaultProvider = this.connectionProvider == DEFAULT_PROVIDER;
             ConnectionProvider cp = this.connectionProvider;
-            if (cp == DEFAULT_PROVIDER) {                      // wrap default provider to apply time-outs
+            if (usingDefaultProvider) {                      // wrap default provider to apply time-outs
                 final int ct = connectTimeoutMs;
                 final int rt = readTimeoutMs;
                 cp = url -> {
@@ -85,7 +100,8 @@ public final class Wget {
                     return conn.getInputStream();
                 };
             }
-            return new Wget(cp, charsetDetector, maxResponseBytes, enforcePublicEndpoints);
+            final boolean enforce = usingDefaultProvider && requirePublicEndpoints;
+            return new Wget(cp, charsetDetector, maxResponseBytes, enforce);
         }
     }
 
