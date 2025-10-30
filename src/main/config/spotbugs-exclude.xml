@@ -5,6 +5,7 @@
         <Class name="net.openhft.chronicle.core.OS"/>
         <Method name="lambda$map0$2"/>
         <Bug pattern="DM_GC"/>
+        <Comment>CORE-SB-201: GC retry path required until segmented mapping lands (CORE-NF-P-201).</Comment>
     </Match>
 
     <!-- CORE-SB-202: XmlDecoder stress path exercised locally; replace with safe harness under CORE-TEST-202. -->
@@ -12,6 +13,7 @@
         <Class name="net.openhft.chronicle.core.cooler.CpuCoolers$19"/>
         <Method name="disturb"/>
         <Bug pattern="XML_DECODER"/>
+        <Comment>CORE-SB-202: XmlDecoder exercise harness; safe harness tracked under CORE-TEST-202.</Comment>
     </Match>
 
     <!-- CORE-SB-203: Clock override remains mutable for deterministic testing. Track injection redesign under CORE-TEST-203. -->
@@ -19,6 +21,7 @@
         <Class name="net.openhft.chronicle.core.time.SystemTimeProvider"/>
         <Field name="CLOCK"/>
         <Bug pattern="MS_SHOULD_BE_FINAL"/>
+        <Comment>CORE-SB-203: Mutable clock retained for deterministic tests (CORE-TEST-203).</Comment>
     </Match>
 
     <!-- CORE-SB-301: JVM command helpers accept trusted internal inputs; sanitisation backlog tracked under CORE-NF-S-301. -->
@@ -29,10 +32,12 @@
             <Bug pattern="PATH_TRAVERSAL_IN"/>
             <Bug pattern="REC_CATCH_EXCEPTION"/>
         </Or>
+        <Comment>CORE-SB-301: JVM command helpers accept trusted inputs; sanitisation backlog CORE-NF-S-301.</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.Jvm$ReserveMemoryHolder"/>
         <Bug pattern="REC_CATCH_EXCEPTION"/>
+        <Comment>CORE-SB-301: JVM anonymous helper warnings tolerated until reflection strategy update (CORE-NF-S-301).</Comment>
     </Match>
     <Match>
         <Class name="~net\.openhft\.chronicle\.core\.Jvm\$.*"/>
@@ -40,6 +45,7 @@
             <Bug pattern="UMAC_UNCALLABLE_METHOD_OF_ANONYMOUS_CLASS"/>
             <Bug pattern="UC_USELESS_VOID_METHOD"/>
         </Or>
+        <Comment>CORE-SB-302: Default OS helpers rely on shell commands; hardening in CORE-NF-S-302.</Comment>
     </Match>
 
     <!-- CORE-SB-302: OS shell utilities rely on explicit commands; hardening queued as CORE-NF-S-302. -->
@@ -52,32 +58,39 @@
             <Bug pattern="DLS_DEAD_LOCAL_STORE"/>
             <Bug pattern="PREDICTABLE_RANDOM"/>
         </Or>
+        <Comment>CORE-SB-302: Default hostname fallback allows plaintext within trusted host boundary; revisit under CORE-NF-S-302.</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.OS$IPAddressHolder"/>
         <Bug pattern="UNENCRYPTED_SOCKET"/>
+        <Comment>CORE-SB-303: Reference counting exposes state for diagnostics; refactor tracked in CORE-FN-303.</Comment>
     </Match>
 
     <!-- CORE-SB-303: Legacy IO wrappers expose mutable state; refactor scheduled under CORE-FN-303. -->
     <Match>
         <Class name="net.openhft.chronicle.core.io.AbstractCloseable"/>
         <Bug pattern="EI_EXPOSE_REP"/>
+        <Comment>CORE-SB-303: TracingReferenceCounted remains mutable for logging until CORE-FN-303.</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.io.TracingReferenceCounted"/>
         <Bug pattern="EI_EXPOSE_REP"/>
+        <Comment>CORE-SB-303: Legacy reference counter field retained for debug metrics (CORE-FN-303).</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.io.AbstractReferenceCounted"/>
         <Bug pattern="UUF_UNUSED_FIELD"/>
+        <Comment>CORE-SB-303: UnsafeCloseable null-check helpers preserved for backwards compatibility (CORE-FN-303).</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.io.UnsafeCloseable"/>
         <Bug pattern="DCN_NULLPOINTER_EXCEPTION"/>
+        <Comment>CORE-SB-302: CleaningRandomAccessFile temp lookup tolerated while filesystem helper redesigns under CORE-OPS-302.</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.io.CleaningRandomAccessFile"/>
         <Bug pattern="PATH_TRAVERSAL_IN"/>
+        <Comment>CORE-SB-302: IOTools suppression covers legacy path/URL handling; rewrite logged under CORE-OPS-302.</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.io.IOTools"/>
@@ -87,28 +100,34 @@
             <Bug pattern="URLCONNECTION_SSRF_FD"/>
             <Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE"/>
         </Or>
+        <Comment>CORE-SB-302: Language detection still uses plain sockets for localhost probes (CORE-OPS-302).</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.io.IOTools$Language"/>
         <Bug pattern="UNENCRYPTED_SOCKET"/>
+        <Comment>CORE-SB-302: Wget default stream uses URL.openStream until refactor (CORE-OPS-302).</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.io.Wget"/>
         <Bug pattern="OS_OPEN_STREAM"/>
+        <Comment>CORE-SB-302: Builder SSRF guard covered by public-endpoint opt-in; cleanup tracked under CORE-OPS-302.</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.io.Wget$Builder"/>
         <Bug pattern="URLCONNECTION_SSRF_FD"/>
+        <Comment>CORE-SB-304: Histogram exposes counters for monitoring; restructure under CORE-FN-304.</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.io.Closeable"/>
         <Bug pattern="NM_SAME_SIMPLE_NAME_AS_INTERFACE"/>
+        <Comment>CORE-SB-304: RecordingHistogram equality/field use deferred to CORE-FN-304.</Comment>
     </Match>
 
     <!-- CORE-SB-304: Histogram utilities expose mutable counters; redesign tracked in CORE-FN-304. -->
     <Match>
         <Class name="net.openhft.chronicle.core.util.Histogram"/>
         <Bug pattern="EI_EXPOSE_REP"/>
+        <Comment>CORE-SB-305: StringUtils preserves historical allocation patterns (CORE-FN-305).</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.util.RecordingHistogram"/>
@@ -116,26 +135,31 @@
             <Bug pattern="EQ_DOESNT_OVERRIDE_EQUALS"/>
             <Bug pattern="URF_UNREAD_FIELD"/>
         </Or>
+        <Comment>CORE-SB-306: Pool/thread constructors throw during validation; safe alternative tracked under CORE-NF-O-306.</Comment>
     </Match>
 
     <!-- CORE-SB-305: String utility fallbacks retain legacy allocation behaviour; revisit under CORE-FN-305. -->
     <Match>
         <Class name="net.openhft.chronicle.core.util.StringUtils"/>
         <Bug pattern="DM_STRING_VOID_CTOR"/>
+        <Comment>CORE-SB-306: CancellableTimer exposes event loop intentionally for diagnostics (CORE-NF-O-306).</Comment>
     </Match>
 
     <!-- CORE-SB-306: Legacy pool/thread utilities throw during construction; safe replacements targeted by CORE-NF-O-306. -->
     <Match>
         <Class name="~net\.openhft\.chronicle\.core\.(pool|threads|scoped)\..*"/>
         <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Comment>CORE-SB-306: InvalidEventHandlerException exposes reusable instance until redesigned (CORE-NF-O-306).</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.threads.CancellableTimer"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
+        <Comment>CORE-SB-306: PriorityHook legacy singleton semantics slated for replacement (CORE-NF-O-306).</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.threads.InvalidEventHandlerException"/>
         <Bug pattern="MS_EXPOSE_REP"/>
+        <Comment>CORE-SB-307: CloseableUtils retains null-handling loop until IO helper rewrite (CORE-OPS-306).</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.shutdown.PriorityHook"/>
@@ -143,6 +167,7 @@
             <Bug pattern="EC_UNRELATED_CLASS_AND_INTERFACE"/>
             <Bug pattern="SING_SINGLETON_GETTER_NOT_SYNCHRONIZED"/>
         </Or>
+        <Comment>CORE-SB-307: CpuClass Windows/macOS command parsing persists until platform abstraction redo (CORE-NF-S-302).</Comment>
     </Match>
 
     <!-- CORE-SB-307: Remaining legacy findings documented for audit under CORE-NF-S-307. -->
@@ -152,42 +177,52 @@
             <Bug pattern="DCN_NULLPOINTER_EXCEPTION"/>
             <Bug pattern="RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT"/>
         </Or>
+        <Comment>CORE-SB-307: UnsafeMemory floating division comparison pending MemorySegment migration (CORE-FN-307).</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.internal.CpuClass"/>
         <Bug pattern="PATH_TRAVERSAL_IN"/>
+        <Comment>CORE-SB-307: ChainedExceptionHandler exposes delegate array for compatibility (CORE-FN-303).</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.UnsafeMemory"/>
         <Bug pattern="ICAST_IDIV_CAST_TO_DOUBLE"/>
+        <Comment>CORE-SB-307: ExceptionKey leaks message in handler map; remediation under CORE-NF-S-307.</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.onoes.ChainedExceptionHandler"/>
         <Bug pattern="EI_EXPOSE_REP"/>
+        <Comment>CORE-SB-307: RecordingExceptionHandler retains captured array for diagnostics (CORE-FN-303).</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.onoes.ExceptionKey"/>
         <Bug pattern="INFORMATION_EXPOSURE_THROUGH_AN_ERROR_MESSAGE"/>
+        <Comment>CORE-SB-302: Dynamic enum exposes array for performance; revisit in CORE-FN-302.</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.onoes.RecordingExceptionHandler"/>
         <Bug pattern="EI_EXPOSE_REP2"/>
+        <Comment>CORE-SB-302: Static enum interner exposes map for legacy caller contract (CORE-FN-302).</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.pool.DynamicEnumClass"/>
         <Bug pattern="EI_EXPOSE_REP"/>
+        <Comment>CORE-SB-306: ParsingCache constructor throws on unsupported types; redesign planned under CORE-FN-302.</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.pool.StaticEnumClass"/>
         <Bug pattern="EI_EXPOSE_REP"/>
+        <Comment>CORE-SB-302: String interner constructor failure path remains for now (CORE-FN-302).</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.pool.ParsingCache"/>
         <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Comment>CORE-SB-306: VanillaReferenceOwner constructor throws for legacy compatibility (CORE-NF-O-306).</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.pool.StringInterner"/>
         <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Comment>CORE-SB-306: TypeOf constructor guard retained until reflection refactor (CORE-FN-306).</Comment>
     </Match>
     <Match>
         <Class name="net.openhft.chronicle.core.io.VanillaReferenceOwner"/>
