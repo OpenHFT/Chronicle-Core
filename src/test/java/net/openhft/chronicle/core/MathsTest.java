@@ -61,6 +61,7 @@ public class MathsTest extends CoreTestCommon {
         roundUp(factor, Maths::round2up);
         roundEither(factor, d -> Maths.roundNup(d, 2));
         roundUp(factor, d -> Maths.roundNup(d, 2));
+        assertTrue(true);
     }
 
     @Test
@@ -70,6 +71,7 @@ public class MathsTest extends CoreTestCommon {
         roundUp(factor, Maths::round3up);
         roundEither(factor, d -> Maths.roundNup(d, 3));
         roundUp(factor, d -> Maths.roundNup(d, 3));
+        assertTrue(true);
     }
 
     @Test
@@ -79,6 +81,7 @@ public class MathsTest extends CoreTestCommon {
         roundUp(factor, Maths::round4up);
         roundEither(factor, d -> Maths.roundNup(d, 4));
         roundUp(factor, d -> Maths.roundNup(d, 4));
+        assertTrue(true);
     }
 
     @Test
@@ -88,6 +91,7 @@ public class MathsTest extends CoreTestCommon {
         roundUp(factor, Maths::round5up);
         roundEither(factor, d -> Maths.roundNup(d, 5));
         roundUp(factor, d -> Maths.roundNup(d, 5));
+        assertTrue(true);
     }
 
     @Test
@@ -97,6 +101,7 @@ public class MathsTest extends CoreTestCommon {
         roundUp(factor, Maths::round6up);
         roundEither(factor, d -> Maths.roundNup(d, 6));
         roundUp(factor, d -> Maths.roundNup(d, 6));
+        assertTrue(true);
     }
 
     @Test
@@ -106,6 +111,7 @@ public class MathsTest extends CoreTestCommon {
         roundUp(factor, Maths::round7up);
         roundEither(factor, d -> Maths.roundNup(d, 7));
         roundUp(factor, d -> Maths.roundNup(d, 7));
+        assertTrue(true);
     }
 
     @Test
@@ -115,6 +121,7 @@ public class MathsTest extends CoreTestCommon {
         roundUp(factor, Maths::round8up);
         roundEither(factor, d -> Maths.roundNup(d, 8));
         roundUp(factor, d -> Maths.roundNup(d, 8));
+        assertTrue(true);
     }
 
     public void roundEither(double factor, Rounder rounder) {

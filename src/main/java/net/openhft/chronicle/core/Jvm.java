@@ -1344,18 +1344,22 @@ public final class Jvm {
         URLClassLoader ucl = (URLClassLoader) cl;
         StringBuilder classpath = new StringBuilder(property);
         for (URL url : ucl.getURLs()) {
-            try {
-                String path = Paths.get(url.toURI()).toString();
-                if (!jcp.contains(path)) {
-                    if (isDebugEnabled(Jvm.class))
-                        debug().on(Jvm.class, "Adding " + path + " to the classpath");
-                    classpath.append(File.pathSeparator).append(path);
-                }
-            } catch (Throwable e) {
-                debug().on(Jvm.class, "Could not add URL " + url + " to classpath");
-            }
+            appendUrlIfMissing(classpath, jcp, url);
         }
         System.setProperty(JAVA_CLASS_PATH, classpath.toString());
+    }
+
+    private static void appendUrlIfMissing(StringBuilder classpath, Set<String> jcp, URL url) {
+        try {
+            String path = Paths.get(url.toURI()).toString();
+            if (!jcp.contains(path)) {
+                if (isDebugEnabled(Jvm.class))
+                    debug().on(Jvm.class, "Adding " + path + " to the classpath");
+                classpath.append(File.pathSeparator).append(path);
+            }
+        } catch (Throwable e) {
+            debug().on(Jvm.class, "Could not add URL " + url + " to classpath");
+        }
     }
 
     /**

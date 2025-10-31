@@ -422,7 +422,7 @@ public final class StringUtils {
             default:
                 // Continue below
         }
-        while (true) {
+        while (pos < in.length()) {
             if (ch >= '0' && ch <= '9') {
                 while (value >= MAX_VALUE_DIVIDE_10) {
                     value >>>= 1;
@@ -437,8 +437,6 @@ public final class StringUtils {
             } else {
                 break;
             }
-            if (pos == in.length())
-                break;
             ch = charAt(in, pos++);
         }
 

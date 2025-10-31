@@ -884,11 +884,11 @@ public final class ObjectUtils {
                 return String::getBytes;
             if (CoreDynamicEnum.class.isAssignableFrom(c))
                 return EnumCache.of(c)::get;
-            Method valueOf = ClassUtil.getMethod0(c, "valueOf", new Class[]{String.class}, false);
+            Method valueOf = tryGetMethod(c, "valueOf", String.class);
             if (valueOf != null)
                 return s -> valueOf.invoke(null, s);
 
-            Method parse = ClassUtil.getMethod0(c, "parse", new Class[]{CharSequence.class}, false);
+            Method parse = tryGetMethod(c, "parse", CharSequence.class);
             if (parse != null)
                 return s -> parse.invoke(null, s);
             try {
@@ -897,6 +897,15 @@ public final class ObjectUtils {
             } catch (Exception e) {
                 return new ThrowsCCE(e);
             }
+        }
+    }
+
+    @Nullable
+    private static Method tryGetMethod(Class<?> c, String name, Class<?>... paramTypes) {
+        try {
+            return ClassUtil.getMethod0(c, name, paramTypes, false);
+        } catch (Exception e) {
+            return null;
         }
     }
 
