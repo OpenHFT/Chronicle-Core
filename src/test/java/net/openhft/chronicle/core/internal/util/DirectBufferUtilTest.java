@@ -25,7 +25,7 @@ import static org.junit.Assume.assumeTrue;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
-public class DirectBufferUtilTest {
+class DirectBufferUtilTest {
 
     @BeforeEach
     public void addOpens() {

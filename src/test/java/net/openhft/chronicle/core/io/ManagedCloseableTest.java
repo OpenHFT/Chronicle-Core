@@ -27,7 +27,7 @@ import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ManagedCloseableTest {
+class ManagedCloseableTest {
     @BeforeEach
     public void mockitoNotSupportedOnJava21() {
         Assumptions.assumeTrue(Jvm.majorVersion() <= 17);

@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class SimpleCloseableTest {
+class SimpleCloseableTest {
 
     public static class TestableSimpleCloseable extends SimpleCloseable {
         private boolean performCloseCalled = false;

@@ -43,7 +43,7 @@ class ConcreteInvocationHandler extends AbstractInvocationHandler {
     }
 }
 
-public class AbstractInvocationHandlerTest extends CoreTestCommon {
+class AbstractInvocationHandlerTest extends CoreTestCommon {
 
     private AbstractInvocationHandler handler;
     private Method exampleMethod;

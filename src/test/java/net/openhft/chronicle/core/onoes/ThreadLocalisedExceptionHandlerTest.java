@@ -19,7 +19,7 @@ import org.junit.jupiter.api.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class ThreadLocalisedExceptionHandlerTest {
+class ThreadLocalisedExceptionHandlerTest {
 
     private ExceptionHandler defaultHandler;
     private ThreadLocalisedExceptionHandler tlExceptionHandler;

@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class RecordingExceptionHandlerTest {
+class RecordingExceptionHandlerTest {
 
     private RecordingExceptionHandler handler;
     private Map<ExceptionKey, Integer> exceptionMap;

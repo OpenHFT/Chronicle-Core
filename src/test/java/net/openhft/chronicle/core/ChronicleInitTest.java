@@ -26,7 +26,7 @@ import java.util.ServiceLoader;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ChronicleInitTest extends CoreTestCommon {
+class ChronicleInitTest extends CoreTestCommon {
 
     private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
     private final PrintStream originalErr = System.err;

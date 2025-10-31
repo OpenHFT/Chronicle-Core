@@ -21,7 +21,7 @@ import org.junit.jupiter.api.*;
 import static org.junit.Assume.assumeFalse;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ThreadDumpTest {
+class ThreadDumpTest {
 
     private ThreadDump threadDump;
 

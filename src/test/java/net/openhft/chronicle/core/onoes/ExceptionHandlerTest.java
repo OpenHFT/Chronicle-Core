@@ -29,7 +29,7 @@ import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
 
-public class ExceptionHandlerTest extends CoreTestCommon {
+class ExceptionHandlerTest extends CoreTestCommon {
 
     @Before
     public void mockitoNotSupportedOnJava21() {

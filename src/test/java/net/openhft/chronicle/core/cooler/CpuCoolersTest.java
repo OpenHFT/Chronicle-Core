@@ -17,10 +17,9 @@ package net.openhft.chronicle.core.cooler;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assume.assumeFalse;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
-public class CpuCoolersTest {
+class CpuCoolersTest {
 
     @Test
     public void testPark() {
