@@ -19,6 +19,7 @@ import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.cleaner.impl.CleanerTestUtil;
 import net.openhft.chronicle.core.internal.cleaner.ReflectionBasedByteBufferCleanerService;
 import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
 public class ReflectionBasedByteBufferCleanerServiceTest extends CoreTestCommon {
     @Test
@@ -27,4 +28,3 @@ public class ReflectionBasedByteBufferCleanerServiceTest extends CoreTestCommon 
         assertTrue(true);
     }
 }
-import static org.junit.Assert.assertTrue;

@@ -20,6 +20,7 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.cleaner.impl.CleanerTestUtil;
 import net.openhft.chronicle.core.internal.cleaner.Jdk9ByteBufferCleanerService;
 import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
 import static org.junit.Assume.assumeTrue;
 
@@ -32,4 +33,3 @@ public class Jdk9ByteBufferCleanerServiceTest extends CoreTestCommon {
         assertTrue(true);
     }
 }
-import static org.junit.Assert.assertTrue;

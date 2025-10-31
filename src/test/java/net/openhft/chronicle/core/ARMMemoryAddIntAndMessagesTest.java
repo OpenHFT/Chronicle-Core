@@ -50,11 +50,10 @@ class ARMMemoryAddIntAndMessagesTest {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
         long base = alloc(16);
         long aligned = base + 4;
-        // current value 0, expected 1 → mismatch
+        // current value 0, expected 1 -> mismatch
         IllegalStateException ex = assertThrows(IllegalStateException.class,
                 () -> arm.testAndSetInt(aligned, 4L, 1, 2));
         assertTrue(ex.getMessage().contains("Expected") || ex.getMessage().contains("expected"));
         assertFalse(ex.getMessage().contains("mis-aligned"));
     }
 }
-

@@ -18,6 +18,7 @@ package net.openhft.chronicle.core;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Ignore;
 import org.junit.Test;
+import static org.junit.Assert.assertTrue;
 
 public class NotNullIntrumentationTargetTest extends CoreTestCommon {
 
@@ -39,4 +40,3 @@ public class NotNullIntrumentationTargetTest extends CoreTestCommon {
         // This should throw an NPE if called with a null argument
     }
 }
-import static org.junit.Assert.assertTrue;

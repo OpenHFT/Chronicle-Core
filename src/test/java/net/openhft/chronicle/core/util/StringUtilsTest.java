@@ -289,9 +289,9 @@ public class StringUtilsTest extends CoreTestCommon {
         assertTrue(StringUtils.isEqual(new StringBuilder().append("TheSame"), "TheSame"));
 
         // Same lengths & UTF-8
-        assertFalse(StringUtils.isEqual(new StringBuilder().append("Δ"), "Γ"));
-        assertFalse(StringUtils.isEqual(new StringBuilder().append("ΔΔΔΔΔ"), "ΔΔ€ΔΔ"));
-        assertTrue(StringUtils.isEqual(new StringBuilder().append("ΔΔΔΔΔ"), "ΔΔΔΔΔ"));
+        assertFalse(StringUtils.isEqual(new StringBuilder().append("\u0394"), "\u0393"));
+        assertFalse(StringUtils.isEqual(new StringBuilder().append("\u0394\u0394\u0394\u0394\u0394"), "\u0394\u0394\u20AC\u0394\u0394"));
+        assertTrue(StringUtils.isEqual(new StringBuilder().append("\u0394\u0394\u0394\u0394\u0394"), "\u0394\u0394\u0394\u0394\u0394"));
 
         // Empty strings
         assertTrue(StringUtils.isEqual(new StringBuilder(), ""));

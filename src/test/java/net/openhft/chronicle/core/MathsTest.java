@@ -430,24 +430,24 @@ public class MathsTest extends CoreTestCommon {
         assertEquals(ah1, ah2);
 
         // UTF8 & Equality test
-        String u1 = "€";
+        String u1 = "\u20AC";
         long uh1 = Maths.hash64(u1);
         assertEquals(1177128352603971756L, uh1);
 
-        String u2 = "€€".substring(0, 1);
+        String u2 = "\u20AC\u20AC".substring(0, 1);
         long uh2 = Maths.hash64(u2);
 
         assertEquals(uh1, uh2);
 
         // Mixed
-        StringBuilder mixedSb = new StringBuilder().append("€");
+        StringBuilder mixedSb = new StringBuilder().append("\u20AC");
         mixedSb.setLength(0);
         mixedSb.append("X");
 
         assertEquals(Maths.hash64("X"), Maths.hash64(mixedSb.toString()));
 
         // UT8 & Not-equal hashes
-        assertNotEquals(Maths.hash64("Δ"), Maths.hash64("Γ"));
+        assertNotEquals(Maths.hash64("\u0394"), Maths.hash64("\u0393"));
     }
 
     @Test

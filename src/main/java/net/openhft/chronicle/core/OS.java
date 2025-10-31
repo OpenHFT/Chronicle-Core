@@ -53,6 +53,9 @@ public final class OS {
     public static final String USER_HOME = Jvm.getProperty("user.home");
     public static final Exception TIME_LIMIT = new TimeLimitExceededException();
     public static final int SAFE_PAGE_SIZE = 64 << 10;
+    private static final String FILE_DISPATCHER_IMPL = "sun.nio.ch.FileDispatcherImpl";
+    private static final String UNIX_FILE_DISPATCHER_IMPL = "sun.nio.ch.UnixFileDispatcherImpl";
+
     static final ClassLocal<MethodHandle> MAP0_MH = ClassLocal.withInitial(c -> {
         try {
             Method map0;
@@ -78,8 +81,6 @@ public final class OS {
     private static final int MAP_RO = 0;
     private static final int MAP_RW = 1;
     private static final int MAP_PV = 2;
-    private static final String FILE_DISPATCHER_IMPL = "sun.nio.ch.FileDispatcherImpl";
-    private static final String UNIX_FILE_DISPATCHER_IMPL = "sun.nio.ch.UnixFileDispatcherImpl";
     private static final boolean IS64BIT = is64Bit0();
     private static final AtomicInteger PROCESS_ID = new AtomicInteger();
     private static final AtomicLong memoryMapped = new AtomicLong();

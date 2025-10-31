@@ -32,7 +32,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import static net.openhft.chronicle.assertions.AssertUtil.SKIP_ASSERTIONS;
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
-@SuppressWarnings("unchecked")
 /**
  * UnsafeMemory is a class that provides efficient, low-level operations for direct memory manipulation. It
  * serves as a wrapper around the sun.misc.Unsafe API, providing a more user-friendly interface for common
@@ -53,7 +52,7 @@ import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
  *
  * @see UnsafeMemory.ARMMemory
  */
-@SuppressWarnings("java:S1191") // Uses sun.misc.Unsafe for low-level operations; core to functionality, guarded by fallbacks.
+@SuppressWarnings({"unchecked", "java:S1191"}) // Uses sun.misc.Unsafe for low-level ops; unchecked casts are local and intentional.
 public class UnsafeMemory implements Memory {
 
     /**
