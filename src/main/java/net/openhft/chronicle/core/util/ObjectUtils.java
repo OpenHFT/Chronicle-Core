@@ -872,31 +872,40 @@ public final class ObjectUtils {
     private static final class ConversionFunction implements Function<Class<?>, ThrowingFunction<String, Object, Exception>> {
         @Override
         public ThrowingFunction<String, Object, Exception> apply(@NotNull Class<?> c) {
-            if (c == String.class)
-                return s -> s;
-            if (c == Class.class)
-                return CLASS_ALIASES::forName;
-            if (c == Boolean.class)
-                return ObjectUtils::toBoolean;
-            if (c == UUID.class)
-                return UUID::fromString;
-            if (c == byte[].class)
-                return String::getBytes;
-            if (CoreDynamicEnum.class.isAssignableFrom(c))
-                return EnumCache.of(c)::get;
-            Method valueOf = tryGetMethod(c, "valueOf", String.class);
-            if (valueOf != null)
-                return s -> valueOf.invoke(null, s);
+            return stringToTypeConverterFor(c);
+        }
+    }
 
-            Method parse = tryGetMethod(c, "parse", CharSequence.class);
-            if (parse != null)
-                return s -> parse.invoke(null, s);
-            try {
-                final Constructor<?> constructor = accessibleConstructor(c, String.class);
-                return constructor::newInstance;
-            } catch (Exception e) {
-                return new ThrowsCCE(e);
-            }
+    /**
+     * Resolve a converter that maps a String to instances of the given type. This consolidates
+     * the reflective discovery steps used by {@link ConversionFunction} to reduce complexity.
+     */
+    private static ThrowingFunction<String, Object, Exception> stringToTypeConverterFor(@NotNull Class<?> c) {
+        if (c == String.class)
+            return s -> s;
+        if (c == Class.class)
+            return CLASS_ALIASES::forName;
+        if (c == Boolean.class)
+            return ObjectUtils::toBoolean;
+        if (c == UUID.class)
+            return UUID::fromString;
+        if (c == byte[].class)
+            return String::getBytes;
+        if (CoreDynamicEnum.class.isAssignableFrom(c))
+            return EnumCache.of(c)::get;
+
+        Method valueOf = tryGetMethod(c, "valueOf", String.class);
+        if (valueOf != null)
+            return s -> valueOf.invoke(null, s);
+
+        Method parse = tryGetMethod(c, "parse", CharSequence.class);
+        if (parse != null)
+            return s -> parse.invoke(null, s);
+        try {
+            final Constructor<?> constructor = accessibleConstructor(c, String.class);
+            return constructor::newInstance;
+        } catch (Exception e) {
+            return new ThrowsCCE(e);
         }
     }
 

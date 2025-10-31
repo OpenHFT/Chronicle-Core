@@ -107,6 +107,8 @@ public final class ReflectiveBuilder implements AnalyticsFacade.Builder {
     public @NotNull AnalyticsFacade build() {
         final Method m = ReflectionUtil.methodOrThrow(CLASS_NAME, "build");
         final Object analytics = ReflectionUtil.invokeOrThrow(m, delegate);
+        if (analytics instanceof AnalyticsFacade)
+            return (AnalyticsFacade) analytics;
         return new ReflectiveAnalytics(analytics);
     }
 }

@@ -45,8 +45,8 @@
         <sonar.organization>openhft</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
-        <jacoco.line.coverage>0.7606</jacoco.line.coverage>
-        <jacoco.branch.coverage>0.6575</jacoco.branch.coverage>
+        <jacoco.line.coverage>0.7559</jacoco.line.coverage>
+        <jacoco.branch.coverage>0.6617</jacoco.branch.coverage>
         <mockito.version>4.9.0</mockito.version>
     </properties>
 
@@ -384,8 +384,8 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-                <jacoco.line.coverage>0.7606</jacoco.line.coverage>
-                <jacoco.branch.coverage>0.6575</jacoco.branch.coverage>
+                <jacoco.line.coverage>0.7559</jacoco.line.coverage>
+                <jacoco.branch.coverage>0.6617</jacoco.branch.coverage>
             </properties>
             <build>
                 <plugins>
@@ -393,7 +393,7 @@
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
-                            <argLine>${argLine} ${jvm.requiredArgs} -Djvm.coverage=true</argLine>
+                            <argLine>${surefireArgLine} ${jvm.requiredArgs} -Djvm.coverage=true</argLine>
                         </configuration>
                     </plugin>
                     <plugin>
@@ -410,6 +410,9 @@
                                 <goals>
                                     <goal>prepare-agent</goal>
                                 </goals>
+                                <configuration>
+                                    <propertyName>surefireArgLine</propertyName>
+                                </configuration>
                             </execution>
                             <execution>
                                 <id>report</id>

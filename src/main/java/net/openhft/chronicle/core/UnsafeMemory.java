@@ -1330,8 +1330,15 @@ public class UnsafeMemory implements Memory {
             case 0:
                 return 0;
             default:
-                // Do nothing here, instead continue below
+                // Delegate variable-length read path
         }
+        return partialReadVarLen(bytes, offset, length);
+    }
+
+    /**
+     * Handles non-standard length reads from a byte array (lengths other than 0,1,2,4,8).
+     */
+    private long partialReadVarLen(byte[] bytes, int offset, int length) {
         long value = 0;
         offset += length;
         if ((length & 4) != 0) {
@@ -1378,8 +1385,15 @@ public class UnsafeMemory implements Memory {
             case 0:
                 return 0;
             default:
-                // Do nothing here, instead continue below
+                // Delegate variable-length read path
         }
+        return partialReadVarLen(addr, length);
+    }
+
+    /**
+     * Handles non-standard length reads from a native address (lengths other than 0,1,2,4,8).
+     */
+    private long partialReadVarLen(long addr, int length) {
         long value = 0;
         addr += length;
         if ((length & 4) != 0) {
@@ -1432,8 +1446,15 @@ public class UnsafeMemory implements Memory {
             case 0:
                 return;
             default:
-                // Do nothing here, instead continue below
+                // Delegate variable-length write path
         }
+        partialWriteVarLen(bytes, offset, value, length);
+    }
+
+    /**
+     * Handles non-standard length writes into a byte array (lengths other than 0,1,2,4,8).
+     */
+    private void partialWriteVarLen(byte[] bytes, int offset, long value, int length) {
         if ((length & 1) != 0) {
             UNSAFE.putByte(bytes, ARRAY_BYTE_BASE_OFFSET + offset, (byte) value);
             offset += 1;
@@ -1478,8 +1499,15 @@ public class UnsafeMemory implements Memory {
             case 0:
                 return;
             default:
-                // Do nothing here, instead continue below
+                // Delegate variable-length write path
         }
+        partialWriteVarLen(addr, value, length);
+    }
+
+    /**
+     * Handles non-standard length writes into native memory (lengths other than 0,1,2,4,8).
+     */
+    private void partialWriteVarLen(long addr, long value, int length) {
         if ((length & 1) != 0) {
             UNSAFE.putByte(addr, (byte) value);
             addr += 1;

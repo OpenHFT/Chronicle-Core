@@ -25,8 +25,6 @@ import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 final class ReflectiveAnalytics implements AnalyticsFacade {
 
-    private static final String CLASS_NAME = "net.openhft.chronicle.analytics.Analytics";
-
     private final Object delegate;
 
     public ReflectiveAnalytics(@NotNull final Object delegate) {
@@ -37,7 +35,11 @@ final class ReflectiveAnalytics implements AnalyticsFacade {
     public void sendEvent(@NotNull final String name, @NotNull final Map<String, String> additionalEventParameters) {
         requireNonNull(name);
         requireNonNull(additionalEventParameters);
-        final Method m = ReflectionUtil.methodOrThrow(CLASS_NAME, "sendEvent", String.class, Map.class);
-        ReflectionUtil.invokeOrThrow(m, delegate, name, additionalEventParameters);
+        try {
+            final Method m = delegate.getClass().getMethod("sendEvent", String.class, Map.class);
+            m.invoke(delegate, name, additionalEventParameters);
+        } catch (ReflectiveOperationException e) {
+            throw net.openhft.chronicle.core.Jvm.rethrow(e);
+        }
     }
 }

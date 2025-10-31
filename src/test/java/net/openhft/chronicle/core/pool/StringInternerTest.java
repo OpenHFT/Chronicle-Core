@@ -18,11 +18,18 @@ package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import org.jetbrains.annotations.NotNull;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 public class StringInternerTest extends CoreTestCommon {
+
+    @Before
+    public void ignoreCleanupNoise() {
+        // Cleanup warnings from ByteBuffer cleaning can be reported by the exception tracker
+        ignoreException("Exception during cleanup of class java.lang.String");
+    }
 
     @Test
     public void testIntern() throws IllegalArgumentException {

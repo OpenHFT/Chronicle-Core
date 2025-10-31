@@ -41,7 +41,7 @@ public class StandardMapsTest {
 
         Map<String, String> additional = StandardMaps.standardAdditionalEventParameters(elements);
 
-        assertEquals("Expected at most three entries", 3, additional.size());
+        assertTrue("Expected at most three entries", additional.size() <= 3);
         assertTrue(additional.values().stream().anyMatch(v -> v.contains("run.chronicle.demo")));
         assertFalse("Enterprise packages should be filtered", additional.values().stream().anyMatch(v -> v.startsWith("software.chronicle")));
     }

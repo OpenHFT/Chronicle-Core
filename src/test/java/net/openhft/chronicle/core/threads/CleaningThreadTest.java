@@ -18,6 +18,7 @@ package net.openhft.chronicle.core.threads;
 import net.openhft.affinity.Affinity;
 import net.openhft.affinity.AffinityLock;
 import net.openhft.chronicle.core.CoreTestCommon;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.BitSet;
@@ -29,6 +30,12 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 
 public class CleaningThreadTest extends CoreTestCommon {
+    @Before
+    public void ignoreExpectedNoise() {
+        // Affinity reset and cleanup warnings may be emitted depending on environment
+        ignoreException("Resetting affinity from");
+        ignoreException("Exception during cleanup of class java.lang.String");
+    }
     @Test
     public void cleanupThreadLocal() throws InterruptedException {
         String threadName = "ctl-test";

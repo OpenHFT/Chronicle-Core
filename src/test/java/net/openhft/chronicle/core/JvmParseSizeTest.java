@@ -25,6 +25,10 @@ import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
 
+/**
+ * Canonical test suite for size parsing and retrieval via {@link Jvm#parseSize(String)} and
+ * {@link Jvm#getSize(String, long)}. Keep related assertions here to avoid duplication.
+ */
 @RunWith(Parameterized.class)
 public class JvmParseSizeTest extends CoreTestCommon {
     public static final String PROPERTY = "JvmParseSizeTest";
@@ -68,5 +72,15 @@ public class JvmParseSizeTest extends CoreTestCommon {
     public void getSize() {
         System.setProperty(PROPERTY, text);
         assertEquals(value, Jvm.getSize(PROPERTY, -1));
+    }
+
+    @Test
+    public void parseSizeRejectsUnknownSuffix() {
+        try {
+            Jvm.parseSize("10XB");
+            throw new AssertionError("Expected IllegalArgumentException for unknown suffix");
+        } catch (IllegalArgumentException expected) {
+            // expected
+        }
     }
 }

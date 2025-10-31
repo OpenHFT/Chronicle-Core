@@ -400,9 +400,13 @@ public final class StringUtils {
         boolean negative = false;
         int decimalPlaces = Integer.MIN_VALUE;
 
-        int ch = charAt(in, 0);
-        int pos = 1;
-        switch (ch) {
+        final int len = in.length();
+        if (len == 0)
+            return Double.NaN;
+
+        int start = 0;
+        int ch0 = charAt(in, 0);
+        switch (ch0) {
             case 'N':
                 if (compareRest(in, 1, "aN"))
                     return Double.NaN;
@@ -411,18 +415,19 @@ public final class StringUtils {
                 //noinspection SpellCheckingInspection
                 if (compareRest(in, 1, "nfinity"))
                     return Double.POSITIVE_INFINITY;
-
                 return Double.NaN;
             case '-':
                 if (compareRest(in, 1, "Infinity"))
                     return Double.NEGATIVE_INFINITY;
                 negative = true;
-                ch = charAt(in, pos++);
+                start = 1;
                 break;
             default:
-                // Continue below
+                // Continue below from index 0
         }
-        while (pos < in.length()) {
+
+        for (int i = start; i < len; i++) {
+            int ch = charAt(in, i);
             if (ch >= '0' && ch <= '9') {
                 while (value >= MAX_VALUE_DIVIDE_10) {
                     value >>>= 1;
@@ -430,14 +435,11 @@ public final class StringUtils {
                 }
                 value = value * 10 + (ch - '0');
                 decimalPlaces++;
-
             } else if (ch == '.') {
                 decimalPlaces = 0;
-
             } else {
                 break;
             }
-            ch = charAt(in, pos++);
         }
 
         if (decimalPlaces < 0)

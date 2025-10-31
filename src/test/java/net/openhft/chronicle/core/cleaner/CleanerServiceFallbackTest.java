@@ -53,7 +53,32 @@ class CleanerServiceFallbackTest {
         Path serviceFile = root.resolve("META-INF/services/" + ByteBufferCleanerService.class.getName());
         prepareBrokenServiceDescriptor(serviceFile);
 
-        URLClassLoader cl = new URLClassLoader(new URL[]{root.toUri().toURL()}, CleanerServiceLocator.class.getClassLoader());
+        final String serviceName = "META-INF/services/" + ByteBufferCleanerService.class.getName();
+        final URL brokenUrl = serviceFile.toUri().toURL();
+        ClassLoader parent = CleanerServiceLocator.class.getClassLoader();
+        ClassLoader cl = new ClassLoader(parent) {
+            @Override
+            public URL getResource(String name) {
+                if (serviceName.equals(name)) return brokenUrl;
+                return super.getResource(name);
+            }
+
+            @Override
+            public java.util.Enumeration<URL> getResources(String name) throws java.io.IOException {
+                if (serviceName.equals(name)) return java.util.Collections.enumeration(java.util.Collections.singleton(brokenUrl));
+                return super.getResources(name);
+            }
+
+            @Override
+            public java.io.InputStream getResourceAsStream(String name) {
+                if (serviceName.equals(name)) try {
+                    return brokenUrl.openStream();
+                } catch (java.io.IOException e) {
+                    return null;
+                }
+                return super.getResourceAsStream(name);
+            }
+        };
         Thread current = Thread.currentThread();
         ClassLoader previous = current.getContextClassLoader();
         try {

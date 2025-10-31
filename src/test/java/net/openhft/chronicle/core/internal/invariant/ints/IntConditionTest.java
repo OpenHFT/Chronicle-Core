@@ -58,7 +58,8 @@ public class IntConditionTest {
         assertFalse(IntCondition.EVEN_POWER_OF_TWO.test(6));
 
         assertTrue(IntCondition.SHORT_ALIGNED.test(64));
-        assertFalse(IntCondition.SHORT_ALIGNED.test(10));
+        // 11 is not divisible by 2, hence not short-aligned
+        assertFalse(IntCondition.SHORT_ALIGNED.test(11));
 
         assertTrue(IntCondition.INT_ALIGNED.test(128));
         assertFalse(IntCondition.INT_ALIGNED.test(6));

@@ -166,16 +166,24 @@ public final class OS {
         if (target != null)
             return target;
         for (File dir = new File(Jvm.getProperty("user.dir")); dir != null; dir = dir.getParentFile()) {
-            @NotNull File mavenTarget = new File(dir, "target");
-            if (mavenTarget.exists())
-                return mavenTarget.getAbsolutePath();
-            @NotNull File gradleTarget = new File(dir, "build");
-            if (gradleTarget.exists())
-                return gradleTarget.getAbsolutePath();
+            String found = detectBuildDir(dir);
+            if (found != null)
+                return found;
         }
         final File dir = new File(Jvm.getProperty("java.io.tmpdir"), "target");
         dir.mkdirs();
         return dir.getPath();
+    }
+
+    @Nullable
+    private static String detectBuildDir(@NotNull File dir) {
+        File mavenTarget = new File(dir, "target");
+        if (mavenTarget.exists())
+            return mavenTarget.getAbsolutePath();
+        File gradleTarget = new File(dir, "build");
+        if (gradleTarget.exists())
+            return gradleTarget.getAbsolutePath();
+        return null;
     }
 
     /**
