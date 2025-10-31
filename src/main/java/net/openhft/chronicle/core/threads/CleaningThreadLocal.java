@@ -29,7 +29,7 @@ import java.util.function.UnaryOperator;
 import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 
 /**
- * <h1>CleaningThreadLocal - a ThreadLocal that never leaks native resources</h1>
+ * <h2>CleaningThreadLocal - a ThreadLocal that never leaks native resources</h2>
  *
  * <p>{@code CleaningThreadLocal} augments {@link ThreadLocal} with two additional
  * capabilities:</p>
@@ -51,7 +51,7 @@ import static net.openhft.chronicle.core.Jvm.uncheckedCast;
  * {@link java.io.Closeable Closeable}s, or any resource that must be released
  * deterministically even when user code forgets to call {@code close()}.</p>
  *
- * <h2>Controlling orphan tracking</h2>
+ * <h3>Controlling orphan tracking</h3>
  *
  * <p>Orphan tracking can be toggled in two mutually-aware ways (highest
  * precedence first):</p>
