@@ -567,6 +567,7 @@ public final class Jvm {
      * @see SecurityManager#checkPermission
      * @see RuntimePermission
      */
+    @SuppressWarnings("java:S3011") // Justification: delegates to centralised ClassUtil.setAccessible for audited bypass.
     public static void setAccessible(@NotNull final AccessibleObject accessibleObject) {
         ClassUtil.setAccessible(accessibleObject);
     }

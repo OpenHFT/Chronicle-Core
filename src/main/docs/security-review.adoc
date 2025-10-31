@@ -45,6 +45,21 @@ Review hot-spots ::
 * Bytecode origin for `defineClass`
 * Static initializers with side effects
 
+=== Runtime Controls
+
+To reduce the attack surface or to aid hardening in regulated environments, Chronicle-Core exposes runtime flags to disable specific reflective optimisations. All flags default to `true` to preserve long-standing behaviour and performance. Set to `false` to opt out.
+
+Flags::
+* `chronicle.core.allow.reflection.interruptor`:
+  ** Controls reflective modification of `AbstractInterruptibleChannel` interruptor used by `Jvm.doNotCloseOnInterrupt(..)`. When `false`, Chronicle does not attempt the tweak on any JDK version.
+* `chronicle.core.allow.reflection.string`:
+  ** Controls reflective access to `String` internals used by `StringUtils.newString(char[])` and `StringBuilder` helpers on legacy JDKs. When `false` or on Java 9+, Chronicle uses only the safe public constructors and fields.
+
+Operational guidance::
+* Prefer leaving defaults for performance test and low-latency environments.
+* Set flags to `false` for security-first or highly regulated estates. Measure impact on allocation and latency before production rollout.
+* Both code paths are covered by unit tests; disabling reflection does not change public APIs.
+
 == Thread-Local Caches & Resource Pools
 
 Why ::
