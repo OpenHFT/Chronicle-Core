@@ -53,6 +53,7 @@ import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
  *
  * @see UnsafeMemory.ARMMemory
  */
+@SuppressWarnings("java:S1191") // Uses sun.misc.Unsafe for low-level operations; core to functionality, guarded by fallbacks.
 public class UnsafeMemory implements Memory {
 
     /**

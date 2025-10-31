@@ -67,6 +67,7 @@ import static net.openhft.chronicle.core.internal.util.MapUtil.ofUnmodifiable;
 /**
  * Utility class to access information in the JVM.
  */
+@SuppressWarnings("java:S1191") // Uses sun.misc.Unsafe and Signal in guarded, version-aware paths for performance and signal handling.
 public final class Jvm {
 
     public static final String JAVA_CLASS_PATH = "java.class.path";
