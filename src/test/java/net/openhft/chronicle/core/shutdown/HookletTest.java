@@ -41,7 +41,9 @@ public class HookletTest {
     public void testPriority() {
         Hooklet hooklet = new Hooklet() {
             @Override
-            public void onShutdown() {}
+            public void onShutdown() {
+                // Intentionally left empty: this variant exercises priority path only
+            }
             @Override
             public int priority() {
                 return 10;
@@ -69,7 +71,9 @@ public class HookletTest {
 
     static class TestRunnable implements Runnable {
         @Override
-        public void run() {}
+        public void run() {
+            // Intentionally empty: used to verify equality/hashCode/toString behaviours
+        }
     }
 
     @Test

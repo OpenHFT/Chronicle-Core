@@ -480,12 +480,12 @@ public class JvmTest extends CoreTestCommon {
     static class Baz implements Bar {
         @Override
         public void inheritedAnno() {
-
+            // No-op: used to test annotation resolution on overridden methods
         }
 
         @Override
         public void directAnno() {
-
+            // No-op: used to test annotation resolution on overridden methods
         }
     }
 }

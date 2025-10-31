@@ -151,6 +151,7 @@ public class ClassAliasPoolTest extends CoreTestCommon {
 
         @SuppressWarnings("EmptyMethod")
         void foo() {
+            // No-op: placeholder method for enum constant overriding behaviour in tests
         }
     }
 }
