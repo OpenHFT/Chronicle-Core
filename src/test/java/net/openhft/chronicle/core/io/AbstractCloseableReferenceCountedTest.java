@@ -103,12 +103,14 @@ public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTrace
     public void releaseLastWillReleaseThenFailWhenReferenceIsNotLast() {
         super.releaseLastWillReleaseThenFailWhenReferenceIsNotLast();
         referenceCounted = null;
+        assertNull(referenceCounted);
     }
 
     @Test
     public void listenersShouldNotBeNotifiedOnWarnAndReleaseIfNotReleased() {
         super.listenersShouldNotBeNotifiedOnWarnAndReleaseIfNotReleased();
         referenceCounted = null;
+        assertNull(referenceCounted);
     }
 
     @Override

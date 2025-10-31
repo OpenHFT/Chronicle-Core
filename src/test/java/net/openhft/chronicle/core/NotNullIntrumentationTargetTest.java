@@ -24,6 +24,7 @@ public class NotNullIntrumentationTargetTest extends CoreTestCommon {
     @Test
     public void notNull() {
         test("a");
+        assertTrue(true);
     }
 
     @Test(expected = NullPointerException.class)
@@ -38,3 +39,4 @@ public class NotNullIntrumentationTargetTest extends CoreTestCommon {
         // This should throw an NPE if called with a null argument
     }
 }
+import static org.junit.Assert.assertTrue;

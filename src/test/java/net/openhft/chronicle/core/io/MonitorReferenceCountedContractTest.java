@@ -51,5 +51,6 @@ public abstract class MonitorReferenceCountedContractTest extends ReferenceCount
         referenceCounted.unmonitored(false);
         referenceCounted.releaseLast();
         referenceCounted.warnAndReleaseIfNotReleased();
+        assertEquals(0, referenceCounted.refCount());
     }
 }

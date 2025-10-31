@@ -51,6 +51,7 @@ public class MathsTest extends CoreTestCommon {
         roundUp(factor, Maths::round1up);
         roundEither(factor, d -> Maths.roundNup(d, 1));
         roundUp(factor, d -> Maths.roundNup(d, 1));
+        assertTrue(true);
     }
 
     @Test

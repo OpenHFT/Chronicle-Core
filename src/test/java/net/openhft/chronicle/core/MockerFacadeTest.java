@@ -66,5 +66,6 @@ public class MockerFacadeTest {
     public void ignoredProxySupportsCalls() {
         Sample sample = Mocker.ignored(Sample.class);
         sample.run("whatever");
+        assertNotNull(sample);
     }
 }

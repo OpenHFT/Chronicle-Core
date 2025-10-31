@@ -68,6 +68,6 @@ class ChainedExceptionHandlerTest {
         ChainedExceptionHandler chained = new ChainedExceptionHandler(faultyHandler);
 
         // This call should not throw an exception
-        chained.on(String.class, "message", new RuntimeException());
+        assertDoesNotThrow(() -> chained.on(String.class, "message", new RuntimeException()));
     }
 }
