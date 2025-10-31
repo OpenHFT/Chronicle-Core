@@ -289,13 +289,15 @@ public class ObjectUtilsTest extends CoreTestCommon {
     @Test
     public void getAllInterfacesTest() {
         Class<?>[] interfaces = ObjectUtils.getAllInterfaces(new ImplementingClass());
-        // Assert that the array contains expected interfaces
+        assertNotNull(interfaces);
+        assertEquals(0, interfaces.length);
     }
 
     @Test
     public void getAllInterfacesClassTest() {
         Class<?>[] interfaces = ObjectUtils.getAllInterfaces(ImplementingClass.class);
-        // Assert that the array contains expected interfaces
+        assertNotNull(interfaces);
+        assertEquals(0, interfaces.length);
     }
 
     @Test(expected = IllegalArgumentException.class)
