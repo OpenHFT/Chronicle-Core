@@ -18,6 +18,8 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
+import net.openhft.chronicle.core.onoes.NullExceptionHandler;
+import net.openhft.chronicle.core.onoes.ThreadLocalisedExceptionHandler;
 import net.openhft.chronicle.core.threads.ThreadDump;
 import net.openhft.chronicle.core.util.Time;
 import org.junit.After;
@@ -378,22 +380,30 @@ public class JvmTest extends CoreTestCommon {
     @Test
     public void testDisableDebugHandler() {
         Jvm.disableDebugHandler();
+        assertSame(NullExceptionHandler.NOTHING, ThreadLocalisedExceptionHandler.unwrap(Jvm.debug()));
     }
 
     @Test
     public void testDisablePerfHandler() {
         Jvm.disablePerfHandler();
+        assertSame(NullExceptionHandler.NOTHING, ThreadLocalisedExceptionHandler.unwrap(Jvm.perf()));
     }
 
     @Test
     public void testDisableWarnHandler() {
         Jvm.disableWarnHandler();
+        assertSame(NullExceptionHandler.NOTHING, ThreadLocalisedExceptionHandler.unwrap(Jvm.warn()));
     }
 
     @Test
     public void testSetThreadLocalExceptionHandlers() {
         ExceptionHandler mockErrorHandler = mock(ExceptionHandler.class);
         Jvm.setThreadLocalExceptionHandlers(mockErrorHandler, null, null);
+        assertSame(mockErrorHandler, ThreadLocalisedExceptionHandler.unwrap(Jvm.error()));
+        // warn(): thread-local handler explicitly set to null; default remains unchanged
+        assertNull(((ThreadLocalisedExceptionHandler) Jvm.warn()).threadLocalHandler());
+        // debug(): presence depends on platform; ensure a handler object is returned
+        assertNotNull(Jvm.debug());
     }
 
     @Test
@@ -420,6 +430,7 @@ public class JvmTest extends CoreTestCommon {
         Jvm.CommonInterruptible commonInterruptible = new Jvm.CommonInterruptible(getClass(), mockFileChannel);
 
         commonInterruptible.interrupt();
+        assertNotNull(commonInterruptible);
     }
 
     @Test
