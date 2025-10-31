@@ -45,7 +45,7 @@
         <sonar.organization>openhft</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
-        <jacoco.line.coverage>0.7603</jacoco.line.coverage>
+        <jacoco.line.coverage>0.7606</jacoco.line.coverage>
         <jacoco.branch.coverage>0.6575</jacoco.branch.coverage>
         <mockito.version>4.9.0</mockito.version>
     </properties>
@@ -384,7 +384,7 @@
                 <activeByDefault>false</activeByDefault>
             </activation>
             <properties>
-                <jacoco.line.coverage>0.7603</jacoco.line.coverage>
+                <jacoco.line.coverage>0.7606</jacoco.line.coverage>
                 <jacoco.branch.coverage>0.6575</jacoco.branch.coverage>
             </properties>
             <build>
