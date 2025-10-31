@@ -177,14 +177,7 @@
                 <configuration>
                     <nrOfIndentSpace>4</nrOfIndentSpace>
                 </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>sort</goal>
-                        </goals>
-                        <phase>verify</phase>
-                    </execution>
-                </executions>
+                <!-- No executions bound by default: run with `mvn sortpom:sort` when needed -->
             </plugin>
             <plugin>
                 <groupId>net.openhft</groupId>
