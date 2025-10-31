@@ -24,22 +24,20 @@
         <version>1.27ea1</version>
         <relativePath />
     </parent>
+
     <artifactId>chronicle-core</artifactId>
     <version>2.27ea9-SNAPSHOT</version>
-    <packaging>bundle</packaging>
     <name>OpenHFT/Chronicle Core</name>
     <description>Chronicle-Core</description>
+    <packaging>bundle</packaging>
 
-    <scm>
-        <connection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</connection>
-        <developerConnection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</developerConnection>
-        <tag>ea</tag>
-        <url>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</url>
-    </scm>
     <properties>
         <zero.cost.assertions>disabled</zero.cost.assertions>
         <sonar.organization>openhft</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
+        <jacoco.line.coverage>0.80</jacoco.line.coverage>
+        <jacoco.branch.coverage>0.70</jacoco.branch.coverage>
         <mockito.version>4.9.0</mockito.version>
     </properties>
 
@@ -64,7 +62,6 @@
     </dependencyManagement>
 
     <dependencies>
-
         <dependency>
             <groupId>net.openhft</groupId>
             <artifactId>assertions-${zero.cost.assertions}</artifactId>
@@ -186,10 +183,10 @@
                 <artifactId>binary-compatibility-enforcer-plugin</artifactId>
                 <executions>
                     <execution>
+                        <phase>verify</phase>
                         <goals>
                             <goal>enforcer</goal>
                         </goals>
-                        <phase>verify</phase>
                         <configuration>
                             <referenceVersion>2.27ea0</referenceVersion>
                             <artifactsURI>https://teamcity.chronicle.software/repository/download</artifactsURI>
@@ -286,10 +283,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <!-- This will give each test class its own JVM so you can safely set
-                         e.g. system properties per test class but not method -->
                     <forkCount>4</forkCount>
-                    <reuseForks>false</reuseForks>
+                    <reuseForks>true</reuseForks>
+                    <runOrder>hourly</runOrder>
                 </configuration>
             </plugin>
 
@@ -321,13 +317,99 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>4.1</version>
+
+                <configuration>
+                    <header>license_header.txt</header>
+                    <properties>
+                        <currentYear>2025</currentYear>
+                    </properties>
+                    <headerDefinitions>
+                        <headerDefinition>license_header_def.xml</headerDefinition>
+                    </headerDefinitions>
+                    <excludes>
+                        <exclude>**/*.versionsBackup</exclude>
+                        <exclude>LICENSE</exclude>
+                        <exclude>src/test/resources/**</exclude>
+                        <exclude>src/main/resources/**</exclude>
+                        <exclude>src/main/config/**</exclude>
+                    </excludes>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
 
     <profiles>
+        <profile>
+            <id>code-review</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <jacoco.line.coverage>0.73</jacoco.line.coverage>
+                <jacoco.branch.coverage>0.62</jacoco.branch.coverage>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>${jacoco-maven-plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>prepare-agent</id>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>report</id>
+                                <goals>
+                                    <goal>report</goal>
+                                </goals>
+                                <phase>verify</phase>
+                            </execution>
+                            <execution>
+                                <id>check</id>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                                <phase>verify</phase>
+                                <configuration>
+                                    <rules>
+                                        <rule>
+                                            <element>BUNDLE</element>
+                                            <limits>
+                                                <limit>
+                                                    <counter>LINE</counter>
+                                                    <value>COVEREDRATIO</value>
+                                                    <minimum>${jacoco.line.coverage}</minimum>
+                                                </limit>
+                                                <limit>
+                                                    <counter>BRANCH</counter>
+                                                    <value>COVEREDRATIO</value>
+                                                    <minimum>${jacoco.branch.coverage}</minimum>
+                                                </limit>
+                                            </limits>
+                                        </rule>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>assertions</id>
             <properties>
@@ -365,24 +447,6 @@
                         <groupId>org.sonarsource.scanner.maven</groupId>
                         <artifactId>sonar-maven-plugin</artifactId>
                     </plugin>
-                    <plugin>
-                        <groupId>org.jacoco</groupId>
-                        <artifactId>jacoco-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>prepare-agent</goal>
-                                </goals>
-                            </execution>
-                            <execution>
-                                <id>report</id>
-                                <goals>
-                                    <goal>report</goal>
-                                </goals>
-                                <phase>prepare-package</phase>
-                            </execution>
-                        </executions>
-                    </plugin>
                 </plugins>
             </build>
         </profile>
@@ -417,7 +481,12 @@
                 </plugins>
             </build>
         </profile>
-
     </profiles>
 
+    <scm>
+        <url>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</url>
+        <connection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</connection>
+        <developerConnection>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</developerConnection>
+        <tag>ea</tag>
+    </scm>
 </project>
