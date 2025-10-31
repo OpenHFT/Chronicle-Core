@@ -162,7 +162,11 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
 
         // decide whether to gather orphan values
         boolean track = false;
-        assert track = enableOrphanTracking();   // NOP when -ea is absent
+        if (CleaningThreadLocal.class.desiredAssertionStatus()) {
+            // Only initialise tracking when assertions are enabled to avoid production overhead
+            track = enableOrphanTracking();
+            assert track;
+        }
         this.trackNonCleaningThreads =
                 !DISABLE_CTL_ORPHAN_TRACKING &&
                         (overrideTrackNonCleaningThreads != null
