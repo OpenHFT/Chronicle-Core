@@ -44,7 +44,7 @@ class GenericReflectionTest extends CoreTestCommon {
     }
 
     @Test
-    public void getMethodReturnTypes() {
+    void getMethodReturnTypes() {
         final Type returnString = new TypeOf<Returns<String>>() {
         }.type();
         final Set<Type> methodReturnTypes = GenericReflection.getMethodReturnTypes(ReturnsString.class);
@@ -53,7 +53,7 @@ class GenericReflectionTest extends CoreTestCommon {
     }
 
     @Test
-    public void getGenericClassesSuperclassesAndInterfaces() {
+    void getGenericClassesSuperclassesAndInterfaces() {
         final Type returnString = new TypeOf<Returns<String>>() {
         }.type();
         final Object[] genericInterfaces = GenericReflection.getGenericClassesSuperclassesAndInterfaces(ReturnsString.class).toArray();
@@ -62,7 +62,7 @@ class GenericReflectionTest extends CoreTestCommon {
     }
 
     @Test
-    public void getParameterTypes() throws NoSuchMethodException {
+    void getParameterTypes() throws NoSuchMethodException {
         final Method method = GenericMethod.class.getDeclaredMethod("method", Object.class, Object.class);
         final String expected = "[class java.lang.Byte, class java.lang.Short]";
         assertEquals(expected,
@@ -85,7 +85,7 @@ class GenericReflectionTest extends CoreTestCommon {
     }
 
     @Test
-    public void getParameterTypesExtends() {
+    void getParameterTypesExtends() {
         Method method = null;
         for (Method m : GenericMethodExtends.class.getMethods()) {
             if (m.getName().equals("method")) {
