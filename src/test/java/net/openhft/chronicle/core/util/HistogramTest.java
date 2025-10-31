@@ -45,13 +45,17 @@ public class HistogramTest extends CoreTestCommon {
     public void sampleCorrectlyUpdatesHistogram() {
         Histogram histogram = new Histogram();
         int bucket = histogram.sample(1000.0);
+        assertTrue(bucket >= 0);
+        assertTrue(histogram.toMicrosFormat().contains("worst"));
     }
 
     @Test
     public void addCombinesHistogramsCorrectly() {
         Histogram h1 = new Histogram();
         Histogram h2 = new Histogram();
+        h2.sample(10);
         h1.add(h2);
+        assertTrue(h1.toMicrosFormat().contains("worst"));
     }
 
     @Test
@@ -67,6 +71,8 @@ public class HistogramTest extends CoreTestCommon {
     public void percentilesForReturnsCorrectValues() {
         long count = 10000;
         double[] percentiles = Histogram.percentilesFor(count);
+        assertNotNull(percentiles);
+        assertTrue(percentiles.length > 0);
     }
 
     @Test

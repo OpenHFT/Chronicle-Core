@@ -142,14 +142,15 @@ public class ObjectUtilsTest extends CoreTestCommon {
     public void immutableShouldRegisterImmutability() {
         Class<?> testClass = RegularClass.class;
         ObjectUtils.immutable(testClass, true);
-        // Verify the immutability status is correctly set (requires a way to check the status)
+        assertEquals(ObjectUtils.Immutability.YES, ObjectUtils.isImmutable(testClass));
     }
 
     @Test
     public void caseIgnoreLookupShouldCreateCorrectMap() {
         // Assuming MyEnum is an enum class
         Map<String, MyEnum> map = ObjectUtils.caseIgnoreLookup(MyEnum.class);
-        // Assertions to check the map contents
+        assertTrue(map.containsKey("MY_VALUE"));
+        assertEquals(MyEnum.MY_VALUE, map.get("MY_VALUE"));
     }
 
     @Test
