@@ -201,7 +201,15 @@ public final class IOTools {
                 Jvm.debug().on(Closeable.class, "Failed to delete " + f, e);
             }
         });
-        return dir.delete();
+        try {
+            Files.delete(dir.toPath());
+            return true;
+        } catch (NoSuchFileException fe) {
+            return false;
+        } catch (IOException e) {
+            Jvm.debug().on(Closeable.class, "Failed to delete directory " + dir, e);
+            return false;
+        }
     }
 
     /**
