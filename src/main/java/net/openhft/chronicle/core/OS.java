@@ -57,7 +57,7 @@ public final class OS {
         try {
             Method map0;
             if (Jvm.isJava20Plus()) {
-                Class<?> dispatcherClass = OS.isWindows() ? findClass("sun.nio.ch.FileDispatcherImpl") : findClass("sun.nio.ch.UnixFileDispatcherImpl");
+                Class<?> dispatcherClass = OS.isWindows() ? findClass(FILE_DISPATCHER_IMPL) : findClass(UNIX_FILE_DISPATCHER_IMPL);
                 map0 = Jvm.getMethod(dispatcherClass, "map0", FileDescriptor.class, int.class, long.class, long.class, boolean.class);
             } else if (Jvm.isJava19Plus()) {
                 map0 = Jvm.getMethod(c, "map0", FileDescriptor.class, int.class, long.class, long.class, boolean.class);
@@ -78,6 +78,8 @@ public final class OS {
     private static final int MAP_RO = 0;
     private static final int MAP_RW = 1;
     private static final int MAP_PV = 2;
+    private static final String FILE_DISPATCHER_IMPL = "sun.nio.ch.FileDispatcherImpl";
+    private static final String UNIX_FILE_DISPATCHER_IMPL = "sun.nio.ch.UnixFileDispatcherImpl";
     private static final boolean IS64BIT = is64Bit0();
     private static final AtomicInteger PROCESS_ID = new AtomicInteger();
     private static final AtomicLong memoryMapped = new AtomicLong();
@@ -778,7 +780,7 @@ public final class OS {
         static {
             Method unmap0;
             if (Jvm.isJava20Plus()) {
-                Class<?> dispatcherClass = OS.isWindows() ? findClass("sun.nio.ch.FileDispatcherImpl") : findClass("sun.nio.ch.UnixFileDispatcherImpl");
+                Class<?> dispatcherClass = OS.isWindows() ? findClass(FILE_DISPATCHER_IMPL) : findClass(UNIX_FILE_DISPATCHER_IMPL);
                 unmap0 = Jvm.getMethod(dispatcherClass, "unmap0", long.class, long.class);
             } else {
                 unmap0 = Jvm.getMethod(FileChannelImpl.class, "unmap0", long.class, long.class);
@@ -795,7 +797,7 @@ public final class OS {
         static final MethodHandle READ0_MH;
         static {
             try {
-                Class<?> fdi = Class.forName("sun.nio.ch.FileDispatcherImpl");
+                Class<?> fdi = Class.forName(FILE_DISPATCHER_IMPL);
                 Method read0 = Jvm.getMethod(fdi, "read0", FileDescriptor.class, long.class, int.class);
                 READ0_MH = MethodHandles.lookup().unreflect(read0);
             } catch (Throwable t) {
@@ -810,7 +812,7 @@ public final class OS {
         static {
             MethodHandle write0Mh = null, write0Mh2 = null;
             try {
-                Class<?> fdi = Class.forName("sun.nio.ch.FileDispatcherImpl");
+                Class<?> fdi = Class.forName(FILE_DISPATCHER_IMPL);
                 try {
                     Method write0 = Jvm.getMethod(fdi, "write0", FileDescriptor.class, long.class, int.class);
                     write0Mh = MethodHandles.lookup().unreflect(write0);
