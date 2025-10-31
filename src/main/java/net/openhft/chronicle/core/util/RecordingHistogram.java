@@ -160,7 +160,8 @@ public class RecordingHistogram extends Histogram {
             sb.append("[");
             String sep = "";
             for (int i = 0, lim = Math.min(Math.min(20, max * 2), count * 2); i < lim; i += 2) {
-                double offset = toMicros.apply(top[i] - start);
+                // ensure subtraction is performed in floating-point to avoid long overflow prior to conversion
+                double offset = toMicros.apply(((double) top[i]) - ((double) start));
                 double duration = toMicros.apply(top[i + 1]);
                 sb.append(sep).append("{ off: ").append(offset).append(", dur: ").append(duration).append(" }");
                 sep = ", ";

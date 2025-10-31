@@ -18,6 +18,7 @@ package net.openhft.chronicle.core.onoes;
 import net.openhft.chronicle.core.Jvm;
 import org.junit.AssumptionViolatedException;
 import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
@@ -42,10 +43,10 @@ class ExceptionHandlerFallbackTest {
             throw new AssumptionViolatedException(e.toString());
         }
         try {
-            Slf4jExceptionHandler.WARN.on(
+            assertDoesNotThrow(() -> Slf4jExceptionHandler.WARN.on(
                     ExceptionHandlerFallbackTest.class,
                     "message",
-                    new Exception("delegate failure"));
+                    new Exception("delegate failure")));
         } finally {
             initializationState.setInt(null, state);
         }

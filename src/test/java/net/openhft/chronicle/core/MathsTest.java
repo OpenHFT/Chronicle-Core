@@ -363,6 +363,11 @@ public class MathsTest extends CoreTestCommon {
         assertEquals(3, Maths.divideRoundUp(-11, -5));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void divideRoundUpZeroDivisorThrows() {
+        Maths.divideRoundUp(1, 0);
+    }
+
     @Test
     public void sameFloating() {
         assertTrue(Maths.same(1.0, 1.0));

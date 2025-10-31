@@ -120,22 +120,14 @@ public class ThreadDump {
         for (int i = 1; i <= last; i++) {
             Thread.yield();
             Thread[] group = getAllThreadsInGroup();
-            List<Thread> extra = i == last ? new ArrayList<>() : null;
-            boolean ok = true;
-            for (Thread t : group) {
-                if (t != null && t.isAlive() && !this.threads.contains(t) && isExtra(t.getName())) {
-                    // a thread is alive that we didn't expect to be
-                    ok = false;
-                    if (i == last) {
-                        extra.add(t);
-                    } else {
-                        break;
-                    }
-                }
-            }
+            boolean isLast = (i == last);
+            List<Thread> extra = isLast ? new ArrayList<>() : null;
+
+            boolean ok = collectUnexpectedThreads(group, isLast, extra);
             if (ok)
                 return;
-            if (i == last) {
+
+            if (isLast) {
                 if (extra.isEmpty())
                     break;
 
@@ -145,8 +137,23 @@ public class ThreadDump {
                 }
                 throw assertionError;
             }
-            Jvm.pause(delayMillis + (1L << (i/2)));
+            Jvm.pause(delayMillis + (1L << (i / 2)));
         }
+    }
+
+    private boolean collectUnexpectedThreads(Thread[] group, boolean collect, List<Thread> extra) {
+        boolean ok = true;
+        for (Thread t : group) {
+            if (t != null && t.isAlive() && !this.threads.contains(t) && isExtra(t.getName())) {
+                ok = false;
+                if (collect) {
+                    extra.add(t);
+                } else {
+                    return false;
+                }
+            }
+        }
+        return ok;
     }
 
     private Thread[] getAllThreadsInGroup() {

@@ -785,15 +785,21 @@ public final class Maths {
     }
 
     /**
-     * Divide {@code dividend} by divisor, if division is not integral the result is rounded up.
-     * Examples: {@code divideRoundUp(10, 5) == 2}, {@code divideRoundUp(11, 5) == 3},
+     * Divide {@code dividend} by {@code divisor}; if division is not integral the result is rounded up
+     * towards positive infinity on the signed quotient. Examples:
+     * {@code divideRoundUp(10, 5) == 2}, {@code divideRoundUp(11, 5) == 3},
      * {@code divideRoundUp(-10, 5) == -2}, {@code divideRoundUp(-11, 5) == -3}.
      *
      * @return the rounded up quotient
+     * @throws IllegalArgumentException if {@code divisor == 0}
      */
     public static long divideRoundUp(long dividend, long divisor) {
+        if (divisor == 0)
+            throw new IllegalArgumentException("divisor must not be zero");
         int sign = (dividend > 0 ? 1 : -1) * (divisor > 0 ? 1 : -1);
-        return sign * (Math.abs(dividend) + Math.abs(divisor) - 1) / Math.abs(divisor);
+        long ad = Math.abs(dividend);
+        long av = Math.abs(divisor);
+        return sign * (ad + av - 1) / av;
     }
 
     /**

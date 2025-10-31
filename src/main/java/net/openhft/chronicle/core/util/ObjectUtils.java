@@ -114,7 +114,11 @@ public final class ObjectUtils {
     }
 
     static final ClassLocal<ThrowingFunction<String, Object, Exception>> PARSER_CL = ClassLocal.withInitial(new ConversionFunction());
-    static final ClassLocal<Map<String, Enum<?>>> CASE_IGNORE_LOOKUP = ClassLocal.withInitial(ObjectUtils::caseIgnoreLookup);
+    static final ClassLocal<Map<String, Enum<?>>> CASE_IGNORE_LOOKUP = ClassLocal.withInitial(c -> {
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        Map<String, Enum<?>> m = (Map) caseIgnoreLookup((Class) c);
+        return m;
+    });
     static final ClassValue<Method> READ_RESOLVE = ClassLocal.withInitial(c -> {
         try {
             Method m = c.getDeclaredMethod("readResolve");
@@ -340,10 +344,9 @@ public final class ObjectUtils {
      * @return A map with enum constant names in uppercase as keys and enum constants as values.
      */
     @NotNull
-    static Map<String, Enum<?>> caseIgnoreLookup(@NotNull Class<?> c) {
-        @NotNull Map<String, Enum<?>> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-        for (Object o : c.getEnumConstants()) {
-            @NotNull Enum<?> e = (Enum<?>) o;
+    static <E extends Enum<E>> Map<String, E> caseIgnoreLookup(@NotNull Class<E> c) {
+        @NotNull Map<String, E> map = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
+        for (E e : c.getEnumConstants()) {
             map.put(e.name().toUpperCase(), e);
         }
         return map;
