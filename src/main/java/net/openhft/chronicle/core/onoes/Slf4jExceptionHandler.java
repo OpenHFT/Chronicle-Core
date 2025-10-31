@@ -51,7 +51,7 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
         this.logMethod = logMethod;
     }
 
-    @SuppressWarnings("CallToPrintStackTrace")
+    @SuppressWarnings({"CallToPrintStackTrace", "java:S1181"}) // Catching Throwable ensures logging failures never mask the original error.
     @Override
     public void on(@NotNull Logger logger, @Nullable String message, @Nullable Throwable thrown) {
         try {
@@ -65,7 +65,7 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
         }
     }
 
-    @SuppressWarnings("CallToPrintStackTrace")
+    @SuppressWarnings({"CallToPrintStackTrace", "java:S1181"})
     @Override
     public void on(@NotNull Class<?> clazz, @Nullable String message, @Nullable Throwable thrown) {
         try {
