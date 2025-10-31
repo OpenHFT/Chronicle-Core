@@ -312,6 +312,7 @@ public final class CloseableUtils {
      *
      * @param o the object to close
      */
+    @SuppressWarnings("java:S1181") // Catching Throwable intentionally to prevent cleanup paths from throwing.
     static void closeQuietly(@Nullable Object o) {
         if (o instanceof Collection) {
             Collection<?> coll = (Collection<?>) o;
