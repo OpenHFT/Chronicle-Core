@@ -74,8 +74,7 @@ public final class StringUtils {
 
     static {
         try {
-            S_VALUE = String.class.getDeclaredField(VALUE_FIELD_NAME);
-            ClassUtil.setAccessible(S_VALUE); // java:S3011 – intentional; see newString() for guarded usage
+            S_VALUE = accessibleField(String.class, VALUE_FIELD_NAME); // java:S3011 suppressed in helper
             S_VALUE_OFFSET = getMemory().getFieldOffset(S_VALUE);
             if (Bootstrap.isJava9Plus() && Jvm.maxDirectMemory() > 0) {
                 SB_CODER = ClassUtil.getField0(StringBuilder.class.getSuperclass(), CODER_FIELD_NAME, true, true);
@@ -93,8 +92,7 @@ public final class StringUtils {
 
         long sCountOffset = -1;
         try {
-            Field sCount = String.class.getDeclaredField(COUNT_FIELD_NAME);
-            ClassUtil.setAccessible(sCount); // java:S3011 – retained for legacy JDKs
+            Field sCount = accessibleField(String.class, COUNT_FIELD_NAME); // java:S3011 suppressed in helper
             sCountOffset = getMemory().getFieldOffset(sCount);
         } catch (Exception ignored) {
             // Do nothing
@@ -460,21 +458,24 @@ public final class StringUtils {
         @SuppressWarnings("java:S3011") // Justification: No supported alternative; used for performance on legacy JDKs.
         public SbFields() throws ClassNotFoundException, NoSuchFieldException {
             try {
-                sbValue = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField(VALUE_FIELD_NAME);
-                ClassUtil.setAccessible(sbValue);
+                sbValue = accessibleField(Class.forName("java.lang.AbstractStringBuilder"), VALUE_FIELD_NAME);
                 sbValOffset = getMemory().getFieldOffset(sbValue);
-                sbCount = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField(COUNT_FIELD_NAME);
-                ClassUtil.setAccessible(sbCount);
+                sbCount = accessibleField(Class.forName("java.lang.AbstractStringBuilder"), COUNT_FIELD_NAME);
                 sbCountOffset = getMemory().getFieldOffset(sbCount);
             } catch (NoSuchFieldException e) {
-                sbValue = Class.forName("java.lang.StringBuilder").getDeclaredField(VALUE_FIELD_NAME);
-                ClassUtil.setAccessible(sbValue);
+                sbValue = accessibleField(Class.forName("java.lang.StringBuilder"), VALUE_FIELD_NAME);
                 sbValOffset = getMemory().getFieldOffset(sbValue);
-                sbCount = Class.forName("java.lang.StringBuilder").getDeclaredField(COUNT_FIELD_NAME);
-                ClassUtil.setAccessible(sbCount);
+                sbCount = accessibleField(Class.forName("java.lang.StringBuilder"), COUNT_FIELD_NAME);
                 sbCountOffset = getMemory().getFieldOffset(sbCount);
             }
         }
+    }
+
+    @SuppressWarnings("java:S3011")
+    private static Field accessibleField(Class<?> type, String name) throws NoSuchFieldException {
+        Field f = type.getDeclaredField(name);
+        ClassUtil.setAccessible(f);
+        return f;
     }
 
     private static boolean compareRest(@NotNull CharSequence in,
