@@ -67,10 +67,15 @@ public final class StringUtils {
     private static final long S_COUNT_OFFSET;
     private static final long MAX_VALUE_DIVIDE_10 = Long.MAX_VALUE / 10;
 
+    // Allow deployments to opt out of reflective accessibility for string internals.
+    // Defaults to true to preserve long-standing behaviour on Java 8.
+    private static final boolean ALLOW_REFLECTIVE_STRING =
+            Boolean.parseBoolean(System.getProperty("chronicle.core.allow.reflection.string", "true"));
+
     static {
         try {
             S_VALUE = String.class.getDeclaredField(VALUE_FIELD_NAME);
-            ClassUtil.setAccessible(S_VALUE);
+            ClassUtil.setAccessible(S_VALUE); // java:S3011 – intentional; see newString() for guarded usage
             S_VALUE_OFFSET = getMemory().getFieldOffset(S_VALUE);
             if (Bootstrap.isJava9Plus() && Jvm.maxDirectMemory() > 0) {
                 SB_CODER = ClassUtil.getField0(StringBuilder.class.getSuperclass(), CODER_FIELD_NAME, true, true);
@@ -89,7 +94,7 @@ public final class StringUtils {
         long sCountOffset = -1;
         try {
             Field sCount = String.class.getDeclaredField(COUNT_FIELD_NAME);
-            ClassUtil.setAccessible(sCount);
+            ClassUtil.setAccessible(sCount); // java:S3011 – retained for legacy JDKs
             sCountOffset = getMemory().getFieldOffset(sCount);
         } catch (Exception ignored) {
             // Do nothing
@@ -342,8 +347,10 @@ public final class StringUtils {
     }
 
     @NotNull
+    @SuppressWarnings("java:S3011") // Justification: On legacy JDKs, reflection avoids extra copy; guarded by property.
     public static String newString(char @NotNull [] chars) {
-        if (Bootstrap.isJava9Plus()) {
+        // Prefer safe path on Java 9+ or when reflective access is disabled.
+        if (Bootstrap.isJava9Plus() || !ALLOW_REFLECTIVE_STRING) {
             return new String(chars);
         }
         //noinspection RedundantStringConstructorCall
@@ -450,6 +457,7 @@ public final class StringUtils {
         private Field sbCount;
         private long sbCountOffset;
 
+        @SuppressWarnings("java:S3011") // Justification: No supported alternative; used for performance on legacy JDKs.
         public SbFields() throws ClassNotFoundException, NoSuchFieldException {
             try {
                 sbValue = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField(VALUE_FIELD_NAME);

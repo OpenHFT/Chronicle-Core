@@ -1268,7 +1268,15 @@ public final class Jvm {
             doNotCloseOnInterrupt8(clazz, fc);
     }
 
+    // Allow deployments to opt out of reflective accessibility for the interruptor tweak.
+    // Defaults to true to preserve long-standing behaviour.
+    private static final boolean ALLOW_REFLECTIVE_INTERRUPT_MOD =
+            Boolean.parseBoolean(System.getProperty("chronicle.core.allow.reflection.interruptor", "true"));
+
+    @SuppressWarnings("java:S3011") // Justification: No supported public API; guarded by property and try/catch.
     private static void doNotCloseOnInterrupt8(final Class<?> clazz, final FileChannel fc) {
+        if (!ALLOW_REFLECTIVE_INTERRUPT_MOD)
+            return;
         try {
             final Field field = AbstractInterruptibleChannel.class
                     .getDeclaredField("interruptor");
@@ -1291,7 +1299,10 @@ public final class Jvm {
 
     // based on a solution by https://stackoverflow.com/users/9199167/max-vollmer
     // https://stackoverflow.com/a/52262779/57695
+    @SuppressWarnings("java:S3011") // Justification: No supported public API; guarded by property and try/catch.
     private static void doNotCloseOnInterrupt9(final Class<?> clazz, final FileChannel fc) {
+        if (!ALLOW_REFLECTIVE_INTERRUPT_MOD)
+            return;
         try {
             final Field field = AbstractInterruptibleChannel.class.getDeclaredField("interruptor");
             final Class<?> interruptibleClass = field.getType();
