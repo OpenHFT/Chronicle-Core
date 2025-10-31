@@ -16,6 +16,7 @@
 package net.openhft.chronicle.core.internal.analytics;
 
 import net.openhft.chronicle.core.analytics.AnalyticsFacade;
+import net.openhft.chronicle.core.internal.ClassUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
@@ -37,6 +38,9 @@ final class ReflectiveAnalytics implements AnalyticsFacade {
         requireNonNull(additionalEventParameters);
         try {
             final Method m = delegate.getClass().getMethod("sendEvent", String.class, Map.class);
+            // Some runtime analytics implementations live in non-exported/internal packages.
+            // Ensure accessibility so invocation succeeds across JDKs.
+            ClassUtil.setAccessible(m);
             m.invoke(delegate, name, additionalEventParameters);
         } catch (ReflectiveOperationException e) {
             throw net.openhft.chronicle.core.Jvm.rethrow(e);
