@@ -71,8 +71,9 @@ public final class Wget {
                     URLConnection conn = url.openConnection();
                     conn.setConnectTimeout(ct);
                     conn.setReadTimeout(rt);
-                    if (conn instanceof HttpURLConnection)
+                    if (conn instanceof HttpURLConnection) {
                         ((HttpURLConnection) conn).setInstanceFollowRedirects(false);
+                    }
                     return conn.getInputStream();
                 };
             }
