@@ -121,11 +121,7 @@ public final class ObjectUtils {
     });
     static final ClassValue<Method> READ_RESOLVE = ClassLocal.withInitial(c -> {
         try {
-            Method m = c.getDeclaredMethod("readResolve");
-            ClassUtil.setAccessible(m);
-            return m;
-        } catch (NoSuchMethodException expected) {
-            return null;
+            return ClassUtil.getMethod0(c, "readResolve", new Class<?>[0], false);
         } catch (Exception e) {
             throw new AssertionError(e);
         }
@@ -203,10 +199,10 @@ public final class ObjectUtils {
         return () -> (T) rethrow(new IllegalArgumentException("abstract class: " + c.getName()));
     }
 
+    @SuppressWarnings("java:S3011") // Justification: allow instantiation via non-public default constructor as a last resort.
     private static <T> Supplier<T> defaultSupplier(Class<T> c) {
         try {
-            Constructor<T> constructor = c.getDeclaredConstructor();
-            ClassUtil.setAccessible(constructor);
+            Constructor<T> constructor = accessibleConstructor(c);
             return ThrowingSupplier.asSupplier(constructor::newInstance);
 
         } catch (Exception e) {
@@ -888,30 +884,27 @@ public final class ObjectUtils {
                 return String::getBytes;
             if (CoreDynamicEnum.class.isAssignableFrom(c))
                 return EnumCache.of(c)::get;
-            try {
-                Method valueOf = c.getDeclaredMethod("valueOf", String.class);
-                ClassUtil.setAccessible(valueOf);
+            Method valueOf = ClassUtil.getMethod0(c, "valueOf", new Class[]{String.class}, false);
+            if (valueOf != null)
                 return s -> valueOf.invoke(null, s);
-            } catch (NoSuchMethodException e) {
-                // ignored
-            }
 
-            try {
-                Method parse = c.getDeclaredMethod("parse", CharSequence.class);
-                ClassUtil.setAccessible(parse);
+            Method parse = ClassUtil.getMethod0(c, "parse", new Class[]{CharSequence.class}, false);
+            if (parse != null)
                 return s -> parse.invoke(null, s);
-
-            } catch (NoSuchMethodException e) {
-                // ignored
-            }
             try {
-                final Constructor<?> constructor = c.getDeclaredConstructor(String.class);
-                ClassUtil.setAccessible(constructor);
+                final Constructor<?> constructor = accessibleConstructor(c, String.class);
                 return constructor::newInstance;
             } catch (Exception e) {
                 return new ThrowsCCE(e);
             }
         }
+    }
+
+    @SuppressWarnings("java:S3011")
+    private static <T> Constructor<T> accessibleConstructor(Class<T> c, Class<?>... paramTypes) throws NoSuchMethodException {
+        Constructor<T> cons = c.getDeclaredConstructor(paramTypes);
+        ClassUtil.setAccessible(cons);
+        return cons;
     }
 
     /**

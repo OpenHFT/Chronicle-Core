@@ -24,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
+import net.openhft.chronicle.core.internal.ClassUtil;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.concurrent.atomic.AtomicLong;
@@ -84,15 +85,24 @@ public class UnsafeMemory implements Memory {
 
     static {
         try {
-            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
-            theUnsafe.setAccessible(true);
-            UNSAFE = (Unsafe) theUnsafe.get(null);
-        } catch (@NotNull NoSuchFieldException | IllegalAccessException | IllegalArgumentException e) {
+            UNSAFE = acquireUnsafe();
+        } catch (Throwable e) {
             e.printStackTrace();
             throw new AssertionError(e);
         }
         INSTANCE = Bootstrap.isArm0() ? new ARMMemory() : new UnsafeMemory();
         MEMORY = INSTANCE;
+    }
+
+    @SuppressWarnings("java:S3011") // Justification: acquiring Unsafe requires reflective access on many JDKs.
+    private static Unsafe acquireUnsafe() throws NoSuchFieldException, IllegalAccessException {
+        try {
+            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+            ClassUtil.setAccessible(theUnsafe);
+            return (Unsafe) theUnsafe.get(null);
+        } catch (SecurityException ignored) {
+            return Unsafe.getUnsafe();
+        }
     }
 
     private final AtomicLong nativeMemoryUsed = new AtomicLong();

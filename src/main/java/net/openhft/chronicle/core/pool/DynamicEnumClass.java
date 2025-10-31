@@ -16,6 +16,7 @@
 package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.internal.ClassUtil;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.CoreDynamicEnum;
 import org.jetbrains.annotations.Nullable;
@@ -86,13 +87,14 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
         }
     }
 
+    @SuppressWarnings("java:S3011") // Justification: accessing static enum-like fields for dynamic enums.
     private E[] getStaticConstants(Class<E> eClass) {
         final List<E> fieldList = new ArrayList<>();
         Field[] fields = eClass.getDeclaredFields();
         for (Field field : fields) {
             if (Modifier.isStatic(field.getModifiers()) && field.getType() == eClass) {
                 try {
-                    field.setAccessible(true);
+                    ClassUtil.setAccessible(field);
                     Object o = field.get(null);
                     fieldList.add(uncheckedCast(o));
                 } catch (IllegalAccessException | IllegalArgumentException e) {

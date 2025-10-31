@@ -35,10 +35,15 @@ public final class CompilerUtils {
     private static final Method DEFINE_CLASS_METHOD;
 
     static {
+        DEFINE_CLASS_METHOD = acquireDefineClass();
+    }
+
+    @SuppressWarnings("java:S3011") // Justification: defineClass is non-public; reflective access required for dynamic loading.
+    private static Method acquireDefineClass() {
         try {
-            DEFINE_CLASS_METHOD = ClassLoader.class.getDeclaredMethod(
-                    "defineClass", String.class, byte[].class, int.class, int.class);
-            ClassUtil.setAccessible(DEFINE_CLASS_METHOD);
+            Method m = ClassLoader.class.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class);
+            ClassUtil.setAccessible(m);
+            return m;
         } catch (NoSuchMethodException e) {
             throw new AssertionError(e);
         }

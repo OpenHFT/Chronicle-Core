@@ -252,6 +252,7 @@ public final class CloseableUtils {
         }
     }
 
+    @SuppressWarnings("java:S3011") // Justification: used only for diagnostics to traverse nested Closeables.
     private static void addNested(Set<Closeable> nested, Closeable key, int depth) {
         if (key.isClosing())
             return;
@@ -260,7 +261,7 @@ public final class CloseableUtils {
         getCloseableFields(keyClass, fields);
         for (Field field : fields) {
             try {
-                field.setAccessible(true);
+                ClassUtil.setAccessible(field);
                 Closeable o = (Closeable) field.get(key);
                 if (o != null && nested.add(o) && depth > 1)
                     addNested(nested, o, depth - 1);
