@@ -48,6 +48,7 @@
         <jacoco.line.coverage>0.7559</jacoco.line.coverage>
         <jacoco.branch.coverage>0.6617</jacoco.branch.coverage>
         <mockito.version>4.9.0</mockito.version>
+        <current.year>2025</current.year>
     </properties>
 
     <dependencyManagement>
@@ -337,21 +338,24 @@
                 <version>4.1</version>
 
                 <configuration>
-                    <header>license_header.txt</header>
-                    <properties>
-                        <currentYear>2025</currentYear>
-                    </properties>
-                    <headerDefinitions>
-                        <headerDefinition>license_header_def.xml</headerDefinition>
-                    </headerDefinitions>
+                    <!-- One-line header; no newlines -->
+                    <inlineHeader>Copyright 2016-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0</inlineHeader>
+                    <!-- Force single-line // style for Java so the result is literally one line -->
+                    <mapping>
+                        <java>DOUBLESLASH_STYLE</java>
+                    </mapping>
                     <excludes>
-                        <exclude>**/*.versionsBackup</exclude>
                         <exclude>LICENSE</exclude>
-                        <exclude>src/test/resources/**</exclude>
-                        <exclude>src/main/resources/**</exclude>
-                        <exclude>src/main/config/**</exclude>
-                        <!-- Exclude AsciiDoc content from license header formatting/checks -->
                         <exclude>**/*.adoc</exclude>
+                        <exclude>**/*.md</exclude>
+                        <exclude>**/*.txt</exclude>
+                        <exclude>docs/antora/**</exclude>
+                        <exclude>src/main/config/**</exclude>
+                        <exclude>src/main/docs/**</exclude>
+                        <exclude>src/main/resources/**</exclude>
+                        <exclude>src/test/resources/**</exclude>
+                        <exclude>target/**</exclude>
+                        <exclude>**/*.versionsBackup</exclude>
                     </excludes>
                 </configuration>
 
@@ -363,6 +367,7 @@
                     </execution>
                 </executions>
             </plugin>
+
         </plugins>
     </build>
 
