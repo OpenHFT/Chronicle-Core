@@ -15,7 +15,6 @@
   ~ limitations under the License.
   -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -24,10 +23,11 @@
         <version>1.27ea1</version>
         <relativePath />
     </parent>
+
     <artifactId>chronicle-core</artifactId>
     <version>2.27ea9-SNAPSHOT</version>
     <packaging>bundle</packaging>
-    <name>OpenHFT/Chronicle Core</name>
+    <name>OpenHFT/Chronicle-Core</name>
     <description>Chronicle-Core</description>
 
     <scm>
@@ -36,6 +36,7 @@
         <tag>ea</tag>
         <url>scm:git:git@github.com:OpenHFT/Chronicle-Core.git</url>
     </scm>
+
     <properties>
         <zero.cost.assertions>disabled</zero.cost.assertions>
         <sonar.organization>openhft</sonar.organization>
@@ -52,7 +53,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
             <dependency>
                 <groupId>net.openhft</groupId>
                 <artifactId>chronicle-bom</artifactId>
@@ -64,7 +64,6 @@
     </dependencyManagement>
 
     <dependencies>
-
         <dependency>
             <groupId>net.openhft</groupId>
             <artifactId>assertions-${zero.cost.assertions}</artifactId>
@@ -142,7 +141,6 @@
             <version>${mockito.version}</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
     <repositories>
@@ -172,14 +170,6 @@
                 <configuration>
                     <nrOfIndentSpace>4</nrOfIndentSpace>
                 </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>sort</goal>
-                        </goals>
-                        <phase>verify</phase>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>net.openhft</groupId>
@@ -194,6 +184,16 @@
                             <referenceVersion>2.27ea0</referenceVersion>
                             <artifactsURI>https://teamcity.chronicle.software/repository/download</artifactsURI>
                             <binaryCompatibilityPercentageRequired>100</binaryCompatibilityPercentageRequired>
+                            <extraOptions>
+                                <!--This skips "internal" but checks "impl"-->
+                                <extraOption>
+                                    <name>-keep-internal</name>
+                                </extraOption>
+                                <extraOption>
+                                    <name>skip-internal-packages</name>
+                                    <value>.*internal.*</value>
+                                </extraOption>
+                            </extraOptions>
                         </configuration>
                     </execution>
                 </executions>
@@ -261,7 +261,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <!--
                 generate maven dependencies versions file that can be used later
                 to install the right bundle in test phase.
@@ -282,17 +281,20 @@
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- Runs unit tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <!-- This will give each test class its own JVM so you can safely set
-                         e.g. system properties per test class but not method -->
+                    <argLine>${argLine} ${jvm.requiredArgs}</argLine>
                     <forkCount>4</forkCount>
-                    <reuseForks>false</reuseForks>
+                    <reuseForks>true</reuseForks>
+                    <runOrder>hourly</runOrder>
                 </configuration>
             </plugin>
 
+            <!-- Build the OSGi bundle used by downstream projects -->
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -321,8 +323,39 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-install-plugin</artifactId>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>4.1</version>
+
+                <configuration>
+                    <!-- One-line header; no newlines -->
+                    <inlineHeader>Copyright 2016-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0</inlineHeader>
+                    <!-- Force single-line // style for Java so the result is literally one line -->
+                    <mapping>
+                        <java>DOUBLESLASH_STYLE</java>
+                    </mapping>
+                    <excludes>
+                        <exclude>LICENSE</exclude>
+                        <exclude>**/*.adoc</exclude>
+                        <exclude>**/*.md</exclude>
+                        <exclude>**/*.txt</exclude>
+                        <exclude>docs/antora/**</exclude>
+                        <exclude>src/main/config/**</exclude>
+                        <exclude>src/main/docs/**</exclude>
+                        <exclude>src/main/resources/**</exclude>
+                        <exclude>src/test/resources/**</exclude>
+                        <exclude>target/**</exclude>
+                        <exclude>**/*.versionsBackup</exclude>
+                    </excludes>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
@@ -333,29 +366,6 @@
             <properties>
                 <zero.cost.assertions>enabled</zero.cost.assertions>
             </properties>
-        </profile>
-        <profile>
-            <id>java11</id>
-            <activation>
-                <jdk>[11,)</jdk>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-compiler-plugin</artifactId>
-                        <configuration>
-                            <source>11</source>
-                            <target>11</target>
-                            <compilerArgs>
-                                <arg>--add-exports=java.base/jdk.internal.ref=ALL-UNNAMED</arg>
-                                <arg>--add-exports=java.base/sun.nio.ch=ALL-UNNAMED</arg>
-                            </compilerArgs>
-                            <failOnWarning>false</failOnWarning>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
         </profile>
         <profile>
             <id>sonar</id>
@@ -417,7 +427,5 @@
                 </plugins>
             </build>
         </profile>
-
     </profiles>
-
 </project>
