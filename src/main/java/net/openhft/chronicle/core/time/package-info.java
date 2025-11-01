@@ -1,3 +1,6 @@
+/*
+ * Copyright 2016-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
+ */
 /**
  * Supplies time providers and utilities for obtaining or setting precise wall-clock timestamps.
  * Implementations range from simple Java wrappers to native-backed providers and tools for

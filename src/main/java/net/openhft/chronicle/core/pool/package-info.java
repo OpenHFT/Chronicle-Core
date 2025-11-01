@@ -1,3 +1,6 @@
+/*
+ * Copyright 2016-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
+ */
 /**
  * Provides classes and interfaces for pooling and efficient access of various resources like classes, strings, and enum values.
  *
