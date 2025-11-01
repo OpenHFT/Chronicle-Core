@@ -5,7 +5,6 @@
 
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -48,7 +47,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
             <dependency>
                 <groupId>net.openhft</groupId>
                 <artifactId>chronicle-bom</artifactId>
@@ -166,7 +164,6 @@
                 <configuration>
                     <nrOfIndentSpace>4</nrOfIndentSpace>
                 </configuration>
-                <!-- No executions bound by default: run with `mvn sortpom:sort` when needed -->
             </plugin>
             <plugin>
                 <groupId>net.openhft</groupId>
@@ -363,15 +360,12 @@
         </profile>
         <profile>
             <id>sonar</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <properties>
-                <jacoco.line.coverage>0.7559</jacoco.line.coverage>
-                <jacoco.branch.coverage>0.6617</jacoco.branch.coverage>
-            </properties>
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>org.sonarsource.scanner.maven</groupId>
+                        <artifactId>sonar-maven-plugin</artifactId>
+                    </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-surefire-plugin</artifactId>

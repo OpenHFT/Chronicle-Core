@@ -7,6 +7,7 @@ import net.openhft.chronicle.core.annotation.DontChain;
 import net.openhft.chronicle.core.internal.*;
 import net.openhft.chronicle.core.internal.Bootstrap;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
+import net.openhft.chronicle.core.internal.util.MapUtil;
 import net.openhft.chronicle.core.onoes.*;
 import net.openhft.chronicle.core.util.ClassMetrics;
 import net.openhft.chronicle.core.util.ObjectUtils;
@@ -50,7 +51,6 @@ import static net.openhft.chronicle.core.OS.*;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 import static net.openhft.chronicle.core.internal.Bootstrap.*;
 import static net.openhft.chronicle.core.internal.util.MapUtil.entry;
-import static net.openhft.chronicle.core.internal.util.MapUtil.ofUnmodifiable;
 
 /**
  * Utility class to access information in the JVM.
@@ -85,7 +85,8 @@ public final class Jvm {
     private static final ExceptionHandler DEBUG;
     private static final boolean SAFEPOINT_ENABLED;
     private static final Map<Class<?>, ClassMetrics> CLASS_METRICS_MAP = new ConcurrentHashMap<>();
-    private static final Map<Class<?>, Integer> PRIMITIVE_SIZE = ofUnmodifiable(
+    @SuppressWarnings("RedundantTypeArguments")
+    private static final Map<Class<?>, Integer> PRIMITIVE_SIZE = MapUtil.<Class<?>, Integer>ofUnmodifiable(
             entry(boolean.class, 1),
             entry(byte.class, Byte.BYTES),
             entry(char.class, Character.BYTES),
