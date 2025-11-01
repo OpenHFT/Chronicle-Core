@@ -7,7 +7,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class ValidatableUtilTest {
+class ValidatableUtilTest {
 
     @Test
     public void testValidateToggle() {

@@ -3,11 +3,10 @@
  */
 package net.openhft.chronicle.core.util;
 
-import net.openhft.chronicle.core.util.ClassNotFoundRuntimeException;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ClassNotFoundRuntimeExceptionTest {
+class ClassNotFoundRuntimeExceptionTest {
 
     @Test
     public void testConstructor() {

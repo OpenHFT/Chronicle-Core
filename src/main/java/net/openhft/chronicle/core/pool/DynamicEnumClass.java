@@ -74,6 +74,7 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
         }
     }
 
+    @SuppressWarnings("java:S3011") // Justification: accessing static enum-like fields for dynamic enums.
     private E[] getStaticConstants(Class<E> eClass) {
         final List<E> fieldList = new ArrayList<>();
         Field[] fields = eClass.getDeclaredFields();

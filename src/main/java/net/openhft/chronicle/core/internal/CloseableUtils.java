@@ -240,6 +240,7 @@ public final class CloseableUtils {
         }
     }
 
+    @SuppressWarnings("java:S3011") // Justification: used only for diagnostics to traverse nested Closeables.
     private static void addNested(Set<Closeable> nested, Closeable key, int depth) {
         if (key.isClosing())
             return;
@@ -299,6 +300,7 @@ public final class CloseableUtils {
      *
      * @param o the object to close
      */
+    @SuppressWarnings("java:S1181") // Catching Throwable intentionally to prevent cleanup paths from throwing.
     static void closeQuietly(@Nullable Object o) {
         if (o instanceof Collection) {
             Collection<?> coll = (Collection<?>) o;

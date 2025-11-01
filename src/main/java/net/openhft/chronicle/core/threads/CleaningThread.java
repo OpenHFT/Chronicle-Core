@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.threads;
 import net.openhft.affinity.Affinity;
 import net.openhft.affinity.AffinityLock;
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.internal.ClassUtil;
 import net.openhft.chronicle.core.StackTrace;
 import org.jetbrains.annotations.Nullable;
 
@@ -90,6 +91,7 @@ public class CleaningThread extends Thread {
     }
 
     @Nullable
+    @SuppressWarnings("java:S3011") // Justification: non-public remove(ThreadLocal) is required to clean thread-locals deterministically.
     private static Method getRemoveMethod(Object o) {
         Method remove;
         try {

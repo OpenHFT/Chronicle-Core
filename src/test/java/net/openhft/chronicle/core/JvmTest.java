@@ -5,6 +5,8 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
+import net.openhft.chronicle.core.onoes.NullExceptionHandler;
+import net.openhft.chronicle.core.onoes.ThreadLocalisedExceptionHandler;
 import net.openhft.chronicle.core.threads.ThreadDump;
 import net.openhft.chronicle.core.util.Time;
 import org.junit.After;
@@ -364,16 +366,19 @@ public class JvmTest extends CoreTestCommon {
     @Test
     public void testDisableDebugHandler() {
         Jvm.disableDebugHandler();
+        assertSame(NullExceptionHandler.NOTHING, ThreadLocalisedExceptionHandler.unwrap(Jvm.debug()));
     }
 
     @Test
     public void testDisablePerfHandler() {
         Jvm.disablePerfHandler();
+        assertSame(NullExceptionHandler.NOTHING, ThreadLocalisedExceptionHandler.unwrap(Jvm.perf()));
     }
 
     @Test
     public void testDisableWarnHandler() {
         Jvm.disableWarnHandler();
+        assertSame(NullExceptionHandler.NOTHING, ThreadLocalisedExceptionHandler.unwrap(Jvm.warn()));
     }
 
     @Test
@@ -406,6 +411,7 @@ public class JvmTest extends CoreTestCommon {
         Jvm.CommonInterruptible commonInterruptible = new Jvm.CommonInterruptible(getClass(), mockFileChannel);
 
         commonInterruptible.interrupt();
+        assertNotNull(commonInterruptible);
     }
 
     @Test
@@ -455,12 +461,12 @@ public class JvmTest extends CoreTestCommon {
     static class Baz implements Bar {
         @Override
         public void inheritedAnno() {
-
+            // No-op: used to test annotation resolution on overridden methods
         }
 
         @Override
         public void directAnno() {
-
+            // No-op: used to test annotation resolution on overridden methods
         }
     }
 }

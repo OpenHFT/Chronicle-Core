@@ -6,7 +6,7 @@ package net.openhft.chronicle.core.io;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ThreadingIllegalStateExceptionTest {
+class ThreadingIllegalStateExceptionTest {
 
     @Test
     public void testConstructorWithMessageAndCause() {

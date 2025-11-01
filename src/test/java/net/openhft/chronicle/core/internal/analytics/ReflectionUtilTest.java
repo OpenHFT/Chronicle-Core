@@ -10,7 +10,7 @@ import java.lang.reflect.Proxy;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ReflectionUtilTest {
+class ReflectionUtilTest {
 
     @Test
     public void analyticsPresentShouldReturnTrueOrFalse() {

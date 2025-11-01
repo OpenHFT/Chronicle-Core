@@ -76,6 +76,7 @@ public final class ClassUtil {
      * @see SecurityManager#checkPermission
      * @see RuntimePermission
      */
+    @SuppressWarnings("java:S3011") // Justification: centralised, audited accessibility control for Chronicle internals.
     public static void setAccessible(@NotNull final AccessibleObject accessibleObject) {
         if (Bootstrap.isJava9Plus())
             try {

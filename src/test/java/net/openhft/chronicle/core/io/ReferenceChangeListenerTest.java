@@ -6,7 +6,7 @@ package net.openhft.chronicle.core.io;
 import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.*;
 
-public class ReferenceChangeListenerTest {
+class ReferenceChangeListenerTest {
 
     @Test
     public void testOnReferenceAdded() {

@@ -41,7 +41,8 @@ class ThreadConfinementAsserterTest {
     void createShouldReturnCorrectTypeBasedOnAssertions() {
         // This test's behavior will depend on whether assertions are enabled in the JVM.
         ThreadConfinementAsserter asserter = ThreadConfinementAsserter.create();
-        // Perform tests based on whether assertions are enabled or not.
+        // At minimum, a non-null asserter is returned.
+        assertNotNull(asserter);
     }
 
     @Test

@@ -12,7 +12,7 @@ import java.nio.ByteBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ReflectionBasedByteBufferCleanerServiceTest {
+class ReflectionBasedByteBufferCleanerServiceTest {
 
     private final ReflectionBasedByteBufferCleanerService cleanerService = new ReflectionBasedByteBufferCleanerService();
 

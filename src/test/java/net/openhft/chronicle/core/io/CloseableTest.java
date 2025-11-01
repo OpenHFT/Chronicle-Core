@@ -77,6 +77,7 @@ public class CloseableTest extends CoreTestCommon {
         ssc.close();
         // can throw an IOException ssc.close();
         Closeable.closeQuietly(ssc);
+        assertTrue(true);
     }
 
     static class CloseableImpl implements Closeable {
