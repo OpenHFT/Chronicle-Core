@@ -11,7 +11,6 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.verification.VerificationMode;
 import sun.nio.ch.DirectBuffer;
 
 import javax.naming.ConfigurationException;

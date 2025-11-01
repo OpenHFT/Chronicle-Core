@@ -51,7 +51,6 @@ import static net.openhft.chronicle.core.OS.*;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 import static net.openhft.chronicle.core.internal.Bootstrap.*;
 import static net.openhft.chronicle.core.internal.util.MapUtil.entry;
-import static net.openhft.chronicle.core.internal.util.MapUtil.ofUnmodifiable;
 
 /**
  * Utility class to access information in the JVM.
