@@ -1,3 +1,6 @@
+/*
+ * Copyright 2016-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
+ */
 /**
  * Chronicle Core provides annotations describing constraints and design intent.
  * They help library maintainers and tooling reason about code usage.

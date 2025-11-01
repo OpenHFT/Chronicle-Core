@@ -1,3 +1,6 @@
+/*
+ * Copyright 2016-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
+ */
 /**
  * Provides functionality for reporting analytics to an upstream receiver, primarily Google Analytics.
  *
