@@ -32,6 +32,7 @@
         <zero.cost.assertions>disabled</zero.cost.assertions>
         <sonar.organization>openhft</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <!-- Define the target coverage thresholds as properties -->
         <jacoco.line.coverage>0.8</jacoco.line.coverage>
         <jacoco.branch.coverage>0.7</jacoco.branch.coverage>
         <mockito.version>4.9.0</mockito.version>
