@@ -7,7 +7,7 @@ import net.openhft.chronicle.core.CoreTestCommon;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class RecordingHistogramTest extends CoreTestCommon {
     @Test
@@ -30,6 +30,10 @@ public class RecordingHistogramTest extends CoreTestCommon {
         histogram.sampleNanos(200);
         histogram.sampleNanos(50);
         histogram.sampleNanos(300);
+
+        // Assert that formatted output reflects recorded samples
+        String s = histogram.toMicrosFormat(d -> d);
+        assertTrue(s.contains("top:"));
     }
 
     @Test
@@ -37,6 +41,10 @@ public class RecordingHistogramTest extends CoreTestCommon {
         RecordingHistogram histogram = new RecordingHistogram();
         histogram.sampleNanos(100);
         histogram.reset();
+        // After reset, formatting still returns a non-empty summary
+        String s = histogram.toMicrosFormat(d -> d);
+        assertNotNull(s);
+        assertTrue(s.contains("top:"));
     }
 
     @Test

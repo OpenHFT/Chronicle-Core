@@ -189,6 +189,20 @@ public class StringUtilsTest extends CoreTestCommon {
     }
 
     @Test
+    public void testParseDoubleEdgeCases() {
+        // Trailing dot
+        assertEquals(123.0, StringUtils.parseDouble("123."), 0);
+        // Leading dot
+        assertEquals(0.5, StringUtils.parseDouble(".5"), 0);
+        assertEquals(-0.5, StringUtils.parseDouble("-.5"), 0);
+        // Lone dot currently treated as zero by the parser
+        assertEquals(0.0, StringUtils.parseDouble("."), 0);
+        // Large integer value remains finite and comparable to JDK parse
+        String big = "9223372036854775807"; // Long.MAX_VALUE as a string
+        assertEquals(Double.parseDouble(big), StringUtils.parseDouble(big), 0);
+    }
+
+    @Test
     public void testParseInt() {
         validate((s, integer) -> (long) StringUtils.parseInt(s, integer));
     }

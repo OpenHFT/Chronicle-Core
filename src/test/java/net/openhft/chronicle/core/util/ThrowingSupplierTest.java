@@ -17,7 +17,7 @@ class ThrowingSupplierTest {
 
     @Test
     void getShouldThrowException() {
-        ThrowingSupplier<String, Exception> throwingSupplier = () -> { throw new Exception("error"); };
+        ThrowingSupplier<String, Exception> throwingSupplier = () -> alwaysThrows();
         Exception exception = assertThrows(Exception.class, throwingSupplier::get);
         assertEquals("error", exception.getMessage());
     }
@@ -27,5 +27,9 @@ class ThrowingSupplierTest {
         ThrowingSupplier<String, Exception> throwingSupplier = () -> "test";
         Supplier<String> supplier = ThrowingSupplier.asSupplier(throwingSupplier);
         assertEquals("test", supplier.get());
+    }
+
+    private static String alwaysThrows() throws Exception {
+        throw new Exception("error");
     }
 }

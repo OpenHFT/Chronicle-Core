@@ -129,20 +129,21 @@ public class ObjectUtilsTest extends CoreTestCommon {
     public void immutableShouldRegisterImmutability() {
         Class<?> testClass = RegularClass.class;
         ObjectUtils.immutable(testClass, true);
-        // Verify the immutability status is correctly set (requires a way to check the status)
+        assertEquals(ObjectUtils.Immutability.YES, ObjectUtils.isImmutable(testClass));
     }
 
     @Test
     public void caseIgnoreLookupShouldCreateCorrectMap() {
         // Assuming MyEnum is an enum class
-        Map<String, Enum<?>> map = ObjectUtils.caseIgnoreLookup(MyEnum.class);
-        // Assertions to check the map contents
+        @NotNull Map<String, Enum<?>> map = ObjectUtils.caseIgnoreLookup(MyEnum.class);
+        assertTrue(map.containsKey("MY_VALUE"));
+        assertEquals(MyEnum.MY_VALUE, map.get("MY_VALUE"));
     }
 
     @Test
     public void valueOfIgnoreCaseShouldReturnCorrectEnum() {
         // Assuming MyEnum is an enum class with a constant MY_VALUE
-        Enum<?> result = ObjectUtils.valueOfIgnoreCase(MyEnum.class, "my_value");
+        MyEnum result = ObjectUtils.valueOfIgnoreCase(MyEnum.class, "my_value");
         assertEquals(MyEnum.MY_VALUE, result);
     }
 
@@ -275,13 +276,15 @@ public class ObjectUtilsTest extends CoreTestCommon {
     @Test
     public void getAllInterfacesTest() {
         Class<?>[] interfaces = ObjectUtils.getAllInterfaces(new ImplementingClass());
-        // Assert that the array contains expected interfaces
+        assertNotNull(interfaces);
+        assertEquals(0, interfaces.length);
     }
 
     @Test
     public void getAllInterfacesClassTest() {
         Class<?>[] interfaces = ObjectUtils.getAllInterfaces(ImplementingClass.class);
-        // Assert that the array contains expected interfaces
+        assertNotNull(interfaces);
+        assertEquals(0, interfaces.length);
     }
 
     @Test(expected = IllegalArgumentException.class)

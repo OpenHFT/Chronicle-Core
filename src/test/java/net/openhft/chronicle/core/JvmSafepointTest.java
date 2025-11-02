@@ -6,7 +6,7 @@ package net.openhft.chronicle.core;
 import net.openhft.chronicle.testframework.FlakyTestRunner;
 import org.junit.Test;
 
-import static junit.framework.TestCase.assertTrue;
+import static org.junit.Assert.assertTrue;
 
 public class JvmSafepointTest extends CoreTestCommon {
 

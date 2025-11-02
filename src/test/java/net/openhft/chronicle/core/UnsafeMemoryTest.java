@@ -32,7 +32,6 @@ public class UnsafeMemoryTest extends CoreTestCommon {
     @Rule
     public final TestName testName = new TestName();
 
-    private final String name;
     private final UnsafeMemory memory;
     private Boolean onHeap;
     private Object object;
@@ -43,8 +42,8 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         double doubleField = 0.0;
     }
 
+    @SuppressWarnings("unused")
     public UnsafeMemoryTest(String name, UnsafeMemory memory, Boolean onHeap) {
-        this.name = name;
         this.memory = memory;
         this.onHeap = onHeap;
         if (Boolean.TRUE.equals(onHeap)) {
