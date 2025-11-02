@@ -106,7 +106,8 @@ public final class Jvm {
     static {
         Logger logger = LoggerFactory.getLogger(Jvm.class);
 
-        if (!isJUnitTest0()) {
+        boolean notJUnitTest = !isJUnitTest0();
+        if (notJUnitTest) {
             // Eagerly initialise Posix & Affinity
             try {
                 PosixAPI.posix();
@@ -142,7 +143,7 @@ public final class Jvm {
 
         if (DISABLE_DEBUG)
             logger.info("-Ddisable.debug.info turned of debug logging");
-        if (logger.isInfoEnabled())
+        if (logger.isInfoEnabled() & notJUnitTest)
             logger.info("Chronicle core loaded from " + Jvm.class.getProtectionDomain().getCodeSource().getLocation());
         if (RESOURCE_TRACING && !Jvm.getBoolean("disable.resource.warning"))
             logger.warn("Resource tracing is turned on. If you are performance testing or running in PROD you probably don't want this");
