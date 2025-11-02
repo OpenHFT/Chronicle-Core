@@ -1,8 +1,10 @@
 #
 # Copyright 2016-2025 chronicle.software
 #
-net.openhft.chronicle.core.internal.cleaner.Jdk9ByteBufferCleanerService
-net.openhft.chronicle.core.internal.cleaner.ReflectionBasedByteBufferCleanerService
-net.openhft.chronicle.core.cleaner.testimpl.SomeImpactCleaner
+# Test classpath service providers only. We deliberately exclude
+# production providers here to avoid tie-breaks on equal impact
+# (e.g. Jdk9ByteBufferCleanerService is also NO_IMPACT). This lets
+# tests assert the chosen implementation deterministically.
 net.openhft.chronicle.core.cleaner.testimpl.AllowedCleaner
+net.openhft.chronicle.core.cleaner.testimpl.SomeImpactCleaner
 net.openhft.chronicle.core.cleaner.testimpl.DisallowedCleaner
