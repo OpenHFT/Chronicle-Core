@@ -6,7 +6,7 @@ package net.openhft.chronicle.core.threads;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class HandlerPriorityTest {
+class HandlerPriorityTest {
 
     @Test
     public void testAliasForPrioritiesWithAliases() {

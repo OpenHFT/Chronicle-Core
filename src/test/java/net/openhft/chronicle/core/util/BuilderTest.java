@@ -35,8 +35,9 @@ class BuilderTest {
         Builder<MyClass> builder = new MyClassBuilder();
         MyClass instanceFromGet = builder.get();
         MyClass instanceFromBuild = builder.build();
-        // Depending on the implementation, these instances may or may not be the same.
-        // The assertion here should match the expected behavior of the Builder implementation.
+        // For a mutable type, both calls should yield non-null instances.
+        assertNotNull(instanceFromGet);
+        assertNotNull(instanceFromBuild);
     }
 }
 

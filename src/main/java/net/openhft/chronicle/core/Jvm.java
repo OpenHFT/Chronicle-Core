@@ -55,6 +55,7 @@ import static net.openhft.chronicle.core.internal.util.MapUtil.entry;
 /**
  * Utility class to access information in the JVM.
  */
+@SuppressWarnings("java:S1191") // Uses sun.misc.Unsafe and Signal in guarded, version-aware paths for performance and signal handling.
 public final class Jvm {
 
     public static final String JAVA_CLASS_PATH = "java.class.path";
@@ -556,6 +557,7 @@ public final class Jvm {
      * @see SecurityManager#checkPermission
      * @see RuntimePermission
      */
+    @SuppressWarnings("java:S3011") // Justification: delegates to centralised ClassUtil.setAccessible for audited bypass.
     public static void setAccessible(@NotNull final AccessibleObject accessibleObject) {
         ClassUtil.setAccessible(accessibleObject);
     }
@@ -1280,6 +1282,7 @@ public final class Jvm {
 
     // based on a solution by https://stackoverflow.com/users/9199167/max-vollmer
     // https://stackoverflow.com/a/52262779/57695
+    @SuppressWarnings("java:S3011") // Justification: No supported public API; guarded by property and try/catch.
     private static void doNotCloseOnInterrupt9(final Class<?> clazz, final FileChannel fc) {
         try {
             final Field field = AbstractInterruptibleChannel.class.getDeclaredField("interruptor");

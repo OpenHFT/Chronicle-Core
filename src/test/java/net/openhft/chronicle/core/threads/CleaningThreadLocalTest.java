@@ -8,12 +8,11 @@ import org.junit.jupiter.api.Test;
 
 import java.util.function.Supplier;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
-public class CleaningThreadLocalTest {
+class CleaningThreadLocalTest {
 
     @Test
     public void testConstructor() {
@@ -62,6 +61,8 @@ public class CleaningThreadLocalTest {
 
         t1.join();
         t2.join();
+        // Main thread value should remain as supplied
+        assertEquals("test", ctl.get());
     }
 
     @Test
@@ -71,6 +72,10 @@ public class CleaningThreadLocalTest {
             throw new RuntimeException("Cleanup failed");
         };
         CleaningThreadLocal<String> ctl = CleaningThreadLocal.withCleanup(supplier, cleanup);
+        ctl.set("temp");
+        assertDoesNotThrow(ctl::remove);
+        // After remove, next get() should re-initialize using supplier
+        assertEquals("test", ctl.get());
     }
 
     @Test

@@ -62,6 +62,7 @@ public interface ExceptionHandler {
      * @param thrown  the exception that needs to be handled, may be {@code null}
      * @throws NullPointerException if {@code clazz} is {@code null}
      */
+    @SuppressWarnings("java:S1181") // Catching Throwable is intentional to prevent user log handlers from crashing the reporting path.
     default void on(@NotNull Class<?> clazz, @Nullable String message, @Nullable Throwable thrown) {
         requireNonNull(clazz);
         try {

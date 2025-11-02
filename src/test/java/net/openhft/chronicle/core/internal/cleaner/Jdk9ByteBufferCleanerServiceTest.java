@@ -11,7 +11,7 @@ import java.nio.ByteBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class Jdk9ByteBufferCleanerServiceTest {
+class Jdk9ByteBufferCleanerServiceTest {
 
     private Jdk9ByteBufferCleanerService cleanerService;
 

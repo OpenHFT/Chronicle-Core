@@ -147,9 +147,9 @@ public interface LongValue extends Closeable {
         for (; ; ) {
             long pos = getVolatileValue();
             if (pos >= value)
-                break;
+                return;
             if (compareAndSwapValue(pos, value))
-                break;
+                return;
             Jvm.nanoPause();
         }
     }
@@ -165,9 +165,9 @@ public interface LongValue extends Closeable {
         for (; ; ) {
             long pos = getVolatileValue();
             if (pos <= value)
-                break;
+                return;
             if (compareAndSwapValue(pos, value))
-                break;
+                return;
             Jvm.nanoPause();
         }
     }

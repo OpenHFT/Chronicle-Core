@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class ReferenceCountedUtilsTest {
+class ReferenceCountedUtilsTest {
 
     @BeforeEach
     public void setUp() {

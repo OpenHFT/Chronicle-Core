@@ -7,7 +7,7 @@ import org.junit.jupiter.api.*;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class EventLoopTest {
+class EventLoopTest {
 
     private EventLoop eventLoop;
     private EventHandler handler;

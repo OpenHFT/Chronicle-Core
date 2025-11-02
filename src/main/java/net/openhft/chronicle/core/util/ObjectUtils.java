@@ -186,6 +186,7 @@ public final class ObjectUtils {
         return () -> (T) rethrow(new IllegalArgumentException("abstract class: " + c.getName()));
     }
 
+    @SuppressWarnings("java:S3011") // Justification: allow instantiation via non-public default constructor as a last resort.
     private static <T> Supplier<T> defaultSupplier(Class<T> c) {
         try {
             Constructor<T> constructor = c.getDeclaredConstructor();

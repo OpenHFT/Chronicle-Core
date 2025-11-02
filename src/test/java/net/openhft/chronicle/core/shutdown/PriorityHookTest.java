@@ -9,7 +9,7 @@ import org.mockito.InOrder;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class PriorityHookTest {
+class PriorityHookTest {
 
     @Test
     public void testAddHook() {

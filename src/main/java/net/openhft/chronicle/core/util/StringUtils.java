@@ -329,6 +329,7 @@ public final class StringUtils {
     }
 
     @NotNull
+    @SuppressWarnings("java:S3011") // Justification: On legacy JDKs, reflection avoids extra copy; guarded by property.
     public static String newString(char @NotNull [] chars) {
         if (Bootstrap.isJava9Plus()) {
             return new String(chars);
