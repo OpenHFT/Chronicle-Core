@@ -396,7 +396,7 @@
                                 <goals>
                                     <goal>check</goal>
                                 </goals>
-                                <phase>verify</phase>
+                                <phase>prepare-package</phase>
                                 <configuration>
                                     <rules>
                                         <rule>
