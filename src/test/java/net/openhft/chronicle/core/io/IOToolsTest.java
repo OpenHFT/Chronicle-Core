@@ -52,6 +52,7 @@ public class IOToolsTest extends CoreTestCommon {
         assertTrue(Files.exists(path));
         assertArrayEquals(testData.getBytes(), Files.readAllBytes(path));
 
+        BackgroundResourceReleaser.releasePendingResources();
         Files.deleteIfExists(path);
     }
 
@@ -79,6 +80,7 @@ public class IOToolsTest extends CoreTestCommon {
 
         assertTrue(Files.isDirectory(tempDir));
 
+        BackgroundResourceReleaser.releasePendingResources();
         Files.deleteIfExists(tempDir);
     }
 
