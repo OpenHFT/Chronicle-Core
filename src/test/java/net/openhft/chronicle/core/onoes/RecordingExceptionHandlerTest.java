@@ -3,7 +3,6 @@
  */
 package net.openhft.chronicle.core.onoes;
 
-import net.openhft.chronicle.core.onoes.*;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import java.util.Map;

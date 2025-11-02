@@ -4,7 +4,6 @@
 package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import net.openhft.chronicle.core.threads.ThreadDump;
 import net.openhft.chronicle.core.util.ClassNotFoundRuntimeException;
 import org.junit.Test;
 

@@ -62,13 +62,8 @@ public class JvmParseSizeTest extends CoreTestCommon {
         assertEquals(value, Jvm.getSize(PROPERTY, -1));
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void parseSizeRejectsUnknownSuffix() {
-        try {
-            Jvm.parseSize("10XB");
-            throw new AssertionError("Expected IllegalArgumentException for unknown suffix");
-        } catch (IllegalArgumentException expected) {
-            // expected
-        }
+        Jvm.parseSize("10XB");
     }
 }
