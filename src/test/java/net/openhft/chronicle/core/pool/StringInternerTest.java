@@ -5,12 +5,12 @@ package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import org.jetbrains.annotations.NotNull;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 public class StringInternerTest extends CoreTestCommon {
-
     @Test
     public void testIntern() throws IllegalArgumentException {
         @NotNull StringInterner si = new StringInterner(128);

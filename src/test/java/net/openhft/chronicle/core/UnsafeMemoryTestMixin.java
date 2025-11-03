@@ -28,8 +28,6 @@ interface UnsafeMemoryTestMixin<T> {
     int MEM_SIZE = CACHE_LINE_SIZE * 2;
     int NO_THREADS = 5;
 
-    float EPSILON = 1e-7f;
-
     Class<T> type();
 
     IntPredicate alignedToType();

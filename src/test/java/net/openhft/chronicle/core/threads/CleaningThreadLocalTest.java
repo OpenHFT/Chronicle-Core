@@ -80,6 +80,7 @@ class CleaningThreadLocalTest {
         assertDoesNotThrow(ctl::remove);
         // After remove, next get() should re-initialize using supplier
         assertEquals("test", ctl.get());
+        ctl.remove();
         assertTrue(ran.get());
     }
 

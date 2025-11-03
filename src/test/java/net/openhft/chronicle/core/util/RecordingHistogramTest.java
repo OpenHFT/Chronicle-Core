@@ -9,7 +9,7 @@ import net.openhft.chronicle.core.time.SystemTimeProvider;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertNotEquals;
 
 public class RecordingHistogramTest extends CoreTestCommon {
@@ -37,6 +37,10 @@ public class RecordingHistogramTest extends CoreTestCommon {
         assertEquals("{ 50/90 99/99.9 99.99 - worst  was: 2.002 / 5.50  5.50 / 5.50  5.50 - 5.50, " +
                         "top: [{ off: 0.0, dur: 5.5 }, { off: 0.0, dur: 3.0 }, { off: 0.0, dur: 2.0 }, { off: 0.0, dur: 1.0 }] }",
                 histogram.toMicrosFormat());
+
+        // Assert that formatted output reflects recorded samples
+        String s = histogram.toMicrosFormat(d -> d);
+        assertTrue(s.contains("top:"));
     }
 
     @Test

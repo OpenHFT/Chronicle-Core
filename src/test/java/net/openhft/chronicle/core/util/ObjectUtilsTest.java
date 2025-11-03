@@ -143,7 +143,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
     @Test
     public void valueOfIgnoreCaseShouldReturnCorrectEnum() {
         // Assuming MyEnum is an enum class with a constant MY_VALUE
-        Enum<?> result = ObjectUtils.valueOfIgnoreCase(MyEnum.class, "my_value");
+        MyEnum result = ObjectUtils.valueOfIgnoreCase(MyEnum.class, "my_value");
         assertEquals(MyEnum.MY_VALUE, result);
     }
 

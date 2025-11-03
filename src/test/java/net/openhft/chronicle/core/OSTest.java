@@ -5,10 +5,7 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.io.IOTools;
 import net.openhft.chronicle.core.threads.ThreadDump;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestName;
 import org.mockito.MockitoAnnotations;
 
@@ -356,5 +353,58 @@ public class OSTest extends CoreTestCommon {
         }
 
         assertEquals(expectedHostName, OS.HostnameHolder.HOST_NAME);
+    }
+
+
+    @Test(expected = IllegalArgumentException.class)
+    public void mapAlignRejectsNegativeOffsets() {
+        OS.mapAlign(-1L);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void mapAlignRejectsNonPositiveAlignment() {
+        OS.mapAlign(64L, 0);
+    }
+
+    @Test
+    public void mapAlignRoundsUpToAlignment() {
+        long alignment = OS.defaultOsPageSize();
+        long offset = alignment / 2;
+        long aligned = OS.mapAlign(offset, (int) alignment);
+        assertEquals(alignment, aligned);
+    }
+
+    @Test
+    public void memoryMapAndUnmapRoundTrip() throws IOException {
+        File temp = File.createTempFile("chronicle-os-map", ".bin");
+        temp.deleteOnExit();
+        long size = OS.pageAlign(8192L);
+        try (RandomAccessFile raf = new RandomAccessFile(temp, "rw");
+             FileChannel channel = raf.getChannel()) {
+            raf.setLength(size);
+
+            long address = OS.map(channel, FileChannel.MapMode.READ_WRITE, 0L, size);
+            Assert.assertTrue("Expected non-zero mapping address", address != 0L);
+
+            OS.unmap(address, size);
+        }
+    }
+
+    @Test
+    public void mapAlignHandlesNonZeroStartOffsets() throws IOException {
+        File temp = File.createTempFile("chronicle-os-map-offset", ".bin");
+        temp.deleteOnExit();
+        long pageSize = OS.pageSize();
+        long start = pageSize / 2; // intentionally unaligned
+        long size = OS.pageAlign(4096L);
+
+        try (RandomAccessFile raf = new RandomAccessFile(temp, "rw");
+             FileChannel channel = raf.getChannel()) {
+            raf.setLength(start + size);
+
+            long address = OS.map(channel, FileChannel.MapMode.READ_WRITE, start, size);
+            Assert.assertTrue(address != 0L);
+            OS.unmap(address, size);
+        }
     }
 }
