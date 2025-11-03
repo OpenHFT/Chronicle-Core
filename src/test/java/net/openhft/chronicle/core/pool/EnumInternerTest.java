@@ -53,6 +53,7 @@ public class EnumInternerTest extends CoreTestCommon {
                 });
     }
 
+    @SuppressWarnings("java:S115")
     enum TestEnum {
         c1, cq, db, ho, id, k6, kv, la, m5, mu, nb, qg, s8, sx, uz, va, yj
     }
