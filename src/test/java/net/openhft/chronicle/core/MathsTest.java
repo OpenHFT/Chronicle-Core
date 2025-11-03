@@ -27,8 +27,8 @@ import static org.junit.Assert.*;
  * Time: 10:31
  */
 public class MathsTest extends CoreTestCommon {
-    static final double err = 5.1e-9;
-    public static final int COUNT = Jvm.isArm() ? 500_000 : 3_000_000;
+    private static final double err = 5.1e-9;
+    private static final int COUNT = Jvm.isArm() ? 500_000 : 3_000_000;
     private ThreadDump threadDump;
 
     @Test
@@ -103,7 +103,7 @@ public class MathsTest extends CoreTestCommon {
         roundUp(factor, d -> Maths.roundNup(d, 8));
     }
 
-    public void roundEither(double factor, Rounder rounder) {
+    private void roundEither(double factor, Rounder rounder) {
         final double factor2 = 2 * factor;
         for (int i = 1; i < COUNT; i += 2) {
             double dm = i / factor2;
@@ -119,7 +119,7 @@ public class MathsTest extends CoreTestCommon {
         }
     }
 
-    public void roundUp(double factor, Rounder rounder) {
+    private void roundUp(double factor, Rounder rounder) {
         final double factor2 = 2 * factor;
         for (int i = 1; i < COUNT; i += 2) {
             double d = i / factor2;

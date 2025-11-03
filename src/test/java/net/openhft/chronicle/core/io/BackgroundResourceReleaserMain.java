@@ -32,7 +32,7 @@ public class BackgroundResourceReleaserMain {
         }
     }
 
-    public void runResourcesCleanedUpManually() throws IllegalAccessException {
+    private void runResourcesCleanedUpManually() throws IllegalAccessException {
         assertNull(getReleaserThread());
         int count = 20;
         for (int i = 0; i < count - 1; i++) {
@@ -69,7 +69,7 @@ public class BackgroundResourceReleaserMain {
         BackgroundResourceReleaser.releasePendingResources();
     }
 
-    public void runResourcesCleanedUpAndStopped() throws IllegalAccessException {
+    private void runResourcesCleanedUpAndStopped() throws IllegalAccessException {
         Thread releaserThread = getReleaserThread();
         if (BackgroundResourceReleaser.BG_RELEASER)
             assertNotNull(releaserThread);
@@ -113,7 +113,7 @@ public class BackgroundResourceReleaserMain {
         fail("Resource releaser thread did not terminate.");
     }
 
-    public void runResourcesCleanedUpInForeground() throws IllegalAccessException {
+    private void runResourcesCleanedUpInForeground() throws IllegalAccessException {
         assertNull(getReleaserThread());
         int count = 20;
         for (int i = 0; i < count - 1; i++) {

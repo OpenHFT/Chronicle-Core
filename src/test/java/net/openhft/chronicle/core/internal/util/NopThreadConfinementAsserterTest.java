@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class NopThreadConfinementAsserterTest {
 
     @Test
-    public void assertThreadConfinedShouldDoNothing() {
+    void assertThreadConfinedShouldDoNothing() {
         NopThreadConfinementAsserter asserter = NopThreadConfinementAsserter.INSTANCE;
 
         assertDoesNotThrow(asserter::assertThreadConfined, "assertThreadConfined should not throw any exceptions");

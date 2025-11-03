@@ -89,7 +89,7 @@ public class CleaningRandomAccessFileTest extends CoreTestCommon {
         IOTools.deleteDirWithFiles(tempDir);
     }
 
-    static int getFDs() {
+    private static int getFDs() {
         if (!OS.isLinux())
             return -1;
         //noinspection DataFlowIssue

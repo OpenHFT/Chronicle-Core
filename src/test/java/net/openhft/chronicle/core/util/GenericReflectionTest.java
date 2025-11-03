@@ -95,7 +95,7 @@ class GenericReflectionTest extends CoreTestCommon {
         Returns<String> retRS();
     }
 
-    interface ReturnsString extends Returns<String> {
+    private interface ReturnsString extends Returns<String> {
     }
 
     interface GenericMethodExtends<A extends Number, B extends CharSequence> {
@@ -123,7 +123,7 @@ class GenericReflectionTest extends CoreTestCommon {
         void method0(A a);
     }
 
-    interface MassivelyNestedExtendsGenericMethod extends OverlyNestedExtendsGenericMethod<Long>, OverridesGenericMethod {
+    private interface MassivelyNestedExtendsGenericMethod extends OverlyNestedExtendsGenericMethod<Long>, OverridesGenericMethod {
     }
 
     class ReturnsInteger implements Returns<Integer> {

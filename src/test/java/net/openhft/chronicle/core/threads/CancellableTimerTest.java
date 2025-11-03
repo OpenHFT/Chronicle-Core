@@ -21,8 +21,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class CancellableTimerTest extends CoreTestCommon {
 
-    public static final int INITIAL_DELAY_MS = 1_000;
-    public static final int PERIOD_MS = 2_000;
+    private static final int INITIAL_DELAY_MS = 1_000;
+    private static final int PERIOD_MS = 2_000;
     @Mock
     private EventLoop eventLoop;
     @Mock

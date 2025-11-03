@@ -12,7 +12,7 @@ import static org.mockito.Mockito.*;
 class PriorityHookTest {
 
     @Test
-    public void testAddHook() {
+    void testAddHook() {
         Runnable hook1 = mock(Runnable.class);
         boolean added1 = PriorityHook.add(1, hook1);
         assertFalse(added1);
@@ -22,7 +22,7 @@ class PriorityHookTest {
     }
 
     @Test
-    public void testHookExecutionOrder() {
+    void testHookExecutionOrder() {
         Runnable hook1 = mock(Runnable.class);
         Runnable hook2 = mock(Runnable.class);
         PriorityHook.add(1, hook1);
@@ -36,7 +36,7 @@ class PriorityHookTest {
     }
 
     @Test
-    public void testClearHooks() {
+    void testClearHooks() {
         Runnable hook = mock(Runnable.class);
         PriorityHook.add(1, hook);
 

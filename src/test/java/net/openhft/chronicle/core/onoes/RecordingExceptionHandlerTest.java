@@ -18,7 +18,7 @@ class RecordingExceptionHandlerTest {
     private boolean exceptionsOnly;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         logLevel = LogLevel.WARN; // or any other LogLevel as required
         exceptionMap = new ConcurrentHashMap<>();
         exceptionsOnly = false; // or true as per your test scenario
@@ -26,7 +26,7 @@ class RecordingExceptionHandlerTest {
     }
 
     @Test
-    public void testRecordExceptionWithThrowable() {
+    void testRecordExceptionWithThrowable() {
         Throwable throwable = new RuntimeException("Test exception");
         handler.on(RecordingExceptionHandlerTest.class, "Test message", throwable);
 
@@ -36,7 +36,7 @@ class RecordingExceptionHandlerTest {
     }
 
     @Test
-    public void testRecordExceptionWithLogger() {
+    void testRecordExceptionWithLogger() {
         Logger logger = mock(Logger.class);
         when(logger.getName()).thenReturn("TestLogger");
         Throwable throwable = new RuntimeException("Test exception");
@@ -48,7 +48,7 @@ class RecordingExceptionHandlerTest {
     }
 
     @Test
-    public void testExceptionsOnly() {
+    void testExceptionsOnly() {
         exceptionsOnly = true;
         handler = new RecordingExceptionHandler(logLevel, exceptionMap, exceptionsOnly);
         handler.on(RecordingExceptionHandlerTest.class, "Test message", null);
@@ -57,7 +57,7 @@ class RecordingExceptionHandlerTest {
     }
 
     @Test
-    public void testConcurrentAccess() throws InterruptedException {
+    void testConcurrentAccess() throws InterruptedException {
         // This test simulates concurrent access to the RecordingExceptionHandler
         Runnable task = () -> handler.on(RecordingExceptionHandlerTest.class, "Concurrent message", new RuntimeException());
         Thread thread1 = new Thread(task);

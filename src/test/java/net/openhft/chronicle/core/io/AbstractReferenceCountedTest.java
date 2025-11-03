@@ -53,7 +53,7 @@ public class AbstractReferenceCountedTest extends ReferenceCountedTracerContract
     static class MyReferenceCounted extends AbstractReferenceCounted {
         int performRelease;
 
-        public MyReferenceCounted() {
+        MyReferenceCounted() {
         }
 
         @Override

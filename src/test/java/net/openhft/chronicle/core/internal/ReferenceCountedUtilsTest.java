@@ -14,17 +14,17 @@ import static org.mockito.Mockito.*;
 class ReferenceCountedUtilsTest {
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         ReferenceCountedUtils.enableReferenceTracing();
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         ReferenceCountedUtils.disableReferenceTracing();
     }
 
     @Test
-    public void unmonitorShouldRemoveReference() {
+    void unmonitorShouldRemoveReference() {
         AbstractReferenceCounted referenceCounted = mock(AbstractReferenceCounted.class);
         when(referenceCounted.refCount()).thenReturn(1);
 

@@ -16,7 +16,7 @@ import static org.junit.Assert.assertTrue;
  * Test for {@link Slf4jExceptionHandler} to ensure that it falls back to the default
  */
 class ExceptionHandlerFallbackTest {
-    static final int FAILED_INITIALIZATION = 2;
+    private static final int FAILED_INITIALIZATION = 2;
 
     /**
      * Test to ensure that the Slf4jExceptionHandler falls back to the default

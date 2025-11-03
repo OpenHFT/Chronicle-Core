@@ -48,7 +48,7 @@ public class InvalidEventHandlerExceptionTest extends CoreTestCommon {
         reusableInstance.setStackTrace(new StackTraceElement[]{});
         assertEquals(0, reusableInstance.getStackTrace().length);
     }
-    InvalidEventHandlerException e;
+    private InvalidEventHandlerException e;
 
     @Before
     public void setup() {

@@ -5,7 +5,7 @@ package net.openhft.chronicle.core.values;
 
 import net.openhft.chronicle.core.io.SimpleCloseable;
 
-public class LongValueImpl extends SimpleCloseable implements LongValue {
+class LongValueImpl extends SimpleCloseable implements LongValue {
     private long value = 0;
 
     @Override

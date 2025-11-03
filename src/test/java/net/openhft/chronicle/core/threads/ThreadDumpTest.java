@@ -19,7 +19,7 @@ class ThreadDumpTest {
     }
 
     @Test
-    public void testIgnoreThread() {
+    void testIgnoreThread() {
         String ignoredThreadName = "IgnoredThread";
         threadDump.ignore(ignoredThreadName);
 

@@ -248,7 +248,7 @@ public class JvmTest extends CoreTestCommon {
         String hi;
     }
 
-    static class ClassD extends ClassC {
+    private static class ClassD extends ClassC {
         byte x;
     }
 
@@ -387,8 +387,8 @@ public class JvmTest extends CoreTestCommon {
         ExceptionHandler mockErrorHandler = mock(ExceptionHandler.class);
         Jvm.setThreadLocalExceptionHandlers(mockErrorHandler, null, null);
         assertSame(mockErrorHandler, ThreadLocalisedExceptionHandler.unwrap(Jvm.error()));
-        assertNull(ThreadLocalisedExceptionHandler.unwrap(Jvm.warn()));
-        assertNull(ThreadLocalisedExceptionHandler.unwrap(Jvm.debug()));
+        assertEquals(NullExceptionHandler.NOTHING, ThreadLocalisedExceptionHandler.unwrap(Jvm.warn()));
+        assertEquals(NullExceptionHandler.NOTHING, ThreadLocalisedExceptionHandler.unwrap(Jvm.debug()));
     }
 
     @Test
@@ -423,7 +423,7 @@ public class JvmTest extends CoreTestCommon {
         assertEquals("net.openhft.chronicle.core", Jvm.getPackageName(Jvm.class));
     }
 
-    static class SomeClass {
+    private static class SomeClass {
         private int somePrivateField;
     }
 
@@ -436,7 +436,7 @@ public class JvmTest extends CoreTestCommon {
     @Target(value = {ElementType.FIELD, ElementType.TYPE, ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @RealAnno("Hello")
-    public @interface AnnoAlias {
+    @interface AnnoAlias {
 
     }
     static class DTO {

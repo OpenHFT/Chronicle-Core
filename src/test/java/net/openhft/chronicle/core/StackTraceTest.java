@@ -17,7 +17,7 @@ public class StackTraceTest extends CoreTestCommon {
     /**
      * Simulates a thread that sleeps/stalls so we can capture its stack trace.
      */
-    static void thinking() {
+    private static void thinking() {
         threadStarted.countDown();
         Jvm.pause(5_000);
     }

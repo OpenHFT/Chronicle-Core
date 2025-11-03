@@ -81,7 +81,7 @@ public class CloseableTest extends CoreTestCommon {
     }
 
     static class CloseableImpl implements Closeable {
-        public boolean wasClosed = false;
+        boolean wasClosed = false;
 
         @Override
         public void close() {

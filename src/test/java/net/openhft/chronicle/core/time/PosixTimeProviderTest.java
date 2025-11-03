@@ -35,7 +35,7 @@ public class PosixTimeProviderTest extends CoreTestCommon {
                 .runOrThrow();
     }
 
-    public void currentTimeMicros0() {
+    private void currentTimeMicros0() {
 
         @NotNull TimeProvider tp = PosixTimeProvider.INSTANCE;
         long minDiff = 0;

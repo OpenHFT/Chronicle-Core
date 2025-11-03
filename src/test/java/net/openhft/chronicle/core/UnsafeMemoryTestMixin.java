@@ -165,11 +165,11 @@ interface UnsafeMemoryTestMixin<T> {
         private final UnsafeMemoryTestMixin<T> mixin;
         private final List<String> errors;
 
-        public Reader(final int no,
-                      final CyclicBarrier barrier,
-                      final Supplier<T> getter,
-                      final UnsafeMemoryTestMixin<T> mixin,
-                      final List<String> errors) {
+        Reader(final int no,
+               final CyclicBarrier barrier,
+               final Supplier<T> getter,
+               final UnsafeMemoryTestMixin<T> mixin,
+               final List<String> errors) {
             this.no = no;
             this.barrier = barrier;
             this.getter = getter;
@@ -308,7 +308,7 @@ interface UnsafeMemoryTestMixin<T> {
         private final Object object;
         private final long addr;
 
-        public Variant(Arguments args) {
+        Variant(Arguments args) {
             this.name = (String) args.get()[0];
             this.memory = (UnsafeMemory) args.get()[1];
             this.mode = (Mode) args.get()[2];
@@ -332,23 +332,23 @@ interface UnsafeMemoryTestMixin<T> {
             }
         }
 
-        public String name() {
+        String name() {
             return name;
         }
 
-        public UnsafeMemory memory() {
+        UnsafeMemory memory() {
             return memory;
         }
 
-        public Mode mode() {
+        Mode mode() {
             return mode;
         }
 
-        public Object object() {
+        Object object() {
             return object;
         }
 
-        public long addr() {
+        long addr() {
             return addr;
         }
 
@@ -385,7 +385,7 @@ interface UnsafeMemoryTestMixin<T> {
          */
         NULL_OBJECT;
 
-        public boolean isDirectAddressing() {
+        boolean isDirectAddressing() {
             return this == NATIVE_ADDRESS;
         }
     }

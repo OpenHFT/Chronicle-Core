@@ -64,7 +64,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
     static class ClassWithString {
         private final String s;
 
-        public ClassWithString(String s) {
+        ClassWithString(String s) {
             this.s = s;
         }
     }
@@ -72,7 +72,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
     static class ClassWithValueOf {
         private final String s;
 
-        public ClassWithValueOf(String s) {
+        ClassWithValueOf(String s) {
             this.s = s;
         }
 
@@ -84,7 +84,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
     static class ClassWithParse {
         private final String s;
 
-        public ClassWithParse(String s) {
+        ClassWithParse(String s) {
             this.s = s;
         }
 
@@ -295,9 +295,9 @@ public class ObjectUtilsTest extends CoreTestCommon {
         MY_VALUE
     }
 
-    public class ImplementingClass implements IgnoresEverything {}
-    public class AbstractTestClass {}
-    public class RegularClass {}
+    class ImplementingClass implements IgnoresEverything {}
+    private class AbstractTestClass {}
+    private class RegularClass {}
 
     @Test
     public void testDefaultValueForPrimitives() {

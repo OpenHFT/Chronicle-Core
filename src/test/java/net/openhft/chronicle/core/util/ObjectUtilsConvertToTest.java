@@ -53,7 +53,7 @@ public class ObjectUtilsConvertToTest extends CoreTestCommon {
         private final String name;
         private final int ordinal;
 
-        public DEnum(String name, int ordinal) {
+        DEnum(String name, int ordinal) {
             this.name = name;
             this.ordinal = ordinal;
         }

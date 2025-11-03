@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EnumInternerTest extends CoreTestCommon {
 
-    static final int MASK = 63;
+    private static final int MASK = 63;
 
     public static void main(String[] args) {
         for (int i = 0; i < 100000; i++) {

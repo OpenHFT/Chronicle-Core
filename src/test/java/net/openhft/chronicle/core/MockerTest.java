@@ -51,6 +51,6 @@ public class MockerTest extends CoreTestCommon {
     interface ChainingTerminal extends Chaining<Terminal> {
     }
 
-    interface ChainedChainingTerminal extends Chained<ChainingTerminal> {
+    private interface ChainedChainingTerminal extends Chained<ChainingTerminal> {
     }
 }

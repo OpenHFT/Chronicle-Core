@@ -16,7 +16,7 @@ import static org.junit.Assert.assertEquals;
 
 public class CleaningRandomAccessFileTest extends CoreTestCommon {
 
-    static int getFDs() {
+    private static int getFDs() {
         if (!OS.isLinux())
             return -1;
         return new File("/proc/self/fd").list().length;

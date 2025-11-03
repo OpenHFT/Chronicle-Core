@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ThreadingIllegalStateExceptionTest {
 
     @Test
-    public void testConstructorWithMessageAndCause() {
+    void testConstructorWithMessageAndCause() {
         String expectedMessage = "Custom threading error message";
         Throwable expectedCause = new RuntimeException("Cause of error");
 

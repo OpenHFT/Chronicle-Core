@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class IORuntimeExceptionTest {
 
     @Test
-    public void testConstructorWithMessage() {
+    void testConstructorWithMessage() {
         String message = "Error message";
         IORuntimeException exception = new IORuntimeException(message);
 
@@ -18,7 +18,7 @@ class IORuntimeExceptionTest {
     }
 
     @Test
-    public void testConstructorWithThrowable() {
+    void testConstructorWithThrowable() {
         Throwable cause = new IOException("Cause");
         IORuntimeException exception = new IORuntimeException(cause);
 
@@ -26,7 +26,7 @@ class IORuntimeExceptionTest {
     }
 
     @Test
-    public void testConstructorWithMessageAndThrowable() {
+    void testConstructorWithMessageAndThrowable() {
         String message = "Error message";
         Throwable cause = new IOException("Cause");
         IORuntimeException exception = new IORuntimeException(message, cause);
@@ -36,7 +36,7 @@ class IORuntimeExceptionTest {
     }
 
     @Test
-    public void testNewIORuntimeException() {
+    void testNewIORuntimeException() {
         Exception closedException = new IOException("Connection reset by peer");
         Exception otherException = new IOException("Some other IO error");
 

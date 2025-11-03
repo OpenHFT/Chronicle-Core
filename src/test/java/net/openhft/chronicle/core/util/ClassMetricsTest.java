@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ClassMetricsTest {
 
     @Test
-    public void constructorAndMethodsWorkCorrectly() {
+    void constructorAndMethodsWorkCorrectly() {
         int expectedOffset = 10;
         int expectedLength = 20;
         ClassMetrics metrics = new ClassMetrics(expectedOffset, expectedLength);
@@ -19,7 +19,7 @@ class ClassMetricsTest {
     }
 
     @Test
-    public void equalsAndHashCode() {
+    void equalsAndHashCode() {
         ClassMetrics metrics1 = new ClassMetrics(10, 20);
         ClassMetrics metrics2 = new ClassMetrics(10, 20);
         ClassMetrics metrics3 = new ClassMetrics(15, 25);
@@ -32,7 +32,7 @@ class ClassMetricsTest {
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         ClassMetrics metrics = new ClassMetrics(10, 20);
         String toStringResult = metrics.toString();
 

@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ClassNotFoundRuntimeExceptionTest {
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         ClassNotFoundException cause = new ClassNotFoundException("Test class not found");
         ClassNotFoundRuntimeException exception = new ClassNotFoundRuntimeException(cause);
 
@@ -18,7 +18,7 @@ class ClassNotFoundRuntimeExceptionTest {
     }
 
     @Test
-    public void testGetCause() {
+    void testGetCause() {
         ClassNotFoundException cause = new ClassNotFoundException("Test class not found");
         ClassNotFoundRuntimeException exception = new ClassNotFoundRuntimeException(cause);
 

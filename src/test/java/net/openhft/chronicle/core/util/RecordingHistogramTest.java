@@ -4,6 +4,8 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
+import net.openhft.chronicle.core.time.SetTimeProvider;
+import net.openhft.chronicle.core.time.SystemTimeProvider;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
@@ -25,6 +27,7 @@ public class RecordingHistogramTest extends CoreTestCommon {
 
     @Test
     public void testSampleNanosAndTopDurations() {
+        SystemTimeProvider.CLOCK = new SetTimeProvider();
         RecordingHistogram histogram = new RecordingHistogram();
 
         histogram.sampleNanos(1000);
@@ -32,7 +35,7 @@ public class RecordingHistogramTest extends CoreTestCommon {
         histogram.sampleNanos(5500);
         histogram.sampleNanos(3000);
         assertEquals("{ 50/90 99/99.9 99.99 - worst  was: 2.002 / 5.50  5.50 / 5.50  5.50 - 5.50, " +
-                        "top: [{ off: 13.62, dur: 5.5 }, { off: 15.11, dur: 3.0 }, { off: 11.83, dur: 2.0 }, { off: 7.16, dur: 1.0 }] }",
+                        "top: [{ off: 0.0, dur: 5.5 }, { off: 0.0, dur: 3.0 }, { off: 0.0, dur: 2.0 }, { off: 0.0, dur: 1.0 }] }",
                 histogram.toMicrosFormat());
     }
 

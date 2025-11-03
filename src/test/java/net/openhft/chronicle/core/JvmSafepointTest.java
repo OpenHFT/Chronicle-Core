@@ -54,7 +54,7 @@ public class JvmSafepointTest extends CoreTestCommon {
         FlakyTestRunner.<RuntimeException>builder(this::safePointPerf0).withFlakyOnThisArchitecture(true).withMaxIterations(3).build().run();
     }
 
-    public void safePointPerf0() {
+    private void safePointPerf0() {
 
         for (int t = 0; t <= 5; t++) {
             long start = System.nanoTime();

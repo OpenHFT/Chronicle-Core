@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SimpleCloseableTest {
 
-    public static class TestableSimpleCloseable extends SimpleCloseable {
+    static class TestableSimpleCloseable extends SimpleCloseable {
         private boolean performCloseCalled = false;
 
         @Override
@@ -25,7 +25,7 @@ class SimpleCloseableTest {
     }
 
     @Test
-    public void testClose() {
+    void testClose() {
         TestableSimpleCloseable closeable = new TestableSimpleCloseable();
 
         assertFalse(closeable.isClosed());
@@ -38,7 +38,7 @@ class SimpleCloseableTest {
     }
 
     @Test
-    public void testIsClosed() {
+    void testIsClosed() {
         TestableSimpleCloseable closeable = new TestableSimpleCloseable();
 
         assertFalse(closeable.isClosed());

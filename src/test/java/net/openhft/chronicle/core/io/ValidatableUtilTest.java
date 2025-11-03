@@ -10,7 +10,7 @@ import static org.mockito.Mockito.*;
 class ValidatableUtilTest {
 
     @Test
-    public void testValidateToggle() {
+    void testValidateToggle() {
         assertTrue(ValidatableUtil.validateEnabled());
 
         ValidatableUtil.startValidateDisabled();
@@ -21,13 +21,13 @@ class ValidatableUtilTest {
     }
 
     @Test
-    public void testEndValidateDisabledWithoutStart() {
+    void testEndValidateDisabledWithoutStart() {
         AssertionError exception = assertThrows(AssertionError.class, ValidatableUtil::endValidateDisabled);
         assertNotNull(exception);
     }
 
     @Test
-    public void testValidate() throws InvalidMarshallableException {
+    void testValidate() throws InvalidMarshallableException {
         Validatable validatable = mock(Validatable.class);
         ValidatableUtil.validate(validatable);
 

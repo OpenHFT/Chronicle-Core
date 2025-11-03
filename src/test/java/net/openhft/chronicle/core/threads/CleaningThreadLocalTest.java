@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.threads;
 import net.openhft.chronicle.core.util.ThrowingConsumer;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -15,7 +16,7 @@ import static org.mockito.Mockito.verify;
 class CleaningThreadLocalTest {
 
     @Test
-    public void testConstructor() {
+    void testConstructor() {
         Supplier<String> supplier = () -> "test";
         ThrowingConsumer<String, Exception> cleanup = value -> { /* cleanup logic */ };
 
@@ -25,7 +26,7 @@ class CleaningThreadLocalTest {
     }
 
     @Test
-    public void testWithCloseQuietly() {
+    void testWithCloseQuietly() {
         Supplier<String> supplier = () -> "test";
         CleaningThreadLocal<String> ctl = CleaningThreadLocal.withCloseQuietly(supplier);
 
@@ -33,7 +34,7 @@ class CleaningThreadLocalTest {
     }
 
     @Test
-    public void testResourceCleanup() {
+    void testResourceCleanup() {
         Runnable cleanupAction = mock(Runnable.class);
         CleaningThreadLocal<Runnable> ctl = CleaningThreadLocal.withCleanup(() -> cleanupAction, Runnable::run);
 
@@ -48,7 +49,7 @@ class CleaningThreadLocalTest {
     }
 
     @Test
-    public void testThreadSafety() throws InterruptedException {
+    void testThreadSafety() throws InterruptedException {
         Supplier<String> supplier = () -> "test";
         ThrowingConsumer<String, Exception> cleanup = value -> { /* cleanup logic */ };
         CleaningThreadLocal<String> ctl = CleaningThreadLocal.withCleanup(supplier, cleanup);
@@ -66,9 +67,12 @@ class CleaningThreadLocalTest {
     }
 
     @Test
-    public void testExceptionInCleanup() {
+    void testExceptionInCleanup() {
         Supplier<String> supplier = () -> "test";
+        AtomicBoolean ran = new AtomicBoolean(false);
         ThrowingConsumer<String, Exception> cleanup = value -> {
+            if (ran.get()) return;
+            ran.set(true);
             throw new RuntimeException("Cleanup failed");
         };
         CleaningThreadLocal<String> ctl = CleaningThreadLocal.withCleanup(supplier, cleanup);
@@ -76,10 +80,11 @@ class CleaningThreadLocalTest {
         assertDoesNotThrow(ctl::remove);
         // After remove, next get() should re-initialize using supplier
         assertEquals("test", ctl.get());
+        assertTrue(ran.get());
     }
 
     @Test
-    public void testThreadSpecificValue() {
+    void testThreadSpecificValue() {
         CleaningThreadLocal<Integer> ctl = CleaningThreadLocal.withCleanup(() -> 0, (value) -> {
         });
 
