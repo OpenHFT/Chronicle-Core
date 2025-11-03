@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.Callable;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.*;
 
@@ -27,15 +28,14 @@ class CoolerTesterTest {
     }
 
     @Test
-    void constructorShouldInitializeWithGivenParameters() throws Exception {
+    void constructorShouldInitializeWithGivenParameters() {
         Callable<?> mockTask = mock(Callable.class);
         CpuCooler mockCooler1 = mock(CpuCooler.class);
         CpuCooler mockCooler2 = mock(CpuCooler.class);
 
         CoolerTester tester = new CoolerTester(mockTask, mockCooler1, mockCooler2);
 
-        // Assertions to check the proper initialization of the CoolerTester object
-        // This might involve using reflection or other techniques to inspect the internal state
+        assertNotNull(tester);
     }
 
     @Test

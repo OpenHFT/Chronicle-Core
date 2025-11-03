@@ -4,14 +4,15 @@
     Copyright 2016-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
 
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>net.openhft</groupId>
         <artifactId>java-parent-pom</artifactId>
         <version>1.27ea1</version>
-        <relativePath />
+        <relativePath/>
     </parent>
 
     <artifactId>chronicle-core</artifactId>
@@ -31,6 +32,9 @@
         <zero.cost.assertions>disabled</zero.cost.assertions>
         <sonar.organization>openhft</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <!-- Define the target coverage thresholds as properties -->
+        <jacoco.line.coverage>0.8</jacoco.line.coverage>
+        <jacoco.branch.coverage>0.7</jacoco.branch.coverage>
         <mockito.version>4.9.0</mockito.version>
     </properties>
 
@@ -296,7 +300,8 @@
                         <Bundle-Version>${project.version}</Bundle-Version>
                         <Export-Package>net.openhft.chronicle.core.*;-noimport:=true</Export-Package>
                         <Import-Package>software.chronicle.enterprise.core;resolution:=optional,
-                            *</Import-Package>
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
                 <executions>
@@ -319,7 +324,8 @@
 
                 <configuration>
                     <!-- One-line header; no newlines -->
-                    <inlineHeader>Copyright 2016-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0</inlineHeader>
+                    <inlineHeader>Copyright 2016-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
+                    </inlineHeader>
                     <excludes>
                         <exclude>LICENSE</exclude>
                         <exclude>**/*.adoc</exclude>
@@ -355,6 +361,13 @@
         </profile>
         <profile>
             <id>sonar</id>
+            <!-- If you keep thresholds as properties, define them here
+                 (or in the parent) so they resolve during this profile) -->
+            <properties>
+                <jacoco.line.coverage>0.7</jacoco.line.coverage>
+                <jacoco.branch.coverage>0.6</jacoco.branch.coverage>
+            </properties>
+
             <build>
                 <plugins>
                     <plugin>
@@ -366,12 +379,14 @@
                         <artifactId>maven-surefire-plugin</artifactId>
                         <configuration>
                             <argLine>${surefireArgLine} ${jvm.requiredArgs} -Djvm.coverage=true</argLine>
+                            <forkCount>1</forkCount>
+                            <reuseForks>false</reuseForks>
                         </configuration>
                     </plugin>
                     <plugin>
                         <groupId>org.jacoco</groupId>
                         <artifactId>jacoco-maven-plugin</artifactId>
-                        <version>${jacoco-maven-plugin.version}</version>
+                        <version>0.8.14</version>
                         <executions>
                             <execution>
                                 <id>prepare-agent</id>
@@ -380,14 +395,45 @@
                                 </goals>
                                 <configuration>
                                     <propertyName>surefireArgLine</propertyName>
+                                    <excludes>
+                                        <!-- module-specific excludes if needed -->
+                                    </excludes>
                                 </configuration>
                             </execution>
+
                             <execution>
                                 <id>report</id>
                                 <goals>
                                     <goal>report</goal>
                                 </goals>
-                                <phase>prepare-package</phase>
+                                <phase>verify</phase>
+                            </execution>
+
+                            <execution>
+                                <id>check</id>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                                <phase>verify</phase>
+                                <configuration>
+                                    <rules>
+                                        <rule>
+                                            <element>BUNDLE</element>
+                                            <limits>
+                                                <limit>
+                                                    <counter>LINE</counter>
+                                                    <value>COVEREDRATIO</value>
+                                                    <minimum>${jacoco.line.coverage}</minimum>
+                                                </limit>
+                                                <limit>
+                                                    <counter>BRANCH</counter>
+                                                    <value>COVEREDRATIO</value>
+                                                    <minimum>${jacoco.branch.coverage}</minimum>
+                                                </limit>
+                                            </limits>
+                                        </rule>
+                                    </rules>
+                                </configuration>
                             </execution>
                         </executions>
                     </plugin>

@@ -385,6 +385,11 @@ public class JvmTest extends CoreTestCommon {
     public void testSetThreadLocalExceptionHandlers() {
         ExceptionHandler mockErrorHandler = mock(ExceptionHandler.class);
         Jvm.setThreadLocalExceptionHandlers(mockErrorHandler, null, null);
+        assertSame(mockErrorHandler, ThreadLocalisedExceptionHandler.unwrap(Jvm.error()));
+        // warn(): thread-local handler explicitly set to null; default remains unchanged
+        assertNull(((ThreadLocalisedExceptionHandler) Jvm.warn()).threadLocalHandler());
+        // debug(): presence depends on platform; ensure a handler object is returned
+        assertNotNull(Jvm.debug());
     }
 
     @Test

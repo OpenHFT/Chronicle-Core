@@ -23,6 +23,7 @@ public class JvmParseSizeTest extends CoreTestCommon {
     private final String text;
     private final long value;
 
+    @SuppressWarnings("unused")
     public JvmParseSizeTest(String text, long value) {
         this.text = text;
         this.value = value;

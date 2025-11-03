@@ -92,7 +92,7 @@ class WgetTest {
         byte[] cafe = "Café".getBytes(StandardCharsets.UTF_8);
         Wget wget = new Wget.Builder()
                 .connectionProvider(u -> new ByteArrayInputStream(cafe))
-                .charsetDetector((in, ct) -> null)
+                .charsetDetector(WgetTest::nullDetector)
                 .build();
         StringBuilder sb = new StringBuilder();
         wget.fetch("http://x", sb);
@@ -196,11 +196,17 @@ class WgetTest {
     void charset_detector_exception_bubbles_up() {
         Wget wget = new Wget.Builder()
                 .connectionProvider(u -> new ByteArrayInputStream("x".getBytes()))
-                .charsetDetector((in, ct) -> {
-                    throw new RuntimeException("boom");
-                })
+                .charsetDetector(WgetTest::throwingDetector)
                 .build();
         assertThrows(RuntimeException.class, () -> wget.fetch("http://x", new StringBuilder()));
+    }
+
+    private static java.nio.charset.Charset nullDetector(InputStream in, String contentType) {
+        return null;
+    }
+
+    private static java.nio.charset.Charset throwingDetector(InputStream in, String contentType) {
+        throw new RuntimeException("boom");
     }
 
     @Test

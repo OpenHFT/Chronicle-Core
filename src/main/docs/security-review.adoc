@@ -41,9 +41,9 @@ Key mitigations ::
 * Strict control of system-property runnables
 
 Review hot-spots ::
-* External input → class / method names
+* External input -> class / method names
 * Bytecode origin for `defineClass`
-* Static initializers with side effects
+* Static initialisers with side effects
 
 == Thread-Local Caches & Resource Pools
 
@@ -91,8 +91,8 @@ Why ::
 Validation is pushed to the application perimeter to save nanoseconds.
 
 Core risks ::
-* Malformed lengths/offsets ⇒ OOB access or huge allocations
-* Invalid enums/sentinels ⇒ undefined logic
+* Malformed lengths/offsets => OOB access or huge allocations
+* Invalid enums/sentinels => undefined logic
 
 Key mitigations ::
 * Caller validates all untrusted data

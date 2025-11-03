@@ -26,6 +26,7 @@ public class IgnoresEverythingTest extends CoreTestCommon {
     }
 
     interface Chained2 {
+        @SuppressWarnings("unused")
         Object method2();
     }
 }
