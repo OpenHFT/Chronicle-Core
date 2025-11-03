@@ -76,6 +76,7 @@ public class UnsafeMemory implements Memory {
             e.printStackTrace(); // NOSONAR
             throw new AssertionError(e);
         }
+        //noinspection StaticInitializerReferencesSubClass
         INSTANCE = Bootstrap.isArm0() ? new ARMMemory() : new UnsafeMemory();
         MEMORY = INSTANCE;
     }
@@ -2301,6 +2302,7 @@ public class UnsafeMemory implements Memory {
                     offset = offset0;
                 }
             } catch (NoSuchFieldException e) {
+                //noinspection DataFlowIssue
                 offset = 0;
             }
             STRING_VALUE_OFFSET = offset;

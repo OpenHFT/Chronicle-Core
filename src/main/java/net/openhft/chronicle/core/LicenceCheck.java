@@ -43,6 +43,7 @@ public interface LicenceCheck {
 
     static boolean isJGuardProtected() {
         try {
+            //noinspection JavaReflectionMemberAccess
             ChronicleGuarding.class.getDeclaredField("isDecrypted");
             return true;
         } catch (NoSuchFieldException e) {

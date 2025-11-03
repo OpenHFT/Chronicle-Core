@@ -157,6 +157,7 @@ public final class Jvm {
         MethodHandles.Lookup lookup = MethodHandles.lookup();
         try {
             if (isJava9Plus())
+                //noinspection JavaLangInvokeHandleSignature
                 return lookup.findStatic(Thread.class, "onSpinWait", voidType);
         } catch (Exception ignored) {
             // ignore
@@ -713,10 +714,7 @@ public final class Jvm {
     }
 
     public static boolean hasException(@NotNull final Map<ExceptionKey, Integer> exceptions) {
-
-        final Iterator<ExceptionKey> iterator = exceptions.keySet().iterator();
-        while (iterator.hasNext()) {
-            final ExceptionKey k = iterator.next();
+        for (ExceptionKey k : exceptions.keySet()) {
             if (k.level() != LogLevel.DEBUG && k.level() != LogLevel.PERF)
                 return true;
         }
@@ -1561,6 +1559,7 @@ public final class Jvm {
     static final class Safepoint {
 
         // must be volatile
+        @SuppressWarnings("FieldMayBeFinal")
         private static volatile int one = 1;
 
         // Suppresses default constructor, ensuring non-instantiability.
@@ -1569,6 +1568,7 @@ public final class Jvm {
 
         public static void force() {
             // trick only works from Java 9+
+            //noinspection StatementWithEmptyBody
             for (int i = 0; i < one; i++) ;
         }
     }
@@ -1594,7 +1594,7 @@ public final class Jvm {
             // trigger static block
         }
 
-        private static void addSignalHandler(final String sig, final sun.misc.SignalHandler signalHandler) {
+        private static void addSignalHandler(final String sig, @SuppressWarnings("SameParameterValue") final sun.misc.SignalHandler signalHandler) {
             try {
                 Signal.handle(new Signal(sig), signalHandler);
 

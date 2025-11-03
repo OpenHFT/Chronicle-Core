@@ -48,6 +48,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     }
 
     private final transient StackTrace createdHere;
+    @SuppressWarnings("unused")
     @UsedViaReflection
     private final transient Finalizer finalizer = DISABLE_DISCARD_WARNING ? null : new Finalizer();
     protected transient volatile StackTrace closedHere;

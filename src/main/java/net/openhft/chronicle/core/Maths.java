@@ -943,6 +943,7 @@ public final class Maths {
      * return a + b / c as a double
      */
     public static double add(long a, long b, long c) {
+        @SuppressWarnings("UnnecessaryLocalVariable")
         double d = a;
         long l = (long) d;
         long diff = a - l;

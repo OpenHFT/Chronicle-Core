@@ -37,6 +37,7 @@ import static net.openhft.chronicle.core.util.Longs.requirePositive;
  */
 @SuppressWarnings("java:S1191") // Justification: uses Sun internal classes for performance-critical file mapping on select JDKs; guarded by version checks and fallbacks.
 public final class OS {
+    @SuppressWarnings("unused")
     public static final String USER_HOME = Jvm.getProperty("user.home");
     public static final Exception TIME_LIMIT = new TimeLimitExceededException();
     public static final int SAFE_PAGE_SIZE = 64 << 10;
@@ -76,6 +77,7 @@ public final class OS {
 
     static {
         // make sure it is initialised first.
+        //noinspection ResultOfMethodCallIgnored
         Jvm.debug();
         TIME_LIMIT.setStackTrace(new StackTraceElement[0]);
     }
@@ -110,6 +112,7 @@ public final class OS {
         return asRelativePath(findTmp0());
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private static String findTmp0() {
         String target = Jvm.getProperty("project.build.directory");
         if (target != null) {
@@ -145,6 +148,7 @@ public final class OS {
         return path;
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     private static String findTarget0() {
         String target = Jvm.getProperty("project.build.directory");
         if (target != null)
@@ -550,6 +554,7 @@ public final class OS {
         try {
             final long size2 = pageAlign(size, pageSize);
             // n must be used here
+            @SuppressWarnings("unused")
             final int n = (int) getUnmapp0Mh().invokeExact(address, size2); // NOSONAR
             memoryMapped.addAndGet(-size2);
         } catch (Throwable e) {
