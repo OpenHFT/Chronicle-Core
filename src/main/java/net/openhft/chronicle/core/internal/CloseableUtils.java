@@ -125,7 +125,7 @@ public final class CloseableUtils {
      * @param millis The time limit in milliseconds to wait for the closeable resources to close.
      * @return true if all closeable resources are closed within the time limit, false otherwise.
      */
-    @SuppressWarnings("java:S3776") // turned on by assert
+    @SuppressWarnings({"java:S3776", "java:S3516"}) // turned on by assert
     public static boolean waitForCloseablesToClose(long millis) {
         final Set<ManagedCloseable> traceSet = CLOSEABLES.get();
         if (traceSet == null) {
@@ -301,7 +301,7 @@ public final class CloseableUtils {
      *
      * @param o the object to close
      */
-    @SuppressWarnings("java:S1181") // Catching Throwable intentionally to prevent cleanup paths from throwing.
+    @SuppressWarnings({"java:S1181", "java:S3776"}) // Catching Throwable intentionally to prevent cleanup paths from throwing.
     static void closeQuietly(@Nullable Object o) {
         if (o instanceof Collection) {
             Collection<?> coll = (Collection<?>) o;
