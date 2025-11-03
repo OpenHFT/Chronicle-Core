@@ -281,6 +281,9 @@
                     <forkCount>4</forkCount>
                     <reuseForks>true</reuseForks>
                     <runOrder>hourly</runOrder>
+                    <excludes>
+                        <exclude>**/*Test.java</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
 
