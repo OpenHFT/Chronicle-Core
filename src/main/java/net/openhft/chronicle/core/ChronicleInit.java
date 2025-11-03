@@ -24,6 +24,7 @@ import static net.openhft.chronicle.core.internal.Bootstrap.uncheckedCast;
  * This class may also be replaced with different concrete implementation. Code should reside in a static block to
  * be run once. It should contain empty static init() method called to trigger class load.
  */
+@SuppressWarnings({"java:S4057", "CallToPrintStackTrace", "java:S4507"})
 public final class ChronicleInit {
     public static final String CHRONICLE_INIT_CLASS = "chronicle.init.runnable";
     public static final String CHRONICLE_POSTINIT_CLASS = "chronicle.postinit.runnable";
@@ -50,12 +51,16 @@ public final class ChronicleInit {
             ServiceLoader<ChronicleInitRunnable> runnableLoader = ServiceLoader.load(ChronicleInitRunnable.class);
 
             for (Runnable runnable : runnableLoader) {
-                try {
-                    runnable.run();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+                runQuietly(runnable);
             }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private static void runQuietly(Runnable runnable) {
+        try {
+            runnable.run();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -90,12 +95,16 @@ public final class ChronicleInit {
             ServiceLoader<ChronicleInitRunnable> runnableLoader = ServiceLoader.load(ChronicleInitRunnable.class);
 
             for (ChronicleInitRunnable runnable : runnableLoader) {
-                try {
-                    runnable.postInit();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
+                runQuietly(runnable);
             }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private static void runQuietly(ChronicleInitRunnable runnable) {
+        try {
+            runnable.postInit();
         } catch (Exception ex) {
             ex.printStackTrace();
         }

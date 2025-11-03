@@ -17,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.misc.Signal;
+import sun.misc.Signal; // NOSONAR
 import sun.misc.Unsafe;
 import sun.nio.ch.Interruptible;
 
@@ -55,7 +55,7 @@ import static net.openhft.chronicle.core.internal.util.MapUtil.entry;
 /**
  * Utility class to access information in the JVM.
  */
-@SuppressWarnings("java:S1191") // Uses sun.misc.Unsafe and Signal in guarded, version-aware paths for performance and signal handling.
+@SuppressWarnings({"java:S1191", "java:S1181", "java:S3011", "java:S106", "jaca:S3008", "java:S3077", "java:S3008"})
 public final class Jvm {
 
     public static final String JAVA_CLASS_PATH = "java.class.path";
@@ -80,7 +80,7 @@ public final class Jvm {
     @NotNull
     private static final ThreadLocalisedExceptionHandler WARN = new ThreadLocalisedExceptionHandler(DEFAULT_WARN_EXCEPTION_HANDLER);
     @NotNull
-    private static final ThreadLocalisedExceptionHandler PERF = new ThreadLocalisedExceptionHandler(DEFAULT_PERF_EXCEPTION_HANDLER);
+    private static final ThreadLocalisedExceptionHandler PERF_OR_STARTUP = new ThreadLocalisedExceptionHandler(DEFAULT_PERF_EXCEPTION_HANDLER);
     @NotNull
     private static final ExceptionHandler DEBUG;
     private static final boolean SAFEPOINT_ENABLED;
@@ -106,7 +106,8 @@ public final class Jvm {
     static {
         Logger logger = LoggerFactory.getLogger(Jvm.class);
 
-        if (!isJUnitTest0()) {
+        boolean notJUnitTest = !isJUnitTest0();
+        if (notJUnitTest) {
             // Eagerly initialise Posix & Affinity
             try {
                 PosixAPI.posix();
@@ -134,7 +135,7 @@ public final class Jvm {
 
         boolean disablePerfInfo = Jvm.getBoolean("disable.perf.info");
         if (disablePerfInfo)
-            PERF.defaultHandler(NullExceptionHandler.NOTHING);
+            PERF_OR_STARTUP.defaultHandler(NullExceptionHandler.NOTHING);
 
         SAFEPOINT_ENABLED = Jvm.getBoolean("jvm.safepoint.enabled");
 
@@ -142,8 +143,8 @@ public final class Jvm {
 
         if (DISABLE_DEBUG)
             logger.info("-Ddisable.debug.info turned of debug logging");
-        if (logger.isInfoEnabled())
-            logger.info("Chronicle core loaded from " + Jvm.class.getProtectionDomain().getCodeSource().getLocation());
+        if (logger.isInfoEnabled() && notJUnitTest)
+            logger.info(String.format("Chronicle core loaded from %s", Jvm.class.getProtectionDomain().getCodeSource().getLocation()));
         if (RESOURCE_TRACING && !Jvm.getBoolean("disable.resource.warning"))
             logger.warn("Resource tracing is turned on. If you are performance testing or running in PROD you probably don't want this");
         REPORT_UNOPTIMISED = Jvm.getBoolean("report.unoptimised");
@@ -158,10 +159,12 @@ public final class Jvm {
             if (isJava9Plus())
                 return lookup.findStatic(Thread.class, "onSpinWait", voidType);
         } catch (Exception ignored) {
+            // ignore
         }
         try {
             return lookup.findStatic(Safepoint.class, "force", voidType);
         } catch (Exception ignored) {
+            // ignore
         }
         return null;
     }
@@ -326,34 +329,6 @@ public final class Jvm {
         return PROCESS_ID;
     }
 
-    private static int getProcessId0() {
-        String pid = null;
-        final File self = new File(PROC_SELF);
-        try {
-            if (self.exists()) {
-                pid = self.getCanonicalFile().getName();
-            }
-        } catch (IOException ignored) {
-            // Ignore
-        }
-
-        if (pid == null) {
-            pid = getRuntimeMXBean().getName().split("@", 0)[0];
-        }
-
-        if (pid != null) {
-            try {
-                return Integer.parseInt(pid);
-            } catch (NumberFormatException nfe) {
-                // ignore
-            }
-        }
-
-        int rpid = 1;
-        System.err.println(Jvm.class.getName() + ": Unable to determine PID, picked 1 as a PID");
-        return rpid;
-    }
-
     /**
      * Cast any Throwable (e.g. a checked exception) to a RuntimeException.
      *
@@ -501,9 +476,7 @@ public final class Jvm {
      * @param clazz     to get the field for
      * @param fieldName of the field
      * @return the Field.
-     * @throws AssertionError if no such Field exists
      */
-    // Todo: Should not throw an AssertionError but rather a RuntimeException
     @NotNull
     public static Field getField(@NotNull final Class<?> clazz, @NotNull final String fieldName) {
         return ClassUtil.getField0(clazz, fieldName, true, true);
@@ -535,10 +508,7 @@ public final class Jvm {
      * @param methodName methodName
      * @param argTypes   argument types
      * @return method
-     * @throws AssertionError if no such Method exists
      */
-
-    // Todo: Should not throw an AssertionError but rather a RuntimeException
     @NotNull
     public static Method getMethod(@NotNull final Class<?> clazz,
                                    @NotNull final String methodName,
@@ -686,7 +656,7 @@ public final class Jvm {
     }
 
     public static void setPerfExceptionHandler(ExceptionHandler exceptionHandler) {
-        PERF.defaultHandler(exceptionHandler).resetThreadLocalHandler();
+        PERF_OR_STARTUP.defaultHandler(exceptionHandler).resetThreadLocalHandler();
     }
 
     public static void disableDebugHandler() {
@@ -725,10 +695,10 @@ public final class Jvm {
         setWarnExceptionHandler(recordingExceptionHandler(LogLevel.WARN, map, exceptionsOnly, logToSlf4j));
         setPerfExceptionHandler(debug
                 ? recordingExceptionHandler(LogLevel.PERF, map, exceptionsOnly, logToSlf4j)
-                : logToSlf4j ? Slf4jExceptionHandler.PERF : NullExceptionHandler.NOTHING);
+                : logToSlf4j ? Slf4jExceptionHandler.PERF : NullExceptionHandler.NOTHING); // NOSONAR
         setDebugExceptionHandler(debug
                 ? recordingExceptionHandler(LogLevel.DEBUG, map, exceptionsOnly, logToSlf4j)
-                : logToSlf4j ? Slf4jExceptionHandler.DEBUG : NullExceptionHandler.NOTHING);
+                : logToSlf4j ? Slf4jExceptionHandler.DEBUG : NullExceptionHandler.NOTHING); // NOSONAR
         return map;
     }
 
@@ -769,7 +739,7 @@ public final class Jvm {
                                             @Nullable final ExceptionHandler debug,
                                             @Nullable final ExceptionHandler perf) {
         setExceptionHandlers(error, warn, debug);
-        PERF.defaultHandler(perf);
+        PERF_OR_STARTUP.defaultHandler(perf);
     }
 
     public static void setThreadLocalExceptionHandlers(@Nullable final ExceptionHandler error,
@@ -786,7 +756,7 @@ public final class Jvm {
                                                        @Nullable final ExceptionHandler debug,
                                                        @Nullable final ExceptionHandler perf) {
         setThreadLocalExceptionHandlers(error, warn, debug);
-        PERF.threadLocalHandler(perf);
+        PERF_OR_STARTUP.threadLocalHandler(perf);
     }
 
     /**
@@ -819,8 +789,7 @@ public final class Jvm {
      */
     @NotNull
     public static ExceptionHandler startup() {
-        // TODO, add a startup level?
-        return PERF;
+        return PERF_OR_STARTUP;
     }
 
     /**
@@ -831,7 +800,7 @@ public final class Jvm {
      */
     @NotNull
     public static ExceptionHandler perf() {
-        return PERF;
+        return PERF_OR_STARTUP;
     }
 
     /**
@@ -862,25 +831,7 @@ public final class Jvm {
     }
 
     public static boolean isPerfEnabled(final Class<?> aClass) {
-        return PERF.isEnabled(aClass);
-    }
-
-    private static long maxDirectMemory0() {
-        try {
-            final Class<?> clz;
-            if (isJava9Plus()) {
-                clz = Class.forName("jdk.internal.misc.VM");
-            } else {
-                clz = Class.forName("sun.misc.VM");
-            }
-
-            final Field f = getField(clz, "directMemory");
-            return f.getLong(null);
-        } catch (Exception e) {
-            // ignore
-        }
-        System.err.println(Jvm.class.getName() + ": Unable to determine max direct memory, will always report 0");
-        return 0L;
+        return PERF_OR_STARTUP.isEnabled(aClass);
     }
 
     /**
@@ -1693,6 +1644,8 @@ public final class Jvm {
     }
 
     static class ReserveMemoryHolder {
+        private ReserveMemoryHolder() {
+        }
         static final Supplier<Long> reservedMemory;
         static {
             Supplier<Long> reservedMemoryGetter;
@@ -1715,6 +1668,26 @@ public final class Jvm {
         }
     }
     static class MaxMemoryHolder {
+        private MaxMemoryHolder() {
+        }
         static final long MAX_DIRECT_MEMORY = maxDirectMemory0();
+
+        private static long maxDirectMemory0() {
+            try {
+                final Class<?> clz;
+                if (isJava9Plus()) {
+                    clz = Class.forName("jdk.internal.misc.VM");
+                } else {
+                    clz = Class.forName("sun.misc.VM");
+                }
+
+                final Field f = getField(clz, "directMemory");
+                return f.getLong(null);
+            } catch (Exception e) {
+                // ignore
+            }
+            System.err.println(Jvm.class.getName() + ": Unable to determine max direct memory, will always report 0");
+            return 0L;
+        }
     }
 }

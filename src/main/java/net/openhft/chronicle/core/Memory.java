@@ -6,7 +6,7 @@ package net.openhft.chronicle.core;
 import net.openhft.chronicle.core.annotation.Positive;
 import net.openhft.chronicle.core.util.MisAlignedAssertionError;
 import org.jetbrains.annotations.NotNull;
-import sun.misc.Unsafe;
+import sun.misc.Unsafe; // NOSONAR
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
@@ -872,6 +872,7 @@ public interface Memory {
      * @param type of primitive or a reference
      * @return the number of bytes this type uses.
      */
+    @SuppressWarnings("java:S3358")
     static int sizeOf(Class<?> type) {
         if (type == void.class) return 0;
         return type == boolean.class || type == byte.class ? 1

@@ -8,11 +8,10 @@ import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
 import net.openhft.chronicle.core.util.MisAlignedAssertionError;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import sun.misc.Unsafe;
+import sun.misc.Unsafe; // NOSONAR
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static net.openhft.chronicle.assertions.AssertUtil.SKIP_ASSERTIONS;
@@ -38,7 +37,7 @@ import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
  *
  * @see UnsafeMemory.ARMMemory
  */
-@SuppressWarnings({"unchecked", "java:S1191"}) // Uses sun.misc.Unsafe for low-level ops; unchecked casts are local and intentional.
+@SuppressWarnings({"unchecked", "java:S1191", "java:S4144", "java:S3011"}) // Uses sun.misc.Unsafe for low-level ops; unchecked casts are local and intentional.
 public class UnsafeMemory implements Memory {
 
     /**
@@ -58,8 +57,6 @@ public class UnsafeMemory implements Memory {
     // copyMemory method. A limit is imposed to allow for safepoint polling
     // during a large copy
     static final long UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
-    // TODO support big endian
-    public static final boolean IS_LITTLE_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
 
     // Create a local copy of type long (instead of int) to optimize performance
     private static final long ARRAY_BYTE_BASE_OFFSET = Unsafe.ARRAY_BYTE_BASE_OFFSET;
@@ -75,7 +72,8 @@ public class UnsafeMemory implements Memory {
             theUnsafe.setAccessible(true);
             UNSAFE = (Unsafe) theUnsafe.get(null);
         } catch (@NotNull NoSuchFieldException | IllegalAccessException | IllegalArgumentException e) {
-            e.printStackTrace();
+            //noinspection CallToPrintStackTrace
+            e.printStackTrace(); // NOSONAR
             throw new AssertionError(e);
         }
         INSTANCE = Bootstrap.isArm0() ? new ARMMemory() : new UnsafeMemory();
@@ -541,8 +539,7 @@ public class UnsafeMemory implements Memory {
     @SuppressWarnings("deprecation")
     @Override
     public long getFieldOffset(Field field) {
-        assert SKIP_ASSERTIONS || field != null;
-        return UNSAFE.objectFieldOffset(field);
+        return unsafeObjectFieldOffset(field);
     }
 
     /**
@@ -1107,6 +1104,7 @@ public class UnsafeMemory implements Memory {
      * @param destOffset offset of the destination object from where to place the copied memory.
      * @param length     the length of memory to copy.
      */
+    @SuppressWarnings("java:S3776")
     @Override
     public void copyMemory(@Nullable Object src, long srcOffset, @Nullable Object dest, long destOffset, int length) {
         assert SKIP_ASSERTIONS || !(src == null && dest == null);

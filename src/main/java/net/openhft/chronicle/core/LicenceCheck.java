@@ -22,9 +22,8 @@ public interface LicenceCheck {
      * Check for license expiry and log message with license and expiry details
      *
      * @param product product
-     * @param caller  caller
      */
-    static void check(String product, Class<?> caller) {
+    static void check(String product) {
         final BiConsumer<Long, String> logLicenceExpiryDetails = (days, owner) -> {
             String ownerId = owner == null ? "" : "for " + owner + " ";
             String expires = "The license " + ownerId + "expires";
@@ -39,7 +38,7 @@ public interface LicenceCheck {
                 startup().on(LicenceCheck.class, message + ".");
         };
 
-        licenceExpiry(product, caller, logLicenceExpiryDetails);
+        licenceExpiry(product, logLicenceExpiryDetails);
     }
 
     static boolean isJGuardProtected() {
@@ -55,10 +54,10 @@ public interface LicenceCheck {
      * Provide licence expiry details
      *
      * @param product              product
-     * @param caller               caller
      * @param licenceExpiryDetails callback to call with license days to run and license owner
      */
-    static void licenceExpiry(String product, Class<?> caller, BiConsumer<Long, String> licenceExpiryDetails) {
+    @SuppressWarnings("java:S1181")
+    static void licenceExpiry(String product, BiConsumer<Long, String> licenceExpiryDetails) {
         if (isJGuardProtected())
             return;
         String key = Jvm.getProperty(CHRONICLE_LICENSE); // make sure this was loaded first.

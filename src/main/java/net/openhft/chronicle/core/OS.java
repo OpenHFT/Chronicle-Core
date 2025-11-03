@@ -9,7 +9,7 @@ import net.openhft.chronicle.core.util.ClassLocal;
 import net.openhft.chronicle.core.util.ThrowingFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import sun.nio.ch.FileChannelImpl;
+import sun.nio.ch.FileChannelImpl; // NOSONAR
 
 import javax.naming.TimeLimitExceededException;
 import java.io.*;
@@ -40,11 +40,12 @@ public final class OS {
     public static final String USER_HOME = Jvm.getProperty("user.home");
     public static final Exception TIME_LIMIT = new TimeLimitExceededException();
     public static final int SAFE_PAGE_SIZE = 64 << 10;
+    static final String SUN_NIO_CH_FILE_DISPATCHER_IMPL = "sun.nio.ch.FileDispatcherImpl";
     static final ClassLocal<MethodHandle> MAP0_MH = ClassLocal.withInitial(c -> {
         try {
             Method map0;
             if (Jvm.isJava20Plus()) {
-                Class<?> dispatcherClass = OS.isWindows() ? findClass("sun.nio.ch.FileDispatcherImpl") : findClass("sun.nio.ch.UnixFileDispatcherImpl");
+                Class<?> dispatcherClass = OS.isWindows() ? findClass(SUN_NIO_CH_FILE_DISPATCHER_IMPL) : findClass("sun.nio.ch.UnixFileDispatcherImpl");
                 map0 = Jvm.getMethod(dispatcherClass, "map0", FileDescriptor.class, int.class, long.class, long.class, boolean.class);
             } else if (Jvm.isJava19Plus()) {
                 map0 = Jvm.getMethod(c, "map0", FileDescriptor.class, int.class, long.class, long.class, boolean.class);
@@ -85,8 +86,7 @@ public final class OS {
 
     private static Class<?> findClass(String name) {
         try {
-            Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(name);
-            return clazz;
+            return Thread.currentThread().getContextClassLoader().loadClass(name);
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException("Not found: " + name, e);
         }
@@ -476,6 +476,7 @@ public final class OS {
      * @throws IOException              if the mapping fails
      * @throws IllegalArgumentException if the arguments are invalid
      */
+    @SuppressWarnings("java:S106")
     public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode, long start, long size, int pageSize)
             throws IOException, IllegalArgumentException {
         if (isWindows() && size > 4L << 30)
@@ -499,8 +500,6 @@ public final class OS {
     private static long invokeFileChannelMap0(@NotNull MethodHandle map0, @NotNull FileChannel fileChannel, int imode, long start, long size,
                                               @NotNull ThrowingFunction<OutOfMemoryError, Long, IOException> errorHandler) throws IOException {
         try {
-            // For now, access is assumed to be non-synchronous
-            // TODO - Support passing/deducing synchronous flag externally
             if (Jvm.isJava20Plus()) {
                 final FileDescriptor fd = (FileDescriptor) getFdField().get(fileChannel);
                 return (long) map0.invokeExact(fd, imode, start, size, false);
@@ -529,7 +528,7 @@ public final class OS {
     static long map0(@NotNull FileChannel fileChannel, int imode, long start, long size) throws IOException {
         MethodHandle map0 = MAP0_MH.get(fileChannel.getClass());
         final long address = invokeFileChannelMap0(map0, fileChannel, imode, start, size, oome1 -> {
-            System.gc();
+            System.gc(); // NOSONAR
             Jvm.pause(100);
 
             return invokeFileChannelMap0(map0, fileChannel, imode, start, size, oome2 -> {
@@ -551,7 +550,7 @@ public final class OS {
         try {
             final long size2 = pageAlign(size, pageSize);
             // n must be used here
-            final int n = (int) getUnmapp0Mh().invokeExact(address, size2);
+            final int n = (int) getUnmapp0Mh().invokeExact(address, size2); // NOSONAR
             memoryMapped.addAndGet(-size2);
         } catch (Throwable e) {
             throw asAnIOException(e);
@@ -668,11 +667,12 @@ public final class OS {
         }
     }
 
-    private static boolean isSet(String s) {
-        return !(s == null || s.isEmpty());
-    }
-
     static class IPAddressHolder {
+
+        public static final String GOOGLE_DNS = "8.8.8.8"; // NOSONAR
+
+        private IPAddressHolder() {
+        }
         public static final String NO_ADDRESS = "0.0.0.0";
         static final String IP_ADDRESS = getIPAddress0();
 
@@ -693,6 +693,7 @@ public final class OS {
             return !(s == null || s.isEmpty() || s.equals(NO_ADDRESS));
         }
 
+        @SuppressWarnings("java:S1181")
         static String getIpAddressByLocalHost() {
             try {
                 return InetAddress.getLocalHost().getHostAddress();
@@ -701,6 +702,7 @@ public final class OS {
             }
         }
 
+        @SuppressWarnings("java:S1181")
         static String getIpAddressBySocket() {
             try {
                 try (Socket socket = new Socket()) {
@@ -712,10 +714,11 @@ public final class OS {
             }
         }
 
+        @SuppressWarnings("java:S1181")
         static String getIpAddressByDatagram() {
             try {
                 try (final DatagramSocket socket = new DatagramSocket()) {
-                    socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+                    socket.connect(InetAddress.getByName(GOOGLE_DNS), 10002);
                     return socket.getLocalAddress().getHostAddress();
                 }
             } catch (Throwable e) {
@@ -724,7 +727,10 @@ public final class OS {
         }
     }
 
+    @SuppressWarnings("java:S1181")
     static class HostnameHolder {
+        private HostnameHolder() {
+        }
         static final String HOST_NAME = getHostName0();
 
         private static String getHostName0() {
@@ -748,24 +754,32 @@ public final class OS {
         static String execHostname() throws IOException {
             try (BufferedReader br = new BufferedReader(
                     new InputStreamReader(
-                            Runtime.getRuntime().exec("hostname")
+                            Runtime.getRuntime().exec("hostname") // NOSONAR
                                     .getInputStream()))) {
                 return br.readLine();
             }
         }
+
+        private static boolean isSet(String s) {
+            return !(s == null || s.isEmpty());
+        }
     }
 
     static class FDFieldHolder {
+        private FDFieldHolder() {
+        }
         static final Field FD_FIELD = Jvm.getField(FileChannelImpl.class, "fd");
     }
 
     static class Unmapp0Holder {
+        private Unmapp0Holder() {
+        }
         static final MethodHandle UNMAPP0_MH;
 
         static {
             Method unmap0;
             if (Jvm.isJava20Plus()) {
-                Class<?> dispatcherClass = OS.isWindows() ? findClass("sun.nio.ch.FileDispatcherImpl") : findClass("sun.nio.ch.UnixFileDispatcherImpl");
+                Class<?> dispatcherClass = OS.isWindows() ? findClass(SUN_NIO_CH_FILE_DISPATCHER_IMPL) : findClass("sun.nio.ch.UnixFileDispatcherImpl");
                 unmap0 = Jvm.getMethod(dispatcherClass, "unmap0", long.class, long.class);
             } else {
                 unmap0 = Jvm.getMethod(FileChannelImpl.class, "unmap0", long.class, long.class);
@@ -778,11 +792,14 @@ public final class OS {
         }
     }
 
+    @SuppressWarnings("java:S1181")
     static class Read0Holder {
+        private Read0Holder() {
+        }
         static final MethodHandle READ0_MH;
         static {
             try {
-                Class<?> fdi = Class.forName("sun.nio.ch.FileDispatcherImpl");
+                Class<?> fdi = Class.forName(SUN_NIO_CH_FILE_DISPATCHER_IMPL);
                 Method read0 = Jvm.getMethod(fdi, "read0", FileDescriptor.class, long.class, int.class);
                 READ0_MH = MethodHandles.lookup().unreflect(read0);
             } catch (Throwable t) {
@@ -791,13 +808,17 @@ public final class OS {
         }
     }
 
+    @SuppressWarnings({"java:S1141", "java:S1181"})
     static class Write0Holder {
+        private Write0Holder() {
+        }
         static final MethodHandle WRITE0_MH;
         static final MethodHandle WRITE0_MH2;
         static {
-            MethodHandle write0Mh = null, write0Mh2 = null;
+            MethodHandle write0Mh = null;
+            MethodHandle write0Mh2 = null;
             try {
-                Class<?> fdi = Class.forName("sun.nio.ch.FileDispatcherImpl");
+                Class<?> fdi = Class.forName(SUN_NIO_CH_FILE_DISPATCHER_IMPL);
                 try {
                     Method write0 = Jvm.getMethod(fdi, "write0", FileDescriptor.class, long.class, int.class);
                     write0Mh = MethodHandles.lookup().unreflect(write0);

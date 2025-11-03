@@ -23,6 +23,7 @@ import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEAS
  * and performance tuning. See {@link Closeable#closeQuietly(Object)} for a
  * helper that ignores exceptions from {@link #performClose()}.
  */
+@SuppressWarnings({"java:S2065", "java:S1186", "java:S3077"}) // suppress false positive for serialization
 public abstract class AbstractCloseable implements ReferenceOwner, ManagedCloseable, SingleThreadedChecked, Monitorable {
 
     /**
@@ -283,7 +284,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     void callPerformClose() {
         try {
             performClose();
-        } catch (Throwable t) {
+        } catch (Throwable t) { // NOSONAR
             Jvm.warn().on(getClass(), "Error occurred in close method", t);
         } finally {
             closed = STATE_CLOSED;
@@ -427,7 +428,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
          *
          * @throws Throwable if an error occurs during finalization.
          */
-        @SuppressWarnings({"deprecation", "removal"})
+        @SuppressWarnings({"deprecation", "removal", "java:S1113"})
         @Override
         protected void finalize() throws Throwable {
             warnAndCloseIfNotClosed();
