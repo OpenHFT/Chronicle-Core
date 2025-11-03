@@ -81,7 +81,7 @@ public final class CloseableUtils {
      *
      * @throws AssertionError If the finalizer does not complete within the specified timeout.
      */
-    @SuppressWarnings({"deprecation", "removal"})
+    @SuppressWarnings({"deprecation", "removal", "java:S1215"})
     public static void gcAndWaitForCloseablesToClose() {
         CleaningThread.performCleanup(Thread.currentThread());
 
@@ -90,7 +90,7 @@ public final class CloseableUtils {
 
         // Anonymous inner class overriding the finalize() method to track finalization.
         new Object() {
-            @SuppressWarnings({"deprecation", "removal"})
+            @SuppressWarnings({"deprecation", "removal", "java:S1113"})
             @Override
             protected void finalize() throws Throwable {
                 super.finalize();
@@ -125,6 +125,7 @@ public final class CloseableUtils {
      * @param millis The time limit in milliseconds to wait for the closeable resources to close.
      * @return true if all closeable resources are closed within the time limit, false otherwise.
      */
+    @SuppressWarnings("java:S3776") // turned on by assert
     public static boolean waitForCloseablesToClose(long millis) {
         final Set<ManagedCloseable> traceSet = CLOSEABLES.get();
         if (traceSet == null) {

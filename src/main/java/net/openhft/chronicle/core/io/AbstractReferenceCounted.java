@@ -270,6 +270,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         referenceCounted.removeReferenceChangeListener(referenceChangeListener);
     }
 
+    @SuppressWarnings("java:S3516") // turned on by assert
     protected boolean threadSafetyCheck(boolean isUsed) throws ThreadingIllegalStateException {
         // most common check, and sometimes the only check
         if (DISABLE_SINGLE_THREADED_CHECK || singleThreadedCheckDisabled)
@@ -277,6 +278,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         return threadSafetyCheck0(isUsed);
     }
 
+    @SuppressWarnings("java:S3516")
     private boolean threadSafetyCheck0(boolean isUsed) throws ThreadingIllegalStateException {
         // not so common but very cheap
         if (usedByThread == null && !isUsed)

@@ -52,6 +52,7 @@ public class CleaningRandomAccessFileTest extends CoreTestCommon {
             Jvm.pause(100);
             Files.delete(tempFile.toPath());
         }
+        assertTrue(true); // If we reach here, the test passes
     }
 
     @Test

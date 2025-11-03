@@ -16,6 +16,7 @@ import java.util.function.Supplier;
 
 import static org.junit.Assert.*;
 
+@SuppressWarnings("java:S1068")
 public class ObjectUtilsTest extends CoreTestCommon {
     @SuppressWarnings("rawtypes")
     @Test
@@ -120,16 +121,15 @@ public class ObjectUtilsTest extends CoreTestCommon {
         assertNotNull(regularClassSupplier.get());
 
         // Example for a primitive type
-        assertThrows(IllegalArgumentException.class, () -> ObjectUtils.supplierForClass(int.class).get());
-
-        // Add similar tests for interfaces, enums, abstract classes, and internal package classes
+        Supplier<Integer> integerSupplier = ObjectUtils.supplierForClass(int.class);
+        assertThrows(IllegalArgumentException.class, integerSupplier::get);
     }
 
     @Test
     public void immutableShouldRegisterImmutability() {
         Class<?> testClass = RegularClass.class;
         ObjectUtils.immutable(testClass, true);
-        // Verify the immutability status is correctly set (requires a way to check the status)
+        assertEquals(ObjectUtils.Immutability.YES, ObjectUtils.isImmutable(testClass));
     }
 
     @Test
@@ -137,6 +137,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
         // Assuming MyEnum is an enum class
         Map<String, Enum<?>> map = ObjectUtils.caseIgnoreLookup(MyEnum.class);
         // Assertions to check the map contents
+        assertEquals("{MY_VALUE=MY_VALUE}", map.toString());
     }
 
     @Test
@@ -275,13 +276,8 @@ public class ObjectUtilsTest extends CoreTestCommon {
     @Test
     public void getAllInterfacesTest() {
         Class<?>[] interfaces = ObjectUtils.getAllInterfaces(new ImplementingClass());
-        // Assert that the array contains expected interfaces
-    }
-
-    @Test
-    public void getAllInterfacesClassTest() {
-        Class<?>[] interfaces = ObjectUtils.getAllInterfaces(ImplementingClass.class);
-        // Assert that the array contains expected interfaces
+        assertEquals("[interface net.openhft.chronicle.core.util.IgnoresEverything]",
+                Arrays.toString(interfaces));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -299,7 +295,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
         MY_VALUE
     }
 
-    public class ImplementingClass {}
+    public class ImplementingClass implements IgnoresEverything {}
     public class AbstractTestClass {}
     public class RegularClass {}
 

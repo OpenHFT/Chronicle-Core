@@ -8,6 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class RecordingHistogramTest extends CoreTestCommon {
     @Test
@@ -26,17 +27,23 @@ public class RecordingHistogramTest extends CoreTestCommon {
     public void testSampleNanosAndTopDurations() {
         RecordingHistogram histogram = new RecordingHistogram();
 
-        histogram.sampleNanos(100);
-        histogram.sampleNanos(200);
-        histogram.sampleNanos(50);
-        histogram.sampleNanos(300);
+        histogram.sampleNanos(1000);
+        histogram.sampleNanos(2000);
+        histogram.sampleNanos(5500);
+        histogram.sampleNanos(3000);
+        assertEquals("{ 50/90 99/99.9 99.99 - worst  was: 2.002 / 5.50  5.50 / 5.50  5.50 - 5.50, " +
+                        "top: [{ off: 13.62, dur: 5.5 }, { off: 15.11, dur: 3.0 }, { off: 11.83, dur: 2.0 }, { off: 7.16, dur: 1.0 }] }",
+                histogram.toMicrosFormat());
     }
 
     @Test
     public void testReset() {
         RecordingHistogram histogram = new RecordingHistogram();
-        histogram.sampleNanos(100);
+        String noData = histogram.toMicrosFormat();
+        histogram.sampleNanos(10000);
+        assertNotEquals(noData, histogram.toMicrosFormat());
         histogram.reset();
+        assertEquals(noData, histogram.toMicrosFormat());
     }
 
     @Test

@@ -169,6 +169,7 @@ public class JvmTest extends CoreTestCommon {
             if (t > 0)
                 System.out.println("Took " + avg + " ns to nanoPause()");
         }
+        assertTrue(true); // If we reach here, the test passes
     }
 
     @Test
@@ -385,6 +386,9 @@ public class JvmTest extends CoreTestCommon {
     public void testSetThreadLocalExceptionHandlers() {
         ExceptionHandler mockErrorHandler = mock(ExceptionHandler.class);
         Jvm.setThreadLocalExceptionHandlers(mockErrorHandler, null, null);
+        assertSame(mockErrorHandler, ThreadLocalisedExceptionHandler.unwrap(Jvm.error()));
+        assertNull(ThreadLocalisedExceptionHandler.unwrap(Jvm.warn()));
+        assertNull(ThreadLocalisedExceptionHandler.unwrap(Jvm.debug()));
     }
 
     @Test

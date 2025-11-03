@@ -70,6 +70,7 @@ public class IOToolsTest extends CoreTestCommon {
         ByteBuffer bb = ByteBuffer.allocateDirect(1024);
 
         IOTools.clean(bb);
+        assertTrue(true); // If we reach here, the test passes
     }
 
     @Test

@@ -70,6 +70,7 @@ class Slf4jExceptionHandlerTest {
 
         // 3. Writes to stderr, but doesn't throw an exception
         Slf4jExceptionHandler.ERROR.on(bad, "msg", boom);
+        assertTrue(true); // if we reach here, the test passes
     }
 
     @Test

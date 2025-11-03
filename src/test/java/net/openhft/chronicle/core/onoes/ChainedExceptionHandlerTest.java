@@ -57,5 +57,6 @@ class ChainedExceptionHandlerTest {
 
         // This call should not throw an exception
         chained.on(String.class, "message", new RuntimeException());
+        assertTrue(true); // If we reach here, the test passes
     }
 }

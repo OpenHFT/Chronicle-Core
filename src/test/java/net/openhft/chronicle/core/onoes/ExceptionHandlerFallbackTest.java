@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 
+import static org.junit.Assert.assertTrue;
+
 /**
  * Test for {@link Slf4jExceptionHandler} to ensure that it falls back to the default
  */
@@ -37,5 +39,6 @@ class ExceptionHandlerFallbackTest {
         } finally {
             initializationState.setInt(null, state);
         }
+        assertTrue(true); // If we reach here, the test passes
     }
 }

@@ -311,6 +311,7 @@ public final class IOTools {
      * @return an InputStream
      * @throws IOException if the URL cannot be opened
      */
+    @SuppressWarnings("java:S2095")
     public static InputStream open(URL url) throws IOException {
         final InputStream in = url.openStream();
         if (url.getFile().endsWith(".gz")) {

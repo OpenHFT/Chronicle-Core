@@ -184,6 +184,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
             throw new IllegalStateException("ExecutorService didn't shut down");
         }
         counted.releaseLast();
+        assertTrue(counted.refCount() >= 0);
     }
 
     @Test

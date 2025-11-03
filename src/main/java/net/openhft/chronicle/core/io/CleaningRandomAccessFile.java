@@ -25,7 +25,7 @@ public class CleaningRandomAccessFile extends RandomAccessFile {
         super(file, mode);
     }
 
-    @SuppressWarnings({"deprecation", "removal"})
+    @SuppressWarnings({"deprecation", "removal", "java:S1113"})
     @Override
     protected void finalize() throws Throwable {
         // best-efforts attempt to close the file if the owner forgot
