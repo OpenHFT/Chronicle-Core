@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core;
 
+import junit.framework.TestCase;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
 import org.junit.After;
 import org.junit.Test;
@@ -24,18 +25,18 @@ public class LicenceCheckTest extends CoreTestCommon {
 
     @Test(expected = TimeLimitExceededException.class)
     public void checkExpiredExpiryFile() {
-        LicenceCheck.check("test");
+        LicenceCheck.check("test", LicenceCheck.class);
         fail("should have got an AssertionError");
     }
 
     @Test
     public void checkUnexpiredExpiryFileWithNewline() {
-        LicenceCheck.check("test2");
+        LicenceCheck.check("test2", LicenceCheck.class);
     }
 
     @Test(expected = TimeLimitExceededException.class)
     public void checkEvalExpired() {
-        LicenceCheck.check("test");
+        LicenceCheck.check("test", TestCase.class);
     }
 
     @Test
@@ -44,15 +45,14 @@ public class LicenceCheckTest extends CoreTestCommon {
 
         Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
         // licensed
-        LicenceCheck.check("test");
+        LicenceCheck.check("test", null);
         assertTrue(map.toString().contains("license for Test Unit expires in about 7"));
     }
 
     @Test(expected = TimeLimitExceededException.class)
     public void checkLicenseExpired() {
         System.setProperty(CHRONICLE_LICENSE, "product=test.,owner=Test Unit,expires=2019-01-01,code=123456789");
-        LicenceCheck.check("test");
-        fail("Expected TimeLimitExceededException");
+        LicenceCheck.check("test", null);
         fail("Expected TimeLimitExceededException");
     }
 }

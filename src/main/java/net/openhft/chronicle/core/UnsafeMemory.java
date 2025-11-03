@@ -12,6 +12,7 @@ import sun.misc.Unsafe; // NOSONAR
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static net.openhft.chronicle.assertions.AssertUtil.SKIP_ASSERTIONS;
@@ -58,6 +59,8 @@ public class UnsafeMemory implements Memory {
     // copyMemory method. A limit is imposed to allow for safepoint polling
     // during a large copy
     static final long UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
+    // NOSONAR
+    public static final boolean IS_LITTLE_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
 
     // Create a local copy of type long (instead of int) to optimize performance
     private static final long ARRAY_BYTE_BASE_OFFSET = Unsafe.ARRAY_BYTE_BASE_OFFSET;
