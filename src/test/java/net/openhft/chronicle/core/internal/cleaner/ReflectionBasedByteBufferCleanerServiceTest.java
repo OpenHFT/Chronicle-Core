@@ -18,20 +18,20 @@ class ReflectionBasedByteBufferCleanerServiceTest {
 
     @Test
     @EnabledIfSystemProperty(named = "java.version", matches = "1\\.8.*")
-    public void cleanShouldWorkOnJava8() {
+    void cleanShouldWorkOnJava8() {
         ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
         assertDoesNotThrow(() -> cleanerService.clean(buffer), "Cleaning a direct buffer should not throw an exception on Java 8");
     }
 
     @Test
     @EnabledIfSystemProperty(named = "java.version", matches = "9|1[0-9].*")
-    public void cleanShouldWorkOnJava9Plus() {
+    void cleanShouldWorkOnJava9Plus() {
         ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
         assertDoesNotThrow(() -> cleanerService.clean(buffer), "Cleaning a direct buffer should not throw an exception on Java 9+");
     }
 
     @Test
-    public void impactShouldReturnValidImpact() {
+    void impactShouldReturnValidImpact() {
         Impact impact = cleanerService.impact();
         assertTrue(impact == Impact.SOME_IMPACT || impact == Impact.UNAVAILABLE, "Impact should be either SOME_IMPACT or UNAVAILABLE");
     }

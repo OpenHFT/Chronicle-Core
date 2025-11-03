@@ -255,8 +255,8 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         assertThrows(IllegalStateException.class, () -> memory.testAndSetInt(obj, offset, expected, 30));
     }
 
-    public static class TestObject {
-        public int value;
+    static class TestObject {
+        int value;
     }
 
     @Test

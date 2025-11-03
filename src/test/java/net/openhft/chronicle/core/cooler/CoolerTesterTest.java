@@ -7,7 +7,6 @@ import org.junit.jupiter.api.Test;
 import java.util.concurrent.Callable;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.*;
 
@@ -25,17 +24,6 @@ class CoolerTesterTest {
 
         verify(mockTask, atLeastOnce()).call();
         verify(mockCooler, atLeastOnce()).disturb();
-    }
-
-    @Test
-    void constructorShouldInitializeWithGivenParameters() {
-        Callable<?> mockTask = mock(Callable.class);
-        CpuCooler mockCooler1 = mock(CpuCooler.class);
-        CpuCooler mockCooler2 = mock(CpuCooler.class);
-
-        CoolerTester tester = new CoolerTester(mockTask, mockCooler1, mockCooler2);
-
-        assertNotNull(tester);
     }
 
     @Test

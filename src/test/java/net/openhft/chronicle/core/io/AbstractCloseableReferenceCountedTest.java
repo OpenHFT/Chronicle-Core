@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,6 +17,11 @@ public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTrace
     @Before
     public void discardResources() {
         ignoreException("Failed to release LAST, closing anyway");
+    }
+
+    @After
+    public void checkResources() {
+        referenceCounted = null;
     }
 
     @Test
@@ -87,18 +93,6 @@ public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTrace
         }
     }
 
-    @Test
-    public void releaseLastWillReleaseThenFailWhenReferenceIsNotLast() {
-        super.releaseLastWillReleaseThenFailWhenReferenceIsNotLast();
-        referenceCounted = null;
-    }
-
-    @Test
-    public void listenersShouldNotBeNotifiedOnWarnAndReleaseIfNotReleased() {
-        super.listenersShouldNotBeNotifiedOnWarnAndReleaseIfNotReleased();
-        referenceCounted = null;
-    }
-
     @Override
     protected MyCloseableReferenceCounted createReferenceCounted() {
         referenceCounted = new MyCloseableReferenceCounted();
@@ -112,9 +106,9 @@ public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTrace
     }
 
     static class MyCloseableReferenceCounted extends AbstractCloseableReferenceCounted {
-        int performRelease;
+        int performRelease = 0;
 
-        public MyCloseableReferenceCounted() {
+        MyCloseableReferenceCounted() {
         }
 
         @Override

@@ -16,7 +16,7 @@ import static org.mockito.Mockito.*;
 class EventHandlerTest {
 
     @BeforeEach
-    public void mockitoNotSupportedOnJava21() {
+    void mockitoNotSupportedOnJava21() {
         Assumptions.assumeTrue(Jvm.majorVersion() <= 17);
     }
     @Test

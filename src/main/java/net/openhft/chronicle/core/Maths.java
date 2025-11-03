@@ -11,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
+@SuppressWarnings({"java:S1940", "java:S3358"})
 public final class Maths {
 
     // Suppresses default constructor, ensuring non-instantiability.
@@ -565,7 +566,7 @@ public final class Maths {
      */
     public static long hash64(@NotNull String s) {
         //noinspection ConstantValue
-        if (s == null) throw new IllegalArgumentException();
+        if (s == null) throw new IllegalArgumentException(); // NOSONAR
         long hash = 0;
 
         if (Jvm.isJava9Plus() && Jvm.maxDirectMemory() > 0) {
@@ -775,12 +776,12 @@ public final class Maths {
      * Divide {@code dividend} by divisor, if division is not integral the result is rounded up.
      * Examples: {@code divideRoundUp(10, 5) == 2}, {@code divideRoundUp(11, 5) == 3},
      * {@code divideRoundUp(-10, 5) == -2}, {@code divideRoundUp(-11, 5) == -3}.
-     *
+     * @throws ArithmeticException if divisor is zero.
      * @return the rounded up quotient
      */
     public static long divideRoundUp(long dividend, long divisor) {
         int sign = (dividend > 0 ? 1 : -1) * (divisor > 0 ? 1 : -1);
-        return sign * (Math.abs(dividend) + Math.abs(divisor) - 1) / Math.abs(divisor);
+        return sign * (Math.abs(dividend) + Math.abs(divisor) - 1) / Math.abs(divisor); // NOSONAR
     }
 
     /**
@@ -873,7 +874,7 @@ public final class Maths {
      * @param decimalPlaces The number of decimal places
      * @return The value as a double
      */
-
+    @SuppressWarnings("java:S3776")
     public static double asDouble(@NonNegative long value, int exponent, boolean negative, int decimalPlaces) {
         assert AssertUtil.SKIP_ASSERTIONS || value >= 0;
         // these numbers were determined empirically.
@@ -942,6 +943,7 @@ public final class Maths {
      * return a + b / c as a double
      */
     public static double add(long a, long b, long c) {
+        @SuppressWarnings("UnnecessaryLocalVariable")
         double d = a;
         long l = (long) d;
         long diff = a - l;

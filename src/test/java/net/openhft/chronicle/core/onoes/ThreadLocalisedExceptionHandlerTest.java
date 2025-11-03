@@ -13,18 +13,18 @@ class ThreadLocalisedExceptionHandlerTest {
     private ThreadLocalisedExceptionHandler tlExceptionHandler;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         defaultHandler = mock(ExceptionHandler.class);
         tlExceptionHandler = new ThreadLocalisedExceptionHandler(defaultHandler);
     }
 
     @Test
-    public void testUnwrapExceptionHandler() {
+    void testUnwrapExceptionHandler() {
         assertSame(defaultHandler, ThreadLocalisedExceptionHandler.unwrap(tlExceptionHandler));
     }
 
     @Test
-    public void testIsEnabled() {
+    void testIsEnabled() {
         when(defaultHandler.isEnabled(Exception.class)).thenReturn(true);
         assertTrue(tlExceptionHandler.isEnabled(Exception.class));
     }

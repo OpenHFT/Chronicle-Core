@@ -126,7 +126,7 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
         private final boolean shouldPerformCloseInBackground;
         private Boolean wasClosedInBackgroundResourceReleaserThread = null;
 
-        public WasInBackgroundResourceReleaserRecorder(boolean shouldPerformCloseInBackground) {
+        WasInBackgroundResourceReleaserRecorder(boolean shouldPerformCloseInBackground) {
             this.shouldPerformCloseInBackground = shouldPerformCloseInBackground;
         }
 
@@ -140,12 +140,12 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
             wasClosedInBackgroundResourceReleaserThread = BackgroundResourceReleaser.isOnBackgroundResourceReleaserThread();
         }
 
-        public Boolean wasClosedInBackgroundResourceReleaserThread() {
+        Boolean wasClosedInBackgroundResourceReleaserThread() {
             return wasClosedInBackgroundResourceReleaserThread;
         }
     }
 
-    static void assertBetween(long min, long actual, long max) {
+    private static void assertBetween(long min, long actual, long max) {
         if (min <= actual && actual <= max)
             return;
         throw new AssertionError("Not in range " + min + " <= " + actual + " <= " + max);

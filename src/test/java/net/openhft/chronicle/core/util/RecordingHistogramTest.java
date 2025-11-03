@@ -4,10 +4,13 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
+import net.openhft.chronicle.core.time.SetTimeProvider;
+import net.openhft.chronicle.core.time.SystemTimeProvider;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotEquals;
 
 public class RecordingHistogramTest extends CoreTestCommon {
     @Test
@@ -24,12 +27,16 @@ public class RecordingHistogramTest extends CoreTestCommon {
 
     @Test
     public void testSampleNanosAndTopDurations() {
+        SystemTimeProvider.CLOCK = new SetTimeProvider();
         RecordingHistogram histogram = new RecordingHistogram();
 
-        histogram.sampleNanos(100);
-        histogram.sampleNanos(200);
-        histogram.sampleNanos(50);
-        histogram.sampleNanos(300);
+        histogram.sampleNanos(1000);
+        histogram.sampleNanos(2000);
+        histogram.sampleNanos(5500);
+        histogram.sampleNanos(3000);
+        assertEquals("{ 50/90 99/99.9 99.99 - worst  was: 2.002 / 5.50  5.50 / 5.50  5.50 - 5.50, " +
+                        "top: [{ off: 0.0, dur: 5.5 }, { off: 0.0, dur: 3.0 }, { off: 0.0, dur: 2.0 }, { off: 0.0, dur: 1.0 }] }",
+                histogram.toMicrosFormat());
 
         // Assert that formatted output reflects recorded samples
         String s = histogram.toMicrosFormat(d -> d);
@@ -39,12 +46,11 @@ public class RecordingHistogramTest extends CoreTestCommon {
     @Test
     public void testReset() {
         RecordingHistogram histogram = new RecordingHistogram();
-        histogram.sampleNanos(100);
+        String noData = histogram.toMicrosFormat();
+        histogram.sampleNanos(10000);
+        assertNotEquals(noData, histogram.toMicrosFormat());
         histogram.reset();
-        // After reset, formatting still returns a non-empty summary
-        String s = histogram.toMicrosFormat(d -> d);
-        assertNotNull(s);
-        assertTrue(s.contains("top:"));
+        assertEquals(noData, histogram.toMicrosFormat());
     }
 
     @Test

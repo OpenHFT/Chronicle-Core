@@ -16,17 +16,17 @@ import static org.junit.jupiter.api.Assumptions.assumeFalse;
 class DirectBufferUtilTest {
 
     @BeforeEach
-    public void addOpens() {
+    void addOpens() {
         assumeTrue(Jvm.maxDirectMemory() > 0);
     }
 
     @Test
-    public void directBufferClassShouldReturnCorrectClass() {
+    void directBufferClassShouldReturnCorrectClass() {
         assertEquals(sun.nio.ch.DirectBuffer.class, DirectBufferUtil.directBufferClass(), "DirectBuffer class should be returned");
     }
 
     @Test
-    public void cleanIfInstanceOfDirectBufferShouldCleanDirectBuffer() {
+    void cleanIfInstanceOfDirectBufferShouldCleanDirectBuffer() {
         assumeFalse(Jvm.isJava9Plus());
         ByteBuffer directBuffer = ByteBuffer.allocateDirect(1024);
 
@@ -34,21 +34,21 @@ class DirectBufferUtilTest {
     }
 
     @Test
-    public void cleanIfInstanceOfDirectBufferShouldNotThrowForNonDirectBuffer() {
+    void cleanIfInstanceOfDirectBufferShouldNotThrowForNonDirectBuffer() {
         ByteBuffer nonDirectBuffer = ByteBuffer.allocate(1024);
 
         assertDoesNotThrow(() -> DirectBufferUtil.cleanIfInstanceOfDirectBuffer(nonDirectBuffer), "Non-direct buffer should not throw an exception");
     }
 
     @Test
-    public void addressOrThrowShouldReturnAddressForDirectBuffer() {
+    void addressOrThrowShouldReturnAddressForDirectBuffer() {
         ByteBuffer directBuffer = ByteBuffer.allocateDirect(1024);
 
         assertDoesNotThrow(() -> DirectBufferUtil.addressOrThrow(directBuffer), "Getting address of a direct buffer should not throw an exception");
     }
 
     @Test
-    public void addressOrThrowShouldThrowForNonDirectBuffer() {
+    void addressOrThrowShouldThrowForNonDirectBuffer() {
         ByteBuffer nonDirectBuffer = ByteBuffer.allocate(1024);
 
         assertThrows(ClassCastException.class, () -> DirectBufferUtil.addressOrThrow(nonDirectBuffer), "Non-direct buffer should throw ClassCastException");

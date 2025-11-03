@@ -28,15 +28,22 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
     @Test
     public void throwIfReleasedWillNotThrowIfResourceIsNotReleased() {
         ReferenceCountedTracer referenceCounted = createReferenceCounted();
-
-        referenceCounted.throwExceptionIfReleased();
+        try {
+            referenceCounted.throwExceptionIfReleased();
+            assertEquals(1, referenceCounted.refCount());
+        } finally {
+            referenceCounted.releaseLast();
+        }
     }
 
-    @Test
+    @Test(expected = IllegalStateException.class)
     public void throwIfNotReleasedWillThrowIfResourceIsNotReleased() {
         ReferenceCountedTracer referenceCounted = createReferenceCounted();
-
-        assertThrows(IllegalStateException.class, referenceCounted::throwExceptionIfNotReleased);
+        try {
+            referenceCounted.throwExceptionIfNotReleased();
+        } finally {
+            referenceCounted.releaseLast();
+        }
     }
 
     @Test
@@ -45,6 +52,7 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
 
         referenceCounted.releaseLast();
         referenceCounted.throwExceptionIfNotReleased();
+        assertEquals(0, referenceCounted.refCount());
     }
 
     @Test

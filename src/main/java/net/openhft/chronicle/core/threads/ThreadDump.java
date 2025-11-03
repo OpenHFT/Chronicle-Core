@@ -136,6 +136,7 @@ public class ThreadDump {
         }
     }
 
+    @SuppressWarnings("java:S3014")
     private Thread[] getAllThreadsInGroup() {
         ThreadGroup threadGroup = Thread.currentThread().getThreadGroup();
         int threadCountEstimate = threadGroup.activeCount();

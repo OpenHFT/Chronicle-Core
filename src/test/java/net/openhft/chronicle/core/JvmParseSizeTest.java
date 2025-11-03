@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(Parameterized.class)
 public class JvmParseSizeTest extends CoreTestCommon {
-    public static final String PROPERTY = "JvmParseSizeTest";
+    private static final String PROPERTY = "JvmParseSizeTest";
     private final String text;
     private final long value;
 

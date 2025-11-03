@@ -15,7 +15,7 @@ import org.junit.Before;
 import static net.openhft.chronicle.core.io.AbstractCloseable.waitForCloseablesToClose;
 
 public class CoreTestCommon {
-    protected ThreadDump threadDump;
+    private ThreadDump threadDump;
     private ExceptionTracker<?> exceptionTracker;
 
     @Before
@@ -28,7 +28,7 @@ public class CoreTestCommon {
         threadDump = new ThreadDump();
     }
 
-    public void checkThreadDump() {
+    void checkThreadDump() {
         threadDump.assertNoNewThreads();
     }
 
@@ -37,11 +37,11 @@ public class CoreTestCommon {
         exceptionTracker = JvmExceptionTracker.create();
     }
 
-    public void expectException(String message) {
+    protected void expectException(String message) {
         exceptionTracker.expectException(message);
     }
 
-    public void ignoreException(String message) {
+    protected void ignoreException(String message) {
         exceptionTracker.ignoreException(message);
     }
 

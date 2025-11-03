@@ -17,6 +17,7 @@ import net.openhft.chronicle.core.internal.ReferenceCountedUtils;
  * closed. If {@link #canReleaseInBackground()} is {@code true} the cleanup is
  * delegated to {@link BackgroundResourceReleaser}.
  */
+@SuppressWarnings({"java:S2065", "java:S3077"})
 public abstract class AbstractCloseableReferenceCounted
         extends AbstractReferenceCounted
         implements ManagedCloseable {
@@ -156,7 +157,7 @@ public abstract class AbstractCloseableReferenceCounted
     public void throwExceptionIfClosed() throws ClosedIllegalStateException, ThreadingIllegalStateException {
         throwExceptionIfClosed0();
         throwExceptionIfReleased();
-        assert AbstractCloseable.DISABLE_SINGLE_THREADED_CHECK || threadSafetyCheck(true);
+        assert DISABLE_SINGLE_THREADED_CHECK || threadSafetyCheck(true);
     }
 
     private void throwExceptionIfClosed0() throws ClosedIllegalStateException {
@@ -176,7 +177,7 @@ public abstract class AbstractCloseableReferenceCounted
     protected void throwExceptionIfClosedInSetter() throws ClosedIllegalStateException, ThreadingIllegalStateException {
         throwExceptionIfClosed0();
         throwExceptionIfReleased();
-        assert AbstractCloseable.DISABLE_SINGLE_THREADED_CHECK || threadSafetyCheck(false);
+        assert DISABLE_SINGLE_THREADED_CHECK || threadSafetyCheck(false);
     }
 
     /**

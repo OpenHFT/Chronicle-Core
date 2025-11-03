@@ -16,11 +16,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ManagedCloseableTest {
     @BeforeEach
-    public void mockitoNotSupportedOnJava21() {
+    void mockitoNotSupportedOnJava21() {
         Assumptions.assumeTrue(Jvm.majorVersion() <= 17);
     }
     @Test
-    public void testWarnAndCloseIfNotClosed() {
+    void testWarnAndCloseIfNotClosed() {
         ManagedCloseable closeable = spy(ManagedCloseable.class);
 
         when(closeable.isClosing()).thenReturn(false);
@@ -31,7 +31,7 @@ class ManagedCloseableTest {
     }
 
     @Test
-    public void testThrowExceptionIfClosed() {
+    void testThrowExceptionIfClosed() {
         ManagedCloseable closeable = Mockito.spy(ManagedCloseable.class);
 
         when(closeable.isClosing()).thenReturn(true);
@@ -41,7 +41,7 @@ class ManagedCloseableTest {
     }
 
     @Test
-    public void testCreatedHere() {
+    void testCreatedHere() {
         ManagedCloseable closeable = Mockito.spy(ManagedCloseable.class);
 
         assertNull(closeable.createdHere());

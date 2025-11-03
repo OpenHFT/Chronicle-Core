@@ -9,7 +9,7 @@ import static org.mockito.Mockito.*;
 class ReferenceChangeListenerTest {
 
     @Test
-    public void testOnReferenceAdded() {
+    void testOnReferenceAdded() {
         ReferenceChangeListener listener = mock(ReferenceChangeListener.class);
         ReferenceCounted referenceCounted = mock(ReferenceCounted.class);
         ReferenceOwner referenceOwner = mock(ReferenceOwner.class);
@@ -20,7 +20,7 @@ class ReferenceChangeListenerTest {
     }
 
     @Test
-    public void testOnReferenceRemoved() {
+    void testOnReferenceRemoved() {
         ReferenceChangeListener listener = mock(ReferenceChangeListener.class);
         ReferenceCounted referenceCounted = mock(ReferenceCounted.class);
         ReferenceOwner referenceOwner = mock(ReferenceOwner.class);
@@ -31,7 +31,7 @@ class ReferenceChangeListenerTest {
     }
 
     @Test
-    public void testOnReferenceTransferred() {
+    void testOnReferenceTransferred() {
         ReferenceChangeListener listener = mock(ReferenceChangeListener.class);
         ReferenceCounted referenceCounted = mock(ReferenceCounted.class);
         ReferenceOwner fromOwner = mock(ReferenceOwner.class);

@@ -130,7 +130,7 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
      * @return {@code this} for chaining
      */
     public ThreadLocalisedExceptionHandler threadLocalHandler(ExceptionHandler handler) {
-        handlerTL.set(handler);
+        handlerTL.set(handler == null ? NullExceptionHandler.NOTHING : handler);
         return this;
     }
 

@@ -18,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
  * Thread safety is implementation specific; callers should assume instances are
  * not thread-safe unless stated otherwise.
  */
+@SuppressWarnings("java:S2176")
 public interface Closeable extends java.io.Closeable, QueryCloseable {
 
     /**

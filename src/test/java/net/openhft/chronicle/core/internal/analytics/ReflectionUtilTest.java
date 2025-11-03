@@ -13,28 +13,28 @@ import static org.junit.jupiter.api.Assertions.*;
 class ReflectionUtilTest {
 
     @Test
-    public void analyticsPresentShouldReturnTrueOrFalse() {
+    void analyticsPresentShouldReturnTrueOrFalse() {
         // This test depends on the presence or absence of the analytics class in the classpath
         boolean result = ReflectionUtil.analyticsPresent();
         assertTrue(result || !result, "analyticsPresent should return true or false");
     }
 
     @Test
-    public void methodOrThrowShouldReturnMethod() throws NoSuchMethodException {
+    void methodOrThrowShouldReturnMethod() throws NoSuchMethodException {
         Method expected = String.class.getMethod("length");
         Method actual = ReflectionUtil.methodOrThrow("java.lang.String", "length");
         assertEquals(expected, actual, "methodOrThrow should return the correct method");
     }
 
     @Test
-    public void invokeOrThrowShouldInvokeMethod() throws NoSuchMethodException {
+    void invokeOrThrowShouldInvokeMethod() throws NoSuchMethodException {
         Method lengthMethod = String.class.getMethod("length");
         Object result = ReflectionUtil.invokeOrThrow(lengthMethod, "test");
         assertEquals(4, result, "invokeOrThrow should correctly invoke the method and return the result");
     }
 
     @Test
-    public void reflectiveProxyShouldCreateProxy() {
+    void reflectiveProxyShouldCreateProxy() {
         TestInterface delegate = () -> "test";
         TestInterface proxy = ReflectionUtil.reflectiveProxy(TestInterface.class, delegate);
 
@@ -43,7 +43,7 @@ class ReflectionUtilTest {
     }
 
     @Test
-    public void reflectiveProxyWithReturnProxyShouldReturnProxy() {
+    void reflectiveProxyWithReturnProxyShouldReturnProxy() {
         TestInterface delegate = () -> "test";
         TestInterface proxy = ReflectionUtil.reflectiveProxy(TestInterface.class, delegate, true);
 

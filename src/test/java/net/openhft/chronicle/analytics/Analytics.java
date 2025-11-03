@@ -16,16 +16,13 @@ import java.util.function.Consumer;
 /**
  * Test double that mimics the public API expected by {@code ReflectionUtil} and {@code ReflectiveBuilder}.
  */
-public final class Analytics {
+public interface Analytics extends AnalyticsFacade {
 
-    private Analytics() {
-    }
-
-    public static Builder builder(@NotNull final String measurementId, @NotNull final String apiSecret) {
+    static Builder builder(@NotNull final String measurementId, @NotNull final String apiSecret) {
         return new Builder(measurementId, apiSecret);
     }
 
-    public static final class Builder {
+    final class Builder {
         private final String measurementId;
         private final String apiSecret;
         private final Map<String, String> userProps = new LinkedHashMap<>();
@@ -103,7 +100,7 @@ public final class Analytics {
         }
     }
 
-    public static final class RecordingFacade implements AnalyticsFacade {
+    final class RecordingFacade implements Analytics {
         private final String measurementId;
         private final String apiSecret;
         private final Map<String, String> userProps;

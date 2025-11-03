@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class EnumInternerTest extends CoreTestCommon {
 
-    static final int MASK = 63;
+    private static final int MASK = 63;
 
     public static void main(String[] args) {
         for (int i = 0; i < 100000; i++) {
@@ -53,6 +53,7 @@ public class EnumInternerTest extends CoreTestCommon {
                 });
     }
 
+    @SuppressWarnings("java:S115")
     enum TestEnum {
         c1, cq, db, ho, id, k6, kv, la, m5, mu, nb, qg, s8, sx, uz, va, yj
     }

@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SyncableTest {
 
-    public static class SyncableImpl implements Syncable {
+    static class SyncableImpl implements Syncable {
         boolean synced = false;
 
         @Override
@@ -19,7 +19,7 @@ class SyncableTest {
     }
 
     @Test
-    public void syncIfAvailableShouldCallSyncOnSyncableObjects() {
+    void syncIfAvailableShouldCallSyncOnSyncableObjects() {
         Syncable syncableMock = mock(Syncable.class);
         Syncable.syncIfAvailable(syncableMock);
 
@@ -27,14 +27,14 @@ class SyncableTest {
     }
 
     @Test
-    public void syncIfAvailableShouldNotThrowExceptionForNonSyncableObjects() {
+    void syncIfAvailableShouldNotThrowExceptionForNonSyncableObjects() {
         Object nonSyncableObject = new Object();
 
         assertDoesNotThrow(() -> Syncable.syncIfAvailable(nonSyncableObject));
     }
 
     @Test
-    public void syncShouldSetSyncedToTrueForSyncableImpl() {
+    void syncShouldSetSyncedToTrueForSyncableImpl() {
         SyncableImpl syncableImpl = new SyncableImpl();
         assertFalse(syncableImpl.synced);
 

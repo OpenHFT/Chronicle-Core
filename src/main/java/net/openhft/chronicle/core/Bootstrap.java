@@ -9,6 +9,8 @@ import net.openhft.chronicle.core.internal.ChronicleGuarding;
  * Contains the pieces which must be loaded first
  */
 public class Bootstrap {
+    public Bootstrap() {
+    }
     static {
         ChronicleGuarding.bootstrap();
     }

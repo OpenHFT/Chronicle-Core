@@ -48,6 +48,9 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         ReferenceOwner b = ReferenceOwner.temporary("b");
         referenceCounted.reserve(b);
         assertEquals(3, referenceCounted.refCount());
+        referenceCounted.release(b);
+        referenceCounted.release(a);
+        referenceCounted.releaseLast();
     }
 
     @Test
@@ -71,6 +74,8 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         ReferenceOwner b = ReferenceOwner.temporary("b");
         referenceCounted.reserveTransfer(a, b);
         assertEquals(2, referenceCounted.refCount());
+        referenceCounted.release(b);
+        referenceCounted.releaseLast();
     }
 
     @Test
@@ -92,6 +97,8 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
 
         referenceCounted.release(a);
         assertEquals(1, referenceCounted.refCount());
+
+        referenceCounted.releaseLast();
     }
 
     @Test
@@ -152,6 +159,8 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
         assertTrue(referenceCounted.tryReserve(a));
+        referenceCounted.release(a);
+        referenceCounted.releaseLast();
     }
 
     @Test
@@ -184,6 +193,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
             throw new IllegalStateException("ExecutorService didn't shut down");
         }
         counted.releaseLast();
+        assertTrue(counted.refCount() >= 0);
     }
 
     @Test
@@ -250,6 +260,8 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
 
         rc.reserve(a);
         assertEquals(1, referenceChangeListener.referenceAddedCount);
+        rc.release(a);
+        rc.releaseLast();
     }
 
     @Test
@@ -263,6 +275,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         rc.reserve(a);
         rc.release(a);
         assertEquals(1, referenceChangeListener.referenceRemovedCount);
+        rc.releaseLast();
     }
 
     @Test
@@ -277,6 +290,8 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         rc.reserve(a);
         rc.reserveTransfer(a, b);
         assertEquals(1, referenceChangeListener.referenceTransferredCount);
+        rc.release(b);
+        rc.releaseLast();
     }
 
     @Test
@@ -305,6 +320,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         rc.release(b);
         assertEquals(0, listener1.referenceRemovedCount);
         assertEquals(1, listener2.referenceRemovedCount);
+        rc.releaseLast();
     }
 
     static class CounterReferenceChangeListener implements ReferenceChangeListener {
@@ -380,14 +396,14 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         private final int index;
         private final ReferenceCounted resource;
 
-        public Reference(int owner, int index, ReferenceCounted resource) {
+        Reference(int owner, int index, ReferenceCounted resource) {
             this.owner = owner;
             this.index = index;
             this.resource = resource;
             this.resource.reserve(this);
         }
 
-        public void release() {
+        void release() {
             resource.release(this);
         }
 

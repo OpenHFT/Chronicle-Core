@@ -13,14 +13,14 @@ public class UnsafePingPointMain implements Runnable {
     private final long addrA;
     private final long addrB;
 
-    public UnsafePingPointMain(Unsafe unsafe, long addrA, long addrB) {
+    private UnsafePingPointMain(Unsafe unsafe, long addrA, long addrB) {
         this.unsafe = unsafe;
         this.addrA = addrA;
         this.addrB = addrB;
     }
 
     @NotNull
-    public static Unsafe getUnsafe() {
+    private static Unsafe getUnsafe() {
         try {
             Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
             theUnsafe.setAccessible(true);

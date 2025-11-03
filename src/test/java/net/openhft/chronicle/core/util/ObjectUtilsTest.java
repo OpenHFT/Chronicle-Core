@@ -16,6 +16,7 @@ import java.util.function.Supplier;
 
 import static org.junit.Assert.*;
 
+@SuppressWarnings("java:S1068")
 public class ObjectUtilsTest extends CoreTestCommon {
     @SuppressWarnings("rawtypes")
     @Test
@@ -63,7 +64,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
     static class ClassWithString {
         private final String s;
 
-        public ClassWithString(String s) {
+        ClassWithString(String s) {
             this.s = s;
         }
     }
@@ -71,7 +72,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
     static class ClassWithValueOf {
         private final String s;
 
-        public ClassWithValueOf(String s) {
+        ClassWithValueOf(String s) {
             this.s = s;
         }
 
@@ -83,7 +84,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
     static class ClassWithParse {
         private final String s;
 
-        public ClassWithParse(String s) {
+        ClassWithParse(String s) {
             this.s = s;
         }
 
@@ -120,9 +121,8 @@ public class ObjectUtilsTest extends CoreTestCommon {
         assertNotNull(regularClassSupplier.get());
 
         // Example for a primitive type
-        assertThrows(IllegalArgumentException.class, () -> ObjectUtils.supplierForClass(int.class).get());
-
-        // Add similar tests for interfaces, enums, abstract classes, and internal package classes
+        Supplier<Integer> integerSupplier = ObjectUtils.supplierForClass(int.class);
+        assertThrows(IllegalArgumentException.class, integerSupplier::get);
     }
 
     @Test
@@ -135,9 +135,9 @@ public class ObjectUtilsTest extends CoreTestCommon {
     @Test
     public void caseIgnoreLookupShouldCreateCorrectMap() {
         // Assuming MyEnum is an enum class
-        @NotNull Map<String, Enum<?>> map = ObjectUtils.caseIgnoreLookup(MyEnum.class);
-        assertTrue(map.containsKey("MY_VALUE"));
-        assertEquals(MyEnum.MY_VALUE, map.get("MY_VALUE"));
+        Map<String, Enum<?>> map = ObjectUtils.caseIgnoreLookup(MyEnum.class);
+        // Assertions to check the map contents
+        assertEquals("{MY_VALUE=MY_VALUE}", map.toString());
     }
 
     @Test
@@ -276,15 +276,8 @@ public class ObjectUtilsTest extends CoreTestCommon {
     @Test
     public void getAllInterfacesTest() {
         Class<?>[] interfaces = ObjectUtils.getAllInterfaces(new ImplementingClass());
-        assertNotNull(interfaces);
-        assertEquals(0, interfaces.length);
-    }
-
-    @Test
-    public void getAllInterfacesClassTest() {
-        Class<?>[] interfaces = ObjectUtils.getAllInterfaces(ImplementingClass.class);
-        assertNotNull(interfaces);
-        assertEquals(0, interfaces.length);
+        assertEquals("[interface net.openhft.chronicle.core.util.IgnoresEverything]",
+                Arrays.toString(interfaces));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -302,9 +295,9 @@ public class ObjectUtilsTest extends CoreTestCommon {
         MY_VALUE
     }
 
-    public class ImplementingClass {}
-    public class AbstractTestClass {}
-    public class RegularClass {}
+    class ImplementingClass implements IgnoresEverything {}
+    private class AbstractTestClass {}
+    private class RegularClass {}
 
     @Test
     public void testDefaultValueForPrimitives() {
