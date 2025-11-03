@@ -421,6 +421,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
      * The Finalizer inner class is used to ensure that resources are properly closed
      * when the garbage collector decides to reclaim the memory for the enclosing AbstractCloseable instance.
      */
+    @SuppressWarnings("RedundantSuppression")
     class Finalizer {
         /**
          * Called by the garbage collector when the enclosing AbstractCloseable instance is

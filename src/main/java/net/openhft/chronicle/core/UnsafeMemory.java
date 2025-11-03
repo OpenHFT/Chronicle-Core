@@ -37,7 +37,8 @@ import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
  *
  * @see UnsafeMemory.ARMMemory
  */
-@SuppressWarnings({"unchecked", "java:S1191", "java:S4144", "java:S3011"}) // Uses sun.misc.Unsafe for low-level ops; unchecked casts are local and intentional.
+@SuppressWarnings({"unchecked", "java:S1191", "java:S4144", "java:S3011", "RedundantSuppression"})
+// Uses sun.misc.Unsafe for low-level ops; unchecked casts are local and intentional.
 public class UnsafeMemory implements Memory {
 
     /**

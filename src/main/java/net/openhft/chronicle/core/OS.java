@@ -755,7 +755,7 @@ public final class OS {
             }
         }
 
-        @SuppressWarnings("deprecation")
+        @SuppressWarnings({"deprecation", "RedundantSuppression"})
         static String execHostname() throws IOException {
             try (BufferedReader br = new BufferedReader(
                     new InputStreamReader(

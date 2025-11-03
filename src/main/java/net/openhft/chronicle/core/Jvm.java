@@ -55,7 +55,7 @@ import static net.openhft.chronicle.core.internal.util.MapUtil.entry;
 /**
  * Utility class to access information in the JVM.
  */
-@SuppressWarnings({"java:S1191", "java:S1181", "java:S3011", "java:S106", "jaca:S3008", "java:S3077", "java:S3008"})
+@SuppressWarnings({"java:S1191", "java:S1181", "java:S3011", "java:S106", "jaca:S3008", "java:S3077", "java:S3008", "RedundantSuppression"})
 public final class Jvm {
 
     public static final String JAVA_CLASS_PATH = "java.class.path";
