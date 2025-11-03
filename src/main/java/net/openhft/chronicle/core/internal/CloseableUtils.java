@@ -189,7 +189,7 @@ public final class CloseableUtils {
         AssertionError openFiles = new AssertionError("Closeables still open");
 
         synchronized (traceSet) {
-            Set<ManagedCloseable> traceSet2 = Collections.newSetFromMap(new IdentityHashMap<>());
+            Set<Closeable> traceSet2 = Collections.newSetFromMap(new IdentityHashMap<>());
             if (waitForTraceSet(traceSet, traceSet2))
                 return;
 
@@ -201,7 +201,7 @@ public final class CloseableUtils {
         }
     }
 
-    private static boolean waitForTraceSet(Set<ManagedCloseable> traceSet, Set<ManagedCloseable> traceSet2) {
+    private static boolean waitForTraceSet(Set<ManagedCloseable> traceSet, Set<Closeable> traceSet2) {
         traceSet.removeIf(o -> o == null || o.isClosing());
         Set<Closeable> nested = Collections.newSetFromMap(new IdentityHashMap<>());
         for (Closeable key : traceSet) {
@@ -219,7 +219,7 @@ public final class CloseableUtils {
         return false;
     }
 
-    private static void captureTheUnclosed(AssertionError openFiles, Set<ManagedCloseable> traceSet2) {
+    private static void captureTheUnclosed(AssertionError openFiles, Set<Closeable> traceSet2) {
         for (Closeable key : traceSet2) {
             Throwable t = null;
             try {
