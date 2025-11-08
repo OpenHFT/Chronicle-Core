@@ -364,11 +364,12 @@
             <!-- If you keep thresholds as properties, define them here
                  (or in the parent) so they resolve during this profile) -->
             <properties>
-                <jacoco.line.coverage>0.7</jacoco.line.coverage>
-                <jacoco.branch.coverage>0.6</jacoco.branch.coverage>
+                <jacoco.line.coverage>0.76</jacoco.line.coverage>
+                <jacoco.branch.coverage>0.64</jacoco.branch.coverage>
             </properties>
 
             <build>
+                <defaultGoal>verify</defaultGoal>
                 <plugins>
                     <plugin>
                         <groupId>org.sonarsource.scanner.maven</groupId>

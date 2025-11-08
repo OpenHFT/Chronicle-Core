@@ -106,6 +106,10 @@ public final class Jvm {
     static {
         Logger logger = LoggerFactory.getLogger(Jvm.class);
 
+        // Ensure any ChronicleInit init runnables run before loading system properties
+        // so they can set/override properties that Jvm reads during initialisation.
+        ChronicleInit.init();
+
         boolean notJUnitTest = !isJUnitTest0();
         if (notJUnitTest) {
             // Eagerly initialise Posix & Affinity
