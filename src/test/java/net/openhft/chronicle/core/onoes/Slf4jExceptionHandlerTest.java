@@ -3,10 +3,16 @@
  */
 package net.openhft.chronicle.core.onoes;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
-import static org.mockito.Mockito.*;
+
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 class Slf4jExceptionHandlerTest {
 
@@ -82,5 +88,28 @@ class Slf4jExceptionHandlerTest {
         assertDoesNotThrow(() ->
                 Slf4jExceptionHandler.ERROR.on(Slf4jExceptionHandlerTest.class, "all good", null)
         );
+    }
+
+    @Test
+    void fallbackWritesPlainAsciiWhenLoggerThrows() throws Exception {
+        RuntimeException original = new RuntimeException("original");
+        Logger failingLogger = mock(Logger.class);
+        doThrow(new IllegalStateException("logger offline"))
+                .when(failingLogger)
+                .warn("plain-message", original);
+
+        PrintStream previousErr = System.err;
+        ByteArrayOutputStream capture = new ByteArrayOutputStream();
+        try (PrintStream replacement = new PrintStream(capture, true, StandardCharsets.ISO_8859_1.name())) {
+            System.setErr(replacement);
+            Slf4jExceptionHandler.WARN.on(failingLogger, "plain-message", original);
+        } finally {
+            System.setErr(previousErr);
+        }
+
+        String stderr = capture.toString(StandardCharsets.ISO_8859_1.name());
+        assertTrue(stderr.contains("Failed to write to logger"));
+        assertTrue(stderr.contains("plain-message"));
+        assertFalse(stderr.contains("\u001B"), "ANSI escape codes must never be emitted");
     }
 }

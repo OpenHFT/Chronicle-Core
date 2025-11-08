@@ -56,7 +56,11 @@ mvn -q verify
 ## Project requirements
 
 See the [Decision Log](src/main/docs/decision-log.adoc) for the latest project decisions.
-See the [Project Requirements](src/main/docs/project-requirements.adoc) for details on project requirements.
+See the [Functional Requirements](src/main/docs/functional-requirements.adoc) for behavioural guarantees.
+See the [Data Requirements](src/main/docs/data-requirements.adoc) to understand the on-wire and telemetry contracts.
+See the [Operational Requirements](src/main/docs/operational-requirements.adoc) for deploy/run expectations traced to `CORE-OPS-*`.
+See the [Interface Control Document](src/main/docs/interface-control.adoc) when assessing API stability.
+See the [System Architecture overview](src/main/docs/system-architecture.adoc) for component interactions referenced by ADRs and runbooks.
 
 ## Elevating the Workflow with Real-Time Documentation
 

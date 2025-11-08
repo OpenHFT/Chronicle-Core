@@ -10,6 +10,8 @@ import net.openhft.chronicle.testframework.process.JavaProcessBuilder;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
@@ -110,6 +112,35 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
         assertFalse(recorder.wasClosedInBackgroundResourceReleaserThread());
     }
 
+    @Test
+    public void releasePendingResourcesFlushesQueuedWork() {
+        AtomicInteger closedCount = new AtomicInteger();
+        int total = 32;
+        for (int i = 0; i < total; i++) {
+            CountingCloseable closeable = new CountingCloseable(closedCount);
+            BackgroundResourceReleaser.release(closeable);
+        }
+        BackgroundResourceReleaser.releasePendingResources();
+        assertEquals(total, closedCount.get());
+    }
+
+    @Test
+    public void releasePendingResourcesReassertsInterrupt() throws InterruptedException {
+        AtomicBoolean interrupted = new AtomicBoolean();
+        AtomicInteger closed = new AtomicInteger();
+        Thread t = new Thread(() -> {
+            CountingCloseable closeable = new CountingCloseable(closed);
+            BackgroundResourceReleaser.release(closeable);
+            Thread.currentThread().interrupt();
+            BackgroundResourceReleaser.releasePendingResources();
+            interrupted.set(Thread.currentThread().isInterrupted());
+        });
+        t.start();
+        t.join();
+        assertEquals(1, closed.get());
+        assertTrue(interrupted.get());
+    }
+
     private void assertValueBecomes(boolean expectedValue, Supplier<Boolean> supplier) {
         long endTime = System.currentTimeMillis() + 5_000;
         while (supplier.get() == null) {
@@ -186,6 +217,25 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
         protected void performRelease() {
             released.incrementAndGet();
             Jvm.pause(10);
+        }
+    }
+
+    static class CountingCloseable extends AbstractCloseable {
+
+        private final AtomicInteger counter;
+
+        CountingCloseable(AtomicInteger counter) {
+            this.counter = counter;
+        }
+
+        @Override
+        protected boolean shouldPerformCloseInBackground() {
+            return true;
+        }
+
+        @Override
+        protected void performClose() {
+            counter.incrementAndGet();
         }
     }
 }
