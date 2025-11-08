@@ -425,7 +425,7 @@ public final class IOTools {
      */
     public static File createTempFile(String s) {
         File target = new File(OS.getTarget());
-        target.mkdir();
+        target.mkdirs();
         Path path = Paths.get(target.getAbsolutePath(), s + "-" + Time.uniqueId() + ".tmp");
         try {
             if (Files.exists(path)) {
@@ -435,9 +435,8 @@ public final class IOTools {
                     Files.delete(path);
                 }
             }
-            Files.createFile(path);
         } catch (IOException e) {
-            throw new IORuntimeException("Unable to create temp file " + path, e);
+            throw new IORuntimeException("Unable to prepare temp path " + path, e);
         }
         File file = path.toFile();
         file.deleteOnExit();
