@@ -424,7 +424,22 @@ public final class IOTools {
      * @return The temporary file that was created
      */
     public static File createTempFile(String s) {
-        File file = createTempDirectory(s).toFile();
+        File target = new File(OS.getTarget());
+        target.mkdir();
+        Path path = Paths.get(target.getAbsolutePath(), s + "-" + Time.uniqueId() + ".tmp");
+        try {
+            if (Files.exists(path)) {
+                if (Files.isDirectory(path)) {
+                    deleteDirWithFilesOrThrow(path.toFile());
+                } else {
+                    Files.delete(path);
+                }
+            }
+            Files.createFile(path);
+        } catch (IOException e) {
+            throw new IORuntimeException("Unable to create temp file " + path, e);
+        }
+        File file = path.toFile();
         file.deleteOnExit();
         return file;
     }
