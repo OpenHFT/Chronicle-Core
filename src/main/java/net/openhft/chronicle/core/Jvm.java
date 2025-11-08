@@ -149,7 +149,7 @@ public final class Jvm {
             logger.info("-Ddisable.debug.info turned of debug logging");
         if (logger.isInfoEnabled() && notJUnitTest)
             logger.info(String.format("Chronicle core loaded from %s", Jvm.class.getProtectionDomain().getCodeSource().getLocation()));
-        if (RESOURCE_TRACING && !Jvm.getBoolean("disable.resource.warning"))
+        if (RESOURCE_TRACING && !Jvm.getBoolean("disable.resource.warning") && notJUnitTest)
             logger.warn("Resource tracing is turned on. If you are performance testing or running in PROD you probably don't want this");
         REPORT_UNOPTIMISED = Jvm.getBoolean("report.unoptimised");
 
