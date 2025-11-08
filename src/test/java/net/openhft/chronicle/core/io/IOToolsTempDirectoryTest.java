@@ -35,15 +35,17 @@ public class IOToolsTempDirectoryTest {
     }
 
     @Test
-    public void createTempFileUsesTempDirectory() {
+    public void createTempFileUsesTempDirectory() throws IOException {
         File file = IOTools.createTempFile("temp-file");
         Path base = Paths.get(OS.getTarget()).toAbsolutePath().normalize();
         try {
-            assertTrue(file.exists());
+            assertFalse("Temp file paths are not materialised until needed", file.exists());
             assertTrue(file.getAbsolutePath().contains("temp-file"));
             assertTrue(file.toPath().toAbsolutePath().normalize().startsWith(base));
+            // When callers need a real file they can create it themselves.
+            Files.createFile(file.toPath());
         } finally {
-            assertTrue(file.delete());
+            Files.deleteIfExists(file.toPath());
         }
     }
 

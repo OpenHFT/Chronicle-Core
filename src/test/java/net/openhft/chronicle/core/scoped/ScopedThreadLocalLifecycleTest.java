@@ -21,22 +21,13 @@ import static org.junit.jupiter.api.Assertions.*;
 class ScopedThreadLocalLifecycleTest {
 
     @Test
-    void zeroCapacityDiscardsEveryResourceImmediately() {
-        AtomicInteger idSeq = new AtomicInteger();
-        AtomicInteger closedCount = new AtomicInteger();
-        List<Integer> closedIds = new CopyOnWriteArrayList<>();
-
-        ScopedThreadLocal<CloseableProbe> pool = new ScopedThreadLocal<>(
-                () -> new CloseableProbe(idSeq.incrementAndGet(), closedCount, closedIds),
-                CloseableProbe::reset,
-                0
+    void zeroCapacityIsRejected() {
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
+                new ScopedThreadLocal<>(() -> new CloseableProbe(1, new AtomicInteger(), new CopyOnWriteArrayList<>()),
+                        CloseableProbe::reset,
+                        0)
         );
-
-        acquireAndClose(pool);
-        acquireAndClose(pool);
-
-        assertEquals(2, closedCount.get(), "Every returned resource should be discarded immediately");
-        assertEquals(Arrays.asList(1, 2), closedIds);
+        assertTrue(ex.getMessage().contains("maxInstances"));
     }
 
     @Test
