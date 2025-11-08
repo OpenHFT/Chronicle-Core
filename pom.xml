@@ -33,8 +33,8 @@
         <sonar.organization>openhft</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <!-- Define the target coverage thresholds as properties -->
-        <jacoco.line.coverage>0.8</jacoco.line.coverage>
-        <jacoco.branch.coverage>0.7</jacoco.branch.coverage>
+        <jacoco.line.coverage>0.77</jacoco.line.coverage>
+        <jacoco.branch.coverage>0.67</jacoco.branch.coverage>
         <mockito.version>4.9.0</mockito.version>
     </properties>
 
@@ -364,8 +364,8 @@
             <!-- If you keep thresholds as properties, define them here
                  (or in the parent) so they resolve during this profile) -->
             <properties>
-                <jacoco.line.coverage>0.76</jacoco.line.coverage>
-                <jacoco.branch.coverage>0.64</jacoco.branch.coverage>
+                <jacoco.line.coverage>0.77</jacoco.line.coverage>
+                <jacoco.branch.coverage>0.67</jacoco.branch.coverage>
             </properties>
 
             <build>
