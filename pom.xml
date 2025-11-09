@@ -338,6 +338,9 @@
                         <exclude>src/test/resources/**</exclude>
                         <exclude>target/**</exclude>
                         <exclude>**/*.versionsBackup</exclude>
+                        <exclude>surefire-buildagent/**</exclude>
+                        <exclude>**/*.deferred</exclude>
+                        <exclude>system-properties-precedence*.properties</exclude>
                     </excludes>
                 </configuration>
 
