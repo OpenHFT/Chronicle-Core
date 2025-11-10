@@ -1,0 +1,18 @@
+= Chronicle Core - Operational Scenarios
+:toc:
+:lang: en-GB
+
+Each scenario links back to `CORE-OPS` requirements and forward to the runbooks that resolve it.
+
+[cols="1,2,2,1",options="header"]
+|===
+| Scenario | Trigger | Resolution Summary | Requirements
+| S1. System properties override fails | Boot logs show `No system.properties file found` after a deployment. | Verify the path passed to `-Dsystem.properties`, then follow `runbooks/system-properties.adoc` to confirm Chronicle Init executed. | CORE-OPS-001, CORE-OPS-006
+| S2. Native affinity library missing | WARN logs: `Linux JNA-based affinity not usable`. | Confirm POSIX/JNA libs on the host, else accept dummy affinity behaviour per `runbooks/native-affinity.adoc`. | CORE-OPS-002, CORE-OPS-008
+| S3. Resource tracing overhead | High allocation rate when `-Djvm.resource.tracing=true`. | Evaluate need for tracing, ensure it is disabled in PROD per policy, or tune sampling (see `runbooks/resource-tracing.adoc`). | CORE-OPS-004
+| S4. Background releaser stalls shutdown | Process hangs for >2s on exit. | Inspect `BackgroundResourceReleaser.dumpQueue()`, ensure all reference-counted resources are closed; run `runbooks/releaser-drain.adoc`. | CORE-OPS-005
+| S5. Deprecated API usage | Warn log `Deprecated Chronicle Core API invoked`. | Identify the call site via stack trace, consult `decision-log.adoc` for replacement timeline. | CORE-OPS-007
+|===
+
+These scenarios should be reviewed quarterly; add new entries when post-mortems identify recurring
+operational themes.

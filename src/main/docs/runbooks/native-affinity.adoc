@@ -1,0 +1,37 @@
+= Runbook: Handling Missing Native Affinity Libraries
+:toc:
+:lang: en-GB
+
+Related requirements: CORE-OPS-002, CORE-OPS-008.
+
+== Purpose
+The JVM emitted warnings such as `Linux JNA-based affinity not usable`. This runbook confirms whether
+action is required.
+
+== Preconditions
+* SSH access to the host where the warning occurred.
+* Knowledge of whether the deployment relies on CPU pinning.
+
+== Steps
+1. **Snapshot current warning**
+   * Capture the exact log message; note whether it mentions Linux JNA or Posix JNA.
+2. **Check host OS / architecture**
+   * `uname -a`, `ldd --version`.
+3. **Verify JNA availability**
+   * Ensure the package providing `libjnidispatch.so` is installed.
+   * If not, install the appropriate JNA distribution or ensure the JVM has write access to its temp
+     directory so it can unpack the library.
+4. **Evaluate requirement**
+   * If the workload does not need hard CPU pinning, accept the fallback (`Affinity` will log "Using
+     dummy affinity control implementation") and proceed.
+   * If pinning is required, resolve the native dependency and restart the service.
+5. **Re-test**
+   * After fixes, restart and confirm the warning no longer appears.
+
+== Verification
+* No WARN entries about unusable affinity libraries appear during JVM start-up.
+* `net.openhft.affinity.AffinityLock` reports the expected strategy.
+
+== Rollback
+* If installing JNA introduces instability, revert to the previous package state and rely on dummy
+  affinity while investigating further.

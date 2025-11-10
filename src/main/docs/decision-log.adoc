@@ -30,10 +30,10 @@ Rationale for Decision::
 * Provides immediate traceability across projects with minimal ceremony.
 * Aligns with company-wide governance already approved under `ALL-DOC-100`.
 Impact & Consequences::
-* Existing requirement IDs were renumbered (see requirements-spec).
+* Existing requirement IDs were renumbered (see link:functional-requirements.adoc[Functional Requirements]).
 * Tooling scripts must update regexes to recognise new tag set.
 Notes/Links::
-* link:../requirements/core-requirements.adoc[Requirements Spec]
+* link:functional-requirements.adoc[Functional Requirements Spec]
 
 [[CORE-OPS-002]]
 == CORE-OPS-002 Enforce Deterministic Resource Lifecycle via `AbstractCloseable` & `ReferenceCounted`
@@ -122,4 +122,3 @@ Impact & Consequences::
 Notes/Links::
 * link:functional-requirements.adoc#CORE-FN-015[CORE-FN-015]
 * link:functional-requirements.adoc#CORE-FN-016[CORE-FN-016]
-

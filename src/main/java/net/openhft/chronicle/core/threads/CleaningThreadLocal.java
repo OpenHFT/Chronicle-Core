@@ -222,10 +222,13 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
      * seconds, once a minute, or only at JVM shutdown).</p>
      */
     public static void cleanupNonCleaningThreads() {
-        if (cleaningThreadLocals.isEmpty())
-            return;
+        //noinspection SynchronizationOnStaticField
+        synchronized (cleaningThreadLocals) {
+            if (cleaningThreadLocals.isEmpty())
+                return;
 
-        cleaningThreadLocals.removeIf(CleaningThreadLocal::doCleanupNonCleaningThreads);
+            cleaningThreadLocals.removeIf(CleaningThreadLocal::doCleanupNonCleaningThreads);
+        }
     }
 
     private boolean doCleanupNonCleaningThreads() {

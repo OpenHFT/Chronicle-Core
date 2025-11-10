@@ -53,7 +53,7 @@ Reduce allocation and contention.
 Core risks ::
 * Leaks when non-`CleaningThread`s hold `CleaningThreadLocal` values
 * Cross-tenant data bleed
-* Pool exhaustion in `ScopedThreadLocal`
+* Pool exhaustion in `ScopedThreadLocal` (see link:thread-safety-guarantees.adoc#thread-safety-guarantees[Thread-Safety Guarantees], traced to link:functional-requirements.adoc#CORE-FN-040[CORE-FN-040..043])
 
 Key mitigations ::
 * `CleaningThread` auto-cleanup; `cleanupNonCleaningThreads()` fallback

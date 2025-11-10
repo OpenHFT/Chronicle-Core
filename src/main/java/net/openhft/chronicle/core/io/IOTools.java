@@ -428,7 +428,21 @@ public final class IOTools {
      * @return The temporary file that was created
      */
     public static File createTempFile(String s) {
-        File file = createTempDirectory(s).toFile();
+        File target = new File(OS.getTarget());
+        target.mkdirs();
+        Path path = Paths.get(target.getAbsolutePath(), s + "-" + Time.uniqueId() + ".tmp");
+        try {
+            if (Files.exists(path)) {
+                if (Files.isDirectory(path)) {
+                    deleteDirWithFilesOrThrow(path.toFile());
+                } else {
+                    Files.delete(path);
+                }
+            }
+        } catch (IOException e) {
+            throw new IORuntimeException("Unable to prepare temp path " + path, e);
+        }
+        File file = path.toFile();
         file.deleteOnExit();
         return file;
     }
@@ -440,8 +454,16 @@ public final class IOTools {
      * @return The path to the temporary directory that was created
      */
     public static Path createTempDirectory(String s) {
-        new File(OS.getTarget()).mkdir();
-        return Paths.get(OS.getTarget(), s + "-" + Time.uniqueId() + ".tmp");
+        File target = new File(OS.getTarget());
+        target.mkdir();
+        Path dir = Paths.get(target.getAbsolutePath(), s + "-" + Time.uniqueId() + ".tmp");
+        try {
+            Files.createDirectories(dir);
+        } catch (IOException e) {
+            throw new IORuntimeException("Unable to create temp directory " + dir, e);
+        }
+        dir.toFile().deleteOnExit();
+        return dir;
     }
 
     /**
