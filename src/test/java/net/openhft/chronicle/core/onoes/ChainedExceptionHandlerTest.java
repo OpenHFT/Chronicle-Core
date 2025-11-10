@@ -63,4 +63,22 @@ class ChainedExceptionHandlerTest {
         chained.on(String.class, "message", new RuntimeException());
         assertTrue(true); // If we reach here, the test passes
     }
+
+    @Test
+    void ignoresEverythingHandlersArePrunedFromChain() {
+        ChainedExceptionHandler chained = new ChainedExceptionHandler(ExceptionHandler.ignoresEverything(), handler1);
+
+        assertEquals(1, chained.chain().length);
+        chained.on(String.class, "msg", null);
+        verify(handler1).on(String.class, "msg", null);
+    }
+
+    @Test
+    void threadLocalisedHandlersAreUnwrappedToAvoidRecursion() {
+        ThreadLocalisedExceptionHandler threadLocal = new ThreadLocalisedExceptionHandler(handler1);
+        ChainedExceptionHandler chained = new ChainedExceptionHandler(threadLocal);
+
+        chained.on(String.class, "msg", null);
+        verify(handler1).on(String.class, "msg", null);
+    }
 }
