@@ -1,10 +1,6 @@
 //
 // Copyright 2016-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
 //
-
-/*
- * Copyright 2016-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
- */
 /**
  * Provides functionality for libraries to announce themselves along with useful information.
  *

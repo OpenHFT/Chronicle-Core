@@ -1,10 +1,6 @@
 //
 // Copyright 2016-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
 //
-
-/*
- * Copyright 2016-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
- */
 /**
  * Provides interfaces and classes for representing references to various primitive data types
  * and handling their storage and retrieval.

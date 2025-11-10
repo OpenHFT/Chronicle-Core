@@ -1,10 +1,6 @@
 //
 // Copyright 2016-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
 //
-
-/*
- * Copyright 2016-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
- */
 /**
  * This package and any and all sub-packages contains strictly internal classes reserved for Chronicle Software.
  * Domestic classes shall <em>never</em> be used directly by end-user code. Instead, they are only available
