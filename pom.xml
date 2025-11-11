@@ -10,7 +10,7 @@
     <parent>
         <groupId>net.openhft</groupId>
         <artifactId>java-parent-pom</artifactId>
-        <version>1.27ea1</version>
+        <version>1.27ea2-SNAPSHOT</version>
         <relativePath />
     </parent>
 
@@ -311,39 +311,6 @@
                     <execution>
                         <goals>
                             <goal>manifest</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>com.mycila</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <version>4.1</version>
-
-                <configuration>
-                    <!-- One-line header; no newlines -->
-                    <inlineHeader>Copyright 2016-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
-                    </inlineHeader>
-                    <excludes>
-                        <exclude>LICENSE</exclude>
-                        <exclude>**/*.adoc</exclude>
-                        <exclude>**/*.md</exclude>
-                        <exclude>**/*.txt</exclude>
-                        <exclude>docs/antora/**</exclude>
-                        <exclude>src/main/config/**</exclude>
-                        <exclude>src/main/docs/**</exclude>
-                        <exclude>src/main/resources/**</exclude>
-                        <exclude>src/test/resources/**</exclude>
-                        <exclude>target/**</exclude>
-                        <exclude>**/*.versionsBackup</exclude>
-                    </excludes>
-                </configuration>
-
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>check</goal>
                         </goals>
                     </execution>
                 </executions>
