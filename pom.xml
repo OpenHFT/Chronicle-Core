@@ -33,7 +33,6 @@
         <!-- Define the target coverage thresholds as properties -->
         <jacoco.line.coverage>0.8</jacoco.line.coverage>
         <jacoco.branch.coverage>0.7</jacoco.branch.coverage>
-        <license.header>Copyright 2016-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0</license.header>
         <mockito.version>4.9.0</mockito.version>
     </properties>
 

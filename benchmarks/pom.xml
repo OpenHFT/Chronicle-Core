@@ -137,7 +137,7 @@
                                 <filter>
                                     <!--
                                         Shading signed JARs will fail without this.
-                                        http://stackoverflow.com/questions/999489/invalid-signature-file-when-attempting-to-run-a-jar
+                                        https://stackoverflow.com/questions/999489/invalid-signature-file-when-attempting-to-run-a-jar
                                     -->
                                     <artifact>*:*</artifact>
                                     <excludes>
