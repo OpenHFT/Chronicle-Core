@@ -417,7 +417,14 @@ public final class IOTools {
      * @return The temporary file that was created
      */
     public static File createTempFile(String s) {
-        File file = createTempDirectory(s).toFile();
+        Path path = Paths.get(OS.getTarget(), s + "-" + Time.uniqueId() + ".tmp");
+        // make the directory
+        try {
+            Files.createDirectories(path.getParent());
+        } catch (IOException e) {
+            throw new IORuntimeException(e);
+        }
+        File file = path.toFile();
         file.deleteOnExit();
         return file;
     }
@@ -429,8 +436,14 @@ public final class IOTools {
      * @return The path to the temporary directory that was created
      */
     public static Path createTempDirectory(String s) {
-        new File(OS.getTarget()).mkdir();
-        return Paths.get(OS.getTarget(), s + "-" + Time.uniqueId() + ".tmp");
+        Path path = Paths.get(OS.getTarget(), s + "-" + Time.uniqueId() + ".tmp");
+        // make the directory
+        try {
+            Files.createDirectories(path);
+        } catch (IOException e) {
+            throw new IORuntimeException(e);
+        }
+        return path;
     }
 
     /**

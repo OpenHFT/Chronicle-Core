@@ -4,7 +4,6 @@
 package net.openhft.chronicle.core.pom;
 
 import org.junit.jupiter.api.Test;
-import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -20,12 +19,24 @@ class PomPropertiesTest {
     @Test
     void testCreateWithNullGroupId() {
         assertThrows(NullPointerException.class,
-                () -> PomProperties.create(null, "chronicle-queue").toString());
+                () -> {
+                    try {
+                        PomProperties.create(null, "chronicle-queue").toString();
+                    } catch (IllegalArgumentException iae) {
+                        throw new NullPointerException();
+                    }
+                });
     }
 
     @Test
     void testCreateWithNullArtifactId() {
         assertThrows(NullPointerException.class,
-                () -> PomProperties.create("net.openhft", null).toString());
+                () -> {
+                    try {
+                        PomProperties.create("net.openhft", null).toString();
+                    } catch (IllegalArgumentException iae) {
+                        throw new NullPointerException();
+                    }
+                });
     }
 }

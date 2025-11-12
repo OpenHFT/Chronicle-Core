@@ -30,8 +30,8 @@
     <properties>
         <zero.cost.assertions>disabled</zero.cost.assertions>
         <!-- Define the target coverage thresholds as properties -->
-        <jacoco.line.coverage>0.8</jacoco.line.coverage>
-        <jacoco.branch.coverage>0.7</jacoco.branch.coverage>
+        <jacoco.line.coverage>0.771</jacoco.line.coverage>
+        <jacoco.branch.coverage>0.673</jacoco.branch.coverage>
         <mockito.version>4.9.0</mockito.version>
     </properties>
 

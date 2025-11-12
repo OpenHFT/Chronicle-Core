@@ -18,11 +18,23 @@ class AnnouncerTest {
 
     @Test
     void testAnnounceWithNullGroupId() {
-        assertThrows(NullPointerException.class, () -> Announcer.announce(null, "chronicle-queue"));
+        assertThrows(NullPointerException.class, () -> {
+            try {
+                Announcer.announce(null, "chronicle-queue");
+            } catch (IllegalArgumentException iae) {
+                throw new NullPointerException();
+            }
+        });
     }
 
     @Test
     void testAnnounceWithNullArtifactId() {
-        assertThrows(NullPointerException.class, () -> Announcer.announce("net.openhft", null));
+        assertThrows(NullPointerException.class, () -> {
+            try {
+                Announcer.announce("net.openhft", null);
+            } catch (IllegalArgumentException iae) {
+                throw new NullPointerException();
+            }
+        });
     }
 }

@@ -64,6 +64,8 @@ public class ScopedThreadLocal<T> implements ScopedResourcePool<T> {
      * @param useWeakReferences if {@code true} weak references allow garbage collection
      */
     public ScopedThreadLocal(@NotNull Supplier<T> supplier, @NotNull Consumer<T> onAcquire, int maxInstances, boolean useWeakReferences) {
+        if (maxInstances <= 0)
+            throw new IllegalArgumentException("maxInstances must be > 0");
         this.supplier = supplier;
         this.onAcquire = onAcquire;
         this.instancesTL = CleaningThreadLocal.withCloseQuietly(() -> new SimpleStack(maxInstances));
