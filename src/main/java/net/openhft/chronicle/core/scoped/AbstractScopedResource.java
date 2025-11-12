@@ -3,6 +3,8 @@
  */
 package net.openhft.chronicle.core.scoped;
 
+import org.jetbrains.annotations.Nullable;
+
 /**
  * Base implementation of {@link ScopedResource} instances returned by
  * {@link ScopedThreadLocal}. Each instance is confined to the thread that
@@ -10,8 +12,6 @@ package net.openhft.chronicle.core.scoped;
  * The timestamp allows {@link ScopedThreadLocal} to discard the oldest
  * resource when the per-thread capacity is exceeded.
  */
-
-import org.jetbrains.annotations.Nullable;
 
 abstract class AbstractScopedResource<T> implements ScopedResource<T> {
 

@@ -16,6 +16,7 @@ package net.openhft.chronicle.core.time;
  * monitoring, timestamping events, or handling time-sensitive operations.
  *
  * <p>Use {@link UniqueMicroTimeProvider} if monotonic timestamps are required.
+ *
  * @see PosixTimeProvider
  * @see SystemTimeProvider
  */

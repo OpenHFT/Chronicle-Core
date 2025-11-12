@@ -773,11 +773,14 @@ public final class Maths {
     }
 
     /**
-     * Divide {@code dividend} by divisor, if division is not integral the result is rounded up.
+     * Divide {@code dividend} by {@code divisor}; if division is not integral the result is rounded up.
      * Examples: {@code divideRoundUp(10, 5) == 2}, {@code divideRoundUp(11, 5) == 3},
      * {@code divideRoundUp(-10, 5) == -2}, {@code divideRoundUp(-11, 5) == -3}.
-     * @throws ArithmeticException if divisor is zero.
+     *
+     * @param dividend the value being divided
+     * @param divisor  the divisor
      * @return the rounded up quotient
+     * @throws ArithmeticException if divisor is zero
      */
     public static long divideRoundUp(long dividend, long divisor) {
         int sign = (dividend > 0 ? 1 : -1) * (divisor > 0 ? 1 : -1);

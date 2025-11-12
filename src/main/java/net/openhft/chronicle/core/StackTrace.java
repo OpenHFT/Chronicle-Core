@@ -92,7 +92,9 @@ public class StackTrace extends Throwable {
      * @param message      the detail message for this stack trace
      * @param addTimestamp whether to add a timestamp to the stack trace message
      */
-    public StackTrace(String message, boolean addTimestamp) { this(message, null, addTimestamp); }
+    public StackTrace(String message, boolean addTimestamp) {
+        this(message, null, addTimestamp);
+    }
 
     /**
      * Creates a stack trace with the specified message and cause.

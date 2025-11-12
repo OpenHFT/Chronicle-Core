@@ -28,11 +28,15 @@ public final class Wget {
 
     /** Opens a (potentially mocked) connection for the given URL. */
     @FunctionalInterface
-    public interface ConnectionProvider { InputStream open(URL url) throws IOException; }
+    public interface ConnectionProvider {
+        InputStream open(URL url) throws IOException;
+    }
 
     /** Decides which charset to use when decoding the response body. */
     @FunctionalInterface
-    public interface CharsetDetector   { Charset detect(InputStream response, String contentTypeHeader); }
+    public interface CharsetDetector {
+        Charset detect(InputStream response, String contentTypeHeader);
+    }
 
     public static final class Builder {
         private static final ConnectionProvider DEFAULT_PROVIDER = URL::openStream;
@@ -43,11 +47,32 @@ public final class Wget {
         private int  readTimeoutMs    = 10_000;
         private long maxResponseBytes = 10L << 20; // 10 MiB
 
-        public Builder connectionProvider(final ConnectionProvider p) { this.connectionProvider = Objects.requireNonNull(p); return this; }
-        public Builder charsetDetector   (final CharsetDetector d)    { this.charsetDetector    = Objects.requireNonNull(d); return this; }
-        public Builder connectTimeoutMs  (final int v)                { this.connectTimeoutMs   = v; return this; }
-        public Builder readTimeoutMs     (final int v)                { this.readTimeoutMs      = v; return this; }
-        public Builder maxResponseBytes  (final long v)               { if (v < 0) throw new IllegalArgumentException("maxResponseBytes must be >= 0"); this.maxResponseBytes = v; return this; }
+        public Builder connectionProvider(final ConnectionProvider provider) {
+            this.connectionProvider = Objects.requireNonNull(provider);
+            return this;
+        }
+
+        public Builder charsetDetector(final CharsetDetector detector) {
+            this.charsetDetector = Objects.requireNonNull(detector);
+            return this;
+        }
+
+        public Builder connectTimeoutMs(final int timeoutMs) {
+            this.connectTimeoutMs = timeoutMs;
+            return this;
+        }
+
+        public Builder readTimeoutMs(final int timeoutMs) {
+            this.readTimeoutMs = timeoutMs;
+            return this;
+        }
+
+        public Builder maxResponseBytes(final long maxResponseBytes) {
+            if (maxResponseBytes < 0)
+                throw new IllegalArgumentException("maxResponseBytes must be >= 0");
+            this.maxResponseBytes = maxResponseBytes;
+            return this;
+        }
 
         /** Creates a {@link Wget} with defaults or caller-supplied overrides. */
         public Wget build() {

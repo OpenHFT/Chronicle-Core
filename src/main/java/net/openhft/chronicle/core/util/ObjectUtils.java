@@ -314,6 +314,7 @@ public final class ObjectUtils {
 
     /**
      * Tests if there is a supported conversion from text to this type
+     *
      * @param eClass to be tested
      * @return true if it can be converted, false if it's not worth trying.
      */

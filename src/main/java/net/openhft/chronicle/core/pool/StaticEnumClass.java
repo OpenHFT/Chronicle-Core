@@ -49,12 +49,6 @@ public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
      * @param name the name of the enum instance to be retrieved.
      * @return the enum instance with the specified name, or {@code null} if not present.
      */
-    /**
-     * Returns the enum instance with the specified name or {@code null}.
-     *
-     * @param name the enum name to lookup
-     * @return the enum instance or {@code null}
-     */
     @Override
     @Nullable
     public E valueOf(String name) {
@@ -66,11 +60,6 @@ public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
      * to the count of enum constants in the original enum class.
      *
      * @return the number of enum instances.
-     */
-    /**
-     * Returns the number of enum constants.
-     *
-     * @return the constant count
      */
     @Override
     public int size() {
@@ -84,13 +73,6 @@ public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
      * @return the enum instance at the given index.
      * @throws ArrayIndexOutOfBoundsException if the index is out of range.
      */
-    /**
-     * Retrieves the enum at the specified ordinal.
-     *
-     * @param index the ordinal index of the enum instance to retrieve
-     * @return the enum instance at the given index
-     * @throws ArrayIndexOutOfBoundsException if the index is out of range
-     */
     @Override
     public E forIndex(int index) {
         return values[index];
@@ -102,11 +84,6 @@ public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
      *
      * @return an array containing the enum instances.
      */
-    /**
-     * Returns all enum instances in declaration order.
-     *
-     * @return an array containing the enum instances
-     */
     @Override
     public E[] asArray() {
         return values;
@@ -115,13 +92,8 @@ public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
     /**
      * Creates a map with enum instances as keys.
      *
-     * @return a map where the keys are enum instances.
-     */
-    /**
-     * Creates a map keyed by enum constants.
-     *
      * @param <T> map value type
-     * @return a map where the keys are enum instances
+     * @return a map where the keys are enum instances.
      */
     @Override
     public <T> Map<E, T> createMap() {
@@ -132,11 +104,6 @@ public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
      * Creates a set for holding enum instances.
      *
      * @return a set for holding enum instances.
-     */
-    /**
-     * Creates a set for holding enum instances.
-     *
-     * @return a set for holding enum instances
      */
     @Override
     public Set<E> createSet() {

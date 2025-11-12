@@ -103,7 +103,7 @@ public class CoolerTester {
         UNSAFE.fullFence();
         long start0 = System.nanoTime();
         blackhole = tested.call();
-//            UNSAFE.fullFence();
+        //            UNSAFE.fullFence();
         long time0 = System.nanoTime() - start0;
         histogram.sample(time0);
     }
