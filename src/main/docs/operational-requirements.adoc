@@ -1,0 +1,36 @@
+= Chronicle Core - Operational Requirements
+:toc:
+:lang: en-GB
+
+Operational requirements carry `CORE-OPS-nnn` identifiers so runbooks and monitoring dashboards can
+reference them explicitly.
+
+[cols="1,4",options="header"]
+|===
+| ID | Requirement
+| CORE-OPS-001 | Chronicle Core artefacts shall publish a `mvn verify` profile that exercises unit tests, JaCoCo coverage and static analysis without external services.
+| CORE-OPS-002 | Builds shall succeed on Linux and macOS with OpenJDK 17+ and fail fast if required native dependencies (JNA, Posix) cannot initialise.
+| CORE-OPS-003 | Default logging (`Slf4jExceptionHandler`) shall be structured to integrate with Chronicle's ELK/CloudWatch pipelines (no colour codes, ISO timestamps).
+| CORE-OPS-004 | Resource tracing may be enabled via `-Djvm.resource.tracing=true`; when disabled the runtime must incur <1% allocation overhead.
+| CORE-OPS-005 | Background releasers and cleaner threads shall terminate within 2 seconds of `Jvm.shutdown()` so embedding applications can exit cleanly.
+| CORE-OPS-006 | Configuration of Chronicle Init hooks (`chronicle.init.runnable` / `chronicle.postinit.runnable`) shall be documented for operators so property overrides can be injected without code changes.
+| CORE-OPS-007 | Every public API deprecated in Core shall emit a single WARN per JVM process, tagging the log message with the replacement path.
+| CORE-OPS-008 | Security posture: Core shall not ship bundled credentials, and JNA must default to "dummy affinity" when native libraries cannot be loaded.
+| CORE-OPS-009 | Packaging: release artefacts shall be signed via Maven Central's standard mechanism and include SHA256 sums in the release notes.
+| CORE-OPS-010 | Monitoring: pauser implementations shall expose counters/timers through Chronicle-Threads so latency and starvation events can be wired into Grafana dashboards.
+|===
+
+== Deployment Expectations
+
+* Chronicle Core is consumed as a Maven dependency; no standalone service deployment is required.
+* Release cadence follows the broader Chronicle train; operators should monitor the release notes RSS
+  feed for dependency bumps and CVE fixes.
+
+== Backup / DR
+
+* No persistent state; integrity is ensured through Maven Central signatures and the Git history.
+
+== Change Management
+
+* Per CORE-OPS-009, every release shall include an entry in `decision-log.adoc` summarising notable
+  operational changes (new flags, default shifts) so downstream teams can plan migrations.

@@ -1,0 +1,35 @@
+= Chronicle Core - Data Requirements
+:toc:
+:lang: en-GB
+
+This catalogue describes the identifiers, metadata and wire-shape expectations for Chronicle Core's
+observable data. Identifiers follow the Nine-Box taxonomy using `CORE-DATA-nnn`.
+
+[cols="1,3,1",options="header"]
+|===
+| ID | Requirement | Links
+| CORE-DATA-001 | `system.properties` files shall contain ISO-8859-1 key/value pairs and are loaded using the same precedence rules described in link:functional-requirements.adoc#CORE-FN-014[CORE-FN-014]. | `Jvm`
+| CORE-DATA-002 | Chronicle Init hooks must be provided as fully qualified class names (`chronicle.init.runnable`, `chronicle.postinit.runnable`) serialised via US-ASCII so the bootstrap loader can reflectively instantiate them. | `ChronicleInit`
+| CORE-DATA-003 | When reporting memory metrics the units shall be bytes, exposed as Java `long` fields and formatted with SI suffixes for human logs. | `Jvm`, `OS`
+| CORE-DATA-004 | Histogram snapshots produced by `net.openhft.chronicle.core.util.Histogram` shall emit a CSV tuple of `{bucketLowerBound, bucketUpperBound, count}` with bounds expressed in nanoseconds. | `Histogram`
+| CORE-DATA-005 | Resource-tracing diagnostics (e.g. leak stack traces) shall include the reference owner label (`ReferenceOwner#name`) and monotonic timestamp in microseconds. | `AbstractReferenceCounted`
+| CORE-DATA-006 | All exception-handler telemetry (`Slf4jExceptionHandler`, `ThreadLocalisedExceptionHandler`) shall carry the originating class name and optional message string, encoded as plain text without ANSI control characters. | `onoes`
+| CORE-DATA-007 | Configuration toggles consumed via `Jvm.getBoolean` shall accept `true|false|yes|no|1|0` (case-insensitive) and surface the canonicalised value through `System.getProperty`. | `Jvm`
+| CORE-DATA-008 | CPU/OS identity strings (`OS.getHostName`, `OS.getArch`) shall return printable ASCII; platform-specific unicode characters must be escaped with `\uXXXX`. | `OS`
+|===
+
+== Retention
+
+* `system.properties` overrides: file-based and packaged variants shall be treated as configuration
+  assets and kept alongside the distribution; runtime changes require a process restart.
+* Histogram CSV/JSON exports are transient diagnostics; retention is the responsibility of the
+  consuming telemetry pipeline.
+* Resource-tracing logs should follow the hosting product's log-retention policy so leak-hunting
+  evidence survives until the incident is resolved.
+
+== Serialisation Guidance
+
+* Prefer Chronicle Wire-compatible primitives when exposing data to sibling modules, to avoid
+  repeated conversions.
+* Where direct byte buffers are returned (e.g. via `Bytes`), callers must honour the UTF-8 or
+  ISO-8859-1 encoding noted above to stay compliant with Chronicle's low-level toolchain.

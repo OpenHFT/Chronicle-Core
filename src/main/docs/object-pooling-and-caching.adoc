@@ -114,7 +114,20 @@ assert intParser.apply("123") == 123;
 
 The example from `EnumInterner` itself, `public static final ClassLocal<EnumInterner<?>> ENUM_INTERNER = ClassLocal.withInitial(EnumInterner::create);`, is a prime use case.
 
-== 5. `StringBuilderPool`
+== 5. `ScopedThreadLocal` and `StringBuilderPool`
+
+`ScopedThreadLocal<T>` underpins multiple pooling helpers (including `StringBuilderPool`) by giving each thread its own bounded stack of reusable instances.
+The pool:
+
+* Honors the `onAcquire` hook to reset state before handing out objects.
+* Supports **strong** and **weak** resource retention:
+** Strong references (`StrongReferenceScopedResource`) keep instances alive between uses for high hit-rates.
+** Weak references (`WeakReferenceScopedResource`) allow the GC to reclaim seldom-used instances so the pool cannot pin memory indefinitely.
+* Enforces a per-thread capacity; when exceeded the *newest* resource is closed and dropped, emitting the warning noted in link:security-review.adoc#thread-local-caches-resource-pools[Thread-Local Caches & Pools] (see link:functional-requirements.adoc#CORE-FN-040[CORE-FN-040..043]).
+* Requires callers to stay within a single thread unless `singleThreadedCheckReset()` is explicitly invoked as documented in link:thread-safety-guarantees.adoc#thread-safety-guarantees[Thread-Safety Guarantees].
+* Provides deterministic cleanup via `CleaningThreadLocal` so worker threads that exit return their stacks to the pool.
+
+=== `StringBuilderPool`
 
 `StringBuilderPool` helps reduce allocations when performing many string concatenation operations by providing a thread-local pool of `StringBuilder` instances.
 These are acquired as `ScopedResource`, ensuring they are automatically reset (cleared) and returned to the pool when the scope (try-with-resources block) is exited.

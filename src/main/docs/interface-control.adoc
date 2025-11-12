@@ -1,0 +1,29 @@
+= Chronicle Core - Interface Control Document
+:toc:
+:lang: en-GB
+
+This ICD captures the contracts Chronicle Core exposes to sibling teams. Use it to validate breaking
+changes and as a quick lookup for expected behaviours. APIs are grouped by module; each entry links
+back to the owning functional requirement.
+
+[cols="1,2,2,1",options="header"]
+|===
+| API | Signature / Payload | Notes | Req
+| `OS#getProcessId()` | `int getProcessId()` | Returns current JVM PID; throws `IORuntimeException` if unavailable. | CORE-FN-001
+| `OS#map` / `OS#unmap` | `long map(FileChannel fc, MapMode mode, long start, long size)` | Maps the region and returns native address; `unmap(long address, long size)` must be invoked to release. | CORE-FN-006-008
+| `Jvm#getBoolean(String key, boolean default)` | Enhanced parser supporting `true|false|1|0|yes|no` (case-insensitive). | CORE-FN-013
+| `ChronicleInit` hooks | `-Dchronicle.init.runnable=<fqcn>` | Class must implement `Runnable` with a zero-arg constructor. | CORE-FN-015
+| `ChronicleInit#postInit` | `-Dchronicle.postinit.runnable=<fqcn>` | Invoked after `Jvm` static initialisation. | CORE-FN-016
+| `AbstractCloseable` | `protected abstract void performClose()` | Subclasses override to release resources; `close()` handles idempotence and diagnostics. | CORE-FN-030-033
+| `ReferenceCounted` | `void reserve(ReferenceOwner owner)` / `void release(ReferenceOwner owner)` | Tracking owners is mandatory when resource tracing is enabled. | CORE-FN-034-039
+| `SingleThreadedChecked` | `void singleThreadedCheckReset()` | Components call this when handing off to another thread. Violations throw `IllegalStateException`. | CORE-FN-040-043
+| `ThreadLocalisedExceptionHandler` | `threadLocalHandler(ExceptionHandler handler)` | Allows per-thread override; default is SLF4J-backed. | CORE-FN-021
+| `Histogram` | `void sample(long value)` / `String toLongMicrosFormat(LongFunction<Double>)` | Values supplied in ticks or nanos; formatting helper converts to micros. | CORE-FN-051-053
+|===
+
+== Backward Compatibility Policy
+
+* Methods listed above are part of the "stable core"; breaking signature changes require a deprecation
+  cycle, an ADR entry, and coordination with dependent modules.
+* New optional parameters should be added using builder patterns or overloads to avoid binary
+  incompatibilities.

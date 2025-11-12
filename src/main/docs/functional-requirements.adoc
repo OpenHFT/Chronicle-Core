@@ -1,0 +1,134 @@
+= Chronicle Core - Functional Requirements
+:toc:
+:lang: en-GB
+:source-highlighter: rouge
+
+This document captures all *CORE*-scoped functional requirements for the Chronicle Core library.
+It follows the global https://github.com/OpenHFT/Main/blob/ea/DOCS_PLAYBOOK.md[DOCS Playbook], using
+the company-wide *Nine-Box* taxonomy. Identifiers have the form `<Scope>-<Tag>-nnn`
+(e.g. `CORE-FN-015`). The table below lists each domain area and the sections that satisfy it.
+
+[cols="1,2,3",options="header"]
+|===
+| Tag | Domain | Section
+| CORE-FN-001 .. CORE-FN-009 | Operating-system abstraction | <<operating-system-abstraction-layer>>
+| CORE-FN-010 .. CORE-FN-021 | JVM interaction layer | <<jvm-interaction-layer>>
+| CORE-FN-022 .. CORE-FN-029 | Low-level memory access | <<low-level-memory-access>>
+| CORE-FN-030 .. CORE-FN-039 | Deterministic resource management | <<deterministic-resource-management>>
+| CORE-FN-040 .. CORE-FN-043 | Concurrency & thread safety | <<concurrency-threading-support>>
+| CORE-FN-044 .. CORE-FN-055 | Low-level utilities & API stability | <<low-level-utilities>>
+|===
+
+All identifiers are unique within the `CORE` scope so tests, decision records and runbooks can
+link back to them.
+
+== Requirement Catalogue
+
+=== Operating-System Abstraction Layer
+
+[cols="1,4",options="header"]
+|===
+| ID | Requirement
+| CORE-FN-001 | Provide the process ID (PID) of the current Java process.
+| CORE-FN-002 | Identify the operating-system type (Windows, Linux, macOS) and architecture (32- or 64-bit).
+| CORE-FN-003 | Expose the host-name and current user-name.
+| CORE-FN-004 | Expose the operating-system page size.
+| CORE-FN-005 | Expose the path to the temporary directory.
+| CORE-FN-006 | Map a specified region of a file into memory.
+| CORE-FN-007 | Support read-only and read-write modes for mappings.
+| CORE-FN-008 | Unmap a previously mapped memory region.
+| CORE-FN-009 | Provide an accessor that returns the active implementation of the `Memory` interface.
+|===
+
+=== JVM Interaction Layer
+
+[cols="1,4",options="header"]
+|===
+| ID | Requirement
+| CORE-FN-010 | Report whether the JVM is running with debugging enabled.
+| CORE-FN-011 | Report current and maximum direct-memory usage.
+| CORE-FN-012 | Report the JVM bitness (32- or 64-bit).
+| CORE-FN-013 | Provide enhanced parsing for boolean system properties.
+| CORE-FN-014 | Auto-load `system.properties` with an override via `-Dsystem.properties=<file>`.
+| CORE-FN-015 | Execute user-defined code *before* Chronicle reads any system properties (`chronicle.init.runnable`).
+| CORE-FN-016 | Execute user-defined code *after* `Jvm` static initialisation (`chronicle.postinit.runnable`).
+| CORE-FN-017 | Provide a utility to rethrow checked exceptions as unchecked.
+| CORE-FN-018 | Provide methods to access class-memory-layout metrics.
+| CORE-FN-019 | Provide microsecond-precision busy-wait helpers.
+| CORE-FN-020 | Provide methods to interact with JVM safepoints.
+| CORE-FN-021 | Provide methods to configure custom exception handlers for fatal, warn, debug, and perf severities.
+|===
+
+=== Low-Level Memory Access
+
+[cols="1,4",options="header"]
+|===
+| ID | Requirement
+| CORE-FN-022 | Read each Java primitive type from a native-memory address.
+| CORE-FN-023 | Write each Java primitive type to a native-memory address.
+| CORE-FN-024 | Provide compare-and-swap (CAS) operations for 32-bit integers at a native address.
+| CORE-FN-025 | Provide compare-and-swap (CAS) operations for 64-bit integers at a native address.
+| CORE-FN-026 | Provide atomic-addition operations for integer types at a native address.
+| CORE-FN-027 | Provide *volatile* reads of primitive types from native memory.
+| CORE-FN-028 | Provide *volatile* writes of primitive types to native memory.
+| CORE-FN-029 | Provide load-, store-, and full-fence memory-ordering operations.
+|===
+
+=== Deterministic Resource Management
+
+[cols="1,4",options="header"]
+|===
+| ID | Requirement
+| CORE-FN-030 | Provide `AbstractCloseable` for deterministic cleanup actions.
+| CORE-FN-031 | Closeable resources shall track and expose their closed state.
+| CORE-FN-032 | Closeable resources shall prevent or signal errors on use-after-close.
+| CORE-FN-033 | Provide diagnostic capture (e.g. stack traces) for resource misuse.
+| CORE-FN-034 | Provide `ReferenceCounted` for reference-count-managed resources.
+| CORE-FN-035 | Allow *reserve* operations to increment the reference count.
+| CORE-FN-036 | Allow *release* operations to decrement the reference count.
+| CORE-FN-037 | Deallocate only when the reference count reaches zero.
+| CORE-FN-038 | Track reference owners for debugging.
+| CORE-FN-039 | Optionally defer resource deallocation to a background releaser thread.
+|===
+
+=== Concurrency & Threading Support
+
+[cols="1,4",options="header"]
+|===
+| ID | Requirement
+| CORE-FN-040 | Provide a mechanism for components to declare single-threaded access requirements (`SingleThreadedChecked`).
+| CORE-FN-041 | Perform runtime checks for concurrent-access violations.
+| CORE-FN-042 | Allow the single-threaded guard to be reset for safe thread hand-off.
+| CORE-FN-043 | Document and support the *initialise → reset → hand-off* lifecycle for guarded objects.
+|===
+
+=== Low-Level Utilities
+
+[cols="1,4",options="header"]
+|===
+| ID | Requirement
+| CORE-FN-044 | Provide mechanisms for pooling and reusing `String` instances.
+| CORE-FN-045 | Provide mechanisms for efficiently obtaining `Enum` instances from textual representations.
+| CORE-FN-046 | Provide `ClassLocal<T>` for per-class lazy initialisation and caching.
+| CORE-FN-047 | Allow `ClassLocal` initialisation via lambdas or suppliers.
+| CORE-FN-048 | Provide allocation-minimising mathematical utilities.
+| CORE-FN-049 | Provide optimised hashing utilities.
+| CORE-FN-050 | Provide functional interfaces that extend `java.io.Serializable` for serialisable lambdas.
+| CORE-FN-051 | Provide a low-overhead histogram implementation.
+| CORE-FN-052 | Ensure the histogram supports a wide dynamic range (nanoseconds → seconds).
+| CORE-FN-053 | Allow configurable histogram precision/accuracy.
+| CORE-FN-054 | Design public Chronicle Core APIs for long-term stability to protect dependants.
+| CORE-FN-055 | Minimise breaking changes for dependent libraries when evolving Core APIs.
+|===
+
+== Traceability & Maintenance
+
+*Tests* referencing these requirements should include the corresponding `CORE-FN-xxx` identifier in
+their display names or assertions (e.g. `ChronicleInitPrecedenceTest#CORE-FN-015`). Decision records
+link to this document via `link:functional-requirements.adoc#CORE-FN-xxx[...]`.
+
+When adding or modifying a functional behaviour:
+
+- Update the relevant row (or add a new one) in this catalogue within the same change set.
+- Cross-link from decision logs, design notes, and runbooks to the updated requirement ID.
+- Ensure new requirements follow the Nine-Box numbering scheme and remain unique.
