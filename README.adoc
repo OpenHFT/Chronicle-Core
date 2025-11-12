@@ -559,7 +559,7 @@ Add caching of a data structure for each class using a lambda
 ----
 public static final ClassLocal<EnumInterner> ENUM_INTERNER = 
         ClassLocal.withInitial(c -> new EnumInterner<>(c));
-        
+
 E enumValue = ENUM_INTERNER.get(enumClass).intern(stringBuilder);
 ----
 
