@@ -355,7 +355,6 @@ public class OSTest extends CoreTestCommon {
         assertEquals(expectedHostName, OS.HostnameHolder.HOST_NAME);
     }
 
-
     @Test(expected = IllegalArgumentException.class)
     public void mapAlignRejectsNegativeOffsets() {
         OS.mapAlign(-1L);

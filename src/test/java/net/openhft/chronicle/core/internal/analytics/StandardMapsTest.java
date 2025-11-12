@@ -109,7 +109,6 @@ public class StandardMapsTest extends CoreTestCommon {
         assertEquals(Arrays.asList("a.b.c.d", "x", "y", "z"), list);
     }
 
-
     @Test
     public void standardEventParametersIncludesAppVersion() {
         Map<String, String> eventParameters = StandardMaps.standardEventParameters("9.9.9");
