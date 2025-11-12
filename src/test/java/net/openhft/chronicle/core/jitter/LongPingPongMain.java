@@ -15,7 +15,7 @@ public class LongPingPongMain {
         Histogram h = new Histogram(32, 7);
         Thread pong = new Thread(() -> {
             while (running) {
-
+                Thread.onSpinWait();
             }
         });
     }

@@ -15,12 +15,19 @@ class ARMMemoryAddIntAndMessagesTest {
 
     private long alloc(int bytes) {
         allocated = UnsafeMemory.UNSAFE.allocateMemory(bytes);
-        for (int i = 0; i < bytes; i++) UnsafeMemory.UNSAFE.putByte(allocated + i, (byte) 0);
+        for (int i = 0; i < bytes; i++) {
+            UnsafeMemory.UNSAFE.putByte(allocated + i, (byte) 0);
+        }
         return allocated;
     }
 
     @AfterEach
-    void tearDown() { if (allocated != 0) UnsafeMemory.UNSAFE.freeMemory(allocated); allocated = 0; }
+    void tearDown() {
+        if (allocated != 0) {
+            UnsafeMemory.UNSAFE.freeMemory(allocated);
+        }
+        allocated = 0;
+    }
 
     @Test
     void addIntAlignedAndMisaligned() {

@@ -16,10 +16,22 @@ class ReflectionProxyTest {
     }
 
     static class Delegate {
-        Integer a; String b;
-        public Delegate withA(Integer x) { a = x; return this; }
-        public Delegate withB(String y) { b = y; return this; }
-        public String build() { return a + ":" + b; }
+        Integer a;
+        String b;
+
+        public Delegate withA(Integer x) {
+            a = x;
+            return this;
+        }
+
+        public Delegate withB(String y) {
+            b = y;
+            return this;
+        }
+
+        public String build() {
+            return a + ":" + b;
+        }
     }
 
     @Test

@@ -104,7 +104,7 @@ class ScopedThreadLocalLifecycleTest {
 
     private static void acquireAndClose(ScopedThreadLocal<CloseableProbe> pool) {
         try (ScopedResource<CloseableProbe> ignored = pool.get()) {
-            // scope closes immediately
+            assertNotNull(ignored);
         }
     }
 

@@ -52,7 +52,9 @@ class ChainedExceptionHandlerTest {
 
     @Test
     void onShouldCatchExceptionsFromHandlers() {
-        ExceptionHandler faultyHandler = (clazz, msg, thr) -> { throw new RuntimeException("Handler error"); };
+        ExceptionHandler faultyHandler = (clazz, msg, thr) -> {
+            throw new RuntimeException("Handler error");
+        };
         ChainedExceptionHandler chained = new ChainedExceptionHandler(faultyHandler);
 
         // This call should not throw an exception

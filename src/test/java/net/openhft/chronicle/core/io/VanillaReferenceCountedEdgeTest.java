@@ -54,11 +54,21 @@ class VanillaReferenceCountedEdgeTest {
         VanillaReferenceCounted ref = newRef(new AtomicInteger());
         ReferenceChangeListener listener = new ReferenceChangeListener() {
             @Override
-            public void onReferenceAdded(ReferenceCounted referenceCounted, ReferenceOwner referenceOwner) { added.incrementAndGet(); }
+            public void onReferenceAdded(ReferenceCounted referenceCounted, ReferenceOwner referenceOwner) {
+                added.incrementAndGet();
+            }
+
             @Override
-            public void onReferenceRemoved(ReferenceCounted referenceCounted, ReferenceOwner referenceOwner) { removed.incrementAndGet(); }
+            public void onReferenceRemoved(ReferenceCounted referenceCounted, ReferenceOwner referenceOwner) {
+                removed.incrementAndGet();
+            }
+
             @Override
-            public void onReferenceTransferred(ReferenceCounted referenceCounted, ReferenceOwner from, ReferenceOwner to) { /* ignore */ }
+            public void onReferenceTransferred(ReferenceCounted referenceCounted,
+                                               ReferenceOwner from,
+                                               ReferenceOwner to) {
+                // ignore
+            }
         };
         ref.addReferenceChangeListener(listener);
         ref.reserve(ReferenceOwner.INIT);

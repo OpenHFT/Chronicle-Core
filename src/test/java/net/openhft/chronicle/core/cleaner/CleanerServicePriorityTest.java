@@ -27,7 +27,9 @@ class CleanerServicePriorityTest {
     }
 
     @AfterEach
-    void tearDown() throws Exception { resetLocator(); }
+    void tearDown() throws Exception {
+        resetLocator();
+    }
 
     @Test
     void lowestImpactChosenRegardlessOfDiscoveryOrder() throws Exception {
@@ -36,7 +38,9 @@ class CleanerServicePriorityTest {
         File root = new File("target/tmp-services-priority");
         File svc = new File(root, "META-INF/services/" + ByteBufferCleanerService.class.getName());
         File parent = svc.getParentFile();
-        if (!parent.exists() && !parent.mkdirs()) throw new IllegalStateException("Cannot create temp services dir");
+        if (!parent.exists() && !parent.mkdirs()) {
+            throw new IllegalStateException("Cannot create temp services dir");
+        }
         try (FileOutputStream fos = new FileOutputStream(svc)) {
             String content = "net.openhft.chronicle.core.cleaner.testimpl.AllowedCleaner\n" +
                     "net.openhft.chronicle.core.cleaner.testimpl.SomeImpactCleaner\n";

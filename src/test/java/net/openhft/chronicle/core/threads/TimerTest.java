@@ -18,16 +18,50 @@ public class TimerTest {
 
     private static final class FakeLoop implements EventLoop {
         final List<EventHandler> handlers = new ArrayList<>();
-        @Override public String name() { return "fake"; }
-        @Override public void addHandler(EventHandler handler) { handlers.add(handler); }
-        @Override public void start() { }
-        @Override public void unpause() { }
-        @Override public void stop() { }
-        @Override public boolean isAlive() { return true; }
-        @Override public boolean isStopped() { return false; }
         private boolean closed;
-        @Override public void close() { closed = true; handlers.clear(); }
-        @Override public boolean isClosed() { return closed; }
+
+        @Override
+        public String name() {
+            return "fake";
+        }
+
+        @Override
+        public void addHandler(EventHandler handler) {
+            handlers.add(handler);
+        }
+
+        @Override
+        public void start() {
+        }
+
+        @Override
+        public void unpause() {
+        }
+
+        @Override
+        public void stop() {
+        }
+
+        @Override
+        public boolean isAlive() {
+            return true;
+        }
+
+        @Override
+        public boolean isStopped() {
+            return false;
+        }
+
+        @Override
+        public void close() {
+            closed = true;
+            handlers.clear();
+        }
+
+        @Override
+        public boolean isClosed() {
+            return closed;
+        }
 
         void tickOnce() {
             for (Iterator<EventHandler> it = handlers.iterator(); it.hasNext();) {
@@ -43,7 +77,11 @@ public class TimerTest {
 
     private static final class FakeTime implements TimeProvider {
         long now;
-        @Override public long currentTimeMillis() { return now; }
+
+        @Override
+        public long currentTimeMillis() {
+            return now;
+        }
     }
 
     @Test
@@ -53,7 +91,10 @@ public class TimerTest {
         Timer timer = new Timer(loop, time);
 
         AtomicInteger calls = new AtomicInteger();
-        VanillaEventHandler vh = () -> { calls.incrementAndGet(); return false; };
+        VanillaEventHandler vh = () -> {
+            calls.incrementAndGet();
+            return false;
+        };
 
         timer.scheduleAtFixedRate(vh, 10, 5);
 

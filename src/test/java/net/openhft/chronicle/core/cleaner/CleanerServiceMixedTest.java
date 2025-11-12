@@ -27,14 +27,18 @@ class CleanerServiceMixedTest {
     }
 
     @AfterEach
-    void tearDown() throws Exception { resetLocator(); }
+    void tearDown() throws Exception {
+        resetLocator();
+    }
 
     @Test
     void mixedValidAndInvalidEntriesStillChooseValidProvider() throws Exception {
         resetLocator();
         File root = new File("target/tmp-services-mixed");
         File svc = new File(root, "META-INF/services/" + ByteBufferCleanerService.class.getName());
-        if (!svc.getParentFile().exists() && !svc.getParentFile().mkdirs()) throw new IllegalStateException("Cannot create services dir");
+        if (!svc.getParentFile().exists() && !svc.getParentFile().mkdirs()) {
+            throw new IllegalStateException("Cannot create services dir");
+        }
         try (FileOutputStream fos = new FileOutputStream(svc)) {
             String content = "does.not.ExistProvider\n" +
                     "net.openhft.chronicle.core.cleaner.testimpl.AllowedCleaner\n";

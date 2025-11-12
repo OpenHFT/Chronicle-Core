@@ -27,14 +27,18 @@ class CleanerServiceIncludeNewerOlderTest {
     }
 
     @AfterEach
-    void tearDown() throws Exception { resetLocator(); }
+    void tearDown() throws Exception {
+        resetLocator();
+    }
 
     @Test
     void includeNewerOlderGateAllowsAppropriateProviders() throws Exception {
         resetLocator();
         File root = new File("target/tmp-services-include");
         File svc = new File(root, "META-INF/services/" + ByteBufferCleanerService.class.getName());
-        if (!svc.getParentFile().exists() && !svc.getParentFile().mkdirs()) throw new IllegalStateException("Cannot create services dir");
+        if (!svc.getParentFile().exists() && !svc.getParentFile().mkdirs()) {
+            throw new IllegalStateException("Cannot create services dir");
+        }
         try (FileOutputStream fos = new FileOutputStream(svc)) {
             String content = "net.openhft.chronicle.core.cleaner.testimpl2.NewerInclOlderCleaner\n" +
                     "net.openhft.chronicle.core.cleaner.testimpl2.OlderInclNewerCleaner\n";

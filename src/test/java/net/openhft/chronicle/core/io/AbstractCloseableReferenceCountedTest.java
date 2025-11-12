@@ -39,11 +39,7 @@ public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTrace
         rc.reserve(b);
         assertEquals(3, rc.refCount());
 
-        try {
-            rc.reserve(a);
-            fail();
-        } catch (IllegalStateException ignored) {
-        }
+        assertThrows(IllegalStateException.class, () -> rc.reserve(a));
         assertEquals(3, rc.refCount());
 
         rc.release(b);
@@ -71,11 +67,7 @@ public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTrace
         assertEquals(1, rc.refCount());
 
         ReferenceOwner b = ReferenceOwner.temporary("b");
-        try {
-            rc.reserve(b);
-            fail();
-        } catch (IllegalStateException ignored) {
-        }
+        assertThrows(IllegalStateException.class, () -> rc.reserve(b));
         assertEquals(1, rc.refCount());
 
         assertFalse(rc.tryReserve(b));
@@ -85,12 +77,7 @@ public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTrace
         assertEquals(0, rc.refCount());
         assertEquals(1, rc.performRelease);
 
-        try {
-            rc.throwExceptionIfReleased();
-            fail();
-        } catch (IllegalStateException ignored) {
-
-        }
+        assertThrows(IllegalStateException.class, rc::throwExceptionIfReleased);
     }
 
     @Override

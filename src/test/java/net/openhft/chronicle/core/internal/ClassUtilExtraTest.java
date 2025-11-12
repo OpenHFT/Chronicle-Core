@@ -15,11 +15,15 @@ class ClassUtilExtraTest {
     private static class Parent {
         @SuppressWarnings("unused")
         private int hidden = 42;
+
         @SuppressWarnings("unused")
-        private String greet() { return "hi"; }
+        private String greet() {
+            return "hi";
+        }
     }
 
-    private static class Child extends Parent { }
+    private static class Child extends Parent {
+    }
 
     @Test
     void getField0FindsPrivateFieldInHierarchy() {
@@ -46,4 +50,3 @@ class ClassUtilExtraTest {
         assertEquals("greet", m.getName());
     }
 }
-

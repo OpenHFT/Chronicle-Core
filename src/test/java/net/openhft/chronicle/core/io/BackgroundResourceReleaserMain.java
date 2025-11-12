@@ -25,6 +25,8 @@ public class BackgroundResourceReleaserMain {
                 case "foreground":
                     new BackgroundResourceReleaserMain().runResourcesCleanedUpInForeground();
                     break;
+                default:
+                    throw new IllegalArgumentException("Unknown mode: " + args[0]);
             }
         } catch (Throwable th) {
             th.printStackTrace();

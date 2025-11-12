@@ -17,12 +17,22 @@ class CloseableUtilsEdgeTest {
 
     static final class CountingCloseable implements AutoCloseable {
         final AtomicInteger count;
-        CountingCloseable(AtomicInteger c) { this.count = c; }
-        @Override public void close() { count.incrementAndGet(); }
+
+        CountingCloseable(AtomicInteger c) {
+            this.count = c;
+        }
+
+        @Override
+        public void close() {
+            count.incrementAndGet();
+        }
     }
 
     static final class ThrowingCloseable implements AutoCloseable {
-        @Override public void close() throws Exception { throw new Exception("boom"); }
+        @Override
+        public void close() throws Exception {
+            throw new Exception("boom");
+        }
     }
 
     @Test
@@ -46,4 +56,3 @@ class CloseableUtilsEdgeTest {
         assertEquals(2, c.get());
     }
 }
-

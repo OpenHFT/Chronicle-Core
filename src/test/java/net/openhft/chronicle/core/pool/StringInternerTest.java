@@ -31,9 +31,9 @@ public class StringInternerTest extends CoreTestCommon {
     private String[] uppercase;
 
     /**
-     * an example of the StringInterner used in conjunction with  the uppercase[] to cache another value
+     * Demonstrates using the StringInterner together with an uppercase cache.
      *
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException if the interner cannot allocate entries
      */
     @Test
     public void testToUppercaseInternIndex() throws IllegalArgumentException {

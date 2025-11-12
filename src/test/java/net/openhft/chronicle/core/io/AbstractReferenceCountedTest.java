@@ -26,11 +26,7 @@ public class AbstractReferenceCountedTest extends ReferenceCountedTracerContract
         rc.reserve(b);
         assertEquals(3, rc.refCount());
 
-        try {
-            rc.reserve(a);
-            fail();
-        } catch (IllegalStateException ignored) {
-        }
+        assertThrows(IllegalStateException.class, () -> rc.reserve(a));
         assertEquals(3, rc.refCount());
 
         rc.release(b);

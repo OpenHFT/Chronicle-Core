@@ -129,6 +129,7 @@ interface UnsafeMemoryTestMixin<T> {
                                             // Busy wait for a short time. This gives the threads some time to see changes
                                             final long expireNs = System.nanoTime() + TimeUnit.MICROSECONDS.toNanos(100);
                                             while (System.nanoTime() < expireNs) {
+                                                Jvm.pause(1);
                                             }
 
                                             try {
@@ -185,6 +186,7 @@ interface UnsafeMemoryTestMixin<T> {
                 T actual;
                 // Expect a change, not a specific value
                 while ((actual = getter.get()).equals(previousValue)) {
+                    Jvm.pause(1);
                 }
                 if (!expected.equals(actual)) {
                     errors.add("Reader " + no + " expected " + expected + " but was " + actual);

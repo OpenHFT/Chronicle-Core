@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.*;
 import java.util.Comparator;
 
@@ -57,7 +58,8 @@ public class IOToolsTempDirectoryTest {
                 .forEach(p -> {
                     try {
                         Files.deleteIfExists(p);
-                    } catch (IOException ignored) {
+                    } catch (IOException e) {
+                        throw new UncheckedIOException("Unable to delete " + p, e);
                     }
                 });
     }

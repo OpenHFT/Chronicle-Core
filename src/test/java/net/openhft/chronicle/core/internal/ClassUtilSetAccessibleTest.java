@@ -14,7 +14,9 @@ class ClassUtilSetAccessibleTest {
     // package-private class with a private method to trigger setAccessible branch
     static class PkgClass {
         @SuppressWarnings("unused")
-        private String greet() { return "ok"; }
+        private String greet() {
+            return "ok";
+        }
     }
 
     @Test
