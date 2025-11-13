@@ -45,6 +45,7 @@ Review hot-spots ::
 * Bytecode origin for `defineClass`
 * Static initialisers with side effects
 
+[#thread-local-caches-resource-pools]
 == Thread-Local Caches & Resource Pools
 
 Why ::

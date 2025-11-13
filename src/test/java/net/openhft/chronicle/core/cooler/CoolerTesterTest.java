@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.cooler;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import java.util.concurrent.Callable;
 
@@ -32,10 +33,10 @@ class CoolerTesterTest {
         CoolerTester tester = new CoolerTester();
         tester.repeat(5).runTimeMS(1000).minCount(10).maxCount(100);
 
-        assertEquals(5, tester.repeat());
-        assertEquals(1000, tester.runTimeMS());
-        assertEquals(10, tester.minCount());
-        assertEquals(100, tester.maxCount());
+        Assertions.assertEquals(5, tester.repeat());
+        Assertions.assertEquals(1000, tester.runTimeMS());
+        Assertions.assertEquals(10, tester.minCount());
+        Assertions.assertEquals(100, tester.maxCount());
     }
 
     @Test

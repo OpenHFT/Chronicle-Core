@@ -155,7 +155,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
         } catch (Exception e) {
             e0 = e;
         }
-        if (references.size() > 0) {
+        if (!references.isEmpty()) {
             IllegalStateException ise = new IllegalStateException(type.getName() + " still reserved " + referencesAsString(), createdHere);
             synchronized (references) {
                 references.values().forEach(ise::addSuppressed);

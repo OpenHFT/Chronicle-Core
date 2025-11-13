@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.util.SimpleCleaner;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.assertNotNull;
@@ -38,7 +39,7 @@ class SimpleCleanerTest {
         Runnable runnable = mock(Runnable.class);
         SimpleCleaner cleaner = new SimpleCleaner(runnable);
 
-        assertNotNull(cleaner); // Verifying that cleaner is initialized
+        Assertions.assertNotNull(cleaner); // Verifying that cleaner is initialized
         // Further tests can be performed if needed to check internal state
     }
 }

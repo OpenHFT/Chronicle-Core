@@ -33,8 +33,8 @@ public class UnsafeMemoryTest extends CoreTestCommon {
     public final TestName testName = new TestName();
 
     private final UnsafeMemory memory;
-    private Boolean onHeap;
-    private Object object;
+    private final Boolean onHeap;
+    private final Object object;
     private long addr;
 
     private static class TestClass {

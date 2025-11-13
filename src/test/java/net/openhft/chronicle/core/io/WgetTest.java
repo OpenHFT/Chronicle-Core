@@ -78,7 +78,7 @@ class WgetTest {
     }
 
     @Test
-    void IOException_from_connection_provider_bubbles_up() {
+    void ioExceptionFromConnectionProviderBubblesUp() {
         Wget wget = new Wget.Builder()
                 .connectionProvider(u -> {
                     throw new IOException("boom");

@@ -5,6 +5,7 @@ package net.openhft.chronicle.core.onoes;
 
 import net.openhft.chronicle.core.Jvm;
 import org.junit.AssumptionViolatedException;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.LoggerFactory;
 
@@ -39,6 +40,6 @@ class ExceptionHandlerFallbackTest {
         } finally {
             initializationState.setInt(null, state);
         }
-        assertTrue(true); // If we reach here, the test passes
+        Assertions.assertTrue(true); // If we reach here, the test passes
     }
 }

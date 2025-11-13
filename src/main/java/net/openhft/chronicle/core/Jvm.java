@@ -1220,6 +1220,7 @@ public final class Jvm {
                     ci.interrupt();
                 }
 
+                @SuppressWarnings({"EmptyMethod", "unused"})
                 public void postInterrupt() {
                     // added in Java 23+
                 }

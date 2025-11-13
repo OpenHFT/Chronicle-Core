@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ClassLookupTest {
 
-    private ClassLookup classLookup = ClassAliasPool.CLASS_ALIASES;
+    private final ClassLookup classLookup = ClassAliasPool.CLASS_ALIASES;
 
     @Test
     void testClassLookupByName() {

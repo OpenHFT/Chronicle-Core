@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.internal;
 
+import net.openhft.chronicle.core.annotation.UsedViaReflection;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -13,7 +14,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class ClassUtilExtraTest {
 
     private static class Parent {
-        @SuppressWarnings("unused")
+        @UsedViaReflection
+        @SuppressWarnings({"unused", "FieldMayBeFinal"})
         private int hidden = 42;
 
         @SuppressWarnings("unused")

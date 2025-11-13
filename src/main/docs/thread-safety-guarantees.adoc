@@ -32,7 +32,7 @@ This clears the recorded "owner" thread.
 
 This pattern allows, for example, configuration on a main thread and operational use on a dedicated event loop thread, while still protecting against accidental concurrent access from other, unintended threads.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 // In the Main/Creating thread:
 MySingleThreadedResource resource = new MySingleThreadedResource();

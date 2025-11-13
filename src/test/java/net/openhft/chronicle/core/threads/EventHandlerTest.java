@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.Jvm;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,7 +52,7 @@ class EventHandlerTest {
     void priorityShouldReturnMediumByDefault() {
         EventHandler handler = mock(EventHandler.class, CALLS_REAL_METHODS);
 
-        assertEquals(HandlerPriority.MEDIUM, handler.priority());
+        Assertions.assertEquals(HandlerPriority.MEDIUM, handler.priority());
     }
 
     @Test

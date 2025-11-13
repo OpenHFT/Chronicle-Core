@@ -153,9 +153,7 @@ public class ThreadDump {
             return false;
         if (startsWith(name, "RMI ", "VM JFR ", "JFR ", "JMX ", "ForkJoinPool.commonPool-worker-", "JVMCI"))
             return false;
-        if (name.startsWith("HttpClient-") && name.endsWith("-SelectorManager"))
-            return false;
-        return true;
+        return !name.startsWith("HttpClient-") || !name.endsWith("-SelectorManager");
     }
 
     private void addThreadErrorDetails(AssertionError assertionError, Thread thread) {

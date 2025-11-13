@@ -25,7 +25,7 @@ Here is a summary of the library's key features:
 
 *Operating System Calls:* Chronicle-Core provides access to various system calls such as retrieving the process ID, checking the operating system, and obtaining the hostname, among others.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 int processId = OS.getProcessId();
 boolean isWindows = OS.isWindows();
@@ -40,7 +40,7 @@ See the section on <<jvm-access-methods,JVM Access Methods>>
 
 *Memory Mapped Files:* The library offers an interface for managing memory mapped files, which is useful for high-performance I/O operations.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 FileChannel fc = new CleaningRandomAccessFile(fileName, "rw").getChannel();
 long address = OS.map(fc, MapMode.READ_WRITE, 0, 64 << 10);
@@ -53,7 +53,7 @@ OS.unmap(address, 64 << 10);
 *Closeable Resources:* Chronicle-Core provides an interface for managing closeable resources, which are open when created and can't be used once closed.
 This helps in preventing resource leaks.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 public class AbstractCloseableTest {
     @Test
@@ -72,7 +72,7 @@ public class AbstractCloseableTest {
 *Resource Reference Counting:* The library enables the use of reference counting for deterministic resource release.
 A reference-counted resource can add reservations until it's closed.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 public class AbstractReferenceCountedTest {
     @Test
@@ -103,13 +103,14 @@ This library also wraps up low level access to
 * <<serializable-lambdas,Serializable Lambdas>>
 * <<histogram,Histogram>> A high performance wide range histogram.
 
+[#system-properties-from-file]
 == System properties from file
 
 Chronicle-Core's `Jvm` class automatically loads system properties from a `system.properties` file if found in the current directory or parent directory.
 This feature aids in streamlining your command line.
 You can specify a different properties file with the `-Dsystem.properties=my.properties` command.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 static {
     Jvm.init();
@@ -147,11 +148,12 @@ The class should contain an empty static `postInit()` method that is called to t
 The alternative way to using the above system properties is to implement the `ChronicleInitRunnable` interface whose implementing classes may be listed in the `META-INF/services/net.openhft.chronicle.core.ChronicleInitRunnable` file in any JAR in classpath to be discovered via `ServiceLoader` JVM facility.
 It can provide both init and post-init functionalities by implementing the `ChronicleInitRunnableRunnable.run()` and `ChronicleInitRunnable.postInit()` methods.
 
+[#off-heap-memory-access]
 == Off Heap Memory Access
 
 This allows you to access native memory using primitives and some thread safe operations.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 Memory memory = OS.memory();
 long address = memory.allocate(1024);
@@ -166,11 +168,12 @@ try {
 }
 ----
 
+[#jvm-access-methods]
 == JVM Access Methods
 
 Check the JVM is running in debug mode
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 if (Jvm.isDebug()) {
    // running in debug.
@@ -178,7 +181,7 @@ if (Jvm.isDebug()) {
 
 Rethrow a checked exception as an unchecked one.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 try {
     // IO operation
@@ -189,17 +192,18 @@ try {
 
 Get a Field for a Class by name
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 Field theUnsafe = Jvm.getField(Unsafe.class, "theUnsafe");
 Unsafe unsafe = (Unsafe) theUnsafe.get(null);
 ----
 
+[#os-calls]
 == OS Calls
 
 Access to system calls
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 int processId = OS.getProcessId();
 int maxProcessId = OS.getMaxProcessId();
@@ -213,7 +217,7 @@ String targetDir = OS.getTarget(); // location the target directory during build
 
 Memory mapped files
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 FileChannel fc = new CleaningRandomAccessFile(fileName, "rw").getChannel();
 // map in 64 KiB
@@ -233,7 +237,7 @@ Component which are closeable or reference counted can be released deterministic
 A `Closeable` resources has a simple lifecycle.
 It is open when created, and cannot be used once closed.
 
-[source,Java]
+[source,java,opts=novalidate]
 ----
 public class AbstractCloseableTest {
 
@@ -286,13 +290,14 @@ public class AbstractCloseableTest {
 }
 ----
 
+[#resource-reference-counting]
 === Resource Reference Counting
 
 Use reference counting to deterministically release resources.
 
 A reference counted resource can add reservations until closed.
 
-[source,Java]
+[source,java,opts=novalidate]
 ----
 public class AbstractReferenceCountedTest {
 
@@ -432,7 +437,7 @@ public class AbstractReferenceCountedTest {
 }
 ----
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 MappedFile mf = MappedFile.mappedFile(tmp, chunkSize, 0);
 MappedBytesStore bs = mf.acquireByteStore(chunkSize + (1 << 10));
@@ -475,6 +480,7 @@ To make sure the shutdown hook does not prevent classes from unloading, deregist
 | X | `false` | Resources are not queued and are released synchronously.
 |===
 
+[#thread-safety-checks]
 == Thread Safety Checks
 
 Classes that are designed for single-threaded use can implement `net.openhft.chronicle.core.io.SingleThreadedChecked`.
@@ -495,7 +501,7 @@ Some patterns which are commonly used in Chronicle's libraries are below.
 If using an object which is single-threaded, a common pattern is to construct and initialise your object on the main thread before handing it off to an event loop or worker thread.
 Call `singleThreadedCheckReset` after initialisation.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 // in the Main thread
 ChronicleQueue q = createMyQueue();
@@ -508,7 +514,7 @@ tailer.singleThreadedCheckReset();
 
 If writing an object to use `net.openhft.chronicle.core.io.SingleThreadedChecked` then a common pattern (and a variant of the above) is to call `singleThreadedCheckReset` at the end of the constructor e.g. from Chronicle Queue:
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 public ExcerptTailer createTailer(String id) {
     ///
@@ -524,7 +530,7 @@ public ExcerptTailer createTailer(String id) {
 If implementing `SingleThreadedCheck` then any methods should also delegate to any contained `SingleThreadedCheck`
 objects i.e.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 @Override
 public void singleThreadedCheckReset() {
@@ -539,7 +545,7 @@ public void singleThreadedCheckReset() {
 
 Chronicle-Core provides object pooling for strings and enums, allowing you to convert a `CharSequence` into a `String` of a specific `Enum` type efficiently.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 Bytes<?> b = Bytes.from("Hello World");
 b.readSkip(6);
@@ -551,11 +557,12 @@ assertEquals("World", s);
 assertSame(s, s2);
 ----
 
+[#class-local-caching]
 == Class Local Caching
 
 Add caching of a data structure for each class using a lambda
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 public static final ClassLocal<EnumInterner> ENUM_INTERNER = 
         ClassLocal.withInitial(c -> new EnumInterner<>(c));
@@ -563,11 +570,12 @@ public static final ClassLocal<EnumInterner> ENUM_INTERNER =
 E enumValue = ENUM_INTERNER.get(enumClass).intern(stringBuilder);
 ----
 
+[#maths-functions]
 == Maths Functions
 
 Maths functions to support rounds
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 double a = 0.1;
 double b = 0.3;
@@ -576,17 +584,18 @@ double c= Maths.round2(b - a); // 0.2 rounded to 2 decimal places
 
 Checking type conversions
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 int i = Maths.toInt32(longValue);
 ----
 
+[#serializable-lambdas]
 == Serializable Lambdas
 
 There is a number of FunctionalInterfaces you can utilise as method arguments.
 This allows implicitly making a lambda Serializable.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 // in KeyedVisitable
 default <R> R applyToKey(K key, @NotNull SerializableFunction<E, R> function) {
@@ -596,11 +605,12 @@ default <R> R applyToKey(K key, @NotNull SerializableFunction<E, R> function) {
 String fullename = map.applyToKey("u:123223", u -> u.getFullName());
 ----
 
+[#histogram]
 == Histogram
 
 A high dynamic range histogram with tunable accuracy.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 Histogram h = new Histogram(32, 4);
 long start = instance.ticks(), prev = start;

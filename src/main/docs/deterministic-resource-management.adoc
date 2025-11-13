@@ -114,7 +114,7 @@ This is registered with a `PriorityHook` (priority 99) to run during JVM shutdow
 
 == 5. Reservation Example
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 // Assumes MyReferenceCounted extends AbstractReferenceCounted or AbstractCloseableReferenceCounted
 MyReferenceCounted rc = new MyReferenceCounted(); // refCount is 1 (INIT)

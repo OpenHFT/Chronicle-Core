@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.internal.util;
 
 import net.openhft.chronicle.core.Jvm;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -17,7 +18,7 @@ class DirectBufferUtilTest {
 
     @BeforeEach
     void addOpens() {
-        assumeTrue(Jvm.maxDirectMemory() > 0);
+        Assumptions.assumeTrue(Jvm.maxDirectMemory() > 0);
     }
 
     @Test

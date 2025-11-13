@@ -37,7 +37,7 @@ Represents a single boolean value.
 ** `boolean getValue()`
 ** `void setValue(boolean value)`
 
-[source,java]
+[source,java,opts=novalidate]
 ----
  BooleanValue bv = /* implementation provided by another library */;
  bv.setValue(true);
@@ -96,7 +96,7 @@ In addition to normal get and set methods, it provides atomic operations and ord
 ** `boolean compareAndSwapValue(long expected, long value)`
 ** `void setMaxValue(long value)` / `void setMinValue(long value)`
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 // Assuming LongValueImpl is a concrete implementation
 LongValue value = new LongValueImpl(); // Example from test
@@ -134,7 +134,7 @@ Represents a single 64-bit double value.
 ** `void setValue(@MaxBytes CharSequence value)`: Sets the string. The `@MaxBytes` annotation can be used by implementations to enforce a maximum encoded size (see section below).
 ** `StringBuilder getUsingValue(StringBuilder stringBuilder)`: Copies the value into a supplied `StringBuilder` to potentially avoid new String allocations.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
  StringValue sv = /* implementation supplied by Chronicle Bytes or similar */;
  sv.setValue("example");
@@ -193,7 +193,7 @@ Represents an array of 32-bit integer values.
 ** `long sizeInBytes(long capacity)`
 ** `boolean isNull()` / `void reset()`
 
-[source,java]
+[source,java,opts=novalidate]
 ----
  LongArrayValues la = /* implementation supplied by Chronicle Bytes */;
  long capacity = la.getCapacity();
@@ -224,7 +224,7 @@ Concrete implementations of these value interfaces, often found in libraries lik
 This allows them to directly manipulate off-heap memory or memory-mapped file regions.
 
 The following example illustrates the low-level operations an implementation might use:
-[source,java]
+[source,java,opts=novalidate]
 ----
  try (RandomAccessFile raf = new RandomAccessFile("data.bin", "rw")) { // File operations for context
      FileChannel fc = raf.getChannel();

@@ -28,7 +28,7 @@ This is typically backed by `net.openhft.chronicle.core.UnsafeMemory`.
 ** Memory copying (`copyMemory(...)` overloads).
 ** Memory fences (`storeFence()`, `loadFence()`).
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 Memory memory = OS.memory(); // Typically UnsafeMemory.INSTANCE
 long capacity = 128;
@@ -67,7 +67,7 @@ Memory-mapped files allow sections of a file to be treated as if they were in-me
 These may be adjusted by page alignment requirements.
 * `OS.unmap(long address, long size)`: Releases the mapping. *This is crucial to avoid resource leaks (virtual memory and file handles).*
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 String fileName = "my-mapped-file.dat";
 long fileSize = OS.pageSize() * 10; // Example size: 10 pages
@@ -117,7 +117,7 @@ Operating systems typically require memory-mapped regions and sometimes direct m
 * `OS.pageAlign(long size)` / `OS.pageAlign(long size, int pageSize)`: Rounds a given `size` up to the nearest multiple of the page size.
 * `OS.mapAlign(long offset)` / `OS.mapAlign(long offset, int pageAlignment)`: Rounds a given file `offset` up to the nearest valid alignment for memory mapping.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 long requestedSize = 1000; // bytes
 long alignedSize = OS.pageAlign(requestedSize); // Aligns to OS.pageSize()

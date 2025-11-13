@@ -23,7 +23,7 @@ This can save memory by ensuring that identical string values share the same `St
 It doesn't guarantee that all threads will always see the exact same cached `String` object for identical inputs if interning concurrently, but it ensures functional correctness (i.e., the returned string will be equal to the input).
 * **Cache Mechanism**: Uses a simple hashing mechanism with a toggle for placing new entries, aiming to balance cache utilization.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 StringInterner si = new StringInterner(128); // Capacity of 128
 String s1 = "hello";
@@ -47,7 +47,7 @@ This is particularly useful when deserializing enums or parsing them from extern
 If the name is encountered for the first time, it resolves the enum constant (using an underlying `EnumCache`) and caches it.
 * **Static Factory**: `EnumInterner.ENUM_INTERNER` is a `ClassLocal` instance that provides a global, per-enum-type cache of `EnumInterner` instances.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 // Using the ClassLocal factory
 EnumInterner<DayOfWeek> daysInterner = (EnumInterner<DayOfWeek>) EnumInterner.ENUM_INTERNER.get(DayOfWeek.class);
@@ -76,7 +76,7 @@ It automatically provides the correct cache implementation (`StaticEnumClass` fo
 ** `type()`: Returns the enum `Class` object managed by this cache.
 ** `createMap()` / `createSet()`: Utility methods to create `EnumMap`-like or `EnumSet`-like collections.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 // For a standard enum
 EnumCache<TimeUnit> timeUnitCache = EnumCache.of(TimeUnit.class);
@@ -99,7 +99,7 @@ The value for each class is computed only once, the first time it's requested fo
 * **Usage**:
 ** `get(Class<?> type)`: Retrieves the value associated with the given class, computing it via the initial-value function if it's the first access for this class.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 // Example: Caching a specific parser for different data types
 ClassLocal<Function<String, ?>> parsers = ClassLocal.withInitial(clazz -> {
@@ -136,7 +136,7 @@ These are acquired as `ScopedResource`, ensuring they are automatically reset (c
 * **Configuration**: The default number of `StringBuilder` instances retained per thread is configurable via the system property `chronicle.stringBuilderPool.instancesPerThread` (default is 4).
 * **Behavior**: Acquired `StringBuilder`s are reset (length set to 0) upon release back to the pool.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 ScopedResourcePool<StringBuilder> pool = StringBuilderPool.createThreadLocal();
 try (ScopedResource<StringBuilder> sr = pool.get()) {
@@ -160,7 +160,7 @@ If `cs` is not in the cache, it's parsed using `eFunction`, the result is cached
 * **Capacity**: The cache has a fixed capacity, determined at construction (rounded up to the next power of 2, min 128).
 * `valueCount()`: Returns the number of items currently in the cache.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 ParsingCache<BigDecimal> bigDecimalCache = new ParsingCache<>(256, BigDecimal::new);
 
