@@ -11,8 +11,8 @@ LLM-based agents can accelerate development only if they respect our house rules
 | Requirement  | Rationale |
 |--------------|-----------|
 | **British English** spelling (`organisation`, `licence`, *not* `organization`, `license`) except technical US spellings like `synchronized` | Keeps wording consistent with Chronicle's London HQ and existing docs. See the University of Oxford style guide for reference. |
-| **ISO-8859-1** (code-points 0-255). Avoid smart quotes, non-breaking spaces and accented characters. | ISO-8859-1 survives every toolchain Chronicle uses, incl. low-latency binary wire formats that expect the 8th bit to be 0. |
-| If a symbol is not available in ISO-8859-1, use a textual form such as `micro-second`, `>=`, `:alpha:`, `:yes:`. This is the preferred approach and Unicode must not be inserted. | Extended or '8-bit ASCII' variants are *not* portable and are therefore disallowed. |
+| **ISO-8859-1** (code-points 0-255). Avoid smart quotes, non-breaking spaces and accented characters. | ISO-8859-1 survives every toolchain Chronicle uses. |
+| If a symbol is not available in ISO-8859-1, use a textual form such as `>=`, `:alpha:`, `:yes:`. This is the preferred approach and Unicode must not be inserted. | Extended or '8-bit ASCII' variants are *not* portable and are therefore disallowed. |
 
 ## Javadoc guidelines
 

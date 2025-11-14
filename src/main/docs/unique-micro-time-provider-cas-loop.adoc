@@ -23,9 +23,9 @@ flowchart TD
 
 == Quick Overview
 
-`UniqueMicroTimeProvider` wraps another `TimeProvider` (by default `SystemTimeProvider`) and ensures *monotonic micro-second* timestamps within a single JVM by holding the last value in an
+`UniqueMicroTimeProvider` wraps another `TimeProvider` (by default `SystemTimeProvider`) and ensures *monotonic µs* timestamps within a single JVM by holding the last value in an
 `AtomicLong`.
-The CAS loop guarantees **(a)** forward-only progression and **(b)** at most one micro-second of artificial skew, even when the underlying provider regresses or multiple threads call the method concurrently.
+The CAS loop guarantees **(a)** forward-only progression and **(b)** at most 1 µs of artificial skew, even when the underlying provider regresses or multiple threads call the method concurrently.
 
 == Algorithm Walk-Through
 
