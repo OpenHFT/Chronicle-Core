@@ -334,8 +334,7 @@ public final class StringUtils {
         if (Bootstrap.isJava9Plus()) {
             return new String(chars);
         }
-        //noinspection RedundantStringConstructorCall
-        @NotNull String str = new String();
+        @NotNull String str = new String(new char[0]);
         try {
             S_VALUE.set(str, chars);
             if (S_COUNT_OFFSET > -1)
@@ -358,8 +357,7 @@ public final class StringUtils {
         if (!HAS_ONE_BYTE_PER_CHAR)
             return new String(bytes, StandardCharsets.ISO_8859_1);
         ensureJava9Plus();
-        //noinspection RedundantStringConstructorCall
-        @NotNull String str = new String();
+        @NotNull String str = new String(new byte[0], StandardCharsets.ISO_8859_1);
         try {
             S_VALUE.set(str, bytes);
             return str;

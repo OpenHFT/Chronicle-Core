@@ -445,8 +445,9 @@ public final class ObjectUtils {
                 } catch (IndexOutOfBoundsException e) {
                     throw new AssertionError(e);
                 }
-            else
+            else {
                 return null;
+            }
         }
         @NotNull String s = cs.toString();
         if (eClass == String.class)
@@ -911,7 +912,7 @@ public final class ObjectUtils {
         }
 
         @Override
-        public @NotNull Object apply(String in) throws Exception {
+        public @NotNull Object apply(String in) {
             throw cce;
         }
     }

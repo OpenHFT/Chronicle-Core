@@ -128,9 +128,10 @@ public final class Wget {
             Charset cs = charsetDetector.detect(raw, null);
             if (cs == null) cs = StandardCharsets.UTF_8;
 
-            Reader reader = new BufferedReader(new InputStreamReader(limited, cs));
-            for (int ch; (ch = reader.read()) != -1; )
-                out.append((char) ch);
+            try (Reader reader = new BufferedReader(new InputStreamReader(limited, cs))) {
+                for (int ch; (ch = reader.read()) != -1; )
+                    out.append((char) ch);
+            }
         }
     }
 }

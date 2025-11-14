@@ -10,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertNotEquals;
 
 public class RecordingHistogramTest extends CoreTestCommon {
     @Test
@@ -74,6 +73,22 @@ public class RecordingHistogramTest extends CoreTestCommon {
         assertEquals("{ 50/90 97/99 99.7/99.9 99.97/99.99 - worst  was: 500 / 900  970 / 990  996 / 998  998 / 998 - 998, " +
                         "top: [{ off: 32.0, dur: 998.963 }, { off: 36.0, dur: 997.374 }, { off: 39.0, dur: 995.785 }, { off: 41.0, dur: 994.196 }, { off: 43.0, dur: 992.607 }, { off: 44.0, dur: 991.018 }, { off: 45.0, dur: 989.429 }, { off: 46.0, dur: 987.84 }, { off: 47.0, dur: 986.251 }, { off: 48.0, dur: 984.662 }] }",
                 h.toLongMicrosFormat());
+    }
+
+    @Test
+    public void resetRestoresEqualityAndHashCode() {
+        RecordingHistogram first = new RecordingHistogram();
+        RecordingHistogram second = new RecordingHistogram();
+        assertEquals(first, second);
+        assertEquals(first.hashCode(), second.hashCode());
+
+        first.sampleNanos(1);
+        assertNotEquals(first, second);
+        assertNotEquals(first.hashCode(), second.hashCode());
+
+        first.reset();
+        assertEquals(first, second);
+        assertEquals(first.hashCode(), second.hashCode());
     }
 
     private int percentile(@NotNull Histogram h, double fraction) {

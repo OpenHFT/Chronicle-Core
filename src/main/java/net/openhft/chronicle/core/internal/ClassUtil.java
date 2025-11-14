@@ -87,8 +87,9 @@ public final class ClassUtil {
             } catch (Throwable throwable) {
                 throw new AssertionError(throwable);
             }
-        else
+        else {
             accessibleObject.setAccessible(true);
+        }
     }
 
     public static Method getMethod0(@NotNull final Class<?> clazz,

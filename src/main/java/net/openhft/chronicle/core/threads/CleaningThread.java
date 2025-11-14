@@ -7,14 +7,12 @@ import net.openhft.affinity.Affinity;
 import net.openhft.affinity.AffinityLock;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.internal.ClassUtil;
-import net.openhft.chronicle.core.StackTrace;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import static net.openhft.chronicle.core.Jvm.isResourceTracing;
 import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 
 /**
@@ -32,9 +30,6 @@ public class CleaningThread extends Thread {
     private static final Field VALUE;
 
     private final boolean inEventLoop;
-    @SuppressWarnings("unused")
-    private final StackTrace createdHere = isResourceTracing() ? new StackTrace("Created here") : null;
-
     // Static block to initialize reflection fields.
     static {
         THREAD_LOCALS = Jvm.getField(Thread.class, "threadLocals");

@@ -32,6 +32,7 @@ import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.spi.AbstractInterruptibleChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
@@ -207,7 +208,6 @@ public final class Jvm {
 
     public static void init() {
         // force static initialisation
-        ChronicleInit.init();
     }
 
     private static void loadSystemProperties(final String name, final boolean wasSet) {
@@ -1336,21 +1336,25 @@ public final class Jvm {
     @SuppressWarnings("deprecation")
     private static boolean isProcessAlive0(final long pid, final String command) {
 
+        Process process = null;
         try {
-            InputStreamReader isReader = new InputStreamReader(
-                    getRuntime().exec(command).getInputStream());
-
-            final BufferedReader bReader = new BufferedReader(isReader);
-            String strLine;
-            while ((strLine = bReader.readLine()) != null) {
-                if (strLine.contains(" " + pid + " ") || strLine.startsWith(pid + " ")) {
-                    return true;
+            process = getRuntime().exec(command);
+            try (BufferedReader bReader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+                String strLine;
+                while ((strLine = bReader.readLine()) != null) {
+                    if (strLine.contains(" " + pid + " ") || strLine.startsWith(pid + " ")) {
+                        return true;
+                    }
                 }
             }
-
             return false;
         } catch (Exception ex) {
             return true;
+        } finally {
+            if (process != null) {
+                process.destroy();
+            }
         }
     }
 

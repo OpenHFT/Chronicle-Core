@@ -11,6 +11,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 
@@ -70,7 +71,7 @@ public class CleaningRandomAccessFileTest extends CoreTestCommon {
             for (int i = 0; i < 200; i++) {
                 @SuppressWarnings("resource")
                 RandomAccessFile file = new CleaningRandomAccessFile(tempDir + "/file" + i, "rw");
-                bb.clear();
+                ((Buffer) bb).clear();
                 //noinspection ResultOfMethodCallIgnored
                 file.getChannel().write(bb);
             }

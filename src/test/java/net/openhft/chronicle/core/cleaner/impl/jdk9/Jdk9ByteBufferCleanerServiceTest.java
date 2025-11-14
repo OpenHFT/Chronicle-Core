@@ -13,7 +13,7 @@ import static org.junit.Assume.assumeTrue;
 
 public class Jdk9ByteBufferCleanerServiceTest extends CoreTestCommon {
     @Test
-    public void shouldCleanBuffer() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    public void shouldCleanBuffer() {
         assumeTrue(Jvm.isJava9Plus());
 
         CleanerTestUtil.test(new Jdk9ByteBufferCleanerService()::clean);

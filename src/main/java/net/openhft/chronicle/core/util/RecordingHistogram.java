@@ -5,6 +5,7 @@ package net.openhft.chronicle.core.util;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Arrays;
 import java.util.function.DoubleFunction;
 
 import static net.openhft.chronicle.core.time.SystemTimeProvider.CLOCK;
@@ -22,7 +23,6 @@ public class RecordingHistogram extends Histogram {
 
     private final Top10 top10 = new Top10();
     private long start;
-    private int sampleCount;
 
     /**
      * Constructs a new RecordingHistogram with specified parameters.
@@ -83,13 +83,33 @@ public class RecordingHistogram extends Histogram {
     @Override
     public void reset() {
         super.reset();
-        sampleCount = 0;
+        start = 0;
         top10.reset();
     }
 
     @Override
     protected String was() {
         return " was: ";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!(obj instanceof RecordingHistogram))
+            return false;
+        if (!super.equals(obj))
+            return false;
+        RecordingHistogram that = (RecordingHistogram) obj;
+        return start == that.start && top10.equals(that.top10);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = super.hashCode();
+        result = 31 * result + (int) (start ^ (start >>> 32));
+        result = 31 * result + top10.hashCode();
+        return result;
     }
 
     /**
@@ -131,7 +151,25 @@ public class RecordingHistogram extends Histogram {
          * Resets the state of Top10.
          */
         void reset() {
+            Arrays.fill(top, 0);
             count = 0;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (!(obj instanceof Top10))
+                return false;
+            Top10 top10 = (Top10) obj;
+            return count == top10.count && Arrays.equals(top, top10.top);
+        }
+
+        @Override
+        public int hashCode() {
+            int result = count;
+            result = 31 * result + Arrays.hashCode(top);
+            return result;
         }
 
         /**

@@ -139,6 +139,8 @@ public enum GenericReflection {
         }
         if (type instanceof ParameterizedType)
             return erase(((ParameterizedType) type).getRawType());
-        return (Class<?>) type;
+        if (type instanceof Class)
+            return (Class<?>) type;
+        throw new UnsupportedOperationException("Unsupported type: " + type);
     }
 }

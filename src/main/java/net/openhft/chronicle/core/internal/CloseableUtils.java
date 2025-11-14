@@ -89,7 +89,7 @@ public final class CloseableUtils {
         final BlockingQueue<String> q = new LinkedBlockingQueue<>();
 
         // Anonymous inner class overriding the finalize() method to track finalization.
-        new Object() {
+        Object finalizerProbe = new Object() {
             @SuppressWarnings({"deprecation", "removal", "java:S1113"})
             @Override
             protected void finalize() throws Throwable {
@@ -97,6 +97,10 @@ public final class CloseableUtils {
                 q.add("finalized");
             }
         };
+        if (finalizerProbe == null) {
+            throw new AssertionError("Finalizer probe unexpectedly null");
+        }
+        finalizerProbe = null;
 
         try {
             // Zing JVM is not always satisfied with a single GC call:

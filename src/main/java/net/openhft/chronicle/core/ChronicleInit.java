@@ -67,14 +67,6 @@ public final class ChronicleInit {
     }
 
     /**
-     * May be run multiple times, supposed to be idempotent
-     */
-    @SuppressWarnings("EmptyMethod")
-    static void init() {
-        // No-op unless class is replaced
-    }
-
-    /**
      * Should be only run once by Jvm.class static block
      */
     static void postInit() {

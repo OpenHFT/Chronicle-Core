@@ -8,8 +8,6 @@ import net.openhft.chronicle.core.StackTrace;
 import net.openhft.chronicle.core.internal.ReferenceCountedUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Set;
-
 import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEASER;
 
 /**
@@ -31,7 +29,6 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     protected static final int WARN_COUNT = Jvm.getInteger("reference.warn.count", Integer.MAX_VALUE);
 
     // Fields
-    static volatile Set<AbstractReferenceCounted> referenceCountedSet;
     protected final transient MonitorReferenceCounted referenceCounted;
     private final int referenceId;
     private transient volatile Thread usedByThread;

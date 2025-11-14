@@ -7,8 +7,6 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.scoped.ScopedResourcePool;
 import net.openhft.chronicle.core.scoped.ScopedThreadLocal;
 
-import static java.lang.ThreadLocal.withInitial;
-
 /**
  * This class provides a pool of StringBuilder objects for efficient string building operations.
  * Each thread gets its own StringBuilder instance via a ThreadLocal,
@@ -17,13 +15,6 @@ import static java.lang.ThreadLocal.withInitial;
 public final class StringBuilderPool {
 
     private static final int DEFAULT_STRING_BUILDER_POOL_SIZE_PER_THREAD = Jvm.getInteger("chronicle.stringBuilderPool.instancesPerThread", 4);
-
-    /**
-     * Thread-local variable that holds a StringBuilder for each thread.
-     * The initial capacity for each StringBuilder is 128.
-     */
-    private final ThreadLocal<StringBuilder> sbtl = withInitial(
-            () -> new StringBuilder(128));
 
     /**
      * Returns a scoped-thread-local pool of StringBuilders.

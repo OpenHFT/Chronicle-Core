@@ -16,7 +16,7 @@ import static org.junit.Assert.fail;
 
 public class ThrowingFunctionTest extends CoreTestCommon {
     @Test
-    public void asFunction() throws Exception {
+    public void asFunction() {
         @NotNull Function<String, String> sc = ThrowingFunction.asFunction(s -> {
             try (@NotNull BufferedReader br = new BufferedReader(new FileReader(s))) {
                 return br.readLine();

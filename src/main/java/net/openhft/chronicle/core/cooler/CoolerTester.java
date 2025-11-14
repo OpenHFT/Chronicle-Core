@@ -24,6 +24,7 @@ public class CoolerTester {
      * Holds the results of the tests to avoid being optimised away and making the test meaningless.
      */
     static Object blackhole;
+    private static final Object BLACK_HOLE_SENTINEL = new Object();
 
     /**
      * List of disturbers or CPU coolers to be used in the tests.
@@ -103,6 +104,9 @@ public class CoolerTester {
         UNSAFE.fullFence();
         long start0 = System.nanoTime();
         blackhole = tested.call();
+        if (blackhole == BLACK_HOLE_SENTINEL) {
+            throw new AssertionError("Blackhole sentinel reached");
+        }
         //            UNSAFE.fullFence();
         long time0 = System.nanoTime() - start0;
         histogram.sample(time0);

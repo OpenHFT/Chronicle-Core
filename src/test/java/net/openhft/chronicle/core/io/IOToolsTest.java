@@ -19,6 +19,7 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
@@ -329,7 +330,7 @@ public class IOToolsTest extends CoreTestCommon {
         try {
             for (int i = 0; i < 100; i++) {
 //                System.out.println(i);
-                bytes.clear();
+                ((Buffer) bytes).clear();
                 sc.write(bytes);
             }
             fail();
@@ -365,7 +366,7 @@ public class IOToolsTest extends CoreTestCommon {
         try {
             for (int i = 0; i < 10000; i++) {
 //                System.out.println(i);
-                bytes.clear();
+                ((Buffer) bytes).clear();
                 final int write = sc.write(bytes);
                 assertTrue(write > 0);
             }
@@ -407,7 +408,7 @@ public class IOToolsTest extends CoreTestCommon {
         try {
             for (int i = 0; i < 10000; i++) {
 //                System.out.println(i);
-                bytes.clear();
+                ((Buffer) bytes).clear();
                 final int write = sc.write(bytes);
                 assertTrue(write > 0);
             }

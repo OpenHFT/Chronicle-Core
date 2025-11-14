@@ -119,7 +119,7 @@ public class TimerTest {
     }
 
     @Test
-    public void scheduleOnceRemovesItselfAfterRun() throws IOException {
+    public void scheduleOnceRemovesItselfAfterRun() {
         FakeLoop loop = new FakeLoop();
         FakeTime time = new FakeTime();
         CancellableTimer ct = new CancellableTimer(loop, time);
