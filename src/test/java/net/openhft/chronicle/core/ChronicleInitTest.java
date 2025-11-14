@@ -53,6 +53,12 @@ public class ChronicleInitTest extends CoreTestCommon {
     }
 
     @Test
+    public void initShouldNotThrowException() {
+        assertDoesNotThrow(() -> Class.forName(ChronicleInit.class.getName()),
+                "Loading ChronicleInit should not throw an exception");
+    }
+
+    @Test
     public void postInitShouldNotThrowException() {
         assertDoesNotThrow(ChronicleInit::postInit, "Calling postInit should not throw an exception");
     }
