@@ -1,5 +1,7 @@
 = Chronicle-Core: Security Review
 :toc:
+:lang: en-GB
+:source-highlighter: rouge
 :sectnums:
 
 == Unsafe & Off-Heap Access

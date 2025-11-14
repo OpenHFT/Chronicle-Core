@@ -1,6 +1,7 @@
 = Chronicle Core - Data Requirements
 :toc:
 :lang: en-GB
+:source-highlighter: rouge
 
 This catalogue describes the identifiers, metadata and wire-shape expectations for Chronicle Core's
 observable data. Identifiers follow the Nine-Box taxonomy using `CORE-DATA-nnn`.

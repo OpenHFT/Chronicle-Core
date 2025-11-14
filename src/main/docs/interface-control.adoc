@@ -1,6 +1,7 @@
 = Chronicle Core - Interface Control Document
 :toc:
 :lang: en-GB
+:source-highlighter: rouge
 
 This ICD captures the contracts Chronicle Core exposes to sibling teams. Use it to validate breaking
 changes and as a quick lookup for expected behaviours. APIs are grouped by module; each entry links

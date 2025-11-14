@@ -1,6 +1,7 @@
 = Chronicle Core - Operational Requirements
 :toc:
 :lang: en-GB
+:source-highlighter: rouge
 
 Operational requirements carry `CORE-OPS-nnn` identifiers so runbooks and monitoring dashboards can
 reference them explicitly.

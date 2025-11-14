@@ -1,4 +1,7 @@
 = StackTrace Comprehensive User Guide
+:toc:
+:lang: en-GB
+:source-highlighter: rouge
 :sectnums:
 
 NOTE TO READER:

@@ -1,6 +1,7 @@
 = Chronicle Core - System Architecture
 :toc:
 :lang: en-GB
+:source-highlighter: rouge
 
 Chronicle Core is a foundational library; its architecture is intentionally modular so higher-level
 projects (Queue, Wire, Map, Threads) can reuse the primitives. This document provides the canonical

@@ -3,8 +3,9 @@
 :toc:
 :lang: en-GB
 :source-highlighter: rouge
+:sectnums:
 
-== 1. Introduction
+== Introduction
 
 Chronicle Core defines a set of small "value" interfaces that model primitive fields or arrays of primitives.
 These interfaces, found in the `net.openhft.chronicle.core.values` package, are designed to allow direct manipulation of memory regions, such as memory-mapped files or off-heap buffers.
@@ -27,11 +28,11 @@ The available value interfaces include:
 * `IntArrayValues` (also `java.io.Closeable`)
 * `LongArrayValues` (also `java.io.Closeable`)
 
-== 2. Scalar Value Interfaces
+== Scalar Value Interfaces
 
 These interfaces represent a single mutable value.
 
-=== 2.1. `BooleanValue`
+=== `BooleanValue`
 Represents a single boolean value.
 * **Key Methods**:
 ** `boolean getValue()`
@@ -44,7 +45,7 @@ Represents a single boolean value.
  boolean state = bv.getValue();
 ----
 
-=== 2.2. `ByteValue`
+=== `ByteValue`
 Represents a single 8-bit byte value.
 
 * **Key Methods**:
@@ -52,14 +53,14 @@ Represents a single 8-bit byte value.
 ** `void setValue(byte value)`
 ** `byte addValue(byte delta)`
 
-=== 2.3. `CharValue`
+=== `CharValue`
 Represents a single 16-bit char value.
 
 * **Key Methods**:
 ** `char getValue()`
 ** `void setValue(char value)`
 
-=== 2.4. `ShortValue`
+=== `ShortValue`
 Represents a single 16-bit short value.
 
 * **Key Methods**:
@@ -67,7 +68,7 @@ Represents a single 16-bit short value.
 ** `void setValue(short value)`
 ** `short addValue(short delta)`
 
-=== 2.5. `IntValue`
+=== `IntValue`
 Represents a single 32-bit integer value.
 Implements `java.io.Closeable`.
 
@@ -80,7 +81,7 @@ Implements `java.io.Closeable`.
 ** `int addAtomicValue(int delta)`
 ** `boolean compareAndSwapValue(int expected, int value)`
 
-=== 2.6. `LongValue`
+=== `LongValue`
 `LongValue` represents a single 64-bit value.
 Implements `java.io.Closeable`.
 In addition to normal get and set methods, it provides atomic operations and ordered writes for concurrent access scenarios.
@@ -105,7 +106,7 @@ long current = value.getValue();
 boolean swapped = value.compareAndSwapValue(42L, 100L);
 ----
 
-=== 2.7. `FloatValue`
+=== `FloatValue`
 Represents a single 32-bit float value.
 
 * **Key Methods**:
@@ -116,7 +117,7 @@ Represents a single 32-bit float value.
 ** `float addValue(float delta)`
 ** `float addAtomicValue(float delta)`
 
-=== 2.8. `DoubleValue`
+=== `DoubleValue`
 Represents a single 64-bit double value.
 * **Key Methods**:
 ** `double getValue()`
@@ -126,7 +127,7 @@ Represents a single 64-bit double value.
 ** `double addValue(double delta)`
 ** `double addAtomicValue(double delta)`
 
-=== 2.9. `StringValue`
+=== `StringValue`
 `StringValue` models a mutable String, often stored in direct memory.
 
 * **Key Methods**:
@@ -144,7 +145,7 @@ Represents a single 64-bit double value.
  assert "example".contentEquals(sb);
 ----
 
-=== 2.10. `TwoLongValue`
+=== `TwoLongValue`
 `TwoLongValue` extends `LongValue` to represent a pair of 64-bit values.
 It inherits all methods for the first long value and adds corresponding methods for the second.
 
@@ -158,12 +159,12 @@ It inherits all methods for the first long value and adds corresponding methods 
 ** `long addAtomicValue2(long delta)`
 ** `boolean compareAndSwapValue2(long expected, long value)`
 
-== 3. Array Value Interfaces
+== Array Value Interfaces
 
 These interfaces provide a typed view over an array of primitive values, often in direct memory.
 They implement `java.io.Closeable`.
 
-=== 3.1. `IntArrayValues`
+=== `IntArrayValues`
 Represents an array of 32-bit integer values.
 
 * **Key Methods**:
@@ -178,7 +179,7 @@ Represents an array of 32-bit integer values.
 ** `long sizeInBytes(long capacity)`
 ** `boolean isNull()` / `void reset()`
 
-=== 3.2. `LongArrayValues`
+=== `LongArrayValues`
 `LongArrayValues` provides a typed view over an array of 64-bit long values.
 
 * **Key Methods**:
@@ -205,7 +206,7 @@ Represents an array of 32-bit integer values.
  la.close(); // If it's Closeable
 ----
 
-== 4. `@MaxBytes` Annotation
+== `@MaxBytes` Annotation
 
 The `@MaxBytes` annotation can be applied to parameters of methods, particularly in interfaces like `StringValue`, to indicate the maximum number of encoded bytes allowed for a variable-length data type.
 Implementations can use this information to enforce size limits.
@@ -218,7 +219,7 @@ public interface MyStringStorage {
 }
 ----
 
-== 5. Mapping to Direct Memory
+== Mapping to Direct Memory
 
 Concrete implementations of these value interfaces, often found in libraries like Chronicle Bytes, use the `Memory` API from Chronicle Core (`OS.memory()`) to operate on raw memory addresses.
 This allows them to directly manipulate off-heap memory or memory-mapped file regions.

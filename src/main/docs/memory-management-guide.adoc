@@ -3,14 +3,15 @@
 :toc:
 :lang: en-GB
 :source-highlighter: rouge
+:sectnums:
 
 This guide covers Chronicle Core's utilities for managing off-heap memory and memory-mapped files, emphasizing deterministic cleanup and control.
 
-== 1. Off-Heap Memory Allocation
+== Off-Heap Memory Allocation
 
 Chronicle Core provides mechanisms for allocating and managing memory outside the Java heap, offering greater control and potentially reducing GC overhead.
 
-=== 1.1. Using `OS.memory()` and the `Memory` Interface
+=== Using `OS.memory()` and the `Memory` Interface
 
 The primary way to interact with raw off-heap memory is via `OS.memory()`, which returns an instance of the `net.openhft.chronicle.core.Memory` interface.
 This is typically backed by `net.openhft.chronicle.core.UnsafeMemory`.
@@ -47,7 +48,7 @@ try {
 }
 ----
 
-=== 1.2. Comparison with `java.nio.ByteBuffer.allocateDirect()`
+=== Comparison with `java.nio.ByteBuffer.allocateDirect()`
 
 Java's `ByteBuffer.allocateDirect()` also allocates off-heap memory.
 
@@ -55,11 +56,11 @@ Java's `ByteBuffer.allocateDirect()` also allocates off-heap memory.
 * DirectByteBuffers rely on `sun.misc.Cleaner` and the GC for deallocation, which can be unpredictable.
 Chronicle Core's `OS.memory().allocate()` gives explicit control over deallocation.
 
-== 2. Memory-Mapped Files
+== Memory-Mapped Files
 
 Memory-mapped files allow sections of a file to be treated as if they were in-memory data, enabling efficient I/O.
 
-=== 2.1. Mapping and Unmapping with `OS.map()` and `OS.unmap()`
+=== Mapping and Unmapping with `OS.map()` and `OS.unmap()`
 
 * `OS.map(FileChannel fc, FileChannel.MapMode mode, long start, long size)`: Creates a mapping.
 ** `mode`: Can be `MapMode.READ_ONLY`, `MapMode.READ_WRITE`, or `MapMode.PRIVATE`.
@@ -91,23 +92,23 @@ try (FileChannel fc = new CleaningRandomAccessFile(fileName, "rw").getChannel())
 new File(fileName).delete(); // Clean up the example file
 ----
 
-=== 2.2. `CleaningRandomAccessFile`
+=== `CleaningRandomAccessFile`
 
 When working with `FileChannel` for mapping, it's recommended to use `net.openhft.chronicle.core.io.CleaningRandomAccessFile`.
 This class extends `RandomAccessFile` and attempts to close the file descriptor in its `finalize()` method as a safeguard against leaks, though explicit closing via try-with-resources is always the best practice.
 
-=== 2.3. Tracking Mapped Memory
+=== Tracking Mapped Memory
 
 * `OS.memoryMapped()`: Returns the total number of bytes currently mapped by Chronicle Core's `OS.map()` calls.
 Useful for diagnosing leaks of mapped regions.
 
-=== 2.4. Security Considerations for Memory Mapping
+=== Security Considerations for Memory Mapping
 
 * The system property `chronicle.core.mmap.allowedDirs` can be set to a comma-separated list of directory paths.
 * If this property is set, `OS.map()` will only allow mapping files located within these whitelisted directories, throwing a `SecurityException` otherwise.
 This helps mitigate potential path traversal vulnerabilities.
 
-== 3. Page Alignment
+== Page Alignment
 
 Operating systems typically require memory-mapped regions and sometimes direct memory accesses to be aligned to page boundaries.
 
@@ -131,7 +132,7 @@ System.out.println("Requested size " + requestedSize + ", Aligned size: " + alig
 System.out.println("Requested offset " + fileOffset + ", Aligned offset: " + alignedOffset);
 ----
 
-== 4. Direct `java.nio.ByteBuffer` and Cleaning
+== Direct `java.nio.ByteBuffer` and Cleaning
 
 While Chronicle Core often uses its own `Memory` abstraction, you might interact with direct `ByteBuffer`s from other libraries.
 
@@ -144,7 +145,7 @@ While Chronicle Core often uses its own `Memory` abstraction, you might interact
 * **Caution**: Manually cleaning `ByteBuffer`s can be dangerous if the buffer (or its memory region) is still in use.
 This should be done with extreme care.
 
-== 5. Freeing Memory and Debugging Issues
+== Freeing Memory and Debugging Issues
 
 * **Rule 1**: Always call `OS.memory().freeMemory(address, size)` for each corresponding `OS.memory().allocate(capacity)` call.
 * **Rule 2**: Always call `OS.unmap(address, size)` for every successful `OS.map()` call.
