@@ -1,0 +1,79 @@
+= Chronicle Core Performance Targets
+:toc:
+:toclevels: 2
+:sectnums:
+:lang: en-GB
+:source-highlighter: rouge
+
+This document summarises the main performance expectations for Chronicle Core and describes how they
+relate to the functional requirements in `functional-requirements.adoc` and operational
+requirements in `operational-requirements.adoc`.
+It is intended to guide benchmarking and regression analysis rather than to prescribe a rigid
+benchmark harness.
+
+== Scope
+
+Chronicle Core sits at the base of the Chronicle stack and is used by performance-critical modules
+such as Chronicle Queue, Chronicle Wire, Chronicle Bytes and Chronicle Threads.
+Its primary performance goal is to add as little overhead as possible on hot paths while still
+providing the safety and observability needed for production deployments.
+
+Where `CORE-NF-P-*` requirements are defined in the requirements catalogue (currently
+`CORE-NF-P-001` .. `CORE-NF-P-003`), they reference and refine the expectations outlined here.
+
+== Hot-Path Overheads
+
+The following qualitative targets apply to hot-path usage of Core APIs:
+
+* **Zero or near-zero allocations** in:
+  - `OS` and `Jvm` information lookups after initial warm-up (for example PID, host-name, debug
+    detection, page size queries);
+  - memory access methods on `Memory` and `UnsafeMemory` that operate on caller-provided addresses
+    (CORE-FN-022..029);
+  - `SingleThreadedChecked` checks in the absence of violations (CORE-FN-040..043).
+* **Predictable latency** for deterministic resource management:
+  - `AbstractCloseable.close()` and `ReferenceCounted.reserve()` / `release()` must execute in
+    constant time relative to the number of outstanding references (CORE-FN-030..039);
+  - when `BackgroundResourceReleaser` is enabled (decision `CORE-NF-O-004`), the cost of scheduling
+    resource teardown must remain small compared to synchronous deallocation.
+
+These expectations are validated by targeted unit tests and by higher-level benchmarks in consumer
+modules that exercise Core hot paths under load.
+
+== Configuration and Optional Features
+
+Optional features such as resource tracing and background releasers must not compromise the ability
+of downstream systems to meet their latency and throughput objectives.
+
+Key expectations include:
+
+* **Resource tracing overhead**: when disabled, resource tracing should incur negligible CPU and
+  allocation overhead (see `operational-requirements.adoc` `CORE-OPS-004`);
+* **Background releaser behaviour**: enabling `BackgroundResourceReleaser` should shift heavy
+  deallocation work off the application hot path without introducing unbounded queues or leaks;
+* **Logging and diagnostics**: default exception-handling and logging should be efficient enough for
+  steady-state use in low-latency applications (CORE-OPS-003).
+
+== Measurement and Regression Practices
+
+Performance-sensitive changes to Core should be accompanied by:
+
+* micro-benchmarks or scenario tests (possibly in dependent modules) that demonstrate the impact of
+  the change, especially where new unsafe usage or resource patterns are introduced;
+* before/after metrics for representative workloads (for example memory-mapped file access, reference
+  counting, or thread-guard checks);
+* clear notes in decision records (`decision-log.adoc`) when a change intentionally trades a small
+  amount of additional overhead for improved safety, observability or maintainability.
+
+Benchmark configurations (for example JVM flags, affinity settings, payload sizes) should be
+documented alongside the benchmark source or in release notes so that results are reproducible and
+comparable across versions.
+
+== Relationship to Requirements and Operations
+
+Performance targets for Chronicle Core are tightly coupled to:
+
+* functional requirements CORE-FN-022..029 (low-level memory access);
+* deterministic resource requirements CORE-FN-030..039;
+* operability requirements `CORE-OPS-001..008` in `operational-requirements.adoc`;
+* performance requirements `CORE-NF-P-001..003` in `project-requirements.adoc`.
