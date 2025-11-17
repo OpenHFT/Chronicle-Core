@@ -52,7 +52,6 @@ public class UnsafePingPointMain implements Runnable {
     }
 
     private void toggle(int x, int y) {
-//        System.out.println(Thread.currentThread().getName() + " x: " + x + " y: " + y);
         if (!unsafe.compareAndSwapInt(null, addrA, x, y)) {
             assert false;
         }

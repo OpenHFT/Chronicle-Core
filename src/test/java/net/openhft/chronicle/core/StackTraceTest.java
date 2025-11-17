@@ -110,10 +110,7 @@ public class StackTraceTest extends CoreTestCommon {
             assertTrue("Expected top frames to include Jvm.pause or Thread.sleep but were: " + Arrays.asList(f0, f1), ok);
         } else {
             assertTrue(st.getMessage() + " must match regular expression expecting timestamp to nanosecond precision",
-                    // matching against example: "Thread[background,5,main] on main at 2024-01-02T03:04:05.006007008Z",
-                    st.getMessage().matches("Thread\\[background,5,main\\] on main at " + TIMESTAMP_REGEX)
-                    // "Thread[background,5,main] on main at 2024-01-02T03:04:05.006007008Z",
-            );
+                    st.getMessage().matches("Thread\\[background,5,main\\] on main at " + TIMESTAMP_REGEX));
             // Allow either our wrapper or the underlying sleep to appear at the top
             String f0 = st.getStackTrace()[0].toString().split("\\(")[0].replaceAll("^app//", "").replaceFirst("^[^/]+/", "");
             String f1 = st.getStackTrace().length > 1 ? st.getStackTrace()[1].toString().split("\\(")[0].replaceAll("^app//", "").replaceFirst("^[^/]+/", "") : "";

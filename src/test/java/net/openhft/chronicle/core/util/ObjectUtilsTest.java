@@ -290,7 +290,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
         Class<?> impl = ObjectUtils.implementationToUse(RegularClass.class);
         assertEquals(RegularClass.class, impl);
     }
-        // Define MyEnum or use an existing enum for testing
+
     enum MyEnum {
         MY_VALUE
     }

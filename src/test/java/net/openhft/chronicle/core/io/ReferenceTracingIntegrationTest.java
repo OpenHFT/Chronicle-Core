@@ -25,7 +25,7 @@ public class ReferenceTracingIntegrationTest {
 
     @Test
     public void leaksAreReportedWithSuppressedStackTrace() {
-        SampleReference ref = new SampleReference();
+        final SampleReference ref = new SampleReference();
 
         AssertionError error = assertThrows(AssertionError.class, ReferenceCountedUtils::assertReferencesReleased);
         assertEquals("Reference counted not released", error.getMessage());
@@ -61,4 +61,3 @@ public class ReferenceTracingIntegrationTest {
         }
     }
 }
-

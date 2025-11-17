@@ -224,7 +224,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         });
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
-        ReferenceOwner b = ReferenceOwner.temporary("b");
+        final ReferenceOwner b = ReferenceOwner.temporary("b");
 
         rc.reserve(a);
         assertEquals(1, currentOwners.size());
@@ -283,7 +283,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         ReferenceCounted rc = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
-        ReferenceOwner b = ReferenceOwner.temporary("b");
+        final ReferenceOwner b = ReferenceOwner.temporary("b");
         final CounterReferenceChangeListener referenceChangeListener = new CounterReferenceChangeListener();
         rc.addReferenceChangeListener(referenceChangeListener);
 
@@ -299,16 +299,16 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         ReferenceCounted rc = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
-        ReferenceOwner b = ReferenceOwner.temporary("b");
 
         CounterReferenceChangeListener listener1 = new CounterReferenceChangeListener();
-        CounterReferenceChangeListener listener2 = new CounterReferenceChangeListener();
+        final CounterReferenceChangeListener listener2 = new CounterReferenceChangeListener();
 
         rc.addReferenceChangeListener(listener1);
         rc.reserve(a);
         assertEquals(1, listener1.referenceAddedCount);
         assertEquals(0, listener2.referenceAddedCount);
         rc.addReferenceChangeListener(listener2);
+        ReferenceOwner b = ReferenceOwner.temporary("b");
         rc.reserve(b);
         assertEquals(2, listener1.referenceAddedCount);
         assertEquals(1, listener2.referenceAddedCount);

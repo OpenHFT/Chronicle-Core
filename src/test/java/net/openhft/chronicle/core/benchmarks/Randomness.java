@@ -9,7 +9,6 @@ import java.security.SecureRandom;
 
 public class Randomness {
 
-    // Long running, avg score = 6879
     public static void main(String[] args) {
         long time = 0, timeCount = 0;
         long scoreSum = 0;
@@ -37,8 +36,6 @@ public class Randomness {
                     }
                 }
             scoreSum += score;
-//            if (t % 50 == 0)
-//                System.out.println(t + " - Score: " + score);
         }
         System.out.println("Average score: " + scoreSum / 500);
         System.out.printf("Average time %.3f us%n", time / timeCount / 1e3);

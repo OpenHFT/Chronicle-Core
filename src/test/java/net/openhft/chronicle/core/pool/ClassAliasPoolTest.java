@@ -85,6 +85,15 @@ public class ClassAliasPoolTest extends CoreTestCommon {
     }
 
     @Test
+    public void addAliasViaStaticCompatibilityMethod() {
+        // CHECKSTYLE.OFF
+        ClassAliasPool.a\u202e(ClassAliasPoolTest.class, StringInternerTest.class);
+        // CHECKSTYLE.ON
+        assertEquals(ClassAliasPoolTest.class, CLASS_ALIASES.forName(ClassAliasPoolTest.class.getSimpleName()));
+        assertEquals(StringInternerTest.class, CLASS_ALIASES.forName(StringInternerTest.class.getSimpleName()));
+    }
+
+    @Test
     public void testClean() throws IllegalArgumentException {
         assertEquals("String", CLASS_ALIASES.nameFor(String.class));
         CLASS_ALIASES.clean();

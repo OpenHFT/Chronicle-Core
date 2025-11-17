@@ -286,8 +286,8 @@ public class JvmTest extends CoreTestCommon {
         assertEquals("Hello", raz.value());
 
         // This case still fails
-         final RealAnno raz2 = findAnnotation(Baz.class.getMethod("directAnno"), RealAnno.class);
-         assertEquals("G'Day", raz2.value());
+        final RealAnno raz2 = findAnnotation(Baz.class.getMethod("directAnno"), RealAnno.class);
+        assertEquals("G'Day", raz2.value());
     }
 
     @Test

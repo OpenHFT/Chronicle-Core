@@ -288,7 +288,6 @@ public class IOToolsTest extends CoreTestCommon {
         final byte[] bytes = new byte[512];
         try {
             for (int i = 0; i < 100; i++) {
-//                System.out.println(i);
                 os.write(bytes);
             }
             fail();
@@ -329,7 +328,6 @@ public class IOToolsTest extends CoreTestCommon {
         ss.close();
         try {
             for (int i = 0; i < 100; i++) {
-//                System.out.println(i);
                 ((Buffer) bytes).clear();
                 sc.write(bytes);
             }
@@ -365,7 +363,6 @@ public class IOToolsTest extends CoreTestCommon {
         t.start();
         try {
             for (int i = 0; i < 10000; i++) {
-//                System.out.println(i);
                 ((Buffer) bytes).clear();
                 final int write = sc.write(bytes);
                 assertTrue(write > 0);
@@ -407,7 +404,6 @@ public class IOToolsTest extends CoreTestCommon {
         t.start();
         try {
             for (int i = 0; i < 10000; i++) {
-//                System.out.println(i);
                 ((Buffer) bytes).clear();
                 final int write = sc.write(bytes);
                 assertTrue(write > 0);

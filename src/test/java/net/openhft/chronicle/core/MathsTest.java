@@ -523,18 +523,16 @@ public class MathsTest extends CoreTestCommon {
         Object o2 = "test2";
         Object o3 = "test3";
         Object o4 = "test4";
-        Object o5 = "test5";
-
         int hash1 = Maths.hash(o1);
         int hash2 = Maths.hash(o1, o2);
         int hash3 = Maths.hash(o1, o2, o3);
         int hash4 = Maths.hash(o1, o2, o3, o4);
-        int hash5 = Maths.hash(o1, o2, o3, o4, o5);
 
         assertNotEquals(hash1, hash2);
         assertNotEquals(hash2, hash3);
         assertNotEquals(hash3, hash4);
-        assertNotEquals(hash4, hash5);
+        Object o5 = "test5";
+        assertNotEquals(hash4, Maths.hash(o1, o2, o3, o4, o5));
     }
 
     @Test
