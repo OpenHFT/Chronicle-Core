@@ -8,17 +8,20 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.function.Function;
 
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.junit.Assert.fail;
 
 public class ThrowingFunctionTest extends CoreTestCommon {
     @Test
     public void asFunction() {
         @NotNull Function<String, String> sc = ThrowingFunction.asFunction(s -> {
-            try (@NotNull BufferedReader br = new BufferedReader(new FileReader(s))) {
+            try (@NotNull BufferedReader br = new BufferedReader(
+                    new InputStreamReader(new FileInputStream(s), ISO_8859_1))) {
                 return br.readLine();
             }
         });

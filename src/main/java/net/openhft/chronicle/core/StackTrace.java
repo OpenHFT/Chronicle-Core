@@ -87,7 +87,7 @@ public class StackTrace extends Throwable {
     }
 
     /**
-     * Creates a stack trace for the current thread with the specified message and an optional timestamp.
+     * Creates a stack trace with the specified message and an optional timestamp.
      *
      * @param message      the detail message for this stack trace
      * @param addTimestamp whether to add a timestamp to the stack trace message

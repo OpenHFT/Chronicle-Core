@@ -7,10 +7,10 @@ import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Maths;
 import org.junit.Test;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.function.BiFunction;
 
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.junit.Assert.*;
 
 public class StringUtilsTest extends CoreTestCommon {
@@ -83,7 +83,7 @@ public class StringUtilsTest extends CoreTestCommon {
     @Test
     public void testExtractBytesString() {
         String str = "test";
-        byte[] expectedBytes = str.getBytes(StandardCharsets.ISO_8859_1);
+        byte[] expectedBytes = str.getBytes(ISO_8859_1);
         assertArrayEquals(expectedBytes, StringUtils.extractBytes(str));
     }
 
@@ -95,7 +95,7 @@ public class StringUtilsTest extends CoreTestCommon {
 
     @Test
     public void testNewStringFromBytes() {
-        byte[] bytes = "test".getBytes(StandardCharsets.ISO_8859_1);
+        byte[] bytes = "test".getBytes(ISO_8859_1);
         assertEquals("test", StringUtils.newStringFromBytes(bytes));
     }
 
@@ -170,7 +170,7 @@ public class StringUtilsTest extends CoreTestCommon {
     @Test
     public void shouldCreateNewStringFromBytes() {
         final byte[] bytes = {'A', 'B', 'C'};
-        String expected = new String(bytes,StandardCharsets.ISO_8859_1);
+        String expected = new String(bytes, ISO_8859_1);
         String actual = StringUtils.newStringFromBytes(bytes);
         assertEquals(expected, actual);
     }

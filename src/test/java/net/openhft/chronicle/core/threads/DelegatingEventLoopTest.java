@@ -56,7 +56,8 @@ class DelegatingEventLoopTest {
 
     @Test
     void isStoppedShouldDelegateToInner() {
-        delegatingEventLoop.isStopped();
+        when(innerEventLoop.isStopped()).thenReturn(true);
+        assertTrue(delegatingEventLoop.isStopped());
         verify(innerEventLoop).isStopped();
     }
 

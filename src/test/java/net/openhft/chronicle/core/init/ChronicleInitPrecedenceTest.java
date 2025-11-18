@@ -11,10 +11,10 @@ import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -24,7 +24,7 @@ public class ChronicleInitPrecedenceTest extends CoreTestCommon {
     @Ignore("Init precedence wiring not yet enabled on this branch")
     public void initRunnableMayRedirectSystemPropertiesBeforeJvmLoads() throws Exception {
         Path props = Files.createTempFile("chronicle-init-precedence", ".properties");
-        Files.write(props, "chronicle.init.test.flag=primed\n".getBytes(StandardCharsets.ISO_8859_1));
+        Files.write(props, "chronicle.init.test.flag=primed\n".getBytes(ISO_8859_1));
 
         Process process = JavaProcessBuilder.create(SystemPropertiesProbeMain.class)
                 .withJvmArguments(
@@ -49,7 +49,7 @@ public class ChronicleInitPrecedenceTest extends CoreTestCommon {
             while ((read = in.read(buffer)) >= 0) {
                 out.write(buffer, 0, read);
             }
-            return out.toString(StandardCharsets.ISO_8859_1.name());
+            return out.toString(ISO_8859_1.name());
         }
     }
 }

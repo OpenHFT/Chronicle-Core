@@ -78,16 +78,16 @@ public class PosixTimeProviderTest extends CoreTestCommon {
 
             try {
                 if (!OS.isWindows())
-                    assertBetween(-5 * error, minDiff, 5 * error);
-                assertBetween(990, maxDiff, 1000 + 30 * error);
+                    assertBetween(-5L * error, minDiff, 5L * error);
+                assertBetween(990L, maxDiff, 1000L + 30L * error);
                 break;
             } catch (AssertionError e) {
                 // do nothing
             }
         }
         if (!OS.isWindows())
-            assertBetween(-5 * error, minDiff, 5 * error);
-        assertBetween(990, maxDiff, 1000 + 30 * error);
+            assertBetween(-5L * error, minDiff, 5L * error);
+        assertBetween(990L, maxDiff, 1000L + 30L * error);
     }
 
     @Test

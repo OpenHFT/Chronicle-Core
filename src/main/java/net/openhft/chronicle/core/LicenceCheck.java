@@ -7,11 +7,11 @@ import net.openhft.chronicle.core.internal.ChronicleGuarding;
 import net.openhft.chronicle.core.io.IOTools;
 
 import javax.naming.TimeLimitExceededException;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.function.BiConsumer;
 
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static net.openhft.chronicle.core.Jvm.startup;
 import static net.openhft.chronicle.core.Jvm.warn;
 
@@ -67,7 +67,7 @@ public interface LicenceCheck {
         if (key == null || !key.contains(product + '.')) {
             String expiryDateFile = product + ".expiry-date";
             try {
-                String source = new String(IOTools.readFile(LicenceCheck.class, expiryDateFile), StandardCharsets.ISO_8859_1);
+                String source = new String(IOTools.readFile(LicenceCheck.class, expiryDateFile), ISO_8859_1);
                 LocalDate expiryDate = LocalDate.parse(source.trim());
                 long days = ChronoUnit.DAYS.between(LocalDate.now(), expiryDate);
                 if (days < 0)

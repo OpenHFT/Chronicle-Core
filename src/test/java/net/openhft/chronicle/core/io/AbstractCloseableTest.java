@@ -44,7 +44,7 @@ public class AbstractCloseableTest extends CoreTestCommon {
     public void warnAndCloseIfNotClosed() {
         Jvm.setResourceTracing(true);
 
-        Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
+        final Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
         MyCloseable mc = new MyCloseable();
 
         // not recorded for now.

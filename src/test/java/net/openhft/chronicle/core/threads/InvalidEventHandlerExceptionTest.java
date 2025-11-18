@@ -8,10 +8,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io OutputStream;
 import java.io.PrintStream;
 import java.util.stream.Stream;
 
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -76,7 +77,7 @@ public class InvalidEventHandlerExceptionTest extends CoreTestCommon {
                 sb.append((char) b);
             }
         };
-             PrintStream ps = new PrintStream(os)) {
+             PrintStream ps = new PrintStream(os, true, ISO_8859_1.name())) {
             e.printStackTrace(ps);
         }
         final String stackTrace = sb.toString();

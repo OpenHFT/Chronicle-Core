@@ -11,8 +11,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.charset.StandardCharsets;
 
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CleanerServiceIncludeNewerOlderTest {
@@ -42,7 +42,7 @@ class CleanerServiceIncludeNewerOlderTest {
         try (FileOutputStream fos = new FileOutputStream(svc)) {
             String content = "net.openhft.chronicle.core.cleaner.testimpl2.NewerInclOlderCleaner\n" +
                     "net.openhft.chronicle.core.cleaner.testimpl2.OlderInclNewerCleaner\n";
-            fos.write(content.getBytes(StandardCharsets.ISO_8859_1));
+            fos.write(content.getBytes(ISO_8859_1));
         }
         URLClassLoader cl = new URLClassLoader(new URL[]{root.toURI().toURL()}, CleanerServiceLocator.class.getClassLoader());
         Thread t = Thread.currentThread();

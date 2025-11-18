@@ -50,7 +50,7 @@ class CleaningThreadLocalIntegrationTest {
         CountDownLatch start = new CountDownLatch(1);
         AtomicReference<Throwable> failure = new AtomicReference<>();
         for (int i = 0; i < cleaners; i++) {
-            executor.submit(() -> {
+            executor.execute(() -> {
                 try {
                     start.await();
                     for (int j = 0; j < 32; j++) {

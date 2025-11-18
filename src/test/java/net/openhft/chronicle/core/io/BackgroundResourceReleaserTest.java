@@ -51,8 +51,8 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
         BackgroundResourceReleaser.releasePendingResources();
         long time = System.currentTimeMillis() - start0;
         if (BackgroundResourceReleaser.BG_RELEASER) {
-            int factor = count * (Jvm.isAzulZulu() || OS.isMacOSX() ? 80 : OS.isWindows() ? 20 : 18);
-            assertBetween(count * 9, time, factor);
+            long factor = (long) count * (Jvm.isAzulZulu() || OS.isMacOSX() ? 80L : OS.isWindows() ? 20L : 18L);
+            assertBetween(count * 9L, time, factor);
         }
         assertEquals(count, closed.get());
         assertEquals(count, released.get());

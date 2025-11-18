@@ -14,9 +14,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
 
 import static java.lang.Character.toLowerCase;
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 /**
  * A utility class that provides a collection of static methods for advanced string manipulation.
@@ -318,7 +318,7 @@ public final class StringUtils {
     @Java9
     public static byte[] extractBytes(@NotNull String s) {
         if (!HAS_ONE_BYTE_PER_CHAR)
-            return s.getBytes(StandardCharsets.ISO_8859_1);
+            return s.getBytes(ISO_8859_1);
         ensureJava9Plus();
 
         return getMemory().getObject(s, S_VALUE_OFFSET);
@@ -355,9 +355,9 @@ public final class StringUtils {
     @NotNull
     public static String newStringFromBytes(byte @NotNull [] bytes) {
         if (!HAS_ONE_BYTE_PER_CHAR)
-            return new String(bytes, StandardCharsets.ISO_8859_1);
+            return new String(bytes, ISO_8859_1);
         ensureJava9Plus();
-        @NotNull String str = new String(new byte[0], StandardCharsets.ISO_8859_1);
+        @NotNull String str = new String(new byte[0], ISO_8859_1);
         try {
             S_VALUE.set(str, bytes);
             return str;

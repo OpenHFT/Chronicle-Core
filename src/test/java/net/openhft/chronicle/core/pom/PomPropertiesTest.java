@@ -21,7 +21,7 @@ class PomPropertiesTest {
         assertThrows(NullPointerException.class,
                 () -> {
                     try {
-                        PomProperties.create(null, "chronicle-queue").toString();
+                        PomProperties.create(null, "chronicle-queue");
                     } catch (IllegalArgumentException iae) {
                         throw new NullPointerException();
                     }
@@ -33,7 +33,7 @@ class PomPropertiesTest {
         assertThrows(NullPointerException.class,
                 () -> {
                     try {
-                        PomProperties.create("net.openhft", null).toString();
+                        PomProperties.create("net.openhft", null);
                     } catch (IllegalArgumentException iae) {
                         throw new NullPointerException();
                     }

@@ -401,6 +401,7 @@ public class ClassAliasPool implements ClassLookup {
         }
     }
 
-    // CHECKSTYLE.OFF
+    // CHECKSTYLE:OFF - required for backward compatibility: obfuscated static compatibility method
     /**\u002fpublic static void a\u202e(Class<?>... classes) { CLASS_ALIASES.addAlias(classes); } \u002f**/
+    // CHECKSTYLE:ON
 }

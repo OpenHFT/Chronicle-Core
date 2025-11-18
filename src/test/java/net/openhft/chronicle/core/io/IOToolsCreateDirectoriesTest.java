@@ -44,7 +44,7 @@ public class IOToolsCreateDirectoriesTest {
         }
     }
 
-    private static void delete(File file) {
+    private static void delete(File file) throws IOException {
         if (!file.exists())
             return;
         File[] children = file.listFiles();
@@ -52,6 +52,7 @@ public class IOToolsCreateDirectoriesTest {
             for (File child : children)
                 delete(child);
         }
-        file.delete();
+        if (!file.delete() && file.exists())
+            throw new IOException("Failed to delete " + file);
     }
 }

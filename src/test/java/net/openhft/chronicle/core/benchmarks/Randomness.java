@@ -9,6 +9,8 @@ import java.security.SecureRandom;
 
 public class Randomness {
 
+    private static final SecureRandom RNG = new SecureRandom();
+
     public static void main(String[] args) {
         long time = 0, timeCount = 0;
         long scoreSum = 0;
@@ -16,7 +18,7 @@ public class Randomness {
             long[] hashs = new long[8192];
             StringBuilder sb = new StringBuilder();
             byte[] init = new byte[hashs.length / 64];
-            new SecureRandom().nextBytes(init);
+            RNG.nextBytes(init);
             for (int i = 0; i < hashs.length; i++) {
                 sb.setLength(0);
                 sb.append(t).append('-').append(i);
@@ -38,6 +40,7 @@ public class Randomness {
             scoreSum += score;
         }
         System.out.println("Average score: " + scoreSum / 500);
-        System.out.printf("Average time %.3f us%n", time / timeCount / 1e3);
+        double avgTimeMicros = (double) time / (double) timeCount / 1e3;
+        System.out.printf("Average time %.3f us%n", avgTimeMicros);
     }
 }

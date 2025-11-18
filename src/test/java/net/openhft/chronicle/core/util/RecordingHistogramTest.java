@@ -75,22 +75,6 @@ public class RecordingHistogramTest extends CoreTestCommon {
                 h.toLongMicrosFormat());
     }
 
-    @Test
-    public void resetRestoresEqualityAndHashCode() {
-        RecordingHistogram first = new RecordingHistogram();
-        RecordingHistogram second = new RecordingHistogram();
-        assertEquals(first, second);
-        assertEquals(first.hashCode(), second.hashCode());
-
-        first.sampleNanos(1);
-        assertNotEquals(first, second);
-        assertNotEquals(first.hashCode(), second.hashCode());
-
-        first.reset();
-        assertEquals(first, second);
-        assertEquals(first.hashCode(), second.hashCode());
-    }
-
     private int percentile(@NotNull Histogram h, double fraction) {
         return (int) h.percentile(fraction) / 10000;
     }

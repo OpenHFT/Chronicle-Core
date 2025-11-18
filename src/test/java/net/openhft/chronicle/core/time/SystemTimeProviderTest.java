@@ -11,7 +11,7 @@ import net.openhft.chronicle.testframework.FlakyTestRunner;
 import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
-import java.security.SecureRandom;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.Assert.assertTrue;
 
@@ -26,7 +26,8 @@ public class SystemTimeProviderTest extends CoreTestCommon {
                 break;
             } catch (Throwable t) {
                 System.out.println("Trying to deflake flaky test: " + i);
-                Jvm.pause(500 + new SecureRandom().nextInt(500));
+                int jitter = ThreadLocalRandom.current().nextInt(500);
+                Jvm.pause(500 + jitter);
             }
         }
     }
@@ -76,15 +77,15 @@ public class SystemTimeProviderTest extends CoreTestCommon {
             } while (System.currentTimeMillis() < start + 500);
 
             try {
-                assertBetween(-5 * error, minDiff, 5 * error);
-                assertBetween(990, maxDiff, 1000 + 30 * error);
+                assertBetween(-5L * error, minDiff, 5L * error);
+                assertBetween(990L, maxDiff, 1000L + 30L * error);
                 break;
             } catch (AssertionError e) {
                 continue;
             }
         }
-        assertBetween(-5 * error, minDiff, 5 * error);
-        assertBetween(990, maxDiff, 1000 + 30 * error);
+        assertBetween(-5L * error, minDiff, 5L * error);
+        assertBetween(990L, maxDiff, 1000L + 30L * error);
     }
 
     @Test

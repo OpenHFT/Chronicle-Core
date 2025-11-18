@@ -29,6 +29,7 @@ import static org.junit.Assert.*;
 public class MathsTest extends CoreTestCommon {
     private static final double err = 5.1e-9;
     private static final int COUNT = Jvm.isArm() ? 500_000 : 3_000_000;
+    private static final Random TEST_RANDOM = new Random(1);
     private ThreadDump threadDump;
 
     @Test
@@ -308,7 +309,7 @@ public class MathsTest extends CoreTestCommon {
     @SuppressWarnings("deprecation")
     @Test
     public void testRounding() {
-        @NotNull Random rand = new Random(1);
+        @NotNull Random rand = TEST_RANDOM;
         for (int i = 0; i < 1000; i++) {
             double d = Math.pow(1e18, rand.nextDouble()) / 1e6;
             @NotNull BigDecimal bd = new BigDecimal(d);
@@ -352,7 +353,7 @@ public class MathsTest extends CoreTestCommon {
 
     @Test(expected = ArithmeticException.class)
     public void divideRoundUpZeroDivisorThrows() {
-        Maths.divideRoundUp(1, 0);
+        assertEquals(0, Maths.divideRoundUp(1, 0));
     }
 
     @Test

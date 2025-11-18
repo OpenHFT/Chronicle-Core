@@ -10,11 +10,11 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.junit.jupiter.api.Assertions.*;
 
 class CleanerServiceFallbackTest {
@@ -81,6 +81,6 @@ class CleanerServiceFallbackTest {
     private static void prepareBrokenServiceDescriptor(Path serviceFile) throws IOException {
         Files.createDirectories(serviceFile.getParent());
         // Reference a class that does not exist so ServiceLoader triggers ServiceConfigurationError
-        Files.write(serviceFile, "non.existent.Cleaner\n".getBytes(StandardCharsets.ISO_8859_1));
+        Files.write(serviceFile, "non.existent.Cleaner\n".getBytes(ISO_8859_1));
     }
 }

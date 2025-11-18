@@ -45,7 +45,7 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
                     for (int j = 0; j < iterationsPerThread; j++) {
 
                         // there could be a race condition for the next two methods, but it shouldn't matter for this test
-                        setTimeProvider.advanceMicros(j * 100);
+                        setTimeProvider.advanceMicros(j * 100L);
                         long currentTimeMillis = timeProvider.currentTimeMillis();
 
                         threadTimeSet.add(currentTimeMillis);
@@ -62,8 +62,9 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
         latch.await();
         executor.shutdown();
 
+        long expectedMillisCount = (long) numberOfThreads * iterationsPerThread;
         assertEquals("All timestamps across all threads and iterations should be unique",
-                numberOfThreads * iterationsPerThread, allGeneratedTimestamps.size());
+                expectedMillisCount, allGeneratedTimestamps.size());
     }
 
     @Test
@@ -100,8 +101,9 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
         latch.await();
         executor.shutdown();
 
+        long expectedMicrosCount = (long) numberOfThreads * iterationsPerThread * factor;
         assertEquals("All timestamps across all threads and iterations should be unique",
-                numberOfThreads * iterationsPerThread * factor, allGeneratedTimestamps.size());
+                expectedMicrosCount, allGeneratedTimestamps.size());
     }
 
     @Test
@@ -138,8 +140,9 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
         latch.await();
         executor.shutdown();
 
+        long expectedNanosCount = (long) numberOfThreads * iterationsPerThread * factor;
         assertEquals("All timestamps across all threads and iterations should be unique",
-                numberOfThreads * iterationsPerThread * factor, allGeneratedTimestamps.size());
+                expectedNanosCount, allGeneratedTimestamps.size());
     }
 
     @Test

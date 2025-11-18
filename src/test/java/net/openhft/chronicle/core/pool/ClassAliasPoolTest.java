@@ -85,10 +85,24 @@ public class ClassAliasPoolTest extends CoreTestCommon {
     }
 
     @Test
-    public void addAliasViaStaticCompatibilityMethod() {
-        // CHECKSTYLE.OFF
-        ClassAliasPool.a\u202e(ClassAliasPoolTest.class, StringInternerTest.class);
-        // CHECKSTYLE.ON
+    public void addAliasViaStaticCompatibilityMethod() throws Exception {
+        // CHECKSTYLE:OFF - required for backward compatibility: invoke static compatibility method via reflection
+        boolean methodInvoked = false;
+        for (java.lang.reflect.Method method : ClassAliasPool.class.getDeclaredMethods()) {
+            if (java.lang.reflect.Modifier.isStatic(method.getModifiers())
+                    && void.class.equals(method.getReturnType())
+                    && method.isVarArgs()
+                    && method.getParameterCount() == 1
+                    && method.getParameterTypes()[0] == Class[].class) {
+                method.invoke(null, (Object) new Class[]{ClassAliasPoolTest.class, StringInternerTest.class});
+                methodInvoked = true;
+                break;
+            }
+        }
+        // CHECKSTYLE:ON
+        if (!methodInvoked) {
+            throw new AssertionError("Static compatibility method not found");
+        }
         assertEquals(ClassAliasPoolTest.class, CLASS_ALIASES.forName(ClassAliasPoolTest.class.getSimpleName()));
         assertEquals(StringInternerTest.class, CLASS_ALIASES.forName(StringInternerTest.class.getSimpleName()));
     }

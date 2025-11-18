@@ -11,6 +11,11 @@ import static org.mockito.Mockito.*;
 
 class PriorityHookTest {
 
+    @AfterEach
+    void clearHook() {
+        PriorityHook.clear();
+    }
+
     @Test
     void testAddHook() {
         Runnable hook1 = mock(Runnable.class);

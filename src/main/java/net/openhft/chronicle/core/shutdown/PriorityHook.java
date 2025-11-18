@@ -100,7 +100,7 @@ public class PriorityHook {
      *
      * @return current {@code PriorityHook} instance or {@code null}
      */
-    public static synchronized PriorityHook getRegisteredHook() {
+    public static PriorityHook getRegisteredHook() {
         return registeredHook;
     }
 }

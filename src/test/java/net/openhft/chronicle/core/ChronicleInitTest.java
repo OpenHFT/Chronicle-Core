@@ -10,8 +10,10 @@ import org.junit.jupiter.api.BeforeEach;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ServiceLoader;
 
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ChronicleInitTest extends CoreTestCommon {
@@ -21,7 +23,11 @@ public class ChronicleInitTest extends CoreTestCommon {
 
     @BeforeEach
     public void setUpStream() {
-        System.setErr(new PrintStream(errContent));
+        try {
+            System.setErr(new PrintStream(errContent, true, ISO_8859_1.name()));
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException("ISO-8859-1 should always be supported", e);
+        }
     }
 
     @AfterEach
@@ -44,12 +50,23 @@ public class ChronicleInitTest extends CoreTestCommon {
 
     public static void main(String[] args) {
         // Service loader implementation
-        assertEquals("dolor", Jvm.getProperty("lorem.ipsum"));
-
+        if (!"dolor".equals(Jvm.getProperty("lorem.ipsum"))) {
+            System.out.println("Service loader implementation did not run");
+            System.exit(10);
+        }
         // Normally enabled via system.properties file
-        assertFalse(Jvm.isResourceTracing());
-        assertTrue(Jvm.areOptionalSafepointsEnabled());
-        assertEquals("false", Jvm.getProperty("jvm.safepoint.enabled"));
+        if (Jvm.isResourceTracing()) {
+            System.out.println("Resource tracing is enabled");
+            System.exit(11);
+        }
+        if (!Jvm.areOptionalSafepointsEnabled()) {
+            System.out.println("Optional safepoints are not enabled");
+            System.exit(12);
+        }
+        if (!"false".equals(Jvm.getProperty("jvm.resource.tracing"))) {
+            System.out.println("Resource tracing was " + Jvm.getProperty("jvm.resource.tracing"));
+            System.exit(13);
+        }
     }
 
     @Test
@@ -87,7 +104,46 @@ public class ChronicleInitTest extends CoreTestCommon {
         Process process = builder("-Dchronicle.postinit.runnable=" + ResourceTracingInit.class.getName()).start();
 
         try {
-            assertEquals(1, process.waitFor());
+            assertEquals(11, process.waitFor());
+        } finally {
+            JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
+        }
+    }
+
+    @Test
+    public void testExitCode10WhenServiceLoaderPropertyOverridden() throws Exception {
+        Process process = builder("-Dchronicle.postinit.runnable=" + PostInitOverridesLoremIpsum.class.getName()).start();
+
+        try {
+            assertEquals(10, process.waitFor());
+        } finally {
+            JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
+        }
+    }
+
+    @Test
+    public void testExitCode12WhenOptionalSafepointsDisabled() throws Exception {
+        Process process = builder(
+                "-Djvm.resource.tracing=false",
+                "-Djvm.safepoint.enabled=false",
+                "-Dlorem.ipsum=dolor").start();
+
+        try {
+            assertEquals(12, process.waitFor());
+        } finally {
+            JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
+        }
+    }
+
+    @Test
+    public void testExitCode13WhenResourceTracingPropertyDiffersFromFlag() throws Exception {
+        Process process = builder(
+                "-Djvm.resource.tracing=false",
+                "-Dchronicle.postinit.runnable=" + PostInitEnablesResourceTracingProperty.class.getName(),
+                "-Dlorem.ipsum=dolor").start();
+
+        try {
+            assertEquals(13, process.waitFor());
         } finally {
             JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
         }
@@ -123,6 +179,13 @@ public class ChronicleInitTest extends CoreTestCommon {
         }
     }
 
+    public static class PostInitOverridesLoremIpsum implements Runnable {
+        @Override
+        public void run() {
+            System.setProperty("lorem.ipsum", "sit");
+        }
+    }
+
     @Test
     public void testCommandLineOverride() throws Exception {
         Process process = builderWithTracingDisabled().start();
@@ -143,6 +206,13 @@ public class ChronicleInitTest extends CoreTestCommon {
         @Override
         public void postInit() {
             System.setProperty("jvm.safepoint.enabled", "false");
+        }
+    }
+
+    public static class PostInitEnablesResourceTracingProperty implements Runnable {
+        @Override
+        public void run() {
+            System.setProperty("jvm.resource.tracing", "true");
         }
     }
 }

@@ -22,13 +22,13 @@ import java.net.Socket;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.stream.IntStream;
 
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 import static org.junit.Assert.*;
 
 public class IOToolsTest extends CoreTestCommon {
@@ -47,11 +47,12 @@ public class IOToolsTest extends CoreTestCommon {
         String testFilename = "testFile.tmp";
         String testData = "Test Data";
 
-        IOTools.writeFile(testFilename, testData.getBytes());
+        byte[] encoded = testData.getBytes(ISO_8859_1);
+        IOTools.writeFile(testFilename, encoded);
 
         Path path = Paths.get(testFilename);
         assertTrue(Files.exists(path));
-        assertArrayEquals(testData.getBytes(), Files.readAllBytes(path));
+        assertArrayEquals(encoded, Files.readAllBytes(path));
 
         BackgroundResourceReleaser.releasePendingResources();
         Files.deleteIfExists(path);
@@ -118,11 +119,12 @@ public class IOToolsTest extends CoreTestCommon {
     @Test
     public void testReadAsBytes() throws IOException {
         String testData = "Test Data";
-        ByteArrayInputStream bais = new ByteArrayInputStream(testData.getBytes());
+        byte[] encoded = testData.getBytes(ISO_8859_1);
+        ByteArrayInputStream bais = new ByteArrayInputStream(encoded);
 
         byte[] bytes = IOTools.readAsBytes(bais);
 
-        assertArrayEquals(testData.getBytes(), bytes);
+        assertArrayEquals(encoded, bytes);
     }
 
     @Test
@@ -229,9 +231,11 @@ public class IOToolsTest extends CoreTestCommon {
 
         String path = OS.getTarget();
         Path file = Paths.get(path, "test-file" + Time.uniqueId());
-        file.toFile().delete();
-        file.toFile().deleteOnExit();
-        assertTrue(file.toFile().createNewFile());
+        File asFile = file.toFile();
+        if (asFile.exists() && !asFile.delete())
+            throw new IOException("Cannot delete pre-existing file " + asFile);
+        asFile.deleteOnExit();
+        assertTrue(asFile.createNewFile());
         try {
             IOTools.createDirectories(Paths.get(file.toString(), "subdir" + Time.uniqueId()));
         } catch (IOException ioe) {

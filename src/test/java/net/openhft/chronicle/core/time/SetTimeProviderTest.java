@@ -126,7 +126,7 @@ public class SetTimeProviderTest extends CoreTestCommon {
         ExecutorService pool = Executors.newFixedThreadPool(threads);
         for (int t = 0; t < threads; t++) {
             final int threadIndex = t;
-            pool.submit(() -> {
+            pool.execute(() -> {
                 try {
                     start.await();
                     for (int i = 0; i < readsPerThread; i++) {

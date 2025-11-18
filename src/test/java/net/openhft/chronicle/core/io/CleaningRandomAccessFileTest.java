@@ -59,8 +59,9 @@ public class CleaningRandomAccessFileTest extends CoreTestCommon {
     @Test
     public void resourceLeak() throws IOException {
         File tempDir = IOTools.createTempFile("resourceLeak");
-        //noinspection ResultOfMethodCallIgnored
-        tempDir.mkdir();
+        if (!tempDir.mkdir() && !tempDir.isDirectory()) {
+            throw new IOException("Unable to create temp directory " + tempDir);
+        }
         int repeat = Jvm.isArm() ? 6 : OS.isWindows() ? 25 : 50;
         for (int j = 0; j < repeat; j++) {
             int files = getFDs();
