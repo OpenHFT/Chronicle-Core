@@ -11,103 +11,169 @@ Chronicle Core heavily relies on explicit resource management, especially for of
 
 === Frequent Off-Heap Mistakes
 
-* **Failing to `release()` reference-counted objects**:
-* **Pitfall**: Forgetting to call `release(owner)` or `releaseLast(owner)` on `ReferenceCounted` objects (like those extending `AbstractReferenceCounted`) leads to native memory leaks, as the underlying resources are not freed until the reference count drops to zero.
-* **Debugging**: Enable resource tracing (`-Djvm.resource.tracing=true`).Use `AbstractReferenceCounted.assertReferencesReleased()` in tests. `TracingReferenceCounted` can provide detailed information about who reserved and released a resource.
-* **Relying on `warnAndCloseIfNotClosed` or `warnAndReleaseIfNotReleased`**:
-* **Pitfall**: These methods (`AbstractCloseable.warnAndCloseIfNotClosed()`, `ReferenceCountedTracer.warnAndReleaseIfNotReleased()`) are safety nets, often called from finalizers or test cleanups.
+Failing to `release()` reference-counted objects::
+
+* **Pitfall:** Forgetting to call `release(owner)` or `releaseLast(owner)` on `ReferenceCounted` objects (for example, those extending `AbstractReferenceCounted`) leads to native memory leaks, as the underlying resources are not freed until the reference count drops to zero.
+* **Debugging:** Enable resource tracing (`-Djvm.resource.tracing=true`).
+Use `AbstractReferenceCounted.assertReferencesReleased()` in tests. `TracingReferenceCounted` can provide detailed information about who reserved and released a resource.
+
+Relying on `warnAndCloseIfNotClosed` or `warnAndReleaseIfNotReleased`::
+
+* **Pitfall:** These methods (`AbstractCloseable.warnAndCloseIfNotClosed()`, `ReferenceCountedTracer.warnAndReleaseIfNotReleased()`) are safety nets, often called from finalisers or test clean-ups.
 Relying on them for normal resource cleanup in application logic indicates a design flaw and can lead to unpredictable resource release.
-* **Debugging**: Heed the warnings these methods produce.
+* **Debugging:** Heed the warnings these methods produce.
 The goal is to have zero such warnings by ensuring explicit and timely `close()` or `release()` calls.
-* **Forgetting to `unmap()` a memory-mapped region**:
-* **Pitfall**: Memory-mapped regions created with `OS.map()` must be explicitly unmapped using `OS.unmap()`.
-Failure to do so can lead to `ENFILE` (too many open files) errors or exhaustion of virtual memory.
-* **Debugging**: Track `OS.memoryMapped()` values.
-Ensure `unmap` is called in `finally` blocks or via try-with-resources if applicable.
-* **Over-allocating direct buffers and relying on GC**:
-* **Pitfall**: While `ByteBuffer.allocateDirect()` allocates off-heap, its cleanup relies on a `Cleaner` and garbage collection, which can be unpredictable and lead to `OutOfMemoryError` for direct memory.
-* **Solution**: Manage direct buffers explicitly or use Chronicle Core's memory management which provides more control.
-* **Misusing `CleanerServiceLocator` or `ByteBufferCleanerService`**:
-* **Pitfall**: Forcibly cleaning ByteBuffers using these services without understanding the lifecycle of the associated resource can lead to crashes if the memory is still in use or accessed after cleaning.
-* **Best Practice**: Prefer Chronicle Core's `ReferenceCounted` mechanisms for resources wrapping ByteBuffers.
-* **Misconfiguring `BackgroundResourceReleaser`**:
-* **Pitfall**: If `background.releaser.thread=false` is set, pending resources are queued but not automatically released. `BackgroundResourceReleaser.releasePendingResources()` must be called explicitly by a user thread.
-* **Pitfall**: If `background.releaser=false`, releases are synchronous, potentially impacting performance-sensitive paths.
-* **Debugging**: Monitor the `background~resource~releaser` thread activity and the queue size if issues are suspected.
-* **Not using `CleaningRandomAccessFile`**:
-* **Pitfall**: Standard `java.io.RandomAccessFile` might not reliably release its file descriptor on GC if not explicitly closed, leading to resource leaks.
-* **Solution**: Use `net.openhft.chronicle.core.io.CleaningRandomAccessFile` which attempts to close the file in its finalizer.
-However, explicit closing is always best.
+
+Forgetting to `unmap()` a memory-mapped region::
+
+* **Pitfall:** Memory-mapped regions created with `OS.map()` must be explicitly unmapped using `OS.unmap()`.
+Failure to do so can lead to `EMFILE`/`ENFILE` (too many open files) errors or exhaustion of virtual memory.
+* **Debugging:** Track `OS.memoryMapped()` values.
+Ensure `OS.unmap` is called in `finally` blocks or via try-with-resources where applicable.
+
+Over-allocating direct buffers and relying on GC::
+
+* **Pitfall:** While `ByteBuffer.allocateDirect()` allocates off-heap memory, its cleanup relies on a `Cleaner` and garbage collection, which can be unpredictable and lead to `OutOfMemoryError` for direct memory.
+* **Solution:** Manage direct buffers explicitly or use Chronicle Core’s memory-management APIs (for example, `OS.memory()` and `ReferenceCounted` types) which provide deterministic control.
+
+Misusing `CleanerServiceLocator` or `ByteBufferCleanerService`::
+
+* **Pitfall:** Forcibly cleaning `ByteBuffer`s using these services without understanding the lifecycle of the associated resource can lead to crashes if the memory is still in use or is accessed after cleaning.
+* **Best practice:** Prefer Chronicle Core’s `ReferenceCounted` mechanisms for resources wrapping `ByteBuffer`s.
+Reserve and release them consistently rather than forcing clean-up behind the GC’s back.
+
+Misconfiguring `BackgroundResourceReleaser`::
+
+* **Pitfall (disabled thread):** If `background.releaser.thread=false` is set, pending resources are queued but not automatically released. `BackgroundResourceReleaser.releasePendingResources()` must be called explicitly by a user thread.
+* **Pitfall (synchronous mode):** If `background.releaser=false`, releases are fully synchronous, which can increase latency on performance-sensitive paths.
+* **Debugging:** Monitor the `background~resource~releaser` thread’s activity and the queue size.
+Use `BackgroundResourceReleaser.dumpQueue()` and `releasePendingResources()` in test or diagnostic code to confirm that resources are draining.
+
+Not using `CleaningRandomAccessFile`::
+
+* **Pitfall:** A plain `java.io.RandomAccessFile` may not reliably release its file descriptor on GC if not explicitly closed, leading to descriptor leaks.
+* **Solution:** Use `net.openhft.chronicle.core.io.CleaningRandomAccessFile`, which attempts to close the underlying file descriptor in its finaliser as a last resort.
+However, explicit `close()` in application code is still the preferred and most reliable approach.
 
 === Diagnosing `ClosedIllegalStateException`
 
 A `ClosedIllegalStateException` signals that a resource was used after it was closed or released.
-* **Enable Resource Tracing**: Set the system property `jvm.resource.tracing=true`.
-This typically enables `AbstractCloseable` to capture `createdHere` and `closedHere` stack traces.
-* **Inspect Stack Traces**: When the exception occurs, the `closedHere` (and sometimes `createdHere`) stack trace will be available, often as a suppressed exception or via `getCause()`.
-This helps identify where the resource was closed and where it was created, making it easier to find the use-after-close bug.
+
+Enable resource tracing::
+
+* Set the system property `jvm.resource.tracing=true`.
+* This typically enables `AbstractCloseable` to capture `createdHere` and `closedHere` stack traces for easier diagnosis.
+
+Inspect stack traces::
+
+* When the exception occurs, check the `closedHere` (and sometimes `createdHere`) stack trace, often available as a suppressed exception or via `getCause()`.
+* These traces show where the resource was created and where it was closed, making it easier to track down use-after-close bugs.
 
 == Threading and Concurrency
 
-* **`ThreadingIllegalStateException`**:
-* **Cause**: Thrown when a component marked for single-threaded access (e.g., implementing `SingleThreadedChecked`) is accessed by multiple threads without proper hand-off.
-* **Debugging**: The exception usually includes the stack trace of where the object was first used by a different thread (`usedByThreadHere` in `AbstractCloseable`).
-Ensure objects are not inadvertently shared or use `singleThreadedCheckReset()` after initialization on one thread before handing it off to another.
-* **Memory Visibility and Ordering**:
-* **Pitfall**: Using plain memory reads/writes (e.g., `UnsafeMemory.writeInt()`) for fields shared between threads without proper volatile semantics (`UnsafeMemory.writeVolatileInt()`, `UnsafeMemory.writeOrderedInt()`) or fences (`storeFence()`, `loadFence()`) can lead to stale data or incorrect instruction reordering.
-* **Debugging**: Carefully review shared memory access patterns.
-Use JOL (Java Object Layout) to understand memory layouts.
-Consider concurrency testing tools.
-* **`UniqueMicroTimeProvider` and Testing**:
-* **Pitfall**: When testing code that uses `UniqueMicroTimeProvider`, if you replace its underlying provider with a `SetTimeProvider` for deterministic testing, ensure the `SetTimeProvider`'s clock is also controlled (e.g., frozen using `autoIncrement(0, NANOSECONDS)`) to avoid unexpected time jumps during the CAS loop.
+`ThreadingIllegalStateException`::
+
+* **Cause:** Thrown when a component marked for single-threaded access (for example, implementing `SingleThreadedChecked`) is accessed from multiple threads without a proper hand-off.
+* **Debugging:** The exception usually includes the stack trace of where the object was first used by another thread (`usedByThreadHere` in `AbstractCloseable`).
+Ensure objects are not inadvertently shared between threads, or call `singleThreadedCheckReset()` after initialisation on one thread before handing the object off to another.
+
+Memory visibility and ordering::
+
+* **Pitfall:** Using plain memory reads/writes (for example, `UnsafeMemory.writeInt()`) on data shared between threads without proper volatile semantics (`UnsafeMemory.writeVolatileInt()`, `UnsafeMemory.writeOrderedInt()`) or fences (`storeFence()`, `loadFence()`) can lead to stale reads or reordering bugs.
+* **Debugging:** Carefully review shared-memory access patterns.
+Use tools like JOL (Java Object Layout) to understand field layouts and alignments.
+Consider concurrency testing tools and stress frameworks to reveal rare races.
+
+`UniqueMicroTimeProvider` and testing::
+
+* **Pitfall:** When testing code that uses `UniqueMicroTimeProvider`, replacing its underlying `TimeProvider` with a `SetTimeProvider` without controlling its progression can cause unexpected time jumps inside the CAS loop.
+* **Best practice:** When using `SetTimeProvider` in tests, freeze or deterministically advance its clock (for example, via `autoIncrement(0, NANOSECONDS)` or explicit ticks) so that successive calls to `currentTimeMicros()` remain predictable and monotonic.
 
 == Low-Level Memory Operations
 
-* **Misaligned Access**:
-* **Pitfall**: Accessing multi-byte types (short, int, long, float, double) at memory addresses that are not aligned to their natural boundaries can cause `MisAlignedAssertionError` on some architectures (especially ARM) or lead to performance penalties.
-* **Solution**: Ensure addresses and offsets are properly aligned.
-Use `UnsafeMemory.safeAlignedInt()` or `UnsafeMemory.safeAlignedLong()` to check alignment if unsure, though these checks are themselves specific to certain implementations (like ARM).
-* **Bounds Checking**:
-* **Pitfall**: Direct memory access (e.g., via `OS.memory()` or `UnsafeMemory`) bypasses Java's array bounds checks.
-Incorrect offset or length calculations can lead to reading/writing unintended memory, causing data corruption or JVM crashes.
-* **Debugging**: Rigorous testing, assertions, and careful review of offset/length calculations are crucial.
-Consider using boundary condition tests.
+Misaligned access::
 
-== System Properties and Initialization
+* **Pitfall:** Accessing multi-byte types (`short`, `int`, `long`, `float`, `double`) at addresses that are not aligned to their natural boundaries can cause `MisAlignedAssertionError` on some architectures (especially ARM) or introduce significant performance penalties.
+* **Solution:** Ensure addresses and offsets are properly aligned.
+Use helpers such as `UnsafeMemory.safeAlignedInt()` or `UnsafeMemory.safeAlignedLong()` to check alignment when in doubt.
+Align sizes and offsets using `OS.pageAlign(...)` and related helpers when mapping memory.
 
-* **Properties Not Taking Effect**:
-* **Pitfall**: System properties intended to configure Chronicle Core might not have the desired effect if they are set *after* the relevant Chronicle Core classes (like `Jvm.java`) have been initialized.
-* **Solution**: Set system properties via the command line (`-Dproperty=value`) or use the `ChronicleInit` mechanism (`chronicle.init.runnable`) to programmatically set properties before Chronicle's static initializers run.
-* **Boolean Property Interpretation**:
-* **Pitfall**: Misunderstanding how `Jvm.getBoolean(String)` works.
-It typically interprets the absence of a property as `false` (or the specified default), and the presence of the property (e.g., `-Dmy.flag`) or values like "true" or "yes" as `true`.
-* **Debugging**: Log the actual property values at startup using `Jvm.getProperty()` to verify.
+Bounds checking::
+
+* **Pitfall:** Direct memory access (for example, via `OS.memory()` or `UnsafeMemory`) bypasses Java’s built-in array bounds checks.
+Incorrect offset or length calculations can lead to reading/writing unintended memory, corrupting data or crashing the JVM.
+* **Debugging:** Add explicit range checks and assertions around sensitive operations.
+Use boundary-condition tests and sanitised builds to detect out-of-bounds access early.
+
+== System Properties and Initialisation
+
+Properties not taking effect::
+
+* **Pitfall:** System properties intended to configure Chronicle Core may not have the desired effect if they are set *after* the relevant Chronicle Core classes (for example `Jvm` or `OS`) have already been initialised.
+* **Solution:** Set system properties via JVM command-line flags (for example `-Dproperty=value`) or use the `ChronicleInit` mechanism (`chronicle.init.runnable`) to programmatically set properties *before* Chronicle’s static initialisers run.
+You can also use `-Dsystem.properties=...` to point to a properties file loaded by `ChronicleInit`/`Jvm`.
+
+Boolean property interpretation::
+
+* **Pitfall:** Misunderstanding how `Jvm.getBoolean(String)` works.
+It typically interprets the *presence* of a property (for example `-Dflag`), or values like `true`/`yes`, as `true`.
+If the property is absent, or set to something else, it is treated as `false` unless a different default is provided.
+* **Debugging:** Log the actual values of relevant properties at startup using `Jvm.getProperty("<key>")`.
+Verify that your deployment scripts are setting flags as expected.
 
 == Serialization and Data Integrity
 
-* **`InvalidMarshallableException`**:
-* **Cause**: Thrown when an object implementing `Validatable` fails its `validate()` method, typically before marshalling.
-* **Debugging**: The exception message should indicate the validation rule that failed.
-Ensure objects are in a consistent and complete state before attempting to serialize them.
-Implement comprehensive `validate()` methods.
+`InvalidMarshallableException`::
+
+* **Cause:** Thrown when an object implementing `Validatable` fails its `validate()` method, typically just before marshalling.
+This usually indicates missing or inconsistent state (for example required fields not set, illegal combinations of values).
+* **Debugging:** Inspect the exception message and any attached cause to determine which invariant failed.
+Implement comprehensive `validate()` methods in your `Validatable` types and exercise them in tests.
+Use these validation failures as a signal that the caller is misusing the API or that additional precondition checks are required.
 
 == Loop Block Monitor
 
 The Loop Block Monitor helps identify threads that might be stuck or performing unexpectedly long operations within a loop.
-* **Usage**: Run `net.openhft.chronicle.core.threads.MonitorProfileAnalyserMain` with appropriate arguments to analyze thread dumps and summarize stack traces, highlighting potential bottlenecks.
+
+Usage::
+
+* Run `net.openhft.chronicle.core.threads.MonitorProfileAnalyserMain` with appropriate arguments to analyse thread dumps and summarise stack traces.
+* Use it in conjunction with `Jvm.safepoint()` / `jvm.safepoint.enabled` to insert low-cost safe points in event loops and detect long pauses or stalls.
 
 == Performance Analysis Tips
 
-* **Targeted Profiling**: Capture short bursts of profiling data using standard Java profilers (like JFR, async-profiler) rather than overly long traces which can be hard to analyze.
-* **`Histogram` Utility**: Use `net.openhft.chronicle.core.util.Histogram` or `RecordingHistogram` to record event latencies, especially for low-latency paths.
-This helps in understanding the distribution of latencies and spotting outliers.
-* **Off-Heap Memory Usage**: Track off-heap memory usage with `Jvm.usedDirectMemory()` (for `ByteBuffer.allocateDirect`) and `Jvm.usedNativeMemory()` (for `UnsafeMemory.allocate()`).
-Compare these values against expected levels to detect potential leaks or excessive usage.
-* **`StackTrace` Overhead**: Be mindful that creating `StackTrace` objects frequently in performance-critical code can be expensive.
-Use it judiciously for debugging or when explicitly enabled.
-* **Caching Utilities**: For `StringInterner` and `ParsingCache`, ensure their capacity is appropriately sized for the workload to avoid excessive hash collisions or evictions, which can degrade performance.
+Targeted profiling::
+
+* Capture short, focused profiling windows using standard Java profilers (for example JFR, async-profiler) rather than very long traces, which can be noisy and hard to interpret.
+* Reproduce realistic load patterns from downstream systems (Queue, Wire, Threads) to capture representative hot paths.
+
+`Histogram` utility::
+
+* Use `net.openhft.chronicle.core.util.Histogram` or `RecordingHistogram` to record event latencies, especially for low-latency paths.
+* Analyse percentiles (P50, P99, P99.9) rather than just averages to identify long-tail behaviours and GC/IO outliers.
+
+Off-heap memory usage::
+
+* Track off-heap memory usage with `Jvm.usedDirectMemory()` (for `ByteBuffer.allocateDirect`) and `Jvm.usedNativeMemory()` (for `UnsafeMemory.allocate()`).
+* Compare these values against expected baselines and configured limits (for example `-XX:MaxDirectMemorySize`) to detect leaks or runaway allocations.
+
+`StackTrace` overhead::
+
+* Creating `StackTrace` objects frequently in performance-critical code can be expensive.
+* Use stack capturing only when necessary (for example under `jvm.resource.tracing=true` or when diagnosing specific issues), and avoid doing it on every hot-path operation.
+
+Caching utilities::
+
+* For `StringInterner` and `ParsingCache`, ensure their capacities are sized appropriately for the workload to avoid excessive hash collisions or churn, which can degrade performance.
+* Monitor hit/miss ratios in higher-level components that use these caches, and adjust capacities or keying strategies based on observed usage patterns.
 
 == Build and Test Considerations
 
-* **Assertions**: Chronicle Core supports zero-cost assertions.
-Ensure you understand the difference between standard Java assertions (`-ea`) and Chronicle's `AssertUtil.SKIP_ASSERTIONS` mechanism to verify code correctly during testing without performance impact in production if assertions are compiled out.
+Assertions::
+
+* Chronicle Core supports low-overhead internal assertions (for example via `AssertUtil`) in addition to standard Java assertions.
+* Understand the difference between:
+** Java assertions (`-ea`), which can be enabled or disabled at JVM startup.
+** Chronicle’s `AssertUtil` and `AssertHolds` mechanisms, which can be controlled via `AssertUtil.SKIP_ASSERTIONS` and related flags.
+* In CI and test environments, run with assertions enabled to catch contract violations early.
+For production, you may choose to disable or selectively enable them based on your performance and safety requirements.

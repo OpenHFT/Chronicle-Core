@@ -12,17 +12,17 @@ Use this runbook to diagnose and mitigate the overhead.
 
 == Steps
 
-1. **Confirm tracing state**
+. *Confirm tracing state*
 * Check JVM flags or log entries (`Resource tracing is turned on`).
-2. **Collect metrics**
+. *Collect metrics*
 * Use `jcmd <pid> VM.native_memory summary` to compare reservation deltas.
 * Record GC logs or allocation profiler snapshots.
-3. **Scope tracing**
+. *Scope tracing*
 * If only specific modules require tracing, consider the property
 `-Djvm.resource.tracing.filter=<regex>` (available in ea builds) to limit instrumentation.
-4. **Short-term mitigation**
+. *Short-term mitigation*
 * Reduce tracing duration; capture the necessary leaks, then disable the flag.
-5. **Long-term resolution**
+. *Long-term resolution*
 * Update to the latest Chronicle Core release; several minor versions improved the tracing guard.
 * Where possible, use `ReferenceOwner` labels to minimise diagnostic string concatenations.
 

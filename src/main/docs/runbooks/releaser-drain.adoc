@@ -18,22 +18,22 @@ Use this runbook when JVM shutdown stalls or leak detectors report pending work 
 
 == Steps
 
-1. **Confirm background release state**
+. *Confirm background release state*
 * Inspect JVM flags or log lines for `BackgroundResourceReleaser is enabled`.
 * If disabled, fall back to the synchronous leak investigation guide.
-2. **Dump pending resources**
+. *Dump pending resources*
 * Invoke `BackgroundResourceReleaser.dumpQueue()`; capture the class names and `ReferenceOwner`
 labels that appear.
 * Cross-reference each entry with the owning subsystem (Queue, Bytes, custom component).
-3. **Check reference counts**
+. *Check reference counts*
 * For each class in the dump, ensure `ReferenceCounted.refCount()` eventually reaches zero.
 Missing `release(owner)` calls are the common failure.
 * Enable `-Djvm.resource.tracing=true` temporarily to capture stack traces for offending owners.
-4. **Force drain before shutdown**
+. *Force drain before shutdown*
 * Call `BackgroundResourceReleaser.closeAll()` (available in tests/utilities) or wait on
 `BackgroundResourceReleaser.releasePendingResources()` loops until the queue size is zero.
 * In integration tests, call `Jvm.shutdown()` and assert it returns within 2 seconds.
-5. **Apply fixes**
+. *Apply fixes*
 * Patch the leaking code path to pair every `reserve(owner)` with a `release(owner)`.
 * Consider disabling background release temporarily in production (`-Dchronicle.core.backgroundRelease=false`) if the fix cannot be rolled out immediately.
 

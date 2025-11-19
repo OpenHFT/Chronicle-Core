@@ -28,23 +28,29 @@ The `net.openhft.chronicle.core.io.Closeable` interface extends `java.io.Closeab
 
 === Lifecycle and Features
 
-* **Creation Tracking**: If resource tracing is enabled, `AbstractCloseable` records a stack trace where the resource was created (`createdHere()`).
-* **Single-Threaded Checks**: Implements `SingleThreadedChecked`.
+Creation Tracking ::
+If resource tracing is enabled, `AbstractCloseable` records a stack trace where the resource was created (`createdHere()`).
+Single-Threaded Checks ::
+Implements `SingleThreadedChecked`.
 It checks that operations (especially `close()`) are performed by the same thread that first used the resource, or if the check is disabled/reset.
 This helps prevent concurrent modification issues.
 * Use `singleThreadedCheckReset()` to hand off an object to another thread after its initial setup.
 * Disable checks via system property `disable.single.threaded.check=true` or instance method `singleThreadedCheckDisabled(true)`.
-* **`performClose()`**: Subclasses *must* implement `protected abstract void performClose()` for their specific cleanup logic.
+`performClose()` ::
+Subclasses _must_ implement `protected abstract void performClose()` for their specific cleanup logic.
 This method is guaranteed to be called exactly once.
-* **State Management**:
+State Management ::
 * `isClosed()`: Returns `true` if `performClose()` has completed.
 * `isClosing()`: Returns `true` if the close process has started.
 * `closedHere`: If tracing is enabled, a stack trace of the `close()` call site is recorded.
-* **`throwExceptionIfClosed()`**: Throws a `ClosedIllegalStateException` if the resource is closed or closing, providing `closedHere` details.
-* **`warnAndCloseIfNotClosed()`**: A safety net, typically called from finalizers.
+`throwExceptionIfClosed()` ::
+Throws a `ClosedIllegalStateException` if the resource is closed or closing, providing `closedHere` details.
+`warnAndCloseIfNotClosed()` ::
+A safety net, typically called from finalizers.
 If the resource wasn't closed, it logs a warning (with `createdHere` trace if available) and closes it.
 Controlled by system property `disable.discard.warning` (default `true`, meaning warnings are off by default unless resource tracing explicitly enables them in some contexts).
-* **Reference ID**: `referenceId()` provides a unique ID for the instance, useful for logging and tracking.
+Reference ID ::
+`referenceId()` provides a unique ID for the instance, useful for logging and tracking.
 
 === Controlling Close Behavior
 
@@ -64,28 +70,40 @@ The `ReferenceCounted` interface provides a contract for managing shared resourc
 
 === Core Operations
 
-* **`reserve(ReferenceOwner owner)`**: Increments the reference count.
+`reserve(ReferenceOwner owner)` ::
+Increments the reference count.
 The `owner` is an identifier for who holds the reservation.
-* **`release(ReferenceOwner owner)`**: Decrements the reference count.
+`release(ReferenceOwner owner)` ::
+Decrements the reference count.
 When the count reaches zero, `performRelease()` (in `AbstractReferenceCounted`) is triggered.
-* **`releaseLast(ReferenceOwner owner)`**: Decrements the count and asserts it becomes zero.
+`releaseLast(ReferenceOwner owner)` ::
+Decrements the count and asserts it becomes zero.
 Throws `IllegalStateException` if not the last release.
-* **`tryReserve(ReferenceOwner owner)`**: Attempts to reserve; returns `false` if the resource is already released, rather than throwing.
-* **`reserveTransfer(ReferenceOwner from, ReferenceOwner to)`**: Atomically moves a reservation from one owner to another without changing the total reference count.
-* **`refCount()`**: Returns the current number of active reservations.
-* **`ReferenceOwner`**: Identifies the entity holding a reference.
-Common instances include `ReferenceOwner.INIT` (for the initial reference held by the creator) and `ReferenceOwner.TMP` (or `ReferenceOwner.temporary("name")`) for short-lived, identifiable reservations. `referenceName()` and `referenceId()` help in debugging.
+`tryReserve(ReferenceOwner owner)` ::
+Attempts to reserve; returns `false` if the resource is already released, rather than throwing.
+`reserveTransfer(ReferenceOwner from, ReferenceOwner to)` ::
+Atomically moves a reservation from one owner to another without changing the total reference count.
+`refCount()` ::
+Returns the current number of active reservations.
+`ReferenceOwner` ::
+Identifies the entity holding a reference.
+Common instances include `ReferenceOwner.INIT` (for the initial reference held by the creator) and `ReferenceOwner.TMP` (or `ReferenceOwner.temporary("name")`) for short-lived, identifiable reservations.
+`referenceName()` and `referenceId()` help in debugging.
 
 === `AbstractReferenceCounted` Implementation Details
 
-* **Integration with Tracing**: If enabled, tracks creation site (`createdHere()`) and reservation owners.
-* **`performRelease()`**: Subclasses implement this for actual resource deallocation.
-* **Background Release**: Can offload `performRelease()` to `BackgroundResourceReleaser` by overriding `canReleaseInBackground()`.
-* **Diagnostics**:
+Integration with Tracing ::
+If enabled, tracks creation site (`createdHere()`) and reservation owners.
+`performRelease()` ::
+Subclasses implement this for actual resource deallocation.
+Background Release ::
+Can offload `performRelease()` to `BackgroundResourceReleaser` by overriding `canReleaseInBackground()`.
+Diagnostics ::
 * `throwExceptionIfNotReleased()`: Checks if `refCount() > 0`.
 * `warnAndReleaseIfNotReleased()`: Releases if not already, and warns if tracing is enabled.
 * System properties `reference.warn.secs` and `reference.warn.count` control warnings for long release times or high reservation counts.
-* **Listeners**: `addReferenceChangeListener(ReferenceChangeListener)` allows tracking reservation changes for diagnostic purposes.
+Listeners ::
+`addReferenceChangeListener(ReferenceChangeListener)` allows tracking reservation changes for diagnostic purposes.
 
 === `AbstractCloseableReferenceCounted`
 
@@ -99,7 +117,7 @@ The actual resource cleanup in `performRelease()` happens when the reference cou
 
 For resources where deallocation (e.g., `munmap`) can take a significant time (milliseconds) and impact performance-sensitive threads, Chronicle Core provides an optional background releaser thread.
 
-* **Configuration via System Properties**:
+Configuration via System Properties ::
 * `background.releaser=true` (default): Enables queuing of resource deallocation.
 * `background.releaser.thread=true` (default): A dedicated daemon thread (`background~resource~releaser`) is started to process the queue.
 * `background.releaser.thread=false`: No dedicated thread is started.
@@ -107,7 +125,7 @@ Resources are queued, but `BackgroundResourceReleaser.releasePendingResources()`
 * `background.releaser=false`: Resources are deallocated synchronously on the calling thread.
 The `BackgroundResourceReleaser` queue is not used.
 
-* **Usage**:
+Usage ::
 * `AbstractCloseable` instances opt-in by overriding `shouldPerformCloseInBackground()` to return `true`.
 * `AbstractReferenceCounted` instances opt-in by overriding `canReleaseInBackground()` to return `true`.
 * `BackgroundResourceReleaser.releasePendingResources()` can be called to process the queue synchronously if needed, especially in tests or specific shutdown sequences.

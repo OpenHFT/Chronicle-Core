@@ -17,17 +17,17 @@ This runbook confirms whether action is required.
 
 == Steps
 
-1. **Snapshot current warning**
+. *Snapshot current warning*
 * Capture the exact log message; note whether it mentions Linux JNA or Posix JNA.
-2. **Check host OS / architecture**
+. *Check host OS / architecture*
 * `uname -a`, `ldd --version`.
-3. **Verify JNA availability**
+. *Verify JNA availability*
 * Ensure the package providing `libjnidispatch.so` is installed.
 * If not, install the appropriate JNA distribution or ensure the JVM has write access to its temp directory so it can unpack the library.
-4. **Evaluate requirement**
+. *Evaluate requirement*
 * If the workload does not need hard CPU pinning, accept the fallback (`Affinity` will log "Using dummy affinity control implementation") and proceed.
 * If pinning is required, resolve the native dependency and restart the service.
-5. **Re-test**
+. *Re-test*
 * After fixes, restart and confirm the warning no longer appears.
 
 == Verification

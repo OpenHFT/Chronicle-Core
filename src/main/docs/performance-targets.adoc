@@ -20,13 +20,13 @@ Where `CORE-NF-P-*` requirements are defined in the requirements catalogue (curr
 
 The following qualitative targets apply to hot-path usage of Core APIs:
 
-* **Zero or near-zero allocations** in:
-- `OS` and `Jvm` information lookups after initial warm-up (for example PID, host-name, debug detection, page size queries);
-- memory access methods on `Memory` and `UnsafeMemory` that operate on caller-provided addresses (CORE-FN-022..029);
-- `SingleThreadedChecked` checks in the absence of violations (CORE-FN-040..043).
-* **Predictable latency** for deterministic resource management:
-- `AbstractCloseable.close()` and `ReferenceCounted.reserve()` / `release()` must execute in constant time relative to the number of outstanding references (CORE-FN-030..039);
-- when `BackgroundResourceReleaser` is enabled (decision `CORE-NF-O-004`), the cost of scheduling resource teardown must remain small compared to synchronous deallocation.
+* *Zero or near-zero allocations* in:
+** `OS` and `Jvm` information lookups after initial warm-up (for example PID, host-name, debug detection, page size queries);
+** memory access methods on `Memory` and `UnsafeMemory` that operate on caller-provided addresses (CORE-FN-022..029);
+** `SingleThreadedChecked` checks in the absence of violations (CORE-FN-040..043).
+* *Predictable latency* for deterministic resource management:
+** `AbstractCloseable.close()` and `ReferenceCounted.reserve()` / `release()` must execute in constant time relative to the number of outstanding references (CORE-FN-030..039);
+** when `BackgroundResourceReleaser` is enabled (decision `CORE-NF-O-004`), the cost of scheduling resource teardown must remain small compared to synchronous deallocation.
 
 These expectations are validated by targeted unit tests and by higher-level benchmarks in consumer modules that exercise Core hot paths under load.
 
@@ -36,9 +36,12 @@ Optional features such as resource tracing and background releasers must not com
 
 Key expectations include:
 
-* **Resource tracing overhead**: when disabled, resource tracing should incur negligible CPU and allocation overhead (see `operational-requirements.adoc` `CORE-OPS-004`);
-* **Background releaser behaviour**: enabling `BackgroundResourceReleaser` should shift heavy deallocation work off the application hot path without introducing unbounded queues or leaks;
-* **Logging and diagnostics**: default exception-handling and logging should be efficient enough for steady-state use in low-latency applications (CORE-OPS-003).
+Resource tracing overhead ::
+when disabled, resource tracing should incur negligible CPU and allocation overhead (see `operational-requirements.adoc` `CORE-OPS-004`);
+Background releaser behaviour ::
+enabling `BackgroundResourceReleaser` should shift heavy deallocation work off the application hot path without introducing unbounded queues or leaks;
+Logging and diagnostics ::
+default exception-handling and logging should be efficient enough for steady-state use in low-latency applications (CORE-OPS-003).
 
 == Measurement and Regression Practices
 

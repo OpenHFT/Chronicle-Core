@@ -19,90 +19,106 @@ Provides methods to query various aspects of the JVM runtime environment:
 * `Jvm.isDebug()`: Returns `true` if the process is running under a debugger.
 * `Jvm.isFlightRecorder()`: Returns `true` if the JVM is running with JFR enabled.
 * `Jvm.isCodeCoverage()`: Returns `true` if a code coverage agent is active.
-* `Jvm.majorVersion()`: Returns the major Java version (e.g., 8, 11, 17).
-* `Jvm.isJava9Plus()`, `isJava12Plus()`, etc.: Convenience methods to check for specific Java versions or newer.
+* `Jvm.majorVersion()`: Returns the major Java version (for example 8, 11, 17).
+* `Jvm.isJava9Plus()`, `Jvm.isJava12Plus()`, etc.: Convenience methods to check for specific Java versions or newer.
 * `Jvm.compileThreshold()`: Returns the JIT compilation threshold.
-* `Jvm.isArm()`, `Jvm.isMacArm()`: Detect ARM architecture, including Apple Silicon.
-* `Jvm.isAzulZing()`, `Jvm.isAzulZulu()`: Detect specific Azul JVMs.
-* `Jvm.isAssertEnabled()`: Checks if assertions are enabled for the Jvm class itself.
+* `Jvm.isArm()`, `Jvm.isMacArm()`: Detects ARM architecture, including Apple Silicon.
+* `Jvm.isAzulZing()`, `Jvm.isAzulZulu()`: Detects specific Azul JVMs.
+* `Jvm.isAssertEnabled()`: Checks if assertions are enabled for the `Jvm` class itself.
 * `Jvm.getCpuClass()`: Retrieves the CPU model information.
 * `Jvm.userHome()`: Gets the user's home directory path.
 
 === System Properties
 
 `Jvm` enhances system property access and management:
-* **Loading from File**: Automatically looks for a file named `system.properties` in the classpath or current/parent directory at startup.
-Values from this file are loaded unless already set via `-D` command-line arguments.
-The file to load can be overridden with `-Dsystem.properties=my.file`.
-* **Typed Getters**: Provides type-safe getters like:
-** `Jvm.getProperty(String key)` / `Jvm.getProperty(String key, String defaultValue)`
-** `Jvm.getBoolean(String key)` / `Jvm.getBoolean(String key, boolean defaultValue)` (interprets "true", "yes", or empty as true)
-** `Jvm.getLong(String key, Long defaultValue)`
-** `Jvm.getInteger(String key, Integer defaultValue)`
-** `Jvm.getDouble(String key, double defaultValue)`
-** `Jvm.getSize(String key, long defaultValue)`: Parses memory sizes with suffixes (k, M, G, T).
-* **Initialization Guarantee**: Using these `Jvm` getters ensures that the `Jvm` class (and its property loading) is initialized before the property is read.
+
+Loading from file::
+
+* Automatically looks for a file named `system.properties` in the classpath or current/parent directory at start-up.
+* Values from this file are loaded unless already set via `-D` command-line arguments.
+* The file to load can be overridden with `-Dsystem.properties=my.file`.
+
+Typed getters::
+
+Provides type-safe getters, for example:
+
+* `Jvm.getProperty(String key)` / `Jvm.getProperty(String key, String defaultValue)`
+* `Jvm.getBoolean(String key)` / `Jvm.getBoolean(String key, boolean defaultValue)` (interprets `"true"`, `"yes"`, or an empty value as `true`)
+* `Jvm.getLong(String key, long defaultValue)`
+* `Jvm.getInteger(String key, int defaultValue)`
+* `Jvm.getDouble(String key, double defaultValue)`
+* `Jvm.getSize(String key, long defaultValue)`: Parses memory sizes with suffixes (`k`, `M`, `G`, `T`).
+
+Initialisation guarantee::
+
+* Using these `Jvm` getters ensures that the `Jvm` class (and its property loading) is initialised before the property is read.
 
 === Memory Information
 
-* `Jvm.maxDirectMemory()`: Reports the maximum direct memory (NIO) limit for the JVM (e.g., from `-XX:MaxDirectMemorySize`).
-* `Jvm.usedDirectMemory()`: Returns the current amount of direct memory used by NIO `ByteBuffer.allocateDirect`.
+* `Jvm.maxDirectMemory()`: Reports the maximum direct memory (NIO) limit for the JVM (for example from `-XX:MaxDirectMemorySize`).
+* `Jvm.usedDirectMemory()`: Returns the current amount of direct memory used by `ByteBuffer.allocateDirect`.
 * `Jvm.usedNativeMemory()`: Reports memory allocated directly via `UnsafeMemory.allocate()`.
 
 === Exception Handling
 
-`Jvm` offers robust mechanisms for handling and categorizing exceptions:
+`Jvm` offers robust mechanisms for handling and categorising exceptions:
 
 * `Jvm.rethrow(Throwable t)`: Throws any checked exception as an unchecked `RuntimeException` without wrapping it, using a vacuous cast.
-The method never actually returns.
-* **Centralised Handlers**: Provides static methods to access default or thread-local exception handlers for different severity levels:
-** `Jvm.error()`: For critical errors.
-** `Jvm.warn()`: For warnings.
-** `Jvm.perf()`: For performance-related logging (often INFO level).
-** `Jvm.debug()`: For debug messages.
-** `Jvm.startup()`: For startup messages (often INFO level).
-* **Configuration**:
-** `Jvm.setExceptionHandlers(...)`: Sets default handlers for various levels.
-** `Jvm.setThreadLocalExceptionHandlers(...)`: Sets handlers specific to the current thread.
-** `Jvm.resetExceptionHandlers()`: Restores default handlers.
-** `Jvm.recordExceptions(...)`: Useful for testing, captures exceptions into a map instead of just logging them.
+The method never returns.
+
+Centralised handlers::
+
+Provides static accessors for default or thread-local exception handlers for different severity levels:
+
+* `Jvm.error()`: For critical errors.
+* `Jvm.warn()`: For warnings.
+* `Jvm.perf()`: For performance-related logging (often INFO level).
+* `Jvm.debug()`: For debug messages.
+* `Jvm.startup()`: For start-up messages (often INFO level).
+
+Configuration::
+
+* `Jvm.setExceptionHandlers(...)`: Sets default handlers for various levels.
+* `Jvm.setThreadLocalExceptionHandlers(...)`: Sets handlers specific to the current thread.
+* `Jvm.resetExceptionHandlers()`: Restores default handlers.
+* `Jvm.recordExceptions(...)`: Useful for testing; captures exceptions into a map instead of just logging them.
 
 === Class and Reflection Utilities
 
-* `Jvm.getField(Class, String name)` / `Jvm.getFieldOrNull(Class, String name)`: Access declared fields, including private ones from superclasses.
-* `Jvm.getMethod(Class, String name, Class... params)`: Access declared methods, including private ones from superclasses.
+* `Jvm.getField(Class, String name)` / `Jvm.getFieldOrNull(Class, String name)`: Accesses declared fields, including private ones from superclasses.
+* `Jvm.getMethod(Class, String name, Class... params)`: Accesses declared methods, including private ones from superclasses.
 * `Jvm.setAccessible(AccessibleObject ao)`: Bypasses Java access checks for reflection.
-* `Jvm.getValue(Object target, String fieldName)`: Reads a field's value, potentially traversing a path like "a/b/c".
+* `Jvm.getValue(Object target, String fieldName)`: Reads a field's value, potentially traversing a path like `a/b/c`.
 * `Jvm.fieldOffset(Class, String name)`: Gets the raw memory offset of a field.
 * `Jvm.classMetrics(Class c)`: Calculates the memory layout metrics (offset and length of primitive fields) for a class.
 * `Jvm.isLambdaClass(Class c)`: Heuristic to check if a class is a JVM-generated lambda class.
 * `Jvm.findAnnotation(AnnotatedElement, Class)`: Finds an annotation, searching meta-annotations and method inheritance hierarchies.
-* `Jvm.getPackageName(Class c)`: Returns the package name of a class, optimized for Java 9+.
+* `Jvm.getPackageName(Class c)`: Returns the package name of a class, optimised for Java 9+.
 * `Jvm.uncheckedCast(Object o)`: Suppresses warnings for generic casts.
 
-=== Threading, Pausing, and Synchronization
+=== Threading, Pausing, and Synchronisation
 
-* `Jvm.pause(long millis)`: Thread.sleep or yield.
-* `Jvm.nanoPause()`: A very short, often busy-wait, pause using `Thread.onSpinWait()` if available.
+* `Jvm.pause(long millis)`: `Thread.sleep` or `Thread.yield` for coarse-grained pauses.
+* `Jvm.nanoPause()`: A very short, often busy-wait pause using `Thread.onSpinWait()` if available.
 * `Jvm.busyWaitMicros(long micros)` / `Jvm.busyWaitUntil(long nanos)`: CPU-intensive waits for precise, short durations.
 * `Jvm.safepoint()`: Inserts a low-cost JVM safepoint if `jvm.safepoint.enabled=true`.
 * `Jvm.areOptionalSafepointsEnabled()`: Checks if safepoints are enabled.
 * `Jvm.park()`: Calls `LockSupport.park()` in a loop until interrupted.
 * `Jvm.currentThreadId()`: Gets the ID of the current thread.
 
-=== Initialization and Signals
+=== Initialisation and Signals
 
-* `Jvm.init()`: Ensures `ChronicleInit` sequence is triggered (e.g., for early property setup).
-* `Jvm.addSignalHandler(SignalHandler handler)`: Adds a handler for OS signals like HUP, INT, TERM (not on Windows for HUP).
+* `Jvm.init()`: Ensures the `ChronicleInit` sequence is triggered (for example for early property setup).
+* `Jvm.addSignalHandler(SignalHandler handler)`: Adds a handler for OS signals such as `HUP`, `INT`, `TERM` (not available on all platforms, e.g. no `HUP` on Windows).
 
 === Miscellaneous Utilities
 
-* `Jvm.trimStackTrace(StringBuilder, StackTraceElement...)`: Appends a filtered stack trace to a StringBuilder.
+* `Jvm.trimStackTrace(StringBuilder, StackTraceElement...)`: Appends a filtered stack trace to a `StringBuilder`.
 * `Jvm.doNotCloseOnInterrupt(Class, FileChannel fc)`: Attempts to prevent a `FileChannel` from being closed when its thread is interrupted.
 * `Jvm.isProcessAlive(long pid)`: Checks if a process with the given PID is running.
-* `Jvm.dontChain(Class c)`: Checks for `@DontChain` annotation used by MethodReader/Writer.
-* `Jvm.addToClassPath(Class c)`: Dynamically adds the class's codesource to the `java.class.path` property (if a `URLClassLoader` is used).
-* `Jvm.address(ByteBuffer bb)`: Gets the native address of a direct ByteBuffer.
+* `Jvm.dontChain(Class c)`: Checks for the `@DontChain` annotation used by MethodReader/Writer.
+* `Jvm.addToClassPath(Class c)`: Dynamically adds the class’s code source to the `java.class.path` property (for `URLClassLoader`-based environments).
+* `Jvm.address(ByteBuffer bb)`: Gets the native address of a direct `ByteBuffer`.
 * `Jvm.arrayByteBaseOffset()`: Returns `Unsafe.ARRAY_BYTE_BASE_OFFSET`.
 
 == `OS.java` Utilities
@@ -112,7 +128,7 @@ The `OS` class provides methods to interact with the operating system for inform
 === System Information
 
 * `OS.isWindows()`, `OS.isMacOSX()`, `OS.isLinux()`: Detect the current operating system.
-* `OS.getHostName()`: Returns the machine's hostname.
+* `OS.getHostName()`: Returns the machine's host name.
 * `OS.getIPAddress()`: Returns an IP address of the machine.
 * `OS.getUserName()`: Returns the current user's name.
 * `OS.getProcessId()`: Returns the current JVM process ID.
@@ -121,23 +137,26 @@ The `OS` class provides methods to interact with the operating system for inform
 === File System Paths
 
 * `OS.getTmp()`: Locates a usable temporary directory.
-* `OS.getTarget()`: Locates the build target directory (e.g., `target/` or `build/`) or a fallback in tmp.
+* `OS.getTarget()`: Locates the build target directory (for example `target/` or `build/`) or a fallback in `tmp`.
 * `OS.getUserDir()`: Returns the current working directory (`user.dir`).
-* `OS.findDir(String suffix)`: Finds a directory in the classpath ending with `suffix`.
+* `OS.findDir(String suffix)`: Finds a directory in the classpath whose path ends with `suffix`.
 * `OS.findFile(String... path)`: Searches a list of directories to find a specific file path.
 
 === Memory Management
 
 * `OS.memory()`: Returns an instance of `net.openhft.chronicle.core.Memory` (typically `UnsafeMemory.INSTANCE`) for direct memory operations.
 * `OS.pageSize()`: Gets the OS's native memory page size.
-* `OS.defaultOsPageSize()`: Returns `pageSize()`, but defaults to 64KB on Windows to meet its stricter alignment requirements for memory mapping.
-* `OS.pageAlign(long size, int pageSize)` / `OS.pageAlign(long size)`: Aligns a size to a page boundary.
-* `OS.mapAlignment()`: Returns the required alignment for memory map offsets (usually `defaultOsPageSize()`).
-* `OS.mapAlign(long offset, int pageAlignment)` / `OS.mapAlign(long offset)`: Aligns an offset for memory mapping.
-* **Memory Mapping**:
-** `OS.map(FileChannel, MapMode, long start, long size, int pageSize)` / `OS.map(FileChannel, MapMode, long start, long size)`: Maps a region of a file into memory, returning the native address.
-** `OS.unmap(long address, long size, int pageSize)` / `OS.unmap(long address, long size)`: Unmaps a previously mapped memory region.
-** `OS.memoryMapped()`: Returns the total number of bytes currently memory-mapped by Chronicle Core through these methods.
+* `OS.defaultOs
+pageSize()`: Returns `pageSize()`, but defaults to 64 KiB on Windows to meet its stricter alignment requirements for memory mapping.
+* `OS.pageAlign(long size, int pageSize)` / `OS.pageAlign(long size)`: Rounds a size up to the nearest multiple of the page size.
+* `OS.mapAlignment()`: Returns the required alignment for memory-map offsets (usually `defaultOsPageSize()`).
+* `OS.mapAlign(long offset, int pageAlignment)` / `OS.mapAlign(long offset)`: Rounds a file offset up to the nearest valid alignment for memory mapping.
+
+Memory mapping::
+
+* `OS.map(FileChannel fc, MapMode mode, long start, long size, int pageSize)` / `OS.map(FileChannel fc, MapMode mode, long start, long size)`: Maps a region of a file into memory, returning the native address.
+* `OS.unmap(long address, long size, int pageSize)` / `OS.unmap(long address, long size)`: Unmaps a previously mapped memory region.
+* `OS.memoryMapped()`: Returns the total number of bytes currently memory-mapped by Chronicle Core through these methods.
 
 === Sparse File Support
 
@@ -152,26 +171,61 @@ The `OS` class provides methods to interact with the operating system for inform
 
 The `OS.memory()` method returns an instance of the `net.openhft.chronicle.core.Memory` interface (typically `UnsafeMemory`), which provides direct access to memory operations:
 
-* **Fences**: `storeFence()`, `loadFence()` for memory ordering.
-* **Allocation/Deallocation**: `allocate(long capacity)`, `freeMemory(long address, long size)` for native memory.
-* **Primitive Read/Write**: Methods like `readInt(long address)`, `writeLong(Object o, long offset, long value)` for all primitive types, with both direct address and object+offset variants.
-* **Volatile Read/Write**: `readVolatileInt()`, `writeVolatileLong()`, etc., for thread-safe access with memory visibility guarantees.
-* **Ordered Writes**: `writeOrderedInt()`, `writeOrderedLong()` for "lazy set" semantics.
-* **Atomic Operations**: `compareAndSwapInt()`, `compareAndSwapLong()`, `getAndSetInt()`, `addInt()`, `addLong()` for atomic updates.
-* **Copying Memory**: `copyMemory(...)` overloads for various source/destination types (address-to-address, array-to-address, object-to-address, etc.).
+Fences::
 
-_For detailed usage of these memory operations, refer to the specific Javadoc of `net.openhft.chronicle.core.Memory` and `net.openhft.chronicle.core.UnsafeMemory`._
+* `storeFence()`, `loadFence()` for memory ordering.
+
+Allocation/deallocation::
+
+* `allocate(long capacity)`, `freeMemory(long address, long size)` for native memory management.
+
+Primitive read/write::
+
+* Methods such as `readInt(long address)`, `writeLong(Object o, long offset, long value)` for all primitive types, with both direct-address and object+offset variants.
+
+Volatile read/write::
+
+* `readVolatileInt(...)`, `writeVolatileLong(...)`, etc., for thread-safe access with memory-visibility guarantees.
+
+Ordered writes::
+
+* `writeOrderedInt(...)`, `writeOrderedLong(...)` for "lazy set" semantics where ordering is required but full fences are not.
+
+Atomic operations::
+
+* `compareAndSwapInt(...)`, `compareAndSwapLong(...)`, `getAndSetInt(...)`, `addInt(...)`, `addLong(...)` for atomic updates on memory locations.
+
+Copying memory::
+
+* `copyMemory(...)` overloads for various source/destination types (address-to-address, array-to-address, object-to-address, etc.).
+
+_For detailed usage of these memory operations, refer to the Javadoc of `net.openhft.chronicle.core.Memory` and `net.openhft.chronicle.core.UnsafeMemory`._
 
 == IO Utilities (`IOTools.java`)
 
 `IOTools` provides higher-level utilities for common I/O tasks:
 
-* `IOTools.isClosedException(Exception e)`: Heuristic to check if an `IOException` likely indicates a closed connection/stream.
-* **File/Directory Deletion**: `deleteDirWithFiles(...)`, `shallowDeleteDirWithFiles(...)` for recursive or shallow directory cleanup.
-* **File Reading/Writing**:
-** `IOTools.readFile(Class, String name)`: Reads a file from classpath or filesystem, supports `.gz` transparently.
-** `IOTools.readAsBytes(InputStream is)`: Reads an entire InputStream into a byte array.
-** `IOTools.writeFile(String filename, byte[] bytes)`: Writes bytes to a file, supports `.gz` transparently.
-* **Temporary Files**: `IOTools.createTempFile(String name)`, `IOTools.createTempDirectory(String name)` create temporary files/directories typically under the build target directory.
-* **Buffer Cleaning**: `IOTools.clean(ByteBuffer bb)`: Utility to clean direct ByteBuffers using `CleanerServiceLocator`.
-* **URL Handling**: `IOTools.urlFor(Class/ClassLoader, String name)` to locate resources, `IOTools.open(URL url)` to open streams (handles `.gz`).
+* `IOTools.isClosedException(Exception e)`: Heuristic to check if an `IOException` likely indicates a closed connection or stream.
+
+File and directory deletion::
+
+* `deleteDirWithFiles(...)`, `shallowDeleteDirWithFiles(...)` for recursive or shallow directory clean-up.
+
+File reading/writing::
+
+* `IOTools.readFile(Class, String name)`: Reads a file from the classpath or filesystem; supports `.gz` transparently.
+* `IOTools.readAsBytes(InputStream is)`: Reads an entire `InputStream` into a byte array.
+* `IOTools.writeFile(String filename, byte[] bytes)`: Writes bytes to a file; supports `.gz` transparently.
+
+Temporary files and directories::
+
+* `IOTools.createTempFile(String name)`, `IOTools.createTempDirectory(String name)`: Create temporary files/directories, typically under the build target directory.
+
+Buffer cleaning::
+
+* `IOTools.clean(ByteBuffer bb)`: Utility to clean direct `ByteBuffer`s using `CleanerServiceLocator`.
+
+URL handling::
+
+* `IOTools.urlFor(Class|ClassLoader, String name)`: Locate resources by name.
+* `IOTools.open(URL url)`: Open an `InputStream` for a URL (with built-in support for `.gz` resources).

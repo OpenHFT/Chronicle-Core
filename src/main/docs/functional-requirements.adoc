@@ -134,6 +134,6 @@ Decision records link to this document via `link:functional-requirements.adoc#CO
 
 When adding or modifying a functional behaviour:
 
-- Update the relevant row (or add a new one) in this catalogue within the same change set.
-- Cross-link from decision logs, design notes, and runbooks to the updated requirement ID.
-- Ensure new requirements follow the Nine-Box numbering scheme and remain unique.
+* Update the relevant row (or add a new one) in this catalogue within the same change set.
+* Cross-link from decision logs, design notes, and runbooks to the updated requirement ID.
+* Ensure new requirements follow the Nine-Box numbering scheme and remain unique.

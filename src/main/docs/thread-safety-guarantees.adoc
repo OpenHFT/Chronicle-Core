@@ -12,26 +12,27 @@ This document outlines Chronicle Core's mechanisms for helping developers manage
 `SingleThreadedChecked` is an interface designed for components that are intended for use by only one thread at a time.
 This is a common pattern for resources that are not inherently thread-safe or where the overhead of full concurrency control is undesirable.
 
-* **Mechanism**:
-** Implementations typically record the `Thread` that first accesses or "touches" the object.
-** Subsequent accesses from different threads will result in a `net.openhft.chronicle.core.io.ThreadingIllegalStateException` being thrown.
+Mechanism ::
+* Implementations typically record the `Thread` that first accesses or "touches" the object.
+* Subsequent accesses from different threads will result in a `net.openhft.chronicle.core.io.ThreadingIllegalStateException` being thrown.
 This exception usually includes details about the original owning thread and where it first accessed the object, aiding in debugging.
-* **Disabling Checks**:
-** Globally: Thread checking can be disabled for all instances by setting the system property `disable.single.threaded.check=true`.
+Disabling Checks ::
+* Globally: Thread checking can be disabled for all instances by setting the system property `disable.single.threaded.check=true`.
 (See `systemProperties.adoc` for more details).
-** Per Instance: Individual instances can have this check disabled by calling the `singleThreadedCheckDisabled(true)` method.
-* **Benefits**: This mechanism provides an early warning system during development and testing, helping to catch unintended concurrent access to stateful objects that should be confined to a single thread.
+* Per Instance: Individual instances can have this check disabled by calling the `singleThreadedCheckDisabled(true)` method.
+Benefits ::
+This mechanism provides an early warning system during development and testing, helping to catch unintended concurrent access to stateful objects that should be confined to a single thread.
 
 == The "Initialise, Reset, Hand-off" Pattern
 
 A common and supported pattern for using `SingleThreadedChecked` objects across different threads in a controlled manner involves the following steps:
 
-. **Initialise**: The object is created and fully initialized by a "creating" thread.
+. *Initialise*: The object is created and fully initialized by a "creating" thread.
 The first use of a method that performs a thread-safety check will typically set the initial "owner" thread.
-. **Reset**: Before passing the object to another thread for subsequent use, the creating thread calls `singleThreadedCheckReset()` on the object.
+. *Reset*: Before passing the object to another thread for subsequent use, the creating thread calls `singleThreadedCheckReset()` on the object.
 This clears the recorded "owner" thread.
-. **Hand-off**: The object is then safely passed to a "worker" or "event loop" thread.
-. **Worker Usage**: The first use of the object by the worker thread will then establish it as the new "owner" thread for subsequent checks.
+. *Hand-off*: The object is then safely passed to a "worker" or "event loop" thread.
+. *Worker Usage*: The first use of the object by the worker thread will then establish it as the new "owner" thread for subsequent checks.
 
 This pattern allows, for example, configuration on a main thread and operational use on a dedicated event loop thread, while still protecting against accidental concurrent access from other, unintended threads.
 
@@ -55,38 +56,47 @@ resource.doMoreWork(); // Subsequent calls are fine from WorkerThread
 
 Many core Chronicle classes that manage resources or state that is not inherently thread-safe extend `SingleThreadedChecked`.
 
-* **`AbstractCloseable` and `AbstractReferenceCounted`**: Both these foundational classes implement `SingleThreadedChecked`.
-** Their internal operations, such as `close()`, `reserve()`, `release()`, and often methods that modify state, call `threadSafetyCheck(boolean isUsed)`.
-** The `isUsed` parameter in `threadSafetyCheck(boolean isUsed)` indicates if the operation is actively using/modifying the resource (true) or just querying/preparing (false), potentially leading to stricter checks for active use.
-** Developers extending these classes automatically inherit this thread-checking capability.
-* **Rationale**: These classes often manage native resources (like memory pointers or file handles) or maintain complex internal state.
+`AbstractCloseable` and `AbstractReferenceCounted` ::
+Both these foundational classes implement `SingleThreadedChecked`.
+* Their internal operations, such as `close()`, `reserve()`, `release()`, and often methods that modify state, call `threadSafetyCheck(boolean isUsed)`.
+* The `isUsed` parameter in `threadSafetyCheck(boolean isUsed)` indicates if the operation is actively using/modifying the resource (true) or just querying/preparing (false), potentially leading to stricter checks for active use.
+* Developers extending these classes automatically inherit this thread-checking capability.
+Rationale ::
+These classes often manage native resources (like memory pointers or file handles) or maintain complex internal state.
 Making them fully concurrent would often introduce significant performance overhead (e.g., locks, CAS loops on many fields) or complexity.
 The `SingleThreadedChecked` mechanism provides a lighter-weight safety net for their intended use patterns.
 
 == When and Why Use `SingleThreadedChecked`?
 
-* **Purpose**: To provide a development and testing safeguard for components that are not designed for concurrent access but might be used in environments where such access could accidentally occur.
+Purpose ::
+To provide a development and testing safeguard for components that are not designed for concurrent access but might be used in environments where such access could accidentally occur.
 It's about ensuring thread confinement.
-* **Use Cases**:
-** Stateful objects managed by a single event loop (e.g., Chronicle Queue's `ExcerptAppender` or `ExcerptTailer`).
-** Resources that have an explicit lifecycle tied to a specific thread for a phase of their operation.
-* **Contrast with Thread-Safe Components**: Fully thread-safe components would use internal synchronization mechanisms (locks, atomic operations, concurrent data structures) and would not typically need `SingleThreadedChecked`.
-This check is for components that *avoid* such heavy concurrency mechanisms for performance reasons, relying instead on disciplined single-threaded access.
+Use Cases ::
+* Stateful objects managed by a single event loop (e.g., Chronicle Queue's `ExcerptAppender` or `ExcerptTailer`).
+* Resources that have an explicit lifecycle tied to a specific thread for a phase of their operation.
+Contrast with Thread-Safe Components ::
+Fully thread-safe components would use internal synchronization mechanisms (locks, atomic operations, concurrent data structures) and would not typically need `SingleThreadedChecked`.
+This check is for components that _avoid_ such heavy concurrency mechanisms for performance reasons, relying instead on disciplined single-threaded access.
 
 == Debugging `ThreadingIllegalStateException`
 
 When a `ThreadingIllegalStateException` is thrown:
 
-* **Examine the Exception Message**: It usually indicates which thread currently owns the resource and which thread attempted to access it.
-* **Inspect `usedByThreadHere`**: If the object is an instance of `AbstractCloseable` or `AbstractReferenceCounted`, and resource tracing is enabled, the exception may be chained with or contain a `StackTrace` (often accessible via `getCause()`) from where the original owning thread first "claimed" the object.
+Examine the Exception Message ::
+It usually indicates which thread currently owns the resource and which thread attempted to access it.
+Inspect `usedByThreadHere` ::
+If the object is an instance of `AbstractCloseable` or `AbstractReferenceCounted`, and resource tracing is enabled, the exception may be chained with or contain a `StackTrace` (often accessible via `getCause()`) from where the original owning thread first "claimed" the object.
 This is invaluable for identifying the source of the contention.
-* **Check for Common Issues**:
-** **Accidental Sharing**: Is an instance of the resource being unintentionally shared across multiple threads without proper synchronization or hand-off?
-** **Missing `singleThreadedCheckReset()`**: In a valid hand-off scenario, was `singleThreadedCheckReset()` called by the previous owning thread before the new thread started using the object?
-** **Lifecycle Mismatch**: Is a component being accessed by a thread that should no longer have ownership, perhaps due to an incorrect assumption about its lifecycle state?
+Check for Common Issues ::
+* *Accidental Sharing*: Is an instance of the resource being unintentionally shared across multiple threads without proper synchronization or hand-off?
+* *Missing `singleThreadedCheckReset()`*: In a valid hand-off scenario, was `singleThreadedCheckReset()` called by the previous owning thread before the new thread started using the object?
+* *Lifecycle Mismatch*: Is a component being accessed by a thread that should no longer have ownership, perhaps due to an incorrect assumption about its lifecycle state?
 
 == Related Requirements and Properties
 
-* **Project Requirements**: `CORE-FN-040`, `CORE-FN-041`, `CORE-FN-042`, `CORE-FN-043` detail these features.
-* **System Property**: `disable.single.threaded.check` can disable these checks globally (see `systemProperties.adoc`).
-* **Further Reading**: See the `README.adoc` for an initial overview of thread safety checks.
+Project Requirements ::
+`CORE-FN-040`, `CORE-FN-041`, `CORE-FN-042`, `CORE-FN-043` detail these features.
+System Property ::
+`disable.single.threaded.check` can disable these checks globally (see `systemProperties.adoc`).
+Further Reading ::
+See the `README.adoc` for an initial overview of thread safety checks.
