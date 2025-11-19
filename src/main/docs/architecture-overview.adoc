@@ -21,6 +21,34 @@ capability map and component interactions referenced by design discussions and d
 | Diagnostics & Onoes | Exception handlers, logging bridges, stack-trace helpers. | `net.openhft.chronicle.core.onoes`, `net.openhft.chronicle.core.stack`
 |===
 
+== Component Diagram
+
+[plantuml, chronicle-core-components, png]
+....
+@startuml
+package "Chronicle Core" {
+  [OS]
+  [Jvm]
+  [Memory]
+  [AbstractCloseable]
+  [BackgroundResourceReleaser]
+}
+
+node "Downstream Modules" {
+  [Chronicle-Bytes]
+  [Chronicle-Threads]
+  [Chronicle-Queue]
+  [Chronicle-Wire]
+}
+
+[Chronicle-Bytes] --> [Memory]
+[Chronicle-Threads] --> [Jvm]
+[Chronicle-Queue] --> [OS]
+[Chronicle-Wire] --> [Memory]
+
+@enduml
+....
+
 == Component Interaction
 
 1. **Bootstrapping** — `ChronicleInit` executes user-provided hooks before `Jvm` initialises. Upon
@@ -80,3 +108,12 @@ internal APIs) are suitable for less latency-sensitive systems, but would not me
 targets expected of the Chronicle stack. These trade-offs are documented so that embedding
 applications and regulators can understand the rationale and apply compensating controls where
 needed.
+
+== Related Documentation
+
+The following module guides describe how Chronicle Core capabilities are consumed downstream:
+
+* link:../../Chronicle-Bytes/src/main/docs/architecture-overview.adoc[Chronicle Bytes - Architecture Overview]
+* link:../../Chronicle-Queue/src/main/docs/architecture-overview.adoc[Chronicle Queue - Architecture Overview]
+* link:../../Chronicle-Threads/src/main/docs/architecture-overview.adoc[Chronicle Threads - Architecture Overview]
+* link:../../Chronicle-Wire/src/main/docs/architecture-overview.adoc[Chronicle Wire - Architecture Overview]

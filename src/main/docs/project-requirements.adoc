@@ -93,6 +93,8 @@ CORE-FN-055 :: Evolution of Core APIs shall minimise breaking changes for depend
 CORE-NF-P-001 :: Core hot-path operations (for example OS and JVM capability lookups, `Memory` / `UnsafeMemory` primitive access, and `SingleThreadedChecked` guards) shall avoid heap allocation after warm-up under normal operating conditions.
 CORE-NF-P-002 :: When resource tracing is disabled, the additional CPU and allocation overhead introduced by tracing-related code paths shall be negligible for representative workloads, in line with the expectations of `CORE-OPS-004` in `operational-requirements.adoc`.
 CORE-NF-P-003 :: Enabling `BackgroundResourceReleaser` shall move heavy deallocation work off application hot paths so that dependent modules can continue to meet their own latency and jitter targets, as documented in their performance requirements and in `performance-targets.adoc`.
+[[CORE-NF-P-006]]
+CORE-NF-P-006 :: The library shall provide a monotonic microsecond-resolution time provider (`UniqueMicroTimeProvider`) that guarantees strictly increasing values within a single JVM while keeping worst-case drift and latency within the bounds described in `unique-micro-time-provider-cas-loop.adoc`.
 
 === Non-Functional Requirements – Security (CORE-NF-S-*)
 
