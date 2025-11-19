@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -27,7 +28,7 @@ public final class CpuClass {
         try {
             final Path path = Paths.get("/proc/cpuinfo");
             if (Files.isReadable(path)) {
-                model = Files.lines(path)
+                model = Files.lines(path, StandardCharsets.UTF_8)
                         .filter(line -> line.startsWith("model name"))
                         .map(removingTag())
                         .findFirst().orElse(model);
@@ -36,7 +37,8 @@ public final class CpuClass {
                 Process process = new ProcessBuilder(cmd.split(" "))
                         .redirectErrorStream(true)
                         .start();
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
                     model = reader.lines()
                             .map(String::trim)
                             .filter(s -> !"Name".equals(s) && !s.isEmpty())
@@ -59,7 +61,8 @@ public final class CpuClass {
                 Process process = new ProcessBuilder(cmd.split(" "))
                         .redirectErrorStream(true)
                         .start();
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
                     model = reader.lines()
                             .map(String::trim)
                             .filter(s -> s.startsWith("machdep.cpu.brand_string"))

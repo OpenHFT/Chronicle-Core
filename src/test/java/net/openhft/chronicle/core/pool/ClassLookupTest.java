@@ -4,12 +4,14 @@
 package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.util.ClassNotFoundRuntimeException;
-import org.junit.jupiter.api.*;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ClassLookupTest {
 
-    private ClassLookup classLookup = ClassAliasPool.CLASS_ALIASES;
+    private final ClassLookup classLookup = ClassAliasPool.CLASS_ALIASES;
 
     @Test
     void testClassLookupByName() {
@@ -34,7 +36,8 @@ class ClassLookupTest {
 
     @Test
     void testLookupOfLambdaClass() {
-        Runnable lambda = () -> {};
+        Runnable lambda = () -> {
+        };
         assertThrows(IllegalArgumentException.class, () -> classLookup.nameFor(lambda.getClass()));
     }
 }

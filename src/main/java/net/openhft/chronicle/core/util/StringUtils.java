@@ -14,9 +14,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
 
 import static java.lang.Character.toLowerCase;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * A utility class that provides a collection of static methods for advanced string manipulation.
@@ -35,14 +35,9 @@ import static java.lang.Character.toLowerCase;
  */
 public final class StringUtils {
 
-    // Suppresses default constructor, ensuring non-instantiability.
-    private StringUtils() {
-    }
-
     private static final String VALUE_FIELD_NAME = "value";
     private static final String COUNT_FIELD_NAME = "count";
     private static final String CODER_FIELD_NAME = "coder";
-
     private static final Field S_VALUE;
     private static final Field SB_COUNT;
     private static final Field S_CODER;
@@ -91,6 +86,10 @@ public final class StringUtils {
         } catch (Exception e) {
             throw new AssertionError(e);
         }
+    }
+
+    // Suppresses default constructor, ensuring non-instantiability.
+    private StringUtils() {
     }
 
     @NotNull
@@ -245,7 +244,7 @@ public final class StringUtils {
     /**
      * Compares two {@link CharSequence}s1 for equality ignoring case considerations.
      *
-     * @param s1  the first {@link CharSequence} to be compared.
+     * @param s1 the first {@link CharSequence} to be compared.
      * @param s2 the second {@link CharSequence} to be compared.
      * @return {@code true} if the {@link CharSequence}s1 are equal irrespective of case, {@code false} otherwise.
      */
@@ -318,7 +317,7 @@ public final class StringUtils {
     @Java9
     public static byte[] extractBytes(@NotNull String s) {
         if (!HAS_ONE_BYTE_PER_CHAR)
-            return s.getBytes(StandardCharsets.ISO_8859_1);
+            return s.getBytes(UTF_8);
         ensureJava9Plus();
 
         return getMemory().getObject(s, S_VALUE_OFFSET);
@@ -334,8 +333,7 @@ public final class StringUtils {
         if (Bootstrap.isJava9Plus()) {
             return new String(chars);
         }
-        //noinspection RedundantStringConstructorCall
-        @NotNull String str = new String();
+        @NotNull String str = new String(new char[0]);
         try {
             S_VALUE.set(str, chars);
             if (S_COUNT_OFFSET > -1)
@@ -356,10 +354,9 @@ public final class StringUtils {
     @NotNull
     public static String newStringFromBytes(byte @NotNull [] bytes) {
         if (!HAS_ONE_BYTE_PER_CHAR)
-            return new String(bytes, StandardCharsets.ISO_8859_1);
+            return new String(bytes, UTF_8);
         ensureJava9Plus();
-        //noinspection RedundantStringConstructorCall
-        @NotNull String str = new String();
+        @NotNull String str = new String(new byte[0], UTF_8);
         try {
             S_VALUE.set(str, bytes);
             return str;
@@ -429,32 +426,6 @@ public final class StringUtils {
             decimalPlaces = 0;
 
         return Maths.asDouble(value, exp, negative, decimalPlaces);
-    }
-
-    private static final class SbFields {
-
-        private Field sbValue;
-        private long sbValOffset;
-        private Field sbCount;
-        private long sbCountOffset;
-
-        public SbFields() throws ClassNotFoundException, NoSuchFieldException {
-            try {
-                sbValue = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField(VALUE_FIELD_NAME);
-                ClassUtil.setAccessible(sbValue);
-                sbValOffset = getMemory().getFieldOffset(sbValue);
-                sbCount = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField(COUNT_FIELD_NAME);
-                ClassUtil.setAccessible(sbCount);
-                sbCountOffset = getMemory().getFieldOffset(sbCount);
-            } catch (NoSuchFieldException e) {
-                sbValue = Class.forName("java.lang.StringBuilder").getDeclaredField(VALUE_FIELD_NAME);
-                ClassUtil.setAccessible(sbValue);
-                sbValOffset = getMemory().getFieldOffset(sbValue);
-                sbCount = Class.forName("java.lang.StringBuilder").getDeclaredField(COUNT_FIELD_NAME);
-                ClassUtil.setAccessible(sbCount);
-                sbCountOffset = getMemory().getFieldOffset(sbCount);
-            }
-        }
     }
 
     private static boolean compareRest(@NotNull CharSequence in,
@@ -671,5 +642,31 @@ public final class StringUtils {
             throw forInputString(s);
         }
         return negative ? result : -result;
+    }
+
+    private static final class SbFields {
+
+        private Field sbValue;
+        private long sbValOffset;
+        private Field sbCount;
+        private long sbCountOffset;
+
+        public SbFields() throws ClassNotFoundException, NoSuchFieldException {
+            try {
+                sbValue = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField(VALUE_FIELD_NAME);
+                ClassUtil.setAccessible(sbValue);
+                sbValOffset = getMemory().getFieldOffset(sbValue);
+                sbCount = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField(COUNT_FIELD_NAME);
+                ClassUtil.setAccessible(sbCount);
+                sbCountOffset = getMemory().getFieldOffset(sbCount);
+            } catch (NoSuchFieldException e) {
+                sbValue = Class.forName("java.lang.StringBuilder").getDeclaredField(VALUE_FIELD_NAME);
+                ClassUtil.setAccessible(sbValue);
+                sbValOffset = getMemory().getFieldOffset(sbValue);
+                sbCount = Class.forName("java.lang.StringBuilder").getDeclaredField(COUNT_FIELD_NAME);
+                ClassUtil.setAccessible(sbCount);
+                sbCountOffset = getMemory().getFieldOffset(sbCount);
+            }
+        }
     }
 }

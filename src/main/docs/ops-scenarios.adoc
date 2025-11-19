@@ -1,6 +1,7 @@
 = Chronicle Core - Operational Scenarios
 :toc:
 :lang: en-GB
+:source-highlighter: rouge
 
 Each scenario links back to `CORE-OPS` requirements and forward to the runbooks that resolve it.
 
@@ -14,5 +15,4 @@ Each scenario links back to `CORE-OPS` requirements and forward to the runbooks 
 | S5. Deprecated API usage | Warn log `Deprecated Chronicle Core API invoked`. | Identify the call site via stack trace, consult `decision-log.adoc` for replacement timeline. | CORE-OPS-007
 |===
 
-These scenarios should be reviewed quarterly; add new entries when post-mortems identify recurring
-operational themes.
+These scenarios should be reviewed quarterly; add new entries when post-mortems identify recurring operational themes.

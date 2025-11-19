@@ -17,6 +17,18 @@ import static org.junit.Assert.fail;
 
 public class IOToolsCreateDirectoriesTest {
 
+    private static void delete(File file) throws IOException {
+        if (!file.exists())
+            return;
+        File[] children = file.listFiles();
+        if (children != null) {
+            for (File child : children)
+                delete(child);
+        }
+        if (!file.delete() && file.exists())
+            throw new IOException("Failed to delete " + file);
+    }
+
     @Test
     public void createDirectoriesBuildsNestedStructure() throws IOException {
         Path base = Files.createTempDirectory(Paths.get(OS.getTarget()), "iotools-dir-test");
@@ -42,16 +54,5 @@ public class IOToolsCreateDirectoriesTest {
         } finally {
             delete(base.toFile());
         }
-    }
-
-    private static void delete(File file) {
-        if (!file.exists())
-            return;
-        File[] children = file.listFiles();
-        if (children != null) {
-            for (File child : children)
-                delete(child);
-        }
-        file.delete();
     }
 }

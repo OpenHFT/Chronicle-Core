@@ -48,7 +48,7 @@ import java.util.concurrent.TimeUnit;
  * StackTraceElement[] stackTrace = walker.walk(s -> s.skip(1).toArray(StackTraceElement[]::new));
  * StackTrace st = new StackTrace.Less("Resource was created here", stackTrace);
  * }</pre>
- *
+ * <p>
  * StackTrace can be used to diagnose resource leaks, single-threaded resource enforcement,
  * diagnosing when a resource is used after closing and monitoring long-running threads on demand.
  * Taking a StackTrace isn't free; however, if used judiciously, it can be utilized in production
@@ -87,12 +87,14 @@ public class StackTrace extends Throwable {
     }
 
     /**
-     * Creates a stack trace for the current thread with the specified message and an optional timestamp.
+     * Creates a stack trace with the specified message and an optional timestamp.
      *
      * @param message      the detail message for this stack trace
      * @param addTimestamp whether to add a timestamp to the stack trace message
      */
-    public StackTrace(String message, boolean addTimestamp) { this(message, null, addTimestamp); }
+    public StackTrace(String message, boolean addTimestamp) {
+        this(message, null, addTimestamp);
+    }
 
     /**
      * Creates a stack trace with the specified message and cause.
@@ -169,7 +171,7 @@ public class StackTrace extends Throwable {
         }
 
         /**
-         * @param message the detail message for this stack trace.
+         * @param message    the detail message for this stack trace.
          * @param stackTrace the stack trace elements for this stack trace.
          */
         @SuppressWarnings("this-escape")

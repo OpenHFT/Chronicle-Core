@@ -3,9 +3,12 @@
  */
 package net.openhft.chronicle.core.threads;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 class EventLoopTest {
 
@@ -65,7 +68,7 @@ class EventLoopTest {
     }
 
     @Test
-    void testClose() throws Exception {
+    void testClose() {
         doNothing().when(eventLoop).close();
         eventLoop.close();
         verify(eventLoop).close();

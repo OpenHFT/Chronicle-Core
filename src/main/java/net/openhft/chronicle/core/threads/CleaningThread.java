@@ -6,7 +6,6 @@ package net.openhft.chronicle.core.threads;
 import net.openhft.affinity.Affinity;
 import net.openhft.affinity.AffinityLock;
 import net.openhft.chronicle.core.Jvm;
-import net.openhft.chronicle.core.internal.ClassUtil;
 import net.openhft.chronicle.core.StackTrace;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,7 +18,7 @@ import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 
 /**
  * Thread that clears its ThreadLocal values when finished.
- *
+ * <p>
  * Threads can retain references left in their {@code ThreadLocalMap} even once
  * the {@link ThreadLocal} instance is no longer reachable. Long-lived threads
  * may therefore accumulate stale values and leak memory. Reflection is used to
@@ -31,16 +30,15 @@ public class CleaningThread extends Thread {
     private static final Field TABLE;
     private static final Field VALUE;
 
-    private final boolean inEventLoop;
-    @SuppressWarnings("unused")
-    private final StackTrace createdHere = isResourceTracing() ? new StackTrace("Created here") : null;
-
     // Static block to initialize reflection fields.
     static {
         THREAD_LOCALS = Jvm.getField(Thread.class, "threadLocals");
         TABLE = Jvm.getField(THREAD_LOCALS.getType(), "table");
         VALUE = Jvm.getField(TABLE.getType().getComponentType(), "value");
     }
+
+    private final boolean inEventLoop;
+    private final StackTrace createdHere = isResourceTracing() ? new StackTrace("Created here") : null;
 
     /**
      * Constructs a new CleaningThread with the specified target Runnable.
@@ -76,7 +74,7 @@ public class CleaningThread extends Thread {
 
     /**
      * Purges all {@link CleaningThreadLocal} entries for the supplied thread.
-     *
+     * <p>
      * Thread-local maps hold strong references to their values until removed. If a
      * task discards its {@link CleaningThreadLocal} but the thread lives on, those
      * values leak. This method walks the hidden map via reflection and removes the
@@ -170,7 +168,7 @@ public class CleaningThread extends Thread {
 
     /**
      * Executes the target {@link Runnable} and then clears thread-local values.
-     *
+     * <p>
      * If an event loop pinned this thread to a single CPU, the affinity is
      * reset to {@link AffinityLock#BASE_AFFINITY} before user code runs so the
      * binding does not leak once the loop has finished.
@@ -200,5 +198,12 @@ public class CleaningThread extends Thread {
      */
     public boolean inEventLoop() {
         return inEventLoop;
+    }
+
+    /**
+     * @return where the Thread was created, if available
+     */
+    public StackTrace createdHere() {
+        return createdHere;
     }
 }

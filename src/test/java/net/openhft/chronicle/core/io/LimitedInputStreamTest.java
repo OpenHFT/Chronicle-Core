@@ -33,69 +33,74 @@ final class LimitedInputStreamTest {
 
     @Test
     void constructor_rejectsNegativeLimit() {
-        assertThrows(IllegalArgumentException.class,
-                () -> new LimitedInputStream(bytes(1), -1));
+        assertThrows(IllegalArgumentException.class, () -> {
+            try (LimitedInputStream in = new LimitedInputStream(bytes(1), -1)) {
+                assertEquals(-1, in.read());
+            }
+        });
     }
 
     @Test
     void read_singleBytes_consumesBudgetExactly() throws IOException {
-        LimitedInputStream in = new LimitedInputStream(bytes(3), 3);
-
-        assertEquals(0, in.read());
-        assertEquals(1, in.read());
-        assertEquals(2, in.read());
-        assertEquals(-1, in.read());        // true EOF once budget is zero
+        try (LimitedInputStream in = new LimitedInputStream(bytes(3), 3)) {
+            assertEquals(0, in.read());
+            assertEquals(1, in.read());
+            assertEquals(2, in.read());
+            assertEquals(-1, in.read());        // true EOF once budget is zero
+        }
     }
 
     @Test
     void read_singleByte_throwsWhenBudgetExhaustedAndDataRemains() throws IOException {
-        LimitedInputStream in = new LimitedInputStream(bytes(2), 1);
+        try (LimitedInputStream in = new LimitedInputStream(bytes(2), 1)) {
+            assertEquals(0, in.read());         // budget used up
 
-        assertEquals(0, in.read());         // budget used up
-
-        IOException ex = assertThrows(IOException.class, in::read);
-        assertEquals("Size limit exceeded", ex.getMessage());
+            IOException ex = assertThrows(IOException.class, in::read);
+            assertEquals("Size limit exceeded", ex.getMessage());
+        }
     }
 
     @Test
     void read_bulkWithinLimit_returnsRequestedBytes() throws IOException {
-        LimitedInputStream in = new LimitedInputStream(bytes(10), 10);
+        try (LimitedInputStream in = new LimitedInputStream(bytes(10), 10)) {
+            byte[] buf = new byte[10];
+            int n = in.read(buf, 0, buf.length);
 
-        byte[] buf = new byte[10];
-        int n = in.read(buf, 0, buf.length);
-
-        assertEquals(10, n);
-        for (int i = 0; i < 10; i++)
-            assertEquals(i, buf[i]);
-        assertEquals(-1, in.read());        // budget exhausted, underlying EOF
+            assertEquals(10, n);
+            for (int i = 0; i < 10; i++)
+                assertEquals(i, buf[i]);
+            assertEquals(-1, in.read());        // budget exhausted, underlying EOF
+        }
     }
 
     @Test
     void read_bulkCrossesLimit_allowedPartReadThenThrows() throws IOException {
-        LimitedInputStream in = new LimitedInputStream(bytes(5), 3);
-        byte[] buf = new byte[5];
+        try (LimitedInputStream in = new LimitedInputStream(bytes(5), 3)) {
+            byte[] buf = new byte[5];
 
-        int n = in.read(buf, 0, 5);         // only 3 permitted
-        assertEquals(3, n);
+            int n = in.read(buf, 0, 5);         // only 3 permitted
+            assertEquals(3, n);
 
-        IOException ex = assertThrows(IOException.class,
-                () -> in.read(buf, 0, 1));
-        assertEquals("Size limit exceeded", ex.getMessage());
+            IOException ex = assertThrows(IOException.class,
+                    () -> in.read(buf, 0, 1));
+            assertEquals("Size limit exceeded", ex.getMessage());
+        }
     }
 
     @Test
     void read_zeroLengthBuffer_doesNothingAndReturnsZero() throws IOException {
-        LimitedInputStream in = new LimitedInputStream(bytes(1), 1);
-        byte[] zero = new byte[0];
+        try (LimitedInputStream in = new LimitedInputStream(bytes(1), 1)) {
+            byte[] zero = new byte[0];
 
-        assertEquals(0, in.read(zero, 0, 0));
-        assertEquals(0, in.read());         // budget unchanged
+            assertEquals(0, in.read(zero, 0, 0));
+            assertEquals(0, in.read());         // budget unchanged
+        }
     }
 
     @Test
     void read_budgetZeroAndUnderlyingEOF_returnsMinusOne() throws IOException {
-        LimitedInputStream in = new LimitedInputStream(bytes(0), 0);
-
-        assertEquals(-1, in.read());
+        try (LimitedInputStream in = new LimitedInputStream(bytes(0), 0)) {
+            assertEquals(-1, in.read());
+        }
     }
 }

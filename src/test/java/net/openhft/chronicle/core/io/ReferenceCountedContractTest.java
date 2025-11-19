@@ -299,7 +299,6 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         ReferenceCounted rc = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
-        ReferenceOwner b = ReferenceOwner.temporary("b");
 
         CounterReferenceChangeListener listener1 = new CounterReferenceChangeListener();
         CounterReferenceChangeListener listener2 = new CounterReferenceChangeListener();
@@ -309,6 +308,8 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         assertEquals(1, listener1.referenceAddedCount);
         assertEquals(0, listener2.referenceAddedCount);
         rc.addReferenceChangeListener(listener2);
+
+        ReferenceOwner b = ReferenceOwner.temporary("b");
         rc.reserve(b);
         assertEquals(2, listener1.referenceAddedCount);
         assertEquals(1, listener2.referenceAddedCount);
@@ -321,6 +322,14 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         assertEquals(0, listener1.referenceRemovedCount);
         assertEquals(1, listener2.referenceRemovedCount);
         rc.releaseLast();
+    }
+
+    private void getQuietly(Future<?> future) {
+        try {
+            future.get();
+        } catch (ExecutionException | InterruptedException e) {
+            Jvm.error().on(ReferenceCountedContractTest.class, "Exception thrown by acquirer", e);
+        }
     }
 
     static class CounterReferenceChangeListener implements ReferenceChangeListener {
@@ -341,14 +350,6 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         @Override
         public void onReferenceTransferred(ReferenceCounted referenceCounted, ReferenceOwner fromOwner, ReferenceOwner toOwner) {
             referenceTransferredCount++;
-        }
-    }
-
-    private void getQuietly(Future<?> future) {
-        try {
-            future.get();
-        } catch (ExecutionException | InterruptedException e) {
-            Jvm.error().on(ReferenceCountedContractTest.class, "Exception thrown by acquirer", e);
         }
     }
 

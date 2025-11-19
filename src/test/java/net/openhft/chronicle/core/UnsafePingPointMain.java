@@ -52,10 +52,7 @@ public class UnsafePingPointMain implements Runnable {
     }
 
     private void toggle(int x, int y) {
-//        System.out.println(Thread.currentThread().getName() + " x: " + x + " y: " + y);
-        if (!unsafe.compareAndSwapInt(null, addrA, x, y)) {
-            assert false;
-        }
+        assert unsafe.compareAndSwapInt(null, addrA, x, y);
         int value = unsafe.getIntVolatile(null, addrB);
         int count = 1000;
         while (value != y && count-- > 0) {

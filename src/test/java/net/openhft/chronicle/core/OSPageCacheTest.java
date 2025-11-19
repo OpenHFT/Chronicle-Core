@@ -7,7 +7,8 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OSPageCacheTest {
 
@@ -22,6 +23,7 @@ class OSPageCacheTest {
         assertTrue(second > 0);
 
         long align1 = OS.mapAlignment();
+        assertTrue(align1 > 0);
         Field ma = OS.class.getDeclaredField("mapAlignment");
         ma.setAccessible(true);
         ma.setInt(null, 0);
@@ -32,4 +34,3 @@ class OSPageCacheTest {
         assertEquals(align1, align2);
     }
 }
-

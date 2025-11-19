@@ -11,23 +11,20 @@ import net.openhft.chronicle.core.util.Time;
 import org.junit.Assume;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.stream.IntStream;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.*;
 
 public class IOToolsTest extends CoreTestCommon {
@@ -46,11 +43,12 @@ public class IOToolsTest extends CoreTestCommon {
         String testFilename = "testFile.tmp";
         String testData = "Test Data";
 
-        IOTools.writeFile(testFilename, testData.getBytes());
+        byte[] encoded = testData.getBytes(UTF_8);
+        IOTools.writeFile(testFilename, encoded);
 
         Path path = Paths.get(testFilename);
         assertTrue(Files.exists(path));
-        assertArrayEquals(testData.getBytes(), Files.readAllBytes(path));
+        assertArrayEquals(encoded, Files.readAllBytes(path));
 
         BackgroundResourceReleaser.releasePendingResources();
         Files.deleteIfExists(path);
@@ -117,11 +115,12 @@ public class IOToolsTest extends CoreTestCommon {
     @Test
     public void testReadAsBytes() throws IOException {
         String testData = "Test Data";
-        ByteArrayInputStream bais = new ByteArrayInputStream(testData.getBytes());
+        byte[] encoded = testData.getBytes(UTF_8);
+        ByteArrayInputStream bais = new ByteArrayInputStream(encoded);
 
         byte[] bytes = IOTools.readAsBytes(bais);
 
-        assertArrayEquals(testData.getBytes(), bytes);
+        assertArrayEquals(encoded, bytes);
     }
 
     @Test
@@ -150,7 +149,7 @@ public class IOToolsTest extends CoreTestCommon {
 
         String file = OS.getTarget() + "/readFileManyTimes.txt";
         try (FileOutputStream fos = new FileOutputStream(file)) {
-            fos.write("Delete me\n".getBytes(StandardCharsets.UTF_8));
+            fos.write("Delete me\n".getBytes(UTF_8));
         }
 
         IntStream.range(0, iterations)
@@ -228,9 +227,11 @@ public class IOToolsTest extends CoreTestCommon {
 
         String path = OS.getTarget();
         Path file = Paths.get(path, "test-file" + Time.uniqueId());
-        file.toFile().delete();
-        file.toFile().deleteOnExit();
-        assertTrue(file.toFile().createNewFile());
+        File asFile = file.toFile();
+        if (asFile.exists() && !asFile.delete())
+            throw new IOException("Cannot delete pre-existing file " + asFile);
+        asFile.deleteOnExit();
+        assertTrue(asFile.createNewFile());
         try {
             IOTools.createDirectories(Paths.get(file.toString(), "subdir" + Time.uniqueId()));
         } catch (IOException ioe) {
@@ -287,7 +288,6 @@ public class IOToolsTest extends CoreTestCommon {
         final byte[] bytes = new byte[512];
         try {
             for (int i = 0; i < 100; i++) {
-//                System.out.println(i);
                 os.write(bytes);
             }
             fail();
@@ -328,7 +328,6 @@ public class IOToolsTest extends CoreTestCommon {
         ss.close();
         try {
             for (int i = 0; i < 100; i++) {
-//                System.out.println(i);
                 bytes.clear();
                 sc.write(bytes);
             }
@@ -360,11 +359,10 @@ public class IOToolsTest extends CoreTestCommon {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        },  "close~thread");
+        }, "close~thread");
         t.start();
         try {
             for (int i = 0; i < 10000; i++) {
-//                System.out.println(i);
                 bytes.clear();
                 final int write = sc.write(bytes);
                 assertTrue(write > 0);
@@ -406,7 +404,6 @@ public class IOToolsTest extends CoreTestCommon {
         t.start();
         try {
             for (int i = 0; i < 10000; i++) {
-//                System.out.println(i);
                 bytes.clear();
                 final int write = sc.write(bytes);
                 assertTrue(write > 0);

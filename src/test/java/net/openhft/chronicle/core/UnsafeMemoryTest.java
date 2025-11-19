@@ -33,14 +33,9 @@ public class UnsafeMemoryTest extends CoreTestCommon {
     public final TestName testName = new TestName();
 
     private final UnsafeMemory memory;
-    private Boolean onHeap;
-    private Object object;
+    private final Boolean onHeap;
+    private final Object object;
     private long addr;
-
-    private static class TestClass {
-        boolean booleanField = false;
-        double doubleField = 0.0;
-    }
 
     @SuppressWarnings("unused")
     public UnsafeMemoryTest(String name, UnsafeMemory memory, Boolean onHeap) {
@@ -106,7 +101,9 @@ public class UnsafeMemoryTest extends CoreTestCommon {
 
     @Test
     public void testUnsafeCharOperations() throws NoSuchFieldException {
-        class CharHolder { char value; }
+        class CharHolder {
+            char value;
+        }
         CharHolder holder = new CharHolder();
         long offset = UnsafeMemory.UNSAFE.objectFieldOffset(CharHolder.class.getDeclaredField("value"));
 
@@ -117,7 +114,9 @@ public class UnsafeMemoryTest extends CoreTestCommon {
 
     @Test
     public void testUnsafeFloatOperations() throws NoSuchFieldException {
-        class FloatHolder { float value; }
+        class FloatHolder {
+            float value;
+        }
         FloatHolder holder = new FloatHolder();
         long offset = UnsafeMemory.UNSAFE.objectFieldOffset(FloatHolder.class.getDeclaredField("value"));
 
@@ -138,7 +137,9 @@ public class UnsafeMemoryTest extends CoreTestCommon {
 
     @Test
     public void testUnsafeObjectOperations() throws NoSuchFieldException {
-        class ObjectHolder { Object value; }
+        class ObjectHolder {
+            Object value;
+        }
         ObjectHolder holder = new ObjectHolder();
         long offset = UnsafeMemory.UNSAFE.objectFieldOffset(ObjectHolder.class.getDeclaredField("value"));
 
@@ -253,10 +254,6 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         assertEquals(newValue, obj.value);
 
         assertThrows(IllegalStateException.class, () -> memory.testAndSetInt(obj, offset, expected, 30));
-    }
-
-    static class TestObject {
-        int value;
     }
 
     @Test
@@ -618,5 +615,14 @@ public class UnsafeMemoryTest extends CoreTestCommon {
                 if (memory.safeAlignedLong(addr + i))
                     throw e;
             }
+    }
+
+    private static class TestClass {
+        boolean booleanField = false;
+        double doubleField = 0.0;
+    }
+
+    static class TestObject {
+        int value;
     }
 }

@@ -14,27 +14,6 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.*;
 
 public final class ClassUtil {
-    static class SetAccessibleHolder {
-        static final MethodHandle setAccessible0_Method = getSetAccessible0Method();
-
-        private static MethodHandle getSetAccessible0Method() {
-            if (!Bootstrap.isJava9Plus()) {
-                return null;
-            }
-            final MethodType signature = MethodType.methodType(boolean.class, boolean.class);
-            try {
-                // Access privateLookupIn() reflectively to support compilation with JDK 8
-                Method privateLookupIn = MethodHandles.class.getDeclaredMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
-                MethodHandles.Lookup lookup = (MethodHandles.Lookup) privateLookupIn.invoke(null, AccessibleObject.class, MethodHandles.lookup());
-                return lookup.findVirtual(AccessibleObject.class, "setAccessible0", signature);
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException |
-                     IllegalArgumentException e) {
-                Logger logger = LoggerFactory.getLogger(ClassUtil.class);
-                logger.error("Chronicle products may require command line arguments to be provided for Java 11 and above. See https://chronicle.software/chronicle-support-java-17");
-                return null;
-            }
-        }
-    }
     private ClassUtil() {
     }
 
@@ -78,7 +57,7 @@ public final class ClassUtil {
      */
     @SuppressWarnings("java:S3011") // Justification: centralised, audited accessibility control for Chronicle internals.
     public static void setAccessible(@NotNull final AccessibleObject accessibleObject) {
-        if (Bootstrap.isJava9Plus())
+        if (Bootstrap.isJava9Plus()) {
             try {
                 if (SetAccessibleHolder.setAccessible0_Method == null)
                     return;
@@ -87,8 +66,9 @@ public final class ClassUtil {
             } catch (Throwable throwable) {
                 throw new AssertionError(throwable);
             }
-        else
+        } else {
             accessibleObject.setAccessible(true);
+        }
     }
 
     public static Method getMethod0(@NotNull final Class<?> clazz,
@@ -115,6 +95,28 @@ public final class ClassUtil {
             if (first)
                 throw new AssertionError(e);
             return null;
+        }
+    }
+
+    static class SetAccessibleHolder {
+        static final MethodHandle setAccessible0_Method = getSetAccessible0Method();
+
+        private static MethodHandle getSetAccessible0Method() {
+            if (!Bootstrap.isJava9Plus()) {
+                return null;
+            }
+            final MethodType signature = MethodType.methodType(boolean.class, boolean.class);
+            try {
+                // Access privateLookupIn() reflectively to support compilation with JDK 8
+                Method privateLookupIn = MethodHandles.class.getDeclaredMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
+                MethodHandles.Lookup lookup = (MethodHandles.Lookup) privateLookupIn.invoke(null, AccessibleObject.class, MethodHandles.lookup());
+                return lookup.findVirtual(AccessibleObject.class, "setAccessible0", signature);
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException |
+                     IllegalArgumentException e) {
+                Logger logger = LoggerFactory.getLogger(ClassUtil.class);
+                logger.error("Chronicle products may require command line arguments to be provided for Java 11 and above. See https://chronicle.software/chronicle-support-java-17");
+                return null;
+            }
         }
     }
 }

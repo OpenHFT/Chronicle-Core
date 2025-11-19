@@ -82,21 +82,6 @@ public class JvmTest extends CoreTestCommon {
         assertSame(Jvm.getField(Jvm.class, "DEFAULT_DEBUG_EXCEPTION_HANDLER").get(null), Jvm.debug().defaultHandler());
     }
 
-    static final class ReportUnoptimised {
-
-        private ReportUnoptimised() {
-        }
-
-        static {
-            Jvm.reportUnoptimised();
-        }
-
-        @SuppressWarnings("EmptyMethod")
-        static void reportOnce() {
-            // Do nothing as reports are made in the static initializer
-        }
-    }
-
     @Test
     public void reportThis() {
         final Map<ExceptionKey, Integer> map = recordExceptions();
@@ -223,48 +208,8 @@ public class JvmTest extends CoreTestCommon {
     @Test
     public void testGetMethod() {
         Assert.assertNotNull(Jvm.getMethod(ClassIWDM.class, "hello", CharSequence.class));
-        boolean fail = false;
-        try {
-            Jvm.getMethod(ClassIWDM.class, "helloDefault", CharSequence.class);
-            fail = true;
-        } catch (Throwable ignored) {
-        }
-        assertFalse(fail);
-    }
-
-    static class ClassA {
-        long l;
-        int i;
-        short s;
-        byte b;
-        boolean flag;
-    }
-
-    static class ClassB extends ClassA {
-        String text;
-    }
-
-    static class ClassC extends ClassB {
-        String hi;
-    }
-
-    private static class ClassD extends ClassC {
-        byte x;
-    }
-
-    interface InterfaceWithDefaultMethod {
-        @SuppressWarnings("EmptyMethod")
-        void hello(CharSequence ignored);
-
-        default void helloDefault(CharSequence cs) {
-            hello(cs);
-        }
-    }
-
-    static class ClassIWDM implements InterfaceWithDefaultMethod {
-        @Override
-        public void hello(CharSequence ignored) {
-        }
+        assertThrows(Throwable.class,
+                () -> Jvm.getMethod(ClassIWDM.class, "helloDefault", CharSequence.class));
     }
 
     @Test
@@ -291,8 +236,8 @@ public class JvmTest extends CoreTestCommon {
         assertEquals("Hello", raz.value());
 
         // This case still fails
-         final RealAnno raz2 = findAnnotation(Baz.class.getMethod("directAnno"), RealAnno.class);
-         assertEquals("G'Day", raz2.value());
+        final RealAnno raz2 = findAnnotation(Baz.class.getMethod("directAnno"), RealAnno.class);
+        assertEquals("G'Day", raz2.value());
     }
 
     @Test
@@ -310,6 +255,7 @@ public class JvmTest extends CoreTestCommon {
 
         assertTrue(Jvm.isLambdaClass(r.getClass()));
 
+        // needs to look like a lambda class so don't change the name
         class My$$Lambda$Class {
 
         }
@@ -349,7 +295,7 @@ public class JvmTest extends CoreTestCommon {
     @Test
     public void testTrimStackTrace() {
         StringBuilder sb = new StringBuilder();
-        StackTraceElement[] stes = new StackTraceElement[] {
+        StackTraceElement[] stes = new StackTraceElement[]{
                 new StackTraceElement("Class1", "method1", "Class1.java", 1),
                 new StackTraceElement("Class2", "method2", "Class2.java", 2)
         };
@@ -423,8 +369,13 @@ public class JvmTest extends CoreTestCommon {
         assertEquals("net.openhft.chronicle.core", Jvm.getPackageName(Jvm.class));
     }
 
-    private static class SomeClass {
-        private int somePrivateField;
+    interface InterfaceWithDefaultMethod {
+        @SuppressWarnings("EmptyMethod")
+        void hello(CharSequence ignored);
+
+        default void helloDefault(CharSequence cs) {
+            hello(cs);
+        }
     }
 
     @Target(value = {ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.METHOD})
@@ -433,18 +384,12 @@ public class JvmTest extends CoreTestCommon {
 
         String value();
     }
+
     @Target(value = {ElementType.FIELD, ElementType.TYPE, ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @RealAnno("Hello")
     @interface AnnoAlias {
 
-    }
-    static class DTO {
-        @AnnoAlias
-        long inheritedAnno;
-
-        @RealAnno("G'Day")
-        double directAnno;
     }
 
     @AnnoAlias
@@ -460,6 +405,59 @@ public class JvmTest extends CoreTestCommon {
 
     interface Bar extends Foo {
 
+    }
+
+    static final class ReportUnoptimised {
+
+        static {
+            Jvm.reportUnoptimised();
+        }
+
+        private ReportUnoptimised() {
+        }
+
+        @SuppressWarnings("EmptyMethod")
+        static void reportOnce() {
+            // Do nothing as reports are made in the static initializer
+        }
+    }
+
+    static class ClassA {
+        long l;
+        int i;
+        short s;
+        byte b;
+        boolean flag;
+    }
+
+    static class ClassB extends ClassA {
+        String text;
+    }
+
+    static class ClassC extends ClassB {
+        String hi;
+    }
+
+    private static class ClassD extends ClassC {
+        byte x;
+    }
+
+    static class ClassIWDM implements InterfaceWithDefaultMethod {
+        @Override
+        public void hello(CharSequence ignored) {
+        }
+    }
+
+    private static class SomeClass {
+        private int somePrivateField;
+    }
+
+    static class DTO {
+        @AnnoAlias
+        long inheritedAnno;
+
+        @RealAnno("G'Day")
+        double directAnno;
     }
 
     static class Baz implements Bar {

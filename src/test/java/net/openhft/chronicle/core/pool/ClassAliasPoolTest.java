@@ -85,6 +85,27 @@ public class ClassAliasPoolTest extends CoreTestCommon {
     }
 
     @Test
+    public void addAliasViaStaticCompatibilityMethod() throws Exception {
+        boolean methodInvoked = false;
+        for (java.lang.reflect.Method method : ClassAliasPool.class.getDeclaredMethods()) {
+            if (java.lang.reflect.Modifier.isStatic(method.getModifiers())
+                    && void.class.equals(method.getReturnType())
+                    && method.isVarArgs()
+                    && method.getParameterCount() == 1
+                    && method.getParameterTypes()[0] == Class[].class) {
+                method.invoke(null, (Object) new Class[]{ClassAliasPoolTest.class, StringInternerTest.class});
+                methodInvoked = true;
+                break;
+            }
+        }
+        if (!methodInvoked) {
+            throw new AssertionError("Static compatibility method not found");
+        }
+        assertEquals(ClassAliasPoolTest.class, CLASS_ALIASES.forName(ClassAliasPoolTest.class.getSimpleName()));
+        assertEquals(StringInternerTest.class, CLASS_ALIASES.forName(StringInternerTest.class.getSimpleName()));
+    }
+
+    @Test
     public void testClean() throws IllegalArgumentException {
         assertEquals("String", CLASS_ALIASES.nameFor(String.class));
         CLASS_ALIASES.clean();

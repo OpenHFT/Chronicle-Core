@@ -8,12 +8,12 @@ import org.junit.jupiter.api.Test;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class InternalPomPropertiesPresenceTest {
 
     @Test
-    void versionLoadedFromResourceAndThenCached() throws Exception {
+    void versionLoadedFromResourceAndThenCached() {
         String v1 = InternalPomProperties.version("test.group", "test-artifact");
         assertEquals("1.2.3", v1);
         // Now hide resources via an empty TCCL and read again; cache should serve same value

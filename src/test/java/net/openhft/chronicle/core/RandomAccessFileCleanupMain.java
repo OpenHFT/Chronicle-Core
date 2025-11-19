@@ -16,13 +16,14 @@ NOTE: RandomAccessFile doesn't clean up it's resources when GC'ed
 public class RandomAccessFileCleanupMain {
     public static void main(String[] args) throws IOException {
         File tempDir = IOTools.createTempFile("RandomAccessFileCleanupMain");
-        tempDir.mkdir();
+        if (!tempDir.mkdir() && !tempDir.isDirectory()) {
+            throw new IOException("Unable to create temp directory " + tempDir);
+        }
         for (int j = 0; j < 100; j++) {
             int files = new File("/proc/self/fd").list().length;
             System.out.println("File descriptors " + files);
             ByteBuffer bb = ByteBuffer.allocateDirect(64);
             for (int i = 0; i < 100; i++) {
-//                RandomAccessFile file = new CleaningRandomAccessFile(tempDir + "/file" + i, "rw");
                 RandomAccessFile file = new RandomAccessFile(tempDir + "/file" + i, "rw");
                 bb.clear();
                 file.getChannel().write(bb);

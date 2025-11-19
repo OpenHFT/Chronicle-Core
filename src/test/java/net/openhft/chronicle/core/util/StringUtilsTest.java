@@ -7,13 +7,33 @@ import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Maths;
 import org.junit.Test;
 
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.function.BiFunction;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.*;
 
 public class StringUtilsTest extends CoreTestCommon {
+
+    private static void validate(BiFunction<String, Integer, Long> method) {
+        assertEquals(100, (long) method.apply("100", 10));
+        assertEquals(-100, (long) method.apply("-100", 10));
+
+        // Lone char
+        NumberFormatException firstCharEx = assertThrows(NumberFormatException.class, () -> method.apply("+", 10));
+        assertEquals("For input string: \"+\"", firstCharEx.getMessage());
+
+        // Null
+        NumberFormatException nullEx = assertThrows(NumberFormatException.class, () -> method.apply(null, 0));
+        assertEquals("null", nullEx.getMessage());
+
+        // Max radix
+        NumberFormatException maxRadixEx = assertThrows(NumberFormatException.class, () -> method.apply("100", 37));
+        assertEquals("radix 37 greater than Character.MAX_RADIX", maxRadixEx.getMessage());
+
+        // Min radix
+        NumberFormatException minRadixEx = assertThrows(NumberFormatException.class, () -> method.apply("100", 0));
+        assertEquals("radix 0 less than Character.MIN_RADIX", minRadixEx.getMessage());
+    }
 
     @Test
     public void testIsEqualWithStringBuilderAndCharSequence() {
@@ -83,7 +103,7 @@ public class StringUtilsTest extends CoreTestCommon {
     @Test
     public void testExtractBytesString() {
         String str = "test";
-        byte[] expectedBytes = str.getBytes(StandardCharsets.ISO_8859_1);
+        byte[] expectedBytes = str.getBytes(UTF_8);
         assertArrayEquals(expectedBytes, StringUtils.extractBytes(str));
     }
 
@@ -95,7 +115,7 @@ public class StringUtilsTest extends CoreTestCommon {
 
     @Test
     public void testNewStringFromBytes() {
-        byte[] bytes = "test".getBytes(StandardCharsets.ISO_8859_1);
+        byte[] bytes = "test".getBytes(UTF_8);
         assertEquals("test", StringUtils.newStringFromBytes(bytes));
     }
 
@@ -148,10 +168,7 @@ public class StringUtilsTest extends CoreTestCommon {
 
     @Test
     public void shouldExtractBytesFromString() {
-        assertTrue(
-                Arrays.equals(
-                    "foobar".getBytes(StandardCharsets.US_ASCII),
-                    StringUtils.extractBytes("foobar")));
+        assertArrayEquals("foobar".getBytes(UTF_8), StringUtils.extractBytes("foobar"));
     }
 
     @Test
@@ -170,7 +187,7 @@ public class StringUtilsTest extends CoreTestCommon {
     @Test
     public void shouldCreateNewStringFromBytes() {
         final byte[] bytes = {'A', 'B', 'C'};
-        String expected = new String(bytes,StandardCharsets.ISO_8859_1);
+        String expected = new String(bytes, UTF_8);
         String actual = StringUtils.newStringFromBytes(bytes);
         assertEquals(expected, actual);
     }
@@ -210,27 +227,6 @@ public class StringUtilsTest extends CoreTestCommon {
     @Test
     public void testParseLong() {
         validate(StringUtils::parseLong);
-    }
-
-    private static void validate(BiFunction<String, Integer, Long> method) {
-        assertEquals(100, (long) method.apply("100", 10));
-        assertEquals(-100, (long) method.apply("-100", 10));
-
-        // Lone char
-        NumberFormatException firstCharEx = assertThrows(NumberFormatException.class, () -> method.apply("+", 10));
-        assertEquals("For input string: \"+\"", firstCharEx.getMessage());
-
-        // Null
-        NumberFormatException nullEx = assertThrows(NumberFormatException.class, () -> method.apply(null, 0));
-        assertEquals("null", nullEx.getMessage());
-
-        // Max radix
-        NumberFormatException maxRadixEx = assertThrows(NumberFormatException.class, () -> method.apply("100", 37));
-        assertEquals("radix 37 greater than Character.MAX_RADIX", maxRadixEx.getMessage());
-
-        // Min radix
-        NumberFormatException minRadixEx = assertThrows(NumberFormatException.class, () -> method.apply("100", 0));
-        assertEquals("radix 0 less than Character.MIN_RADIX", minRadixEx.getMessage());
     }
 
     @Test

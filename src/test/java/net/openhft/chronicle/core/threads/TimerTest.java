@@ -6,45 +6,14 @@ package net.openhft.chronicle.core.threads;
 import net.openhft.chronicle.core.time.TimeProvider;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class TimerTest {
-
-    private static final class FakeLoop implements EventLoop {
-        final List<EventHandler> handlers = new ArrayList<>();
-        @Override public String name() { return "fake"; }
-        @Override public void addHandler(EventHandler handler) { handlers.add(handler); }
-        @Override public void start() { }
-        @Override public void unpause() { }
-        @Override public void stop() { }
-        @Override public boolean isAlive() { return true; }
-        @Override public boolean isStopped() { return false; }
-        private boolean closed;
-        @Override public void close() { closed = true; handlers.clear(); }
-        @Override public boolean isClosed() { return closed; }
-
-        void tickOnce() {
-            for (Iterator<EventHandler> it = handlers.iterator(); it.hasNext();) {
-                EventHandler h = it.next();
-                try {
-                    h.action();
-                } catch (InvalidEventHandlerException e) {
-                    it.remove();
-                }
-            }
-        }
-    }
-
-    private static final class FakeTime implements TimeProvider {
-        long now;
-        @Override public long currentTimeMillis() { return now; }
-    }
 
     @Test
     public void fixedRateFiresAfterInitialDelayAndPeriod() {
@@ -53,7 +22,10 @@ public class TimerTest {
         Timer timer = new Timer(loop, time);
 
         AtomicInteger calls = new AtomicInteger();
-        VanillaEventHandler vh = () -> { calls.incrementAndGet(); return false; };
+        VanillaEventHandler vh = () -> {
+            calls.incrementAndGet();
+            return false;
+        };
 
         timer.scheduleAtFixedRate(vh, 10, 5);
 
@@ -78,7 +50,7 @@ public class TimerTest {
     }
 
     @Test
-    public void scheduleOnceRemovesItselfAfterRun() throws IOException {
+    public void scheduleOnceRemovesItselfAfterRun() {
         FakeLoop loop = new FakeLoop();
         FakeTime time = new FakeTime();
         CancellableTimer ct = new CancellableTimer(loop, time);
@@ -96,5 +68,73 @@ public class TimerTest {
         loop.tickOnce();
         assertEquals(1, ran.get());
         assertEquals(0, loop.handlers.size());
+    }
+
+    private static final class FakeLoop implements EventLoop {
+        final List<EventHandler> handlers = new ArrayList<>();
+        private boolean closed;
+
+        @Override
+        public String name() {
+            return "fake";
+        }
+
+        @Override
+        public void addHandler(EventHandler handler) {
+            handlers.add(handler);
+        }
+
+        @Override
+        public void start() {
+        }
+
+        @Override
+        public void unpause() {
+        }
+
+        @Override
+        public void stop() {
+        }
+
+        @Override
+        public boolean isAlive() {
+            return true;
+        }
+
+        @Override
+        public boolean isStopped() {
+            return false;
+        }
+
+        @Override
+        public void close() {
+            closed = true;
+            handlers.clear();
+        }
+
+        @Override
+        public boolean isClosed() {
+            return closed;
+        }
+
+        void tickOnce() {
+            for (Iterator<EventHandler> it = handlers.iterator(); it.hasNext(); ) {
+                EventHandler h = it.next();
+                try {
+                    h.action();
+                } catch (InvalidEventHandlerException e) {
+                    it.remove();
+                }
+            }
+        }
+    }
+
+    private static final class FakeTime implements TimeProvider {
+        long now;
+
+        @Override
+        public long currentTimeMillis() {
+            return now;
+        }
     }
 }

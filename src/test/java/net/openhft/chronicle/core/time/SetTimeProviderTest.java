@@ -7,9 +7,15 @@ import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.Test;
 
 import java.time.Instant;
+import java.time.format.DateTimeParseException;
+import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SetTimeProviderTest extends CoreTestCommon {
 
@@ -102,5 +108,60 @@ public class SetTimeProviderTest extends CoreTestCommon {
         assertEquals(1534769584076L, tp.currentTimeMillis());
         assertEquals(1534769584077L, tp.currentTimeMillis());
 
+    }
+
+    @Test(expected = DateTimeParseException.class)
+    public void invalidTimestampFormatThrows() {
+        new SetTimeProvider("2018/08/20 12:53:04"); // missing T separator -> should fail
+    }
+
+    @Test
+    public void autoIncrementIsMonotonicAcrossThreads() throws InterruptedException {
+        SetTimeProvider tp = new SetTimeProvider(0).autoIncrement(1, TimeUnit.MICROSECONDS);
+        int threads = 4;
+        int readsPerThread = 50;
+        long[] values = new long[threads * readsPerThread];
+        CountDownLatch start = new CountDownLatch(1);
+        CountDownLatch done = new CountDownLatch(threads);
+        ExecutorService pool = Executors.newFixedThreadPool(threads);
+        for (int t = 0; t < threads; t++) {
+            final int threadIndex = t;
+            pool.execute(() -> {
+                try {
+                    start.await();
+                    for (int i = 0; i < readsPerThread; i++) {
+                        values[threadIndex * readsPerThread + i] = tp.currentTimeNanos();
+                    }
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                } finally {
+                    done.countDown();
+                }
+            });
+        }
+        start.countDown();
+        done.await();
+        pool.shutdown();
+        long[] copy = Arrays.copyOf(values, values.length);
+        Arrays.sort(copy);
+        for (int i = 1; i < copy.length; i++) {
+            assertTrue("time not strictly increasing", copy[i] > copy[i - 1]);
+        }
+    }
+
+    @Test
+    public void advanceAllowsNegativeOffsets() {
+        SetTimeProvider tp = new SetTimeProvider(2_000_000);
+        tp.advanceMillis(-1).advanceMicros(-500).advanceNanos(250);
+        long expected = 2_000_000 - 1_000_000 - 500_000 + 250;
+        assertEquals(expected, tp.currentTimeNanos());
+    }
+
+    @Test
+    public void currentTimeConversionUsesExactUnits() {
+        SetTimeProvider tp = new SetTimeProvider(123_456_789_123L);
+        assertEquals(123_456_789L, tp.currentTimeMicros());
+        assertEquals(123_456L, tp.currentTimeMillis());
+        assertEquals(123L, tp.currentTime(TimeUnit.SECONDS));
     }
 }

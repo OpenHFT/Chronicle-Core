@@ -9,7 +9,7 @@ import net.openhft.chronicle.core.util.ClassLocal;
 import net.openhft.chronicle.core.util.ThrowingFunction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import sun.nio.ch.FileChannelImpl; // NOSONAR
+import sun.nio.ch.FileChannelImpl;
 
 import javax.naming.TimeLimitExceededException;
 import java.io.*;
@@ -23,12 +23,13 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.channels.FileChannel;
-import java.security.SecureRandom;
 import java.util.Scanner;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static net.openhft.chronicle.core.util.Longs.requireNonNegative;
 import static net.openhft.chronicle.core.util.Longs.requirePositive;
 
@@ -117,7 +118,9 @@ public final class OS {
         String target = Jvm.getProperty("project.build.directory");
         if (target != null) {
             final File tmp = new File(target, "tmp");
-            tmp.mkdir();
+            if (!tmp.isDirectory() && !tmp.mkdir()) {
+                Jvm.warn().on(OS.class, "Unable to create tmp directory " + tmp.getAbsolutePath());
+            }
             return tmp.getPath();
         }
         final String tmp = Jvm.getProperty("java.io.tmpdir");
@@ -125,7 +128,10 @@ public final class OS {
                 && new File(tmp).isDirectory()
                 && new File(tmp).canWrite())
             return tmp;
-        new File("tmp").mkdirs();
+        File fallback = new File("tmp");
+        if (!fallback.isDirectory() && !fallback.mkdirs()) {
+            Jvm.warn().on(OS.class, "Unable to create fallback tmp directory " + fallback.getAbsolutePath());
+        }
         return "tmp";
     }
 
@@ -162,7 +168,9 @@ public final class OS {
                 return gradleTarget.getAbsolutePath();
         }
         final File dir = new File(Jvm.getProperty("java.io.tmpdir"), "target");
-        dir.mkdirs();
+        if (!dir.isDirectory() && !dir.mkdirs()) {
+            Jvm.warn().on(OS.class, "Unable to create target directory " + dir.getAbsolutePath());
+        }
         return dir.getPath();
     }
 
@@ -416,7 +424,7 @@ public final class OS {
             }
         }
         final int minPid = 2;
-        final int rpid = minPid + new SecureRandom().nextInt((1 << 16) - minPid);
+        final int rpid = ThreadLocalRandom.current().nextInt(minPid, 1 << 16);
         Jvm.warn().on(OS.class, "Unable to determine PID, picked a random number=" + rpid);
         return rpid;
     }
@@ -456,7 +464,7 @@ public final class OS {
             @NotNull File file = new File(PROC_SYS_KERNEL_PID_MAX);
             if (file.canRead())
                 try {
-                    try (Scanner scanner = new Scanner(file)) {
+                    try (Scanner scanner = new Scanner(file, UTF_8.name())) {
                         return Maths.nextPower2(scanner.nextLong(), 1);
                     }
                 } catch (FileNotFoundException e) {
@@ -553,9 +561,10 @@ public final class OS {
     public static void unmap(long address, long size, int pageSize) throws IOException {
         try {
             final long size2 = pageAlign(size, pageSize);
-            // n must be used here
-            @SuppressWarnings("unused")
-            final int n = (int) getUnmapp0Mh().invokeExact(address, size2); // NOSONAR
+            final int result = (int) getUnmapp0Mh().invokeExact(address, size2);
+            if (result != 0 && Jvm.isDebugEnabled(OS.class)) {
+                Jvm.debug().on(OS.class, "unmap returned " + result + " for address " + address);
+            }
             memoryMapped.addAndGet(-size2);
         } catch (Throwable e) {
             throw asAnIOException(e);
@@ -626,14 +635,18 @@ public final class OS {
         @NotNull ProcessBuilder pb = new ProcessBuilder(cmds);
         pb.redirectErrorStream(true);
         Process process = pb.start();
-        @NotNull StringWriter sw = new StringWriter();
-        char @NotNull [] chars = new char[1024];
-        try (@NotNull Reader r = new InputStreamReader(process.getInputStream())) {
-            for (int len; (len = r.read(chars)) > 0; ) {
-                sw.write(chars, 0, len);
+        try {
+            @NotNull StringWriter sw = new StringWriter();
+            char @NotNull [] chars = new char[1024];
+            try (@NotNull Reader r = new InputStreamReader(process.getInputStream(), UTF_8)) {
+                for (int len; (len = r.read(chars)) > 0; ) {
+                    sw.write(chars, 0, len);
+                }
             }
+            return sw.toString();
+        } finally {
+            process.destroy();
         }
-        return sw.toString();
     }
 
     /**
@@ -675,11 +688,10 @@ public final class OS {
     static class IPAddressHolder {
 
         public static final String GOOGLE_DNS = "8.8.8.8"; // NOSONAR
-
-        private IPAddressHolder() {
-        }
         public static final String NO_ADDRESS = "0.0.0.0";
         static final String IP_ADDRESS = getIPAddress0();
+        private IPAddressHolder() {
+        }
 
         static String getIPAddress0() {
             String addr = getIpAddressByLocalHost();
@@ -734,9 +746,10 @@ public final class OS {
 
     @SuppressWarnings("java:S1181")
     static class HostnameHolder {
+        static final String HOST_NAME = getHostName0();
+
         private HostnameHolder() {
         }
-        static final String HOST_NAME = getHostName0();
 
         private static String getHostName0() {
             if (isWindows()) {
@@ -757,11 +770,12 @@ public final class OS {
 
         @SuppressWarnings({"deprecation", "RedundantSuppression"})
         static String execHostname() throws IOException {
+            Process process = Runtime.getRuntime().exec("hostname"); // NOSONAR
             try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(
-                            Runtime.getRuntime().exec("hostname") // NOSONAR
-                                    .getInputStream()))) {
+                    new InputStreamReader(process.getInputStream(), UTF_8))) {
                 return br.readLine();
+            } finally {
+                process.destroy();
             }
         }
 
@@ -771,14 +785,13 @@ public final class OS {
     }
 
     static class FDFieldHolder {
+        static final Field FD_FIELD = Jvm.getField(FileChannelImpl.class, "fd");
+
         private FDFieldHolder() {
         }
-        static final Field FD_FIELD = Jvm.getField(FileChannelImpl.class, "fd");
     }
 
     static class Unmapp0Holder {
-        private Unmapp0Holder() {
-        }
         static final MethodHandle UNMAPP0_MH;
 
         static {
@@ -795,13 +808,15 @@ public final class OS {
                 throw new IORuntimeException(e);
             }
         }
+
+        private Unmapp0Holder() {
+        }
     }
 
     @SuppressWarnings("java:S1181")
     static class Read0Holder {
-        private Read0Holder() {
-        }
         static final MethodHandle READ0_MH;
+
         static {
             try {
                 Class<?> fdi = Class.forName(SUN_NIO_CH_FILE_DISPATCHER_IMPL);
@@ -811,14 +826,16 @@ public final class OS {
                 throw new IORuntimeException(t);
             }
         }
+
+        private Read0Holder() {
+        }
     }
 
     @SuppressWarnings({"java:S1141", "java:S1181"})
     static class Write0Holder {
-        private Write0Holder() {
-        }
         static final MethodHandle WRITE0_MH;
         static final MethodHandle WRITE0_MH2;
+
         static {
             MethodHandle write0Mh = null;
             MethodHandle write0Mh2 = null;
@@ -836,6 +853,9 @@ public final class OS {
             }
             WRITE0_MH = write0Mh;
             WRITE0_MH2 = write0Mh2;
+        }
+
+        private Write0Holder() {
         }
     }
 }

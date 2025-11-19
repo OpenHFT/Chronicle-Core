@@ -11,9 +11,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.charset.StandardCharsets;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CleanerServiceIncludeNewerOlderTest {
 
@@ -27,18 +27,22 @@ class CleanerServiceIncludeNewerOlderTest {
     }
 
     @AfterEach
-    void tearDown() throws Exception { resetLocator(); }
+    void tearDown() throws Exception {
+        resetLocator();
+    }
 
     @Test
     void includeNewerOlderGateAllowsAppropriateProviders() throws Exception {
         resetLocator();
         File root = new File("target/tmp-services-include");
         File svc = new File(root, "META-INF/services/" + ByteBufferCleanerService.class.getName());
-        if (!svc.getParentFile().exists() && !svc.getParentFile().mkdirs()) throw new IllegalStateException("Cannot create services dir");
+        if (!svc.getParentFile().exists() && !svc.getParentFile().mkdirs()) {
+            throw new IllegalStateException("Cannot create services dir");
+        }
         try (FileOutputStream fos = new FileOutputStream(svc)) {
             String content = "net.openhft.chronicle.core.cleaner.testimpl2.NewerInclOlderCleaner\n" +
                     "net.openhft.chronicle.core.cleaner.testimpl2.OlderInclNewerCleaner\n";
-            fos.write(content.getBytes(StandardCharsets.ISO_8859_1));
+            fos.write(content.getBytes(UTF_8));
         }
         URLClassLoader cl = new URLClassLoader(new URL[]{root.toURI().toURL()}, CleanerServiceLocator.class.getClassLoader());
         Thread t = Thread.currentThread();

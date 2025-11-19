@@ -21,7 +21,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
     @SuppressWarnings("rawtypes")
     @Test
     public void testImmutable() {
-        for (@NotNull Class<?> c: new Class[]{
+        for (@NotNull Class<?> c : new Class[]{
                 String.class,
                 Integer.class,
                 Date.class,
@@ -30,7 +30,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
         }) {
             assertEquals(c.getName(), ObjectUtils.Immutability.MAYBE, ObjectUtils.isImmutable(c));
         }
-        for (@NotNull Class<?> c: new Class[]{
+        for (@NotNull Class<?> c : new Class[]{
                 // StringBuilder.class, // StringBuilder implements Comparable in Java 11
                 ArrayList.class,
                 HashMap.class,
@@ -59,45 +59,6 @@ public class ObjectUtilsTest extends CoreTestCommon {
 
         // a class with a setter method can't be used
         assertFalse(ObjectUtils.canConvertText(ClassWithSetter.class));
-    }
-
-    static class ClassWithString {
-        private final String s;
-
-        ClassWithString(String s) {
-            this.s = s;
-        }
-    }
-
-    static class ClassWithValueOf {
-        private final String s;
-
-        ClassWithValueOf(String s) {
-            this.s = s;
-        }
-
-        public static ClassWithValueOf valueOf(String s) {
-            return new ClassWithValueOf(s);
-        }
-    }
-
-    static class ClassWithParse {
-        private final String s;
-
-        ClassWithParse(String s) {
-            this.s = s;
-        }
-
-        public static ClassWithParse parse(CharSequence s) {
-            return new ClassWithParse(s.toString());
-        }
-    }
-    static class ClassWithSetter {
-        private String s;
-
-        public void setS(String s) {
-            this.s = s;
-        }
     }
 
     @Test
@@ -290,14 +251,6 @@ public class ObjectUtilsTest extends CoreTestCommon {
         Class<?> impl = ObjectUtils.implementationToUse(RegularClass.class);
         assertEquals(RegularClass.class, impl);
     }
-        // Define MyEnum or use an existing enum for testing
-    enum MyEnum {
-        MY_VALUE
-    }
-
-    class ImplementingClass implements IgnoresEverything {}
-    private class AbstractTestClass {}
-    private class RegularClass {}
 
     @Test
     public void testDefaultValueForPrimitives() {
@@ -337,5 +290,58 @@ public class ObjectUtilsTest extends CoreTestCommon {
     @Test
     public void testDefaultValueWithNullClass() {
         assertNull(ObjectUtils.defaultValue(null));
+    }
+
+    enum MyEnum {
+        MY_VALUE
+    }
+
+    static class ClassWithString {
+        private final String s;
+
+        ClassWithString(String s) {
+            this.s = s;
+        }
+    }
+
+    static class ClassWithValueOf {
+        private final String s;
+
+        ClassWithValueOf(String s) {
+            this.s = s;
+        }
+
+        public static ClassWithValueOf valueOf(String s) {
+            return new ClassWithValueOf(s);
+        }
+    }
+
+    static class ClassWithParse {
+        private final String s;
+
+        ClassWithParse(String s) {
+            this.s = s;
+        }
+
+        public static ClassWithParse parse(CharSequence s) {
+            return new ClassWithParse(s.toString());
+        }
+    }
+
+    static class ClassWithSetter {
+        private String s;
+
+        public void setS(String s) {
+            this.s = s;
+        }
+    }
+
+    class ImplementingClass implements IgnoresEverything {
+    }
+
+    private class AbstractTestClass {
+    }
+
+    private class RegularClass {
     }
 }

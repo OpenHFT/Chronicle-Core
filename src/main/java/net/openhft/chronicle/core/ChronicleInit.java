@@ -29,10 +29,6 @@ public final class ChronicleInit {
     public static final String CHRONICLE_INIT_CLASS = "chronicle.init.runnable";
     public static final String CHRONICLE_POSTINIT_CLASS = "chronicle.postinit.runnable";
 
-    private ChronicleInit() {
-        // Suppresses default constructor, ensuring non-instantiability.
-    }
-
     static {
         // Jvm#getProperty() does not make sense here - not initialized yet
         String initRunnableClass = System.getProperty(CHRONICLE_INIT_CLASS);
@@ -58,20 +54,16 @@ public final class ChronicleInit {
         }
     }
 
+    private ChronicleInit() {
+        // Suppresses default constructor, ensuring non-instantiability.
+    }
+
     private static void runQuietly(Runnable runnable) {
         try {
             runnable.run();
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-    }
-
-    /**
-     * May be run multiple times, supposed to be idempotent
-     */
-    @SuppressWarnings("EmptyMethod")
-    static void init() {
-        // No-op unless class is replaced
     }
 
     /**

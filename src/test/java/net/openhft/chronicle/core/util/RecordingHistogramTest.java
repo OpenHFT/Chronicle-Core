@@ -10,7 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertNotEquals;
 
 public class RecordingHistogramTest extends CoreTestCommon {
     @Test

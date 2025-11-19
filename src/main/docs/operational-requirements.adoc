@@ -1,9 +1,9 @@
 = Chronicle Core - Operational Requirements
 :toc:
 :lang: en-GB
+:source-highlighter: rouge
 
-Operational requirements carry `CORE-OPS-nnn` identifiers so runbooks and monitoring dashboards can
-reference them explicitly.
+Operational requirements carry `CORE-OPS-nnn` identifiers so runbooks and monitoring dashboards can reference them explicitly.
 
 [cols="1,4",options="header"]
 |===
@@ -23,8 +23,7 @@ reference them explicitly.
 == Deployment Expectations
 
 * Chronicle Core is consumed as a Maven dependency; no standalone service deployment is required.
-* Release cadence follows the broader Chronicle train; operators should monitor the release notes RSS
-  feed for dependency bumps and CVE fixes.
+* Release cadence follows the broader Chronicle train; operators should monitor the release notes RSS feed for dependency bumps and CVE fixes.
 
 == Backup / DR
 
@@ -32,5 +31,4 @@ reference them explicitly.
 
 == Change Management
 
-* Per CORE-OPS-009, every release shall include an entry in `decision-log.adoc` summarising notable
-  operational changes (new flags, default shifts) so downstream teams can plan migrations.
+* Per CORE-OPS-009, every release shall include an entry in `decision-log.adoc` summarising notable operational changes (new flags, default shifts) so downstream teams can plan migrations.

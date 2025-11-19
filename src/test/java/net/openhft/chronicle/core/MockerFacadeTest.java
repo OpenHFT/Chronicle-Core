@@ -11,13 +11,10 @@ import java.io.StringWriter;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.*;
 
 public class MockerFacadeTest {
-
-    interface Sample {
-        void run(String value);
-    }
 
     @Test
     public void loggingToStringWriterDelegates() {
@@ -32,11 +29,16 @@ public class MockerFacadeTest {
     @Test
     public void loggingToPrintStreamDelegates() {
         ByteArrayOutputStream backing = new ByteArrayOutputStream();
-        PrintStream stream = new PrintStream(backing, true);
+        PrintStream stream;
+        try {
+            stream = new PrintStream(backing, true, UTF_8.name());
+        } catch (java.io.UnsupportedEncodingException e) {
+            throw new IllegalStateException("ISO-8859-1 should always be supported", e);
+        }
         Sample sample = Mocker.logging(Sample.class, "ps-", stream);
         sample.run("data");
 
-        String logged = backing.toString();
+        String logged = new String(backing.toByteArray(), UTF_8);
         assertTrue(logged.contains("ps-run"));
         assertTrue(logged.contains("data"));
     }
@@ -55,5 +57,9 @@ public class MockerFacadeTest {
         Sample sample = Mocker.ignored(Sample.class);
         sample.run("whatever");
         assertNotNull(sample);
+    }
+
+    interface Sample {
+        void run(String value);
     }
 }

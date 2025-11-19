@@ -12,11 +12,14 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class InvalidEventHandlerExceptionTest extends CoreTestCommon {
+
+    private InvalidEventHandlerException e;
 
     @Test
     public void testStandardConstructors() {
@@ -48,7 +51,6 @@ public class InvalidEventHandlerExceptionTest extends CoreTestCommon {
         reusableInstance.setStackTrace(new StackTraceElement[]{});
         assertEquals(0, reusableInstance.getStackTrace().length);
     }
-    private InvalidEventHandlerException e;
 
     @Before
     public void setup() {
@@ -72,11 +74,11 @@ public class InvalidEventHandlerExceptionTest extends CoreTestCommon {
 
         try (OutputStream os = new OutputStream() {
             @Override
-            public void write(int b) throws IOException {
+            public void write(int b) {
                 sb.append((char) b);
             }
         };
-             PrintStream ps = new PrintStream(os)) {
+             PrintStream ps = new PrintStream(os, true, UTF_8.name())) {
             e.printStackTrace(ps);
         }
         final String stackTrace = sb.toString();

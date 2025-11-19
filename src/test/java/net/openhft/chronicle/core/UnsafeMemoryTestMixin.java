@@ -28,6 +28,41 @@ interface UnsafeMemoryTestMixin<T> {
     int MEM_SIZE = CACHE_LINE_SIZE * 2;
     int NO_THREADS = 5;
 
+    static int await(CyclicBarrier cyclicBarrier) {
+        try {
+            return cyclicBarrier.await();
+        } catch (InterruptedException | BrokenBarrierException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    static int await(CyclicBarrier cyclicBarrier, long timeOut, TimeUnit timeUnit) {
+        try {
+            return cyclicBarrier.await(timeOut, timeUnit);
+        } catch (InterruptedException | BrokenBarrierException | TimeoutException e) {
+            throw new AssertionError(e);
+        }
+    }
+
+    static Stream<Arguments> arguments() {
+        final UnsafeMemory memory1 = new UnsafeMemory();
+        final UnsafeMemory.ARMMemory memory2 = new UnsafeMemory.ARMMemory();
+        Stream.Builder<Arguments> builder = Stream.builder();
+        if (!Jvm.isArm()) {
+            builder.add(Arguments.of("UnsafeMemory offheap", memory1, Mode.NATIVE_ADDRESS));
+            builder.add(Arguments.of("UnsafeMemory onheap", memory1, Mode.OBJECT));
+            builder.add(Arguments.of("UnsafeMemory offheap (null)", memory1, Mode.NULL_OBJECT));
+        }
+        builder.add(Arguments.of("ARMMemory offheap", memory2, Mode.NATIVE_ADDRESS));
+        builder.add(Arguments.of("ARMMemory onheap", memory2, Mode.OBJECT));
+        builder.add(Arguments.of("ARMMemory offheap (null)", memory2, Mode.NULL_OBJECT));
+        return builder.build();
+    }
+
+    static Mode mode(Arguments args) {
+        return (Mode) args.get()[2];
+    }
+
     Class<T> type();
 
     IntPredicate alignedToType();
@@ -129,6 +164,7 @@ interface UnsafeMemoryTestMixin<T> {
                                             // Busy wait for a short time. This gives the threads some time to see changes
                                             final long expireNs = System.nanoTime() + TimeUnit.MICROSECONDS.toNanos(100);
                                             while (System.nanoTime() < expireNs) {
+                                                Jvm.pause(1);
                                             }
 
                                             try {
@@ -153,102 +189,6 @@ interface UnsafeMemoryTestMixin<T> {
                                     });
                                 })
                 );
-    }
-
-    final class Reader<T> implements Runnable {
-
-        private final int no;
-        private final CyclicBarrier barrier;
-        private final Supplier<T> getter;
-        private final UnsafeMemoryTestMixin<T> mixin;
-        private final List<String> errors;
-
-        Reader(final int no,
-               final CyclicBarrier barrier,
-               final Supplier<T> getter,
-               final UnsafeMemoryTestMixin<T> mixin,
-               final List<String> errors) {
-            this.no = no;
-            this.barrier = barrier;
-            this.getter = getter;
-            this.mixin = mixin;
-            this.errors = errors;
-        }
-
-        @Override
-        public void run() {
-            final List<T> sequence = mixin.sequence().collect(toList());
-            await(barrier);
-            T previousValue = mixin.zero();
-
-            for (T expected : sequence) {
-                T actual;
-                // Expect a change, not a specific value
-                while ((actual = getter.get()).equals(previousValue)) {
-                }
-                if (!expected.equals(actual)) {
-                    errors.add("Reader " + no + " expected " + expected + " but was " + actual);
-                    break;
-                }
-                previousValue = actual;
-                await(barrier, 1000, TimeUnit.MILLISECONDS);
-            }
-        }
-    }
-
-    static int await(CyclicBarrier cyclicBarrier) {
-        try {
-            return cyclicBarrier.await();
-        } catch (InterruptedException | BrokenBarrierException e) {
-            throw new AssertionError(e);
-        }
-    }
-
-    static int await(CyclicBarrier cyclicBarrier, long timeOut, TimeUnit timeUnit) {
-        try {
-            return cyclicBarrier.await(timeOut, timeUnit);
-        } catch (InterruptedException | BrokenBarrierException | TimeoutException e) {
-            throw new AssertionError(e);
-        }
-    }
-
-    final class NamedOperation<T> {
-
-        private final String name;
-        private final T operation;
-
-        NamedOperation(String name, T operation) {
-            this.name = name;
-            this.operation = operation;
-        }
-
-        String name() {
-            return name;
-        }
-
-        T operation() {
-            return operation;
-        }
-    }
-
-    @FunctionalInterface
-    interface MemoryLongObjConsumer<T> {
-        void accept(UnsafeMemory um, long l, T t);
-    }
-
-    @FunctionalInterface
-    interface MemoryLongFunction<T> {
-        T apply(UnsafeMemory um, long l);
-    }
-
-    @FunctionalInterface
-    interface MemoryObjLongObjConsumer<T> {
-        void accept(UnsafeMemory um, Object o, long l, T t);
-    }
-
-    @FunctionalInterface
-    interface MemoryObjLongFunction<T> {
-        T apply(UnsafeMemory um, Object o, long l);
     }
 
     default void test(final Variant variant,
@@ -281,19 +221,113 @@ interface UnsafeMemoryTestMixin<T> {
                 .filter(alignedToType());
     }
 
-    static Stream<Arguments> arguments() {
-        final UnsafeMemory memory1 = new UnsafeMemory();
-        final UnsafeMemory.ARMMemory memory2 = new UnsafeMemory.ARMMemory();
-        Stream.Builder<Arguments> builder = Stream.builder();
-        if (!Jvm.isArm()) {
-            builder.add(Arguments.of("UnsafeMemory offheap", memory1, Mode.NATIVE_ADDRESS));
-            builder.add(Arguments.of("UnsafeMemory onheap", memory1, Mode.OBJECT));
-            builder.add(Arguments.of("UnsafeMemory offheap (null)", memory1, Mode.NULL_OBJECT));
+    enum Mode {
+
+        /**
+         * Use a native address with direct addressing.
+         * <p>
+         * e.g. memory.readInt(address);
+         */
+        NATIVE_ADDRESS,
+
+        /**
+         * Use an object with offset addressing.
+         * <p>
+         * e.g. memory.readInt(object, offset);
+         */
+        OBJECT,
+
+        /**
+         * Use a null object with offset addressing
+         * <p>
+         * e.g. memory.readInt(null, offset);
+         */
+        NULL_OBJECT;
+
+        boolean isDirectAddressing() {
+            return this == NATIVE_ADDRESS;
         }
-        builder.add(Arguments.of("ARMMemory offheap", memory2, Mode.NATIVE_ADDRESS));
-        builder.add(Arguments.of("ARMMemory onheap", memory2, Mode.OBJECT));
-        builder.add(Arguments.of("ARMMemory offheap (null)", memory2, Mode.NULL_OBJECT));
-        return builder.build();
+    }
+
+    @FunctionalInterface
+    interface MemoryLongObjConsumer<T> {
+        void accept(UnsafeMemory um, long l, T t);
+    }
+
+    @FunctionalInterface
+    interface MemoryLongFunction<T> {
+        T apply(UnsafeMemory um, long l);
+    }
+
+    @FunctionalInterface
+    interface MemoryObjLongObjConsumer<T> {
+        void accept(UnsafeMemory um, Object o, long l, T t);
+    }
+
+    @FunctionalInterface
+    interface MemoryObjLongFunction<T> {
+        T apply(UnsafeMemory um, Object o, long l);
+    }
+
+    final class Reader<T> implements Runnable {
+
+        private final int no;
+        private final CyclicBarrier barrier;
+        private final Supplier<T> getter;
+        private final UnsafeMemoryTestMixin<T> mixin;
+        private final List<String> errors;
+
+        Reader(final int no,
+               final CyclicBarrier barrier,
+               final Supplier<T> getter,
+               final UnsafeMemoryTestMixin<T> mixin,
+               final List<String> errors) {
+            this.no = no;
+            this.barrier = barrier;
+            this.getter = getter;
+            this.mixin = mixin;
+            this.errors = errors;
+        }
+
+        @Override
+        public void run() {
+            final List<T> sequence = mixin.sequence().collect(toList());
+            await(barrier);
+            T previousValue = mixin.zero();
+
+            for (T expected : sequence) {
+                T actual;
+                // Expect a change, not a specific value
+                while ((actual = getter.get()).equals(previousValue)) {
+                    Jvm.pause(1);
+                }
+                if (!expected.equals(actual)) {
+                    errors.add("Reader " + no + " expected " + expected + " but was " + actual);
+                    break;
+                }
+                previousValue = actual;
+                await(barrier, 1000, TimeUnit.MILLISECONDS);
+            }
+        }
+    }
+
+    final class NamedOperation<T> {
+
+        private final String name;
+        private final T operation;
+
+        NamedOperation(String name, T operation) {
+            this.name = name;
+            this.operation = operation;
+        }
+
+        String name() {
+            return name;
+        }
+
+        T operation() {
+            return operation;
+        }
     }
 
     final class Variant implements AutoCloseable {
@@ -353,38 +387,6 @@ interface UnsafeMemoryTestMixin<T> {
         @Override
         public void close() {
             closer.run();
-        }
-    }
-
-    static Mode mode(Arguments args) {
-        return (Mode) args.get()[2];
-    }
-
-    enum Mode {
-
-        /**
-         * Use a native address with direct addressing.
-         * <p>
-         * e.g. memory.readInt(address);
-         */
-        NATIVE_ADDRESS,
-
-        /**
-         * Use an object with offset addressing.
-         * <p>
-         * e.g. memory.readInt(object, offset);
-         */
-        OBJECT,
-
-        /**
-         * Use a null object with offset addressing
-         * <p>
-         * e.g. memory.readInt(null, offset);
-         */
-        NULL_OBJECT;
-
-        boolean isDirectAddressing() {
-            return this == NATIVE_ADDRESS;
         }
     }
 }

@@ -1,10 +1,11 @@
 = Chronicle Core - Interface Control Document
 :toc:
 :lang: en-GB
+:source-highlighter: rouge
 
-This ICD captures the contracts Chronicle Core exposes to sibling teams. Use it to validate breaking
-changes and as a quick lookup for expected behaviours. APIs are grouped by module; each entry links
-back to the owning functional requirement.
+This ICD captures the contracts Chronicle Core exposes to sibling teams.
+Use it to validate breaking changes and as a quick lookup for expected behaviours.
+APIs are grouped by module; each entry links back to the owning functional requirement.
 
 [cols="1,2,2,1",options="header"]
 |===
@@ -23,7 +24,5 @@ back to the owning functional requirement.
 
 == Backward Compatibility Policy
 
-* Methods listed above are part of the "stable core"; breaking signature changes require a deprecation
-  cycle, an ADR entry, and coordination with dependent modules.
-* New optional parameters should be added using builder patterns or overloads to avoid binary
-  incompatibilities.
+* Methods listed above are part of the "stable core"; breaking signature changes require a deprecation cycle, an ADR entry, and coordination with dependent modules.
+* New optional parameters should be added using builder patterns or overloads to avoid binary incompatibilities.

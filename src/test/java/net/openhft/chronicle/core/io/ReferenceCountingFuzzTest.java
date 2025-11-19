@@ -6,7 +6,7 @@ package net.openhft.chronicle.core.io;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -25,7 +25,7 @@ class ReferenceCountingFuzzTest {
     void randomisedReserveReleaseSequence(org.junit.jupiter.api.RepetitionInfo repetitionInfo) throws ClosedIllegalStateException {
         TestReference ref = new TestReference(false);
         boolean[] hasOwner = new boolean[OWNERS.length];
-        Random random = new Random(repetitionInfo.getCurrentRepetition());
+        ThreadLocalRandom random = ThreadLocalRandom.current();
 
         for (int step = 0; step < 200; step++) {
             int idx = random.nextInt(OWNERS.length);

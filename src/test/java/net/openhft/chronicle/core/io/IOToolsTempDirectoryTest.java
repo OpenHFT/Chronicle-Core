@@ -8,12 +8,29 @@ import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.*;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Comparator;
 
 import static org.junit.Assert.*;
 
 public class IOToolsTempDirectoryTest {
+
+    private static void deleteRecursively(Path path) throws IOException {
+        if (path == null || !Files.exists(path))
+            return;
+        Files.walk(path)
+                .sorted(Comparator.reverseOrder())
+                .forEach(p -> {
+                    try {
+                        Files.deleteIfExists(p);
+                    } catch (IOException e) {
+                        throw new UncheckedIOException("Unable to delete " + p, e);
+                    }
+                });
+    }
 
     @Test
     public void createTempDirectoryCreatesUniqueFolders() throws IOException {
@@ -47,18 +64,5 @@ public class IOToolsTempDirectoryTest {
         } finally {
             Files.deleteIfExists(file.toPath());
         }
-    }
-
-    private static void deleteRecursively(Path path) throws IOException {
-        if (path == null || !Files.exists(path))
-            return;
-        Files.walk(path)
-                .sorted(Comparator.reverseOrder())
-                .forEach(p -> {
-                    try {
-                        Files.deleteIfExists(p);
-                    } catch (IOException ignored) {
-                    }
-                });
     }
 }

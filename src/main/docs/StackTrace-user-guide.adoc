@@ -1,4 +1,7 @@
 = StackTrace Comprehensive User Guide
+:toc:
+:lang: en-GB
+:source-highlighter: rouge
 :sectnums:
 
 NOTE TO READER:
@@ -170,7 +173,7 @@ public class AnotherResource {
 Java 9+ introduced `StackWalker` for more flexible stack frame introspection.
 The updated `StackTrace` class now shows a recommended approach using `Less(String, StackTraceElement[])` to set frames from `StackWalker`:
 
-[source, java]
+[source,java]
 ----
 StackWalker walker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
 // Skip the first element, which is the current method
@@ -194,7 +197,7 @@ import java.util.Arrays;
 
 public class StackWalkerIntegration {
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         StackWalker walker = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
 
         // Example: skip the current capture method
@@ -242,7 +245,8 @@ Creating a stack trace can take microseconds to milliseconds.
 Test in your environment.
 
 . *Memory*
-Each `StackTraceElement` can hold a class name, method name, file name, line number, etc. A large number of frames can consume memory.
+Each `StackTraceElement` can hold a class name, method name, file name, line number, etc.
+A large number of frames can consume memory.
 
 . *Thread-Safety*
 `forThread(Thread)` is thread-safe, but if the thread is in native code or unwinding, frames might be incomplete.
@@ -318,4 +322,5 @@ Understand how stack traces are captured under the hood.
 See the official Java docs for details on walking and filtering frames.
 
 * _Logging Framework Guides_
-SLF4J, Log4j, Chronicle Logger, etc. Configure how exceptions and stack traces are formatted or suppressed.
+SLF4J, Log4j, Chronicle Logger, etc.
+Configure how exceptions and stack traces are formatted or suppressed.

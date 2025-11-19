@@ -1,31 +1,36 @@
 = Runbook: Tuning Resource Tracing Overhead
 :toc:
 :lang: en-GB
+:source-highlighter: rouge
 
 Related requirements: CORE-OPS-004, CORE-FN-033, CORE-FN-038.
 
 == Purpose
-When `-Djvm.resource.tracing=true` is enabled, allocations and CPU usage may rise. Use this runbook
-to diagnose and mitigate the overhead.
+
+When `-Djvm.resource.tracing=true` is enabled, allocations and CPU usage may rise.
+Use this runbook to diagnose and mitigate the overhead.
 
 == Steps
+
 1. **Confirm tracing state**
-   * Check JVM flags or log entries (`Resource tracing is turned on`).
+* Check JVM flags or log entries (`Resource tracing is turned on`).
 2. **Collect metrics**
-   * Use `jcmd <pid> VM.native_memory summary` to compare reservation deltas.
-   * Record GC logs or allocation profiler snapshots.
+* Use `jcmd <pid> VM.native_memory summary` to compare reservation deltas.
+* Record GC logs or allocation profiler snapshots.
 3. **Scope tracing**
-   * If only specific modules require tracing, consider the property
-     `-Djvm.resource.tracing.filter=<regex>` (available in ea builds) to limit instrumentation.
+* If only specific modules require tracing, consider the property
+`-Djvm.resource.tracing.filter=<regex>` (available in ea builds) to limit instrumentation.
 4. **Short-term mitigation**
-   * Reduce tracing duration; capture the necessary leaks, then disable the flag.
+* Reduce tracing duration; capture the necessary leaks, then disable the flag.
 5. **Long-term resolution**
-   * Update to the latest Chronicle Core release; several minor versions improved the tracing guard.
-   * Where possible, use `ReferenceOwner` labels to minimise diagnostic string concatenations.
+* Update to the latest Chronicle Core release; several minor versions improved the tracing guard.
+* Where possible, use `ReferenceOwner` labels to minimise diagnostic string concatenations.
 
 == Verification
+
 * After disabling or scoping tracing, allocation rates return to baseline (<1% overhead in perf runs).
 * Leak diagnostics remain available for the targeted components.
 
 == Rollback
+
 * Remove tracing flags and restart the service if performance cannot tolerate the additional cost.

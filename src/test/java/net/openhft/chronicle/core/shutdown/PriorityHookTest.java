@@ -3,13 +3,21 @@
  */
 package net.openhft.chronicle.core.shutdown;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 
 class PriorityHookTest {
+
+    @AfterEach
+    void clearHook() {
+        PriorityHook.clear();
+    }
 
     @Test
     void testAddHook() {

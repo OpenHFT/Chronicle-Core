@@ -3,15 +3,16 @@
 :toc:
 :lang: en-GB
 :source-highlighter: rouge
+:sectnums:
 
 This document provides an overview of key utility methods available in `net.openhft.chronicle.core.Jvm` and `net.openhft.chronicle.core.OS`.
 These classes offer a wide range of functionalities for interacting with the Java Virtual Machine and the underlying operating system.
 
-== 1. `Jvm.java` Utilities
+== `Jvm.java` Utilities
 
 The `Jvm` class provides insights into the JVM's state, facilitates system property management, offers exception handling mechanisms, and includes various other utilities.
 
-=== 1.1. Runtime Information
+=== Runtime Information
 
 Provides methods to query various aspects of the JVM runtime environment:
 
@@ -27,7 +28,7 @@ Provides methods to query various aspects of the JVM runtime environment:
 * `Jvm.getCpuClass()`: Retrieves the CPU model information.
 * `Jvm.userHome()`: Gets the user's home directory path.
 
-=== 1.2. System Properties
+=== System Properties
 
 `Jvm` enhances system property access and management:
 * **Loading from File**: Automatically looks for a file named `system.properties` in the classpath or current/parent directory at startup.
@@ -42,13 +43,13 @@ The file to load can be overridden with `-Dsystem.properties=my.file`.
 ** `Jvm.getSize(String key, long defaultValue)`: Parses memory sizes with suffixes (k, M, G, T).
 * **Initialization Guarantee**: Using these `Jvm` getters ensures that the `Jvm` class (and its property loading) is initialized before the property is read.
 
-=== 1.3. Memory Information
+=== Memory Information
 
 * `Jvm.maxDirectMemory()`: Reports the maximum direct memory (NIO) limit for the JVM (e.g., from `-XX:MaxDirectMemorySize`).
 * `Jvm.usedDirectMemory()`: Returns the current amount of direct memory used by NIO `ByteBuffer.allocateDirect`.
 * `Jvm.usedNativeMemory()`: Reports memory allocated directly via `UnsafeMemory.allocate()`.
 
-=== 1.4. Exception Handling
+=== Exception Handling
 
 `Jvm` offers robust mechanisms for handling and categorizing exceptions:
 
@@ -66,7 +67,7 @@ The method never actually returns.
 ** `Jvm.resetExceptionHandlers()`: Restores default handlers.
 ** `Jvm.recordExceptions(...)`: Useful for testing, captures exceptions into a map instead of just logging them.
 
-=== 1.5. Class and Reflection Utilities
+=== Class and Reflection Utilities
 
 * `Jvm.getField(Class, String name)` / `Jvm.getFieldOrNull(Class, String name)`: Access declared fields, including private ones from superclasses.
 * `Jvm.getMethod(Class, String name, Class... params)`: Access declared methods, including private ones from superclasses.
@@ -79,7 +80,7 @@ The method never actually returns.
 * `Jvm.getPackageName(Class c)`: Returns the package name of a class, optimized for Java 9+.
 * `Jvm.uncheckedCast(Object o)`: Suppresses warnings for generic casts.
 
-=== 1.6. Threading, Pausing, and Synchronization
+=== Threading, Pausing, and Synchronization
 
 * `Jvm.pause(long millis)`: Thread.sleep or yield.
 * `Jvm.nanoPause()`: A very short, often busy-wait, pause using `Thread.onSpinWait()` if available.
@@ -89,12 +90,12 @@ The method never actually returns.
 * `Jvm.park()`: Calls `LockSupport.park()` in a loop until interrupted.
 * `Jvm.currentThreadId()`: Gets the ID of the current thread.
 
-=== 1.7. Initialization and Signals
+=== Initialization and Signals
 
 * `Jvm.init()`: Ensures `ChronicleInit` sequence is triggered (e.g., for early property setup).
 * `Jvm.addSignalHandler(SignalHandler handler)`: Adds a handler for OS signals like HUP, INT, TERM (not on Windows for HUP).
 
-=== 1.8. Miscellaneous Utilities
+=== Miscellaneous Utilities
 
 * `Jvm.trimStackTrace(StringBuilder, StackTraceElement...)`: Appends a filtered stack trace to a StringBuilder.
 * `Jvm.doNotCloseOnInterrupt(Class, FileChannel fc)`: Attempts to prevent a `FileChannel` from being closed when its thread is interrupted.
@@ -104,11 +105,11 @@ The method never actually returns.
 * `Jvm.address(ByteBuffer bb)`: Gets the native address of a direct ByteBuffer.
 * `Jvm.arrayByteBaseOffset()`: Returns `Unsafe.ARRAY_BYTE_BASE_OFFSET`.
 
-== 2. `OS.java` Utilities
+== `OS.java` Utilities
 
 The `OS` class provides methods to interact with the operating system for information and low-level operations.
 
-=== 2.1. System Information
+=== System Information
 
 * `OS.isWindows()`, `OS.isMacOSX()`, `OS.isLinux()`: Detect the current operating system.
 * `OS.getHostName()`: Returns the machine's hostname.
@@ -117,7 +118,7 @@ The `OS` class provides methods to interact with the operating system for inform
 * `OS.getProcessId()`: Returns the current JVM process ID.
 * `OS.getPidMax()`: Returns the maximum PID value for the OS.
 
-=== 2.2. File System Paths
+=== File System Paths
 
 * `OS.getTmp()`: Locates a usable temporary directory.
 * `OS.getTarget()`: Locates the build target directory (e.g., `target/` or `build/`) or a fallback in tmp.
@@ -125,7 +126,7 @@ The `OS` class provides methods to interact with the operating system for inform
 * `OS.findDir(String suffix)`: Finds a directory in the classpath ending with `suffix`.
 * `OS.findFile(String... path)`: Searches a list of directories to find a specific file path.
 
-=== 2.3. Memory Management
+=== Memory Management
 
 * `OS.memory()`: Returns an instance of `net.openhft.chronicle.core.Memory` (typically `UnsafeMemory.INSTANCE`) for direct memory operations.
 * `OS.pageSize()`: Gets the OS's native memory page size.
@@ -138,16 +139,16 @@ The `OS` class provides methods to interact with the operating system for inform
 ** `OS.unmap(long address, long size, int pageSize)` / `OS.unmap(long address, long size)`: Unmaps a previously mapped memory region.
 ** `OS.memoryMapped()`: Returns the total number of bytes currently memory-mapped by Chronicle Core through these methods.
 
-=== 2.4. Sparse File Support
+=== Sparse File Support
 
 * `OS.isSparseFileSupported()`: Checks if the OS (primarily Linux 64-bit) supports sparse files.
 
-=== 2.5. (Advanced) Native File Operations
+=== (Advanced) Native File Operations
 
 * `OS.read0(FileDescriptor fd, long address, int len)`: Low-level read from a file descriptor to a memory address.
 * `OS.write0(FileDescriptor fd, long address, int len)`: Low-level write from a memory address to a file descriptor.
 
-== 3. Low-Level Memory Access via `OS.memory()`
+== Low-Level Memory Access via `OS.memory()`
 
 The `OS.memory()` method returns an instance of the `net.openhft.chronicle.core.Memory` interface (typically `UnsafeMemory`), which provides direct access to memory operations:
 
@@ -161,7 +162,7 @@ The `OS.memory()` method returns an instance of the `net.openhft.chronicle.core.
 
 _For detailed usage of these memory operations, refer to the specific Javadoc of `net.openhft.chronicle.core.Memory` and `net.openhft.chronicle.core.UnsafeMemory`._
 
-== 4. IO Utilities (`IOTools.java`)
+== IO Utilities (`IOTools.java`)
 
 `IOTools` provides higher-level utilities for common I/O tasks:
 

@@ -5,12 +5,13 @@ package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
 public class StringInternerTest extends CoreTestCommon {
+    private String[] uppercase;
+
     @Test
     public void testIntern() throws IllegalArgumentException {
         @NotNull StringInterner si = new StringInterner(128);
@@ -28,12 +29,10 @@ public class StringInternerTest extends CoreTestCommon {
         }
     }
 
-    private String[] uppercase;
-
     /**
-     * an example of the StringInterner used in conjunction with  the uppercase[] to cache another value
+     * Demonstrates using the StringInterner together with an uppercase cache.
      *
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException if the interner cannot allocate entries
      */
     @Test
     public void testToUppercaseInternIndex() throws IllegalArgumentException {
@@ -42,12 +41,13 @@ public class StringInternerTest extends CoreTestCommon {
         uppercase = new String[si.capacity()];
         for (int i = 0; i < 100; i++) {
             String lowerCaseString = randomLowercaseString();
-            System.out.println(lowerCaseString.toString());
+            System.out.println(lowerCaseString);
             int index = si.index(lowerCaseString, this::changed);
             if (index != -1)
                 assertEquals(lowerCaseString.toUpperCase(), uppercase[index]);
         }
     }
+
     private void changed(int index, String value) {
         uppercase[index] = value.toUpperCase();
     }

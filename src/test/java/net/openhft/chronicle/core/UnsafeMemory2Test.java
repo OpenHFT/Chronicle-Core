@@ -21,6 +21,7 @@ import static org.junit.Assume.assumeFalse;
 @RunWith(Parameterized.class)
 public class UnsafeMemory2Test extends CoreTestCommon {
     private static final int INT_VAL = 0x12345678;
+    private static final Random TEST_RANDOM = new Random(1);
     private final UnsafeMemory memory;
 
     public UnsafeMemory2Test(UnsafeMemory memory) {
@@ -88,7 +89,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
         byte[] bytes = new byte[256];
         for (int i = 0; i < 256; i++)
             bytes[i] = (byte) i;
-        Random rand = new Random();
+        Random rand = TEST_RANDOM;
         for (int i = 0; i < 1000; i++) {
             int a = rand.nextInt(256);
             int b = rand.nextInt(256);
@@ -119,7 +120,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
         char[] chars = new char[512];
         for (int i = 0; i < 512; i++)
             chars[i] = (char) i;
-        Random rand = new Random();
+        Random rand = TEST_RANDOM;
         for (int i = 0; i < 1000; i++) {
             int a = rand.nextInt(512);
             int b = rand.nextInt(512);
@@ -151,7 +152,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
         for (int i = 0; i < 256; i++)
             memory.writeByte(addr + i, (byte) i);
 
-        Random rand = new Random();
+        Random rand = TEST_RANDOM;
         for (int i = 0; i < 1000; i++) {
             int a = rand.nextInt(256);
             int b = rand.nextInt(256);
@@ -325,7 +326,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
         for (int i = 0; i < lengthInBytes; i++)
             assertEquals(i, bytes[i]);
         Arrays.fill(longs, 0);
-        memory.copyMemory((Object) bytes, 0, longs, memory.arrayBaseOffset(longs.getClass()), lengthInBytes);
+        memory.copyMemory(bytes, 0, longs, memory.arrayBaseOffset(longs.getClass()), lengthInBytes);
         assertArrayEquals(copy, longs);
     }
 

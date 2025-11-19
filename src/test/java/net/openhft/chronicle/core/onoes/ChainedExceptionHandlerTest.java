@@ -3,13 +3,12 @@
  */
 package net.openhft.chronicle.core.onoes;
 
-import net.openhft.chronicle.core.util.IgnoresEverything;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
-import org.junit.jupiter.api.*;
-import org.slf4j.Logger;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 class ChainedExceptionHandlerTest {
 
@@ -52,7 +51,9 @@ class ChainedExceptionHandlerTest {
 
     @Test
     void onShouldCatchExceptionsFromHandlers() {
-        ExceptionHandler faultyHandler = (clazz, msg, thr) -> { throw new RuntimeException("Handler error"); };
+        ExceptionHandler faultyHandler = (clazz, msg, thr) -> {
+            throw new RuntimeException("Handler error");
+        };
         ChainedExceptionHandler chained = new ChainedExceptionHandler(faultyHandler);
 
         // This call should not throw an exception

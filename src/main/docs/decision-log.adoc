@@ -122,3 +122,26 @@ Impact & Consequences::
 Notes/Links::
 * link:functional-requirements.adoc#CORE-FN-015[CORE-FN-015]
 * link:functional-requirements.adoc#CORE-FN-016[CORE-FN-016]
+
+[[CORE-NF-P-006]]
+== CORE-NF-P-006 UniqueMicroTimeProvider for Monotonic Microsecond Timestamps
+
+Context::
+* Downstream modules such as Chronicle Queue and Chronicle Wire require monotonically increasing timestamps for ordering, auditing and replay.
+* Commodity system clocks can move backwards or stall briefly under NTP adjustments and VM migrations.
+* Naive callers of `SystemTimeProvider` can observe duplicate or regressing microsecond values under contention.
+Decision Statement::
+* Chronicle Core **provides** `UniqueMicroTimeProvider` as a monotonic wrapper around an underlying `TimeProvider`, ensuring strictly increasing microsecond timestamps within a single JVM process.
+Alternatives Considered::
+* *Use raw `SystemTimeProvider`* - simplest to implement but allows duplicates and clock regressions, making ordering and idempotency logic more complex in callers.
+* *Rely on nanosecond timers only* - avoids wall-clock jumps but makes correlation with external systems harder and does not address requirements that explicitly reference microsecond wall time.
+Rationale for Decision::
+* A CAS-based loop over an `AtomicLong` allows Chronicle Core to guarantee local monotonicity with bounded drift and negligible latency impact, as described in `unique-micro-time-provider-cas-loop.adoc`.
+* Centralising this logic in Core avoids repeated, ad-hoc implementations in downstream modules and keeps the behaviour easy to test and document.
+Impact & Consequences::
+* Within a JVM, successive calls to `UniqueMicroTimeProvider.currentTimeMicros()` are strictly increasing, even when the backing provider stalls or moves backwards.
+* Timestamps may run slightly ahead of the real wall clock under extreme contention, but drift remains bounded and is documented in the requirements and user guide.
+* Downstream modules can rely on this behaviour for ordering without having to re-implement CAS loops or additional guards.
+Notes/Links::
+* link:unique-micro-time-provider-cas-loop.adoc[UniqueMicroTimeProvider CAS Loop]
+* link:project-requirements.adoc#CORE-NF-P-006[CORE-NF-P-006]

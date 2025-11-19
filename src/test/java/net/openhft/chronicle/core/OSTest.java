@@ -12,7 +12,6 @@ import org.mockito.MockitoAnnotations;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
@@ -104,7 +103,7 @@ public class OSTest extends CoreTestCommon {
     @Test
     //@Ignore("Failing on TC (linux agent) for unknown reason, anyway the goal of this test is to " +
     //        "test mapping granularity on windows")
-    public void testMapGranularity() throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void testMapGranularity() throws IOException {
         File file = IOTools.createTempFile(getClass().getName() + "." + testName.getMethodName());
 
         try (RandomAccessFile rw = new RandomAccessFile(file, "rw")) {
@@ -125,7 +124,7 @@ public class OSTest extends CoreTestCommon {
 
     @Test
     //@Ignore("Should always pass, or crash the JVM based on length")
-    public void testMap() throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    public void testMap() throws IOException {
         File file = IOTools.createTempFile(getClass().getName() + "." + testName.getMethodName());
 
         try (RandomAccessFile rw = new RandomAccessFile(file, "rw")) {
@@ -249,8 +248,8 @@ public class OSTest extends CoreTestCommon {
         assertEquals(0, OS.mapAlign(0, customPageSize)); // Perfectly aligned already
         assertEquals(customPageSize, OS.mapAlign(1, customPageSize)); // Not aligned, should round up to higher closest
         assertEquals(customPageSize, OS.mapAlign(customPageSize, customPageSize)); // Perfectly aligned already
-        assertEquals(2 * customPageSize, OS.mapAlign(customPageSize + 1, customPageSize)); // Not aligned, should round up to higher closest
-        assertEquals(2 * customPageSize, OS.mapAlign(2 * customPageSize - 1, customPageSize)); // Not aligned, should round up to higher closest
+        assertEquals(2L * customPageSize, OS.mapAlign(customPageSize + 1, customPageSize)); // Not aligned, should round up to higher closest
+        assertEquals(2L * customPageSize, OS.mapAlign(2L * customPageSize - 1, customPageSize)); // Not aligned, should round up to higher closest
 
         // Testing with page alignment equal to 1 (should not change the offset)
         assertEquals(42, OS.mapAlign(42, 1)); // Alignment of 1, no change
@@ -287,8 +286,8 @@ public class OSTest extends CoreTestCommon {
         assertEquals(0, OS.pageAlign(0, customPageSize)); // Perfectly aligned already
         assertEquals(customPageSize, OS.pageAlign(1, customPageSize)); // Not aligned, should round up to higher closest
         assertEquals(customPageSize, OS.pageAlign(customPageSize, customPageSize)); // Perfectly aligned already
-        assertEquals(2 * customPageSize, OS.pageAlign(customPageSize + 1, customPageSize)); // Not aligned, should round up to higher closest
-        assertEquals(2 * customPageSize, OS.pageAlign(2 * customPageSize - 1, customPageSize)); // Not aligned, should round up to higher closest
+        assertEquals(2L * customPageSize, OS.pageAlign(customPageSize + 1, customPageSize)); // Not aligned, should round up to higher closest
+        assertEquals(2L * customPageSize, OS.pageAlign(2L * customPageSize - 1, customPageSize)); // Not aligned, should round up to higher closest
     }
 
     @Test

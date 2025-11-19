@@ -6,21 +6,32 @@ package net.openhft.chronicle.core.io;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.io.*;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.concurrent.*;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for the Wget class, which provides a simple way to fetch content from URLs.
  */
 class WgetTest {
+
+    private static java.nio.charset.Charset nullDetector(InputStream in, String contentType) {
+        return null;
+    }
+
+    private static java.nio.charset.Charset throwingDetector(InputStream in, String contentType) {
+        throw new RuntimeException("boom");
+    }
 
     @Test
     void fetch_appends_response_body() throws IOException {
@@ -78,7 +89,7 @@ class WgetTest {
     }
 
     @Test
-    void IOException_from_connection_provider_bubbles_up() {
+    void ioExceptionFromConnectionProviderBubblesUp() {
         Wget wget = new Wget.Builder()
                 .connectionProvider(u -> {
                     throw new IOException("boom");
@@ -118,7 +129,7 @@ class WgetTest {
             }
         };
         Wget wget = new Wget.Builder()
-                .connectionProvider(u -> new ByteArrayInputStream("x".getBytes()))
+                .connectionProvider(u -> new ByteArrayInputStream("x".getBytes(StandardCharsets.UTF_8)))
                 .build();
         assertThrows(IOException.class, () -> wget.fetch("http://x", broken));
     }
@@ -133,7 +144,7 @@ class WgetTest {
     @Test
     void fetch_is_thread_safe_when_instance_is_shared() throws Exception {
         Wget wget = new Wget.Builder()
-                .connectionProvider(u -> new ByteArrayInputStream("ok".getBytes()))
+                .connectionProvider(u -> new ByteArrayInputStream("ok".getBytes(StandardCharsets.UTF_8)))
                 .build();
         ExecutorService pool = Executors.newFixedThreadPool(4);
         AtomicInteger successes = new AtomicInteger();
@@ -143,15 +154,21 @@ class WgetTest {
             if ("ok".contentEquals(sb)) successes.incrementAndGet();
             return null;
         };
-        for (int i = 0; i < 20; i++) pool.submit(task);
+        java.util.List<java.util.concurrent.Future<Void>> futures = new java.util.ArrayList<>();
+        for (int i = 0; i < 20; i++) {
+            futures.add(pool.submit(task));
+        }
         pool.shutdown();
         assertTrue(pool.awaitTermination(2, TimeUnit.SECONDS));
+        for (java.util.concurrent.Future<Void> future : futures) {
+            future.get();
+        }
         assertEquals(20, successes.get());
     }
 
     @Test
     void limited_stream_behaves_like_eof_after_budget() throws IOException {
-        byte[] data = "abc".getBytes();
+        byte[] data = "abc".getBytes(StandardCharsets.UTF_8);
         LimitedInputStream lim = new LimitedInputStream(new ByteArrayInputStream(data), 3);
         ByteArrayOutputStream copy = new ByteArrayOutputStream();
         for (int b; (b = lim.read()) != -1; ) copy.write(b);
@@ -170,7 +187,7 @@ class WgetTest {
         assertEquals("", sb.toString());
 
         Wget tooMuch = new Wget.Builder()
-                .connectionProvider(u -> new ByteArrayInputStream("x".getBytes()))
+                .connectionProvider(u -> new ByteArrayInputStream("x".getBytes(StandardCharsets.UTF_8)))
                 .maxResponseBytes(0)
                 .build();
         assertThrows(IOException.class, () -> tooMuch.fetch("http://x", new StringBuilder()));
@@ -195,18 +212,10 @@ class WgetTest {
     @Test
     void charset_detector_exception_bubbles_up() {
         Wget wget = new Wget.Builder()
-                .connectionProvider(u -> new ByteArrayInputStream("x".getBytes()))
+                .connectionProvider(u -> new ByteArrayInputStream("x".getBytes(StandardCharsets.UTF_8)))
                 .charsetDetector(WgetTest::throwingDetector)
                 .build();
         assertThrows(RuntimeException.class, () -> wget.fetch("http://x", new StringBuilder()));
-    }
-
-    private static java.nio.charset.Charset nullDetector(InputStream in, String contentType) {
-        return null;
-    }
-
-    private static java.nio.charset.Charset throwingDetector(InputStream in, String contentType) {
-        throw new RuntimeException("boom");
     }
 
     @Test

@@ -50,10 +50,6 @@ import static net.openhft.chronicle.core.util.ObjectUtils.Immutability.NO;
 @SuppressWarnings("unchecked")
 public final class ObjectUtils {
 
-    // Suppresses default constructor, ensuring non-instantiability.
-    private ObjectUtils() {
-    }
-
     static final Map<Class<?>, Class<?>> PRIM_MAP = ofUnmodifiable(
             entry(boolean.class, Boolean.class),
             entry(byte.class, Byte.class),
@@ -65,7 +61,6 @@ public final class ObjectUtils {
             entry(double.class, Double.class),
             entry(void.class, Void.class)
     );
-
     static final Map<Class<?>, Object> DEFAULT_MAP = ofUnmodifiable(
             entry(boolean.class, false),
             entry(byte.class, (byte) 0),
@@ -76,9 +71,25 @@ public final class ObjectUtils {
             entry(float.class, 0.0f),
             entry(double.class, 0.0d)
     );
-
+    static final ClassLocal<ThrowingFunction<String, Object, Exception>> PARSER_CL = ClassLocal.withInitial(new ConversionFunction());
+    static final ClassLocal<Map<String, Enum<?>>> CASE_IGNORE_LOOKUP = ClassLocal.withInitial(ObjectUtils::caseIgnoreLookup);
+    static final ClassValue<Method> READ_RESOLVE = ClassLocal.withInitial(c -> {
+        try {
+            Method m = c.getDeclaredMethod("readResolve");
+            ClassUtil.setAccessible(m);
+            return m;
+        } catch (NoSuchMethodException expected) {
+            return null;
+        } catch (Exception e) {
+            throw new AssertionError(e);
+        }
+    });
     private static final Map<Class<?>, Function<String, Number>> conversionMap = new HashMap<>();
     private static final Map<Class<?>, UnaryOperator<Number>> numberConversionMap = new HashMap<>();
+    private static final Map<Class<?>, Immutability> IMMUTABILITY_MAP = new ConcurrentHashMap<>();
+    // these should only ever be changed on startup.
+    private static volatile ClassLocal<Class<?>> interfaceToDefaultClass = ClassLocal.withInitial(ObjectUtils::lookForImplEnum);
+    private static volatile ClassLocal<Supplier<?>> supplierClassLocal = ClassLocal.withInitial(ObjectUtils::supplierForClass);
 
     static {
         conversionMap.put(Double.class, Double::valueOf);
@@ -99,25 +110,9 @@ public final class ObjectUtils {
         numberConversionMap.put(BigDecimal.class, n -> n instanceof Long ? BigDecimal.valueOf(n.longValue()) : BigDecimal.valueOf(n.doubleValue()));
         numberConversionMap.put(BigInteger.class, o -> new BigInteger(o.toString()));
     }
-
-    static final ClassLocal<ThrowingFunction<String, Object, Exception>> PARSER_CL = ClassLocal.withInitial(new ConversionFunction());
-    static final ClassLocal<Map<String, Enum<?>>> CASE_IGNORE_LOOKUP = ClassLocal.withInitial(ObjectUtils::caseIgnoreLookup);
-    static final ClassValue<Method> READ_RESOLVE = ClassLocal.withInitial(c -> {
-        try {
-            Method m = c.getDeclaredMethod("readResolve");
-            ClassUtil.setAccessible(m);
-            return m;
-        } catch (NoSuchMethodException expected) {
-            return null;
-        } catch (Exception e) {
-            throw new AssertionError(e);
-        }
-    });
-    private static final Map<Class<?>, Immutability> IMMUTABILITY_MAP = new ConcurrentHashMap<>();
-
-    // these should only ever be changed on startup.
-    private static volatile ClassLocal<Class<?>> interfaceToDefaultClass = ClassLocal.withInitial(ObjectUtils::lookForImplEnum);
-    private static volatile ClassLocal<Supplier<?>> supplierClassLocal = ClassLocal.withInitial(ObjectUtils::supplierForClass);
+    // Suppresses default constructor, ensuring non-instantiability.
+    private ObjectUtils() {
+    }
 
     /**
      * Rethrows the given Throwable as a RuntimeException.
@@ -314,6 +309,7 @@ public final class ObjectUtils {
 
     /**
      * Tests if there is a supported conversion from text to this type
+     *
      * @param eClass to be tested
      * @return true if it can be converted, false if it's not worth trying.
      */
@@ -438,14 +434,15 @@ public final class ObjectUtils {
     private static <E> E convertCharSequence(Class<E> eClass, CharSequence o) {
         @Nullable CharSequence cs = o;
         if (Character.class.equals(eClass)) {
-            if (cs.length() > 0)
+            if (cs.length() > 0) {
                 try {
                     return (E) (Character) cs.charAt(0);
                 } catch (IndexOutOfBoundsException e) {
                     throw new AssertionError(e);
                 }
-            else
+            } else {
                 return null;
+            }
         }
         @NotNull String s = cs.toString();
         if (eClass == String.class)
@@ -854,6 +851,20 @@ public final class ObjectUtils {
         return tClass;
     }
 
+    /**
+     * Standard mechanism to determine objects as not null. Same method contract as {@link Objects#requireNonNull(Object)}
+     *
+     * @param o reference to check for nullity
+     * @throws NullPointerException If o is {@code null }
+     */
+    @SuppressWarnings("UnusedReturnValue")
+    public static <T> T requireNonNull(T o) {
+        // see https://stackoverflow.com/questions/43115645/in-java-lambdas-why-is-getclass-called-on-a-captured-variable
+        // Maybe calling Objects.requireNonNull is just as optimisable/intrinisfiable but I didn't do the research
+        o.getClass();
+        return o;
+    }
+
     public enum Immutability {
         YES, NO, MAYBE
     }
@@ -910,22 +921,8 @@ public final class ObjectUtils {
         }
 
         @Override
-        public @NotNull Object apply(String in) throws Exception {
+        public @NotNull Object apply(String in) {
             throw cce;
         }
-    }
-
-    /**
-     * Standard mechanism to determine objects as not null. Same method contract as {@link Objects#requireNonNull(Object)}
-     *
-     * @param o reference to check for nullity
-     * @throws NullPointerException If o is {@code null }
-     */
-    @SuppressWarnings("UnusedReturnValue")
-    public static <T> T requireNonNull(T o) {
-        // see https://stackoverflow.com/questions/43115645/in-java-lambdas-why-is-getclass-called-on-a-captured-variable
-        // Maybe calling Objects.requireNonNull is just as optimisable/intrinisfiable but I didn't do the research
-        o.getClass();
-        return o;
     }
 }

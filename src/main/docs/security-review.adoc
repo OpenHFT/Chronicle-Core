@@ -1,5 +1,7 @@
 = Chronicle-Core: Security Review
 :toc:
+:lang: en-GB
+:source-highlighter: rouge
 :sectnums:
 
 == Unsafe & Off-Heap Access
@@ -45,6 +47,7 @@ Review hot-spots ::
 * Bytecode origin for `defineClass`
 * Static initialisers with side effects
 
+[#thread-local-caches-resource-pools]
 == Thread-Local Caches & Resource Pools
 
 Why ::

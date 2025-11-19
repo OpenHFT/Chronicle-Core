@@ -1,0 +1,100 @@
+= Chronicle Core - System Architecture
+:toc:
+:sectnums:
+:lang: en-GB
+:source-highlighter: rouge
+
+Chronicle Core is a foundational library; its architecture is intentionally modular so higher-level projects (Queue, Wire, Map, Threads) can reuse the primitives.
+This document provides the canonical capability map and component interactions referenced by design discussions and decision records.
+
+== Capability Overview
+
+[cols="1,3,3",options="header"]
+|===
+| Capability | Description | Primary Packages
+| OS Abstraction | Uniform access to process/host metadata, file mapping, affinity hints. | `net.openhft.chronicle.core(OS)`
+| JVM Utilities | System property management, init hooks, safepoint helpers, class metrics. | `net.openhft.chronicle.core(Jvm)`
+| Memory & Bytes | Unsafe memory access, fences, histograms, Bytes glue used by Chronicle-Bytes. | `net.openhft.chronicle.core.memory`, `net.openhft.chronicle.core.util`
+| Deterministic Resources | Closeable/reference-counted lifecycles with tracing aids. | `net.openhft.chronicle.core.io`
+| Threading Primitives | Single-threaded guards, pauser integrations (via Chronicle-Threads). | `net.openhft.chronicle.core.threads`
+| Diagnostics & Onoes | Exception handlers, logging bridges, stack-trace helpers. | `net.openhft.chronicle.core.onoes`, `net.openhft.chronicle.core.stack`
+|===
+
+== Component Diagram
+
+[plantuml,chronicle-core-components,png]
+....
+@startuml
+package "Chronicle Core" {
+  [OS]
+  [Jvm]
+  [Memory]
+  [AbstractCloseable]
+  [BackgroundResourceReleaser]
+}
+
+node "Downstream Modules" {
+  [Chronicle-Bytes]
+  [Chronicle-Threads]
+  [Chronicle-Queue]
+  [Chronicle-Wire]
+}
+
+[Chronicle-Bytes] --> [Memory]
+[Chronicle-Threads] --> [Jvm]
+[Chronicle-Queue] --> [OS]
+[Chronicle-Wire] --> [Memory]
+
+@enduml
+....
+
+== Component Interaction
+
+1. **Bootstrapping** — `ChronicleInit` executes user-provided hooks before `Jvm` initialises.
+Upon success `Jvm` loads `system.properties`, configures exception handlers and exposes OS/Memory singletons.
+2. **Consumer Libraries** — Bytes, Wire, Queue, Threads, Map import the relevant Core modules:
+* `Chronicle-Bytes` relies on `net.openhft.chronicle.core.io` for reference counting and on
+`net.openhft.chronicle.core.Memory` for native access.
+* `Chronicle-Threads` uses `SingleThreadedChecked`, `CleaningThreadLocal`, and pauser hooks.
+* `Chronicle-Queue` pulls in `OS`, `Jvm`, reference counting and exception handlers.
+3. **Background Lifecycle** — `BackgroundResourceReleaser` and `CleaningThread` coordinate release of off-heap resources once user code signals closure.
+
+== External Dependencies
+
+* **JNA** (optional) — used for affinity detection; Core gracefully degrades to a dummy interface when native libraries cannot load.
+* **SLF4J** — logging facade used across `onoes`.
+* **Chronicle Posix** — optional module for POSIX-specific operations; initialised lazily by `Jvm`.
+
+== Evolution Guard Rails
+
+* Any change to public Core APIs requires a corresponding entry in `decision-log.adoc`, citing the affected `CORE-FN-xxx` items and expected impact on dependants.
+* Architectural decisions should also trace to the Nine-Box taxonomy so downstream modules can reason about compliance.
+
+== Performance Characteristics
+
+Chronicle Core is designed to add minimal overhead to latency-sensitive paths in downstream modules.
+Most hot-path operations are allocation-free after warm-up, including OS and JVM capability lookups, off-heap memory access via `Memory` / `UnsafeMemory`, and single-threaded guard checks that do not detect violations.
+
+Deterministic resource management (`AbstractCloseable`, `ReferenceCounted`) is implemented with constant-time operations relative to the number of references; when the optional
+`BackgroundResourceReleaser` is enabled, heavy deallocation work is shifted off the application hot path in line with `CORE-NF-O-004` and the expectations captured in `operational-requirements.adoc`
+and `performance-targets.adoc`.
+
+== Trade-offs and Alternatives
+
+Chronicle Core deliberately trades some safety and convenience for predictable performance:
+
+* Validation is pushed towards the application perimeter to avoid repeated checks on hot paths; downstream modules and callers are expected to validate untrusted inputs before invoking Core primitives, as documented in `security-review.adoc`.
+* Off-heap memory and internal JDK APIs are used where necessary to meet latency and throughput goals; decisions such as `CORE-RISK-003` describe the mitigations applied (for example mapping whitelists, banned package prefixes).
+* Deterministic resource lifecycle and reference counting are preferred over GC-only management for native resources, accepting a modest increase in API surface and bookkeeping to avoid leaks and long tail latencies.
+
+Alternative designs (for example always-on validation, GC-only resource management, or avoiding internal APIs) are suitable for less latency-sensitive systems, but would not meet the performance targets expected of the Chronicle stack.
+These trade-offs are documented so that embedding applications and regulators can understand the rationale and apply compensating controls where needed.
+
+== Related Documentation
+
+The following module guides describe how Chronicle Core capabilities are consumed downstream:
+
+* link:../../Chronicle-Bytes/src/main/docs/architecture-overview.adoc[Chronicle Bytes - Architecture Overview]
+* link:../../Chronicle-Queue/src/main/docs/architecture-overview.adoc[Chronicle Queue - Architecture Overview]
+* link:../../Chronicle-Threads/src/main/docs/architecture-overview.adoc[Chronicle Threads - Architecture Overview]
+* link:../../Chronicle-Wire/src/main/docs/architecture-overview.adoc[Chronicle Wire - Architecture Overview]

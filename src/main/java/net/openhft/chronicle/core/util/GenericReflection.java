@@ -9,7 +9,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.util.*;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -139,6 +142,8 @@ public enum GenericReflection {
         }
         if (type instanceof ParameterizedType)
             return erase(((ParameterizedType) type).getRawType());
-        return (Class<?>) type;
+        if (type instanceof Class)
+            return (Class<?>) type;
+        throw new UnsupportedOperationException("Unsupported type: " + type);
     }
 }

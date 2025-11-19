@@ -32,13 +32,13 @@ import static net.openhft.chronicle.core.Jvm.uncheckedCast;
  * @param <E> the type of enum instances this class will manage. It must extend {@link CoreDynamicEnum}.
  *            Example usage:
  *            <pre>{@code
- *            EnumCache<YesNo> c =
- *                EnumCache.of(
- *                    YesNo.class);
- *            YesNo maybe =
- *                c.valueOf("Maybe");
- *            }
- *            </pre>
+ *                       EnumCache<YesNo> c =
+ *                           EnumCache.of(
+ *                               YesNo.class);
+ *                       YesNo maybe =
+ *                           c.valueOf("Maybe");
+ *                       }
+ *                       </pre>
  */
 public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E> {
 
@@ -48,9 +48,9 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
     private final List<E> eList = new ArrayList<>();
     // Fields to reflectively set properties on new instances.
     private final Field nameField;
+    private final Field ordinalField;
     // An array of enum values
     private E[] values = null;
-    private final Field ordinalField;
     // The function used to create new enum instances
     private final Function<String, E> create = this::create;
 
@@ -98,12 +98,6 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
      *
      * @param name the name of the enum instance to be retrieved.
      * @return the enum instance with the specified name, or {@code null} if not present.
-     */
-    /**
-     * Returns the enum instance if it exists in the map.
-     *
-     * @param name the enum name to retrieve
-     * @return the enum instance or {@code null}
      */
     @Override
     @Nullable

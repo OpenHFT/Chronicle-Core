@@ -4,10 +4,11 @@
 package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.Jvm;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assume.assumeFalse;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ThreadDumpTest {
 
@@ -24,7 +25,8 @@ class ThreadDumpTest {
         threadDump.ignore(ignoredThreadName);
 
         // Simulate an ignored thread
-        Thread ignoredThread = new Thread(() -> {}, ignoredThreadName);
+        Thread ignoredThread = new Thread(() -> {
+        }, ignoredThreadName);
         ignoredThread.start();
 
         threadDump.assertNoNewThreads();
@@ -40,7 +42,7 @@ class ThreadDumpTest {
 
     @Test
     void testAssertNewThreads() {
-        assumeFalse(Jvm.isArm());
+        Assumptions.assumeFalse(Jvm.isArm());
         Thread newThread = new Thread(() -> {
             Jvm.pause(10000);
         });

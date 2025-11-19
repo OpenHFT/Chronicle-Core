@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.internal;
 
+import net.openhft.chronicle.core.annotation.UsedViaReflection;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -11,15 +12,6 @@ import java.lang.reflect.Method;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ClassUtilExtraTest {
-
-    private static class Parent {
-        @SuppressWarnings("unused")
-        private int hidden = 42;
-        @SuppressWarnings("unused")
-        private String greet() { return "hi"; }
-    }
-
-    private static class Child extends Parent { }
 
     @Test
     void getField0FindsPrivateFieldInHierarchy() {
@@ -44,6 +36,20 @@ class ClassUtilExtraTest {
         Method m = ClassUtil.getMethod0(Child.class, "greet", new Class<?>[0], true);
         assertNotNull(m);
         assertEquals("greet", m.getName());
+    }
+
+    private static class Parent {
+        @UsedViaReflection
+        @SuppressWarnings({"unused", "FieldMayBeFinal"})
+        private int hidden = 42;
+
+        @SuppressWarnings("unused")
+        private String greet() {
+            return "hi";
+        }
+    }
+
+    private static class Child extends Parent {
     }
 }
 

@@ -19,6 +19,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ScopedThreadLocalLifecycleTest {
 
+    private static void forceGc(WeakReference<?> ref) {
+        for (int i = 0; i < 50 && ref.get() != null; i++) {
+            System.gc();
+            Jvm.pause(50);
+        }
+        assertNull(ref.get(), "Reference should be cleared after GC");
+    }
+
     @Test
     void zeroCapacityIsRejected() {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
@@ -95,25 +103,11 @@ class ScopedThreadLocalLifecycleTest {
 
             Future<?> future = executor.submit(resource.get()::touch);
             ExecutionException exception = assertThrows(ExecutionException.class, () -> future.get(5, TimeUnit.SECONDS));
-            assertTrue(exception.getCause() instanceof IllegalStateException);
+            assertInstanceOf(IllegalStateException.class, exception.getCause());
         } finally {
             executor.shutdownNow();
             executor.awaitTermination(5, TimeUnit.SECONDS);
         }
-    }
-
-    private static void acquireAndClose(ScopedThreadLocal<CloseableProbe> pool) {
-        try (ScopedResource<CloseableProbe> ignored = pool.get()) {
-            // scope closes immediately
-        }
-    }
-
-    private static void forceGc(WeakReference<?> ref) {
-        for (int i = 0; i < 50 && ref.get() != null; i++) {
-            System.gc();
-            Jvm.pause(50);
-        }
-        assertNull(ref.get(), "Reference should be cleared after GC");
     }
 
     private static final class CloseableProbe implements Closeable {

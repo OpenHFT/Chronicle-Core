@@ -4,13 +4,14 @@
 package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.Jvm;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import java.io.Closeable;
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 class EventHandlerTest {
@@ -19,6 +20,7 @@ class EventHandlerTest {
     void mockitoNotSupportedOnJava21() {
         Assumptions.assumeTrue(Jvm.majorVersion() <= 17);
     }
+
     @Test
     void eventLoopShouldBeCalledWithCorrectEventLoop() {
         EventLoop mockEventLoop = mock(EventLoop.class);
@@ -51,7 +53,7 @@ class EventHandlerTest {
     void priorityShouldReturnMediumByDefault() {
         EventHandler handler = mock(EventHandler.class, CALLS_REAL_METHODS);
 
-        assertEquals(HandlerPriority.MEDIUM, handler.priority());
+        Assertions.assertEquals(HandlerPriority.MEDIUM, handler.priority());
     }
 
     @Test

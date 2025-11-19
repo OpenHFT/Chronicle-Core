@@ -137,6 +137,8 @@ public enum CpuCoolers implements CpuCooler {
         }
     },
     SERIALIZATION {
+        private volatile Object lastRead;
+
         @Override
         public void disturb() {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -144,7 +146,7 @@ public enum CpuCoolers implements CpuCooler {
             oos.writeObject(System.getProperties());
             oos.close();
             XMLDecoder ois = new XMLDecoder(new ByteArrayInputStream(out.toByteArray()));
-            blackhole = ois.readObject();
+            lastRead = ois.readObject();
         }
     },
     MEMORY_COPY {
@@ -167,7 +169,6 @@ public enum CpuCoolers implements CpuCooler {
             PAUSE10.disturb();
         }
     };
-    static volatile Object blackhole;
 
     public static void busyWait(double nanos) {
         long start = System.nanoTime();

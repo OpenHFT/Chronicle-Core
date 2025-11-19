@@ -13,13 +13,6 @@ import static org.junit.Assert.*;
 
 public class ObjectUtilsAdditionalTest {
 
-    // --- Helpers used by conversion tests ---
-    public static final class WithCtor {
-        final String v; public WithCtor(String v) { this.v = v; }
-    }
-    public static final class WithValueOf { final String v; private WithValueOf(String v){this.v=v;} public static WithValueOf valueOf(String s){return new WithValueOf(s);} }
-    public static final class WithParse { final String v; private WithParse(String v){this.v=v;} public static WithParse parse(CharSequence s){return new WithParse(s.toString());} }
-
     @Test
     public void booleanParsingAcceptsYesTrueAndNoFalse() {
         assertTrue(ObjectUtils.isTrue("t"));
@@ -64,7 +57,7 @@ public class ObjectUtilsAdditionalTest {
 
     @Test
     public void requireNonNullThrowsOnNull() {
-        assertThrows(NullPointerException.class, () -> ObjectUtils.<Object>requireNonNull(null));
+        assertThrows(NullPointerException.class, () -> ObjectUtils.requireNonNull(null));
         assertEquals("abc", ObjectUtils.requireNonNull("abc"));
     }
 
@@ -73,5 +66,37 @@ public class ObjectUtilsAdditionalTest {
         BigDecimal bd = (BigDecimal) ObjectUtils.convertToNumber(BigDecimal.class, 5L);
         assertEquals(BigDecimal.valueOf(5L), bd);
     }
-}
 
+    // --- Helpers used by conversion tests ---
+    public static final class WithCtor {
+        final String v;
+
+        public WithCtor(String v) {
+            this.v = v;
+        }
+    }
+
+    public static final class WithValueOf {
+        final String v;
+
+        private WithValueOf(String v) {
+            this.v = v;
+        }
+
+        public static WithValueOf valueOf(String s) {
+            return new WithValueOf(s);
+        }
+    }
+
+    public static final class WithParse {
+        final String v;
+
+        private WithParse(String v) {
+            this.v = v;
+        }
+
+        public static WithParse parse(CharSequence s) {
+            return new WithParse(s.toString());
+        }
+    }
+}

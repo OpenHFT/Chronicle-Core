@@ -17,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.misc.Signal; // NOSONAR
+import sun.misc.Signal;
 import sun.misc.Unsafe;
 import sun.nio.ch.Interruptible;
 
@@ -32,6 +32,7 @@ import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.spi.AbstractInterruptibleChannel;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
@@ -98,8 +99,8 @@ public final class Jvm {
     );
     private static final MethodHandle onSpinWaitMH;
     private static final ChainedSignalHandler signalHandlerGlobal;
-    private static boolean RESOURCE_TRACING;
     private static final boolean PROC_EXISTS = new File(PROC).exists();
+    private static boolean RESOURCE_TRACING;
     @SuppressWarnings("unused")
     private static volatile Thread s_blackHole;
 
@@ -152,6 +153,10 @@ public final class Jvm {
         ChronicleInit.postInit();
     }
 
+    // Suppresses default constructor, ensuring non-instantiability.
+    private Jvm() {
+    }
+
     private static MethodHandle getOnSpinWait() {
         MethodType voidType = MethodType.methodType(void.class);
         MethodHandles.Lookup lookup = MethodHandles.lookup();
@@ -168,10 +173,6 @@ public final class Jvm {
             // ignore
         }
         return null;
-    }
-
-    // Suppresses default constructor, ensuring non-instantiability.
-    private Jvm() {
     }
 
     public static void reportUnoptimised() {
@@ -207,7 +208,6 @@ public final class Jvm {
 
     public static void init() {
         // force static initialisation
-        ChronicleInit.init();
     }
 
     private static void loadSystemProperties(final String name, final boolean wasSet) {
@@ -1220,6 +1220,7 @@ public final class Jvm {
                     ci.interrupt();
                 }
 
+                @SuppressWarnings({"EmptyMethod", "unused"})
                 public void postInterrupt() {
                     // added in Java 23+
                 }
@@ -1335,21 +1336,25 @@ public final class Jvm {
     @SuppressWarnings("deprecation")
     private static boolean isProcessAlive0(final long pid, final String command) {
 
+        Process process = null;
         try {
-            InputStreamReader isReader = new InputStreamReader(
-                    getRuntime().exec(command).getInputStream());
-
-            final BufferedReader bReader = new BufferedReader(isReader);
-            String strLine;
-            while ((strLine = bReader.readLine()) != null) {
-                if (strLine.contains(" " + pid + " ") || strLine.startsWith(pid + " ")) {
-                    return true;
+            process = getRuntime().exec(command);
+            try (BufferedReader bReader = new BufferedReader(
+                    new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8))) {
+                String strLine;
+                while ((strLine = bReader.readLine()) != null) {
+                    if (strLine.contains(" " + pid + " ") || strLine.startsWith(pid + " ")) {
+                        return true;
+                    }
                 }
             }
-
             return false;
         } catch (Exception ex) {
             return true;
+        } finally {
+            if (process != null) {
+                process.destroy();
+            }
         }
     }
 
@@ -1523,6 +1528,17 @@ public final class Jvm {
         return PackageNameUtil.getPackageName(clazz);
     }
 
+    private static boolean isJUnitTest0() {
+        for (StackTraceElement[] stackTrace : Thread.getAllStackTraces().values()) {
+            for (StackTraceElement element : stackTrace) {
+                if (element.getClassName().contains(".junit")) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public interface SignalHandler {
         /**
          * Handle a Signal
@@ -1632,21 +1648,9 @@ public final class Jvm {
         }
     }
 
-    private static boolean isJUnitTest0() {
-        for (StackTraceElement[] stackTrace : Thread.getAllStackTraces().values()) {
-            for (StackTraceElement element : stackTrace) {
-                if (element.getClassName().contains(".junit")) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     static class ReserveMemoryHolder {
-        private ReserveMemoryHolder() {
-        }
         static final Supplier<Long> reservedMemory;
+
         static {
             Supplier<Long> reservedMemoryGetter;
             try {
@@ -1666,11 +1670,16 @@ public final class Jvm {
             }
             reservedMemory = reservedMemoryGetter;
         }
+
+        private ReserveMemoryHolder() {
+        }
     }
+
     static class MaxMemoryHolder {
+        static final long MAX_DIRECT_MEMORY = maxDirectMemory0();
+
         private MaxMemoryHolder() {
         }
-        static final long MAX_DIRECT_MEMORY = maxDirectMemory0();
 
         private static long maxDirectMemory0() {
             try {

@@ -37,12 +37,11 @@ class ReferenceCountedWarningsTest {
                 xfers.incrementAndGet();
             }
         });
-        ReferenceOwner A = ReferenceOwner.INIT;
-        ReferenceOwner B = ReferenceOwner.INIT; // for API symmetry; a second owner type is not required for counting
-        assertDoesNotThrow(() -> ref.reserveTransfer(A, B));
+        ReferenceOwner ownerA = ReferenceOwner.INIT;
+        ReferenceOwner ownerB = ReferenceOwner.INIT; // for API symmetry; a second owner type is not required
+        assertDoesNotThrow(() -> ref.reserveTransfer(ownerA, ownerB));
         assertEquals(1, xfers.get());
         // cleanup
         ref.warnAndReleaseIfNotReleased();
     }
 }
-

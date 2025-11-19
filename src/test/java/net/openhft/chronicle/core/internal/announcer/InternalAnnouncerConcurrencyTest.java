@@ -31,7 +31,7 @@ class InternalAnnouncerConcurrencyTest {
         CountDownLatch done = new CountDownLatch(n);
         for (int i = 0; i < n; i++) {
             final int idx = i;
-            pool.submit(() -> {
+            pool.execute(() -> {
                 try {
                     start.await();
                     assertDoesNotThrow(() -> Announcer.announce("net.openhft", "artifact-" + (idx % 3), Collections.emptyMap()));

@@ -1,9 +1,10 @@
 = Chronicle Core - Data Requirements
 :toc:
 :lang: en-GB
+:source-highlighter: rouge
 
-This catalogue describes the identifiers, metadata and wire-shape expectations for Chronicle Core's
-observable data. Identifiers follow the Nine-Box taxonomy using `CORE-DATA-nnn`.
+This catalogue describes the identifiers, metadata and wire-shape expectations for Chronicle Core's observable data.
+Identifiers follow the Nine-Box taxonomy using `CORE-DATA-nnn`.
 
 [cols="1,3,1",options="header"]
 |===
@@ -20,16 +21,11 @@ observable data. Identifiers follow the Nine-Box taxonomy using `CORE-DATA-nnn`.
 
 == Retention
 
-* `system.properties` overrides: file-based and packaged variants shall be treated as configuration
-  assets and kept alongside the distribution; runtime changes require a process restart.
-* Histogram CSV/JSON exports are transient diagnostics; retention is the responsibility of the
-  consuming telemetry pipeline.
-* Resource-tracing logs should follow the hosting product's log-retention policy so leak-hunting
-  evidence survives until the incident is resolved.
+* `system.properties` overrides: file-based and packaged variants shall be treated as configuration assets and kept alongside the distribution; runtime changes require a process restart.
+* Histogram CSV/JSON exports are transient diagnostics; retention is the responsibility of the consuming telemetry pipeline.
+* Resource-tracing logs should follow the hosting product's log-retention policy so leak-hunting evidence survives until the incident is resolved.
 
 == Serialisation Guidance
 
-* Prefer Chronicle Wire-compatible primitives when exposing data to sibling modules, to avoid
-  repeated conversions.
-* Where direct byte buffers are returned (e.g. via `Bytes`), callers must honour the UTF-8 or
-  ISO-8859-1 encoding noted above to stay compliant with Chronicle's low-level toolchain.
+* Prefer Chronicle Wire-compatible primitives when exposing data to sibling modules, to avoid repeated conversions.
+* Where direct byte buffers are returned (e.g. via `Bytes`), callers must honour the UTF-8 or ISO-8859-1 encoding noted above to stay compliant with Chronicle's low-level toolchain.

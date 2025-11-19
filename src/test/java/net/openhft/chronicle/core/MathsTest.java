@@ -29,6 +29,7 @@ import static org.junit.Assert.*;
 public class MathsTest extends CoreTestCommon {
     private static final double err = 5.1e-9;
     private static final int COUNT = Jvm.isArm() ? 500_000 : 3_000_000;
+    private static final Random TEST_RANDOM = new Random(1);
     private ThreadDump threadDump;
 
     @Test
@@ -157,11 +158,6 @@ public class MathsTest extends CoreTestCommon {
                 .forEach(d -> assertTrue(Double.isNaN(d)));
     }
 
-    @FunctionalInterface
-    public interface Rounder {
-        double round(double d);
-    }
-
     @Test
     public void digits() {
         assertEquals(1, Maths.digits(0));
@@ -193,7 +189,7 @@ public class MathsTest extends CoreTestCommon {
     }
 
     @Test
-    public void ceilN() throws Exception {
+    public void ceilN() {
         assertEquals(2, Maths.ceilN(2, 0), 0.0);
         assertEquals(2, Maths.ceilN(1 + err, 0), 0.0);
         assertEquals(1.5, Maths.ceilN(1.5, 0.3f), 0.0);
@@ -203,7 +199,7 @@ public class MathsTest extends CoreTestCommon {
     }
 
     @Test
-    public void floorN() throws Exception {
+    public void floorN() {
         assertEquals(1, Maths.floorN(2 - err, 0), 0.0);
         assertEquals(2.0, Maths.floorN(2, 0), 0.0);
         assertEquals(1, Maths.floorN(1.5 - err, 0.3f), 0.0);
@@ -213,49 +209,49 @@ public class MathsTest extends CoreTestCommon {
     }
 
     @Test
-    public void round1() throws Exception {
+    public void round1() {
         assertEquals(1.1, Maths.round1(1.1 + 0.4999999e-1), 0.0);
         assertEquals(1.2, Maths.round1(1.1 + 0.5e-1), 0.0);
     }
 
     @Test
-    public void round2() throws Exception {
+    public void round2() {
         assertEquals(1.1, Maths.round2(1.1 + 0.4999999e-2), 0.0);
         assertEquals(1.1 + 1e-2, Maths.round2(1.1 + 0.5e-2), 0.0);
     }
 
     @Test
-    public void round3() throws Exception {
+    public void round3() {
         assertEquals(1.1, Maths.round3(1.1 + 0.4999999e-3), 0.0);
         assertEquals(1.1 + 1e-3, Maths.round3(1.1 + 0.5e-3), 0.0);
     }
 
     @Test
-    public void round4() throws Exception {
+    public void round4() {
         assertEquals(1.1, Maths.round4(1.1 + 0.4999999e-4), 0.0);
         assertEquals(1.1 + 1e-4, Maths.round4(1.1 + 0.5e-4), 0.0);
     }
 
     @Test
-    public void round5() throws Exception {
+    public void round5() {
         assertEquals(1.1, Maths.round5(1.1 + 0.4999999e-5), 0.0);
         assertEquals(1.10001, Maths.round5(1.1 + 0.5e-5), 0.0);
     }
 
     @Test
-    public void round6() throws Exception {
+    public void round6() {
         assertEquals(1.1, Maths.round6(1.1 + 0.4999999e-6), 0.0);
         assertEquals(1.1 + 1e-6, Maths.round6(1.1 + 0.5e-6), 0.0);
     }
 
     @Test
-    public void round7() throws Exception {
+    public void round7() {
         assertEquals(1.1, Maths.round7(1.1 + 0.4999999e-7), 0.0);
         assertEquals(1.1000001, Maths.round7(1.1 + 0.5e-7), 0.0);
     }
 
     @Test
-    public void round8() throws Exception {
+    public void round8() {
         assertEquals(1, Maths.round8(1), 0.0);
         assertEquals(1.1, Maths.round8(1.1 + 0.4999999e-8), 0.0);
         assertEquals(1.1 + 1e-8, Maths.round8(1.1 + 0.5e-8), 0.0);
@@ -308,15 +304,15 @@ public class MathsTest extends CoreTestCommon {
     @SuppressWarnings("deprecation")
     @Test
     public void testRounding() {
-        @NotNull Random rand = new Random(1);
+        @NotNull Random rand = TEST_RANDOM;
         for (int i = 0; i < 1000; i++) {
             double d = Math.pow(1e18, rand.nextDouble()) / 1e6;
             @NotNull BigDecimal bd = new BigDecimal(d);
-            assertEquals(bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), Maths.round2(d), 5e-2);
-            assertEquals(bd.setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue(), Maths.round4(d), 5e-4);
-            assertEquals(bd.setScale(6, BigDecimal.ROUND_HALF_UP).doubleValue(), Maths.round6(d), 5e-6);
+            assertEquals(bd.setScale(2, RoundingMode.HALF_UP).doubleValue(), Maths.round2(d), 5e-2);
+            assertEquals(bd.setScale(4, RoundingMode.HALF_UP).doubleValue(), Maths.round4(d), 5e-4);
+            assertEquals(bd.setScale(6, RoundingMode.HALF_UP).doubleValue(), Maths.round6(d), 5e-6);
             if (d < 1e8)
-                assertEquals(bd.setScale(8, BigDecimal.ROUND_HALF_UP).doubleValue(), Maths.round8(d), 5e-8);
+                assertEquals(bd.setScale(8, RoundingMode.HALF_UP).doubleValue(), Maths.round8(d), 5e-8);
         }
     }
 
@@ -352,7 +348,7 @@ public class MathsTest extends CoreTestCommon {
 
     @Test(expected = ArithmeticException.class)
     public void divideRoundUpZeroDivisorThrows() {
-        Maths.divideRoundUp(1, 0);
+        assertEquals(0, Maths.divideRoundUp(1, 0));
     }
 
     @Test
@@ -377,7 +373,7 @@ public class MathsTest extends CoreTestCommon {
     }
 
     @Test
-    public void testHashStringBuilderFromInterner() throws Exception {
+    public void testHashStringBuilderFromInterner() {
         @NotNull StringInterner interner = new StringInterner(16);
 
         @NotNull final CharSequence csToHash = "557";
@@ -410,7 +406,7 @@ public class MathsTest extends CoreTestCommon {
         String a1 = "Test";
         long ah1 = Maths.hash64(a1);
 
-        String a2 = new StringBuilder().append("T").append("e") + "st";
+        String a2 = "T" + "e" + "st";
         long ah2 = Maths.hash64(a2);
 
         assertEquals(ah1, ah2);
@@ -523,18 +519,16 @@ public class MathsTest extends CoreTestCommon {
         Object o2 = "test2";
         Object o3 = "test3";
         Object o4 = "test4";
-        Object o5 = "test5";
-
         int hash1 = Maths.hash(o1);
         int hash2 = Maths.hash(o1, o2);
         int hash3 = Maths.hash(o1, o2, o3);
         int hash4 = Maths.hash(o1, o2, o3, o4);
-        int hash5 = Maths.hash(o1, o2, o3, o4, o5);
 
         assertNotEquals(hash1, hash2);
         assertNotEquals(hash2, hash3);
         assertNotEquals(hash3, hash4);
-        assertNotEquals(hash4, hash5);
+        Object o5 = "test5";
+        assertNotEquals(hash4, Maths.hash(o1, o2, o3, o4, o5));
     }
 
     @Test
@@ -666,5 +660,10 @@ public class MathsTest extends CoreTestCommon {
         assertEquals(64L, Maths.nextPower2(-10L, 64L));
         // Test when min is greater than n and is the next power of two
         assertEquals(128L, Maths.nextPower2(65L, 128L));
+    }
+
+    @FunctionalInterface
+    public interface Rounder {
+        double round(double d);
     }
 }

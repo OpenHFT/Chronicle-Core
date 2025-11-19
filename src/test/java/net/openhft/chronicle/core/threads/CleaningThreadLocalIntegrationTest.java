@@ -21,11 +21,29 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.UnaryOperator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CleaningThreadLocalIntegrationTest {
+
+    private static void createOrphans(CleaningThreadLocal<?> ctl, int count) throws InterruptedException {
+        Thread[] threads = new Thread[count];
+        for (int i = 0; i < count; i++) {
+            threads[i] = new Thread(ctl::get, "ctl-orphan-" + i);
+        }
+        for (Thread t : threads) t.start();
+        for (Thread t : threads) t.join();
+    }
+
+    private static int trackedEntryCount(CleaningThreadLocal<?> ctl) {
+        try {
+            Field field = CleaningThreadLocal.class.getDeclaredField("nonCleaningThreadValues");
+            field.setAccessible(true);
+            Map<?, ?> map = (Map<?, ?>) field.get(ctl);
+            return map == null ? 0 : map.size();
+        } catch (ReflectiveOperationException e) {
+            throw new AssertionError(e);
+        }
+    }
 
     @Test
     void cleanupNonCleaningThreadsHandlesConcurrentCallers() throws Exception {
@@ -50,7 +68,7 @@ class CleaningThreadLocalIntegrationTest {
         CountDownLatch start = new CountDownLatch(1);
         AtomicReference<Throwable> failure = new AtomicReference<>();
         for (int i = 0; i < cleaners; i++) {
-            executor.submit(() -> {
+            executor.execute(() -> {
                 try {
                     start.await();
                     for (int j = 0; j < 32; j++) {
@@ -111,26 +129,6 @@ class CleaningThreadLocalIntegrationTest {
         BackgroundResourceReleaser.releasePendingResources();
 
         assertEquals(orphans, releases.get(), "all reference-counted values should be released once");
-    }
-
-    private static void createOrphans(CleaningThreadLocal<?> ctl, int count) throws InterruptedException {
-        Thread[] threads = new Thread[count];
-        for (int i = 0; i < count; i++) {
-            threads[i] = new Thread(ctl::get, "ctl-orphan-" + i);
-        }
-        for (Thread t : threads) t.start();
-        for (Thread t : threads) t.join();
-    }
-
-    private static int trackedEntryCount(CleaningThreadLocal<?> ctl) {
-        try {
-            Field field = CleaningThreadLocal.class.getDeclaredField("nonCleaningThreadValues");
-            field.setAccessible(true);
-            Map<?, ?> map = (Map<?, ?>) field.get(ctl);
-            return map == null ? 0 : map.size();
-        } catch (ReflectiveOperationException e) {
-            throw new AssertionError(e);
-        }
     }
 
     private static final class TrackedResource {

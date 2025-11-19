@@ -11,9 +11,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.charset.StandardCharsets;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CleanerServicePriorityTest {
 
@@ -27,7 +27,9 @@ class CleanerServicePriorityTest {
     }
 
     @AfterEach
-    void tearDown() throws Exception { resetLocator(); }
+    void tearDown() throws Exception {
+        resetLocator();
+    }
 
     @Test
     void lowestImpactChosenRegardlessOfDiscoveryOrder() throws Exception {
@@ -36,11 +38,13 @@ class CleanerServicePriorityTest {
         File root = new File("target/tmp-services-priority");
         File svc = new File(root, "META-INF/services/" + ByteBufferCleanerService.class.getName());
         File parent = svc.getParentFile();
-        if (!parent.exists() && !parent.mkdirs()) throw new IllegalStateException("Cannot create temp services dir");
+        if (!parent.exists() && !parent.mkdirs()) {
+            throw new IllegalStateException("Cannot create temp services dir");
+        }
         try (FileOutputStream fos = new FileOutputStream(svc)) {
             String content = "net.openhft.chronicle.core.cleaner.testimpl.AllowedCleaner\n" +
                     "net.openhft.chronicle.core.cleaner.testimpl.SomeImpactCleaner\n";
-            fos.write(content.getBytes(StandardCharsets.ISO_8859_1));
+            fos.write(content.getBytes(UTF_8));
         }
         URLClassLoader cl = new URLClassLoader(new URL[]{root.toURI().toURL()}, CleanerServiceLocator.class.getClassLoader());
         Thread t = Thread.currentThread();
