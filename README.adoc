@@ -4,6 +4,9 @@ Chronicle Software
 :toc: macro
 :toclevels: 2
 :icons: font
+:lang: en-GB
+:sectnums:
+:source-highlighter: rouge
 
 image:https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-core/badge.svg[caption="",link=https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-core]
 image:https://javadoc.io/badge2/net.openhft/chronicle-core/javadoc.svg[link="https://www.javadoc.io/doc/net.openhft/chronicle-core/latest/index.html"]
@@ -15,6 +18,17 @@ image:https://sonarcloud.io/api/project_badges/measure?project=OpenHFT_Chronicle
 image::images/Core_line.png[width=20%]
 
 toc::[]
+
+== Build and test status
+
+Chronicle-Core builds against Java 8 and Java 21 with the standard Maven command:
+
+[source,bash]
+----
+mvn clean install
+----
+
+The most recent runs completed successfully; see `build-java8.log` and `build-java21.log` in the repository root for full output and warnings.
 
 == About Chronicle-Core
 

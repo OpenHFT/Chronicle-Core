@@ -1,6 +1,8 @@
 = Chronicle Core - System Architecture
 :toc:
 :lang: en-GB
+:sectnums:
+:source-highlighter: rouge
 
 Chronicle Core is a foundational library; its architecture is intentionally modular so higher-level
 projects (Queue, Wire, Map, Threads) can reuse the primitives. This document provides the canonical
@@ -21,23 +23,23 @@ capability map and component interactions referenced by design discussions and d
 
 == Component Interaction
 
-1. **Bootstrapping** — `ChronicleInit` executes user-provided hooks before `Jvm` initialises. Upon
+1. **Bootstrapping** - `ChronicleInit` executes user-provided hooks before `Jvm` initialises. Upon
    success `Jvm` loads `system.properties`, configures exception handlers and exposes OS/Memory
    singletons.
-2. **Consumer Libraries** — Bytes, Wire, Queue, Threads, Map import the relevant Core modules:
+2. **Consumer Libraries** - Bytes, Wire, Queue, Threads, Map import the relevant Core modules:
    * `Chronicle-Bytes` relies on `net.openhft.chronicle.core.io` for reference counting and on
      `net.openhft.chronicle.core.Memory` for native access.
    * `Chronicle-Threads` uses `SingleThreadedChecked`, `CleaningThreadLocal`, and pauser hooks.
    * `Chronicle-Queue` pulls in `OS`, `Jvm`, reference counting and exception handlers.
-3. **Background Lifecycle** — `BackgroundResourceReleaser` and `CleaningThread` coordinate release of
+3. **Background Lifecycle** - `BackgroundResourceReleaser` and `CleaningThread` coordinate release of
    off-heap resources once user code signals closure.
 
 == External Dependencies
 
-* **JNA** (optional) — used for affinity detection; Core gracefully degrades to a dummy interface when
+* **JNA** (optional) - used for affinity detection; Core gracefully degrades to a dummy interface when
   native libraries cannot load.
-* **SLF4J** — logging facade used across `onoes`.
-* **Chronicle Posix** — optional module for POSIX-specific operations; initialised lazily by `Jvm`.
+* **SLF4J** - logging facade used across `onoes`.
+* **Chronicle Posix** - optional module for POSIX-specific operations; initialised lazily by `Jvm`.
 
 == Evolution Guard Rails
 

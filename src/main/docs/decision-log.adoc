@@ -2,6 +2,7 @@
 :toc:
 :lang: en-GB
 :source-highlighter: rouge
+:sectnums:
 
 This file captures *component-specific* architectural decisions for the Chronicle Core library.
 Identifiers follow the
