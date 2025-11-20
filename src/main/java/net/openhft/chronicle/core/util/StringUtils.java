@@ -16,7 +16,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 
 import static java.lang.Character.toLowerCase;
-import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.charset.StandardCharsets.ISO_8859_1;
 
 /**
  * A utility class that provides a collection of static methods for advanced string manipulation.
@@ -317,7 +317,7 @@ public final class StringUtils {
     @Java9
     public static byte[] extractBytes(@NotNull String s) {
         if (!HAS_ONE_BYTE_PER_CHAR)
-            return s.getBytes(UTF_8);
+            return s.getBytes(ISO_8859_1);
         ensureJava9Plus();
 
         return getMemory().getObject(s, S_VALUE_OFFSET);
@@ -354,9 +354,9 @@ public final class StringUtils {
     @NotNull
     public static String newStringFromBytes(byte @NotNull [] bytes) {
         if (!HAS_ONE_BYTE_PER_CHAR)
-            return new String(bytes, UTF_8);
+            return new String(bytes, ISO_8859_1);
         ensureJava9Plus();
-        @NotNull String str = new String(new byte[0], UTF_8);
+        @NotNull String str = new String(new byte[0], ISO_8859_1);
         try {
             S_VALUE.set(str, bytes);
             return str;
@@ -426,6 +426,32 @@ public final class StringUtils {
             decimalPlaces = 0;
 
         return Maths.asDouble(value, exp, negative, decimalPlaces);
+    }
+
+    private static final class SbFields {
+
+        private Field sbValue;
+        private long sbValOffset;
+        private Field sbCount;
+        private long sbCountOffset;
+
+        public SbFields() throws ClassNotFoundException, NoSuchFieldException {
+            try {
+                sbValue = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField(VALUE_FIELD_NAME);
+                ClassUtil.setAccessible(sbValue);
+                sbValOffset = getMemory().getFieldOffset(sbValue);
+                sbCount = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField(COUNT_FIELD_NAME);
+                ClassUtil.setAccessible(sbCount);
+                sbCountOffset = getMemory().getFieldOffset(sbCount);
+            } catch (NoSuchFieldException e) {
+                sbValue = Class.forName("java.lang.StringBuilder").getDeclaredField(VALUE_FIELD_NAME);
+                ClassUtil.setAccessible(sbValue);
+                sbValOffset = getMemory().getFieldOffset(sbValue);
+                sbCount = Class.forName("java.lang.StringBuilder").getDeclaredField(COUNT_FIELD_NAME);
+                ClassUtil.setAccessible(sbCount);
+                sbCountOffset = getMemory().getFieldOffset(sbCount);
+            }
+        }
     }
 
     private static boolean compareRest(@NotNull CharSequence in,
@@ -642,31 +668,5 @@ public final class StringUtils {
             throw forInputString(s);
         }
         return negative ? result : -result;
-    }
-
-    private static final class SbFields {
-
-        private Field sbValue;
-        private long sbValOffset;
-        private Field sbCount;
-        private long sbCountOffset;
-
-        public SbFields() throws ClassNotFoundException, NoSuchFieldException {
-            try {
-                sbValue = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField(VALUE_FIELD_NAME);
-                ClassUtil.setAccessible(sbValue);
-                sbValOffset = getMemory().getFieldOffset(sbValue);
-                sbCount = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField(COUNT_FIELD_NAME);
-                ClassUtil.setAccessible(sbCount);
-                sbCountOffset = getMemory().getFieldOffset(sbCount);
-            } catch (NoSuchFieldException e) {
-                sbValue = Class.forName("java.lang.StringBuilder").getDeclaredField(VALUE_FIELD_NAME);
-                ClassUtil.setAccessible(sbValue);
-                sbValOffset = getMemory().getFieldOffset(sbValue);
-                sbCount = Class.forName("java.lang.StringBuilder").getDeclaredField(COUNT_FIELD_NAME);
-                ClassUtil.setAccessible(sbCount);
-                sbCountOffset = getMemory().getFieldOffset(sbCount);
-            }
-        }
     }
 }
