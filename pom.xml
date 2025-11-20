@@ -85,6 +85,7 @@
         <dependency>
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
+            <scope>compile</scope>
         </dependency>
 
         <!-- test dependencies -->
