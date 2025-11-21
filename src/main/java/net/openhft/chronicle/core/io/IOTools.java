@@ -247,7 +247,7 @@ public final class IOTools {
      * @throws IOException If an I/O error occurs
      */
     public static void writeFile(@NotNull String filename, byte @NotNull [] bytes) throws IOException {
-        try (@NotNull OutputStream out0 = new FileOutputStream(filename)) {
+        try (@NotNull OutputStream out0 = Files.newOutputStream(Paths.get(filename))) {
             OutputStream out = out0;
             if (filename.endsWith(".gz"))
                 out = new GZIPOutputStream(out);

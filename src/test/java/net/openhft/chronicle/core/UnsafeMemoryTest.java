@@ -618,8 +618,8 @@ public class UnsafeMemoryTest extends CoreTestCommon {
     }
 
     private static class TestClass {
-        boolean booleanField = false;
-        double doubleField = 0.0;
+        final boolean booleanField = false;
+        final double doubleField = 0.0;
     }
 
     static class TestObject {

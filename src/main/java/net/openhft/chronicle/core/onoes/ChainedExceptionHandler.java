@@ -66,7 +66,7 @@ public class ChainedExceptionHandler implements ExceptionHandler {
             try {
                 eh.on(clazz, message, thrown);
             } catch (Throwable t) {
-                LoggerFactory.getLogger(eh.getClass()).error("Unable to call with message " + message, t);
+                LoggerFactory.getLogger(eh.getClass()).error("Unable to call with message {}", message, t);
             }
         }
     }
@@ -85,7 +85,7 @@ public class ChainedExceptionHandler implements ExceptionHandler {
             try {
                 eh.on(logger, message, thrown);
             } catch (Throwable t) {
-                LoggerFactory.getLogger(eh.getClass()).error("Unable to call with message " + message, t);
+                LoggerFactory.getLogger(eh.getClass()).error("Unable to call with message {}", message, t);
             }
     }
 

@@ -207,7 +207,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
 
     @Test
     public void convertToNumberTest() {
-        assertEquals(Integer.valueOf(1), ObjectUtils.convertToNumber(Integer.class, "1"));
+        assertEquals(1, ObjectUtils.convertToNumber(Integer.class, "1"));
     }
 
     @Test
@@ -297,18 +297,14 @@ public class ObjectUtilsTest extends CoreTestCommon {
     }
 
     static class ClassWithString {
-        private final String s;
 
         ClassWithString(String s) {
-            this.s = s;
         }
     }
 
     static class ClassWithValueOf {
-        private final String s;
 
         ClassWithValueOf(String s) {
-            this.s = s;
         }
 
         public static ClassWithValueOf valueOf(String s) {
@@ -317,10 +313,8 @@ public class ObjectUtilsTest extends CoreTestCommon {
     }
 
     static class ClassWithParse {
-        private final String s;
 
         ClassWithParse(String s) {
-            this.s = s;
         }
 
         public static ClassWithParse parse(CharSequence s) {
@@ -329,19 +323,17 @@ public class ObjectUtilsTest extends CoreTestCommon {
     }
 
     static class ClassWithSetter {
-        private String s;
 
         public void setS(String s) {
-            this.s = s;
         }
     }
 
-    class ImplementingClass implements IgnoresEverything {
+    static class ImplementingClass implements IgnoresEverything {
     }
 
-    private class AbstractTestClass {
+    private static class AbstractTestClass {
     }
 
-    private class RegularClass {
+    private static class RegularClass {
     }
 }

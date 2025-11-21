@@ -47,9 +47,9 @@ public final class CpuClass {
                 try {
                     int ret = process.waitFor();
                     if (ret != 0)
-                        logger.warn(PROCESS + cmd + " returned " + ret);
+                        logger.warn(PROCESS + "{} returned {}", cmd, ret);
                 } catch (InterruptedException e) {
-                    logger.warn(PROCESS + cmd + " waitFor threw ", e);
+                    logger.warn(PROCESS + "{} waitFor threw ", cmd, e);
                     // Restore the interrupt state...
                     Thread.currentThread().interrupt();
                 }
@@ -72,9 +72,9 @@ public final class CpuClass {
                 try {
                     int ret = process.waitFor();
                     if (ret != 0)
-                        logger.warn(PROCESS + cmd + " returned " + ret);
+                        logger.warn(PROCESS + "{} returned {}", cmd, ret);
                 } catch (InterruptedException e) {
-                    logger.warn(PROCESS + cmd + " waitFor threw ", e);
+                    logger.warn(PROCESS + "{} waitFor threw ", cmd, e);
                     // Restore the interrupt state...
                     Thread.currentThread().interrupt();
                 }

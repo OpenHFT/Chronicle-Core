@@ -51,11 +51,9 @@ public class ObjectUtilsConvertToTest extends CoreTestCommon {
         static final DEnum TWO = new DEnum("Two", 2);
 
         private final String name;
-        private final int ordinal;
 
         DEnum(String name, int ordinal) {
             this.name = name;
-            this.ordinal = ordinal;
         }
 
         @Override

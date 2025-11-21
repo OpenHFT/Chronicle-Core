@@ -33,6 +33,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.spi.AbstractInterruptibleChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
@@ -145,7 +146,7 @@ public final class Jvm {
         if (DISABLE_DEBUG)
             logger.info("-Ddisable.debug.info turned of debug logging");
         if (logger.isInfoEnabled() && notJUnitTest)
-            logger.info(String.format("Chronicle core loaded from %s", Jvm.class.getProtectionDomain().getCodeSource().getLocation()));
+            logger.info("Chronicle core loaded from {}", Jvm.class.getProtectionDomain().getCodeSource().getLocation());
         if (RESOURCE_TRACING && !Jvm.getBoolean("disable.resource.warning"))
             logger.warn("Resource tracing is turned on. If you are performance testing or running in PROD you probably don't want this");
         REPORT_UNOPTIMISED = Jvm.getBoolean("report.unoptimised");
@@ -217,7 +218,7 @@ public final class Jvm {
             if (is0 == null) {
                 File file = new File(name);
                 if (file.exists())
-                    is0 = new FileInputStream(file);
+                    is0 = Files.newInputStream(file.toPath());
             }
             try (InputStream is = is0) {
                 if (is == null) {

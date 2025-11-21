@@ -11,6 +11,8 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.function.Function;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -21,7 +23,7 @@ public class ThrowingFunctionTest extends CoreTestCommon {
     public void asFunction() {
         @NotNull Function<String, String> sc = ThrowingFunction.asFunction(s -> {
             try (@NotNull BufferedReader br = new BufferedReader(
-                    new InputStreamReader(new FileInputStream(s), UTF_8))) {
+                    new InputStreamReader(Files.newInputStream(Paths.get(s)), UTF_8))) {
                 return br.readLine();
             }
         });

@@ -8,7 +8,7 @@ import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;
 
 import java.nio.ByteBuffer;
 
-@TargetMajorVersion(majorVersion = 0, includeNewer = true, includeOlder = true)
+@TargetMajorVersion(includeNewer = true, includeOlder = true)
 public class AllowedCleaner implements ByteBufferCleanerService {
     @Override
     public Impact impact() {

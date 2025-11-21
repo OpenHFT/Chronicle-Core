@@ -22,7 +22,6 @@ public class RecordingHistogram extends Histogram {
 
     private final Top10 top10 = new Top10();
     private long start;
-    private int sampleCount;
 
     /**
      * Constructs a new RecordingHistogram with specified parameters.
@@ -83,7 +82,7 @@ public class RecordingHistogram extends Histogram {
     @Override
     public void reset() {
         super.reset();
-        sampleCount = 0;
+        int sampleCount = 0;
         top10.reset();
     }
 

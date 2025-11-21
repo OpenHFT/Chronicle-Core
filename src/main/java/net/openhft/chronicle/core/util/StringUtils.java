@@ -430,12 +430,12 @@ public final class StringUtils {
 
     private static final class SbFields {
 
-        private Field sbValue;
         private long sbValOffset;
         private Field sbCount;
         private long sbCountOffset;
 
         public SbFields() throws ClassNotFoundException, NoSuchFieldException {
+            Field sbValue;
             try {
                 sbValue = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField(VALUE_FIELD_NAME);
                 ClassUtil.setAccessible(sbValue);

@@ -11,7 +11,7 @@ public class SimpleCleaner {
 
     private final Runnable thunk;
     @SuppressWarnings("unused")
-    private volatile int cleaned = 0;
+    private final int cleaned = 0;
 
     public SimpleCleaner(Runnable thunk) {
         this.thunk = thunk;

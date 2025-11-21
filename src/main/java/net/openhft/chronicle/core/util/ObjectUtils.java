@@ -742,7 +742,7 @@ public final class ObjectUtils {
     public static Class<?>[] getAllInterfaces(Object o) {
         Set<Class<?>> results = new HashSet<>();
         getAllInterfaces(o, results::add);
-        return results.toArray(new Class<?>[results.size()]);
+        return results.toArray(new Class<?>[0]);
     }
 
     /**

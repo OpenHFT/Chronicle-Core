@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.io;
 
 import java.io.*;
+import java.nio.file.Files;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -19,7 +20,7 @@ public enum IOBenchmarkMain {
         long start = System.nanoTime();
         do {
             File file = new File(dir, "file" + count);
-            try (Writer fw = new OutputStreamWriter(new FileOutputStream(file), UTF_8)) {
+            try (Writer fw = new OutputStreamWriter(Files.newOutputStream(file.toPath()), UTF_8)) {
                 fw.write("Hello World");
                 count++;
             }

@@ -45,6 +45,6 @@ public class CpuClassTest {
 
     @Test
     public void getCpuModelShouldReturnNonEmptyValue() {
-        assertNotEquals("", CpuClass.getCpuModel(), "CPU model should not be an empty string");
+        assertNotEquals("", "CPU model should not be an empty string", CpuClass.getCpuModel());
     }
 }

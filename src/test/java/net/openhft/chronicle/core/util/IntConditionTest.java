@@ -85,9 +85,10 @@ public class IntConditionTest extends CoreTestCommon {
         );
     }
 
-    private void test(IntCondition predicate,
-                      IntCondition negatedPredicate,
-                      Map.Entry<Integer, Boolean>... expected) {
+    @SafeVarargs
+    private final void test(IntCondition predicate,
+                            IntCondition negatedPredicate,
+                            Map.Entry<Integer, Boolean>... expected) {
 
         assertEquals(predicate.negate(), negatedPredicate);
 
@@ -98,8 +99,9 @@ public class IntConditionTest extends CoreTestCommon {
                 });
     }
 
-    private void test(IntCondition predicate,
-                      Map.Entry<Integer, Boolean>... expected) {
+    @SafeVarargs
+    private final void test(IntCondition predicate,
+                            Map.Entry<Integer, Boolean>... expected) {
 
         Arrays.stream(expected)
                 .forEach(e -> {

@@ -351,7 +351,7 @@ public class OSTest extends CoreTestCommon {
             }
         }
 
-        assertEquals(expectedHostName, OS.HostnameHolder.HOST_NAME);
+        assertEquals(OS.HostnameHolder.HOST_NAME, expectedHostName);
     }
 
     @Test(expected = IllegalArgumentException.class)

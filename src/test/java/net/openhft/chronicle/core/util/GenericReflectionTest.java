@@ -126,20 +126,20 @@ class GenericReflectionTest extends CoreTestCommon {
     private interface MassivelyNestedExtendsGenericMethod extends OverlyNestedExtendsGenericMethod<Long>, OverridesGenericMethod {
     }
 
-    class ReturnsInteger implements Returns<Integer> {
+    static class ReturnsInteger implements Returns<Integer> {
         @Override
         public Integer ret() {
             return null;
         }
     }
 
-    class Returns2<A> {
+    static class Returns2<A> {
         public A ret() {
             return null;
         }
     }
 
-    class Returns2Double extends Returns2<Double> {
+    static class Returns2Double extends Returns2<Double> {
         @Override
         public Double ret() {
             return 1.0;

@@ -27,7 +27,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     // must be volatile
     @SuppressWarnings("FieldMayBeFinal")
     @UsedViaReflection
-    private volatile int value = 1;
+    private final int value = 1;
     private volatile boolean released = false;
     private boolean unmonitored;
     private StackTrace releasedHere;

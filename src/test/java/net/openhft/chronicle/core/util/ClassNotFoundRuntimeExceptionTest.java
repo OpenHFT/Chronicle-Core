@@ -24,7 +24,7 @@ class ClassNotFoundRuntimeExceptionTest {
 
         Throwable throwableCause = exception.getCause();
 
-        assertTrue(throwableCause instanceof ClassNotFoundException);
+        assertInstanceOf(ClassNotFoundException.class, throwableCause);
         assertEquals(cause, throwableCause);
     }
 }
