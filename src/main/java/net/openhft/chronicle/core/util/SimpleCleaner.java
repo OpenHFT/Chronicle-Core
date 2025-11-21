@@ -3,6 +3,8 @@
  */
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.annotation.UsedViaReflection;
+
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 public class SimpleCleaner {
@@ -10,8 +12,10 @@ public class SimpleCleaner {
             AtomicIntegerFieldUpdater.newUpdater(SimpleCleaner.class, "cleaned");
 
     private final Runnable thunk;
+    // this must be volatile for the newUpdater about to work
+    @UsedViaReflection
     @SuppressWarnings("unused")
-    private final int cleaned = 0;
+    private volatile int cleaned = 0;
 
     public SimpleCleaner(Runnable thunk) {
         this.thunk = thunk;
