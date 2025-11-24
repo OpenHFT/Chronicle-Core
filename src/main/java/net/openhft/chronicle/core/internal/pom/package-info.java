@@ -9,4 +9,3 @@
  * implementation details and may change between releases.
  */
 package net.openhft.chronicle.core.internal.pom;
-

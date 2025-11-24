@@ -11,4 +11,3 @@
  * these types.
  */
 package net.openhft.chronicle.core.internal.analytics;
-

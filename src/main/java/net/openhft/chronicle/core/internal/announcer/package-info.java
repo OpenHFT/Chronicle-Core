@@ -10,4 +10,3 @@
  * public Chronicle Core API.
  */
 package net.openhft.chronicle.core.internal.announcer;
-

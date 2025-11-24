@@ -19,7 +19,7 @@ public final class AssertUtil {
      * public final class AssertTest {
      *
      *     public static void testWithAssertDirectly(int x) {
-     *         assert SKIP_ASSERTIONS || x >= 0 ;
+     *         assert SKIP_ASSERTIONS || x >= 0;
      *     }
      *
      *     public static void testWithAssertDirectlyWithText(int x) {

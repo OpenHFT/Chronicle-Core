@@ -10,4 +10,3 @@
  * {@code net.openhft.chronicle.core.util}, prefer that API instead.
  */
 package net.openhft.chronicle.core.internal.util;
-

@@ -1586,7 +1586,7 @@ public final class Jvm {
         public static void force() {
             // trick only works from Java 9+
             //noinspection StatementWithEmptyBody
-            for (int i = 0; i < one; i++) ;
+            for (int i = 0; i < one; i++);
         }
     }
 

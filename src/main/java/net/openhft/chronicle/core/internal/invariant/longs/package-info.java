@@ -9,4 +9,3 @@
  * supported public API surface.
  */
 package net.openhft.chronicle.core.internal.invariant.longs;
-

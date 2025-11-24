@@ -10,4 +10,3 @@
  * extended or reorganised as new invariants are introduced.
  */
 package net.openhft.chronicle.core.internal.invariant.ints;
-

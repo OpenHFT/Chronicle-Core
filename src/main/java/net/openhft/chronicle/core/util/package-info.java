@@ -11,4 +11,3 @@
  * platform evolves.
  */
 package net.openhft.chronicle.core.util;
-

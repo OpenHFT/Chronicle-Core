@@ -11,4 +11,3 @@
  * the public surface of {@code AssertUtil}.
  */
 package net.openhft.chronicle.assertions;
-
