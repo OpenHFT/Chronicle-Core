@@ -1,9 +1,8 @@
 = Deterministic Resource Management
-[[deterministic-resource-management]]
 :toc:
+:sectnums:
 :lang: en-GB
 :source-highlighter: rouge
-:sectnums:
 
 This guide summarises how Chronicle Core manages the lifecycle of native and other critical resources.
 It highlights the key abstractions used for deterministic cleanup, how they interact with the optional `BackgroundResourceReleaser` thread, and how to leverage resource tracing for debugging.
@@ -158,8 +157,8 @@ assert rc.refCount() == 0;
 
 == Key System Properties
 
-(See `systemProperties.adoc` for full details)
+(See `system-properties.adoc` for full details)
 
 * `jvm.resource.tracing`: Enables detailed tracking of resource creation and release sites.
 * `disable.discard.warning`: Controls warnings for resources garbage collected without explicit close/release.
-* `background.releaser`, `background.releaser.thread`: Configure the background resource releaser behavior.
+* `background.releaser`, `background.releaser.thread`: Configure the background resource releaser behaviour.

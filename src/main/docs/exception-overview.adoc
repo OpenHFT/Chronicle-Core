@@ -1,9 +1,9 @@
 = Chronicle-Core Exception Overview
-Chronicle Software
-:toc: left
+:toc:
+:sectnums:
 :lang: en-GB
-:source-highlighter: rouge
 :toclevels: 2
+:source-highlighter: rouge
 
 This document summarises the main runtime exceptions used in Chronicle-Core.
 They surface misuse of resources or invalid state.

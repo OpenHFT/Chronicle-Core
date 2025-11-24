@@ -18,6 +18,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * JMH microbenchmark comparing {@link Thread#isInterrupted()} against a volatile flag.
+ * <p>
+ * Used to quantify the overhead of checking the interrupt status versus a plain volatile boolean
+ * in tight loops, providing guidance on whether interrupt checks dominate workload costs.
+ */
 @State(Scope.Thread)
 public class Interrupted {
     Thread currentThread = null;

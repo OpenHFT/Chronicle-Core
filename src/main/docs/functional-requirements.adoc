@@ -1,5 +1,6 @@
 = Chronicle Core - Functional Requirements
 :toc:
+:sectnums:
 :lang: en-GB
 :source-highlighter: rouge
 

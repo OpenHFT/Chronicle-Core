@@ -1,9 +1,8 @@
 = Object Pooling and Caching in Chronicle Core
-[[object-pooling-and-caching]]
 :toc:
+:sectnums:
 :lang: en-GB
 :source-highlighter: rouge
-:sectnums:
 
 Chronicle Core provides several utility classes designed to reduce unnecessary object allocations and improve performance by pooling or caching frequently used objects.
 This document summarizes these key helper classes.

@@ -1,9 +1,8 @@
 = Chronicle Core - Memory Management Guide
-[[memory-management-guide]]
 :toc:
+:sectnums:
 :lang: en-GB
 :source-highlighter: rouge
-:sectnums:
 
 This guide covers Chronicle Core's utilities for managing off-heap memory and memory-mapped files, emphasizing deterministic cleanup and control.
 
@@ -160,7 +159,7 @@ Leak Diagnosis ::
 * Monitor `OS.memory().nativeMemoryUsed()` for `UnsafeMemory` allocations.
 * Monitor `Jvm.usedDirectMemory()` for `ByteBuffer.allocateDirect()` usage.
 Resource Tracing ::
-Enable `jvm.resource.tracing=true` (see `systemProperties.adoc`).
+Enable `jvm.resource.tracing=true` (see `system-properties.adoc`).
 This helps `AbstractCloseable` (often a base for classes managing mapped regions or other native resources) to record `createdHere()` and `closedHere()` stack traces, aiding in diagnosing leaks or use-after-close bugs.
 Refer to the "Deterministic Resource Management" guide for more on this.
 Alignment Errors ::

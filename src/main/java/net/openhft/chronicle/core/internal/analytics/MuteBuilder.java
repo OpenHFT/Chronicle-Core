@@ -11,6 +11,13 @@ import java.util.function.Consumer;
 
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
+/**
+ * {@link AnalyticsFacade.Builder} that always produces a mute analytics instance.
+ *
+ * <p>Provides a no-op implementation of the builder API so Chronicle-Core can depend on an
+ * {@link AnalyticsFacade} even when the analytics module is absent or reporting has been
+ * explicitly disabled.
+ */
 public enum MuteBuilder implements AnalyticsFacade.Builder {
 
     INSTANCE;

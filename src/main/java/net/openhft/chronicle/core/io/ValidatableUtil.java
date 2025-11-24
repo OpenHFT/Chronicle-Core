@@ -4,8 +4,7 @@
 package net.openhft.chronicle.core.io;
 
 /**
- * Utility methods to validate {@link Validatable} objects and control when the
- * checks occur.
+ * Utility methods to validate {@link Validatable} objects and control when checks occur.
  */
 public class ValidatableUtil {
     static final ThreadLocal<int[]> VALIDATE_DISABLED = ThreadLocal.withInitial(() -> new int[1]);

@@ -1,7 +1,8 @@
 = UniqueMicroTimeProvider CAS Loop
+:toc:
+:sectnums:
 :lang: en-GB
 :source-highlighter: rouge
-:sectnums:
 
 The diagram below summarises the compare-and-swap loop used to ensure that each timestamp is unique across threads.
 

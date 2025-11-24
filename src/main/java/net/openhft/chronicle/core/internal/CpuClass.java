@@ -16,6 +16,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.function.Function;
 
+/**
+ * Discovers a short, human-readable CPU model string at JVM startup. The value
+ * is extracted lazily once from the current platform using:
+ * <ul>
+ *     <li>{@code /proc/cpuinfo} on Linux,</li>
+ *     <li>{@code wmic cpu get name} on Windows,</li>
+ *     <li>{@code sysctl -a} on macOS.</li>
+ * </ul>
+ * The result is cached in {@link #CPU_MODEL} for reuse by logging, telemetry or
+ * diagnostics code without repeatedly shelling out or re-reading procfs.
+ */
 public final class CpuClass {
     static final String CPU_MODEL;
 
@@ -88,10 +99,17 @@ public final class CpuClass {
         CPU_MODEL = model;
     }
 
-    // Suppresses default constructor, ensuring non-instantiability.
+    /**
+     * Suppresses default constructor, ensuring non-instantiability.
+     */
     private CpuClass() {
     }
 
+    /**
+     * Returns the CPU model discovered during static initialisation. If a
+     * platform probe fails, this falls back to the {@code os.arch} system
+     * property.
+     */
     public static String getCpuModel() {
         return CPU_MODEL;
     }

@@ -1,5 +1,6 @@
 = Chronicle Core - Operational Requirements
 :toc:
+:sectnums:
 :lang: en-GB
 :source-highlighter: rouge
 
@@ -32,3 +33,15 @@ Operational requirements carry `CORE-OPS-nnn` identifiers so runbooks and monito
 == Change Management
 
 * Per CORE-OPS-009, every release shall include an entry in `decision-log.adoc` summarising notable operational changes (new flags, default shifts) so downstream teams can plan migrations.
+
+== CI Data Collection Checklist
+
+To satisfy CORE-OPS-001 and related observability requirements, CI should collect:
+
+* Build/test outcomes: `mvn -q clean verify` per supported JDK (for example 8, 21), durations, and Surefire/Failsafe reports.
+* Coverage and static analysis: JaCoCo reports plus Checkstyle/SpotBugs artefacts; fail builds on missing outputs.
+* Requirement traceability: publish `src/main/docs/requirement-test-map.csv` (status column highlights planned vs covered) and encourage tests to reference CORE IDs.
+* Performance and resources: capture benchmark artefacts where available, and basic resource usage (wall-clock test time, heap/container memory).
+* Security and dependencies: scheduled vulnerability scans and secret scans, with CVE tracking for Chronicle-Core dependencies.
+* Documentation evidence: render key AsciiDoc files (architecture, requirements, decision log, security review, testing strategy, performance targets) and attach to CI artefacts.
+* Environment details: record JDK, Maven, OS/container image, JVM flags, and a trimmed dependency snapshot for reproducibility.

@@ -21,6 +21,10 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * JMH benchmark comparing different Chronicle time providers for nanosecond
+ * retrieval: POSIX, system, and unique micro time implementations.
+ */
 @State(Scope.Thread)
 public class TimeProviders {
 

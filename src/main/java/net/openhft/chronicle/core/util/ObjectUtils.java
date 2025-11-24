@@ -649,7 +649,6 @@ public final class ObjectUtils {
      * @param <T>  The type of the class. Note: primitive classes return their boxed type.
      * @return The default value for the given primitive class, or null for object classes.
      */
-
     public static <T> T defaultValue(Class<T> type) {
         return (T) DEFAULT_MAP.get(type);
     }

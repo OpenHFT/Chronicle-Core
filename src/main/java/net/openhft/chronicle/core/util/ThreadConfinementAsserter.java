@@ -5,6 +5,11 @@ package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.internal.util.ThreadConfinementLifecycle;
 
+/**
+ * Asserts that certain operations are confined to a single thread, throwing if
+ * invoked from multiple threads. Factory methods return either enabled or
+ * no-op instances depending on assertion settings.
+ */
 public interface ThreadConfinementAsserter {
 
     /**

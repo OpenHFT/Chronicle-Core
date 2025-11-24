@@ -1,5 +1,6 @@
 = Common Pitfalls and Debugging in Chronicle Core
 :toc:
+:sectnums:
 :lang: en-GB
 :source-highlighter: rouge
 

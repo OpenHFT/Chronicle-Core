@@ -531,7 +531,6 @@ public final class StringUtils {
          * before IntegerCache is initialized. Care must be taken to not use
          * the valueOf method.
          */
-
         if (s == null) {
             throw new NumberFormatException("null");
         }

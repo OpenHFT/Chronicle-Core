@@ -1,9 +1,9 @@
 = Chronicle Core Testing Strategy
-:doctype: book
 :toc:
-:toclevels: 2
 :sectnums:
 :lang: en-GB
+:toclevels: 2
+:doctype: book
 :source-highlighter: rouge
 
 This document outlines the testing approach for Chronicle Core and links tests to the Nine-Box requirements defined in `functional-requirements.adoc` and `project-requirements.adoc`.
@@ -77,6 +77,31 @@ From the repository root, run:
 ----
 mvn -q clean verify
 ----
+
+== Recent CI Snapshot (2025-11-20)
+
+Two back-to-back local runs validated Java 8 and Java 21:
+
+* Commands: `JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 mvn clean install` and `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn clean install`.
+* Results: both succeeded; warnings limited to internal JDK API use and deprecated URL constructors.
+* Tests: Java 8 run: 1,758 tests, 0 failures, 0 errors, 7 skipped; Java 21 run: 1,758 tests, 0 failures, 0 errors, 33 skipped.
+* Artefacts: `target/chronicle-core-2.27ea10-SNAPSHOT.jar` and Surefire XML reports under `target/surefire-reports/`.
+* Coverage and scans: JaCoCo, Checkstyle and SpotBugs were not run in these snapshots; no vulnerability or secret scans captured.
+* Environment: OpenJDK 8 and 21 toolchains; OS and Maven version not recorded; JVM flags beyond defaults not recorded.
+
+== Planned Test Additions
+
+The following items extend coverage for performance, security and operability requirements:
+
+* CORE-NF-P-001: add `ReferenceTracingOverheadJLBH` to measure <1% overhead with tracing disabled/enabled.
+* CORE-NF-P-002: add `SafepointPauseJLBH` to capture latency tails when optional safepoints are toggled.
+* CORE-NF-P-003: add `UnsafeMemoryBandwidthJLBH` to benchmark Memory/UnsafeMemory hot paths.
+* CORE-RISK-003: add `MmapWhitelistTest` to enforce allowed mapping directories and cleaner restrictions.
+* CORE-OPS-002/008: add `AffinityNativeFallbackTest` and `DummyAffinityFallbackTest` to simulate missing JNA/Posix libs and assert dummy fallback/fail-fast paths.
+* CORE-OPS-003: add `Slf4jFormatTest` to verify ISO timestamps and no colour codes in default handlers.
+* CORE-OPS-007: add `DeprecatedApiWarningTest` to ensure a single WARN per deprecated API with replacement guidance.
+* CORE-OPS-009: add `ci:release-signing-check` to validate signed artefacts and SHA256 presence in release outputs.
+* CORE-OPS-010: add `PauserMetricsExposureTest` to assert pauser counters/timers surface to Chronicle-Threads.
 
 This command builds all modules, executes unit and integration tests and runs static analysis tools configured in the Maven build.
 Module-specific test runs can be scoped using Maven's `-pl` flag when iterating, but full `verify`

@@ -229,7 +229,6 @@ Main.partialBytes:partialBytes·p0.999   sample               494.000          n
 Main.partialBytes:partialBytes·p0.9999  sample             21024.000          ns/op
 Main.partialBytes:partialBytes·p1.00    sample            289280.000          ns/op
      */
-
 /*
     //    @Benchmark
     public boolean is7bitBytes() {
@@ -307,7 +306,6 @@ Main.is7bitBytes:is7bitBytes·p0.999   sample               91.000          ns/o
 Main.is7bitBytes:is7bitBytes·p0.9999  sample            15760.000          ns/op
 Main.is7bitBytes:is7bitBytes·p1.00    sample            56512.000          ns/op
  */
-
 /*
 run x16 8*4?1*
 Benchmark                               Mode       Cnt      Score   Error  Units

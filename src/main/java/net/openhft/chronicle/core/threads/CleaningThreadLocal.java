@@ -75,7 +75,6 @@ import static net.openhft.chronicle.core.Jvm.uncheckedCast;
  * @see CleaningThread
  * @see #cleanupNonCleaningThreads()
  */
-
 public class CleaningThreadLocal<T> extends ThreadLocal<T> {
     private static final boolean DISABLE_CTL_ORPHAN_TRACKING =
             Jvm.getBoolean("disable.ctl.orphan.tracking");

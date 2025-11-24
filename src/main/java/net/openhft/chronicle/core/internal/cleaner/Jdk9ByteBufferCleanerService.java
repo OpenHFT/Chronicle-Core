@@ -13,6 +13,12 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.nio.ByteBuffer;
 
+/**
+ * {@link ByteBufferCleanerService} that uses {@code Unsafe.invokeCleaner} on JDK 9+.
+ * <p>
+ * Accesses the cleaner via method handles so Chronicle-Core can be compiled on JDK 8 whilst
+ * still explicitly releasing direct buffers on newer runtimes.
+ */
 @TargetMajorVersion(majorVersion = 9, includeNewer = true)
 public final class Jdk9ByteBufferCleanerService implements ByteBufferCleanerService {
 

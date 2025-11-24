@@ -16,6 +16,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
+/**
+ * Internal helper for printing Chronicle product and JVM startup banners.
+ *
+ * <p>{@code InternalAnnouncer} formats version, process and environment information using
+ * {@link PomProperties} and {@link Jvm} utilities and ensures that the JVM banner is only
+ * printed once per process. Individual artefacts are also announced at most once per group.
+ */
 public final class InternalAnnouncer {
 
     // Suppresses default constructor, ensuring non-instantiability.

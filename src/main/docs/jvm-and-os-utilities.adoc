@@ -1,9 +1,8 @@
 = JVM and OS Utility Highlights
-[[jvm-and-os-utilities]]
 :toc:
+:sectnums:
 :lang: en-GB
 :source-highlighter: rouge
-:sectnums:
 
 This document provides an overview of key utility methods available in `net.openhft.chronicle.core.Jvm` and `net.openhft.chronicle.core.OS`.
 These classes offer a wide range of functionalities for interacting with the Java Virtual Machine and the underlying operating system.

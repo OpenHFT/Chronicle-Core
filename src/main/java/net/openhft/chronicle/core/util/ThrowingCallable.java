@@ -5,6 +5,11 @@ package net.openhft.chronicle.core.util;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * {@link java.util.concurrent.Callable} variant whose {@link #call()} method can throw a checked exception.
+ * <p>
+ * Enables APIs to accept lambdas that propagate checked exceptions without wrapping them immediately.
+ */
 @FunctionalInterface
 public interface ThrowingCallable<R, T extends Throwable> {
     @NotNull

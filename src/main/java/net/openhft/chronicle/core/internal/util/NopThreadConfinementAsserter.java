@@ -5,6 +5,11 @@ package net.openhft.chronicle.core.internal.util;
 
 import net.openhft.chronicle.core.util.ThreadConfinementAsserter;
 
+/**
+ * {@link ThreadConfinementAsserter} implementation that performs no checks.
+ * <p>
+ * Used when thread confinement assertions are disabled for performance reasons.
+ */
 enum NopThreadConfinementAsserter implements ThreadConfinementAsserter {
     INSTANCE;
 

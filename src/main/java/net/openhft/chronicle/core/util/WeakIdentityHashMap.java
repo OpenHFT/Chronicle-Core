@@ -11,6 +11,12 @@ import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * {@link Map} implementation using identity equality and weak keys.
+ * <p>
+ * Keys are compared with {@code ==} and cleared automatically when no strong references remain;
+ * values are retained only as long as their key is reachable.
+ */
 // Based WeakHashMap but using identity
 public class WeakIdentityHashMap<K, V> extends AbstractMap<K, V> {
     private final Map<WeakKey<K>, V> map;

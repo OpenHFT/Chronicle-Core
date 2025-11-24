@@ -1,11 +1,15 @@
 = Chronicle-Core: An Advanced Low-Level Library
+:toc:
+:lang: en-GB
+:source-highlighter: rouge
 Chronicle Software
-:css-signature: demo
+:toc:
+:sectnums:
 :toc: macro
-:toclevels: 2
 :icons: font
 :lang: en-GB
-:sectnums:
+:toclevels: 2
+:css-signature: demo
 :source-highlighter: rouge
 
 image:https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-core/badge.svg[caption="",link=https://maven-badges.herokuapp.com/maven-central/net.openhft/chronicle-core]
@@ -29,6 +33,8 @@ mvn clean install
 ----
 
 The most recent runs completed successfully; see `build-java8.log` and `build-java21.log` in the repository root for full output and warnings.
+
+Operator guidance and troubleshooting steps live under `src/main/docs/runbooks/`, each linking back to the relevant `CORE-*` requirements.
 
 == About Chronicle-Core
 
@@ -143,7 +149,7 @@ The choice of file to load can be overridden on the command line with `-Dsystem.
 In link:https://github.com/OpenHFT/Chronicle-Core/blob/ea/src/main/java/net/openhft/chronicle/core/Jvm.java[Jvm.java] it can be seen how to guarantee that JVM class is initialized before the system property is read.
 For example with Jvm.getInteger or Jvm.getLong.
 
-A number of relevant system properties are listed in link:docs/systemProperties.adoc[systemProperties.adoc].
+A number of relevant system properties are listed in link:src/main/docs/system-properties.adoc[system-properties.adoc].
 
 NOTE: Command line-specified system properties override those in the `system.properties` file.
 

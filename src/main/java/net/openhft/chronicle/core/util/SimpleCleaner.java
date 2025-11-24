@@ -7,6 +7,12 @@ import net.openhft.chronicle.core.annotation.UsedViaReflection;
 
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
+/**
+ * Lightweight one shot cleaner.
+ * <p>
+ * Wraps a {@link Runnable} and guarantees it is only executed once even when {@link #clean()}
+ * is called concurrently from multiple threads.
+ */
 public class SimpleCleaner {
     private static final AtomicIntegerFieldUpdater<SimpleCleaner> CLEANED_FLAG =
             AtomicIntegerFieldUpdater.newUpdater(SimpleCleaner.class, "cleaned");

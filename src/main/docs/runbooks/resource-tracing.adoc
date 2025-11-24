@@ -1,5 +1,6 @@
 = Runbook: Tuning Resource Tracing Overhead
 :toc:
+:sectnums:
 :lang: en-GB
 :source-highlighter: rouge
 
@@ -9,6 +10,13 @@ Related requirements: CORE-OPS-004, CORE-FN-033, CORE-FN-038.
 
 When `-Djvm.resource.tracing=true` is enabled, allocations and CPU usage may rise.
 Use this runbook to diagnose and mitigate the overhead.
+
+== Signals and Metrics
+
+* JVM flags: `-Djvm.resource.tracing=true` (or default when absent).
+* Logs: WARN lines about reference-counted leaks or TRACE/DEBUG entries showing reference owners.
+* Performance: allocation or CPU overheads exceeding the <1% target when tracing is disabled.
+* Expected duration: 10-15 minutes including a restart with adjusted flags if required.
 
 == Steps
 
@@ -20,6 +28,10 @@ Use this runbook to diagnose and mitigate the overhead.
 . *Scope tracing*
 * If only specific modules require tracing, consider the property
 `-Djvm.resource.tracing.filter=<regex>` (available in ea builds) to limit instrumentation.
+. *Enable short GC/log capture*
+* For the next restart, enable GC logging or allocation tracking; compare allocation rate before/after disabling tracing.
+. *Ensure log rotation*
+* Verify log rotation is enabled to prevent disk growth when tracing is verbose.
 . *Short-term mitigation*
 * Reduce tracing duration; capture the necessary leaks, then disable the flag.
 . *Long-term resolution*
@@ -30,6 +42,14 @@ Use this runbook to diagnose and mitigate the overhead.
 
 * After disabling or scoping tracing, allocation rates return to baseline (<1% overhead in perf runs).
 * Leak diagnostics remain available for the targeted components.
+* Coverage: CORE-OPS-004, CORE-FN-038.
+
+== Edge Cases
+
+* Bursty workloads: tracing can amplify allocation spikes; capture short windows to avoid skewing prod latency.
+* Short-lived services: verbose tracing can fill disk-backed logs; ensure log rotation is enabled.
+* Filtered tracing: if `jvm.resource.tracing.filter` is available, prefer it to limit scope; document unsupported builds.
+* Interaction with background releaser: tracing plus background release can add overhead; measure before enabling in production.
 
 == Rollback
 

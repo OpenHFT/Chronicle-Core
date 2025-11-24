@@ -1,8 +1,8 @@
 = Chronicle Core - Decision Log
 :toc:
+:sectnums:
 :lang: en-GB
 :source-highlighter: rouge
-:sectnums:
 
 This file captures _component-specific_ architectural decisions for the Chronicle Core library.
 Identifiers follow the
@@ -15,6 +15,7 @@ Identifiers follow the
 * link:#CORE-RISK-003[CORE-RISK-003 Guard Native-Memory Mapping with Directory Whitelist]
 * link:#CORE-NF-O-004[CORE-NF-O-004 Background Resource Releaser Thread (Opt-In)]
 * link:#CORE-FN-005[CORE-FN-005 ChronicleInit for Pre/Post Application Hooks]
+* link:#CORE-DOC-007[CORE-DOC-007 Consolidate CI Evidence and Runbook Documentation]
 
 [[CORE-DOC-001]]
 == CORE-DOC-001 Adopt Nine-Box Requirement & Decision Taxonomy
@@ -146,3 +147,28 @@ Impact & Consequences::
 Notes/Links::
 * link:unique-micro-time-provider-cas-loop.adoc[UniqueMicroTimeProvider CAS Loop]
 * link:project-requirements.adoc#CORE-NF-P-006[CORE-NF-P-006]
+
+[[CORE-DOC-007]]
+== CORE-DOC-007 Consolidate CI Evidence and Runbook Documentation
+
+Context::
+* CI data, TODO items, and operator guidance were split across Markdown files (`CI_DATA_CHECKLIST.md`, `CI_DATA_FIRST_RUN.md`, `TODO.md`) leading to drift from the AsciiDoc sources used for review.
+* Reviewers and operators prefer a single, versioned location for CI expectations and runbook links.
+Decision Statement::
+* Retire standalone CI/TODO Markdown files and relocate their content into AsciiDoc:
+** CI evidence and collection expectations now live in link:operational-requirements.adoc[operational-requirements.adoc] and link:testing-strategy.adoc[testing-strategy.adoc] (CI snapshot and planned tests).
+** Operator runbooks under `src/main/docs/runbooks/` remain the canonical source for procedures, with signals/edge cases added.
+** Only `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` remain as AI-contributor guides.
+Alternatives Considered::
+* _Keep Markdown sidecars_ - simple but continued drift risk and duplicate checklists.
+* _External wiki_ - harder to version with code; reduces traceability.
+Rationale for Decision::
+* Centralising CI and operational guidance in AsciiDoc keeps documentation co-located with requirements, decisions and runbooks, reducing duplication.
+* Eliminating redundant Markdown simplifies reviewer expectations and keeps link anchors stable.
+Impact & Consequences::
+* CI jobs and reviewers should reference the AsciiDoc locations for checklists and snapshots.
+* Future CI/test additions must update the AsciiDoc sections and `src/main/docs/requirement-test-map.csv` instead of creating new Markdown files.
+Notes/Links::
+* link:operational-requirements.adoc[Operational requirements]
+* link:testing-strategy.adoc[Testing strategy]
+* link:system-architecture.adoc#documentation-audit-snapshot[Documentation audit snapshot]

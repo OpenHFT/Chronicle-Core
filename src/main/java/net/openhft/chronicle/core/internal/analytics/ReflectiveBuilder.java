@@ -12,12 +12,24 @@ import java.util.function.Consumer;
 
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
+/**
+ * Reflection based {@link AnalyticsFacade.Builder} bridge.
+ * <p>
+ * Proxies builder calls to {@code chronicle-analytics} when present, allowing Chronicle-Core to
+ * remain decoupled from the analytics implementation.
+ */
 public final class ReflectiveBuilder implements AnalyticsFacade.Builder {
 
     private static final String CLASS_NAME = "net.openhft.chronicle.analytics.Analytics$Builder";
 
     private final Object delegate;
 
+    /**
+     * Create a reflective builder that forwards to the analytics module if present.
+     *
+     * @param measurementId analytics measurement id
+     * @param apiSecret     API secret used to authenticate calls
+     */
     public ReflectiveBuilder(@NotNull final String measurementId, @NotNull final String apiSecret) {
         requireNonNull(measurementId);
         requireNonNull(apiSecret);

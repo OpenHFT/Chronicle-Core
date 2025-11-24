@@ -1,8 +1,8 @@
 = StackTrace Comprehensive User Guide
 :toc:
+:sectnums:
 :lang: en-GB
 :source-highlighter: rouge
-:sectnums:
 
 NOTE TO READER:
 The content here is intentionally overly detailed to illustrate multiple usage scenarios, best practices, and integrations.
@@ -250,7 +250,7 @@ A large number of frames can consume memory.
 
 . *Thread-Safety*
 `forThread(Thread)` is thread-safe, but if the thread is in native code or unwinding, frames might be incomplete.
-This is normal JVM behavior.
+This is normal JVM behaviour.
 
 . *Integration with Logging*
 Printing full traces can bloat logs quickly.

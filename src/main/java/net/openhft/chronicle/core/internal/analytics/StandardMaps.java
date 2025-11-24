@@ -17,6 +17,12 @@ import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
+/**
+ * Helpers for building standard analytics maps (event parameters and user properties).
+ * <p>
+ * Encapsulates whitelisting and blacklisting of package names and normalises JVM and OS
+ * properties into ordered {@link LinkedHashMap} instances.
+ */
 public final class StandardMaps {
 
     // Suppresses default constructor, ensuring non-instantiability.
@@ -53,6 +59,9 @@ public final class StandardMaps {
                     // Add third party libs
             )).collect(toSet());
 
+    /**
+     * Build a minimal event parameter map containing the application version.
+     */
     public static Map<String, String> standardEventParameters(@NotNull final String appVersion) {
         requireNonNull(appVersion);
         return Stream.of(
@@ -62,10 +71,16 @@ public final class StandardMaps {
                 .collect(toOrderedMap());
     }
 
+    /**
+     * Convenience overload that inspects the current thread stack for additional parameters.
+     */
     public static Map<String, String> standardAdditionalEventParameters() {
         return standardAdditionalEventParameters(Thread.currentThread().getStackTrace());
     }
 
+    /**
+     * Collect JVM and OS details for use as user properties.
+     */
     public static Map<String, String> standardUserProperties() {
         return Stream.of(
                         entryFor("java.runtime.name"),
@@ -83,6 +98,9 @@ public final class StandardMaps {
                 .collect(toOrderedMap());
     }
 
+    /**
+     * Extract up to three distinct package names from the supplied stack to help identify call sites.
+     */
     static Map<String, String> standardAdditionalEventParameters(@NotNull final StackTraceElement[] stackTraceElements) {
         requireNonNull(stackTraceElements);
         final AtomicInteger cnt = new AtomicInteger();
@@ -96,11 +114,17 @@ public final class StandardMaps {
                 .collect(toOrderedMap(s -> "package_name_" + cnt.getAndIncrement(), Function.identity()));
     }
 
+    /**
+     * Track whether a package name (trimmed to at most three levels) has been seen before.
+     */
     static boolean distinctUpToMaxLevel3(final String name, final Set<String> set) {
         final String packageNameUpToMaxLevel3 = packageNameUpToMaxLevel3(name);
         return set.add(packageNameUpToMaxLevel3);
     }
 
+    /**
+     * Return the package portion of a fully qualified class name, or the name itself if none.
+     */
     static String packageName(final String className) {
         final int lastDotIndex = className.lastIndexOf('.');
         if (lastDotIndex>0)
@@ -109,6 +133,9 @@ public final class StandardMaps {
             return className;
     }
 
+    /**
+     * Trim a fully qualified class name to a package containing at most three levels.
+     */
     static String packageNameUpToMaxLevel3(final String className) {
         if (className.isEmpty())
             return className;
@@ -136,11 +163,17 @@ public final class StandardMaps {
                 && BLACK_LIST_STARTS_WITH.stream().noneMatch(packageName::startsWith));
     }
 
+    /**
+     * Collector that preserves encounter order when constructing a map from entries.
+     */
     @NotNull
     private static <K, V> Collector<Map.Entry<K, V>, ?, LinkedHashMap<K, V>> toOrderedMap() {
         return toOrderedMap(Map.Entry::getKey, Map.Entry::getValue);
     }
 
+    /**
+     * Collector that preserves encounter order using the provided key/value mappers.
+     */
     @NotNull
     private static <T, K, V> Collector<T, ?, LinkedHashMap<K, V>> toOrderedMap(@NotNull final Function<? super T, ? extends K> keyMapper, @NotNull final Function<? super T, ? extends V> valueMapper) {
         return toMap(keyMapper, valueMapper, (a, b) -> b, LinkedHashMap::new);
@@ -150,10 +183,16 @@ public final class StandardMaps {
         return new AbstractMap.SimpleImmutableEntry<>(replaceDotsWithUnderscore(systemProperty), Jvm.getProperty(systemProperty));
     }
 
+    /**
+     * Simple key/value entry factory.
+     */
     private static Map.Entry<String, String> entry(@NotNull final String key, @Nullable final String value) {
         return new AbstractMap.SimpleImmutableEntry<>(key, value);
     }
 
+    /**
+     * Utility that normalises dot-separated property names to underscore-separated analytics keys.
+     */
     private static String replaceDotsWithUnderscore(@NotNull final String s) {
         return s.replace('.', '_');
     }

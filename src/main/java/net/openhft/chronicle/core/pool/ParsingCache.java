@@ -101,6 +101,9 @@ public class ParsingCache<E> {
         return (int) Stream.of(interner).filter(Objects::nonNull).count();
     }
 
+    /**
+     * Tuple of the cached text and its parsed representation.
+     */
     static class ParsedData<E> {
         final String string;
         final E e;

@@ -1,5 +1,6 @@
 = Runbook: Validating Chronicle Init Property Overrides
 :toc:
+:sectnums:
 :lang: en-GB
 :source-highlighter: rouge
 
@@ -14,11 +15,30 @@ Use this when Chronicle Init hooks or `system.properties` overrides are not taki
 * Access to the target JVM host.
 * Ability to restart the process if configuration changes are required.
 
+== Signals and Metrics
+
+* Log messages: `ChronicleInit`, `Jvm` WARN/ERROR entries such as `No system.properties file found`.
+* JVM flags: presence of `-Dsystem.properties`, `-Dchronicle.init.runnable`, `-Dchronicle.postinit.runnable`.
+* Expected duration: 5-10 minutes including one process restart.
+
+== Edge Cases
+
+* Encoding: `system.properties` must be ISO-8859-1; malformed or UTF-8-only characters are ignored. Run `iconv -f iso-8859-1 -t iso-8859-1` to confirm.
+* Multiple files: if multiple `-Dsystem.properties` flags are provided, the JVM keeps only the last one; prefer a single path.
+* Init failures: if `chronicle.init.runnable` throws, Chronicle Init will fail fast; capture stderr from early bootstrap to diagnose.
+* Temp directory permissions: unreadable or unwritable `java.io.tmpdir` can block resource extraction; set `-Djava.io.tmpdir` to a writable path.
+
 == Steps
 
 . *Inspect JVM flags*
 * `jcmd <pid> VM.system_properties | grep system.properties`
 * Confirm `chronicle.init.runnable` / `chronicle.postinit.runnable` are present if expected.
+. *Capture diagnostics bundle*
+* Save `jcmd <pid> VM.system_properties`, Chronicle Init stderr/stdout from startup, and the exact `java` command line for hand-off.
+. *Check encoding*
+* Run `iconv -f iso-8859-1 -t iso-8859-1 < /path/to/system.properties > /dev/null` to catch invalid bytes.
+. *Override temp dir safely (if needed)*
+* When `java.io.tmpdir` is unwritable, restart with `-Djava.io.tmpdir=/var/tmp/chronicle` (or another writable path) and rerun Chronicle Init checks.
 . *Dry-run ChronicleInit*
 * Execute `java -cp <app classpath> net.openhft.chronicle.core.init.SystemPropertiesProbeMain`.
 * The program should print the value of `chronicle.init.test.flag`.
@@ -34,6 +54,8 @@ Failure indicates the init hook could not load.
 
 * `Jvm.getProperty("<key>")` returns the new value.
 * The application logs show Chronicle Init executed before `Jvm` initialisation.
+* Coverage: CORE-FN-014, CORE-FN-015, CORE-OPS-006.
+* Expected duration: 5-10 minutes including one process restart.
 
 == Rollback
 

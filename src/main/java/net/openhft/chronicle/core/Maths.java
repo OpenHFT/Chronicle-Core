@@ -11,6 +11,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
+/**
+ * High performance numeric helper methods used across Chronicle components.
+ * <p>
+ * Provides rounding functions tuned for double precision, power of two utilities, hashing and
+ * small helpers such as clamping and sign checks.
+ */
 @SuppressWarnings({"java:S1940", "java:S3358"})
 public final class Maths {
 

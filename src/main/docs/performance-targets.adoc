@@ -1,8 +1,8 @@
 = Chronicle Core Performance Targets
 :toc:
-:toclevels: 2
 :sectnums:
 :lang: en-GB
+:toclevels: 2
 :source-highlighter: rouge
 
 This document summarises the main performance expectations for Chronicle Core and describes how they relate to the functional requirements in `functional-requirements.adoc` and operational requirements in `operational-requirements.adoc`.

@@ -10,6 +10,14 @@ import java.util.Map;
 
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
+/**
+ * {@link AnalyticsFacade} implementation that discards all events.
+ *
+ * <p>Used when analytics reporting is disabled so that call sites can still invoke the
+ * {@link AnalyticsFacade} API without incurring network or disk traffic. The
+ * {@link #invocationCounter} is incremented on each call to {@link #sendEvent(String, Map)}
+ * to support testing and diagnostics.
+ */
 enum MuteAnalytics implements AnalyticsFacade {
 
     INSTANCE;

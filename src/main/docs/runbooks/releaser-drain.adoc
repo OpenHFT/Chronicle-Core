@@ -1,5 +1,6 @@
 = Runbook: Draining the Background Resource Releaser
 :toc:
+:sectnums:
 :lang: en-GB
 :source-highlighter: rouge
 
@@ -9,6 +10,12 @@ Related requirements: CORE-OPS-005, CORE-FN-030, CORE-FN-039.
 
 Use this runbook when JVM shutdown stalls or leak detectors report pending work because
 `BackgroundResourceReleaser` keeps references queued after application code called `close()`.
+
+== Signals and Metrics
+
+* Logs: repeated WARN entries about delayed release or shutdown hanging on `BackgroundResourceReleaser`.
+* Threads: dumps show a running `BackgroundResourceReleaser` thread after `Jvm.shutdown()` was invoked.
+* Duration: shutdown should complete within 2 seconds (CORE-OPS-005); longer times indicate a problem.
 
 == Preconditions
 
@@ -25,6 +32,8 @@ Use this runbook when JVM shutdown stalls or leak detectors report pending work 
 * Invoke `BackgroundResourceReleaser.dumpQueue()`; capture the class names and `ReferenceOwner`
 labels that appear.
 * Cross-reference each entry with the owning subsystem (Queue, Bytes, custom component).
+. *Collect thread dump*
+* Take a thread dump to confirm `BackgroundResourceReleaser` is running and to capture blocking call stacks.
 . *Check reference counts*
 * For each class in the dump, ensure `ReferenceCounted.refCount()` eventually reaches zero.
 Missing `release(owner)` calls are the common failure.
@@ -42,6 +51,13 @@ Missing `release(owner)` calls are the common failure.
 * `BackgroundResourceReleaser.dumpQueue()` prints `Queue is empty`.
 * Graceful shutdowns (and unit tests) complete without a >2 second delay.
 * Resource tracing logs show balanced reserve/release counters for the previously leaking component.
+* Coverage: CORE-OPS-005, CORE-FN-039.
+
+== Edge Cases
+
+* Releaser disabled: when `-Dbackground.releaser=false`, leaks are synchronous; follow synchronous leak guidance instead.
+* Heavy pending queue: during peak load, draining may take longer; allow a bounded grace period before forcing exit.
+* Tracing enabled: reference tracing increases overhead; consider disabling during shutdown investigations if noise is high.
 
 == Rollback
 

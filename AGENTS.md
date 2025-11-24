@@ -1,5 +1,7 @@
 # Guidance for AI agents, bots, and humans contributing to Chronicle Software's OpenHFT projects.
 
+Follow the repository `AGENTS.md` as the base rules; this file adds Chronicle-Core specifics. Durable documentation lives in `src/main/docs/` with the landing page at `README.adoc`.
+
 LLM-based agents can accelerate development only if they respect our house rules. This file tells you:
 
 * how to run and verify the build;
