@@ -3,7 +3,6 @@
  */
 package net.openhft.chronicle.core.util;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import java.lang.reflect.InvocationTargetException;
 
@@ -33,7 +32,6 @@ public class InvocationTargetRuntimeExceptionTest {
     }
 
     @Test
-    @Ignore
     public void testConstructorWithNullCause() {
         InvocationTargetRuntimeException exception = new InvocationTargetRuntimeException(null);
 
