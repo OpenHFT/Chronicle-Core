@@ -25,8 +25,6 @@ import java.lang.annotation.Target;
  *
  * <p>This annotation has no runtime impact but aids Chronicle benchmarking
  * tools.</p>
- *
- * @see ForceInline
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
