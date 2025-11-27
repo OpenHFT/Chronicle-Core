@@ -143,6 +143,7 @@ public final class StringUtils {
      * @param sb the {@link StringBuilder} to be modified.
      * @param cs the {@link CharSequence} whose content will be set in the {@link StringBuilder}.
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static void set(@NotNull StringBuilder sb, CharSequence cs) {
         sb.setLength(0);
         sb.append(cs);
@@ -352,6 +353,7 @@ public final class StringUtils {
 
     @Java9
     @NotNull
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static String newStringFromBytes(byte @NotNull [] bytes) {
         if (!HAS_ONE_BYTE_PER_CHAR)
             return new String(bytes, ISO_8859_1);
@@ -477,6 +479,7 @@ public final class StringUtils {
      * @return the converted string in title case with underscores, or null if the input is null.
      */
     @Nullable
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static String toTitleCase(@Nullable String name) {
         if (name == null || name.isEmpty())
             return name;
@@ -614,6 +617,7 @@ public final class StringUtils {
                     " greater than Character.MAX_RADIX");
     }
 
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static long parseLong(CharSequence s, int radix)
             throws NumberFormatException {
         if (s == null) {

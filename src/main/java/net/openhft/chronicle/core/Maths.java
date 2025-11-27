@@ -66,6 +66,7 @@ public final class Maths {
      * @param d value to round
      * @return rounded value
      */
+    @Deprecated(/* to be removed in 2027 */)
     public static double roundNup(double d, int digits) {
         if (d < 0)
             return -roundNup(-d, digits);

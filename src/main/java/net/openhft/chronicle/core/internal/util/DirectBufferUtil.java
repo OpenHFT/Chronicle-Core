@@ -36,6 +36,7 @@ public final class DirectBufferUtil {
      * @param buffer to clean
      * @throws NullPointerException if the provided {@code buffer } is {@code null}
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static void cleanIfInstanceOfDirectBuffer(final ByteBuffer buffer) {
         requireNonNull(buffer);
         if (buffer instanceof DirectBuffer) {

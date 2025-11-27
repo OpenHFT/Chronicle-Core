@@ -8,6 +8,7 @@ package net.openhft.chronicle.core.internal.util;
  * <p>
  * Shared by assertion and invariant helpers to keep error wording consistent.
  */
+@Deprecated(/* to be removed in 2027 */)
 public final class RangeUtil {
 
     private RangeUtil() {}

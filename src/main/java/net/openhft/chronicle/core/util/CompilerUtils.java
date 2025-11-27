@@ -19,6 +19,7 @@ import java.lang.reflect.Method;
  * Note that this class is intended for use cases where there is a need to load classes into the JVM
  * programmatically during runtime.
  */
+@Deprecated(/* to be removed in 2027, only used in tests */)
 public final class CompilerUtils {
     private static final Method DEFINE_CLASS_METHOD;
 

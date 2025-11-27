@@ -56,6 +56,7 @@ public class CoolerTester {
      * @param tested     the task to be executed during the tests
      * @param disturbers the array of CpuCoolers to be tested
      */
+    // TODO Move to Chronicle-Test-Framework in 2026
     public CoolerTester(Callable<?> tested, CpuCooler... disturbers) {
         Collections.addAll(this.disturbers, disturbers);
         this.testNames.add("");

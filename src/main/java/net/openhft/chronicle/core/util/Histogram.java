@@ -223,6 +223,7 @@ public class Histogram implements NanoSampler {
      *
      * @return the median value
      */
+    @Deprecated(/* to be removed in 2027 */)
     public double typical() {
         return percentile(0.5);
     }

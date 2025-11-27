@@ -283,6 +283,7 @@ public final class Jvm {
     /**
      * @return if the major Java version is 12 or higher
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static boolean isJava12Plus() {
         return Bootstrap.isJava12Plus();
     }
@@ -397,6 +398,7 @@ public final class Jvm {
      * @return if the JVM is running in flight recorder mode
      */
     @SuppressWarnings("SameReturnValue")
+    @Deprecated(/* to be removed in 2027 */)
     public static boolean isFlightRecorder() {
         return IS_FLIGHT_RECORDER;
     }
@@ -569,6 +571,7 @@ public final class Jvm {
      * @param lock to log
      * @return the lock.toString plus a stack trace.
      */
+    @Deprecated(/* to be removed in 2027 */)
     public static String lockWithStack(@NotNull final ReentrantLock lock) {
         final Thread t = getValue(lock, "sync/exclusiveOwnerThread");
         if (t == null) {
@@ -603,6 +606,7 @@ public final class Jvm {
      * @return the accumulated amount of memory in bytes used by direct ByteBuffers
      * or 0 if the value cannot be determined
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static long usedDirectMemory() {
         return ReserveMemoryHolder.reservedMemory.get();
     }
@@ -612,6 +616,7 @@ public final class Jvm {
      *
      * @return the accumulated amount of memory used in bytes by UnsafeMemory.allocate()
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static long usedNativeMemory() {
         return UnsafeMemory.INSTANCE.nativeMemoryUsed();
     }
@@ -750,6 +755,7 @@ public final class Jvm {
             ((ThreadLocalisedExceptionHandler) DEBUG).threadLocalHandler(debug);
     }
 
+    @Deprecated(/* to be removed in 2027 */)
     public static void setThreadLocalExceptionHandlers(@Nullable final ExceptionHandler error,
                                                        @Nullable final ExceptionHandler warn,
                                                        @Nullable final ExceptionHandler debug,
@@ -861,6 +867,7 @@ public final class Jvm {
         }
     }
 
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static boolean areOptionalSafepointsEnabled() {
         return SAFEPOINT_ENABLED;
     }
@@ -874,6 +881,7 @@ public final class Jvm {
      * @return if there is a class name that ends with the provided {@code endsWith} string
      * when examining the current stack trace of depth at most up to the provided {@code maxDepth}
      */
+    @Deprecated(/* to be removed in 2027 */)
     public static boolean stackTraceEndsWith(final String endsWith, final int maxDepth) {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         for (int i = maxDepth + 2; i < stackTrace.length; i++)
@@ -909,6 +917,7 @@ public final class Jvm {
      * @see ClassMetrics
      */
     @NotNull
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static ClassMetrics classMetrics(final Class<?> clazz) throws IllegalArgumentException {
         return CLASS_METRICS_MAP.computeIfAbsent(clazz, Jvm::getClassMetrics);
     }
@@ -959,6 +968,7 @@ public final class Jvm {
      * if the user's home director cannot be determined
      */
     @NotNull
+    @Deprecated(/* to be removed in 2027 */)
     public static String userHome() {
         return System.getProperty("user.home", ".");
     }

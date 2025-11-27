@@ -96,6 +96,7 @@ public abstract class EnumCache<E> {
      * @param index the ordinal index of the enum instance to retrieve.
      * @return the enum instance at the given index.
      */
+    @Deprecated(/* to be removed in 2027 */)
     public abstract E forIndex(int index);
 
     /**

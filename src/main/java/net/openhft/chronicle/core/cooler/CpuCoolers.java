@@ -17,6 +17,7 @@ import java.util.concurrent.locks.LockSupport;
  * different way. The exact way in which the CPU is disturbed is defined by the `disturb()` method
  * of each enum constant.
  */
+// TODO Move to Chronicle-Test-Framework in 2026
 public enum CpuCoolers implements CpuCooler {
     /**
      * Causes the CPU to wait without doing work for a very short period of time.
@@ -137,6 +138,7 @@ public enum CpuCoolers implements CpuCooler {
         }
     },
     SERIALIZATION {
+        @SuppressWarnings("unused")
         private volatile Object lastRead;
 
         @Override

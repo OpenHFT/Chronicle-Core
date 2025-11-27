@@ -26,6 +26,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Target(PARAMETER)
 @Retention(RUNTIME)
 @Documented
+@Deprecated(/* to be removed in 2027, only used in tests */)
 public @interface MaxBytes {
 
     /**

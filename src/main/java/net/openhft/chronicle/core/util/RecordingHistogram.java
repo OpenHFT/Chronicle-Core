@@ -82,7 +82,6 @@ public class RecordingHistogram extends Histogram {
     @Override
     public void reset() {
         super.reset();
-        int sampleCount = 0;
         top10.reset();
     }
 

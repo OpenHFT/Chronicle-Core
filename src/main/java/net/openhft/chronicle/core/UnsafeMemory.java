@@ -60,6 +60,7 @@ public class UnsafeMemory implements Memory {
     // during a large copy
     static final long UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
     // NOSONAR
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static final boolean IS_LITTLE_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
 
     // Create a local copy of type long (instead of int) to optimize performance
@@ -148,6 +149,7 @@ public class UnsafeMemory implements Memory {
      * @param offset the offset at which to insert the value.
      * @param value  the integer value to insert.
      */
+    @Deprecated(/* to be removed in 2027 */)
     public static void putInt(byte[] bytes, int offset, int value) {
         assert SKIP_ASSERTIONS || bytes != null;
         assert SKIP_ASSERTIONS || offset + Integer.BYTES <= bytes.length;
@@ -159,6 +161,7 @@ public class UnsafeMemory implements Memory {
      * <p>
      * Can be used to prevent reordering of instructions by the compiler or processor.
      */
+    @Deprecated(/* to be removed in 2027 */)
     public static void unsafeStoreFence() {
         UNSAFE.storeFence();
     }
@@ -211,6 +214,7 @@ public class UnsafeMemory implements Memory {
      * @param address memory address where the value is to be put.
      * @param value   the long value to put.
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static void unsafePutLong(long address, long value) {
         assert SKIP_ASSERTIONS || address != 0;
         UNSAFE.putLong(address, value);
@@ -258,6 +262,7 @@ public class UnsafeMemory implements Memory {
      * @param offset in the provided bytes where the value is written
      * @param value  to put
      */
+    @Deprecated(/* to be removed in 2027 */)
     public static void unsafePutInt(byte[] bytes, int offset, int value) {
         assert SKIP_ASSERTIONS || bytes != null;
         assert SKIP_ASSERTIONS || offset + Integer.BYTES <= bytes.length;
@@ -271,6 +276,7 @@ public class UnsafeMemory implements Memory {
      * @param offset in the provided bytes where the value is written
      * @param value  to put
      */
+    @Deprecated(/* to be removed in 2027 */)
     public static void unsafePutByte(byte[] bytes, int offset, byte value) {
         assert SKIP_ASSERTIONS || bytes != null;
         assert SKIP_ASSERTIONS || offset + Byte.BYTES <= bytes.length;

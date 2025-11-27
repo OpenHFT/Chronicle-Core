@@ -60,6 +60,7 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      *
      * @return a new provider initialised to the current time
      */
+    @Deprecated(/* to be removed in 2027 */)
     public SetTimeProvider now() {
         return new SetTimeProvider(SystemTimeProvider.CLOCK.currentTimeNanos());
     }
@@ -125,6 +126,7 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      * @param micros new time in microseconds, not less than the current value
      * @throws IllegalArgumentException if the time would go backwards
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public void currentTimeMicros(long micros) throws IllegalArgumentException {
         currentTimeNanos(TimeUnit.MICROSECONDS.toNanos(micros));
     }
@@ -167,6 +169,7 @@ public class SetTimeProvider extends AtomicLong implements TimeProvider {
      * @param unit target unit, not {@code null}
      * @return the current time in that unit
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public long currentTime(TimeUnit unit) {
         return unit.convert(currentTimeNanos(), TimeUnit.NANOSECONDS);
     }

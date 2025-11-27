@@ -182,6 +182,7 @@ public final class OS {
      * @throws FileNotFoundException if no directory with the specified suffix is found
      */
     @NotNull
+    @Deprecated(/* to be removed in 2027 */)
     public static String findDir(@NotNull String suffix) throws FileNotFoundException {
         String[] split = Jvm.getProperty("java.class.path").split(File.pathSeparator);
         for (@NotNull String s : split) {
@@ -222,6 +223,7 @@ public final class OS {
      *
      * @return the IP address
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static String getIPAddress() {
         return IPAddressHolder.IP_ADDRESS;
     }
@@ -256,6 +258,7 @@ public final class OS {
     /**
      * @return the current working directory
      */
+    @Deprecated(/* to be removed in 2027 */)
     public static String getUserDir() {
         return USER_DIR;
     }
@@ -459,6 +462,7 @@ public final class OS {
     /**
      * @return the maximum PID.
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static long getPidMax() {
         if (isLinux()) {
             @NotNull File file = new File(PROC_SYS_KERNEL_PID_MAX);
@@ -504,6 +508,7 @@ public final class OS {
         return address;
     }
 
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode, long start, long size)
             throws IOException, IllegalArgumentException {
         return map(fileChannel, mode, start, size, (int) mapAlignment());
@@ -615,6 +620,7 @@ public final class OS {
      * @param filename to get the actual size of
      * @return size in bytes.
      */
+    @Deprecated(/* to be removed in 2027 */)
     public static long spaceUsed(@NotNull String filename) {
         return spaceUsed(new File(filename));
     }
@@ -654,6 +660,7 @@ public final class OS {
      *
      * @return the user's current working directory
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static String userDir() {
         return USER_DIR;
     }

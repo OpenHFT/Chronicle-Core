@@ -33,6 +33,7 @@ import static net.openhft.chronicle.core.Jvm.uncheckedCast;
  *
  * @param <E> The type of object the cache stores. Typically, these are objects created from strings.
  */
+@Deprecated(/* to be removed in 2027, only used in tests */)
 public class ParsingCache<E> {
     protected final ParsedData<E>[] interner;
     protected final int mask;

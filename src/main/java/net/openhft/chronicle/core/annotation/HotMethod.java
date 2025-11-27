@@ -30,6 +30,7 @@ import java.lang.annotation.Target;
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
+@Deprecated(/* to be removed in 2027 */)
 public @interface HotMethod {
     @NotNull String value() default "";
 }

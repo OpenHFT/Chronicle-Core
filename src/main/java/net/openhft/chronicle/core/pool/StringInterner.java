@@ -63,6 +63,7 @@ public class StringInterner {
     /**
      * @return the size of interner[]
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public int capacity() {
         return interner.length;
     }
@@ -103,6 +104,7 @@ public class StringInterner {
      * @param onChanged callback invoked when a new value is stored
      * @return the slot index or {@code -1} if the text is too long
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public int index(@Nullable CharSequence cs, @Nullable Changed onChanged) {
         if (cs == null)
             return -1;
@@ -136,6 +138,7 @@ public class StringInterner {
      * @return the interned string, or {@code null} if no value is stored at that index
      */
     @Nullable
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public String get(int index) {
         return interner[index];
     }

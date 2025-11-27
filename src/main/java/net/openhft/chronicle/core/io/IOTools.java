@@ -381,6 +381,7 @@ public final class IOTools {
      * @param dir The path of the directory to create
      * @throws IOException If an I/O error occurs
      */
+    @Deprecated(/* to be removed in 2027 */)
     public static void createDirectories(Path dir) throws IOException {
         if (dir == null || dir.getNameCount() == 0 || Files.isDirectory(dir))
             return;
@@ -460,6 +461,7 @@ public final class IOTools {
      *
      * @param bb The ByteBuffer to clean
      */
+    // TODO ensure used in Bytes
     public static void clean(ByteBuffer bb) {
         CleanerServiceLocator.cleanerService().clean(bb);
     }

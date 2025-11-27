@@ -26,6 +26,7 @@ public final class Wget {
     private final ConnectionProvider connectionProvider;
     private final CharsetDetector charsetDetector;
     private final long maxResponseBytes;
+
     private Wget(final ConnectionProvider cp,
                  final CharsetDetector cd,
                  final long maxBytes) {
@@ -37,6 +38,7 @@ public final class Wget {
     /**
      * Shortcut that uses the default configuration.
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static void url(final String url, final StringBuilder sb) throws IOException {
         if (url.length() > MAX_URL_LENGTH)
             throw new IllegalArgumentException("URL too long (" + url.length() + ")");
@@ -89,26 +91,31 @@ public final class Wget {
         private int readTimeoutMs = 10_000;
         private long maxResponseBytes = 10L << 20; // 10 MiB
 
+        @Deprecated(/* to be removed in 2027, only used in tests */)
         public Builder connectionProvider(final ConnectionProvider provider) {
             this.connectionProvider = Objects.requireNonNull(provider);
             return this;
         }
 
+        @Deprecated(/* to be removed in 2027, only used in tests */)
         public Builder charsetDetector(final CharsetDetector detector) {
             this.charsetDetector = Objects.requireNonNull(detector);
             return this;
         }
 
+        @Deprecated(/* to be removed in 2027, only used in tests */)
         public Builder connectTimeoutMs(final int timeoutMs) {
             this.connectTimeoutMs = timeoutMs;
             return this;
         }
 
+        @Deprecated(/* to be removed in 2027, only used in tests */)
         public Builder readTimeoutMs(final int timeoutMs) {
             this.readTimeoutMs = timeoutMs;
             return this;
         }
 
+        @Deprecated(/* to be removed in 2027, only used in tests */)
         public Builder maxResponseBytes(final long maxResponseBytes) {
             if (maxResponseBytes < 0)
                 throw new IllegalArgumentException("maxResponseBytes must be >= 0");

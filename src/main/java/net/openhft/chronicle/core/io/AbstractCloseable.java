@@ -99,6 +99,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
      *
      * @throws AssertionError If the finalizer does not complete within the specified timeout.
      */
+    @Deprecated(/* to be removed in 2027 */)
     public static void gcAndWaitForCloseablesToClose() {
         CloseableUtils.gcAndWaitForCloseablesToClose();
     }
@@ -421,7 +422,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
      * The Finalizer inner class is used to ensure that resources are properly closed
      * when the garbage collector decides to reclaim the memory for the enclosing AbstractCloseable instance.
      */
-    @SuppressWarnings("RedundantSuppression")
+    @SuppressWarnings({"RedundantSuppression", "unused"})
     class Finalizer {
         /**
          * Called by the garbage collector when the enclosing AbstractCloseable instance is

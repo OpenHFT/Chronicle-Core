@@ -9,6 +9,7 @@ import net.openhft.chronicle.core.internal.ChronicleGuarding;
  * Contains the pieces which must be loaded first
  */
 public class Bootstrap {
+    @Deprecated(/* make private in 2026 */)
     public Bootstrap() {
     }
     static {

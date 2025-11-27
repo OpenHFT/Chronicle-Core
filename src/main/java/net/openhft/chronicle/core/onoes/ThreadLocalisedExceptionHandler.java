@@ -119,6 +119,7 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
      *
      * @return the thread-local handler or {@code null}
      */
+    @Deprecated(/* to be removed in 2027 */)
     public ExceptionHandler threadLocalHandler() {
         return handlerTL.get();
     }

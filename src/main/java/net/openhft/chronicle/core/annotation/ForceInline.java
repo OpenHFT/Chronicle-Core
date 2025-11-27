@@ -28,5 +28,6 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.METHOD, ElementType.CONSTRUCTOR})
 @Retention(RetentionPolicy.RUNTIME)
+@Deprecated(/* to be removed in 2027 */)
 public @interface ForceInline {
 }
