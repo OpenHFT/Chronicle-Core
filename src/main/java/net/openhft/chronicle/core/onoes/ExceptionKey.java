@@ -80,7 +80,7 @@ public class ExceptionKey {
      * @return The message.
      */
     public String message() {
-        return message;
+        return message == null || message.isEmpty() ? throwable.toString() : message;
     }
 
     /**
