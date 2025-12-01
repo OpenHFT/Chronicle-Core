@@ -1,9 +1,13 @@
-= README
+= Checked exceptions
+:toc:
+:sectnums:
+:lang: en-GB
+:source-highlighter: rouge
 
-This adds checked versions of a number of common unchecked exceptions we have.
+This module adds checked versions of a number of common unchecked exceptions we have.
 
-We can add these temporaily as we don't expect developers to be force to handle these exceptions but we want to ensure
+We can add these temporarily as we do not expect developers to be forced to handle these exceptions, but we want to ensure:
 
-* we want handle these correctly in our code.
-* we want handle these consistently with the right exception and making these checked helps review the choices made.
-* we want to document when these unchecked exceptions can/cannot occur.
+* we handle these correctly in our code.
+* we handle these consistently with the right exception, and making these checked helps review the choices made.
+* we document when these unchecked exceptions can or cannot occur.

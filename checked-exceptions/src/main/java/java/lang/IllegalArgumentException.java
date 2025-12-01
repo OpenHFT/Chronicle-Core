@@ -3,6 +3,10 @@
  */
 package java.lang;
 
+/**
+ * Checked counterpart of {@link java.lang.IllegalArgumentException} for APIs that avoid unchecked
+ * exceptions in error paths.
+ */
 public class IllegalArgumentException extends Exception {
     public IllegalArgumentException() {
     }
