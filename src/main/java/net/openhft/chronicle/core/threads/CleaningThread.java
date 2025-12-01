@@ -5,15 +5,14 @@ package net.openhft.chronicle.core.threads;
 
 import net.openhft.affinity.Affinity;
 import net.openhft.affinity.AffinityLock;
-import net.openhft.affinity.IAffinity;
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.internal.ClassUtil;
 import net.openhft.chronicle.core.StackTrace;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.BitSet;
 
 import static net.openhft.chronicle.core.Jvm.isResourceTracing;
 import static net.openhft.chronicle.core.Jvm.uncheckedCast;
@@ -31,8 +30,6 @@ public class CleaningThread extends Thread {
     private static final Field THREAD_LOCALS;
     private static final Field TABLE;
     private static final Field VALUE;
-    // load this library as soon as possible
-    private static final IAffinity AFFINITY = Affinity.getAffinityImpl();
 
     private final boolean inEventLoop;
     @SuppressWarnings("unused")
@@ -184,10 +181,9 @@ public class CleaningThread extends Thread {
     @Override
     public void run() {
         // Reset thread affinity if required
-        BitSet affinity = AFFINITY.getAffinity();
-        if (affinity.cardinality() == 1) {
-            Jvm.debug().on(getClass(), "Resetting affinity from " + affinity + " to " + AffinityLock.BASE_AFFINITY);
-            AFFINITY.setAffinity(AffinityLock.BASE_AFFINITY);
+        if (Affinity.getAffinity().cardinality() == 1) {
+            Jvm.debug().on(getClass(), "Resetting affinity from " + Affinity.getAffinity() + " to " + AffinityLock.BASE_AFFINITY);
+            Affinity.setAffinity(AffinityLock.BASE_AFFINITY);
         }
 
         try {
