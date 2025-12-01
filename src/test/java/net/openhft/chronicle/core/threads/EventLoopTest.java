@@ -65,7 +65,7 @@ class EventLoopTest {
     }
 
     @Test
-    void testClose() throws Exception {
+    void testClose() {
         doNothing().when(eventLoop).close();
         eventLoop.close();
         verify(eventLoop).close();

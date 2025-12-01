@@ -48,6 +48,7 @@ public class StringInternerTest extends CoreTestCommon {
                 assertEquals(lowerCaseString.toUpperCase(), uppercase[index]);
         }
     }
+
     private void changed(int index, String value) {
         uppercase[index] = value.toUpperCase();
     }

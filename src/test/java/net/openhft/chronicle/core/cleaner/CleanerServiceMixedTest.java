@@ -27,7 +27,9 @@ class CleanerServiceMixedTest {
     }
 
     @AfterEach
-    void tearDown() throws Exception { resetLocator(); }
+    void tearDown() throws Exception {
+        resetLocator();
+    }
 
     @Test
     void mixedValidAndInvalidEntriesStillChooseValidProvider() throws Exception {

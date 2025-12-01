@@ -27,7 +27,9 @@ class CleanerServicePriorityTest {
     }
 
     @AfterEach
-    void tearDown() throws Exception { resetLocator(); }
+    void tearDown() throws Exception {
+        resetLocator();
+    }
 
     @Test
     void lowestImpactChosenRegardlessOfDiscoveryOrder() throws Exception {

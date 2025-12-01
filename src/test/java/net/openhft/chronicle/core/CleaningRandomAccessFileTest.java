@@ -30,7 +30,6 @@ public class CleaningRandomAccessFileTest extends CoreTestCommon {
         for (int j = 0; j < repeat; j++) {
             int files = getFDs();
             if (files > 0) {
-//                System.out.println("File descriptors " + files);
                 assertEquals("j: " + j, 200, files, 200);
             }
             ByteBuffer bb = ByteBuffer.allocateDirect(64);

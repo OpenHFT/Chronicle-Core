@@ -72,7 +72,7 @@ public class InvalidEventHandlerExceptionTest extends CoreTestCommon {
 
         try (OutputStream os = new OutputStream() {
             @Override
-            public void write(int b) throws IOException {
+            public void write(int b) {
                 sb.append((char) b);
             }
         };

@@ -64,11 +64,9 @@ public class SystemTimeProviderTest extends CoreTestCommon {
                 long diff = time2 - now;
                 if (minDiff > diff) {
                     minDiff = diff;
-//                    System.out.println("min: " + minDiff);
                 }
                 if (maxDiff < diff) {
                     maxDiff = diff;
-//                    System.out.println("max: " + maxDiff);
                 }
                 long ns = System.nanoTime();
                 while (System.nanoTime() < ns + 100)

@@ -4,8 +4,8 @@
 package net.openhft.chronicle.core;
 
 import org.junit.Test;
-import java.util.Arrays;
 
+import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 

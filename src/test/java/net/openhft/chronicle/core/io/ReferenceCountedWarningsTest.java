@@ -45,4 +45,3 @@ class ReferenceCountedWarningsTest {
         ref.warnAndReleaseIfNotReleased();
     }
 }
-
