@@ -16,21 +16,12 @@ import org.slf4j.LoggerFactory;
  * method on the SLF4J {@link Logger}. When SLF4J fails to initialise, or
  * the logger throws at runtime, the implementation writes to
  * {@code System.err} instead.
- *
- * <p>The {@link #DEBUG} constant overrides
- * {@link #isEnabled(Class)} and only logs when the underlying logger has
- * debug level enabled. Every constant is a singleton within the JVM.
  */
 public enum Slf4jExceptionHandler implements ExceptionHandler {
     ERROR(Logger::error),
     WARN(Logger::warn),
     PERF(Logger::info),
-    DEBUG(Logger::debug) {
-        @Override
-        public boolean isEnabled(@NotNull Class<?> clazz) {
-            return getLogger(clazz).isDebugEnabled();
-        }
-    };
+    DEBUG(Logger::debug);
 
     private final LogMethod logMethod;
 
@@ -64,6 +55,11 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
             }
             t.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean isEnabled(@NotNull Class<?> aClass) {
+        return getLogger(aClass).isDebugEnabled();
     }
 
     static Logger getLogger(Class<?> clazz) {
