@@ -44,7 +44,6 @@ import java.lang.annotation.Target;
  * @see Positive
  * @see Range
  */
-
 @Retention(RetentionPolicy.CLASS)
 @Target({ElementType.METHOD, ElementType.FIELD, ElementType.PARAMETER, ElementType.LOCAL_VARIABLE, ElementType.TYPE_USE})
 public @interface NonPositive {

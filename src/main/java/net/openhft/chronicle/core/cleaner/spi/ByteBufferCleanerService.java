@@ -15,7 +15,6 @@ import java.nio.ByteBuffer;
  * and more expensive than regular heap memory. This operation can be critical in environments
  * where lots of direct ByteBuffers are being used, like in high-performance IO or memory-mapped files.
  */
-
 public interface ByteBufferCleanerService {
 
     /**

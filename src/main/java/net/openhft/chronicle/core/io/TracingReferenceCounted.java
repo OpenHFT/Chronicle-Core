@@ -16,6 +16,12 @@ import java.util.stream.Collectors;
 
 import static net.openhft.chronicle.core.internal.CloseableUtils.asString;
 
+/**
+ * {@link MonitorReferenceCounted} implementation that records where references are reserved and released.
+ * <p>
+ * Captures stack traces for each {@link ReferenceOwner}, detects leaks, and invokes a supplied
+ * {@code onRelease} callback when the final reference is released.
+ */
 public final class TracingReferenceCounted implements MonitorReferenceCounted {
     private final Map<ReferenceOwner, StackTrace> references = Collections.synchronizedMap(new IdentityHashMap<>());
     private final Map<ReferenceOwner, StackTrace> releases = Collections.synchronizedMap(new IdentityHashMap<>());

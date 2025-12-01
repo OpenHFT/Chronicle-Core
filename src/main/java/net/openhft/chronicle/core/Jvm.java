@@ -1667,10 +1667,12 @@ public final class Jvm {
             reservedMemory = reservedMemoryGetter;
         }
     }
+
     static class MaxMemoryHolder {
+        static final long MAX_DIRECT_MEMORY = maxDirectMemory0();
+
         private MaxMemoryHolder() {
         }
-        static final long MAX_DIRECT_MEMORY = maxDirectMemory0();
 
         private static long maxDirectMemory0() {
             try {

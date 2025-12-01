@@ -11,24 +11,6 @@ package net.openhft.chronicle.core.io;
  * {@code toString()} whilst debugging. Validation can be temporarily disabled
  * by wrapping the call in {@link ValidatableUtil#startValidateDisabled()} and
  * {@link ValidatableUtil#endValidateDisabled()}.
- * <p>
- * Example usage:
- * <pre>
- * public class MyData implements Validatable {
- *     private String name;
- *     private Integer age;
- *
- *     // getters and setters
- *
- *     {@literal @}Override
- *     public void validate() throws InvalidMarshallableException {
- *         if (name == null || name.isEmpty())
- *             throw new InvalidMarshallableException("Name cannot be null or empty");
- *         if (age == null || age &lt; 0)
- *             throw new InvalidMarshallableException("Age cannot be null or negative");
- *     }
- * }
- * </pre>
  */
 public interface Validatable {
 

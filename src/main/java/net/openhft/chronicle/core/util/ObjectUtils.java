@@ -65,7 +65,6 @@ public final class ObjectUtils {
             entry(double.class, Double.class),
             entry(void.class, Void.class)
     );
-
     static final Map<Class<?>, Object> DEFAULT_MAP = ofUnmodifiable(
             entry(boolean.class, false),
             entry(byte.class, (byte) 0),
@@ -314,6 +313,7 @@ public final class ObjectUtils {
 
     /**
      * Tests if there is a supported conversion from text to this type
+     *
      * @param eClass to be tested
      * @return true if it can be converted, false if it's not worth trying.
      */
@@ -652,7 +652,6 @@ public final class ObjectUtils {
      * @param <T>  The type of the class. Note: primitive classes return their boxed type.
      * @return The default value for the given primitive class, or null for object classes.
      */
-
     public static <T> T defaultValue(Class<T> type) {
         return (T) DEFAULT_MAP.get(type);
     }

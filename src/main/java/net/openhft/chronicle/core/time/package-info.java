@@ -1,7 +1,6 @@
 /*
  * Copyright 2013-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
  */
-
 /**
  * Supplies time providers and utilities for obtaining or setting precise wall-clock timestamps.
  * Implementations range from simple Java wrappers to native-backed providers and tools for
@@ -13,13 +12,13 @@
  * <tr><th>Provider</th><th>Precision and behaviour</th></tr>
  * </thead>
  * <tbody>
- * <tr><td>{@link SystemTimeProvider}</td><td>Pure Java; synthesises nanoseconds using
+ * <tr><td>{@link net.openhft.chronicle.core.time.SystemTimeProvider}</td><td>Pure Java; synthesises nanoseconds using
  * System.nanoTime and System.currentTimeMillis.</td></tr>
- * <tr><td>{@link PosixTimeProvider}</td><td>Uses native <code>clock_gettime</code> for
+ * <tr><td>{@link net.openhft.chronicle.core.time.PosixTimeProvider}</td><td>Uses native <code>clock_gettime</code> for
  * high resolution.</td></tr>
- * <tr><td>{@link UniqueMicroTimeProvider}</td><td>Ensures unique microsecond timestamps
+ * <tr><td>{@link net.openhft.chronicle.core.time.UniqueMicroTimeProvider}</td><td>Ensures unique microsecond timestamps
  * across threads using a delegate provider.</td></tr>
- * <tr><td>{@link SetTimeProvider}</td><td>Manually settable time with optional
+ * <tr><td>{@link net.openhft.chronicle.core.time.SetTimeProvider}</td><td>Manually settable time with optional
  * auto-increment for tests.</td></tr>
  * </tbody>
  * </table>

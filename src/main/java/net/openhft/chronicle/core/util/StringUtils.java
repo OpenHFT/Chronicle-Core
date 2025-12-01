@@ -42,7 +42,6 @@ public final class StringUtils {
     private static final String VALUE_FIELD_NAME = "value";
     private static final String COUNT_FIELD_NAME = "count";
     private static final String CODER_FIELD_NAME = "coder";
-
     private static final Field S_VALUE;
     private static final Field SB_COUNT;
     private static final Field S_CODER;
@@ -534,7 +533,6 @@ public final class StringUtils {
          * before IntegerCache is initialized. Care must be taken to not use
          * the valueOf method.
          */
-
         if (s == null) {
             throw new NumberFormatException("null");
         }

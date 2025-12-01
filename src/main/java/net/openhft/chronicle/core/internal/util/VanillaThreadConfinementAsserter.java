@@ -5,6 +5,10 @@ package net.openhft.chronicle.core.internal.util;
 
 import net.openhft.chronicle.core.util.ThreadConfinementAsserter;
 
+/**
+ * Default {@link ThreadConfinementAsserter} that records the first accessing thread and enforces
+ * single-threaded use thereafter.
+ */
 class VanillaThreadConfinementAsserter implements ThreadConfinementAsserter {
 
     private volatile Thread initialThread;

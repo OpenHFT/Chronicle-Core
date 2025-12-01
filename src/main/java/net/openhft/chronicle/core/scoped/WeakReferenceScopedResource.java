@@ -10,11 +10,9 @@ import java.lang.ref.WeakReference;
 import java.util.function.Supplier;
 
 /**
- * A {@link ScopedResource} backed by a {@link WeakReference}. When the resource
- * is acquired a strong reference is taken and released again on
- * {@link #close()}. This allows the object to be reclaimed between usages. In
- * contrast {@link StrongReferenceScopedResource} retains a strong reference for
- * the lifetime of the wrapper.
+ * {@link ScopedResource} backed by a {@link WeakReference}, allowing idle resources to be
+ * reclaimed between uses. A strong reference is taken on acquire and dropped on {@link #close()}.
+ * In contrast {@link StrongReferenceScopedResource} retains a strong reference throughout.
  *
  * @param <T> the type of the contained resource
  */
@@ -30,9 +28,8 @@ public class WeakReferenceScopedResource<T> extends AbstractScopedResource<T> {
     }
 
     /**
-     * Ensures a strong reference exists before the caller receives
-     * the resource. If the previous instance was reclaimed, a new one is
-     * obtained from the supplier.
+     * Ensure a strong reference exists before the caller receives the resource. If the previous
+     * instance was reclaimed, a new one is obtained from the supplier.
      */
     @Override
     void preAcquire() {

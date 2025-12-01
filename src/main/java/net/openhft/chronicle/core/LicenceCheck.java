@@ -14,6 +14,12 @@ import java.util.function.BiConsumer;
 import static net.openhft.chronicle.core.Jvm.startup;
 import static net.openhft.chronicle.core.Jvm.warn;
 
+/**
+ * Contract for checking Chronicle enterprise licence validity.
+ * <p>
+ * Provides static helpers to read expiry information from licence keys or resource files and an
+ * instance {@link #licenceCheck()} used by guarded entry points.
+ */
 public interface LicenceCheck {
 
     String CHRONICLE_LICENSE = "chronicle.license";

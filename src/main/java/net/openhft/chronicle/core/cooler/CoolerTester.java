@@ -24,7 +24,6 @@ public class CoolerTester {
      * Holds the results of the tests to avoid being optimised away and making the test meaningless.
      */
     static Object blackhole;
-
     /**
      * List of disturbers or CPU coolers to be used in the tests.
      */

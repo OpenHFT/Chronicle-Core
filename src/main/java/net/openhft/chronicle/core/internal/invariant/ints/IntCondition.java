@@ -7,6 +7,12 @@ import java.util.function.IntPredicate;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ * Reusable integer range and alignment predicates used by invariant checks.
+ * <p>
+ * Encapsulates common conditions such as positivity, byte/short convertibility and alignment in a
+ * form that can be composed or negated when validating method arguments or buffer offsets.
+ */
 public enum IntCondition implements IntPredicate {
 
     POSITIVE("> 0", value -> value > 0),

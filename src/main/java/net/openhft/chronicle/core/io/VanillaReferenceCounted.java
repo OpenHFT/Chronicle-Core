@@ -9,9 +9,10 @@ import net.openhft.chronicle.core.UnsafeMemory;
 import net.openhft.chronicle.core.annotation.UsedViaReflection;
 
 /**
- * Lightweight implementation of {@link MonitorReferenceCounted} used when
- * resource tracing is disabled. It simply counts references and runs the given
- * {@link Runnable} when the count reaches zero.
+ * Lightweight {@link MonitorReferenceCounted} used when resource tracing is disabled.
+ * <p>
+ * Maintains a volatile reference count and invokes the supplied {@link Runnable} when it drops to
+ * zero. Can still notify {@link ReferenceChangeListenerManager} listeners if present.
  */
 public final class VanillaReferenceCounted implements MonitorReferenceCounted {
 
@@ -27,7 +28,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     // must be volatile
     @SuppressWarnings("FieldMayBeFinal")
     @UsedViaReflection
-    private volatile int value = 1;
+    private int value = 1; // cannot be final as Unsafe needs to update it
     private volatile boolean released = false;
     private boolean unmonitored;
     private StackTrace releasedHere;

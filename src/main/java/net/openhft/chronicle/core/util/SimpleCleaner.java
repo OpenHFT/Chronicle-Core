@@ -3,13 +3,23 @@
  */
 package net.openhft.chronicle.core.util;
 
+import net.openhft.chronicle.core.annotation.UsedViaReflection;
+
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
+/**
+ * Lightweight one shot cleaner.
+ * <p>
+ * Wraps a {@link Runnable} and guarantees it is only executed once even when {@link #clean()}
+ * is called concurrently from multiple threads.
+ */
 public class SimpleCleaner {
     private static final AtomicIntegerFieldUpdater<SimpleCleaner> CLEANED_FLAG =
             AtomicIntegerFieldUpdater.newUpdater(SimpleCleaner.class, "cleaned");
 
     private final Runnable thunk;
+    // this must be volatile for the newUpdater about to work
+    @UsedViaReflection
     @SuppressWarnings("unused")
     private volatile int cleaned = 0;
 

@@ -15,6 +15,12 @@ import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toMap;
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
+/**
+ * Small helpers for building immutable maps.
+ * <p>
+ * Provides {@link #entry(Object, Object)} and {@link #ofUnmodifiable(Map.Entry[])} to create
+ * unmodifiable maps in a concise and type safe way.
+ */
 public final class MapUtil {
 
     private MapUtil() {

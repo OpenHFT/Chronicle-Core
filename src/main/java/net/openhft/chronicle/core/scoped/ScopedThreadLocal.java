@@ -155,6 +155,10 @@ public class ScopedThreadLocal<T> implements ScopedResourcePool<T> {
             }
         }
 
+        /**
+         * Retain the oldest resource when the stack is full, discarding whichever instance was
+         * created most recently. This biases reuse toward long-lived resources.
+         */
         private AbstractScopedResource<T> replaceNewestInstance(AbstractScopedResource<T> returningInstance) {
             long latestCreationTime = returningInstance.getCreatedTimeNanos();
             int latestCreationIndex = -1;

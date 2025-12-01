@@ -28,7 +28,6 @@ import java.util.stream.Stream;
  *
  * @author peter.lawrey
  */
-
 public class StringInterner {
     protected final String[] interner;
     protected final int mask;

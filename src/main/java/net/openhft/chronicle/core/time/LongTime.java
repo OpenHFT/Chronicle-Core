@@ -3,6 +3,12 @@
  */
 package net.openhft.chronicle.core.time;
 
+/**
+ * Utilities for working with timestamps represented as {@code long} values.
+ * <p>
+ * Provides heuristics for detecting the unit (seconds, millis, micros, nanos) and helpers to
+ * convert between them without overflowing.
+ */
 public final class LongTime {
     private LongTime() {
     }

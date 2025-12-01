@@ -5,6 +5,12 @@ package net.openhft.chronicle.core.util;
 
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * Three argument function that is permitted to throw a checked exception.
+ * <p>
+ * Useful when adapting APIs that expect pure functions but where implementations need to
+ * propagate failures without eagerly wrapping them.
+ */
 @FunctionalInterface
 public interface ThrowingTriFunction<I, J, A, R, T extends Throwable> {
 

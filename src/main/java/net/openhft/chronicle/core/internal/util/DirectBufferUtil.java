@@ -10,9 +10,9 @@ import java.nio.ByteBuffer;
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 /**
- * This utility class provides centralized access to the
- * internal class sun.nio.ch.DirectBuffer in order to reduce
- * compile time warnings.
+ * Centralises interaction with {@code sun.nio.ch.DirectBuffer} to reduce compiler warnings.
+ * <p>
+ * Used to query direct buffer addresses and invoke the cleaner when available.
  */
 public final class DirectBufferUtil {
 

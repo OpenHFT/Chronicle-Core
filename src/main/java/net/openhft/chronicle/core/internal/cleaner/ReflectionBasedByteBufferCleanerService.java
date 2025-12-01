@@ -14,6 +14,12 @@ import java.nio.ByteBuffer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * {@link ByteBufferCleanerService} that invokes the JDK cleaner API via reflection.
+ * <p>
+ * Supports both JDK 8 and JDK 9+ cleaner classes and degrades gracefully when the necessary
+ * reflective access is not available.
+ */
 public final class ReflectionBasedByteBufferCleanerService implements ByteBufferCleanerService {
     private static final String JDK8_CLEANER_CLASS_NAME = "sun.misc.Cleaner";
     private static final String JDK9_CLEANER_CLASS_NAME = "jdk.internal.ref.Cleaner";

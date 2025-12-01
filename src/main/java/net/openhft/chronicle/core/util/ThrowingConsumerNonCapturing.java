@@ -7,7 +7,6 @@ package net.openhft.chronicle.core.util;
  * @param <I> the type of the input to the function
  * @param <T> the type of Throwable thrown
  */
-
 public interface ThrowingConsumerNonCapturing<I, T extends Throwable, U> {
 
     /**

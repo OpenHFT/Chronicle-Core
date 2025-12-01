@@ -22,7 +22,7 @@ import java.lang.annotation.Target;
  * </pre>
  *
  * <p>Chronicle runtime checks this contract unless
- * {@link net.openhft.chronicle.core.io.AbstractCloseable#singleThreadedCheckDisabled()}
+ * <p>
  * is enabled. Call {@code singleThreadedCheckReset()} before handing the
  * instance to another thread. Violations may lead to subtle data races.</p>
  */

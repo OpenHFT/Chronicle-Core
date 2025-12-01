@@ -7,6 +7,12 @@ import java.util.function.LongPredicate;
 
 import static java.util.Objects.requireNonNull;
 
+/**
+ * Reusable long range and alignment predicates used by invariant checks.
+ * <p>
+ * Encapsulates common conditions such as positivity, byte/short convertibility and alignment in a
+ * form that can be composed or negated.
+ */
 public enum LongCondition implements LongPredicate {
 
     POSITIVE("> 0", value -> value > 0),

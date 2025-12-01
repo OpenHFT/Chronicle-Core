@@ -675,11 +675,10 @@ public final class OS {
     static class IPAddressHolder {
 
         public static final String GOOGLE_DNS = "8.8.8.8"; // NOSONAR
-
-        private IPAddressHolder() {
-        }
         public static final String NO_ADDRESS = "0.0.0.0";
         static final String IP_ADDRESS = getIPAddress0();
+        private IPAddressHolder() {
+        }
 
         static String getIPAddress0() {
             String addr = getIpAddressByLocalHost();
@@ -734,9 +733,10 @@ public final class OS {
 
     @SuppressWarnings("java:S1181")
     static class HostnameHolder {
+        static final String HOST_NAME = getHostName0();
+
         private HostnameHolder() {
         }
-        static final String HOST_NAME = getHostName0();
 
         private static String getHostName0() {
             if (isWindows()) {
@@ -771,14 +771,13 @@ public final class OS {
     }
 
     static class FDFieldHolder {
+        static final Field FD_FIELD = Jvm.getField(FileChannelImpl.class, "fd");
+
         private FDFieldHolder() {
         }
-        static final Field FD_FIELD = Jvm.getField(FileChannelImpl.class, "fd");
     }
 
     static class Unmapp0Holder {
-        private Unmapp0Holder() {
-        }
         static final MethodHandle UNMAPP0_MH;
 
         static {
@@ -795,13 +794,15 @@ public final class OS {
                 throw new IORuntimeException(e);
             }
         }
+
+        private Unmapp0Holder() {
+        }
     }
 
     @SuppressWarnings("java:S1181")
     static class Read0Holder {
-        private Read0Holder() {
-        }
         static final MethodHandle READ0_MH;
+
         static {
             try {
                 Class<?> fdi = Class.forName(SUN_NIO_CH_FILE_DISPATCHER_IMPL);
@@ -811,14 +812,16 @@ public final class OS {
                 throw new IORuntimeException(t);
             }
         }
+
+        private Read0Holder() {
+        }
     }
 
     @SuppressWarnings({"java:S1141", "java:S1181"})
     static class Write0Holder {
-        private Write0Holder() {
-        }
         static final MethodHandle WRITE0_MH;
         static final MethodHandle WRITE0_MH2;
+
         static {
             MethodHandle write0Mh = null;
             MethodHandle write0Mh2 = null;
@@ -836,6 +839,9 @@ public final class OS {
             }
             WRITE0_MH = write0Mh;
             WRITE0_MH2 = write0Mh2;
+        }
+
+        private Write0Holder() {
         }
     }
 }

@@ -3,6 +3,11 @@
  */
 package net.openhft.chronicle.core.internal.util;
 
+/**
+ * Common fragments for constructing range validation messages.
+ * <p>
+ * Shared by assertion and invariant helpers to keep error wording consistent.
+ */
 public final class RangeUtil {
 
     private RangeUtil() {}
@@ -16,5 +21,4 @@ public final class RangeUtil {
     public static final String IS_NOT_ZERO = " is not zero.";
     public static final String IS_NOT_EQUAL_TO = " is not equal to ";
     public static final String IS_NOT_IN_THE_RANGE = " is not in the range [";
-
 }

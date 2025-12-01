@@ -8,20 +8,10 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * The {@code InvocationTargetRuntimeException} class is a custom runtime exception
- * that is thrown when a method's invocation on the target object throws an exception.
- * This class helps in wrapping the exception thrown by the target method
- * into an unchecked exception.
+ * Runtime wrapper for exceptions thrown by reflective invocation targets.
  * <p>
- * For example, if a reflective method invocation through {@code java.lang.reflect.Method}
- * throws an exception, this class can be used to wrap and rethrow it as a
- * runtime exception.
- * <p>
- * This is useful in scenarios where the client code invoking the method
- * is not expecting or is not capable of handling checked exceptions thrown
- * by the method.
- *
- * @see InvocationTargetException
+ * Unwraps {@link InvocationTargetException} to surface the underlying cause, enabling callers to
+ * rethrow unchecked without losing the original failure.
  */
 public class InvocationTargetRuntimeException extends RuntimeException {
     private static final long serialVersionUID = 0L;

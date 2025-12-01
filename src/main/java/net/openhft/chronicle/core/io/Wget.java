@@ -3,11 +3,7 @@
  */
 package net.openhft.chronicle.core.io;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -82,7 +78,9 @@ public final class Wget {
 
     private static final int MAX_URL_LENGTH = 2_048;
 
-    /** Shortcut that uses the default configuration. */
+    /**
+     * Shortcut that uses the default configuration.
+     */
     public static void url(final String url, final StringBuilder sb) throws IOException {
         if (url.length() > MAX_URL_LENGTH)
             throw new IllegalArgumentException("URL too long (" + url.length() + ")");
