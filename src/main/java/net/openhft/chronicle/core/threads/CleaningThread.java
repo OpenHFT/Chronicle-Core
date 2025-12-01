@@ -181,7 +181,7 @@ public class CleaningThread extends Thread {
     @Override
     public void run() {
         // ensure the logger has loaded before attempting to access affinity
-        Jvm.startup().isEnabled(getClass());
+        Jvm.debug().isEnabled(getClass());
 
         // Reset thread affinity if required
         if (Affinity.getAffinity().cardinality() == 1) {
