@@ -1,12 +1,12 @@
 = Chronicle Core - Decision Log
 :toc:
+:sectnums:
 :lang: en-GB
 :source-highlighter: rouge
-:sectnums:
 
-This file captures *component-specific* architectural decisions for the Chronicle Core library.
+This file captures _component-specific_ architectural decisions for the Chronicle Core library.
 Identifiers follow the
-`<Scope>-<Tag>-xxx` pattern mandated by the company-wide guidelines; numbers are unique within the *CORE* scope.
+`<Scope>-<Tag>-xxx` pattern mandated by the company-wide guidelines; numbers are unique within the _CORE_ scope.
 
 == Decision Index
 
@@ -15,6 +15,7 @@ Identifiers follow the
 * link:#CORE-RISK-003[CORE-RISK-003 Guard Native-Memory Mapping with Directory Whitelist]
 * link:#CORE-NF-O-004[CORE-NF-O-004 Background Resource Releaser Thread (Opt-In)]
 * link:#CORE-FN-005[CORE-FN-005 ChronicleInit for Pre/Post Application Hooks]
+* link:#CORE-DOC-007[CORE-DOC-007 Consolidate CI Evidence and Runbook Documentation]
 
 [[CORE-DOC-001]]
 == CORE-DOC-001 Adopt Nine-Box Requirement & Decision Taxonomy
@@ -23,10 +24,10 @@ Context::
 * Numerous Chronicle projects expressed difficulty tracing requirements to code and to ADRs.
 * A single, cross-project taxonomy is required for tooling (link-checks, changelogs).
 Decision Statement::
-* Chronicle Core **adopts** the Nine-Box tag set (`FN`, `NF-P`, `NF-S`, `NF-O`, `TEST`, `DOC`, `OPS`, `UX`, `RISK`) for all requirement and decision identifiers.
+* Chronicle Core *adopts* the Nine-Box tag set (`FN`, `NF-P`, `NF-S`, `NF-O`, `TEST`, `DOC`, `OPS`, `UX`, `RISK`) for all requirement and decision identifiers.
 Alternatives Considered::
-* *Free-form tags* - flexible but unsearchable; high risk of duplication.
-* *SAFe epic/capability IDs* - too coarse for low-level library work.
+* _Free-form tags_ - flexible but unsearchable; high risk of duplication.
+* _SAFe epic/capability IDs_ - too coarse for low-level library work.
 Rationale for Decision::
 * Provides immediate traceability across projects with minimal ceremony.
 * Aligns with company-wide governance already approved under `ALL-DOC-100`.
@@ -43,11 +44,11 @@ Context::
 * Off-heap memory and mmap handles are invisible to the JVM GC.
 * Production leaks previously caused kernel `ENFILE` (too many open files) errors.
 Decision Statement::
-* All classes that manage native resources **MUST** extend `AbstractCloseable`
-*and* implement `ReferenceCounted` when those resources are shareable.
+* All classes that manage native resources *MUST* extend `AbstractCloseable`
+_and_ implement `ReferenceCounted` when those resources are shareable.
 Alternatives Considered::
-* *Rely on `finalize()`* - deprecated in JDK 18; unpredictable latency.
-* *Cleaner API* - safer, but incurs allocation-heavy reachability fences.
+* _Rely on `finalize()`_ - deprecated in JDK 18; unpredictable latency.
+* _Cleaner API_ - safer, but incurs allocation-heavy reachability fences.
 Rationale for Decision::
 * `AbstractCloseable` already proven in Queue/Bytes with micros-level overhead.
 * Reference counting guarantees orderly teardown in multi-thread/process use cases.
@@ -67,10 +68,10 @@ Context::
 Decision Statement::
 * Introduce optional system property `chronicle.core.mmap.allowedDirs`
 (comma-separated list).
-When set, **any** attempt to memory-map a file outside these directories fails fast with a `SecurityException`.
+When set, *any* attempt to memory-map a file outside these directories fails fast with a `SecurityException`.
 Alternatives Considered::
-* *Do nothing* - cheaper but fails compliance for tier-1 banks.
-* *Java SecurityManager checks* - SecurityManager removed in JDK 18.
+* _Do nothing_ - cheaper but fails compliance for tier-1 banks.
+* _Java SecurityManager checks_ - SecurityManager removed in JDK 18.
 Rationale for Decision::
 * Simple, zero-allocation check; satisfies audit without penalising normal users (property unset = current behaviour).
 Impact & Consequences::
@@ -91,8 +92,8 @@ Decision Statement::
 When system property `chronicle.core.backgroundRelease=true` is set,
 `AbstractCloseable.performClose()` submits the heavy deallocation to this low-priority thread, returning immediately.
 Alternatives Considered::
-* *Always release synchronously* - simplest, but violates latency SLOs.
-* *Thread-pool per caller* - avoids single bottleneck but over-complex.
+* _Always release synchronously_ - simplest, but violates latency SLOs.
+* _Thread-pool per caller_ - avoids single bottleneck but over-complex.
 Rationale for Decision::
 * Keeps hot path predictable; opt-in preserves zero-thread baseline for most users.
 Impact & Consequences::
@@ -113,8 +114,8 @@ Decision Statement::
 `chronicle.init.runnable` and `chronicle.postinit.runnable` system properties.
 * Support `ChronicleInitRunnable` implementations discovered via `ServiceLoader`.
 Alternatives Considered::
-* *Static blocks in `Jvm`* - simple but hard to extend by user code.
-* *External bootstrap scripts* - violate embedability and complicate deployment.
+* _Static blocks in `Jvm`_ - simple but hard to extend by user code.
+* _External bootstrap scripts_ - violate embedability and complicate deployment.
 Rationale for Decision::
 * Gives applications controlled extension points without requiring code changes.
 Impact & Consequences::
@@ -123,3 +124,51 @@ Impact & Consequences::
 Notes/Links::
 * link:functional-requirements.adoc#CORE-FN-015[CORE-FN-015]
 * link:functional-requirements.adoc#CORE-FN-016[CORE-FN-016]
+
+[[CORE-NF-P-006]]
+== CORE-NF-P-006 UniqueMicroTimeProvider for Monotonic Microsecond Timestamps
+
+Context::
+* Downstream modules such as Chronicle Queue and Chronicle Wire require monotonically increasing timestamps for ordering, auditing and replay.
+* Commodity system clocks can move backwards or stall briefly under NTP adjustments and VM migrations.
+* Naive callers of `SystemTimeProvider` can observe duplicate or regressing microsecond values under contention.
+Decision Statement::
+* Chronicle Core *provides* `UniqueMicroTimeProvider` as a monotonic wrapper around an underlying `TimeProvider`, ensuring strictly increasing microsecond timestamps within a single JVM process.
+Alternatives Considered::
+* _Use raw `SystemTimeProvider`_ - simplest to implement but allows duplicates and clock regressions, making ordering and idempotency logic more complex in callers.
+* _Rely on nanosecond timers only_ - avoids wall-clock jumps but makes correlation with external systems harder and does not address requirements that explicitly reference microsecond wall time.
+Rationale for Decision::
+* A CAS-based loop over an `AtomicLong` allows Chronicle Core to guarantee local monotonicity with bounded drift and negligible latency impact, as described in `unique-micro-time-provider-cas-loop.adoc`.
+* Centralising this logic in Core avoids repeated, ad-hoc implementations in downstream modules and keeps the behaviour easy to test and document.
+Impact & Consequences::
+* Within a JVM, successive calls to `UniqueMicroTimeProvider.currentTimeMicros()` are strictly increasing, even when the backing provider stalls or moves backwards.
+* Timestamps may run slightly ahead of the real wall clock under extreme contention, but drift remains bounded and is documented in the requirements and user guide.
+* Downstream modules can rely on this behaviour for ordering without having to re-implement CAS loops or additional guards.
+Notes/Links::
+* link:unique-micro-time-provider-cas-loop.adoc[UniqueMicroTimeProvider CAS Loop]
+* link:project-requirements.adoc#CORE-NF-P-006[CORE-NF-P-006]
+
+[[CORE-DOC-007]]
+== CORE-DOC-007 Consolidate CI Evidence and Runbook Documentation
+
+Context::
+* CI data, TODO items, and operator guidance were split across Markdown files (`CI_DATA_CHECKLIST.md`, `CI_DATA_FIRST_RUN.md`, `TODO.md`) leading to drift from the AsciiDoc sources used for review.
+* Reviewers and operators prefer a single, versioned location for CI expectations and runbook links.
+Decision Statement::
+* Retire standalone CI/TODO Markdown files and relocate their content into AsciiDoc:
+** CI evidence and collection expectations now live in link:operational-requirements.adoc[operational-requirements.adoc] and link:testing-strategy.adoc[testing-strategy.adoc] (CI snapshot and planned tests).
+** Operator runbooks under `src/main/docs/runbooks/` remain the canonical source for procedures, with signals/edge cases added.
+** Only `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` remain as AI-contributor guides.
+Alternatives Considered::
+* _Keep Markdown sidecars_ - simple but continued drift risk and duplicate checklists.
+* _External wiki_ - harder to version with code; reduces traceability.
+Rationale for Decision::
+* Centralising CI and operational guidance in AsciiDoc keeps documentation co-located with requirements, decisions and runbooks, reducing duplication.
+* Eliminating redundant Markdown simplifies reviewer expectations and keeps link anchors stable.
+Impact & Consequences::
+* CI jobs and reviewers should reference the AsciiDoc locations for checklists and snapshots.
+* Future CI/test additions must update the AsciiDoc sections and `src/main/docs/requirement-test-map.csv` instead of creating new Markdown files.
+Notes/Links::
+* link:operational-requirements.adoc[Operational requirements]
+* link:testing-strategy.adoc[Testing strategy]
+* link:system-architecture.adoc#documentation-audit-snapshot[Documentation audit snapshot]

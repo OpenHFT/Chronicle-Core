@@ -1,0 +1,26 @@
+requirement_id,status,test_class,test_notes
+CORE-FN-014,covered,net.openhft.chronicle.core.init.ChronicleInitPrecedenceTest,Verifies system.properties override path and chronicle.init.runnable run before Jvm static initialisation.
+CORE-FN-015,covered,net.openhft.chronicle.core.ChronicleInitTest#testPositive,Confirms chronicle.init.runnable executes and toggles resource tracing flags.
+CORE-FN-016,covered,net.openhft.chronicle.core.ChronicleInitTest#testPostInitNegative,Ensures chronicle.postinit.runnable is invoked and influences process exit status.
+CORE-FN-020,covered,net.openhft.chronicle.core.JvmSafepointTest,Validates optional safepoint toggles and related JVM hooks.
+CORE-FN-022,covered,net.openhft.chronicle.core.UnsafeMemoryTest,Exercises primitive reads and writes plus CAS operations against native addresses.
+CORE-FN-027,covered,net.openhft.chronicle.core.UnsafeMemoryLongTest,Checks volatile memory access semantics for long operations on native memory.
+CORE-FN-030,covered,net.openhft.chronicle.core.io.AbstractCloseableTest,Asserts deterministic close semantics and closed-state enforcement.
+CORE-FN-034,covered,net.openhft.chronicle.core.io.ReferenceCountedContractTest,Validates reserve and release lifecycle and deallocation at zero references.
+CORE-FN-038,covered,net.openhft.chronicle.core.io.ReferenceTracingIntegrationTest,Confirms reference owner tracking and leak diagnostics.
+CORE-FN-039,covered,net.openhft.chronicle.core.io.BackgroundResourceReleaserTest,Exercises deferred resource release and background thread shutdown paths.
+CORE-FN-040,covered,net.openhft.chronicle.core.util.ThreadConfinementAsserterTest,Checks single-threaded access guards and reporting.
+CORE-NF-P-001,planned,net.openhft.chronicle.core.benchmark.ReferenceTracingOverheadJLBH,JLBH microbenchmark to prove <1% overhead when tracing is disabled versus enabled.
+CORE-NF-P-002,planned,net.openhft.chronicle.core.benchmark.SafepointPauseJLBH,JLBH microbenchmark measuring latency tails with optional safepoints toggled.
+CORE-NF-P-003,planned,net.openhft.chronicle.core.benchmark.UnsafeMemoryBandwidthJLBH,JLBH microbenchmark for throughput/allocation of Memory/UnsafeMemory hot paths.
+CORE-RISK-003,planned,net.openhft.chronicle.core.io.MmapWhitelistTest,Unit test to enforce mmap whitelist and reject disallowed paths/cleaners.
+CORE-OPS-001,planned,ci:mvn-verify-profile,CI job ensuring `mvn -q clean verify` (tests/coverage/static analysis) gates merges for Chronicle-Core.
+CORE-OPS-002,planned,net.openhft.chronicle.core.affinity.AffinityNativeFallbackTest,Simulate missing JNA/Posix to ensure fail-fast logging or explicit dummy fallback.
+CORE-OPS-003,planned,net.openhft.chronicle.core.onoes.Slf4jFormatTest,Validate `Slf4jExceptionHandler` emits ISO timestamps and no colour codes.
+CORE-OPS-004,covered,net.openhft.chronicle.core.io.ReferenceTracingIntegrationTest,Ensures tracing toggles remain optional and do not destabilise reference counting.
+CORE-OPS-005,covered,net.openhft.chronicle.core.io.BackgroundResourceReleaserTest,Verifies background releaser can be stopped and pending work drained.
+CORE-OPS-006,covered,net.openhft.chronicle.core.init.ChronicleInitPrecedenceTest,Shows operators can inject Chronicle Init hooks and external property files.
+CORE-OPS-007,planned,net.openhft.chronicle.core.deprecation.DeprecatedApiWarningTest,Ensure each deprecated API logs a single WARN with replacement guidance.
+CORE-OPS-008,planned,net.openhft.chronicle.core.affinity.DummyAffinityFallbackTest,Ensure JNA defaults to dummy affinity when natives cannot be loaded.
+CORE-OPS-009,planned,ci:release-signing-check,CI validation that release artefacts are signed and SHA256 hashes are present in outputs.
+CORE-OPS-010,planned,net.openhft.chronicle.core.threads.PauserMetricsExposureTest,Assert pauser counters/timers are exposed for Chronicle-Threads integration.

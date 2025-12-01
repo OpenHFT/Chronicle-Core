@@ -1,34 +1,35 @@
 = Chronicle Core - Memory Management Guide
-[[memory-management-guide]]
 :toc:
+:sectnums:
 :lang: en-GB
 :source-highlighter: rouge
 
 This guide covers Chronicle Core's utilities for managing off-heap memory and memory-mapped files, emphasizing deterministic cleanup and control.
 
-== 1. Off-Heap Memory Allocation
+== Off-Heap Memory Allocation
 
 Chronicle Core provides mechanisms for allocating and managing memory outside the Java heap, offering greater control and potentially reducing GC overhead.
 
-=== 1.1. Using `OS.memory()` and the `Memory` Interface
+=== Using `OS.memory()` and the `Memory` Interface
 
 The primary way to interact with raw off-heap memory is via `OS.memory()`, which returns an instance of the `net.openhft.chronicle.core.Memory` interface.
 This is typically backed by `net.openhft.chronicle.core.UnsafeMemory`.
 
-* **Allocation and Deallocation**:
-** `long address = memory.allocate(long capacity)`: Allocates a block of native memory.
-** `memory.freeMemory(long address, long size)`: Releases the allocated memory. *It is crucial to manually free this memory to prevent leaks.*
-* **Tracking**:
-** `memory.nativeMemoryUsed()`: Returns the total bytes allocated via `memory.allocate()` that haven't been freed.
-* **Operations**: The `Memory` interface provides a rich set of methods for:
-** Reading and writing all Java primitive types (e.g., `readInt(long address)`, `writeLong(Object obj, long offset, long value)`).
-** Volatile reads/writes for thread safety (e.g., `readVolatileInt(long address)`, `writeVolatileLong(Object obj, long offset, long value)`).
-** Ordered writes for specific memory ordering guarantees (e.g., `writeOrderedInt(long address)`).
-** Compare-and-Swap (CAS) operations (e.g., `compareAndSwapLong(long address, long expected, long value)`).
-** Memory copying (`copyMemory(...)` overloads).
-** Memory fences (`storeFence()`, `loadFence()`).
+Allocation and Deallocation ::
+* `long address = memory.allocate(long capacity)`: Allocates a block of native memory.
+* `memory.freeMemory(long address, long size)`: Releases the allocated memory. _It is crucial to manually free this memory to prevent leaks._
+Tracking ::
+* `memory.nativeMemoryUsed()`: Returns the total bytes allocated via `memory.allocate()` that haven't been freed.
+Operations ::
+The `Memory` interface provides a rich set of methods for:
+* Reading and writing all Java primitive types (e.g., `readInt(long address)`, `writeLong(Object obj, long offset, long value)`).
+* Volatile reads/writes for thread safety (e.g., `readVolatileInt(long address)`, `writeVolatileLong(Object obj, long offset, long value)`).
+* Ordered writes for specific memory ordering guarantees (e.g., `writeOrderedInt(long address)`).
+* Compare-and-Swap (CAS) operations (e.g., `compareAndSwapLong(long address, long expected, long value)`).
+* Memory copying (`copyMemory(...)` overloads).
+* Memory fences (`storeFence()`, `loadFence()`).
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 Memory memory = OS.memory(); // Typically UnsafeMemory.INSTANCE
 long capacity = 128;
@@ -47,7 +48,7 @@ try {
 }
 ----
 
-=== 1.2. Comparison with `java.nio.ByteBuffer.allocateDirect()`
+=== Comparison with `java.nio.ByteBuffer.allocateDirect()`
 
 Java's `ByteBuffer.allocateDirect()` also allocates off-heap memory.
 
@@ -55,19 +56,19 @@ Java's `ByteBuffer.allocateDirect()` also allocates off-heap memory.
 * DirectByteBuffers rely on `sun.misc.Cleaner` and the GC for deallocation, which can be unpredictable.
 Chronicle Core's `OS.memory().allocate()` gives explicit control over deallocation.
 
-== 2. Memory-Mapped Files
+== Memory-Mapped Files
 
 Memory-mapped files allow sections of a file to be treated as if they were in-memory data, enabling efficient I/O.
 
-=== 2.1. Mapping and Unmapping with `OS.map()` and `OS.unmap()`
+=== Mapping and Unmapping with `OS.map()` and `OS.unmap()`
 
 * `OS.map(FileChannel fc, FileChannel.MapMode mode, long start, long size)`: Creates a mapping.
 ** `mode`: Can be `MapMode.READ_ONLY`, `MapMode.READ_WRITE`, or `MapMode.PRIVATE`.
 ** `start` and `size` define the region of the file to map.
 These may be adjusted by page alignment requirements.
-* `OS.unmap(long address, long size)`: Releases the mapping. *This is crucial to avoid resource leaks (virtual memory and file handles).*
+* `OS.unmap(long address, long size)`: Releases the mapping. _This is crucial to avoid resource leaks (virtual memory and file handles)._
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 String fileName = "my-mapped-file.dat";
 long fileSize = OS.pageSize() * 10; // Example size: 10 pages
@@ -91,23 +92,23 @@ try (FileChannel fc = new CleaningRandomAccessFile(fileName, "rw").getChannel())
 new File(fileName).delete(); // Clean up the example file
 ----
 
-=== 2.2. `CleaningRandomAccessFile`
+=== `CleaningRandomAccessFile`
 
 When working with `FileChannel` for mapping, it's recommended to use `net.openhft.chronicle.core.io.CleaningRandomAccessFile`.
 This class extends `RandomAccessFile` and attempts to close the file descriptor in its `finalize()` method as a safeguard against leaks, though explicit closing via try-with-resources is always the best practice.
 
-=== 2.3. Tracking Mapped Memory
+=== Tracking Mapped Memory
 
 * `OS.memoryMapped()`: Returns the total number of bytes currently mapped by Chronicle Core's `OS.map()` calls.
 Useful for diagnosing leaks of mapped regions.
 
-=== 2.4. Security Considerations for Memory Mapping
+=== Security Considerations for Memory Mapping
 
 * The system property `chronicle.core.mmap.allowedDirs` can be set to a comma-separated list of directory paths.
 * If this property is set, `OS.map()` will only allow mapping files located within these whitelisted directories, throwing a `SecurityException` otherwise.
 This helps mitigate potential path traversal vulnerabilities.
 
-== 3. Page Alignment
+== Page Alignment
 
 Operating systems typically require memory-mapped regions and sometimes direct memory accesses to be aligned to page boundaries.
 
@@ -117,7 +118,7 @@ Operating systems typically require memory-mapped regions and sometimes direct m
 * `OS.pageAlign(long size)` / `OS.pageAlign(long size, int pageSize)`: Rounds a given `size` up to the nearest multiple of the page size.
 * `OS.mapAlign(long offset)` / `OS.mapAlign(long offset, int pageAlignment)`: Rounds a given file `offset` up to the nearest valid alignment for memory mapping.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 long requestedSize = 1000; // bytes
 long alignedSize = OS.pageAlign(requestedSize); // Aligns to OS.pageSize()
@@ -131,29 +132,36 @@ System.out.println("Requested size " + requestedSize + ", Aligned size: " + alig
 System.out.println("Requested offset " + fileOffset + ", Aligned offset: " + alignedOffset);
 ----
 
-== 4. Direct `java.nio.ByteBuffer` and Cleaning
+== Direct `java.nio.ByteBuffer` and Cleaning
 
 While Chronicle Core often uses its own `Memory` abstraction, you might interact with direct `ByteBuffer`s from other libraries.
 
-* **Creation**: `ByteBuffer.allocateDirect(capacity)` allocates off-heap memory.
-* **Cleanup**: Relies on `sun.misc.Cleaner` and GC, which can be unpredictable.
-* **Chronicle Core Utilities for Direct `ByteBuffer`s**:
-** `IOTools.clean(ByteBuffer bb)`: Attempts to invoke the cleaner of a direct `ByteBuffer` more promptly using `CleanerServiceLocator`.
-** `CleanerServiceLocator`: Dynamically finds a `ByteBufferCleanerService` (e.g., `Jdk9ByteBufferCleanerService` or `ReflectionBasedByteBufferCleanerService`) to invoke the `clean()` method of a `DirectBuffer`'s cleaner.
-** `DirectBufferUtil`: Provides utility methods to interact with `sun.nio.ch.DirectBuffer` like getting its address or cleaning it.
-* **Caution**: Manually cleaning `ByteBuffer`s can be dangerous if the buffer (or its memory region) is still in use.
+Creation ::
+`ByteBuffer.allocateDirect(capacity)` allocates off-heap memory.
+Cleanup ::
+Relies on `sun.misc.Cleaner` and GC, which can be unpredictable.
+Chronicle Core Utilities for Direct `ByteBuffer`s ::
+* `IOTools.clean(ByteBuffer bb)`: Attempts to invoke the cleaner of a direct `ByteBuffer` more promptly using `CleanerServiceLocator`.
+* `CleanerServiceLocator`: Dynamically finds a `ByteBufferCleanerService` (e.g., `Jdk9ByteBufferCleanerService` or `ReflectionBasedByteBufferCleanerService`) to invoke the `clean()` method of a `DirectBuffer`'s cleaner.
+* `DirectBufferUtil`: Provides utility methods to interact with `sun.nio.ch.DirectBuffer` like getting its address or cleaning it.
+Caution ::
+Manually cleaning `ByteBuffer`s can be dangerous if the buffer (or its memory region) is still in use.
 This should be done with extreme care.
 
-== 5. Freeing Memory and Debugging Issues
+== Freeing Memory and Debugging Issues
 
-* **Rule 1**: Always call `OS.memory().freeMemory(address, size)` for each corresponding `OS.memory().allocate(capacity)` call.
-* **Rule 2**: Always call `OS.unmap(address, size)` for every successful `OS.map()` call.
-* **Leak Diagnosis**:
-** Monitor `OS.memoryMapped()` to track mapped regions.
-** Monitor `OS.memory().nativeMemoryUsed()` for `UnsafeMemory` allocations.
-** Monitor `Jvm.usedDirectMemory()` for `ByteBuffer.allocateDirect()` usage.
-* **Resource Tracing**: Enable `jvm.resource.tracing=true` (see `systemProperties.adoc`).
+Rule 1 ::
+Always call `OS.memory().freeMemory(address, size)` for each corresponding `OS.memory().allocate(capacity)` call.
+Rule 2 ::
+Always call `OS.unmap(address, size)` for every successful `OS.map()` call.
+Leak Diagnosis ::
+* Monitor `OS.memoryMapped()` to track mapped regions.
+* Monitor `OS.memory().nativeMemoryUsed()` for `UnsafeMemory` allocations.
+* Monitor `Jvm.usedDirectMemory()` for `ByteBuffer.allocateDirect()` usage.
+Resource Tracing ::
+Enable `jvm.resource.tracing=true` (see `system-properties.adoc`).
 This helps `AbstractCloseable` (often a base for classes managing mapped regions or other native resources) to record `createdHere()` and `closedHere()` stack traces, aiding in diagnosing leaks or use-after-close bugs.
 Refer to the "Deterministic Resource Management" guide for more on this.
-* **Alignment Errors**: Direct use of `UnsafeMemory` or `Memory` interface methods can lead to `MisAlignedAssertionError` if addresses are not correctly aligned for the data type being accessed, particularly on ARM architectures.
+Alignment Errors ::
+Direct use of `UnsafeMemory` or `Memory` interface methods can lead to `MisAlignedAssertionError` if addresses are not correctly aligned for the data type being accessed, particularly on ARM architectures.
 Ensure proper alignment when performing low-level operations.

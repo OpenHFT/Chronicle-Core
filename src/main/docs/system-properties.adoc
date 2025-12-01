@@ -1,0 +1,32 @@
+= Chronicle Core System Properties
+:toc:
+:sectnums:
+:lang: en-GB
+:source-highlighter: rouge
+
+== System Properties
+
+This section provides an overview of the key system properties that can be configured to modify the behaviour of Chronicle Core.
+
+NOTE: All boolean properties listed in the table are read using `net.openhft.chronicle.core.Jvm.getBoolean(String)`.
+A property is considered enabled if it is present (for example `-Dprop`) or set to `true`/`yes`.
+
+.System properties
+[cols="2a,1,3a,2a",options="header"]
+|===
+| Property Key | Default | Description | Java Variable Name (Type)
+| `background.releaser` | `true` | Controls whether the `BackgroundResourceReleaser` daemon is enabled. When disabled, callers must manage native-resource release themselves. | `BG_RELEASER` (boolean)
+| `chronicle.announcer.disable` | `false` | Disables the internal announcer component responsible for some diagnostic banners. | `DISABLE_ANNOUNCEMENT` (boolean)
+| `debug` | `false` | Indicates whether the JVM is running in debug mode; used for additional diagnostics. | `IS_DEBUG` (boolean)
+| `disable.discard.warning` | `true` | When `false`, finalisers and leak detectors will log and throw when resources are discarded without explicit close. | `DISABLE_DISCARD_WARNING` (boolean)
+| `disable.perf.info` | `false` | When `true`, suppresses certain performance information logs. | `disablePerfInfo` (boolean)
+| `disable.resource.warning` | `false` | Controls resource tracing warnings when leaks are suspected. | `DISABLE_RESOURCE_WARNING` (boolean)
+| `disable.single.threaded.check` | `false` | Disables `SingleThreadedChecked` guard rails; intended for special cases only. | `DISABLE_SINGLE_THREADED_CHECK` (boolean)
+| `jfr` | `false` | Indicates whether the JVM is running with flight recorder enabled. | `IS_FLIGHT_RECORDER` (boolean)
+| `jvm.resources.tracing` | `false` | Enables tracing of selected Chronicle resources (for example off-heap regions) to aid leak detection. | `RESOURCE_TRACING` (boolean)
+| `jvm.safepoint.enabled` | `false` | Enables insertion of low-cost Java safepoints for diagnostic sampling. | `SAFEPOINT_ENABLED` (boolean)
+| `reference.warn.count` | `unknown` | Threshold for warning when a reference-counted resource has too many reserves. | `WARN_COUNT` (int)
+| `reference.warn.secs` | `0.003` | Threshold in seconds for logging slow reference-release operations. | `WARN_NS` (long)
+| `report.unoptimised` | `false` | Enables reporting of calls to known unoptimised code paths. | `REPORT_UNOPTIMISED` (boolean)
+| `warnAndCloseIfNotClosed` | `true` | When `false`, uses a DEBUG-level exception handler instead of warning-and-close behaviour for some resource leaks. | `WARN_AND_CLOSE_IF_NOT_CLOSED` (boolean)
+|===

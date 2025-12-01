@@ -1,0 +1,108 @@
+= Chronicle Core Testing Strategy
+:toc:
+:sectnums:
+:lang: en-GB
+:toclevels: 2
+:doctype: book
+:source-highlighter: rouge
+
+This document outlines the testing approach for Chronicle Core and links tests to the Nine-Box requirements defined in `functional-requirements.adoc` and `project-requirements.adoc`.
+It supports the ISO 9001 design verification checklist and helps reviewers assess coverage for key behaviours.
+
+== Test Layers
+
+Chronicle Core uses several complementary test layers:
+
+* unit tests in `src/test/java/net/openhft/chronicle/core` for OS and JVM utilities, memory access, deterministic resource management, and thread-safety guards (CORE-FN-001..055);
+* integration-style tests that exercise combinations of Core APIs used by other Chronicle modules (for example Queue, Bytes, Wire, Threads) where appropriate;
+* binary-compatibility checks enforced by the `binary-compatibility-enforcer` plugin;
+* micro-benchmarks and higher-level harnesses in dependent repositories for performance-sensitive requirements that rely on Core primitives.
+
+Where practical, test classes and methods reference requirement IDs (for example `CORE-FN-015`,
+`CORE-FN-030`, `CORE-FN-040`) in comments or Javadoc to support traceability.
+
+== Unit Testing Approach
+
+Unit tests focus on:
+
+* OS abstraction: PID, host-name, page size and temp directory helpers (CORE-FN-001..006);
+* JVM interaction: system property loading, init hooks, safepoint helpers and exception handling (CORE-FN-010..021);
+* low-level memory access: read/write, CAS, fences and volatile operations via `Memory` and
+`UnsafeMemory` (CORE-FN-022..029);
+* deterministic resource management: lifecycle and reference counting for `AbstractCloseable`,
+`ReferenceCounted` and related types (CORE-FN-030..039, decision `CORE-OPS-002`);
+* thread-safety helpers: `SingleThreadedChecked`, `CleaningThreadLocal` and related patterns (CORE-FN-040..043);
+* low-level utilities: hashing, maths functions, string and enum helpers (CORE-FN-044..055).
+
+Tests are written to avoid non-deterministic timing assumptions and to keep allocations low, reflecting the performance-sensitive nature of the library.
+
+== Integration and Compatibility Tests
+
+Integration-style tests cover:
+
+* combined usage of Core utilities in scenarios that approximate real consumers (for example mapping files and using `Memory` to access them, or combining resource management with thread-safety guards);
+* behaviour under different JVM versions and operating systems, aligned with compatibility requirements documented in `operational-requirements.adoc`;
+* binary compatibility of public APIs via the Maven plugin configured in `pom.xml`, which acts as an automated check against accidental breaking changes.
+
+Where possible, integration tests reuse production configuration defaults so that changes in settings (for example system properties or background releaser flags) are exercised in CI.
+
+== Performance and Regression Checks
+
+Performance-related expectations are primarily expressed in terms of:
+
+* avoiding unexpected allocations and synchronisation on hot paths (for example resource tracing, logging, thread guards);
+* bounding the overhead of optional features such as resource tracing or background releasers;
+* enabling higher-level modules to meet their own latency and throughput targets when built on top of Core.
+
+Performance is validated using:
+
+* focused unit tests that check for zero allocations in critical methods where feasible;
+* micro-benchmarks and scenario tests that live in dedicated benchmark modules or dependent repositories (for example Queue and Threads), with results referenced from Core decision and requirements documents where appropriate.
+
+== Traceability and Coverage
+
+To improve traceability between requirements, decisions and tests:
+
+* new tests should reference the relevant `CORE-FN-xxx` or `CORE-OPS-xxx` identifiers in comments or test names where practical;
+* significant bug fixes should include regression tests and, where applicable, a reference back to the requirement or decision they reinforce;
+* future extensions of the `CORE-NF-P-*` and `CORE-NF-S-*` requirements in the requirements catalogue should be accompanied by targeted tests and updates to this strategy.
+
+This document does not attempt to quantify exact coverage percentages; instead it describes the expected relationships between requirements and tests so that CODEOWNERS and reviewers can assess whether new changes maintain or improve coverage.
+
+== Running the Test Suite
+
+From the repository root, run:
+
+[source,bash]
+----
+mvn -q clean verify
+----
+
+== Recent CI Snapshot (2025-11-20)
+
+Two back-to-back local runs validated Java 8 and Java 21:
+
+* Commands: `JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64 mvn clean install` and `JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 mvn clean install`.
+* Results: both succeeded; warnings limited to internal JDK API use and deprecated URL constructors.
+* Tests: Java 8 run: 1,758 tests, 0 failures, 0 errors, 7 skipped; Java 21 run: 1,758 tests, 0 failures, 0 errors, 33 skipped.
+* Artefacts: `target/chronicle-core-2.27ea10-SNAPSHOT.jar` and Surefire XML reports under `target/surefire-reports/`.
+* Coverage and scans: JaCoCo, Checkstyle and SpotBugs were not run in these snapshots; no vulnerability or secret scans captured.
+* Environment: OpenJDK 8 and 21 toolchains; OS and Maven version not recorded; JVM flags beyond defaults not recorded.
+
+== Planned Test Additions
+
+The following items extend coverage for performance, security and operability requirements:
+
+* CORE-NF-P-001: add `ReferenceTracingOverheadJLBH` to measure <1% overhead with tracing disabled/enabled.
+* CORE-NF-P-002: add `SafepointPauseJLBH` to capture latency tails when optional safepoints are toggled.
+* CORE-NF-P-003: add `UnsafeMemoryBandwidthJLBH` to benchmark Memory/UnsafeMemory hot paths.
+* CORE-RISK-003: add `MmapWhitelistTest` to enforce allowed mapping directories and cleaner restrictions.
+* CORE-OPS-002/008: add `AffinityNativeFallbackTest` and `DummyAffinityFallbackTest` to simulate missing JNA/Posix libs and assert dummy fallback/fail-fast paths.
+* CORE-OPS-003: add `Slf4jFormatTest` to verify ISO timestamps and no colour codes in default handlers.
+* CORE-OPS-007: add `DeprecatedApiWarningTest` to ensure a single WARN per deprecated API with replacement guidance.
+* CORE-OPS-009: add `ci:release-signing-check` to validate signed artefacts and SHA256 presence in release outputs.
+* CORE-OPS-010: add `PauserMetricsExposureTest` to assert pauser counters/timers surface to Chronicle-Threads.
+
+This command builds all modules, executes unit and integration tests and runs static analysis tools configured in the Maven build.
+Module-specific test runs can be scoped using Maven's `-pl` flag when iterating, but full `verify`
+should be executed before releases or pull requests.

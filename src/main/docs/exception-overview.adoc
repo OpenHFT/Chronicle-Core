@@ -1,7 +1,9 @@
 = Chronicle-Core Exception Overview
-Chronicle Software
-:toc: left
+:toc:
+:sectnums:
+:lang: en-GB
 :toclevels: 2
+:source-highlighter: rouge
 
 This document summarises the main runtime exceptions used in Chronicle-Core.
 They surface misuse of resources or invalid state.
@@ -12,7 +14,7 @@ Thrown when a method is called on a resource that has already been closed.
 Used by link:../src/main/java/net/openhft/chronicle/core/io/AbstractCloseable.java[AbstractCloseable]
 and other closeable components.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 if (isClosed()) {
     throw new ClosedIllegalStateException("Attempted to read from a closed resource.");
@@ -21,12 +23,11 @@ if (isClosed()) {
 
 == ClosedIORuntimeException
 
-Raised when an I/O operation targets a closed file or socket.  It is an
-unchecked variant built on link:../src/main/java/net/openhft/chronicle/core/io/IORuntimeException.java[IORuntimeException].
-Often returned from `IORuntimeException.newIORuntimeException` when the
-underlying `IOException` indicates a closed resource.
+Raised when an I/O operation targets a closed file or socket.
+It is an unchecked variant built on link:../src/main/java/net/openhft/chronicle/core/io/IORuntimeException.java[IORuntimeException].
+Often returned from `IORuntimeException.newIORuntimeException` when the underlying `IOException` indicates a closed resource.
 
-[source,java]
+[source,java,opts=novalidate]
 ----
 try {
     stream.write(data);
@@ -38,14 +39,15 @@ try {
 
 == IORuntimeException
 
-Generic wrapper for `IOException` failures.  Many utility methods rethrow
-checked I/O errors using this unchecked form.  Its helper method can return a
+Generic wrapper for `IOException` failures.
+Many utility methods rethrow checked I/O errors using this unchecked form.
+Its helper method can return a
 `ClosedIORuntimeException` when appropriate.
 
 == InvalidMarshallableException
 
-Signifies that an object being marshalled or unmarshalled violates its
-constraints.  Commonly thrown by implementations of
+Signifies that an object being marshalled or unmarshalled violates its constraints.
+Commonly thrown by implementations of
 link:../src/main/java/net/openhft/chronicle/core/io/Validatable.java[Validatable].
 
 [source,java]
@@ -58,8 +60,8 @@ public void validate() {
 
 == ThreadingIllegalStateException
 
-Indicates an illegal operation due to concurrent access on a single-threaded
-component.  The stack trace helps identify where the unsafe access occurred.
+Indicates an illegal operation due to concurrent access on a single-threaded component.
+The stack trace helps identify where the unsafe access occurred.
 Classes implementing
 link:../src/main/java/net/openhft/chronicle/core/io/SingleThreadedChecked.java[SingleThreadedChecked]
 may throw this exception.

@@ -1,37 +1,57 @@
 = Runbook: Handling Missing Native Affinity Libraries
 :toc:
+:sectnums:
 :lang: en-GB
+:source-highlighter: rouge
 
 Related requirements: CORE-OPS-002, CORE-OPS-008.
 
 == Purpose
-The JVM emitted warnings such as `Linux JNA-based affinity not usable`. This runbook confirms whether
-action is required.
+
+The JVM emitted warnings such as `Linux JNA-based affinity not usable`.
+This runbook confirms whether action is required.
+
+== Signals and Metrics
+
+* Log messages: `Linux JNA-based affinity not usable`, `JNI library load failed`, or `Using dummy affinity control implementation`.
+* Host state: missing `libjnidispatch`/`libjffi` or no permission to unpack JNA into the JVM temp directory.
+* Expected duration: 5 minutes to verify, plus install/restart time if native packages are missing.
 
 == Preconditions
+
 * SSH access to the host where the warning occurred.
 * Knowledge of whether the deployment relies on CPU pinning.
 
 == Steps
-1. **Snapshot current warning**
-   * Capture the exact log message; note whether it mentions Linux JNA or Posix JNA.
-2. **Check host OS / architecture**
-   * `uname -a`, `ldd --version`.
-3. **Verify JNA availability**
-   * Ensure the package providing `libjnidispatch.so` is installed.
-   * If not, install the appropriate JNA distribution or ensure the JVM has write access to its temp
-     directory so it can unpack the library.
-4. **Evaluate requirement**
-   * If the workload does not need hard CPU pinning, accept the fallback (`Affinity` will log "Using
-     dummy affinity control implementation") and proceed.
-   * If pinning is required, resolve the native dependency and restart the service.
-5. **Re-test**
-   * After fixes, restart and confirm the warning no longer appears.
+
+. *Snapshot current warning*
+* Capture the exact log message; note whether it mentions Linux JNA or Posix JNA.
+. *Check host OS / architecture*
+* `uname -a`, `ldd --version`.
+. *Verify JNA availability*
+* Ensure the package providing `libjnidispatch.so` is installed.
+* If not, install the appropriate JNA distribution or ensure the JVM has write access to its temp directory so it can unpack the library.
+. *Confirm library load*
+* `lsof -p <pid> | grep jnidispatch` to see if JNA was loaded; if absent, expect dummy affinity.
+. *Evaluate requirement*
+* If the workload does not need hard CPU pinning, accept the fallback (`Affinity` will log "Using dummy affinity control implementation") and proceed.
+* If pinning is required, resolve the native dependency and restart the service.
+. *Re-test*
+* After fixes, restart and confirm the warning no longer appears.
 
 == Verification
+
 * No WARN entries about unusable affinity libraries appear during JVM start-up.
 * `net.openhft.affinity.AffinityLock` reports the expected strategy.
+* Coverage: CORE-OPS-002, CORE-OPS-008.
+
+== Edge Cases
+
+* Containers without `/proc`: CPU topology may be masked; expect dummy affinity even if JNA loads.
+* Windows hosts: affinity is unsupported; dummy fallback is normal.
+* Read-only temp directories: JNA cannot unpack; set `-Djava.io.tmpdir` to a writable path.
+* Explicit dummy mode: when dummy affinity is acceptable, set the Chronicle/affinity flags to avoid repeated WARNs (e.g. force dummy).
 
 == Rollback
-* If installing JNA introduces instability, revert to the previous package state and rely on dummy
-  affinity while investigating further.
+
+* If installing JNA introduces instability, revert to the previous package state and rely on dummy affinity while investigating further.

@@ -1,7 +1,6 @@
 = Advanced Maths Functions
-[[advanced-maths-functions]]
-Chronicle Core
 :toc:
+:sectnums:
 :lang: en-GB
 :source-highlighter: rouge
 
@@ -35,7 +34,7 @@ This is useful for precise reconstruction of decimal numbers.
 
 == Integer Conversion Checks
 
-To prevent data loss or unexpected behavior from narrowing numeric conversions, `Maths` provides validation methods.
+To prevent data loss or unexpected behaviour from narrowing numeric conversions, `Maths` provides validation methods.
 These throw an `ArithmeticException` if the input `long` value would overflow the target integer type.
 
 * `toInt8(long value)`: Checks conversion to signed `byte`.

@@ -1,42 +1,72 @@
 = Runbook: Validating Chronicle Init Property Overrides
 :toc:
+:sectnums:
 :lang: en-GB
+:source-highlighter: rouge
 
 Related requirements: CORE-FN-014, CORE-FN-015, CORE-OPS-006.
 
 == Purpose
+
 Use this when Chronicle Init hooks or `system.properties` overrides are not taking effect.
 
 == Preconditions
+
 * Access to the target JVM host.
 * Ability to restart the process if configuration changes are required.
 
+== Signals and Metrics
+
+* Log messages: `ChronicleInit`, `Jvm` WARN/ERROR entries such as `No system.properties file found`.
+* JVM flags: presence of `-Dsystem.properties`, `-Dchronicle.init.runnable`, `-Dchronicle.postinit.runnable`.
+* Expected duration: 5-10 minutes including one process restart.
+
+== Edge Cases
+
+* Encoding: `system.properties` must be ISO-8859-1; malformed or UTF-8-only characters are ignored. Run `iconv -f iso-8859-1 -t iso-8859-1` to confirm.
+* Multiple files: if multiple `-Dsystem.properties` flags are provided, the JVM keeps only the last one; prefer a single path.
+* Init failures: if `chronicle.init.runnable` throws, Chronicle Init will fail fast; capture stderr from early bootstrap to diagnose.
+* Temp directory permissions: unreadable or unwritable `java.io.tmpdir` can block resource extraction; set `-Djava.io.tmpdir` to a writable path.
+
 == Steps
-1. **Inspect JVM flags**
-   * `jcmd <pid> VM.system_properties | grep system.properties`
-   * Confirm `chronicle.init.runnable` / `chronicle.postinit.runnable` are present if expected.
-2. **Dry-run ChronicleInit**
-   * Execute `java -cp <app classpath> net.openhft.chronicle.core.init.SystemPropertiesProbeMain`.
-   * The program should print the value of `chronicle.init.test.flag`. Failure indicates the init hook
-     could not load.
-3. **Validate file encoding**
-   * Ensure the file referenced by `-Dsystem.properties` is ISO-8859-1. Non ASCII entries will be
-     ignored.
-4. **Check log output**
-   * Search for `ChronicleInit` or `Jvm` WARN/ERROR entries (e.g. "No system.properties file found").
-5. **Restart service**
-   * Once corrections are made, restart the JVM to re-run Chronicle Init hooks.
+
+. *Inspect JVM flags*
+* `jcmd <pid> VM.system_properties | grep system.properties`
+* Confirm `chronicle.init.runnable` / `chronicle.postinit.runnable` are present if expected.
+. *Capture diagnostics bundle*
+* Save `jcmd <pid> VM.system_properties`, Chronicle Init stderr/stdout from startup, and the exact `java` command line for hand-off.
+. *Check encoding*
+* Run `iconv -f iso-8859-1 -t iso-8859-1 < /path/to/system.properties > /dev/null` to catch invalid bytes.
+. *Override temp dir safely (if needed)*
+* When `java.io.tmpdir` is unwritable, restart with `-Djava.io.tmpdir=/var/tmp/chronicle` (or another writable path) and rerun Chronicle Init checks.
+. *Dry-run ChronicleInit*
+* Execute `java -cp <app classpath> net.openhft.chronicle.core.init.SystemPropertiesProbeMain`.
+* The program should print the value of `chronicle.init.test.flag`.
+Failure indicates the init hook could not load.
+. *Validate file encoding*
+* Ensure the file referenced by `-Dsystem.properties` is ISO-8859-1. Non ASCII entries will be ignored.
+. *Check log output*
+* Search for `ChronicleInit` or `Jvm` WARN/ERROR entries (e.g. "No system.properties file found").
+. *Restart service*
+* Once corrections are made, restart the JVM to re-run Chronicle Init hooks.
 
 == Verification
+
 * `Jvm.getProperty("<key>")` returns the new value.
 * The application logs show Chronicle Init executed before `Jvm` initialisation.
+* Coverage: CORE-FN-014, CORE-FN-015, CORE-OPS-006.
+* Expected duration: 5-10 minutes including one process restart.
 
 == Rollback
+
 * Remove or revert the offending property from the supplied file and restart the service.
 
 == Precedence Rules
 
-* **Command-line properties win**: `-Dfoo=bar` always overrides entries in `system.properties` because Chronicle relies on `Properties#putIfAbsent` when hydrating values (requirement link:functional-requirements.adoc#CORE-FN-014[CORE-FN-014]).
-* **Explicit files come next**: when `-Dsystem.properties=/path/to/file` is present, Chronicle loads that file and merges only the missing keys, preserving anything already on the JVM command line.
-* **Classpath fallbacks**: if neither the property nor an on-disk file exists, Chronicle probes the classpath for a bundled `system.properties` resource and merges it, which is how embedded products ship opinionated defaults.
+Command-line properties win ::
+`-Dfoo=bar` always overrides entries in `system.properties` because Chronicle relies on `Properties#putIfAbsent` when hydrating values (requirement link:../functional-requirements.adoc#CORE-FN-014[CORE-FN-014]).
+Explicit files come next ::
+when `-Dsystem.properties=/path/to/file` is present, Chronicle loads that file and merges only the missing keys, preserving anything already on the JVM command line.
+Classpath fallbacks ::
+if neither the property nor an on-disk file exists, Chronicle probes the classpath for a bundled `system.properties` resource and merges it, which is how embedded products ship opinionated defaults.
 * These behaviours are continuously verified by `link:../test/java/net/openhft/chronicle/core/internal/system/SystemPropertiesPrecedenceTest.java[SystemPropertiesPrecedenceTest]`, so regressions in CLI/file/classpath ordering fail fast.

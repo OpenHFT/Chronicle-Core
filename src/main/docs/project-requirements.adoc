@@ -1,5 +1,6 @@
 = Chronicle Core - Requirements Specification
 :toc:
+:sectnums:
 :lang: en-GB
 :source-highlighter: rouge
 
@@ -85,5 +86,20 @@ CORE-FN-052 :: The histogram shall support a wide dynamic range (nanoseconds -> 
 CORE-FN-053 :: The histogram shall allow configurable precision or accuracy.
 
 === Interfaces & Dependencies
+
 CORE-FN-054 :: Chronicle Core APIs consumed by other Chronicle libraries shall be designed for long-term stability.
 CORE-FN-055 :: Evolution of Core APIs shall minimise breaking changes for dependent libraries.
+
+=== Non-Functional Requirements – Performance (CORE-NF-P-*)
+
+CORE-NF-P-001 :: Core hot-path operations (for example OS and JVM capability lookups, `Memory` / `UnsafeMemory` primitive access, and `SingleThreadedChecked` guards) shall avoid heap allocation after warm-up under normal operating conditions.
+CORE-NF-P-002 :: When resource tracing is disabled, the additional CPU and allocation overhead introduced by tracing-related code paths shall be negligible for representative workloads, in line with the expectations of `CORE-OPS-004` in `operational-requirements.adoc`.
+CORE-NF-P-003 :: Enabling `BackgroundResourceReleaser` shall move heavy deallocation work off application hot paths so that dependent modules can continue to meet their own latency and jitter targets, as documented in their performance requirements and in `performance-targets.adoc`.
+[[CORE-NF-P-006]]
+CORE-NF-P-006 :: The library shall provide a monotonic microsecond-resolution time provider (`UniqueMicroTimeProvider`) that guarantees strictly increasing values within a single JVM while keeping worst-case drift and latency within the bounds described in `unique-micro-time-provider-cas-loop.adoc`.
+
+=== Non-Functional Requirements – Security (CORE-NF-S-*)
+
+CORE-NF-S-001 :: Core memory-access and resource-management APIs shall either perform appropriate bounds and state checks or clearly document where callers are responsible for validating inputs before use, as described in `security-review.adoc`.
+CORE-NF-S-002 :: Use of internal JDK APIs and `sun.misc.Unsafe` shall be encapsulated behind Chronicle Core abstractions (for example `Memory`, `UnsafeMemory`), with risks, mitigations and required JVM flags documented in `security-review.adoc`.
+CORE-NF-S-003 :: File-mapping operations shall support and honour the `chronicle.core.mmap.allowedDirs` system property such that attempts to memory-map files outside the configured directories fail with a security-focused exception, in line with decision `CORE-RISK-003`.
