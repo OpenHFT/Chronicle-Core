@@ -8,6 +8,13 @@ import net.openhft.chronicle.jlbh.JLBHOptions;
 import net.openhft.chronicle.jlbh.JLBHTask;
 import net.openhft.chronicle.jlbh.TeamCityHelper;
 
+/**
+ * JLBH benchmark that exercises {@link Maths#asDouble(long, int, boolean, int)} across a range of
+ * exponents, signs and decimal places.
+ * <p>
+ * Intended to detect performance regressions in the fixed-point to double conversion logic under
+ * varied parameter combinations.
+ */
 public class AsDoubleImplementationPerfJLBH implements JLBHTask {
 
     private static final int ITERATIONS = 100_000;
