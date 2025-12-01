@@ -217,7 +217,7 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
      * <p>Call at whatever cadence suits your application (e.g.&nbsp;every few
      * seconds, once a minute, or only at JVM shutdown).</p>
      */
-    public static void cleanupNonCleaningThreads() {
+    public static synchronized void cleanupNonCleaningThreads() {
         if (cleaningThreadLocals.isEmpty())
             return;
 
