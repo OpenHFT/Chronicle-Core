@@ -39,6 +39,7 @@ public class ThreadDump {
         ignored.add("Attach Listener");
         ignored.add("process reaper");
         ignored.add("junit-jupiter-timeout-watcher");
+        ignored.add("JNA Cleaner");
     }
 
     /**
