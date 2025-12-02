@@ -127,13 +127,15 @@ public class ThreadDump {
                 if (extra.isEmpty())
                     break;
 
-                AssertionError assertionError = new AssertionError("Threads still running " + extra);
+                String detailMessage = "Threads still running " + extra;
+                AssertionError assertionError =
+                        new AssertionError(detailMessage);
                 for (Thread thread : extra) {
                     addThreadErrorDetails(assertionError, thread);
                 }
                 throw assertionError;
             }
-            Jvm.pause(delayMillis + (1L << (i/2)));
+            Jvm.pause(delayMillis + (1L << (i / 2)));
         }
     }
 
