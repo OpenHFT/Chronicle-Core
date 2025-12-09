@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SimpleCloseableTest {
 
+    @SuppressWarnings("PMD.TestClassWithoutTestCases")
     static class TestableSimpleCloseable extends SimpleCloseable {
         private boolean performCloseCalled = false;
 

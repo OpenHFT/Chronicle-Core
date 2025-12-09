@@ -142,8 +142,8 @@ public class RecordingHistogram extends Histogram {
         public String asString(DoubleFunction<Double> toMicros, int max) {
             if (count == 0)
                 return "";
-            StringBuilder sb = new StringBuilder();
-            sb.append("[");
+            StringBuilder sb = new StringBuilder(64);
+            sb.append('[');
             String sep = "";
             for (int i = 0, lim = Math.min(Math.min(20, max * 2), count * 2); i < lim; i += 2) {
                 double offset = toMicros.apply(top[i] - start);
@@ -151,7 +151,7 @@ public class RecordingHistogram extends Histogram {
                 sb.append(sep).append("{ off: ").append(offset).append(", dur: ").append(duration).append(" }");
                 sep = ", ";
             }
-            sb.append("]");
+            sb.append(']');
             return sb.toString();
         }
     }

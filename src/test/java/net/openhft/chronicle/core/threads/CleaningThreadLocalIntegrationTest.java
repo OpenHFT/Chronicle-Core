@@ -100,15 +100,14 @@ class CleaningThreadLocalIntegrationTest {
 
         assertNull(failure.get(), () -> "cleanup should not throw " + failure.get());
 
-        int remaining;
-        int attempts = 0;
-        do {
+        int remaining = Integer.MAX_VALUE;
+        for (int attempts = 0; remaining > 0 && attempts < 10; attempts++) {
             CleaningThreadLocal.cleanupNonCleaningThreads();
             remaining = 0;
             for (CleaningThreadLocal<TrackedResource> ctl : locals) {
                 remaining += trackedEntryCount(ctl);
             }
-        } while (remaining > 0 && attempts++ < 10);
+        }
 
         assertEquals(0, remaining, "no tracked entries should remain");
         assertEquals(expectedOrphans, cleaned.get(), "every orphan should be cleaned exactly once");

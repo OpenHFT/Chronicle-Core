@@ -11,6 +11,8 @@ import java.util.function.IntPredicate;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
+// Inherits parameterized test cases from UnsafeMemoryTestMixin
+@SuppressWarnings("PMD.TestClassWithoutTestCases")
 final class UnsafeMemoryIntTest implements UnsafeMemoryTestMixin<Integer> {
 
     @Override

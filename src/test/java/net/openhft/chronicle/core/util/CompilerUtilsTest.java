@@ -13,7 +13,7 @@ class CompilerUtilsTest {
     void defineClassShouldThrowAssertionErrorForIllegalAccessException() {
         ClassLoader classLoader = mock(ClassLoader.class);
         String className = "com.example.MyClass";
-        byte[] bytes = new byte[]{ /* class file bytes */};
+        byte[] bytes = { /* class file bytes */};
 
         // Simulate IllegalAccessException
         assertThrows(AssertionError.class, () -> CompilerUtils.defineClass(classLoader, className, bytes));
@@ -23,7 +23,7 @@ class CompilerUtilsTest {
     void defineClassShouldThrowAssertionErrorForInvocationTargetException() {
         ClassLoader classLoader = mock(ClassLoader.class);
         String className = "com.example.MyClass";
-        byte[] bytes = new byte[]{ /* class file bytes */};
+        byte[] bytes = { /* class file bytes */};
 
         // Simulate InvocationTargetException
         assertThrows(AssertionError.class, () -> CompilerUtils.defineClass(classLoader, className, bytes));

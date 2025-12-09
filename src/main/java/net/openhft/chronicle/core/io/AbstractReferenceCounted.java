@@ -121,6 +121,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If this resource was accessed by multiple threads in an unsafe way
      */
+    @Override
     public void throwExceptionIfNotReleased() throws IllegalStateException {
         referenceCounted.throwExceptionIfNotReleased();
     }
@@ -307,6 +308,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
      * Resets the thread-safety check state. This is typically used to indicate
      * that the resource can be used again by a different thread.
      */
+    @Override
     public void singleThreadedCheckReset() {
         usedByThread = null;
     }

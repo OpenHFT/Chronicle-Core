@@ -11,6 +11,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("PMD.JUnit5TestShouldBePackagePrivate") // JUnit4 annotations require public class
 public class VanillaThreadConfinementAsserterTest extends CoreTestCommon {
 
     private ThreadConfinementAsserter asserter;
@@ -27,14 +28,12 @@ public class VanillaThreadConfinementAsserterTest extends CoreTestCommon {
 
     @Test
     public void assertThreadConfinedOther() throws InterruptedException {
-        final Thread other = new Thread(() -> asserter.assertThreadConfined(), "first");
+        final Thread other = new Thread(asserter::assertThreadConfined, "first");
         other.start();
         other.join();
 
         // The asserter is now touched by another thread
-        assertThrows(IllegalStateException.class, () ->
-                asserter.assertThreadConfined()
-        );
+        assertThrows(IllegalStateException.class, asserter::assertThreadConfined);
     }
 
     @Test

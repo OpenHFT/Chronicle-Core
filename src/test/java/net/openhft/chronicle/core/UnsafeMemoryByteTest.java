@@ -9,6 +9,8 @@ import java.util.function.IntPredicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+// Inherits parameterized test cases from UnsafeMemoryTestMixin
+@SuppressWarnings("PMD.TestClassWithoutTestCases")
 final class UnsafeMemoryByteTest implements UnsafeMemoryTestMixin<Byte> {
 
     @Override

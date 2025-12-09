@@ -860,8 +860,7 @@ public final class ObjectUtils {
     public static <T> T requireNonNull(T o) {
         // see https://stackoverflow.com/questions/43115645/in-java-lambdas-why-is-getclass-called-on-a-captured-variable
         // Maybe calling Objects.requireNonNull is just as optimisable/intrinisfiable but I didn't do the research
-        o.getClass();
-        return o;
+        return Objects.requireNonNull(o);
     }
 
     public enum Immutability {

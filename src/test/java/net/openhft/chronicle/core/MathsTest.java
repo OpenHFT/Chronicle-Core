@@ -264,11 +264,13 @@ public class MathsTest extends CoreTestCommon {
         assertEquals(1.14563, Maths.floorN(1.14563, 5), 0);
     }
 
+    @Override
     @Before
     public void threadDump() {
         threadDump = new ThreadDump();
     }
 
+    @Override
     @After
     public void checkThreadDump() {
         threadDump.assertNoNewThreads();
@@ -284,20 +286,10 @@ public class MathsTest extends CoreTestCommon {
         }
         assertEquals(62, Maths.intLog2(Long.MAX_VALUE));
 
-        try {
-            assertEquals(0, Maths.intLog2(0));
-            throw new AssertionError("expected IllegalArgumentException Math.intLong2(0)");
-        } catch (IllegalArgumentException expected) {
-            // expected
-        }
+        assertThrows(IllegalArgumentException.class, () -> Maths.intLog2(0));
         for (int i = 0; i < 64; i++) {
-            try {
-                long l = -1L << i;
-                Maths.intLog2(l);
-                throw new AssertionError("expected IllegalArgumentException Math.intLong2 " + l);
-            } catch (IllegalArgumentException expected) {
-                // expected
-            }
+            long l = -1L << i;
+            assertThrows(IllegalArgumentException.class, () -> Maths.intLog2(l));
         }
     }
 
@@ -307,7 +299,7 @@ public class MathsTest extends CoreTestCommon {
         @NotNull Random rand = TEST_RANDOM;
         for (int i = 0; i < 1000; i++) {
             double d = Math.pow(1e18, rand.nextDouble()) / 1e6;
-            @NotNull BigDecimal bd = new BigDecimal(d);
+            @NotNull BigDecimal bd = BigDecimal.valueOf(d);
             assertEquals(bd.setScale(2, RoundingMode.HALF_UP).doubleValue(), Maths.round2(d), 5e-2);
             assertEquals(bd.setScale(4, RoundingMode.HALF_UP).doubleValue(), Maths.round4(d), 5e-4);
             assertEquals(bd.setScale(6, RoundingMode.HALF_UP).doubleValue(), Maths.round6(d), 5e-6);
@@ -422,9 +414,9 @@ public class MathsTest extends CoreTestCommon {
         assertEquals(uh1, uh2);
 
         // Mixed
-        StringBuilder mixedSb = new StringBuilder().append("€");
+        StringBuilder mixedSb = new StringBuilder().append('€');
         mixedSb.setLength(0);
-        mixedSb.append("X");
+        mixedSb.append('X');
 
         assertEquals(Maths.hash64("X"), Maths.hash64(mixedSb.toString()));
 

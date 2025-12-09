@@ -84,10 +84,10 @@ public interface LicenceCheck {
             }
         } else {
             int start = key.indexOf("expires=") + 8;
-            int end = key.indexOf(",", start);
+            int end = key.indexOf(',', start);
             LocalDate date = LocalDate.parse(key.substring(start, end));
             int start2 = key.indexOf("owner=") + 6;
-            int end2 = key.indexOf(",", start2);
+            int end2 = key.indexOf(',', start2);
             long days = date.toEpochDay() - System.currentTimeMillis() / 86400000;
             if (days < 0)
                 throw Jvm.rethrow(new TimeLimitExceededException());

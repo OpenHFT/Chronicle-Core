@@ -26,6 +26,7 @@ import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@SuppressWarnings("PMD.JUnit5TestShouldBePackagePrivate") // JUnit4 annotations require public class
 public class OSTest extends CoreTestCommon {
     @Rule
     public final TestName testName = new TestName();
@@ -66,11 +67,13 @@ public class OSTest extends CoreTestCommon {
         assertEquals(new File("./last").getAbsolutePath(), OS.findFile("first", "last").getAbsolutePath());
     }
 
+    @Override
     @Before
     public void threadDump() {
         threadDump = new ThreadDump();
     }
 
+    @Override
     @After
     public void checkThreadDump() {
         threadDump.assertNoNewThreads();
@@ -382,7 +385,7 @@ public class OSTest extends CoreTestCommon {
             raf.setLength(size);
 
             long address = OS.map(channel, FileChannel.MapMode.READ_WRITE, 0L, size);
-            Assert.assertTrue("Expected non-zero mapping address", address != 0L);
+            assertNotEquals("Expected non-zero mapping address", 0L, address);
 
             OS.unmap(address, size);
         }
@@ -401,7 +404,7 @@ public class OSTest extends CoreTestCommon {
             raf.setLength(start + size);
 
             long address = OS.map(channel, FileChannel.MapMode.READ_WRITE, start, size);
-            Assert.assertTrue(address != 0L);
+            assertNotEquals(0L, address);
             OS.unmap(address, size);
         }
     }

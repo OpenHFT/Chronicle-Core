@@ -120,6 +120,7 @@ public interface IntValue extends Closeable {
         return false;
     }
 
+    @Override
     default void close() {
     }
 }

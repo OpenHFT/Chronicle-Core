@@ -77,6 +77,7 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
      *
      * @return the default handler in use
      */
+    @Override
     public ExceptionHandler defaultHandler() {
         return eh;
     }

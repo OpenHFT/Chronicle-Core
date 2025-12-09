@@ -12,8 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 public class IOToolsCreateDirectoriesTest {
 
@@ -47,10 +47,7 @@ public class IOToolsCreateDirectoriesTest {
         Path file = base.resolve("exists");
         Files.write(file, new byte[]{1, 2, 3});
         try {
-            IOTools.createDirectories(file);
-            fail("expected IOException");
-        } catch (IOException expected) {
-            // expected
+            assertThrows(IOException.class, () -> IOTools.createDirectories(file));
         } finally {
             delete(base.toFile());
         }

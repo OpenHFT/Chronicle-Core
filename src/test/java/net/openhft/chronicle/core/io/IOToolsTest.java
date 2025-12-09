@@ -253,12 +253,7 @@ public class IOToolsTest extends CoreTestCommon {
     @Test
     public void addressFor2() {
         final ByteBuffer bb = ByteBuffer.allocate(1);
-        try {
-            IOTools.addressFor(bb);
-            fail();
-        } catch (ClassCastException cce) {
-            // expected
-        }
+        assertThrows(ClassCastException.class, () -> IOTools.addressFor(bb));
     }
 
     @Test

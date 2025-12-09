@@ -372,6 +372,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
      * After calling this method, the component's thread safety check state will be cleared,
      * and it will no longer remember which thread it was last accessed by.
      */
+    @Override
     public void singleThreadedCheckReset() {
         usedByThread = null;
         usedByThreadHere = null;
@@ -406,6 +407,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
      *
      * @param singleThreadedCheckDisabled {@code true} to disable single-threaded safety check; {@code false} to enable it.
      */
+    @Override
     public void singleThreadedCheckDisabled(boolean singleThreadedCheckDisabled) {
         this.singleThreadedCheckDisabled = singleThreadedCheckDisabled;
         if (singleThreadedCheckDisabled) {

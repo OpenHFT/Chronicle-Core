@@ -50,9 +50,7 @@ public final class Bootstrap {
         IS_JAVA_20_PLUS = JVM_JAVA_MAJOR_VERSION >= 20;
         IS_JAVA_21_PLUS = JVM_JAVA_MAJOR_VERSION >= 21;
 
-        boolean assertEnabled = false;
-        assert assertEnabled = true;
-        ASSERT_ENABLED = assertEnabled;
+        ASSERT_ENABLED = Bootstrap.class.desiredAssertionStatus();
 
         ChronicleGuarding.bootstrap();
     }

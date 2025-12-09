@@ -18,10 +18,10 @@ import net.openhft.chronicle.jlbh.TeamCityHelper;
 public class AsDoubleImplementationPerfJLBH implements JLBHTask {
 
     private static final int ITERATIONS = 100_000;
-    private final long[] values = new long[]{21738192378192L, 12L, 13781678L, 124372189L};
-    private final int[] exponents = new int[]{-50, -10, 0, 10, 50};
-    private final boolean[] negative = new boolean[]{true, false};
-    private final int[] decimalPlaces = new int[]{0, 10, 20, 50};
+    private final long[] values = {21738192378192L, 12L, 13781678L, 124372189L};
+    private final int[] exponents = {-50, -10, 0, 10, 50};
+    private final boolean[] negative = {true, false};
+    private final int[] decimalPlaces = {0, 10, 20, 50};
     private JLBH jlbh;
 
     public static void main(String[] args) {

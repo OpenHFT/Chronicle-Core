@@ -16,6 +16,7 @@ import java.util.ServiceLoader;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("PMD.JUnit5TestShouldBePackagePrivate") // JUnit4 annotations require public class
 public class ChronicleInitTest extends CoreTestCommon {
 
     private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();

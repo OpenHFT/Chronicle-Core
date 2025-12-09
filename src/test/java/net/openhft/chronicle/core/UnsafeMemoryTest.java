@@ -617,11 +617,13 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
+    @SuppressWarnings("PMD.TestClassWithoutTestCases")
     private static class TestClass {
         final boolean booleanField = false;
         final double doubleField = 0.0;
     }
 
+    @SuppressWarnings("PMD.TestClassWithoutTestCases")
     static class TestObject {
         int value;
     }

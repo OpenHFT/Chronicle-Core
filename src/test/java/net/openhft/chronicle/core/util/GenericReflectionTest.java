@@ -112,6 +112,7 @@ class GenericReflectionTest extends CoreTestCommon {
     }
 
     interface OverridesGenericMethod extends GenericMethod<Byte, Short> {
+        @Override
         void method(Byte b, Short s);
     }
 

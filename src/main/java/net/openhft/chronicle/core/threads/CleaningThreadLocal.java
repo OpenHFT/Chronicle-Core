@@ -147,9 +147,7 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         this.cleanup = Objects.requireNonNull(cleanup, "cleanup");
         this.getWrapper = Objects.requireNonNull(getWrapper, "getWrapper");
 
-        // decide whether to gather orphan values
-        boolean track = false;
-        assert track = enableOrphanTracking();   // NOP when -ea is absent
+        boolean track = CleaningThreadLocal.class.desiredAssertionStatus() && enableOrphanTracking();
         this.trackNonCleaningThreads =
                 !DISABLE_CTL_ORPHAN_TRACKING &&
                         (overrideTrackNonCleaningThreads != null

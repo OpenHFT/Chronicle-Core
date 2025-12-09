@@ -27,7 +27,7 @@ class CloseableUtilsEdgeTest {
     @Test
     void closeQuietlyClosesElementsAndIgnoresThrowers() {
         AtomicInteger c = new AtomicInteger();
-        Object[] arr = new Object[]{
+        Object[] arr = {
                 new CountingCloseable(c),
                 new ThrowingCloseable(),
                 new CountingCloseable(c)

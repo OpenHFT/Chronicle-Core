@@ -75,12 +75,7 @@ public class AbstractCloseableTest extends CoreTestCommon {
             }
         };
 
-        try {
-            myCloseable.close();
-            fail();
-        } catch (IllegalStateException expected) {
-            // do Nothing
-        }
+        assertThrows(IllegalStateException.class, myCloseable::close);
         assertEquals(0, myCloseable.performClose);
 
         myCloseable.close();

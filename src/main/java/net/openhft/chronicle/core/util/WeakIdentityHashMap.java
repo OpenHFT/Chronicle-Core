@@ -76,7 +76,9 @@ public class WeakIdentityHashMap<K, V> extends AbstractMap<K, V> {
                     @Override
                     public boolean hasNext() {
                         while (iterator.hasNext()) {
-                            if ((next = iterator.next().get()) != null) {
+                            K candidate = iterator.next().get();
+                            if (candidate != null) {
+                                next = candidate;
                                 return true;
                             }
                         }
@@ -97,7 +99,7 @@ public class WeakIdentityHashMap<K, V> extends AbstractMap<K, V> {
 
             @Override
             public int size() {
-                return getMap().keySet().size();
+                return getMap().size();
             }
         };
     }
@@ -147,7 +149,7 @@ public class WeakIdentityHashMap<K, V> extends AbstractMap<K, V> {
 
             @Override
             public int size() {
-                return getMap().entrySet().size();
+                return getMap().size();
             }
         };
     }

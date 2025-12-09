@@ -14,6 +14,7 @@ public class JvmSafepointTest extends CoreTestCommon {
     public void testSafepoint() throws InterruptedException {
         @SuppressWarnings("AnonymousHasLambdaAlternative")
         Thread t = new Thread() {
+            @Override
             public void run() {
                 long start = System.currentTimeMillis();
                 while (System.currentTimeMillis() < start + 1000
@@ -51,7 +52,7 @@ public class JvmSafepointTest extends CoreTestCommon {
     @Test
     public void safePointPerf() {
         // This will enable the C2 compiler to kick in.
-        FlakyTestRunner.<RuntimeException>builder(this::safePointPerf0).withFlakyOnThisArchitecture(true).withMaxIterations(3).build().run();
+        FlakyTestRunner.builder(this::safePointPerf0).withFlakyOnThisArchitecture(true).withMaxIterations(3).build().run();
     }
 
     private void safePointPerf0() {

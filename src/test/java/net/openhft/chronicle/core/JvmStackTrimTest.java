@@ -19,7 +19,7 @@ class JvmStackTrimTest {
 
     @Test
     void trimFirstAndLastIndices() {
-        StackTraceElement[] st = new StackTraceElement[] {
+        StackTraceElement[] st = {
                 new StackTraceElement("java.lang.Object", "m", "Object.java", 1),
                 new StackTraceElement("sun.misc.Unsafe", "n", "Unsafe.java", 1),
                 new StackTraceElement("net.openhft.User", "x", "User.java", 10),

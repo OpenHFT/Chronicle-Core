@@ -67,6 +67,7 @@ class ReferenceCountingFuzzTest {
                 "performRelease should have been invoked exactly once");
     }
 
+    @SuppressWarnings("PMD.TestClassWithoutTestCases")
     private static final class TestReference extends AbstractReferenceCounted {
         private final boolean background;
         private final AtomicReference<Thread> releaseThread = new AtomicReference<>();

@@ -30,6 +30,7 @@ class ConcreteInvocationHandler extends AbstractInvocationHandler {
     }
 }
 
+@SuppressWarnings("PMD.JUnit5TestShouldBePackagePrivate") // JUnit4 annotations require public class
 public class AbstractInvocationHandlerTest extends CoreTestCommon {
 
     @BeforeEach
@@ -62,7 +63,7 @@ public class AbstractInvocationHandlerTest extends CoreTestCommon {
     @Test
     public void testInvoke() {
         final List<String> messages = new ArrayList<>();
-        final Consumer<String> consumer = s -> messages.add(s);
+        final Consumer<String> consumer = messages::add;
         final CallMe mocked = Mocker.intercepting(CallMe.class, "", consumer);
         mocked.method1();
         mocked.method2();

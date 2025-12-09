@@ -281,12 +281,12 @@ public class StringUtilsTest extends CoreTestCommon {
         assertFalse(StringUtils.isEqual(new StringBuilder(), "a"));
 
         // Same lengths & ASCII
-        assertFalse(StringUtils.isEqual(new StringBuilder().append("a"), "b"));
+        assertFalse(StringUtils.isEqual(new StringBuilder().append('a'), "b"));
         assertFalse(StringUtils.isEqual(new StringBuilder().append("test"), "Test"));
         assertTrue(StringUtils.isEqual(new StringBuilder().append("TheSame"), "TheSame"));
 
         // Same lengths & UTF-8
-        assertFalse(StringUtils.isEqual(new StringBuilder().append("Δ"), "Γ"));
+        assertFalse(StringUtils.isEqual(new StringBuilder().append('Δ'), "Γ"));
         assertFalse(StringUtils.isEqual(new StringBuilder().append("ΔΔΔΔΔ"), "ΔΔ€ΔΔ"));
         assertTrue(StringUtils.isEqual(new StringBuilder().append("ΔΔΔΔΔ"), "ΔΔΔΔΔ"));
 

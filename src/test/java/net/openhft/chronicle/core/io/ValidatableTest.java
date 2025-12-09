@@ -14,32 +14,14 @@ public class ValidatableTest extends CoreTestCommon {
     @Test
     public void validate() {
         DTOWithValidateToString d = new DTOWithValidateToString();
-        try {
-            d.toString();
-            fail();
-            throw new InvalidMarshallableException(null); // keep the compiler happy
-        } catch (InvalidMarshallableException expected) {
-            // expected
-        }
+        assertThrows(InvalidMarshallableException.class, d::toString);
         d.b = 1;
-        try {
-            d.toString();
-            fail();
-            throw new InvalidMarshallableException(null); // keep the compiler happy
-        } catch (InvalidMarshallableException expected) {
-            // expected
-        }
+        assertThrows(InvalidMarshallableException.class, d::toString);
         d.a = "hi";
         d.b = 1;
         assertEquals("DTOWithValidateToString{a='hi', b=1}", d.toString()); // is ok
         d.b = 0;
-        try {
-            d.toString();
-            fail();
-            throw new InvalidMarshallableException(null); // keep the compiler happy
-        } catch (InvalidMarshallableException expected) {
-            // expected
-        }
+        assertThrows(InvalidMarshallableException.class, d::toString);
     }
 
     @Test
@@ -70,21 +52,8 @@ public class ValidatableTest extends CoreTestCommon {
             ValidatableUtil.endValidateDisabled();
             assertTrue(ValidatableUtil.validateEnabled());
         }
-        try {
-            d.toString();
-            fail();
-            throw new InvalidMarshallableException(null); // keep the compiler happy
-        } catch (InvalidMarshallableException expected) {
-            // expected
-        }
-        boolean failed = false;
-        try {
-            ValidatableUtil.endValidateDisabled();
-            failed = true;
-        } catch (AssertionError expected) {
-            // expected
-        }
-        assertFalse(failed);
+        assertThrows(InvalidMarshallableException.class, d::toString);
+        assertThrows(AssertionError.class, ValidatableUtil::endValidateDisabled);
         assertTrue(ValidatableUtil.validateEnabled());
     }
 

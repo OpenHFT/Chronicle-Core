@@ -57,6 +57,7 @@ public class HookletTest {
         assertTrue(hooklet1.compareTo(hooklet2) < 0);
     }
 
+    @SuppressWarnings("PMD.TestClassWithoutTestCases")
     static class TestRunnable implements Runnable {
         @Override
         public void run() {

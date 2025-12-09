@@ -271,7 +271,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @Test
     public void copyMemoryEachWayLongArrayMemory() {
-        final long[] data = new long[]{1, 2, 3, 4};
+        final long[] data = {1, 2, 3, 4};
         final int lengthInBytes = data.length * Long.BYTES;
         final long addr = memory.allocate(lengthInBytes);
         memory.copyMemory(data, memory.arrayBaseOffset(data.getClass()), addr, lengthInBytes);
@@ -317,7 +317,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @Test
     public void copyMemoryEachWayByteArrayLongArray() {
-        final long[] longs = new long[]{0x0706050403020100L, 0x0f0e0d0c0b0a0908L};
+        final long[] longs = {0x0706050403020100L, 0x0f0e0d0c0b0a0908L};
         final long[] copy = new long[longs.length];
         System.arraycopy(longs, 0, copy, 0, longs.length);
         final int lengthInBytes = longs.length * Long.BYTES;

@@ -38,11 +38,13 @@ public class JvmTest extends CoreTestCommon {
 
     private ThreadDump threadDump;
 
+    @Override
     @Before
     public void threadDump() {
         threadDump = new ThreadDump();
     }
 
+    @Override
     @After
     public void checkThreadDump() {
         resetExceptionHandlers();
@@ -134,12 +136,7 @@ public class JvmTest extends CoreTestCommon {
     @Test
     public void classMetrics() throws IllegalArgumentException {
         assumeFalse(isArm());
-        try {
-            Jvm.classMetrics(ClassD.class);
-            fail();
-        } catch (IllegalArgumentException expected) {
-            // ignored
-        }
+        assertThrows(IllegalArgumentException.class, () -> Jvm.classMetrics(ClassD.class));
     }
 
     @Test
@@ -161,12 +158,7 @@ public class JvmTest extends CoreTestCommon {
     public void address() {
         ByteBuffer bb = ByteBuffer.allocateDirect(64);
         assertNotEquals(0, Jvm.address(bb));
-        try {
-            Jvm.address(ByteBuffer.allocate(64));
-            fail();
-        } catch (Exception e) {
-            // expected.
-        }
+        assertThrows(Exception.class, () -> Jvm.address(ByteBuffer.allocate(64)));
     }
 
     @Test
@@ -295,7 +287,7 @@ public class JvmTest extends CoreTestCommon {
     @Test
     public void testTrimStackTrace() {
         StringBuilder sb = new StringBuilder();
-        StackTraceElement[] stes = new StackTraceElement[]{
+        StackTraceElement[] stes = {
                 new StackTraceElement("Class1", "method1", "Class1.java", 1),
                 new StackTraceElement("Class2", "method2", "Class2.java", 2)
         };
@@ -378,14 +370,14 @@ public class JvmTest extends CoreTestCommon {
         }
     }
 
-    @Target(value = {ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.METHOD})
+    @Target({ElementType.FIELD, ElementType.ANNOTATION_TYPE, ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     public @interface RealAnno {
 
         String value();
     }
 
-    @Target(value = {ElementType.FIELD, ElementType.TYPE, ElementType.METHOD})
+    @Target({ElementType.FIELD, ElementType.TYPE, ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @RealAnno("Hello")
     @interface AnnoAlias {

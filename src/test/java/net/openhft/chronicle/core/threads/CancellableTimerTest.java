@@ -92,7 +92,7 @@ class CancellableTimerTest extends CoreTestCommon {
         scheduledEventHandler.action();
 
         closeable.close();
-        assertThrows(InvalidEventHandlerException.class, () -> scheduledEventHandler.action());
+        assertThrows(InvalidEventHandlerException.class, scheduledEventHandler::action);
     }
 
     @Test
@@ -108,7 +108,7 @@ class CancellableTimerTest extends CoreTestCommon {
         // Handler is called after initialDelayMs and InvalidEventHandlerExceptionIsThrown
         final long firstCallTime = submittedTime + INITIAL_DELAY_MS + 1;
         timeProvider.currentTimeMillis(firstCallTime);
-        assertThrows(InvalidEventHandlerException.class, () -> scheduledEventHandler.action());
+        assertThrows(InvalidEventHandlerException.class, scheduledEventHandler::action);
         verify(runnable).run();
     }
 
@@ -127,7 +127,7 @@ class CancellableTimerTest extends CoreTestCommon {
         // Handler is NOT called after initialDelayMs because it was cancelled, but InvalidEventHandlerExceptionIsThrown
         final long firstCallTime = submittedTime + INITIAL_DELAY_MS + 1;
         timeProvider.currentTimeMillis(firstCallTime);
-        assertThrows(InvalidEventHandlerException.class, () -> scheduledEventHandler.action());
+        assertThrows(InvalidEventHandlerException.class, scheduledEventHandler::action);
         verifyNoInteractions(runnable);
     }
 }

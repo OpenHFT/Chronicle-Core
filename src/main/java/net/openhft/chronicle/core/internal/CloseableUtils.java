@@ -353,17 +353,17 @@ public final class CloseableUtils {
 
     public static String asString(Object id) {
         if (id == ReferenceOwner.INIT) return "INIT";
-        String s = id instanceof ReferenceOwner
+        StringBuilder s = new StringBuilder(id instanceof ReferenceOwner
                 ? ((ReferenceOwner) id).referenceName()
-                : id.getClass().getSimpleName() + "@" + Integer.toHexString(System.identityHashCode(id));
+                : id.getClass().getSimpleName() + "@" + Integer.toHexString(System.identityHashCode(id)));
         if (id instanceof ReferenceCounted)
-            s += " refCount=" + ((ReferenceCounted) id).refCount();
+            s.append(" refCount=").append(((ReferenceCounted) id).refCount());
         try {
             if (id instanceof QueryCloseable)
-                s += " closed=" + ((QueryCloseable) id).isClosed();
+                s.append(" closed=").append(((QueryCloseable) id).isClosed());
         } catch (NullPointerException ignored) {
             // not initialised
         }
-        return s;
+        return s.toString();
     }
 }
