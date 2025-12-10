@@ -38,7 +38,9 @@ public final class Maths {
             FIVES[i] = 5 * FIVES[i - 1];
     }
 
-    // Suppresses default constructor, ensuring non-instantiability.
+    /**
+     * Prevents instantiation; {@link Maths} only contains static utility methods.
+     */
     private Maths() {
     }
 
@@ -559,6 +561,27 @@ public final class Maths {
         return agitate(hash);
     }
 
+    private static long hash64BytesThenChars(CharSequence s, boolean treatAsBytes, boolean allowBytes) {
+        long hash = 0;
+        if (allowBytes && treatAsBytes) {
+            final byte[] bytes = extractBytesFrom(s);
+            for (int i = 0, len = s.length(); i < len; i++)
+                hash = hash * 0x32246e3d + bytes[i];
+        } else {
+            for (int i = 0, len = s.length(); i < len; i++)
+                hash = hash * 0x32246e3d + s.charAt(i);
+        }
+        return hash;
+    }
+
+    private static byte[] extractBytesFrom(CharSequence s) {
+        if (s instanceof String)
+            return StringUtils.extractBytes((String) s);
+        if (s instanceof StringBuilder)
+            return StringUtils.extractBytes((StringBuilder) s);
+        throw new IllegalArgumentException("Unsupported CharSequence type: " + s.getClass());
+    }
+
     /**
      * Computes a 64-bit hash value for the given string.
      * The hash function used is dependent on the Java version and the internal representation of the string.
@@ -574,19 +597,13 @@ public final class Maths {
     public static long hash64(@NotNull String s) {
         //noinspection ConstantValue
         if (s == null) throw new IllegalArgumentException(); // NOSONAR
-        long hash = 0;
+        long hash;
 
         if (Jvm.isJava9Plus() && Jvm.maxDirectMemory() > 0) {
-            if (StringUtils.getStringCoder(s) == 0) {
-                final byte[] bytes = StringUtils.extractBytes(s);
-                for (int i = 0, len = s.length(); i < len; i++)
-                    hash = hash * 0x32246e3d + bytes[i];
-            } else {
-                for (int i = 0, len = s.length(); i < len; i++)
-                    hash = hash * 0x32246e3d + s.charAt(i);
-            }
+            hash = hash64BytesThenChars(s, StringUtils.getStringCoder(s) == 0, true);
         } else {
             final char[] chars = StringUtils.extractChars(s);
+            hash = 0;
             for (int i = 0, len = s.length(); i < len; i++)
                 hash = hash * 0x32246e3d + chars[i];
         }
@@ -606,19 +623,13 @@ public final class Maths {
      * @throws IllegalArgumentException if {@code s} is {@code null}
      */
     public static long hash64(@NotNull StringBuilder s) {
-        long hash = 0;
+        long hash;
 
         if (Jvm.isJava9Plus()) {
-            if (Jvm.maxDirectMemory() > 0 && StringUtils.getStringCoder(s) == 0) {
-                final byte[] bytes = StringUtils.extractBytes(s);
-                for (int i = 0, len = s.length(); i < len; i++)
-                    hash = hash * 0x32246e3d + bytes[i];
-            } else {
-                for (int i = 0, len = s.length(); i < len; i++)
-                    hash = hash * 0x32246e3d + s.charAt(i);
-            }
+            hash = hash64BytesThenChars(s, StringUtils.getStringCoder(s) == 0, Jvm.maxDirectMemory() > 0);
         } else {
             final char[] chars = StringUtils.extractChars(s);
+            hash = 0;
             for (int i = 0, len = s.length(); i < len; i++)
                 hash = hash * 0x32246e3d + chars[i];
         }

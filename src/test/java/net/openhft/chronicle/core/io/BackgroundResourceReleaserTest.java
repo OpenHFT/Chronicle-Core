@@ -30,24 +30,12 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
     @Test
     public void testResourcesCleanedUp() throws IllegalStateException {
         int count = 20;
-        for (int i = 0; i < count - 1; i++) {
-            new BGCloseable().close();
-            new BGReferenceCounted().releaseLast();
-        }
-        int expectedCount = BackgroundResourceReleaser.BG_RELEASER ? 2 : count;
-        assertEquals(expectedCount, closed.get(), 2);
-        assertEquals(expectedCount, released.get(), 2);
-        BGCloseable bgc = new BGCloseable();
-        bgc.close();
-        assertTrue(bgc.isClosing());
-        assertEquals(!BackgroundResourceReleaser.BG_RELEASER, bgc.isClosed());
-
-        BGReferenceCounted bgr = new BGReferenceCounted();
-        bgr.releaseLast();
-        assertEquals(0, bgr.refCount());
+        BackgroundResourceReleaserSupport.createResources(0, count - 1, closed, released);
+        BackgroundResourceReleaserSupport.assertExpectedCounts(count, closed, released);
+        BackgroundResourceReleaserSupport.exerciseCloseableAndReferenceCounted(closed, released, !BackgroundResourceReleaser.BG_RELEASER);
 
         long start0 = System.currentTimeMillis();
-        WaitingCloseable wc = new WaitingCloseable();
+        BackgroundResourceReleaserSupport.WaitingCloseable wc = BackgroundResourceReleaserSupport.createWaitingCloseable();
         new Thread(wc::close).start();
         wc.close();
         long time0 = System.currentTimeMillis() - start0;
@@ -209,32 +197,6 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
         @Override
         protected void performClose() {
             counter.incrementAndGet();
-        }
-    }
-
-    class BGCloseable extends AbstractCloseable {
-        @Override
-        protected boolean shouldPerformCloseInBackground() {
-            return true;
-        }
-
-        @Override
-        protected void performClose() {
-            closed.incrementAndGet();
-            Jvm.pause(10);
-        }
-    }
-
-    class BGReferenceCounted extends AbstractReferenceCounted {
-        @Override
-        protected boolean canReleaseInBackground() {
-            return true;
-        }
-
-        @Override
-        protected void performRelease() {
-            released.incrementAndGet();
-            Jvm.pause(10);
         }
     }
 }

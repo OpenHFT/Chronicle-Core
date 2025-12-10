@@ -99,27 +99,11 @@ public class StackTraceTest extends CoreTestCommon {
             // The exact string might differ in Java 20+ if the thread is displayed differently
             assertTrue(String.format("%s must match regular expression expecting timestamp to nanosecond precision", st.getMessage()),
                     st.getMessage().matches("Thread\\[\\#\\d+,background,5,main\\] on main at " + TIMESTAMP_REGEX));
-            // Allow either our wrapper or the underlying sleep to appear at the top on newer JDKs
-            String f0 = st.getStackTrace()[0].toString().split("\\(")[0].replaceAll("^app//", "").replaceFirst("^[^/]+/", "");
-            String f1 = st.getStackTrace().length > 1 ? st.getStackTrace()[1].toString().split("\\(")[0].replaceAll("^app//", "").replaceFirst("^[^/]+/", "") : "";
-            boolean ok =
-                    "net.openhft.chronicle.core.Jvm.pause".equals(f0) ||
-                            "net.openhft.chronicle.core.Jvm.pause".equals(f1) ||
-                            "java.lang.Thread.sleep".equals(f0) ||
-                            "java.lang.Thread.sleep".equals(f1);
-            assertTrue("Expected top frames to include Jvm.pause or Thread.sleep but were: " + Arrays.asList(f0, f1), ok);
+            assertTopFramesContainPauseOrSleep(st);
         } else {
             assertTrue(st.getMessage() + " must match regular expression expecting timestamp to nanosecond precision",
                     st.getMessage().matches("Thread\\[background,5,main\\] on main at " + TIMESTAMP_REGEX));
-            // Allow either our wrapper or the underlying sleep to appear at the top
-            String f0 = st.getStackTrace()[0].toString().split("\\(")[0].replaceAll("^app//", "").replaceFirst("^[^/]+/", "");
-            String f1 = st.getStackTrace().length > 1 ? st.getStackTrace()[1].toString().split("\\(")[0].replaceAll("^app//", "").replaceFirst("^[^/]+/", "") : "";
-            boolean ok =
-                    "net.openhft.chronicle.core.Jvm.pause".equals(f0) ||
-                            "net.openhft.chronicle.core.Jvm.pause".equals(f1) ||
-                            "java.lang.Thread.sleep".equals(f0) ||
-                            "java.lang.Thread.sleep".equals(f1);
-            assertTrue("Expected top frames to include Jvm.pause or Thread.sleep but were: " + Arrays.asList(f0, f1), ok);
+            assertTopFramesContainPauseOrSleep(st);
         }
     }
 
@@ -129,5 +113,16 @@ public class StackTraceTest extends CoreTestCommon {
         StackTrace st = new StackTrace(true);
         String msg = st.getMessage(); // e.g. "... at 2030-12-31T23:59:59.999999999Z"
         assertTrue("Timestamp should end with 'Z' for UTC", msg.endsWith("Z"));
+    }
+
+    private static void assertTopFramesContainPauseOrSleep(StackTrace st) {
+        String f0 = st.getStackTrace()[0].toString().split("\\(")[0].replaceAll("^app//", "").replaceFirst("^[^/]+/", "");
+        String f1 = st.getStackTrace().length > 1 ? st.getStackTrace()[1].toString().split("\\(")[0].replaceAll("^app//", "").replaceFirst("^[^/]+/", "") : "";
+        boolean ok =
+                "net.openhft.chronicle.core.Jvm.pause".equals(f0) ||
+                        "net.openhft.chronicle.core.Jvm.pause".equals(f1) ||
+                        "java.lang.Thread.sleep".equals(f0) ||
+                        "java.lang.Thread.sleep".equals(f1);
+        assertTrue("Expected top frames to include Jvm.pause or Thread.sleep but were: " + Arrays.asList(f0, f1), ok);
     }
 }

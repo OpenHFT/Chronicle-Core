@@ -98,9 +98,17 @@ public final class ClassUtil {
         }
     }
 
+    /**
+     * Resolves {@code setAccessible0} without eager initialisation on older JVMs.
+     */
     static class SetAccessibleHolder {
         static final MethodHandle setAccessible0_Method = getSetAccessible0Method();
 
+        /**
+         * Discovers the JVM-private {@code setAccessible0} implementation when available.
+         *
+         * @return a handle to {@code AccessibleObject#setAccessible0} or {@code null} if unavailable
+         */
         private static MethodHandle getSetAccessible0Method() {
             if (!Bootstrap.isJava9Plus()) {
                 return null;

@@ -7,6 +7,7 @@ import net.openhft.chronicle.testframework.FlakyTestRunner;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class JvmSafepointTest extends CoreTestCommon {
 
@@ -52,7 +53,11 @@ public class JvmSafepointTest extends CoreTestCommon {
     @Test
     public void safePointPerf() {
         // This will enable the C2 compiler to kick in.
-        FlakyTestRunner.builder(this::safePointPerf0).withFlakyOnThisArchitecture(true).withMaxIterations(3).build().run();
+        FlakyTestRunner.builder(this::safePointPerf0)
+                .withFlakyOnThisArchitecture(true)
+                .withMaxIterations(3)
+                .build()
+                .runOrThrow();
     }
 
     private void safePointPerf0() {
@@ -68,12 +73,11 @@ public class JvmSafepointTest extends CoreTestCommon {
                 long avg = time / count;
                 System.out.println("avg: " + avg);
                 int maxAvg = Jvm.isArm() ? 400 : 200;
-                try {
-                    assertTrue("avg: " + avg, 1 <= avg && avg < maxAvg);
+                if (1 <= avg && avg < maxAvg) {
                     break;
-                } catch (AssertionError e) {
-                    if (t == 5)
-                        throw e;
+                }
+                if (t == 5) {
+                    fail("avg: " + avg);
                 }
             }
             Jvm.pause(5);

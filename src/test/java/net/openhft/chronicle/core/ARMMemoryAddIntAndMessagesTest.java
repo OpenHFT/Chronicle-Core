@@ -48,7 +48,8 @@ class ARMMemoryAddIntAndMessagesTest {
         // current value 0, expected 1 -> mismatch
         IllegalStateException ex = assertThrows(IllegalStateException.class,
                 () -> arm.testAndSetInt(aligned, 4L, 1, 2));
-        assertTrue(ex.getMessage().contains("Expected") || ex.getMessage().contains("expected"));
-        assertFalse(ex.getMessage().contains("mis-aligned"));
+        assertTrue(ex.getMessage().contains("Expected") || ex.getMessage().contains("expected"),
+                "mismatch message should mention expected vs actual but was: " + ex.getMessage());
+        assertFalse(ex.getMessage().contains("mis-aligned"), "aligned path should not report mis-aligned");
     }
 }

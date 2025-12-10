@@ -54,8 +54,10 @@ public final class ChronicleInit {
         }
     }
 
+    /**
+     * Prevents instantiation; this utility class is only used for static bootstrapping.
+     */
     private ChronicleInit() {
-        // Suppresses default constructor, ensuring non-instantiability.
     }
 
     private static void runQuietly(Runnable runnable) {

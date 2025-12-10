@@ -82,6 +82,9 @@ public final class Wget {
         Charset detect(InputStream response, String contentTypeHeader);
     }
 
+    /**
+     * Configures {@link Wget} instances, primarily for tests where timeouts or providers are injected.
+     */
     public static final class Builder {
         private static final ConnectionProvider DEFAULT_PROVIDER = URL::openStream;
 
@@ -91,30 +94,45 @@ public final class Wget {
         private int readTimeoutMs = 10_000;
         private long maxResponseBytes = 10L << 20; // 10 MiB
 
+        /**
+         * Overrides the connection provider for testing.
+         */
         @Deprecated(/* to be removed in 2027, only used in tests */)
         public Builder connectionProvider(final ConnectionProvider provider) {
             this.connectionProvider = Objects.requireNonNull(provider);
             return this;
         }
 
+        /**
+         * Overrides the charset detector for testing.
+         */
         @Deprecated(/* to be removed in 2027, only used in tests */)
         public Builder charsetDetector(final CharsetDetector detector) {
             this.charsetDetector = Objects.requireNonNull(detector);
             return this;
         }
 
+        /**
+         * Sets the connection timeout in milliseconds.
+         */
         @Deprecated(/* to be removed in 2027, only used in tests */)
         public Builder connectTimeoutMs(final int timeoutMs) {
             this.connectTimeoutMs = timeoutMs;
             return this;
         }
 
+        /**
+         * Sets the read timeout in milliseconds.
+         */
         @Deprecated(/* to be removed in 2027, only used in tests */)
         public Builder readTimeoutMs(final int timeoutMs) {
             this.readTimeoutMs = timeoutMs;
             return this;
         }
 
+        /**
+         * Sets the maximum allowed response size in bytes (non-negative).
+         */
         @Deprecated(/* to be removed in 2027, only used in tests */)
         public Builder maxResponseBytes(final long maxResponseBytes) {
             if (maxResponseBytes < 0)

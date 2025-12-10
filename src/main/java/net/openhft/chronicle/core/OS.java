@@ -700,11 +700,18 @@ public final class OS {
         }
     }
 
+    /**
+     * Resolves and caches the primary IP address using multiple fallbacks.
+     */
     static class IPAddressHolder {
 
         public static final String GOOGLE_DNS = "8.8.8.8"; // NOSONAR
         public static final String NO_ADDRESS = "0.0.0.0";
         static final String IP_ADDRESS = getIPAddress0();
+
+        /**
+         * Prevents instantiation; address resolution is handled via static access.
+         */
         private IPAddressHolder() {
         }
 
@@ -824,6 +831,9 @@ public final class OS {
             }
         }
 
+        /**
+         * Prevents instantiation; all access goes through static handles.
+         */
         private Unmapp0Holder() {
         }
     }
@@ -842,6 +852,9 @@ public final class OS {
             }
         }
 
+        /**
+         * Prevents instantiation; all logic is exposed through static handles.
+         */
         private Read0Holder() {
         }
     }
@@ -870,6 +883,9 @@ public final class OS {
             WRITE0_MH2 = write0Mh2;
         }
 
+        /**
+         * Prevents instantiation; all logic is exposed through static handles.
+         */
         private Write0Holder() {
         }
     }

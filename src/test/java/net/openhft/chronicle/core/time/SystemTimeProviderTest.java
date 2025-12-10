@@ -17,9 +17,13 @@ import static org.junit.Assert.assertTrue;
 
 public class SystemTimeProviderTest extends CoreTestCommon {
     static void assertBetween(long min, long actual, long max) {
+        assertBetween("range check", min, actual, max);
+    }
+
+    static void assertBetween(String label, long min, long actual, long max) {
         if (min <= actual && actual <= max)
             return;
-        throw new AssertionError("Not in range " + min + " <= " + actual + " <= " + max);
+        throw new AssertionError(label + ": Not in range " + min + " <= " + actual + " <= " + max);
     }
 
     @Test
@@ -39,7 +43,47 @@ public class SystemTimeProviderTest extends CoreTestCommon {
     }
 
     private void doCurrentTimeMicros() throws IllegalStateException {
-        @NotNull TimeProvider tp = SystemTimeProvider.INSTANCE;
+        assertCurrentTimeMicros(SystemTimeProvider.INSTANCE, false, false);
+    }
+
+    @Test
+    public void currentTime() throws IllegalStateException {
+        for (int i = 3; i >= 0; i--) {
+            TimeProvider tp = SystemTimeProvider.INSTANCE;
+            long time2 = tp.currentTimeMillis();
+            long time3 = tp.currentTimeMicros();
+            long time4 = tp.currentTimeNanos();
+            try {
+                assertBetween("currentTimeMillis within currentTimeMicros bounds", time3 / 1000 - 8, time2, time3 / 1000 + 20);
+                assertBetween("currentTimeMicros within currentTimeNanos bounds", time4 / 1000 - 100, time3, time4 / 1000 + 2_000);
+            } catch (AssertionError ae) {
+                Thread.yield();
+                if (i == 0)
+                    throw ae;
+            }
+        }
+    }
+
+    @Test
+    public void resolution() {
+        for (int j = 0; j < 3; j++) {
+            Histogram h = new Histogram(32, 10, 1);
+            long last = SystemTimeProvider.INSTANCE.currentTimeNanos();
+            for (int i = 0; i < 5000000; i++) {
+                long next = SystemTimeProvider.INSTANCE.currentTimeNanos();
+                h.sampleNanos(next - last);
+                Jvm.nanoPause();
+
+                last = next;
+            }
+            System.out.println(h.toMicrosFormat());
+
+            // Performance test
+            assertTrue("histogram should record samples", h.totalCount() > 0);
+        }
+    }
+
+    static void assertCurrentTimeMicros(TimeProvider tp, boolean logExtremes, boolean skipWindowsMinCheck) {
         long minDiff = 0;
         long maxDiff = 0;
         long lastTimeMicros;
@@ -65,63 +109,36 @@ public class SystemTimeProviderTest extends CoreTestCommon {
                 long diff = time2 - now;
                 if (minDiff > diff) {
                     minDiff = diff;
+                    if (logExtremes) {
+                        System.out.println("min: " + minDiff);
+                    }
                 }
                 if (maxDiff < diff) {
                     maxDiff = diff;
+                    if (logExtremes) {
+                        System.out.println("max: " + maxDiff);
+                    }
                 }
                 long ns = System.nanoTime();
                 while (System.nanoTime() < ns + 100)
                     Jvm.nanoPause();
-                assertTrue(time2 >= lastTimeMicros);
+                assertTrue("currentTimeMicros should be monotonic", time2 >= lastTimeMicros);
                 lastTimeMicros = time2;
             } while (System.currentTimeMillis() < start + 500);
 
             try {
-                assertBetween(-5L * error, minDiff, 5L * error);
-                assertBetween(990L, maxDiff, 1000L + 30L * error);
+                if (!skipWindowsMinCheck) {
+                    assertBetween("minDiff lower bound", -5L * error, minDiff, 5L * error);
+                }
+                assertBetween("maxDiff upper bound", 990L, maxDiff, 1000L + 30L * error);
                 break;
             } catch (AssertionError e) {
-                continue;
+                // retry
             }
         }
-        assertBetween(-5L * error, minDiff, 5L * error);
-        assertBetween(990L, maxDiff, 1000L + 30L * error);
-    }
-
-    @Test
-    public void currentTime() throws IllegalStateException {
-        for (int i = 3; i >= 0; i--) {
-            TimeProvider tp = SystemTimeProvider.INSTANCE;
-            long time2 = tp.currentTimeMillis();
-            long time3 = tp.currentTimeMicros();
-            long time4 = tp.currentTimeNanos();
-            try {
-                assertBetween(time3 / 1000 - 8, time2, time3 / 1000 + 20);
-                assertBetween(time4 / 1000 - 100, time3, time4 / 1000 + 2_000);
-            } catch (AssertionError ae) {
-                Thread.yield();
-                if (i == 0)
-                    throw ae;
-            }
+        if (!skipWindowsMinCheck) {
+            assertBetween("minDiff lower bound", -5L * error, minDiff, 5L * error);
         }
-    }
-
-    @Test
-    public void resolution() {
-        for (int j = 0; j < 3; j++) {
-            Histogram h = new Histogram(32, 10, 1);
-            long last = SystemTimeProvider.INSTANCE.currentTimeNanos();
-            for (int i = 0; i < 5000000; i++) {
-                long next = SystemTimeProvider.INSTANCE.currentTimeNanos();
-                h.sampleNanos(next - last);
-                Jvm.nanoPause();
-
-                last = next;
-            }
-            System.out.println(h.toMicrosFormat());
-
-            // Performance test
-            assertTrue(h.totalCount() > 0);
-        }
+        assertBetween("maxDiff upper bound", 990L, maxDiff, 1000L + 30L * error);
     }
 }

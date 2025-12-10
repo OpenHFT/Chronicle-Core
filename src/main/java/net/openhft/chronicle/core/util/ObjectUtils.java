@@ -110,7 +110,10 @@ public final class ObjectUtils {
         numberConversionMap.put(BigDecimal.class, n -> n instanceof Long ? BigDecimal.valueOf(n.longValue()) : BigDecimal.valueOf(n.doubleValue()));
         numberConversionMap.put(BigInteger.class, o -> new BigInteger(o.toString()));
     }
-    // Suppresses default constructor, ensuring non-instantiability.
+
+    /**
+     * Prevents instantiation; {@link ObjectUtils} only provides static helpers.
+     */
     private ObjectUtils() {
     }
 

@@ -46,7 +46,8 @@ public class LicenceCheckTest extends CoreTestCommon {
         Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
         // licensed
         LicenceCheck.check("test", null);
-        assertTrue(map.toString().contains("license for Test Unit expires in about 7"));
+        assertTrue("expected warning about license expiry in map: " + map,
+                map.toString().contains("license for Test Unit expires in about 7"));
     }
 
     @Test(expected = TimeLimitExceededException.class)

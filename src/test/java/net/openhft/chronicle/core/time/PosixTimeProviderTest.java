@@ -10,7 +10,6 @@ import net.openhft.chronicle.core.util.Histogram;
 import net.openhft.chronicle.testframework.FlakyTestRunner;
 import net.openhft.posix.ClockId;
 import net.openhft.posix.PosixAPI;
-import org.jetbrains.annotations.NotNull;
 import org.junit.Test;
 
 import static net.openhft.chronicle.core.time.SystemTimeProviderTest.assertBetween;
@@ -37,57 +36,7 @@ public class PosixTimeProviderTest extends CoreTestCommon {
 
     private void currentTimeMicros0() {
 
-        @NotNull TimeProvider tp = PosixTimeProvider.INSTANCE;
-        long minDiff = 0;
-        long maxDiff = 0;
-        long lastTimeMicros;
-        long start;
-
-        int error = OS.isWindows() || Jvm.isArm() ? 12 : 1;
-        for (int i = 0; i <= 20; i++) {
-            minDiff = 10;
-            maxDiff = 995;
-            lastTimeMicros = 0;
-            start = System.currentTimeMillis();
-
-            do {
-                long now0 = tp.currentTimeMillis();
-                long time2 = tp.currentTimeMicros();
-                long now1 = tp.currentTimeMillis();
-                if (now1 - now0 > 1) {
-                    System.out.println("jump: " + (now1 - now0));
-                    continue;
-                }
-
-                long now = now1 * 1000;
-                long diff = time2 - now;
-                if (minDiff > diff) {
-                    minDiff = diff;
-                    System.out.println("min: " + minDiff);
-                }
-                if (maxDiff < diff) {
-                    maxDiff = diff;
-                    System.out.println("max: " + maxDiff);
-                }
-                long ns = System.nanoTime();
-                while (System.nanoTime() < ns + 100)
-                    Jvm.nanoPause();
-                assertTrue(time2 >= lastTimeMicros);
-                lastTimeMicros = time2;
-            } while (System.currentTimeMillis() < start + 500);
-
-            try {
-                if (!OS.isWindows())
-                    assertBetween(-5L * error, minDiff, 5L * error);
-                assertBetween(990L, maxDiff, 1000L + 30L * error);
-                break;
-            } catch (AssertionError e) {
-                // do nothing
-            }
-        }
-        if (!OS.isWindows())
-            assertBetween(-5L * error, minDiff, 5L * error);
-        assertBetween(990L, maxDiff, 1000L + 30L * error);
+        SystemTimeProviderTest.assertCurrentTimeMicros(PosixTimeProvider.INSTANCE, true, OS.isWindows());
     }
 
     @Test

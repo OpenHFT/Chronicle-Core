@@ -34,7 +34,8 @@ class ScopedThreadLocalLifecycleTest {
                         CloseableProbe::reset,
                         0)
         );
-        assertTrue(ex.getMessage().contains("maxInstances"));
+        assertTrue(ex.getMessage().contains("maxInstances"),
+                "exception message should mention maxInstances but was: " + ex.getMessage());
     }
 
     @Test

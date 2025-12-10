@@ -154,7 +154,9 @@ public final class Jvm {
         ChronicleInit.postInit();
     }
 
-    // Suppresses default constructor, ensuring non-instantiability.
+    /**
+     * Prevents instantiation; this class only exposes static helpers and state.
+     */
     private Jvm() {
     }
 
@@ -1539,6 +1541,11 @@ public final class Jvm {
         return PackageNameUtil.getPackageName(clazz);
     }
 
+    /**
+     * Detects whether the current call stack originates from a JUnit runner.
+     *
+     * @return {@code true} when any thread stack contains junit classes
+     */
     private static boolean isJUnitTest0() {
         for (StackTraceElement[] stackTrace : Thread.getAllStackTraces().values()) {
             for (StackTraceElement element : stackTrace) {
@@ -1659,6 +1666,9 @@ public final class Jvm {
         }
     }
 
+    /**
+     * Lazily exposes the JVM's notion of reserved direct memory without triggering eager initialisation.
+     */
     static class ReserveMemoryHolder {
         static final Supplier<Long> reservedMemory;
 
@@ -1682,6 +1692,9 @@ public final class Jvm {
             reservedMemory = reservedMemoryGetter;
         }
 
+        /**
+         * Prevents instantiation of this holder; it only provides a cached supplier.
+         */
         private ReserveMemoryHolder() {
         }
     }

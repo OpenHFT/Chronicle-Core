@@ -31,27 +31,7 @@ public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTrace
         MyCloseableReferenceCounted rc = createReferenceCounted();
         assertEquals(1, rc.refCount());
 
-        ReferenceOwner a = ReferenceOwner.temporary("a");
-        rc.reserve(a);
-        assertEquals(2, rc.refCount());
-
-        ReferenceOwner b = ReferenceOwner.temporary("b");
-        rc.reserve(b);
-        assertEquals(3, rc.refCount());
-
-        assertThrows(IllegalStateException.class, () -> rc.reserve(a));
-        assertEquals(3, rc.refCount());
-
-        rc.release(b);
-        assertEquals(2, rc.refCount());
-
-        rc.release(a);
-        assertEquals(1, rc.refCount());
-        assertEquals(0, rc.performRelease);
-
-        rc.releaseLast();
-        assertEquals(0, rc.refCount());
-        assertEquals(1, rc.performRelease);
+        exerciseReserveLifecycle(rc, () -> rc.performRelease);
     }
 
     @Test

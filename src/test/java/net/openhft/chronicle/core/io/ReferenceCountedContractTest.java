@@ -228,26 +228,26 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
 
         rc.reserve(a);
         assertEquals(1, currentOwners.size());
-        assertTrue(currentOwners.contains(a));
+        assertContains("currentOwners should include first reserved owner", currentOwners, a);
 
         rc.reserve(b);
         assertEquals(2, currentOwners.size());
-        assertTrue(currentOwners.contains(b));
+        assertContains("currentOwners should include second reserved owner", currentOwners, b);
 
         rc.release(a);
         assertEquals(1, currentOwners.size());
-        assertTrue(currentOwners.contains(b));
+        assertContains("currentOwners should still include second owner after releasing first", currentOwners, b);
 
         rc.reserveTransfer(b, a);
         assertEquals(1, currentOwners.size());
-        assertTrue(currentOwners.contains(a));
+        assertContains("currentOwners should include transferred owner", currentOwners, a);
 
         rc.release(a);
         assertEquals(0, currentOwners.size());
 
         rc.releaseLast(ReferenceOwner.INIT);
         assertEquals(1, untrackedOwners.size());
-        assertFalse(currentOwners.contains(ReferenceOwner.INIT));
+        assertFalse("INIT owner should not remain tracked", currentOwners.contains(ReferenceOwner.INIT));
     }
 
     @Test
@@ -276,6 +276,10 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         rc.release(a);
         assertEquals(1, referenceChangeListener.referenceRemovedCount);
         rc.releaseLast();
+    }
+
+    private static void assertContains(String message, Set<ReferenceOwner> owners, ReferenceOwner expected) {
+        assertTrue(message + " [expected=" + expected + ", owners=" + owners + "]", owners.contains(expected));
     }
 
     @Test

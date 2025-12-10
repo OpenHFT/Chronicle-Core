@@ -91,6 +91,9 @@ public final class CloseableUtils {
         // Anonymous inner class overriding the finalize() method to track finalization.
         {
             Object finalizerProbe = new Object() {
+                /**
+                 * Signals when the GC finaliser thread has processed the probe object.
+                 */
                 @SuppressWarnings({"deprecation", "removal", "java:S1113"})
                 @Override
                 protected void finalize() throws Throwable {

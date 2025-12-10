@@ -88,7 +88,9 @@ public final class StringUtils {
         }
     }
 
-    // Suppresses default constructor, ensuring non-instantiability.
+    /**
+     * Prevents instantiation; {@link StringUtils} exposes only static helpers.
+     */
     private StringUtils() {
     }
 
@@ -567,21 +569,7 @@ public final class StringUtils {
                 i++;
             }
             multmin = limit / radix;
-            while (i < len) {
-                // Accumulating negatively avoids surprises near MAX_VALUE
-                digit = Character.digit(charAt(s, i++), radix);
-                if (digit < 0) {
-                    throw forInputString(s);
-                }
-                if (result < multmin) {
-                    throw forInputString(s);
-                }
-                result *= radix;
-                if (result < limit + digit) {
-                    throw forInputString(s);
-                }
-                result -= digit;
-            }
+            result = accumulateDigitsInt(result, s, i, len, limit, multmin, radix);
         } else {
             throw forInputString(s);
         }
@@ -652,24 +640,47 @@ public final class StringUtils {
                 i++;
             }
             multmin = limit / radix;
-            while (i < len) {
-                // Accumulating negatively avoids surprises near MAX_VALUE
-                digit = Character.digit(charAt(s, i++), radix);
-                if (digit < 0) {
-                    throw forInputString(s);
-                }
-                if (result < multmin) {
-                    throw forInputString(s);
-                }
-                result *= radix;
-                if (result < limit + digit) {
-                    throw forInputString(s);
-                }
-                result -= digit;
-            }
+            result = accumulateDigitsLong(result, s, i, len, limit, multmin, radix);
         } else {
             throw forInputString(s);
         }
         return negative ? result : -result;
+    }
+
+    private static int accumulateDigitsInt(int result, CharSequence s, int i, int len, int limit, int multmin, int radix) {
+        while (i < len) {
+            int digit = Character.digit(charAt(s, i++), radix);
+            if (digit < 0) {
+                throw forInputString(s);
+            }
+            if (result < multmin) {
+                throw forInputString(s);
+            }
+            result *= radix;
+            if (result < limit + digit) {
+                throw forInputString(s);
+            }
+            result -= digit;
+        }
+        return result;
+    }
+
+    private static long accumulateDigitsLong(long result, CharSequence s, int i, int len, long limit, long multmin, int radix) {
+        while (i < len) {
+            // Accumulating negatively avoids surprises near MAX_VALUE
+            int digit = Character.digit(charAt(s, i++), radix);
+            if (digit < 0) {
+                throw forInputString(s);
+            }
+            if (result < multmin) {
+                throw forInputString(s);
+            }
+            result *= radix;
+            if (result < limit + digit) {
+                throw forInputString(s);
+            }
+            result -= digit;
+        }
+        return result;
     }
 }
