@@ -13,6 +13,7 @@ import net.openhft.chronicle.core.io.IORuntimeException;
  * whose functional method is {@link #accept(Object, Object)}.
  *
  * @param <I> the type of the input to the function
+ * @param <J> the type of the second input
  * @param <T> the type of Throwable thrown
  */
 @FunctionalInterface
@@ -23,6 +24,8 @@ public interface ThrowingBiConsumer<I, J, T extends Throwable> {
      *
      * @param in the first input argument
      * @param i2 the second input argument
+     * @throws T                if the operation fails
+     * @throws IORuntimeException if an I/O problem occurs
      */
     void accept(I in, J i2) throws T, IORuntimeException;
 }

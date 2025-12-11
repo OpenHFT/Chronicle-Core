@@ -9,6 +9,9 @@ import net.openhft.chronicle.core.internal.ChronicleGuarding;
  * Contains the pieces which must be loaded first
  */
 public class Bootstrap {
+    /**
+     * Provided for reflective usage; prefer {@link #bootstrap()}.
+     */
     @Deprecated(/* make private in 2026 */)
     public Bootstrap() {
     }
@@ -16,6 +19,9 @@ public class Bootstrap {
         ChronicleGuarding.bootstrap();
     }
 
+    /**
+     * Triggers static initialisers of dependent bootstrap classes.
+     */
     @SuppressWarnings("EmptyMethod")
     public static void bootstrap() {
         // used to trigger static initializers

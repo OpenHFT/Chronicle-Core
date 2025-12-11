@@ -7,7 +7,11 @@ import java.io.Serializable;
 import java.util.function.BiFunction;
 
 /**
- * This interface is a Function which is also Serializable.
+ * Serializable variant of {@link BiFunction}.
+ *
+ * @param <I> first argument type
+ * @param <T> second argument type
+ * @param <O> result type
  */
 @FunctionalInterface
 public interface SerializableBiFunction<I, T, O> extends BiFunction<I, T, O>, Serializable {

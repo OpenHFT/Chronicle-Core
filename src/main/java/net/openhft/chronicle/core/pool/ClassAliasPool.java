@@ -22,6 +22,9 @@ import java.util.concurrent.TimeUnit;
  * for modification of its lookup data without affecting parent lookups.
  */
 public class ClassAliasPool implements ClassLookup {
+    /**
+     * Shared instance with default aliases registered.
+     */
     public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool(null).defaultAliases();
     static final ThreadLocal<CAPKey> CAP_KEY_TL = ThreadLocal.withInitial(() -> new CAPKey(null));
     private final ClassLookup parent;
@@ -65,6 +68,13 @@ public class ClassAliasPool implements ClassLookup {
         throw Jvm.rethrow(new AssertionError(clazz));
     }
 
+    /**
+     * Determines whether the provided class belongs to the supplied package name.
+     *
+     * @param pkgName package name to test
+     * @param clazz   class to inspect
+     * @return true if the class is in the package
+     */
     protected static boolean testPackage(String pkgName, Class<?> clazz) {
         return Jvm.getPackageName(clazz).startsWith(pkgName);
     }
@@ -401,9 +411,12 @@ public class ClassAliasPool implements ClassLookup {
         }
     }
 
-/**\u002f
- public static void a\u202e(Class<?>... classes) {
- CLASS_ALIASES.addAlias(classes);
- }
- \u002f**/
+    /**
+     * Adds aliases to the shared {@link #CLASS_ALIASES} pool.
+     *
+     * @param classes classes to register
+     */
+    public static void a(Class<?>... classes) {
+        CLASS_ALIASES.addAlias(classes);
+    }
 }

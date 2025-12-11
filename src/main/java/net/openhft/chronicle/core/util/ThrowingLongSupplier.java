@@ -22,6 +22,7 @@ public interface ThrowingLongSupplier<T extends Throwable> {
      * Gets a result.
      *
      * @return a result
+     * @throws T if supplying fails
      */
     long getAsLong() throws T;
 }

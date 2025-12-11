@@ -7,7 +7,10 @@ import java.io.Serializable;
 import java.util.function.Function;
 
 /**
- * This interface is a Function which is also Serializable.
+ * Serializable variant of {@link Function}.
+ *
+ * @param <I> input type
+ * @param <O> output type
  */
 @FunctionalInterface
 public interface SerializableFunction<I, O> extends Function<I, O>, Serializable {

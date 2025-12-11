@@ -22,6 +22,8 @@ public interface ThrowingConsumer<I, T extends Throwable> {
      * Performs this operation on the given argument.
      *
      * @param in the input argument
+     * @throws T                   if the operation fails
+     * @throws IllegalStateException if called in an invalid state
      */
     void accept(I in) throws T, IllegalStateException;
 }

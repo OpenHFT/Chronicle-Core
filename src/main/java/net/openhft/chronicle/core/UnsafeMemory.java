@@ -52,6 +52,9 @@ public class UnsafeMemory implements Memory {
      * Singleton instance of UnsafeMemory for use in memory operations.
      */
     public static final UnsafeMemory INSTANCE;
+    /**
+     * Alternative name retained for backward compatibility.
+     */
     public static final UnsafeMemory MEMORY;
 
     // see java.nio.Bits.copyMemory
@@ -60,6 +63,7 @@ public class UnsafeMemory implements Memory {
     // during a large copy
     static final long UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
     // NOSONAR
+    /** Indicates whether the native platform is little-endian. */
     @Deprecated(/* to be removed in 2027, only used in tests */)
     public static final boolean IS_LITTLE_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
 
@@ -322,10 +326,11 @@ public class UnsafeMemory implements Memory {
     }
 
     /**
-     * Fetches a byte value from the given object at the specified {@code offset}.
+     * Writes the provided byte value into the given object at the specified {@code offset}.
      *
-     * @param obj    the object containing the byte to fetch.
-     * @param offset the offset to the byte within the object.
+     * @param obj    the object in which to put the byte.
+     * @param offset the offset at which to put the byte within the object.
+     * @param value  byte value to store
      */
     public static void unsafePutByte(Object obj, long offset, byte value) {
         assert SKIP_ASSERTIONS || obj == null || offset > 0;
@@ -333,10 +338,11 @@ public class UnsafeMemory implements Memory {
     }
 
     /**
-     * Puts the provided byte {@code value} into the given object at the specified {@code offset}.
+     * Fetches a byte value from the given object at the specified {@code offset}.
      *
-     * @param obj    the object in which to put the byte.
-     * @param offset the offset at which to put the byte within the object.
+     * @param obj    the object containing the byte to fetch.
+     * @param offset the offset to the byte within the object.
+     * @return byte value at the requested offset
      */
     public static byte unsafeGetByte(Object obj, long offset) {
         assert SKIP_ASSERTIONS || obj == null || offset > 0;

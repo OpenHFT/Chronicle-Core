@@ -10,6 +10,12 @@ import org.jetbrains.annotations.NotNull;
  * <p>
  * Useful when adapting APIs that expect pure functions but where implementations need to
  * propagate failures without eagerly wrapping them.
+ *
+ * @param <I> first argument type
+ * @param <J> second argument type
+ * @param <A> third argument type
+ * @param <R> result type
+ * @param <T> checked exception type thrown
  */
 @FunctionalInterface
 public interface ThrowingTriFunction<I, J, A, R, T extends Throwable> {
@@ -19,6 +25,7 @@ public interface ThrowingTriFunction<I, J, A, R, T extends Throwable> {
      *
      * @param in the first function argument
      * @param i2 the second function argument
+     * @param i3 the third function argument
      * @return the function result
      * @throws T on an error.
      */

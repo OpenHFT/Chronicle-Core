@@ -29,9 +29,15 @@ import java.util.stream.Stream;
  * @author peter.lawrey
  */
 public class StringInterner {
+    /**
+     * Slots for cached interned strings.
+     */
     protected final String[] interner;
+    /** Mask for hashing into {@link #interner}. */
     protected final int mask;
+    /** Secondary hash shift used for double hashing. */
     protected final int shift;
+    /** Alternates bucket selection when both hashed slots are occupied. */
     protected boolean toggle = false;
 
     /**
@@ -61,6 +67,8 @@ public class StringInterner {
     }
 
     /**
+     * Size of the backing array used to store interned strings.
+     *
      * @return the size of interner[]
      */
     @Deprecated(/* to be removed in 2027, only used in tests */)
@@ -143,6 +151,11 @@ public class StringInterner {
         return interner[index];
     }
 
+    /**
+     * Flips the toggle used to alternate between primary and secondary slots.
+     *
+     * @return updated toggle state
+     */
     protected boolean toggle() {
         toggle = !toggle;
         return toggle;

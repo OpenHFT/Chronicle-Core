@@ -172,6 +172,7 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
      * without an initial-value supplier.
      *
      * @param cleanup The consumer that cleans up the resource.
+     * @param <T>     resource type
      * @return A CleaningThreadLocal instance.
      */
     public static <T> CleaningThreadLocal<T> withCleanup(ThrowingConsumer<T, Exception> cleanup) {
@@ -183,6 +184,7 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
      *
      * @param supplier The supplier that provides the resource.
      * @param cleanup  The consumer that cleans up the resource.
+     * @param <T>      resource type
      * @return A CleaningThreadLocal instance.
      */
     public static <T> CleaningThreadLocal<T> withCleanup(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup) {
@@ -195,6 +197,7 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
      * @param supplier   The supplier that provides the resource.
      * @param cleanup    The consumer that cleans up the resource.
      * @param getWrapper The function to apply when the get method is called.
+     * @param <T>        resource type
      * @return A CleaningThreadLocal instance.
      */
     public static <T> CleaningThreadLocal<T> withCleanup(Supplier<T> supplier, ThrowingConsumer<T, Exception> cleanup, Function<T, T> getWrapper) {
@@ -317,6 +320,8 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
      * Idempotent helper that applies {@link #cleanup} to {@code value}.
      * Any exception thrown by user code is swallowed and logged so that
      * cleanup can never compromise the core invariant of this class.
+     *
+     * @param value instance to clean up
      */
     public synchronized void cleanup(@Nullable T value) {
         if (value == null) return;

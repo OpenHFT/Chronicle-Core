@@ -204,6 +204,8 @@ public class CleaningThread extends Thread {
     }
 
     /**
+     * Provides the captured creation stack trace when available.
+     *
      * @return where the Thread was created, if available
      */
     public StackTrace createdHere() {

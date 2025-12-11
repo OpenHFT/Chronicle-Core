@@ -24,6 +24,9 @@ import java.util.concurrent.atomic.AtomicLong;
  * for background on the algorithm.
  */
 public class UniqueMicroTimeProvider implements TimeProvider {
+    /**
+     * Singleton instance used by default throughout the codebase.
+     */
     public static final UniqueMicroTimeProvider INSTANCE = new UniqueMicroTimeProvider();
 
     private final AtomicLong lastIssuedTimeMicros = new AtomicLong();

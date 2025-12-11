@@ -22,6 +22,12 @@ public class WeakReferenceScopedResource<T> extends AbstractScopedResource<T> {
     private WeakReference<T> ref;
     private T strongRef;
 
+    /**
+     * Creates a weakly referenced scoped resource.
+     *
+     * @param scopedThreadLocal owner managing per-thread lifecycle
+     * @param supplier          factory used when a new instance is required
+     */
     public WeakReferenceScopedResource(ScopedThreadLocal<T> scopedThreadLocal, Supplier<T> supplier) {
         super(scopedThreadLocal);
         this.supplier = supplier;

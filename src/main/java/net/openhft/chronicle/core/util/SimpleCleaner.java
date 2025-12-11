@@ -23,10 +23,18 @@ public class SimpleCleaner {
     @SuppressWarnings("unused")
     private volatile int cleaned = 0;
 
+    /**
+     * Creates a cleaner that will run the provided action at most once.
+     *
+     * @param thunk action to run during cleaning
+     */
     public SimpleCleaner(Runnable thunk) {
         this.thunk = thunk;
     }
 
+    /**
+     * Executes the action if it has not already run.
+     */
     public void clean() {
         if (CLEANED_FLAG.compareAndSet(this, 0, 1))
             thunk.run();

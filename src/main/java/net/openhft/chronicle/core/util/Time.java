@@ -16,6 +16,11 @@ public final class Time {
     private Time() {
     }
 
+    /**
+     * Generates a time-based identifier in base 36 using microsecond precision when available.
+     *
+     * @return unique identifier string
+     */
     public static String uniqueId() {
         long l;
         try {

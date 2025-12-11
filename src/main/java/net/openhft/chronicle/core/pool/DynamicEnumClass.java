@@ -42,6 +42,9 @@ import static net.openhft.chronicle.core.Jvm.uncheckedCast;
  */
 public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E> {
 
+    /**
+     * Shared empty array used when reflecting static dynamic-enum instances.
+     */
     public static final CoreDynamicEnum<?>[] CORE_DYNAMIC_ENUMS = {};
     // The map and list that holds the enum instances.
     private final Map<String, E> eMap = Collections.synchronizedMap(new LinkedHashMap<>());

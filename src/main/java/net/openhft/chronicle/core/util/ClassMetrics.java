@@ -26,6 +26,8 @@ public class ClassMetrics {
     }
 
     /**
+     * Returns the recorded offset.
+     *
      * @return the offset
      */
     public int offset() {
@@ -33,6 +35,8 @@ public class ClassMetrics {
     }
 
     /**
+     * Returns the recorded length.
+     *
      * @return the length
      */
     public int length() {

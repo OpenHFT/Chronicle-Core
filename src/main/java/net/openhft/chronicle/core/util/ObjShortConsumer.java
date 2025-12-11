@@ -11,6 +11,7 @@ package net.openhft.chronicle.core.util;
  * This is a <a href="package-summary.html">functional interface</a> whose functional method is
  * {@link #accept(Object, short)}.
  *
+ * @param <T> argument type of the reference parameter
  * @see java.util.function.BiConsumer
  */
 @FunctionalInterface

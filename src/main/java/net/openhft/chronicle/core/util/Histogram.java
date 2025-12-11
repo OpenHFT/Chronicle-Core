@@ -69,7 +69,9 @@ public class Histogram implements NanoSampler {
     }
 
     /**
-     * @return Histogram for use with System.nanoTime() up to 4 second delay.
+     * Convenience histogram tuned for {@link System#nanoTime()} durations up to roughly four seconds.
+     *
+     * @return histogram configured for microsecond timings
      */
     @NotNull
     public static Histogram timeMicros() {
@@ -143,7 +145,13 @@ public class Histogram implements NanoSampler {
     }
 
     /**
-     * Re initialise this histogram from deserialized data
+     * Reinitialises this histogram from deserialised data.
+     *
+     * @param powersOf2    number of exponent buckets available
+     * @param fractionBits precision bits within each bucket
+     * @param overRange    counts that overflowed the configured range
+     * @param totalCount   total number of samples recorded
+     * @param floor        minimum encoded value
      */
     public void init(int powersOf2, int fractionBits, long overRange, long totalCount, long floor) {
         this.powersOf2 = powersOf2;
@@ -157,21 +165,38 @@ public class Histogram implements NanoSampler {
             sampleCount = new int[minSampleCountLength];
     }
 
+    /**
+     * Returns the number of fractional bits used to place samples.
+     *
+     * @return number of fractional bits
+     */
     public int fractionBits() {
         return fractionBits;
     }
 
+    /**
+     * Returns the number of power-of-two buckets used by this histogram.
+     *
+     * @return number of power-of-two buckets
+     */
     public int powersOf2() {
         return powersOf2;
     }
 
     /**
      * Returns how many samples exceeded the top bucket.
+     *
+     * @return number of samples outside the configured range
      */
     public long overRange() {
         return overRange;
     }
 
+    /**
+     * Returns the backing sample count array; index corresponds to bucket.
+     *
+     * @return mutable array of bucket counts
+     */
     public int[] sampleCount() {
         return sampleCount;
     }
@@ -237,6 +262,12 @@ public class Histogram implements NanoSampler {
         return percentile(1.0);
     }
 
+    /**
+     * Returns the requested percentile for the collected samples.
+     *
+     * @param fraction percentile expressed as 0-1 inclusive
+     * @return sample value at or above the requested percentile
+     */
     public double percentile(double fraction) {
         if (fraction <= 0) {
             for (int i = 0; i < sampleCount.length; i++) {
@@ -383,6 +414,11 @@ public class Histogram implements NanoSampler {
                 p(toMicros.apply(percentile(1)));
     }
 
+    /**
+     * Provides a prefix describing the data used for reporting.
+     *
+     * @return human friendly prefix such as {@code "was "}
+     */
     protected String was() {
         return "was ";
     }
@@ -412,14 +448,27 @@ public class Histogram implements NanoSampler {
         }
     }
 
+    /**
+     * Returns the total number of samples recorded (including over-range).
+     *
+     * @return sample count
+     */
     public long totalCount() {
         return totalCount;
     }
 
+    /**
+     * Encoded floor used when translating double values into buckets.
+     *
+     * @return minimum encoded value
+     */
     public long floor() {
         return floor;
     }
 
+    /**
+     * Clears all recorded samples while retaining the configured structure.
+     */
     public void reset() {
         totalCount = overRange = 0;
 

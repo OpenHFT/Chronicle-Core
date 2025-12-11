@@ -18,6 +18,8 @@ public interface MonitorReferenceCounted extends ReferenceCountedTracer {
     void unmonitored(boolean unmonitored);
 
     /**
+     * Indicates whether monitoring is disabled for this instance.
+     *
      * @return {@code true} if the object is unmonitored, {@code false} if it is monitored.
      */
     boolean unmonitored();

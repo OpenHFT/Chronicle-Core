@@ -19,6 +19,9 @@ import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
  */
 public final class Announcer {
 
+    /**
+     * Optional metadata key for supplying an ASCII logo.
+     */
     public static final String LOGO = "logo";
 
     private Announcer() {

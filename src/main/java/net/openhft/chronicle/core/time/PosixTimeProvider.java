@@ -17,6 +17,9 @@ import net.openhft.posix.PosixAPI;
  * standard Java time providers.
  */
 public enum PosixTimeProvider implements TimeProvider {
+    /**
+     * Singleton instance that delegates to {@code clock_gettime}.
+     */
     INSTANCE;
 
     /**

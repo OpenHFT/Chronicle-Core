@@ -18,9 +18,15 @@ import org.slf4j.LoggerFactory;
  * {@code System.err} instead.
  */
 public enum Slf4jExceptionHandler implements ExceptionHandler {
+    /**
+     * Logs messages at ERROR level.
+     */
     ERROR(Logger::error),
+    /** Logs messages at WARN level. */
     WARN(Logger::warn),
+    /** Logs messages at INFO level intended for performance events. */
     PERF(Logger::info),
+    /** Logs messages at DEBUG level. */
     DEBUG(Logger::debug);
 
     private final LogMethod logMethod;

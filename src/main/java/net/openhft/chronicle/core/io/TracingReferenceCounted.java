@@ -144,6 +144,11 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
         }
     }
 
+    /**
+     * Lists the current reservation owners as strings.
+     *
+     * @return textual descriptions of outstanding reservations
+     */
     @NotNull
     public List<String> referencesAsString() {
         synchronized (references) {

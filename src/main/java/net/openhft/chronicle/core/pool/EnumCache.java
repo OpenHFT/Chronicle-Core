@@ -31,6 +31,9 @@ public abstract class EnumCache<E> {
 
     private static final ClassLocal<EnumCache<?>> ENUM_CACHE_CL = ClassLocal.withInitial(EnumCache::createFromUnknownClass);
 
+    /**
+     * Enum type handled by this cache.
+     */
     protected final Class<E> type;
 
     /**

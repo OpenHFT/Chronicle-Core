@@ -25,11 +25,16 @@ import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEAS
  */
 public abstract class AbstractReferenceCounted implements ReferenceCountedTracer, ReferenceOwner, SingleThreadedChecked, Monitorable {
     // Constants
+    /**
+     * Threshold in nanoseconds before a long-held reference triggers a warning.
+     */
     @Deprecated(/* to be removed in 2026 */)
     protected static final long WARN_NS = (long) (Jvm.getDouble("reference.warn.secs", 0.003) * 1e9);
+    /** Maximum number of times a reference count may be logged before escalating. */
     protected static final int WARN_COUNT = Jvm.getInteger("reference.warn.count", Integer.MAX_VALUE);
 
     // Fields
+    /** Tracks references and leak diagnostics for this instance. */
     protected final transient MonitorReferenceCounted referenceCounted;
     private final int referenceId;
     private transient volatile Thread usedByThread;
@@ -269,6 +274,14 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         referenceCounted.removeReferenceChangeListener(referenceChangeListener);
     }
 
+    /**
+     * Ensures the resource is only used from a single thread unless thread-safety
+     * checks are explicitly disabled.
+     *
+     * @param isUsed whether the caller already used the resource in this call path
+     * @return {@code true} when the call is permitted for the current thread
+     * @throws ThreadingIllegalStateException if the resource is accessed by multiple threads
+     */
     @SuppressWarnings("java:S3516") // turned on by assert
     protected boolean threadSafetyCheck(boolean isUsed) throws ThreadingIllegalStateException {
         // most common check, and sometimes the only check
@@ -324,6 +337,11 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
         return referenceName();
     }
 
+    /**
+     * Enables or disables monitoring for this instance.
+     *
+     * @param unmonitored {@code true} to stop monitoring
+     */
     public void referenceCountedUnmonitored(boolean unmonitored) {
         referenceCounted.unmonitored(unmonitored);
     }

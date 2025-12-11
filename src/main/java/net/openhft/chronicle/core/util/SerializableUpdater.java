@@ -6,7 +6,9 @@ package net.openhft.chronicle.core.util;
 import java.io.Serializable;
 
 /**
- * This interface expect to take an object for alteration and it must be serializable.
+ * Serializable wrapper for an {@link Updater}.
+ *
+ * @param <U> target type being updated
  */
 @FunctionalInterface
 public interface SerializableUpdater<U> extends Updater<U>, Serializable {

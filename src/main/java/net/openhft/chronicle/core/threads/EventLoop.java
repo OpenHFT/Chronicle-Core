@@ -40,7 +40,11 @@ import net.openhft.chronicle.core.io.Closeable;
  */
 public interface EventLoop extends Closeable {
 
+    /**
+     * Enables verbose diagnostics when handlers are added to the loop.
+     */
     boolean DEBUG_ADDING_HANDLERS = Jvm.getBoolean("debug.adding.handlers");
+    /** Enables verbose diagnostics when handlers are removed from the loop. */
     boolean DEBUG_REMOVING_HANDLERS = Jvm.getBoolean("debug.removing.handlers");
 
     /**

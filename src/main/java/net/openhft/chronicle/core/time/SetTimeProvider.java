@@ -19,6 +19,9 @@ import java.util.concurrent.atomic.AtomicLong;
 public class SetTimeProvider extends AtomicLong implements TimeProvider {
     private static final long serialVersionUID = 0L;
 
+    /**
+     * Amount by which time advances automatically on each call, in nanoseconds.
+     */
     private long autoIncrement = 0;
 
     /**

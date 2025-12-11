@@ -37,6 +37,10 @@ public final class Wget {
 
     /**
      * Shortcut that uses the default configuration.
+     *
+     * @param url address to fetch
+     * @param sb  destination buffer
+     * @throws IOException if the request fails
      */
     @Deprecated(/* to be removed in 2027, only used in tests */)
     public static void url(final String url, final StringBuilder sb) throws IOException {
@@ -45,6 +49,13 @@ public final class Wget {
         new Builder().build().fetch(url, sb);
     }
 
+    /**
+     * Retrieves the content of the given URL into the provided {@link Appendable}.
+     *
+     * @param url address to fetch
+     * @param out destination to append content
+     * @throws IOException on I/O errors or unsupported schemes
+     */
     public void fetch(final String url, final Appendable out) throws IOException {
         Objects.requireNonNull(out, "out");
 
@@ -71,6 +82,13 @@ public final class Wget {
      */
     @FunctionalInterface
     public interface ConnectionProvider {
+        /**
+         * Opens a stream for the provided URL.
+         *
+         * @param url endpoint to open
+         * @return input stream for the response body
+         * @throws IOException if the connection fails
+         */
         InputStream open(URL url) throws IOException;
     }
 
@@ -79,6 +97,13 @@ public final class Wget {
      */
     @FunctionalInterface
     public interface CharsetDetector {
+        /**
+         * Detects the charset based on the response and headers.
+         *
+         * @param response          response body stream
+         * @param contentTypeHeader content type header if present
+         * @return detected charset or {@code null} to fall back to default
+         */
         Charset detect(InputStream response, String contentTypeHeader);
     }
 
@@ -95,7 +120,16 @@ public final class Wget {
         private long maxResponseBytes = 10L << 20; // 10 MiB
 
         /**
+         * Creates a builder with default connection settings.
+         */
+        public Builder() {
+        }
+
+        /**
          * Overrides the connection provider for testing.
+         *
+         * @param provider supplier for URL connections
+         * @return this builder
          */
         @Deprecated(/* to be removed in 2027, only used in tests */)
         public Builder connectionProvider(final ConnectionProvider provider) {
@@ -105,6 +139,9 @@ public final class Wget {
 
         /**
          * Overrides the charset detector for testing.
+         *
+         * @param detector charset detector to use
+         * @return this builder
          */
         @Deprecated(/* to be removed in 2027, only used in tests */)
         public Builder charsetDetector(final CharsetDetector detector) {
@@ -114,6 +151,9 @@ public final class Wget {
 
         /**
          * Sets the connection timeout in milliseconds.
+         *
+         * @param timeoutMs timeout in milliseconds
+         * @return this builder
          */
         @Deprecated(/* to be removed in 2027, only used in tests */)
         public Builder connectTimeoutMs(final int timeoutMs) {
@@ -123,6 +163,9 @@ public final class Wget {
 
         /**
          * Sets the read timeout in milliseconds.
+         *
+         * @param timeoutMs timeout in milliseconds
+         * @return this builder
          */
         @Deprecated(/* to be removed in 2027, only used in tests */)
         public Builder readTimeoutMs(final int timeoutMs) {
@@ -132,6 +175,9 @@ public final class Wget {
 
         /**
          * Sets the maximum allowed response size in bytes (non-negative).
+         *
+         * @param maxResponseBytes maximum allowed bytes
+         * @return this builder
          */
         @Deprecated(/* to be removed in 2027, only used in tests */)
         public Builder maxResponseBytes(final long maxResponseBytes) {
@@ -143,6 +189,8 @@ public final class Wget {
 
         /**
          * Creates a {@link Wget} with defaults or caller-supplied overrides.
+         *
+         * @return configured {@link Wget} instance
          */
         public Wget build() {
             ConnectionProvider cp = this.connectionProvider;

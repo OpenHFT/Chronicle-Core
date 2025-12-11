@@ -26,7 +26,11 @@ import static net.openhft.chronicle.core.internal.Bootstrap.uncheckedCast;
  */
 @SuppressWarnings({"java:S4057", "CallToPrintStackTrace", "java:S4507"})
 public final class ChronicleInit {
+    /**
+     * System property pointing to a custom init {@link Runnable} class.
+     */
     public static final String CHRONICLE_INIT_CLASS = "chronicle.init.runnable";
+    /** System property pointing to a custom post-init {@link ChronicleInitRunnable} class. */
     public static final String CHRONICLE_POSTINIT_CLASS = "chronicle.postinit.runnable";
 
     static {

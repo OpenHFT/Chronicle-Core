@@ -19,6 +19,12 @@ import java.util.Objects;
  */
 public abstract class Hooklet implements Comparable<Hooklet> {
     /**
+     * Creates a hooklet instance. Subclasses should remain lightweight to minimise shutdown delays.
+     */
+    protected Hooklet() {
+    }
+
+    /**
      * Callback invoked by the shutdown thread.
      * Implementations should return quickly and avoid long blocking
      * operations.
@@ -37,6 +43,8 @@ public abstract class Hooklet implements Comparable<Hooklet> {
      * 50-89: Release of local resources and stopping data structures.
      * 90-99 Cleanup of file system resources such as temporary directories.
      * 100: Run after all hooks. For test/example use.
+     *
+     * @return priority for ordering hooks; lower runs earlier
      */
     public abstract int priority();
 

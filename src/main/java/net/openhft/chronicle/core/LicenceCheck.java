@@ -23,6 +23,9 @@ import static net.openhft.chronicle.core.Jvm.warn;
  */
 public interface LicenceCheck {
 
+    /**
+     * System property key used to provide Chronicle licence details.
+     */
     String CHRONICLE_LICENSE = "chronicle.license";
 
     /**
@@ -49,6 +52,11 @@ public interface LicenceCheck {
         licenceExpiry(product, caller, logLicenceExpiryDetails);
     }
 
+    /**
+     * Detects whether JGuard bytecode protection is present.
+     *
+     * @return {@code true} if running under JGuard
+     */
     static boolean isJGuardProtected() {
         try {
             //noinspection JavaReflectionMemberAccess
@@ -102,6 +110,11 @@ public interface LicenceCheck {
      */
     void licenceCheck();
 
+    /**
+     * Indicates whether a valid licence is present.
+     *
+     * @return {@code true} when the guarded capability is available
+     */
     boolean isAvailable();
 
 }

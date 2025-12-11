@@ -26,6 +26,8 @@ import static net.openhft.chronicle.core.Jvm.uncheckedCast;
  * The stack is confined to a single thread and so is not synchronised. The
  * resources themselves may not be thread-safe and must only be used by one
  * thread at a time unless they implement their own safety rules.
+ *
+ * @param <T> resource type managed per thread
  */
 public class ScopedThreadLocal<T> implements ScopedResourcePool<T> {
 

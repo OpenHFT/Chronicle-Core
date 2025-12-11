@@ -51,6 +51,9 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     @SuppressWarnings("unused")
     @UsedViaReflection
     private final transient Finalizer finalizer = DISABLE_DISCARD_WARNING ? null : new Finalizer();
+    /**
+     * Captures where {@link #close()} was last invoked when tracing is enabled.
+     */
     protected transient volatile StackTrace closedHere;
     private transient volatile int closed = 0;
     private transient volatile Thread usedByThread;

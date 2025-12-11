@@ -18,8 +18,14 @@ package net.openhft.chronicle.core.onoes;
  * Used by {@link Slf4jExceptionHandler}.
  */
 public enum LogLevel {
+    /**
+     * Error conditions that typically stop progress.
+     */
     ERROR,
+    /** Unexpected conditions that do not halt execution. */
     WARN,
+    /** Performance events or metrics. */
     PERF,
+    /** Verbose diagnostic output for developers. */
     DEBUG
 }

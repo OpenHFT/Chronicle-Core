@@ -46,8 +46,13 @@ public interface ByteBufferCleanerService {
      * </ul>
      */
     enum Impact {
+        /**
+         * Cleaning has no noticeable performance or resource impact.
+         */
         NO_IMPACT,
+        /** Cleaning has some performance or resource impact. */
         SOME_IMPACT,
+        /** Cleaning operation is unavailable on this platform. */
         UNAVAILABLE
     }
 }

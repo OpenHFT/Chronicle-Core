@@ -38,9 +38,14 @@ import static net.openhft.chronicle.core.util.Longs.requirePositive;
  */
 @SuppressWarnings("java:S1191") // Justification: uses Sun internal classes for performance-critical file mapping on select JDKs; guarded by version checks and fallbacks.
 public final class OS {
+    /**
+     * User home directory resolved from system properties.
+     */
     @SuppressWarnings("unused")
     public static final String USER_HOME = Jvm.getProperty("user.home");
+    /** Empty exception instance used for time limit signalling without allocation. */
     public static final Exception TIME_LIMIT = new TimeLimitExceededException();
+    /** Page size used when the platform default is unsafe (e.g. Windows huge pages). */
     public static final int SAFE_PAGE_SIZE = 64 << 10;
     static final String SUN_NIO_CH_FILE_DISPATCHER_IMPL = "sun.nio.ch.FileDispatcherImpl";
     static final ClassLocal<MethodHandle> MAP0_MH = ClassLocal.withInitial(c -> {
@@ -62,6 +67,7 @@ public final class OS {
         }
     });
     private static final String USER_DIR = Jvm.getProperty("user.dir");
+    /** Directory used for temporary files. */
     public static final String TMP = findTmp();
     private static final String TARGET = findTarget();
     private static final String USER_NAME = Jvm.getProperty("user.name");
@@ -264,6 +270,8 @@ public final class OS {
     }
 
     /**
+     * Returns the current working directory as reported by the JVM.
+     *
      * @return the current working directory
      */
     @Deprecated(/* to be removed in 2027 */)
@@ -272,6 +280,8 @@ public final class OS {
     }
 
     /**
+     * Provides the platform-appropriate {@link Memory} implementation.
+     *
      * @return native memory accessor class
      */
     @NotNull
@@ -304,6 +314,8 @@ public final class OS {
     }
 
     /**
+     * Returns the detected system page size in bytes.
+     *
      * @return size of pages
      * @see #pageAlign(long)
      */
@@ -314,7 +326,9 @@ public final class OS {
     }
 
     /**
-     * Returns default OS page size.
+     * Returns the page size to use for mapping, preferring a safe alignment on Windows.
+     *
+     * @return page size to use when mapping files
      */
     public static int defaultOsPageSize() {
         // Windows 10 produces this error for alignment of less than 64K
@@ -372,7 +386,9 @@ public final class OS {
     }
 
     /**
-     * @return is the JVM 64-bit
+     * Reports whether the current JVM is 64-bit.
+     *
+     * @return {@code true} if running a 64-bit JVM
      */
     public static boolean is64Bit() {
         return IS64BIT;
@@ -468,6 +484,8 @@ public final class OS {
     }
 
     /**
+     * Returns the maximum PID the operating system may allocate.
+     *
      * @return the maximum PID.
      */
     @Deprecated(/* to be removed in 2027, only used in tests */)
@@ -496,6 +514,7 @@ public final class OS {
      * @param mode        access mode
      * @param start       start offset, page aligned
      * @param size        length of region. On Windows this must be &lt;= 4096 MiB
+     * @param pageSize    alignment to use when mapping
      * @return address of the mapping
      * @throws IOException              if the mapping fails
      * @throws IllegalArgumentException if the arguments are invalid
@@ -516,6 +535,17 @@ public final class OS {
         return address;
     }
 
+    /**
+     * Convenience overload that maps using the default alignment.
+     *
+     * @param fileChannel file to map
+     * @param mode        access mode
+     * @param start       start offset, page aligned
+     * @param size        length of region. On Windows this must be &lt;= 4096 MiB
+     * @return address of the mapping
+     * @throws IOException              if the mapping fails
+     * @throws IllegalArgumentException if the arguments are invalid
+     */
     @Deprecated(/* to be removed in 2027, only used in tests */)
     public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode, long start, long size)
             throws IOException, IllegalArgumentException {
@@ -569,6 +599,7 @@ public final class OS {
      *
      * @param address start of the mapping, page aligned
      * @param size    length of the region
+     * @param pageSize alignment used when mapping
      * @throws IOException if the unmap fails
      */
     public static void unmap(long address, long size, int pageSize) throws IOException {
@@ -588,6 +619,13 @@ public final class OS {
         return Unmapp0Holder.UNMAPP0_MH;
     }
 
+    /**
+     * Releases a previously mapped memory region using the default alignment.
+     *
+     * @param address start of the mapping, page aligned
+     * @param size    length of the region
+     * @throws IOException if the unmap fails
+     */
     public static void unmap(long address, long size) throws IOException {
         unmap(address, size, (int) mapAlignment());
     }
@@ -673,6 +711,15 @@ public final class OS {
         return USER_DIR;
     }
 
+    /**
+     * Reads bytes into native memory from a file descriptor.
+     *
+     * @param fd      descriptor to read from
+     * @param address destination native address
+     * @param len     maximum number of bytes
+     * @return number of bytes read
+     * @throws IOException on I/O failure
+     */
     public static int read0(FileDescriptor fd, long address, int len) throws IOException {
         try {
             return (int) getRead0Mh().invokeExact(fd, address, len);
@@ -687,6 +734,15 @@ public final class OS {
         return Read0Holder.READ0_MH;
     }
 
+    /**
+     * Writes bytes from native memory to a file descriptor.
+     *
+     * @param fd      descriptor to write to
+     * @param address source native address
+     * @param len     number of bytes to write
+     * @return bytes written
+     * @throws IOException on I/O failure
+     */
     public static int write0(FileDescriptor fd, long address, int len) throws IOException {
         try {
             if (Write0Holder.WRITE0_MH2 == null)

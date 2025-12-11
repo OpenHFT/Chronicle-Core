@@ -10,6 +10,8 @@ import java.util.function.Consumer;
  * Serializable variant of {@link Consumer}.
  * <p>
  * Allows lambdas and method references to be sent over the wire or persisted where required.
+ *
+ * @param <T> input type
  */
 @FunctionalInterface
 public interface SerializableConsumer<T> extends Consumer<T>, Serializable {

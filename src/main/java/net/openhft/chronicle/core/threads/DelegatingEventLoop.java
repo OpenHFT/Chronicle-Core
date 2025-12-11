@@ -14,6 +14,9 @@ import org.jetbrains.annotations.NotNull;
  * the original class.
  */
 public class DelegatingEventLoop implements EventLoop {
+    /**
+     * The underlying event loop to which calls are delegated.
+     */
     @NotNull
     public final EventLoop inner;
 

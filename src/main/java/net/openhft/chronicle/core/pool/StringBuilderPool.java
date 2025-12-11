@@ -16,6 +16,10 @@ public final class StringBuilderPool {
 
     private static final int DEFAULT_STRING_BUILDER_POOL_SIZE_PER_THREAD = Jvm.getInteger("chronicle.stringBuilderPool.instancesPerThread", 4);
 
+    private StringBuilderPool() {
+        // utility
+    }
+
     /**
      * Returns a scoped-thread-local pool of StringBuilders.
      *

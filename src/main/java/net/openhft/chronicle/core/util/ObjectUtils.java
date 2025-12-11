@@ -857,6 +857,8 @@ public final class ObjectUtils {
      * Standard mechanism to determine objects as not null. Same method contract as {@link Objects#requireNonNull(Object)}
      *
      * @param o reference to check for nullity
+     * @param <T> type of reference
+     * @return the validated reference
      * @throws NullPointerException If o is {@code null }
      */
     @SuppressWarnings("UnusedReturnValue")
@@ -866,8 +868,22 @@ public final class ObjectUtils {
         return Objects.requireNonNull(o);
     }
 
+    /**
+     * Indicates whether an object can change after construction.
+     */
     public enum Immutability {
-        YES, NO, MAYBE
+        /**
+         * Object does not change after creation.
+         */
+        YES,
+        /**
+         * Object may change state.
+         */
+        NO,
+        /**
+         * Immutability is unknown or context dependent.
+         */
+        MAYBE
     }
 
     private static final class ConversionFunction implements Function<Class<?>, ThrowingFunction<String, Object, Exception>> {
