@@ -33,12 +33,14 @@ public enum LongCondition implements LongPredicate {
     private final String operation;
     private final LongPredicate predicate;
 
+    @Deprecated(/* remove in 2026, only used in tests */)
     LongCondition(final String operation,
                   final LongPredicate predicate) {
         this.operation = requireNonNull(operation);
         this.predicate = requireNonNull(predicate);
     }
 
+    @Deprecated(/* remove in 2026, only used in tests */)
     LongCondition(final long fromInclusive,
                   final long toInclusive) {
         this.operation = "in [" + fromInclusive + ", " + toInclusive + "]";

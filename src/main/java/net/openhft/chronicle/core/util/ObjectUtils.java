@@ -378,6 +378,7 @@ public final class ObjectUtils {
      * @throws ClassCastException       If the object cannot be cast to the target class.
      * @throws IllegalArgumentException If an illegal argument is provided.
      */
+    @SuppressWarnings("unused")
     static <E> E convertTo0(Class<E> eClass, @Nullable Object o) throws NumberFormatException {
         @SuppressWarnings("unchecked")
         Class<E> eClass0 = (Class<E>) primToWrapper(eClass);
@@ -478,6 +479,7 @@ public final class ObjectUtils {
      * @return The object converted to an array.
      * @throws AssertionError if an array index is out of bounds or there is an illegal argument.
      */
+    @SuppressWarnings("unused")
     @NotNull
     private static <E> E convertToArray(@NotNull Class<E> eClass, Object o) {
         final int len = sizeOf(o);

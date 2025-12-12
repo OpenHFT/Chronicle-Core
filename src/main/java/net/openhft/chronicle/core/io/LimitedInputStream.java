@@ -35,6 +35,7 @@ final class LimitedInputStream extends FilterInputStream {
      * @param in        source stream (non-null)
      * @param maxBytes  maximum number of bytes that may be read &gt;=0
      */
+    @Deprecated(/* remove in 2026, only used in tests */)
     LimitedInputStream(final InputStream in, final long maxBytes) {
         super(Objects.requireNonNull(in, "in"));
         if (maxBytes < 0)

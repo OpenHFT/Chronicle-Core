@@ -174,7 +174,7 @@ public abstract class AbstractCloseableReferenceCounted
      *
      * @throws ClosedIllegalStateException If the resource has been released or closed.
      */
-    @Deprecated(/* to be removed in 2027 */)
+    @SuppressWarnings("unused")
     protected void throwExceptionIfClosedInSetter() throws ClosedIllegalStateException, ThreadingIllegalStateException {
         throwExceptionIfClosed0();
         throwExceptionIfReleased();

@@ -39,6 +39,7 @@ public enum IntCondition implements IntPredicate {
         this.predicate = requireNonNull(predicate);
     }
 
+    @Deprecated(/* remove in 2026, only used in tests */)
     IntCondition(final int fromInclusive,
                  final int toInclusive) {
         this.operation = "in [" + fromInclusive + ", " + toInclusive + "]";

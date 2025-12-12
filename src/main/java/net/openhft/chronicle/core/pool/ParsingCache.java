@@ -109,6 +109,7 @@ public class ParsingCache<E> {
         final String string;
         final E e;
 
+        @Deprecated(/* remove in 2026, only used in tests */)
         ParsedData(String string, E e) {
             this.string = string;
             this.e = e;

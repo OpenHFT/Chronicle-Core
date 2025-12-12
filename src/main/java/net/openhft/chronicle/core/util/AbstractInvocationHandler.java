@@ -143,6 +143,7 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
      * @param m     The method to get the handle for.
      * @return The MethodHandle for the specified method on the proxy.
      */
+    @Deprecated(/* remove in 2026, only used in tests */)
     @SuppressWarnings("WeakerAccess")
     MethodHandle methodHandleForProxy(Object proxy, Method m) {
         try {
