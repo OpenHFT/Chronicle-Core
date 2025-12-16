@@ -20,13 +20,13 @@ class ThreadLocalisedExceptionHandlerTest {
 
     @Test
     void testUnwrapExceptionHandler() {
-        assertSame(defaultHandler, ThreadLocalisedExceptionHandler.unwrap(tlExceptionHandler));
+        assertSame(defaultHandler, ThreadLocalisedExceptionHandler.unwrap(tlExceptionHandler), "testUnwrapExceptionHandler: L23");
     }
 
     @Test
     void testIsEnabled() {
         when(defaultHandler.isEnabled(Exception.class)).thenReturn(true);
-        assertTrue(tlExceptionHandler.isEnabled(Exception.class));
+        assertTrue(tlExceptionHandler.isEnabled(Exception.class), "testIsEnabled: L29");
     }
 
     // Add more tests as necessary for other methods and edge cases.

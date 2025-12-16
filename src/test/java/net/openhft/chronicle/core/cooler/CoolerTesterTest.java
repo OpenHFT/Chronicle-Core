@@ -33,10 +33,10 @@ class CoolerTesterTest {
         CoolerTester tester = new CoolerTester();
         tester.repeat(5).runTimeMS(1000).minCount(10).maxCount(100);
 
-        assertEquals(5, tester.repeat());
-        assertEquals(1000, tester.runTimeMS());
-        assertEquals(10, tester.minCount());
-        assertEquals(100, tester.maxCount());
+        assertEquals(5, tester.repeat(), "getterMethodsShouldReturnCorrectValues: L36");
+        assertEquals(1000, tester.runTimeMS(), "getterMethodsShouldReturnCorrectValues: L37");
+        assertEquals(10, tester.minCount(), "getterMethodsShouldReturnCorrectValues: L38");
+        assertEquals(100, tester.maxCount(), "getterMethodsShouldReturnCorrectValues: L39");
     }
 
     @Test

@@ -6,11 +6,11 @@ package net.openhft.chronicle.core.pool;
 import net.openhft.chronicle.core.CoreTestCommon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ParsingCacheTest extends CoreTestCommon {
     @Test
@@ -20,7 +20,7 @@ public class ParsingCacheTest extends CoreTestCommon {
         @Nullable BigDecimal bd2 = pc.intern("12.234");
         @Nullable BigDecimal bd1b = pc.intern("1.234");
         assertNotEquals(bd1, bd2);
-        assertSame(bd1, bd1b);
-        assertEquals(2, pc.valueCount());
+        assertSame(bd1, bd1b, "intern: L23");
+        assertEquals(2, pc.valueCount(), "intern: L24");
     }
 }

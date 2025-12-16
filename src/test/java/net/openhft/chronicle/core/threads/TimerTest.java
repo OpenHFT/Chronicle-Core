@@ -4,14 +4,14 @@
 package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.time.TimeProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TimerTest {
 
@@ -31,22 +31,22 @@ public class TimerTest {
 
         // t=0 no fire
         loop.tickOnce();
-        assertEquals(0, calls.get());
+        assertEquals(0, calls.get(), "fixedRateFiresAfterInitialDelayAndPeriod: L34");
 
         // advance to initialDelay
         time.now = 10;
         loop.tickOnce();
-        assertEquals(1, calls.get());
+        assertEquals(1, calls.get(), "fixedRateFiresAfterInitialDelayAndPeriod: L39");
 
         // not yet at next period
         time.now = 14;
         loop.tickOnce();
-        assertEquals(1, calls.get());
+        assertEquals(1, calls.get(), "fixedRateFiresAfterInitialDelayAndPeriod: L44");
 
         // at period boundary
         time.now = 15;
         loop.tickOnce();
-        assertEquals(2, calls.get());
+        assertEquals(2, calls.get(), "fixedRateFiresAfterInitialDelayAndPeriod: L49");
     }
 
     @Test
@@ -60,14 +60,14 @@ public class TimerTest {
 
         // t=0 no run
         loop.tickOnce();
-        assertEquals(0, ran.get());
-        assertEquals(1, loop.handlers.size());
+        assertEquals(0, ran.get(), "scheduleOnceRemovesItselfAfterRun: L63");
+        assertEquals(1, loop.handlers.size(), "scheduleOnceRemovesItselfAfterRun: L64");
 
         // At delay boundary -> run once and remove
         time.now = 5;
         loop.tickOnce();
-        assertEquals(1, ran.get());
-        assertEquals(0, loop.handlers.size());
+        assertEquals(1, ran.get(), "scheduleOnceRemovesItselfAfterRun: L69");
+        assertEquals(0, loop.handlers.size(), "scheduleOnceRemovesItselfAfterRun: L70");
     }
 
     private static final class FakeLoop implements EventLoop {

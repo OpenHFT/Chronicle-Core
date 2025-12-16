@@ -51,10 +51,10 @@ class Slf4jExceptionHandlerTest {
 
     @Test
     void testValueOfLogLevel() {
-        assertEquals(Slf4jExceptionHandler.ERROR, Slf4jExceptionHandler.valueOf(LogLevel.ERROR));
-        assertEquals(Slf4jExceptionHandler.WARN, Slf4jExceptionHandler.valueOf(LogLevel.WARN));
-        assertEquals(Slf4jExceptionHandler.PERF, Slf4jExceptionHandler.valueOf(LogLevel.PERF));
-        assertEquals(Slf4jExceptionHandler.DEBUG, Slf4jExceptionHandler.valueOf(LogLevel.DEBUG));
+        assertEquals(Slf4jExceptionHandler.ERROR, Slf4jExceptionHandler.valueOf(LogLevel.ERROR), "testValueOfLogLevel: L54");
+        assertEquals(Slf4jExceptionHandler.WARN, Slf4jExceptionHandler.valueOf(LogLevel.WARN), "testValueOfLogLevel: L55");
+        assertEquals(Slf4jExceptionHandler.PERF, Slf4jExceptionHandler.valueOf(LogLevel.PERF), "testValueOfLogLevel: L56");
+        assertEquals(Slf4jExceptionHandler.DEBUG, Slf4jExceptionHandler.valueOf(LogLevel.DEBUG), "testValueOfLogLevel: L57");
     }
 
     @Test
@@ -70,7 +70,7 @@ class Slf4jExceptionHandlerTest {
 
         // 3. Writes to stderr, but doesn't throw an exception
         Slf4jExceptionHandler.ERROR.on(bad, "msg", boom);
-        assertTrue(true); // if we reach here, the test passes
+        assertTrue(true, "testDirectLoggerOverrideThrowsOnce: L73"); // if we reach here, the test passes
     }
 
     @Test

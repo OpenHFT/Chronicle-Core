@@ -11,10 +11,10 @@ class JvmStackTrimTest {
 
     @Test
     void isInternalClassNameClassification() {
-        assertTrue(Jvm.isInternal("java.lang.String"));
-        assertTrue(Jvm.isInternal("sun.nio.fs.UnixFileSystem"));
-        assertTrue(Jvm.isInternal("jdk.internal.module.ModuleBootstrap"));
-        assertFalse(Jvm.isInternal("net.openhft.chronicle.core.Jvm"));
+        assertTrue(Jvm.isInternal("java.lang.String"), "isInternalClassNameClassification: L14");
+        assertTrue(Jvm.isInternal("sun.nio.fs.UnixFileSystem"), "isInternalClassNameClassification: L15");
+        assertTrue(Jvm.isInternal("jdk.internal.module.ModuleBootstrap"), "isInternalClassNameClassification: L16");
+        assertFalse(Jvm.isInternal("net.openhft.chronicle.core.Jvm"), "isInternalClassNameClassification: L17");
     }
 
     @Test
@@ -28,7 +28,7 @@ class JvmStackTrimTest {
         int first = Jvm.trimFirst(st);
         int last = Jvm.trimLast(first, st);
         // trimFirst returns up to 2 frames of context; here it returns 0
-        assertEquals(0, first);
-        assertTrue(last >= first && last <= st.length);
+        assertEquals(0, first, "trimFirstAndLastIndices: L31");
+        assertTrue(last >= first && last <= st.length, "trimFirstAndLastIndices: L32");
     }
 }

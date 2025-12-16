@@ -4,9 +4,9 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class AbstractReferenceCountedTest extends ReferenceCountedTracerContractTest {
 
@@ -15,7 +15,7 @@ public class AbstractReferenceCountedTest extends ReferenceCountedTracerContract
         Jvm.setResourceTracing(true);
 
         MyReferenceCounted rc = createReferenceCounted();
-        assertEquals(1, rc.refCount());
+        assertEquals(1, rc.refCount(), "reserve: L18");
 
         exerciseReserveLifecycle(rc, () -> rc.performRelease);
     }

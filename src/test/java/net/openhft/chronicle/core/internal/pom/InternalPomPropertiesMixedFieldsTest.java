@@ -12,7 +12,7 @@ class InternalPomPropertiesMixedFieldsTest {
     @Test
     void versionResolvesWhenOnlyVersionIsPresent() {
         String v = InternalPomProperties.version("test.group", "only-version");
-        assertEquals("9.9.9", v);
+        assertEquals("9.9.9", v, "versionResolvesWhenOnlyVersionIsPresent: L15");
     }
 }
 

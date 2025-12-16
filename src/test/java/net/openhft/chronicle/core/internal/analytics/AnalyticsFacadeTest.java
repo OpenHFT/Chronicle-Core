@@ -5,19 +5,19 @@ package net.openhft.chronicle.core.internal.analytics;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.analytics.AnalyticsFacade;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class AnalyticsFacadeTest extends CoreTestCommon {
 
     private static final String TEST_RESPONSE = "A";
 
-    @Before
+    @BeforeEach
     public void setSystemProp() {
         System.clearProperty("chronicle.analytics.disable");
     }
@@ -29,7 +29,7 @@ public class AnalyticsFacadeTest extends CoreTestCommon {
                 .withReportDespiteJUnit()
                 .build();
 
-        assertTrue(facade instanceof MuteAnalytics);
+        assertTrue(facade instanceof MuteAnalytics, "systemProp: L32");
 
     }
 
@@ -48,6 +48,6 @@ public class AnalyticsFacadeTest extends CoreTestCommon {
         final AnalyticsFacade analyticsFacade = builder.build();
 
         // Must be a real one
-        assertFalse(analyticsFacade instanceof MuteAnalytics);
+        assertFalse(analyticsFacade instanceof MuteAnalytics, "analytics: L51");
     }
 }

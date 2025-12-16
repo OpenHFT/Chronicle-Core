@@ -17,8 +17,8 @@ class UpdaterTest {
 
         appender.update(myList);
 
-        assertEquals(1, myList.size());
-        assertTrue(myList.contains("newElement"));
+        assertEquals(1, myList.size(), "updateShouldModifyInputAsExpected: L20");
+        assertTrue(myList.contains("newElement"), "updateShouldModifyInputAsExpected: L21");
     }
 
     @Test
@@ -28,7 +28,7 @@ class UpdaterTest {
 
         appender.accept(myList); // Using accept instead of update
 
-        assertEquals(1, myList.size());
-        assertTrue(myList.contains("newElement"));
+        assertEquals(1, myList.size(), "acceptShouldDelegateToUpdate: L31");
+        assertTrue(myList.contains("newElement"), "acceptShouldDelegateToUpdate: L32");
     }
 }

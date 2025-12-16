@@ -5,7 +5,7 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.List;
@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Any implementor of {@link ReferenceCounted} should implement a test class
@@ -39,15 +39,15 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
     public void reserveWillIncrementReferenceCount() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
-        assertEquals(1, referenceCounted.refCount());
+        assertEquals(1, referenceCounted.refCount(), "reserveWillIncrementReferenceCount: L42");
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
         referenceCounted.reserve(a);
-        assertEquals(2, referenceCounted.refCount());
+        assertEquals(2, referenceCounted.refCount(), "reserveWillIncrementReferenceCount: L46");
 
         ReferenceOwner b = ReferenceOwner.temporary("b");
         referenceCounted.reserve(b);
-        assertEquals(3, referenceCounted.refCount());
+        assertEquals(3, referenceCounted.refCount(), "reserveWillIncrementReferenceCount: L50");
         referenceCounted.release(b);
         referenceCounted.release(a);
         referenceCounted.releaseLast();
@@ -69,11 +69,11 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
         referenceCounted.reserve(a);
-        assertEquals(2, referenceCounted.refCount());
+        assertEquals(2, referenceCounted.refCount(), "reserveTransferWillNotChangeReferenceCount: L72");
 
         ReferenceOwner b = ReferenceOwner.temporary("b");
         referenceCounted.reserveTransfer(a, b);
-        assertEquals(2, referenceCounted.refCount());
+        assertEquals(2, referenceCounted.refCount(), "reserveTransferWillNotChangeReferenceCount: L76");
         referenceCounted.release(b);
         referenceCounted.releaseLast();
     }
@@ -82,21 +82,21 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
     public void releaseWillDecrementReferenceCount() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
-        assertEquals(1, referenceCounted.refCount());
+        assertEquals(1, referenceCounted.refCount(), "releaseWillDecrementReferenceCount: L85");
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
         referenceCounted.reserve(a);
-        assertEquals(2, referenceCounted.refCount());
+        assertEquals(2, referenceCounted.refCount(), "releaseWillDecrementReferenceCount: L89");
 
         ReferenceOwner b = ReferenceOwner.temporary("b");
         referenceCounted.reserve(b);
-        assertEquals(3, referenceCounted.refCount());
+        assertEquals(3, referenceCounted.refCount(), "releaseWillDecrementReferenceCount: L93");
 
         referenceCounted.release(b);
-        assertEquals(2, referenceCounted.refCount());
+        assertEquals(2, referenceCounted.refCount(), "releaseWillDecrementReferenceCount: L96");
 
         referenceCounted.release(a);
-        assertEquals(1, referenceCounted.refCount());
+        assertEquals(1, referenceCounted.refCount(), "releaseWillDecrementReferenceCount: L99");
 
         referenceCounted.releaseLast();
     }
@@ -116,17 +116,17 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         referenceCounted.release(ReferenceOwner.INIT);
-        assertEquals(0, referenceCounted.refCount());
+        assertEquals(0, referenceCounted.refCount(), "releaseWillGoAllTheWayToZero: L119");
     }
 
     @Test
     public void releaseLastWillDecrementReferenceCount() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
-        assertEquals(1, referenceCounted.refCount());
+        assertEquals(1, referenceCounted.refCount(), "releaseLastWillDecrementReferenceCount: L126");
 
         referenceCounted.releaseLast();
-        assertEquals(0, referenceCounted.refCount());
+        assertEquals(0, referenceCounted.refCount(), "releaseLastWillDecrementReferenceCount: L129");
     }
 
     @Test
@@ -136,12 +136,12 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         ReferenceOwner a = ReferenceOwner.temporary("a");
         referenceCounted.reserve(a);
 
-        assertEquals(2, referenceCounted.refCount());
+        assertEquals(2, referenceCounted.refCount(), "releaseLastWillReleaseThenFailWhenReferenceIsNotLast: L139");
 
         // not reserved is an ISE not a CISE
         assertThrows(IllegalStateException.class, referenceCounted::releaseLast);
 
-        assertEquals(1, referenceCounted.refCount());
+        assertEquals(1, referenceCounted.refCount(), "releaseLastWillReleaseThenFailWhenReferenceIsNotLast: L144");
         referenceCounted.releaseLast(a);
     }
 
@@ -158,7 +158,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
-        assertTrue(referenceCounted.tryReserve(a));
+        assertTrue(referenceCounted.tryReserve(a), "tryReserveWillReturnTrueWhenReservationWasSuccessful: L161");
         referenceCounted.release(a);
         referenceCounted.releaseLast();
     }
@@ -169,7 +169,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
 
         referenceCounted.releaseLast();
         ReferenceOwner a = ReferenceOwner.temporary("a");
-        assertFalse(referenceCounted.tryReserve(a));
+        assertFalse(referenceCounted.tryReserve(a), "tryReserveWillReturnFalseWhenResourceIsAlreadyReleased: L172");
     }
 
     @Test
@@ -193,13 +193,13 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
             throw new IllegalStateException("ExecutorService didn't shut down");
         }
         counted.releaseLast();
-        assertTrue(counted.refCount() >= 0);
+        assertTrue(counted.refCount() >= 0, "implementationsShouldBeThreadSafe: L196");
     }
 
     @Test
     public void shouldNotifyListenersWhenReferencesAreAddedAndRemoved() {
         ReferenceCounted rc = createReferenceCounted();
-        assertEquals(1, rc.refCount());
+        assertEquals(1, rc.refCount(), "shouldNotifyListenersWhenReferencesAreAddedAndRemoved: L202");
         Set<ReferenceOwner> currentOwners = new HashSet<>();
         Set<ReferenceOwner> untrackedOwners = new HashSet<>();
         rc.addReferenceChangeListener(new ReferenceChangeListener() {
@@ -227,27 +227,27 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         ReferenceOwner b = ReferenceOwner.temporary("b");
 
         rc.reserve(a);
-        assertEquals(1, currentOwners.size());
+        assertEquals(1, currentOwners.size(), "shouldNotifyListenersWhenReferencesAreAddedAndRemoved: L230");
         assertContains("currentOwners should include first reserved owner", currentOwners, a);
 
         rc.reserve(b);
-        assertEquals(2, currentOwners.size());
+        assertEquals(2, currentOwners.size(), "shouldNotifyListenersWhenReferencesAreAddedAndRemoved: L234");
         assertContains("currentOwners should include second reserved owner", currentOwners, b);
 
         rc.release(a);
-        assertEquals(1, currentOwners.size());
+        assertEquals(1, currentOwners.size(), "shouldNotifyListenersWhenReferencesAreAddedAndRemoved: L238");
         assertContains("currentOwners should still include second owner after releasing first", currentOwners, b);
 
         rc.reserveTransfer(b, a);
-        assertEquals(1, currentOwners.size());
+        assertEquals(1, currentOwners.size(), "shouldNotifyListenersWhenReferencesAreAddedAndRemoved: L242");
         assertContains("currentOwners should include transferred owner", currentOwners, a);
 
         rc.release(a);
-        assertEquals(0, currentOwners.size());
+        assertEquals(0, currentOwners.size(), "shouldNotifyListenersWhenReferencesAreAddedAndRemoved: L246");
 
         rc.releaseLast(ReferenceOwner.INIT);
-        assertEquals(1, untrackedOwners.size());
-        assertFalse("INIT owner should not remain tracked", currentOwners.contains(ReferenceOwner.INIT));
+        assertEquals(1, untrackedOwners.size(), "shouldNotifyListenersWhenReferencesAreAddedAndRemoved: L249");
+        assertFalse(currentOwners.contains(ReferenceOwner.INIT), "INIT owner should not remain tracked");
     }
 
     @Test
@@ -259,7 +259,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         rc.addReferenceChangeListener(referenceChangeListener);
 
         rc.reserve(a);
-        assertEquals(1, referenceChangeListener.referenceAddedCount);
+        assertEquals(1, referenceChangeListener.referenceAddedCount, "whenAReferenceIsAddedTheReferenceChangeListenerShouldFire: L262");
         rc.release(a);
         rc.releaseLast();
     }
@@ -274,12 +274,12 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
 
         rc.reserve(a);
         rc.release(a);
-        assertEquals(1, referenceChangeListener.referenceRemovedCount);
+        assertEquals(1, referenceChangeListener.referenceRemovedCount, "whenAReferenceIsRemovedTheReferenceChangeListenerShouldFire: L277");
         rc.releaseLast();
     }
 
     private static void assertContains(String message, Set<ReferenceOwner> owners, ReferenceOwner expected) {
-        assertTrue(message + " [expected=" + expected + ", owners=" + owners + "]", owners.contains(expected));
+        assertTrue(owners.contains(expected), message + " [expected=" + expected + ", owners=" + owners + "]");
     }
 
     @Test
@@ -293,7 +293,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
 
         rc.reserve(a);
         rc.reserveTransfer(a, b);
-        assertEquals(1, referenceChangeListener.referenceTransferredCount);
+        assertEquals(1, referenceChangeListener.referenceTransferredCount, "referenceChangeListenerShouldFireWhenAReferenceIsTransferred: L296");
         rc.release(b);
         rc.releaseLast();
     }
@@ -309,22 +309,22 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
 
         rc.addReferenceChangeListener(listener1);
         rc.reserve(a);
-        assertEquals(1, listener1.referenceAddedCount);
-        assertEquals(0, listener2.referenceAddedCount);
+        assertEquals(1, listener1.referenceAddedCount, "shouldBeAbleToAddAndRemoveListeners: L312");
+        assertEquals(0, listener2.referenceAddedCount, "shouldBeAbleToAddAndRemoveListeners: L313");
         rc.addReferenceChangeListener(listener2);
 
         ReferenceOwner b = ReferenceOwner.temporary("b");
         rc.reserve(b);
-        assertEquals(2, listener1.referenceAddedCount);
-        assertEquals(1, listener2.referenceAddedCount);
+        assertEquals(2, listener1.referenceAddedCount, "shouldBeAbleToAddAndRemoveListeners: L318");
+        assertEquals(1, listener2.referenceAddedCount, "shouldBeAbleToAddAndRemoveListeners: L319");
         rc.removeReferenceChangeListener(listener1);
         rc.release(a);
-        assertEquals(0, listener1.referenceRemovedCount);
-        assertEquals(1, listener2.referenceRemovedCount);
+        assertEquals(0, listener1.referenceRemovedCount, "shouldBeAbleToAddAndRemoveListeners: L322");
+        assertEquals(1, listener2.referenceRemovedCount, "shouldBeAbleToAddAndRemoveListeners: L323");
         rc.removeReferenceChangeListener(listener2);
         rc.release(b);
-        assertEquals(0, listener1.referenceRemovedCount);
-        assertEquals(1, listener2.referenceRemovedCount);
+        assertEquals(0, listener1.referenceRemovedCount, "shouldBeAbleToAddAndRemoveListeners: L326");
+        assertEquals(1, listener2.referenceRemovedCount, "shouldBeAbleToAddAndRemoveListeners: L327");
         rc.releaseLast();
     }
 

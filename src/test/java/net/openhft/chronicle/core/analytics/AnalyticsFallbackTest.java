@@ -18,7 +18,7 @@ class AnalyticsFallbackTest {
                 .withFrequencyLimit(1, 1, java.util.concurrent.TimeUnit.HOURS)
                 .withReportDespiteJUnit()
                 .build();
-        assertNotNull(analytics);
+        assertNotNull(analytics, "builderFallsBackWhenLibraryAbsentOrDisabled: L21");
         // Invocation increments internal counter on mute analytics
         analytics.sendEvent("x", Collections.emptyMap());
         Class<?> muteCls = Class.forName("net.openhft.chronicle.core.internal.analytics.MuteAnalytics");
@@ -28,6 +28,6 @@ class AnalyticsFallbackTest {
         Field cnt = muteCls.getDeclaredField("invocationCounter");
         cnt.setAccessible(true);
         int v = (int) cnt.get(inst);
-        assertTrue(v >= 1);
+        assertTrue(v >= 1, "builderFallsBackWhenLibraryAbsentOrDisabled: L31");
     }
 }

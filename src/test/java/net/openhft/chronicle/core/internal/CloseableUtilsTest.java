@@ -5,16 +5,21 @@ package net.openhft.chronicle.core.internal;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.net.HttpURLConnection;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.Mockito.*;
 
 public class CloseableUtilsTest {
@@ -23,27 +28,22 @@ public class CloseableUtilsTest {
     private AutoCloseable mockAutoCloseable;
     private HttpURLConnection mockHttpURLConnection;
 
-    @Before
-    public void mockitoNotSupportedOnJava21() {
-        assumeTrue(Jvm.majorVersion() <= 17);
-    }
-
-    @Before
+    @BeforeEach
     public void setUp() {
+        assumeTrue(Jvm.majorVersion() <= 17);
         anonCloseable = new AbstractCloseable() {
             @Override
             protected void performClose() {
 
             }
         };
-        mockitoNotSupportedOnJava21();
         mockCloseable = mock(ManagedCloseable.class);
         CloseableUtils.enableCloseableTracing();
         mockAutoCloseable = mock(AutoCloseable.class);
         mockHttpURLConnection = mock(HttpURLConnection.class);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
         CloseableUtils.disableCloseableTracing();
         Closeable.closeQuietly(anonCloseable);
@@ -53,18 +53,18 @@ public class CloseableUtilsTest {
     public void testAdd() {
         CloseableUtils.add(mockCloseable);
         AtomicReference<Set<Closeable>> closeablesRef = getCloseablesRef();
-        assertTrue(closeablesRef.get().contains(mockCloseable));
+        assertTrue(closeablesRef.get().contains(mockCloseable), "testAdd: L56");
     }
 
     @Test
     public void testEnableCloseableTracing() {
-        assertNotNull(getCloseablesRef().get());
+        assertNotNull(getCloseablesRef().get(), "testEnableCloseableTracing: L61");
     }
 
     @Test
     public void testDisableCloseableTracing() {
         CloseableUtils.disableCloseableTracing();
-        assertNull(getCloseablesRef().get());
+        assertNull(getCloseablesRef().get(), "testDisableCloseableTracing: L67");
     }
 
     // Private helper to access the private CLOSEABLES field in CloseableUtils
@@ -85,16 +85,17 @@ public class CloseableUtilsTest {
         CloseableUtils.add(mockCloseable);
         when(mockCloseable.isClosing()).thenReturn(true);
 
-        assertTrue(CloseableUtils.waitForCloseablesToClose(1000));
+        assertTrue(CloseableUtils.waitForCloseablesToClose(1000), "testWaitForCloseablesToClose: L88");
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void testWaitForCloseablesToCloseWithException() {
         CloseableUtils.add(mockCloseable);
-        when(mockCloseable.isClosing()).thenReturn(false);
-        doThrow(IllegalStateException.class).when(mockCloseable).isClosing();
+        when(mockCloseable.isClosing()).thenThrow(new IllegalStateException("testWaitForCloseablesToCloseWithException"));
 
-        CloseableUtils.waitForCloseablesToClose(1000);
+        assertThrows(IllegalStateException.class,
+                () -> CloseableUtils.waitForCloseablesToClose(1000),
+                "testWaitForCloseablesToCloseWithException");
     }
 
     @Test
@@ -102,15 +103,17 @@ public class CloseableUtilsTest {
         CloseableUtils.add(mockCloseable);
         when(mockCloseable.isClosed()).thenReturn(true);
 
-        CloseableUtils.assertCloseablesClosed();
+        assertDoesNotThrow(CloseableUtils::assertCloseablesClosed, "testAssertCloseablesClosed");
     }
 
-    @Test(expected = AssertionError.class)
+    @Test
     public void testAssertCloseablesClosedWithOpenCloseables() {
         CloseableUtils.add(mockCloseable);
         when(mockCloseable.isClosed()).thenReturn(false);
 
-        CloseableUtils.assertCloseablesClosed();
+        assertThrows(AssertionError.class,
+                CloseableUtils::assertCloseablesClosed,
+                "testAssertCloseablesClosedWithOpenCloseables");
     }
 
     @Test
@@ -118,7 +121,7 @@ public class CloseableUtilsTest {
         CloseableUtils.add(mockCloseable);
         CloseableUtils.unmonitor(mockCloseable);
         AtomicReference<Set<Closeable>> closeablesRef = getCloseablesRef();
-        assertFalse(closeablesRef.get().contains(mockCloseable));
+        assertFalse(closeablesRef.get().contains(mockCloseable), "testUnmonitor: L121");
     }
 
     @Test
@@ -128,7 +131,7 @@ public class CloseableUtilsTest {
         CloseableUtils.add(anonCloseable);
         IOTools.unmonitor(anonCloseable);
         AtomicReference<Set<Closeable>> closeablesRef = getCloseablesRef();
-        assertFalse(closeablesRef.get().contains(mockCloseable));
+        assertFalse(closeablesRef.get().contains(anonCloseable), "testIOToolsUnmonitor: L131");
     }
 
     @Test

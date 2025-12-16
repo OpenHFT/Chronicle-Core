@@ -31,8 +31,8 @@ class RecordingExceptionHandlerTest {
         handler.on(RecordingExceptionHandlerTest.class, "Test message", throwable);
 
         ExceptionKey expectedKey = new ExceptionKey(logLevel, RecordingExceptionHandlerTest.class, "Test message", throwable);
-        assertTrue(exceptionMap.containsKey(expectedKey));
-        assertEquals(1, exceptionMap.get(expectedKey));
+        assertTrue(exceptionMap.containsKey(expectedKey), "testRecordExceptionWithThrowable: L34");
+        assertEquals(1, exceptionMap.get(expectedKey), "testRecordExceptionWithThrowable: L35");
     }
 
     @Test
@@ -43,8 +43,8 @@ class RecordingExceptionHandlerTest {
         handler.on(logger, "Test message", throwable);
 
         ExceptionKey expectedKey = new ExceptionKey(logLevel, Logger.class, "TestLogger: Test message", throwable);
-        assertTrue(exceptionMap.containsKey(expectedKey));
-        assertEquals(1, exceptionMap.get(expectedKey));
+        assertTrue(exceptionMap.containsKey(expectedKey), "testRecordExceptionWithLogger: L46");
+        assertEquals(1, exceptionMap.get(expectedKey), "testRecordExceptionWithLogger: L47");
     }
 
     @Test
@@ -53,7 +53,7 @@ class RecordingExceptionHandlerTest {
         handler = new RecordingExceptionHandler(logLevel, exceptionMap, exceptionsOnly);
         handler.on(RecordingExceptionHandlerTest.class, "Test message", null);
 
-        assertTrue(exceptionMap.isEmpty());
+        assertTrue(exceptionMap.isEmpty(), "testExceptionsOnly: L56");
     }
 
     @Test
@@ -70,7 +70,7 @@ class RecordingExceptionHandlerTest {
         thread2.join();
 
         ExceptionKey expectedKey = new ExceptionKey(logLevel, RecordingExceptionHandlerTest.class, "Concurrent message", new RuntimeException());
-        assertEquals(2, exceptionMap.getOrDefault(expectedKey, 2));
+        assertEquals(2, exceptionMap.getOrDefault(expectedKey, 2), "testConcurrentAccess: L73");
     }
 
     // Add more tests as necessary for other methods and edge cases.

@@ -7,29 +7,29 @@ import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.util.IgnoresEverything;
 import net.openhft.chronicle.core.util.Mocker;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ExceptionHandlerTest extends CoreTestCommon {
 
-    @Before
+    @BeforeEach
     public void mockitoNotSupportedOnJava21() {
         assumeTrue(Jvm.majorVersion() <= 17);
     }
 
     @Test
     public void ignoresEverything() {
-        assertTrue(ExceptionHandler.ignoresEverything() instanceof IgnoresEverything);
+        assertTrue(ExceptionHandler.ignoresEverything() instanceof IgnoresEverything, "ignoresEverything: L27");
     }
 
     @Test
     public void ignoresEverything2() {
-        assertTrue(Mocker.ignored(ExceptionHandler.class) instanceof IgnoresEverything);
+        assertTrue(Mocker.ignored(ExceptionHandler.class) instanceof IgnoresEverything, "ignoresEverything2: L32");
     }
 
     @Test
@@ -68,12 +68,12 @@ public class ExceptionHandlerTest extends CoreTestCommon {
     @Test
     public void isEnabledShouldAlwaysReturnTrue() {
         ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
-        assertTrue(handler.isEnabled(this.getClass()));
+        assertTrue(handler.isEnabled(this.getClass()), "isEnabledShouldAlwaysReturnTrue: L71");
     }
 
     @Test
     public void defaultHandlerShouldReturnSelf() {
         ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
-        assertSame(handler, handler.defaultHandler());
+        assertSame(handler, handler.defaultHandler(), "defaultHandlerShouldReturnSelf: L77");
     }
 }

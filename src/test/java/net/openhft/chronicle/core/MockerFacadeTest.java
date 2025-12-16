@@ -3,7 +3,7 @@
  */
 package net.openhft.chronicle.core;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -12,7 +12,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MockerFacadeTest {
 
@@ -22,8 +22,8 @@ public class MockerFacadeTest {
         Sample sample = Mocker.logging(Sample.class, "sample-", writer);
         sample.run("value");
 
-        assertTrue(writer.toString().contains("sample-run"));
-        assertTrue(writer.toString().contains("value"));
+        assertTrue(writer.toString().contains("sample-run"), "loggingToStringWriterDelegates: L25");
+        assertTrue(writer.toString().contains("value"), "loggingToStringWriterDelegates: L26");
     }
 
     @Test
@@ -39,8 +39,8 @@ public class MockerFacadeTest {
         sample.run("data");
 
         String logged = new String(backing.toByteArray(), UTF_8);
-        assertTrue(logged.contains("ps-run"));
-        assertTrue(logged.contains("data"));
+        assertTrue(logged.contains("ps-run"), "loggingToPrintStreamDelegates: L42");
+        assertTrue(logged.contains("data"), "loggingToPrintStreamDelegates: L43");
     }
 
     @Test
@@ -49,14 +49,14 @@ public class MockerFacadeTest {
         Sample sample = Mocker.queuing(Sample.class, "queue-", queue);
         sample.run("payload");
 
-        assertEquals("queue-run[payload]", queue.take());
+        assertEquals("queue-run[payload]", queue.take(), "queuingAddsEntries: L52");
     }
 
     @Test
     public void ignoredProxySupportsCalls() {
         Sample sample = Mocker.ignored(Sample.class);
         sample.run("whatever");
-        assertNotNull(sample);
+        assertNotNull(sample, "ignoredProxySupportsCalls: L59");
     }
 
     interface Sample {

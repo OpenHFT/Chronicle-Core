@@ -4,8 +4,8 @@
 package net.openhft.chronicle.core.onoes;
 
 import net.openhft.chronicle.core.Jvm;
-import org.junit.AssumptionViolatedException;
 import org.junit.jupiter.api.Test;
+import org.opentest4j.TestAbortedException;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
@@ -29,7 +29,7 @@ class ExceptionHandlerFallbackTest {
             state = initializationState.getInt(null);
             initializationState.setInt(null, FAILED_INITIALIZATION);
         } catch (IllegalAccessException e) {
-            throw new AssumptionViolatedException(e.toString());
+            throw new TestAbortedException(e.toString(), e);
         }
         try {
             Slf4jExceptionHandler.WARN.on(
@@ -39,6 +39,6 @@ class ExceptionHandlerFallbackTest {
         } finally {
             initializationState.setInt(null, state);
         }
-        assertTrue(true); // If we reach here, the test passes
+        assertTrue(true, "classShouldFallBackWhenDelegateThrows: L42"); // If we reach here, the test passes
     }
 }

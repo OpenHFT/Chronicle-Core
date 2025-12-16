@@ -3,8 +3,8 @@
  */
 package net.openhft.chronicle.core.shutdown;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class HookletTest {
@@ -22,7 +22,7 @@ public class HookletTest {
             }
         };
         hooklet.onShutdown();
-        assertTrue(called.get());
+        assertTrue(called.get(), "testOnShutdown: L25");
     }
 
     @Test
@@ -37,7 +37,7 @@ public class HookletTest {
                 return 10;
             }
         };
-        assertEquals(10, hooklet.priority());
+        assertEquals(10, hooklet.priority(), "testPriority: L40");
     }
 
     @Test
@@ -45,16 +45,16 @@ public class HookletTest {
         AtomicBoolean called = new AtomicBoolean(false);
         Runnable hook = () -> called.set(true);
         Hooklet hooklet = Hooklet.of(20, hook);
-        assertEquals(20, hooklet.priority());
+        assertEquals(20, hooklet.priority(), "testOf: L48");
         hooklet.onShutdown();
-        assertTrue(called.get());
+        assertTrue(called.get(), "testOf: L50");
     }
 
     @Test
     public void testCompareTo() {
         Hooklet hooklet1 = Hooklet.of(10, () -> {});
         Hooklet hooklet2 = Hooklet.of(20, () -> {});
-        assertTrue(hooklet1.compareTo(hooklet2) < 0);
+        assertTrue(hooklet1.compareTo(hooklet2) < 0, "testCompareTo: L57");
     }
 
     @SuppressWarnings("PMD.TestClassWithoutTestCases")
@@ -71,15 +71,15 @@ public class HookletTest {
         Hooklet hooklet1 = Hooklet.of(10, runnable);
         Hooklet hooklet2 = Hooklet.of(10, runnable);
 
-        assertEquals(hooklet1, hooklet2);
-        assertEquals(hooklet1.hashCode(), hooklet2.hashCode());
+        assertEquals(hooklet1, hooklet2, "testEqualsAndHashCode: L74");
+        assertEquals(hooklet1.hashCode(), hooklet2.hashCode(), "testEqualsAndHashCode: L75");
     }
 
     @Test
     public void testToString() {
         Hooklet hooklet = Hooklet.of(10, () -> {});
         String toStringResult = hooklet.toString();
-        assertTrue(toStringResult.startsWith("Hooklet{ priority: 10, identity: "));
-        assertTrue(toStringResult.contains("HookletTest"));
+        assertTrue(toStringResult.startsWith("Hooklet{ priority: 10, identity: "), "testToString: L82");
+        assertTrue(toStringResult.contains("HookletTest"), "testToString: L83");
     }
 }

@@ -36,10 +36,10 @@ class ARMMemoryMisalignmentEdgeTest {
         long mis = base + 1; // not 2-byte aligned
         short v = (short) 0x7B0F;
         arm.writeVolatileShort(mis, v);
-        assertEquals(v, arm.readVolatileShort(mis));
+        assertEquals(v, arm.readVolatileShort(mis), "volatileShortOnMisalignedAddressOffheap: L39");
         // aligned fast-path still works
         arm.writeVolatileShort(base, (short) 123);
-        assertEquals(123, arm.readVolatileShort(base));
+        assertEquals(123, arm.readVolatileShort(base), "volatileShortOnMisalignedAddressOffheap: L42");
     }
 
     @Test
@@ -58,7 +58,7 @@ class ARMMemoryMisalignmentEdgeTest {
         // initial value is 0; expect!=actual triggers error mentioning mis-aligned
         IllegalStateException ex = assertThrows(IllegalStateException.class,
                 () -> arm.testAndSetInt(mis, 1L, /*expected*/ 1, /*value*/ 2));
-        assertTrue(ex.getMessage().contains("mis-aligned"));
+        assertTrue(ex.getMessage().contains("mis-aligned"), "testAndSetIntMisalignedMismatchIncludesTag: L61");
     }
 
     @Test
@@ -68,10 +68,10 @@ class ARMMemoryMisalignmentEdgeTest {
         long mis = base + 1; // not 4-byte aligned
         float f = Float.intBitsToFloat(0x7F00FF00);
         arm.writeFloat(mis, f);
-        assertEquals(f, arm.readFloat(mis));
+        assertEquals(f, arm.readFloat(mis), "floatReadWriteOnMisalignedAddressOffheap: L71");
         // volatile path goes through fence + read
         arm.writeVolatileFloat(mis, f);
-        assertEquals(f, arm.readVolatileFloat(mis));
+        assertEquals(f, arm.readVolatileFloat(mis), "floatReadWriteOnMisalignedAddressOffheap: L74");
     }
 
     @Test
@@ -81,7 +81,7 @@ class ARMMemoryMisalignmentEdgeTest {
         long mis = base + 4; // not 8-byte aligned
         long v = 0x7FFF_0000_00FF_F00FL;
         arm.writeVolatileLong(mis, v);
-        assertEquals(v, arm.readVolatileLong(mis));
+        assertEquals(v, arm.readVolatileLong(mis), "volatileLongOnMisalignedAddressOffheap: L84");
     }
 }
 

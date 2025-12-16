@@ -20,6 +20,6 @@ class CleanerServiceMixedTest {
     void mixedValidAndInvalidEntriesStillChooseValidProvider() throws Exception {
         ByteBufferCleanerService svcChosen = CleanerServiceTestSupport.chooseService("tmp-services-mixed",
                 "does.not.ExistProvider\nnet.openhft.chronicle.core.cleaner.testimpl.AllowedCleaner\n");
-        assertEquals("net.openhft.chronicle.core.cleaner.testimpl.AllowedCleaner", svcChosen.getClass().getName());
+        assertEquals("net.openhft.chronicle.core.cleaner.testimpl.AllowedCleaner", svcChosen.getClass().getName(), "mixedValidAndInvalidEntriesStillChooseValidProvider: L23");
     }
 }

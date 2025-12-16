@@ -29,21 +29,21 @@ class SimpleCloseableTest {
     void testClose() {
         TestableSimpleCloseable closeable = new TestableSimpleCloseable();
 
-        assertFalse(closeable.isClosed());
+        assertFalse(closeable.isClosed(), "testClose: L32");
         closeable.close();
-        assertTrue(closeable.isClosed());
-        assertTrue(closeable.isPerformCloseCalled());
+        assertTrue(closeable.isClosed(), "testClose: L34");
+        assertTrue(closeable.isPerformCloseCalled(), "testClose: L35");
 
         closeable.close();
-        assertTrue(closeable.isClosed());
+        assertTrue(closeable.isClosed(), "testClose: L38");
     }
 
     @Test
     void testIsClosed() {
         TestableSimpleCloseable closeable = new TestableSimpleCloseable();
 
-        assertFalse(closeable.isClosed());
+        assertFalse(closeable.isClosed(), "testIsClosed: L45");
         closeable.close();
-        assertTrue(closeable.isClosed());
+        assertTrue(closeable.isClosed(), "testIsClosed: L47");
     }
 }

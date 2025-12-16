@@ -19,9 +19,9 @@ class InternalAnnouncerPrettyTest {
 
     @Test
     void formatsCommonCases() throws Exception {
-        assertEquals("Chronicle Queue", pretty("chronicle-queue"));
-        assertEquals("-chronicle - Queue ", pretty("-chronicle---queue-"));
-        assertEquals("A", pretty("a"));
-        assertEquals("", pretty(""));
+        assertEquals("Chronicle Queue", pretty("chronicle-queue"), "formatsCommonCases: L22");
+        assertEquals("-chronicle - Queue ", pretty("-chronicle---queue-"), "formatsCommonCases: L23");
+        assertEquals("A", pretty("a"), "formatsCommonCases: L24");
+        assertEquals("", pretty(""), "formatsCommonCases: L25");
     }
 }

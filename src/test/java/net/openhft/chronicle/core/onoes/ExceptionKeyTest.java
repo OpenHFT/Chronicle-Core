@@ -4,10 +4,10 @@
 package net.openhft.chronicle.core.onoes;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 public class ExceptionKeyTest extends CoreTestCommon {
 
@@ -15,11 +15,11 @@ public class ExceptionKeyTest extends CoreTestCommon {
     public void testEqualsAndHashCode() {
         ExceptionKey ek1 = new ExceptionKey(LogLevel.PERF, getClass(), "one", null);
         ExceptionKey ek1b = new ExceptionKey(LogLevel.PERF, getClass(), "one", null);
-        assertEquals(ek1, ek1b);
-        assertEquals(ek1.hashCode(), ek1b.hashCode());
-        assertEquals("ExceptionKey{level=PERF, clazz=class net.openhft.chronicle.core.onoes.ExceptionKeyTest, message='one', throwable=}", ek1.toString());
+        assertEquals(ek1, ek1b, "testEqualsAndHashCode: L18");
+        assertEquals(ek1.hashCode(), ek1b.hashCode(), "testEqualsAndHashCode: L19");
+        assertEquals("ExceptionKey{level=PERF, clazz=class net.openhft.chronicle.core.onoes.ExceptionKeyTest, message='one', throwable=}", ek1.toString(), "testEqualsAndHashCode: L20");
         ExceptionKey ek2 = new ExceptionKey(LogLevel.WARN, getClass(), "two", null);
-        assertEquals("ExceptionKey{level=WARN, clazz=class net.openhft.chronicle.core.onoes.ExceptionKeyTest, message='two', throwable=}", ek2.toString());
+        assertEquals("ExceptionKey{level=WARN, clazz=class net.openhft.chronicle.core.onoes.ExceptionKeyTest, message='two', throwable=}", ek2.toString(), "testEqualsAndHashCode: L22");
         assertNotEquals(ek1, ek2);
         assertNotEquals(ek1.hashCode(), ek2.hashCode());
     }

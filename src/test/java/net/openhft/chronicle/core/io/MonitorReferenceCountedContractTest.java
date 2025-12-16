@@ -3,7 +3,7 @@
  */
 package net.openhft.chronicle.core.io;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -22,7 +22,7 @@ public abstract class MonitorReferenceCountedContractTest extends ReferenceCount
         final MonitorReferenceCounted referenceCounted = createReferenceCounted();
         referenceCounted.unmonitored(false);
         referenceCounted.warnAndReleaseIfNotReleased();
-        assertEquals(0, referenceCounted.refCount());
+        assertEquals(0, referenceCounted.refCount(), "warnAndReleaseWillLogAWarningAndReleaseWhenMonitored: L25");
         expectException("Discarded without being released");
     }
 
@@ -31,7 +31,7 @@ public abstract class MonitorReferenceCountedContractTest extends ReferenceCount
         final MonitorReferenceCounted referenceCounted = createReferenceCounted();
         referenceCounted.unmonitored(true);
         referenceCounted.warnAndReleaseIfNotReleased();
-        assertEquals(0, referenceCounted.refCount());
+        assertEquals(0, referenceCounted.refCount(), "warnAndReleaseWillJustReleaseWhenMonitored: L34");
     }
 
     @Test
@@ -40,6 +40,6 @@ public abstract class MonitorReferenceCountedContractTest extends ReferenceCount
         referenceCounted.unmonitored(false);
         referenceCounted.releaseLast();
         referenceCounted.warnAndReleaseIfNotReleased();
-        assertEquals(0, referenceCounted.refCount());
+        assertEquals(0, referenceCounted.refCount(), "warnAndReleaseWillDoNothingIfTheResourceIsAlreadyReleased: L43");
     }
 }

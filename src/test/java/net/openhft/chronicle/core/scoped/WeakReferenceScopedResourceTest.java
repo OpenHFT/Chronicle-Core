@@ -22,20 +22,20 @@ class WeakReferenceScopedResourceTest {
     @Test
     void resourceIsCreatedPreAcquire() {
         final WeakReferenceScopedResource<AtomicLong> sr = new WeakReferenceScopedResource<>(scopedThreadLocal, AtomicLong::new);
-        assertNull(sr.get()); // There should be nothing in it (this would never happen in the real world)
+        assertNull(sr.get(), "resourceIsCreatedPreAcquire: L25"); // There should be nothing in it (this would never happen in the real world)
         sr.preAcquire();
-        assertNotNull(sr.get());
+        assertNotNull(sr.get(), "resourceIsCreatedPreAcquire: L27");
     }
 
     @Test
     void strongReferenceIsCreatedPreAcquire() {
         final WeakReferenceScopedResource<AtomicLong> sr = new WeakReferenceScopedResource<>(scopedThreadLocal, AtomicLong::new);
         sr.preAcquire(); // creates the strong reference
-        assertNotNull(sr.get());
+        assertNotNull(sr.get(), "strongReferenceIsCreatedPreAcquire: L34");
         System.gc();
-        assertNotNull(sr.get());
+        assertNotNull(sr.get(), "strongReferenceIsCreatedPreAcquire: L36");
         sr.close(); // clears the strong reference
         System.gc();
-        assertNull(sr.get());
+        assertNull(sr.get(), "strongReferenceIsCreatedPreAcquire: L39");
     }
 }

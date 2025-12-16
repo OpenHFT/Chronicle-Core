@@ -53,7 +53,7 @@ class EventHandlerTest {
     void priorityShouldReturnMediumByDefault() {
         EventHandler handler = mock(EventHandler.class, CALLS_REAL_METHODS);
 
-        Assertions.assertEquals(HandlerPriority.MEDIUM, handler.priority());
+        Assertions.assertEquals(HandlerPriority.MEDIUM, handler.priority(), "priorityShouldReturnMediumByDefault: L56");
     }
 
     @Test

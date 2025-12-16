@@ -13,7 +13,7 @@ class CharSequenceComparatorTest {
         CharSequence seq1 = "test";
         CharSequence seq2 = "test";
 
-        assertEquals(0, CharSequenceComparator.INSTANCE.compare(seq1, seq2));
+        assertEquals(0, CharSequenceComparator.INSTANCE.compare(seq1, seq2), "compareIdenticalSequences: L16");
     }
 
     @Test
@@ -21,8 +21,8 @@ class CharSequenceComparatorTest {
         CharSequence seq1 = "abc";
         CharSequence seq2 = "abd";
 
-        assertTrue(CharSequenceComparator.INSTANCE.compare(seq1, seq2) < 0);
-        assertTrue(CharSequenceComparator.INSTANCE.compare(seq2, seq1) > 0);
+        assertTrue(CharSequenceComparator.INSTANCE.compare(seq1, seq2) < 0, "compareDifferentSequencesSameLength: L24");
+        assertTrue(CharSequenceComparator.INSTANCE.compare(seq2, seq1) > 0, "compareDifferentSequencesSameLength: L25");
     }
 
     @Test
@@ -30,8 +30,8 @@ class CharSequenceComparatorTest {
         CharSequence seq1 = "abc";
         CharSequence seq2 = "abcd";
 
-        assertTrue(CharSequenceComparator.INSTANCE.compare(seq1, seq2) < 0);
-        assertTrue(CharSequenceComparator.INSTANCE.compare(seq2, seq1) > 0);
+        assertTrue(CharSequenceComparator.INSTANCE.compare(seq1, seq2) < 0, "compareDifferentLengthSequences: L33");
+        assertTrue(CharSequenceComparator.INSTANCE.compare(seq2, seq1) > 0, "compareDifferentLengthSequences: L34");
     }
 
     @Test
@@ -39,7 +39,7 @@ class CharSequenceComparatorTest {
         CharSequence emptySeq = "";
         CharSequence nonEmptySeq = "test";
 
-        assertTrue(CharSequenceComparator.INSTANCE.compare(emptySeq, nonEmptySeq) < 0);
-        assertTrue(CharSequenceComparator.INSTANCE.compare(nonEmptySeq, emptySeq) > 0);
+        assertTrue(CharSequenceComparator.INSTANCE.compare(emptySeq, nonEmptySeq) < 0, "compareEmptyAndNonEmptySequences: L42");
+        assertTrue(CharSequenceComparator.INSTANCE.compare(nonEmptySeq, emptySeq) > 0, "compareEmptyAndNonEmptySequences: L43");
     }
 }

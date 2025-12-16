@@ -12,7 +12,7 @@ class InternalPomPropertiesCorruptTest {
     @Test
     void versionUnknownWhenVersionMissingInResource() {
         String v = InternalPomProperties.version("test.group", "corrupt-artifact");
-        assertEquals("unknown", v);
+        assertEquals("unknown", v, "versionUnknownWhenVersionMissingInResource: L15");
     }
 }
 

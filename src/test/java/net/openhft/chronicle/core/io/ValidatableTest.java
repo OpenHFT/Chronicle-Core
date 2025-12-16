@@ -5,9 +5,9 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ValidatableTest extends CoreTestCommon {
 
@@ -19,7 +19,7 @@ public class ValidatableTest extends CoreTestCommon {
         assertThrows(InvalidMarshallableException.class, d::toString);
         d.a = "hi";
         d.b = 1;
-        assertEquals("DTOWithValidateToString{a='hi', b=1}", d.toString()); // is ok
+        assertEquals("DTOWithValidateToString{a='hi', b=1}", d.toString(), "validate: L22"); // is ok
         d.b = 0;
         assertThrows(InvalidMarshallableException.class, d::toString);
     }
@@ -27,34 +27,34 @@ public class ValidatableTest extends CoreTestCommon {
     @Test
     public void validateDisabled() {
 
-        assertTrue(ValidatableUtil.validateEnabled());
+        assertTrue(ValidatableUtil.validateEnabled(), "validateDisabled: L30");
         ValidatableUtil.startValidateDisabled();
-        assertFalse(ValidatableUtil.validateEnabled());
+        assertFalse(ValidatableUtil.validateEnabled(), "validateDisabled: L32");
         DTOWithValidateToString d = new DTOWithValidateToString();
         try {
-            assertEquals("DTOWithValidateToString{a='null', b=0}", d.toString()); // is ok
+            assertEquals("DTOWithValidateToString{a='null', b=0}", d.toString(), "validateDisabled: L35"); // is ok
 
             d.b = 1;
-            assertEquals("DTOWithValidateToString{a='null', b=1}", d.toString()); // is ok
+            assertEquals("DTOWithValidateToString{a='null', b=1}", d.toString(), "validateDisabled: L38"); // is ok
 
             d.a = "hi";
             d.b = 1;
-            assertEquals("DTOWithValidateToString{a='hi', b=1}", d.toString()); // is ok
+            assertEquals("DTOWithValidateToString{a='hi', b=1}", d.toString(), "validateDisabled: L42"); // is ok
 
             ValidatableUtil.startValidateDisabled();
             try {
                 d.b = 0;
-                assertEquals("DTOWithValidateToString{a='hi', b=0}", d.toString()); // is ok
+                assertEquals("DTOWithValidateToString{a='hi', b=0}", d.toString(), "validateDisabled: L47"); // is ok
             } finally {
                 ValidatableUtil.endValidateDisabled();
             }
         } finally {
             ValidatableUtil.endValidateDisabled();
-            assertTrue(ValidatableUtil.validateEnabled());
+            assertTrue(ValidatableUtil.validateEnabled(), "validateDisabled: L53");
         }
         assertThrows(InvalidMarshallableException.class, d::toString);
         assertThrows(AssertionError.class, ValidatableUtil::endValidateDisabled);
-        assertTrue(ValidatableUtil.validateEnabled());
+        assertTrue(ValidatableUtil.validateEnabled(), "validateDisabled: L57");
     }
 
     static class DTOWithValidateToString implements Validatable {

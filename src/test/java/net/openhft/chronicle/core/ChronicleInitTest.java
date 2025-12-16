@@ -4,9 +4,9 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.testframework.process.JavaProcessBuilder;
-import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -92,7 +92,7 @@ public class ChronicleInitTest extends CoreTestCommon {
         Process process = builderWithTracingDisabled("-Dchronicle.init.runnable=" + ResourceTracingInit.class.getName()).start();
 
         try {
-            assertEquals(0, process.waitFor());
+            assertEquals(0, process.waitFor(), "testPositive: L95");
             String stdout = JavaProcessBuilder.getProcessStdOut(process);
             assertTrue(stdout.contains("disabling resource tracking"), "Init runnable should execute");
         } finally {
@@ -105,7 +105,7 @@ public class ChronicleInitTest extends CoreTestCommon {
         Process process = builder("-Dchronicle.postinit.runnable=" + ResourceTracingInit.class.getName()).start();
 
         try {
-            assertEquals(11, process.waitFor());
+            assertEquals(11, process.waitFor(), "testPostInitNegative: L108");
         } finally {
             JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
         }
@@ -116,7 +116,7 @@ public class ChronicleInitTest extends CoreTestCommon {
         Process process = builder("-Dchronicle.postinit.runnable=" + PostInitOverridesLoremIpsum.class.getName()).start();
 
         try {
-            assertEquals(10, process.waitFor());
+            assertEquals(10, process.waitFor(), "testExitCode10WhenServiceLoaderPropertyOverridden: L119");
         } finally {
             JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
         }
@@ -130,7 +130,7 @@ public class ChronicleInitTest extends CoreTestCommon {
                 "-Dlorem.ipsum=dolor").start();
 
         try {
-            assertEquals(12, process.waitFor());
+            assertEquals(12, process.waitFor(), "testExitCode12WhenOptionalSafepointsDisabled: L133");
         } finally {
             JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
         }
@@ -144,7 +144,7 @@ public class ChronicleInitTest extends CoreTestCommon {
                 "-Dlorem.ipsum=dolor").start();
 
         try {
-            assertEquals(13, process.waitFor());
+            assertEquals(13, process.waitFor(), "testExitCode13WhenResourceTracingPropertyDiffersFromFlag: L147");
         } finally {
             JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
         }
@@ -177,7 +177,7 @@ public class ChronicleInitTest extends CoreTestCommon {
         Process process = builderWithTracingDisabled().start();
 
         try {
-            assertEquals(0, process.waitFor());
+            assertEquals(0, process.waitFor(), "testCommandLineOverride: L180");
         } finally {
             JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
         }

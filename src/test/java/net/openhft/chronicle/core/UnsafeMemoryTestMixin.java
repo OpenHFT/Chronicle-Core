@@ -19,6 +19,7 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.toList;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
 interface UnsafeMemoryTestMixin<T> {
@@ -96,7 +97,7 @@ interface UnsafeMemoryTestMixin<T> {
 
     @TestFactory
     default Stream<DynamicTest> readWriteTests() {
-        return arguments()
+        List<DynamicTest> tests = arguments()
                 .flatMap(args -> {
                     if (mode(args).isDirectAddressing()) {
                         return Product.of(addressWriteOperations(), addressReadOperations())
@@ -119,12 +120,15 @@ interface UnsafeMemoryTestMixin<T> {
                                     });
                                 });
                     }
-                });
+                })
+                .collect(toList());
+        assertFalse(tests.isEmpty(), "readWriteTests: no dynamic tests generated");
+        return tests.stream();
     }
 
     @TestFactory
     default Stream<DynamicTest> volatileTests() {
-        return arguments()
+        List<DynamicTest> tests = arguments()
                 .flatMap(args ->
                         interestingOffsets()
                                 .mapToObj(offset -> {
@@ -188,7 +192,10 @@ interface UnsafeMemoryTestMixin<T> {
                                         variant.close();
                                     });
                                 })
-                );
+                )
+                .collect(toList());
+        assertFalse(tests.isEmpty(), "volatileTests: no dynamic tests generated");
+        return tests.stream();
     }
 
     default void test(final Variant variant,
@@ -198,7 +205,7 @@ interface UnsafeMemoryTestMixin<T> {
         for (int i = 0; i <= CACHE_LINE_SIZE; i++) {
             addressWriter.accept(variant.memory(), variant.addr() + i, testValue);
             final T t = addressReader.apply(variant.memory(), variant.addr() + i);
-            assertEquals(testValue, t);
+            assertEquals(testValue, t, "test: offset=" + i);
         }
     }
 
@@ -209,7 +216,7 @@ interface UnsafeMemoryTestMixin<T> {
         for (int i = 0; i <= CACHE_LINE_SIZE; i++) {
             objectWriter.accept(variant.memory(), variant.object(), variant.addr() + i, testValue);
             final T t = objectReader.apply(variant.memory(), variant.object(), variant.addr() + i);
-            assertEquals(testValue, t);
+            assertEquals(testValue, t, "testObj: offset=" + i);
         }
     }
 

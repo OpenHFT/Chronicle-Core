@@ -11,19 +11,19 @@ class ValidatableUtilTest {
 
     @Test
     void testValidateToggle() {
-        assertTrue(ValidatableUtil.validateEnabled());
+        assertTrue(ValidatableUtil.validateEnabled(), "testValidateToggle: L14");
 
         ValidatableUtil.startValidateDisabled();
-        assertFalse(ValidatableUtil.validateEnabled());
+        assertFalse(ValidatableUtil.validateEnabled(), "testValidateToggle: L17");
 
         ValidatableUtil.endValidateDisabled();
-        assertTrue(ValidatableUtil.validateEnabled());
+        assertTrue(ValidatableUtil.validateEnabled(), "testValidateToggle: L20");
     }
 
     @Test
     void testEndValidateDisabledWithoutStart() {
         AssertionError exception = assertThrows(AssertionError.class, ValidatableUtil::endValidateDisabled);
-        assertNotNull(exception);
+        assertNotNull(exception, "testEndValidateDisabledWithoutStart: L26");
     }
 
     @Test

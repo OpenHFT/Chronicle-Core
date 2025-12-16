@@ -12,7 +12,7 @@ class PomPropertiesVersionTest {
     @Test
     void versionUnknownWhenResourceMissing() {
         String v = PomProperties.version("net.openhft", "non-existent-artifact");
-        assertEquals("unknown", v);
+        assertEquals("unknown", v, "versionUnknownWhenResourceMissing: L15");
     }
 }
 

@@ -4,10 +4,10 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class WeakIdentityHashMapTest extends CoreTestCommon {
     @Test
@@ -17,8 +17,8 @@ public class WeakIdentityHashMapTest extends CoreTestCommon {
         WeakIdentityHashMap<String, Integer> map = new WeakIdentityHashMap<>();
         map.put(a1, 1);
         map.put(a2, 2);
-        assertEquals(2, map.size());
+        assertEquals(2, map.size(), "twoKeys: L20");
         map.clear();
-        assertTrue(map.isEmpty());
+        assertTrue(map.isEmpty(), "twoKeys: L22");
     }
 }

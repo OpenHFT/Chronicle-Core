@@ -5,20 +5,20 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.StackTrace;
 import net.openhft.chronicle.core.internal.ReferenceCountedUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ReferenceTracingIntegrationTest {
 
-    @Before
+    @BeforeEach
     public void enableTracing() {
         ReferenceCountedUtils.enableReferenceTracing();
     }
 
-    @After
+    @AfterEach
     public void disableTracing() {
         ReferenceCountedUtils.disableReferenceTracing();
     }
@@ -28,10 +28,10 @@ public class ReferenceTracingIntegrationTest {
         final SampleReference ref = new SampleReference();
 
         AssertionError error = assertThrows(AssertionError.class, ReferenceCountedUtils::assertReferencesReleased);
-        assertEquals("Reference counted not released", error.getMessage());
-        assertEquals(1, error.getSuppressed().length);
+        assertEquals("Reference counted not released", error.getMessage(), "leaksAreReportedWithSuppressedStackTrace: L31");
+        assertEquals(1, error.getSuppressed().length, "leaksAreReportedWithSuppressedStackTrace: L32");
         String detail = error.getSuppressed()[0].toString();
-        assertTrue("stack trace should mention SampleReference", detail.contains(SampleReference.class.getSimpleName()));
+        assertTrue(detail.contains(SampleReference.class.getSimpleName()), "stack trace should mention SampleReference");
 
         ref.warnAndReleaseIfNotReleased();
         ReferenceCountedUtils.assertReferencesReleased();
@@ -41,8 +41,8 @@ public class ReferenceTracingIntegrationTest {
     public void createdHereCapturesAllocationSite() {
         SampleReference ref = new SampleReference();
         StackTrace stackTrace = ref.createdHere();
-        assertNotNull("createdHere should be recorded", stackTrace);
-        assertTrue(stackTrace.toString().contains("SampleReference"));
+        assertNotNull(stackTrace, "createdHere should be recorded");
+        assertTrue(stackTrace.toString().contains("SampleReference"), "createdHereCapturesAllocationSite: L45");
 
         ref.releaseLast(ReferenceOwner.INIT);
         ReferenceCountedUtils.assertReferencesReleased();

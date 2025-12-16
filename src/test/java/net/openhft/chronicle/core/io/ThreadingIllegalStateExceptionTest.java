@@ -15,7 +15,7 @@ class ThreadingIllegalStateExceptionTest {
 
         ThreadingIllegalStateException exception = new ThreadingIllegalStateException(expectedMessage, expectedCause);
 
-        assertEquals(expectedMessage, exception.getMessage());
-        assertEquals(expectedCause, exception.getCause());
+        assertEquals(expectedMessage, exception.getMessage(), "testConstructorWithMessageAndCause: L18");
+        assertEquals(expectedCause, exception.getCause(), "testConstructorWithMessageAndCause: L19");
     }
 }

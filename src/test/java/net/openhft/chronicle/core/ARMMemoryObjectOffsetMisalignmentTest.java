@@ -15,7 +15,7 @@ class ARMMemoryObjectOffsetMisalignmentTest {
         byte[] bytes = new byte[8];
         long off = UnsafeMemory.UNSAFE.arrayBaseOffset(byte[].class) + 1; // odd = misaligned for short
         arm.writeVolatileShort(bytes, off, (short) 0x1234);
-        assertEquals((short) 0x1234, arm.readVolatileShort(bytes, off));
+        assertEquals((short) 0x1234, arm.readVolatileShort(bytes, off), "volatileShortOnMisalignedObjectOffset: L18");
     }
 
     @Test
@@ -26,10 +26,10 @@ class ARMMemoryObjectOffsetMisalignmentTest {
         long mis = aligned + 2; // misaligned
         IllegalStateException alignedMsg = assertThrows(IllegalStateException.class,
                 () -> arm.testAndSetInt(bytes, aligned, 1, 2));
-        assertTrue(alignedMsg.getMessage().contains("Cannot change"));
+        assertTrue(alignedMsg.getMessage().contains("Cannot change"), "testAndSetIntObjectAlignedMismatchVsMisaligned: L29");
 
         IllegalStateException misMsg = assertThrows(IllegalStateException.class,
                 () -> arm.testAndSetInt(bytes, mis, 1, 2));
-        assertTrue(misMsg.getMessage().contains("mis-aligned"));
+        assertTrue(misMsg.getMessage().contains("mis-aligned"), "testAndSetIntObjectAlignedMismatchVsMisaligned: L33");
     }
 }

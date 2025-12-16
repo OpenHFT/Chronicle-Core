@@ -8,8 +8,8 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.cleaner.impl.CleanerTestUtil;
 import net.openhft.chronicle.core.util.Time;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.net.InetSocketAddress;
@@ -24,17 +24,17 @@ import java.util.concurrent.atomic.LongAccumulator;
 import java.util.stream.IntStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class IOToolsTest extends CoreTestCommon {
 
     @Test
     public void testIsClosedException() {
         Exception closedConnectionException = new IOException("Connection reset by peer");
-        assertTrue(IOTools.isClosedException(closedConnectionException));
+        assertTrue(IOTools.isClosedException(closedConnectionException), "testIsClosedException: L34");
 
         Exception otherException = new IOException("Some other IO error");
-        assertFalse(IOTools.isClosedException(otherException));
+        assertFalse(IOTools.isClosedException(otherException), "testIsClosedException: L37");
     }
 
     @Test
@@ -46,8 +46,8 @@ public class IOToolsTest extends CoreTestCommon {
         IOTools.writeFile(testFilename, encoded);
 
         Path path = Paths.get(testFilename);
-        assertTrue(Files.exists(path));
-        assertArrayEquals(encoded, Files.readAllBytes(path));
+        assertTrue(Files.exists(path), "testWriteFile: L49");
+        assertArrayEquals(encoded, Files.readAllBytes(path), "testWriteFile: L50");
 
         BackgroundResourceReleaser.releasePendingResources();
         Files.deleteIfExists(path);
@@ -59,8 +59,8 @@ public class IOToolsTest extends CoreTestCommon {
         String tempFilename = IOTools.tempName(filename);
 
         assertNotEquals(filename, tempFilename);
-        assertTrue(tempFilename.startsWith("test"));
-        assertTrue(tempFilename.endsWith(".txt"));
+        assertTrue(tempFilename.startsWith("test"), "testTempName: L62");
+        assertTrue(tempFilename.endsWith(".txt"), "testTempName: L63");
     }
 
     @Test
@@ -68,7 +68,7 @@ public class IOToolsTest extends CoreTestCommon {
         ByteBuffer bb = ByteBuffer.allocateDirect(1024);
 
         IOTools.clean(bb);
-        assertTrue(true); // If we reach here, the test passes
+        assertTrue(true, "testClean: L71"); // If we reach here, the test passes
     }
 
     @Test
@@ -76,7 +76,7 @@ public class IOToolsTest extends CoreTestCommon {
         Path tempDir = Paths.get("tempDir");
         IOTools.createDirectories(tempDir);
 
-        assertTrue(Files.isDirectory(tempDir));
+        assertTrue(Files.isDirectory(tempDir), "testCreateDirectories: L79");
 
         BackgroundResourceReleaser.releasePendingResources();
         Files.deleteIfExists(tempDir);
@@ -87,8 +87,8 @@ public class IOToolsTest extends CoreTestCommon {
         ByteBuffer directBuffer = ByteBuffer.allocateDirect(1024);
         ByteBuffer nonDirectBuffer = ByteBuffer.allocate(1024);
 
-        assertTrue(IOTools.isDirectBuffer(directBuffer));
-        assertFalse(IOTools.isDirectBuffer(nonDirectBuffer));
+        assertTrue(IOTools.isDirectBuffer(directBuffer), "testIsDirectBuffer: L90");
+        assertFalse(IOTools.isDirectBuffer(nonDirectBuffer), "testIsDirectBuffer: L91");
     }
 
     @Test
@@ -104,11 +104,11 @@ public class IOToolsTest extends CoreTestCommon {
         Path tempDir = Files.createTempDirectory("testDir");
         File tempFile = Files.createTempFile(tempDir, "test", ".tmp").toFile();
 
-        assertTrue(tempFile.exists());
-        assertTrue(IOTools.deleteDirWithFiles(tempDir.toFile()));
+        assertTrue(tempFile.exists(), "testDeleteDirWithFiles: L107");
+        assertTrue(IOTools.deleteDirWithFiles(tempDir.toFile()), "testDeleteDirWithFiles: L108");
 
-        assertFalse(tempFile.exists());
-        assertFalse(tempDir.toFile().exists());
+        assertFalse(tempFile.exists(), "testDeleteDirWithFiles: L110");
+        assertFalse(tempDir.toFile().exists(), "testDeleteDirWithFiles: L111");
     }
 
     @Test
@@ -119,7 +119,7 @@ public class IOToolsTest extends CoreTestCommon {
 
         byte[] bytes = IOTools.readAsBytes(bais);
 
-        assertArrayEquals(encoded, bytes);
+        assertArrayEquals(encoded, bytes, "testReadAsBytes: L122");
     }
 
     @Test
@@ -138,7 +138,7 @@ public class IOToolsTest extends CoreTestCommon {
                     }
                 });
 
-        assertEquals(iterations, accumulator.get());
+        assertEquals(iterations, accumulator.get(), "readFileManyTimesByPath: L141");
     }
 
     @Test
@@ -162,17 +162,18 @@ public class IOToolsTest extends CoreTestCommon {
                     }
                 });
 
-        assertEquals(iterations, accumulator.get());
+        assertEquals(iterations, accumulator.get(), "readFileManyTimesByFile: L165");
     }
 
     @Test
     public void shouldCleanDirectBuffer() {
-        CleanerTestUtil.test(IOTools::clean);
+        CleanerTestUtil.ReservedMemorySnapshot snapshot = CleanerTestUtil.test(IOTools::clean);
+        assertTrue(snapshot.before <= snapshot.after, "shouldCleanDirectBuffer: reservedMemory before=" + snapshot.before + ", after=" + snapshot.after);
     }
 
     @Test
     public void createDirectoriesWithBrokenLink() throws IOException, IllegalStateException {
-        Assume.assumeTrue(OS.isLinux());
+        Assumptions.assumeTrue(OS.isLinux());
 
         String path = OS.getTarget();
         Path link = Paths.get(path, "link2nowhere" + Time.uniqueId());
@@ -187,11 +188,11 @@ public class IOToolsTest extends CoreTestCommon {
 
         try {
             IOTools.createDirectories(Paths.get(link.toString(), "subdir" + Time.uniqueId()));
-            fail();
+            fail("createDirectoriesWithBrokenLink: L192");
         } catch (IOException ioe) {
-            assertSame(IOException.class, ioe.getClass());
-            assertTrue(ioe.getMessage().startsWith("Symbolic link from "));
-            assertTrue(ioe.getMessage().endsWith("nowhere is broken"));
+            assertSame(IOException.class, ioe.getClass(), "createDirectoriesWithBrokenLink: L194");
+            assertTrue(ioe.getMessage().startsWith("Symbolic link from "), "createDirectoriesWithBrokenLink: L195");
+            assertTrue(ioe.getMessage().endsWith("nowhere is broken"), "createDirectoriesWithBrokenLink: L196");
         } finally {
             Files.delete(link);
         }
@@ -199,19 +200,19 @@ public class IOToolsTest extends CoreTestCommon {
 
     @Test
     public void createDirectoriesReadOnly() throws IOException, IllegalStateException {
-        Assume.assumeTrue(OS.isLinux());
+        Assumptions.assumeTrue(OS.isLinux());
 
         String path = OS.getTarget();
         Path ro = Paths.get(path, "read-only" + Time.uniqueId());
         IOTools.createDirectories(ro);
         if (!ro.toFile().setWritable(false))
             throw new IllegalStateException("Cannot make read-only");
-        assertFalse(ro.toFile().canWrite());
+        assertFalse(ro.toFile().canWrite(), "createDirectoriesReadOnly: L211");
         try {
             IOTools.createDirectories(Paths.get(ro.toString(), "subdir" + Time.uniqueId()));
         } catch (IOException ioe) {
-            assertSame(IOException.class, ioe.getClass());
-            assertTrue(ioe.getMessage().startsWith("Cannot write to "));
+            assertSame(IOException.class, ioe.getClass(), "createDirectoriesReadOnly: L215");
+            assertTrue(ioe.getMessage().startsWith("Cannot write to "), "createDirectoriesReadOnly: L216");
         } finally {
             if (!ro.toFile().setWritable(true))
                 throw new IllegalStateException("Cannot make read-write");
@@ -222,7 +223,7 @@ public class IOToolsTest extends CoreTestCommon {
 
     @Test
     public void cannotTurnAfileIntoADirectory() throws IOException {
-        Assume.assumeTrue(OS.isLinux());
+        Assumptions.assumeTrue(OS.isLinux());
 
         String path = OS.getTarget();
         Path file = Paths.get(path, "test-file" + Time.uniqueId());
@@ -230,19 +231,19 @@ public class IOToolsTest extends CoreTestCommon {
         if (asFile.exists() && !asFile.delete())
             throw new IOException("Cannot delete pre-existing file " + asFile);
         asFile.deleteOnExit();
-        assertTrue(asFile.createNewFile());
+        assertTrue(asFile.createNewFile(), "cannotTurnAfileIntoADirectory: L235");
         try {
             IOTools.createDirectories(Paths.get(file.toString(), "subdir" + Time.uniqueId()));
         } catch (IOException ioe) {
-            assertSame(IOException.class, ioe.getClass());
-            assertTrue(ioe.getMessage().startsWith("Cannot create a directory with the same name as a file "));
+            assertSame(IOException.class, ioe.getClass(), "cannotTurnAfileIntoADirectory: L239");
+            assertTrue(ioe.getMessage().startsWith("Cannot create a directory with the same name as a file "), "cannotTurnAfileIntoADirectory: L240");
         }
     }
 
     @Test
     public void isDirectBuffer() {
-        assertTrue(IOTools.isDirectBuffer(ByteBuffer.allocateDirect(1)));
-        assertFalse(IOTools.isDirectBuffer(ByteBuffer.allocate(1)));
+        assertTrue(IOTools.isDirectBuffer(ByteBuffer.allocateDirect(1)), "isDirectBuffer: L246");
+        assertFalse(IOTools.isDirectBuffer(ByteBuffer.allocate(1)), "isDirectBuffer: L247");
     }
 
     @Test
@@ -259,9 +260,9 @@ public class IOToolsTest extends CoreTestCommon {
     @Test
     public void normaliseIOStatus() {
         final int actual = IOTools.IOSTATUS_INTERRUPTED;
-        assertEquals(-3, actual);
+        assertEquals(-3, actual, "normaliseIOStatus: L264");
 
-        assertEquals(-3, IOTools.normaliseIOStatus(-3));
+        assertEquals(-3, IOTools.normaliseIOStatus(-3), "normaliseIOStatus: L266");
     }
 
     @Test
@@ -271,7 +272,7 @@ public class IOToolsTest extends CoreTestCommon {
             ss = new ServerSocket(0);
         } catch (IOException ioe) {
             // Some CI environments disallow socket operations; skip in that case.
-            Assume.assumeTrue("Network not permitted in this environment", false);
+            Assumptions.assumeTrue(false, "Network not permitted in this environment");
             return;
         }
         Socket s = new Socket("localhost", ss.getLocalPort());
@@ -284,17 +285,17 @@ public class IOToolsTest extends CoreTestCommon {
             for (int i = 0; i < 100; i++) {
                 os.write(bytes);
             }
-            fail();
+            fail("connectionClosed: L289");
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         } finally {
             os.close();
         }
         try {
             s2.getOutputStream().write(bytes);
-            fail();
+            fail("connectionClosed: L297");
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         }
     }
 
@@ -304,7 +305,7 @@ public class IOToolsTest extends CoreTestCommon {
         try {
             ss = new ServerSocket(0);
         } catch (IOException ioe) {
-            Assume.assumeTrue("Network not permitted in this environment", false);
+            Assumptions.assumeTrue(false, "Network not permitted in this environment");
             return;
         }
         SocketChannel sc = SocketChannel.open(new InetSocketAddress("localhost", ss.getLocalPort()));
@@ -315,9 +316,9 @@ public class IOToolsTest extends CoreTestCommon {
             OutputStream os = s2.getOutputStream();
             os.close();
             os.write(1);
-            fail();
+            fail("connectionClosed2: L320");
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         }
         ss.close();
         try {
@@ -325,9 +326,9 @@ public class IOToolsTest extends CoreTestCommon {
                 bytes.clear();
                 sc.write(bytes);
             }
-            fail();
+            fail("connectionClosed2: L330");
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         } finally {
             sc.close();
         }
@@ -339,7 +340,7 @@ public class IOToolsTest extends CoreTestCommon {
         try {
             ss = new ServerSocket(0);
         } catch (IOException ioe) {
-            Assume.assumeTrue("Network not permitted in this environment", false);
+            Assumptions.assumeTrue(false, "Network not permitted in this environment");
             return;
         }
         SocketChannel sc = SocketChannel.open(new InetSocketAddress("localhost", ss.getLocalPort()));
@@ -359,11 +360,11 @@ public class IOToolsTest extends CoreTestCommon {
             for (int i = 0; i < 10000; i++) {
                 bytes.clear();
                 final int write = sc.write(bytes);
-                assertTrue(write > 0);
+                assertTrue(write > 0, "connectionClosed3: L364");
             }
-            fail();
+            fail("connectionClosed3: L366");
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         } finally {
             s2.close();
             sc.close();
@@ -376,7 +377,7 @@ public class IOToolsTest extends CoreTestCommon {
         try {
             ss = new ServerSocket(0);
         } catch (IOException ioe) {
-            Assume.assumeTrue("Network not permitted in this environment", false);
+            Assumptions.assumeTrue(false, "Network not permitted in this environment");
             return;
         }
         SocketChannel sc = SocketChannel.open(new InetSocketAddress("localhost", ss.getLocalPort()));
@@ -400,11 +401,11 @@ public class IOToolsTest extends CoreTestCommon {
             for (int i = 0; i < 10000; i++) {
                 bytes.clear();
                 final int write = sc.write(bytes);
-                assertTrue(write > 0);
+                assertTrue(write > 0, "connectionClosed4: L405");
             }
-            fail();
+            fail("connectionClosed4: L407");
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         } finally {
             s2.close();
             sc.close();

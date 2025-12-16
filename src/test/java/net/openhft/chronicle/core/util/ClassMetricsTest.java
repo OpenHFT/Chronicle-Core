@@ -14,8 +14,8 @@ class ClassMetricsTest {
         int expectedLength = 20;
         ClassMetrics metrics = new ClassMetrics(expectedOffset, expectedLength);
 
-        assertEquals(expectedOffset, metrics.offset());
-        assertEquals(expectedLength, metrics.length());
+        assertEquals(expectedOffset, metrics.offset(), "constructorAndMethodsWorkCorrectly: L17");
+        assertEquals(expectedLength, metrics.length(), "constructorAndMethodsWorkCorrectly: L18");
     }
 
     @Test
@@ -24,10 +24,10 @@ class ClassMetricsTest {
         ClassMetrics metrics2 = new ClassMetrics(10, 20);
         ClassMetrics metrics3 = new ClassMetrics(15, 25);
 
-        assertEquals(metrics1, metrics2);
+        assertEquals(metrics1, metrics2, "equalsAndHashCode: L27");
         assertNotEquals(metrics1, metrics3);
 
-        assertEquals(metrics1.hashCode(), metrics2.hashCode());
+        assertEquals(metrics1.hashCode(), metrics2.hashCode(), "equalsAndHashCode: L30");
         assertNotEquals(metrics1.hashCode(), metrics3.hashCode());
     }
 
@@ -36,7 +36,7 @@ class ClassMetricsTest {
         ClassMetrics metrics = new ClassMetrics(10, 20);
         String toStringResult = metrics.toString();
 
-        assertTrue(toStringResult.contains("offset=10"));
-        assertTrue(toStringResult.contains("length=20"));
+        assertTrue(toStringResult.contains("offset=10"), "testToString: L39");
+        assertTrue(toStringResult.contains("length=20"), "testToString: L40");
     }
 }

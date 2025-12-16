@@ -4,8 +4,8 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import org.junit.Test;
-import org.junit.Assume;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Assumptions;
 
 import java.io.IOException;
 import java.lang.ref.SoftReference;
@@ -14,7 +14,7 @@ import java.nio.channels.ServerSocketChannel;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CloseableTest extends CoreTestCommon {
 
@@ -22,21 +22,21 @@ public class CloseableTest extends CoreTestCommon {
     public void closeQuietlyHandlesNull() {
         CloseableImpl closeable = new CloseableImpl();
         Closeable.closeQuietly(null, null, null, closeable);
-        assertTrue(closeable.wasClosed);
+        assertTrue(closeable.wasClosed, "closeQuietlyHandlesNull: L25");
     }
 
     @Test
     public void closeQuietlyCallsCloseOnAutoCloseable() {
         final AutoCloseableImpl autoCloseable = new AutoCloseableImpl();
         Closeable.closeQuietly(autoCloseable);
-        assertTrue(autoCloseable.wasClosed);
+        assertTrue(autoCloseable.wasClosed, "closeQuietlyCallsCloseOnAutoCloseable: L32");
     }
 
     @Test
     public void closeQuietlyCallsCloseOnCloseable() {
         final CloseableImpl closeable = new CloseableImpl();
         Closeable.closeQuietly(closeable);
-        assertTrue(closeable.wasClosed);
+        assertTrue(closeable.wasClosed, "closeQuietlyCallsCloseOnCloseable: L39");
     }
 
     @Test
@@ -44,7 +44,7 @@ public class CloseableTest extends CoreTestCommon {
         final List<CloseableImpl> closeables = Arrays.asList(new CloseableImpl(), new CloseableImpl(), new CloseableImpl(), new CloseableImpl());
         Closeable.closeQuietly(closeables);
         for (CloseableImpl closeable : closeables) {
-            assertTrue(closeable.wasClosed);
+            assertTrue(closeable.wasClosed, "closeQuietlyClosesCollections: L47");
         }
     }
 
@@ -53,7 +53,7 @@ public class CloseableTest extends CoreTestCommon {
         final CloseableImpl closeable = new CloseableImpl();
         final SoftReference<CloseableImpl> closeableRef = new SoftReference<>(closeable);
         Closeable.closeQuietly(closeableRef);
-        assertTrue(closeable.wasClosed);
+        assertTrue(closeable.wasClosed, "closeQuietlyClosesReferences: L56");
     }
 
     @Test
@@ -65,10 +65,10 @@ public class CloseableTest extends CoreTestCommon {
         SoftReference<List<List<CloseableImpl>>> structure =
                 new SoftReference<>(Arrays.asList(Arrays.asList(closeable1, closeable2), Arrays.asList(closeable3, closeable4)));
         Closeable.closeQuietly(structure);
-        assertTrue(closeable1.wasClosed);
-        assertTrue(closeable2.wasClosed);
-        assertTrue(closeable3.wasClosed);
-        assertTrue(closeable4.wasClosed);
+        assertTrue(closeable1.wasClosed, "closeQuietlyClosesRecursively: L68");
+        assertTrue(closeable2.wasClosed, "closeQuietlyClosesRecursively: L69");
+        assertTrue(closeable3.wasClosed, "closeQuietlyClosesRecursively: L70");
+        assertTrue(closeable4.wasClosed, "closeQuietlyClosesRecursively: L71");
     }
 
     @Test
@@ -79,13 +79,13 @@ public class CloseableTest extends CoreTestCommon {
             ssc.bind(new InetSocketAddress(0));
         } catch (IOException ioe) {
             // Some CI environments disallow socket operations; skip in that case.
-            Assume.assumeTrue("Network not permitted in this environment", false);
+            Assumptions.assumeTrue(false, "Network not permitted in this environment");
             return;
         }
         ssc.close();
         // can throw an IOException ssc.close();
         Closeable.closeQuietly(ssc);
-        assertTrue(true);
+        assertTrue(true, "closeQuietlyServerSocketChannel: L88");
     }
 
     static class CloseableImpl implements Closeable {

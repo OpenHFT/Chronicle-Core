@@ -13,7 +13,7 @@ class PomPropertiesTest {
     @Test
     void testCreateWithValidArguments() {
         assertEquals("{}",
-                PomProperties.create("net.openhft", "chronicle-queue").toString());
+                PomProperties.create("net.openhft", "chronicle-queue").toString(), "testCreateWithValidArguments: L15");
     }
 
     @Test

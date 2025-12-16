@@ -11,15 +11,23 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 
 public final class CleanerTestUtil {
+
+    public static final class ReservedMemorySnapshot {
+        public final long before;
+        public final long after;
+
+        private ReservedMemorySnapshot(long before, long after) {
+            this.before = before;
+            this.after = after;
+        }
+    }
 
     private CleanerTestUtil() {
     }
 
-    public static void test(final Consumer<ByteBuffer> cleaner) {
+    public static ReservedMemorySnapshot test(final Consumer<ByteBuffer> cleaner) {
         requireNonNull(cleaner);
         try {
             final AtomicLong reservedMemory;
@@ -45,10 +53,9 @@ public final class CleanerTestUtil {
             cleaner.accept(bb);
             long allocatedAfter = reservedMemory.get();
 
-            // GC may clean up other lingering ByteBuffers
-            assertTrue(allocatedBefore <= allocatedAfter);
+            return new ReservedMemorySnapshot(allocatedBefore, allocatedAfter);
         } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
-            fail(e);
+            throw new AssertionError(e);
         }
     }
 }

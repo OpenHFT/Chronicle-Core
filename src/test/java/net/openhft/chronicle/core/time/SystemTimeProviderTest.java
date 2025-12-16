@@ -9,11 +9,11 @@ import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.Histogram;
 import net.openhft.chronicle.testframework.FlakyTestRunner;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SystemTimeProviderTest extends CoreTestCommon {
     static void assertBetween(long min, long actual, long max) {
@@ -29,17 +29,24 @@ public class SystemTimeProviderTest extends CoreTestCommon {
     @Test
     public void currentTimeMicros() throws IllegalStateException {
         // doCurrentTimeMicros() is very flaky so that is why we retry this operation
+        boolean success = false;
+        Throwable lastFailure = null;
         for (int i = 0; i < 3; i++) {
             try {
                 FlakyTestRunner.builder(this::doCurrentTimeMicros)
                         .withFlakyOnThisArchitecture(Jvm.isArm() || OS.isWindows() || OS.isMacOSX()).build().run();
+                success = true;
                 break;
             } catch (Throwable t) {
+                lastFailure = t;
                 System.out.println("Trying to deflake flaky test: " + i);
                 int jitter = ThreadLocalRandom.current().nextInt(500);
                 Jvm.pause(500 + jitter);
             }
         }
+        if (!success)
+            throw new AssertionError("currentTimeMicros: failed after retries", lastFailure);
+        assertTrue(success, "currentTimeMicros: succeeded after retries");
     }
 
     private void doCurrentTimeMicros() throws IllegalStateException {
@@ -79,7 +86,7 @@ public class SystemTimeProviderTest extends CoreTestCommon {
             System.out.println(h.toMicrosFormat());
 
             // Performance test
-            assertTrue("histogram should record samples", h.totalCount() > 0);
+            assertTrue(h.totalCount() > 0, "histogram should record samples");
         }
     }
 
@@ -122,7 +129,7 @@ public class SystemTimeProviderTest extends CoreTestCommon {
                 long ns = System.nanoTime();
                 while (System.nanoTime() < ns + 100)
                     Jvm.nanoPause();
-                assertTrue("currentTimeMicros should be monotonic", time2 >= lastTimeMicros);
+                assertTrue(time2 >= lastTimeMicros, "currentTimeMicros should be monotonic");
                 lastTimeMicros = time2;
             } while (System.currentTimeMillis() < start + 500);
 

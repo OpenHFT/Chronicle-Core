@@ -7,7 +7,7 @@ import net.openhft.chronicle.core.Jvm;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BackgroundResourceReleaserMain {
     private final AtomicLong closed = new AtomicLong();
@@ -35,7 +35,7 @@ public class BackgroundResourceReleaserMain {
     }
 
     private void runResourcesCleanedUpManually() throws IllegalAccessException {
-        assertNull(getReleaserThread());
+        assertNull(getReleaserThread(), "runResourcesCleanedUpManually: L38");
         int count = 20;
         BackgroundResourceReleaserSupport.createResources(0, count - 1, closed, released);
         BackgroundResourceReleaserSupport.assertExpectedCounts(count, closed, released);
@@ -48,13 +48,13 @@ public class BackgroundResourceReleaserMain {
             assertNotEquals(count, closed.get());
             assertNotEquals(count, released.get());
         } else {
-            assertEquals(count, closed.get());
-            assertEquals(count, released.get());
+            assertEquals(count, closed.get(), "runResourcesCleanedUpManually: L51");
+            assertEquals(count, released.get(), "runResourcesCleanedUpManually: L52");
         }
 
         BackgroundResourceReleaser.releasePendingResources();
-        assertEquals(count, closed.get());
-        assertEquals(count, released.get());
+        assertEquals(count, closed.get(), "runResourcesCleanedUpManually: L56");
+        assertEquals(count, released.get(), "runResourcesCleanedUpManually: L57");
         AbstractCloseable.assertCloseablesClosed();
         BackgroundResourceReleaser.releasePendingResources();
     }
@@ -62,7 +62,7 @@ public class BackgroundResourceReleaserMain {
     private void runResourcesCleanedUpAndStopped() throws IllegalAccessException {
         Thread releaserThread = getReleaserThread();
         if (BackgroundResourceReleaser.BG_RELEASER)
-            assertNotNull(releaserThread);
+            assertNotNull(releaserThread, "runResourcesCleanedUpAndStopped: L65");
         int count = 20;
         BackgroundResourceReleaserSupport.createResources(1, count, closed, released);
         BackgroundResourceReleaserSupport.assertExpectedCounts(count, closed, released);
@@ -73,8 +73,8 @@ public class BackgroundResourceReleaserMain {
         wc.close();
 
         BackgroundResourceReleaser.stop();
-        assertEquals(count, closed.get());
-        assertEquals(count, released.get());
+        assertEquals(count, closed.get(), "runResourcesCleanedUpAndStopped: L76");
+        assertEquals(count, released.get(), "runResourcesCleanedUpAndStopped: L77");
         AbstractCloseable.assertCloseablesClosed();
         BackgroundResourceReleaser.stop();
 
@@ -92,23 +92,23 @@ public class BackgroundResourceReleaserMain {
     }
 
     private void runResourcesCleanedUpInForeground() throws IllegalAccessException {
-        assertNull(getReleaserThread());
+        assertNull(getReleaserThread(), "runResourcesCleanedUpInForeground: L95");
         int count = 20;
         BackgroundResourceReleaserSupport.createResources(0, count - 1, closed, released);
-        assertEquals(count - 1, closed.get());
-        assertEquals(count - 1, released.get());
+        assertEquals(count - 1, closed.get(), "runResourcesCleanedUpInForeground: L98");
+        assertEquals(count - 1, released.get(), "runResourcesCleanedUpInForeground: L99");
         BackgroundResourceReleaserSupport.exerciseCloseableAndReferenceCounted(closed, released, true);
 
         BackgroundResourceReleaserSupport.WaitingCloseable wc = BackgroundResourceReleaserSupport.createWaitingCloseable();
         new Thread(wc::close).start();
         wc.close();
-        assertEquals(count, closed.get());
-        assertEquals(count, released.get());
+        assertEquals(count, closed.get(), "runResourcesCleanedUpInForeground: L105");
+        assertEquals(count, released.get(), "runResourcesCleanedUpInForeground: L106");
 
         // Does nothing
         BackgroundResourceReleaser.releasePendingResources();
-        assertEquals(count, closed.get());
-        assertEquals(count, released.get());
+        assertEquals(count, closed.get(), "runResourcesCleanedUpInForeground: L110");
+        assertEquals(count, released.get(), "runResourcesCleanedUpInForeground: L111");
         AbstractCloseable.assertCloseablesClosed();
     }
 

@@ -32,7 +32,7 @@ class ReferenceCountingFuzzTest {
             ReferenceOwner owner = OWNERS[idx];
             if (random.nextBoolean()) {
                 if (!hasOwner[idx]) {
-                    assertTrue(ref.tryReserve(owner));
+                    assertTrue(ref.tryReserve(owner), "randomisedReserveReleaseSequence: L35");
                     hasOwner[idx] = true;
                 }
             } else {
@@ -51,7 +51,7 @@ class ReferenceCountingFuzzTest {
         }
 
         ref.releaseLast(ReferenceOwner.INIT);
-        assertEquals(1, ref.releaseCount.get());
+        assertEquals(1, ref.releaseCount.get(), "randomisedReserveReleaseSequence: L54");
         assertThrows(ClosedIllegalStateException.class, () -> ref.reserve(OWNERS[0]));
         assertThrows(ClosedIllegalStateException.class, ref::throwExceptionIfReleased);
     }
@@ -62,7 +62,7 @@ class ReferenceCountingFuzzTest {
         ref.releaseLast(ReferenceOwner.INIT);
         BackgroundResourceReleaser.releasePendingResources();
 
-        assertEquals(1, ref.releaseCount.get());
+        assertEquals(1, ref.releaseCount.get(), "backgroundReleaseHappensOnReleaserThread: L65");
         assertNotNull(ref.releasedOnBackgroundThread.get(),
                 "performRelease should have been invoked exactly once");
     }

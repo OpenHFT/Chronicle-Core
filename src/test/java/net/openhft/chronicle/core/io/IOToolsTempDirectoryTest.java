@@ -4,7 +4,7 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.OS;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class IOToolsTempDirectoryTest {
 
@@ -38,13 +38,13 @@ public class IOToolsTempDirectoryTest {
         Path dir2 = IOTools.createTempDirectory("temp-test");
         Path base = Paths.get(OS.getTarget()).toAbsolutePath().normalize();
         try {
-            assertNotEquals("Each invocation should return a new directory", dir1, dir2);
-            assertTrue(Files.isDirectory(dir1));
-            assertTrue(Files.isDirectory(dir2));
-            assertTrue(dir1.toString().contains("temp-test"));
-            assertTrue(dir2.toString().contains("temp-test"));
-            assertTrue(dir1.toAbsolutePath().normalize().startsWith(base));
-            assertTrue(dir2.toAbsolutePath().normalize().startsWith(base));
+            assertNotEquals(dir1, dir2, "Each invocation should return a new directory");
+            assertTrue(Files.isDirectory(dir1), "createTempDirectoryCreatesUniqueFolders: L42");
+            assertTrue(Files.isDirectory(dir2), "createTempDirectoryCreatesUniqueFolders: L43");
+            assertTrue(dir1.toString().contains("temp-test"), "createTempDirectoryCreatesUniqueFolders: L44");
+            assertTrue(dir2.toString().contains("temp-test"), "createTempDirectoryCreatesUniqueFolders: L45");
+            assertTrue(dir1.toAbsolutePath().normalize().startsWith(base), "createTempDirectoryCreatesUniqueFolders: L46");
+            assertTrue(dir2.toAbsolutePath().normalize().startsWith(base), "createTempDirectoryCreatesUniqueFolders: L47");
         } finally {
             deleteRecursively(dir1);
             deleteRecursively(dir2);
@@ -56,9 +56,9 @@ public class IOToolsTempDirectoryTest {
         File file = IOTools.createTempFile("temp-file");
         Path base = Paths.get(OS.getTarget()).toAbsolutePath().normalize();
         try {
-            assertFalse("Temp file paths are not materialised until needed", file.exists());
-            assertTrue(file.getAbsolutePath().contains("temp-file"));
-            assertTrue(file.toPath().toAbsolutePath().normalize().startsWith(base));
+            assertFalse(file.exists(), "Temp file paths are not materialised until needed");
+            assertTrue(file.getAbsolutePath().contains("temp-file"), "createTempFileUsesTempDirectory: L60");
+            assertTrue(file.toPath().toAbsolutePath().normalize().startsWith(base), "createTempFileUsesTempDirectory: L61");
             // When callers need a real file they can create it themselves.
             Files.createFile(file.toPath());
         } finally {

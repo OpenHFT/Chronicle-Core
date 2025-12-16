@@ -4,9 +4,9 @@
 package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OnDemandEventLoopTest extends CoreTestCommon {
     @Test
@@ -56,9 +56,9 @@ public class OnDemandEventLoopTest extends CoreTestCommon {
             public void close() {
             }
         });
-        assertFalse(el.hasEventLoop());
-        assertEquals("dummy", el.name());
-        assertTrue(el.hasEventLoop());
+        assertFalse(el.hasEventLoop(), "onDemand: L59");
+        assertEquals("dummy", el.name(), "onDemand: L60");
+        assertTrue(el.hasEventLoop(), "onDemand: L61");
         el.close();
     }
 }

@@ -16,14 +16,14 @@ class ClassUtilExtraTest {
     @Test
     void getField0FindsPrivateFieldInHierarchy() {
         Field f = ClassUtil.getField0(Child.class, "hidden", true, true);
-        assertNotNull(f);
-        assertEquals("hidden", f.getName());
+        assertNotNull(f, "getField0FindsPrivateFieldInHierarchy: L19");
+        assertEquals("hidden", f.getName(), "getField0FindsPrivateFieldInHierarchy: L20");
     }
 
     @Test
     void getField0ReturnsNullWhenMissingAndErrorFalse() {
         Field f = ClassUtil.getField0(Child.class, "nope", false, true);
-        assertNull(f);
+        assertNull(f, "getField0ReturnsNullWhenMissingAndErrorFalse: L26");
     }
 
     @Test
@@ -34,8 +34,8 @@ class ClassUtilExtraTest {
     @Test
     void getMethod0FindsPrivateMethodInHierarchy() {
         Method m = ClassUtil.getMethod0(Child.class, "greet", new Class<?>[0], true);
-        assertNotNull(m);
-        assertEquals("greet", m.getName());
+        assertNotNull(m, "getMethod0FindsPrivateMethodInHierarchy: L37");
+        assertEquals("greet", m.getName(), "getMethod0FindsPrivateMethodInHierarchy: L38");
     }
 
     private static class Parent {

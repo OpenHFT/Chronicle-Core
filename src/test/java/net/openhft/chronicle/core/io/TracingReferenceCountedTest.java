@@ -3,20 +3,20 @@
  */
 package net.openhft.chronicle.core.io;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import static net.openhft.chronicle.core.internal.CloseableUtils.asString;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TracingReferenceCountedTest extends MonitorReferenceCountedContractTest {
 
     private AtomicInteger onReleaseCallCount;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         onReleaseCallCount = new AtomicInteger(0);
     }
@@ -33,9 +33,9 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
         ReferenceOwner a = ReferenceOwner.temporary("a");
         referenceCounted.reserve(a);
 
-        assertEquals(2, referenceCounted.refCount());
+        assertEquals(2, referenceCounted.refCount(), "reserveWillThrowAndNotReserveWhenReferenceOwnerAttemptsToMakeASecondReservation: L36");
         assertThrows(IllegalStateException.class, () -> referenceCounted.reserve(a));
-        assertEquals(2, referenceCounted.refCount());
+        assertEquals(2, referenceCounted.refCount(), "reserveWillThrowAndNotReserveWhenReferenceOwnerAttemptsToMakeASecondReservation: L38");
     }
 
     @Test
@@ -56,8 +56,8 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
             referenceCounted.releaseLast(a);
             fail("Release last should throw here");
         } catch (IllegalStateException e) {
-            assertEquals("net.openhft.chronicle.core.io.TracingReferenceCounted still reserved [INIT]", e.getMessage());
-            assertEquals("uniqueId main init INIT on main", e.getSuppressed()[0].getMessage().split(" at ")[0]);
+            assertEquals("net.openhft.chronicle.core.io.TracingReferenceCounted still reserved [INIT]", e.getMessage(), "releaseLastWillThrowWithReferenceDetailsWhenReleaseIsNotLast: L59");
+            assertEquals("uniqueId main init INIT on main", e.getSuppressed()[0].getMessage().split(" at ")[0], "releaseLastWillThrowWithReferenceDetailsWhenReleaseIsNotLast: L60");
         }
     }
 
@@ -70,16 +70,16 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
             referenceCounted.releaseLast(a);
             fail("Release last should throw here");
         } catch (IllegalStateException e) {
-            assertEquals("net.openhft.chronicle.core.io.TracingReferenceCounted still reserved [INIT]", e.getMessage());
-            assertEquals("uniqueId main init INIT on main", e.getSuppressed()[0].getMessage().split(" at ")[0]);
-            assertEquals("net.openhft.chronicle.core.io.TracingReferenceCounted not reserved by VanillaReferenceOwner{name='a'} closed=false", e.getSuppressed()[1].getMessage());
+            assertEquals("net.openhft.chronicle.core.io.TracingReferenceCounted still reserved [INIT]", e.getMessage(), "releaseLastWillThrowWithSuppressedInnerFailuresWhenReleaseFails: L73");
+            assertEquals("uniqueId main init INIT on main", e.getSuppressed()[0].getMessage().split(" at ")[0], "releaseLastWillThrowWithSuppressedInnerFailuresWhenReleaseFails: L74");
+            assertEquals("net.openhft.chronicle.core.io.TracingReferenceCounted not reserved by VanillaReferenceOwner{name='a'} closed=false", e.getSuppressed()[1].getMessage(), "releaseLastWillThrowWithSuppressedInnerFailuresWhenReleaseFails: L75");
         }
     }
 
     @Test
     public void asStringWillIncludeReferenceCountedDetails() {
         final TracingReferenceCounted referenceCounted = createReferenceCounted();
-        assertTrue(Pattern.matches("TracingReferenceCounted@\\w+ refCount=1", asString(referenceCounted)));
+        assertTrue(Pattern.matches("TracingReferenceCounted@\\w+ refCount=1", asString(referenceCounted)), "asStringWillIncludeReferenceCountedDetails: L82");
     }
 
     @Test
@@ -96,7 +96,7 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
                 return "testCloseable";
             }
         }
-        assertEquals("testCloseable closed=false", asString(new SomeCloseable()));
+        assertEquals("testCloseable closed=false", asString(new SomeCloseable()), "asStringWillIncludeCloseableDetails: L99");
     }
 
     @Test
@@ -104,14 +104,14 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
         class SomePlainObject {
 
         }
-        assertTrue(Pattern.matches("SomePlainObject@\\w+", asString(new SomePlainObject())));
+        assertTrue(Pattern.matches("SomePlainObject@\\w+", asString(new SomePlainObject())), "asStringRenderClassNameAndAddressForPojos: L107");
     }
 
     @Test
     public void createdHereWillReturnCreatedStackTrace() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
-        assertNotNull(referenceCounted.createdHere());
+        assertNotNull(referenceCounted.createdHere(), "createdHereWillReturnCreatedStackTrace: L114");
     }
 
     @Test

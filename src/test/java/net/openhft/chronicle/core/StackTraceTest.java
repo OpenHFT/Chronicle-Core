@@ -3,13 +3,13 @@
  */
 package net.openhft.chronicle.core;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class StackTraceTest extends CoreTestCommon {
     private static final CountDownLatch threadStarted = new CountDownLatch(1);
@@ -28,10 +28,8 @@ public class StackTraceTest extends CoreTestCommon {
         StackTrace st = new StackTrace(true);
         String currentThreadName = Thread.currentThread().getName();
         String regex = "stack trace on " + currentThreadName + " at " + TIMESTAMP_REGEX;
-        assertTrue(
-                st.getMessage() + " expected to match " + regex,
-                st.getMessage().matches(regex)
-        );
+        assertTrue(st.getMessage().matches(regex),
+                st.getMessage() + " expected to match " + regex);
     }
 
     @Test
@@ -39,10 +37,8 @@ public class StackTraceTest extends CoreTestCommon {
         String message = "test message";
         StackTrace st = new StackTrace(message, true);
 
-        assertTrue(
-                String.format("%s must match regular expression expecting '%s on %s at' with following timestamp", st.getMessage(), message, Thread.currentThread().getName()),
-                st.getMessage().matches(message + " on " + Thread.currentThread().getName() + " at " + TIMESTAMP_REGEX)
-        );
+        assertTrue(st.getMessage().matches(message + " on " + Thread.currentThread().getName() + " at " + TIMESTAMP_REGEX),
+                String.format("%s must match regular expression expecting '%s on %s at' with following timestamp", st.getMessage(), message, Thread.currentThread().getName()));
     }
 
     @Test
@@ -51,25 +47,23 @@ public class StackTraceTest extends CoreTestCommon {
         Throwable cause = new RuntimeException("cause");
         StackTrace st = new StackTrace(message, cause, true);
 
-        assertTrue(
-                String.format("%s must match regular expression expecting '%s on %s at' with following timestamp", st.getMessage(), message, Thread.currentThread().getName()),
-                st.getMessage().matches(message + " on " + Thread.currentThread().getName() + " at " + TIMESTAMP_REGEX)
-        );
-        assertEquals("Cause should match the supplied runtime exception", cause, st.getCause());
+        assertTrue(st.getMessage().matches(message + " on " + Thread.currentThread().getName() + " at " + TIMESTAMP_REGEX),
+                String.format("%s must match regular expression expecting '%s on %s at' with following timestamp", st.getMessage(), message, Thread.currentThread().getName()));
+        assertEquals(cause, st.getCause(), "Cause should match the supplied runtime exception");
     }
 
     @Test
     public void testForThread_NullThread() {
-        assertNull("forThread(null) should return null", StackTrace.forThread(null));
+        assertNull(StackTrace.forThread(null), "forThread(null) should return null");
     }
 
     @Test
     public void testForThread() {
         Thread thread = new Thread();
         StackTrace st = StackTrace.forThread(thread);
-        assertNotNull(st);
+        assertNotNull(st, "testForThread: L70");
         // Only check the prefix because the thread name is appended with the time
-        assertEquals(thread.toString(), st.getMessage().split(" on ")[0]);
+        assertEquals(thread.toString(), st.getMessage().split(" on ")[0], "testForThread: L72");
     }
 
     /**
@@ -84,7 +78,7 @@ public class StackTraceTest extends CoreTestCommon {
         Thread t = new Thread(StackTraceTest::thinking, "background");
         t.start();
         boolean started = threadStarted.await(1, TimeUnit.SECONDS);
-        assertTrue(started);
+        assertTrue(started, "forThread: L87");
 
         // Give it time to enter the Jvm.pause
         Jvm.pause(50);
@@ -97,12 +91,12 @@ public class StackTraceTest extends CoreTestCommon {
 
         if (Jvm.isJava20Plus()) {
             // The exact string might differ in Java 20+ if the thread is displayed differently
-            assertTrue(String.format("%s must match regular expression expecting timestamp to nanosecond precision", st.getMessage()),
-                    st.getMessage().matches("Thread\\[\\#\\d+,background,5,main\\] on main at " + TIMESTAMP_REGEX));
+            assertTrue(st.getMessage().matches("Thread\\[\\#\\d+,background,5,main\\] on main at " + TIMESTAMP_REGEX),
+                    String.format("%s must match regular expression expecting timestamp to nanosecond precision", st.getMessage()));
             assertTopFramesContainPauseOrSleep(st);
         } else {
-            assertTrue(st.getMessage() + " must match regular expression expecting timestamp to nanosecond precision",
-                    st.getMessage().matches("Thread\\[background,5,main\\] on main at " + TIMESTAMP_REGEX));
+            assertTrue(st.getMessage().matches("Thread\\[background,5,main\\] on main at " + TIMESTAMP_REGEX),
+                    st.getMessage() + " must match regular expression expecting timestamp to nanosecond precision");
             assertTopFramesContainPauseOrSleep(st);
         }
     }
@@ -112,7 +106,7 @@ public class StackTraceTest extends CoreTestCommon {
         // Confirm the appended timestamp is in UTC
         StackTrace st = new StackTrace(true);
         String msg = st.getMessage(); // e.g. "... at 2030-12-31T23:59:59.999999999Z"
-        assertTrue("Timestamp should end with 'Z' for UTC", msg.endsWith("Z"));
+        assertTrue(msg.endsWith("Z"), "Timestamp should end with 'Z' for UTC");
     }
 
     private static void assertTopFramesContainPauseOrSleep(StackTrace st) {
@@ -123,6 +117,6 @@ public class StackTraceTest extends CoreTestCommon {
                         "net.openhft.chronicle.core.Jvm.pause".equals(f1) ||
                         "java.lang.Thread.sleep".equals(f0) ||
                         "java.lang.Thread.sleep".equals(f1);
-        assertTrue("Expected top frames to include Jvm.pause or Thread.sleep but were: " + Arrays.asList(f0, f1), ok);
+        assertTrue(ok, "Expected top frames to include Jvm.pause or Thread.sleep but were: " + Arrays.asList(f0, f1));
     }
 }

@@ -18,18 +18,18 @@ class JvmFlagsTest {
 
     @Test
     void getBooleanRespectsDefaultsAndSystemProperty() {
-        assertFalse(Jvm.getBoolean("foo.bar"));
-        assertTrue(Jvm.getBoolean("foo.baz", true));
+        assertFalse(Jvm.getBoolean("foo.bar"), "getBooleanRespectsDefaultsAndSystemProperty: L21");
+        assertTrue(Jvm.getBoolean("foo.baz", true), "getBooleanRespectsDefaultsAndSystemProperty: L22");
 
         System.setProperty("foo.bar", "true");
         System.setProperty("foo.baz", "false");
-        assertTrue(Jvm.getBoolean("foo.bar"));
-        assertFalse(Jvm.getBoolean("foo.baz", true));
+        assertTrue(Jvm.getBoolean("foo.bar"), "getBooleanRespectsDefaultsAndSystemProperty: L26");
+        assertFalse(Jvm.getBoolean("foo.baz", true), "getBooleanRespectsDefaultsAndSystemProperty: L27");
     }
 
     @Test
     void majorVersionIsSaneAndPausesDoNotThrow() {
-        assertTrue(Jvm.majorVersion() >= 8);
+        assertTrue(Jvm.majorVersion() >= 8, "majorVersionIsSaneAndPausesDoNotThrow: L32");
         assertDoesNotThrow(Jvm::nanoPause);
         assertDoesNotThrow(() -> Jvm.pause(0));
         assertDoesNotThrow(() -> Jvm.pause(1));

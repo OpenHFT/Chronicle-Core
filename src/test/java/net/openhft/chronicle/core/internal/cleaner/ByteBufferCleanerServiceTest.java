@@ -5,25 +5,25 @@ package net.openhft.chronicle.core.internal.cleaner;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ByteBufferCleanerServiceTest {
 
     @Test
     public void jdk9CleanerHasNoImpactAndCleans() {
-        Assume.assumeTrue("JDK9+ required for Jdk9ByteBufferCleanerService", Jvm.isJava9Plus());
+        Assumptions.assumeTrue(Jvm.isJava9Plus(), "JDK9+ required for Jdk9ByteBufferCleanerService");
         ByteBufferCleanerService service = new Jdk9ByteBufferCleanerService();
         ByteBuffer buffer = ByteBuffer.allocateDirect(64);
 
         service.clean(buffer);
 
-        assertEquals(ByteBufferCleanerService.Impact.NO_IMPACT, service.impact());
-        assertTrue(buffer.isDirect());
+        assertEquals(ByteBufferCleanerService.Impact.NO_IMPACT, service.impact(), "jdk9CleanerHasNoImpactAndCleans: L25");
+        assertTrue(buffer.isDirect(), "jdk9CleanerHasNoImpactAndCleans: L26");
     }
 
     @Test
@@ -33,7 +33,7 @@ public class ByteBufferCleanerServiceTest {
 
         service.clean(buffer);
 
-        assertNotNull("Impact should always be reported", service.impact());
-        assertTrue(buffer.isDirect());
+        assertNotNull(service.impact(), "Impact should always be reported");
+        assertTrue(buffer.isDirect(), "reflectionBasedCleanerDoesNotThrow: L37");
     }
 }

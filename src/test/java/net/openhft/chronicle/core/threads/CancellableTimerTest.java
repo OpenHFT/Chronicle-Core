@@ -76,13 +76,13 @@ class CancellableTimerTest extends CoreTestCommon {
     void willSubmitHandlerWithConfiguredPriority() {
         final HandlerPriority configuredPriority = HandlerPriority.REPLICATION_TIMER;
         timer.scheduleAtFixedRate(handler, INITIAL_DELAY_MS, PERIOD_MS, configuredPriority);
-        assertEquals(configuredPriority, scheduledEventHandler.priority());
+        assertEquals(configuredPriority, scheduledEventHandler.priority(), "willSubmitHandlerWithConfiguredPriority: L79");
     }
 
     @Test
     void willSubmitHandlerWithTimerPriorityByDefault() {
         timer.scheduleAtFixedRate(handler, INITIAL_DELAY_MS, PERIOD_MS);
-        assertEquals(HandlerPriority.TIMER, scheduledEventHandler.priority());
+        assertEquals(HandlerPriority.TIMER, scheduledEventHandler.priority(), "willSubmitHandlerWithTimerPriorityByDefault: L85");
     }
 
     @Test

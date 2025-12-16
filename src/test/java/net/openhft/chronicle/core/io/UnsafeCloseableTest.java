@@ -3,12 +3,12 @@
  */
 package net.openhft.chronicle.core.io;
 
-import junit.framework.TestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class UnsafeCloseableTest extends TestCase {
+public class UnsafeCloseableTest {
 
     private final UnsafeCloseable uc;
 
@@ -30,7 +30,7 @@ public class UnsafeCloseableTest extends TestCase {
 
     @Test
     public void testGetVolatileLong() {
-        assertEquals(128, uc.getVolatileLong(128));
+        assertEquals(128, uc.getVolatileLong(128), "testGetVolatileLong: L33");
     }
 
     @Test

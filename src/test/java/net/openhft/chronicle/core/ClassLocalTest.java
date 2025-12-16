@@ -4,9 +4,9 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.util.ClassLocal;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class ClassLocalTest extends CoreTestCommon {
 
@@ -20,7 +20,7 @@ public class ClassLocalTest extends CoreTestCommon {
         for (int i = 0; i < 1000; i++) {
             toString.get(ClassValue.class);
         }
-        assertEquals(1, count[0]);
+        assertEquals(1, count[0], "computeValue: L23");
 
     }
 }

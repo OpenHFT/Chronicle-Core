@@ -3,18 +3,18 @@
  */
 package net.openhft.chronicle.core.io;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.assertNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class VanillaReferenceCountedTest extends MonitorReferenceCountedContractTest {
 
     private AtomicInteger onReleasedCallCount;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         onReleasedCallCount = new AtomicInteger(0);
     }
@@ -27,6 +27,6 @@ public class VanillaReferenceCountedTest extends MonitorReferenceCountedContract
     @Test
     public void createdHereWillReturnNull() {
         final VanillaReferenceCounted referenceCounted = createReferenceCounted();
-        assertNull(referenceCounted.createdHere());
+        assertNull(referenceCounted.createdHere(), "createdHereWillReturnNull: L30");
     }
 }

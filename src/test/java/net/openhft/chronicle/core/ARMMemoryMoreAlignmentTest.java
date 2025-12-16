@@ -30,7 +30,7 @@ class ARMMemoryMoreAlignmentTest {
         byte[] bytes = new byte[8];
         long off = UnsafeMemory.UNSAFE.arrayBaseOffset(byte[].class) + 1; // odd offset
         arm.writeVolatileShort(bytes, off, (short) 0x1234);
-        assertEquals((short) 0x1234, arm.readVolatileShort(bytes, off));
+        assertEquals((short) 0x1234, arm.readVolatileShort(bytes, off), "volatileCharMisalignedObjectOffset: L33");
     }
 
     @Test
@@ -39,11 +39,11 @@ class ARMMemoryMoreAlignmentTest {
         byte[] bytes = new byte[16];
         long aligned = UnsafeMemory.UNSAFE.arrayBaseOffset(byte[].class) + 4L;
         // initial 0, CAS expect 1 fails returns false
-        assertFalse(arm.compareAndSwapInt(bytes, aligned, 1, 2));
+        assertFalse(arm.compareAndSwapInt(bytes, aligned, 1, 2), "getAndSetAndCasAlignedObjectOffset: L42");
         // getAndSet returns previous and sets new value
-        assertEquals(0, arm.getAndSetInt(bytes, aligned, 7));
-        assertTrue(arm.compareAndSwapInt(bytes, aligned, 7, 9));
-        assertEquals(9, UnsafeMemory.UNSAFE.getInt(bytes, aligned));
+        assertEquals(0, arm.getAndSetInt(bytes, aligned, 7), "getAndSetAndCasAlignedObjectOffset: L44");
+        assertTrue(arm.compareAndSwapInt(bytes, aligned, 7, 9), "getAndSetAndCasAlignedObjectOffset: L45");
+        assertEquals(9, UnsafeMemory.UNSAFE.getInt(bytes, aligned), "getAndSetAndCasAlignedObjectOffset: L46");
     }
 
     @Test
@@ -53,6 +53,6 @@ class ARMMemoryMoreAlignmentTest {
         long mis = base + 4; // not 8-byte aligned
         long v = 0x0102_0304_0506_0708L;
         arm.writeOrderedLong(mis, v);
-        assertEquals(v, arm.readLong(mis));
+        assertEquals(v, arm.readLong(mis), "writeOrderedLongMisalignedAddress: L56");
     }
 }

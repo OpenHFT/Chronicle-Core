@@ -33,7 +33,7 @@ class CloseableUtilsEdgeTest {
                 new CountingCloseable(c)
         };
         assertDoesNotThrow(() -> Closeable.closeQuietly(arr));
-        assertEquals(2, c.get());
+        assertEquals(2, c.get(), "closeQuietlyClosesElementsAndIgnoresThrowers: L36");
     }
 
     static final class CountingCloseable implements AutoCloseable {

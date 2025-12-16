@@ -7,8 +7,8 @@ import net.openhft.chronicle.core.Jvm;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 final class BackgroundResourceReleaserSupport {
 
@@ -24,19 +24,23 @@ final class BackgroundResourceReleaserSupport {
 
     static void assertExpectedCounts(int count, AtomicLong closed, AtomicLong released) {
         int expectedCount = BackgroundResourceReleaser.BG_RELEASER ? 2 : count;
-        assertEquals("closed count", expectedCount, closed.get(), 2);
-        assertEquals("released count", expectedCount, released.get(), 2);
+        long closedCount = closed.get();
+        assertTrue(Math.abs((long) expectedCount - closedCount) <= 2,
+                "closed count [expected=" + expectedCount + ", actual=" + closedCount + "]");
+        long releasedCount = released.get();
+        assertTrue(Math.abs((long) expectedCount - releasedCount) <= 2,
+                "released count [expected=" + expectedCount + ", actual=" + releasedCount + "]");
     }
 
     static void exerciseCloseableAndReferenceCounted(AtomicLong closed, AtomicLong released, boolean expectClosed) {
         BGCloseable bgc = new BGCloseable(closed);
         bgc.close();
-        assertTrue("closeable should report closing", bgc.isClosing());
-        assertEquals("closeable closed state", expectClosed, bgc.isClosed());
+        assertTrue(bgc.isClosing(), "closeable should report closing");
+        assertEquals(expectClosed, bgc.isClosed(), "closeable closed state");
 
         BGReferenceCounted bgr = new BGReferenceCounted(released);
         bgr.releaseLast();
-        assertEquals("refCount after releaseLast", 0, bgr.refCount());
+        assertEquals(0, bgr.refCount(), "refCount after releaseLast");
     }
 
     static WaitingCloseable createWaitingCloseable() {

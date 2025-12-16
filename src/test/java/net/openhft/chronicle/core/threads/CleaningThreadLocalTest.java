@@ -22,7 +22,7 @@ class CleaningThreadLocalTest {
 
         CleaningThreadLocal<String> ctl = CleaningThreadLocal.withCleanup(supplier, cleanup);
 
-        assertNotNull(ctl);
+        assertNotNull(ctl, "testConstructor: L25");
     }
 
     @Test
@@ -30,7 +30,7 @@ class CleaningThreadLocalTest {
         Supplier<String> supplier = () -> "test";
         CleaningThreadLocal<String> ctl = CleaningThreadLocal.withCloseQuietly(supplier);
 
-        assertNotNull(ctl);
+        assertNotNull(ctl, "testWithCloseQuietly: L33");
     }
 
     @Test
@@ -63,7 +63,7 @@ class CleaningThreadLocalTest {
         t1.join();
         t2.join();
         // Main thread value should remain as supplied
-        assertEquals("test", ctl.get());
+        assertEquals("test", ctl.get(), "testThreadSafety: L66");
     }
 
     @Test
@@ -79,9 +79,9 @@ class CleaningThreadLocalTest {
         ctl.set("temp");
         assertDoesNotThrow(ctl::remove);
         // After remove, next get() should re-initialize using supplier
-        assertEquals("test", ctl.get());
+        assertEquals("test", ctl.get(), "testExceptionInCleanup: L82");
         ctl.remove();
-        assertTrue(ran.get());
+        assertTrue(ran.get(), "testExceptionInCleanup: L84");
     }
 
     @Test
@@ -100,7 +100,7 @@ class CleaningThreadLocalTest {
         ctl.remove();
 
         // Assert that the value in main thread is not affected
-        assertEquals(0, ctl.get());
+        assertEquals(0, ctl.get(), "testThreadSpecificValue: L103");
     }
 
     private void joinThread(Thread thread) {

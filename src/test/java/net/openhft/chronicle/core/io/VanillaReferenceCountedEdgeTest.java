@@ -20,9 +20,9 @@ class VanillaReferenceCountedEdgeTest {
         AtomicInteger released = new AtomicInteger();
         VanillaReferenceCounted ref = newRef(released);
         ref.release(ReferenceOwner.INIT);
-        assertEquals(1, released.get());
+        assertEquals(1, released.get(), "doubleReleaseThrows: L23");
         ClosedIllegalStateException ex = assertThrows(ClosedIllegalStateException.class, () -> ref.release(ReferenceOwner.INIT));
-        assertTrue(ex.getMessage().contains("released"));
+        assertTrue(ex.getMessage().contains("released"), "doubleReleaseThrows: L25");
     }
 
     @Test
@@ -44,7 +44,7 @@ class VanillaReferenceCountedEdgeTest {
         assertThrows(IllegalStateException.class, ref::throwExceptionIfNotReleased);
         // cleanup
         ref.release(ReferenceOwner.INIT);
-        assertEquals(1, released.get());
+        assertEquals(1, released.get(), "notLastReleaseIsDetected: L47");
     }
 
     @Test
@@ -74,7 +74,7 @@ class VanillaReferenceCountedEdgeTest {
         ref.reserve(ReferenceOwner.INIT);
         ref.release(ReferenceOwner.INIT);
         ref.removeReferenceChangeListener(listener);
-        assertEquals(1, added.get());
-        assertEquals(1, removed.get());
+        assertEquals(1, added.get(), "listenersAreCalledOnAddRemove: L77");
+        assertEquals(1, removed.get(), "listenersAreCalledOnAddRemove: L78");
     }
 }

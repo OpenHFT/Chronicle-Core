@@ -10,12 +10,14 @@ import net.openhft.chronicle.core.util.Histogram;
 import net.openhft.chronicle.testframework.FlakyTestRunner;
 import net.openhft.posix.ClockId;
 import net.openhft.posix.PosixAPI;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static net.openhft.chronicle.core.time.SystemTimeProviderTest.assertBetween;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 public class PosixTimeProviderTest extends CoreTestCommon {
 
@@ -28,10 +30,15 @@ public class PosixTimeProviderTest extends CoreTestCommon {
     @Test
     public void currentTimeMicros() throws IllegalStateException {
         assumeFalse(OS.isMacOSX() || Jvm.isArm());
-        FlakyTestRunner.builder(this::currentTimeMicros0)
+        AtomicBoolean ran = new AtomicBoolean();
+        FlakyTestRunner.builder(() -> {
+                    ran.set(true);
+                    currentTimeMicros0();
+                })
                 .withMaxIterations(3)
                 .build()
                 .runOrThrow();
+        assertTrue(ran.get(), "currentTimeMicros: executed");
     }
 
     private void currentTimeMicros0() {
@@ -75,7 +82,7 @@ public class PosixTimeProviderTest extends CoreTestCommon {
             System.out.println(h.toMicrosFormat());
 
             // Performance test
-            assertTrue(h.totalCount() > 0);
+            assertTrue(h.totalCount() > 0, "resolution: L85");
         }
     }
 }

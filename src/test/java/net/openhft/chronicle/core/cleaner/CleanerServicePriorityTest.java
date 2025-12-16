@@ -21,6 +21,6 @@ class CleanerServicePriorityTest {
         ByteBufferCleanerService svcChosen = CleanerServiceTestSupport.chooseService("tmp-services-priority",
                 "net.openhft.chronicle.core.cleaner.testimpl.AllowedCleaner\n" +
                         "net.openhft.chronicle.core.cleaner.testimpl.SomeImpactCleaner\n");
-        assertEquals("net.openhft.chronicle.core.cleaner.testimpl.AllowedCleaner", svcChosen.getClass().getName());
+        assertEquals("net.openhft.chronicle.core.cleaner.testimpl.AllowedCleaner", svcChosen.getClass().getName(), "lowestImpactChosenRegardlessOfDiscoveryOrder: L24");
     }
 }

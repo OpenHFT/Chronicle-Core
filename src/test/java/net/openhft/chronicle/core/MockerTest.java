@@ -4,12 +4,12 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.util.Mocker;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.StringWriter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class MockerTest extends CoreTestCommon {
 
@@ -24,8 +24,7 @@ public class MockerTest extends CoreTestCommon {
                         "end[three]%n" +
                         "chains[111]%n" +
                         "alsoChains[222]%n" +
-                        "end[333]%n"),
-                out.toString());
+                        "end[333]%n"), out.toString(), "intercepting: L22");
     }
 
     @Test
@@ -33,7 +32,7 @@ public class MockerTest extends CoreTestCommon {
         final ChainedChainingTerminal logging = Mocker.ignored(ChainedChainingTerminal.class);
         logging.chains("one").alsoChains("two").end("three");
         logging.chains("111").alsoChains("222").end("333");
-        assertNotNull(logging.toString());
+        assertNotNull(logging.toString(), "ignored: L36");
     }
 
     interface Chained<T> {

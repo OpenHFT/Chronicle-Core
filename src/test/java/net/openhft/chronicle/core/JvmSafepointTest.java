@@ -4,12 +4,14 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.testframework.FlakyTestRunner;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 public class JvmSafepointTest extends CoreTestCommon {
+
+    private volatile long safePointPerfLastAvg;
 
     @Test
     public void testSafepoint() throws InterruptedException {
@@ -47,7 +49,7 @@ public class JvmSafepointTest extends CoreTestCommon {
         t.interrupt();
         t.join();
         System.out.println("counter: " + counter);
-        assertTrue("counter: " + counter, counter >= min);
+        assertTrue(counter >= min, "counter: " + counter);
     }
 
     @Test
@@ -58,6 +60,9 @@ public class JvmSafepointTest extends CoreTestCommon {
                 .withMaxIterations(3)
                 .build()
                 .runOrThrow();
+        int maxAvg = Jvm.isArm() ? 400 : 200;
+        long avg = safePointPerfLastAvg;
+        assertTrue(1 <= avg && avg < maxAvg, "safePointPerf: avg=" + avg + ", maxAvg=" + maxAvg);
     }
 
     private void safePointPerf0() {
@@ -71,6 +76,7 @@ public class JvmSafepointTest extends CoreTestCommon {
             long time = System.nanoTime() - start;
             if (t > 2) {
                 long avg = time / count;
+                safePointPerfLastAvg = avg;
                 System.out.println("avg: " + avg);
                 int maxAvg = Jvm.isArm() ? 400 : 200;
                 if (1 <= avg && avg < maxAvg) {

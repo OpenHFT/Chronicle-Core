@@ -23,10 +23,10 @@ class PriorityHookTest {
     void testAddHook() {
         Runnable hook1 = mock(Runnable.class);
         boolean added1 = PriorityHook.add(1, hook1);
-        assertFalse(added1);
+        assertFalse(added1, "testAddHook: L26");
 
         boolean addedAgain = PriorityHook.add(1, hook1);
-        assertFalse(addedAgain);
+        assertFalse(addedAgain, "testAddHook: L29");
     }
 
     @Test
@@ -50,6 +50,6 @@ class PriorityHookTest {
 
         PriorityHook.clear();
 
-        assertNull(PriorityHook.getRegisteredHook());
+        assertNull(PriorityHook.getRegisteredHook(), "testClearHooks: L53");
     }
 }

@@ -4,7 +4,7 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.OS;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,8 +12,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.junit.Assert.assertThrows;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class IOToolsCreateDirectoriesTest {
 
@@ -35,7 +35,7 @@ public class IOToolsCreateDirectoriesTest {
         Path nested = base.resolve("a/b/c");
         try {
             IOTools.createDirectories(nested);
-            assertTrue(Files.isDirectory(nested));
+            assertTrue(Files.isDirectory(nested), "createDirectoriesBuildsNestedStructure: L38");
         } finally {
             delete(base.toFile());
         }

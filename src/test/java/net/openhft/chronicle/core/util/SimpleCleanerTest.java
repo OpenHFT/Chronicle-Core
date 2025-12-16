@@ -37,7 +37,7 @@ class SimpleCleanerTest {
         Runnable runnable = mock(Runnable.class);
         SimpleCleaner cleaner = new SimpleCleaner(runnable);
 
-        assertNotNull(cleaner); // Verifying that cleaner is initialized
+        assertNotNull(cleaner, "constructorShouldInitializeWithProvidedRunnable: L40"); // Verifying that cleaner is initialized
         // Further tests can be performed if needed to check internal state
     }
 }

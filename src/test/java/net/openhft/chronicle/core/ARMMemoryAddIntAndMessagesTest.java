@@ -34,8 +34,8 @@ class ARMMemoryAddIntAndMessagesTest {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
         long base = alloc(16);
         long aligned = base + 4;
-        assertEquals(1, arm.addInt(aligned, 1));
-        assertEquals(2, arm.addInt(aligned, 1));
+        assertEquals(1, arm.addInt(aligned, 1), "addIntAlignedAndMisaligned: L37");
+        assertEquals(2, arm.addInt(aligned, 1), "addIntAlignedAndMisaligned: L38");
         long mis = base + 2;
         assertThrows(MisAlignedAssertionError.class, () -> arm.addInt(mis, 1));
     }

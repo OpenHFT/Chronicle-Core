@@ -6,7 +6,7 @@ package net.openhft.chronicle.core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JvmMain {
     static {
@@ -16,10 +16,10 @@ public class JvmMain {
 
     public static void main(String[] args) {
         Logger isDebug = LoggerFactory.getLogger("isDebug");
-        assertTrue(!isDebug.isTraceEnabled() && isDebug.isDebugEnabled());
+        assertTrue(!isDebug.isTraceEnabled() && isDebug.isDebugEnabled(), "main: L19");
         Logger isInfo = LoggerFactory.getLogger("isInfo");
-        assertTrue(!isInfo.isDebugEnabled() && isInfo.isInfoEnabled());
+        assertTrue(!isInfo.isDebugEnabled() && isInfo.isInfoEnabled(), "main: L21");
         Logger isWarn = LoggerFactory.getLogger("isWarn");
-        assertTrue(!isWarn.isInfoEnabled() && isWarn.isWarnEnabled());
+        assertTrue(!isWarn.isInfoEnabled() && isWarn.isWarnEnabled(), "main: L23");
     }
 }

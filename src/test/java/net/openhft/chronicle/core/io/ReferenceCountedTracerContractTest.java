@@ -3,12 +3,12 @@
  */
 package net.openhft.chronicle.core.io;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.function.IntSupplier;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * Any implementor of {@link ReferenceCountedTracer} should implement a test class
@@ -32,17 +32,19 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
         ReferenceCountedTracer referenceCounted = createReferenceCounted();
         try {
             referenceCounted.throwExceptionIfReleased();
-            assertEquals("refCount should remain at 1 after throwExceptionIfReleased", 1, referenceCounted.refCount());
+            assertEquals(1, referenceCounted.refCount(), "refCount should remain at 1 after throwExceptionIfReleased");
         } finally {
             referenceCounted.releaseLast();
         }
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void throwIfNotReleasedWillThrowIfResourceIsNotReleased() {
         ReferenceCountedTracer referenceCounted = createReferenceCounted();
         try {
-            referenceCounted.throwExceptionIfNotReleased();
+            assertThrows(IllegalStateException.class,
+                    referenceCounted::throwExceptionIfNotReleased,
+                    "throwIfNotReleasedWillThrowIfResourceIsNotReleased");
         } finally {
             referenceCounted.releaseLast();
         }
@@ -54,7 +56,7 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
 
         referenceCounted.releaseLast();
         referenceCounted.throwExceptionIfNotReleased();
-        assertEquals(0, referenceCounted.refCount());
+        assertEquals(0, referenceCounted.refCount(), "throwIfNotReleasedWillNotThrowIfResourceIsReleased: L57");
     }
 
     @Test
@@ -71,34 +73,34 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
 
         expectException("Discarded without being released");
         rc.warnAndReleaseIfNotReleased();
-        assertEquals(0, listener.referenceRemovedCount);
+        assertEquals(0, listener.referenceRemovedCount, "listenersShouldNotBeNotifiedOnWarnAndReleaseIfNotReleased: L74");
     }
 
     protected void exerciseReserveLifecycle(ReferenceCountedTracer rc, IntSupplier performReleaseSupplier) {
         ReferenceOwner a = ReferenceOwner.temporary("a");
         rc.reserve(a);
-        assertEquals("refCount after first reserve", 2, rc.refCount());
+        assertEquals(2, rc.refCount(), "refCount after first reserve");
 
         ReferenceOwner b = ReferenceOwner.temporary("b");
         rc.reserve(b);
-        assertEquals("refCount after second reserve", 3, rc.refCount());
+        assertEquals(3, rc.refCount(), "refCount after second reserve");
 
         assertThrows(IllegalStateException.class, () -> rc.reserve(a));
-        assertEquals("refCount should remain after failed duplicate reserve", 3, rc.refCount());
+        assertEquals(3, rc.refCount(), "refCount should remain after failed duplicate reserve");
 
         rc.release(b);
-        assertEquals("refCount after releasing second owner", 2, rc.refCount());
+        assertEquals(2, rc.refCount(), "refCount after releasing second owner");
 
         rc.release(a);
-        assertEquals("refCount after releasing first owner", 1, rc.refCount());
+        assertEquals(1, rc.refCount(), "refCount after releasing first owner");
         if (performReleaseSupplier != null) {
-            assertEquals("performRelease should not have run before releaseLast", 0, performReleaseSupplier.getAsInt());
+            assertEquals(0, performReleaseSupplier.getAsInt(), "performRelease should not have run before releaseLast");
         }
 
         rc.releaseLast();
-        assertEquals("refCount after releaseLast", 0, rc.refCount());
+        assertEquals(0, rc.refCount(), "refCount after releaseLast");
         if (performReleaseSupplier != null) {
-            assertEquals("performRelease should have run once after releaseLast", 1, performReleaseSupplier.getAsInt());
+            assertEquals(1, performReleaseSupplier.getAsInt(), "performRelease should have run once after releaseLast");
         }
     }
 }

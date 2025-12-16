@@ -4,22 +4,22 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTracerContractTest {
 
     private MyCloseableReferenceCounted referenceCounted;
 
-    @Before
+    @BeforeEach
     public void discardResources() {
         ignoreException("Failed to release LAST, closing anyway");
     }
 
-    @After
+    @AfterEach
     public void checkResources() {
         referenceCounted = null;
     }
@@ -29,7 +29,7 @@ public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTrace
         Jvm.setResourceTracing(true);
 
         MyCloseableReferenceCounted rc = createReferenceCounted();
-        assertEquals(1, rc.refCount());
+        assertEquals(1, rc.refCount(), "reserve: L32");
 
         exerciseReserveLifecycle(rc, () -> rc.performRelease);
     }
@@ -37,25 +37,25 @@ public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTrace
     @Test
     public void reserveWhenClosed() throws IllegalStateException, IllegalArgumentException {
         MyCloseableReferenceCounted rc = createReferenceCounted();
-        assertEquals(1, rc.refCount());
+        assertEquals(1, rc.refCount(), "reserveWhenClosed: L40");
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
         rc.reserve(a);
-        assertEquals(2, rc.refCount());
+        assertEquals(2, rc.refCount(), "reserveWhenClosed: L44");
 
         rc.close();
-        assertEquals(1, rc.refCount());
+        assertEquals(1, rc.refCount(), "reserveWhenClosed: L47");
 
         ReferenceOwner b = ReferenceOwner.temporary("b");
         assertThrows(IllegalStateException.class, () -> rc.reserve(b));
-        assertEquals(1, rc.refCount());
+        assertEquals(1, rc.refCount(), "reserveWhenClosed: L51");
 
-        assertFalse(rc.tryReserve(b));
-        assertEquals(1, rc.refCount());
+        assertFalse(rc.tryReserve(b), "reserveWhenClosed: L53");
+        assertEquals(1, rc.refCount(), "reserveWhenClosed: L54");
 
         rc.release(a);
-        assertEquals(0, rc.refCount());
-        assertEquals(1, rc.performRelease);
+        assertEquals(0, rc.refCount(), "reserveWhenClosed: L57");
+        assertEquals(1, rc.performRelease, "reserveWhenClosed: L58");
 
         assertThrows(IllegalStateException.class, rc::throwExceptionIfReleased);
     }

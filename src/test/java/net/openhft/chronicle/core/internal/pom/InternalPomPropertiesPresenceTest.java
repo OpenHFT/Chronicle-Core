@@ -15,14 +15,14 @@ class InternalPomPropertiesPresenceTest {
     @Test
     void versionLoadedFromResourceAndThenCached() {
         String v1 = InternalPomProperties.version("test.group", "test-artifact");
-        assertEquals("1.2.3", v1);
+        assertEquals("1.2.3", v1, "versionLoadedFromResourceAndThenCached: L18");
         // Now hide resources via an empty TCCL and read again; cache should serve same value
         Thread t = Thread.currentThread();
         ClassLoader prev = t.getContextClassLoader();
         try {
             t.setContextClassLoader(new URLClassLoader(new URL[0], null));
             String v2 = InternalPomProperties.version("test.group", "test-artifact");
-            assertEquals("1.2.3", v2);
+            assertEquals("1.2.3", v2, "versionLoadedFromResourceAndThenCached: L25");
         } finally {
             t.setContextClassLoader(prev);
         }

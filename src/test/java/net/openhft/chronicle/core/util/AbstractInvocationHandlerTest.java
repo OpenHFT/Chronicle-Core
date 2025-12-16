@@ -6,17 +6,17 @@ package net.openhft.chronicle.core.util;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.Closeable;
-import org.junit.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.Mockito.*;
 
 class ConcreteInvocationHandler extends AbstractInvocationHandler {
@@ -57,7 +57,7 @@ public class AbstractInvocationHandlerTest extends CoreTestCommon {
         AbstractInvocationHandler handler = new ConcreteInvocationHandler();
         Method exampleMethod = String.class.getMethod("length");
 
-        assertNotNull(handler.methodHandleForProxy("example", exampleMethod));
+        assertNotNull(handler.methodHandleForProxy("example", exampleMethod), "testMethodHandleForProxy: L60");
     }
 
     @Test
@@ -67,9 +67,9 @@ public class AbstractInvocationHandlerTest extends CoreTestCommon {
         final CallMe mocked = Mocker.intercepting(CallMe.class, "", consumer);
         mocked.method1();
         mocked.method2();
-        assertEquals(2, messages.size());
-        assertEquals("method1[]", messages.get(0));
-        assertEquals("method2[]", messages.get(1));
+        assertEquals(2, messages.size(), "testInvoke: L70");
+        assertEquals("method1[]", messages.get(0), "testInvoke: L71");
+        assertEquals("method2[]", messages.get(1), "testInvoke: L72");
     }
 
     @FunctionalInterface

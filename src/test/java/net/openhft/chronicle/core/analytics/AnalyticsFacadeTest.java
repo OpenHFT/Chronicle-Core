@@ -4,22 +4,22 @@
 package net.openhft.chronicle.core.analytics;
 
 import net.openhft.chronicle.core.internal.analytics.MuteBuilder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AnalyticsFacadeTest {
 
     private String originalDisableProperty;
 
-    @Before
+    @BeforeEach
     public void captureProperty() {
         originalDisableProperty = System.getProperty("chronicle.analytics.disable");
     }
 
-    @After
+    @AfterEach
     public void restoreProperty() {
         if (originalDisableProperty == null) {
             System.clearProperty("chronicle.analytics.disable");
@@ -31,19 +31,19 @@ public class AnalyticsFacadeTest {
     @Test
     public void enabledWhenAnalyticsPresent() {
         System.clearProperty("chronicle.analytics.disable");
-        assertTrue("Analytics should be enabled when dependency is available", AnalyticsFacade.isEnabled());
+        assertTrue(AnalyticsFacade.isEnabled(), "Analytics should be enabled when dependency is available");
 
         AnalyticsFacade.Builder builder = AnalyticsFacade.builder("measurement", "secret");
-        assertEquals("net.openhft.chronicle.core.internal.analytics.ReflectiveBuilder", builder.getClass().getName());
+        assertEquals("net.openhft.chronicle.core.internal.analytics.ReflectiveBuilder", builder.getClass().getName(), "enabledWhenAnalyticsPresent: L37");
     }
 
     @Test
     public void disabledWhenSystemPropertyExplicit() {
         System.setProperty("chronicle.analytics.disable", "true");
-        assertFalse(AnalyticsFacade.isEnabled());
+        assertFalse(AnalyticsFacade.isEnabled(), "disabledWhenSystemPropertyExplicit: L43");
 
         AnalyticsFacade.Builder builder = AnalyticsFacade.builder("measurement", "secret");
-        assertSame(MuteBuilder.INSTANCE, builder);
-        assertSame(MuteBuilder.INSTANCE.build(), builder.build());
+        assertSame(MuteBuilder.INSTANCE, builder, "disabledWhenSystemPropertyExplicit: L46");
+        assertSame(MuteBuilder.INSTANCE.build(), builder.build(), "disabledWhenSystemPropertyExplicit: L47");
     }
 }

@@ -24,7 +24,7 @@ class EventLoopTest {
     @Test
     void testName() {
         when(eventLoop.name()).thenReturn("TestEventLoop");
-        assertEquals("TestEventLoop", eventLoop.name());
+        assertEquals("TestEventLoop", eventLoop.name(), "testName: L27");
     }
 
     @Test
@@ -58,13 +58,13 @@ class EventLoopTest {
     @Test
     void testIsAlive() {
         when(eventLoop.isAlive()).thenReturn(true);
-        assertTrue(eventLoop.isAlive());
+        assertTrue(eventLoop.isAlive(), "testIsAlive: L61");
     }
 
     @Test
     void testIsStopped() {
         when(eventLoop.isStopped()).thenReturn(true);
-        assertTrue(eventLoop.isStopped());
+        assertTrue(eventLoop.isStopped(), "testIsStopped: L67");
     }
 
     @Test
@@ -77,6 +77,6 @@ class EventLoopTest {
     @Test
     void testRunsInsideCoreLoop() {
         when(eventLoop.runsInsideCoreLoop()).thenReturn(true);
-        assertTrue(eventLoop.runsInsideCoreLoop());
+        assertTrue(eventLoop.runsInsideCoreLoop(), "testRunsInsideCoreLoop: L80");
     }
 }

@@ -6,37 +6,37 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AbstractCloseableTest extends CoreTestCommon {
 
     @Test
     public void close() throws IllegalStateException {
         MyCloseable mc = new MyCloseable();
-        assertFalse(mc.isClosed());
-        assertEquals(0, mc.performClose);
+        assertFalse(mc.isClosed(), "close: L21");
+        assertEquals(0, mc.performClose, "close: L22");
 
         mc.throwExceptionIfClosed();
 
         mc.close();
-        assertTrue(mc.isClosed());
-        assertEquals(1, mc.performClose);
+        assertTrue(mc.isClosed(), "close: L27");
+        assertEquals(1, mc.performClose, "close: L28");
 
         mc.close();
-        assertTrue(mc.isClosed());
-        assertEquals(1, mc.performClose);
+        assertTrue(mc.isClosed(), "close: L31");
+        assertEquals(1, mc.performClose, "close: L32");
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void throwExceptionIfClosed() throws IllegalStateException {
+    @Test
+    public void throwExceptionIfClosed() {
         MyCloseable mc = new MyCloseable();
         mc.close();
-        mc.throwExceptionIfClosed();
+        assertThrows(IllegalStateException.class, mc::throwExceptionIfClosed, "throwExceptionIfClosed");
 
     }
 
@@ -51,7 +51,7 @@ public class AbstractCloseableTest extends CoreTestCommon {
         System.err.println("!!! The following warning is expected !!!");
         mc.warnAndCloseIfNotClosed();
 
-        assertTrue(mc.isClosed());
+        assertTrue(mc.isClosed(), "warnAndCloseIfNotClosed: L54");
         Jvm.resetExceptionHandlers();
         if (!AbstractCloseable.DISABLE_DISCARD_WARNING)
             assertEquals("Discarded without closing\n" +
@@ -59,7 +59,8 @@ public class AbstractCloseableTest extends CoreTestCommon {
                     map.keySet().stream()
                             .map(e -> e.message() + "\n" + e.throwable())
                             .collect(Collectors.joining(", "))
-                            .split(" at ")[0]);
+                            .split(" at ")[0],
+                    "warnAndCloseIfNotClosed: L57");
     }
 
     @Test
@@ -76,10 +77,10 @@ public class AbstractCloseableTest extends CoreTestCommon {
         };
 
         assertThrows(IllegalStateException.class, myCloseable::close);
-        assertEquals(0, myCloseable.performClose);
+        assertEquals(0, myCloseable.performClose, "assertCloseable: L79");
 
         myCloseable.close();
-        assertEquals(1, myCloseable.performClose);
+        assertEquals(1, myCloseable.performClose, "assertCloseable: L82");
     }
 
     static class MyCloseable extends AbstractCloseable {
@@ -87,8 +88,8 @@ public class AbstractCloseableTest extends CoreTestCommon {
 
         @Override
         protected void performClose() {
-            assertTrue(isClosing());
-            assertFalse(isClosed());
+            assertTrue(isClosing(), "performClose: L90");
+            assertFalse(isClosed(), "performClose: L91");
             performClose++;
         }
     }

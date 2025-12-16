@@ -14,7 +14,7 @@ class IORuntimeExceptionTest {
         String message = "Error message";
         IORuntimeException exception = new IORuntimeException(message);
 
-        assertEquals(message, exception.getMessage());
+        assertEquals(message, exception.getMessage(), "testConstructorWithMessage: L17");
     }
 
     @Test
@@ -22,7 +22,7 @@ class IORuntimeExceptionTest {
         Throwable cause = new IOException("Cause");
         IORuntimeException exception = new IORuntimeException(cause);
 
-        assertEquals(cause, exception.getCause());
+        assertEquals(cause, exception.getCause(), "testConstructorWithThrowable: L25");
     }
 
     @Test
@@ -31,8 +31,8 @@ class IORuntimeExceptionTest {
         Throwable cause = new IOException("Cause");
         IORuntimeException exception = new IORuntimeException(message, cause);
 
-        assertEquals(message, exception.getMessage());
-        assertEquals(cause, exception.getCause());
+        assertEquals(message, exception.getMessage(), "testConstructorWithMessageAndThrowable: L34");
+        assertEquals(cause, exception.getCause(), "testConstructorWithMessageAndThrowable: L35");
     }
 
     @Test
@@ -44,9 +44,9 @@ class IORuntimeExceptionTest {
         IORuntimeException runtimeOtherException = IORuntimeException.newIORuntimeException(otherException);
 
         assertInstanceOf(ClosedIORuntimeException.class, runtimeClosedException);
-        assertEquals(closedException, runtimeClosedException.getCause());
+        assertEquals(closedException, runtimeClosedException.getCause(), "testNewIORuntimeException: L47");
 
-        assertFalse(runtimeOtherException instanceof ClosedIORuntimeException);
-        assertEquals(otherException, runtimeOtherException.getCause());
+        assertFalse(runtimeOtherException instanceof ClosedIORuntimeException, "testNewIORuntimeException: L49");
+        assertEquals(otherException, runtimeOtherException.getCause(), "testNewIORuntimeException: L50");
     }
 }

@@ -4,26 +4,26 @@
 package net.openhft.chronicle.core.internal.analytics;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class StandardMapsTest extends CoreTestCommon {
 
     @Test
     public void standardEventParameters() {
-        assertEquals(Collections.singletonMap("app_version", "1.0.0"), StandardMaps.standardEventParameters("1.0.0"));
+        assertEquals(Collections.singletonMap("app_version", "1.0.0"), StandardMaps.standardEventParameters("1.0.0"), "standardEventParameters: L19");
     }
 
     @Test
     public void standardAdditionalEventParametersThreadsStackTrace() {
         final Map<String, String> actual = StandardMaps.standardAdditionalEventParameters();
-        assertFalse(actual.containsValue("java.lang"));
-        assertFalse(actual.containsValue("org.junit"));
+        assertFalse(actual.containsValue("java.lang"), "standardAdditionalEventParametersThreadsStackTrace: L25");
+        assertFalse(actual.containsValue("org.junit"), "standardAdditionalEventParametersThreadsStackTrace: L26");
     }
 
     @Test
@@ -53,48 +53,48 @@ public class StandardMapsTest extends CoreTestCommon {
 
         final Map<String, String> actual = StandardMaps.standardAdditionalEventParameters(stackTrace);
 
-        assertEquals(expected, actual);
+        assertEquals(expected, actual, "standardAdditionalEventParameters: L56");
 
     }
 
     @Test
     public void standardUserProperties() {
-        assertFalse(StandardMaps.standardUserProperties().values().stream().anyMatch(Objects::isNull));
+        assertFalse(StandardMaps.standardUserProperties().values().stream().anyMatch(Objects::isNull), "standardUserProperties: L62");
     }
 
     @Test
     public void packageNameUpToMaxLevel3Empty() {
-        assertEquals("", StandardMaps.packageNameUpToMaxLevel3(""));
+        assertEquals("", StandardMaps.packageNameUpToMaxLevel3(""), "packageNameUpToMaxLevel3Empty: L67");
     }
 
     @Test
     public void packageNameUpToMaxLevel3L0() {
-        assertEquals("foo", StandardMaps.packageNameUpToMaxLevel3("foo"));
+        assertEquals("foo", StandardMaps.packageNameUpToMaxLevel3("foo"), "packageNameUpToMaxLevel3L0: L72");
     }
 
     @Test
     public void packageNameUpToMaxLevel3L1() {
-        assertEquals("a", StandardMaps.packageNameUpToMaxLevel3("a.foo"));
+        assertEquals("a", StandardMaps.packageNameUpToMaxLevel3("a.foo"), "packageNameUpToMaxLevel3L1: L77");
     }
 
     @Test
     public void packageNameUpToMaxLevel3L2() {
-        assertEquals("a.b", StandardMaps.packageNameUpToMaxLevel3("a.b.foo"));
+        assertEquals("a.b", StandardMaps.packageNameUpToMaxLevel3("a.b.foo"), "packageNameUpToMaxLevel3L2: L82");
     }
 
     @Test
     public void packageNameUpToMaxLevel3L3() {
-        assertEquals("a.b.c", StandardMaps.packageNameUpToMaxLevel3("a.b.c.foo"));
+        assertEquals("a.b.c", StandardMaps.packageNameUpToMaxLevel3("a.b.c.foo"), "packageNameUpToMaxLevel3L3: L87");
     }
 
     @Test
     public void packageNameUpToMaxLevel3L4() {
-        assertEquals("a.b.c", StandardMaps.packageNameUpToMaxLevel3("a.b.c.d.foo"));
+        assertEquals("a.b.c", StandardMaps.packageNameUpToMaxLevel3("a.b.c.d.foo"), "packageNameUpToMaxLevel3L4: L92");
     }
 
     @Test
     public void packageNameUpToMaxLevelThisClass() {
-        assertEquals("net.openhft.chronicle", StandardMaps.packageNameUpToMaxLevel3(StandardMapsTest.class.getName()));
+        assertEquals("net.openhft.chronicle", StandardMaps.packageNameUpToMaxLevel3(StandardMapsTest.class.getName()), "packageNameUpToMaxLevelThisClass: L97");
     }
 
     @Test
@@ -104,13 +104,13 @@ public class StandardMapsTest extends CoreTestCommon {
                 .filter(pn -> StandardMaps.distinctUpToMaxLevel3(pn, distinctKeys))
                 .collect(Collectors.toList());
 
-        assertEquals(Arrays.asList("a.b.c.d", "x", "y", "z"), list);
+        assertEquals(Arrays.asList("a.b.c.d", "x", "y", "z"), list, "distinctUpToMaxLevel3: L107");
     }
 
     @Test
     public void standardEventParametersIncludesAppVersion() {
         Map<String, String> eventParameters = StandardMaps.standardEventParameters("9.9.9");
-        assertEquals("9.9.9", eventParameters.get("app_version"));
+        assertEquals("9.9.9", eventParameters.get("app_version"), "standardEventParametersIncludesAppVersion: L113");
     }
 
     @Test
@@ -124,25 +124,25 @@ public class StandardMapsTest extends CoreTestCommon {
 
         Map<String, String> additional = StandardMaps.standardAdditionalEventParameters(elements);
 
-        assertTrue("Expected at most three entries", additional.size() <= 3);
-        assertTrue(additional.values().stream().anyMatch(v -> v.contains("run.chronicle.demo")));
-        assertFalse("Enterprise packages should be filtered", additional.values().stream().anyMatch(v -> v.startsWith("software.chronicle")));
+        assertTrue(additional.size() <= 3, "Expected at most three entries");
+        assertTrue(additional.values().stream().anyMatch(v -> v.contains("run.chronicle.demo")), "additionalEventParametersHonoursWhitelistAndMaxThreeEntries: L128");
+        assertFalse(additional.values().stream().anyMatch(v -> v.startsWith("software.chronicle")), "Enterprise packages should be filtered");
     }
 
     @Test
     public void packageNameUpToMaxLevel3CollapsesDeepPackages() {
         String collapsed = StandardMaps.packageNameUpToMaxLevel3("com.example.deep.pkg.name.Component");
-        assertEquals("com.example.deep", collapsed);
+        assertEquals("com.example.deep", collapsed, "packageNameUpToMaxLevel3CollapsesDeepPackages: L135");
 
-        assertEquals("net.openhft", StandardMaps.packageNameUpToMaxLevel3("net.openhft.Class"));
-        assertEquals("Class", StandardMaps.packageNameUpToMaxLevel3("Class"));
+        assertEquals("net.openhft", StandardMaps.packageNameUpToMaxLevel3("net.openhft.Class"), "packageNameUpToMaxLevel3CollapsesDeepPackages: L137");
+        assertEquals("Class", StandardMaps.packageNameUpToMaxLevel3("Class"), "packageNameUpToMaxLevel3CollapsesDeepPackages: L138");
     }
 
     @Test
     public void standardUserPropertiesExposeRuntime() {
         Map<String, String> userProps = StandardMaps.standardUserProperties();
-        assertTrue(userProps.containsKey("java_runtime_name"));
-        assertNotNull(userProps.get("java_runtime_name"));
-        assertFalse(userProps.values().stream().anyMatch(Objects::isNull));
+        assertTrue(userProps.containsKey("java_runtime_name"), "standardUserPropertiesExposeRuntime: L144");
+        assertNotNull(userProps.get("java_runtime_name"), "standardUserPropertiesExposeRuntime: L145");
+        assertFalse(userProps.values().stream().anyMatch(Objects::isNull), "standardUserPropertiesExposeRuntime: L146");
     }
 }

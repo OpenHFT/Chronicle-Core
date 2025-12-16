@@ -36,10 +36,10 @@ class SyncableTest {
     @Test
     void syncShouldSetSyncedToTrueForSyncableImpl() {
         SyncableImpl syncableImpl = new SyncableImpl();
-        assertFalse(syncableImpl.synced);
+        assertFalse(syncableImpl.synced, "syncShouldSetSyncedToTrueForSyncableImpl: L39");
 
         syncableImpl.sync();
 
-        assertTrue(syncableImpl.synced);
+        assertTrue(syncableImpl.synced, "syncShouldSetSyncedToTrueForSyncableImpl: L43");
     }
 }

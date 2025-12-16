@@ -31,10 +31,10 @@ class CleanerServiceLocatorTest {
     void picksAllowedServiceWithLowestImpact() throws Exception {
         resetLocator();
         ByteBufferCleanerService svc = CleanerServiceLocator.cleanerService();
-        assertNotNull(svc);
+        assertNotNull(svc, "picksAllowedServiceWithLowestImpact: L34");
         // Should be our test implementation from META-INF/services
-        assertEquals("net.openhft.chronicle.core.cleaner.testimpl.AllowedCleaner", svc.getClass().getName());
-        assertEquals(ByteBufferCleanerService.Impact.NO_IMPACT, svc.impact());
+        assertEquals("net.openhft.chronicle.core.cleaner.testimpl.AllowedCleaner", svc.getClass().getName(), "picksAllowedServiceWithLowestImpact: L36");
+        assertEquals(ByteBufferCleanerService.Impact.NO_IMPACT, svc.impact(), "picksAllowedServiceWithLowestImpact: L37");
     }
 
     @Test
@@ -70,8 +70,8 @@ class CleanerServiceLocatorTest {
         try {
             current.setContextClassLoader(noServiceCL);
             ByteBufferCleanerService svc = CleanerServiceLocator.cleanerService();
-            assertNotNull(svc);
-            assertTrue(svc.getClass().getName().contains("internal.cleaner"));
+            assertNotNull(svc, "fallsBackToReflectionCleanerWhenNoProviders: L73");
+            assertTrue(svc.getClass().getName().contains("internal.cleaner"), "fallsBackToReflectionCleanerWhenNoProviders: L74");
         } finally {
             current.setContextClassLoader(prev);
         }

@@ -98,7 +98,8 @@ class CleaningThreadLocalIntegrationTest {
         assertTrue(executor.awaitTermination(10, TimeUnit.SECONDS), "cleanup threads timed out");
         registrar.join();
 
-        assertNull(failure.get(), () -> "cleanup should not throw " + failure.get());
+        Throwable cleanupFailure = failure.get();
+        assertNull(cleanupFailure, "cleanup should not throw " + cleanupFailure);
 
         int remaining = Integer.MAX_VALUE;
         for (int attempts = 0; remaining > 0 && attempts < 10; attempts++) {

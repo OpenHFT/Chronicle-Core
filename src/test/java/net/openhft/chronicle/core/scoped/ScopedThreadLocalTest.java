@@ -6,8 +6,8 @@ package net.openhft.chronicle.core.scoped;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.threads.CleaningThread;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.Closeable;
 import java.util.*;
@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static net.openhft.chronicle.core.io.Closeable.closeQuietly;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ScopedThreadLocalTest extends CoreTestCommon {
 
@@ -23,7 +23,7 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
 
     private ScopedThreadLocal<AtomicLong> scopedThreadLocal;
 
-    @Before
+    @BeforeEach
     public void createSTL() {
         scopedThreadLocal = new ScopedThreadLocal<>(AtomicLong::new, al -> al.set(0), MAX_INSTANCES);
     }
@@ -35,6 +35,7 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
         for (int i = 0; i < MAX_INSTANCES + 1; i++) {
             allLongs.add(scopedThreadLocal.get());
         }
+        assertEquals(MAX_INSTANCES + 1, allLongs.size(), "warningWillBeDisplayedWhenWeUseMoreThanMaxInstances: acquired resources");
         closeQuietly(allLongs);
     }
 
@@ -47,9 +48,9 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
                 try (ScopedResource<AtomicLong> l3 = scopedThreadLocal.get()) {
                     l3.get().set(789);
                 }
-                assertEquals(456L, l2.get().get());
+                assertEquals(456L, l2.get().get(), "nestedCallsWillGetDifferentResources: L51");
             }
-            assertEquals(123L, l1.get().get());
+            assertEquals(123L, l1.get().get(), "nestedCallsWillGetDifferentResources: L53");
         }
     }
 
@@ -72,7 +73,7 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
             thread.start();
             thread.join();
         }
-        assertEquals(numThreads, instanceObjectIDs.size());
+        assertEquals(numThreads, instanceObjectIDs.size(), "differentThreadsWillGetDifferentResources: L76");
     }
 
     @Test
@@ -83,8 +84,8 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
             objectId = System.identityHashCode(l1.get());
         }
         try (ScopedResource<AtomicLong> l1 = scopedThreadLocal.get()) {
-            assertEquals(0L, l1.get().get());
-            assertEquals(objectId, System.identityHashCode(l1.get()));
+            assertEquals(0L, l1.get().get(), "onAcquireIsPerformedBeforeEachAcquisition: L87");
+            assertEquals(objectId, System.identityHashCode(l1.get()), "onAcquireIsPerformedBeforeEachAcquisition: L88");
         }
     }
 
@@ -100,17 +101,17 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
             try (final ScopedResource<CloseableResource> cr1 = stl.get();
                  final ScopedResource<CloseableResource> cr2 = stl.get()) {
                 // Create two resources, do nothing
-                assertNotNull(cr1);
-                assertNotNull(cr2);
+                assertNotNull(cr1, "cleaningThreadWillCloseResources: L104");
+                assertNotNull(cr2, "cleaningThreadWillCloseResources: L105");
             }
             // None should be closed
-            assertTrue(allResources.stream().noneMatch(cr -> cr.closed));
+            assertTrue(allResources.stream().noneMatch(cr -> cr.closed), "cleaningThreadWillCloseResources: L108");
         });
         cleaningThread.start();
         cleaningThread.join();
         // All should be closed
-        assertEquals(2, allResources.size());
-        assertTrue(allResources.stream().allMatch(cr -> cr.closed));
+        assertEquals(2, allResources.size(), "cleaningThreadWillCloseResources: L113");
+        assertTrue(allResources.stream().allMatch(cr -> cr.closed), "cleaningThreadWillCloseResources: L114");
     }
 
     @Test
@@ -121,16 +122,13 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
         }, MAX_INSTANCES);
 
         // Should get 0,1,2,3 on the first excessive acquire
-        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 3)),
-                retrieveAndReturnNValues(MAX_INSTANCES + 1, ints));
+        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 3)), retrieveAndReturnNValues(MAX_INSTANCES + 1, ints), "whenOverflowOccursNewestInstanceIsDiscarded: L125");
 
         // Should get 0,1,2,4,5 on the next excessive acquire
-        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 4, 5)),
-                retrieveAndReturnNValues(MAX_INSTANCES + 2, ints));
+        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 4, 5)), retrieveAndReturnNValues(MAX_INSTANCES + 2, ints), "whenOverflowOccursNewestInstanceIsDiscarded: L129");
 
         // Should get 0,1,2,6,7 on the next excessive acquire
-        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 6, 7)),
-                retrieveAndReturnNValues(MAX_INSTANCES + 2, ints));
+        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 6, 7)), retrieveAndReturnNValues(MAX_INSTANCES + 2, ints), "whenOverflowOccursNewestInstanceIsDiscarded: L133");
     }
 
     private Set<Integer> retrieveAndReturnNValues(int numberToRetrieve, ScopedThreadLocal<Integer> scopedInts) {
