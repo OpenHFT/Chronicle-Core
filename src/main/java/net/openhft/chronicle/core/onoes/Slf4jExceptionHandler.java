@@ -21,7 +21,12 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
     ERROR(Logger::error),
     WARN(Logger::warn),
     PERF(Logger::info),
-    DEBUG(Logger::debug);
+    DEBUG(Logger::debug) {
+        @Override
+        public boolean isEnabled(@NotNull Class<?> aClass) {
+            return getLogger(aClass).isDebugEnabled();
+        }
+    };
 
     private final LogMethod logMethod;
 
@@ -55,11 +60,6 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
             }
             t.printStackTrace();
         }
-    }
-
-    @Override
-    public boolean isEnabled(@NotNull Class<?> aClass) {
-        return getLogger(aClass).isDebugEnabled();
     }
 
     static Logger getLogger(Class<?> clazz) {
