@@ -38,5 +38,10 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.CLASS)
 public @interface ChronicleFeature {
+    /**
+     * Numeric identifier for the feature.
+     *
+     * @return feature id or bit mask recognised by Chronicle tooling
+     */
     int value();
 }

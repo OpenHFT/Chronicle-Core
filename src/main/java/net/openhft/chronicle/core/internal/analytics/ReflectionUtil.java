@@ -95,6 +95,7 @@ public final class ReflectionUtil {
      * Create a proxy implementing {@code interf} that forwards calls to {@code delegate}.
      */
     @NotNull
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static <T> T reflectiveProxy(@NotNull final Class<T> interf, @NotNull final Object delegate) throws IllegalArgumentException {
         requireNonNull(interf);
         requireNonNull(delegate);
@@ -110,6 +111,7 @@ public final class ReflectionUtil {
      * Create a forwarding proxy with the option to return the proxy itself for fluent APIs.
      */
     @NotNull
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static <T> T reflectiveProxy(@NotNull final Class<T> interf,
                                         @NotNull final Object delegate,
                                         final boolean returnProxy) throws IllegalArgumentException {

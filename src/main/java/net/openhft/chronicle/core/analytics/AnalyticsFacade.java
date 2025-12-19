@@ -35,6 +35,8 @@ public interface AnalyticsFacade {
      * Depending on settings and other conditions, the event may or may not be
      * sent upstream. For example, some implementations may
      * send a limited number of upstream events per time unit.
+     *
+     * @param name event name to record
      */
     default void sendEvent(@NotNull String name) {
         sendEvent(name, Collections.emptyMap());
@@ -47,6 +49,9 @@ public interface AnalyticsFacade {
      * Depending on settings and other conditions, the event may or may not be
      * sent upstream. For example, some implementations may
      * send a limited number of upstream events per time unit.
+     *
+     * @param name                      event name to record
+     * @param additionalEventParameters additional parameters to attach
      */
     void sendEvent(@NotNull String name, @NotNull Map<String, String> additionalEventParameters);
 
@@ -155,11 +160,16 @@ public interface AnalyticsFacade {
      * Creates and returns a new map of standard user properties.
      * <p>
      * The map may contain package names.
+     *
+     * @return a new map of standard additional event properties
      */
     static Map<String, String> standardAdditionalProperties() {
         return StandardMaps.standardAdditionalEventParameters();
     }
 
+    /**
+     * Builder for {@link AnalyticsFacade} instances.
+     */
     interface Builder {
 
         /**

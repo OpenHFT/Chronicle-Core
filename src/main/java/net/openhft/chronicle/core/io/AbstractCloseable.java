@@ -51,6 +51,9 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     @SuppressWarnings("unused")
     @UsedViaReflection
     private final transient Finalizer finalizer = DISABLE_DISCARD_WARNING ? null : new Finalizer();
+    /**
+     * Captures where {@link #close()} was last invoked when tracing is enabled.
+     */
     protected transient volatile StackTrace closedHere;
     private transient volatile int closed = 0;
     private transient volatile Thread usedByThread;
@@ -99,6 +102,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
      *
      * @throws AssertionError If the finalizer does not complete within the specified timeout.
      */
+    @Deprecated(/* to be removed in 2027 */)
     public static void gcAndWaitForCloseablesToClose() {
         CloseableUtils.gcAndWaitForCloseablesToClose();
     }
@@ -371,6 +375,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
      * After calling this method, the component's thread safety check state will be cleared,
      * and it will no longer remember which thread it was last accessed by.
      */
+    @Override
     public void singleThreadedCheckReset() {
         usedByThread = null;
         usedByThreadHere = null;

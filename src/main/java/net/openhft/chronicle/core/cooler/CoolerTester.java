@@ -121,6 +121,8 @@ public class CoolerTester {
     }
 
     /**
+     * Returns the maximum repetitions per test/cooler combination.
+     *
      * @return the maximum number of times each test is run with each cooler.
      */
     public int repeat() {
@@ -139,6 +141,8 @@ public class CoolerTester {
     }
 
     /**
+     * Returns the duration each test runs with a cooler.
+     *
      * @return the time in milliseconds that each test is run with each cooler.
      */
     public int runTimeMS() {
@@ -157,6 +161,8 @@ public class CoolerTester {
     }
 
     /**
+     * Returns the minimum run count per test/cooler.
+     *
      * @return the minimum number of times each test is run with each cooler.
      */
     public int minCount() {
@@ -175,6 +181,8 @@ public class CoolerTester {
     }
 
     /**
+     * Returns the maximum run count per test/cooler.
+     *
      * @return the maximum number of times each test is run with each cooler.
      */
     public int maxCount() {

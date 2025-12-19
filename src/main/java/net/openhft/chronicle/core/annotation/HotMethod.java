@@ -25,11 +25,15 @@ import java.lang.annotation.Target;
  *
  * <p>This annotation has no runtime impact but aids Chronicle benchmarking
  * tools.</p>
- *
- * @see ForceInline
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
+@Deprecated(/* to be removed in 2027 */)
 public @interface HotMethod {
+    /**
+     * Optional label describing why the method is hot.
+     *
+     * @return descriptive tag for profiling output
+     */
     @NotNull String value() default "";
 }
