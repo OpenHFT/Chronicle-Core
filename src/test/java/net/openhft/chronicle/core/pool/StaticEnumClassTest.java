@@ -13,6 +13,6 @@ public class StaticEnumClassTest extends CoreTestCommon {
     @Test
     public void testInitialSize() throws IllegalArgumentException {
         EnumCache<Ecn> ecnEnumCache = EnumCache.of(Ecn.class);
-        assertEquals(32, Maths.nextPower2(ecnEnumCache.size(), 1), "testInitialSize: L16");
+        assertEquals(32, Maths.nextPower2(ecnEnumCache.size(), 1), "EnumCache size should round up to next power of 2 equal to 32");
     }
 }

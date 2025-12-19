@@ -16,6 +16,6 @@ public class ReferenceOwnerTest {
         Set<Integer> ints = new HashSet<>();
         for (int i = 0; i < 101; i++)
             ints.add(new VanillaReferenceOwner("hi").referenceId());
-        assertEquals(100, ints.size(), 1, "testReferenceId: L18");
+        assertEquals(100, ints.size(), 1, "Reference IDs should be unique across 101 instances within delta of 1");
     }
 }

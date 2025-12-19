@@ -20,9 +20,9 @@ class VanillaReferenceCountedEdgeTest {
         AtomicInteger released = new AtomicInteger();
         VanillaReferenceCounted ref = newRef(released);
         ref.release(ReferenceOwner.INIT);
-        assertEquals(1, released.get(), "doubleReleaseThrows: L23");
+        assertEquals(1, released.get(), "release callback should be invoked once after first release");
         ClosedIllegalStateException ex = assertThrows(ClosedIllegalStateException.class, () -> ref.release(ReferenceOwner.INIT));
-        assertTrue(ex.getMessage().contains("released"), "doubleReleaseThrows: L25");
+        assertTrue(ex.getMessage().contains("released"), "exception message should indicate resource already released");
     }
 
     @Test
@@ -44,7 +44,7 @@ class VanillaReferenceCountedEdgeTest {
         assertThrows(IllegalStateException.class, ref::throwExceptionIfNotReleased);
         // cleanup
         ref.release(ReferenceOwner.INIT);
-        assertEquals(1, released.get(), "notLastReleaseIsDetected: L47");
+        assertEquals(1, released.get(), "release callback should be invoked once after final release");
     }
 
     @Test
@@ -74,7 +74,7 @@ class VanillaReferenceCountedEdgeTest {
         ref.reserve(ReferenceOwner.INIT);
         ref.release(ReferenceOwner.INIT);
         ref.removeReferenceChangeListener(listener);
-        assertEquals(1, added.get(), "listenersAreCalledOnAddRemove: L77");
-        assertEquals(1, removed.get(), "listenersAreCalledOnAddRemove: L78");
+        assertEquals(1, added.get(), "listener should be notified once on reserve");
+        assertEquals(1, removed.get(), "listener should be notified once on release");
     }
 }

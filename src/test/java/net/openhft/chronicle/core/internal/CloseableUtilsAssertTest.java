@@ -25,8 +25,8 @@ class CloseableUtilsAssertTest {
         DummyCloseable dc = new DummyCloseable();
         // do not close it to simulate leak
         AssertionError ae = assertThrows(AssertionError.class, AbstractCloseable::assertCloseablesClosed);
-        assertTrue(ae.getSuppressed().length >= 1, "assertCloseablesClosedFindsUnclosedAndCloses: L28");
+        assertTrue(ae.getSuppressed().length >= 1, "assertion error should contain at least one suppressed exception for unclosed resource");
         // The helper should have closed leaked resources
-        assertTrue(dc.performed, "assertCloseablesClosedFindsUnclosedAndCloses: L30");
+        assertTrue(dc.performed, "leaked resource should be closed by assertCloseablesClosed helper");
     }
 }

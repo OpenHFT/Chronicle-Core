@@ -41,33 +41,33 @@ public class ObjectUtilsTest extends CoreTestCommon {
 
     @Test
     public void canConvertTo() {
-        assertTrue(ObjectUtils.canConvertText(String.class), "canConvertTo: L44");
-        assertTrue(ObjectUtils.canConvertText(Class.class), "canConvertTo: L45");
-        assertTrue(ObjectUtils.canConvertText(Boolean.class), "canConvertTo: L46");
-        assertTrue(ObjectUtils.canConvertText(UUID.class), "canConvertTo: L47");
-        assertTrue(ObjectUtils.canConvertText(byte[].class), "canConvertTo: L48");
+        assertTrue(ObjectUtils.canConvertText(String.class), "string class should be convertible from text");
+        assertTrue(ObjectUtils.canConvertText(Class.class), "class type should be convertible from text");
+        assertTrue(ObjectUtils.canConvertText(Boolean.class), "boolean wrapper should be convertible from text");
+        assertTrue(ObjectUtils.canConvertText(UUID.class), "uuid should be convertible from text");
+        assertTrue(ObjectUtils.canConvertText(byte[].class), "byte array should be convertible from text");
         // an Enum
-        assertTrue(ObjectUtils.canConvertText(Ecn.class), "canConvertTo: L50");
+        assertTrue(ObjectUtils.canConvertText(Ecn.class), "enum should be convertible from text");
         // a primitive wrapper
-        assertTrue(ObjectUtils.canConvertText(Long.class), "canConvertTo: L52");
+        assertTrue(ObjectUtils.canConvertText(Long.class), "long wrapper should be convertible from text");
         // a scalar with a String constructor
-        assertTrue(ObjectUtils.canConvertText(ClassWithString.class), "canConvertTo: L54");
+        assertTrue(ObjectUtils.canConvertText(ClassWithString.class), "class with string constructor should be convertible from text");
         // a class with valueOf method
-        assertTrue(ObjectUtils.canConvertText(ClassWithValueOf.class), "canConvertTo: L56");
+        assertTrue(ObjectUtils.canConvertText(ClassWithValueOf.class), "class with valueOf method should be convertible from text");
         // a class with parse method
-        assertTrue(ObjectUtils.canConvertText(ClassWithParse.class), "canConvertTo: L58");
+        assertTrue(ObjectUtils.canConvertText(ClassWithParse.class), "class with parse method should be convertible from text");
 
         // a class with a setter method can't be used
-        assertFalse(ObjectUtils.canConvertText(ClassWithSetter.class), "canConvertTo: L61");
+        assertFalse(ObjectUtils.canConvertText(ClassWithSetter.class), "class with only setter should not be convertible from text");
     }
 
     @Test
     public void testConvert() throws IllegalStateException, IllegalArgumentException {
-        assertEquals('1', (char) ObjectUtils.convertTo(char.class, 1), "testConvert: L66");
-        assertEquals('1', (char) ObjectUtils.convertTo(char.class, 1L), "testConvert: L67");
-        assertEquals(1, (int) ObjectUtils.convertTo(int.class, '1'), "testConvert: L68");
-        assertEquals(1L, (long) ObjectUtils.convertTo(long.class, '1'), "testConvert: L69");
-        assertEquals(1.0, ObjectUtils.convertTo(double.class, '1'), 0.0, "testConvert: L70");
+        assertEquals('1', (char) ObjectUtils.convertTo(char.class, 1), "integer 1 should convert to character '1'");
+        assertEquals('1', (char) ObjectUtils.convertTo(char.class, 1L), "long 1 should convert to character '1'");
+        assertEquals(1, (int) ObjectUtils.convertTo(int.class, '1'), "character '1' should convert to integer 1");
+        assertEquals(1L, (long) ObjectUtils.convertTo(long.class, '1'), "character '1' should convert to long 1");
+        assertEquals(1.0, ObjectUtils.convertTo(double.class, '1'), 0.0, "character '1' should convert to double 1.0");
     }
 
     @Test
@@ -79,7 +79,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
     public void supplierForClassShouldHandleDifferentClassTypes() {
         // Example for a regular class
         Supplier<RegularClass> regularClassSupplier = ObjectUtils.supplierForClass(RegularClass.class);
-        assertNotNull(regularClassSupplier.get(), "supplierForClassShouldHandleDifferentClassTypes: L82");
+        assertNotNull(regularClassSupplier.get(), "supplier should create instance of regular class");
 
         // Example for a primitive type
         Supplier<Integer> integerSupplier = ObjectUtils.supplierForClass(int.class);
@@ -90,7 +90,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
     public void immutableShouldRegisterImmutability() {
         Class<?> testClass = RegularClass.class;
         ObjectUtils.immutable(testClass, true);
-        assertEquals(ObjectUtils.Immutability.YES, ObjectUtils.isImmutable(testClass), "immutableShouldRegisterImmutability: L93");
+        assertEquals(ObjectUtils.Immutability.YES, ObjectUtils.isImmutable(testClass), "class registered as immutable should return immutability.yes");
     }
 
     @Test
@@ -98,86 +98,86 @@ public class ObjectUtilsTest extends CoreTestCommon {
         // Assuming MyEnum is an enum class
         Map<String, Enum<?>> map = ObjectUtils.caseIgnoreLookup(MyEnum.class);
         // Assertions to check the map contents
-        assertEquals("{MY_VALUE=MY_VALUE}", map.toString(), "caseIgnoreLookupShouldCreateCorrectMap: L101");
+        assertEquals("{MY_VALUE=MY_VALUE}", map.toString(), "case-insensitive enum lookup map should contain all enum values");
     }
 
     @Test
     public void valueOfIgnoreCaseShouldReturnCorrectEnum() {
         // Assuming MyEnum is an enum class with a constant MY_VALUE
         MyEnum result = ObjectUtils.valueOfIgnoreCase(MyEnum.class, "my_value");
-        assertEquals(MyEnum.MY_VALUE, result, "valueOfIgnoreCaseShouldReturnCorrectEnum: L108");
+        assertEquals(MyEnum.MY_VALUE, result, "lowercase enum name should match enum constant case-insensitively");
     }
 
     @Test
     public void supplierForInternalPackageTest() {
         Supplier<?> supplier = ObjectUtils.supplierForInternalPackage();
-        assertThrows(IllegalArgumentException.class, supplier::get, "supplierForInternalPackageTest");
+        assertThrows(IllegalArgumentException.class, supplier::get, "supplier for internal package should throw when invoked");
     }
 
     @Test
     public void supplierForEnumTest() {
         Supplier<MyEnum> supplier = ObjectUtils.supplierForEnum(MyEnum.class);
-        assertNotNull(supplier.get(), "supplierForEnumTest: L120");
+        assertNotNull(supplier.get(), "enum supplier should create non-null enum value");
     }
 
     @Test
     public void supplierForAbstractClassTest() {
         Supplier<AbstractTestClass> supplier = ObjectUtils.supplierForAbstractClass(AbstractTestClass.class);
-        assertThrows(IllegalArgumentException.class, supplier::get, "supplierForAbstractClassTest");
+        assertThrows(IllegalArgumentException.class, supplier::get, "supplier for abstract class should throw when attempting instantiation");
     }
 
     @Test
     public void convertCharSingleCharacterTest() {
-        assertEquals(Character.valueOf('a'), ObjectUtils.convertChar("a"), "convertCharSingleCharacterTest: L131");
+        assertEquals(Character.valueOf('a'), ObjectUtils.convertChar("a"), "single-character string should convert to character");
     }
 
     @Test
     public void convertCharLongStringTest() {
-        assertNull(ObjectUtils.convertChar("long"), "convertCharLongStringTest: L136");
+        assertNull(ObjectUtils.convertChar("long"), "multi-character string should return null when converting to char");
     }
 
     @Test
     public void convertTo0SameClassTest() {
         String testString = "test";
-        assertEquals(testString, ObjectUtils.convertTo0(String.class, testString), "convertTo0SameClassTest: L142");
+        assertEquals(testString, ObjectUtils.convertTo0(String.class, testString), "converting to same class should return original instance");
     }
 
     @Test
     public void convertTo0NullTest() {
-        assertNull(ObjectUtils.convertTo0(String.class, null), "convertTo0NullTest: L147");
+        assertNull(ObjectUtils.convertTo0(String.class, null), "null input should return null");
     }
 
     @Test
     public void convertTo0VoidClassTest() {
-        assertNull(ObjectUtils.convertTo0(Void.class, "anyValue"), "convertTo0VoidClassTest: L152");
+        assertNull(ObjectUtils.convertTo0(Void.class, "anyValue"), "converting to void class should always return null");
     }
 
     @Test
     public void convertTo0ToStringTest() {
         Object testObject = new Object();
-        assertEquals(testObject.toString(), ObjectUtils.convertTo0(String.class, testObject), "convertTo0ToStringTest: L158");
+        assertEquals(testObject.toString(), ObjectUtils.convertTo0(String.class, testObject), "object should convert to string using tostring method");
     }
 
     @Test
     public void convertTo0ToNumberTest() {
-        assertEquals(Integer.valueOf(10), ObjectUtils.convertTo0(Integer.class, "10"), "convertTo0ToNumberTest: L163");
+        assertEquals(Integer.valueOf(10), ObjectUtils.convertTo0(Integer.class, "10"), "numeric string should parse to integer");
     }
 
     @Test
     public void convertTo0ToCharacterTest() {
-        assertEquals(Character.valueOf('a'), ObjectUtils.convertTo0(Character.class, "a"), "convertTo0ToCharacterTest: L168");
+        assertEquals(Character.valueOf('a'), ObjectUtils.convertTo0(Character.class, "a"), "single-character string should convert to character wrapper");
     }
 
     @Test
     public void convertTo0ToCharSequenceUsingParserTest() {
-        assertEquals("test", ObjectUtils.convertTo0(String.class, "test"), "convertTo0ToCharSequenceUsingParserTest: L173");
+        assertEquals("test", ObjectUtils.convertTo0(String.class, "test"), "string to string conversion should return identical value");
     }
 
     @Test
     public void convertTo0ToDateFromLongTest() {
         long time = System.currentTimeMillis();
         Date expectedDate = new Date(time);
-        assertEquals(expectedDate, ObjectUtils.convertTo0(Date.class, time), "convertTo0ToDateFromLongTest: L180");
+        assertEquals(expectedDate, ObjectUtils.convertTo0(Date.class, time), "timestamp long should convert to date with same milliseconds");
     }
 
     @Test
@@ -191,7 +191,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
     public void asCCETest() {
         Exception exception = new Exception("Test exception");
         ClassCastException cce = ObjectUtils.asCCE(exception);
-        assertEquals(exception, cce.getCause(), "asCCETest: L192");
+        assertEquals(exception, cce.getCause(), "wrapped exception should be preserved as cause of classcastexception");
     }
 
     @Test
@@ -199,7 +199,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
         Map<Integer, Integer> map = new HashMap<>();
         map.put(1, 1);
         map.put(2, 2);
-        assertEquals(2, ObjectUtils.sizeOf(map), "sizeOfMapTest: L200");
+        assertEquals(2, ObjectUtils.sizeOf(map), "map with two entries should report size of 2");
     }
 
     @Test
@@ -211,31 +211,31 @@ public class ObjectUtilsTest extends CoreTestCommon {
 
     @Test
     public void convertToNumberTest() {
-        assertEquals(1, ObjectUtils.convertToNumber(Integer.class, "1"), "convertToNumberTest: L210");
+        assertEquals(1, ObjectUtils.convertToNumber(Integer.class, "1"), "string '1' should convert to integer 1");
     }
 
     @Test
     public void newInstanceWithClassNameTest() {
         RegularClass instance = ObjectUtils.newInstance(RegularClass.class.getName());
-        assertNotNull(instance, "newInstanceWithClassNameTest: L216");
+        assertNotNull(instance, "new instance should be created from class name string");
     }
 
     @Test
     public void newInstanceOrNullValidClassTest() {
         RegularClass instance = (RegularClass) ObjectUtils.newInstanceOrNull(RegularClass.class);
-        assertNotNull(instance, "newInstanceOrNullValidClassTest: L222");
+        assertNotNull(instance, "new instance should be created from valid class");
     }
 
     @Test
     public void addAllTest() {
         Integer[] result = ObjectUtils.addAll(1, 2, 3);
-        assertArrayEquals(new Integer[]{1, 2, 3}, result, "addAllTest: L228");
+        assertArrayEquals(new Integer[]{1, 2, 3}, result, "varargs should combine into array with same elements in order");
     }
 
     @Test
     public void addAllSingleElementTest() {
         Integer[] result = ObjectUtils.addAll(1);
-        assertArrayEquals(new Integer[]{1}, result, "addAllSingleElementTest: L234");
+        assertArrayEquals(new Integer[]{1}, result, "single vararg should create single-element array");
     }
 
     @Test
@@ -243,7 +243,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
         Class<?>[] interfaces = ObjectUtils.getAllInterfaces(new ImplementingClass());
         assertEquals("[interface net.openhft.chronicle.core.util.IgnoresEverything]",
                 Arrays.toString(interfaces),
-                "getAllInterfacesTest: L240");
+                "implementing class should report all interfaces in hierarchy");
     }
 
     @Test
@@ -256,47 +256,47 @@ public class ObjectUtilsTest extends CoreTestCommon {
     @Test
     public void implementationToUseNonInterfaceTest() {
         Class<?> impl = ObjectUtils.implementationToUse(RegularClass.class);
-        assertEquals(RegularClass.class, impl, "implementationToUseNonInterfaceTest: L252");
+        assertEquals(RegularClass.class, impl, "concrete class should return itself as implementation");
     }
 
     @Test
     public void testDefaultValueForPrimitives() {
-        assertEquals(false, ObjectUtils.defaultValue(boolean.class), "testDefaultValueForPrimitives: L257");
-        assertEquals((byte) 0, (byte) ObjectUtils.defaultValue(byte.class), "testDefaultValueForPrimitives: L258");
-        assertEquals((short) 0, (short) ObjectUtils.defaultValue(short.class), "testDefaultValueForPrimitives: L259");
-        assertEquals((char) 0, (char) ObjectUtils.defaultValue(char.class), "testDefaultValueForPrimitives: L260");
-        assertEquals(0, (int) ObjectUtils.defaultValue(int.class), "testDefaultValueForPrimitives: L261");
-        assertEquals(0L, (long) ObjectUtils.defaultValue(long.class), "testDefaultValueForPrimitives: L262");
-        assertEquals(0.0f, ObjectUtils.defaultValue(float.class), 0.0f, "testDefaultValueForPrimitives: L263");
-        assertEquals(0.0d, ObjectUtils.defaultValue(double.class), 0.0d, "testDefaultValueForPrimitives: L264");
+        assertEquals(false, ObjectUtils.defaultValue(boolean.class), "boolean primitive default should be false");
+        assertEquals((byte) 0, (byte) ObjectUtils.defaultValue(byte.class), "byte primitive default should be 0");
+        assertEquals((short) 0, (short) ObjectUtils.defaultValue(short.class), "short primitive default should be 0");
+        assertEquals((char) 0, (char) ObjectUtils.defaultValue(char.class), "char primitive default should be null character");
+        assertEquals(0, (int) ObjectUtils.defaultValue(int.class), "int primitive default should be 0");
+        assertEquals(0L, (long) ObjectUtils.defaultValue(long.class), "long primitive default should be 0");
+        assertEquals(0.0f, ObjectUtils.defaultValue(float.class), 0.0f, "float primitive default should be 0.0");
+        assertEquals(0.0d, ObjectUtils.defaultValue(double.class), 0.0d, "double primitive default should be 0.0");
     }
 
     @Test
     public void testDefaultValueForWrapperTypes() {
-        assertNull(ObjectUtils.defaultValue(Boolean.class), "testDefaultValueForWrapperTypes: L269");
-        assertNull(ObjectUtils.defaultValue(Byte.class), "testDefaultValueForWrapperTypes: L270");
-        assertNull(ObjectUtils.defaultValue(Short.class), "testDefaultValueForWrapperTypes: L271");
-        assertNull(ObjectUtils.defaultValue(Character.class), "testDefaultValueForWrapperTypes: L272");
-        assertNull(ObjectUtils.defaultValue(Integer.class), "testDefaultValueForWrapperTypes: L273");
-        assertNull(ObjectUtils.defaultValue(Long.class), "testDefaultValueForWrapperTypes: L274");
-        assertNull(ObjectUtils.defaultValue(Float.class), "testDefaultValueForWrapperTypes: L275");
-        assertNull(ObjectUtils.defaultValue(Double.class), "testDefaultValueForWrapperTypes: L276");
+        assertNull(ObjectUtils.defaultValue(Boolean.class), "boolean wrapper default should be null");
+        assertNull(ObjectUtils.defaultValue(Byte.class), "byte wrapper default should be null");
+        assertNull(ObjectUtils.defaultValue(Short.class), "short wrapper default should be null");
+        assertNull(ObjectUtils.defaultValue(Character.class), "character wrapper default should be null");
+        assertNull(ObjectUtils.defaultValue(Integer.class), "integer wrapper default should be null");
+        assertNull(ObjectUtils.defaultValue(Long.class), "long wrapper default should be null");
+        assertNull(ObjectUtils.defaultValue(Float.class), "float wrapper default should be null");
+        assertNull(ObjectUtils.defaultValue(Double.class), "double wrapper default should be null");
     }
 
     @Test
     public void testDefaultValueForCustomObjects() {
-        assertNull(ObjectUtils.defaultValue(String.class), "testDefaultValueForCustomObjects: L281");
-        assertNull(ObjectUtils.defaultValue(BigDecimal.class), "testDefaultValueForCustomObjects: L282");
+        assertNull(ObjectUtils.defaultValue(String.class), "string class default should be null");
+        assertNull(ObjectUtils.defaultValue(BigDecimal.class), "bigdecimal class default should be null");
     }
 
     @Test
     public void testDefaultValueForUnsupportedType() {
-        assertNull(ObjectUtils.defaultValue(Object.class), "testDefaultValueForUnsupportedType: L287");
+        assertNull(ObjectUtils.defaultValue(Object.class), "object class default should be null");
     }
 
     @Test
     public void testDefaultValueWithNullClass() {
-        assertNull(ObjectUtils.defaultValue(null), "testDefaultValueWithNullClass: L292");
+        assertNull(ObjectUtils.defaultValue(null), "null class parameter should return null");
     }
 
     enum MyEnum {

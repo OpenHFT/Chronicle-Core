@@ -32,7 +32,7 @@ public class ObjectUtilsConvertToTest extends CoreTestCommon {
     @ParameterizedTest
     @MethodSource("data")
     public void convertTo(Object converted, String input) throws IllegalStateException, IllegalArgumentException {
-        assertEquals(converted, ObjectUtils.convertTo(converted.getClass(), input), "convertTo: L45");
+        assertEquals(converted, ObjectUtils.convertTo(converted.getClass(), input), "ObjectUtils.convertTo should parse string input into expected target type");
     }
 
     static class DEnum implements CoreDynamicEnum<DEnum> {

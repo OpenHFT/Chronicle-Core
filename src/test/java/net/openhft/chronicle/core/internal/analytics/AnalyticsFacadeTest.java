@@ -10,8 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AnalyticsFacadeTest extends CoreTestCommon {
 
@@ -29,7 +28,7 @@ public class AnalyticsFacadeTest extends CoreTestCommon {
                 .withReportDespiteJUnit()
                 .build();
 
-        assertTrue(facade instanceof MuteAnalytics, "systemProp: L32");
+        assertInstanceOf(MuteAnalytics.class, facade, "condition should be true");
 
     }
 
@@ -48,6 +47,6 @@ public class AnalyticsFacadeTest extends CoreTestCommon {
         final AnalyticsFacade analyticsFacade = builder.build();
 
         // Must be a real one
-        assertFalse(analyticsFacade instanceof MuteAnalytics, "analytics: L51");
+        assertFalse(analyticsFacade instanceof MuteAnalytics, "object should not be of specified type");
     }
 }

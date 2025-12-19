@@ -35,7 +35,7 @@ public class BackgroundResourceReleaserMain {
     }
 
     private void runResourcesCleanedUpManually() throws IllegalAccessException {
-        assertNull(getReleaserThread(), "runResourcesCleanedUpManually: L38");
+        assertNull(getReleaserThread(), "releaser thread should not exist in manual cleanup mode");
         int count = 20;
         BackgroundResourceReleaserSupport.createResources(0, count - 1, closed, released);
         BackgroundResourceReleaserSupport.assertExpectedCounts(count, closed, released);
@@ -48,13 +48,13 @@ public class BackgroundResourceReleaserMain {
             assertNotEquals(count, closed.get());
             assertNotEquals(count, released.get());
         } else {
-            assertEquals(count, closed.get(), "runResourcesCleanedUpManually: L51");
-            assertEquals(count, released.get(), "runResourcesCleanedUpManually: L52");
+            assertEquals(count, closed.get(), "all resources should be closed without background releaser");
+            assertEquals(count, released.get(), "all resources should be released without background releaser");
         }
 
         BackgroundResourceReleaser.releasePendingResources();
-        assertEquals(count, closed.get(), "runResourcesCleanedUpManually: L56");
-        assertEquals(count, released.get(), "runResourcesCleanedUpManually: L57");
+        assertEquals(count, closed.get(), "all resources should be closed after manual release");
+        assertEquals(count, released.get(), "all resources should be released after manual release");
         AbstractCloseable.assertCloseablesClosed();
         BackgroundResourceReleaser.releasePendingResources();
     }
@@ -62,7 +62,7 @@ public class BackgroundResourceReleaserMain {
     private void runResourcesCleanedUpAndStopped() throws IllegalAccessException {
         Thread releaserThread = getReleaserThread();
         if (BackgroundResourceReleaser.BG_RELEASER)
-            assertNotNull(releaserThread, "runResourcesCleanedUpAndStopped: L65");
+            assertNotNull(releaserThread, "thread reference should exist");
         int count = 20;
         BackgroundResourceReleaserSupport.createResources(1, count, closed, released);
         BackgroundResourceReleaserSupport.assertExpectedCounts(count, closed, released);
@@ -73,8 +73,8 @@ public class BackgroundResourceReleaserMain {
         wc.close();
 
         BackgroundResourceReleaser.stop();
-        assertEquals(count, closed.get(), "runResourcesCleanedUpAndStopped: L76");
-        assertEquals(count, released.get(), "runResourcesCleanedUpAndStopped: L77");
+        assertEquals(count, closed.get(), "all resources should be closed after stopping background releaser");
+        assertEquals(count, released.get(), "all resources should be released after stopping background releaser");
         AbstractCloseable.assertCloseablesClosed();
         BackgroundResourceReleaser.stop();
 
@@ -92,23 +92,23 @@ public class BackgroundResourceReleaserMain {
     }
 
     private void runResourcesCleanedUpInForeground() throws IllegalAccessException {
-        assertNull(getReleaserThread(), "runResourcesCleanedUpInForeground: L95");
+        assertNull(getReleaserThread(), "releaser thread should not exist in foreground cleanup mode");
         int count = 20;
         BackgroundResourceReleaserSupport.createResources(0, count - 1, closed, released);
-        assertEquals(count - 1, closed.get(), "runResourcesCleanedUpInForeground: L98");
-        assertEquals(count - 1, released.get(), "runResourcesCleanedUpInForeground: L99");
+        assertEquals(count - 1, closed.get(), "resources should be closed in foreground before waiting closeable");
+        assertEquals(count - 1, released.get(), "resources should be released in foreground before waiting closeable");
         BackgroundResourceReleaserSupport.exerciseCloseableAndReferenceCounted(closed, released, true);
 
         BackgroundResourceReleaserSupport.WaitingCloseable wc = BackgroundResourceReleaserSupport.createWaitingCloseable();
         new Thread(wc::close).start();
         wc.close();
-        assertEquals(count, closed.get(), "runResourcesCleanedUpInForeground: L105");
-        assertEquals(count, released.get(), "runResourcesCleanedUpInForeground: L106");
+        assertEquals(count, closed.get(), "all resources should be closed after waiting closeable completes");
+        assertEquals(count, released.get(), "all resources should be released after waiting closeable completes");
 
         // Does nothing
         BackgroundResourceReleaser.releasePendingResources();
-        assertEquals(count, closed.get(), "runResourcesCleanedUpInForeground: L110");
-        assertEquals(count, released.get(), "runResourcesCleanedUpInForeground: L111");
+        assertEquals(count, closed.get(), "resource count should remain unchanged after no-op release");
+        assertEquals(count, released.get(), "released count should remain unchanged after no-op release");
         AbstractCloseable.assertCloseablesClosed();
     }
 

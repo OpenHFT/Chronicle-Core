@@ -10,8 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings("PMD.JUnit5TestShouldBePackagePrivate") // JUnit4 annotations require public class
-public class VanillaThreadConfinementAsserterTest extends CoreTestCommon {
+class VanillaThreadConfinementAsserterTest extends CoreTestCommon {
 
     private ThreadConfinementAsserter asserter;
 

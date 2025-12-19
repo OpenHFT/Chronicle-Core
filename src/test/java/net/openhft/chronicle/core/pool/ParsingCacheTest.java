@@ -20,7 +20,7 @@ public class ParsingCacheTest extends CoreTestCommon {
         @Nullable BigDecimal bd2 = pc.intern("12.234");
         @Nullable BigDecimal bd1b = pc.intern("1.234");
         assertNotEquals(bd1, bd2);
-        assertSame(bd1, bd1b, "intern: L23");
-        assertEquals(2, pc.valueCount(), "intern: L24");
+        assertSame(bd1, bd1b, "should return same instance (reference equality)");
+        assertEquals(2, pc.valueCount(), "Cache should contain exactly two distinct values after interning");
     }
 }

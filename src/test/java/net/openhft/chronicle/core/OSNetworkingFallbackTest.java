@@ -12,11 +12,11 @@ class OSNetworkingFallbackTest {
     @Test
     void hostnameAndIpAddressNonEmpty() {
         String hn = OS.getHostName();
-        assertNotNull(hn, "hostnameAndIpAddressNonEmpty: L15");
-        assertFalse(hn.isEmpty(), "hostnameAndIpAddressNonEmpty: L16");
+        assertNotNull(hn, "hostname fallback should return non-null");
+        assertFalse(hn.isEmpty(), "hostname should not be empty string");
 
         String ip = OS.getIPAddress();
-        assertNotNull(ip, "hostnameAndIpAddressNonEmpty: L19");
-        assertFalse(ip.isEmpty(), "hostnameAndIpAddressNonEmpty: L20");
+        assertNotNull(ip, "IP address fallback should return non-null");
+        assertFalse(ip.isEmpty(), "IP address should not be empty string");
     }
 }

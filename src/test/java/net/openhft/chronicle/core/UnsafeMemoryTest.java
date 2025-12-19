@@ -160,11 +160,11 @@ public class UnsafeMemoryTest extends CoreTestCommon {
 
     @TestTemplate
     public void testUnsafeBooleanOperations() throws NoSuchFieldException {
-        TestClass testObj = new TestClass();
-        long offset = UnsafeMemory.UNSAFE.objectFieldOffset(TestClass.class.getDeclaredField("booleanField"));
+        SampleClass testObj = new SampleClass();
+        long offset = UnsafeMemory.UNSAFE.objectFieldOffset(SampleClass.class.getDeclaredField("booleanField"));
 
         UnsafeMemory.unsafePutBoolean(testObj, offset, true);
-        assertTrue(UnsafeMemory.unsafeGetBoolean(testObj, offset), "testUnsafeBooleanOperations: L99");
+        assertTrue(UnsafeMemory.unsafeGetBoolean(testObj, offset), "unsafe boolean get should return true after putting true");
     }
 
     @TestTemplate
@@ -177,7 +177,7 @@ public class UnsafeMemoryTest extends CoreTestCommon {
 
         char testChar = 'A';
         UnsafeMemory.unsafePutChar(holder, offset, testChar);
-        assertEquals(testChar, UnsafeMemory.unsafeGetChar(holder, offset), "testUnsafeCharOperations: L112");
+        assertEquals(testChar, UnsafeMemory.unsafeGetChar(holder, offset), "unsafe char get should return written char value");
     }
 
     @TestTemplate
@@ -190,17 +190,17 @@ public class UnsafeMemoryTest extends CoreTestCommon {
 
         float testFloat = 1.23f;
         UnsafeMemory.unsafePutFloat(holder, offset, testFloat);
-        assertEquals(testFloat, UnsafeMemory.unsafeGetFloat(holder, offset), 0.0f, "testUnsafeFloatOperations: L125");
+        assertEquals(testFloat, UnsafeMemory.unsafeGetFloat(holder, offset), 0.0f, "unsafe float get should return written float value");
     }
 
     @TestTemplate
     public void testUnsafeDoubleOperations() throws NoSuchFieldException {
-        TestClass testObj = new TestClass();
-        long offset = UnsafeMemory.UNSAFE.objectFieldOffset(TestClass.class.getDeclaredField("doubleField"));
+        SampleClass testObj = new SampleClass();
+        long offset = UnsafeMemory.UNSAFE.objectFieldOffset(SampleClass.class.getDeclaredField("doubleField"));
 
         double testValue = 123.456;
         UnsafeMemory.unsafePutDouble(testObj, offset, testValue);
-        assertEquals(testValue, UnsafeMemory.unsafeGetDouble(testObj, offset), 0.0, "testUnsafeDoubleOperations: L135");
+        assertEquals(testValue, UnsafeMemory.unsafeGetDouble(testObj, offset), 0.0, "unsafe double get should return written double value");
     }
 
     @TestTemplate
@@ -213,7 +213,7 @@ public class UnsafeMemoryTest extends CoreTestCommon {
 
         String testObject = "Hello, World!";
         UnsafeMemory.unsafePutObject(holder, offset, testObject);
-        assertEquals(testObject, UnsafeMemory.unsafeGetObject(holder, offset), "testUnsafeObjectOperations: L148");
+        assertEquals(testObject, UnsafeMemory.unsafeGetObject(holder, offset), "unsafe object get should return written object reference");
     }
 
     @TestTemplate
@@ -229,7 +229,7 @@ public class UnsafeMemoryTest extends CoreTestCommon {
 
             memory.readBytes(address, buffer, 0, buffer.length);
 
-            assertArrayEquals(originalBytes, buffer, "testWriteReadBytes: L164");
+            assertArrayEquals(originalBytes, buffer, "arrays should contain identical elements");
         } finally {
             UnsafeMemory.UNSAFE.freeMemory(address);
         }
@@ -245,7 +245,7 @@ public class UnsafeMemoryTest extends CoreTestCommon {
 
             memory.testAndSetInt(address, 0, 0, 10);
 
-            assertEquals(10, UnsafeMemory.UNSAFE.getInt(address), "testTestAndSetInt: L180");
+            assertEquals(10, UnsafeMemory.UNSAFE.getInt(address), "testAndSetInt should update value when expected matches");
 
             assertThrows(IllegalStateException.class, () -> memory.testAndSetInt(address, 0, 0, 20));
         } finally {
@@ -264,7 +264,7 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         try {
             memory.copy8bit(testString, 0, length, address);
 
-            assertTrue(memory.isEqual(address, testString, length), "testCopy8bitAndIsEqual: L199");
+            assertTrue(memory.isEqual(address, testString, length), "isEqual should return true after copy8bit copies matching content");
         } finally {
             UnsafeMemory.UNSAFE.freeMemory(address);
         }
@@ -281,7 +281,7 @@ public class UnsafeMemoryTest extends CoreTestCommon {
 
             float actualValue = memory.readVolatileFloat(address);
 
-            assertEquals(expectedValue, actualValue, 0.0f, "testReadVolatileFloat: L216");
+            assertEquals(expectedValue, actualValue, 0.0f, "readVolatileFloat should return previously written value");
         } finally {
             UnsafeMemory.UNSAFE.freeMemory(address);
         }
@@ -299,7 +299,7 @@ public class UnsafeMemoryTest extends CoreTestCommon {
 
             memory.testAndSetInt(address, 0, expected, newValue);
 
-            assertEquals(newValue, UnsafeMemory.UNSAFE.getInt(address), "testTestAndSetIntMemoryAddress: L234");
+            assertEquals(newValue, UnsafeMemory.UNSAFE.getInt(address), "testAndSetInt should update memory to new value");
 
             assertThrows(IllegalStateException.class, () -> memory.testAndSetInt(address, 0, expected, 300));
         } finally {
@@ -310,8 +310,8 @@ public class UnsafeMemoryTest extends CoreTestCommon {
     @TestTemplate
     public void testTestAndSetIntObjectField() throws NoSuchFieldException {
         UnsafeMemory memory = UnsafeMemory.INSTANCE;
-        TestObject obj = new TestObject();
-        long offset = UnsafeMemory.UNSAFE.objectFieldOffset(TestObject.class.getDeclaredField("value"));
+        SampleObject obj = new SampleObject();
+        long offset = UnsafeMemory.UNSAFE.objectFieldOffset(SampleObject.class.getDeclaredField("value"));
 
         int expected = 10;
         int newValue = 20;
@@ -319,7 +319,7 @@ public class UnsafeMemoryTest extends CoreTestCommon {
 
         memory.testAndSetInt(obj, offset, expected, newValue);
 
-        assertEquals(newValue, obj.value, "testTestAndSetIntObjectField: L254");
+        assertEquals(newValue, obj.value, "testAndSetInt should update object field when current value matches expected");
 
         assertThrows(IllegalStateException.class, () -> memory.testAndSetInt(obj, offset, expected, 30));
     }
@@ -329,10 +329,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         for (int i = 0; i <= 64; i++) {
             if (onHeap == null) {
                 memory.writeShort(addr + i, (short) 0xABCD);
-                assertEquals((short) 0xABCD, memory.readShort(addr + i), "writeShort: L264");
+                assertEquals((short) 0xABCD, memory.readShort(addr + i), "off-heap writeShort should store value readable at offset");
             } else {
                 memory.writeShort(object, addr + i, (short) 0xABCD);
-                assertEquals((short) 0xABCD, memory.readShort(object, addr + i), "writeShort: L267");
+                assertEquals((short) 0xABCD, memory.readShort(object, addr + i), "on-heap writeShort should store value readable at offset");
             }
         }
     }
@@ -341,12 +341,12 @@ public class UnsafeMemoryTest extends CoreTestCommon {
     public void readShort() {
         if (onHeap == null) {
             memory.writeLong(addr, 0x123456789ABCDEFL);
-            assertEquals((short) 0xCDEF, memory.readShort(addr), "readShort: L276");
-            assertEquals((short) 0xABCD, memory.readShort(addr + 1), "readShort: L277");
+            assertEquals((short) 0xCDEF, memory.readShort(addr), "off-heap readShort at offset 0 should read first written value");
+            assertEquals((short) 0xABCD, memory.readShort(addr + 1), "off-heap readShort at offset 1 should read second written value");
         } else {
             memory.writeLong(object, addr, 0x123456789ABCDEFL);
-            assertEquals((short) 0xCDEF, memory.readShort(object, addr), "readShort: L280");
-            assertEquals((short) 0xABCD, memory.readShort(object, addr + 1), "readShort: L281");
+            assertEquals((short) 0xCDEF, memory.readShort(object, addr), "on-heap readShort at offset 0 should read first written value");
+            assertEquals((short) 0xABCD, memory.readShort(object, addr + 1), "on-heap readShort at offset 1 should read second written value");
         }
     }
 
@@ -355,10 +355,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         for (int i = 0; i <= 64; i++)
             if (onHeap == null) {
                 memory.writeInt(addr + i, INT_VAL);
-                assertEquals(INT_VAL, memory.readInt(addr + i), "readWriteInt: L290");
+                assertEquals(INT_VAL, memory.readInt(addr + i), "off-heap int read should return written value");
             } else {
                 memory.writeInt(object, addr + i, INT_VAL);
-                assertEquals(INT_VAL, memory.readInt(object, addr + i), "readWriteInt: L293");
+                assertEquals(INT_VAL, memory.readInt(object, addr + i), "on-heap int read should return written value");
             }
     }
 
@@ -367,10 +367,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         for (int i = 0; i <= 64; i++)
             if (onHeap == null) {
                 memory.writeOrderedInt(addr + i, INT_VAL);
-                assertEquals(INT_VAL, memory.readInt(addr + i), "writeOrderedInt: L302");
+                assertEquals(INT_VAL, memory.readInt(addr + i), "off-heap ordered int write should be visible to read");
             } else {
                 memory.writeOrderedInt(object, addr + i, INT_VAL);
-                assertEquals(INT_VAL, memory.readInt(object, addr + i), "writeOrderedInt: L305");
+                assertEquals(INT_VAL, memory.readInt(object, addr + i), "on-heap ordered int write should be visible to read");
             }
     }
 
@@ -379,10 +379,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         for (int i = 0; i <= 64; i++)
             if (onHeap == null) {
                 memory.writeLong(addr + i, LONG_VAL);
-                assertEquals(LONG_VAL, memory.readLong(addr + i), "readWriteLong: L314");
+                assertEquals(LONG_VAL, memory.readLong(addr + i), "off-heap long read should return written value");
             } else {
                 memory.writeLong(object, addr + i, LONG_VAL);
-                assertEquals(LONG_VAL, memory.readLong(object, addr + i), "readWriteLong: L317");
+                assertEquals(LONG_VAL, memory.readLong(object, addr + i), "on-heap long read should return written value");
             }
     }
 
@@ -391,10 +391,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         for (int i = 0; i <= 64; i++)
             if (onHeap == null) {
                 memory.writeFloat(addr + i, FLOAT_VAL);
-                assertEquals(FLOAT_VAL, memory.readFloat(addr + i), EPSILON, "readWriteFloat: L326");
+                assertEquals(FLOAT_VAL, memory.readFloat(addr + i), EPSILON, "off-heap float read should return written value");
             } else {
                 memory.writeFloat(object, addr + i, 1);
-                assertEquals(FLOAT_VAL, memory.readFloat(object, addr + i), EPSILON, "readWriteFloat: L329");
+                assertEquals(FLOAT_VAL, memory.readFloat(object, addr + i), EPSILON, "on-heap float read should return written value");
             }
     }
 
@@ -403,10 +403,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         for (int i = 0; i <= 64; i++)
             if (onHeap == null) {
                 memory.writeDouble(addr + i, DOUBLE_VAL);
-                assertEquals(DOUBLE_VAL, memory.readDouble(addr + i), EPSILON, "readWriteDouble: L338");
+                assertEquals(DOUBLE_VAL, memory.readDouble(addr + i), EPSILON, "off-heap double read should return written value");
             } else {
                 memory.writeDouble(object, addr + i, DOUBLE_VAL);
-                assertEquals(DOUBLE_VAL, memory.readDouble(object, addr + i), EPSILON, "readWriteDouble: L341");
+                assertEquals(DOUBLE_VAL, memory.readDouble(object, addr + i), EPSILON, "on-heap double read should return written value");
             }
     }
 
@@ -415,10 +415,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         for (int i = (int) (-addr & 7); i <= 64; i += 8)
             if (onHeap == null) {
                 memory.writeOrderedLong(addr + i, LONG_VAL);
-                assertEquals(LONG_VAL, memory.readLong(addr + i), "writeOrderedLong: L350");
+                assertEquals(LONG_VAL, memory.readLong(addr + i), "off-heap ordered long write should be visible to read");
             } else {
                 memory.writeOrderedLong(object, addr + i, LONG_VAL);
-                assertEquals(LONG_VAL, memory.readLong(object, addr + i), "writeOrderedLong: L353");
+                assertEquals(LONG_VAL, memory.readLong(object, addr + i), "on-heap ordered long write should be visible to read");
             }
         System.err.println("DONE");
     }
@@ -430,13 +430,13 @@ public class UnsafeMemoryTest extends CoreTestCommon {
                 if (onHeap == null) {
                     memory.writeInt(addr + i, 0);
                     final boolean actual = memory.compareAndSwapInt(addr + i, 0, INT_VAL);
-                    assertTrue(actual, "compareAndSwapInt: L365");
-                    assertEquals(INT_VAL, memory.readInt(addr + i), "compareAndSwapInt: L366");
+                    assertTrue(actual, "off-heap compareAndSwapInt should succeed with matching expected value");
+                    assertEquals(INT_VAL, memory.readInt(addr + i), "off-heap CAS int should update value when expected matches");
                 } else {
                     memory.writeInt(object, addr + i, 0);
                     final boolean actual = memory.compareAndSwapInt(object, addr + i, 0, INT_VAL);
-                    assertTrue(actual, "compareAndSwapInt: L370");
-                    assertEquals(INT_VAL, memory.readInt(object, addr + i), "compareAndSwapInt: L371");
+                    assertTrue(actual, "on-heap compareAndSwapInt should succeed with matching expected value");
+                    assertEquals(INT_VAL, memory.readInt(object, addr + i), "on-heap CAS int should update value when expected matches");
                 }
             } catch (MisAlignedAssertionError e) {
                 if (memory.safeAlignedInt(addr + i))
@@ -451,13 +451,13 @@ public class UnsafeMemoryTest extends CoreTestCommon {
                 if (onHeap == null) {
                     memory.writeLong(addr + i, 0);
                     final boolean actual = memory.compareAndSwapLong(addr + i, 0, LONG_VAL);
-                    assertTrue(actual, "compareAndSwapLong: L386");
-                    assertEquals(LONG_VAL, memory.readLong(addr + i), "compareAndSwapLong: L387");
+                    assertTrue(actual, "off-heap compareAndSwapLong should succeed with matching expected value");
+                    assertEquals(LONG_VAL, memory.readLong(addr + i), "off-heap CAS long should update value when expected matches");
                 } else {
                     memory.writeLong(object, addr + i, 0);
                     final boolean actual = memory.compareAndSwapLong(object, addr + i, 0, LONG_VAL);
-                    assertTrue(actual, "compareAndSwapLong: L391");
-                    assertEquals(LONG_VAL, memory.readLong(object, addr + i), "compareAndSwapLong: L392");
+                    assertTrue(actual, "on-heap compareAndSwapLong should succeed with matching expected value");
+                    assertEquals(LONG_VAL, memory.readLong(object, addr + i), "on-heap CAS long should update value when expected matches");
                 }
             } catch (MisAlignedAssertionError e) {
                 if (memory.safeAlignedLong(addr + i))
@@ -473,13 +473,13 @@ public class UnsafeMemoryTest extends CoreTestCommon {
                 if (onHeap == null) {
                     memory.writeInt(addr + i, initialValue);
                     final int previous = memory.getAndSetInt(addr + i, INT_VAL);
-                    assertEquals(initialValue, previous, "getAndSetInt: L408");
-                    assertEquals(INT_VAL, memory.readInt(addr + i), "getAndSetInt: L409");
+                    assertEquals(initialValue, previous, "off-heap getAndSetInt should return previous value");
+                    assertEquals(INT_VAL, memory.readInt(addr + i), "off-heap getAndSetInt should update memory to new value");
                 } else {
                     memory.writeInt(object, addr + i, initialValue);
                     final int previous = memory.getAndSetInt(object, addr + i, INT_VAL);
-                    assertEquals(initialValue, previous, "getAndSetInt: L413");
-                    assertEquals(INT_VAL, memory.readInt(object, addr + i), "getAndSetInt: L414");
+                    assertEquals(initialValue, previous, "on-heap getAndSetInt should return previous value");
+                    assertEquals(INT_VAL, memory.readInt(object, addr + i), "on-heap getAndSetInt should update memory to new value");
                 }
             } catch (MisAlignedAssertionError e) {
                 if (memory.safeAlignedInt(addr + i))
@@ -493,11 +493,11 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             if (onHeap == null) {
                 memory.writeByte(addr + i, BYTE_VAL);
                 final byte actual = memory.readVolatileByte(addr + i);
-                assertEquals(BYTE_VAL, actual, "readVolatileByte: L428");
+                assertEquals(BYTE_VAL, actual, "off-heap readVolatileByte should return written value");
             } else {
                 memory.writeByte(object, addr + i, BYTE_VAL);
                 final byte actual = memory.readVolatileByte(object, addr + i);
-                assertEquals(BYTE_VAL, actual, "readVolatileByte: L432");
+                assertEquals(BYTE_VAL, actual, "on-heap readVolatileByte should return written value");
             }
     }
 
@@ -507,11 +507,11 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             if (onHeap == null) {
                 memory.writeShort(addr + i, SHORT_VAL);
                 final short actual = memory.readVolatileShort(addr + i);
-                assertEquals(SHORT_VAL, actual, "readVolatileShort: L442");
+                assertEquals(SHORT_VAL, actual, "off-heap readVolatileShort should return written value");
             } else {
                 memory.writeShort(object, addr + i, SHORT_VAL);
                 final short actual = memory.readVolatileShort(object, addr + i);
-                assertEquals(SHORT_VAL, actual, "readVolatileShort: L446");
+                assertEquals(SHORT_VAL, actual, "on-heap readVolatileShort should return written value");
             }
     }
 
@@ -521,11 +521,11 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             if (onHeap == null) {
                 memory.writeInt(addr + i, INT_VAL);
                 final int actual = memory.readVolatileInt(addr + i);
-                assertEquals(INT_VAL, actual, "readVolatileInt: L456");
+                assertEquals(INT_VAL, actual, "off-heap readVolatileInt should return written value");
             } else {
                 memory.writeInt(object, addr + i, INT_VAL);
                 final int actual = memory.readVolatileInt(object, addr + i);
-                assertEquals(INT_VAL, actual, "readVolatileInt: L460");
+                assertEquals(INT_VAL, actual, "on-heap readVolatileInt should return written value");
             }
     }
 
@@ -535,11 +535,11 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             if (onHeap == null) {
                 memory.writeFloat(addr + i, FLOAT_VAL);
                 final float actual = memory.readVolatileFloat(addr + i);
-                assertEquals(FLOAT_VAL, actual, EPSILON, "readVolatileFloat: L470");
+                assertEquals(FLOAT_VAL, actual, EPSILON, "off-heap readVolatileFloat should return written value");
             } else {
                 memory.writeFloat(object, addr + i, FLOAT_VAL);
                 final float actual = memory.readVolatileFloat(object, addr + i);
-                assertEquals(FLOAT_VAL, actual, EPSILON, "readVolatileFloat: L474");
+                assertEquals(FLOAT_VAL, actual, EPSILON, "on-heap readVolatileFloat should return written value");
             }
     }
 
@@ -549,11 +549,11 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             if (onHeap == null) {
                 memory.writeLong(addr + i, LONG_VAL);
                 final long actual = memory.readVolatileLong(addr + i);
-                assertEquals(LONG_VAL, actual, "readVolatileLong: L484");
+                assertEquals(LONG_VAL, actual, "off-heap readVolatileLong should return written value");
             } else {
                 memory.writeLong(object, addr + i, LONG_VAL);
                 final long actual = memory.readVolatileLong(object, addr + i);
-                assertEquals(LONG_VAL, actual, "readVolatileLong: L488");
+                assertEquals(LONG_VAL, actual, "on-heap readVolatileLong should return written value");
             }
     }
 
@@ -563,11 +563,11 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             if (onHeap == null) {
                 memory.writeDouble(addr + i, DOUBLE_VAL);
                 final double actual = memory.readVolatileDouble(addr + i);
-                assertEquals(DOUBLE_VAL, actual, EPSILON, "readVolatileDouble: L498");
+                assertEquals(DOUBLE_VAL, actual, EPSILON, "off-heap readVolatileDouble should return written value");
             } else {
                 memory.writeDouble(object, addr + i, DOUBLE_VAL);
                 final double actual = memory.readVolatileDouble(object, addr + i);
-                assertEquals(DOUBLE_VAL, actual, EPSILON, "readVolatileDouble: L502");
+                assertEquals(DOUBLE_VAL, actual, EPSILON, "on-heap readVolatileDouble should return written value");
             }
     }
 
@@ -576,10 +576,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         for (int i = 0; i <= 64; i++)
             if (onHeap == null) {
                 memory.writeVolatileByte(addr + i, BYTE_VAL);
-                assertEquals(BYTE_VAL, memory.readByte(addr + i), "writeVolatileByte: L511");
+                assertEquals(BYTE_VAL, memory.readByte(addr + i), "off-heap writeVolatileByte should be visible to read");
             } else {
                 memory.writeVolatileByte(object, addr + i, BYTE_VAL);
-                assertEquals(BYTE_VAL, memory.readByte(object, addr + i), "writeVolatileByte: L514");
+                assertEquals(BYTE_VAL, memory.readByte(object, addr + i), "on-heap writeVolatileByte should be visible to read");
             }
     }
 
@@ -588,10 +588,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         for (int i = 0; i <= 64; i += 2)
             if (onHeap == null) {
                 memory.writeVolatileShort(addr + i, SHORT_VAL);
-                assertEquals(SHORT_VAL, memory.readShort(addr + i), "writeVolatileShort: L523");
+                assertEquals(SHORT_VAL, memory.readShort(addr + i), "off-heap writeVolatileShort should be visible to read");
             } else {
                 memory.writeVolatileShort(object, addr + i, SHORT_VAL);
-                assertEquals(SHORT_VAL, memory.readShort(object, addr + i), "writeVolatileShort: L526");
+                assertEquals(SHORT_VAL, memory.readShort(object, addr + i), "on-heap writeVolatileShort should be visible to read");
             }
     }
 
@@ -600,10 +600,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         for (int i = 0; i <= 64; i += 4)
             if (onHeap == null) {
                 memory.writeVolatileInt(addr + i, INT_VAL);
-                assertEquals(INT_VAL, memory.readInt(addr + i), "writeVolatileInt: L535");
+                assertEquals(INT_VAL, memory.readInt(addr + i), "off-heap writeVolatileInt should be visible to read");
             } else {
                 memory.writeVolatileInt(object, addr + i, INT_VAL);
-                assertEquals(INT_VAL, memory.readInt(object, addr + i), "writeVolatileInt: L538");
+                assertEquals(INT_VAL, memory.readInt(object, addr + i), "on-heap writeVolatileInt should be visible to read");
             }
     }
 
@@ -612,10 +612,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         for (int i = 0; i <= 64; i += 4)
             if (onHeap == null) {
                 memory.writeVolatileFloat(addr + i, FLOAT_VAL);
-                assertEquals(FLOAT_VAL, memory.readFloat(addr + i), EPSILON, "writeVolatileFloat: L547");
+                assertEquals(FLOAT_VAL, memory.readFloat(addr + i), EPSILON, "off-heap writeVolatileFloat should be visible to read");
             } else {
                 memory.writeVolatileFloat(object, addr + i, FLOAT_VAL);
-                assertEquals(FLOAT_VAL, memory.readFloat(object, addr + i), EPSILON, "writeVolatileFloat: L550");
+                assertEquals(FLOAT_VAL, memory.readFloat(object, addr + i), EPSILON, "on-heap writeVolatileFloat should be visible to read");
             }
     }
 
@@ -624,10 +624,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         for (int i = (int) (-addr & 7); i <= 64; i += 8)
             if (onHeap == null) {
                 memory.writeVolatileLong(addr + i, LONG_VAL);
-                assertEquals(LONG_VAL, memory.readLong(addr + i), "writeVolatileLong: L559");
+                assertEquals(LONG_VAL, memory.readLong(addr + i), "off-heap writeVolatileLong should be visible to read");
             } else {
                 memory.writeVolatileLong(object, addr + i, LONG_VAL);
-                assertEquals(LONG_VAL, memory.readLong(object, addr + i), "writeVolatileLong: L562");
+                assertEquals(LONG_VAL, memory.readLong(object, addr + i), "on-heap writeVolatileLong should be visible to read");
             }
     }
 
@@ -636,10 +636,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         for (int i = (int) (-addr & 7); i <= 64; i += 8)
             if (onHeap == null) {
                 memory.writeVolatileDouble(addr + i, DOUBLE_VAL);
-                assertEquals(DOUBLE_VAL, memory.readDouble(addr + i), EPSILON, "writeVolatileDouble: L571");
+                assertEquals(DOUBLE_VAL, memory.readDouble(addr + i), EPSILON, "off-heap writeVolatileDouble should be visible to read");
             } else {
                 memory.writeVolatileDouble(object, addr + i, DOUBLE_VAL);
-                assertEquals(DOUBLE_VAL, memory.readDouble(object, addr + i), EPSILON, "writeVolatileDouble: L574");
+                assertEquals(DOUBLE_VAL, memory.readDouble(object, addr + i), EPSILON, "on-heap writeVolatileDouble should be visible to read");
             }
     }
 
@@ -650,13 +650,13 @@ public class UnsafeMemoryTest extends CoreTestCommon {
                 if (onHeap == null) {
                     memory.writeInt(addr + i, 0);
                     final int actual = memory.addInt(addr + i, INT_VAL);
-                    assertEquals(INT_VAL, actual, "addInt: L585");
-                    assertEquals(INT_VAL, memory.readInt(addr + i), "addInt: L586");
+                    assertEquals(INT_VAL, actual, "off-heap addInt should return updated value");
+                    assertEquals(INT_VAL, memory.readInt(addr + i), "off-heap addInt should update memory to new value");
                 } else {
                     memory.writeInt(object, addr + i, 0);
                     final int actual = memory.addInt(object, addr + i, INT_VAL);
-                    assertEquals(INT_VAL, actual, "addInt: L590");
-                    assertEquals(INT_VAL, memory.readInt(object, addr + i), "addInt: L591");
+                    assertEquals(INT_VAL, actual, "on-heap addInt should return updated value");
+                    assertEquals(INT_VAL, memory.readInt(object, addr + i), "on-heap addInt should update memory to new value");
                 }
             } catch (MisAlignedAssertionError e) {
                 if (memory.safeAlignedInt(addr + i))
@@ -671,13 +671,13 @@ public class UnsafeMemoryTest extends CoreTestCommon {
                 if (onHeap == null) {
                     memory.writeLong(addr + i, 0);
                     final long actual = memory.addLong(addr + i, LONG_VAL);
-                    assertEquals(LONG_VAL, actual, "addLong: L606");
-                    assertEquals(LONG_VAL, memory.readLong(addr + i), "addLong: L607");
+                    assertEquals(LONG_VAL, actual, "off-heap addLong should return updated value");
+                    assertEquals(LONG_VAL, memory.readLong(addr + i), "off-heap addLong should update memory to new value");
                 } else {
                     memory.writeLong(object, addr + i, 0);
                     final long actual = memory.addLong(object, addr + i, LONG_VAL);
-                    assertEquals(LONG_VAL, actual, "addLong: L611");
-                    assertEquals(LONG_VAL, memory.readLong(object, addr + i), "addLong: L612");
+                    assertEquals(LONG_VAL, actual, "on-heap addLong should return updated value");
+                    assertEquals(LONG_VAL, memory.readLong(object, addr + i), "on-heap addLong should update memory to new value");
                 }
             } catch (MisAlignedAssertionError e) {
                 if (memory.safeAlignedLong(addr + i))
@@ -685,14 +685,12 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @SuppressWarnings("PMD.TestClassWithoutTestCases")
-    private static class TestClass {
+    private static class SampleClass {
         final boolean booleanField = false;
         final double doubleField = 0.0;
     }
 
-    @SuppressWarnings("PMD.TestClassWithoutTestCases")
-    static class TestObject {
+    static class SampleObject {
         int value;
     }
 }

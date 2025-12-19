@@ -34,16 +34,16 @@ public class AnalyticsFacadeTest {
         assertTrue(AnalyticsFacade.isEnabled(), "Analytics should be enabled when dependency is available");
 
         AnalyticsFacade.Builder builder = AnalyticsFacade.builder("measurement", "secret");
-        assertEquals("net.openhft.chronicle.core.internal.analytics.ReflectiveBuilder", builder.getClass().getName(), "enabledWhenAnalyticsPresent: L37");
+        assertEquals("net.openhft.chronicle.core.internal.analytics.ReflectiveBuilder", builder.getClass().getName(), "builder should be reflective implementation when analytics enabled");
     }
 
     @Test
     public void disabledWhenSystemPropertyExplicit() {
         System.setProperty("chronicle.analytics.disable", "true");
-        assertFalse(AnalyticsFacade.isEnabled(), "disabledWhenSystemPropertyExplicit: L43");
+        assertFalse(AnalyticsFacade.isEnabled(), "analytics should be disabled when system property set");
 
         AnalyticsFacade.Builder builder = AnalyticsFacade.builder("measurement", "secret");
-        assertSame(MuteBuilder.INSTANCE, builder, "disabledWhenSystemPropertyExplicit: L46");
-        assertSame(MuteBuilder.INSTANCE.build(), builder.build(), "disabledWhenSystemPropertyExplicit: L47");
+        assertSame(MuteBuilder.INSTANCE, builder, "should return same instance (reference equality)");
+        assertSame(MuteBuilder.INSTANCE.build(), builder.build(), "built facade should be same mute instance");
     }
 }

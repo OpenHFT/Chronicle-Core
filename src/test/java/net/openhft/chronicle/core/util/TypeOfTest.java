@@ -16,12 +16,12 @@ public class TypeOfTest extends CoreTestCommon {
     @Test
     public <T extends Number> void type() {
         assertEquals("java.util.List<?>", new TypeOf<List<?>>() {
-                }.type().toString(), "type: L18");
+        }.type().toString(), "TypeOf should capture wildcard type as List<?>");
         assertEquals("java.util.List<java.lang.String>", new TypeOf<List<String>>() {
-                }.type().toString(), "type: L21");
+        }.type().toString(), "TypeOf should capture concrete generic type as List<String>");
         assertEquals("java.util.List<T>", new TypeOf<List<T>>() {
-                }.type().toString(), "type: L24");
+        }.type().toString(), "TypeOf should capture type variable as List<T>");
         assertEquals("java.util.function.BiFunction<java.util.List<java.lang.String>, java.lang.Integer, java.lang.String>", new TypeOf<BiFunction<List<String>, Integer, String>>() {
-                }.type().toString(), "type: L27");
+        }.type().toString(), "TypeOf should capture complex nested generic types with full qualification");
     }
 }

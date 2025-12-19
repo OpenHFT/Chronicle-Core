@@ -61,9 +61,9 @@ public class StackTraceTest extends CoreTestCommon {
     public void testForThread() {
         Thread thread = new Thread();
         StackTrace st = StackTrace.forThread(thread);
-        assertNotNull(st, "testForThread: L70");
+        assertNotNull(st, "thread reference should exist");
         // Only check the prefix because the thread name is appended with the time
-        assertEquals(thread.toString(), st.getMessage().split(" on ")[0], "testForThread: L72");
+        assertEquals(thread.toString(), st.getMessage().split(" on ")[0], "Stack trace message should begin with thread toString representation before ' on ' separator");
     }
 
     /**
@@ -78,7 +78,7 @@ public class StackTraceTest extends CoreTestCommon {
         Thread t = new Thread(StackTraceTest::thinking, "background");
         t.start();
         boolean started = threadStarted.await(1, TimeUnit.SECONDS);
-        assertTrue(started, "forThread: L87");
+        assertTrue(started, "operation should have started");
 
         // Give it time to enter the Jvm.pause
         Jvm.pause(50);

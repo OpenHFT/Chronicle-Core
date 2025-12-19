@@ -21,7 +21,7 @@ class ScopeConfinedTest extends CoreTestCommon {
         final Type genericReturnType = method.getGenericReturnType();
 
         // Not sure how to get the Annotation...
-        assertEquals("java.util.stream.Stream<T>", genericReturnType.getTypeName(), "a: L24");
+        assertEquals("java.util.stream.Stream<T>", genericReturnType.getTypeName(), "generic return type should preserve type parameter");
     }
 
     interface Foo<T> {

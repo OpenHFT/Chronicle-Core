@@ -12,7 +12,7 @@ class BuilderTest {
     void buildShouldReturnNonNullInstance() {
         Builder<MyClass> builder = new MyClassBuilder(); // MyClassBuilder is a hypothetical implementation
         MyClass instance = builder.build();
-        assertNotNull(instance, "buildShouldReturnNonNullInstance: L15");
+        assertNotNull(instance, "build() should return a non-null instance");
     }
 
     @Test
@@ -20,7 +20,7 @@ class BuilderTest {
         Builder<MyClass> builder = new MyClassBuilder(); // Assuming MyClass is mutable
         MyClass firstInstance = builder.build();
         MyClass secondInstance = builder.build();
-        assertNotSame(firstInstance, secondInstance, "buildShouldReturnNewInstanceForMutableTypes: L23");
+        assertNotSame(firstInstance, secondInstance, "should return different instance");
     }
 
     @Test
@@ -36,8 +36,8 @@ class BuilderTest {
         MyClass instanceFromGet = builder.get();
         MyClass instanceFromBuild = builder.build();
         // For a mutable type, both calls should yield non-null instances.
-        assertNotNull(instanceFromGet, "getShouldDelegateToBuild: L39");
-        assertNotNull(instanceFromBuild, "getShouldDelegateToBuild: L40");
+        assertNotNull(instanceFromGet, "get() should return a non-null instance via delegation to build()");
+        assertNotNull(instanceFromBuild, "build() should return a non-null instance after get() was called");
     }
 }
 

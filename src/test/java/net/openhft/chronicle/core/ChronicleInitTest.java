@@ -16,8 +16,7 @@ import java.util.ServiceLoader;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings("PMD.JUnit5TestShouldBePackagePrivate") // JUnit4 annotations require public class
-public class ChronicleInitTest extends CoreTestCommon {
+class ChronicleInitTest extends CoreTestCommon {
 
     private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
     private final PrintStream originalErr = System.err;
@@ -92,7 +91,7 @@ public class ChronicleInitTest extends CoreTestCommon {
         Process process = builderWithTracingDisabled("-Dchronicle.init.runnable=" + ResourceTracingInit.class.getName()).start();
 
         try {
-            assertEquals(0, process.waitFor(), "testPositive: L95");
+            assertEquals(0, process.waitFor(), "process should exit successfully when init runnable disables resource tracing");
             String stdout = JavaProcessBuilder.getProcessStdOut(process);
             assertTrue(stdout.contains("disabling resource tracking"), "Init runnable should execute");
         } finally {
@@ -105,7 +104,7 @@ public class ChronicleInitTest extends CoreTestCommon {
         Process process = builder("-Dchronicle.postinit.runnable=" + ResourceTracingInit.class.getName()).start();
 
         try {
-            assertEquals(11, process.waitFor(), "testPostInitNegative: L108");
+            assertEquals(11, process.waitFor(), "process should exit with code 11 when resource tracing is enabled after postInit");
         } finally {
             JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
         }
@@ -116,7 +115,7 @@ public class ChronicleInitTest extends CoreTestCommon {
         Process process = builder("-Dchronicle.postinit.runnable=" + PostInitOverridesLoremIpsum.class.getName()).start();
 
         try {
-            assertEquals(10, process.waitFor(), "testExitCode10WhenServiceLoaderPropertyOverridden: L119");
+            assertEquals(10, process.waitFor(), "process should exit with code 10 when postInit overrides service loader property");
         } finally {
             JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
         }
@@ -130,7 +129,7 @@ public class ChronicleInitTest extends CoreTestCommon {
                 "-Dlorem.ipsum=dolor").start();
 
         try {
-            assertEquals(12, process.waitFor(), "testExitCode12WhenOptionalSafepointsDisabled: L133");
+            assertEquals(12, process.waitFor(), "process should exit with code 12 when optional safepoints are disabled");
         } finally {
             JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
         }
@@ -144,7 +143,7 @@ public class ChronicleInitTest extends CoreTestCommon {
                 "-Dlorem.ipsum=dolor").start();
 
         try {
-            assertEquals(13, process.waitFor(), "testExitCode13WhenResourceTracingPropertyDiffersFromFlag: L147");
+            assertEquals(13, process.waitFor(), "process should exit with code 13 when resource tracing property differs from flag");
         } finally {
             JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
         }
@@ -177,7 +176,7 @@ public class ChronicleInitTest extends CoreTestCommon {
         Process process = builderWithTracingDisabled().start();
 
         try {
-            assertEquals(0, process.waitFor(), "testCommandLineOverride: L180");
+            assertEquals(0, process.waitFor(), "process should exit successfully when command line overrides system properties");
         } finally {
             JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
         }

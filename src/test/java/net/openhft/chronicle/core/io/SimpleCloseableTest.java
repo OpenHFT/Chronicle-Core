@@ -8,8 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SimpleCloseableTest {
 
-    @SuppressWarnings("PMD.TestClassWithoutTestCases")
-    static class TestableSimpleCloseable extends SimpleCloseable {
+    static class SimpleCloseableStub extends SimpleCloseable {
         private boolean performCloseCalled = false;
 
         @Override
@@ -27,23 +26,23 @@ class SimpleCloseableTest {
 
     @Test
     void testClose() {
-        TestableSimpleCloseable closeable = new TestableSimpleCloseable();
+        SimpleCloseableStub closeable = new SimpleCloseableStub();
 
-        assertFalse(closeable.isClosed(), "testClose: L32");
+        assertFalse(closeable.isClosed(), "closeable should not be closed initially");
         closeable.close();
-        assertTrue(closeable.isClosed(), "testClose: L34");
-        assertTrue(closeable.isPerformCloseCalled(), "testClose: L35");
+        assertTrue(closeable.isClosed(), "closeable should be closed after calling close");
+        assertTrue(closeable.isPerformCloseCalled(), "performClose should have been called");
 
         closeable.close();
-        assertTrue(closeable.isClosed(), "testClose: L38");
+        assertTrue(closeable.isClosed(), "closeable should remain closed after calling close again");
     }
 
     @Test
     void testIsClosed() {
-        TestableSimpleCloseable closeable = new TestableSimpleCloseable();
+        SimpleCloseableStub closeable = new SimpleCloseableStub();
 
-        assertFalse(closeable.isClosed(), "testIsClosed: L45");
+        assertFalse(closeable.isClosed(), "isClosed should return false before close is called");
         closeable.close();
-        assertTrue(closeable.isClosed(), "testIsClosed: L47");
+        assertTrue(closeable.isClosed(), "isClosed should return true after close is called");
     }
 }

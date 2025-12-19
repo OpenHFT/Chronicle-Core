@@ -17,8 +17,8 @@ public class WeakIdentityHashMapTest extends CoreTestCommon {
         WeakIdentityHashMap<String, Integer> map = new WeakIdentityHashMap<>();
         map.put(a1, 1);
         map.put(a2, 2);
-        assertEquals(2, map.size(), "twoKeys: L20");
+        assertEquals(2, map.size(), "map should contain 2 entries for identity-distinct equal strings");
         map.clear();
-        assertTrue(map.isEmpty(), "twoKeys: L22");
+        assertTrue(map.isEmpty(), "map should be empty after clear");
     }
 }

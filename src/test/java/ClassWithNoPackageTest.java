@@ -12,6 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ClassWithNoPackageTest {
     @Test
     public void getPackageName() {
-        assertEquals("", Jvm.getPackageName(ClassWithNoPackageTest.class), "getPackageName: L15");
+        assertEquals("", Jvm.getPackageName(ClassWithNoPackageTest.class), "package name should be empty string for class with no package");
     }
 }

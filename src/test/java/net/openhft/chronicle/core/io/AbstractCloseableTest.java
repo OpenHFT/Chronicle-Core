@@ -18,25 +18,25 @@ public class AbstractCloseableTest extends CoreTestCommon {
     @Test
     public void close() throws IllegalStateException {
         MyCloseable mc = new MyCloseable();
-        assertFalse(mc.isClosed(), "close: L21");
-        assertEquals(0, mc.performClose, "close: L22");
+        assertFalse(mc.isClosed(), "newly created closeable should not be closed");
+        assertEquals(0, mc.performClose, "performClose should not have been called before first close");
 
         mc.throwExceptionIfClosed();
 
         mc.close();
-        assertTrue(mc.isClosed(), "close: L27");
-        assertEquals(1, mc.performClose, "close: L28");
+        assertTrue(mc.isClosed(), "isClosed should return true after first close call");
+        assertEquals(1, mc.performClose, "performClose should have been called exactly once after first close");
 
         mc.close();
-        assertTrue(mc.isClosed(), "close: L31");
-        assertEquals(1, mc.performClose, "close: L32");
+        assertTrue(mc.isClosed(), "isClosed should remain true after second close call");
+        assertEquals(1, mc.performClose, "performClose should not be called again on second close");
     }
 
     @Test
     public void throwExceptionIfClosed() {
         MyCloseable mc = new MyCloseable();
         mc.close();
-        assertThrows(IllegalStateException.class, mc::throwExceptionIfClosed, "throwExceptionIfClosed");
+        assertThrows(IllegalStateException.class, mc::throwExceptionIfClosed, "throwExceptionIfClosed should throw IllegalStateException when resource is closed");
 
     }
 
@@ -51,7 +51,7 @@ public class AbstractCloseableTest extends CoreTestCommon {
         System.err.println("!!! The following warning is expected !!!");
         mc.warnAndCloseIfNotClosed();
 
-        assertTrue(mc.isClosed(), "warnAndCloseIfNotClosed: L54");
+        assertTrue(mc.isClosed(), "resource should be closed after warnAndCloseIfNotClosed");
         Jvm.resetExceptionHandlers();
         if (!AbstractCloseable.DISABLE_DISCARD_WARNING)
             assertEquals("Discarded without closing\n" +
@@ -60,7 +60,7 @@ public class AbstractCloseableTest extends CoreTestCommon {
                             .map(e -> e.message() + "\n" + e.throwable())
                             .collect(Collectors.joining(", "))
                             .split(" at ")[0],
-                    "warnAndCloseIfNotClosed: L57");
+                    "warning message should indicate resource was discarded without closing");
     }
 
     @Test
@@ -77,10 +77,10 @@ public class AbstractCloseableTest extends CoreTestCommon {
         };
 
         assertThrows(IllegalStateException.class, myCloseable::close);
-        assertEquals(0, myCloseable.performClose, "assertCloseable: L79");
+        assertEquals(0, myCloseable.performClose, "performClose should not be called when assertCloseable fails");
 
         myCloseable.close();
-        assertEquals(1, myCloseable.performClose, "assertCloseable: L82");
+        assertEquals(1, myCloseable.performClose, "performClose should be called once after assertCloseable passes");
     }
 
     static class MyCloseable extends AbstractCloseable {
@@ -88,8 +88,8 @@ public class AbstractCloseableTest extends CoreTestCommon {
 
         @Override
         protected void performClose() {
-            assertTrue(isClosing(), "performClose: L90");
-            assertFalse(isClosed(), "performClose: L91");
+            assertTrue(isClosing(), "isClosing should return true during performClose execution");
+            assertFalse(isClosed(), "isClosed should return false until performClose completes");
             performClose++;
         }
     }

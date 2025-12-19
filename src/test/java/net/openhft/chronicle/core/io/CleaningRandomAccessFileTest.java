@@ -18,8 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SuppressWarnings("PMD.JUnit5TestShouldBePackagePrivate") // JUnit4 annotations require public class
-public class CleaningRandomAccessFileTest extends CoreTestCommon {
+class CleaningRandomAccessFileTest extends CoreTestCommon {
 
     private static int getFDs() {
         if (!OS.isLinux())
@@ -70,13 +69,13 @@ public class CleaningRandomAccessFileTest extends CoreTestCommon {
         // Write and read to verify file is open
         raf.writeUTF("test");
         raf.seek(0);
-        assertEquals("test", raf.readUTF(), "testOpenAndClose: L73");
+        assertEquals("test", raf.readUTF(), "should read back 'test' string written to file");
 
         raf.close();
 
         assertThrows(IOException.class, () -> raf.writeUTF("should fail"));
 
-        assertTrue(tempFile.delete(), "testOpenAndClose: L79");
+        assertTrue(tempFile.delete(), "temp file should be deletable after closing");
     }
 
     @SuppressWarnings("removal")
@@ -94,7 +93,7 @@ public class CleaningRandomAccessFileTest extends CoreTestCommon {
             Jvm.pause(100);
             Files.delete(tempFile.toPath());
         }
-        assertTrue(true, "testFinalizeAndCleanup: L97"); // If we reach here, the test passes
+        assertTrue(true, "execution should reach this point without exception"); // If we reach here, the test passes
     }
 
     @Test

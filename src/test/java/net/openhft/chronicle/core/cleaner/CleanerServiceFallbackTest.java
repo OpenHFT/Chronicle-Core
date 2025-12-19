@@ -78,7 +78,7 @@ class CleanerServiceFallbackTest {
         try {
             current.setContextClassLoader(cl);
             ByteBufferCleanerService service = CleanerServiceLocator.cleanerService();
-            assertEquals(ReflectionBasedByteBufferCleanerService.class, service.getClass(), "fallsBackWhenServiceLoadingFails: L81");
+            assertEquals(ReflectionBasedByteBufferCleanerService.class, service.getClass(), "Cleaner service should fallback to ReflectionBasedByteBufferCleanerService when ServiceLoader fails with broken descriptor");
             assertSame(service, CleanerServiceLocator.cleanerService(), "Locator should cache the fallback instance");
         } finally {
             current.setContextClassLoader(previous);

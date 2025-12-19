@@ -15,32 +15,32 @@ public class DynamicEnumPooledClassTest extends CoreTestCommon {
     @Test
     public void additionalEnum() {
         EnumCache<YesNo> yesNoEnumCache = EnumCache.of(YesNo.class);
-        assertEquals(YesNo.Yes, yesNoEnumCache.valueOf("Yes"), "additionalEnum: L18");
-        assertEquals(YesNo.No, yesNoEnumCache.valueOf("No"), "additionalEnum: L19");
-        assertEquals("[Yes, No]", Arrays.toString(yesNoEnumCache.asArray()), "additionalEnum: L20");
+        assertEquals(YesNo.Yes, yesNoEnumCache.valueOf("Yes"), "valueOf should return Yes enum constant");
+        assertEquals(YesNo.No, yesNoEnumCache.valueOf("No"), "valueOf should return No enum constant");
+        assertEquals("[Yes, No]", Arrays.toString(yesNoEnumCache.asArray()), "initial enum cache should contain only declared constants");
 
         YesNo maybe = yesNoEnumCache.valueOf("Maybe");
-        assertEquals("Maybe", maybe.name(), "additionalEnum: L23");
-        assertEquals(2, maybe.ordinal(), "additionalEnum: L24");
-        assertEquals("[Yes, No, Maybe]", Arrays.toString(yesNoEnumCache.asArray()), "additionalEnum: L25");
+        assertEquals("Maybe", maybe.name(), "dynamically created enum should have correct name");
+        assertEquals(2, maybe.ordinal(), "dynamically created enum should have next ordinal value");
+        assertEquals("[Yes, No, Maybe]", Arrays.toString(yesNoEnumCache.asArray()), "enum cache should include dynamically created constant");
 
         YesNo unknown = yesNoEnumCache.valueOf("Unknown");
-        assertEquals("Unknown", unknown.name(), "additionalEnum: L28");
-        assertEquals(3, unknown.ordinal(), "additionalEnum: L29");
-        assertEquals("[Yes, No, Maybe, Unknown]", Arrays.toString(yesNoEnumCache.asArray()), "additionalEnum: L30");
+        assertEquals("Unknown", unknown.name(), "second dynamic enum should have correct name");
+        assertEquals(3, unknown.ordinal(), "second dynamic enum should have incremented ordinal value");
+        assertEquals("[Yes, No, Maybe, Unknown]", Arrays.toString(yesNoEnumCache.asArray()), "enum cache should include all dynamic constants");
 
         // check that asArray returns YesNo instances
         for (YesNo yesNo : yesNoEnumCache.asArray())
-            assertEquals(yesNo.name(), yesNo.toString(), "additionalEnum: L34");
+            assertEquals(yesNo.name(), yesNo.toString(), "enum toString should match its name");
 
         DynamicEnumClass<YesNo> dynamicEnumClass = (DynamicEnumClass<YesNo>) yesNoEnumCache;
         dynamicEnumClass.reset();
-        assertEquals("[Yes, No]", Arrays.toString(yesNoEnumCache.asArray()), "additionalEnum: L38");
+        assertEquals("[Yes, No]", Arrays.toString(yesNoEnumCache.asArray()), "reset should remove dynamically created constants");
     }
 
     @Test
     public void testInitialSize() throws IllegalArgumentException {
         EnumCache<EcnDynamic> ecnEnumCache = EnumCache.of(EcnDynamic.class);
-        assertEquals(32, Maths.nextPower2(ecnEnumCache.size(), 1), "testInitialSize: L44");
+        assertEquals(32, Maths.nextPower2(ecnEnumCache.size(), 1), "enum cache size should be rounded to power of 2");
     }
 }

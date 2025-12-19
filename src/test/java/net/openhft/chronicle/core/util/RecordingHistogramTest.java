@@ -16,12 +16,12 @@ public class RecordingHistogramTest extends CoreTestCommon {
     public void singleSample() {
         Histogram h = new MyRecordingHistogram();
         h.sampleNanos(100_000);
-        assertEquals("{ 50/90 99/99.9 99.99 - worst  was: 100.0 / 100.0  100.0 / 100.0  100.0 - 100.0, top: [{ off: 1.0, dur: 100.0 }] }", h.toMicrosFormat(), "singleSample: L19");
+        assertEquals("{ 50/90 99/99.9 99.99 - worst  was: 100.0 / 100.0  100.0 / 100.0  100.0 - 100.0, top: [{ off: 1.0, dur: 100.0 }] }", h.toMicrosFormat(), "histogram format should show single sample percentiles and top duration");
         for (int i = 1; i <= 10; i++)
             h.sampleNanos(i * 100_000L);
         for (int i = 19; i > 0; i -= 2)
             h.sampleNanos(i * 50_000L);
-        assertEquals("{ 50/90 99/99.9 99.99 - worst  was: 500 / 900  1000 / 1000  1000 - 1000, top: [{ off: 10.0, dur: 1000.0 }, { off: 11.0, dur: 950.0 }, { off: 9.0, dur: 900.0 }, { off: 12.0, dur: 850.0 }, { off: 8.0, dur: 800.0 }] }", h.toMicrosFormat(), "singleSample: L24");
+        assertEquals("{ 50/90 99/99.9 99.99 - worst  was: 500 / 900  1000 / 1000  1000 - 1000, top: [{ off: 10.0, dur: 1000.0 }, { off: 11.0, dur: 950.0 }, { off: 9.0, dur: 900.0 }, { off: 12.0, dur: 850.0 }, { off: 8.0, dur: 800.0 }] }", h.toMicrosFormat(), "histogram format should show multiple samples with correct percentiles and top 5 durations");
     }
 
     @Test
@@ -34,11 +34,11 @@ public class RecordingHistogramTest extends CoreTestCommon {
         histogram.sampleNanos(5500);
         histogram.sampleNanos(3000);
         assertEquals("{ 50/90 99/99.9 99.99 - worst  was: 2.002 / 5.50  5.50 / 5.50  5.50 - 5.50, " +
-                        "top: [{ off: 0.0, dur: 5.5 }, { off: 0.0, dur: 3.0 }, { off: 0.0, dur: 2.0 }, { off: 0.0, dur: 1.0 }] }", histogram.toMicrosFormat(), "testSampleNanosAndTopDurations: L36");
+                "top: [{ off: 0.0, dur: 5.5 }, { off: 0.0, dur: 3.0 }, { off: 0.0, dur: 2.0 }, { off: 0.0, dur: 1.0 }] }", histogram.toMicrosFormat(), "histogram should record sample durations and order top values by duration");
 
         // Assert that formatted output reflects recorded samples
         String s = histogram.toMicrosFormat(d -> d);
-        assertTrue(s.contains("top:"), "testSampleNanosAndTopDurations: L42");
+        assertTrue(s.contains("top:"), "formatted output should contain top durations section");
     }
 
     @Test
@@ -48,7 +48,7 @@ public class RecordingHistogramTest extends CoreTestCommon {
         histogram.sampleNanos(10000);
         assertNotEquals(noData, histogram.toMicrosFormat());
         histogram.reset();
-        assertEquals(noData, histogram.toMicrosFormat(), "testReset: L52");
+        assertEquals(noData, histogram.toMicrosFormat(), "histogram format should return to initial state after reset");
     }
 
     @Test
@@ -64,12 +64,12 @@ public class RecordingHistogramTest extends CoreTestCommon {
         }
 
         for (int i = 1; i <= 100; i++)
-            assertEquals(i, percentile(h, i / 100.0), 1, "testSamples: L68");
+            assertEquals(i, percentile(h, i / 100.0), 1, "percentile calculation should be accurate within delta of 1");
 
         assertEquals("{ 50/90 99/99.9 99.99 - worst  was: 500 / 900  990 / 998  998 - 998, " +
-                        "top: [{ off: 32.0, dur: 998.963 }, { off: 36.0, dur: 997.374 }, { off: 39.0, dur: 995.785 }, { off: 41.0, dur: 994.196 }, { off: 43.0, dur: 992.607 }] }", h.toMicrosFormat(), "testSamples: L70");
+                "top: [{ off: 32.0, dur: 998.963 }, { off: 36.0, dur: 997.374 }, { off: 39.0, dur: 995.785 }, { off: 41.0, dur: 994.196 }, { off: 43.0, dur: 992.607 }] }", h.toMicrosFormat(), "histogram short format should show standard percentiles with top 5 durations");
         assertEquals("{ 50/90 97/99 99.7/99.9 99.97/99.99 - worst  was: 500 / 900  970 / 990  996 / 998  998 / 998 - 998, " +
-                        "top: [{ off: 32.0, dur: 998.963 }, { off: 36.0, dur: 997.374 }, { off: 39.0, dur: 995.785 }, { off: 41.0, dur: 994.196 }, { off: 43.0, dur: 992.607 }, { off: 44.0, dur: 991.018 }, { off: 45.0, dur: 989.429 }, { off: 46.0, dur: 987.84 }, { off: 47.0, dur: 986.251 }, { off: 48.0, dur: 984.662 }] }", h.toLongMicrosFormat(), "testSamples: L73");
+                "top: [{ off: 32.0, dur: 998.963 }, { off: 36.0, dur: 997.374 }, { off: 39.0, dur: 995.785 }, { off: 41.0, dur: 994.196 }, { off: 43.0, dur: 992.607 }, { off: 44.0, dur: 991.018 }, { off: 45.0, dur: 989.429 }, { off: 46.0, dur: 987.84 }, { off: 47.0, dur: 986.251 }, { off: 48.0, dur: 984.662 }] }", h.toLongMicrosFormat(), "histogram long format should show extended percentiles with top 10 durations");
     }
 
     private int percentile(@NotNull Histogram h, double fraction) {

@@ -10,18 +10,18 @@ class HandlerPriorityTest {
 
     @Test
     void testAliasForPrioritiesWithAliases() {
-        assertEquals(HandlerPriority.MEDIUM, HandlerPriority.REPLICATION.alias(), "testAliasForPrioritiesWithAliases: L13");
-        assertEquals(HandlerPriority.TIMER, HandlerPriority.REPLICATION_TIMER.alias(), "testAliasForPrioritiesWithAliases: L14");
-        assertEquals(HandlerPriority.MEDIUM, HandlerPriority.CONCURRENT.alias(), "testAliasForPrioritiesWithAliases: L15");
+        assertEquals(HandlerPriority.MEDIUM, HandlerPriority.REPLICATION.alias(), "REPLICATION priority should alias to MEDIUM");
+        assertEquals(HandlerPriority.TIMER, HandlerPriority.REPLICATION_TIMER.alias(), "REPLICATION_TIMER priority should alias to TIMER");
+        assertEquals(HandlerPriority.MEDIUM, HandlerPriority.CONCURRENT.alias(), "CONCURRENT priority should alias to MEDIUM");
     }
 
     @Test
     void testAliasForPrioritiesWithoutAliases() {
-        assertEquals(HandlerPriority.HIGH, HandlerPriority.HIGH.alias(), "testAliasForPrioritiesWithoutAliases: L20");
-        assertEquals(HandlerPriority.MEDIUM, HandlerPriority.MEDIUM.alias(), "testAliasForPrioritiesWithoutAliases: L21");
-        assertEquals(HandlerPriority.TIMER, HandlerPriority.TIMER.alias(), "testAliasForPrioritiesWithoutAliases: L22");
-        assertEquals(HandlerPriority.DAEMON, HandlerPriority.DAEMON.alias(), "testAliasForPrioritiesWithoutAliases: L23");
-        assertEquals(HandlerPriority.MONITOR, HandlerPriority.MONITOR.alias(), "testAliasForPrioritiesWithoutAliases: L24");
-        assertEquals(HandlerPriority.BLOCKING, HandlerPriority.BLOCKING.alias(), "testAliasForPrioritiesWithoutAliases: L25");
+        assertEquals(HandlerPriority.HIGH, HandlerPriority.HIGH.alias(), "HIGH priority should alias to itself");
+        assertEquals(HandlerPriority.MEDIUM, HandlerPriority.MEDIUM.alias(), "MEDIUM priority should alias to itself");
+        assertEquals(HandlerPriority.TIMER, HandlerPriority.TIMER.alias(), "TIMER priority should alias to itself");
+        assertEquals(HandlerPriority.DAEMON, HandlerPriority.DAEMON.alias(), "DAEMON priority should alias to itself");
+        assertEquals(HandlerPriority.MONITOR, HandlerPriority.MONITOR.alias(), "MONITOR priority should alias to itself");
+        assertEquals(HandlerPriority.BLOCKING, HandlerPriority.BLOCKING.alias(), "BLOCKING priority should alias to itself");
     }
 }

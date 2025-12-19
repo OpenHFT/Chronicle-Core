@@ -23,44 +23,44 @@ public class SetTimeProviderTest extends CoreTestCommon {
     @Test
     public void testNoOpConstructor() throws IllegalArgumentException {
         final SetTimeProvider tp = new SetTimeProvider();
-        assertEquals(0, tp.currentTimeNanos(), "testNoOpConstructor: L25");
+        assertEquals(0, tp.currentTimeNanos(), "default constructor should initialize time to zero");
         tp.currentTimeNanos(99_123_456_789L);
-        assertEquals(99_123_456_789L, tp.currentTimeNanos(), "testNoOpConstructor: L27");
-        assertEquals(99_123_456L, tp.currentTimeMicros(), "testNoOpConstructor: L28");
-        assertEquals(99_123L, tp.currentTimeMillis(), "testNoOpConstructor: L29");
-        assertEquals(99, tp.currentTime(TimeUnit.SECONDS), "testNoOpConstructor: L30");
+        assertEquals(99_123_456_789L, tp.currentTimeNanos(), "current time in nanos should match the explicitly set value");
+        assertEquals(99_123_456L, tp.currentTimeMicros(), "current time in micros should truncate nanos correctly");
+        assertEquals(99_123L, tp.currentTimeMillis(), "current time in millis should truncate nanos correctly");
+        assertEquals(99, tp.currentTime(TimeUnit.SECONDS), "current time in seconds should truncate nanos correctly");
         tp.advanceMillis(7).advanceMicros(5).advanceNanos(3);
-        assertEquals(99_130_461_792L, tp.currentTimeNanos(), "testNoOpConstructor: L32");
+        assertEquals(99_130_461_792L, tp.currentTimeNanos(), "time should advance by cumulative milliseconds, microseconds, and nanoseconds");
     }
 
     @Test
     public void testNanosConstructor() throws IllegalArgumentException {
         final SetTimeProvider tp = new SetTimeProvider(99_999_999_999_000_000L);
-        assertEquals(99_999_999_999_000_000L, tp.currentTimeNanos(), "testNanosConstructor: L38");
-        assertEquals(99_999_999_999_000L, tp.currentTimeMicros(), "testNanosConstructor: L39");
-        assertEquals(99_999_999_999L, tp.currentTimeMillis(), "testNanosConstructor: L40");
-        assertEquals(99_999_999, tp.currentTime(TimeUnit.SECONDS), "testNanosConstructor: L41");
+        assertEquals(99_999_999_999_000_000L, tp.currentTimeNanos(), "constructor should initialize time to specified nanoseconds");
+        assertEquals(99_999_999_999_000L, tp.currentTimeMicros(), "initial time in micros should correctly truncate constructor nanos value");
+        assertEquals(99_999_999_999L, tp.currentTimeMillis(), "initial time in millis should correctly truncate constructor nanos value");
+        assertEquals(99_999_999, tp.currentTime(TimeUnit.SECONDS), "initial time in seconds should correctly truncate constructor nanos value");
 
         tp.currentTimeMicros(100_000_000_000_000L);
-        assertEquals(100_000_000_000_000_000L, tp.currentTimeNanos(), "testNanosConstructor: L44");
-        assertEquals(100_000_000_000_000L, tp.currentTimeMicros(), "testNanosConstructor: L45");
-        assertEquals(100_000_000_000L, tp.currentTimeMillis(), "testNanosConstructor: L46");
-        assertEquals(100_000_000, tp.currentTime(TimeUnit.SECONDS), "testNanosConstructor: L47");
+        assertEquals(100_000_000_000_000_000L, tp.currentTimeNanos(), "setting time in micros should convert to nanos preserving precision");
+        assertEquals(100_000_000_000_000L, tp.currentTimeMicros(), "time in micros should match the value set via currentTimeMicros");
+        assertEquals(100_000_000_000L, tp.currentTimeMillis(), "time in millis should truncate from micros-set value");
+        assertEquals(100_000_000, tp.currentTime(TimeUnit.SECONDS), "time in seconds should truncate from micros-set value");
 
         tp.currentTimeMillis(101_987_000_000L);
-        assertEquals(101_987_000_000_000_000L, tp.currentTimeNanos(), "testNanosConstructor: L50");
-        assertEquals(101_987_000_000_000L, tp.currentTimeMicros(), "testNanosConstructor: L51");
-        assertEquals(101_987_000_000L, tp.currentTimeMillis(), "testNanosConstructor: L52");
-        assertEquals(101_987_000, tp.currentTime(TimeUnit.SECONDS), "testNanosConstructor: L53");
+        assertEquals(101_987_000_000_000_000L, tp.currentTimeNanos(), "setting time in millis should convert to nanos with zero sub-millis precision");
+        assertEquals(101_987_000_000_000L, tp.currentTimeMicros(), "time in micros should convert from millis-set value with zero sub-millis precision");
+        assertEquals(101_987_000_000L, tp.currentTimeMillis(), "time in millis should match the value set via currentTimeMillis");
+        assertEquals(101_987_000, tp.currentTime(TimeUnit.SECONDS), "time in seconds should truncate from millis-set value");
         tp.advanceMillis(1_011).advanceMicros(1_211).advanceNanos(789_123);
-        assertEquals(101_987_001_013_000_123L, tp.currentTimeNanos(), "testNanosConstructor: L55");
+        assertEquals(101_987_001_013_000_123L, tp.currentTimeNanos(), "time should advance by chained milliseconds, microseconds, and nanoseconds increments");
     }
 
     @Test
     public void testNanosConstructorLowNumber() {
         // many customers use "wrong" values
         final SetTimeProvider tp = new SetTimeProvider(1_000L);
-        assertEquals(1_000L, tp.currentTimeNanos(), "testNanosConstructorLowNumber: L62");
+        assertEquals(1_000L, tp.currentTimeNanos(), "constructor should accept small nanosecond values without validation");
     }
 
     @Test
@@ -68,7 +68,7 @@ public class SetTimeProviderTest extends CoreTestCommon {
         final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
         assertThrows(IllegalArgumentException.class,
                 () -> tp.currentTimeNanos(99_999_999_999L),
-                "testAttemptToGoBackwardsNanos");
+                "setting time backwards in nanos should throw IllegalArgumentException");
     }
 
     @Test
@@ -76,7 +76,7 @@ public class SetTimeProviderTest extends CoreTestCommon {
         final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
         assertThrows(IllegalArgumentException.class,
                 () -> tp.currentTimeMicros(99_999_999L),
-                "testAttemptToGoBackwardsMicros");
+                "setting time backwards in micros should throw IllegalArgumentException");
     }
 
     @Test
@@ -84,36 +84,36 @@ public class SetTimeProviderTest extends CoreTestCommon {
         final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
         assertThrows(IllegalArgumentException.class,
                 () -> tp.currentTimeMillis(99_999L),
-                "testAttemptToGoBackwardsMillis");
+                "setting time backwards in millis should throw IllegalArgumentException");
     }
 
     @Test
     public void withTimestamp() {
         SetTimeProvider tp = new SetTimeProvider("2018-08-20T12:53:04.075");
-        assertEquals(1534769584075L, tp.currentTimeMillis(), "withTimestamp: L86");
-        assertEquals(1534769584075000L, tp.currentTimeMicros(), "withTimestamp: L87");
+        assertEquals(1534769584075L, tp.currentTimeMillis(), "timestamp constructor should parse millisecond precision correctly");
+        assertEquals(1534769584075000L, tp.currentTimeMicros(), "timestamp constructor should convert millisecond precision to micros with zero sub-millis");
         SetTimeProvider tp2 = new SetTimeProvider("2018-08-20T12:53:04.075123");
-        assertEquals(1534769584075L, tp2.currentTimeMillis(), "withTimestamp: L89");
-        assertEquals(1534769584075123L, tp2.currentTimeMicros(), "withTimestamp: L90");
+        assertEquals(1534769584075L, tp2.currentTimeMillis(), "timestamp constructor with microsecond precision should truncate to millis correctly");
+        assertEquals(1534769584075123L, tp2.currentTimeMicros(), "timestamp constructor should parse microsecond precision correctly");
     }
 
     @Test
     public void withInstant() {
         SetTimeProvider tp = new SetTimeProvider(Instant.parse("2018-08-20T12:53:04.075Z"));
-        assertEquals(1534769584075L, tp.currentTimeMillis(), "withInstant: L96");
-        assertEquals(1534769584075000L, tp.currentTimeMicros(), "withInstant: L97");
+        assertEquals(1534769584075L, tp.currentTimeMillis(), "instant constructor should parse millisecond precision correctly");
+        assertEquals(1534769584075000L, tp.currentTimeMicros(), "instant constructor should convert millisecond precision to micros with zero sub-millis");
         SetTimeProvider tp2 = new SetTimeProvider(Instant.parse("2018-08-20T12:53:04.075123Z"));
-        assertEquals(1534769584075L, tp2.currentTimeMillis(), "withInstant: L99");
-        assertEquals(1534769584075123L, tp2.currentTimeMicros(), "withInstant: L100");
+        assertEquals(1534769584075L, tp2.currentTimeMillis(), "instant constructor with microsecond precision should truncate to millis correctly");
+        assertEquals(1534769584075123L, tp2.currentTimeMicros(), "instant constructor should parse microsecond precision correctly");
     }
 
     @Test
     public void autoIncrement() {
         SetTimeProvider tp = new SetTimeProvider("2018-08-20T12:53:04.075")
                 .autoIncrement(1, TimeUnit.MILLISECONDS);
-        assertEquals(1534769584075L, tp.currentTimeMillis(), "autoIncrement: L107");
-        assertEquals(1534769584076L, tp.currentTimeMillis(), "autoIncrement: L108");
-        assertEquals(1534769584077L, tp.currentTimeMillis(), "autoIncrement: L109");
+        assertEquals(1534769584075L, tp.currentTimeMillis(), "first read should return initial time value");
+        assertEquals(1534769584076L, tp.currentTimeMillis(), "second read should auto-increment by one millisecond");
+        assertEquals(1534769584077L, tp.currentTimeMillis(), "third read should auto-increment by another millisecond");
 
     }
 
@@ -121,7 +121,7 @@ public class SetTimeProviderTest extends CoreTestCommon {
     public void invalidTimestampFormatThrows() {
         assertThrows(DateTimeParseException.class,
                 () -> new SetTimeProvider("2018/08/20 12:53:04"),
-                "invalidTimestampFormatThrows");
+                "constructor should reject invalid timestamp format");
     }
 
     @Test
@@ -154,7 +154,7 @@ public class SetTimeProviderTest extends CoreTestCommon {
         long[] copy = Arrays.copyOf(values, values.length);
         Arrays.sort(copy);
         for (int i = 1; i < copy.length; i++) {
-            assertTrue(copy[i] > copy[i - 1], "time not strictly increasing");
+            assertTrue(copy[i] > copy[i - 1], "auto-increment with concurrent reads should produce strictly monotonic increasing values");
         }
     }
 
@@ -163,14 +163,14 @@ public class SetTimeProviderTest extends CoreTestCommon {
         SetTimeProvider tp = new SetTimeProvider(2_000_000);
         tp.advanceMillis(-1).advanceMicros(-500).advanceNanos(250);
         long expected = 2_000_000 - 1_000_000 - 500_000 + 250;
-        assertEquals(expected, tp.currentTimeNanos(), "advanceAllowsNegativeOffsets: L157");
+        assertEquals(expected, tp.currentTimeNanos(), "advance methods should support negative offsets to move time backwards");
     }
 
     @Test
     public void currentTimeConversionUsesExactUnits() {
         SetTimeProvider tp = new SetTimeProvider(123_456_789_123L);
-        assertEquals(123_456_789L, tp.currentTimeMicros(), "currentTimeConversionUsesExactUnits: L163");
-        assertEquals(123_456L, tp.currentTimeMillis(), "currentTimeConversionUsesExactUnits: L164");
-        assertEquals(123L, tp.currentTime(TimeUnit.SECONDS), "currentTimeConversionUsesExactUnits: L165");
+        assertEquals(123_456_789L, tp.currentTimeMicros(), "conversion from nanos to micros should truncate correctly");
+        assertEquals(123_456L, tp.currentTimeMillis(), "conversion from nanos to millis should truncate correctly");
+        assertEquals(123L, tp.currentTime(TimeUnit.SECONDS), "conversion from nanos to seconds should truncate correctly");
     }
 }

@@ -46,14 +46,14 @@ public class JvmParseSizeTest extends CoreTestCommon {
     @ParameterizedTest(name = "{0} => {1}")
     @MethodSource("data")
     public void parseSize(String text, long value) throws IllegalArgumentException {
-        assertEquals(value, Jvm.parseSize(text), "parseSize: L57");
+        assertEquals(value, Jvm.parseSize(text), "parsed size should match expected value");
     }
 
     @ParameterizedTest(name = "{0} => {1}")
     @MethodSource("data")
     public void getSize(String text, long value) {
         System.setProperty(PROPERTY, text);
-        assertEquals(value, Jvm.getSize(PROPERTY, -1), "getSize: L63");
+        assertEquals(value, Jvm.getSize(PROPERTY, -1), "size from system property should match expected value");
     }
 
     @Test

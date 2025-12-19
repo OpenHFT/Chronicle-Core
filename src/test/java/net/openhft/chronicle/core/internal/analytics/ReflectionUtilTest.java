@@ -38,7 +38,7 @@ class ReflectionUtilTest {
         TestInterface delegate = () -> "test";
         TestInterface proxy = ReflectionUtil.reflectiveProxy(TestInterface.class, delegate);
 
-        assertTrue(Proxy.isProxyClass(proxy.getClass()), "reflectiveProxy should create a proxy class");
+        assertTrue(Proxy.isProxyClass(proxy.getClass()), "reflectiveProxy should return Proxy subclass");
         assertEquals("test", proxy.testMethod(), "reflectiveProxy should correctly delegate method calls");
     }
 
@@ -47,7 +47,7 @@ class ReflectionUtilTest {
         TestInterface delegate = () -> "test";
         TestInterface proxy = ReflectionUtil.reflectiveProxy(TestInterface.class, delegate, true);
 
-        assertTrue(Proxy.isProxyClass(proxy.getClass()), "reflectiveProxy should create a proxy class");
+        assertTrue(Proxy.isProxyClass(proxy.getClass()), "reflectiveProxy with returnProxy should return Proxy subclass");
         assertSame(proxy, proxy.testMethod(), "reflectiveProxy should return the proxy itself for chaining");
     }
 

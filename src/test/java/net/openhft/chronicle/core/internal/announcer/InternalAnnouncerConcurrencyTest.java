@@ -43,7 +43,7 @@ class InternalAnnouncerConcurrencyTest {
             });
         }
         start.countDown();
-        assertTrue(done.await(5, TimeUnit.SECONDS), "concurrentAnnounceDoesNotRaceOrThrow: L46");
+        assertTrue(done.await(5, TimeUnit.SECONDS), "all concurrent announce operations should complete within timeout");
         pool.shutdownNow();
     }
 }

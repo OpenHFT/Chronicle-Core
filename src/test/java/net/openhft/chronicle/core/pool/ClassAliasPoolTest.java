@@ -17,71 +17,71 @@ public class ClassAliasPoolTest extends CoreTestCommon {
 
     @Test
     public void testApplyAliasForSet() {
-        assertEquals("!set", CLASS_ALIASES.applyAlias("Set").toString(), "testApplyAliasForSet: L20");
-        assertEquals("!set", CLASS_ALIASES.applyAlias("java.util.Set").toString(), "testApplyAliasForSet: L21");
+        assertEquals("!set", CLASS_ALIASES.applyAlias("Set").toString(), "applyAlias('Set') should resolve to '!set'");
+        assertEquals("!set", CLASS_ALIASES.applyAlias("java.util.Set").toString(), "applyAlias('java.util.Set') should resolve to '!set'");
     }
 
     @Test
     public void testApplyAliasForBitSet() {
-        assertEquals("!bitset", CLASS_ALIASES.applyAlias("BitSet").toString(), "testApplyAliasForBitSet: L26");
-        assertEquals("!bitset", CLASS_ALIASES.applyAlias("java.util.BitSet").toString(), "testApplyAliasForBitSet: L27");
+        assertEquals("!bitset", CLASS_ALIASES.applyAlias("BitSet").toString(), "applyAlias('BitSet') should resolve to '!bitset'");
+        assertEquals("!bitset", CLASS_ALIASES.applyAlias("java.util.BitSet").toString(), "applyAlias('java.util.BitSet') should resolve to '!bitset'");
     }
 
     @Test
     public void testApplyAliasForSortedSet() {
-        assertEquals("!oset", CLASS_ALIASES.applyAlias("SortedSet").toString(), "testApplyAliasForSortedSet: L32");
-        assertEquals("!oset", CLASS_ALIASES.applyAlias("java.util.SortedSet").toString(), "testApplyAliasForSortedSet: L33");
+        assertEquals("!oset", CLASS_ALIASES.applyAlias("SortedSet").toString(), "applyAlias('SortedSet') should resolve to '!oset'");
+        assertEquals("!oset", CLASS_ALIASES.applyAlias("java.util.SortedSet").toString(), "applyAlias('java.util.SortedSet') should resolve to '!oset'");
     }
 
     @Test
     public void testApplyAliasForList() {
-        assertEquals("!seq", CLASS_ALIASES.applyAlias("List").toString(), "testApplyAliasForList: L38");
-        assertEquals("!seq", CLASS_ALIASES.applyAlias("java.util.List").toString(), "testApplyAliasForList: L39");
+        assertEquals("!seq", CLASS_ALIASES.applyAlias("List").toString(), "applyAlias('List') should resolve to '!seq'");
+        assertEquals("!seq", CLASS_ALIASES.applyAlias("java.util.List").toString(), "applyAlias('java.util.List') should resolve to '!seq'");
     }
 
     @Test
     public void testApplyAliasForMap() {
-        assertEquals("!map", CLASS_ALIASES.applyAlias("Map").toString(), "testApplyAliasForMap: L44");
-        assertEquals("!map", CLASS_ALIASES.applyAlias("java.util.Map").toString(), "testApplyAliasForMap: L45");
+        assertEquals("!map", CLASS_ALIASES.applyAlias("Map").toString(), "applyAlias('Map') should resolve to '!map'");
+        assertEquals("!map", CLASS_ALIASES.applyAlias("java.util.Map").toString(), "applyAlias('java.util.Map') should resolve to '!map'");
     }
 
     @Test
     public void testApplyAliasForSortedMap() {
-        assertEquals("!omap", CLASS_ALIASES.applyAlias("SortedMap").toString(), "testApplyAliasForSortedMap: L50");
-        assertEquals("!omap", CLASS_ALIASES.applyAlias("java.util.SortedMap").toString(), "testApplyAliasForSortedMap: L51");
+        assertEquals("!omap", CLASS_ALIASES.applyAlias("SortedMap").toString(), "applyAlias('SortedMap') should resolve to '!omap'");
+        assertEquals("!omap", CLASS_ALIASES.applyAlias("java.util.SortedMap").toString(), "applyAlias('java.util.SortedMap') should resolve to '!omap'");
     }
 
     @Test
     public void testApplyAliasForString() {
-        assertEquals("String", CLASS_ALIASES.applyAlias("java.lang.String").toString(), "testApplyAliasForString: L56");
+        assertEquals("String", CLASS_ALIASES.applyAlias("java.lang.String").toString(), "applyAlias('java.lang.String') should resolve to 'String'");
     }
 
     @Test
     public void testApplyAliasForByte() {
-        assertEquals("byte", CLASS_ALIASES.applyAlias("Byte").toString(), "testApplyAliasForByte: L61");
-        assertEquals("byte", CLASS_ALIASES.applyAlias("java.lang.Byte").toString(), "testApplyAliasForByte: L62");
+        assertEquals("byte", CLASS_ALIASES.applyAlias("Byte").toString(), "applyAlias('Byte') should resolve to 'byte'");
+        assertEquals("byte", CLASS_ALIASES.applyAlias("java.lang.Byte").toString(), "applyAlias('java.lang.Byte') should resolve to 'byte'");
     }
 
     @Test
     public void testApplyAliasForInteger() {
-        assertEquals("int", CLASS_ALIASES.applyAlias("Integer").toString(), "testApplyAliasForInteger: L67");
-        assertEquals("int", CLASS_ALIASES.applyAlias(Integer.class.getName()).toString(), "testApplyAliasForInteger: L68");
+        assertEquals("int", CLASS_ALIASES.applyAlias("Integer").toString(), "applyAlias('Integer') should resolve to 'int'");
+        assertEquals("int", CLASS_ALIASES.applyAlias(Integer.class.getName()).toString(), "applyAlias('java.lang.Integer') should resolve to 'int'");
     }
 
     @Test
     public void testApplyAliasForLocalDate() {
-        assertEquals("Date", CLASS_ALIASES.applyAlias("LocalDate").toString(), "testApplyAliasForLocalDate: L73");
-        assertEquals("Date", CLASS_ALIASES.applyAlias(LocalDate.class.getName()).toString(), "testApplyAliasForLocalDate: L74");
+        assertEquals("Date", CLASS_ALIASES.applyAlias("LocalDate").toString(), "applyAlias('LocalDate') should resolve to 'Date'");
+        assertEquals("Date", CLASS_ALIASES.applyAlias(LocalDate.class.getName()).toString(), "applyAlias('java.time.LocalDate') should resolve to 'Date'");
     }
 
     @Test
     public void forName() {
         CLASS_ALIASES.addAlias(ClassAliasPoolTest.class);
-        assertEquals("ClassAliasPoolTest", CLASS_ALIASES.applyAlias(ClassAliasPoolTest.class.getName()), "forName: L80");
+        assertEquals("ClassAliasPoolTest", CLASS_ALIASES.applyAlias(ClassAliasPoolTest.class.getName()), "applyAlias for registered class should return simple name");
         String simpleName = getClass().getSimpleName();
-        assertEquals(ClassAliasPoolTest.class, CLASS_ALIASES.forName(simpleName), "forName: L82");
+        assertEquals(ClassAliasPoolTest.class, CLASS_ALIASES.forName(simpleName), "forName with simple name should resolve to registered class");
         StringBuilder sb = new StringBuilder(simpleName);
-        assertEquals(ClassAliasPoolTest.class, CLASS_ALIASES.forName(sb), "forName: L84");
+        assertEquals(ClassAliasPoolTest.class, CLASS_ALIASES.forName(sb), "forName with StringBuilder should resolve to registered class");
     }
 
     @Test
@@ -101,22 +101,22 @@ public class ClassAliasPoolTest extends CoreTestCommon {
         if (!methodInvoked) {
             throw new AssertionError("Static compatibility method not found");
         }
-        assertEquals(ClassAliasPoolTest.class, CLASS_ALIASES.forName(ClassAliasPoolTest.class.getSimpleName()), "addAliasViaStaticCompatibilityMethod: L104");
-        assertEquals(StringInternerTest.class, CLASS_ALIASES.forName(StringInternerTest.class.getSimpleName()), "addAliasViaStaticCompatibilityMethod: L105");
+        assertEquals(ClassAliasPoolTest.class, CLASS_ALIASES.forName(ClassAliasPoolTest.class.getSimpleName()), "forName should resolve ClassAliasPoolTest after static alias registration");
+        assertEquals(StringInternerTest.class, CLASS_ALIASES.forName(StringInternerTest.class.getSimpleName()), "forName should resolve StringInternerTest after static alias registration");
     }
 
     @Test
     public void testClean() throws IllegalArgumentException {
-        assertEquals("String", CLASS_ALIASES.nameFor(String.class), "testClean: L110");
+        assertEquals("String", CLASS_ALIASES.nameFor(String.class), "nameFor(String.class) should return 'String' before clean");
         CLASS_ALIASES.clean();
-        assertEquals("String", CLASS_ALIASES.nameFor(String.class), "testClean: L112");
+        assertEquals("String", CLASS_ALIASES.nameFor(String.class), "nameFor(String.class) should return 'String' after clean");
     }
 
     @Test
     public void testEnum() throws IllegalArgumentException {
-        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum", CLASS_ALIASES.nameFor(TestEnum.class), "testEnum: L117");
-        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum", CLASS_ALIASES.nameFor(TestEnum.FOO.getClass()), "testEnum: L119");
-        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum", CLASS_ALIASES.nameFor(TestEnum.BAR.getClass()), "testEnum: L121");
+        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum", CLASS_ALIASES.nameFor(TestEnum.class), "nameFor(TestEnum.class) should return full qualified name");
+        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum", CLASS_ALIASES.nameFor(TestEnum.FOO.getClass()), "nameFor(TestEnum.FOO) should return enum type name not anonymous subclass");
+        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum", CLASS_ALIASES.nameFor(TestEnum.BAR.getClass()), "nameFor(TestEnum.BAR) should return enum type name");
     }
 
     @Test

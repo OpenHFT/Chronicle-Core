@@ -29,7 +29,7 @@ public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTrace
         Jvm.setResourceTracing(true);
 
         MyCloseableReferenceCounted rc = createReferenceCounted();
-        assertEquals(1, rc.refCount(), "reserve: L32");
+        assertEquals(1, rc.refCount(), "reserve: initial refCount should be 1");
 
         exerciseReserveLifecycle(rc, () -> rc.performRelease);
     }
@@ -37,25 +37,25 @@ public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTrace
     @Test
     public void reserveWhenClosed() throws IllegalStateException, IllegalArgumentException {
         MyCloseableReferenceCounted rc = createReferenceCounted();
-        assertEquals(1, rc.refCount(), "reserveWhenClosed: L40");
+        assertEquals(1, rc.refCount(), "reserveWhenClosed: initial refCount should be 1");
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
         rc.reserve(a);
-        assertEquals(2, rc.refCount(), "reserveWhenClosed: L44");
+        assertEquals(2, rc.refCount(), "Reference count should be 2 after reserving with owner 'a'");
 
         rc.close();
-        assertEquals(1, rc.refCount(), "reserveWhenClosed: L47");
+        assertEquals(1, rc.refCount(), "Reference count should be 1 after close() (owner 'a' still holds reference)");
 
         ReferenceOwner b = ReferenceOwner.temporary("b");
         assertThrows(IllegalStateException.class, () -> rc.reserve(b));
-        assertEquals(1, rc.refCount(), "reserveWhenClosed: L51");
+        assertEquals(1, rc.refCount(), "Reference count should remain 1 after failed reserve() on closed resource");
 
-        assertFalse(rc.tryReserve(b), "reserveWhenClosed: L53");
-        assertEquals(1, rc.refCount(), "reserveWhenClosed: L54");
+        assertFalse(rc.tryReserve(b), "tryReserve() should return false when resource is closed");
+        assertEquals(1, rc.refCount(), "Reference count should remain 1 after failed tryReserve() on closed resource");
 
         rc.release(a);
-        assertEquals(0, rc.refCount(), "reserveWhenClosed: L57");
-        assertEquals(1, rc.performRelease, "reserveWhenClosed: L58");
+        assertEquals(0, rc.refCount(), "Reference count should be 0 after releasing final owner 'a'");
+        assertEquals(1, rc.performRelease, "performRelease() should be invoked exactly once after final release");
 
         assertThrows(IllegalStateException.class, rc::throwExceptionIfReleased);
     }

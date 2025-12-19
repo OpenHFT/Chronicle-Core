@@ -22,19 +22,19 @@ public class CleaningThreadTest extends CoreTestCommon {
         String threadName = "ctl-test";
         BlockingQueue<String> ints = new LinkedBlockingQueue<>();
         CleaningThreadLocal<String> counter = CleaningThreadLocal.withCleanup(() -> Thread.currentThread().getName(), ints::add);
-        CleaningThread ct = new CleaningThread(() -> assertEquals(threadName, counter.get(), "cleanupThreadLocal: L25"), threadName);
+        CleaningThread ct = new CleaningThread(() -> assertEquals(threadName, counter.get(), "thread-local value should match the thread name"), threadName);
         ct.start();
         String poll = ints.poll(1, TimeUnit.SECONDS);
-        assertEquals(threadName, poll, "cleanupThreadLocal: L28");
+        assertEquals(threadName, poll, "thread should have expected name");
     }
 
     @Test
     public void testRemove() {
         int[] counter = {0};
         CleaningThreadLocal<Integer> ctl = CleaningThreadLocal.withCloseQuietly(() -> counter[0]++);
-        assertEquals(0, (int) ctl.get(), "testRemove: L35");
+        assertEquals(0, (int) ctl.get(), "initial get should return first supplier value");
         CleaningThread.performCleanup(Thread.currentThread());
-        assertEquals(1, (int) ctl.get(), "testRemove: L37");
+        assertEquals(1, (int) ctl.get(), "get after cleanup should return incremented supplier value");
     }
 
     @Test
@@ -48,7 +48,7 @@ public class CleaningThreadTest extends CoreTestCommon {
             CleaningThread ct = new CleaningThread(() -> nestedAffinity[0] = Affinity.getAffinity());
             ct.start();
             ct.join();
-            assertEquals(AffinityLock.BASE_AFFINITY, nestedAffinity[0], "resetThreadAffinity: L51");
+            assertEquals(AffinityLock.BASE_AFFINITY, nestedAffinity[0], "operation result should equal expected value");
         } finally {
             Affinity.setAffinity(affinity);
         }

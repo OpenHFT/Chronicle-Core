@@ -30,7 +30,7 @@ public class UnsafeCloseableTest {
 
     @Test
     public void testGetVolatileLong() {
-        assertEquals(128, uc.getVolatileLong(128), "testGetVolatileLong: L33");
+        assertEquals(128, uc.getVolatileLong(128), "getVolatileLong should return fallback value when called on closed UnsafeCloseable");
     }
 
     @Test

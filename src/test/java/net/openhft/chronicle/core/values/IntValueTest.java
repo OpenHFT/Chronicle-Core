@@ -21,7 +21,7 @@ class IntValueTest {
     @Test
     void testGetValue() {
         when(intValue.getValue()).thenReturn(10); // Setup the mock to return 10
-        assertEquals(10, intValue.getValue(), "testGetValue: L24");
+        assertEquals(10, intValue.getValue(), "getValue should return mocked value");
     }
 
     @Test
@@ -34,8 +34,8 @@ class IntValueTest {
     @Test
     void testCloseAndIsClosed() {
         when(intValue.isClosed()).thenReturn(false, true); // Before and after close
-        assertFalse(intValue.isClosed(), "testCloseAndIsClosed: L37");
+        assertFalse(intValue.isClosed(), "isClosed should return false before close");
         intValue.close();
-        assertTrue(intValue.isClosed(), "testCloseAndIsClosed: L39");
+        assertTrue(intValue.isClosed(), "isClosed should return true after close");
     }
 }

@@ -24,12 +24,12 @@ public class ExceptionHandlerTest extends CoreTestCommon {
 
     @Test
     public void ignoresEverything() {
-        assertTrue(ExceptionHandler.ignoresEverything() instanceof IgnoresEverything, "ignoresEverything: L27");
+        assertInstanceOf(IgnoresEverything.class, ExceptionHandler.ignoresEverything(), "ignoresEverything should return an IgnoresEverything implementation");
     }
 
     @Test
     public void ignoresEverything2() {
-        assertTrue(Mocker.ignored(ExceptionHandler.class) instanceof IgnoresEverything, "ignoresEverything2: L32");
+        assertInstanceOf(IgnoresEverything.class, Mocker.ignored(ExceptionHandler.class), "Mocker.ignored should return an IgnoresEverything implementation for ExceptionHandler");
     }
 
     @Test
@@ -68,12 +68,12 @@ public class ExceptionHandlerTest extends CoreTestCommon {
     @Test
     public void isEnabledShouldAlwaysReturnTrue() {
         ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
-        assertTrue(handler.isEnabled(this.getClass()), "isEnabledShouldAlwaysReturnTrue: L71");
+        assertTrue(handler.isEnabled(this.getClass()), "isEnabled should return true by default for any class");
     }
 
     @Test
     public void defaultHandlerShouldReturnSelf() {
         ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
-        assertSame(handler, handler.defaultHandler(), "defaultHandlerShouldReturnSelf: L77");
+        assertSame(handler, handler.defaultHandler(), "defaultHandler should return the handler itself");
     }
 }

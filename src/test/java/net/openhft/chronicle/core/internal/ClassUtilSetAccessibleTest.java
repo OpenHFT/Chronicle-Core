@@ -15,10 +15,10 @@ class ClassUtilSetAccessibleTest {
     @Test
     void getMethod0OnNonPublicClassMakesMethodUsable() throws Exception {
         Method m = ClassUtil.getMethod0(PkgClass.class, "greet", new Class<?>[0], true);
-        assertNotNull(m, "getMethod0OnNonPublicClassMakesMethodUsable: L18");
+        assertNotNull(m, "reflection should find method");
         // The method should now be invokable despite being private
         String s = (String) m.invoke(new PkgClass());
-        assertEquals("ok", s, "getMethod0OnNonPublicClassMakesMethodUsable: L21");
+        assertEquals("ok", s, "operation result should equal expected value");
     }
 
     // package-private class with a private method to trigger setAccessible branch

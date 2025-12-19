@@ -29,15 +29,15 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     @ParameterizedTest(name = "{0}")
     @MethodSource("memories")
     public void stopBitLengthInt(UnsafeMemory memory) {
-        assertEquals(1, memory.stopBitLength(0), "stopBitLengthInt: L48");
-        assertEquals(2, memory.stopBitLength(~0), "stopBitLengthInt: L49");
+        assertEquals(1, memory.stopBitLength(0), "stop-bit encoding of zero should require one byte");
+        assertEquals(2, memory.stopBitLength(~0), "stop-bit encoding of -1 should require two bytes");
 
         for (int i = 7; i < 32; i += 7) {
             int j = 1 << i;
-            assertEquals(i / 7, memory.stopBitLength(j - 1), "stopBitLengthInt: L53");
-            assertEquals(i / 7 + 1, memory.stopBitLength(j), "stopBitLengthInt: L54");
-            assertEquals(i / 7 + 1, memory.stopBitLength(-j), "stopBitLengthInt: L55");
-            assertEquals(i / 7 + 2, memory.stopBitLength(~j), "stopBitLengthInt: L56");
+            assertEquals(i / 7, memory.stopBitLength(j - 1), "stop-bit length should match expected bytes for value just below 2^" + i);
+            assertEquals(i / 7 + 1, memory.stopBitLength(j), "stop-bit length should match expected bytes for value 2^" + i);
+            assertEquals(i / 7 + 1, memory.stopBitLength(-j), "stop-bit length should match expected bytes for negative value -2^" + i);
+            assertEquals(i / 7 + 2, memory.stopBitLength(~j), "stop-bit length should match expected bytes for bitwise complement of 2^" + i);
         }
     }
 
@@ -45,16 +45,16 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @MethodSource("memories")
     public void stopBitLengthLong(UnsafeMemory memory){
-        assertEquals(1, memory.stopBitLength(0L), "stopBitLengthLong: L62");
-        assertEquals(2, memory.stopBitLength(~0L), "stopBitLengthLong: L63");
+        assertEquals(1, memory.stopBitLength(0L), "stop-bit encoding of zero long should require one byte");
+        assertEquals(2, memory.stopBitLength(~0L), "stop-bit encoding of -1 long should require two bytes");
 
         for (int i = 7; i < 64; i += 7) {
             long j = 1L << i;
-            assertEquals(i / 7, memory.stopBitLength(j - 1), "stopBitLengthLong: L67");
-            assertEquals(i / 7 + 1, memory.stopBitLength(j), "stopBitLengthLong: L68");
-            assertEquals(i / 7 + 1, memory.stopBitLength(-j), "stopBitLengthLong: L69");
+            assertEquals(i / 7, memory.stopBitLength(j - 1), "stop-bit length should match expected bytes for long value just below 2^" + i);
+            assertEquals(i / 7 + 1, memory.stopBitLength(j), "stop-bit length should match expected bytes for long value 2^" + i);
+            assertEquals(i / 7 + 1, memory.stopBitLength(-j), "stop-bit length should match expected bytes for negative long value -2^" + i);
             if (i < 63)
-                assertEquals(i / 7 + 2, memory.stopBitLength(~j), "stopBitLengthLong: L71");
+                assertEquals(i / 7 + 2, memory.stopBitLength(~j), "stop-bit length should match expected bytes for bitwise complement of long 2^" + i);
         }
     }
 
@@ -64,11 +64,11 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     public void is7BitBytes(UnsafeMemory memory){
         for (int i = 0; i <= 64; i++) {
             byte[] bytes = new byte[i];
-            assertTrue(memory.is7Bit(bytes, 0, i), "is7BitBytes: L79");
+            assertTrue(memory.is7Bit(bytes, 0, i), "zero-initialized byte array should contain only 7-bit values");
             if (i == 0)
                 continue;
             bytes[i - 1] = -1;
-            assertFalse(memory.is7Bit(bytes, 0, i), "is7BitBytes: L83");
+            assertFalse(memory.is7Bit(bytes, 0, i), "byte array with high bit set should not be 7-bit clean");
         }
     }
 
@@ -86,7 +86,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
             int start = Math.min(a, b);
             int length = Math.abs(a - b);
             if (length == 0)
-                assertTrue(memory.is7Bit(bytes, start, length), "is7BitBytes2: L99");
+                assertTrue(memory.is7Bit(bytes, start, length), "empty byte range should be considered 7-bit clean");
             else
                 assertEquals(start + length <= 128, memory.is7Bit(bytes, start, length),
                         "start: " + start + ", length: " + length);
@@ -99,11 +99,11 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     public void is7BitChars(UnsafeMemory memory){
         for (int i = 0; i <= 64; i++) {
             char[] chars = new char[i];
-            assertTrue(memory.is7Bit(chars, 0, i), "is7BitChars: L110");
+            assertTrue(memory.is7Bit(chars, 0, i), "zero-initialized char array should contain only 7-bit values");
             if (i == 0)
                 continue;
             chars[i - 1] = 0x8000;
-            assertFalse(memory.is7Bit(chars, 0, i), "is7BitChars: L114");
+            assertFalse(memory.is7Bit(chars, 0, i), "char array with high bit set should not be 7-bit clean");
         }
     }
 
@@ -121,7 +121,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
             int start = Math.min(a, b);
             int length = Math.abs(a - b);
             if (length == 0)
-                assertTrue(memory.is7Bit(chars, start, length), "is7BitChars2: L130");
+                assertTrue(memory.is7Bit(chars, start, length), "empty char range should be considered 7-bit clean");
             else
                 assertEquals(start + length <= 128, memory.is7Bit(chars, start, length),
                         "start: " + start + ", length: " + length);
@@ -133,10 +133,10 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     @MethodSource("memories")
     public void is7BitAddr(UnsafeMemory memory){
         final long addr = UNSAFE.allocateMemory(64);
-        assertTrue(memory.is7Bit(addr, 0), "is7BitAddr: L140");
+        assertTrue(memory.is7Bit(addr, 0), "empty memory range should be considered 7-bit clean");
         for (int i = 1; i <= 64; i++) {
             memory.writeByte(addr + i - 1, (byte) -1);
-            assertFalse(memory.is7Bit(addr, i), "is7BitAddr: L143");
+            assertFalse(memory.is7Bit(addr, i), "memory with high bit set should not be 7-bit clean");
             memory.writeByte(addr + i - 1, (byte) 0);
         }
         UNSAFE.freeMemory(addr);
@@ -157,7 +157,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
             int start = Math.min(a, b);
             int length = Math.abs(a - b);
             if (length == 0)
-                assertTrue(memory.is7Bit(addr + start, length), "is7BitAddr2: L162");
+                assertTrue(memory.is7Bit(addr + start, length), "empty memory range should be considered 7-bit clean");
             else
                 assertEquals(start + length <= 128, memory.is7Bit(addr + start, length),
                         "start: " + start + ", length: " + length);
@@ -175,7 +175,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
         String s8 = Long.toHexString(memory.partialRead(bytes, 0, 8));
         for (int i = 1; i < 8; i++) {
             String s = Long.toHexString(memory.partialRead(bytes, 0, i));
-            assertEquals(s8.substring(16 - i * 2), s, "partialReadBytes: L178");
+            assertEquals(s8.substring(16 - i * 2), s, "partial read should match least significant bytes of full read");
         }
     }
 
@@ -203,7 +203,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
         String s8 = Long.toHexString(memory.partialRead(addr, 8));
         for (int i = 1; i < 8; i++) {
             String s = Long.toHexString(memory.partialRead(addr, i));
-            assertEquals(s8.substring(16 - i * 2), s, "partialReadAddr: L202");
+            assertEquals(s8.substring(16 - i * 2), s, "partial read from address should match least significant bytes of full read");
         }
         memory.freeMemory(addr, 16);
     }
@@ -238,10 +238,10 @@ public class UnsafeMemory2Test extends CoreTestCommon {
             for (int j = i + 1; j < capacity - 1; j++) {
                 memory.setMemory(addr, capacity, b2);
                 UnsafeMemory.copyMemory(addr2, addr + i, j - i);
-                assertEquals(b2, memory.readByte(addr + i - 1), "copyMemory: L233");
-                assertEquals(b1, memory.readByte(addr + i), "copyMemory: L234");
-                assertEquals(b1, memory.readByte(addr + j - 1), "copyMemory: L235");
-                assertEquals(b2, memory.readByte(addr + j), "copyMemory: L236");
+                assertEquals(b2, memory.readByte(addr + i - 1), "byte before copied region should remain unchanged");
+                assertEquals(b1, memory.readByte(addr + i), "first byte of copied region should have source value");
+                assertEquals(b1, memory.readByte(addr + j - 1), "last byte of copied region should have source value");
+                assertEquals(b2, memory.readByte(addr + j), "byte after copied region should remain unchanged");
             }
         }
         memory.freeMemory(addr, capacity);
@@ -261,7 +261,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
         memory.setMemory(addr2, capacity, b2);
         memory.copyMemory(addr, addr2, capacity);
         for (int i = 0; i < capacity; i += 4)
-            assertEquals(i, memory.readInt(addr2 + i), "copyMemoryMoreThanThreshold: L254");
+            assertEquals(i, memory.readInt(addr2 + i), "large memory copy should preserve all int values at each offset");
         memory.freeMemory(addr, capacity);
         memory.freeMemory(addr2, capacity);
     }
@@ -279,8 +279,8 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     public void setMemory(UnsafeMemory memory){
         long[] ds = new long[2];
         memory.setMemory(ds, memory.arrayBaseOffset(long[].class), 2 * Long.BYTES, (byte) 1);
-        assertEquals(0x0101010101010101L, ds[0], "setMemory: L268");
-        assertEquals(0x0101010101010101L, ds[1], "setMemory: L269");
+        assertEquals(0x0101010101010101L, ds[0], "first long should be filled with 0x01 pattern");
+        assertEquals(0x0101010101010101L, ds[1], "second long should be filled with 0x01 pattern");
     }
 
     @ParameterizedTest(name = "{0}")
@@ -293,7 +293,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
         memory.copyMemory(data, memory.arrayBaseOffset(data.getClass()), addr, lengthInBytes);
         final long[] check = new long[data.length];
         memory.copyMemory(addr, check, memory.arrayBaseOffset(data.getClass()), lengthInBytes);
-        assertArrayEquals(data, check, "copyMemoryEachWayLongArrayMemory: L280");
+        assertArrayEquals(data, check, "long array copy via memory address should preserve all elements");
     }
 
     @ParameterizedTest(name = "{0}")
@@ -308,7 +308,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
         memory.copyMemory(data, 0, addr, capacity);
         final byte[] check = new byte[data.length];
         memory.copyMemory(addr, check, memory.arrayBaseOffset(data.getClass()), capacity);
-        assertArrayEquals(data, check, "copyMemoryEachWayByteArrayMemory: L293");
+        assertArrayEquals(data, check, "byte array copy via memory address should preserve all elements");
     }
 
     @ParameterizedTest(name = "{0}")
@@ -321,7 +321,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
             data[i] = (byte) i;
         final byte[] dest = new byte[capacity];
         memory.copyMemory(data, 0, dest, 0, capacity);
-        assertArrayEquals(data, dest, "copyMemoryByteArray: L304");
+        assertArrayEquals(data, dest, "byte array to byte array copy should preserve all elements");
     }
 
     @ParameterizedTest(name = "{0}")
@@ -334,7 +334,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
             data[i] = (byte) i;
         final byte[] dest = new byte[capacity];
         memory.copyMemory((Object) data, memory.arrayBaseOffset(data.getClass()), dest, memory.arrayBaseOffset(data.getClass()), capacity);
-        assertArrayEquals(data, dest, "copyMemoryByteArrayAsObject: L315");
+        assertArrayEquals(data, dest, "byte array copy via Object reference should preserve all elements");
     }
 
     @ParameterizedTest(name = "{0}")
@@ -348,10 +348,10 @@ public class UnsafeMemory2Test extends CoreTestCommon {
         final byte[] bytes = new byte[lengthInBytes];
         memory.copyMemory(longs, memory.arrayBaseOffset(longs.getClass()), bytes, memory.arrayBaseOffset(bytes.getClass()), lengthInBytes);
         for (int i = 0; i < lengthInBytes; i++)
-            assertEquals(i, bytes[i], "copyMemoryEachWayByteArrayLongArray: L327");
+            assertEquals(i, bytes[i], "long array to byte array copy should preserve byte values");
         Arrays.fill(longs, 0);
         memory.copyMemory(bytes, 0, longs, memory.arrayBaseOffset(longs.getClass()), lengthInBytes);
-        assertArrayEquals(copy, longs, "copyMemoryEachWayByteArrayLongArray: L330");
+        assertArrayEquals(copy, longs, "byte array back to long array copy should preserve all elements");
     }
 
     @ParameterizedTest(name = "{0}")
@@ -366,9 +366,9 @@ public class UnsafeMemory2Test extends CoreTestCommon {
         int length = (capacity / 4) * 3;
         memory.copyMemory(data, 0, data, offset, length);
         for (int i = 0; i < offset; i++)
-            assertEquals(i, data[i], "copyMemoryOverlap: L343");
+            assertEquals(i, data[i], "bytes before overlap region should remain unchanged");
         for (int i = 0; i < length; i++)
-            assertEquals(i, data[i + offset], "copyMemoryOverlap: L345");
+            assertEquals(i, data[i + offset], "overlapping forward copy should preserve source bytes");
     }
 
     @ParameterizedTest(name = "{0}")
@@ -383,9 +383,9 @@ public class UnsafeMemory2Test extends CoreTestCommon {
         int length = (capacity / 4) * 3;
         memory.copyMemory(data, offset, data, 0, length);
         for (int i = 0; i < length; i++)
-            assertEquals(i + offset, data[i], "copyMemoryOverlapBackwards: L358");
+            assertEquals(i + offset, data[i], "overlapping backward copy should preserve source bytes with offset");
         for (int i = length; i < capacity; i++)
-            assertEquals(i, data[i], "copyMemoryOverlapBackwards: L360");
+            assertEquals(i, data[i], "bytes after overlap region should remain unchanged");
     }
 
     @ParameterizedTest(name = "{0}")
@@ -398,7 +398,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
         from.num = 99;
         MyDTO to = new MyDTO();
         memory.copyMemory(from, offset, to, offset, Integer.BYTES);
-        assertEquals(from.num, to.num, "copyMemoryHeapObject: L371");
+        assertEquals(from.num, to.num, "object field should be copied between heap objects");
     }
 
     @ParameterizedTest(name = "{0}")
@@ -413,10 +413,10 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
         memory.copyMemory(data, 0, to, offset, Integer.BYTES);
 
-        assertEquals(data[0], to.num, "copyMemoryEachWayByteArrayHeapObject: L384");
+        assertEquals(data[0], to.num, "byte array value should be copied to object field");
         to.num = 77;
         memory.copyMemory(to, offset, data, memory.arrayBaseOffset(data.getClass()), Integer.BYTES);
-        assertEquals(to.num, data[0], "copyMemoryEachWayByteArrayHeapObject: L387");
+        assertEquals(to.num, data[0], "object field value should be copied back to byte array");
     }
 
     @ParameterizedTest(name = "{0}")
@@ -430,10 +430,10 @@ public class UnsafeMemory2Test extends CoreTestCommon {
         UnsafeMemory.unsafePutInt(addr, expected);
         MyDTO to = new MyDTO();
         memory.copyMemory(addr, to, offset, Integer.BYTES);
-        assertEquals(expected, to.num, "copyMemoryEachWayAddressHeapObject: L399");
+        assertEquals(expected, to.num, "off-heap address value should be copied to object field");
         to.num = 75;
         memory.copyMemory(to, offset, addr, Integer.BYTES);
-        assertEquals(to.num, UnsafeMemory.unsafeGetInt(addr), "copyMemoryEachWayAddressHeapObject: L402");
+        assertEquals(to.num, UnsafeMemory.unsafeGetInt(addr), "object field value should be copied back to off-heap address");
     }
 
     @ParameterizedTest(name = "{0}")
@@ -442,9 +442,9 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     public void safeAlignTest(UnsafeMemory memory){
         for (int i = -1; i < 70; i++) {
             if (memory instanceof UnsafeMemory.ARMMemory)
-                assertEquals(i % 4 == 0, memory.safeAlignedInt(i), "safeAlignTest: L409");
+                assertEquals(i % 4 == 0, memory.safeAlignedInt(i), "ARM memory should require 4-byte alignment for safe int access");
             else
-                assertEquals((i & 63) + 4 <= 64, memory.safeAlignedInt(i), "safeAlignTest: L411");
+                assertEquals((i & 63) + 4 <= 64, memory.safeAlignedInt(i), "x86 memory should allow int access within 64-byte cache line boundary");
         }
     }
 
@@ -452,7 +452,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @MethodSource("memories")
     public void arrayBaseOffset(UnsafeMemory memory){
-        assertEquals(12, memory.arrayBaseOffset(byte[].class), 4, "arrayBaseOffset: L417");
+        assertEquals(12, memory.arrayBaseOffset(byte[].class), 4, "byte array base offset should be approximately 12 bytes for object header");
     }
 
     @ParameterizedTest(name = "{0}")
@@ -460,7 +460,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     @MethodSource("memories")
     public void objectFieldOffset(UnsafeMemory memory) throws NoSuchFieldException{
         Field num = MyDTO.class.getDeclaredField("num");
-        assertEquals(12, memory.objectFieldOffset(num), 4, "objectFieldOffset: L423");
+        assertEquals(12, memory.objectFieldOffset(num), 4, "field offset should be approximately 12 bytes after object header");
     }
 
     @ParameterizedTest(name = "{0}")
@@ -469,7 +469,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     public void directMemoryByte(UnsafeMemory memory){
         long address = memory.allocate(32);
         memory.writeByte(null, address, (byte) 12);
-        assertEquals(12, memory.readByte(null, address), "directMemoryByte: L430");
+        assertEquals(12, memory.readByte(null, address), "byte read from direct memory should match written value");
         memory.freeMemory(address, 32);
     }
 
@@ -479,7 +479,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     public void directMemoryShort(UnsafeMemory memory){
         long address = memory.allocate(32);
         memory.writeShort(null, address, (short) 12345);
-        assertEquals(12345, memory.readShort(null, address), "directMemoryShort: L438");
+        assertEquals(12345, memory.readShort(null, address), "short read from direct memory should match written value");
         memory.freeMemory(address, 32);
     }
 
@@ -489,7 +489,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     public void directMemoryInt(UnsafeMemory memory){
         long address = memory.allocate(32);
         memory.writeInt(null, address, INT_VAL);
-        assertEquals(INT_VAL, memory.readInt(null, address), "directMemoryInt: L446");
+        assertEquals(INT_VAL, memory.readInt(null, address), "int read from direct memory should match written value");
         memory.freeMemory(address, 32);
     }
 
@@ -500,8 +500,8 @@ public class UnsafeMemory2Test extends CoreTestCommon {
         long address = memory.allocate(32);
         memory.writeInt(address, 0);
         final int actual = memory.addInt(null, address, INT_VAL);
-        assertEquals(INT_VAL, actual, "directMemoryAddInt: L455");
-        assertEquals(INT_VAL, memory.readInt(address), "directMemoryAddInt: L456");
+        assertEquals(INT_VAL, actual, "addInt should return previous value before addition");
+        assertEquals(INT_VAL, memory.readInt(address), "int value after atomic add should equal the added value");
         memory.freeMemory(address, 32);
     }
 
@@ -512,8 +512,8 @@ public class UnsafeMemory2Test extends CoreTestCommon {
         long address = memory.allocate(32);
         memory.writeInt(address, 0);
         final boolean actual = memory.compareAndSwapInt(null, address, 0, INT_VAL);
-        assertTrue(actual, "directMemoryCASInt: L465");
-        assertEquals(INT_VAL, memory.readInt(address), "directMemoryCASInt: L466");
+        assertTrue(actual, "compareAndSwapInt should succeed with matching expected value");
+        assertEquals(INT_VAL, memory.readInt(address), "int value after successful CAS should equal the new value");
         memory.freeMemory(address, 32);
     }
 
@@ -523,7 +523,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     public void directMemoryLong(UnsafeMemory memory){
         long address = memory.allocate(32);
         memory.writeLong(null, address, Long.MAX_VALUE);
-        assertEquals(Long.MAX_VALUE, memory.readLong(null, address), "directMemoryLong: L474");
+        assertEquals(Long.MAX_VALUE, memory.readLong(null, address), "long read from direct memory should match written value");
         memory.freeMemory(address, 32);
     }
 
@@ -534,8 +534,8 @@ public class UnsafeMemory2Test extends CoreTestCommon {
         long address = memory.allocate(32);
         memory.writeLong(address, 0);
         final long actual = memory.addLong(null, address, Long.MAX_VALUE);
-        assertEquals(Long.MAX_VALUE, actual, "directMemoryAddLong: L483");
-        assertEquals(Long.MAX_VALUE, memory.readLong(address), "directMemoryAddLong: L484");
+        assertEquals(Long.MAX_VALUE, actual, "addLong should return previous value before addition");
+        assertEquals(Long.MAX_VALUE, memory.readLong(address), "long value after atomic add should equal the added value");
         memory.freeMemory(address, 32);
     }
 
@@ -546,8 +546,8 @@ public class UnsafeMemory2Test extends CoreTestCommon {
         long address = memory.allocate(32);
         memory.writeLong(address, 0);
         final boolean actual = memory.compareAndSwapLong(null, address, 0L, Long.MAX_VALUE);
-        assertTrue(actual, "directMemoryCASLong: L493");
-        assertEquals(Long.MAX_VALUE, memory.readLong(address), "directMemoryCASLong: L494");
+        assertTrue(actual, "compareAndSwapLong should succeed with matching expected value");
+        assertEquals(Long.MAX_VALUE, memory.readLong(address), "long value after successful CAS should equal the new value");
         memory.freeMemory(address, 32);
     }
 
@@ -557,7 +557,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     public void directMemoryFloat(UnsafeMemory memory){
         long address = memory.allocate(32);
         memory.writeFloat(null, address, 1.2345f);
-        assertEquals(1.2345f, memory.readFloat(null, address), 0f, "directMemoryFloat: L502");
+        assertEquals(1.2345f, memory.readFloat(null, address), 0f, "float read from direct memory should match written value");
         memory.freeMemory(address, 32);
     }
 
@@ -567,7 +567,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     public void directMemoryDouble(UnsafeMemory memory){
         long address = memory.allocate(32);
         memory.writeDouble(null, address, 1.2345);
-        assertEquals(1.2345, memory.readDouble(null, address), 0f, "directMemoryDouble: L510");
+        assertEquals(1.2345, memory.readDouble(null, address), 0f, "double read from direct memory should match written value");
         memory.freeMemory(address, 32);
     }
 
@@ -577,7 +577,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     public void directMemoryReference1(UnsafeMemory memory){
         long address = memory.allocate(32);
         try {
-            assertThrows(Exception.class, () -> memory.putObject(null, address, 1.2345), "directMemoryReference1: L523");
+            assertThrows(Exception.class, () -> memory.putObject(null, address, 1.2345), "storing object reference to off-heap memory should throw exception");
         } finally {
             memory.freeMemory(address, 32);
         }
@@ -589,7 +589,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     public void directMemoryReference2(UnsafeMemory memory){
         long address = memory.allocate(32);
         try {
-            assertThrows(Exception.class, () -> memory.getObject(null, address), "directMemoryReference2: L532");
+            assertThrows(Exception.class, () -> memory.getObject(null, address), "reading object reference from off-heap memory should throw exception");
         } finally {
             memory.freeMemory(address, 32);
         }
@@ -601,7 +601,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     public void directMemoryVolatileByte(UnsafeMemory memory){
         long address = memory.allocate(32);
         memory.writeVolatileByte(null, address, (byte) 12);
-        assertEquals(12, memory.readVolatileByte(null, address), "directMemoryVolatileByte: L542");
+        assertEquals(12, memory.readVolatileByte(null, address), "volatile byte read from direct memory should match written value");
         memory.freeMemory(address, 32);
     }
 
@@ -611,7 +611,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     public void directMemoryVolatileShort(UnsafeMemory memory){
         long address = memory.allocate(32);
         memory.writeVolatileShort(null, address, (short) 12345);
-        assertEquals(12345, memory.readVolatileShort(null, address), "directMemoryVolatileShort: L550");
+        assertEquals(12345, memory.readVolatileShort(null, address), "volatile short read from direct memory should match written value");
         memory.freeMemory(address, 32);
     }
 
@@ -621,7 +621,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     public void directMemoryVolatileInt(UnsafeMemory memory){
         long address = memory.allocate(32);
         memory.writeVolatileInt(null, address, INT_VAL);
-        assertEquals(INT_VAL, memory.readVolatileInt(null, address), "directMemoryVolatileInt: L558");
+        assertEquals(INT_VAL, memory.readVolatileInt(null, address), "volatile int read from direct memory should match written value");
         memory.freeMemory(address, 32);
     }
 
@@ -631,7 +631,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     public void directMemoryOrderedInt(UnsafeMemory memory){
         long address = memory.allocate(32);
         memory.writeOrderedInt(null, address, INT_VAL);
-        assertEquals(INT_VAL, memory.readVolatileInt(null, address), "directMemoryOrderedInt: L566");
+        assertEquals(INT_VAL, memory.readVolatileInt(null, address), "ordered int write should be visible to subsequent volatile read");
         memory.freeMemory(address, 32);
     }
 
@@ -641,7 +641,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     public void directMemoryVolatileLong(UnsafeMemory memory){
         long address = memory.allocate(32);
         memory.writeVolatileLong(null, address, Long.MAX_VALUE);
-        assertEquals(Long.MAX_VALUE, memory.readVolatileLong(null, address), "directMemoryVolatileLong: L574");
+        assertEquals(Long.MAX_VALUE, memory.readVolatileLong(null, address), "volatile long read from direct memory should match written value");
         memory.freeMemory(address, 32);
     }
 
@@ -651,7 +651,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     public void directMemoryOrderedLong(UnsafeMemory memory){
         long address = memory.allocate(32);
         memory.writeOrderedLong(null, address, Long.MAX_VALUE);
-        assertEquals(Long.MAX_VALUE, memory.readVolatileLong(null, address), "directMemoryOrderedLong: L582");
+        assertEquals(Long.MAX_VALUE, memory.readVolatileLong(null, address), "ordered long write should be visible to subsequent volatile read");
         memory.freeMemory(address, 32);
     }
 
@@ -661,7 +661,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     public void directMemoryVolatileFloat(UnsafeMemory memory){
         long address = memory.allocate(32);
         memory.writeVolatileFloat(null, address, 1.2345f);
-        assertEquals(1.2345f, memory.readVolatileFloat(null, address), 0f, "directMemoryVolatileFloat: L590");
+        assertEquals(1.2345f, memory.readVolatileFloat(null, address), 0f, "volatile float read from direct memory should match written value");
         memory.freeMemory(address, 32);
     }
 
@@ -671,7 +671,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     public void directMemoryVolatileDouble(UnsafeMemory memory){
         long address = memory.allocate(32);
         memory.writeVolatileDouble(null, address, 1.2345);
-        assertEquals(1.2345, memory.readVolatileDouble(null, address), 0f, "directMemoryVolatileDouble: L598");
+        assertEquals(1.2345, memory.readVolatileDouble(null, address), 0f, "volatile double read from direct memory should match written value");
         memory.freeMemory(address, 32);
     }
 

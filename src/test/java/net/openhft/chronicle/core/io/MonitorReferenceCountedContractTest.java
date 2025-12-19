@@ -11,8 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * Any implementation of {@link ReferenceCountedTracer} should implement a test class
  * that extends this class
  */
-@SuppressWarnings("PMD.JUnit5TestShouldBePackagePrivate") // JUnit4 annotations require public class
-public abstract class MonitorReferenceCountedContractTest extends ReferenceCountedTracerContractTest {
+abstract class MonitorReferenceCountedContractTest extends ReferenceCountedTracerContractTest {
 
     @Override
     protected abstract MonitorReferenceCounted createReferenceCounted();
@@ -22,7 +21,7 @@ public abstract class MonitorReferenceCountedContractTest extends ReferenceCount
         final MonitorReferenceCounted referenceCounted = createReferenceCounted();
         referenceCounted.unmonitored(false);
         referenceCounted.warnAndReleaseIfNotReleased();
-        assertEquals(0, referenceCounted.refCount(), "warnAndReleaseWillLogAWarningAndReleaseWhenMonitored: L25");
+        assertEquals(0, referenceCounted.refCount(), "reference count should be zero after warnAndRelease when monitored");
         expectException("Discarded without being released");
     }
 
@@ -31,7 +30,7 @@ public abstract class MonitorReferenceCountedContractTest extends ReferenceCount
         final MonitorReferenceCounted referenceCounted = createReferenceCounted();
         referenceCounted.unmonitored(true);
         referenceCounted.warnAndReleaseIfNotReleased();
-        assertEquals(0, referenceCounted.refCount(), "warnAndReleaseWillJustReleaseWhenMonitored: L34");
+        assertEquals(0, referenceCounted.refCount(), "reference count should be zero after warnAndRelease when unmonitored");
     }
 
     @Test
@@ -40,6 +39,6 @@ public abstract class MonitorReferenceCountedContractTest extends ReferenceCount
         referenceCounted.unmonitored(false);
         referenceCounted.releaseLast();
         referenceCounted.warnAndReleaseIfNotReleased();
-        assertEquals(0, referenceCounted.refCount(), "warnAndReleaseWillDoNothingIfTheResourceIsAlreadyReleased: L43");
+        assertEquals(0, referenceCounted.refCount(), "reference count should remain zero when warnAndRelease called on already released resource");
     }
 }

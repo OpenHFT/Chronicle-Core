@@ -39,6 +39,6 @@ class ExceptionHandlerFallbackTest {
         } finally {
             initializationState.setInt(null, state);
         }
-        assertTrue(true, "classShouldFallBackWhenDelegateThrows: L42"); // If we reach here, the test passes
+        assertTrue(true, "execution should reach this point without exception"); // If we reach here, the test passes
     }
 }

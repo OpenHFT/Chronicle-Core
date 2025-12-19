@@ -16,10 +16,10 @@ public class JvmMain {
 
     public static void main(String[] args) {
         Logger isDebug = LoggerFactory.getLogger("isDebug");
-        assertTrue(!isDebug.isTraceEnabled() && isDebug.isDebugEnabled(), "main: L19");
+        assertTrue(!isDebug.isTraceEnabled() && isDebug.isDebugEnabled(), "isDebug logger should have debug level without trace");
         Logger isInfo = LoggerFactory.getLogger("isInfo");
-        assertTrue(!isInfo.isDebugEnabled() && isInfo.isInfoEnabled(), "main: L21");
+        assertTrue(!isInfo.isDebugEnabled() && isInfo.isInfoEnabled(), "isInfo logger should have info level without debug");
         Logger isWarn = LoggerFactory.getLogger("isWarn");
-        assertTrue(!isWarn.isInfoEnabled() && isWarn.isWarnEnabled(), "main: L23");
+        assertTrue(!isWarn.isInfoEnabled() && isWarn.isWarnEnabled(), "isWarn logger should have warn level without info");
     }
 }

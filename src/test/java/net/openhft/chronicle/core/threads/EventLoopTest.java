@@ -24,7 +24,7 @@ class EventLoopTest {
     @Test
     void testName() {
         when(eventLoop.name()).thenReturn("TestEventLoop");
-        assertEquals("TestEventLoop", eventLoop.name(), "testName: L27");
+        assertEquals("TestEventLoop", eventLoop.name(), "event loop name should return the configured name");
     }
 
     @Test
@@ -58,13 +58,13 @@ class EventLoopTest {
     @Test
     void testIsAlive() {
         when(eventLoop.isAlive()).thenReturn(true);
-        assertTrue(eventLoop.isAlive(), "testIsAlive: L61");
+        assertTrue(eventLoop.isAlive(), "event loop should report as alive when running");
     }
 
     @Test
     void testIsStopped() {
         when(eventLoop.isStopped()).thenReturn(true);
-        assertTrue(eventLoop.isStopped(), "testIsStopped: L67");
+        assertTrue(eventLoop.isStopped(), "event loop should report as stopped when halted");
     }
 
     @Test
@@ -77,6 +77,6 @@ class EventLoopTest {
     @Test
     void testRunsInsideCoreLoop() {
         when(eventLoop.runsInsideCoreLoop()).thenReturn(true);
-        assertTrue(eventLoop.runsInsideCoreLoop(), "testRunsInsideCoreLoop: L80");
+        assertTrue(eventLoop.runsInsideCoreLoop(), "event loop should indicate whether execution is inside core loop");
     }
 }

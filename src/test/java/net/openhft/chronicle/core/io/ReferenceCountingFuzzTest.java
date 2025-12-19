@@ -23,7 +23,7 @@ class ReferenceCountingFuzzTest {
 
     @RepeatedTest(25)
     void randomisedReserveReleaseSequence(org.junit.jupiter.api.RepetitionInfo repetitionInfo) throws ClosedIllegalStateException {
-        TestReference ref = new TestReference(false);
+        ReferenceStub ref = new ReferenceStub(false);
         boolean[] hasOwner = new boolean[OWNERS.length];
         ThreadLocalRandom random = ThreadLocalRandom.current();
 
@@ -32,7 +32,7 @@ class ReferenceCountingFuzzTest {
             ReferenceOwner owner = OWNERS[idx];
             if (random.nextBoolean()) {
                 if (!hasOwner[idx]) {
-                    assertTrue(ref.tryReserve(owner), "randomisedReserveReleaseSequence: L35");
+                    assertTrue(ref.tryReserve(owner), "tryReserve should succeed when owner does not yet hold a reservation");
                     hasOwner[idx] = true;
                 }
             } else {
@@ -51,30 +51,29 @@ class ReferenceCountingFuzzTest {
         }
 
         ref.releaseLast(ReferenceOwner.INIT);
-        assertEquals(1, ref.releaseCount.get(), "randomisedReserveReleaseSequence: L54");
+        assertEquals(1, ref.releaseCount.get(), "performRelease should be invoked exactly once after all references released");
         assertThrows(ClosedIllegalStateException.class, () -> ref.reserve(OWNERS[0]));
         assertThrows(ClosedIllegalStateException.class, ref::throwExceptionIfReleased);
     }
 
     @Test
     void backgroundReleaseHappensOnReleaserThread() throws ClosedIllegalStateException {
-        TestReference ref = new TestReference(true);
+        ReferenceStub ref = new ReferenceStub(true);
         ref.releaseLast(ReferenceOwner.INIT);
         BackgroundResourceReleaser.releasePendingResources();
 
-        assertEquals(1, ref.releaseCount.get(), "backgroundReleaseHappensOnReleaserThread: L65");
+        assertEquals(1, ref.releaseCount.get(), "performRelease should be invoked exactly once on background thread");
         assertNotNull(ref.releasedOnBackgroundThread.get(),
                 "performRelease should have been invoked exactly once");
     }
 
-    @SuppressWarnings("PMD.TestClassWithoutTestCases")
-    private static final class TestReference extends AbstractReferenceCounted {
+    private static final class ReferenceStub extends AbstractReferenceCounted {
         private final boolean background;
         private final AtomicReference<Thread> releaseThread = new AtomicReference<>();
         private final AtomicInteger releaseCount = new AtomicInteger();
         private final AtomicReference<Boolean> releasedOnBackgroundThread = new AtomicReference<>();
 
-        TestReference(boolean background) {
+        ReferenceStub(boolean background) {
             this.background = background;
             singleThreadedCheckDisabled(true);
         }

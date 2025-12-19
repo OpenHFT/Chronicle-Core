@@ -15,8 +15,7 @@ import java.util.stream.Stream;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings("PMD.JUnit5TestShouldBePackagePrivate") // JUnit4 annotations require public class
-public class InvalidEventHandlerExceptionTest extends CoreTestCommon {
+class InvalidEventHandlerExceptionTest extends CoreTestCommon {
 
     private InvalidEventHandlerException e;
 
@@ -26,29 +25,29 @@ public class InvalidEventHandlerExceptionTest extends CoreTestCommon {
         Throwable cause = new RuntimeException("Cause of error");
 
         InvalidEventHandlerException exceptionWithMessage = new InvalidEventHandlerException(message);
-        assertEquals(message, exceptionWithMessage.getMessage(), "testStandardConstructors: L31");
+        assertEquals(message, exceptionWithMessage.getMessage(), "exception message should match constructor argument");
 
         InvalidEventHandlerException exceptionWithCause = new InvalidEventHandlerException(cause);
-        assertSame(cause, exceptionWithCause.getCause(), "testStandardConstructors: L34");
+        assertSame(cause, exceptionWithCause.getCause(), "exception cause should match constructor argument");
 
         InvalidEventHandlerException defaultException = new InvalidEventHandlerException();
-        assertNull(defaultException.getMessage(), "testStandardConstructors: L37");
+        assertNull(defaultException.getMessage(), "default constructor should create exception with null message");
     }
 
     @Test
     public void testReusableInstance() {
         InvalidEventHandlerException reusableInstance = InvalidEventHandlerException.reusable();
-        assertNotNull(reusableInstance, "testReusableInstance: L43");
-        assertEquals(0, reusableInstance.getStackTrace().length, "testReusableInstance: L44");
+        assertNotNull(reusableInstance, "instance should be created");
+        assertEquals(0, reusableInstance.getStackTrace().length, "reusable instance should have empty stack trace");
 
         // Test immutability
         Throwable newCause = new RuntimeException("New cause");
-        assertSame(reusableInstance, reusableInstance.initCause(newCause), "testReusableInstance: L48");
-        assertNull(reusableInstance.getCause(), "testReusableInstance: L49");
+        assertSame(reusableInstance, reusableInstance.initCause(newCause), "initCause should return same instance for reusable exception");
+        assertNull(reusableInstance.getCause(), "reusable instance should ignore initCause and remain without cause");
 
         // Attempt to set a new stack trace
         reusableInstance.setStackTrace(new StackTraceElement[]{});
-        assertEquals(0, reusableInstance.getStackTrace().length, "testReusableInstance: L53");
+        assertEquals(0, reusableInstance.getStackTrace().length, "reusable instance should ignore setStackTrace and remain empty");
     }
 
     @BeforeEach
@@ -58,13 +57,13 @@ public class InvalidEventHandlerExceptionTest extends CoreTestCommon {
 
     @Test
     public void stacktrace() {
-        assertEquals(0, e.getStackTrace().length, "stacktrace: L63");
+        assertEquals(0, e.getStackTrace().length, "reusable exception should have empty stack trace initially");
 
         StackTraceElement[] newStackTrace = Stream.of(new StackTraceElement("A", "foo", "A.java", 42))
                 .toArray(StackTraceElement[]::new);
 
         e.setStackTrace(newStackTrace);
-        assertEquals(0, e.getStackTrace().length, "stacktrace: L69");
+        assertEquals(0, e.getStackTrace().length, "reusable exception should ignore setStackTrace calls");
     }
 
     @Test
@@ -81,13 +80,13 @@ public class InvalidEventHandlerExceptionTest extends CoreTestCommon {
             e.printStackTrace(ps);
         }
         final String stackTrace = sb.toString();
-        assertTrue(stackTrace.contains("Reusable"), "printStackTrace: L86");
-        assertTrue(stackTrace.contains("no stack trace"), "printStackTrace: L87");
+        assertTrue(stackTrace.contains("Reusable"), "stack trace output should indicate reusable exception");
+        assertTrue(stackTrace.contains("no stack trace"), "stack trace output should indicate no stack trace available");
     }
 
     @Test
     public void toStringTest() {
-        assertTrue(e.toString().contains("Reusable"), "toStringTest: L92");
-        assertTrue(e.toString().contains("no stack trace"), "toStringTest: L93");
+        assertTrue(e.toString().contains("Reusable"), "toString should indicate reusable exception");
+        assertTrue(e.toString().contains("no stack trace"), "toString should indicate no stack trace available");
     }
 }

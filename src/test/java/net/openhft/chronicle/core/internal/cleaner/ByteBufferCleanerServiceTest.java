@@ -22,8 +22,8 @@ public class ByteBufferCleanerServiceTest {
 
         service.clean(buffer);
 
-        assertEquals(ByteBufferCleanerService.Impact.NO_IMPACT, service.impact(), "jdk9CleanerHasNoImpactAndCleans: L25");
-        assertTrue(buffer.isDirect(), "jdk9CleanerHasNoImpactAndCleans: L26");
+        assertEquals(ByteBufferCleanerService.Impact.NO_IMPACT, service.impact(), "impact should return NO_IMPACT for JDK9 cleaner service");
+        assertTrue(buffer.isDirect(), "buffer should remain direct after clean");
     }
 
     @Test
@@ -34,6 +34,6 @@ public class ByteBufferCleanerServiceTest {
         service.clean(buffer);
 
         assertNotNull(service.impact(), "Impact should always be reported");
-        assertTrue(buffer.isDirect(), "reflectionBasedCleanerDoesNotThrow: L37");
+        assertTrue(buffer.isDirect(), "buffer should remain direct after clean");
     }
 }

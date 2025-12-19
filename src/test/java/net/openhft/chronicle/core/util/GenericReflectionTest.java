@@ -18,17 +18,17 @@ class GenericReflectionTest extends CoreTestCommon {
     @Test
     void getReturnType() {
         assertEquals(String.class,
-                GenericReflection.getReturnType(Returns.class.getMethods()[0], ReturnsString.class), "getReturnType: L20");
+                GenericReflection.getReturnType(Returns.class.getMethods()[0], ReturnsString.class), "return type should be resolved to String from generic interface");
 
         assertEquals(Integer.class,
-                GenericReflection.getReturnType(Returns.class.getMethods()[0], ReturnsInteger.class), "getReturnType: L23");
+                GenericReflection.getReturnType(Returns.class.getMethods()[0], ReturnsInteger.class), "return type should be resolved to Integer from generic interface");
 
         assertEquals(Double.class,
-                GenericReflection.getReturnType(Returns2.class.getMethods()[0], Returns2Double.class), "getReturnType: L26");
+                GenericReflection.getReturnType(Returns2.class.getMethods()[0], Returns2Double.class), "return type should be resolved to Double from generic class");
 
         Type t = GenericReflection.getReturnType(ReturnsReturnsAString.class.getMethods()[0], ReturnsReturnsAString.class);
         assertEquals(new TypeOf<Returns<String>>() {
-        }.type(), t, "getReturnType: L30");
+        }.type(), t, "return type should be resolved to Returns<String> parameterized type");
     }
 
     @Test
@@ -37,7 +37,7 @@ class GenericReflectionTest extends CoreTestCommon {
         }.type();
         final Set<Type> methodReturnTypes = GenericReflection.getMethodReturnTypes(ReturnsString.class);
         assertEquals(methodReturnTypes,
-                GenericReflection.getMethodReturnTypes(returnString), "getMethodReturnTypes: L39");
+                GenericReflection.getMethodReturnTypes(returnString), "method return types should match between class and parameterized type");
     }
 
     @Test
@@ -46,7 +46,7 @@ class GenericReflectionTest extends CoreTestCommon {
         }.type();
         final Object[] genericInterfaces = GenericReflection.getGenericClassesSuperclassesAndInterfaces(ReturnsString.class).toArray();
         assertArrayEquals(genericInterfaces,
-                GenericReflection.getGenericClassesSuperclassesAndInterfaces(returnString).toArray(), "getGenericClassesSuperclassesAndInterfaces: L48");
+                GenericReflection.getGenericClassesSuperclassesAndInterfaces(returnString).toArray(), "generic hierarchy should match between class and parameterized type");
     }
 
     @Test
@@ -54,22 +54,22 @@ class GenericReflectionTest extends CoreTestCommon {
         final Method method = GenericMethod.class.getDeclaredMethod("method", Object.class, Object.class);
         final String expected = "[class java.lang.Byte, class java.lang.Short]";
         assertEquals(expected,
-                Arrays.toString(GenericReflection.getParameterTypes(method, ExtendsGenericMethod.class)), "getParameterTypes: L56");
+                Arrays.toString(GenericReflection.getParameterTypes(method, ExtendsGenericMethod.class)), "parameter types should resolve to Byte and Short in extending interface");
         final Method omethod = OverridesGenericMethod.class.getDeclaredMethod("method", Byte.class, Short.class);
         assertEquals(expected,
-                Arrays.toString(GenericReflection.getParameterTypes(omethod, OverridesGenericMethod.class)), "getParameterTypes: L59");
+                Arrays.toString(GenericReflection.getParameterTypes(omethod, OverridesGenericMethod.class)), "parameter types should resolve to Byte and Short in overriding method");
         assertEquals(expected,
-                Arrays.toString(GenericReflection.getParameterTypes(method, OverridesGenericMethod.class)), "getParameterTypes: L61");
+                Arrays.toString(GenericReflection.getParameterTypes(method, OverridesGenericMethod.class)), "parameter types should resolve correctly with overriding interface");
         assertEquals(expected,
-                Arrays.toString(GenericReflection.getParameterTypes(method, NestedExtendsGenericMethod.class)), "getParameterTypes: L63");
+                Arrays.toString(GenericReflection.getParameterTypes(method, NestedExtendsGenericMethod.class)), "parameter types should resolve through nested interface hierarchy");
         assertEquals(expected,
-                Arrays.toString(GenericReflection.getParameterTypes(method, OverlyNestedExtendsGenericMethod.class)), "getParameterTypes: L65");
+                Arrays.toString(GenericReflection.getParameterTypes(method, OverlyNestedExtendsGenericMethod.class)), "parameter types should resolve through overly nested interface hierarchy");
         assertEquals(expected,
-                Arrays.toString(GenericReflection.getParameterTypes(method, MassivelyNestedExtendsGenericMethod.class)), "getParameterTypes: L67");
+                Arrays.toString(GenericReflection.getParameterTypes(method, MassivelyNestedExtendsGenericMethod.class)), "parameter types should resolve through massively nested interface hierarchy");
 
         final Method method0 = OverlyNestedExtendsGenericMethod.class.getDeclaredMethod("method0", Object.class);
         assertEquals("[class java.lang.Long]",
-                Arrays.toString(GenericReflection.getParameterTypes(method0, MassivelyNestedExtendsGenericMethod.class)), "getParameterTypes: L71");
+                Arrays.toString(GenericReflection.getParameterTypes(method0, MassivelyNestedExtendsGenericMethod.class)), "parameter type should resolve to Long in nested generic method");
     }
 
     @Test
@@ -81,10 +81,10 @@ class GenericReflectionTest extends CoreTestCommon {
                 break;
             }
         }
-        assertNotNull(method, "getParameterTypesExtends: L84");
+        assertNotNull(method, "reflection should find method");
         final String expected = "[" + Number.class + ", " + CharSequence.class + "]";
         assertEquals(expected,
-                Arrays.toString(GenericReflection.getParameterTypes(method, GenericMethodExtends.class)), "getParameterTypesExtends: L86");
+                Arrays.toString(GenericReflection.getParameterTypes(method, GenericMethodExtends.class)), "parameter types should resolve to bounded type parameters Number and CharSequence");
     }
 
     interface Returns<A> {

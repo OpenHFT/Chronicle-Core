@@ -21,22 +21,22 @@ class JvmUtilitiesTest extends CoreTestCommon {
 
     @Test
     void majorVersionMatchesSpecification() {
-        assertEquals(detectMajorVersionFromSpecification(), Jvm.majorVersion(), "majorVersionMatchesSpecification: L24");
+        assertEquals(detectMajorVersionFromSpecification(), Jvm.majorVersion(), "JVM major version should match specification version");
     }
 
     @Test
     void getBooleanUnderstandsEmptyAndFalseValues() {
         System.clearProperty(FLAG_PROPERTY);
-        assertFalse(Jvm.getBoolean(FLAG_PROPERTY), "getBooleanUnderstandsEmptyAndFalseValues: L30");
+        assertFalse(Jvm.getBoolean(FLAG_PROPERTY), "getBoolean should return false when property is not set");
 
         System.setProperty(FLAG_PROPERTY, "");
-        assertTrue(Jvm.getBoolean(FLAG_PROPERTY), "getBooleanUnderstandsEmptyAndFalseValues: L33");
+        assertTrue(Jvm.getBoolean(FLAG_PROPERTY), "getBoolean should return true when property is set to empty string");
 
         System.setProperty(FLAG_PROPERTY, "true");
-        assertTrue(Jvm.getBoolean(FLAG_PROPERTY), "getBooleanUnderstandsEmptyAndFalseValues: L36");
+        assertTrue(Jvm.getBoolean(FLAG_PROPERTY), "getBoolean should return true when property is set to 'true'");
 
         System.setProperty(FLAG_PROPERTY, "false");
-        assertFalse(Jvm.getBoolean(FLAG_PROPERTY, true), "getBooleanUnderstandsEmptyAndFalseValues: L39");
+        assertFalse(Jvm.getBoolean(FLAG_PROPERTY, true), "getBoolean should return false when property is set to 'false' despite default being true");
     }
 
     // parseSize and getSize are covered by JvmParseSizeTest
@@ -44,19 +44,19 @@ class JvmUtilitiesTest extends CoreTestCommon {
     @Test
     void getPropertyFallsBackToDefault() {
         System.clearProperty("chronicle.test.prop");
-        assertEquals("fallback", Jvm.getProperty("chronicle.test.prop", "fallback"), "getPropertyFallsBackToDefault: L47");
+        assertEquals("fallback", Jvm.getProperty("chronicle.test.prop", "fallback"), "getProperty should return default value when property is not set");
 
         System.setProperty("chronicle.test.prop", "value");
-        assertEquals("value", Jvm.getProperty("chronicle.test.prop", "fallback"), "getPropertyFallsBackToDefault: L50");
+        assertEquals("value", Jvm.getProperty("chronicle.test.prop", "fallback"), "getProperty should return actual value when property is set");
     }
 
     @Test
     void getLongReturnsParsedValueOrDefault() {
         System.clearProperty("chronicle.test.long");
-        assertEquals(Long.valueOf(42L), Jvm.getLong("chronicle.test.long", 42L), "getLongReturnsParsedValueOrDefault: L56");
+        assertEquals(Long.valueOf(42L), Jvm.getLong("chronicle.test.long", 42L), "getLong should return default value when property is not set");
 
         System.setProperty("chronicle.test.long", "1234");
-        assertEquals(Long.valueOf(1234L), Jvm.getLong("chronicle.test.long", 0L), "getLongReturnsParsedValueOrDefault: L59");
+        assertEquals(Long.valueOf(1234L), Jvm.getLong("chronicle.test.long", 0L), "getLong should return parsed value when property is set");
     }
 
     @Test
@@ -64,7 +64,7 @@ class JvmUtilitiesTest extends CoreTestCommon {
         boolean original = Jvm.isResourceTracing();
         try {
             Jvm.setResourceTracing(!original);
-            assertEquals(!original, Jvm.isResourceTracing(), "resourceTracingToggles: L67");
+            assertEquals(!original, Jvm.isResourceTracing(), "resource tracing state should match the set value");
         } finally {
             Jvm.setResourceTracing(original);
         }

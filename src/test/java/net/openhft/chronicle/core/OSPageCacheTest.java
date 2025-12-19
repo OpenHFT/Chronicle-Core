@@ -15,22 +15,22 @@ class OSPageCacheTest {
     @Test
     void pageSizeAndMapAlignmentCache() throws Exception {
         int first = OS.pageSize();
-        assertTrue(first > 0, "pageSizeAndMapAlignmentCache: L18");
+        assertTrue(first > 0, "page size should be positive on first call");
         Field ps = OS.class.getDeclaredField("pageSize");
         ps.setAccessible(true);
         ps.setInt(null, 0);
         int second = OS.pageSize();
-        assertTrue(second > 0, "pageSizeAndMapAlignmentCache: L23");
+        assertTrue(second > 0, "page size should be positive after cache reset");
 
         long align1 = OS.mapAlignment();
-        assertTrue(align1 > 0, "pageSizeAndMapAlignmentCache: L26");
+        assertTrue(align1 > 0, "map alignment should be positive on first call");
         Field ma = OS.class.getDeclaredField("mapAlignment");
         ma.setAccessible(true);
         ma.setInt(null, 0);
         long align2 = OS.mapAlignment();
-        assertTrue(align2 > 0, "pageSizeAndMapAlignmentCache: L31");
+        assertTrue(align2 > 0, "map alignment should be positive after cache reset");
         // Values should be stable and positive across recomputation
-        assertEquals(first, second, "pageSizeAndMapAlignmentCache: L33");
-        assertEquals(align1, align2, "pageSizeAndMapAlignmentCache: L34");
+        assertEquals(first, second, "page size should be stable across recomputation");
+        assertEquals(align1, align2, "map alignment should be stable across recomputation");
     }
 }

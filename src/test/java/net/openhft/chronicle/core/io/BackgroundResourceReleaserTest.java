@@ -48,8 +48,8 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
             long factor = (long) count * (Jvm.isAzulZulu() || OS.isMacOSX() ? 80L : OS.isWindows() ? 20L : 18L);
             assertBetween(count * 9L, time, factor);
         }
-        assertEquals(count, closed.get(), "testResourcesCleanedUp: L51");
-        assertEquals(count, released.get(), "testResourcesCleanedUp: L52");
+        assertEquals(count, closed.get(), "closed count should equal total resource count");
+        assertEquals(count, released.get(), "released count should equal total resource count");
         AbstractCloseable.assertCloseablesClosed();
     }
 
@@ -59,7 +59,7 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
                 .withJvmArguments("-Dbackground.releaser=false").withProgramArguments("manual").start();
 
         try {
-            assertEquals(0, process.waitFor(), "testResourcesCleanedUpManually: L62");
+            assertEquals(0, process.waitFor(), "process exit code should be 0 for successful manual cleanup");
         } finally {
             JavaProcessBuilder.printProcessOutput("BackgroundResourceReleaserMain manual", process);
         }
@@ -70,7 +70,7 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
         Process process = JavaProcessBuilder.create(BackgroundResourceReleaserMain.class).withProgramArguments("stop").start();
 
         try {
-            assertEquals(0, process.waitFor(), "testResourcesCleanedUpAndThreadStopped: L73");
+            assertEquals(0, process.waitFor(), "process exit code should be 0 after stopping background thread");
         } finally {
             JavaProcessBuilder.printProcessOutput("BackgroundResourceReleaserMain stop", process);
         }
@@ -82,7 +82,7 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
                 .withJvmArguments("-Dbackground.releaser=false").withProgramArguments("foreground").start();
 
         try {
-            assertEquals(0, process.waitFor(), "testResourcesCleanedUpInForeground: L85");
+            assertEquals(0, process.waitFor(), "process exit code should be 0 for foreground cleanup");
         } finally {
             JavaProcessBuilder.printProcessOutput("BackgroundResourceReleaserMain stop", process);
         }
@@ -94,7 +94,7 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
         final WasInBackgroundResourceReleaserRecorder recorder = new WasInBackgroundResourceReleaserRecorder(true);
         recorder.close();
         assertValueBecomes(true, recorder::wasClosedInBackgroundResourceReleaserThread);
-        assertTrue(recorder.wasClosedInBackgroundResourceReleaserThread(), "isOnBackgroundResourceReleaserThreadIsTrueWhenOnThread: L97");
+        assertTrue(recorder.wasClosedInBackgroundResourceReleaserThread(), "should be closed on background resource releaser thread when using background cleanup");
     }
 
     @Test
@@ -102,7 +102,7 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
         final WasInBackgroundResourceReleaserRecorder recorder = new WasInBackgroundResourceReleaserRecorder(false);
         recorder.close();
         assertValueBecomes(false, recorder::wasClosedInBackgroundResourceReleaserThread);
-        assertFalse(recorder.wasClosedInBackgroundResourceReleaserThread(), "isOnBackgroundResourceReleaserThreadIsFalseWhenNotOnThread: L105");
+        assertFalse(recorder.wasClosedInBackgroundResourceReleaserThread(), "should not be closed on background resource releaser thread when using foreground cleanup");
     }
 
     @Test
@@ -114,7 +114,7 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
             BackgroundResourceReleaser.release(closeable);
         }
         BackgroundResourceReleaser.releasePendingResources();
-        assertEquals(total, closedCount.get(), "releasePendingResourcesFlushesQueuedWork: L117");
+        assertEquals(total, closedCount.get(), "closed count should equal total after flushing pending work");
     }
 
     @Test
@@ -130,8 +130,8 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
         });
         t.start();
         t.join();
-        assertEquals(1, closed.get(), "releasePendingResourcesReassertsInterrupt: L133");
-        assertTrue(interrupted.get(), "releasePendingResourcesReassertsInterrupt: L134");
+        assertEquals(1, closed.get(), "closed count should be 1 after releasing pending resources");
+        assertTrue(interrupted.get(), "interrupt flag should be reasserted after releasing pending resources");
     }
 
     private void assertValueBecomes(boolean expectedValue, Supplier<Boolean> supplier) {
@@ -142,7 +142,7 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
                 fail("Timed out waiting for value");
             }
         }
-        assertEquals(expectedValue, supplier.get(), "assertValueBecomes: L145");
+        assertEquals(expectedValue, supplier.get(), "value should become expected value within timeout period");
     }
 
     private static class WasInBackgroundResourceReleaserRecorder extends AbstractCloseable {

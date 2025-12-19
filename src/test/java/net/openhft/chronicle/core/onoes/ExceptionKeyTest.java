@@ -15,11 +15,11 @@ public class ExceptionKeyTest extends CoreTestCommon {
     public void testEqualsAndHashCode() {
         ExceptionKey ek1 = new ExceptionKey(LogLevel.PERF, getClass(), "one", null);
         ExceptionKey ek1b = new ExceptionKey(LogLevel.PERF, getClass(), "one", null);
-        assertEquals(ek1, ek1b, "testEqualsAndHashCode: L18");
-        assertEquals(ek1.hashCode(), ek1b.hashCode(), "testEqualsAndHashCode: L19");
-        assertEquals("ExceptionKey{level=PERF, clazz=class net.openhft.chronicle.core.onoes.ExceptionKeyTest, message='one', throwable=}", ek1.toString(), "testEqualsAndHashCode: L20");
+        assertEquals(ek1, ek1b, "ExceptionKey with identical parameters should be equal");
+        assertEquals(ek1.hashCode(), ek1b.hashCode(), "ExceptionKey with identical parameters should have same hashCode");
+        assertEquals("ExceptionKey{level=PERF, clazz=class net.openhft.chronicle.core.onoes.ExceptionKeyTest, message='one', throwable=}", ek1.toString(), "ExceptionKey toString should include level, class, message and throwable");
         ExceptionKey ek2 = new ExceptionKey(LogLevel.WARN, getClass(), "two", null);
-        assertEquals("ExceptionKey{level=WARN, clazz=class net.openhft.chronicle.core.onoes.ExceptionKeyTest, message='two', throwable=}", ek2.toString(), "testEqualsAndHashCode: L22");
+        assertEquals("ExceptionKey{level=WARN, clazz=class net.openhft.chronicle.core.onoes.ExceptionKeyTest, message='two', throwable=}", ek2.toString(), "ExceptionKey toString should include level, class, message and throwable");
         assertNotEquals(ek1, ek2);
         assertNotEquals(ek1.hashCode(), ek2.hashCode());
     }

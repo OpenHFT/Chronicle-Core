@@ -38,7 +38,7 @@ public class PosixTimeProviderTest extends CoreTestCommon {
                 .withMaxIterations(3)
                 .build()
                 .runOrThrow();
-        assertTrue(ran.get(), "currentTimeMicros: executed");
+        assertTrue(ran.get(), "FlakyTestRunner should have executed the currentTimeMicros test");
     }
 
     private void currentTimeMicros0() {
@@ -82,7 +82,7 @@ public class PosixTimeProviderTest extends CoreTestCommon {
             System.out.println(h.toMicrosFormat());
 
             // Performance test
-            assertTrue(h.totalCount() > 0, "resolution: L85");
+            assertTrue(h.totalCount() > 0, "Histogram should have recorded time resolution samples");
         }
     }
 }

@@ -27,6 +27,6 @@ public class VanillaReferenceCountedTest extends MonitorReferenceCountedContract
     @Test
     public void createdHereWillReturnNull() {
         final VanillaReferenceCounted referenceCounted = createReferenceCounted();
-        assertNull(referenceCounted.createdHere(), "createdHereWillReturnNull: L30");
+        assertNull(referenceCounted.createdHere(), "VanillaReferenceCounted createdHere should return null when resource tracing is disabled");
     }
 }

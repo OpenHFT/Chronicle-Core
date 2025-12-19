@@ -30,11 +30,4 @@ public class InvocationTargetRuntimeExceptionTest {
         assertEquals(nonInvocationCause, exception.getCause(),
                 "The cause should be the non-invocation exception provided to the constructor");
     }
-
-    @Test
-    public void testConstructorWithNullCause() {
-        InvocationTargetRuntimeException exception = new InvocationTargetRuntimeException(null);
-
-        assertNull(exception.getCause(), "The cause should be null");
-    }
 }

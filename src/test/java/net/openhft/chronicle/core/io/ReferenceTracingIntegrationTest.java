@@ -28,8 +28,8 @@ public class ReferenceTracingIntegrationTest {
         final SampleReference ref = new SampleReference();
 
         AssertionError error = assertThrows(AssertionError.class, ReferenceCountedUtils::assertReferencesReleased);
-        assertEquals("Reference counted not released", error.getMessage(), "leaksAreReportedWithSuppressedStackTrace: L31");
-        assertEquals(1, error.getSuppressed().length, "leaksAreReportedWithSuppressedStackTrace: L32");
+        assertEquals("Reference counted not released", error.getMessage(), "assertion error should report unreleased references");
+        assertEquals(1, error.getSuppressed().length, "assertion error should have exactly one suppressed exception with leak details");
         String detail = error.getSuppressed()[0].toString();
         assertTrue(detail.contains(SampleReference.class.getSimpleName()), "stack trace should mention SampleReference");
 
@@ -42,7 +42,7 @@ public class ReferenceTracingIntegrationTest {
         SampleReference ref = new SampleReference();
         StackTrace stackTrace = ref.createdHere();
         assertNotNull(stackTrace, "createdHere should be recorded");
-        assertTrue(stackTrace.toString().contains("SampleReference"), "createdHereCapturesAllocationSite: L45");
+        assertTrue(stackTrace.toString().contains("SampleReference"), "createdHere stack trace should contain the allocation site class name");
 
         ref.releaseLast(ReferenceOwner.INIT);
         ReferenceCountedUtils.assertReferencesReleased();

@@ -53,18 +53,18 @@ public class CloseableUtilsTest {
     public void testAdd() {
         CloseableUtils.add(mockCloseable);
         AtomicReference<Set<Closeable>> closeablesRef = getCloseablesRef();
-        assertTrue(closeablesRef.get().contains(mockCloseable), "testAdd: L56");
+        assertTrue(closeablesRef.get().contains(mockCloseable), "added closeable should be present in tracked closeables set");
     }
 
     @Test
     public void testEnableCloseableTracing() {
-        assertNotNull(getCloseablesRef().get(), "testEnableCloseableTracing: L61");
+        assertNotNull(getCloseablesRef().get(), "closeables set should be initialized when tracing is enabled");
     }
 
     @Test
     public void testDisableCloseableTracing() {
         CloseableUtils.disableCloseableTracing();
-        assertNull(getCloseablesRef().get(), "testDisableCloseableTracing: L67");
+        assertNull(getCloseablesRef().get(), "closeables set should be null when tracing is disabled");
     }
 
     // Private helper to access the private CLOSEABLES field in CloseableUtils
@@ -85,7 +85,7 @@ public class CloseableUtilsTest {
         CloseableUtils.add(mockCloseable);
         when(mockCloseable.isClosing()).thenReturn(true);
 
-        assertTrue(CloseableUtils.waitForCloseablesToClose(1000), "testWaitForCloseablesToClose: L88");
+        assertTrue(CloseableUtils.waitForCloseablesToClose(1000), "waitForCloseablesToClose should return true when all closeables are closing");
     }
 
     @Test
@@ -121,7 +121,7 @@ public class CloseableUtilsTest {
         CloseableUtils.add(mockCloseable);
         CloseableUtils.unmonitor(mockCloseable);
         AtomicReference<Set<Closeable>> closeablesRef = getCloseablesRef();
-        assertFalse(closeablesRef.get().contains(mockCloseable), "testUnmonitor: L121");
+        assertFalse(closeablesRef.get().contains(mockCloseable), "unmonitored closeable should be removed from tracked closeables set");
     }
 
     @Test
@@ -131,7 +131,7 @@ public class CloseableUtilsTest {
         CloseableUtils.add(anonCloseable);
         IOTools.unmonitor(anonCloseable);
         AtomicReference<Set<Closeable>> closeablesRef = getCloseablesRef();
-        assertFalse(closeablesRef.get().contains(anonCloseable), "testIOToolsUnmonitor: L131");
+        assertFalse(closeablesRef.get().contains(anonCloseable), "IOTools.unmonitor should remove closeable from tracked closeables set");
     }
 
     @Test

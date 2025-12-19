@@ -35,7 +35,7 @@ final class LimitedInputStreamTest {
     void constructor_rejectsNegativeLimit() {
         assertThrows(IllegalArgumentException.class, () -> {
             try (LimitedInputStream in = new LimitedInputStream(bytes(1), -1)) {
-                assertEquals(-1, in.read(), "constructor_rejectsNegativeLimit: L38");
+                assertEquals(-1, in.read(), "read should return EOF when constructor rejects negative limit");
             }
         });
     }
@@ -43,20 +43,20 @@ final class LimitedInputStreamTest {
     @Test
     void read_singleBytes_consumesBudgetExactly() throws IOException {
         try (LimitedInputStream in = new LimitedInputStream(bytes(3), 3)) {
-            assertEquals(0, in.read(), "read_singleBytes_consumesBudgetExactly: L46");
-            assertEquals(1, in.read(), "read_singleBytes_consumesBudgetExactly: L47");
-            assertEquals(2, in.read(), "read_singleBytes_consumesBudgetExactly: L48");
-            assertEquals(-1, in.read(), "read_singleBytes_consumesBudgetExactly: L49");        // true EOF once budget is zero
+            assertEquals(0, in.read(), "first read should return first byte value");
+            assertEquals(1, in.read(), "second read should return second byte value");
+            assertEquals(2, in.read(), "third read should return third byte value");
+            assertEquals(-1, in.read(), "read should return EOF when budget exhausted");        // true EOF once budget is zero
         }
     }
 
     @Test
     void read_singleByte_throwsWhenBudgetExhaustedAndDataRemains() throws IOException {
         try (LimitedInputStream in = new LimitedInputStream(bytes(2), 1)) {
-            assertEquals(0, in.read(), "read_singleByte_throwsWhenBudgetExhaustedAndDataRemains: L56");         // budget used up
+            assertEquals(0, in.read(), "first read should consume entire budget");         // budget used up
 
             IOException ex = assertThrows(IOException.class, in::read);
-            assertEquals("Size limit exceeded", ex.getMessage(), "read_singleByte_throwsWhenBudgetExhaustedAndDataRemains: L59");
+            assertEquals("Size limit exceeded", ex.getMessage(), "exception message should indicate size limit exceeded");
         }
     }
 
@@ -66,10 +66,10 @@ final class LimitedInputStreamTest {
             byte[] buf = new byte[10];
             int n = in.read(buf, 0, buf.length);
 
-            assertEquals(10, n, "read_bulkWithinLimit_returnsRequestedBytes: L69");
+            assertEquals(10, n, "bulk read should return all 10 bytes within budget");
             for (int i = 0; i < 10; i++)
-                assertEquals(i, buf[i], "read_bulkWithinLimit_returnsRequestedBytes: L71");
-            assertEquals(-1, in.read(), "read_bulkWithinLimit_returnsRequestedBytes: L72");        // budget exhausted, underlying EOF
+                assertEquals(i, buf[i], "each byte in buffer should match expected sequence value " + i);
+            assertEquals(-1, in.read(), "read should return EOF when budget and stream exhausted");        // budget exhausted, underlying EOF
         }
     }
 
@@ -79,11 +79,11 @@ final class LimitedInputStreamTest {
             byte[] buf = new byte[5];
 
             int n = in.read(buf, 0, 5);         // only 3 permitted
-            assertEquals(3, n, "read_bulkCrossesLimit_allowedPartReadThenThrows: L82");
+            assertEquals(3, n, "bulk read should return only budget-permitted bytes");
 
             IOException ex = assertThrows(IOException.class,
                     () -> in.read(buf, 0, 1));
-            assertEquals("Size limit exceeded", ex.getMessage(), "read_bulkCrossesLimit_allowedPartReadThenThrows: L86");
+            assertEquals("Size limit exceeded", ex.getMessage(), "exception message should indicate size limit exceeded");
         }
     }
 
@@ -92,15 +92,15 @@ final class LimitedInputStreamTest {
         try (LimitedInputStream in = new LimitedInputStream(bytes(1), 1)) {
             byte[] zero = new byte[0];
 
-            assertEquals(0, in.read(zero, 0, 0), "read_zeroLengthBuffer_doesNothingAndReturnsZero: L95");
-            assertEquals(0, in.read(), "read_zeroLengthBuffer_doesNothingAndReturnsZero: L96");         // budget unchanged
+            assertEquals(0, in.read(zero, 0, 0), "read with zero-length buffer should return zero");
+            assertEquals(0, in.read(), "subsequent read should return first byte when budget unchanged");         // budget unchanged
         }
     }
 
     @Test
     void read_budgetZeroAndUnderlyingEOF_returnsMinusOne() throws IOException {
         try (LimitedInputStream in = new LimitedInputStream(bytes(0), 0)) {
-            assertEquals(-1, in.read(), "read_budgetZeroAndUnderlyingEOF_returnsMinusOne: L103");
+            assertEquals(-1, in.read(), "read should return EOF when budget is zero and stream is empty");
         }
     }
 }

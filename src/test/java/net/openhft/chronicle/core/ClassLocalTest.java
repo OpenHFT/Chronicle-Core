@@ -20,7 +20,7 @@ public class ClassLocalTest extends CoreTestCommon {
         for (int i = 0; i < 1000; i++) {
             toString.get(ClassValue.class);
         }
-        assertEquals(1, count[0], "computeValue: L23");
+        assertEquals(1, count[0], "operation result should equal expected value");
 
     }
 }

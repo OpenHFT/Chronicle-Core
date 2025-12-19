@@ -35,7 +35,7 @@ public class IOToolsCreateDirectoriesTest {
         Path nested = base.resolve("a/b/c");
         try {
             IOTools.createDirectories(nested);
-            assertTrue(Files.isDirectory(nested), "createDirectoriesBuildsNestedStructure: L38");
+            assertTrue(Files.isDirectory(nested), "nested directory path should be created successfully");
         } finally {
             delete(base.toFile());
         }

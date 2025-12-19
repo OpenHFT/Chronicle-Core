@@ -14,7 +14,7 @@ public class ClosedIORuntimeExceptionTest {
         ClosedIORuntimeException exception = new ClosedIORuntimeException(testMessage);
 
         assertEquals(testMessage, exception.getMessage(),
-                "The message should match the one provided to the constructor");
+                "message-only constructor should set the exception message correctly");
     }
 
     @Test
@@ -24,9 +24,9 @@ public class ClosedIORuntimeExceptionTest {
         ClosedIORuntimeException exception = new ClosedIORuntimeException(testMessage, testCause);
 
         assertEquals(testMessage, exception.getMessage(),
-                "The message should match the one provided to the constructor");
+                "message-and-cause constructor should set the exception message correctly");
         assertEquals(testCause, exception.getCause(),
-                "The cause should match the one provided to the constructor");
+                "message-and-cause constructor should set the cause correctly");
     }
 
     @Test
@@ -35,7 +35,7 @@ public class ClosedIORuntimeExceptionTest {
         ClosedIORuntimeException exception = new ClosedIORuntimeException(testMessage, null);
 
         assertEquals(testMessage, exception.getMessage(),
-                "The message should match the one provided to the constructor");
+                "constructor with null cause should still set the exception message correctly");
         assertNull(exception.getCause(), "The cause should be null");
     }
 }

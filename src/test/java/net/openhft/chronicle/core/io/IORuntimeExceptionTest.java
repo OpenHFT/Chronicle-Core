@@ -14,7 +14,7 @@ class IORuntimeExceptionTest {
         String message = "Error message";
         IORuntimeException exception = new IORuntimeException(message);
 
-        assertEquals(message, exception.getMessage(), "testConstructorWithMessage: L17");
+        assertEquals(message, exception.getMessage(), "exception message should match the provided message");
     }
 
     @Test
@@ -22,7 +22,7 @@ class IORuntimeExceptionTest {
         Throwable cause = new IOException("Cause");
         IORuntimeException exception = new IORuntimeException(cause);
 
-        assertEquals(cause, exception.getCause(), "testConstructorWithThrowable: L25");
+        assertEquals(cause, exception.getCause(), "exception cause should match the provided throwable");
     }
 
     @Test
@@ -31,8 +31,8 @@ class IORuntimeExceptionTest {
         Throwable cause = new IOException("Cause");
         IORuntimeException exception = new IORuntimeException(message, cause);
 
-        assertEquals(message, exception.getMessage(), "testConstructorWithMessageAndThrowable: L34");
-        assertEquals(cause, exception.getCause(), "testConstructorWithMessageAndThrowable: L35");
+        assertEquals(message, exception.getMessage(), "exception message should match the provided message");
+        assertEquals(cause, exception.getCause(), "exception cause should match the provided throwable");
     }
 
     @Test
@@ -44,9 +44,9 @@ class IORuntimeExceptionTest {
         IORuntimeException runtimeOtherException = IORuntimeException.newIORuntimeException(otherException);
 
         assertInstanceOf(ClosedIORuntimeException.class, runtimeClosedException);
-        assertEquals(closedException, runtimeClosedException.getCause(), "testNewIORuntimeException: L47");
+        assertEquals(closedException, runtimeClosedException.getCause(), "ClosedIORuntimeException cause should match the original exception");
 
-        assertFalse(runtimeOtherException instanceof ClosedIORuntimeException, "testNewIORuntimeException: L49");
-        assertEquals(otherException, runtimeOtherException.getCause(), "testNewIORuntimeException: L50");
+        assertFalse(runtimeOtherException instanceof ClosedIORuntimeException, "object should not be of specified type");
+        assertEquals(otherException, runtimeOtherException.getCause(), "IORuntimeException cause should match the original exception");
     }
 }

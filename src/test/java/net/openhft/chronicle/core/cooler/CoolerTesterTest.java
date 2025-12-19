@@ -33,10 +33,10 @@ class CoolerTesterTest {
         CoolerTester tester = new CoolerTester();
         tester.repeat(5).runTimeMS(1000).minCount(10).maxCount(100);
 
-        assertEquals(5, tester.repeat(), "getterMethodsShouldReturnCorrectValues: L36");
-        assertEquals(1000, tester.runTimeMS(), "getterMethodsShouldReturnCorrectValues: L37");
-        assertEquals(10, tester.minCount(), "getterMethodsShouldReturnCorrectValues: L38");
-        assertEquals(100, tester.maxCount(), "getterMethodsShouldReturnCorrectValues: L39");
+        assertEquals(5, tester.repeat(), "repeat getter should return the configured repeat count");
+        assertEquals(1000, tester.runTimeMS(), "runTimeMS getter should return the configured run time");
+        assertEquals(10, tester.minCount(), "minCount getter should return the configured minimum count");
+        assertEquals(100, tester.maxCount(), "maxCount getter should return the configured maximum count");
     }
 
     @Test

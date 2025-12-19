@@ -20,7 +20,7 @@ class LongValueTest {
     @Test
     void testGetValue() {
         when(longValue.getValue()).thenReturn(10L); // Setup the mock to return 10
-        assertEquals(10L, longValue.getValue(), "testGetValue: L23");
+        assertEquals(10L, longValue.getValue(), "getValue should return mocked value");
     }
 
     @Test
@@ -35,8 +35,8 @@ class LongValueTest {
     @Test
     void testCloseAndIsClosed() {
         when(longValue.isClosed()).thenReturn(false, true); // Before and after close
-        assertFalse(longValue.isClosed(), "testCloseAndIsClosed: L38");
+        assertFalse(longValue.isClosed(), "isClosed should return false before close");
         longValue.close();
-        assertTrue(longValue.isClosed(), "testCloseAndIsClosed: L40");
+        assertTrue(longValue.isClosed(), "isClosed should return true after close");
     }
 }

@@ -13,7 +13,7 @@ class PomPropertiesTest {
     @Test
     void testCreateWithValidArguments() {
         assertEquals("{}",
-                PomProperties.create("net.openhft", "chronicle-queue").toString(), "testCreateWithValidArguments: L15");
+                PomProperties.create("net.openhft", "chronicle-queue").toString(), "PomProperties should return empty map string representation when created with valid groupId and artifactId");
     }
 
     @Test

@@ -16,14 +16,14 @@ public class StandardMapsTest extends CoreTestCommon {
 
     @Test
     public void standardEventParameters() {
-        assertEquals(Collections.singletonMap("app_version", "1.0.0"), StandardMaps.standardEventParameters("1.0.0"), "standardEventParameters: L19");
+        assertEquals(Collections.singletonMap("app_version", "1.0.0"), StandardMaps.standardEventParameters("1.0.0"), "standardEventParameters should return map with app_version key");
     }
 
     @Test
     public void standardAdditionalEventParametersThreadsStackTrace() {
         final Map<String, String> actual = StandardMaps.standardAdditionalEventParameters();
-        assertFalse(actual.containsValue("java.lang"), "standardAdditionalEventParametersThreadsStackTrace: L25");
-        assertFalse(actual.containsValue("org.junit"), "standardAdditionalEventParametersThreadsStackTrace: L26");
+        assertFalse(actual.containsValue("java.lang"), "additional event parameters should filter out java.lang packages");
+        assertFalse(actual.containsValue("org.junit"), "additional event parameters should filter out org.junit packages");
     }
 
     @Test
@@ -53,48 +53,48 @@ public class StandardMapsTest extends CoreTestCommon {
 
         final Map<String, String> actual = StandardMaps.standardAdditionalEventParameters(stackTrace);
 
-        assertEquals(expected, actual, "standardAdditionalEventParameters: L56");
+        assertEquals(expected, actual, "standardAdditionalEventParameters should filter and return expected packages");
 
     }
 
     @Test
     public void standardUserProperties() {
-        assertFalse(StandardMaps.standardUserProperties().values().stream().anyMatch(Objects::isNull), "standardUserProperties: L62");
+        assertFalse(StandardMaps.standardUserProperties().values().stream().anyMatch(Objects::isNull), "standardUserProperties should not contain null values");
     }
 
     @Test
     public void packageNameUpToMaxLevel3Empty() {
-        assertEquals("", StandardMaps.packageNameUpToMaxLevel3(""), "packageNameUpToMaxLevel3Empty: L67");
+        assertEquals("", StandardMaps.packageNameUpToMaxLevel3(""), "packageNameUpToMaxLevel3 should return empty string for empty input");
     }
 
     @Test
     public void packageNameUpToMaxLevel3L0() {
-        assertEquals("foo", StandardMaps.packageNameUpToMaxLevel3("foo"), "packageNameUpToMaxLevel3L0: L72");
+        assertEquals("foo", StandardMaps.packageNameUpToMaxLevel3("foo"), "packageNameUpToMaxLevel3 should return same name for single level package");
     }
 
     @Test
     public void packageNameUpToMaxLevel3L1() {
-        assertEquals("a", StandardMaps.packageNameUpToMaxLevel3("a.foo"), "packageNameUpToMaxLevel3L1: L77");
+        assertEquals("a", StandardMaps.packageNameUpToMaxLevel3("a.foo"), "packageNameUpToMaxLevel3 should return first level for two level package");
     }
 
     @Test
     public void packageNameUpToMaxLevel3L2() {
-        assertEquals("a.b", StandardMaps.packageNameUpToMaxLevel3("a.b.foo"), "packageNameUpToMaxLevel3L2: L82");
+        assertEquals("a.b", StandardMaps.packageNameUpToMaxLevel3("a.b.foo"), "packageNameUpToMaxLevel3 should return first two levels for three level package");
     }
 
     @Test
     public void packageNameUpToMaxLevel3L3() {
-        assertEquals("a.b.c", StandardMaps.packageNameUpToMaxLevel3("a.b.c.foo"), "packageNameUpToMaxLevel3L3: L87");
+        assertEquals("a.b.c", StandardMaps.packageNameUpToMaxLevel3("a.b.c.foo"), "packageNameUpToMaxLevel3 should return first three levels for four level package");
     }
 
     @Test
     public void packageNameUpToMaxLevel3L4() {
-        assertEquals("a.b.c", StandardMaps.packageNameUpToMaxLevel3("a.b.c.d.foo"), "packageNameUpToMaxLevel3L4: L92");
+        assertEquals("a.b.c", StandardMaps.packageNameUpToMaxLevel3("a.b.c.d.foo"), "packageNameUpToMaxLevel3 should truncate to first three levels for deep package");
     }
 
     @Test
     public void packageNameUpToMaxLevelThisClass() {
-        assertEquals("net.openhft.chronicle", StandardMaps.packageNameUpToMaxLevel3(StandardMapsTest.class.getName()), "packageNameUpToMaxLevelThisClass: L97");
+        assertEquals("net.openhft.chronicle", StandardMaps.packageNameUpToMaxLevel3(StandardMapsTest.class.getName()), "packageNameUpToMaxLevel3 should return first three levels for test class package");
     }
 
     @Test
@@ -104,13 +104,13 @@ public class StandardMapsTest extends CoreTestCommon {
                 .filter(pn -> StandardMaps.distinctUpToMaxLevel3(pn, distinctKeys))
                 .collect(Collectors.toList());
 
-        assertEquals(Arrays.asList("a.b.c.d", "x", "y", "z"), list, "distinctUpToMaxLevel3: L107");
+        assertEquals(Arrays.asList("a.b.c.d", "x", "y", "z"), list, "distinctUpToMaxLevel3 should filter duplicate package prefixes");
     }
 
     @Test
     public void standardEventParametersIncludesAppVersion() {
         Map<String, String> eventParameters = StandardMaps.standardEventParameters("9.9.9");
-        assertEquals("9.9.9", eventParameters.get("app_version"), "standardEventParametersIncludesAppVersion: L113");
+        assertEquals("9.9.9", eventParameters.get("app_version"), "standardEventParameters should include specified app_version");
     }
 
     @Test
@@ -125,24 +125,24 @@ public class StandardMapsTest extends CoreTestCommon {
         Map<String, String> additional = StandardMaps.standardAdditionalEventParameters(elements);
 
         assertTrue(additional.size() <= 3, "Expected at most three entries");
-        assertTrue(additional.values().stream().anyMatch(v -> v.contains("run.chronicle.demo")), "additionalEventParametersHonoursWhitelistAndMaxThreeEntries: L128");
+        assertTrue(additional.values().stream().anyMatch(v -> v.contains("run.chronicle.demo")), "additional event parameters should include whitelisted packages");
         assertFalse(additional.values().stream().anyMatch(v -> v.startsWith("software.chronicle")), "Enterprise packages should be filtered");
     }
 
     @Test
     public void packageNameUpToMaxLevel3CollapsesDeepPackages() {
         String collapsed = StandardMaps.packageNameUpToMaxLevel3("com.example.deep.pkg.name.Component");
-        assertEquals("com.example.deep", collapsed, "packageNameUpToMaxLevel3CollapsesDeepPackages: L135");
+        assertEquals("com.example.deep", collapsed, "deep package name should collapse to first 3 levels");
 
-        assertEquals("net.openhft", StandardMaps.packageNameUpToMaxLevel3("net.openhft.Class"), "packageNameUpToMaxLevel3CollapsesDeepPackages: L137");
-        assertEquals("Class", StandardMaps.packageNameUpToMaxLevel3("Class"), "packageNameUpToMaxLevel3CollapsesDeepPackages: L138");
+        assertEquals("net.openhft", StandardMaps.packageNameUpToMaxLevel3("net.openhft.Class"), "packageNameUpToMaxLevel3 should return first two levels for three level package name");
+        assertEquals("Class", StandardMaps.packageNameUpToMaxLevel3("Class"), "packageNameUpToMaxLevel3 should return class name for unqualified class");
     }
 
     @Test
     public void standardUserPropertiesExposeRuntime() {
         Map<String, String> userProps = StandardMaps.standardUserProperties();
-        assertTrue(userProps.containsKey("java_runtime_name"), "standardUserPropertiesExposeRuntime: L144");
-        assertNotNull(userProps.get("java_runtime_name"), "standardUserPropertiesExposeRuntime: L145");
-        assertFalse(userProps.values().stream().anyMatch(Objects::isNull), "standardUserPropertiesExposeRuntime: L146");
+        assertTrue(userProps.containsKey("java_runtime_name"), "standardUserProperties should contain java_runtime_name key");
+        assertNotNull(userProps.get("java_runtime_name"), "java_runtime_name value should not be null");
+        assertFalse(userProps.values().stream().anyMatch(Objects::isNull), "standardUserProperties should not contain null values");
     }
 }

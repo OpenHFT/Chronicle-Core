@@ -32,7 +32,7 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
         ReferenceCountedTracer referenceCounted = createReferenceCounted();
         try {
             referenceCounted.throwExceptionIfReleased();
-            assertEquals(1, referenceCounted.refCount(), "refCount should remain at 1 after throwExceptionIfReleased");
+            assertEquals(1, referenceCounted.refCount(), "checking release state should not modify reference count");
         } finally {
             referenceCounted.releaseLast();
         }
@@ -44,7 +44,7 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
         try {
             assertThrows(IllegalStateException.class,
                     referenceCounted::throwExceptionIfNotReleased,
-                    "throwIfNotReleasedWillThrowIfResourceIsNotReleased");
+                    "unreleased resource should fail release check invariant");
         } finally {
             referenceCounted.releaseLast();
         }
@@ -56,7 +56,7 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
 
         referenceCounted.releaseLast();
         referenceCounted.throwExceptionIfNotReleased();
-        assertEquals(0, referenceCounted.refCount(), "throwIfNotReleasedWillNotThrowIfResourceIsReleased: L57");
+        assertEquals(0, referenceCounted.refCount(), "reference count should be zero after final release");
     }
 
     @Test
@@ -73,34 +73,34 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
 
         expectException("Discarded without being released");
         rc.warnAndReleaseIfNotReleased();
-        assertEquals(0, listener.referenceRemovedCount, "listenersShouldNotBeNotifiedOnWarnAndReleaseIfNotReleased: L74");
+        assertEquals(0, listener.referenceRemovedCount, "warning should not trigger listener notifications for unreleased resources");
     }
 
     protected void exerciseReserveLifecycle(ReferenceCountedTracer rc, IntSupplier performReleaseSupplier) {
         ReferenceOwner a = ReferenceOwner.temporary("a");
         rc.reserve(a);
-        assertEquals(2, rc.refCount(), "refCount after first reserve");
+        assertEquals(2, rc.refCount(), "first reserve should increment count from 1 to 2");
 
         ReferenceOwner b = ReferenceOwner.temporary("b");
         rc.reserve(b);
-        assertEquals(3, rc.refCount(), "refCount after second reserve");
+        assertEquals(3, rc.refCount(), "second reserve should increment count from 2 to 3");
 
         assertThrows(IllegalStateException.class, () -> rc.reserve(a));
-        assertEquals(3, rc.refCount(), "refCount should remain after failed duplicate reserve");
+        assertEquals(3, rc.refCount(), "duplicate reserve attempt should not modify reference count");
 
         rc.release(b);
-        assertEquals(2, rc.refCount(), "refCount after releasing second owner");
+        assertEquals(2, rc.refCount(), "releasing second owner should decrement count from 3 to 2");
 
         rc.release(a);
-        assertEquals(1, rc.refCount(), "refCount after releasing first owner");
+        assertEquals(1, rc.refCount(), "releasing first owner should decrement count from 2 to 1");
         if (performReleaseSupplier != null) {
-            assertEquals(0, performReleaseSupplier.getAsInt(), "performRelease should not have run before releaseLast");
+            assertEquals(0, performReleaseSupplier.getAsInt(), "resource cleanup should be deferred until final release");
         }
 
         rc.releaseLast();
-        assertEquals(0, rc.refCount(), "refCount after releaseLast");
+        assertEquals(0, rc.refCount(), "final release should decrement count from 1 to 0");
         if (performReleaseSupplier != null) {
-            assertEquals(1, performReleaseSupplier.getAsInt(), "performRelease should have run once after releaseLast");
+            assertEquals(1, performReleaseSupplier.getAsInt(), "resource cleanup should execute exactly once at final release");
         }
     }
 }

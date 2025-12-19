@@ -44,6 +44,6 @@ class ManagedCloseableTest {
     void testCreatedHere() {
         ManagedCloseable closeable = Mockito.spy(ManagedCloseable.class);
 
-        assertNull(closeable.createdHere(), "testCreatedHere: L47");
+        assertNull(closeable.createdHere(), "ManagedCloseable createdHere should return null for mock instance");
     }
 }

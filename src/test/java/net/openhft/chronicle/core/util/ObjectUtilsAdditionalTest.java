@@ -15,56 +15,56 @@ public class ObjectUtilsAdditionalTest {
 
     @Test
     public void booleanParsingAcceptsYesTrueAndNoFalse() {
-        assertTrue(ObjectUtils.isTrue("t"), "booleanParsingAcceptsYesTrueAndNoFalse: L18");
-        assertTrue(ObjectUtils.isTrue("y"), "booleanParsingAcceptsYesTrueAndNoFalse: L19");
-        assertTrue(ObjectUtils.isTrue("yes"), "booleanParsingAcceptsYesTrueAndNoFalse: L20");
-        assertTrue(ObjectUtils.isTrue("true"), "booleanParsingAcceptsYesTrueAndNoFalse: L21");
-        assertFalse(ObjectUtils.isTrue("foo"), "booleanParsingAcceptsYesTrueAndNoFalse: L22");
-        assertFalse(ObjectUtils.isTrue(null), "booleanParsingAcceptsYesTrueAndNoFalse: L23");
+        assertTrue(ObjectUtils.isTrue("t"), "isTrue should return true for 't'");
+        assertTrue(ObjectUtils.isTrue("y"), "isTrue should return true for 'y'");
+        assertTrue(ObjectUtils.isTrue("yes"), "isTrue should return true for 'yes'");
+        assertTrue(ObjectUtils.isTrue("true"), "isTrue should return true for 'true'");
+        assertFalse(ObjectUtils.isTrue("foo"), "isTrue should return false for unrecognised string");
+        assertFalse(ObjectUtils.isTrue(null), "isTrue should return false for null");
 
-        assertTrue(ObjectUtils.isFalse("f"), "booleanParsingAcceptsYesTrueAndNoFalse: L25");
-        assertTrue(ObjectUtils.isFalse("n"), "booleanParsingAcceptsYesTrueAndNoFalse: L26");
-        assertTrue(ObjectUtils.isFalse("no"), "booleanParsingAcceptsYesTrueAndNoFalse: L27");
-        assertTrue(ObjectUtils.isFalse("false"), "booleanParsingAcceptsYesTrueAndNoFalse: L28");
-        assertFalse(ObjectUtils.isFalse("bar"), "booleanParsingAcceptsYesTrueAndNoFalse: L29");
-        assertFalse(ObjectUtils.isFalse(null), "booleanParsingAcceptsYesTrueAndNoFalse: L30");
+        assertTrue(ObjectUtils.isFalse("f"), "isFalse should return true for 'f'");
+        assertTrue(ObjectUtils.isFalse("n"), "isFalse should return true for 'n'");
+        assertTrue(ObjectUtils.isFalse("no"), "isFalse should return true for 'no'");
+        assertTrue(ObjectUtils.isFalse("false"), "isFalse should return true for 'false'");
+        assertFalse(ObjectUtils.isFalse("bar"), "isFalse should return false for unrecognised string");
+        assertFalse(ObjectUtils.isFalse(null), "isFalse should return false for null");
     }
 
     @Test
     public void convertTextToBoolean() {
-        assertEquals(Boolean.TRUE, ObjectUtils.convertTo(Boolean.class, "yes"), "convertTextToBoolean: L35");
-        assertEquals(Boolean.FALSE, ObjectUtils.convertTo(Boolean.class, "no"), "convertTextToBoolean: L36");
+        assertEquals(Boolean.TRUE, ObjectUtils.convertTo(Boolean.class, "yes"), "convertTo should convert 'yes' to Boolean.TRUE");
+        assertEquals(Boolean.FALSE, ObjectUtils.convertTo(Boolean.class, "no"), "convertTo should convert 'no' to Boolean.FALSE");
     }
 
     @Test
     public void convertTextUsingValueOfParseAndConstructor() {
         Object v1 = ObjectUtils.convertTo(WithValueOf.class, "x1");
-        assertTrue(v1 instanceof WithValueOf, "convertTextUsingValueOfParseAndConstructor: L42");
+        assertInstanceOf(WithValueOf.class, v1, "valueOf-based conversion should return WithValueOf instance");
 
         Object v2 = ObjectUtils.convertTo(WithParse.class, "x2");
-        assertTrue(v2 instanceof WithParse, "convertTextUsingValueOfParseAndConstructor: L45");
+        assertInstanceOf(WithParse.class, v2, "parse-based conversion should return WithParse instance");
 
         Object v3 = ObjectUtils.convertTo(WithCtor.class, "x3");
-        assertTrue(v3 instanceof WithCtor, "convertTextUsingValueOfParseAndConstructor: L48");
+        assertInstanceOf(WithCtor.class, v3, "constructor-based conversion should return WithCtor instance");
     }
 
     @Test
     public void convertListToObjectArray() {
         List<Object> list = Arrays.asList("a", 1);
         Object[] arr = ObjectUtils.convertTo(Object[].class, list);
-        assertArrayEquals(new Object[]{"a", 1}, arr, "convertListToObjectArray: L55");
+        assertArrayEquals(new Object[]{"a", 1}, arr, "arrays should contain identical elements");
     }
 
     @Test
     public void requireNonNullThrowsOnNull() {
         assertThrows(NullPointerException.class, () -> ObjectUtils.requireNonNull(null));
-        assertEquals("abc", ObjectUtils.requireNonNull("abc"), "requireNonNullThrowsOnNull: L61");
+        assertEquals("abc", ObjectUtils.requireNonNull("abc"), "requireNonNull should return input when non-null");
     }
 
     @Test
     public void convertNumberToBigDecimalFromNumberPath() {
         BigDecimal bd = (BigDecimal) ObjectUtils.convertToNumber(BigDecimal.class, 5L);
-        assertEquals(BigDecimal.valueOf(5L), bd, "convertNumberToBigDecimalFromNumberPath: L67");
+        assertEquals(BigDecimal.valueOf(5L), bd, "convertToNumber should convert Long to BigDecimal");
     }
 
     // --- Helpers used by conversion tests ---

@@ -53,7 +53,7 @@ class CleanerServiceIncludeNewerOlderTest {
             // There may be existing providers on the classpath; assert that at least one of our
             // includeNewer/includeOlder candidates was considered acceptable by not being rejected outright.
             String name = svcChosen.getClass().getName();
-            assertTrue(name.contains("AllowedCleaner") || name.contains("OlderInclNewerCleaner"), "includeNewerOlderGateAllowsAppropriateProviders: L56");
+            assertTrue(name.contains("AllowedCleaner") || name.contains("OlderInclNewerCleaner"), "selected service should be a version-compatible provider when includeNewer/includeOlder gates are satisfied");
         } finally {
             t.setContextClassLoader(prev);
         }

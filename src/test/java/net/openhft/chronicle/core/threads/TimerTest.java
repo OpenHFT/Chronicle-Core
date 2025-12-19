@@ -31,22 +31,22 @@ public class TimerTest {
 
         // t=0 no fire
         loop.tickOnce();
-        assertEquals(0, calls.get(), "fixedRateFiresAfterInitialDelayAndPeriod: L34");
+        assertEquals(0, calls.get(), "timer should not fire before initial delay has elapsed");
 
         // advance to initialDelay
         time.now = 10;
         loop.tickOnce();
-        assertEquals(1, calls.get(), "fixedRateFiresAfterInitialDelayAndPeriod: L39");
+        assertEquals(1, calls.get(), "timer should fire once when initial delay is reached");
 
         // not yet at next period
         time.now = 14;
         loop.tickOnce();
-        assertEquals(1, calls.get(), "fixedRateFiresAfterInitialDelayAndPeriod: L44");
+        assertEquals(1, calls.get(), "timer should not fire again before the next period boundary");
 
         // at period boundary
         time.now = 15;
         loop.tickOnce();
-        assertEquals(2, calls.get(), "fixedRateFiresAfterInitialDelayAndPeriod: L49");
+        assertEquals(2, calls.get(), "timer should fire again when the next period boundary is reached");
     }
 
     @Test
@@ -60,14 +60,14 @@ public class TimerTest {
 
         // t=0 no run
         loop.tickOnce();
-        assertEquals(0, ran.get(), "scheduleOnceRemovesItselfAfterRun: L63");
-        assertEquals(1, loop.handlers.size(), "scheduleOnceRemovesItselfAfterRun: L64");
+        assertEquals(0, ran.get(), "scheduled task should not run before its delay");
+        assertEquals(1, loop.handlers.size(), "handler should remain registered before its delay expires");
 
         // At delay boundary -> run once and remove
         time.now = 5;
         loop.tickOnce();
-        assertEquals(1, ran.get(), "scheduleOnceRemovesItselfAfterRun: L69");
-        assertEquals(0, loop.handlers.size(), "scheduleOnceRemovesItselfAfterRun: L70");
+        assertEquals(1, ran.get(), "scheduled task should run exactly once when delay is reached");
+        assertEquals(0, loop.handlers.size(), "handler should be removed after one-time scheduled task completes");
     }
 
     private static final class FakeLoop implements EventLoop {

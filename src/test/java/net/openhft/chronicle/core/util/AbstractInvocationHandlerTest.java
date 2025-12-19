@@ -30,8 +30,7 @@ class ConcreteInvocationHandler extends AbstractInvocationHandler {
     }
 }
 
-@SuppressWarnings("PMD.JUnit5TestShouldBePackagePrivate") // JUnit4 annotations require public class
-public class AbstractInvocationHandlerTest extends CoreTestCommon {
+class AbstractInvocationHandlerTest extends CoreTestCommon {
 
     @BeforeEach
     public void setUp() throws NoSuchMethodException {
@@ -57,7 +56,7 @@ public class AbstractInvocationHandlerTest extends CoreTestCommon {
         AbstractInvocationHandler handler = new ConcreteInvocationHandler();
         Method exampleMethod = String.class.getMethod("length");
 
-        assertNotNull(handler.methodHandleForProxy("example", exampleMethod), "testMethodHandleForProxy: L60");
+        assertNotNull(handler.methodHandleForProxy("example", exampleMethod), "methodHandleForProxy should return a non-null method handle");
     }
 
     @Test
@@ -67,9 +66,9 @@ public class AbstractInvocationHandlerTest extends CoreTestCommon {
         final CallMe mocked = Mocker.intercepting(CallMe.class, "", consumer);
         mocked.method1();
         mocked.method2();
-        assertEquals(2, messages.size(), "testInvoke: L70");
-        assertEquals("method1[]", messages.get(0), "testInvoke: L71");
-        assertEquals("method2[]", messages.get(1), "testInvoke: L72");
+        assertEquals(2, messages.size(), "interceptor should capture both method invocations");
+        assertEquals("method1[]", messages.get(0), "first invocation should be method1 with no arguments");
+        assertEquals("method2[]", messages.get(1), "second invocation should be method2 with no arguments");
     }
 
     @FunctionalInterface

@@ -23,7 +23,7 @@ class DelegatingEventLoopTest {
 
     @Test
     void constructorShouldAssignEventLoop() {
-        assertEquals(innerEventLoop, delegatingEventLoop.inner, "constructorShouldAssignEventLoop: L26");
+        assertEquals(innerEventLoop, delegatingEventLoop.inner, "operation result should equal expected value");
     }
 
     @Test
@@ -59,7 +59,7 @@ class DelegatingEventLoopTest {
     @Test
     void isStoppedShouldDelegateToInner() {
         when(innerEventLoop.isStopped()).thenReturn(true);
-        assertTrue(delegatingEventLoop.isStopped(), "isStoppedShouldDelegateToInner: L62");
+        assertTrue(delegatingEventLoop.isStopped(), "delegating event loop should return stopped state from inner event loop");
         verify(innerEventLoop).isStopped();
     }
 

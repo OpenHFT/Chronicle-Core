@@ -23,7 +23,7 @@ class NullExceptionHandlerTest {
 
     @Test
     void isEnabledShouldAlwaysReturnFalse() {
-        assertFalse(NullExceptionHandler.NOTHING.isEnabled(String.class), "isEnabledShouldAlwaysReturnFalse: L26");
-        assertFalse(NullExceptionHandler.NOTHING.isEnabled(Integer.class), "isEnabledShouldAlwaysReturnFalse: L27");
+        assertFalse(NullExceptionHandler.NOTHING.isEnabled(String.class), "isEnabled should return false for String class");
+        assertFalse(NullExceptionHandler.NOTHING.isEnabled(Integer.class), "isEnabled should return false for Integer class");
     }
 }

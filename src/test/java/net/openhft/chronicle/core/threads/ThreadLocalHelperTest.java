@@ -18,8 +18,8 @@ class ThreadLocalHelperTest {
         AtomicInteger counter = new AtomicInteger(0);
         String value = ThreadLocalHelper.getTL(threadLocal, () -> "Value" + counter.incrementAndGet());
 
-        assertEquals("Value1", value, "testGetTLWithSupplier: L21");
-        assertEquals("Value1", ThreadLocalHelper.getTL(threadLocal, () -> "Value" + counter.incrementAndGet()), "testGetTLWithSupplier: L22");
+        assertEquals("Value1", value, "first getTL call should create and return value via supplier");
+        assertEquals("Value1", ThreadLocalHelper.getTL(threadLocal, () -> "Value" + counter.incrementAndGet()), "getTL should return cached value (supplier not invoked)");
     }
 
     @Test
@@ -28,8 +28,8 @@ class ThreadLocalHelperTest {
         AtomicInteger counter = new AtomicInteger(0);
         String value = ThreadLocalHelper.getSTL(threadLocal, () -> "Value" + counter.incrementAndGet());
 
-        assertEquals("Value1", value, "testGetSTL: L31");
-        assertEquals("Value1", ThreadLocalHelper.getSTL(threadLocal, () -> "Value" + counter.incrementAndGet()), "testGetSTL: L32");
+        assertEquals("Value1", value, "first getSTL call should create and return value via supplier");
+        assertEquals("Value1", ThreadLocalHelper.getSTL(threadLocal, () -> "Value" + counter.incrementAndGet()), "getSTL should return cached value (supplier not invoked)");
     }
 
     @Test
@@ -38,7 +38,7 @@ class ThreadLocalHelperTest {
         String input = "123";
         Integer value = ThreadLocalHelper.getTL(threadLocal, input, Integer::valueOf);
 
-        assertEquals(123, value, "testGetTLWithFunction: L41");
-        assertEquals(123, ThreadLocalHelper.getTL(threadLocal, "456", Integer::valueOf), "testGetTLWithFunction: L42");
+        assertEquals(123, value, "first getTL call with function should parse and return value");
+        assertEquals(123, ThreadLocalHelper.getTL(threadLocal, "456", Integer::valueOf), "getTL should return cached value (function not invoked)");
     }
 }

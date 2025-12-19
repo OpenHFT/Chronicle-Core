@@ -12,8 +12,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SuppressWarnings("PMD.JUnit5TestShouldBePackagePrivate") // JUnit4 annotations require public class
-public class EnumInternerTest extends CoreTestCommon {
+class EnumInternerTest extends CoreTestCommon {
 
     private static final int MASK = 63;
 
@@ -36,7 +35,7 @@ public class EnumInternerTest extends CoreTestCommon {
             @NotNull String s = value.toString();
             long h = Maths.hash64(s);
             h ^= h >> 32;
-            assertEquals(0, (int) h & MASK, "clashTest: L40");
+            assertEquals(0, (int) h & MASK, "Hash value should produce zero when masked with MASK for " + s);
         }
 
         final EnumInterner<TestEnum> testEnum
@@ -48,7 +47,7 @@ public class EnumInternerTest extends CoreTestCommon {
                     final String cs = te.toString();
                     for (int i = 0; i < 20000; i++) {
                         final TestEnum interned = testEnum.intern(cs);
-                        assertEquals(te, interned, "i: " + i);
+                        assertEquals(te, interned, "Interned enum should match original enum value for parallel access iteration " + i);
                     }
                 });
     }

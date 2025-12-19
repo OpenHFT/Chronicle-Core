@@ -43,11 +43,11 @@ public class MuteBuilderApiNoopsTest {
                 .withReportDespiteJUnit();
 
         AnalyticsFacade facade = b.build();
-        assertTrue(facade instanceof MuteAnalytics, "builderMethodsAreNoOpsAndBuildsMuteAnalytics: L46");
+        assertInstanceOf(MuteAnalytics.class, facade, "facade should be MuteAnalytics instance when analytics are disabled");
 
         // Should not throw
         facade.sendEvent("startup");
         // Error logger not called in the mute path
-        assertFalse(called.get(), "builderMethodsAreNoOpsAndBuildsMuteAnalytics: L51");
+        assertFalse(called.get(), "error logger should not be called when analytics are disabled");
     }
 }

@@ -16,6 +16,6 @@ class ByteConsumerTest {
 
         consumer.accept((byte) 10);
 
-        assertEquals((byte) 10, resultContainer[0], "acceptShouldPerformOperation: L19");
+        assertEquals((byte) 10, resultContainer[0], "consumer should store the accepted byte value in the result container");
     }
 }

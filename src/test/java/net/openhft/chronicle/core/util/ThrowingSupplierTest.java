@@ -12,21 +12,21 @@ class ThrowingSupplierTest {
     @Test
     void getShouldReturnResultWhenNoException() throws Exception {
         ThrowingSupplier<String, Exception> throwingSupplier = () -> "test";
-        assertEquals("test", throwingSupplier.get(), "getShouldReturnResultWhenNoException: L15");
+        assertEquals("test", throwingSupplier.get(), "ThrowingSupplier get should return result when no exception thrown");
     }
 
     @Test
     void getShouldThrowException() {
         ThrowingSupplier<String, Exception> throwingSupplier = ThrowingSupplierTest::alwaysThrows;
         Exception exception = assertThrows(Exception.class, throwingSupplier::get);
-        assertEquals("error", exception.getMessage(), "getShouldThrowException: L22");
+        assertEquals("error", exception.getMessage(), "ThrowingSupplier get should propagate exception with original message");
     }
 
     @Test
     void asSupplierShouldReturnResultWhenNoException() {
         ThrowingSupplier<String, Exception> throwingSupplier = () -> "test";
         Supplier<String> supplier = ThrowingSupplier.asSupplier(throwingSupplier);
-        assertEquals("test", supplier.get(), "asSupplierShouldReturnResultWhenNoException: L29");
+        assertEquals("test", supplier.get(), "asSupplier wrapped supplier should return result when no exception thrown");
     }
 
     private static String alwaysThrows() throws Exception {

@@ -28,7 +28,7 @@ public class CpuClassTest {
                     cpuClass);
         }
 
-        assertNotNull(cpuClass, "getCpuModel: L30");
+        assertNotNull(cpuClass, "required object should not be null");
     }
 
     @Test
@@ -36,7 +36,7 @@ public class CpuClassTest {
         // TODO FIX on MacOS. sysctl -a returned 141, https://github.com/OpenHFT/Chronicle-Core/issues/557
         assumeFalse(net.openhft.chronicle.core.internal.Bootstrap.IS_MAC);
         final String actual = CpuClass.removingTag().apply("tag: value");
-        assertEquals("value", actual, "removingTag: L38");
+        assertEquals("value", actual, "operation result should equal expected value");
     }
 
     @Test

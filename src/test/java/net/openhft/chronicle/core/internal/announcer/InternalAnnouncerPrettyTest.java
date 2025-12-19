@@ -19,9 +19,9 @@ class InternalAnnouncerPrettyTest {
 
     @Test
     void formatsCommonCases() throws Exception {
-        assertEquals("Chronicle Queue", pretty("chronicle-queue"), "formatsCommonCases: L22");
-        assertEquals("-chronicle - Queue ", pretty("-chronicle---queue-"), "formatsCommonCases: L23");
-        assertEquals("A", pretty("a"), "formatsCommonCases: L24");
-        assertEquals("", pretty(""), "formatsCommonCases: L25");
+        assertEquals("Chronicle Queue", pretty("chronicle-queue"), "pretty should convert hyphenated lowercase to title case with spaces");
+        assertEquals("-chronicle - Queue ", pretty("-chronicle---queue-"), "pretty should preserve leading/trailing hyphens and normalize multiple hyphens");
+        assertEquals("A", pretty("a"), "pretty should capitalize single lowercase letter");
+        assertEquals("", pretty(""), "pretty should return empty string for empty input");
     }
 }

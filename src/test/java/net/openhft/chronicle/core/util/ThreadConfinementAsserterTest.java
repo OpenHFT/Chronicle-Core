@@ -42,13 +42,13 @@ class ThreadConfinementAsserterTest {
         // This test's behavior will depend on whether assertions are enabled in the JVM.
         ThreadConfinementAsserter asserter = ThreadConfinementAsserter.create();
         // At minimum, a non-null asserter is returned.
-        assertNotNull(asserter, "createShouldReturnCorrectTypeBasedOnAssertions: L45");
+        assertNotNull(asserter, "create() should return a non-null asserter regardless of assertion state");
     }
 
     @Test
     void createEnabledShouldAlwaysReturnFunctionalAsserter() {
         ThreadConfinementAsserter asserter = ThreadConfinementAsserter.createEnabled();
-        assertNotNull(asserter, "createEnabledShouldAlwaysReturnFunctionalAsserter: L51");
+        assertNotNull(asserter, "createEnabled() should always return a functional non-null asserter");
         // Further testing of functionality.
     }
 }

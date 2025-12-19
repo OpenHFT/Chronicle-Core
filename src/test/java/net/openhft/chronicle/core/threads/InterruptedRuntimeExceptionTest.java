@@ -11,16 +11,16 @@ class InterruptedRuntimeExceptionTest {
     @Test
     void defaultConstructorShouldCreateExceptionWithNoMessageOrCause() {
         InterruptedRuntimeException exception = new InterruptedRuntimeException();
-        assertNull(exception.getMessage(), "defaultConstructorShouldCreateExceptionWithNoMessageOrCause: L14");
-        assertNull(exception.getCause(), "defaultConstructorShouldCreateExceptionWithNoMessageOrCause: L15");
+        assertNull(exception.getMessage(), "exception created with default constructor should have null message");
+        assertNull(exception.getCause(), "exception created with default constructor should have null cause");
     }
 
     @Test
     void constructorWithMessageShouldSetCorrectMessage() {
         String message = "Interrupted";
         InterruptedRuntimeException exception = new InterruptedRuntimeException(message);
-        assertEquals(message, exception.getMessage(), "constructorWithMessageShouldSetCorrectMessage: L22");
-        assertNull(exception.getCause(), "constructorWithMessageShouldSetCorrectMessage: L23");
+        assertEquals(message, exception.getMessage(), "exception created with message should preserve the provided message");
+        assertNull(exception.getCause(), "exception created with message only should have null cause");
     }
 
     @Test
@@ -28,15 +28,15 @@ class InterruptedRuntimeExceptionTest {
         String message = "Interrupted";
         Throwable cause = new RuntimeException("Cause");
         InterruptedRuntimeException exception = new InterruptedRuntimeException(message, cause);
-        assertEquals(message, exception.getMessage(), "constructorWithMessageAndCauseShouldSetBothCorrectly: L31");
-        assertEquals(cause, exception.getCause(), "constructorWithMessageAndCauseShouldSetBothCorrectly: L32");
+        assertEquals(message, exception.getMessage(), "exception created with message and cause should preserve the message");
+        assertEquals(cause, exception.getCause(), "exception created with message and cause should preserve the cause");
     }
 
     @Test
     void constructorWithCauseShouldSetCauseAndDeriveMessage() {
         Throwable cause = new RuntimeException("Cause");
         InterruptedRuntimeException exception = new InterruptedRuntimeException(cause);
-        assertEquals(cause.toString(), exception.getMessage(), "constructorWithCauseShouldSetCauseAndDeriveMessage: L39");
-        assertEquals(cause, exception.getCause(), "constructorWithCauseShouldSetCauseAndDeriveMessage: L40");
+        assertEquals(cause.toString(), exception.getMessage(), "exception created with cause only should derive message from cause toString");
+        assertEquals(cause, exception.getCause(), "exception created with cause only should preserve the cause");
     }
 }

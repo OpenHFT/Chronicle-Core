@@ -53,8 +53,8 @@ class CleanerServiceLoaderErrorTest {
         try {
             t.setContextClassLoader(cl);
             ByteBufferCleanerService selected = CleanerServiceLocator.cleanerService();
-            assertNotNull(selected, "serviceConfigurationErrorFallsBackToReflection: L56");
-            assertTrue(selected.getClass().getName().contains("internal.cleaner"), "serviceConfigurationErrorFallsBackToReflection: L57");
+            assertNotNull(selected, "service implementation should be found");
+            assertTrue(selected.getClass().getName().contains("internal.cleaner"), "service should fall back to reflection-based internal cleaner when ServiceConfigurationError occurs");
         } finally {
             t.setContextClassLoader(prev);
         }

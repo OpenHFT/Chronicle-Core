@@ -16,14 +16,14 @@ class ClassLookupTest {
     @Test
     void testClassLookupByName() {
         Class<?> clazz = classLookup.forName("java.lang.String");
-        assertEquals(String.class, clazz, "testClassLookupByName: L19");
+        assertEquals(String.class, clazz, "forName should resolve fully-qualified class name to String.class");
     }
 
     @Test
     void testAddingAliasAndLookupByAlias() {
         classLookup.addAlias(String.class, "StringAlias");
         Class<?> clazz = classLookup.forName("StringAlias");
-        assertEquals(String.class, clazz, "testAddingAliasAndLookupByAlias: L26");
+        assertEquals(String.class, clazz, "forName should resolve alias 'StringAlias' to String.class");
     }
 
     @Test

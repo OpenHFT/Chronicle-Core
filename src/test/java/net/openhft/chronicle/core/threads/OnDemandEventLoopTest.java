@@ -56,9 +56,9 @@ public class OnDemandEventLoopTest extends CoreTestCommon {
             public void close() {
             }
         });
-        assertFalse(el.hasEventLoop(), "onDemand: L59");
-        assertEquals("dummy", el.name(), "onDemand: L60");
-        assertTrue(el.hasEventLoop(), "onDemand: L61");
+        assertFalse(el.hasEventLoop(), "event loop should not exist before first access");
+        assertEquals("dummy", el.name(), "accessing name should trigger event loop creation and return delegate name");
+        assertTrue(el.hasEventLoop(), "event loop should exist after being accessed");
         el.close();
     }
 }

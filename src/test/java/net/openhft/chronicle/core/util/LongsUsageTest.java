@@ -20,50 +20,50 @@ public class LongsUsageTest {
     @Test
     public void requireNonNegativeMatchesBytesStores() {
         // Chronicle-Bytes calls Longs.requireNonNegative before copying into native stores
-        assertEquals(128L, Longs.requireNonNegative(128L), "requireNonNegativeMatchesBytesStores: L23");
+        assertEquals(128L, Longs.requireNonNegative(128L), "positive value should pass non-negative validation");
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> Longs.requireNonNegative(-4L));
-        assertTrue(ex.getMessage().contains("negative"), "requireNonNegativeMatchesBytesStores: L26");
+        assertTrue(ex.getMessage().contains("negative"), "exception message should indicate negative value rejection");
     }
 
     @Test
     public void requirePositiveReflectsOSGuards() {
         // OS.map* methods demand strictly positive lengths
-        assertEquals(4096L, Longs.requirePositive(4096L), "requirePositiveReflectsOSGuards: L32");
+        assertEquals(4096L, Longs.requirePositive(4096L), "positive value should pass positive validation");
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> Longs.requirePositive(0L));
-        assertTrue(ex.getMessage().contains("not positive"), "requirePositiveReflectsOSGuards: L35");
+        assertTrue(ex.getMessage().contains("not positive"), "exception message should indicate zero is not positive");
     }
 
     @Test
     public void alignmentChecksMirrorNativeAccess() {
         long address = 1L << 16; // naturally aligned
-        assertEquals(address, Longs.require(LongCondition.LONG_ALIGNED, address, IllegalArgumentException::new), "alignmentChecksMirrorNativeAccess: L41");
+        assertEquals(address, Longs.require(LongCondition.LONG_ALIGNED, address, IllegalArgumentException::new), "aligned address should pass long alignment check");
 
         IllegalArgumentException misAligned = assertThrows(IllegalArgumentException.class,
                 () -> Longs.require(LongCondition.LONG_ALIGNED, address + 3, IllegalArgumentException::new));
-        assertTrue(misAligned.getMessage().contains(LongCondition.LONG_ALIGNED.toString()), "alignmentChecksMirrorNativeAccess: L45");
+        assertTrue(misAligned.getMessage().contains(LongCondition.LONG_ALIGNED.toString()), "exception message should indicate alignment requirement violation");
     }
 
     @Test
     public void requireAppliesPredicateForByteConvertibleValues() {
         long withinByte = 120L;
-        assertEquals(withinByte, Longs.require(LongCondition.BYTE_CONVERTIBLE, withinByte, IllegalArgumentException::new), "requireAppliesPredicateForByteConvertibleValues: L51");
+        assertEquals(withinByte, Longs.require(LongCondition.BYTE_CONVERTIBLE, withinByte, IllegalArgumentException::new), "value within byte range should pass convertibility check");
 
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                 () -> Longs.require(LongCondition.BYTE_CONVERTIBLE, Byte.MAX_VALUE + 2L, IllegalArgumentException::new));
-        assertTrue(ex.getMessage().contains(LongCondition.BYTE_CONVERTIBLE.toString()), "requireAppliesPredicateForByteConvertibleValues: L55");
+        assertTrue(ex.getMessage().contains(LongCondition.BYTE_CONVERTIBLE.toString()), "exception message should indicate byte convertibility violation");
     }
 
     @Test
     public void negateBehaviourMatchesDownstreamExpectations() {
         LongPredicate notNonPositive = LongCondition.NON_POSITIVE.negate();
-        assertTrue(notNonPositive.test(7), "negateBehaviourMatchesDownstreamExpectations: L61");
-        assertFalse(notNonPositive.test(-1), "negateBehaviourMatchesDownstreamExpectations: L62");
+        assertTrue(notNonPositive.test(7), "positive value should pass negated non-positive condition");
+        assertFalse(notNonPositive.test(-1), "negative value should fail negated non-positive condition");
 
         LongPredicate notEvenPowerOfTwo = LongCondition.EVEN_POWER_OF_TWO.negate();
-        assertTrue(notEvenPowerOfTwo.test(3), "negateBehaviourMatchesDownstreamExpectations: L65");
-        assertFalse(notEvenPowerOfTwo.test(1L << 12), "negateBehaviourMatchesDownstreamExpectations: L66");
+        assertTrue(notEvenPowerOfTwo.test(3), "odd number should pass negated even power of two condition");
+        assertFalse(notEvenPowerOfTwo.test(1L << 12), "even power of two should fail negated condition");
     }
 
     @Test
@@ -71,7 +71,7 @@ public class LongsUsageTest {
         AtomicLong counter = new AtomicLong();
         LongPredicate guard = Longs.nonNegative();
 
-        assertTrue(guard.test(counter.getAndIncrement()), "nonNegativePredicateCachesForRepeatedChecks: L74");
-        assertFalse(guard.test(-1L), "nonNegativePredicateCachesForRepeatedChecks: L75");
+        assertTrue(guard.test(counter.getAndIncrement()), "zero value should pass non-negative predicate");
+        assertFalse(guard.test(-1L), "negative value should fail non-negative predicate");
     }
 }

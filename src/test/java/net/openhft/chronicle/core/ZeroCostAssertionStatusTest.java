@@ -21,13 +21,13 @@ class ZeroCostAssertionStatusTest extends CoreTestCommon {
 
         boolean zcae = false;
         try {
-            assert AssertUtil.SKIP_ASSERTIONS || 0 != 0;
+            assert AssertUtil.SKIP_ASSERTIONS;
         } catch (AssertionError assertionError) {
             zcae = true;
         }
 
         System.out.println("Normal assertions are " + (ae ? "ON" : "OFF"));
         System.out.println("Zero-cost assertions are " + (zcae ? "ON" : "OFF"));
-        assertTrue(true, "show: L31"); // if we reach here, the test passes
+        assertTrue(true, "execution should reach this point without exception"); // if we reach here, the test passes
     }
 }

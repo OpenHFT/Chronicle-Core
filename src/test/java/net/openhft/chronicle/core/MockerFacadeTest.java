@@ -22,8 +22,8 @@ public class MockerFacadeTest {
         Sample sample = Mocker.logging(Sample.class, "sample-", writer);
         sample.run("value");
 
-        assertTrue(writer.toString().contains("sample-run"), "loggingToStringWriterDelegates: L25");
-        assertTrue(writer.toString().contains("value"), "loggingToStringWriterDelegates: L26");
+        assertTrue(writer.toString().contains("sample-run"), "logged output should contain method name with prefix");
+        assertTrue(writer.toString().contains("value"), "logged output should contain method argument");
     }
 
     @Test
@@ -39,8 +39,8 @@ public class MockerFacadeTest {
         sample.run("data");
 
         String logged = new String(backing.toByteArray(), UTF_8);
-        assertTrue(logged.contains("ps-run"), "loggingToPrintStreamDelegates: L42");
-        assertTrue(logged.contains("data"), "loggingToPrintStreamDelegates: L43");
+        assertTrue(logged.contains("ps-run"), "logged output should contain method name with prefix");
+        assertTrue(logged.contains("data"), "logged output should contain method argument");
     }
 
     @Test
@@ -49,14 +49,14 @@ public class MockerFacadeTest {
         Sample sample = Mocker.queuing(Sample.class, "queue-", queue);
         sample.run("payload");
 
-        assertEquals("queue-run[payload]", queue.take(), "queuingAddsEntries: L52");
+        assertEquals("queue-run[payload]", queue.take(), "queue should contain formatted method call with prefix and argument");
     }
 
     @Test
     public void ignoredProxySupportsCalls() {
         Sample sample = Mocker.ignored(Sample.class);
         sample.run("whatever");
-        assertNotNull(sample, "ignoredProxySupportsCalls: L59");
+        assertNotNull(sample, "required object should not be null");
     }
 
     interface Sample {

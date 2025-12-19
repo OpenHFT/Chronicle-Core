@@ -24,7 +24,7 @@ public class MockerTest extends CoreTestCommon {
                         "end[three]%n" +
                         "chains[111]%n" +
                         "alsoChains[222]%n" +
-                        "end[333]%n"), out.toString(), "intercepting: L22");
+                "end[333]%n"), out.toString(), "logging mocker should capture all method calls with arguments");
     }
 
     @Test
@@ -32,7 +32,7 @@ public class MockerTest extends CoreTestCommon {
         final ChainedChainingTerminal logging = Mocker.ignored(ChainedChainingTerminal.class);
         logging.chains("one").alsoChains("two").end("three");
         logging.chains("111").alsoChains("222").end("333");
-        assertNotNull(logging.toString(), "ignored: L36");
+        assertNotNull(logging.toString(), "ignored mocker should return non-null toString representation");
     }
 
     interface Chained<T> {

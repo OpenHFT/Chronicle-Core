@@ -18,14 +18,14 @@ public class StringInternerTest extends CoreTestCommon {
         for (int i = 0; i < 100; i++) {
             si.intern("" + i);
         }
-        assertEquals(82, si.valueCount(), "testIntern: L21");
+        assertEquals(82, si.valueCount(), "valueCount should equal interned entries after collisions");
     }
 
     @Test
     public void testInternIndex() throws IllegalArgumentException {
         @NotNull StringInterner si = new StringInterner(128);
         for (int i = 0; i < 100; i++) {
-            assertEquals("" + i, si.get(si.index("" + i, null)), "testInternIndex: L28");
+            assertEquals("" + i, si.get(si.index("" + i, null)), "get should return same string after indexing");
         }
     }
 
@@ -44,7 +44,7 @@ public class StringInternerTest extends CoreTestCommon {
             System.out.println(lowerCaseString);
             int index = si.index(lowerCaseString, this::changed);
             if (index != -1)
-                assertEquals(lowerCaseString.toUpperCase(), uppercase[index], "testToUppercaseInternIndex: L47");
+                assertEquals(lowerCaseString.toUpperCase(), uppercase[index], "uppercase cache should contain uppercased version of indexed string");
         }
     }
 

@@ -12,9 +12,9 @@ class OSMapAlignTest {
     @Test
     void mapAlignBasicAndEdgeCases() {
         int page = OS.defaultOsPageSize();
-        assertEquals(page, OS.mapAlign(1, page), "mapAlignBasicAndEdgeCases: L15");
-        assertEquals(page, OS.mapAlign(page, page), "mapAlignBasicAndEdgeCases: L16");
-        assertEquals(2L * page, OS.mapAlign(page + 1, page), "mapAlignBasicAndEdgeCases: L17");
+        assertEquals(page, OS.mapAlign(1, page), "mapAlign should round up size less than page to one page");
+        assertEquals(page, OS.mapAlign(page, page), "mapAlign should return page size when size equals page");
+        assertEquals(2L * page, OS.mapAlign(page + 1, page), "mapAlign should round up size beyond page to two pages");
         assertThrows(IllegalArgumentException.class, () -> OS.mapAlign(-1, page));
         assertThrows(IllegalArgumentException.class, () -> OS.mapAlign(1, 0));
     }

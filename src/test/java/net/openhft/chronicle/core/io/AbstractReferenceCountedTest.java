@@ -15,7 +15,7 @@ public class AbstractReferenceCountedTest extends ReferenceCountedTracerContract
         Jvm.setResourceTracing(true);
 
         MyReferenceCounted rc = createReferenceCounted();
-        assertEquals(1, rc.refCount(), "reserve: L18");
+        assertEquals(1, rc.refCount(), "Reference count should be 1 after initial creation");
 
         exerciseReserveLifecycle(rc, () -> rc.performRelease);
     }

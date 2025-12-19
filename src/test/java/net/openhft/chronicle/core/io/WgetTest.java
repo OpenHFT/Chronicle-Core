@@ -41,7 +41,7 @@ class WgetTest {
                 .build();
         StringBuilder sb = new StringBuilder();
         wget.fetch("http://does.not.matter", sb);
-        assertEquals(expected, sb.toString(), "fetch_appends_response_body: L44");
+        assertEquals(expected, sb.toString(), "Response body should be appended to StringBuilder");
     }
 
     @Test
@@ -69,7 +69,7 @@ class WgetTest {
                 .build();
         StringBuilder sb = new StringBuilder();
         wget.fetch("http://x", sb);
-        assertEquals("12345", sb.toString(), "body_equal_to_limit_is_allowed: L72");
+        assertEquals("12345", sb.toString(), "Response body exactly matching maxResponseBytes limit should be allowed");
     }
 
     @Test
@@ -107,7 +107,7 @@ class WgetTest {
                 .build();
         StringBuilder sb = new StringBuilder();
         wget.fetch("http://x", sb);
-        assertEquals("Café", sb.toString(), "null_charset_detector_result_falls_back_to_utf8: L110");
+        assertEquals("Café", sb.toString(), "Null charset detector result should fall back to UTF-8 for decoding");
     }
 
     @Test
@@ -159,11 +159,11 @@ class WgetTest {
             futures.add(pool.submit(task));
         }
         pool.shutdown();
-        assertTrue(pool.awaitTermination(2, TimeUnit.SECONDS), "fetch_is_thread_safe_when_instance_is_shared: L162");
+        assertTrue(pool.awaitTermination(2, TimeUnit.SECONDS), "Thread pool should terminate within 2 seconds when tasks complete");
         for (java.util.concurrent.Future<Void> future : futures) {
             future.get();
         }
-        assertEquals(20, successes.get(), "fetch_is_thread_safe_when_instance_is_shared: L166");
+        assertEquals(20, successes.get(), "All 20 concurrent fetch operations should complete successfully when sharing a single Wget instance");
     }
 
     @Test
@@ -172,8 +172,8 @@ class WgetTest {
         LimitedInputStream lim = new LimitedInputStream(new ByteArrayInputStream(data), 3);
         ByteArrayOutputStream copy = new ByteArrayOutputStream();
         for (int b; (b = lim.read()) != -1; ) copy.write(b);
-        assertArrayEquals(data, copy.toByteArray(), "limited_stream_behaves_like_eof_after_budget: L175");
-        assertEquals(-1, lim.read(), "limited_stream_behaves_like_eof_after_budget: L176");
+        assertArrayEquals(data, copy.toByteArray(), "LimitedInputStream should read all bytes up to the specified budget");
+        assertEquals(-1, lim.read(), "LimitedInputStream should return -1 (EOF) after exhausting the byte budget");
     }
 
     @Test
@@ -184,7 +184,7 @@ class WgetTest {
                 .build();
         StringBuilder sb = new StringBuilder();
         empty.fetch("http://x", sb);
-        assertEquals("", sb.toString(), "zero_budget_allows_empty_body_but_blocks_data: L187");
+        assertEquals("", sb.toString(), "Zero byte budget should allow empty response bodies without throwing");
 
         Wget tooMuch = new Wget.Builder()
                 .connectionProvider(u -> new ByteArrayInputStream("x".getBytes(StandardCharsets.UTF_8)))
@@ -204,8 +204,8 @@ class WgetTest {
         LimitedInputStream lim = new LimitedInputStream(new ByteArrayInputStream(data), 4);
         byte[] buf = new byte[10];
         int n = lim.read(buf);
-        assertEquals(4, n, "limited_stream_byte_array_path_respects_limit: L207");
-        assertEquals("abcd", new String(buf, 0, n, StandardCharsets.UTF_8), "limited_stream_byte_array_path_respects_limit: L208");
+        assertEquals(4, n, "LimitedInputStream should read exactly 4 bytes when limit is 4");
+        assertEquals("abcd", new String(buf, 0, n, StandardCharsets.UTF_8), "LimitedInputStream byte array read should respect the byte limit and return only the first 4 bytes");
         assertThrows(IOException.class, () -> lim.read(buf));
     }
 
@@ -255,7 +255,7 @@ class WgetTest {
         f.setAccessible(true);
         Wget.ConnectionProvider provider = (Wget.ConnectionProvider) f.get(wget);
         provider.open(synthetic).close();
-        assertEquals(ct, seenConnect.get(), "default_provider_sets_timeouts: L258");
-        assertEquals(rt, seenRead.get(), "default_provider_sets_timeouts: L259");
+        assertEquals(ct, seenConnect.get(), "Default connection provider should apply the configured connect timeout");
+        assertEquals(rt, seenRead.get(), "Default connection provider should apply the configured read timeout");
     }
 }

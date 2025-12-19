@@ -35,7 +35,7 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
         for (int i = 0; i < MAX_INSTANCES + 1; i++) {
             allLongs.add(scopedThreadLocal.get());
         }
-        assertEquals(MAX_INSTANCES + 1, allLongs.size(), "warningWillBeDisplayedWhenWeUseMoreThanMaxInstances: acquired resources");
+        assertEquals(MAX_INSTANCES + 1, allLongs.size(), "acquired resources count should exceed max instances limit");
         closeQuietly(allLongs);
     }
 
@@ -48,9 +48,9 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
                 try (ScopedResource<AtomicLong> l3 = scopedThreadLocal.get()) {
                     l3.get().set(789);
                 }
-                assertEquals(456L, l2.get().get(), "nestedCallsWillGetDifferentResources: L51");
+                assertEquals(456L, l2.get().get(), "second nested resource should retain its value after closing third resource");
             }
-            assertEquals(123L, l1.get().get(), "nestedCallsWillGetDifferentResources: L53");
+            assertEquals(123L, l1.get().get(), "first nested resource should retain its value after closing second resource");
         }
     }
 
@@ -73,7 +73,7 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
             thread.start();
             thread.join();
         }
-        assertEquals(numThreads, instanceObjectIDs.size(), "differentThreadsWillGetDifferentResources: L76");
+        assertEquals(numThreads, instanceObjectIDs.size(), "each thread should receive a unique resource instance");
     }
 
     @Test
@@ -84,8 +84,8 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
             objectId = System.identityHashCode(l1.get());
         }
         try (ScopedResource<AtomicLong> l1 = scopedThreadLocal.get()) {
-            assertEquals(0L, l1.get().get(), "onAcquireIsPerformedBeforeEachAcquisition: L87");
-            assertEquals(objectId, System.identityHashCode(l1.get()), "onAcquireIsPerformedBeforeEachAcquisition: L88");
+            assertEquals(0L, l1.get().get(), "resource value should be reset to 0 by onAcquire callback");
+            assertEquals(objectId, System.identityHashCode(l1.get()), "same resource instance should be reused after release");
         }
     }
 
@@ -101,17 +101,17 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
             try (final ScopedResource<CloseableResource> cr1 = stl.get();
                  final ScopedResource<CloseableResource> cr2 = stl.get()) {
                 // Create two resources, do nothing
-                assertNotNull(cr1, "cleaningThreadWillCloseResources: L104");
-                assertNotNull(cr2, "cleaningThreadWillCloseResources: L105");
+                assertNotNull(cr1, "first scoped resource should be non-null");
+                assertNotNull(cr2, "second scoped resource should be non-null");
             }
             // None should be closed
-            assertTrue(allResources.stream().noneMatch(cr -> cr.closed), "cleaningThreadWillCloseResources: L108");
+            assertTrue(allResources.stream().noneMatch(cr -> cr.closed), "resources should remain open while thread is active");
         });
         cleaningThread.start();
         cleaningThread.join();
         // All should be closed
-        assertEquals(2, allResources.size(), "cleaningThreadWillCloseResources: L113");
-        assertTrue(allResources.stream().allMatch(cr -> cr.closed), "cleaningThreadWillCloseResources: L114");
+        assertEquals(2, allResources.size(), "two resources should have been created");
+        assertTrue(allResources.stream().allMatch(cr -> cr.closed), "all resources should be closed after thread completes");
     }
 
     @Test
@@ -122,13 +122,13 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
         }, MAX_INSTANCES);
 
         // Should get 0,1,2,3 on the first excessive acquire
-        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 3)), retrieveAndReturnNValues(MAX_INSTANCES + 1, ints), "whenOverflowOccursNewestInstanceIsDiscarded: L125");
+        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 3)), retrieveAndReturnNValues(MAX_INSTANCES + 1, ints), "first overflow should return pooled instances plus one new instance");
 
         // Should get 0,1,2,4,5 on the next excessive acquire
-        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 4, 5)), retrieveAndReturnNValues(MAX_INSTANCES + 2, ints), "whenOverflowOccursNewestInstanceIsDiscarded: L129");
+        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 4, 5)), retrieveAndReturnNValues(MAX_INSTANCES + 2, ints), "second overflow should discard newest instances and create new ones");
 
         // Should get 0,1,2,6,7 on the next excessive acquire
-        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 6, 7)), retrieveAndReturnNValues(MAX_INSTANCES + 2, ints), "whenOverflowOccursNewestInstanceIsDiscarded: L133");
+        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 6, 7)), retrieveAndReturnNValues(MAX_INSTANCES + 2, ints), "third overflow should continue discarding newest instances");
     }
 
     private Set<Integer> retrieveAndReturnNValues(int numberToRetrieve, ScopedThreadLocal<Integer> scopedInts) {

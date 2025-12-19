@@ -28,6 +28,6 @@ class Jdk9ByteBufferCleanerServiceTest {
 
     @Test
     void impactShouldBeNoImpact() {
-        assertEquals(Impact.NO_IMPACT, cleanerService.impact(), "impactShouldBeNoImpact: L31");
+        assertEquals(Impact.NO_IMPACT, cleanerService.impact(), "cleaner service impact should be NO_IMPACT");
     }
 }

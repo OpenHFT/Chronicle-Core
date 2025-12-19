@@ -15,8 +15,8 @@ class ReflectionProxyTest {
         Delegate delegate = new Delegate();
         Fluent proxy = ReflectionUtil.reflectiveProxy(Fluent.class, delegate, true);
         Fluent chained = proxy.withA(7).withB("ok");
-        assertSame(proxy, chained, "reflectiveProxyCanReturnProxyForFluent: L18");
-        assertEquals("7:ok", proxy.build(), "reflectiveProxyCanReturnProxyForFluent: L19");
+        assertSame(proxy, chained, "should return same instance (reference equality)");
+        assertEquals("7:ok", proxy.build(), "proxy should build correct value from chained method calls");
     }
 
     interface Fluent {

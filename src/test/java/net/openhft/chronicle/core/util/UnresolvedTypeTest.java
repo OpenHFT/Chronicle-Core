@@ -15,7 +15,7 @@ class UnresolvedTypeTest {
         String expectedTypeName = "MyType";
         UnresolvedType unresolvedType = new UnresolvedType(expectedTypeName);
 
-        assertEquals(expectedTypeName, unresolvedType.getTypeName(), "constructorShouldInitializeTypeName: L18");
+        assertEquals(expectedTypeName, unresolvedType.getTypeName(), "constructor should initialize type name to provided value");
     }
 
     @Test
@@ -24,7 +24,7 @@ class UnresolvedTypeTest {
         Type type = UnresolvedType.of(expectedTypeName);
 
         assertInstanceOf(UnresolvedType.class, type);
-        assertEquals(expectedTypeName, type.getTypeName(), "factoryMethodShouldCreateUnresolvedType: L27");
+        assertEquals(expectedTypeName, type.getTypeName(), "factory method should create UnresolvedType with correct type name");
     }
 
     @Test
@@ -32,7 +32,7 @@ class UnresolvedTypeTest {
         String expectedTypeName = "MyType";
         UnresolvedType unresolvedType = new UnresolvedType(expectedTypeName);
 
-        assertEquals(expectedTypeName, unresolvedType.getTypeName(), "getTypeNameShouldReturnCorrectTypeName: L35");
+        assertEquals(expectedTypeName, unresolvedType.getTypeName(), "getTypeName should return the type name provided at construction");
     }
 
     @Test
@@ -40,6 +40,6 @@ class UnresolvedTypeTest {
         String expectedTypeName = "MyType";
         UnresolvedType unresolvedType = new UnresolvedType(expectedTypeName);
 
-        assertEquals(expectedTypeName, unresolvedType.toString(), "toStringShouldReturnTypeName: L43");
+        assertEquals(expectedTypeName, unresolvedType.toString(), "toString should return the type name");
     }
 }

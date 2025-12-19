@@ -11,13 +11,12 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings("PMD.JUnit5TestShouldBePackagePrivate") // JUnit4 annotations require public class
-public class HistogramTest extends CoreTestCommon {
+class HistogramTest extends CoreTestCommon {
 
     @Test
     public void defaultConstructorInitializesProperly() {
         Histogram histogram = new Histogram();
-        assertNotNull(histogram, "defaultConstructorInitializesProperly: L21");
+        assertNotNull(histogram, "Histogram should be created with default constructor");
     }
 
     @Test
@@ -25,15 +24,15 @@ public class HistogramTest extends CoreTestCommon {
         int powersOf2 = 10;
         int fractionBits = 5;
         Histogram histogram = new Histogram(powersOf2, fractionBits);
-        assertNotNull(histogram, "constructorWithParametersInitializesProperly: L29");
+        assertNotNull(histogram, "Histogram should be created with custom powersOf2 and fractionBits");
     }
 
     @Test
     public void sampleCorrectlyUpdatesHistogram() {
         Histogram histogram = new Histogram();
         int bucket = histogram.sample(1000.0);
-        assertTrue(bucket >= 0, "sampleCorrectlyUpdatesHistogram: L36");
-        assertTrue(histogram.toMicrosFormat().contains("worst"), "sampleCorrectlyUpdatesHistogram: L37");
+        assertTrue(bucket >= 0, "bucket index should be non-negative for sampled value");
+        assertTrue(histogram.toMicrosFormat().contains("worst"), "formatted output should contain worst-case value after sampling");
     }
 
     @Test
@@ -42,7 +41,7 @@ public class HistogramTest extends CoreTestCommon {
         Histogram h2 = new Histogram();
         h2.sample(10);
         h1.add(h2);
-        assertTrue(h1.toMicrosFormat().contains("worst"), "addCombinesHistogramsCorrectly: L46");
+        assertTrue(h1.toMicrosFormat().contains("worst"), "combined histogram should contain worst-case value after adding");
     }
 
     @Test
@@ -50,28 +49,28 @@ public class HistogramTest extends CoreTestCommon {
         Histogram h1 = new Histogram();
         Histogram h2 = new Histogram();
 
-        assertEquals(h1, h2, "testEqualsAndHashCode: L54");
-        assertEquals(h1.hashCode(), h2.hashCode(), "testEqualsAndHashCode: L55");
+        assertEquals(h1, h2, "empty histograms with same configuration should be equal");
+        assertEquals(h1.hashCode(), h2.hashCode(), "equal histograms should have equal hash codes");
     }
 
     @Test
     public void percentilesForReturnsCorrectValues() {
         long count = 10000;
         double[] percentiles = Histogram.percentilesFor(count);
-        assertNotNull(percentiles, "percentilesForReturnsCorrectValues: L62");
-        assertTrue(percentiles.length > 0, "percentilesForReturnsCorrectValues: L63");
+        assertNotNull(percentiles, "percentilesFor should return non-null array for valid count");
+        assertTrue(percentiles.length > 0, "percentiles array should contain at least one element");
     }
 
     @Test
     public void percentilesFor() {
-        assertEquals("[0.5, 0.9, 0.99, 0.997, 0.999, 0.9997, 0.9999, 0.99997, 0.99999, 0.999997, 1.0]", Arrays.toString(Histogram.percentilesFor(50_000_000)), "percentilesFor: L68");
+        assertEquals("[0.5, 0.9, 0.99, 0.997, 0.999, 0.9997, 0.9999, 0.99997, 0.99999, 0.999997, 1.0]", Arrays.toString(Histogram.percentilesFor(50_000_000)), "percentilesFor 50M samples should include standard percentiles up to six nines");
     }
 
     @Test
     public void singleSample() {
         Histogram h = new Histogram();
         h.sampleNanos(100_000);
-        assertEquals("50/90 97/99 99.7/99.9 99.97/99.99 - worst was 100.0 / 100.0  100.0 / 100.0  100.0 / 100.0  100.0 / 100.0 - 100.0", h.toLongMicrosFormat(), "singleSample: L75");
+        assertEquals("50/90 97/99 99.7/99.9 99.97/99.99 - worst was 100.0 / 100.0  100.0 / 100.0  100.0 / 100.0  100.0 / 100.0 - 100.0", h.toLongMicrosFormat(), "single 100us sample should show 100.0 for all percentiles");
     }
 
     @Test
@@ -79,15 +78,15 @@ public class HistogramTest extends CoreTestCommon {
         @NotNull Histogram h = new Histogram(40, 2);
         double base = 1;
         for (int i = 0; i < 40; i++) {
-            assertEquals(i * 4, h.sample(base), "testSampleRange: L83");
-            assertEquals(i * 4 + 1, h.sample(base * 1.25), "testSampleRange: L84");
-            assertEquals(i * 4 + 2, h.sample(base * 1.5), "testSampleRange: L85");
-            assertEquals(i * 4 + 3, h.sample(base * 1.75), "testSampleRange: L86");
+            assertEquals(i * 4, h.sample(base), "bucket for base value at power " + i + " should be i*4");
+            assertEquals(i * 4 + 1, h.sample(base * 1.25), "bucket for 1.25x base at power " + i + " should be i*4+1");
+            assertEquals(i * 4 + 2, h.sample(base * 1.5), "bucket for 1.5x base at power " + i + " should be i*4+2");
+            assertEquals(i * 4 + 3, h.sample(base * 1.75), "bucket for 1.75x base at power " + i + " should be i*4+3");
             base *= 2;
         }
         assertEquals("50/90 99/99.9 99.99 - worst was 980 / 77,309,410  893,353,200 / 1,030,792,150  1,030,792,150 - 1,030,792,150",
                 h.toMicrosFormat(),
-                "testSampleRange: L89");
+                "40-power histogram should produce expected percentile distribution format");
     }
 
     @Test
@@ -98,15 +97,15 @@ public class HistogramTest extends CoreTestCommon {
 
         assertEquals("50/90 99/99.9 99.99 - worst was 500 / 890  990 / 990  990 - 990",
                 h.toMicrosFormat(),
-                "testSamples: L99");
+                "seeded samples should produce expected short format percentiles");
         assertEquals("50/90 97/99 99.7/99.9 99.97/99.99 - worst was 500 / 890  970 / 990  990 / 990  990 / 990 - 990",
                 h.toLongMicrosFormat(),
-                "testSamples: L101");
+                "seeded samples should produce expected long format percentiles");
 
         for (int i = 1; i <= 100; i++)
-            assertEquals(i, percentile(h, i / 100.0), 1, "i: " + i);
+            assertEquals(i, percentile(h, i / 100.0), 1, "percentile at " + i + "% should match expected value");
         for (int i = 1; i <= 100; i++)
-            assertEquals(i, h.percentageLessThan(i * 10_000), 2, "testSamples: L107");
+            assertEquals(i, h.percentageLessThan(i * 10_000), 2, "percentage less than " + (i * 10) + "us should be approximately " + i);
     }
 
     private void sampleWithSeed(@NotNull Histogram h, long seed) {
@@ -132,7 +131,7 @@ public class HistogramTest extends CoreTestCommon {
         sampleWithSeed(both, seed2);
 
         h1.add(h2);
-        assertEquals(both, h1, "testAdd: L133");
+        assertEquals(both, h1, "h1 plus h2 should equal histogram sampled with both seeds");
     }
 
     private int percentile(@NotNull Histogram h, double fraction) {

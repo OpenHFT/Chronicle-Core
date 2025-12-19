@@ -11,10 +11,10 @@ class JvmStackTrimTest {
 
     @Test
     void isInternalClassNameClassification() {
-        assertTrue(Jvm.isInternal("java.lang.String"), "isInternalClassNameClassification: L14");
-        assertTrue(Jvm.isInternal("sun.nio.fs.UnixFileSystem"), "isInternalClassNameClassification: L15");
-        assertTrue(Jvm.isInternal("jdk.internal.module.ModuleBootstrap"), "isInternalClassNameClassification: L16");
-        assertFalse(Jvm.isInternal("net.openhft.chronicle.core.Jvm"), "isInternalClassNameClassification: L17");
+        assertTrue(Jvm.isInternal("java.lang.String"), "isInternal should classify java.lang classes as internal");
+        assertTrue(Jvm.isInternal("sun.nio.fs.UnixFileSystem"), "isInternal should classify sun.* classes as internal");
+        assertTrue(Jvm.isInternal("jdk.internal.module.ModuleBootstrap"), "isInternal should classify jdk.internal classes as internal");
+        assertFalse(Jvm.isInternal("net.openhft.chronicle.core.Jvm"), "isInternal should classify user application classes as non-internal");
     }
 
     @Test
@@ -28,7 +28,7 @@ class JvmStackTrimTest {
         int first = Jvm.trimFirst(st);
         int last = Jvm.trimLast(first, st);
         // trimFirst returns up to 2 frames of context; here it returns 0
-        assertEquals(0, first, "trimFirstAndLastIndices: L31");
-        assertTrue(last >= first && last <= st.length, "trimFirstAndLastIndices: L32");
+        assertEquals(0, first, "index should be within valid range");
+        assertTrue(last >= first && last <= st.length, "range indices should be valid");
     }
 }
