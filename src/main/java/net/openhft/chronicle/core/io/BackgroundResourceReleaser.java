@@ -36,6 +36,9 @@ public final class BackgroundResourceReleaser {
     private BackgroundResourceReleaser() {
     }
 
+    /**
+     * System property flag to control the background releaser name.
+     */
     public static final String BACKGROUND_RESOURCE_RELEASER = "background~resource~releaser";
     static final boolean BG_RELEASER = Jvm.getBoolean("background.releaser", true);
 

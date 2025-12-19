@@ -13,13 +13,37 @@ public final class LongTime {
     private LongTime() {
     }
 
+    /**
+     * Maximum representable time in nanoseconds (circa 2262).
+     */
     public static final long MAX_NANOS = Long.MAX_VALUE; // 2262-04-11T23:47:16.854775807
+    /**
+     * Maximum representable time in microseconds (circa 2262).
+     */
     public static final long MAX_MICROS = MAX_NANOS / 1000; // 2262-04-11T23:47:16.854775
+    /**
+     * Maximum representable time in milliseconds (circa 2262).
+     */
     public static final long MAX_MILLIS = MAX_MICROS / 1000; // 2262-04-11T23:47:16.854
+    /**
+     * Maximum representable time in seconds (circa 2262).
+     */
     public static final long MAX_SECS = MAX_MILLIS / 1000; // 2262-04-11T23:47:16
+    /**
+     * Unix epoch in seconds (1970-01-01T00:00:00).
+     */
     public static final long EPOCH_SECS = 0; // 1970-01-01T00:00:00
+    /**
+     * Offset constant used to detect millisecond timestamps.
+     */
     public static final long EPOCH_MILLIS = MAX_SECS + 1; // 1970-04-17T18:02:52.037
+    /**
+     * Offset constant used to detect microsecond timestamps.
+     */
     public static final long EPOCH_MICROS = EPOCH_MILLIS * 1000; // 1970-04-17T18:02:52.037
+    /**
+     * Offset constant used to detect nanosecond timestamps.
+     */
     public static final long EPOCH_NANOS = EPOCH_MICROS * 1000; // 1970-04-17T18:02:52.037
 
     /**

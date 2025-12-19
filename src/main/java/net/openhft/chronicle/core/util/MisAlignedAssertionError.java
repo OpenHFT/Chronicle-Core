@@ -18,4 +18,11 @@ package net.openhft.chronicle.core.util;
  */
 public class MisAlignedAssertionError extends AssertionError {
     private static final long serialVersionUID = 0L;
+
+    /**
+     * Creates the error to signal a misaligned memory access attempt.
+     */
+    public MisAlignedAssertionError() {
+        super();
+    }
 }

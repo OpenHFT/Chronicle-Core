@@ -176,6 +176,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         return value;
     }
 
+    @Override
     public String toString() {
         return Integer.toString(value);
     }
@@ -216,6 +217,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
      *
      * @param referenceChangeListener The {@link ReferenceChangeListener} to be added.
      */
+    @Override
     public void addReferenceChangeListener(ReferenceChangeListener referenceChangeListener) {
         referenceChangeListeners.add(referenceChangeListener);
     }
@@ -225,6 +227,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
      *
      * @param referenceChangeListener The {@link ReferenceChangeListener} to be removed.
      */
+    @Override
     public void removeReferenceChangeListener(ReferenceChangeListener referenceChangeListener) {
         referenceChangeListeners.remove(referenceChangeListener);
     }

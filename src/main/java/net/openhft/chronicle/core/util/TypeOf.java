@@ -17,10 +17,18 @@ import java.lang.reflect.Type;
  * TypeOf&lt;List&lt;String&gt;&gt; typeToken = new TypeOf&lt;List&lt;String&gt;&gt;(){};
  * Type type = typeToken.type();
  * </pre>
+ *
+ * @param <T> captured type
  */
 public class TypeOf<T> {
 
     private final Type type = extractType();
+
+    /**
+     * Constructs a new type token retaining its generic parameter.
+     */
+    protected TypeOf() {
+    }
 
     /**
      * Retrieves the captured type.

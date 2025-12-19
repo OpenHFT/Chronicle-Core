@@ -21,6 +21,15 @@ import java.util.function.Function;
  */
 @FunctionalInterface
 public interface ThrowingFunction<I, R, T extends Throwable> {
+    /**
+     * Wraps a throwing function as a standard {@link Function}, converting checked exceptions to unchecked.
+     *
+     * @param function throwing function to wrap
+     * @param <I>      input type
+     * @param <R>      result type
+     * @param <T>      checked exception type
+     * @return function that rethrows failures unchecked
+     */
     static <I, R, T extends Throwable> Function<I, R> asFunction(@NotNull ThrowingFunction<I, R, T> function) {
         return in -> {
             try {
@@ -37,6 +46,7 @@ public interface ThrowingFunction<I, R, T extends Throwable> {
      *
      * @param in the function argument
      * @return the function result
+     * @throws T if the function fails
      */
     @NotNull
     R apply(I in) throws T;

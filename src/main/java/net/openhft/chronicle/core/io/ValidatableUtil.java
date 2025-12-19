@@ -9,6 +9,7 @@ package net.openhft.chronicle.core.io;
 public class ValidatableUtil {
     static final ThreadLocal<int[]> VALIDATE_DISABLED = ThreadLocal.withInitial(() -> new int[1]);
 
+
     /**
      * Checks if validation is enabled.
      *

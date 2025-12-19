@@ -853,8 +853,22 @@ public final class ObjectUtils {
         return tClass;
     }
 
+    /**
+     * Indicates whether an object can change after construction.
+     */
     public enum Immutability {
-        YES, NO, MAYBE
+        /**
+         * Object does not change after creation.
+         */
+        YES,
+        /**
+         * Object may change state.
+         */
+        NO,
+        /**
+         * Immutability is unknown or context dependent.
+         */
+        MAYBE
     }
 
     private static final class ConversionFunction implements Function<Class<?>, ThrowingFunction<String, Object, Exception>> {

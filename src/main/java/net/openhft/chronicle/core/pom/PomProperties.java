@@ -42,6 +42,7 @@ public final class PomProperties {
      * @return a new instance of Properties for the provided parameters.
      */
     @NotNull
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static Properties create(@NotNull final String groupId, @NotNull final String artifactId) {
         return InternalPomProperties.create(groupId, artifactId);
     }

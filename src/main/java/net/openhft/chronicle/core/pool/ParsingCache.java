@@ -33,11 +33,24 @@ import static net.openhft.chronicle.core.Jvm.uncheckedCast;
  *
  * @param <E> The type of object the cache stores. Typically, these are objects created from strings.
  */
+@Deprecated(/* to be removed in 2027, only used in tests */)
 public class ParsingCache<E> {
+    /**
+     * Ring buffer of cached parse results indexed by hash.
+     */
     protected final ParsedData<E>[] interner;
+    /**
+     * Mask applied to hashes to fit the table size.
+     */
     protected final int mask;
+    /**
+     * Bit-shift used when double hashing.
+     */
     protected final int shift;
     private final Function<String, E> eFunction;
+    /**
+     * Alternates bucket selection when both primary buckets are occupied.
+     */
     protected boolean toggle = false;
 
     /**
@@ -87,6 +100,11 @@ public class ParsingCache<E> {
         return s3.e;
     }
 
+    /**
+     * Flips the toggle used for alternating bucket selection.
+     *
+     * @return the updated toggle state
+     */
     protected boolean toggle() {
         toggle = !toggle;
         return toggle;

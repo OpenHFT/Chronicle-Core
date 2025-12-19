@@ -869,6 +869,8 @@ public interface Memory {
     long objectFieldOffset(Field field);
 
     /**
+     * Determines the platform size in bytes for a primitive type or reference.
+     *
      * @param type of primitive or a reference
      * @return the number of bytes this type uses.
      */

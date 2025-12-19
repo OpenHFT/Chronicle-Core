@@ -35,10 +35,6 @@ import static java.lang.Character.toLowerCase;
  */
 public final class StringUtils {
 
-    // Suppresses default constructor, ensuring non-instantiability.
-    private StringUtils() {
-    }
-
     private static final String VALUE_FIELD_NAME = "value";
     private static final String COUNT_FIELD_NAME = "count";
     private static final String CODER_FIELD_NAME = "coder";
@@ -92,6 +88,12 @@ public final class StringUtils {
         }
     }
 
+    /**
+     * Prevents instantiation; {@link StringUtils} exposes only static helpers.
+     */
+    private StringUtils() {
+    }
+
     @NotNull
     private static UnsafeMemory getMemory() {
         return UnsafeMemory.INSTANCE;
@@ -143,6 +145,7 @@ public final class StringUtils {
      * @param sb the {@link StringBuilder} to be modified.
      * @param cs the {@link CharSequence} whose content will be set in the {@link StringBuilder}.
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static void set(@NotNull StringBuilder sb, CharSequence cs) {
         sb.setLength(0);
         sb.append(cs);
@@ -290,16 +293,34 @@ public final class StringUtils {
         }
     }
 
+    /**
+     * Returns the string coder for the provided {@link String}.
+     *
+     * @param str string to inspect
+     * @return coder constant used by the JVM
+     */
     @Java9
     public static byte getStringCoder(@NotNull String str) {
         return getStringCoderForStringOrStringBuilder(str);
     }
 
+    /**
+     * Returns the string coder for the provided {@link StringBuilder}.
+     *
+     * @param str builder to inspect
+     * @return coder constant used by the JVM
+     */
     @Java9
     public static byte getStringCoder(@NotNull StringBuilder str) {
         return getStringCoderForStringOrStringBuilder(str);
     }
 
+    /**
+     * Extracts the encoded byte array from a {@link StringBuilder} on Java 9+.
+     *
+     * @param sb builder to read
+     * @return encoded bytes backing the builder
+     */
     @Java9
     public static byte[] extractBytes(@NotNull StringBuilder sb) {
         ensureJava9Plus();
@@ -307,6 +328,12 @@ public final class StringUtils {
         return getMemory().getObject(sb, SB_VALUE_OFFSET);
     }
 
+    /**
+     * Extracts the backing character array from a {@link String}.
+     *
+     * @param s string to inspect
+     * @return character array representing the content
+     */
     public static char[] extractChars(@NotNull String s) {
         if (Bootstrap.isJava9Plus()) {
             return s.toCharArray();
@@ -314,6 +341,12 @@ public final class StringUtils {
         return getMemory().getObject(s, S_VALUE_OFFSET);
     }
 
+    /**
+     * Extracts the encoded byte array from a {@link String} on Java 9+.
+     *
+     * @param s string to inspect
+     * @return encoded bytes backing the string
+     */
     @Java9
     public static byte[] extractBytes(@NotNull String s) {
         if (!HAS_ONE_BYTE_PER_CHAR)
@@ -323,10 +356,22 @@ public final class StringUtils {
         return getMemory().getObject(s, S_VALUE_OFFSET);
     }
 
+    /**
+     * Updates the internal count for a {@link StringBuilder} (legacy JVMs).
+     *
+     * @param sb    builder to update
+     * @param count new length value
+     */
     public static void setCount(@NotNull StringBuilder sb, int count) {
         getMemory().writeInt(sb, SB_COUNT_OFFSET, count);
     }
 
+    /**
+     * Creates a {@link String} from the provided character array without copying on older JVMs.
+     *
+     * @param chars backing characters
+     * @return new string representing the characters
+     */
     @NotNull
     @SuppressWarnings("java:S3011") // Justification: On legacy JDKs, reflection avoids extra copy; guarded by property.
     public static String newString(char @NotNull [] chars) {
@@ -351,6 +396,12 @@ public final class StringUtils {
         }
     }
 
+    /**
+     * Builds a {@link String} from an ISO-8859-1 encoded byte array on Java 9+.
+     *
+     * @param bytes encoded content
+     * @return constructed string
+     */
     @Java9
     @NotNull
     public static String newStringFromBytes(byte @NotNull [] bytes) {
@@ -367,6 +418,12 @@ public final class StringUtils {
         }
     }
 
+    /**
+     * Lowercases the first character if present.
+     *
+     * @param str source string, may be null
+     * @return string with first character lower-cased, or the original when null/empty
+     */
     @Nullable
     public static String firstLowerCase(@Nullable String str) {
         if (str == null || str.isEmpty())
@@ -376,6 +433,12 @@ public final class StringUtils {
         return ch == c2 ? str : c2 + str.substring(1);
     }
 
+    /**
+     * Parses a double from the provided character sequence without allocations.
+     *
+     * @param in numeric text to parse
+     * @return parsed double value
+     */
     public static double parseDouble(@NotNull CharSequence in) {
         long value = 0;
         int exp = 0;
@@ -479,6 +542,7 @@ public final class StringUtils {
      * @return the converted string in title case with underscores, or null if the input is null.
      */
     @Nullable
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static String toTitleCase(@Nullable String name) {
         if (name == null || name.isEmpty())
             return name;
@@ -526,6 +590,14 @@ public final class StringUtils {
         }
     }
 
+    /**
+     * Parses an {@code int} from a character sequence using the given radix without intermediate allocation.
+     *
+     * @param s     text to parse
+     * @param radix numeric radix to apply
+     * @return parsed integer value
+     * @throws NumberFormatException if the input is invalid for the radix
+     */
     public static int parseInt(CharSequence s, int radix)
             throws NumberFormatException {
         /*
@@ -616,6 +688,15 @@ public final class StringUtils {
                     " greater than Character.MAX_RADIX");
     }
 
+    /**
+     * Parses a {@code long} from a character sequence using the given radix without intermediate allocation.
+     *
+     * @param s     text to parse
+     * @param radix numeric radix to apply
+     * @return parsed long value
+     * @throws NumberFormatException if the input is invalid for the radix
+     */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static long parseLong(CharSequence s, int radix)
             throws NumberFormatException {
         if (s == null) {

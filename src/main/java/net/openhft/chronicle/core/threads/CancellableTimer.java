@@ -105,6 +105,9 @@ public class CancellableTimer {
         return handler;
     }
 
+    /**
+     * Internal event handler that schedules periodic execution on an event loop.
+     */
     protected static final class ScheduledEventHandler implements EventHandler, Closeable {
 
         @NotNull

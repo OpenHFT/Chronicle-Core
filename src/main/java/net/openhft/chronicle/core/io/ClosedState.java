@@ -7,6 +7,7 @@ package net.openhft.chronicle.core.io;
  * typically implemented with a lambda or method reference.
  */
 @FunctionalInterface
+@Deprecated(/* to be removed in 2027 */)
 public interface ClosedState {
 
     /**

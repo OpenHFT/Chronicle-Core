@@ -14,12 +14,24 @@ package net.openhft.chronicle.core.onoes;
  *     <tr><td>{@link #PERF}</td><td>Performance event.</td><td>{@code info}</td></tr>
  *     <tr><td>{@link #DEBUG}</td><td>Diagnostic detail for developers.</td><td>{@code debug}</td></tr>
  * </table>
- *
+ * <p>
  * Used by {@link Slf4jExceptionHandler}.
  */
 public enum LogLevel {
+    /**
+     * Error conditions that typically stop progress.
+     */
     ERROR,
+    /**
+     * Unexpected conditions that do not halt execution.
+     */
     WARN,
+    /**
+     * Performance events or metrics.
+     */
     PERF,
+    /**
+     * Verbose diagnostic output for developers.
+     */
     DEBUG
 }

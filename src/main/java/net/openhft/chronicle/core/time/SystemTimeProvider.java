@@ -26,10 +26,14 @@ import net.openhft.chronicle.core.Jvm;
  * Typical call latency is about 40 ns on modern hardware.
  */
 public enum SystemTimeProvider implements TimeProvider {
+    /**
+     * Singleton instance backed by system clocks.
+     */
     INSTANCE;
 
     private static final int NANOS_PER_MILLI = 1_000_000;
     // Can be overridden for testing purposes.
+    /** Test hook allowing substitution of the time provider. */
     public static TimeProvider CLOCK = INSTANCE;
 
     static {

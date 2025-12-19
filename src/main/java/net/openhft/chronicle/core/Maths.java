@@ -20,10 +20,6 @@ import java.util.Arrays;
 @SuppressWarnings({"java:S1940", "java:S3358"})
 public final class Maths {
 
-    // Suppresses default constructor, ensuring non-instantiability.
-    private Maths() {
-    }
-
     /**
      * Numbers larger than this are whole numbers due to representation error.
      */
@@ -40,6 +36,12 @@ public final class Maths {
             TENS[i] = 10 * TENS[i - 1];
         for (int i = 1; i < FIVES.length; i++)
             FIVES[i] = 5 * FIVES[i - 1];
+    }
+
+    /**
+     * Prevents instantiation; {@link Maths} only contains static utility methods.
+     */
+    private Maths() {
     }
 
     /**
@@ -64,6 +66,7 @@ public final class Maths {
      * assumed you are not working on the edge of the precision of double.
      *
      * @param d value to round
+     * @param digits number of decimal places to retain
      * @return rounded value
      */
     public static double roundNup(double d, int digits) {
@@ -80,10 +83,22 @@ public final class Maths {
         return ldf / (double) factor;
     }
 
+    /**
+     * Determines the power-of-ten scaling factor for the requested precision.
+     *
+     * @param digits number of decimal places to retain
+     * @return multiplier used when rounding
+     */
     public static long roundingFactor(int digits) {
         return tens(digits);
     }
 
+    /**
+     * Determines a power-of-ten scaling factor allowing half-step precision.
+     *
+     * @param digits decimal places, optionally including a half step
+     * @return multiplier used when rounding
+     */
     public static long roundingFactor(double digits) {
         int iDigits = (int) digits;
         long ten = tens(iDigits);
@@ -546,6 +561,12 @@ public final class Maths {
         return n > 0 && (n & (n - 1)) == 0;
     }
 
+    /**
+     * Computes a 64-bit hash for the supplied character sequence.
+     *
+     * @param cs text to hash, may be {@code null}
+     * @return 64-bit hash value, or zero when the sequence is null or empty
+     */
     public static long hash64(@Nullable CharSequence cs) {
         if (cs == null || cs.length() == 0)
             return 0;
@@ -628,6 +649,8 @@ public final class Maths {
      * Returns rounded down log<sub>2</sub>{@code num}, e. g.: {@code intLog2(1) == 0},
      * {@code intLog2(2) == 1}, {@code intLog2(7) == 2}, {@code intLog2(8) == 3}, etc.
      *
+     * @param num positive number to evaluate
+     * @return integer floor of log2 for {@code num}
      * @throws IllegalArgumentException if the given number &lt;= 0
      */
     public static int intLog2(long num) throws IllegalArgumentException {
@@ -854,22 +877,62 @@ public final class Maths {
         return Float.isNaN(a) ? Float.isNaN(b) : a == b;
     }
 
+    /**
+     * Hashes a single object, treating {@code null} as zero.
+     *
+     * @param o object to hash
+     * @return hash code value
+     */
     public static int hash(Object o) {
         return o == null ? 0 : o.hashCode();
     }
 
+    /**
+     * Combines two objects into a hash value.
+     *
+     * @param o1 first object
+     * @param o2 second object
+     * @return combined hash code
+     */
     public static int hash(Object o1, Object o2) {
         return hash(o1) * M0 + hash(o2);
     }
 
+    /**
+     * Combines three objects into a hash value.
+     *
+     * @param o1 first object
+     * @param o2 second object
+     * @param o3 third object
+     * @return combined hash code
+     */
     public static int hash(Object o1, Object o2, Object o3) {
         return hash(o1, o2) * M0 + hash(o3);
     }
 
+    /**
+     * Combines four objects into a hash value.
+     *
+     * @param o1 first object
+     * @param o2 second object
+     * @param o3 third object
+     * @param o4 fourth object
+     * @return combined hash code
+     */
     public static int hash(Object o1, Object o2, Object o3, Object o4) {
         return hash(o1, o2, o3) * M0 + hash(o4);
     }
 
+    /**
+     * Combines five objects into a hash value.
+     *
+     * @param o1 first object
+     * @param o2 second object
+     * @param o3 third object
+     * @param o4 fourth object
+     * @param o5 fifth object
+     * @return combined hash code
+     */
     public static int hash(Object o1, Object o2, Object o3, Object o4, Object o5) {
         return hash(o1, o2, o3, o4) * M0 + hash(o5);
     }
@@ -949,7 +1012,12 @@ public final class Maths {
     }
 
     /**
-     * return a + b / c as a double
+     * Returns {@code a + b / c} as a double preserving as much precision as possible.
+     *
+     * @param a whole number component
+     * @param b numerator for the fractional part
+     * @param c denominator for the fractional part
+     * @return sum expressed as a double
      */
     public static double add(long a, long b, long c) {
         @SuppressWarnings("UnnecessaryLocalVariable")

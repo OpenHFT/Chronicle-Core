@@ -42,6 +42,9 @@ import static net.openhft.chronicle.core.io.Closeable.closeQuietly;
  * test starts to ensure any previous state has been removed.
  */
 public final class IOTools {
+    /**
+     * {@link IOStatus#INTERRUPTED} constant exposed for callers without depending on {@code sun.nio.ch}.
+     */
     public static final int IOSTATUS_INTERRUPTED = IOStatus.INTERRUPTED;
     private static final Map<Class<?>, AtomicInteger> COUNTER_MAP = new ConcurrentHashMap<>();
     private static final Set<String> CLOSED_MESSAGES =
@@ -125,6 +128,10 @@ public final class IOTools {
     /**
      * Deletes each supplied directory and its contents. This is commonly used
      * by tests to clear previous output before recreating files.
+     *
+     * @param dirs directories to remove
+     * @return {@code true} if every directory was deleted
+     * @throws IORuntimeException if an I/O error occurs
      */
     public static boolean deleteDirWithFiles(@NotNull String... dirs) throws IORuntimeException {
         boolean result = true;
@@ -153,6 +160,7 @@ public final class IOTools {
      * deleted successfully, throws an {@link AssertionError}.
      *
      * @param dir The directories to be deleted
+     * @return {@code true} if the directory was deleted
      * @throws IORuntimeException if an I/O error occurs
      */
     public static boolean deleteDirWithFiles(@NotNull File dir) throws IORuntimeException {
@@ -165,6 +173,7 @@ public final class IOTools {
      *
      * @param dir      The directories to be deleted
      * @param maxDepth The maximum depth of directories to be deleted
+     * @return {@code true} if the directory was deleted
      * @throws IORuntimeException if an I/O error occurs
      */
     public static boolean deleteDirWithFiles(@NotNull File dir, int maxDepth) throws IORuntimeException {
@@ -381,6 +390,7 @@ public final class IOTools {
      * @param dir The path of the directory to create
      * @throws IOException If an I/O error occurs
      */
+    @Deprecated(/* to be removed in 2027 */)
     public static void createDirectories(Path dir) throws IOException {
         if (dir == null || dir.getNameCount() == 0 || Files.isDirectory(dir))
             return;

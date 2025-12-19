@@ -23,6 +23,7 @@ import java.util.Objects;
  * <p>The class is package-private on purpose; use it through public APIs such as
  * {@link Wget} instead of referencing it directly.</p>
  */
+@Deprecated(/* to be removed in 2026, only used in tests */)
 final class LimitedInputStream extends FilterInputStream {
 
     /** Remaining budget in bytes. */

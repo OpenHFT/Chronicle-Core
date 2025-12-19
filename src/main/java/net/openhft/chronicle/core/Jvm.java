@@ -59,7 +59,13 @@ import static net.openhft.chronicle.core.internal.util.MapUtil.entry;
 @SuppressWarnings({"java:S1191", "java:S1181", "java:S3011", "java:S106", "jaca:S3008", "java:S3077", "java:S3008", "RedundantSuppression"})
 public final class Jvm {
 
+    /**
+     * System property name holding the Java class path.
+     */
     public static final String JAVA_CLASS_PATH = "java.class.path";
+    /**
+     * File containing the system properties recorded on JVM start-up.
+     */
     public static final String SYSTEM_PROPERTIES = "system.properties";
     // These are the exception handlers used initially, and restored when resetExceptionHandlers() is called
     private static final ExceptionHandler DEFAULT_ERROR_EXCEPTION_HANDLER = Slf4jExceptionHandler.ERROR;
@@ -153,6 +159,12 @@ public final class Jvm {
         ChronicleInit.postInit();
     }
 
+    /**
+     * Prevents instantiation; this class only exposes static helpers and state.
+     */
+    private Jvm() {
+    }
+
     private static MethodHandle getOnSpinWait() {
         MethodType voidType = MethodType.methodType(void.class);
         MethodHandles.Lookup lookup = MethodHandles.lookup();
@@ -171,10 +183,9 @@ public final class Jvm {
         return null;
     }
 
-    // Suppresses default constructor, ensuring non-instantiability.
-    private Jvm() {
-    }
-
+    /**
+     * Logs the first invocation of an unoptimised path when configured via {@code report.unoptimised}.
+     */
     public static void reportUnoptimised() {
         if (!REPORT_UNOPTIMISED)
             return;
@@ -206,6 +217,9 @@ public final class Jvm {
         loadSystemProperties(systemProperties, wasSet);
     }
 
+    /**
+     * Forces class initialisation to make sure static configuration is loaded.
+     */
     public static void init() {
         // force static initialisation
         ChronicleInit.init();
@@ -267,6 +281,8 @@ public final class Jvm {
     }
 
     /**
+     * Reports the major Java version (e.g. 8, 11 or 17).
+     *
      * @return the major Java version (e.g. 8, 11 or 17)
      */
     public static int majorVersion() {
@@ -274,49 +290,64 @@ public final class Jvm {
     }
 
     /**
-     * @return if the major Java version is 9 or higher
+     * Determines whether the runtime is Java 9 or newer.
+     *
+     * @return {@code true} if the major Java version is 9 or higher
      */
     public static boolean isJava9Plus() {
         return Bootstrap.isJava9Plus();
     }
 
     /**
-     * @return if the major Java version is 12 or higher
+     * Determines whether the runtime is Java 12 or newer.
+     *
+     * @return {@code true} if the major Java version is 12 or higher
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static boolean isJava12Plus() {
         return Bootstrap.isJava12Plus();
     }
 
     /**
-     * @return if the major Java version is 14 or higher
+     * Determines whether the runtime is Java 14 or newer.
+     *
+     * @return {@code true} if the major Java version is 14 or higher
      */
     public static boolean isJava14Plus() {
         return Bootstrap.isJava14Plus();
     }
 
     /**
-     * @return if the major Java version is 15 or higher
+     * Determines whether the runtime is Java 15 or newer.
+     *
+     * @return {@code true} if the major Java version is 15 or higher
      */
     public static boolean isJava15Plus() {
         return Bootstrap.isJava15Plus();
     }
 
     /**
-     * @return if the major Java version is 19 or higher
+     * Determines whether the runtime is Java 19 or newer.
+     *
+     * @return {@code true} if the major Java version is 19 or higher
      */
     public static boolean isJava19Plus() {
         return Bootstrap.isJava19Plus();
     }
 
     /**
-     * @return if the major Java version is 20 or higher
+     * Determines whether the runtime is Java 20 or newer.
+     *
+     * @return {@code true} if the major Java version is 20 or higher
      */
     public static boolean isJava20Plus() {
         return Bootstrap.isJava20Plus();
     }
 
     /**
-     * @return if the major Java version is 21 or higher
+     * Determines whether the runtime is Java 21 or newer.
+     *
+     * @return {@code true} if the major Java version is 21 or higher
      */
     public static boolean isJava21Plus() {
         return Bootstrap.isJava21Plus();
@@ -368,6 +399,13 @@ public final class Jvm {
         return Math.max(0, first - 2);
     }
 
+    /**
+     * Determines the last non-internal element of a stack trace after {@code first}.
+     *
+     * @param first starting index already known to be non-internal
+     * @param stes  stack trace to scan
+     * @return index of the last element to retain
+     */
     public static int trimLast(final int first, @NotNull final StackTraceElement[] stes) {
         int last = stes.length - 1;
         for (; first < last; last--)
@@ -397,6 +435,7 @@ public final class Jvm {
      * @return if the JVM is running in flight recorder mode
      */
     @SuppressWarnings("SameReturnValue")
+    @Deprecated(/* to be removed in 2027 */)
     public static boolean isFlightRecorder() {
         return IS_FLIGHT_RECORDER;
     }
@@ -569,6 +608,7 @@ public final class Jvm {
      * @param lock to log
      * @return the lock.toString plus a stack trace.
      */
+    @Deprecated(/* to be removed in 2027 */)
     public static String lockWithStack(@NotNull final ReentrantLock lock) {
         final Thread t = getValue(lock, "sync/exclusiveOwnerThread");
         if (t == null) {
@@ -581,6 +621,8 @@ public final class Jvm {
     }
 
     /**
+     * Returns the memory offset of the given declared field on the supplied class.
+     *
      * @param clazz     the class for which you want to get field from [ it won't see inherited fields ]
      * @param fieldName the name of the field
      * @return the offset
@@ -603,6 +645,7 @@ public final class Jvm {
      * @return the accumulated amount of memory in bytes used by direct ByteBuffers
      * or 0 if the value cannot be determined
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static long usedDirectMemory() {
         return ReserveMemoryHolder.reservedMemory.get();
     }
@@ -612,6 +655,7 @@ public final class Jvm {
      *
      * @return the accumulated amount of memory used in bytes by UnsafeMemory.allocate()
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static long usedNativeMemory() {
         return UnsafeMemory.INSTANCE.nativeMemoryUsed();
     }
@@ -637,6 +681,9 @@ public final class Jvm {
         return IS_64BIT;
     }
 
+    /**
+     * Restores all exception handlers to the defaults used at JVM start-up.
+     */
     public static void resetExceptionHandlers() {
         setErrorExceptionHandler(DEFAULT_ERROR_EXCEPTION_HANDLER);
         setWarnExceptionHandler(DEFAULT_WARN_EXCEPTION_HANDLER);
@@ -644,50 +691,105 @@ public final class Jvm {
         setPerfExceptionHandler(DEFAULT_PERF_EXCEPTION_HANDLER);
     }
 
+    /**
+     * Overrides the global error handler.
+     *
+     * @param exceptionHandler replacement handler or {@code null} to disable reporting
+     */
     public static void setErrorExceptionHandler(ExceptionHandler exceptionHandler) {
         ERROR.defaultHandler(exceptionHandler).resetThreadLocalHandler();
     }
 
+    /**
+     * Overrides the global warning handler.
+     *
+     * @param exceptionHandler replacement handler or {@code null} to disable reporting
+     */
     public static void setWarnExceptionHandler(ExceptionHandler exceptionHandler) {
         WARN.defaultHandler(exceptionHandler).resetThreadLocalHandler();
     }
 
+    /**
+     * Overrides the global debug handler.
+     *
+     * @param exceptionHandler replacement handler or {@code null} to disable reporting
+     */
     public static void setDebugExceptionHandler(ExceptionHandler exceptionHandler) {
         if (DEBUG instanceof ThreadLocalisedExceptionHandler)
             ((ThreadLocalisedExceptionHandler) DEBUG).defaultHandler(exceptionHandler).resetThreadLocalHandler();
     }
 
+    /**
+     * Overrides the global performance handler.
+     *
+     * @param exceptionHandler replacement handler or {@code null} to disable reporting
+     */
     public static void setPerfExceptionHandler(ExceptionHandler exceptionHandler) {
         PERF_OR_STARTUP.defaultHandler(exceptionHandler).resetThreadLocalHandler();
     }
 
+    /**
+     * Disables the debug exception handler, restoring default logging.
+     */
     public static void disableDebugHandler() {
         setDebugExceptionHandler(null);
     }
 
+    /**
+     * Disables the performance exception handler, restoring default logging.
+     */
     public static void disablePerfHandler() {
         setPerfExceptionHandler(null);
     }
 
+    /**
+     * Disables the warn exception handler, restoring default logging.
+     */
     public static void disableWarnHandler() {
         setWarnExceptionHandler(null);
     }
 
+    /**
+     * Starts capturing exceptions for diagnostics.
+     *
+     * @return map keyed by exception signatures with occurrence counts
+     */
     @NotNull
     public static Map<ExceptionKey, Integer> recordExceptions() {
         return recordExceptions(true);
     }
 
+    /**
+     * Starts capturing exceptions for diagnostics.
+     *
+     * @param debug whether to log debug output as exceptions are recorded
+     * @return map keyed by exception signatures with occurrence counts
+     */
     @NotNull
     public static Map<ExceptionKey, Integer> recordExceptions(boolean debug) {
         return recordExceptions(debug, false);
     }
 
+    /**
+     * Starts capturing exceptions for diagnostics with fine-grained control.
+     *
+     * @param debug          whether to log debug output as exceptions are recorded
+     * @param exceptionsOnly when true, only exception events are recorded
+     * @return map keyed by exception signatures with occurrence counts
+     */
     @NotNull
     public static Map<ExceptionKey, Integer> recordExceptions(boolean debug, boolean exceptionsOnly) {
         return recordExceptions(debug, exceptionsOnly, true);
     }
 
+    /**
+     * Starts capturing exceptions for diagnostics with explicit logging control.
+     *
+     * @param debug          whether to log debug output as exceptions are recorded
+     * @param exceptionsOnly when true, only exception events are recorded
+     * @param logToSlf4j     whether to mirror events to SLF4J
+     * @return map keyed by exception signatures with occurrence counts
+     */
     @NotNull
     public static Map<ExceptionKey, Integer> recordExceptions(final boolean debug,
                                                               final boolean exceptionsOnly,
@@ -714,6 +816,12 @@ public final class Jvm {
         return eh;
     }
 
+    /**
+     * Determines whether the captured exception map contains any WARN or ERROR level entries.
+     *
+     * @param exceptions collected via {@link #recordExceptions()}
+     * @return {@code true} if a non-debug/perf exception was recorded
+     */
     public static boolean hasException(@NotNull final Map<ExceptionKey, Integer> exceptions) {
         for (ExceptionKey k : exceptions.keySet()) {
             if (k.level() != LogLevel.DEBUG && k.level() != LogLevel.PERF)
@@ -723,6 +831,13 @@ public final class Jvm {
         return false;
     }
 
+    /**
+     * Installs process-wide exception handlers for ERROR, WARN and DEBUG channels.
+     *
+     * @param error handler for error severity, or {@code null} to disable
+     * @param warn  handler for warnings, or {@code null} to disable
+     * @param debug handler for debug messages, or {@code null} to disable
+     */
     public static void setExceptionHandlers(@Nullable final ExceptionHandler error,
                                             @Nullable final ExceptionHandler warn,
                                             @Nullable final ExceptionHandler debug) {
@@ -733,6 +848,14 @@ public final class Jvm {
             ((ThreadLocalisedExceptionHandler) DEBUG).defaultHandler(debug);
     }
 
+    /**
+     * Installs process-wide exception handlers including performance messages.
+     *
+     * @param error handler for error severity, or {@code null} to disable
+     * @param warn  handler for warnings, or {@code null} to disable
+     * @param debug handler for debug messages, or {@code null} to disable
+     * @param perf  handler for performance messages, or {@code null} to disable
+     */
     public static void setExceptionHandlers(@Nullable final ExceptionHandler error,
                                             @Nullable final ExceptionHandler warn,
                                             @Nullable final ExceptionHandler debug,
@@ -741,6 +864,13 @@ public final class Jvm {
         PERF_OR_STARTUP.defaultHandler(perf);
     }
 
+    /**
+     * Installs thread-local exception handlers for ERROR, WARN and DEBUG channels.
+     *
+     * @param error handler for error severity, or {@code null} to disable
+     * @param warn  handler for warnings, or {@code null} to disable
+     * @param debug handler for debug messages, or {@code null} to disable
+     */
     public static void setThreadLocalExceptionHandlers(@Nullable final ExceptionHandler error,
                                                        @Nullable final ExceptionHandler warn,
                                                        @Nullable final ExceptionHandler debug) {
@@ -750,6 +880,15 @@ public final class Jvm {
             ((ThreadLocalisedExceptionHandler) DEBUG).threadLocalHandler(debug);
     }
 
+    /**
+     * Installs thread-local exception handlers including performance messages.
+     *
+     * @param error handler for error severity, or {@code null} to disable
+     * @param warn  handler for warnings, or {@code null} to disable
+     * @param debug handler for debug messages, or {@code null} to disable
+     * @param perf  handler for performance messages, or {@code null} to disable
+     */
+    @Deprecated(/* to be removed in 2027 */)
     public static void setThreadLocalExceptionHandlers(@Nullable final ExceptionHandler error,
                                                        @Nullable final ExceptionHandler warn,
                                                        @Nullable final ExceptionHandler debug,
@@ -813,6 +952,11 @@ public final class Jvm {
         return DEBUG;
     }
 
+    /**
+     * Emits the collected exceptions to the WARN logger and resets handlers afterwards.
+     *
+     * @param exceptions map produced by {@link #recordExceptions()}
+     */
     public static void dumpException(@NotNull final Map<ExceptionKey, Integer> exceptions) {
         final Slf4jExceptionHandler warn = Slf4jExceptionHandler.WARN;
         for (@NotNull Entry<ExceptionKey, Integer> entry : exceptions.entrySet()) {
@@ -825,10 +969,22 @@ public final class Jvm {
         resetExceptionHandlers();
     }
 
+    /**
+     * Determines whether debug level logging is enabled for the given class.
+     *
+     * @param aClass class whose logger level to inspect
+     * @return {@code true} when debug logging is active
+     */
     public static boolean isDebugEnabled(final Class<?> aClass) {
         return DEBUG.isEnabled(aClass);
     }
 
+    /**
+     * Determines whether performance level logging is enabled for the given class.
+     *
+     * @param aClass class whose logger level to inspect
+     * @return {@code true} when performance logging is active
+     */
     public static boolean isPerfEnabled(final Class<?> aClass) {
         return PERF_OR_STARTUP.isEnabled(aClass);
     }
@@ -861,6 +1017,12 @@ public final class Jvm {
         }
     }
 
+    /**
+     * Indicates whether optional safepoints are enabled.
+     *
+     * @return {@code true} if safepoints are injected, otherwise {@code false}
+     */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static boolean areOptionalSafepointsEnabled() {
         return SAFEPOINT_ENABLED;
     }
@@ -874,6 +1036,7 @@ public final class Jvm {
      * @return if there is a class name that ends with the provided {@code endsWith} string
      * when examining the current stack trace of depth at most up to the provided {@code maxDepth}
      */
+    @Deprecated(/* to be removed in 2027 */)
     public static boolean stackTraceEndsWith(final String endsWith, final int maxDepth) {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         for (int i = maxDepth + 2; i < stackTrace.length; i++)
@@ -909,6 +1072,7 @@ public final class Jvm {
      * @see ClassMetrics
      */
     @NotNull
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static ClassMetrics classMetrics(final Class<?> clazz) throws IllegalArgumentException {
         return CLASS_METRICS_MAP.computeIfAbsent(clazz, Jvm::getClassMetrics);
     }
@@ -959,10 +1123,17 @@ public final class Jvm {
      * if the user's home director cannot be determined
      */
     @NotNull
+    @Deprecated(/* to be removed in 2027 */)
     public static String userHome() {
         return System.getProperty("user.home", ".");
     }
 
+    /**
+     * Tests whether the provided class should be excluded from {@link DontChain} processing.
+     *
+     * @param tClass class to inspect
+     * @return {@code true} if the class is annotated with {@link DontChain} or is part of the JDK
+     */
     public static boolean dontChain(final Class<?> tClass) {
         return tClass.getAnnotation(DontChain.class) != null || tClass.getName().startsWith("java");
     }
@@ -993,7 +1164,9 @@ public final class Jvm {
     /**
      * Guarantees that Jvm class is initialized before property is read.
      *
+     * @param systemPropertyKey property name
      * @see System#getProperty(String)
+     * @return property value or {@code null} if unset
      */
     public static String getProperty(final String systemPropertyKey) {
         init();
@@ -1004,7 +1177,10 @@ public final class Jvm {
     /**
      * Guarantees that Jvm class is initialized before property is read.
      *
+     * @param systemPropertyKey property name
+     * @param defaultValue      fallback when unset
      * @see System#getProperty(String, String)
+     * @return property value or {@code defaultValue} if unset
      */
     public static String getProperty(final String systemPropertyKey, final String defaultValue) {
         init();
@@ -1013,9 +1189,12 @@ public final class Jvm {
     }
 
     /**
-     * Guarantees that Jvm class is initialized before property is read.
+     * Guarantees that Jvm class is initialised before property is read.
      *
+     * @param systemPropertyKey property name
+     * @param defVal            fallback value when unset or unparsable
      * @see Long#getLong(String, Long)
+     * @return property value as {@link Long} or {@code defVal} when absent
      */
     public static Long getLong(final String systemPropertyKey, final Long defVal) {
         init();
@@ -1024,9 +1203,12 @@ public final class Jvm {
     }
 
     /**
-     * Guarantees that Jvm class is initialized before property is read.
+     * Guarantees that Jvm class is initialised before property is read.
      *
+     * @param systemPropertyKey property name
+     * @param defVal            fallback value when unset or unparsable
      * @see Integer#getInteger(String, Integer)
+     * @return property value as {@link Integer} or {@code defVal} when absent
      */
     public static Integer getInteger(final String systemPropertyKey, final Integer defVal) {
         init();
@@ -1221,6 +1403,7 @@ public final class Jvm {
                     ci.interrupt();
                 }
 
+                @SuppressWarnings({"EmptyMethod", "unused"})
                 public void postInterrupt() {
                     // added in Java 23+
                 }
@@ -1372,16 +1555,28 @@ public final class Jvm {
         }
     }
 
+    /**
+     * Detects whether the JVM is Azul Zing.
+     *
+     * @return {@code true} when running on Azul Zing
+     */
     public static boolean isAzulZing() {
         return IS_AZUL_ZING;
     }
 
+    /**
+     * Detects whether the JVM is Azul Zulu.
+     *
+     * @return {@code true} when running on Azul Zulu
+     */
     public static boolean isAzulZulu() {
         return IS_AZUL_ZULU;
     }
 
     /**
-     * @return Obtain the model of CPU on Linux or the os.arch on other OSes.
+     * Obtains the CPU model on Linux or the {@code os.arch} on other operating systems.
+     *
+     * @return CPU descriptor for the current host
      */
     public static String getCpuClass() {
         return CpuClass.getCpuModel();
@@ -1396,6 +1591,11 @@ public final class Jvm {
         return ASSERT_ENABLED;
     }
 
+    /**
+     * Indicates whether the current thread name suggests internal JVM housekeeping (e.g. Finalizer).
+     *
+     * @return {@code true} for well-known support threads that may be ignored for analytics
+     */
     public static boolean supportThread() {
         String name = Thread.currentThread().getName();
         return "Finalizer".equals(name) || name.contains("~");
@@ -1663,9 +1863,8 @@ public final class Jvm {
     }
 
     static class ReserveMemoryHolder {
-        private ReserveMemoryHolder() {
-        }
         static final Supplier<Long> reservedMemory;
+
         static {
             Supplier<Long> reservedMemoryGetter;
             try {
@@ -1684,6 +1883,12 @@ public final class Jvm {
                 reservedMemoryGetter = () -> 0L;
             }
             reservedMemory = reservedMemoryGetter;
+        }
+
+        /**
+         * Prevents instantiation of this holder; it only provides a cached supplier.
+         */
+        private ReserveMemoryHolder() {
         }
     }
 

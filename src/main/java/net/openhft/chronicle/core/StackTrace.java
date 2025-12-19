@@ -164,6 +164,8 @@ public class StackTrace extends Throwable {
         private static final long serialVersionUID = 1L;
 
         /**
+         * Creates an empty stack trace placeholder with a message.
+         *
          * @param message the detail message for this stack trace.
          */
         public Less(String message) {
@@ -171,6 +173,8 @@ public class StackTrace extends Throwable {
         }
 
         /**
+         * Creates a placeholder using the supplied stack trace elements.
+         *
          * @param message the detail message for this stack trace.
          * @param stackTrace the stack trace elements for this stack trace.
          */

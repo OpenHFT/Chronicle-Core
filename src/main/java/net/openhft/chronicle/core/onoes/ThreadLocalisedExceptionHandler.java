@@ -77,6 +77,7 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
      *
      * @return the default handler in use
      */
+    @Override
     public ExceptionHandler defaultHandler() {
         return eh;
     }
@@ -119,6 +120,7 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
      *
      * @return the thread-local handler or {@code null}
      */
+    @Deprecated(/* to be removed in 2027 */)
     public ExceptionHandler threadLocalHandler() {
         return handlerTL.get();
     }

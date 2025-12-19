@@ -68,6 +68,7 @@ public final class Ints {
      * @throws AssertionError       if the check fails and assertions are enabled both via the {@code -ea} JVM command
      *                              line option and by setting {@link AssertUtil#SKIP_ASSERTIONS} to {@code false}.
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static boolean assertIfEnabled(final IntPredicate requirement,
                                           final int value) {
         assert AssertUtil.SKIP_ASSERTIONS || requirement.test(value)
@@ -97,6 +98,7 @@ public final class Ints {
      *
      * @return a predicate that can test if a value is <em>non-negative</em> (i.e. value &gt;= 0)
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static IntPredicate nonNegative() {
         return IntCondition.NON_NEGATIVE;
     }

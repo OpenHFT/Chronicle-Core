@@ -32,6 +32,7 @@ public class InterruptedRuntimeException extends IllegalStateException {
     /**
      * Constructs an {@code InterruptedRuntimeException} with no detail message or cause.
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public InterruptedRuntimeException() {
     }
 

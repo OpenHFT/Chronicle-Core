@@ -17,10 +17,24 @@ import java.io.RandomAccessFile;
  * for legacy code.
  */
 public class CleaningRandomAccessFile extends RandomAccessFile {
+    /**
+     * Creates a cleaning random access file by path.
+     *
+     * @param name file path
+     * @param mode open mode as per {@link RandomAccessFile}
+     * @throws FileNotFoundException if the file cannot be opened
+     */
     public CleaningRandomAccessFile(String name, String mode) throws FileNotFoundException {
         super(name, mode);
     }
 
+    /**
+     * Creates a cleaning random access file from a {@link File}.
+     *
+     * @param file target file
+     * @param mode open mode as per {@link RandomAccessFile}
+     * @throws FileNotFoundException if the file cannot be opened
+     */
     public CleaningRandomAccessFile(File file, String mode) throws FileNotFoundException {
         super(file, mode);
     }

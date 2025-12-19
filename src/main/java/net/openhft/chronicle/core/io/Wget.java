@@ -80,13 +80,25 @@ public final class Wget {
 
     /**
      * Shortcut that uses the default configuration.
+     *
+     * @param url address to fetch
+     * @param sb  destination buffer
+     * @throws IOException if the request fails
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static void url(final String url, final StringBuilder sb) throws IOException {
         if (url.length() > MAX_URL_LENGTH)
             throw new IllegalArgumentException("URL too long (" + url.length() + ")");
         new Builder().build().fetch(url, sb);
     }
 
+    /**
+     * Retrieves the content of the given URL into the provided {@link Appendable}.
+     *
+     * @param url address to fetch
+     * @param out destination to append content
+     * @throws IOException on I/O errors or unsupported schemes
+     */
     public void fetch(final String url, final Appendable out) throws IOException {
         Objects.requireNonNull(out, "out");
 

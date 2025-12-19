@@ -26,12 +26,12 @@ import static net.openhft.chronicle.core.internal.Bootstrap.uncheckedCast;
  */
 @SuppressWarnings({"java:S4057", "CallToPrintStackTrace", "java:S4507"})
 public final class ChronicleInit {
+    /**
+     * System property pointing to a custom init {@link Runnable} class.
+     */
     public static final String CHRONICLE_INIT_CLASS = "chronicle.init.runnable";
+    /** System property pointing to a custom post-init {@link ChronicleInitRunnable} class. */
     public static final String CHRONICLE_POSTINIT_CLASS = "chronicle.postinit.runnable";
-
-    private ChronicleInit() {
-        // Suppresses default constructor, ensuring non-instantiability.
-    }
 
     static {
         // Jvm#getProperty() does not make sense here - not initialized yet
@@ -56,6 +56,13 @@ public final class ChronicleInit {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    /**
+     * Prevents instantiation; this utility class is only used for static bootstrapping.
+     */
+    private ChronicleInit() {
+        // Suppresses default constructor, ensuring non-instantiability.
     }
 
     private static void runQuietly(Runnable runnable) {

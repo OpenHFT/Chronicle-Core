@@ -21,6 +21,7 @@ public class StrongReferenceScopedResource<T> extends AbstractScopedResource<T> 
         this.resource = resource;
     }
 
+    @Override
     public T get() {
         return resource;
     }

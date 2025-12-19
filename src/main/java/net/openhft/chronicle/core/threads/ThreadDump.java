@@ -22,6 +22,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class ThreadDump {
 
+    /**
+     * Substring marker used to ignore threads when scanning for leaks.
+     */
     public static final String IGNORE_THREAD_IF_IN_NAME = "~";
     static final Map<Thread, StackTrace> THREAD_STACK_TRACE_MAP =
             new WeakIdentityHashMap<>();

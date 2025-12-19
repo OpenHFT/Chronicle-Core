@@ -25,6 +25,14 @@ import java.util.function.Supplier;
 @FunctionalInterface
 public interface ThrowingSupplier<V, T extends Throwable> {
 
+    /**
+     * Adapts a throwing supplier to a standard {@link Supplier}, rethrowing checked exceptions unchecked.
+     *
+     * @param throwingSupplier supplier that may throw
+     * @param <V>              supplied value type
+     * @param <T>              checked exception type
+     * @return non-throwing supplier that wraps failures
+     */
     static <V, T extends Throwable> Supplier<V> asSupplier(@NotNull ThrowingSupplier<V, T> throwingSupplier) {
         return () -> {
             try {
@@ -41,6 +49,7 @@ public interface ThrowingSupplier<V, T extends Throwable> {
      *
      * @return a result
      * @throws InvalidMarshallableException if the object created is not valid
+     * @throws T if the supplier fails
      */
     @NotNull
     V get() throws T, InvalidMarshallableException;

@@ -22,6 +22,7 @@ public interface ThrowingIntSupplier<T extends Throwable> {
      * Gets a result.
      *
      * @return a result
+     * @throws T if supplying fails
      */
     int getAsInt() throws T;
 }

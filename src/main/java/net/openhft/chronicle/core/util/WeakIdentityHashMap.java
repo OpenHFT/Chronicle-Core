@@ -16,6 +16,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * Keys are compared with {@code ==} and cleared automatically when no strong references remain;
  * values are retained only as long as their key is reachable.
+ *
+ * @param <K> key type
+ * @param <V> value type
  */
 // Based WeakHashMap but using identity
 public class WeakIdentityHashMap<K, V> extends AbstractMap<K, V> {

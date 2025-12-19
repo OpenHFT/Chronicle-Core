@@ -13,7 +13,11 @@ import sun.misc.Unsafe;
  */
 public abstract class UnsafeCloseable extends AbstractCloseable {
 
+    /**
+     * Native address backing this resource.
+     */
     protected long address;
+    /** Unsafe instance used to access the memory address. */
     protected Unsafe unsafe = null;
 
     /**
@@ -27,6 +31,8 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
 
     /**
      * Assign the backing memory address.
+     *
+     * @param address native address to operate on
      */
     protected void address(long address) {
         this.address = address;

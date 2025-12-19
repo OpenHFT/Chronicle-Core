@@ -63,6 +63,7 @@ public final class ThreadLocalHelper {
      * @return Existing or newly created value
      */
     @NotNull
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     public static <T> T getSTL(@NotNull ThreadLocal<T> threadLocal, @NotNull Supplier<T> supplier) {
         @Nullable T ret = threadLocal.get();
         if (ret == null) {
