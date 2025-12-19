@@ -223,13 +223,8 @@ public class JvmTest extends CoreTestCommon {
     @Test
     public void testGetMethod() {
         Assert.assertNotNull(Jvm.getMethod(ClassIWDM.class, "hello", CharSequence.class));
-        boolean fail = false;
-        try {
-            Jvm.getMethod(ClassIWDM.class, "helloDefault", CharSequence.class);
-            fail = true;
-        } catch (Throwable ignored) {
-        }
-        assertFalse(fail);
+        assertThrows(AssertionError.class,
+                () -> Jvm.getMethod(ClassIWDM.class, "helloDefault", CharSequence.class));
     }
 
     static class ClassA {
@@ -291,8 +286,8 @@ public class JvmTest extends CoreTestCommon {
         assertEquals("Hello", raz.value());
 
         // This case still fails
-         final RealAnno raz2 = findAnnotation(Baz.class.getMethod("directAnno"), RealAnno.class);
-         assertEquals("G'Day", raz2.value());
+        final RealAnno raz2 = findAnnotation(Baz.class.getMethod("directAnno"), RealAnno.class);
+        assertEquals("G'Day", raz2.value());
     }
 
     @Test
@@ -310,9 +305,11 @@ public class JvmTest extends CoreTestCommon {
 
         assertTrue(Jvm.isLambdaClass(r.getClass()));
 
+        // CHECKSTYLE:OFF TypeName
         class My$$Lambda$Class {
 
         }
+        // CHECKSTYLE:ON TypeName
 
         assertFalse(Jvm.isLambdaClass(My$$Lambda$Class.class));
     }

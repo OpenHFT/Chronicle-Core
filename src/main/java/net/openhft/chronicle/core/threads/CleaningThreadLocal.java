@@ -80,11 +80,11 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
             Jvm.getBoolean("disable.ctl.orphan.tracking");
     /**
      * All {@code CleaningThreadLocal} instances that may currently hold orphan values.
-     * Guarded by the set's intrinsic monitor; contention is minimal because items are
+     * Guarded by synchronized CleaningThreadLocal.class; contention is minimal because items are
      * added only at construction time and removed when empty.
      */
     private static final Set<CleaningThreadLocal<?>> cleaningThreadLocals =
-            Collections.synchronizedSet(new LinkedHashSet<>());
+            new LinkedHashSet<>();
 
     /**
      * Factory for the initial value. Never returns {@code null}.
@@ -115,7 +115,7 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
      * <em>non-CleaningThread</em>.  Only initialised when tracking is enabled
      * to keep the memory overhead tiny in the common case.
      *
-     * <p>Guarded by {@link #cleaningThreadLocals}.
+     * <p>Guarded by synchronized CleaningThreadLocal.class
      */
     private Map<Thread, Object> nonCleaningThreadValues;
 
@@ -249,7 +249,9 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         T value = supplier.get();
         if (trackNonCleaningThreads &&
                 !(Thread.currentThread() instanceof CleaningThread)) {
-            nonCleaningThreadValues.put(Thread.currentThread(), value);
+            synchronized (CleaningThreadLocal.class) {
+                nonCleaningThreadValues.put(Thread.currentThread(), value);
+            }
         }
         return value;
     }
@@ -275,9 +277,11 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         if (thread instanceof CleaningThread) {
             CleaningThread.performCleanup(thread, this);
         } else if (trackNonCleaningThreads) {
-            @SuppressWarnings("unchecked")
-            T previous = (T) nonCleaningThreadValues.put(thread, value);
-            cleanup(previous);
+            synchronized (CleaningThreadLocal.class) {
+                @SuppressWarnings("unchecked")
+                T previous = (T) nonCleaningThreadValues.put(thread, value);
+                cleanup(previous);
+            }
         }
         super.set(value);
     }
@@ -291,9 +295,11 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         if (thread instanceof CleaningThread) {
             CleaningThread.performCleanup(thread, this);
         } else if (trackNonCleaningThreads) {
-            @SuppressWarnings("unchecked")
-            T previous = (T) nonCleaningThreadValues.remove(thread);
-            cleanup(previous);
+            synchronized (CleaningThreadLocal.class) {
+                @SuppressWarnings("unchecked")
+                T previous = (T) nonCleaningThreadValues.remove(thread);
+                cleanup(previous);
+            }
         }
         super.remove();
     }
@@ -307,11 +313,13 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
      * @return always {@code true}; used only for the assignment in the assert.
      */
     private boolean enableOrphanTracking() {
-        // prune any stale CTLs before adding a new one
-        cleanupNonCleaningThreads();
+        synchronized (CleaningThreadLocal.class) {
+            // prune any stale CTLs before adding a new one
+            cleanupNonCleaningThreads();
 
-        cleaningThreadLocals.add(this);
-        nonCleaningThreadValues = Collections.synchronizedMap(new LinkedHashMap<>());
+            cleaningThreadLocals.add(this);
+            nonCleaningThreadValues = new LinkedHashMap<>();
+        }
         return true;
     }
 
@@ -332,9 +340,10 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
 
     @Override
     public String toString() {
+        Map<Thread, Object> nonCleaningThreadValues = this.nonCleaningThreadValues;
+        int nctvSize = nonCleaningThreadValues == null ? 0 : nonCleaningThreadValues.size();
         return "CleaningThreadLocal{" +
-                "trackedNonCleaningThreads=" +
-                (nonCleaningThreadValues == null ? 0 : nonCleaningThreadValues.size()) +
+                "trackedNonCleaningThreads=" + nctvSize +
                 ", tracking=" + trackNonCleaningThreads +
                 '}';
     }

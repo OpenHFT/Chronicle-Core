@@ -87,8 +87,14 @@ public final class OS {
     }
 
     private static Class<?> findClass(String name) {
+        // Reference Handler and other JVM threads can have null context classloaders.
+        // Fall back to the defining class loader to avoid NPE during static init.
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
+        if (cl == null) {
+            cl = OS.class.getClassLoader();
+        }
         try {
-            return Thread.currentThread().getContextClassLoader().loadClass(name);
+            return Class.forName(name, false, cl);
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException("Not found: " + name, e);
         }
@@ -146,6 +152,23 @@ public final class OS {
             return path.substring(userDir.length());
         }
         return path;
+    }
+
+    // Package-private hooks for tests to avoid reflection
+    static String testAsRelativePath(String path) {
+        return asRelativePath(path);
+    }
+
+    static String testFindTarget0() {
+        return findTarget0();
+    }
+
+    static void testResetMapAlignment() {
+        mapAlignment = 0;
+    }
+
+    static long testGetPidMax(String path) {
+        return getPidMax(path);
     }
 
     @SuppressWarnings("ResultOfMethodCallIgnored")
@@ -453,20 +476,27 @@ public final class OS {
      */
     public static long getPidMax() {
         if (isLinux()) {
-            @NotNull File file = new File(PROC_SYS_KERNEL_PID_MAX);
-            if (file.canRead())
-                try {
-                    try (Scanner scanner = new Scanner(file)) {
-                        return Maths.nextPower2(scanner.nextLong(), 1);
-                    }
-                } catch (FileNotFoundException e) {
-                    Jvm.debug().on(OS.class, e);
-                }
+            return getPidMax(PROC_SYS_KERNEL_PID_MAX);
         } else if (isMacOSX()) {
             return 1L << 24;
         }
         // the default.
         return Bootstrap.IS_WIN10 ? 1L << 32 : 1L << 16;
+    }
+
+    // Extracted for testability
+    static long getPidMax(String path) {
+        @NotNull File file = new File(path);
+        if (file.canRead())
+            try {
+                try (Scanner scanner = new Scanner(file)) {
+                    return Maths.nextPower2(scanner.nextLong(), 1);
+                }
+            } catch (FileNotFoundException e) {
+                Jvm.debug().on(OS.class, e);
+            }
+        // fallback for unreadable/missing
+        return 1L << 16;
     }
 
     /**
