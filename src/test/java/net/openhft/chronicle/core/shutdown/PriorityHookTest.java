@@ -3,22 +3,30 @@
  */
 package net.openhft.chronicle.core.shutdown;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 
 class PriorityHookTest {
+
+    @AfterEach
+    void clearHook() {
+        PriorityHook.clear();
+    }
 
     @Test
     void testAddHook() {
         Runnable hook1 = mock(Runnable.class);
         boolean added1 = PriorityHook.add(1, hook1);
-        assertFalse(added1);
+        assertFalse(added1, "add() returns false indicating first hook registration");
 
         boolean addedAgain = PriorityHook.add(1, hook1);
-        assertFalse(addedAgain);
+        assertFalse(addedAgain, "add() returns false when re-adding same hook at same priority");
     }
 
     @Test
@@ -42,6 +50,6 @@ class PriorityHookTest {
 
         PriorityHook.clear();
 
-        assertNull(PriorityHook.getRegisteredHook());
+        assertNull(PriorityHook.getRegisteredHook(), "registered hook should be null after clear()");
     }
 }

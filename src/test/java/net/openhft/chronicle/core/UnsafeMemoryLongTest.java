@@ -11,6 +11,7 @@ import java.util.function.IntPredicate;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
+@SuppressWarnings({"PMD.TestClassWithoutTestCases", "deprecation"})
 final class UnsafeMemoryLongTest implements UnsafeMemoryTestMixin<Long> {
 
     @Override

@@ -11,19 +11,20 @@ class ValidatableUtilTest {
 
     @Test
     void testValidateToggle() {
-        assertTrue(ValidatableUtil.validateEnabled());
+        assertTrue(ValidatableUtil.validateEnabled(), "validation should be enabled by default");
 
         ValidatableUtil.startValidateDisabled();
-        assertFalse(ValidatableUtil.validateEnabled());
+        assertFalse(ValidatableUtil.validateEnabled(), "validation should be disabled after startValidateDisabled");
 
         ValidatableUtil.endValidateDisabled();
-        assertTrue(ValidatableUtil.validateEnabled());
+        assertTrue(ValidatableUtil.validateEnabled(), "validation should be re-enabled after endValidateDisabled");
     }
 
     @Test
     void testEndValidateDisabledWithoutStart() {
-        AssertionError exception = assertThrows(AssertionError.class, ValidatableUtil::endValidateDisabled);
-        assertNotNull(exception);
+        AssertionError exception = assertThrows(AssertionError.class, ValidatableUtil::endValidateDisabled,
+                "endValidateDisabled should fail without start");
+        assertNotNull(exception, "asserted error object should be non-null");
     }
 
     @Test

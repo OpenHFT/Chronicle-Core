@@ -3,41 +3,41 @@
  */
 package net.openhft.chronicle.core;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-public class JvmLinuxTest extends CoreTestCommon {
+class JvmLinuxTest extends CoreTestCommon {
 
     @Test
-    public void isProcessAliveCommandReturnsTrueWhenPidIsPrinted() {
+    void isProcessAliveCommandReturnsTrueWhenPidIsPrinted() {
         assumeTrue(OS.isLinux());
         long pid = 424242;
         boolean alive = Jvm.isProcessAliveCommand(pid,
                 Arrays.asList("/bin/sh", "-c", "printf ' " + pid + " '"));
-        assertTrue(alive);
+        assertTrue(alive, "process should be reported alive when pid is present");
     }
 
     @Test
-    public void isProcessAliveCommandReturnsFalseWhenPidMissing() {
+    void isProcessAliveCommandReturnsFalseWhenPidMissing() {
         assumeTrue(OS.isLinux());
         long pid = 111111;
         boolean alive = Jvm.isProcessAliveCommand(pid,
                 Arrays.asList("/bin/sh", "-c", "printf ' no-match '"));
-        assertFalse(alive);
+        assertFalse(alive, "process should be reported dead when pid is absent");
     }
 
     @Test
-    public void isProcessAliveCommandReturnsTrueOnExecFailure() {
+    void isProcessAliveCommandReturnsTrueOnExecFailure() {
         expectException("could be alive due to exception");
         assumeTrue(OS.isLinux());
         long pid = 222222;
         boolean alive = Jvm.isProcessAliveCommand(pid,
                 Arrays.asList("/bin/this_command_should_not_exist"));
-        assertTrue(alive);
+        assertTrue(alive, "process should be assumed alive when command execution fails");
     }
 }

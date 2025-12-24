@@ -7,22 +7,25 @@ import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ClassUtilSetAccessibleTest {
-
-    // package-private class with a private method to trigger setAccessible branch
-    static class PkgClass {
-        @SuppressWarnings("unused")
-        private String greet() { return "ok"; }
-    }
 
     @Test
     void getMethod0OnNonPublicClassMakesMethodUsable() throws Exception {
         Method m = ClassUtil.getMethod0(PkgClass.class, "greet", new Class<?>[0], true);
-        assertNotNull(m);
+        assertNotNull(m, "reflection should find method");
         // The method should now be invokable despite being private
         String s = (String) m.invoke(new PkgClass());
-        assertEquals("ok", s);
+        assertEquals("ok", s, "invoking greet should return ok");
+    }
+
+    // package-private class with a private method to trigger setAccessible branch
+    static class PkgClass {
+        @SuppressWarnings("unused")
+        private String greet() {
+            return "ok";
+        }
     }
 }

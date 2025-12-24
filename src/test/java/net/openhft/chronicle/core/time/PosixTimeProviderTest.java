@@ -10,15 +10,16 @@ import net.openhft.chronicle.core.util.Histogram;
 import net.openhft.chronicle.testframework.FlakyTestRunner;
 import net.openhft.posix.ClockId;
 import net.openhft.posix.PosixAPI;
-import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static net.openhft.chronicle.core.time.SystemTimeProviderTest.assertBetween;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-public class PosixTimeProviderTest extends CoreTestCommon {
+class PosixTimeProviderTest extends CoreTestCommon {
 
     public static void main(String[] args) {
         for (ClockId value : ClockId.values()) {
@@ -27,71 +28,26 @@ public class PosixTimeProviderTest extends CoreTestCommon {
     }
 
     @Test
-    public void currentTimeMicros() throws IllegalStateException {
+    void currentTimeMicros() throws IllegalStateException {
         assumeFalse(OS.isMacOSX() || Jvm.isArm());
-        FlakyTestRunner.builder(this::currentTimeMicros0)
+        AtomicBoolean ran = new AtomicBoolean();
+        FlakyTestRunner.builder(() -> {
+                    ran.set(true);
+                    currentTimeMicros0();
+                })
                 .withMaxIterations(3)
                 .build()
                 .runOrThrow();
+        assertTrue(ran.get(), "FlakyTestRunner should have executed the currentTimeMicros test");
     }
 
     private void currentTimeMicros0() {
 
-        @NotNull TimeProvider tp = PosixTimeProvider.INSTANCE;
-        long minDiff = 0;
-        long maxDiff = 0;
-        long lastTimeMicros;
-        long start;
-
-        int error = OS.isWindows() || Jvm.isArm() ? 12 : 1;
-        for (int i = 0; i <= 20; i++) {
-            minDiff = 10;
-            maxDiff = 995;
-            lastTimeMicros = 0;
-            start = System.currentTimeMillis();
-
-            do {
-                long now0 = tp.currentTimeMillis();
-                long time2 = tp.currentTimeMicros();
-                long now1 = tp.currentTimeMillis();
-                if (now1 - now0 > 1) {
-                    System.out.println("jump: " + (now1 - now0));
-                    continue;
-                }
-
-                long now = now1 * 1000;
-                long diff = time2 - now;
-                if (minDiff > diff) {
-                    minDiff = diff;
-                    System.out.println("min: " + minDiff);
-                }
-                if (maxDiff < diff) {
-                    maxDiff = diff;
-                    System.out.println("max: " + maxDiff);
-                }
-                long ns = System.nanoTime();
-                while (System.nanoTime() < ns + 100)
-                    Jvm.nanoPause();
-                assertTrue(time2 >= lastTimeMicros);
-                lastTimeMicros = time2;
-            } while (System.currentTimeMillis() < start + 500);
-
-            try {
-                if (!OS.isWindows())
-                    assertBetween(-5 * error, minDiff, 5 * error);
-                assertBetween(990, maxDiff, 1000 + 30 * error);
-                break;
-            } catch (AssertionError e) {
-                // do nothing
-            }
-        }
-        if (!OS.isWindows())
-            assertBetween(-5 * error, minDiff, 5 * error);
-        assertBetween(990, maxDiff, 1000 + 30 * error);
+        SystemTimeProviderTest.assertCurrentTimeMicros(PosixTimeProvider.INSTANCE, true, OS.isWindows());
     }
 
     @Test
-    public void currentTime() throws IllegalStateException {
+    void currentTime() throws IllegalStateException {
         assumeTrue(!OS.isMacOSX());
         TimeProvider tp = PosixTimeProvider.INSTANCE;
         for (int i = 3; i >= 0; i--) {
@@ -110,7 +66,7 @@ public class PosixTimeProviderTest extends CoreTestCommon {
     }
 
     @Test
-    public void resolution() {
+    void resolution() {
         assumeTrue(!OS.isMacOSX());
         final PosixTimeProvider instance = PosixTimeProvider.INSTANCE;
         for (int j = 0; j < 3; j++) {
@@ -126,7 +82,9 @@ public class PosixTimeProviderTest extends CoreTestCommon {
             System.out.println(h.toMicrosFormat());
 
             // Performance test
-            assertTrue(h.totalCount() > 0);
+            long totalCount = h.totalCount();
+            assertTrue(totalCount > 0,
+                    "histogram should have recorded time resolution samples for run " + j + ", totalCount=" + totalCount);
         }
     }
 }

@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.internal;
 
+import net.openhft.chronicle.core.annotation.UsedViaReflection;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -12,38 +13,43 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ClassUtilExtraTest {
 
-    private static class Parent {
-        @SuppressWarnings("unused")
-        private int hidden = 42;
-        @SuppressWarnings("unused")
-        private String greet() { return "hi"; }
-    }
-
-    private static class Child extends Parent { }
-
     @Test
     void getField0FindsPrivateFieldInHierarchy() {
         Field f = ClassUtil.getField0(Child.class, "hidden", true, true);
-        assertNotNull(f);
-        assertEquals("hidden", f.getName());
+        assertNotNull(f, "reflection should find field");
+        assertEquals("hidden", f.getName(), "field name should be 'hidden' when found in parent class");
     }
 
     @Test
     void getField0ReturnsNullWhenMissingAndErrorFalse() {
         Field f = ClassUtil.getField0(Child.class, "nope", false, true);
-        assertNull(f);
+        assertNull(f, "missing field should return null");
     }
 
     @Test
     void getField0ThrowsWhenMissingAndErrorTrue() {
-        assertThrows(AssertionError.class, () -> ClassUtil.getField0(Child.class, "nope", true, true));
+        assertThrows(AssertionError.class, () -> ClassUtil.getField0(Child.class, "nope", true, true),
+                "getField0 should throw when error flag is true");
     }
 
     @Test
     void getMethod0FindsPrivateMethodInHierarchy() {
         Method m = ClassUtil.getMethod0(Child.class, "greet", new Class<?>[0], true);
-        assertNotNull(m);
-        assertEquals("greet", m.getName());
+        assertNotNull(m, "reflection should find method");
+        assertEquals("greet", m.getName(), "method name should be 'greet' when found in parent class");
+    }
+
+    private static class Parent {
+        @UsedViaReflection
+        @SuppressWarnings({"unused", "FieldMayBeFinal"})
+        private int hidden = 42;
+
+        @SuppressWarnings("unused")
+        private String greet() {
+            return "hi";
+        }
+    }
+
+    private static class Child extends Parent {
     }
 }
-

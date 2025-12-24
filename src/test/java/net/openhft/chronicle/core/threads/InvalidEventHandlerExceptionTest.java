@@ -4,70 +4,70 @@
 package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.stream.Stream;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
-public class InvalidEventHandlerExceptionTest extends CoreTestCommon {
+class InvalidEventHandlerExceptionTest extends CoreTestCommon {
+
+    private InvalidEventHandlerException e;
 
     @Test
-    public void testStandardConstructors() {
+    void testStandardConstructors() {
         String message = "Error occurred";
         Throwable cause = new RuntimeException("Cause of error");
 
         InvalidEventHandlerException exceptionWithMessage = new InvalidEventHandlerException(message);
-        assertEquals(message, exceptionWithMessage.getMessage());
+        assertEquals(message, exceptionWithMessage.getMessage(), "exception message should match constructor argument");
 
         InvalidEventHandlerException exceptionWithCause = new InvalidEventHandlerException(cause);
-        assertSame(cause, exceptionWithCause.getCause());
+        assertSame(cause, exceptionWithCause.getCause(), "exception cause should match constructor argument");
 
         InvalidEventHandlerException defaultException = new InvalidEventHandlerException();
-        assertNull(defaultException.getMessage());
+        assertNull(defaultException.getMessage(), "default constructor should create exception with null message");
     }
 
     @Test
-    public void testReusableInstance() {
+    void testReusableInstance() {
         InvalidEventHandlerException reusableInstance = InvalidEventHandlerException.reusable();
-        assertNotNull(reusableInstance);
-        assertEquals(0, reusableInstance.getStackTrace().length);
+        assertNotNull(reusableInstance, "reusable InvalidEventHandlerException singleton should be non-null");
+        assertEquals(0, reusableInstance.getStackTrace().length, "reusable instance should have empty stack trace");
 
         // Test immutability
         Throwable newCause = new RuntimeException("New cause");
-        assertSame(reusableInstance, reusableInstance.initCause(newCause));
-        assertNull(reusableInstance.getCause());
+        assertSame(reusableInstance, reusableInstance.initCause(newCause), "initCause should return same instance for reusable exception");
+        assertNull(reusableInstance.getCause(), "reusable instance should ignore initCause and remain without cause");
 
         // Attempt to set a new stack trace
         reusableInstance.setStackTrace(new StackTraceElement[]{});
-        assertEquals(0, reusableInstance.getStackTrace().length);
+        assertEquals(0, reusableInstance.getStackTrace().length, "reusable instance should ignore setStackTrace and remain empty");
     }
-    private InvalidEventHandlerException e;
 
-    @Before
+    @BeforeEach
     public void setup() {
         e = InvalidEventHandlerException.reusable();
     }
 
     @Test
-    public void stacktrace() {
-        assertEquals(0, e.getStackTrace().length);
+    void stacktrace() {
+        assertEquals(0, e.getStackTrace().length, "reusable exception should have empty stack trace initially");
 
         StackTraceElement[] newStackTrace = Stream.of(new StackTraceElement("A", "foo", "A.java", 42))
                 .toArray(StackTraceElement[]::new);
 
         e.setStackTrace(newStackTrace);
-        assertEquals(0, e.getStackTrace().length);
+        assertEquals(0, e.getStackTrace().length, "reusable exception should ignore setStackTrace calls");
     }
 
     @Test
-    public void printStackTrace() throws IOException {
+    void printStackTrace() throws IOException {
         final StringBuilder sb = new StringBuilder();
 
         try (OutputStream os = new OutputStream() {
@@ -76,17 +76,18 @@ public class InvalidEventHandlerExceptionTest extends CoreTestCommon {
                 sb.append((char) b);
             }
         };
-             PrintStream ps = new PrintStream(os)) {
+             PrintStream ps = new PrintStream(os, true, UTF_8.name())) {
             e.printStackTrace(ps);
         }
         final String stackTrace = sb.toString();
-        assertTrue(stackTrace.contains("Reusable"));
-        assertTrue(stackTrace.contains("no stack trace"));
+        assertTrue(stackTrace.contains("Reusable"), "stack trace output should indicate reusable exception: " + stackTrace);
+        assertTrue(stackTrace.contains("no stack trace"), "stack trace output should indicate no stack trace available: " + stackTrace);
     }
 
     @Test
-    public void toStringTest() {
-        assertTrue(e.toString().contains("Reusable"));
-        assertTrue(e.toString().contains("no stack trace"));
+    void toStringTest() {
+        String text = e.toString();
+        assertTrue(text.contains("Reusable"), "toString output should indicate reusable exception: " + text);
+        assertTrue(text.contains("no stack trace"), "toString output should indicate no stack trace available: " + text);
     }
 }

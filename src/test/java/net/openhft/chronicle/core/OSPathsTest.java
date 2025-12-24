@@ -3,49 +3,52 @@
  */
 package net.openhft.chronicle.core;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Extra coverage for path utilities and alignment caching.
+ * Extra coverage for path utilities, alignment caching, and target directory discovery.
  */
-public class OSPathsTest extends CoreTestCommon {
+@SuppressWarnings("deprecation")
+class OSPathsTest extends CoreTestCommon {
 
     @Test
-    public void asRelativePathTrimsUserDirPrefix() {
+    void asRelativePathTrimsUserDirPrefix() {
         String userDirAbs = new File(OS.userDir()).getAbsolutePath();
         String childPath = userDirAbs + File.separator + "child";
-        assertEquals("child", OS.testAsRelativePath(childPath));
+        assertEquals("child", OS.testAsRelativePath(childPath),
+                "relative path should drop user dir prefix");
         assertEquals(".", OS.testAsRelativePath(userDirAbs.endsWith(File.separator)
                 ? userDirAbs
-                : userDirAbs + File.separator));
+                : userDirAbs + File.separator),
+                "user dir should map to dot");
 
         String other = "/tmp/elsewhere";
-        assertEquals("unrelated paths stay absolute", other, OS.testAsRelativePath(other));
+        assertEquals(other, OS.testAsRelativePath(other), "unrelated paths stay absolute");
     }
 
     @Test
-    public void mapAlignmentDefaultsToPageSizeWhenUnset() {
+    void mapAlignmentDefaultsToPageSizeWhenUnset() {
         OS.testResetMapAlignment();
         long alignment = OS.mapAlignment();
-        assertEquals(OS.defaultOsPageSize(), alignment);
+        assertEquals(OS.defaultOsPageSize(), alignment, "default map alignment should match OS page size");
     }
 
     @Test
-    public void findTarget0PrefersProjectBuildDirectory() throws Exception {
+    void findTarget0PrefersProjectBuildDirectory() throws Exception {
         String original = System.getProperty("project.build.directory");
         Path tmpBuild = Files.createTempDirectory("cc-target-pref");
         try {
             System.setProperty("project.build.directory", tmpBuild.toFile().getAbsolutePath());
             String path = OS.testFindTarget0();
-            assertEquals(tmpBuild.toFile().getAbsolutePath(), path);
+            assertEquals(tmpBuild.toFile().getAbsolutePath(), path,
+                    "findTarget0 should prefer project.build.directory");
         } finally {
             if (original == null) {
                 System.clearProperty("project.build.directory");
@@ -57,7 +60,7 @@ public class OSPathsTest extends CoreTestCommon {
     }
 
     @Test
-    public void findTarget0FallsBackToTmpWhenNoBuildDirs() throws Exception {
+    void findTarget0FallsBackToTmpWhenNoBuildDirs() throws Exception {
         String originalUserDir = System.getProperty("user.dir");
         String originalProject = System.getProperty("project.build.directory");
 
@@ -67,7 +70,8 @@ public class OSPathsTest extends CoreTestCommon {
             System.setProperty("user.dir", isolated.toFile().getAbsolutePath());
             String path = OS.testFindTarget0();
             // expect a target directory under java.io.tmpdir
-            assertEquals(new File(System.getProperty("java.io.tmpdir"), "target").getPath(), path);
+            assertEquals(new File(System.getProperty("java.io.tmpdir"), "target").getPath(), path,
+                    "findTarget0 should fall back to tmp target directory");
         } finally {
             if (originalUserDir == null) {
                 System.clearProperty("user.dir");

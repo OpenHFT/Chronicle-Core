@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
- * Test double that mimics the public API expected by {@code ReflectionUtil} and {@code ReflectiveBuilder}.
+ * Test double that mimics the public API expected by {@code ReflectionUtil} and {@code ReflectiveBuilder} during analytics initialisation.
  */
 public interface Analytics extends AnalyticsFacade {
 

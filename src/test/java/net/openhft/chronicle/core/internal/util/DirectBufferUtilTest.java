@@ -9,10 +9,11 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
-import static org.junit.Assume.assumeTrue;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
+@SuppressWarnings("deprecation")
 class DirectBufferUtilTest {
 
     @BeforeEach
@@ -22,7 +23,8 @@ class DirectBufferUtilTest {
 
     @Test
     void directBufferClassShouldReturnCorrectClass() {
-        assertEquals(sun.nio.ch.DirectBuffer.class, DirectBufferUtil.directBufferClass(), "DirectBuffer class should be returned");
+        assertEquals("sun.nio.ch.DirectBuffer", DirectBufferUtil.directBufferClass().getName(),
+                "DirectBuffer class name should be returned");
     }
 
     @Test

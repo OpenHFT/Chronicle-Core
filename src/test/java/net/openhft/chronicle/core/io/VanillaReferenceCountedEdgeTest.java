@@ -20,9 +20,12 @@ class VanillaReferenceCountedEdgeTest {
         AtomicInteger released = new AtomicInteger();
         VanillaReferenceCounted ref = newRef(released);
         ref.release(ReferenceOwner.INIT);
-        assertEquals(1, released.get());
-        ClosedIllegalStateException ex = assertThrows(ClosedIllegalStateException.class, () -> ref.release(ReferenceOwner.INIT));
-        assertTrue(ex.getMessage().contains("released"));
+        assertEquals(1, released.get(), "release callback should be invoked once after first release");
+        ClosedIllegalStateException ex = assertThrows(ClosedIllegalStateException.class,
+                () -> ref.release(ReferenceOwner.INIT),
+                "double release should throw closed exception");
+        String message = ex.getMessage();
+        assertTrue(message.contains("released"), "exception message should mention released: " + message);
     }
 
     @Test
@@ -30,7 +33,8 @@ class VanillaReferenceCountedEdgeTest {
         AtomicInteger released = new AtomicInteger();
         VanillaReferenceCounted ref = newRef(released);
         ref.release(ReferenceOwner.INIT);
-        assertThrows(ClosedIllegalStateException.class, () -> ref.reserve(ReferenceOwner.INIT));
+        assertThrows(ClosedIllegalStateException.class, () -> ref.reserve(ReferenceOwner.INIT),
+                "reserve should fail after release");
     }
 
     @Test
@@ -41,10 +45,11 @@ class VanillaReferenceCountedEdgeTest {
         // release once (leaving one outstanding)
         ref.release(ReferenceOwner.INIT);
         // still reserved -> throwExceptionIfNotReleased should throw
-        assertThrows(IllegalStateException.class, ref::throwExceptionIfNotReleased);
+        assertThrows(IllegalStateException.class, ref::throwExceptionIfNotReleased,
+                "not last release should be detected");
         // cleanup
         ref.release(ReferenceOwner.INIT);
-        assertEquals(1, released.get());
+        assertEquals(1, released.get(), "release callback should be invoked once after final release");
     }
 
     @Test
@@ -54,17 +59,27 @@ class VanillaReferenceCountedEdgeTest {
         VanillaReferenceCounted ref = newRef(new AtomicInteger());
         ReferenceChangeListener listener = new ReferenceChangeListener() {
             @Override
-            public void onReferenceAdded(ReferenceCounted referenceCounted, ReferenceOwner referenceOwner) { added.incrementAndGet(); }
+            public void onReferenceAdded(ReferenceCounted referenceCounted, ReferenceOwner referenceOwner) {
+                added.incrementAndGet();
+            }
+
             @Override
-            public void onReferenceRemoved(ReferenceCounted referenceCounted, ReferenceOwner referenceOwner) { removed.incrementAndGet(); }
+            public void onReferenceRemoved(ReferenceCounted referenceCounted, ReferenceOwner referenceOwner) {
+                removed.incrementAndGet();
+            }
+
             @Override
-            public void onReferenceTransferred(ReferenceCounted referenceCounted, ReferenceOwner from, ReferenceOwner to) { /* ignore */ }
+            public void onReferenceTransferred(ReferenceCounted referenceCounted,
+                                               ReferenceOwner from,
+                                               ReferenceOwner to) {
+                // ignore
+            }
         };
         ref.addReferenceChangeListener(listener);
         ref.reserve(ReferenceOwner.INIT);
         ref.release(ReferenceOwner.INIT);
         ref.removeReferenceChangeListener(listener);
-        assertEquals(1, added.get());
-        assertEquals(1, removed.get());
+        assertEquals(1, added.get(), "listener should be notified once on reserve");
+        assertEquals(1, removed.get(), "listener should be notified once on release");
     }
 }

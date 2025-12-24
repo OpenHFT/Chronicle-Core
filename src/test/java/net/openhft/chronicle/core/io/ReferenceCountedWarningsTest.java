@@ -21,10 +21,11 @@ class ReferenceCountedWarningsTest {
         VanillaReferenceCounted ref = newRef(released);
         ref.reserve(ReferenceOwner.INIT);
         // force close without releasing all reservations
-        assertDoesNotThrow(ref::warnAndReleaseIfNotReleased);
-        assertEquals(1, released.get());
-        assertEquals(0, ref.refCount());
-        assertFalse(ref.tryReserve(ReferenceOwner.INIT));
+        assertDoesNotThrow(ref::warnAndReleaseIfNotReleased,
+                "warnAndReleaseIfNotReleased should not throw");
+        assertEquals(1, released.get(), "release callback fires once");
+        assertEquals(0, ref.refCount(), "count returns to zero");
+        assertFalse(ref.tryReserve(ReferenceOwner.INIT), "tryReserve should fail after reference has been released");
     }
 
     @Test
@@ -37,10 +38,11 @@ class ReferenceCountedWarningsTest {
                 xfers.incrementAndGet();
             }
         });
-        ReferenceOwner A = ReferenceOwner.INIT;
-        ReferenceOwner B = ReferenceOwner.INIT; // for API symmetry; a second owner type is not required for counting
-        assertDoesNotThrow(() -> ref.reserveTransfer(A, B));
-        assertEquals(1, xfers.get());
+        ReferenceOwner ownerA = ReferenceOwner.INIT;
+        ReferenceOwner ownerB = ReferenceOwner.INIT; // for API symmetry; a second owner type is not required
+        assertDoesNotThrow(() -> ref.reserveTransfer(ownerA, ownerB),
+                "reserveTransfer should not throw");
+        assertEquals(1, xfers.get(), "reserveTransfer should notify listener exactly once");
         // cleanup
         ref.warnAndReleaseIfNotReleased();
     }

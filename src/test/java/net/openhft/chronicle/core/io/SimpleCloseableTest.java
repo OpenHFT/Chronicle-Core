@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SimpleCloseableTest {
 
-    static class TestableSimpleCloseable extends SimpleCloseable {
+    static class SimpleCloseableStub extends SimpleCloseable {
         private boolean performCloseCalled = false;
 
         @Override
@@ -26,23 +26,23 @@ class SimpleCloseableTest {
 
     @Test
     void testClose() {
-        TestableSimpleCloseable closeable = new TestableSimpleCloseable();
+        SimpleCloseableStub closeable = new SimpleCloseableStub();
 
-        assertFalse(closeable.isClosed());
+        assertFalse(closeable.isClosed(), "closeable should not be closed initially");
         closeable.close();
-        assertTrue(closeable.isClosed());
-        assertTrue(closeable.isPerformCloseCalled());
+        assertTrue(closeable.isClosed(), "closeable should be closed after calling close");
+        assertTrue(closeable.isPerformCloseCalled(), "performClose should have been called");
 
         closeable.close();
-        assertTrue(closeable.isClosed());
+        assertTrue(closeable.isClosed(), "closeable should remain closed after calling close again");
     }
 
     @Test
     void testIsClosed() {
-        TestableSimpleCloseable closeable = new TestableSimpleCloseable();
+        SimpleCloseableStub closeable = new SimpleCloseableStub();
 
-        assertFalse(closeable.isClosed());
+        assertFalse(closeable.isClosed(), "isClosed should return false before close is called");
         closeable.close();
-        assertTrue(closeable.isClosed());
+        assertTrue(closeable.isClosed(), "isClosed should return true after close is called");
     }
 }

@@ -5,35 +5,33 @@ package net.openhft.chronicle.core.internal.analytics;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.analytics.AnalyticsFacade;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class AnalyticsFacadeTest extends CoreTestCommon {
+class AnalyticsFacadeTest extends CoreTestCommon {
 
-    private static final String TEST_RESPONSE = "A";
-
-    @Before
+    @BeforeEach
     public void setSystemProp() {
         System.clearProperty("chronicle.analytics.disable");
     }
 
     @Test
-    public void systemProp() {
+    void systemProp() {
         System.setProperty("chronicle.analytics.disable", "true");
         final AnalyticsFacade facade = AnalyticsFacade.builder("measurementId", "apiSecret")
                 .withReportDespiteJUnit()
                 .build();
 
-        assertTrue(facade instanceof MuteAnalytics);
+        assertInstanceOf(MuteAnalytics.class, facade, "disabled analytics should return MuteAnalytics");
 
     }
 
     @Test
-    public void analytics() {
+    void analytics() {
         final AnalyticsFacade.Builder builder = AnalyticsFacade.builder("measurementId", "apiSecret")
                 .putEventParameter("e", "1")
                 .putUserProperty("u", "2")
@@ -47,6 +45,6 @@ public class AnalyticsFacadeTest extends CoreTestCommon {
         final AnalyticsFacade analyticsFacade = builder.build();
 
         // Must be a real one
-        assertFalse(analyticsFacade instanceof MuteAnalytics);
+        assertFalse(analyticsFacade instanceof MuteAnalytics, "object should not be of specified type");
     }
 }

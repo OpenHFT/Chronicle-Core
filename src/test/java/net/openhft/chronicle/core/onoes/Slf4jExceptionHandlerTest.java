@@ -51,10 +51,10 @@ class Slf4jExceptionHandlerTest {
 
     @Test
     void testValueOfLogLevel() {
-        assertEquals(Slf4jExceptionHandler.ERROR, Slf4jExceptionHandler.valueOf(LogLevel.ERROR));
-        assertEquals(Slf4jExceptionHandler.WARN, Slf4jExceptionHandler.valueOf(LogLevel.WARN));
-        assertEquals(Slf4jExceptionHandler.PERF, Slf4jExceptionHandler.valueOf(LogLevel.PERF));
-        assertEquals(Slf4jExceptionHandler.DEBUG, Slf4jExceptionHandler.valueOf(LogLevel.DEBUG));
+        assertEquals(Slf4jExceptionHandler.ERROR, Slf4jExceptionHandler.valueOf(LogLevel.ERROR), "valueOf should return ERROR handler for ERROR log level");
+        assertEquals(Slf4jExceptionHandler.WARN, Slf4jExceptionHandler.valueOf(LogLevel.WARN), "valueOf should return WARN handler for WARN log level");
+        assertEquals(Slf4jExceptionHandler.PERF, Slf4jExceptionHandler.valueOf(LogLevel.PERF), "valueOf should return PERF handler for PERF log level");
+        assertEquals(Slf4jExceptionHandler.DEBUG, Slf4jExceptionHandler.valueOf(LogLevel.DEBUG), "valueOf should return DEBUG handler for DEBUG log level");
     }
 
     @Test
@@ -70,17 +70,17 @@ class Slf4jExceptionHandlerTest {
 
         // 3. Writes to stderr, but doesn't throw an exception
         Slf4jExceptionHandler.ERROR.on(bad, "msg", boom);
-        assertTrue(true); // if we reach here, the test passes
+        assertTrue(true, "execution should reach this point without exception"); // if we reach here, the test passes
     }
 
     @Test
     void testOnClassSucceedsUnderNormalConditions() {
         // Should never throw (uses the same DEFAULT logger, which is healthy)
         assertDoesNotThrow(() ->
-                Slf4jExceptionHandler.WARN.on(Slf4jExceptionHandlerTest.class, "all good", null)
-        );
+                Slf4jExceptionHandler.WARN.on(Slf4jExceptionHandlerTest.class, "all good", null),
+                "warn handler should not throw");
         assertDoesNotThrow(() ->
-                Slf4jExceptionHandler.ERROR.on(Slf4jExceptionHandlerTest.class, "all good", null)
-        );
+                Slf4jExceptionHandler.ERROR.on(Slf4jExceptionHandlerTest.class, "all good", null),
+                "error handler should not throw");
     }
 }

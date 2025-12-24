@@ -4,22 +4,22 @@
 package net.openhft.chronicle.core.onoes;
 
 import net.openhft.chronicle.core.Jvm;
-import org.junit.AssumptionViolatedException;
 import org.junit.jupiter.api.Test;
+import org.opentest4j.TestAbortedException;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Test for {@link Slf4jExceptionHandler} to ensure that it falls back to the default
+ * Validates that {@link Slf4jExceptionHandler} falls back to the default handler when the delegate fails.
  */
 class ExceptionHandlerFallbackTest {
     private static final int FAILED_INITIALIZATION = 2;
 
     /**
-     * Test to ensure that the Slf4jExceptionHandler falls back to the default
+     * Ensures the Slf4jExceptionHandler falls back to the default handler when logger initialisation fails.
      */
     @Test
     void classShouldFallBackWhenDelegateThrows() throws IllegalAccessException {
@@ -29,7 +29,7 @@ class ExceptionHandlerFallbackTest {
             state = initializationState.getInt(null);
             initializationState.setInt(null, FAILED_INITIALIZATION);
         } catch (IllegalAccessException e) {
-            throw new AssumptionViolatedException(e.toString());
+            throw new TestAbortedException(e.toString(), e);
         }
         try {
             Slf4jExceptionHandler.WARN.on(
@@ -39,6 +39,6 @@ class ExceptionHandlerFallbackTest {
         } finally {
             initializationState.setInt(null, state);
         }
-        assertTrue(true); // If we reach here, the test passes
+        assertTrue(true, "execution should reach this point without exception"); // If we reach here, the test passes
     }
 }

@@ -24,7 +24,7 @@ class StringBuilderPoolTest extends CoreTestCommon {
         ScopedResourcePool<StringBuilder> pool =
                 capacity < 0 ? StringBuilderPool.createThreadLocal()
                              : StringBuilderPool.createThreadLocal(capacity);
-        assertNotNull(pool);
+        assertNotNull(pool, "Thread-local StringBuilderPool should be created successfully");
     }
 
     @Test
@@ -40,7 +40,7 @@ class StringBuilderPoolTest extends CoreTestCommon {
 
         try (ScopedResource<StringBuilder> resource = pool.get()) {
             StringBuilder builder = resource.get();
-            assertSame(firstBuilder, builder);
+            assertSame(firstBuilder, builder, "pool should return same instance (reference equality)");
             assertEquals(0, builder.length(), "Builder should be cleared before reuse");
         }
     }
@@ -67,7 +67,7 @@ class StringBuilderPoolTest extends CoreTestCommon {
 
         assertTrue(complete.await(5, TimeUnit.SECONDS), "Worker thread did not finish in time");
         worker.join(1000L);
-        assertNotNull(otherThreadBuilder.get());
+        assertNotNull(otherThreadBuilder.get(), "Worker thread should have received a builder instance");
         assertNotSame(mainThreadBuilder.get(), otherThreadBuilder.get(), "Builders must be isolated per thread");
 
         try (ScopedResource<StringBuilder> resource = pool.get()) {

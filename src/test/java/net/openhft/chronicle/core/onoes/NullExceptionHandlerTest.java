@@ -15,7 +15,8 @@ class NullExceptionHandlerTest {
         Logger mockLogger = mock(Logger.class);
         Throwable mockThrowable = new RuntimeException("Test exception");
 
-        assertDoesNotThrow(() -> NullExceptionHandler.NOTHING.on(mockLogger, "Test message", mockThrowable));
+        assertDoesNotThrow(() -> NullExceptionHandler.NOTHING.on(mockLogger, "Test message", mockThrowable),
+                "null handler should not throw");
 
         // Since the method should do nothing, there should be no interactions with the logger
         verifyNoInteractions(mockLogger);
@@ -23,7 +24,7 @@ class NullExceptionHandlerTest {
 
     @Test
     void isEnabledShouldAlwaysReturnFalse() {
-        assertFalse(NullExceptionHandler.NOTHING.isEnabled(String.class));
-        assertFalse(NullExceptionHandler.NOTHING.isEnabled(Integer.class));
+        assertFalse(NullExceptionHandler.NOTHING.isEnabled(String.class), "isEnabled should return false for String class");
+        assertFalse(NullExceptionHandler.NOTHING.isEnabled(Integer.class), "isEnabled should return false for Integer class");
     }
 }

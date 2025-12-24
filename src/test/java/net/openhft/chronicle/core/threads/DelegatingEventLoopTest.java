@@ -3,10 +3,12 @@
  */
 package net.openhft.chronicle.core.threads;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 class DelegatingEventLoopTest {
 
@@ -21,7 +23,7 @@ class DelegatingEventLoopTest {
 
     @Test
     void constructorShouldAssignEventLoop() {
-        assertEquals(innerEventLoop, delegatingEventLoop.inner);
+        assertEquals(innerEventLoop, delegatingEventLoop.inner, "delegating event loop should keep the inner event loop reference");
     }
 
     @Test
@@ -56,7 +58,8 @@ class DelegatingEventLoopTest {
 
     @Test
     void isStoppedShouldDelegateToInner() {
-        delegatingEventLoop.isStopped();
+        when(innerEventLoop.isStopped()).thenReturn(true);
+        assertTrue(delegatingEventLoop.isStopped(), "delegating event loop should return stopped state from inner event loop");
         verify(innerEventLoop).isStopped();
     }
 

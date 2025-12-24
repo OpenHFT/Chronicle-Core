@@ -3,20 +3,20 @@
  */
 package net.openhft.chronicle.core.io;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import static net.openhft.chronicle.core.internal.CloseableUtils.asString;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class TracingReferenceCountedTest extends MonitorReferenceCountedContractTest {
+class TracingReferenceCountedTest extends MonitorReferenceCountedContractTest {
 
     private AtomicInteger onReleaseCallCount;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         onReleaseCallCount = new AtomicInteger(0);
     }
@@ -27,63 +27,67 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
     }
 
     @Test
-    public void reserveWillThrowAndNotReserveWhenReferenceOwnerAttemptsToMakeASecondReservation() {
+    void reserveWillThrowAndNotReserveWhenReferenceOwnerAttemptsToMakeASecondReservation() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
         referenceCounted.reserve(a);
 
-        assertEquals(2, referenceCounted.refCount());
-        assertThrows(IllegalStateException.class, () -> referenceCounted.reserve(a));
-        assertEquals(2, referenceCounted.refCount());
+        assertEquals(2, referenceCounted.refCount(), "refCount should be 2 after initial reserve");
+        assertThrows(IllegalStateException.class, () -> referenceCounted.reserve(a),
+                "reserve should reject duplicate owner");
+        assertEquals(2, referenceCounted.refCount(), "refCount should remain 2 after failed duplicate reserve");
     }
 
     @Test
-    public void releaseWillFailWhenResourceOwnerHasNoReservation() {
+    void releaseWillFailWhenResourceOwnerHasNoReservation() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
-        assertThrows(IllegalStateException.class, () -> referenceCounted.release(a));
+        assertThrows(IllegalStateException.class, () -> referenceCounted.release(a),
+                "release should reject unknown owner");
     }
 
     @Test
-    public void releaseLastWillThrowWithReferenceDetailsWhenReleaseIsNotLast() {
+    void releaseLastWillThrowWithReferenceDetailsWhenReleaseIsNotLast() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
         referenceCounted.reserve(a);
         try {
             referenceCounted.releaseLast(a);
-            fail("Release last should throw here");
+            fail("releaseLast should throw when reservation remains");
         } catch (IllegalStateException e) {
-            assertEquals("net.openhft.chronicle.core.io.TracingReferenceCounted still reserved [INIT]", e.getMessage());
-            assertEquals("uniqueId main init INIT on main", e.getSuppressed()[0].getMessage().split(" at ")[0]);
+            assertEquals("net.openhft.chronicle.core.io.TracingReferenceCounted still reserved [INIT]", e.getMessage(),
+                    "exception should report still reserved [INIT]");
+            assertEquals("uniqueId main init INIT on main", e.getSuppressed()[0].getMessage().split(" at ")[0], "suppressed exception should contain INIT reservation details");
         }
     }
 
     @Test
-    public void releaseLastWillThrowWithSuppressedInnerFailuresWhenReleaseFails() {
+    void releaseLastWillThrowWithSuppressedInnerFailuresWhenReleaseFails() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
         try {
             referenceCounted.releaseLast(a);
-            fail("Release last should throw here");
+            fail("releaseLast should throw when owner has no reservation");
         } catch (IllegalStateException e) {
-            assertEquals("net.openhft.chronicle.core.io.TracingReferenceCounted still reserved [INIT]", e.getMessage());
-            assertEquals("uniqueId main init INIT on main", e.getSuppressed()[0].getMessage().split(" at ")[0]);
-            assertEquals("net.openhft.chronicle.core.io.TracingReferenceCounted not reserved by VanillaReferenceOwner{name='a'} closed=false", e.getSuppressed()[1].getMessage());
+            assertEquals("net.openhft.chronicle.core.io.TracingReferenceCounted still reserved [INIT]", e.getMessage(),
+                    "exception should include still reserved [INIT]");
+            assertEquals("uniqueId main init INIT on main", e.getSuppressed()[0].getMessage().split(" at ")[0], "first suppressed exception should contain INIT reservation details");
+            assertEquals("net.openhft.chronicle.core.io.TracingReferenceCounted not reserved by VanillaReferenceOwner{name='a'} closed=false", e.getSuppressed()[1].getMessage(), "second suppressed exception should indicate owner 'a' has no reservation");
         }
     }
 
     @Test
-    public void asStringWillIncludeReferenceCountedDetails() {
+    void asStringWillIncludeReferenceCountedDetails() {
         final TracingReferenceCounted referenceCounted = createReferenceCounted();
-        assertTrue(Pattern.matches("TracingReferenceCounted@\\w+ refCount=1", asString(referenceCounted)));
+        assertTrue(Pattern.matches("TracingReferenceCounted@\\w+ refCount=1", asString(referenceCounted)), "asString output should include class name and refCount");
     }
 
     @Test
-    public void asStringWillIncludeCloseableDetails() {
+    void asStringWillIncludeCloseableDetails() {
         class SomeCloseable implements QueryCloseable, ReferenceOwner {
 
             @Override
@@ -96,36 +100,37 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
                 return "testCloseable";
             }
         }
-        assertEquals("testCloseable closed=false", asString(new SomeCloseable()));
+        assertEquals("testCloseable closed=false", asString(new SomeCloseable()), "asString output should include reference name and closed state");
     }
 
     @Test
-    public void asStringRenderClassNameAndAddressForPojos() {
+    void asStringRenderClassNameAndAddressForPojos() {
         class SomePlainObject {
 
         }
-        assertTrue(Pattern.matches("SomePlainObject@\\w+", asString(new SomePlainObject())));
+        assertTrue(Pattern.matches("SomePlainObject@\\w+", asString(new SomePlainObject())), "asString output should include class name and memory address for plain objects");
     }
 
     @Test
-    public void createdHereWillReturnCreatedStackTrace() {
+    void createdHereWillReturnCreatedStackTrace() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
-        assertNotNull(referenceCounted.createdHere());
+        assertNotNull(referenceCounted.createdHere(), "createdHere should return non-null stack trace");
     }
 
     @Test
-    public void reserveTransferWillThrowWhenFromHasNoReservation() {
+    void reserveTransferWillThrowWhenFromHasNoReservation() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
         ReferenceOwner b = ReferenceOwner.temporary("b");
 
-        assertThrows(IllegalStateException.class, () -> referenceCounted.reserveTransfer(a, b));
+        assertThrows(IllegalStateException.class, () -> referenceCounted.reserveTransfer(a, b),
+                "reserveTransfer should fail without from reservation");
     }
 
     @Test
-    public void reserveTransferWillThrowWhenToAlreadyHasAReservation() {
+    void reserveTransferWillThrowWhenToAlreadyHasAReservation() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -133,13 +138,15 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
         referenceCounted.reserve(a);
         referenceCounted.reserve(b);
 
-        assertThrows(IllegalStateException.class, () -> referenceCounted.reserveTransfer(a, b));
+        assertThrows(IllegalStateException.class, () -> referenceCounted.reserveTransfer(a, b),
+                "reserveTransfer should fail when to already reserved");
     }
 
     @Test
-    public void reserveWillThrowWhenCalledWithSelf() {
+    void reserveWillThrowWhenCalledWithSelf() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
-        assertThrows(AssertionError.class, () -> referenceCounted.reserve(referenceCounted));
+        assertThrows(AssertionError.class, () -> referenceCounted.reserve(referenceCounted),
+                "reserve should reject self reservation");
     }
 }

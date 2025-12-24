@@ -2,16 +2,17 @@
  * Copyright 2013-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
  */
 import net.openhft.chronicle.core.Jvm;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * This class has no package declaration.
+ * This class has no package declaration to exercise Jvm package name lookup logic.
  */
-public class ClassWithNoPackageTest {
+@SuppressWarnings("PMD.NoPackage")
+class ClassWithNoPackageTest {
     @Test
-    public void getPackageName() {
-        assertEquals("", Jvm.getPackageName(ClassWithNoPackageTest.class));
+    void getPackageName() {
+        assertEquals("", Jvm.getPackageName(ClassWithNoPackageTest.class), "package name should be empty string for class with no package");
     }
 }

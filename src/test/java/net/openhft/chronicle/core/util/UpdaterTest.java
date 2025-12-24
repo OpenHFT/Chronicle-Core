@@ -17,8 +17,8 @@ class UpdaterTest {
 
         appender.update(myList);
 
-        assertEquals(1, myList.size());
-        assertTrue(myList.contains("newElement"));
+        assertEquals(1, myList.size(), "list should contain one element after update");
+        assertTrue(myList.contains("newElement"), myList + " should contain newElement");
     }
 
     @Test
@@ -28,7 +28,7 @@ class UpdaterTest {
 
         appender.accept(myList); // Using accept instead of update
 
-        assertEquals(1, myList.size());
-        assertTrue(myList.contains("newElement"));
+        assertEquals(1, myList.size(), "list should contain one element when accept delegates to update");
+        assertTrue(myList.contains("newElement"), myList + " should contain newElement after accept");
     }
 }

@@ -3,7 +3,7 @@
  */
 package net.openhft.chronicle.core;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,15 +13,16 @@ import java.nio.channels.FileChannel;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Extra coverage for OS edge cases that are environment-sensitive.
  */
-public class OSAdditionalTest extends CoreTestCommon {
+@SuppressWarnings("deprecation")
+class OSAdditionalTest extends CoreTestCommon {
 
     @Test
-    public void findTmpUsesProjectBuildDirectory() throws IOException {
+    void findTmpUsesProjectBuildDirectory() throws IOException {
         final String originalProjectBuildDir = System.getProperty("project.build.directory");
         Path buildDir = Files.createTempDirectory("cc-target");
         try {
@@ -29,9 +30,9 @@ public class OSAdditionalTest extends CoreTestCommon {
 
             String tmpPath = OS.findTmp();
 
-            assertTrue("tmp path should be created under project.build.directory",
-                    tmpPath.endsWith(File.separator + "tmp") || tmpPath.endsWith("/tmp"));
-            assertTrue("tmp directory should exist", new File(buildDir.toFile(), "tmp").exists());
+            assertTrue(tmpPath.endsWith(File.separator + "tmp") || tmpPath.endsWith("/tmp"),
+                    "tmp path should be created under project.build.directory");
+            assertTrue(new File(buildDir.toFile(), "tmp").exists(), "tmp directory should exist");
         } finally {
             if (originalProjectBuildDir == null) {
                 System.clearProperty("project.build.directory");
@@ -46,13 +47,13 @@ public class OSAdditionalTest extends CoreTestCommon {
     }
 
     @Test
-    public void findTmpFallsBackWhenTmpDirMissing() {
+    void findTmpFallsBackWhenTmpDirMissing() {
         final String originalTmp = System.getProperty("java.io.tmpdir");
         try {
             System.setProperty("java.io.tmpdir", "nonexistent-tmp-" + System.nanoTime());
             System.clearProperty("project.build.directory");
 
-            assertEquals("tmp", OS.findTmp());
+            assertEquals("tmp", OS.findTmp(), "fallback tmp directory should be named tmp");
         } finally {
             if (originalTmp == null) {
                 System.clearProperty("java.io.tmpdir");
@@ -62,20 +63,23 @@ public class OSAdditionalTest extends CoreTestCommon {
         }
     }
 
-    @Test(expected = FileNotFoundException.class)
-    public void findDirThrowsWhenSuffixNotPresent() throws FileNotFoundException {
-        OS.findDir("definitely-not-on-classpath-" + System.nanoTime());
+    @Test
+    void findDirThrowsWhenSuffixNotPresent() {
+        assertThrows(FileNotFoundException.class,
+                () -> OS.findDir("definitely-not-on-classpath-" + System.nanoTime()),
+                "findDir should throw when suffix is not on the classpath");
     }
 
     @Test
-    public void spaceUsedOnExistingFileReturnsNonNegative() throws IOException {
+    void spaceUsedOnExistingFileReturnsNonNegative() throws IOException {
         File temp = File.createTempFile("os-space-used", ".txt");
         temp.deleteOnExit();
-        assertTrue(OS.spaceUsed(temp.getPath()) >= 0L);
+        long spaceUsed = OS.spaceUsed(temp.getPath());
+        assertTrue(spaceUsed >= 0L, "spaceUsed should be non-negative for existing file, was " + spaceUsed);
     }
 
     @Test
-    public void memoryMappedCounterTracksMapAndUnmap() throws IOException {
+    void memoryMappedCounterTracksMapAndUnmap() throws IOException {
         File temp = File.createTempFile("os-map-counter", ".bin");
         temp.deleteOnExit();
         long pageAligned = OS.pageAlign(4096);
@@ -86,11 +90,12 @@ public class OSAdditionalTest extends CoreTestCommon {
             long before = OS.memoryMapped();
             long address = OS.map(channel, FileChannel.MapMode.READ_WRITE, 0L, pageAligned);
             long afterMap = OS.memoryMapped();
-            assertTrue("memoryMapped should increase after map", afterMap >= before + pageAligned);
+            assertTrue(afterMap >= before + pageAligned,
+                    "memoryMapped should increase after map: before=" + before + ", after=" + afterMap);
 
             OS.unmap(address, pageAligned);
             long afterUnmap = OS.memoryMapped();
-            assertEquals("memoryMapped should return to previous value after unmap", before, afterUnmap);
+            assertEquals(before, afterUnmap, "memoryMapped should return to previous value after unmap");
         }
     }
 }

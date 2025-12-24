@@ -17,7 +17,8 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Unit-tests the constructor flag {@code overrideTrackNonCleaningThreads}.
+ * Unit tests the constructor flag {@code overrideTrackNonCleaningThreads} by verifying orphan cleanup behaviour
+ * when tracking is forced on or off.
  *
  * <p>The same test body is run twice by JUnit's parameter-mechanism:
  * once with tracking <em>forced ON</em>, once with tracking <em>forced OFF</em>.

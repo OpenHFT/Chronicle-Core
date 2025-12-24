@@ -25,7 +25,7 @@ class InternalAnnouncerTest {
         assertDoesNotThrow(() -> {
             Announcer.announce("net.openhft", "chronicle-core");
             Announcer.announce("net.openhft", "chronicle-core");
-        });
+        }, "announce should not throw for empty properties");
     }
 
     @Test
@@ -35,7 +35,7 @@ class InternalAnnouncerTest {
         assertDoesNotThrow(() -> {
             Announcer.announce("net.openhft", "chronicle-map", props);
             Announcer.announce("net.openhft", "chronicle-map", props);
-        });
+        }, "announce should not throw with logo only");
     }
 
     @Test
@@ -43,7 +43,7 @@ class InternalAnnouncerTest {
         Map<String, String> props = new HashMap<>();
         props.put(Announcer.LOGO, "ASCII-LOGO");
         props.put("build", "test");
-        assertDoesNotThrow(() -> Announcer.announce("net.openhft", "chronicle-queue", props));
+        assertDoesNotThrow(() -> Announcer.announce("net.openhft", "chronicle-queue", props),
+                "announce should not throw with extra properties");
     }
 }
-

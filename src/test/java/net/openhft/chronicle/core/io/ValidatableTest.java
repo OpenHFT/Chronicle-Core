@@ -5,87 +5,61 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ValidatableTest extends CoreTestCommon {
+class ValidatableTest extends CoreTestCommon {
+
+        @Test
+        void validate() {
+            DTOWithValidateToString d = new DTOWithValidateToString();
+            assertThrows(InvalidMarshallableException.class, d::toString,
+                    "toString should reject missing fields");
+            d.b = 1;
+            assertThrows(InvalidMarshallableException.class, d::toString,
+                    "toString should reject missing a value");
+            d.a = "hi";
+            d.b = 1;
+            assertEquals("DTOWithValidateToString{a='hi', b=1}", d.toString(), "toString should succeed when all fields are valid"); // is ok
+            d.b = 0;
+            assertThrows(InvalidMarshallableException.class, d::toString,
+                    "toString should reject invalid b value");
+        }
 
     @Test
-    public void validate() {
-        DTOWithValidateToString d = new DTOWithValidateToString();
-        try {
-            d.toString();
-            fail();
-            throw new InvalidMarshallableException(null); // keep the compiler happy
-        } catch (InvalidMarshallableException expected) {
-            // expected
-        }
-        d.b = 1;
-        try {
-            d.toString();
-            fail();
-            throw new InvalidMarshallableException(null); // keep the compiler happy
-        } catch (InvalidMarshallableException expected) {
-            // expected
-        }
-        d.a = "hi";
-        d.b = 1;
-        assertEquals("DTOWithValidateToString{a='hi', b=1}", d.toString()); // is ok
-        d.b = 0;
-        try {
-            d.toString();
-            fail();
-            throw new InvalidMarshallableException(null); // keep the compiler happy
-        } catch (InvalidMarshallableException expected) {
-            // expected
-        }
-    }
+    void validateDisabled() {
 
-    @Test
-    public void validateDisabled() {
-
-        assertTrue(ValidatableUtil.validateEnabled());
+        assertTrue(ValidatableUtil.validateEnabled(), "validation should be enabled by default");
         ValidatableUtil.startValidateDisabled();
-        assertFalse(ValidatableUtil.validateEnabled());
+        assertFalse(ValidatableUtil.validateEnabled(), "validation disabled after start");
         DTOWithValidateToString d = new DTOWithValidateToString();
         try {
-            assertEquals("DTOWithValidateToString{a='null', b=0}", d.toString()); // is ok
+            assertEquals("DTOWithValidateToString{a='null', b=0}", d.toString(), "toString should succeed with invalid fields when validation is disabled"); // is ok
 
             d.b = 1;
-            assertEquals("DTOWithValidateToString{a='null', b=1}", d.toString()); // is ok
+            assertEquals("DTOWithValidateToString{a='null', b=1}", d.toString(), "toString should succeed with partially valid fields when validation is disabled"); // is ok
 
             d.a = "hi";
             d.b = 1;
-            assertEquals("DTOWithValidateToString{a='hi', b=1}", d.toString()); // is ok
+            assertEquals("DTOWithValidateToString{a='hi', b=1}", d.toString(), "toString should succeed with valid fields when validation is disabled"); // is ok
 
             ValidatableUtil.startValidateDisabled();
             try {
                 d.b = 0;
-                assertEquals("DTOWithValidateToString{a='hi', b=0}", d.toString()); // is ok
+                assertEquals("DTOWithValidateToString{a='hi', b=0}", d.toString(), "toString should succeed with invalid b value in nested disabled scope"); // is ok
             } finally {
                 ValidatableUtil.endValidateDisabled();
             }
         } finally {
             ValidatableUtil.endValidateDisabled();
-            assertTrue(ValidatableUtil.validateEnabled());
+            assertTrue(ValidatableUtil.validateEnabled(), "validation enabled after end");
         }
-        try {
-            d.toString();
-            fail();
-            throw new InvalidMarshallableException(null); // keep the compiler happy
-        } catch (InvalidMarshallableException expected) {
-            // expected
-        }
-        boolean failed = false;
-        try {
-            ValidatableUtil.endValidateDisabled();
-            failed = true;
-        } catch (AssertionError expected) {
-            // expected
-        }
-        assertFalse(failed);
-        assertTrue(ValidatableUtil.validateEnabled());
+        assertThrows(InvalidMarshallableException.class, d::toString,
+                "toString should reject invalid data when enabled");
+        assertThrows(AssertionError.class, ValidatableUtil::endValidateDisabled,
+                "endValidateDisabled should fail when not started");
+        assertTrue(ValidatableUtil.validateEnabled(), "validation stays enabled after error");
     }
 
     static class DTOWithValidateToString implements Validatable {
@@ -94,7 +68,7 @@ public class ValidatableTest extends CoreTestCommon {
 
         @Override
         public void validate() throws InvalidMarshallableException {
-            if (a == null) throw new InvalidMarshallableException("a must not be null");
+            if (a == null) throw new InvalidMarshallableException("required property value must be set");
             if (b <= 0) throw new InvalidMarshallableException("b must be positive");
         }
 

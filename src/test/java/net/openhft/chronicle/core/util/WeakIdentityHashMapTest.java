@@ -4,21 +4,21 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class WeakIdentityHashMapTest extends CoreTestCommon {
+class WeakIdentityHashMapTest extends CoreTestCommon {
     @Test
-    public void twoKeys() {
+    void twoKeys() {
         String a1 = Character.toString('a');
         String a2 = Character.toString('a');
         WeakIdentityHashMap<String, Integer> map = new WeakIdentityHashMap<>();
         map.put(a1, 1);
         map.put(a2, 2);
-        assertEquals(2, map.size());
+        assertEquals(2, map.size(), "map should contain 2 entries for identity-distinct equal strings");
         map.clear();
-        assertTrue(map.isEmpty());
+        assertTrue(map.isEmpty(), "map should be empty after clear");
     }
 }

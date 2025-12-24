@@ -30,21 +30,24 @@ class InternalAnnouncerConcurrencyTest {
         CountDownLatch start = new CountDownLatch(1);
         CountDownLatch done = new CountDownLatch(n);
         for (int i = 0; i < n; i++) {
-            final int idx = i;
-            pool.submit(() -> {
-                try {
-                    start.await();
-                    assertDoesNotThrow(() -> Announcer.announce("net.openhft", "artifact-" + (idx % 3), Collections.emptyMap()));
-                } catch (InterruptedException ignored) {
-                    Thread.currentThread().interrupt();
-                } finally {
-                    done.countDown();
-                }
-            });
+            pool.execute(announceTask(start, done, i));
         }
         start.countDown();
-        assertTrue(done.await(5, TimeUnit.SECONDS));
+        assertTrue(done.await(5, TimeUnit.SECONDS), "all concurrent announce operations should complete within timeout");
         pool.shutdownNow();
     }
-}
 
+    private static Runnable announceTask(CountDownLatch start, CountDownLatch done, int idx) {
+        return () -> {
+            try {
+                start.await();
+                assertDoesNotThrow(() -> Announcer.announce("net.openhft", "artifact-" + (idx % 3), Collections.emptyMap()),
+                        "announce should not throw under concurrency for worker " + idx);
+            } catch (InterruptedException ignored) {
+                Thread.currentThread().interrupt();
+            } finally {
+                done.countDown();
+            }
+        };
+    }
+}

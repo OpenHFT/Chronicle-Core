@@ -15,18 +15,20 @@ class StandardMapsKeysTest {
     @Test
     void standardUserPropertiesContainExpectedKeys() {
         Map<String, String> m = AnalyticsFacade.standardUserProperties();
-        assertFalse(m.isEmpty());
-        assertTrue(m.containsKey("java_runtime_name"));
-        assertTrue(m.containsKey("os_name"));
-        assertTrue(m.containsKey("java_major_version"));
-        assertTrue(m.containsKey("available_processors"));
+        assertFalse(m.isEmpty(), "user properties map should not be empty");
+        assertTrue(m.containsKey("java_runtime_name"), "user properties should contain java_runtime_name key");
+        assertTrue(m.containsKey("os_name"), "user properties should contain os_name key");
+        assertTrue(m.containsKey("java_major_version"), "user properties should contain java_major_version key");
+        assertTrue(m.containsKey("available_processors"), "user properties should contain available_processors key");
         // values are non-empty strings
-        for (String v : m.values()) assertNotNull(v);
+        for (String v : m.values()) {
+            assertNotNull(v, "each user property value should be non-null: " + v);
+        }
     }
 
     @Test
     void additionalPropertiesMayBeEmptyButAreNonNull() {
         Map<String, String> m = AnalyticsFacade.standardAdditionalProperties();
-        assertNotNull(m);
+        assertNotNull(m, "standardAdditionalProperties should return non-null map");
     }
 }

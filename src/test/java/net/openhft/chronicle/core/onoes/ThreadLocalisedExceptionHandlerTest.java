@@ -20,13 +20,13 @@ class ThreadLocalisedExceptionHandlerTest {
 
     @Test
     void testUnwrapExceptionHandler() {
-        assertSame(defaultHandler, ThreadLocalisedExceptionHandler.unwrap(tlExceptionHandler));
+        assertSame(defaultHandler, ThreadLocalisedExceptionHandler.unwrap(tlExceptionHandler), "unwrap should return the wrapped default handler");
     }
 
     @Test
     void testIsEnabled() {
         when(defaultHandler.isEnabled(Exception.class)).thenReturn(true);
-        assertTrue(tlExceptionHandler.isEnabled(Exception.class));
+        assertTrue(tlExceptionHandler.isEnabled(Exception.class), "isEnabled should delegate to default handler and return true for Exception class");
     }
 
     // Add more tests as necessary for other methods and edge cases.

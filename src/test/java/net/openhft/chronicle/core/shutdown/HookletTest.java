@@ -3,13 +3,13 @@
  */
 package net.openhft.chronicle.core.shutdown;
 
-import org.junit.Test;
-import static org.junit.Assert.*;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class HookletTest {
+class HookletTest {
     @Test
-    public void testOnShutdown() {
+    void testOnShutdown() {
         AtomicBoolean called = new AtomicBoolean(false);
         Hooklet hooklet = new Hooklet() {
             @Override
@@ -22,11 +22,11 @@ public class HookletTest {
             }
         };
         hooklet.onShutdown();
-        assertTrue(called.get());
+        assertTrue(called.get(), "onShutdown callback should be invoked when hooklet is triggered");
     }
 
     @Test
-    public void testPriority() {
+    void testPriority() {
         Hooklet hooklet = new Hooklet() {
             @Override
             public void onShutdown() {
@@ -37,27 +37,28 @@ public class HookletTest {
                 return 10;
             }
         };
-        assertEquals(10, hooklet.priority());
+        assertEquals(10, hooklet.priority(), "hooklet priority should return the configured value");
     }
 
     @Test
-    public void testOf() {
+    void testOf() {
         AtomicBoolean called = new AtomicBoolean(false);
         Runnable hook = () -> called.set(true);
         Hooklet hooklet = Hooklet.of(20, hook);
-        assertEquals(20, hooklet.priority());
+        assertEquals(20, hooklet.priority(), "hooklet created with of() should use specified priority");
         hooklet.onShutdown();
-        assertTrue(called.get());
+        assertTrue(called.get(), "hooklet created with of() should execute the provided runnable on shutdown");
     }
 
     @Test
-    public void testCompareTo() {
+    void testCompareTo() {
         Hooklet hooklet1 = Hooklet.of(10, () -> {});
         Hooklet hooklet2 = Hooklet.of(20, () -> {});
-        assertTrue(hooklet1.compareTo(hooklet2) < 0);
+        int compare = hooklet1.compareTo(hooklet2);
+        assertTrue(compare < 0, "priority compare should be negative but was " + compare);
     }
 
-    static class TestRunnable implements Runnable {
+    static class NoOpRunnable implements Runnable {
         @Override
         public void run() {
             // Intentionally empty: used to verify equality/hashCode/toString behaviours
@@ -65,20 +66,22 @@ public class HookletTest {
     }
 
     @Test
-    public void testEqualsAndHashCode() {
-        Runnable runnable = new TestRunnable();
+    void testEqualsAndHashCode() {
+        Runnable runnable = new NoOpRunnable();
         Hooklet hooklet1 = Hooklet.of(10, runnable);
         Hooklet hooklet2 = Hooklet.of(10, runnable);
 
-        assertEquals(hooklet1, hooklet2);
-        assertEquals(hooklet1.hashCode(), hooklet2.hashCode());
+        assertEquals(hooklet1, hooklet2, "hooklets with same priority and runnable should be equal");
+        assertEquals(hooklet1.hashCode(), hooklet2.hashCode(), "equal hooklets should have identical hash codes");
     }
 
     @Test
-    public void testToString() {
+    void testToString() {
         Hooklet hooklet = Hooklet.of(10, () -> {});
         String toStringResult = hooklet.toString();
-        assertTrue(toStringResult.startsWith("Hooklet{ priority: 10, identity: "));
-        assertTrue(toStringResult.contains("HookletTest"));
+        assertTrue(toStringResult.startsWith("Hooklet{ priority: 10, identity: "),
+                "toString should start with priority and identity: " + toStringResult);
+        assertTrue(toStringResult.contains("HookletTest"),
+                "toString should contain test class name: " + toStringResult);
     }
 }

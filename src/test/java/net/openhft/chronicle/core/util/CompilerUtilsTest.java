@@ -5,27 +5,30 @@ package net.openhft.chronicle.core.util;
 
 import org.junit.jupiter.api.Test;
 
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
+@SuppressWarnings("deprecation")
 class CompilerUtilsTest {
     @Test
     void defineClassShouldThrowAssertionErrorForIllegalAccessException() {
         ClassLoader classLoader = mock(ClassLoader.class);
         String className = "com.example.MyClass";
-        byte[] bytes = new byte[] { /* class file bytes */ };
+        byte[] bytes = { /* class file bytes */};
 
         // Simulate IllegalAccessException
-        assertThrows(AssertionError.class, () -> CompilerUtils.defineClass(classLoader, className, bytes));
+        assertThrows(AssertionError.class, () -> CompilerUtils.defineClass(classLoader, className, bytes),
+                "defineClass should wrap IllegalAccessException");
     }
 
     @Test
     void defineClassShouldThrowAssertionErrorForInvocationTargetException() {
         ClassLoader classLoader = mock(ClassLoader.class);
         String className = "com.example.MyClass";
-        byte[] bytes = new byte[] { /* class file bytes */ };
+        byte[] bytes = { /* class file bytes */};
 
         // Simulate InvocationTargetException
-        assertThrows(AssertionError.class, () -> CompilerUtils.defineClass(classLoader, className, bytes));
+        assertThrows(AssertionError.class, () -> CompilerUtils.defineClass(classLoader, className, bytes),
+                "defineClass should wrap InvocationTargetException");
     }
 }

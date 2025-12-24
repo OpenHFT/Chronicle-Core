@@ -5,7 +5,7 @@ package net.openhft.chronicle.core.util;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.Mockito.*;
 
 class SimpleCleanerTest {
@@ -37,7 +37,7 @@ class SimpleCleanerTest {
         Runnable runnable = mock(Runnable.class);
         SimpleCleaner cleaner = new SimpleCleaner(runnable);
 
-        assertNotNull(cleaner); // Verifying that cleaner is initialized
+        assertNotNull(cleaner, "required object should not be null"); // Verifying that cleaner is initialized
         // Further tests can be performed if needed to check internal state
     }
 }

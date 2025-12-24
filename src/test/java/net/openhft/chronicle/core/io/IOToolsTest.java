@@ -8,124 +8,123 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.cleaner.impl.CleanerTestUtil;
 import net.openhft.chronicle.core.util.Time;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class IOToolsTest extends CoreTestCommon {
+@SuppressWarnings("deprecation")
+class IOToolsTest extends CoreTestCommon {
 
     @Test
-    public void testIsClosedException() {
+    void testIsClosedException() {
         Exception closedConnectionException = new IOException("Connection reset by peer");
-        assertTrue(IOTools.isClosedException(closedConnectionException));
+        assertTrue(IOTools.isClosedException(closedConnectionException), "connection reset exception should be recognized as closed connection");
 
         Exception otherException = new IOException("Some other IO error");
-        assertFalse(IOTools.isClosedException(otherException));
+        assertFalse(IOTools.isClosedException(otherException), "generic IO error should not be recognized as closed connection");
     }
 
     @Test
-    public void testWriteFile() throws IOException {
+    void testWriteFile() throws IOException {
         String testFilename = "testFile.tmp";
         String testData = "Test Data";
 
-        IOTools.writeFile(testFilename, testData.getBytes());
+        byte[] encoded = testData.getBytes(UTF_8);
+        IOTools.writeFile(testFilename, encoded);
 
         Path path = Paths.get(testFilename);
-        assertTrue(Files.exists(path));
-        assertArrayEquals(testData.getBytes(), Files.readAllBytes(path));
+        assertTrue(Files.exists(path), "file should exist after writing");
+        assertArrayEquals(encoded, Files.readAllBytes(path), "file content should match written data");
 
         BackgroundResourceReleaser.releasePendingResources();
         Files.deleteIfExists(path);
     }
 
     @Test
-    public void testTempName() {
+    void testTempName() {
         String filename = "test.txt";
         String tempFilename = IOTools.tempName(filename);
 
-        assertNotEquals(filename, tempFilename);
-        assertTrue(tempFilename.startsWith("test"));
-        assertTrue(tempFilename.endsWith(".txt"));
+        assertNotEquals(filename, tempFilename, "temp name should differ from input");
+        assertTrue(tempFilename.startsWith("test"), "temp filename " + tempFilename + " should start with test");
+        assertTrue(tempFilename.endsWith(".txt"), "temp filename " + tempFilename + " should end with .txt");
     }
 
     @Test
-    public void testClean() {
+    void testClean() {
         ByteBuffer bb = ByteBuffer.allocateDirect(1024);
 
         IOTools.clean(bb);
-        assertTrue(true); // If we reach here, the test passes
+        assertTrue(true, "execution should reach this point without exception"); // If we reach here, the test passes
     }
 
     @Test
-    public void testCreateDirectories() throws IOException {
+    void testCreateDirectories() throws IOException {
         Path tempDir = Paths.get("tempDir");
         IOTools.createDirectories(tempDir);
 
-        assertTrue(Files.isDirectory(tempDir));
+        assertTrue(Files.isDirectory(tempDir), "directory should exist after creation");
 
         BackgroundResourceReleaser.releasePendingResources();
         Files.deleteIfExists(tempDir);
     }
 
     @Test
-    public void testIsDirectBuffer() {
+    void testIsDirectBuffer() {
         ByteBuffer directBuffer = ByteBuffer.allocateDirect(1024);
         ByteBuffer nonDirectBuffer = ByteBuffer.allocate(1024);
 
-        assertTrue(IOTools.isDirectBuffer(directBuffer));
-        assertFalse(IOTools.isDirectBuffer(nonDirectBuffer));
+        assertTrue(IOTools.isDirectBuffer(directBuffer), "direct buffer should be identified as direct");
+        assertFalse(IOTools.isDirectBuffer(nonDirectBuffer), "heap buffer should not be identified as direct");
     }
 
     @Test
-    public void testAddressFor() {
+    void testAddressFor() {
         ByteBuffer directBuffer = ByteBuffer.allocateDirect(1024);
         long address = IOTools.addressFor(directBuffer);
 
-        assertNotEquals(0, address);
+        assertNotEquals(0, address, "direct buffer address should be non zero");
     }
 
     @Test
-    public void testDeleteDirWithFiles() throws IOException {
+    void testDeleteDirWithFiles() throws IOException {
         Path tempDir = Files.createTempDirectory("testDir");
         File tempFile = Files.createTempFile(tempDir, "test", ".tmp").toFile();
 
-        assertTrue(tempFile.exists());
-        assertTrue(IOTools.deleteDirWithFiles(tempDir.toFile()));
+        assertTrue(tempFile.exists(), "temp file should exist before deletion");
+        assertTrue(IOTools.deleteDirWithFiles(tempDir.toFile()), "directory deletion should succeed");
 
-        assertFalse(tempFile.exists());
-        assertFalse(tempDir.toFile().exists());
+        assertFalse(tempFile.exists(), "temp file should not exist after directory deletion");
+        assertFalse(tempDir.toFile().exists(), "directory should not exist after deletion");
     }
 
     @Test
-    public void testReadAsBytes() throws IOException {
+    void testReadAsBytes() throws IOException {
         String testData = "Test Data";
-        ByteArrayInputStream bais = new ByteArrayInputStream(testData.getBytes());
+        byte[] encoded = testData.getBytes(UTF_8);
+        ByteArrayInputStream bais = new ByteArrayInputStream(encoded);
 
         byte[] bytes = IOTools.readAsBytes(bais);
 
-        assertArrayEquals(testData.getBytes(), bytes);
+        assertArrayEquals(encoded, bytes, "encoding/decoding should preserve data");
     }
 
     @Test
-    public void readFileManyTimesByPath() {
+    void readFileManyTimesByPath() {
         final int iterations = 3_000;
         final LongAccumulator accumulator = new LongAccumulator(Long::sum, 0);
 
@@ -140,17 +139,17 @@ public class IOToolsTest extends CoreTestCommon {
                     }
                 });
 
-        assertEquals(iterations, accumulator.get());
+        assertEquals(iterations, accumulator.get(), "all parallel read operations should complete successfully");
     }
 
     @Test
-    public void readFileManyTimesByFile() throws IOException {
+    void readFileManyTimesByFile() throws IOException {
         final int iterations = 3_000;
         final LongAccumulator accumulator = new LongAccumulator(Long::sum, 0);
 
         String file = OS.getTarget() + "/readFileManyTimes.txt";
         try (FileOutputStream fos = new FileOutputStream(file)) {
-            fos.write("Delete me\n".getBytes(StandardCharsets.UTF_8));
+            fos.write("Delete me\n".getBytes(UTF_8));
         }
 
         IntStream.range(0, iterations)
@@ -164,17 +163,18 @@ public class IOToolsTest extends CoreTestCommon {
                     }
                 });
 
-        assertEquals(iterations, accumulator.get());
+        assertEquals(iterations, accumulator.get(), "all parallel file read operations should complete successfully");
     }
 
     @Test
-    public void shouldCleanDirectBuffer() {
-        CleanerTestUtil.test(IOTools::clean);
+    void shouldCleanDirectBuffer() {
+        CleanerTestUtil.ReservedMemorySnapshot snapshot = CleanerTestUtil.captureReservedMemory(IOTools::clean);
+        assertTrue(snapshot.before <= snapshot.after, "reserved memory should not increase after cleaning direct buffer: before=" + snapshot.before + ", after=" + snapshot.after);
     }
 
     @Test
-    public void createDirectoriesWithBrokenLink() throws IOException, IllegalStateException {
-        Assume.assumeTrue(OS.isLinux());
+    void createDirectoriesWithBrokenLink() throws IOException, IllegalStateException {
+        Assumptions.assumeTrue(OS.isLinux());
 
         String path = OS.getTarget();
         Path link = Paths.get(path, "link2nowhere" + Time.uniqueId());
@@ -182,101 +182,110 @@ public class IOToolsTest extends CoreTestCommon {
         if (Files.isSymbolicLink(link)) {
             Files.delete(link);
             if (Files.isSymbolicLink(link)) {
-                throw new IllegalStateException("Still exists");
+                throw new IllegalStateException("symbolic link still exists after delete");
             }
         }
         Files.createSymbolicLink(link, nowhere);
 
         try {
             IOTools.createDirectories(Paths.get(link.toString(), "subdir" + Time.uniqueId()));
-            fail();
+            fail("createDirectories should throw IOException when using broken symbolic link");
         } catch (IOException ioe) {
-            assertSame(IOException.class, ioe.getClass());
-            assertTrue(ioe.getMessage().startsWith("Symbolic link from "));
-            assertTrue(ioe.getMessage().endsWith("nowhere is broken"));
+            assertSame(IOException.class, ioe.getClass(),
+                    "broken link should throw IOException not subclass: " + ioe.getClass());
+            String message = ioe.getMessage();
+            assertTrue(message.startsWith("Symbolic link from "),
+                    "error message " + message + " should start with Symbolic link from ");
+            assertTrue(message.endsWith("nowhere is broken"),
+                    "error message " + message + " should end with nowhere is broken");
         } finally {
             Files.delete(link);
         }
     }
 
     @Test
-    public void createDirectoriesReadOnly() throws IOException, IllegalStateException {
-        Assume.assumeTrue(OS.isLinux());
+    void createDirectoriesReadOnly() throws IOException, IllegalStateException {
+        Assumptions.assumeTrue(OS.isLinux());
 
         String path = OS.getTarget();
         Path ro = Paths.get(path, "read-only" + Time.uniqueId());
         IOTools.createDirectories(ro);
         if (!ro.toFile().setWritable(false))
             throw new IllegalStateException("Cannot make read-only");
-        assertFalse(ro.toFile().canWrite());
+        assertFalse(ro.toFile().canWrite(), "target directory should be read-only after chmod");
         try {
             IOTools.createDirectories(Paths.get(ro.toString(), "subdir" + Time.uniqueId()));
         } catch (IOException ioe) {
-            assertSame(IOException.class, ioe.getClass());
-            assertTrue(ioe.getMessage().startsWith("Cannot write to "));
+            assertSame(IOException.class, ioe.getClass(),
+                    "read-only directory should throw IOException not subclass: " + ioe.getClass());
+            String message = ioe.getMessage();
+            assertTrue(message.startsWith("Cannot write to "),
+                    "error message " + message + " should start with Cannot write to ");
         } finally {
-            if (!ro.toFile().setWritable(true))
-                throw new IllegalStateException("Cannot make read-write");
+            boolean resetWritable = ro.toFile().setWritable(true);
+            assertTrue(resetWritable, "directory should be reset to writable");
             Files.delete(ro);
 
         }
     }
 
     @Test
-    public void cannotTurnAfileIntoADirectory() throws IOException {
-        Assume.assumeTrue(OS.isLinux());
+    void cannotTurnAfileIntoADirectory() throws IOException {
+        Assumptions.assumeTrue(OS.isLinux());
 
         String path = OS.getTarget();
         Path file = Paths.get(path, "test-file" + Time.uniqueId());
-        file.toFile().delete();
-        file.toFile().deleteOnExit();
-        assertTrue(file.toFile().createNewFile());
+        File asFile = file.toFile();
+        if (asFile.exists() && !asFile.delete())
+            throw new IOException("Cannot delete pre-existing file " + asFile);
+        asFile.deleteOnExit();
+        assertTrue(asFile.createNewFile(), "test file should be created: " + asFile);
         try {
             IOTools.createDirectories(Paths.get(file.toString(), "subdir" + Time.uniqueId()));
         } catch (IOException ioe) {
-            assertSame(IOException.class, ioe.getClass());
-            assertTrue(ioe.getMessage().startsWith("Cannot create a directory with the same name as a file "));
+            assertSame(IOException.class, ioe.getClass(),
+                    "file path conflict should throw IOException not subclass: " + ioe.getClass());
+            String message = ioe.getMessage();
+            assertTrue(message.startsWith("Cannot create a directory with the same name as a file "),
+                    "error message " + message + " should start with Cannot create a directory with the same name as a file ");
         }
     }
 
     @Test
-    public void isDirectBuffer() {
-        assertTrue(IOTools.isDirectBuffer(ByteBuffer.allocateDirect(1)));
-        assertFalse(IOTools.isDirectBuffer(ByteBuffer.allocate(1)));
+    void isDirectBuffer() {
+        assertTrue(IOTools.isDirectBuffer(ByteBuffer.allocateDirect(1)), "allocateDirect should be recognised as direct buffer");
+        assertFalse(IOTools.isDirectBuffer(ByteBuffer.allocate(1)), "allocate should be recognised as heap buffer");
     }
 
     @Test
-    public void addressFor() {
-        assertNotEquals(0L, IOTools.addressFor(ByteBuffer.allocateDirect(1)));
+    void addressFor() {
+        assertNotEquals(0L, IOTools.addressFor(ByteBuffer.allocateDirect(1)),
+                "addressFor should return non zero for direct buffer");
     }
 
     @Test
-    public void addressFor2() {
+    void addressFor2() {
         final ByteBuffer bb = ByteBuffer.allocate(1);
-        try {
-            IOTools.addressFor(bb);
-            fail();
-        } catch (ClassCastException cce) {
-            // expected
-        }
+        assertThrows(ClassCastException.class, () -> IOTools.addressFor(bb),
+                "addressFor should reject heap buffer");
     }
 
     @Test
-    public void normaliseIOStatus() {
+    void normaliseIOStatus() {
         final int actual = IOTools.IOSTATUS_INTERRUPTED;
-        assertEquals(-3, actual);
+        assertEquals(-3, actual, "IOSTATUS_INTERRUPTED should be -3");
 
-        assertEquals(-3, IOTools.normaliseIOStatus(-3));
+        assertEquals(-3, IOTools.normaliseIOStatus(-3), "normalized IO status should match original interrupted status value");
     }
 
     @Test
-    public void connectionClosed() throws IOException {
+    void connectionClosed() throws IOException {
         ServerSocket ss;
         try {
             ss = new ServerSocket(0);
         } catch (IOException ioe) {
             // Some CI environments disallow socket operations; skip in that case.
-            Assume.assumeTrue("Network not permitted in this environment", false);
+            Assumptions.assumeTrue(false, "Network not permitted in this environment");
             return;
         }
         Socket s = new Socket("localhost", ss.getLocalPort());
@@ -287,66 +296,63 @@ public class IOToolsTest extends CoreTestCommon {
         final byte[] bytes = new byte[512];
         try {
             for (int i = 0; i < 100; i++) {
-//                System.out.println(i);
                 os.write(bytes);
             }
-            fail();
+            fail("writing to closed connection should throw IOException");
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         } finally {
             os.close();
         }
-        try {
-            s2.getOutputStream().write(bytes);
-            fail();
+        try (OutputStream outputStream = s2.getOutputStream()) {
+            outputStream.write(bytes);
+            fail("writing to closed socket output stream should throw IOException");
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         }
     }
 
     @Test
-    public void connectionClosed2() throws IOException {
+    void connectionClosed2() throws IOException {
         ServerSocket ss;
         try {
             ss = new ServerSocket(0);
         } catch (IOException ioe) {
-            Assume.assumeTrue("Network not permitted in this environment", false);
+            Assumptions.assumeTrue(false, "Network not permitted in this environment");
             return;
         }
         SocketChannel sc = SocketChannel.open(new InetSocketAddress("localhost", ss.getLocalPort()));
         Socket s2 = ss.accept();
         s2.close();
         ByteBuffer bytes = ByteBuffer.allocateDirect(1024);
-        try {
-            OutputStream os = s2.getOutputStream();
-            os.close();
+        try (OutputStream os = s2.getOutputStream()) {
+            Closeable.closeQuietly(os);
             os.write(1);
-            fail();
+            fail("writing to closed output stream should throw IOException");
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         }
         ss.close();
         try {
             for (int i = 0; i < 100; i++) {
-//                System.out.println(i);
                 bytes.clear();
                 sc.write(bytes);
             }
-            fail();
+            fail("writing to socket channel after server socket closed should throw IOException");
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         } finally {
             sc.close();
         }
     }
 
     @Test
-    public void connectionClosed3() throws IOException {
+    void connectionClosed3() throws IOException {
         ServerSocket ss;
         try {
             ss = new ServerSocket(0);
         } catch (IOException ioe) {
-            Assume.assumeTrue("Network not permitted in this environment", false);
+            Assumptions.assumeTrue(false, "Network not permitted in this environment");
             return;
         }
         SocketChannel sc = SocketChannel.open(new InetSocketAddress("localhost", ss.getLocalPort()));
@@ -360,18 +366,17 @@ public class IOToolsTest extends CoreTestCommon {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        },  "close~thread");
+        }, "close~thread");
         t.start();
         try {
             for (int i = 0; i < 10000; i++) {
-//                System.out.println(i);
                 bytes.clear();
                 final int write = sc.write(bytes);
-                assertTrue(write > 0);
+                assertTrue(write > 0, "connectionClosed3 write returned " + write + " but expected > 0 at iteration " + i);
             }
-            fail();
+            fail("writing to socket channel closed by background thread should throw IOException");
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         } finally {
             s2.close();
             sc.close();
@@ -379,12 +384,12 @@ public class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    public void connectionClosed4() throws IOException {
+    void connectionClosed4() throws IOException {
         ServerSocket ss;
         try {
             ss = new ServerSocket(0);
         } catch (IOException ioe) {
-            Assume.assumeTrue("Network not permitted in this environment", false);
+            Assumptions.assumeTrue(false, "Network not permitted in this environment");
             return;
         }
         SocketChannel sc = SocketChannel.open(new InetSocketAddress("localhost", ss.getLocalPort()));
@@ -406,14 +411,13 @@ public class IOToolsTest extends CoreTestCommon {
         t.start();
         try {
             for (int i = 0; i < 10000; i++) {
-//                System.out.println(i);
                 bytes.clear();
                 final int write = sc.write(bytes);
-                assertTrue(write > 0);
+                assertTrue(write > 0, "connectionClosed4 write returned " + write + " but expected > 0 at iteration " + i);
             }
-            fail();
+            fail("writing to interrupted and closed socket channel should throw IOException");
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         } finally {
             s2.close();
             sc.close();

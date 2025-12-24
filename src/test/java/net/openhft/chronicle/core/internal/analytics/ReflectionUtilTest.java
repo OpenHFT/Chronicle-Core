@@ -10,13 +10,14 @@ import java.lang.reflect.Proxy;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("deprecation")
 class ReflectionUtilTest {
 
     @Test
     void analyticsPresentShouldReturnTrueOrFalse() {
         // This test depends on the presence or absence of the analytics class in the classpath
         boolean result = ReflectionUtil.analyticsPresent();
-        assertTrue(result || !result, "analyticsPresent should return true or false");
+        assertTrue(result || !result, "analyticsPresent should return a boolean value");
     }
 
     @Test
@@ -38,8 +39,8 @@ class ReflectionUtilTest {
         TestInterface delegate = () -> "test";
         TestInterface proxy = ReflectionUtil.reflectiveProxy(TestInterface.class, delegate);
 
-        assertTrue(Proxy.isProxyClass(proxy.getClass()), "reflectiveProxy should create a proxy class");
-        assertEquals("test", proxy.testMethod(), "reflectiveProxy should correctly delegate method calls");
+        assertTrue(Proxy.isProxyClass(proxy.getClass()), "reflectiveProxy should return Proxy subclass");
+        assertEquals("test", proxy.proxyMethod(), "reflectiveProxy should correctly delegate method calls");
     }
 
     @Test
@@ -47,11 +48,11 @@ class ReflectionUtilTest {
         TestInterface delegate = () -> "test";
         TestInterface proxy = ReflectionUtil.reflectiveProxy(TestInterface.class, delegate, true);
 
-        assertTrue(Proxy.isProxyClass(proxy.getClass()), "reflectiveProxy should create a proxy class");
-        assertSame(proxy, proxy.testMethod(), "reflectiveProxy should return the proxy itself for chaining");
+        assertTrue(Proxy.isProxyClass(proxy.getClass()), "reflectiveProxy with returnProxy should return Proxy subclass");
+        assertSame(proxy, proxy.proxyMethod(), "reflectiveProxy should return the proxy itself for chaining");
     }
 
     private interface TestInterface {
-        Object testMethod();
+        Object proxyMethod();
     }
 }

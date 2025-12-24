@@ -13,8 +13,8 @@ class ClassNotFoundRuntimeExceptionTest {
         ClassNotFoundException cause = new ClassNotFoundException("Test class not found");
         ClassNotFoundRuntimeException exception = new ClassNotFoundRuntimeException(cause);
 
-        assertNotNull(exception);
-        assertEquals(cause, exception.getCause());
+        assertNotNull(exception, "wrapper object should be non-null");
+        assertEquals(cause, exception.getCause(), "exception should preserve the original ClassNotFoundException as its cause");
     }
 
     @Test
@@ -24,7 +24,8 @@ class ClassNotFoundRuntimeExceptionTest {
 
         Throwable throwableCause = exception.getCause();
 
-        assertTrue(throwableCause instanceof ClassNotFoundException);
-        assertEquals(cause, throwableCause);
+        assertInstanceOf(ClassNotFoundException.class, throwableCause,
+                "cause should be ClassNotFoundException");
+        assertEquals(cause, throwableCause, "getCause should return the original ClassNotFoundException");
     }
 }

@@ -7,7 +7,7 @@ import net.openhft.chronicle.core.Jvm;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BackgroundResourceReleaserMain {
     private final AtomicLong closed = new AtomicLong();
@@ -25,6 +25,8 @@ public class BackgroundResourceReleaserMain {
                 case "foreground":
                     new BackgroundResourceReleaserMain().runResourcesCleanedUpInForeground();
                     break;
+                default:
+                    throw new IllegalArgumentException("Unknown mode: " + args[0]);
             }
         } catch (Throwable th) {
             th.printStackTrace();
@@ -33,71 +35,47 @@ public class BackgroundResourceReleaserMain {
     }
 
     private void runResourcesCleanedUpManually() throws IllegalAccessException {
-        assertNull(getReleaserThread());
+        assertNull(getReleaserThread(), "releaser thread should not exist in manual cleanup mode");
         int count = 20;
-        for (int i = 0; i < count - 1; i++) {
-            new BGCloseable().close();
-            new BGReferenceCounted().releaseLast();
-        }
-        int expectedCount = BackgroundResourceReleaser.BG_RELEASER ? 2 : count;
-        assertEquals(expectedCount, closed.get(), 2);
-        assertEquals(expectedCount, released.get(), 2);
-        BGCloseable bgc = new BGCloseable();
-        bgc.close();
-        assertTrue(bgc.isClosing());
-        assertEquals(!BackgroundResourceReleaser.BG_RELEASER, bgc.isClosed());
+        BackgroundResourceReleaserSupport.createResources(0, count - 1, closed, released);
+        BackgroundResourceReleaserSupport.verifyExpectedCounts(count, closed, released);
+        BackgroundResourceReleaserSupport.exerciseCloseableAndReferenceCounted(closed, released, !BackgroundResourceReleaser.BG_RELEASER);
 
-        BGReferenceCounted bgr = new BGReferenceCounted();
-        bgr.releaseLast();
-        assertEquals(0, bgr.refCount());
-
-        WaitingCloseable wc = new WaitingCloseable();
+        BackgroundResourceReleaserSupport.WaitingCloseable wc = BackgroundResourceReleaserSupport.createWaitingCloseable();
         new Thread(wc::close).start();
         wc.close();
         if (BackgroundResourceReleaser.BG_RELEASER) {
-            assertNotEquals(count, closed.get());
-            assertNotEquals(count, released.get());
+            assertNotEquals(count, closed.get(), "closed count should differ under background releaser");
+            assertNotEquals(count, released.get(), "released count should differ under background releaser");
         } else {
-            assertEquals(count, closed.get());
-            assertEquals(count, released.get());
+            assertEquals(count, closed.get(), "all resources should be closed without background releaser");
+            assertEquals(count, released.get(), "all resources should be released without background releaser");
         }
 
         BackgroundResourceReleaser.releasePendingResources();
-        assertEquals(count, closed.get());
-        assertEquals(count, released.get());
-        AbstractCloseable.assertCloseablesClosed();
+        assertEquals(count, closed.get(), "all resources should be closed after manual release");
+        assertEquals(count, released.get(), "all resources should be released after manual release");
+        assertDoesNotThrow(AbstractCloseable::assertCloseablesClosed, "closeables should be closed after stop");
         BackgroundResourceReleaser.releasePendingResources();
     }
 
     private void runResourcesCleanedUpAndStopped() throws IllegalAccessException {
         Thread releaserThread = getReleaserThread();
         if (BackgroundResourceReleaser.BG_RELEASER)
-            assertNotNull(releaserThread);
+            assertNotNull(releaserThread, "thread reference should exist");
         int count = 20;
-        for (int i = 1; i < count; i++) {
-            new BGCloseable().close();
-            new BGReferenceCounted().releaseLast();
-        }
-        int expectedCount = BackgroundResourceReleaser.BG_RELEASER ? 2 : count;
-        assertEquals(expectedCount, closed.get(), 2);
-        assertEquals(expectedCount, released.get(), 2);
-        BGCloseable bgc = new BGCloseable();
-        bgc.close();
-        assertTrue(bgc.isClosing());
-        assertEquals(!BackgroundResourceReleaser.BG_RELEASER, bgc.isClosed());
+        BackgroundResourceReleaserSupport.createResources(1, count, closed, released);
+        BackgroundResourceReleaserSupport.verifyExpectedCounts(count, closed, released);
+        BackgroundResourceReleaserSupport.exerciseCloseableAndReferenceCounted(closed, released, !BackgroundResourceReleaser.BG_RELEASER);
 
-        BGReferenceCounted bgr = new BGReferenceCounted();
-        bgr.releaseLast();
-        assertEquals(0, bgr.refCount());
-
-        WaitingCloseable wc = new WaitingCloseable();
+        BackgroundResourceReleaserSupport.WaitingCloseable wc = BackgroundResourceReleaserSupport.createWaitingCloseable();
         new Thread(wc::close).start();
         wc.close();
 
         BackgroundResourceReleaser.stop();
-        assertEquals(count, closed.get());
-        assertEquals(count, released.get());
-        AbstractCloseable.assertCloseablesClosed();
+        assertEquals(count, closed.get(), "all resources should be closed after stopping background releaser");
+        assertEquals(count, released.get(), "all resources should be released after stopping background releaser");
+        assertDoesNotThrow(AbstractCloseable::assertCloseablesClosed, "closeables should remain closed after no-op release");
         BackgroundResourceReleaser.stop();
 
         if (getReleaserThread() == null) {
@@ -114,75 +92,27 @@ public class BackgroundResourceReleaserMain {
     }
 
     private void runResourcesCleanedUpInForeground() throws IllegalAccessException {
-        assertNull(getReleaserThread());
+        assertNull(getReleaserThread(), "releaser thread should not exist in foreground cleanup mode");
         int count = 20;
-        for (int i = 0; i < count - 1; i++) {
-            new BGCloseable().close();
-            new BGReferenceCounted().releaseLast();
-        }
-        assertEquals(count - 1, closed.get());
-        assertEquals(count - 1, released.get());
-        BGCloseable bgc = new BGCloseable();
-        bgc.close();
-        assertTrue(bgc.isClosing());
-        assertTrue(bgc.isClosed());
+        BackgroundResourceReleaserSupport.createResources(0, count - 1, closed, released);
+        assertEquals(count - 1, closed.get(), "resources should be closed in foreground before waiting closeable");
+        assertEquals(count - 1, released.get(), "resources should be released in foreground before waiting closeable");
+        BackgroundResourceReleaserSupport.exerciseCloseableAndReferenceCounted(closed, released, true);
 
-        BGReferenceCounted bgr = new BGReferenceCounted();
-        bgr.releaseLast();
-        assertEquals(0, bgr.refCount());
-
-        WaitingCloseable wc = new WaitingCloseable();
+        BackgroundResourceReleaserSupport.WaitingCloseable wc = BackgroundResourceReleaserSupport.createWaitingCloseable();
         new Thread(wc::close).start();
         wc.close();
-        assertEquals(count, closed.get());
-        assertEquals(count, released.get());
+        assertEquals(count, closed.get(), "all resources should be closed after waiting closeable completes");
+        assertEquals(count, released.get(), "all resources should be released after waiting closeable completes");
 
         // Does nothing
         BackgroundResourceReleaser.releasePendingResources();
-        assertEquals(count, closed.get());
-        assertEquals(count, released.get());
-        AbstractCloseable.assertCloseablesClosed();
+        assertEquals(count, closed.get(), "resource count should remain unchanged after no-op release");
+        assertEquals(count, released.get(), "released count should remain unchanged after no-op release");
+        assertDoesNotThrow(AbstractCloseable::assertCloseablesClosed, "closeables should be closed");
     }
 
     private Thread getReleaserThread() throws IllegalAccessException {
         return (Thread) Jvm.getField(BackgroundResourceReleaser.class, "RELEASER").get(null);
-    }
-
-    static class WaitingCloseable extends AbstractCloseable {
-        @Override
-        protected boolean shouldWaitForClosed() {
-            return true;
-        }
-
-        @Override
-        protected void performClose() {
-            Jvm.pause(10);
-        }
-    }
-
-    class BGCloseable extends AbstractCloseable {
-        @Override
-        protected boolean shouldPerformCloseInBackground() {
-            return true;
-        }
-
-        @Override
-        protected void performClose() {
-            closed.incrementAndGet();
-            Jvm.pause(10);
-        }
-    }
-
-    class BGReferenceCounted extends AbstractReferenceCounted {
-        @Override
-        protected boolean canReleaseInBackground() {
-            return true;
-        }
-
-        @Override
-        protected void performRelease() {
-            released.incrementAndGet();
-            Jvm.pause(10);
-        }
     }
 }

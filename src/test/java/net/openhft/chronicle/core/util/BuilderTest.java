@@ -12,7 +12,7 @@ class BuilderTest {
     void buildShouldReturnNonNullInstance() {
         Builder<MyClass> builder = new MyClassBuilder(); // MyClassBuilder is a hypothetical implementation
         MyClass instance = builder.build();
-        assertNotNull(instance);
+        assertNotNull(instance, "builder build should return non-null MyClass instance");
     }
 
     @Test
@@ -20,14 +20,15 @@ class BuilderTest {
         Builder<MyClass> builder = new MyClassBuilder(); // Assuming MyClass is mutable
         MyClass firstInstance = builder.build();
         MyClass secondInstance = builder.build();
-        assertNotSame(firstInstance, secondInstance);
+        assertNotSame(firstInstance, secondInstance, "builder should return distinct instances for mutable MyClass");
     }
 
     @Test
     void buildShouldThrowExceptionIfInvokedMultipleTimesWhenNotAllowed() {
         Builder<MyClass> oneTimeUseBuilder = new OneTimeUseMyClassBuilder(); // Hypothetical one-time use builder
         oneTimeUseBuilder.build();
-        assertThrows(IllegalStateException.class, oneTimeUseBuilder::build);
+        assertThrows(IllegalStateException.class, oneTimeUseBuilder::build,
+                "build should throw on reuse");
     }
 
     @Test
@@ -36,8 +37,8 @@ class BuilderTest {
         MyClass instanceFromGet = builder.get();
         MyClass instanceFromBuild = builder.build();
         // For a mutable type, both calls should yield non-null instances.
-        assertNotNull(instanceFromGet);
-        assertNotNull(instanceFromBuild);
+        assertNotNull(instanceFromGet, "get() should return a non-null instance via delegation to build()");
+        assertNotNull(instanceFromBuild, "build() should return a non-null instance after get() was called");
     }
 }
 

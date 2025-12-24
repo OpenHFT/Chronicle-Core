@@ -6,21 +6,33 @@ package net.openhft.chronicle.core.io;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
-import static org.junit.jupiter.api.Assertions.*;
-
-import java.io.*;
+import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.concurrent.*;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests for the Wget class, which provides a simple way to fetch content from URLs.
  */
+@SuppressWarnings("deprecation")
 class WgetTest {
+
+    private static java.nio.charset.Charset nullDetector(InputStream in, String contentType) {
+        return null;
+    }
+
+    private static java.nio.charset.Charset throwingDetector(InputStream in, String contentType) {
+        throw new RuntimeException("charset detector threw exception");
+    }
 
     @Test
     void fetch_appends_response_body() throws IOException {
@@ -30,7 +42,7 @@ class WgetTest {
                 .build();
         StringBuilder sb = new StringBuilder();
         wget.fetch("http://does.not.matter", sb);
-        assertEquals(expected, sb.toString());
+        assertEquals(expected, sb.toString(), "Response body should be appended to StringBuilder");
     }
 
     @Test
@@ -38,7 +50,8 @@ class WgetTest {
         Wget wget = new Wget.Builder()
                 .connectionProvider(u -> new ByteArrayInputStream(new byte[0]))
                 .build();
-        assertThrows(IOException.class, () -> wget.fetch("ftp://example.com", new StringBuilder()));
+        assertThrows(IOException.class, () -> wget.fetch("ftp://example.com", new StringBuilder()),
+                "fetch should reject unsupported scheme");
     }
 
     @Test
@@ -46,7 +59,8 @@ class WgetTest {
         Wget wget = new Wget.Builder()
                 .connectionProvider(u -> new ByteArrayInputStream(new byte[0]))
                 .build();
-        assertThrows(NullPointerException.class, () -> wget.fetch("http://x", null));
+        assertThrows(NullPointerException.class, () -> wget.fetch("http://x", null),
+                "fetch should reject null appendable");
     }
 
     @Test
@@ -58,7 +72,7 @@ class WgetTest {
                 .build();
         StringBuilder sb = new StringBuilder();
         wget.fetch("http://x", sb);
-        assertEquals("12345", sb.toString());
+        assertEquals("12345", sb.toString(), "Response body exactly matching maxResponseBytes limit should be allowed");
     }
 
     @Test
@@ -73,18 +87,20 @@ class WgetTest {
                     .connectionProvider(u -> neverEnding)
                     .maxResponseBytes(128)
                     .build();
-            assertThrows(IOException.class, () -> wget.fetch("http://x", new StringBuilder()));
+            assertThrows(IOException.class, () -> wget.fetch("http://x", new StringBuilder()),
+                    "fetch should enforce max response bytes");
         }
     }
 
     @Test
-    void IOException_from_connection_provider_bubbles_up() {
+    void ioExceptionFromConnectionProviderBubblesUp() {
         Wget wget = new Wget.Builder()
                 .connectionProvider(u -> {
-                    throw new IOException("boom");
+                    throw new IOException("connection provider threw exception");
                 })
                 .build();
-        assertThrows(IOException.class, () -> wget.fetch("http://x", new StringBuilder()));
+        assertThrows(IOException.class, () -> wget.fetch("http://x", new StringBuilder()),
+                "fetch should propagate connection provider exception");
     }
 
     @Test
@@ -96,7 +112,7 @@ class WgetTest {
                 .build();
         StringBuilder sb = new StringBuilder();
         wget.fetch("http://x", sb);
-        assertEquals("Café", sb.toString());
+        assertEquals("Café", sb.toString(), "Null charset detector result should fall back to UTF-8 for decoding");
     }
 
     @Test
@@ -104,7 +120,7 @@ class WgetTest {
         Appendable broken = new Appendable() {
             @Override
             public Appendable append(char c) throws IOException {
-                throw new IOException("disk full");
+                throw new IOException("disk is full now");
             }
 
             @Override
@@ -118,22 +134,24 @@ class WgetTest {
             }
         };
         Wget wget = new Wget.Builder()
-                .connectionProvider(u -> new ByteArrayInputStream("x".getBytes()))
+                .connectionProvider(u -> new ByteArrayInputStream("x".getBytes(StandardCharsets.UTF_8)))
                 .build();
-        assertThrows(IOException.class, () -> wget.fetch("http://x", broken));
+        assertThrows(IOException.class, () -> wget.fetch("http://x", broken),
+                "fetch should propagate appendable failure");
     }
 
     @Test
     void static_url_method_rejects_oversized_url() {
         StringBuilder sbUrl = new StringBuilder("http://a");
         while (sbUrl.length() <= 2100) sbUrl.append('b');
-        assertThrows(IllegalArgumentException.class, () -> Wget.url(sbUrl.toString(), new StringBuilder()));
+        assertThrows(IllegalArgumentException.class, () -> Wget.url(sbUrl.toString(), new StringBuilder()),
+                "url should reject oversized input");
     }
 
     @Test
     void fetch_is_thread_safe_when_instance_is_shared() throws Exception {
         Wget wget = new Wget.Builder()
-                .connectionProvider(u -> new ByteArrayInputStream("ok".getBytes()))
+                .connectionProvider(u -> new ByteArrayInputStream("ok".getBytes(StandardCharsets.UTF_8)))
                 .build();
         ExecutorService pool = Executors.newFixedThreadPool(4);
         AtomicInteger successes = new AtomicInteger();
@@ -143,20 +161,26 @@ class WgetTest {
             if ("ok".contentEquals(sb)) successes.incrementAndGet();
             return null;
         };
-        for (int i = 0; i < 20; i++) pool.submit(task);
+        java.util.List<java.util.concurrent.Future<Void>> futures = new java.util.ArrayList<>();
+        for (int i = 0; i < 20; i++) {
+            futures.add(pool.submit(task));
+        }
         pool.shutdown();
-        assertTrue(pool.awaitTermination(2, TimeUnit.SECONDS));
-        assertEquals(20, successes.get());
+        assertTrue(pool.awaitTermination(2, TimeUnit.SECONDS), "Thread pool should terminate within 2 seconds when tasks complete");
+        for (java.util.concurrent.Future<Void> future : futures) {
+            future.get();
+        }
+        assertEquals(20, successes.get(), "All 20 concurrent fetch operations should complete successfully when sharing a single Wget instance");
     }
 
     @Test
     void limited_stream_behaves_like_eof_after_budget() throws IOException {
-        byte[] data = "abc".getBytes();
+        byte[] data = "abc".getBytes(StandardCharsets.UTF_8);
         LimitedInputStream lim = new LimitedInputStream(new ByteArrayInputStream(data), 3);
         ByteArrayOutputStream copy = new ByteArrayOutputStream();
         for (int b; (b = lim.read()) != -1; ) copy.write(b);
-        assertArrayEquals(data, copy.toByteArray());
-        assertEquals(-1, lim.read());
+        assertArrayEquals(data, copy.toByteArray(), "limited stream reads full budget");
+        assertEquals(-1, lim.read(), "budget end yields eof");
     }
 
     @Test
@@ -167,18 +191,20 @@ class WgetTest {
                 .build();
         StringBuilder sb = new StringBuilder();
         empty.fetch("http://x", sb);
-        assertEquals("", sb.toString());
+        assertEquals("", sb.toString(), "Zero byte budget should allow empty response bodies without throwing");
 
         Wget tooMuch = new Wget.Builder()
-                .connectionProvider(u -> new ByteArrayInputStream("x".getBytes()))
+                .connectionProvider(u -> new ByteArrayInputStream("x".getBytes(StandardCharsets.UTF_8)))
                 .maxResponseBytes(0)
                 .build();
-        assertThrows(IOException.class, () -> tooMuch.fetch("http://x", new StringBuilder()));
+        assertThrows(IOException.class, () -> tooMuch.fetch("http://x", new StringBuilder()),
+                "fetch should reject body over zero budget");
     }
 
     @Test
     void negative_budget_rejected() {
-        assertThrows(IllegalArgumentException.class, () -> new Wget.Builder().maxResponseBytes(-1).build());
+        assertThrows(IllegalArgumentException.class, () -> new Wget.Builder().maxResponseBytes(-1).build(),
+                "maxResponseBytes should reject negative value");
     }
 
     @Test
@@ -187,26 +213,20 @@ class WgetTest {
         LimitedInputStream lim = new LimitedInputStream(new ByteArrayInputStream(data), 4);
         byte[] buf = new byte[10];
         int n = lim.read(buf);
-        assertEquals(4, n);
-        assertEquals("abcd", new String(buf, 0, n, StandardCharsets.UTF_8));
-        assertThrows(IOException.class, () -> lim.read(buf));
+        assertEquals(4, n, "byte array read meets limit");
+        assertEquals("abcd", new String(buf, 0, n, StandardCharsets.UTF_8), "buffer keeps first four");
+        assertThrows(IOException.class, () -> lim.read(buf),
+                "limited stream should enforce byte limit");
     }
 
     @Test
     void charset_detector_exception_bubbles_up() {
         Wget wget = new Wget.Builder()
-                .connectionProvider(u -> new ByteArrayInputStream("x".getBytes()))
+                .connectionProvider(u -> new ByteArrayInputStream("x".getBytes(StandardCharsets.UTF_8)))
                 .charsetDetector(WgetTest::throwingDetector)
                 .build();
-        assertThrows(RuntimeException.class, () -> wget.fetch("http://x", new StringBuilder()));
-    }
-
-    private static java.nio.charset.Charset nullDetector(InputStream in, String contentType) {
-        return null;
-    }
-
-    private static java.nio.charset.Charset throwingDetector(InputStream in, String contentType) {
-        throw new RuntimeException("boom");
+        assertThrows(RuntimeException.class, () -> wget.fetch("http://x", new StringBuilder()),
+                "charset detector failure should propagate");
     }
 
     @Test
@@ -220,6 +240,7 @@ class WgetTest {
                 return new URLConnection(u) {
                     @Override
                     public void connect() {
+                        // No-op: placeholder method
                     }
 
                     @Override
@@ -246,7 +267,7 @@ class WgetTest {
         f.setAccessible(true);
         Wget.ConnectionProvider provider = (Wget.ConnectionProvider) f.get(wget);
         provider.open(synthetic).close();
-        assertEquals(ct, seenConnect.get());
-        assertEquals(rt, seenRead.get());
+        assertEquals(ct, seenConnect.get(), "Default connection provider should apply the configured connect timeout");
+        assertEquals(rt, seenRead.get(), "Default connection provider should apply the configured read timeout");
     }
 }

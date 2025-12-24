@@ -8,103 +8,122 @@ import net.openhft.chronicle.core.threads.ThreadDump;
 import net.openhft.chronicle.core.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.DoubleStream;
-import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * User: peter.lawrey
  * Date: 20/09/13
  * Time: 10:31
  */
-public class MathsTest extends CoreTestCommon {
-    private static final double err = 5.1e-9;
+@SuppressWarnings("deprecation")
+class MathsTest extends CoreTestCommon {
+    private static final double ERR = 5.1e-9;
     private static final int COUNT = Jvm.isArm() ? 500_000 : 3_000_000;
+    private static final Random TEST_RANDOM = new Random(1);
     private ThreadDump threadDump;
 
     @Test
-    public void round1scan() {
+    void round1scan() {
         final double factor = 1e1;
-        roundEither(factor, Maths::round1);
-        roundUp(factor, Maths::round1up);
-        roundEither(factor, d -> Maths.roundNup(d, 1));
-        roundUp(factor, d -> Maths.roundNup(d, 1));
+        int iterations = 0;
+        iterations += roundEither(factor, Maths::round1);
+        iterations += roundUp(factor, Maths::round1up);
+        iterations += roundEither(factor, d -> Maths.roundNup(d, 1));
+        iterations += roundUp(factor, d -> Maths.roundNup(d, 1));
+        assertEquals(2 * COUNT, iterations, "round1 scan should execute expected rounding iterations with 1 decimal place precision");
     }
 
     @Test
-    public void round2scan() {
+    void round2scan() {
         final double factor = 1e2;
-        roundEither(factor, Maths::round2);
-        roundUp(factor, Maths::round2up);
-        roundEither(factor, d -> Maths.roundNup(d, 2));
-        roundUp(factor, d -> Maths.roundNup(d, 2));
+        int iterations = 0;
+        iterations += roundEither(factor, Maths::round2);
+        iterations += roundUp(factor, Maths::round2up);
+        iterations += roundEither(factor, d -> Maths.roundNup(d, 2));
+        iterations += roundUp(factor, d -> Maths.roundNup(d, 2));
+        assertEquals(2 * COUNT, iterations, "round2 scan should execute expected rounding iterations with 2 decimal place precision");
     }
 
     @Test
-    public void round3scan() {
+    void round3scan() {
         final double factor = 1e3;
-        roundEither(factor, Maths::round3);
-        roundUp(factor, Maths::round3up);
-        roundEither(factor, d -> Maths.roundNup(d, 3));
-        roundUp(factor, d -> Maths.roundNup(d, 3));
+        int iterations = 0;
+        iterations += roundEither(factor, Maths::round3);
+        iterations += roundUp(factor, Maths::round3up);
+        iterations += roundEither(factor, d -> Maths.roundNup(d, 3));
+        iterations += roundUp(factor, d -> Maths.roundNup(d, 3));
+        assertEquals(2 * COUNT, iterations, "round3 scan should execute expected rounding iterations with 3 decimal place precision");
     }
 
     @Test
-    public void round4scan() {
+    void round4scan() {
         final double factor = 1e4;
-        roundEither(factor, Maths::round4);
-        roundUp(factor, Maths::round4up);
-        roundEither(factor, d -> Maths.roundNup(d, 4));
-        roundUp(factor, d -> Maths.roundNup(d, 4));
+        int iterations = 0;
+        iterations += roundEither(factor, Maths::round4);
+        iterations += roundUp(factor, Maths::round4up);
+        iterations += roundEither(factor, d -> Maths.roundNup(d, 4));
+        iterations += roundUp(factor, d -> Maths.roundNup(d, 4));
+        assertEquals(2 * COUNT, iterations, "round4 scan should execute expected rounding iterations with 4 decimal place precision");
     }
 
     @Test
-    public void round5scan() {
+    void round5scan() {
         final double factor = 1e5;
-        roundEither(factor, Maths::round5);
-        roundUp(factor, Maths::round5up);
-        roundEither(factor, d -> Maths.roundNup(d, 5));
-        roundUp(factor, d -> Maths.roundNup(d, 5));
+        int iterations = 0;
+        iterations += roundEither(factor, Maths::round5);
+        iterations += roundUp(factor, Maths::round5up);
+        iterations += roundEither(factor, d -> Maths.roundNup(d, 5));
+        iterations += roundUp(factor, d -> Maths.roundNup(d, 5));
+        assertEquals(2 * COUNT, iterations, "round5 scan should execute expected rounding iterations with 5 decimal place precision");
     }
 
     @Test
-    public void round6scan() {
+    void round6scan() {
         final double factor = 1e6;
-        roundEither(factor, Maths::round6);
-        roundUp(factor, Maths::round6up);
-        roundEither(factor, d -> Maths.roundNup(d, 6));
-        roundUp(factor, d -> Maths.roundNup(d, 6));
+        int iterations = 0;
+        iterations += roundEither(factor, Maths::round6);
+        iterations += roundUp(factor, Maths::round6up);
+        iterations += roundEither(factor, d -> Maths.roundNup(d, 6));
+        iterations += roundUp(factor, d -> Maths.roundNup(d, 6));
+        assertEquals(2 * COUNT, iterations, "round6 scan should execute expected rounding iterations with 6 decimal place precision");
     }
 
     @Test
-    public void round7scan() {
+    void round7scan() {
         final double factor = 1e7;
-        roundEither(factor, Maths::round7);
-        roundUp(factor, Maths::round7up);
-        roundEither(factor, d -> Maths.roundNup(d, 7));
-        roundUp(factor, d -> Maths.roundNup(d, 7));
+        int iterations = 0;
+        iterations += roundEither(factor, Maths::round7);
+        iterations += roundUp(factor, Maths::round7up);
+        iterations += roundEither(factor, d -> Maths.roundNup(d, 7));
+        iterations += roundUp(factor, d -> Maths.roundNup(d, 7));
+        assertEquals(2 * COUNT, iterations, "round7 scan should execute expected rounding iterations with 7 decimal place precision");
     }
 
     @Test
-    public void round8scan() {
+    void round8scan() {
         final double factor = 1e8;
-        roundEither(factor, Maths::round8);
-        roundUp(factor, Maths::round8up);
-        roundEither(factor, d -> Maths.roundNup(d, 8));
-        roundUp(factor, d -> Maths.roundNup(d, 8));
+        int iterations = 0;
+        iterations += roundEither(factor, Maths::round8);
+        iterations += roundUp(factor, Maths::round8up);
+        iterations += roundEither(factor, d -> Maths.roundNup(d, 8));
+        iterations += roundUp(factor, d -> Maths.roundNup(d, 8));
+        assertEquals(2 * COUNT, iterations, "round8 scan should execute expected rounding iterations with 8 decimal place precision");
     }
 
-    private void roundEither(double factor, Rounder rounder) {
+    private int roundEither(double factor, Rounder rounder) {
         final double factor2 = 2 * factor;
+        int iterations = 0;
         for (int i = 1; i < COUNT; i += 2) {
             double dm = i / factor2;
             final double ulp = Math.ulp(dm);
@@ -114,13 +133,16 @@ public class MathsTest extends CoreTestCommon {
             double e = (i + 1) / factor2;
             double e0 = (i - 1) / factor2;
             final String msg = "i: " + i;
-            assertEquals(msg, e, rounder.round(d), 0);
-            assertEquals(msg, e0, rounder.round(d0), 0);
+            assertEquals(e, rounder.round(d), 0, msg);
+            assertEquals(e0, rounder.round(d0), 0, msg);
+            iterations++;
         }
+        return iterations;
     }
 
-    private void roundUp(double factor, Rounder rounder) {
+    private int roundUp(double factor, Rounder rounder) {
         final double factor2 = 2 * factor;
+        int iterations = 0;
         for (int i = 1; i < COUNT; i += 2) {
             double d = i / factor2;
             double d0 = d - Math.ulp(d) * 2;
@@ -128,256 +150,266 @@ public class MathsTest extends CoreTestCommon {
             double e = (i + 1) / factor2;
             double e0 = (i - 1) / factor2;
             final String msg = "i: " + i;
-            assertEquals(msg, e, rounder.round(d), 0);
-            assertEquals(msg, e0, rounder.round(d0), 0);
+            assertEquals(e, rounder.round(d), 0, msg);
+            assertEquals(e0, rounder.round(d0), 0, msg);
+            iterations++;
+        }
+        return iterations;
+    }
+
+    @Test
+    void nanTest() {
+        Rounder[] rounders = {
+                Maths::round1,
+                Maths::round1up,
+                Maths::round2,
+                Maths::round2up,
+                Maths::round3,
+                Maths::round3up,
+                Maths::round4,
+                Maths::round4up,
+                Maths::round5,
+                Maths::round5up,
+                Maths::round6,
+                Maths::round6up,
+                Maths::round7,
+                Maths::round7up,
+                Maths::round8,
+                Maths::round8up
+        };
+        for (int i = 0; i < rounders.length; i++) {
+            Rounder rounder = rounders[i];
+            double actual = rounder.round(Double.NaN);
+            assertTrue(Double.isNaN(actual), "rounding function should preserve NaN values for rounder#" + i);
         }
     }
 
     @Test
-    public void nanTest() {
-        Stream.<Rounder>of(
-                        Maths::round1,
-                        Maths::round1up,
-                        Maths::round2,
-                        Maths::round2up,
-                        Maths::round3,
-                        Maths::round3up,
-                        Maths::round4,
-                        Maths::round4up,
-                        Maths::round5,
-                        Maths::round5up,
-                        Maths::round6,
-                        Maths::round6up,
-                        Maths::round7,
-                        Maths::round7up,
-                        Maths::round8,
-                        Maths::round8up
-                )
-                .mapToDouble(rounder -> rounder.round(Double.NaN))
-                .forEach(d -> assertTrue(Double.isNaN(d)));
-    }
-
-    @FunctionalInterface
-    public interface Rounder {
-        double round(double d);
+    void digits() {
+        assertEquals(1, Maths.digits(0), "single digit count for zero");
+        assertEquals(1, Maths.digits(1), "single digit count for one");
+        assertEquals(1, Maths.digits(9), "single digit count for maximum single digit");
+        assertEquals(2, Maths.digits(10), "two digit count for minimum two digit number");
+        assertEquals(2, Maths.digits(99), "two digit count for maximum two digit number");
+        assertEquals(3, Maths.digits(100), "three digit count for minimum three digit number");
     }
 
     @Test
-    public void digits() {
-        assertEquals(1, Maths.digits(0));
-        assertEquals(1, Maths.digits(1));
-        assertEquals(1, Maths.digits(9));
-        assertEquals(2, Maths.digits(10));
-        assertEquals(2, Maths.digits(99));
-        assertEquals(3, Maths.digits(100));
+    void roundN() {
+        assertEquals(1.5, Maths.roundN(1 + 0.25, 0.3f), 0.0, "rounding with 0.3 precision should round 1.25 up to 1.5");
+        assertEquals(1, Maths.roundN(1 + 0.4999999, 0), 0.0, "rounding to integer precision should round down below 0.5");
+        assertEquals(2.0, Maths.roundN(1 + 0.5, 0), 0.0, "rounding to integer precision should round up at exactly 0.5");
+        assertEquals(1, Maths.roundN(1 + 0.24999999, 0.3), 0.0, "rounding with 0.3 precision should round down below threshold");
+        assertEquals(1.25, Maths.roundN(1 + 0.24999999, 0.6), 0.0, "rounding with 0.6 precision should round to nearest 0.25");
+        assertEquals(1.5, Maths.roundN(1 + 0.375, 0.6), 0.0, "rounding with 0.6 precision should round 1.375 to 1.5");
+        assertEquals(1.5, Maths.roundN(1 + 0.624, 0.6), 0.0, "rounding with 0.6 precision should round 1.624 to 1.5");
+        assertEquals(1.0, Maths.roundN(1.09999999999, 0.7), 0.0, "rounding with 0.7 precision should round down just below 1.1");
+        assertEquals(1.2, Maths.roundN(1.10000000001, 0.7), 0.0, "rounding with 0.7 precision should round just above 1.1 to 1.2");
+        assertEquals(1.2, Maths.roundN(1.29999999999, 0.7), 0.0, "rounding with 0.7 precision should keep value at 1.2");
+        assertEquals(1.4, Maths.roundN(1.30000000001, 0.7), 0.0, "rounding with 0.7 precision should round just above 1.3 to 1.4");
+        assertEquals(1.1, Maths.roundN(1.1 + 0.4999999e-1, 1), 0.0, "rounding with 1 decimal place should round down below 0.05");
+        assertEquals(1.2, Maths.roundN(1.1 + 0.5e-1, 1), 0.0, "rounding with 1 decimal place should round up at exactly 0.05");
+
+        assertEquals(1.11115, Maths.roundN(1.1111 + 0.74999999e-4, 4.3), 0.0, "rounding with 4.3 precision should round down below 0.000075");
+        assertEquals(1.1112, Maths.roundN(1.1111 + 0.75e-4, 4.3), 0.0, "rounding with 4.3 precision should round up at exactly 0.000075");
     }
 
     @Test
-    public void roundN() {
-        assertEquals(1.5, Maths.roundN(1 + 0.25, 0.3f), 0.0);
-        assertEquals(1, Maths.roundN(1 + 0.4999999, 0), 0.0);
-        assertEquals(2.0, Maths.roundN(1 + 0.5, 0), 0.0);
-        assertEquals(1, Maths.roundN(1 + 0.24999999, 0.3), 0.0);
-        assertEquals(1.25, Maths.roundN(1 + 0.24999999, 0.6), 0.0);
-        assertEquals(1.5, Maths.roundN(1 + 0.375, 0.6), 0.0);
-        assertEquals(1.5, Maths.roundN(1 + 0.624, 0.6), 0.0);
-        assertEquals(1.0, Maths.roundN(1.09999999999, 0.7), 0.0);
-        assertEquals(1.2, Maths.roundN(1.10000000001, 0.7), 0.0);
-        assertEquals(1.2, Maths.roundN(1.29999999999, 0.7), 0.0);
-        assertEquals(1.4, Maths.roundN(1.30000000001, 0.7), 0.0);
-        assertEquals(1.1, Maths.roundN(1.1 + 0.4999999e-1, 1), 0.0);
-        assertEquals(1.2, Maths.roundN(1.1 + 0.5e-1, 1), 0.0);
-
-        assertEquals(1.11115, Maths.roundN(1.1111 + 0.74999999e-4, 4.3), 0.0);
-        assertEquals(1.1112, Maths.roundN(1.1111 + 0.75e-4, 4.3), 0.0);
+    void ceilN() {
+        assertEquals(2, Maths.ceilN(2, 0), 0.0, "ceiling of exact integer should return same value");
+        assertEquals(2, Maths.ceilN(1 + ERR, 0), 0.0, "ceiling should round up value just above 1 to 2");
+        assertEquals(1.5, Maths.ceilN(1.5, 0.3f), 0.0, "ceiling with 0.3 precision should keep exact value at 1.5");
+        assertEquals(2, Maths.ceilN(1.5 + ERR, 0.3f), 0.0, "ceiling with 0.3 precision should round up value just above 1.5");
+        assertEquals(1.2, Maths.ceilN(1.2, 1), 0.0, "ceiling with 1 decimal place should keep exact value at 1.2");
+        assertEquals(1.2, Maths.ceilN(1.1 + ERR, 1), 0.0, "ceiling with 1 decimal place should round up value just above 1.1");
     }
 
     @Test
-    public void ceilN() {
-        assertEquals(2, Maths.ceilN(2, 0), 0.0);
-        assertEquals(2, Maths.ceilN(1 + err, 0), 0.0);
-        assertEquals(1.5, Maths.ceilN(1.5, 0.3f), 0.0);
-        assertEquals(2, Maths.ceilN(1.5 + err, 0.3f), 0.0);
-        assertEquals(1.2, Maths.ceilN(1.2, 1), 0.0);
-        assertEquals(1.2, Maths.ceilN(1.1 + err, 1), 0.0);
+    void floorN() {
+        assertEquals(1, Maths.floorN(2 - ERR, 0), 0.0, "floor should round down value just below 2 to 1");
+        assertEquals(2.0, Maths.floorN(2, 0), 0.0, "floor of exact integer should return same value");
+        assertEquals(1, Maths.floorN(1.5 - ERR, 0.3f), 0.0, "floor with 0.3 precision should round down value just below 1.5");
+        assertEquals(1.5, Maths.floorN(1.5, 0.3f), 0.0, "floor with 0.3 precision should keep exact value at 1.5");
+        assertEquals(1.1, Maths.floorN(1.2 - ERR, 1), 0.0, "floor with 1 decimal place should round down value just below 1.2");
+        assertEquals(1.2, Maths.floorN(1.2, 1), 0.0, "floor with 1 decimal place should keep exact value at 1.2");
     }
 
     @Test
-    public void floorN() {
-        assertEquals(1, Maths.floorN(2 - err, 0), 0.0);
-        assertEquals(2.0, Maths.floorN(2, 0), 0.0);
-        assertEquals(1, Maths.floorN(1.5 - err, 0.3f), 0.0);
-        assertEquals(1.5, Maths.floorN(1.5, 0.3f), 0.0);
-        assertEquals(1.1, Maths.floorN(1.2 - err, 1), 0.0);
-        assertEquals(1.2, Maths.floorN(1.2, 1), 0.0);
+    void round1() {
+        assertEquals(1.1, Maths.round1(1.1 + 0.4999999e-1), 0.0, "rounding to 1 decimal place should round down below 0.05");
+        assertEquals(1.2, Maths.round1(1.1 + 0.5e-1), 0.0, "rounding to 1 decimal place should round up at exactly 0.05");
     }
 
     @Test
-    public void round1() {
-        assertEquals(1.1, Maths.round1(1.1 + 0.4999999e-1), 0.0);
-        assertEquals(1.2, Maths.round1(1.1 + 0.5e-1), 0.0);
+    void round2() {
+        assertEquals(1.1, Maths.round2(1.1 + 0.4999999e-2), 0.0, "rounding to 2 decimal places should round down below 0.005");
+        assertEquals(1.1 + 1e-2, Maths.round2(1.1 + 0.5e-2), 0.0, "rounding to 2 decimal places should round up at exactly 0.005");
     }
 
     @Test
-    public void round2() {
-        assertEquals(1.1, Maths.round2(1.1 + 0.4999999e-2), 0.0);
-        assertEquals(1.1 + 1e-2, Maths.round2(1.1 + 0.5e-2), 0.0);
+    void round3() {
+        assertEquals(1.1, Maths.round3(1.1 + 0.4999999e-3), 0.0, "rounding to 3 decimal places should round down below 0.0005");
+        assertEquals(1.1 + 1e-3, Maths.round3(1.1 + 0.5e-3), 0.0, "rounding to 3 decimal places should round up at exactly 0.0005");
     }
 
     @Test
-    public void round3() {
-        assertEquals(1.1, Maths.round3(1.1 + 0.4999999e-3), 0.0);
-        assertEquals(1.1 + 1e-3, Maths.round3(1.1 + 0.5e-3), 0.0);
+    void round4() {
+        assertEquals(1.1, Maths.round4(1.1 + 0.4999999e-4), 0.0, "rounding to 4 decimal places should round down below 0.00005");
+        assertEquals(1.1 + 1e-4, Maths.round4(1.1 + 0.5e-4), 0.0, "rounding to 4 decimal places should round up at exactly 0.00005");
     }
 
     @Test
-    public void round4() {
-        assertEquals(1.1, Maths.round4(1.1 + 0.4999999e-4), 0.0);
-        assertEquals(1.1 + 1e-4, Maths.round4(1.1 + 0.5e-4), 0.0);
+    void round5() {
+        assertEquals(1.1, Maths.round5(1.1 + 0.4999999e-5), 0.0, "rounding to 5 decimal places should round down below 0.000005");
+        assertEquals(1.10001, Maths.round5(1.1 + 0.5e-5), 0.0, "rounding to 5 decimal places should round up at exactly 0.000005");
     }
 
     @Test
-    public void round5() {
-        assertEquals(1.1, Maths.round5(1.1 + 0.4999999e-5), 0.0);
-        assertEquals(1.10001, Maths.round5(1.1 + 0.5e-5), 0.0);
+    void round6() {
+        assertEquals(1.1, Maths.round6(1.1 + 0.4999999e-6), 0.0, "rounding to 6 decimal places should round down below 0.0000005");
+        assertEquals(1.1 + 1e-6, Maths.round6(1.1 + 0.5e-6), 0.0, "rounding to 6 decimal places should round up at exactly 0.0000005");
     }
 
     @Test
-    public void round6() {
-        assertEquals(1.1, Maths.round6(1.1 + 0.4999999e-6), 0.0);
-        assertEquals(1.1 + 1e-6, Maths.round6(1.1 + 0.5e-6), 0.0);
+    void round7() {
+        assertEquals(1.1, Maths.round7(1.1 + 0.4999999e-7), 0.0, "rounding to 7 decimal places should round down below 0.00000005");
+        assertEquals(1.1000001, Maths.round7(1.1 + 0.5e-7), 0.0, "rounding to 7 decimal places should round up at exactly 0.00000005");
     }
 
     @Test
-    public void round7() {
-        assertEquals(1.1, Maths.round7(1.1 + 0.4999999e-7), 0.0);
-        assertEquals(1.1000001, Maths.round7(1.1 + 0.5e-7), 0.0);
+    void round8() {
+        assertEquals(1, Maths.round8(1), 0.0, "rounding exact integer to 8 decimal places should return same value");
+        assertEquals(1.1, Maths.round8(1.1 + 0.4999999e-8), 0.0, "rounding to 8 decimal places should round down below 0.000000005");
+        assertEquals(1.1 + 1e-8, Maths.round8(1.1 + 0.5e-8), 0.0, "rounding to 8 decimal places should round up at exactly 0.000000005");
+        assertEquals((double) Long.MAX_VALUE, Maths.round8(Long.MAX_VALUE), 0.0, "rounding Long.MAX_VALUE to 8 decimal places should preserve value");
+        assertEquals(Double.NaN, Maths.round8(Double.NaN), 0.0, "rounding NaN to 8 decimal places should return NaN");
     }
 
     @Test
-    public void round8() {
-        assertEquals(1, Maths.round8(1), 0.0);
-        assertEquals(1.1, Maths.round8(1.1 + 0.4999999e-8), 0.0);
-        assertEquals(1.1 + 1e-8, Maths.round8(1.1 + 0.5e-8), 0.0);
-        assertEquals((double) Long.MAX_VALUE, Maths.round8(Long.MAX_VALUE), 0.0);
-        assertEquals(Double.NaN, Maths.round8(Double.NaN), 0.0);
+    void floorNX() {
+        assertEquals(1.14563, Maths.floorN(1.14563, 5), 0, "floor with 5 decimal places should keep exact value when no fractional remainder");
     }
 
-    @Test
-    public void floorNX() {
-        assertEquals(1.14563, Maths.floorN(1.14563, 5), 0);
-    }
-
-    @Before
+    @Override
+    @BeforeEach
     public void threadDump() {
         threadDump = new ThreadDump();
     }
 
-    @After
+    @Override
+    @AfterEach
     public void checkThreadDump() {
-        threadDump.assertNoNewThreads();
+        assertDoesNotThrow(() -> {
+            threadDump.assertNoNewThreads();
+        }, "thread dump should report no new threads after each test completes");
     }
 
     @Test
-    public void testIntLog2() throws IllegalArgumentException {
+    void testIntLog2() throws IllegalArgumentException {
         for (int i = 0; i < 63; i++) {
             long l = 1L << i;
-            assertEquals(i, Maths.intLog2(l));
+            assertEquals(i, Maths.intLog2(l), "intLog2 of power of 2 should return exponent for bit " + i);
             if (i > 0)
-                assertEquals(i - 1, Maths.intLog2(l - 1));
+                assertEquals(i - 1, Maths.intLog2(l - 1),
+                        "intLog2 should floor to previous power of 2 for non-power values at bit " + i);
         }
-        assertEquals(62, Maths.intLog2(Long.MAX_VALUE));
+        assertEquals(62, Maths.intLog2(Long.MAX_VALUE), "intLog2 of Long.MAX_VALUE should return 62");
 
-        try {
-            assertEquals(0, Maths.intLog2(0));
-            throw new AssertionError("expected IllegalArgumentException Math.intLong2(0)");
-        } catch (IllegalArgumentException expected) {
-            // expected
-        }
+        assertThrows(IllegalArgumentException.class, () -> Maths.intLog2(0),
+                "intLog2 should reject zero input");
         for (int i = 0; i < 64; i++) {
-            try {
-                long l = -1L << i;
-                Maths.intLog2(l);
-                throw new AssertionError("expected IllegalArgumentException Math.intLong2 " + l);
-            } catch (IllegalArgumentException expected) {
-                // expected
-            }
+            long l = -1L << i;
+            assertThrows(IllegalArgumentException.class, () -> Maths.intLog2(l),
+                    "intLog2 should reject negative input at bit " + i);
         }
     }
 
     @SuppressWarnings("deprecation")
     @Test
-    public void testRounding() {
-        @NotNull Random rand = new Random(1);
+    void testRounding() {
+        @NotNull Random rand = TEST_RANDOM;
         for (int i = 0; i < 1000; i++) {
             double d = Math.pow(1e18, rand.nextDouble()) / 1e6;
-            @NotNull BigDecimal bd = new BigDecimal(d);
-            assertEquals(bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), Maths.round2(d), 5e-2);
-            assertEquals(bd.setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue(), Maths.round4(d), 5e-4);
-            assertEquals(bd.setScale(6, BigDecimal.ROUND_HALF_UP).doubleValue(), Maths.round6(d), 5e-6);
+            @NotNull BigDecimal bd = BigDecimal.valueOf(d);
+            assertEquals(bd.setScale(2, RoundingMode.HALF_UP).doubleValue(), Maths.round2(d), 5e-2,
+                    "round2 should match BigDecimal HALF_UP rounding to 2 places at iteration " + i);
+            assertEquals(bd.setScale(4, RoundingMode.HALF_UP).doubleValue(), Maths.round4(d), 5e-4,
+                    "round4 should match BigDecimal HALF_UP rounding to 4 places at iteration " + i);
+            assertEquals(bd.setScale(6, RoundingMode.HALF_UP).doubleValue(), Maths.round6(d), 5e-6,
+                    "round6 should match BigDecimal HALF_UP rounding to 6 places at iteration " + i);
             if (d < 1e8)
-                assertEquals(bd.setScale(8, BigDecimal.ROUND_HALF_UP).doubleValue(), Maths.round8(d), 5e-8);
+                assertEquals(bd.setScale(8, RoundingMode.HALF_UP).doubleValue(), Maths.round8(d), 5e-8,
+                        "round8 should match BigDecimal HALF_UP rounding to 8 places for values below 1e8 at iteration " + i);
         }
     }
 
     @Test
-    @Ignore("Long running")
-    public void longRunningRound() {
+    @Disabled("Long running test case for round4 edge coverage")
+    void longRunningRound() {
         @NotNull double[] ds = new double[17];
         ds[0] = 1e-4;
         for (int i = 1; i < ds.length; i++)
             ds[i] = 2 * ds[i - 1];
 
-        DoubleStream.of(ds).parallel()
+        AtomicReference<Double> bad = new AtomicReference<>();
+        DoubleStream.of(ds)
+                .parallel()
                 .forEach(x -> {
-                    for (double d = x; d <= 2 * x && d < 10; d += Math.ulp(d))
-                        if (Double.toString(Maths.round4(d)).length() > 6)
-                            fail("d: " + d);
+                    for (double d = x; d <= 2 * x && d < 10; d += Math.ulp(d)) {
+                        if (Double.toString(Maths.round4(d)).length() > 6) {
+                            bad.compareAndSet(null, d);
+                            return;
+                        }
+                    }
                 });
+        assertNull(bad.get(), "round4 output string representation should not exceed 6 characters for any tested value");
     }
 
     @Test
-    public void testDivideRoundUp() {
-        assertEquals(2, Maths.divideRoundUp(10, 5));
-        assertEquals(3, Maths.divideRoundUp(11, 5));
+    void testDivideRoundUp() {
+        assertEquals(2, Maths.divideRoundUp(10, 5), "exact division should return quotient without rounding");
+        assertEquals(3, Maths.divideRoundUp(11, 5), "division with remainder should round up towards positive infinity");
 
-        assertEquals(-2, Maths.divideRoundUp(-10, 5));
-        assertEquals(-2, Maths.divideRoundUp(10, -5));
-        assertEquals(2, Maths.divideRoundUp(-10, -5));
+        assertEquals(-2, Maths.divideRoundUp(-10, 5), "exact negative division should return quotient without rounding");
+        assertEquals(-2, Maths.divideRoundUp(10, -5), "division by negative divisor should handle sign correctly");
+        assertEquals(2, Maths.divideRoundUp(-10, -5), "division of two negatives should produce positive result");
 
-        assertEquals(-3, Maths.divideRoundUp(-11, 5));
-        assertEquals(-3, Maths.divideRoundUp(11, -5));
-        assertEquals(3, Maths.divideRoundUp(-11, -5));
-    }
-
-    @Test(expected = ArithmeticException.class)
-    public void divideRoundUpZeroDivisorThrows() {
-        Maths.divideRoundUp(1, 0);
+        assertEquals(-3, Maths.divideRoundUp(-11, 5), "negative dividend with remainder should round up towards positive infinity");
+        assertEquals(-3, Maths.divideRoundUp(11, -5), "positive dividend with negative divisor should round up towards positive infinity");
+        assertEquals(3, Maths.divideRoundUp(-11, -5), "two negatives with remainder should round up towards positive infinity");
     }
 
     @Test
-    public void sameFloating() {
-        assertTrue(Maths.same(1.0, 1.0));
-        assertTrue(Maths.same(1.0f, 1.0f));
-        assertTrue(Maths.same(0.0, -0.0));
-        assertTrue(Maths.same(0.0f, -0.0f));
-        assertTrue(Maths.same(-0.0, 0.0));
-        assertTrue(Maths.same(-0.0f, 0.0f));
-        assertTrue(Maths.same(Double.NaN, Double.NaN));
-        assertTrue(Maths.same(Float.NaN, Float.NaN));
-
-        assertFalse(Maths.same(1.0, 2.0));
-        assertFalse(Maths.same(1.0f, 2.0f));
-        assertFalse(Maths.same(3.0, 2.0));
-        assertFalse(Maths.same(3.0f, 2.0f));
-        assertFalse(Maths.same(1, Double.NaN));
-        assertFalse(Maths.same(1, Float.NaN));
-        assertFalse(Maths.same(Double.NaN, 1));
-        assertFalse(Maths.same(Float.NaN, 1));
+    void divideRoundUpZeroDivisorThrows() {
+        assertThrows(ArithmeticException.class, () -> {
+            long result = Maths.divideRoundUp(1, 0);
+            assertEquals(0L, result, "divideRoundUp should throw before returning a result");
+        }, "divideRoundUp should reject zero divisor");
     }
 
     @Test
-    public void testHashStringBuilderFromInterner() {
+    void sameFloating() {
+        assertTrue(Maths.same(1.0, 1.0), "identical double values should be considered same");
+        assertTrue(Maths.same(1.0f, 1.0f), "identical float values should be considered same");
+        assertTrue(Maths.same(0.0, -0.0), "positive and negative zero doubles should be considered same");
+        assertTrue(Maths.same(0.0f, -0.0f), "positive and negative zero floats should be considered same");
+        assertTrue(Maths.same(-0.0, 0.0), "negative and positive zero doubles should be considered same");
+        assertTrue(Maths.same(-0.0f, 0.0f), "negative and positive zero floats should be considered same");
+        assertTrue(Maths.same(Double.NaN, Double.NaN), "NaN double values should be considered same to themselves");
+        assertTrue(Maths.same(Float.NaN, Float.NaN), "NaN float values should be considered same to themselves");
+
+        assertFalse(Maths.same(1.0, 2.0), "different double values should not be considered same");
+        assertFalse(Maths.same(1.0f, 2.0f), "different float values should not be considered same");
+        assertFalse(Maths.same(3.0, 2.0), "distinct double values should not be considered same");
+        assertFalse(Maths.same(3.0f, 2.0f), "distinct float values should not be considered same");
+        assertFalse(Maths.same(1, Double.NaN), "finite double should not be same as NaN");
+        assertFalse(Maths.same(1, Float.NaN), "finite float should not be same as NaN");
+        assertFalse(Maths.same(Double.NaN, 1), "NaN double should not be same as finite value");
+        assertFalse(Maths.same(Float.NaN, 1), "NaN float should not be same as finite value");
+    }
+
+    @Test
+    void testHashStringBuilderFromInterner() {
         @NotNull StringInterner interner = new StringInterner(16);
 
         @NotNull final CharSequence csToHash = "557";
@@ -388,56 +420,57 @@ public class MathsTest extends CoreTestCommon {
         @Nullable String intern = interner.intern(csToHash);
         StringUtils.set(sb, intern);
         final long actual = Maths.hash64(sb);
-        assertEquals(hash, actual);
+        assertEquals(hash, actual, "hash64 should be stable across interned strings with same content");
         // overflowing the interner?
         StringUtils.set(sb, "xxxx");
 
         @Nullable String intern2 = interner.intern(csToHash);
         StringUtils.set(sb, intern2);
         final long actual2 = Maths.hash64(sb);
-        assertEquals(hash, actual2);
+        assertEquals(hash, actual2, "hash64 should remain consistent after interner overflow");
     }
 
     @Test
-    public void testHash64ForString() {
+    void testHash64ForString() {
         // Empty
         String e1 = "";
         long eh1 = Maths.hash64(e1);
 
-        assertEquals(0, eh1);
+        assertEquals(0, eh1, "hash64 of empty string should be zero");
 
         // ASCII & Equality test
         String a1 = "Test";
         long ah1 = Maths.hash64(a1);
 
-        String a2 = new StringBuilder().append("T").append("e") + "st";
+        String a2 = "T" + "e" + "st";
         long ah2 = Maths.hash64(a2);
 
-        assertEquals(ah1, ah2);
+        assertEquals(ah1, ah2, "hash64 should produce same result for equivalent strings");
 
         // UTF8 & Equality test
-        String u1 = "€";
+        String u1 = "\u20AC";
         long uh1 = Maths.hash64(u1);
-        assertEquals(1177128352603971756L, uh1);
+        assertEquals(1177128352603971756L, uh1, "hash64 of Euro symbol should match known value");
 
-        String u2 = "€€".substring(0, 1);
+        String u2 = "\u20AC\u20AC".substring(0, 1);
         long uh2 = Maths.hash64(u2);
 
-        assertEquals(uh1, uh2);
+        assertEquals(uh1, uh2, "hash64 should be consistent for same Unicode character from different sources");
 
         // Mixed
-        StringBuilder mixedSb = new StringBuilder().append("€");
+        StringBuilder mixedSb = new StringBuilder().append('\u20AC');
         mixedSb.setLength(0);
-        mixedSb.append("X");
+        mixedSb.append('X');
 
-        assertEquals(Maths.hash64("X"), Maths.hash64(mixedSb.toString()));
+        assertEquals(Maths.hash64("X"), Maths.hash64(mixedSb.toString()), "hash64 should produce same result for string regardless of StringBuilder's prior content");
 
         // UT8 & Not-equal hashes
-        assertNotEquals(Maths.hash64("Δ"), Maths.hash64("Γ"));
+        assertNotEquals(Maths.hash64("\u0394"), Maths.hash64("\u0393"),
+                "hash64 should differ for distinct characters");
     }
 
     @Test
-    public void floorNceilN() {
+    void floorNceilN() {
         double d = 64.0915946999999;
         BigDecimal bd = BigDecimal.valueOf(d);
         for (int i = 0; i < 19; i++) {
@@ -445,226 +478,248 @@ public class MathsTest extends CoreTestCommon {
             double floor0 = bd.setScale(i, RoundingMode.FLOOR).doubleValue();
             double ceil = Maths.ceilN(d, i);
             double floor = Maths.floorN(d, i);
-            assertEquals("i: " + i, ceil0, ceil, 0);
-            assertEquals("i: " + i, floor0, floor, 0);
+            assertEquals(ceil0, ceil, 0, "ceilN should match BigDecimal CEILING rounding for " + i + " decimal places");
+            assertEquals(floor0, floor, 0, "floorN should match BigDecimal FLOOR rounding for " + i + " decimal places");
         }
     }
 
     @Test
-    public void testToInt8() {
-        assertEquals((byte) 127, Maths.toInt8(127));
-        assertEquals((byte) -128, Maths.toInt8(-128));
-        assertThrows(ArithmeticException.class, () -> Maths.toInt8(128));
-        assertThrows(ArithmeticException.class, () -> Maths.toInt8(-129));
+    void testToInt8() {
+        assertEquals((byte) 127, Maths.toInt8(127), "maximum byte value should convert to int8 without overflow");
+        assertEquals((byte) -128, Maths.toInt8(-128), "minimum byte value should convert to int8 without overflow");
+        assertThrows(ArithmeticException.class, () -> Maths.toInt8(128),
+                "toInt8 should reject overflow value");
+        assertThrows(ArithmeticException.class, () -> Maths.toInt8(-129),
+                "toInt8 should reject below minimum");
     }
 
     @Test
-    public void testToInt16() {
-        assertEquals((short) 32767, Maths.toInt16(32767));
-        assertEquals((short) -32768, Maths.toInt16(-32768));
-        assertThrows(ArithmeticException.class, () -> Maths.toInt16(32768));
-        assertThrows(ArithmeticException.class, () -> Maths.toInt16(-32769));
+    void testToInt16() {
+        assertEquals((short) 32767, Maths.toInt16(32767), "maximum short value should convert to int16 without overflow");
+        assertEquals((short) -32768, Maths.toInt16(-32768), "minimum short value should convert to int16 without overflow");
+        assertThrows(ArithmeticException.class, () -> Maths.toInt16(32768),
+                "toInt16 should reject overflow value");
+        assertThrows(ArithmeticException.class, () -> Maths.toInt16(-32769),
+                "toInt16 should reject below minimum");
     }
 
     @Test
-    public void testToInt32() {
-        assertEquals(2147483647, Maths.toInt32(2147483647L));
-        assertEquals(-2147483648, Maths.toInt32(-2147483648L));
-        assertThrows(ArithmeticException.class, () -> Maths.toInt32(2147483648L));
-        assertThrows(ArithmeticException.class, () -> Maths.toInt32(-2147483649L));
+    void testToInt32() {
+        assertEquals(2147483647, Maths.toInt32(2147483647L), "maximum int value should convert to int32 without overflow");
+        assertEquals(-2147483648, Maths.toInt32(-2147483648L), "minimum int value should convert to int32 without overflow");
+        assertThrows(ArithmeticException.class, () -> Maths.toInt32(2147483648L),
+                "toInt32 should reject overflow value");
+        assertThrows(ArithmeticException.class, () -> Maths.toInt32(-2147483649L),
+                "toInt32 should reject below minimum");
     }
 
     @Test
-    public void testToUInt8() {
-        assertEquals((short) 255, Maths.toUInt8(255));
-        assertThrows(ArithmeticException.class, () -> Maths.toUInt8(256));
-        assertThrows(ArithmeticException.class, () -> Maths.toUInt8(-1));
+    void testToUInt8() {
+        assertEquals((short) 255, Maths.toUInt8(255), "maximum unsigned byte value should convert to uint8 without overflow");
+        assertThrows(ArithmeticException.class, () -> Maths.toUInt8(256),
+                "toUInt8 should reject overflow value");
+        assertThrows(ArithmeticException.class, () -> Maths.toUInt8(-1),
+                "toUInt8 should reject negative value");
     }
 
     @Test
-    public void testToUInt16() {
-        assertEquals(65535, Maths.toUInt16(65535));
-        assertThrows(ArithmeticException.class, () -> Maths.toUInt16(65536));
-        assertThrows(ArithmeticException.class, () -> Maths.toUInt16(-1));
+    void testToUInt16() {
+        assertEquals(65535, Maths.toUInt16(65535), "maximum unsigned short value should convert to uint16 without overflow");
+        assertThrows(ArithmeticException.class, () -> Maths.toUInt16(65536),
+                "toUInt16 should reject overflow value");
+        assertThrows(ArithmeticException.class, () -> Maths.toUInt16(-1),
+                "toUInt16 should reject negative value");
     }
 
     @Test
-    public void testToUInt31() {
-        assertEquals(2147483647, Maths.toUInt31(2147483647L));
-        assertThrows(ArithmeticException.class, () -> Maths.toUInt31(2147483648L));
-        assertThrows(ArithmeticException.class, () -> Maths.toUInt31(-1));
+    void testToUInt31() {
+        assertEquals(2147483647, Maths.toUInt31(2147483647L), "maximum 31-bit unsigned value should convert to uint31 without overflow");
+        assertThrows(ArithmeticException.class, () -> Maths.toUInt31(2147483648L),
+                "toUInt31 should reject overflow value");
+        assertThrows(ArithmeticException.class, () -> Maths.toUInt31(-1),
+                "toUInt31 should reject negative value");
     }
 
     @Test
-    public void testToUInt32() {
-        assertEquals(4294967295L, Maths.toUInt32(4294967295L));
-        assertThrows(ArithmeticException.class, () -> Maths.toUInt32(4294967296L));
-        assertThrows(ArithmeticException.class, () -> Maths.toUInt32(-1));
+    void testToUInt32() {
+        assertEquals(4294967295L, Maths.toUInt32(4294967295L), "maximum unsigned int value should convert to uint32 without overflow");
+        assertThrows(ArithmeticException.class, () -> Maths.toUInt32(4294967296L),
+                "toUInt32 should reject overflow value");
+        assertThrows(ArithmeticException.class, () -> Maths.toUInt32(-1),
+                "toUInt32 should reject negative value");
     }
 
     @Test
-    public void testHash64() {
+    void testHash64() {
         long hashValue1 = Maths.hash64(123456789L);
         long hashValue2 = Maths.hash64(987654321L);
-        assertNotEquals(hashValue1, hashValue2);
+        assertNotEquals(hashValue1, hashValue2, "hash64 should produce different hashes for different input values");
     }
 
     @Test
-    public void testTens() {
-        assertEquals(100, Maths.tens(2));
-        assertEquals(1, Maths.tens(0));
-        assertThrows(IllegalArgumentException.class, () -> Maths.tens(-1));
-        assertThrows(IllegalArgumentException.class, () -> Maths.tens(19));
+    void testTens() {
+        assertEquals(100, Maths.tens(2), "tens(2) should return 10^2");
+        assertEquals(1, Maths.tens(0), "tens(0) should return 10^0 which is 1");
+        assertThrows(IllegalArgumentException.class, () -> Maths.tens(-1),
+                "tens should reject negative exponent");
+        assertThrows(IllegalArgumentException.class, () -> Maths.tens(19),
+                "tens should reject exponent above limit");
     }
 
     @Test
-    public void testHashMethods() {
+    void testHashMethods() {
         Object o1 = "test1";
         Object o2 = "test2";
         Object o3 = "test3";
         Object o4 = "test4";
-        Object o5 = "test5";
-
         int hash1 = Maths.hash(o1);
         int hash2 = Maths.hash(o1, o2);
         int hash3 = Maths.hash(o1, o2, o3);
         int hash4 = Maths.hash(o1, o2, o3, o4);
-        int hash5 = Maths.hash(o1, o2, o3, o4, o5);
 
-        assertNotEquals(hash1, hash2);
-        assertNotEquals(hash2, hash3);
-        assertNotEquals(hash3, hash4);
-        assertNotEquals(hash4, hash5);
+        assertNotEquals(hash1, hash2, "hash should vary for one element");
+        assertNotEquals(hash2, hash3, "hash should vary for two elements");
+        assertNotEquals(hash3, hash4, "hash should vary for three elements");
+        Object o5 = "test5";
+        assertNotEquals(hash4, Maths.hash(o1, o2, o3, o4, o5),
+                "hash should vary for four elements");
     }
 
     @Test
-    public void asDouble() {
-        assertEquals(0.00017853, Maths.asDouble(17853, 0, false, 8), 0.0);
-        assertEquals(0.00035706, Maths.asDouble(35706, 0, false, 8), 0.0);
+    void asDouble() {
+        assertEquals(0.00017853, Maths.asDouble(17853, 0, false, 8), 0.0, "converting mantissa 17853 with scale 8 should produce correct decimal");
+        assertEquals(0.00035706, Maths.asDouble(35706, 0, false, 8), 0.0, "converting mantissa 35706 with scale 8 should produce correct decimal");
 
-        assertEquals(1.475344805371041E-8, Maths.asDouble(1475344805371041L, 0, false, 23), 0.0);
-        assertEquals(1.000000000000003E12, Maths.asDouble(1000000000000003L, 0, false, 3), 0.0);
-        assertEquals(-1.453448689138e11, Maths.asDouble(1453448689138L, 0, true, 1), 0.0);
-        assertEquals(999999999999.994, Maths.asDouble(999999999999994L, 0, false, 3), 0.0);
-        assertEquals(-1.16823E70, Maths.asDouble(116823, 0, true, -65), 0.0);
-        assertEquals(12.345, Maths.asDouble(12345, 0, false, 3), 0.0);
-        assertEquals(1e-5, Maths.asDouble(100000000000L, 0, false, 16), 0.0);
-        assertEquals(1.4753448053710411E-8, Maths.asDouble(14753448053710411L, 0, false, 24), 0.0);
-        assertEquals(1.720578937592997e-8, Maths.asDouble(1720578937592997L, 0, false, 23), 0.0);
+        assertEquals(1.475344805371041E-8, Maths.asDouble(1475344805371041L, 0, false, 23), 0.0, "converting large mantissa with scale 23 should handle precision correctly");
+        assertEquals(1.000000000000003E12, Maths.asDouble(1000000000000003L, 0, false, 3), 0.0, "converting large mantissa with scale 3 should produce trillion-scale value");
+        assertEquals(-1.453448689138e11, Maths.asDouble(1453448689138L, 0, true, 1), 0.0, "negative flag should produce negative result");
+        assertEquals(999999999999.994, Maths.asDouble(999999999999994L, 0, false, 3), 0.0, "converting near-trillion mantissa with scale 3 should maintain precision");
+        assertEquals(-1.16823E70, Maths.asDouble(116823, 0, true, -65), 0.0, "negative scale should multiply by powers of 10 to create very large value");
+        assertEquals(12.345, Maths.asDouble(12345, 0, false, 3), 0.0, "converting 12345 with scale 3 should produce 12.345");
+        assertEquals(1e-5, Maths.asDouble(100000000000L, 0, false, 16), 0.0, "large mantissa with large scale should produce small decimal");
+        assertEquals(1.4753448053710411E-8, Maths.asDouble(14753448053710411L, 0, false, 24), 0.0, "very large mantissa with scale 24 should handle extended precision");
+        assertEquals(1.720578937592997e-8, Maths.asDouble(1720578937592997L, 0, false, 23), 0.0, "large mantissa with scale 23 should produce small scientific notation value");
         //
-        assertEquals(-12.345, Maths.asDouble(12345, 0, true, 3), 0.0);
-        assertEquals(98760.0, Maths.asDouble(12345, 3, false, 0), 0.0);
-        assertEquals(1543.125, Maths.asDouble(12345, -3, false, 0), 0.0);
-        assertEquals(1.2345E-26, Maths.asDouble(12345, 0, false, 30), 0.0);
-        assertEquals(123450000000000000L, Maths.asDouble(1234500000000000000L, 0, false, 1), 0.0);
-        assertEquals(1234500, Maths.asDouble(12345, 0, false, -2), 0.0);
-        assertEquals(1.23E30, Maths.asDouble(123, 0, false, -28), 0.0);
+        assertEquals(-12.345, Maths.asDouble(12345, 0, true, 3), 0.0, "negative flag should negate result");
+        assertEquals(98760.0, Maths.asDouble(12345, 3, false, 0), 0.0, "positive exponent should multiply mantissa by powers of 10");
+        assertEquals(1543.125, Maths.asDouble(12345, -3, false, 0), 0.0, "negative exponent should divide mantissa by powers of 10");
+        assertEquals(1.2345E-26, Maths.asDouble(12345, 0, false, 30), 0.0, "very large scale should produce very small scientific notation value");
+        assertEquals(123450000000000000L, Maths.asDouble(1234500000000000000L, 0, false, 1), 0.0, "large mantissa with scale 1 should divide by 10");
+        assertEquals(1234500, Maths.asDouble(12345, 0, false, -2), 0.0, "negative scale -2 should multiply by 100");
+        assertEquals(1.23E30, Maths.asDouble(123, 0, false, -28), 0.0, "large negative scale should produce very large scientific notation value");
     }
 
     @Test
-    public void testNextPower2Int() {
+    void testNextPower2Int() {
         // Test cases where n is less than min
-        assertEquals(8, Maths.nextPower2(3, 8));
-        assertEquals(16, Maths.nextPower2(5, 16));
+        assertEquals(8, Maths.nextPower2(3, 8), "int: value 3 below min 8 should return min");
+        assertEquals(16, Maths.nextPower2(5, 16), "int: value 5 below min 16 should return min");
 
         // Test cases where n is equal to min
-        assertEquals(8, Maths.nextPower2(8, 8));
-        assertEquals(16, Maths.nextPower2(16, 16));
+        assertEquals(8, Maths.nextPower2(8, 8), "int: value 8 equals min 8 should return that power");
+        assertEquals(16, Maths.nextPower2(16, 16), "int: value 16 equals min 16 should return that power");
 
         // Test cases where n is already a power of two
-        assertEquals(32, Maths.nextPower2(32, 16));
-        assertEquals(64, Maths.nextPower2(64, 32));
+        assertEquals(32, Maths.nextPower2(32, 16), "int: value 32 already power of 2 should return unchanged");
+        assertEquals(64, Maths.nextPower2(64, 32), "int: value 64 already power of 2 should return unchanged");
 
         // Test cases where n is not a power of two
-        assertEquals(128, Maths.nextPower2(70, 16));
-        assertEquals(256, Maths.nextPower2(130, 64));
+        assertEquals(128, Maths.nextPower2(70, 16), "int: value 70 should round up to next power of 2 (128)");
+        assertEquals(256, Maths.nextPower2(130, 64), "int: value 130 should round up to next power of 2 (256)");
 
         // Test maximum int value
-        assertEquals(1 << 30, Maths.nextPower2(Integer.MAX_VALUE, 1));
+        assertEquals(1 << 30, Maths.nextPower2(Integer.MAX_VALUE, 1), "Integer.MAX_VALUE should round to largest representable power of 2");
 
         // Test minimum n and min
-        assertEquals(1, Maths.nextPower2(0, 1));
-        assertEquals(1, Maths.nextPower2(1, 1));
+        assertEquals(1, Maths.nextPower2(0, 1), "int: zero should round up to minimum power of 2");
+        assertEquals(1, Maths.nextPower2(1, 1), "int: one is already power of 2 and should return unchanged");
     }
 
     @Test
-    public void testNextPower2Long() {
+    void testNextPower2Long() {
         // Test cases where n is less than min
-        assertEquals(16L, Maths.nextPower2(9L, 16L));
-        assertEquals(32L, Maths.nextPower2(17L, 32L));
+        assertEquals(16L, Maths.nextPower2(9L, 16L), "long: value 9 below min 16 should return min");
+        assertEquals(32L, Maths.nextPower2(17L, 32L), "long: value 17 below min 32 should return min");
 
         // Test cases where n is equal to min
-        assertEquals(64L, Maths.nextPower2(64L, 64L));
-        assertEquals(128L, Maths.nextPower2(128L, 128L));
+        assertEquals(64L, Maths.nextPower2(64L, 64L), "long: value 64 equals min 64 should return that power");
+        assertEquals(128L, Maths.nextPower2(128L, 128L), "long: value 128 equals min 128 should return that power");
 
         // Test cases where n is already a power of two
-        assertEquals(256L, Maths.nextPower2(256L, 128L));
-        assertEquals(512L, Maths.nextPower2(512L, 256L));
+        assertEquals(256L, Maths.nextPower2(256L, 128L), "long: value 256 already power of 2 should return unchanged");
+        assertEquals(512L, Maths.nextPower2(512L, 256L), "long: value 512 already power of 2 should return unchanged");
 
         // Test cases where n is not a power of two
-        assertEquals(1024L, Maths.nextPower2(777L, 256L));
-        assertEquals(2048L, Maths.nextPower2(1300L, 1024L));
+        assertEquals(1024L, Maths.nextPower2(777L, 256L), "long: value 777 should round up to next power of 2 (1024)");
+        assertEquals(2048L, Maths.nextPower2(1300L, 1024L), "long: value 1300 should round up to next power of 2 (2048)");
 
         // Test large values
-        assertEquals(1L << 62, Maths.nextPower2(Long.MAX_VALUE, 1L));
+        assertEquals(1L << 62, Maths.nextPower2(Long.MAX_VALUE, 1L), "Long.MAX_VALUE should round to largest representable power of 2");
 
         // Test minimum n and min
-        assertEquals(1L, Maths.nextPower2(0L, 1L));
-        assertEquals(1L, Maths.nextPower2(1L, 1L));
+        assertEquals(1L, Maths.nextPower2(0L, 1L), "long: zero should round up to minimum power of 2");
+        assertEquals(1L, Maths.nextPower2(1L, 1L), "long: one is already power of 2 and should return unchanged");
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testNextPower2IntInvalidMin() {
+    @Test
+    void testNextPower2IntInvalidMin() {
         // min is not a power of two
-        Maths.nextPower2(10, 7);
+        assertThrows(IllegalArgumentException.class, () -> Maths.nextPower2(10, 7),
+                "nextPower2 int should reject non power min");
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testNextPower2LongInvalidMin() {
+    @Test
+    void testNextPower2LongInvalidMin() {
         // min is not a power of two
-        Maths.nextPower2(20L, 9L);
+        assertThrows(IllegalArgumentException.class, () -> Maths.nextPower2(20L, 9L),
+                "nextPower2 long should reject non power min");
     }
 
     @Test
-    public void testIsPowerOf2() {
-        assertTrue(Maths.isPowerOf2(1));
-        assertTrue(Maths.isPowerOf2(2));
-        assertTrue(Maths.isPowerOf2(4));
-        assertTrue(Maths.isPowerOf2(8));
-        assertTrue(Maths.isPowerOf2(16));
-        assertTrue(Maths.isPowerOf2(32));
-        assertTrue(Maths.isPowerOf2(64));
-        assertTrue(Maths.isPowerOf2(128));
-        assertTrue(Maths.isPowerOf2(256));
-        assertTrue(Maths.isPowerOf2(512));
-        assertTrue(Maths.isPowerOf2(1024));
+    void testIsPowerOf2() {
+        assertTrue(Maths.isPowerOf2(1), "1 is 2^0 and should be recognized as power of 2");
+        assertTrue(Maths.isPowerOf2(2), "2 is 2^1 and should be recognized as power of 2");
+        assertTrue(Maths.isPowerOf2(4), "4 is 2^2 and should be recognized as power of 2");
+        assertTrue(Maths.isPowerOf2(8), "8 is 2^3 and should be recognized as power of 2");
+        assertTrue(Maths.isPowerOf2(16), "16 is 2^4 and should be recognized as power of 2");
+        assertTrue(Maths.isPowerOf2(32), "32 is 2^5 and should be recognized as power of 2");
+        assertTrue(Maths.isPowerOf2(64), "64 is 2^6 and should be recognized as power of 2");
+        assertTrue(Maths.isPowerOf2(128), "128 is 2^7 and should be recognized as power of 2");
+        assertTrue(Maths.isPowerOf2(256), "256 is 2^8 and should be recognized as power of 2");
+        assertTrue(Maths.isPowerOf2(512), "512 is 2^9 and should be recognized as power of 2");
+        assertTrue(Maths.isPowerOf2(1024), "1024 is 2^10 and should be recognized as power of 2");
 
-        assertFalse(Maths.isPowerOf2(0));
-        assertFalse(Maths.isPowerOf2(3));
-        assertFalse(Maths.isPowerOf2(5));
-        assertFalse(Maths.isPowerOf2(6));
-        assertFalse(Maths.isPowerOf2(7));
-        assertFalse(Maths.isPowerOf2(9));
-        assertFalse(Maths.isPowerOf2(10));
-        assertFalse(Maths.isPowerOf2(12));
-        assertFalse(Maths.isPowerOf2(15));
-        assertFalse(Maths.isPowerOf2(18));
-        assertFalse(Maths.isPowerOf2(20));
+        assertFalse(Maths.isPowerOf2(0), "zero is not a power of 2");
+        assertFalse(Maths.isPowerOf2(3), "3 is not a power of 2");
+        assertFalse(Maths.isPowerOf2(5), "5 is not a power of 2");
+        assertFalse(Maths.isPowerOf2(6), "6 is not a power of 2");
+        assertFalse(Maths.isPowerOf2(7), "7 is not a power of 2");
+        assertFalse(Maths.isPowerOf2(9), "9 is not a power of 2");
+        assertFalse(Maths.isPowerOf2(10), "10 is not a power of 2");
+        assertFalse(Maths.isPowerOf2(12), "12 is not a power of 2");
+        assertFalse(Maths.isPowerOf2(15), "15 is not a power of 2");
+        assertFalse(Maths.isPowerOf2(18), "18 is not a power of 2");
+        assertFalse(Maths.isPowerOf2(20), "20 is not a power of 2");
     }
 
     @Test
-    public void testEdgeCasesInt() {
+    void testEdgeCasesInt() {
         // Test when n is negative
-        assertEquals(16, Maths.nextPower2(-5, 16));
+        assertEquals(16, Maths.nextPower2(-5, 16), "int edge case: negative value -5 should return min 16");
         // Test when min is greater than n and is the next power of two
-        assertEquals(32, Maths.nextPower2(17, 32));
+        assertEquals(32, Maths.nextPower2(17, 32), "int edge case: value 17 below min 32 should return min");
     }
 
     @Test
-    public void testEdgeCasesLong() {
+    void testEdgeCasesLong() {
         // Test when n is negative
-        assertEquals(64L, Maths.nextPower2(-10L, 64L));
+        assertEquals(64L, Maths.nextPower2(-10L, 64L), "long edge case: negative value -10 should return min 64");
         // Test when min is greater than n and is the next power of two
-        assertEquals(128L, Maths.nextPower2(65L, 128L));
+        assertEquals(128L, Maths.nextPower2(65L, 128L), "long edge case: value 65 below min 128 should return min");
+    }
+
+    @FunctionalInterface
+    public interface Rounder {
+        double round(double d);
     }
 }

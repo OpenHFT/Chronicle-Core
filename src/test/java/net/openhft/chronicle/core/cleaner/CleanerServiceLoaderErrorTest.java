@@ -11,12 +11,13 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.charset.StandardCharsets;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Exercises the ServiceConfigurationError path by providing a bogus provider entry.
+ * Exercises the ServiceConfigurationError path by providing a bogus provider entry record.
  */
 class CleanerServiceLoaderErrorTest {
 
@@ -43,7 +44,7 @@ class CleanerServiceLoaderErrorTest {
         if (!parent.exists() && !parent.mkdirs()) throw new IllegalStateException("Cannot create temp services dir");
         try (FileOutputStream fos = new FileOutputStream(svc)) {
             // bogus provider triggers ServiceConfigurationError when iterating
-            fos.write("does.not.ExistProvider\n".getBytes(StandardCharsets.ISO_8859_1));
+            fos.write("does.not.ExistProvider\n".getBytes(UTF_8));
         }
         // Child-first isolation: no parent to avoid inheriting other service resources from the test classpath
         URLClassLoader cl = new URLClassLoader(new URL[]{root.toURI().toURL()}, null);
@@ -52,8 +53,9 @@ class CleanerServiceLoaderErrorTest {
         try {
             t.setContextClassLoader(cl);
             ByteBufferCleanerService selected = CleanerServiceLocator.cleanerService();
-            assertNotNull(selected);
-            assertTrue(selected.getClass().getName().contains("internal.cleaner"));
+            assertNotNull(selected, "service implementation should be found");
+            String className = selected.getClass().getName();
+            assertTrue(className.contains("internal.cleaner"), className + " should be internal reflection cleaner after ServiceConfigurationError");
         } finally {
             t.setContextClassLoader(prev);
         }

@@ -16,8 +16,8 @@ class ThreadConfinementAsserterTest {
     void assertThreadConfinedSameThread() {
         ThreadConfinementAsserter asserter = ThreadConfinementAsserter.createEnabled();
 
-        assertDoesNotThrow(asserter::assertThreadConfined);
-        assertDoesNotThrow(asserter::assertThreadConfined);
+        assertDoesNotThrow(asserter::assertThreadConfined, "assertThreadConfined should allow same thread");
+        assertDoesNotThrow(asserter::assertThreadConfined, "assertThreadConfined should allow repeated call");
     }
 
     @Test
@@ -26,10 +26,11 @@ class ThreadConfinementAsserterTest {
         CountDownLatch latch = new CountDownLatch(1);
         ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-        assertDoesNotThrow(asserter::assertThreadConfined);
+        assertDoesNotThrow(asserter::assertThreadConfined, "assertThreadConfined should allow initial thread");
 
         executorService.execute(() -> {
-            assertThrows(IllegalStateException.class, asserter::assertThreadConfined);
+            assertThrows(IllegalStateException.class, asserter::assertThreadConfined,
+                    "assertThreadConfined should reject other thread");
             latch.countDown();
         });
 
@@ -42,13 +43,13 @@ class ThreadConfinementAsserterTest {
         // This test's behavior will depend on whether assertions are enabled in the JVM.
         ThreadConfinementAsserter asserter = ThreadConfinementAsserter.create();
         // At minimum, a non-null asserter is returned.
-        assertNotNull(asserter);
+        assertNotNull(asserter, "create() should return a non-null asserter regardless of assertion state");
     }
 
     @Test
     void createEnabledShouldAlwaysReturnFunctionalAsserter() {
         ThreadConfinementAsserter asserter = ThreadConfinementAsserter.createEnabled();
-        assertNotNull(asserter);
+        assertNotNull(asserter, "createEnabled() should always return a functional non-null asserter");
         // Further testing of functionality.
     }
 }

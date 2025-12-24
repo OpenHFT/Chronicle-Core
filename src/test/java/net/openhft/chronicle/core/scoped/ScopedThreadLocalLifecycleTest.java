@@ -19,14 +19,23 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ScopedThreadLocalLifecycleTest {
 
+    private static void forceGc(WeakReference<?> ref) {
+        for (int i = 0; i < 50 && ref.get() != null; i++) {
+            System.gc();
+            Jvm.pause(50);
+        }
+        assertNull(ref.get(), "Reference should be cleared after GC");
+    }
+
     @Test
     void zeroCapacityIsRejected() {
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
-                new ScopedThreadLocal<>(() -> new CloseableProbe(1, new AtomicInteger(), new CopyOnWriteArrayList<>()),
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> new ScopedThreadLocal<>(() -> new CloseableProbe(1, new AtomicInteger(), new CopyOnWriteArrayList<>()),
                         CloseableProbe::reset,
-                        0)
-        );
-        assertTrue(ex.getMessage().contains("maxInstances"));
+                        0),
+                "scoped thread local should reject zero capacity");
+        assertTrue(ex.getMessage().contains("maxInstances"),
+                "exception message should mention maxInstances but was: " + ex.getMessage());
     }
 
     @Test
@@ -94,26 +103,14 @@ class ScopedThreadLocalLifecycleTest {
             resource.get().touch(); // establishes owning thread
 
             Future<?> future = executor.submit(resource.get()::touch);
-            ExecutionException exception = assertThrows(ExecutionException.class, () -> future.get(5, TimeUnit.SECONDS));
-            assertTrue(exception.getCause() instanceof IllegalStateException);
+            ExecutionException exception = assertThrows(ExecutionException.class, () -> future.get(5, TimeUnit.SECONDS),
+                    "touch should fail when accessed by other thread");
+            assertInstanceOf(IllegalStateException.class, exception.getCause(),
+                    "exception cause should be IllegalStateException");
         } finally {
             executor.shutdownNow();
             executor.awaitTermination(5, TimeUnit.SECONDS);
         }
-    }
-
-    private static void acquireAndClose(ScopedThreadLocal<CloseableProbe> pool) {
-        try (ScopedResource<CloseableProbe> ignored = pool.get()) {
-            // scope closes immediately
-        }
-    }
-
-    private static void forceGc(WeakReference<?> ref) {
-        for (int i = 0; i < 50 && ref.get() != null; i++) {
-            System.gc();
-            Jvm.pause(50);
-        }
-        assertNull(ref.get(), "Reference should be cleared after GC");
     }
 
     private static final class CloseableProbe implements Closeable {
@@ -153,6 +150,7 @@ class ScopedThreadLocalLifecycleTest {
         private final ThreadConfinementAsserter asserter = ThreadConfinementAsserter.createEnabled();
         private volatile boolean closed;
 
+        @SuppressWarnings("MMMissingMessage")
         void touch() {
             asserter.assertThreadConfined();
         }

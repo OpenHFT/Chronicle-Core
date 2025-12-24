@@ -4,13 +4,13 @@
 package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class OnDemandEventLoopTest extends CoreTestCommon {
+class OnDemandEventLoopTest extends CoreTestCommon {
     @Test
-    public void onDemand() {
+    void onDemand() {
         OnDemandEventLoop el = new OnDemandEventLoop(() -> new EventLoop() {
             @Override
             public String name() {
@@ -19,32 +19,32 @@ public class OnDemandEventLoopTest extends CoreTestCommon {
 
             @Override
             public void addHandler(EventHandler handler) {
-                throw new UnsupportedOperationException();
+                throw new UnsupportedOperationException("addHandler not supported in test");
             }
 
             @Override
             public void start() {
-                throw new UnsupportedOperationException();
+                throw new UnsupportedOperationException("start not supported in test");
             }
 
             @Override
             public void unpause() {
-                throw new UnsupportedOperationException();
+                throw new UnsupportedOperationException("unpause not supported in test");
             }
 
             @Override
             public void stop() {
-                throw new UnsupportedOperationException();
+                throw new UnsupportedOperationException("stop not supported in test");
             }
 
             @Override
             public boolean isClosed() {
-                throw new UnsupportedOperationException();
+                throw new UnsupportedOperationException("isClosed not supported in test");
             }
 
             @Override
             public boolean isAlive() {
-                throw new UnsupportedOperationException();
+                throw new UnsupportedOperationException("isAlive not supported in test");
             }
 
             @Override
@@ -54,11 +54,12 @@ public class OnDemandEventLoopTest extends CoreTestCommon {
 
             @Override
             public void close() {
+                // No-op: placeholder method
             }
         });
-        assertFalse(el.hasEventLoop());
-        assertEquals("dummy", el.name());
-        assertTrue(el.hasEventLoop());
+        assertFalse(el.hasEventLoop(), "event loop should not exist before first access");
+        assertEquals("dummy", el.name(), "accessing name should trigger event loop creation and return delegate name");
+        assertTrue(el.hasEventLoop(), "event loop should exist after being accessed");
         el.close();
     }
 }

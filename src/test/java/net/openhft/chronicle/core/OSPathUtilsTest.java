@@ -15,13 +15,14 @@ class OSPathUtilsTest {
     void defaultPageSizeNotLessThanActual() {
         int def = OS.defaultOsPageSize();
         int ps = OS.pageSize();
-        assertTrue(def >= ps);
+        assertTrue(def >= ps, "default OS page size " + def + " should be >= actual page size " + ps);
     }
 
     @Test
     void findFileReturnsLastElement() {
         File f = OS.findFile("this-path-does-not-exist", "file.txt");
-        assertTrue(f.getPath().endsWith("file.txt"));
+        String path = f.getPath();
+        assertTrue(path.endsWith("file.txt"),
+                path + " should end with file.txt when directory does not exist");
     }
 }
-

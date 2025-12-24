@@ -13,7 +13,8 @@ class AnnouncerTest {
     @Test
     void testAnnounceWithValidArguments() {
         // This is a simple test to ensure no exceptions are thrown with valid arguments
-        assertDoesNotThrow(() -> Announcer.announce("net.openhft", "chronicle-queue"));
+        assertDoesNotThrow(() -> Announcer.announce("net.openhft", "chronicle-queue"),
+                "announce should not throw with valid arguments");
     }
 
     @Test
@@ -22,9 +23,9 @@ class AnnouncerTest {
             try {
                 Announcer.announce(null, "chronicle-queue");
             } catch (IllegalArgumentException iae) {
-                throw new NullPointerException();
+                throw new NullPointerException("Null groupId should map to NPE");
             }
-        });
+        }, "announce should reject null group id");
     }
 
     @Test
@@ -33,8 +34,8 @@ class AnnouncerTest {
             try {
                 Announcer.announce("net.openhft", null);
             } catch (IllegalArgumentException iae) {
-                throw new NullPointerException();
+                throw new NullPointerException("Null artifactId should map to NPE");
             }
-        });
+        }, "announce should reject null artifact id");
     }
 }

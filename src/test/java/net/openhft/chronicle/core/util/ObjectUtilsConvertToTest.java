@@ -4,45 +4,35 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import java.util.Arrays;
-import java.util.Collection;
+import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@RunWith(Parameterized.class)
-public class ObjectUtilsConvertToTest extends CoreTestCommon {
+class ObjectUtilsConvertToTest extends CoreTestCommon {
 
-    private final Object converted;
-    private final String input;
-
-    public ObjectUtilsConvertToTest(Object converted, String input) {
-        this.converted = converted;
-        this.input = input;
+    static Stream<Arguments> data() {
+        return Stream.of(
+                Arguments.of(Boolean.TRUE, "Y"),
+                Arguments.of(Boolean.TRUE, "yes"),
+                Arguments.of(Boolean.FALSE, "N"),
+                Arguments.of(Boolean.FALSE, "no"),
+                Arguments.of(1.0, "1.0"),
+                Arguments.of(1, "1"),
+                Arguments.of(1L, "1"),
+                Arguments.of(DEnum.ZERO, "Zero"),
+                Arguments.of(DEnum.ONE, "One"),
+                Arguments.of(DEnum.TWO, "Two")
+        );
     }
 
-    @Parameterized.Parameters
-    public static Collection<Object[]> data() {
-        return Arrays.asList(new Object[][]{
-                {Boolean.TRUE, "Y"},
-                {Boolean.TRUE, "yes"},
-                {Boolean.FALSE, "N"},
-                {Boolean.FALSE, "no"},
-                {1.0, "1.0"},
-                {1, "1"},
-                {1L, "1"},
-                {DEnum.ZERO, "Zero"},
-                {DEnum.ONE, "One"},
-                {DEnum.TWO, "Two"},
-        });
-    }
-
-    @Test
-    public void convertTo() throws IllegalStateException, IllegalArgumentException {
-        assertEquals(converted, ObjectUtils.convertTo(converted.getClass(), input));
+    @ParameterizedTest
+    @MethodSource("data")
+    void convertTo(Object converted, String input) throws IllegalStateException, IllegalArgumentException {
+        assertEquals(converted, ObjectUtils.convertTo(converted.getClass(), input), "ObjectUtils.convertTo should parse string input into expected target type");
     }
 
     static class DEnum implements CoreDynamicEnum<DEnum> {
@@ -51,11 +41,9 @@ public class ObjectUtilsConvertToTest extends CoreTestCommon {
         static final DEnum TWO = new DEnum("Two", 2);
 
         private final String name;
-        private final int ordinal;
 
         DEnum(String name, int ordinal) {
             this.name = name;
-            this.ordinal = ordinal;
         }
 
         @Override

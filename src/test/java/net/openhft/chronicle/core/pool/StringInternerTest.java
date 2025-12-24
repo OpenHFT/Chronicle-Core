@@ -5,47 +5,49 @@ package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class StringInternerTest extends CoreTestCommon {
+@SuppressWarnings("deprecation")
+class StringInternerTest extends CoreTestCommon {
+    private String[] uppercase;
+
     @Test
-    public void testIntern() throws IllegalArgumentException {
+    void testIntern() throws IllegalArgumentException {
         @NotNull StringInterner si = new StringInterner(128);
         for (int i = 0; i < 100; i++) {
             si.intern("" + i);
         }
-        assertEquals(82, si.valueCount());
+        assertEquals(82, si.valueCount(), "valueCount should equal interned entries after collisions");
     }
 
     @Test
-    public void testInternIndex() throws IllegalArgumentException {
+    void testInternIndex() throws IllegalArgumentException {
         @NotNull StringInterner si = new StringInterner(128);
         for (int i = 0; i < 100; i++) {
-            assertEquals("" + i, si.get(si.index("" + i, null)));
+            assertEquals("" + i, si.get(si.index("" + i, null)),
+                    "get should return same string after indexing at iteration " + i);
         }
     }
 
-    private String[] uppercase;
-
     /**
-     * an example of the StringInterner used in conjunction with  the uppercase[] to cache another value
+     * Demonstrates using the StringInterner together with an uppercase cache.
      *
-     * @throws IllegalArgumentException
+     * @throws IllegalArgumentException if the interner cannot allocate entries
      */
     @Test
-    public void testToUppercaseInternIndex() throws IllegalArgumentException {
+    void testToUppercaseInternIndex() throws IllegalArgumentException {
 
         @NotNull StringInterner si = new StringInterner(128);
         uppercase = new String[si.capacity()];
         for (int i = 0; i < 100; i++) {
             String lowerCaseString = randomLowercaseString();
-            System.out.println(lowerCaseString.toString());
+            System.out.println(lowerCaseString);
             int index = si.index(lowerCaseString, this::changed);
             if (index != -1)
-                assertEquals(lowerCaseString.toUpperCase(), uppercase[index]);
+                assertEquals(lowerCaseString.toUpperCase(), uppercase[index],
+                        "uppercase cache should contain uppercased version of indexed string at iteration " + i);
         }
     }
 

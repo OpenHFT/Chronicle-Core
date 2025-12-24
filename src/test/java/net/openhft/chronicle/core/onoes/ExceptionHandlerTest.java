@@ -7,33 +7,33 @@ import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.util.IgnoresEverything;
 import net.openhft.chronicle.core.util.Mocker;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ExceptionHandlerTest extends CoreTestCommon {
+class ExceptionHandlerTest extends CoreTestCommon {
 
-    @Before
+    @BeforeEach
     public void mockitoNotSupportedOnJava21() {
         assumeTrue(Jvm.majorVersion() <= 17);
     }
 
     @Test
-    public void ignoresEverything() {
-        assertTrue(ExceptionHandler.ignoresEverything() instanceof IgnoresEverything);
+    void ignoresEverything() {
+        assertInstanceOf(IgnoresEverything.class, ExceptionHandler.ignoresEverything(), "ignore handler should use IgnoresEverything implementation");
     }
 
     @Test
-    public void ignoresEverything2() {
-        assertTrue(Mocker.ignored(ExceptionHandler.class) instanceof IgnoresEverything);
+    void ignoresEverything2() {
+        assertInstanceOf(IgnoresEverything.class, Mocker.ignored(ExceptionHandler.class), "Mocker.ignored should return an IgnoresEverything implementation for ExceptionHandler");
     }
 
     @Test
-    public void onWithClassAndThrowableShouldDelegateProperly() {
+    void onWithClassAndThrowableShouldDelegateProperly() {
         ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
         Class<?> clazz = this.getClass();
         Throwable thrown = new RuntimeException();
@@ -44,7 +44,7 @@ public class ExceptionHandlerTest extends CoreTestCommon {
     }
 
     @Test
-    public void onWithClassAndMessageShouldDelegateProperly() {
+    void onWithClassAndMessageShouldDelegateProperly() {
         ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
         Class<?> clazz = this.getClass();
         String message = "Test message";
@@ -55,7 +55,7 @@ public class ExceptionHandlerTest extends CoreTestCommon {
     }
 
     @Test
-    public void onWithLoggerAndMessageShouldDelegateProperly() {
+    void onWithLoggerAndMessageShouldDelegateProperly() {
         ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
         Logger logger = mock(Logger.class);
         String message = "Test message";
@@ -66,14 +66,14 @@ public class ExceptionHandlerTest extends CoreTestCommon {
     }
 
     @Test
-    public void isEnabledShouldAlwaysReturnTrue() {
+    void isEnabledShouldAlwaysReturnTrue() {
         ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
-        assertTrue(handler.isEnabled(this.getClass()));
+        assertTrue(handler.isEnabled(this.getClass()), "isEnabled should return true by default for any class");
     }
 
     @Test
-    public void defaultHandlerShouldReturnSelf() {
+    void defaultHandlerShouldReturnSelf() {
         ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
-        assertSame(handler, handler.defaultHandler());
+        assertSame(handler, handler.defaultHandler(), "defaultHandler should return the handler itself");
     }
 }

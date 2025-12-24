@@ -15,7 +15,7 @@ class ThreadingIllegalStateExceptionTest {
 
         ThreadingIllegalStateException exception = new ThreadingIllegalStateException(expectedMessage, expectedCause);
 
-        assertEquals(expectedMessage, exception.getMessage());
-        assertEquals(expectedCause, exception.getCause());
+        assertEquals(expectedMessage, exception.getMessage(), "exception should preserve the provided message");
+        assertEquals(expectedCause, exception.getCause(), "exception should preserve the provided cause");
     }
 }

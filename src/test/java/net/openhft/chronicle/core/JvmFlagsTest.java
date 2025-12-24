@@ -18,22 +18,22 @@ class JvmFlagsTest {
 
     @Test
     void getBooleanRespectsDefaultsAndSystemProperty() {
-        assertFalse(Jvm.getBoolean("foo.bar"));
-        assertTrue(Jvm.getBoolean("foo.baz", true));
+        assertFalse(Jvm.getBoolean("foo.bar"), "getBoolean should return false when property is not set and no default is provided");
+        assertTrue(Jvm.getBoolean("foo.baz", true), "getBoolean should return the default value when property is not set");
 
         System.setProperty("foo.bar", "true");
         System.setProperty("foo.baz", "false");
-        assertTrue(Jvm.getBoolean("foo.bar"));
-        assertFalse(Jvm.getBoolean("foo.baz", true));
+        assertTrue(Jvm.getBoolean("foo.bar"), "getBoolean should return true when property is set to true");
+        assertFalse(Jvm.getBoolean("foo.baz", true), "getBoolean should return system property value when set, ignoring default");
     }
 
     @Test
     void majorVersionIsSaneAndPausesDoNotThrow() {
-        assertTrue(Jvm.majorVersion() >= 8);
-        assertDoesNotThrow(Jvm::nanoPause);
-        assertDoesNotThrow(() -> Jvm.pause(0));
-        assertDoesNotThrow(() -> Jvm.pause(1));
-        assertDoesNotThrow(() -> Jvm.busyWaitMicros(10));
+        int majorVersion = Jvm.majorVersion();
+        assertTrue(majorVersion >= 8, "JVM major version " + majorVersion + " should be >= 8");
+        assertDoesNotThrow(Jvm::nanoPause, "nanoPause should not throw");
+        assertDoesNotThrow(() -> Jvm.pause(0), "pause zero should not throw");
+        assertDoesNotThrow(() -> Jvm.pause(1), "pause one should not throw");
+        assertDoesNotThrow(() -> Jvm.busyWaitMicros(10), "busyWaitMicros should not throw");
     }
 }
-

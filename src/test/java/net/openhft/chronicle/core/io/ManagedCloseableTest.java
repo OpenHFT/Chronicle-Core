@@ -9,14 +9,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 class ManagedCloseableTest {
     @BeforeEach
     void mockitoNotSupportedOnJava21() {
         Assumptions.assumeTrue(Jvm.majorVersion() <= 17);
     }
+
     @Test
     void testWarnAndCloseIfNotClosed() {
         ManagedCloseable closeable = spy(ManagedCloseable.class);
@@ -35,13 +37,14 @@ class ManagedCloseableTest {
         when(closeable.isClosing()).thenReturn(true);
         when(closeable.isClosed()).thenReturn(true);
 
-        assertThrows(ClosedIllegalStateException.class, closeable::throwExceptionIfClosed);
+        assertThrows(ClosedIllegalStateException.class, closeable::throwExceptionIfClosed,
+                "throwExceptionIfClosed should throw when closed");
     }
 
     @Test
     void testCreatedHere() {
         ManagedCloseable closeable = Mockito.spy(ManagedCloseable.class);
 
-        assertNull(closeable.createdHere());
+        assertNull(closeable.createdHere(), "ManagedCloseable createdHere should return null for mock instance");
     }
 }

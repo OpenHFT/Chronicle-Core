@@ -76,13 +76,13 @@ class CancellableTimerTest extends CoreTestCommon {
     void willSubmitHandlerWithConfiguredPriority() {
         final HandlerPriority configuredPriority = HandlerPriority.REPLICATION_TIMER;
         timer.scheduleAtFixedRate(handler, INITIAL_DELAY_MS, PERIOD_MS, configuredPriority);
-        assertEquals(configuredPriority, scheduledEventHandler.priority());
+        assertEquals(configuredPriority, scheduledEventHandler.priority(), "scheduled handler should use configured priority");
     }
 
     @Test
     void willSubmitHandlerWithTimerPriorityByDefault() {
         timer.scheduleAtFixedRate(handler, INITIAL_DELAY_MS, PERIOD_MS);
-        assertEquals(HandlerPriority.TIMER, scheduledEventHandler.priority());
+        assertEquals(HandlerPriority.TIMER, scheduledEventHandler.priority(), "scheduled handler should default to TIMER priority when not specified");
     }
 
     @Test
@@ -92,7 +92,8 @@ class CancellableTimerTest extends CoreTestCommon {
         scheduledEventHandler.action();
 
         closeable.close();
-        assertThrows(InvalidEventHandlerException.class, () -> scheduledEventHandler.action());
+        assertThrows(InvalidEventHandlerException.class, scheduledEventHandler::action,
+                "action should throw after close");
     }
 
     @Test
@@ -108,7 +109,8 @@ class CancellableTimerTest extends CoreTestCommon {
         // Handler is called after initialDelayMs and InvalidEventHandlerExceptionIsThrown
         final long firstCallTime = submittedTime + INITIAL_DELAY_MS + 1;
         timeProvider.currentTimeMillis(firstCallTime);
-        assertThrows(InvalidEventHandlerException.class, () -> scheduledEventHandler.action());
+        assertThrows(InvalidEventHandlerException.class, scheduledEventHandler::action,
+                "action should throw after scheduled run");
         verify(runnable).run();
     }
 
@@ -127,7 +129,8 @@ class CancellableTimerTest extends CoreTestCommon {
         // Handler is NOT called after initialDelayMs because it was cancelled, but InvalidEventHandlerExceptionIsThrown
         final long firstCallTime = submittedTime + INITIAL_DELAY_MS + 1;
         timeProvider.currentTimeMillis(firstCallTime);
-        assertThrows(InvalidEventHandlerException.class, () -> scheduledEventHandler.action());
+        assertThrows(InvalidEventHandlerException.class, scheduledEventHandler::action,
+                "action should throw after cancel");
         verifyNoInteractions(runnable);
     }
 }

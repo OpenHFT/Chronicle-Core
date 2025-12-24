@@ -14,7 +14,8 @@ class IORuntimeExceptionTest {
         String message = "Error message";
         IORuntimeException exception = new IORuntimeException(message);
 
-        assertEquals(message, exception.getMessage());
+        assertEquals(message, exception.getMessage(),
+                "message constructor should preserve message: " + exception.getMessage());
     }
 
     @Test
@@ -22,7 +23,8 @@ class IORuntimeExceptionTest {
         Throwable cause = new IOException("Cause");
         IORuntimeException exception = new IORuntimeException(cause);
 
-        assertEquals(cause, exception.getCause());
+        assertEquals(cause, exception.getCause(),
+                "cause constructor should preserve cause: " + exception.getCause());
     }
 
     @Test
@@ -31,8 +33,10 @@ class IORuntimeExceptionTest {
         Throwable cause = new IOException("Cause");
         IORuntimeException exception = new IORuntimeException(message, cause);
 
-        assertEquals(message, exception.getMessage());
-        assertEquals(cause, exception.getCause());
+        assertEquals(message, exception.getMessage(),
+                "message and cause constructor should preserve message: " + exception.getMessage());
+        assertEquals(cause, exception.getCause(),
+                "message and cause constructor should preserve cause: " + exception.getCause());
     }
 
     @Test
@@ -43,10 +47,13 @@ class IORuntimeExceptionTest {
         IORuntimeException runtimeClosedException = IORuntimeException.newIORuntimeException(closedException);
         IORuntimeException runtimeOtherException = IORuntimeException.newIORuntimeException(otherException);
 
-        assertTrue(runtimeClosedException instanceof ClosedIORuntimeException);
-        assertEquals(closedException, runtimeClosedException.getCause());
+        assertInstanceOf(ClosedIORuntimeException.class, runtimeClosedException,
+                "closed exception should map to ClosedIORuntimeException");
+        assertEquals(closedException, runtimeClosedException.getCause(),
+                "closed IO exception should be preserved as cause");
 
-        assertFalse(runtimeOtherException instanceof ClosedIORuntimeException);
-        assertEquals(otherException, runtimeOtherException.getCause());
+        assertFalse(runtimeOtherException instanceof ClosedIORuntimeException, "object should not be of specified type");
+        assertEquals(otherException, runtimeOtherException.getCause(),
+                "non-closed IO exception should be preserved as cause");
     }
 }

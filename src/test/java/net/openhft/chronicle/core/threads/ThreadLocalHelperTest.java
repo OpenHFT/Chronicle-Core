@@ -4,11 +4,13 @@
 package net.openhft.chronicle.core.threads;
 
 import org.junit.jupiter.api.Test;
+
 import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SuppressWarnings("deprecation")
 class ThreadLocalHelperTest {
 
     @Test
@@ -17,8 +19,8 @@ class ThreadLocalHelperTest {
         AtomicInteger counter = new AtomicInteger(0);
         String value = ThreadLocalHelper.getTL(threadLocal, () -> "Value" + counter.incrementAndGet());
 
-        assertEquals("Value1", value);
-        assertEquals("Value1", ThreadLocalHelper.getTL(threadLocal, () -> "Value" + counter.incrementAndGet()));
+        assertEquals("Value1", value, "first getTL call should create and return value via supplier");
+        assertEquals("Value1", ThreadLocalHelper.getTL(threadLocal, () -> "Value" + counter.incrementAndGet()), "getTL should return cached value (supplier not invoked)");
     }
 
     @Test
@@ -27,8 +29,8 @@ class ThreadLocalHelperTest {
         AtomicInteger counter = new AtomicInteger(0);
         String value = ThreadLocalHelper.getSTL(threadLocal, () -> "Value" + counter.incrementAndGet());
 
-        assertEquals("Value1", value);
-        assertEquals("Value1", ThreadLocalHelper.getSTL(threadLocal, () -> "Value" + counter.incrementAndGet()));
+        assertEquals("Value1", value, "first getSTL call should create and return value via supplier");
+        assertEquals("Value1", ThreadLocalHelper.getSTL(threadLocal, () -> "Value" + counter.incrementAndGet()), "getSTL should return cached value (supplier not invoked)");
     }
 
     @Test
@@ -37,7 +39,7 @@ class ThreadLocalHelperTest {
         String input = "123";
         Integer value = ThreadLocalHelper.getTL(threadLocal, input, Integer::valueOf);
 
-        assertEquals(123, value);
-        assertEquals(123, ThreadLocalHelper.getTL(threadLocal, "456", Integer::valueOf));
+        assertEquals(123, value, "first getTL call with function should parse and return value");
+        assertEquals(123, ThreadLocalHelper.getTL(threadLocal, "456", Integer::valueOf), "getTL should return cached value (function not invoked)");
     }
 }

@@ -6,10 +6,9 @@ package net.openhft.chronicle.core.onoes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
-import org.junit.jupiter.api.*;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 class ChainedExceptionHandlerTest {
 
@@ -52,11 +51,13 @@ class ChainedExceptionHandlerTest {
 
     @Test
     void onShouldCatchExceptionsFromHandlers() {
-        ExceptionHandler faultyHandler = (clazz, msg, thr) -> { throw new RuntimeException("Handler error"); };
+        ExceptionHandler faultyHandler = (clazz, msg, thr) -> {
+            throw new RuntimeException("faulty handler threw exception");
+        };
         ChainedExceptionHandler chained = new ChainedExceptionHandler(faultyHandler);
 
         // This call should not throw an exception
         chained.on(String.class, "message", new RuntimeException());
-        assertTrue(true); // If we reach here, the test passes
+        assertTrue(true, "execution should reach this point without exception"); // If we reach here, the test passes
     }
 }

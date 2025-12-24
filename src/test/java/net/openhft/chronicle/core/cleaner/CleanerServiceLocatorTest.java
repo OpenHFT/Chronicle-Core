@@ -31,10 +31,10 @@ class CleanerServiceLocatorTest {
     void picksAllowedServiceWithLowestImpact() throws Exception {
         resetLocator();
         ByteBufferCleanerService svc = CleanerServiceLocator.cleanerService();
-        assertNotNull(svc);
+        assertNotNull(svc, "cleanerService() should return lowest-impact implementation");
         // Should be our test implementation from META-INF/services
-        assertEquals("net.openhft.chronicle.core.cleaner.testimpl.AllowedCleaner", svc.getClass().getName());
-        assertEquals(ByteBufferCleanerService.Impact.NO_IMPACT, svc.impact());
+        assertEquals("net.openhft.chronicle.core.cleaner.testimpl.AllowedCleaner", svc.getClass().getName(), "service should be allowed test cleaner implementation");
+        assertEquals(ByteBufferCleanerService.Impact.NO_IMPACT, svc.impact(), "service impact should be NO_IMPACT for allowed cleaner");
     }
 
     @Test
@@ -70,8 +70,9 @@ class CleanerServiceLocatorTest {
         try {
             current.setContextClassLoader(noServiceCL);
             ByteBufferCleanerService svc = CleanerServiceLocator.cleanerService();
-            assertNotNull(svc);
-            assertTrue(svc.getClass().getName().contains("internal.cleaner"));
+            assertNotNull(svc, "cleanerService() should fall back to reflection cleaner when no providers");
+            String className = svc.getClass().getName();
+            assertTrue(className.contains("internal.cleaner"), className + " should be internal reflection cleaner");
         } finally {
             current.setContextClassLoader(prev);
         }

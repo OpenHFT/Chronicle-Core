@@ -31,8 +31,8 @@ class RecordingExceptionHandlerTest {
         handler.on(RecordingExceptionHandlerTest.class, "Test message", throwable);
 
         ExceptionKey expectedKey = new ExceptionKey(logLevel, RecordingExceptionHandlerTest.class, "Test message", throwable);
-        assertTrue(exceptionMap.containsKey(expectedKey));
-        assertEquals(1, exceptionMap.get(expectedKey));
+        assertTrue(exceptionMap.containsKey(expectedKey), "exception map should contain key after recording exception with throwable");
+        assertEquals(1, exceptionMap.get(expectedKey), "exception count should be 1 after single recording");
     }
 
     @Test
@@ -43,8 +43,8 @@ class RecordingExceptionHandlerTest {
         handler.on(logger, "Test message", throwable);
 
         ExceptionKey expectedKey = new ExceptionKey(logLevel, Logger.class, "TestLogger: Test message", throwable);
-        assertTrue(exceptionMap.containsKey(expectedKey));
-        assertEquals(1, exceptionMap.get(expectedKey));
+        assertTrue(exceptionMap.containsKey(expectedKey), "exception map should contain key when using Logger");
+        assertEquals(1, exceptionMap.get(expectedKey), "exception count should be 1 when logged via Logger");
     }
 
     @Test
@@ -53,7 +53,7 @@ class RecordingExceptionHandlerTest {
         handler = new RecordingExceptionHandler(logLevel, exceptionMap, exceptionsOnly);
         handler.on(RecordingExceptionHandlerTest.class, "Test message", null);
 
-        assertTrue(exceptionMap.isEmpty());
+        assertTrue(exceptionMap.isEmpty(), "exception map should remain empty when exceptionsOnly is true and no throwable provided");
     }
 
     @Test
@@ -70,7 +70,7 @@ class RecordingExceptionHandlerTest {
         thread2.join();
 
         ExceptionKey expectedKey = new ExceptionKey(logLevel, RecordingExceptionHandlerTest.class, "Concurrent message", new RuntimeException());
-        assertEquals(2, exceptionMap.getOrDefault(expectedKey, 2));
+        assertEquals(2, exceptionMap.getOrDefault(expectedKey, 2), "exception count should be 2 after concurrent access from two threads");
     }
 
     // Add more tests as necessary for other methods and edge cases.

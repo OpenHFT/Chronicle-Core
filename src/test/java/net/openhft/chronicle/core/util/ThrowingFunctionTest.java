@@ -5,29 +5,30 @@ package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.function.Function;
 
-import static org.junit.Assert.fail;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class ThrowingFunctionTest extends CoreTestCommon {
+class ThrowingFunctionTest extends CoreTestCommon {
     @Test
-    public void asFunction() throws Exception {
+    void asFunction() {
         @NotNull Function<String, String> sc = ThrowingFunction.asFunction(s -> {
-            try (@NotNull BufferedReader br = new BufferedReader(new FileReader(s))) {
+            try (@NotNull BufferedReader br = new BufferedReader(
+                    new InputStreamReader(Files.newInputStream(Paths.get(s)), UTF_8))) {
                 return br.readLine();
             }
         });
 
-        try {
-            fail(sc.apply("doesn't exists"));
-            if (false) throw new IOException();
-        } catch (IOException e) {
-            // expected
-        }
+        assertThrows(IOException.class, () -> sc.apply("doesn't exists"),
+                "asFunction should rethrow IOExceptions");
     }
 }

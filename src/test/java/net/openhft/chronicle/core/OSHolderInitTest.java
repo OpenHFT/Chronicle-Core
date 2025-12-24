@@ -3,50 +3,51 @@
  */
 package net.openhft.chronicle.core;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Field;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Covers holder classes inside OS to ensure their static init paths are exercised.
  */
-public class OSHolderInitTest extends CoreTestCommon {
+class OSHolderInitTest extends CoreTestCommon {
 
     @Test
-    public void fdFieldHolderExposesFileDescriptorField() {
+    void fdFieldHolderExposesFileDescriptorField() {
         Field fdField = OS.FDFieldHolder.FD_FIELD;
-        assertNotNull("FDFieldHolder should resolve fd field", fdField);
+        assertNotNull(fdField, "FDFieldHolder should resolve fd field");
     }
 
     @Test
-    public void read0AndWrite0MethodHandlesPresent() {
+    void read0AndWrite0MethodHandlesPresent() {
         MethodHandle read0 = OS.Read0Holder.READ0_MH;
-        assertNotNull("Read0 method handle should be resolved", read0);
+        assertNotNull(read0, "Read0 method handle should be resolved");
 
         // One of the write handles should be available depending on JDK signature
-        assertTrue("At least one write0 method handle should be resolved",
-                OS.Write0Holder.WRITE0_MH != null || OS.Write0Holder.WRITE0_MH2 != null);
+        assertTrue(OS.Write0Holder.WRITE0_MH != null || OS.Write0Holder.WRITE0_MH2 != null,
+                "At least one write0 method handle should be resolved");
     }
 
     @Test
-    public void unmap0MethodHandlePresent() {
+    void unmap0MethodHandlePresent() {
         MethodHandle unmap0 = OS.Unmapp0Holder.UNMAPP0_MH;
-        assertNotNull("Unmapp0 method handle should be resolved", unmap0);
+        assertNotNull(unmap0, "Unmapp0 method handle should be resolved");
     }
 
     @Test
-    public void hostnameHolderInitialises() {
-        assertNotNull(OS.HostnameHolder.HOST_NAME);
-        assertFalse(OS.HostnameHolder.HOST_NAME.isEmpty());
+    void hostnameHolderInitialises() {
+        assertNotNull(OS.HostnameHolder.HOST_NAME, "host name should be initialised");
+        assertFalse(OS.HostnameHolder.HOST_NAME.isEmpty(), "host name should not be empty");
     }
 
     @Test
-    public void ipAddressHolderInitialises() {
-        assertNotNull(OS.IPAddressHolder.IP_ADDRESS);
-        assertFalse(OS.IPAddressHolder.IP_ADDRESS.isEmpty());
-        assertEquals("0.0.0.0", OS.IPAddressHolder.NO_ADDRESS);
+    @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
+    void ipAddressHolderInitialises() {
+        assertNotNull(OS.IPAddressHolder.IP_ADDRESS, "IP address should be initialised");
+        assertFalse(OS.IPAddressHolder.IP_ADDRESS.isEmpty(), "IP address should not be empty");
+        assertEquals("0.0.0.0", OS.IPAddressHolder.NO_ADDRESS, "no-address constant should be 0.0.0.0");
     }
 }

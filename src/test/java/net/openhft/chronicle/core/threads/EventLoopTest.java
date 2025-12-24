@@ -3,9 +3,12 @@
  */
 package net.openhft.chronicle.core.threads;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
 
 class EventLoopTest {
 
@@ -21,7 +24,7 @@ class EventLoopTest {
     @Test
     void testName() {
         when(eventLoop.name()).thenReturn("TestEventLoop");
-        assertEquals("TestEventLoop", eventLoop.name());
+        assertEquals("TestEventLoop", eventLoop.name(), "event loop name should return the configured name");
     }
 
     @Test
@@ -55,13 +58,13 @@ class EventLoopTest {
     @Test
     void testIsAlive() {
         when(eventLoop.isAlive()).thenReturn(true);
-        assertTrue(eventLoop.isAlive());
+        assertTrue(eventLoop.isAlive(), "event loop should report as alive when running");
     }
 
     @Test
     void testIsStopped() {
         when(eventLoop.isStopped()).thenReturn(true);
-        assertTrue(eventLoop.isStopped());
+        assertTrue(eventLoop.isStopped(), "event loop should report as stopped when halted");
     }
 
     @Test
@@ -74,6 +77,6 @@ class EventLoopTest {
     @Test
     void testRunsInsideCoreLoop() {
         when(eventLoop.runsInsideCoreLoop()).thenReturn(true);
-        assertTrue(eventLoop.runsInsideCoreLoop());
+        assertTrue(eventLoop.runsInsideCoreLoop(), "event loop should indicate whether execution is inside core loop");
     }
 }

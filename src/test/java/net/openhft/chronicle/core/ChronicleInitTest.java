@@ -4,24 +4,65 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.testframework.process.JavaProcessBuilder;
-import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ServiceLoader;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ChronicleInitTest extends CoreTestCommon {
+@SuppressWarnings("deprecation")
+class ChronicleInitTest extends CoreTestCommon {
 
     private final ByteArrayOutputStream errContent = new ByteArrayOutputStream();
     private final PrintStream originalErr = System.err;
 
+    private static JavaProcessBuilder builder(String... extraJvmArgs) {
+        return JavaProcessBuilder.create(ChronicleInitTest.class)
+                .withJvmArguments(extraJvmArgs);
+    }
+
+    private static JavaProcessBuilder builderWithTracingDisabled(String... extraJvmArgs) {
+        String[] args = new String[extraJvmArgs.length + 1];
+        args[0] = "-Djvm.resource.tracing=false";
+        System.arraycopy(extraJvmArgs, 0, args, 1, extraJvmArgs.length);
+        return JavaProcessBuilder.create(ChronicleInitTest.class)
+                .withJvmArguments(args);
+    }
+
+    public static void main(String[] args) {
+        // Service loader implementation
+        if (!"dolor".equals(Jvm.getProperty("lorem.ipsum"))) {
+            System.out.println("Service loader implementation did not run");
+            System.exit(10);
+        }
+        // Normally enabled via system.properties file
+        if (Jvm.isResourceTracing()) {
+            System.out.println("Resource tracing is enabled");
+            System.exit(11);
+        }
+        if (!Jvm.areOptionalSafepointsEnabled()) {
+            System.out.println("Optional safepoints are not enabled");
+            System.exit(12);
+        }
+        if (!"false".equals(Jvm.getProperty("jvm.resource.tracing"))) {
+            System.out.println("Resource tracing was " + Jvm.getProperty("jvm.resource.tracing"));
+            System.exit(13);
+        }
+    }
+
     @BeforeEach
     public void setUpStream() {
-        System.setErr(new PrintStream(errContent));
+        try {
+            System.setErr(new PrintStream(errContent, true, UTF_8.name()));
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalStateException("ISO-8859-1 should always be supported", e);
+        }
     }
 
     @AfterEach
@@ -29,74 +70,115 @@ public class ChronicleInitTest extends CoreTestCommon {
         System.setErr(originalErr);
     }
 
-    public static void main(String[] args) {
-        // Service loader implementation
-        assertEquals("dolor", Jvm.getProperty("lorem.ipsum"));
-
-        // Normally enabled via system.properties file
-        assertFalse(Jvm.isResourceTracing());
-        assertTrue(Jvm.areOptionalSafepointsEnabled());
-        assertEquals("false", Jvm.getProperty("jvm.safepoint.enabled"));
+    @Test
+    void initShouldNotThrowException() {
+        assertDoesNotThrow(() -> Class.forName(ChronicleInit.class.getName()),
+                "Loading ChronicleInit should not throw an exception");
     }
 
     @Test
-    public void initShouldNotThrowException() {
-        assertDoesNotThrow(ChronicleInit::init, "Calling init should not throw an exception");
-    }
-
-    @Test
-    public void postInitShouldNotThrowException() {
+    void postInitShouldNotThrowException() {
         assertDoesNotThrow(ChronicleInit::postInit, "Calling postInit should not throw an exception");
     }
 
     @Test
-    public void shouldLoadServiceProviders() {
+    void shouldLoadServiceProviders() {
         ServiceLoader<ChronicleInitRunnable> runnableLoader = ServiceLoader.load(ChronicleInitRunnable.class);
         assertTrue(runnableLoader.iterator().hasNext(), "Service providers should be loaded");
     }
 
     @Test
-    public void testPositive() throws Exception {
-        Process process = JavaProcessBuilder.create(ChronicleInitTest.class)
-                .withJvmArguments("-Dchronicle.init.runnable=" + ResourceTracingInit.class.getName()).start();
+    void testPositive() throws Exception {
+        Process process = builderWithTracingDisabled("-Dchronicle.init.runnable=" + ResourceTracingInit.class.getName()).start();
 
         try {
-            assertEquals(0, process.waitFor());
+            assertEquals(0, process.waitFor(), "process should exit successfully when init runnable disables resource tracing");
+            String stdout = JavaProcessBuilder.getProcessStdOut(process);
+            assertTrue(stdout.contains("disabling resource tracking"),
+                    "stdout should contain disabling resource tracking: " + stdout);
         } finally {
             JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
         }
     }
 
     @Test
-    public void testPostInitNegative() throws Exception {
-        Process process = JavaProcessBuilder.create(ChronicleInitTest.class)
-                .withJvmArguments("-Dchronicle.postinit.runnable=" + ResourceTracingInit.class.getName()).start();
+    void testPostInitNegative() throws Exception {
+        Process process = builder("-Dchronicle.postinit.runnable=" + ResourceTracingInit.class.getName()).start();
 
         try {
-            assertEquals(1, process.waitFor());
+            assertEquals(11, process.waitFor(), "process should exit with code 11 when resource tracing is enabled after postInit");
         } finally {
             JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
         }
     }
 
     @Test
-    public void testNoInit() throws Exception {
-        Process process = JavaProcessBuilder.create(ChronicleInitTest.class).start();
+    void testExitCode10WhenServiceLoaderPropertyOverridden() throws Exception {
+        Process process = builder("-Dchronicle.postinit.runnable=" + PostInitOverridesLoremIpsum.class.getName()).start();
 
         try {
-            assertNotEquals(0, process.waitFor());
+            assertEquals(10, process.waitFor(), "process should exit with code 10 when postInit overrides service loader property");
         } finally {
             JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
         }
     }
 
     @Test
-    public void testBadClass() throws Exception {
-        Process process = JavaProcessBuilder.create(ChronicleInitTest.class)
-                .withJvmArguments("-Dchronicle.init.class=" + ChronicleInitTest.class.getName()).start();
+    void testExitCode12WhenOptionalSafepointsDisabled() throws Exception {
+        Process process = builder(
+                "-Djvm.resource.tracing=false",
+                "-Djvm.safepoint.enabled=false",
+                "-Dlorem.ipsum=dolor").start();
 
         try {
-            assertNotEquals(0, process.waitFor());
+            assertEquals(12, process.waitFor(), "process should exit with code 12 when optional safepoints are disabled");
+        } finally {
+            JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
+        }
+    }
+
+    @Test
+    void testExitCode13WhenResourceTracingPropertyDiffersFromFlag() throws Exception {
+        Process process = builder(
+                "-Djvm.resource.tracing=false",
+                "-Dchronicle.postinit.runnable=" + PostInitEnablesResourceTracingProperty.class.getName(),
+                "-Dlorem.ipsum=dolor").start();
+
+        try {
+            assertEquals(13, process.waitFor(), "process should exit with code 13 when resource tracing property differs from flag");
+        } finally {
+            JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
+        }
+    }
+
+    @Test
+    void testNoInit() throws Exception {
+        Process process = builder().start();
+
+        try {
+            assertNotEquals(0, process.waitFor(), "process should exit non zero when no init is configured");
+        } finally {
+            JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
+        }
+    }
+
+    @Test
+    void testBadClass() throws Exception {
+        Process process = builder("-Dchronicle.init.class=" + ChronicleInitTest.class.getName()).start();
+
+        try {
+            assertNotEquals(0, process.waitFor(), "process should exit non zero for invalid init class");
+        } finally {
+            JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
+        }
+    }
+
+    @Test
+    void testCommandLineOverride() throws Exception {
+        Process process = builderWithTracingDisabled().start();
+
+        try {
+            assertEquals(0, process.waitFor(), "process should exit successfully when command line overrides system properties");
         } finally {
             JavaProcessBuilder.printProcessOutput("ChronicleInitTest", process);
         }
@@ -110,6 +192,13 @@ public class ChronicleInitTest extends CoreTestCommon {
         }
     }
 
+    public static class PostInitOverridesLoremIpsum implements Runnable {
+        @Override
+        public void run() {
+            System.setProperty("lorem.ipsum", "sit");
+        }
+    }
+
     public static class ServiceLoaderInit implements ChronicleInitRunnable {
         @Override
         public void run() {
@@ -119,6 +208,13 @@ public class ChronicleInitTest extends CoreTestCommon {
         @Override
         public void postInit() {
             System.setProperty("jvm.safepoint.enabled", "false");
+        }
+    }
+
+    public static class PostInitEnablesResourceTracingProperty implements Runnable {
+        @Override
+        public void run() {
+            System.setProperty("jvm.resource.tracing", "true");
         }
     }
 }

@@ -12,7 +12,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
- * Unit tests for {@link LimitedInputStream}.
+ * Unit tests for {@link LimitedInputStream} covering budgeted reads, boundary handling,
+ * and error paths when limits are exceeded.
  *
  * <p>Conventions:
  * <ul>
@@ -20,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  *   <li>No third-party helpers; plain JUnit 5 and core classes keep it "vanilla".</li>
  * </ul>
  */
+@SuppressWarnings("deprecation")
 final class LimitedInputStreamTest {
     /**
      * Returns a new stream filled with {@code length} consecutive ascending bytes.
@@ -33,69 +35,78 @@ final class LimitedInputStreamTest {
 
     @Test
     void constructor_rejectsNegativeLimit() {
-        assertThrows(IllegalArgumentException.class,
-                () -> new LimitedInputStream(bytes(1), -1));
+        assertThrows(IllegalArgumentException.class, () -> {
+            try (LimitedInputStream in = new LimitedInputStream(bytes(1), -1)) {
+                assertEquals(-1, in.read(), "read should return EOF when constructor rejects negative limit");
+            }
+        }, "constructor should reject negative limit");
     }
 
     @Test
     void read_singleBytes_consumesBudgetExactly() throws IOException {
-        LimitedInputStream in = new LimitedInputStream(bytes(3), 3);
-
-        assertEquals(0, in.read());
-        assertEquals(1, in.read());
-        assertEquals(2, in.read());
-        assertEquals(-1, in.read());        // true EOF once budget is zero
+        try (LimitedInputStream in = new LimitedInputStream(bytes(3), 3)) {
+            assertEquals(0, in.read(), "first read should return byte 0 from limited stream");
+            assertEquals(1, in.read(), "second read should return byte 1 from limited stream");
+            assertEquals(2, in.read(), "third read should return byte 2 from limited stream");
+            assertEquals(-1, in.read(), "read should return EOF when budget exhausted");        // true EOF once budget is zero
+        }
     }
 
     @Test
     void read_singleByte_throwsWhenBudgetExhaustedAndDataRemains() throws IOException {
-        LimitedInputStream in = new LimitedInputStream(bytes(2), 1);
+        try (LimitedInputStream in = new LimitedInputStream(bytes(2), 1)) {
+            assertEquals(0, in.read(), "first read should consume entire budget");         // budget used up
 
-        assertEquals(0, in.read());         // budget used up
-
-        IOException ex = assertThrows(IOException.class, in::read);
-        assertEquals("Size limit exceeded", ex.getMessage());
+            IOException ex = assertThrows(IOException.class, in::read,
+                    "read should fail once budget exceeded");
+            assertEquals("read exceeds configured size limit", ex.getMessage(),
+                    "single-byte read should report size limit exceeded");
+        }
     }
 
     @Test
     void read_bulkWithinLimit_returnsRequestedBytes() throws IOException {
-        LimitedInputStream in = new LimitedInputStream(bytes(10), 10);
+        try (LimitedInputStream in = new LimitedInputStream(bytes(10), 10)) {
+            byte[] buf = new byte[10];
+            int n = in.read(buf, 0, buf.length);
 
-        byte[] buf = new byte[10];
-        int n = in.read(buf, 0, buf.length);
-
-        assertEquals(10, n);
-        for (int i = 0; i < 10; i++)
-            assertEquals(i, buf[i]);
-        assertEquals(-1, in.read());        // budget exhausted, underlying EOF
+            assertEquals(10, n, "bulk read should return all 10 bytes within budget");
+            for (int i = 0; i < 10; i++)
+                assertEquals(i, buf[i], "each byte in buffer should match expected sequence value " + i);
+            assertEquals(-1, in.read(), "read should return EOF when budget and stream exhausted");        // budget exhausted, underlying EOF
+        }
     }
 
     @Test
     void read_bulkCrossesLimit_allowedPartReadThenThrows() throws IOException {
-        LimitedInputStream in = new LimitedInputStream(bytes(5), 3);
-        byte[] buf = new byte[5];
+        try (LimitedInputStream in = new LimitedInputStream(bytes(5), 3)) {
+            byte[] buf = new byte[5];
 
-        int n = in.read(buf, 0, 5);         // only 3 permitted
-        assertEquals(3, n);
+            int n = in.read(buf, 0, 5);         // only 3 permitted
+            assertEquals(3, n, "bulk read should return only budget-permitted bytes");
 
-        IOException ex = assertThrows(IOException.class,
-                () -> in.read(buf, 0, 1));
-        assertEquals("Size limit exceeded", ex.getMessage());
+            IOException ex = assertThrows(IOException.class,
+                    () -> in.read(buf, 0, 1),
+                    "bulk read should fail beyond limit");
+            assertEquals("read exceeds configured size limit", ex.getMessage(),
+                    "bulk read should report size limit exceeded");
+        }
     }
 
     @Test
     void read_zeroLengthBuffer_doesNothingAndReturnsZero() throws IOException {
-        LimitedInputStream in = new LimitedInputStream(bytes(1), 1);
-        byte[] zero = new byte[0];
+        try (LimitedInputStream in = new LimitedInputStream(bytes(1), 1)) {
+            byte[] zero = new byte[0];
 
-        assertEquals(0, in.read(zero, 0, 0));
-        assertEquals(0, in.read());         // budget unchanged
+            assertEquals(0, in.read(zero, 0, 0), "read with zero-length buffer should return zero");
+            assertEquals(0, in.read(), "subsequent read should return first byte when budget unchanged");         // budget unchanged
+        }
     }
 
     @Test
     void read_budgetZeroAndUnderlyingEOF_returnsMinusOne() throws IOException {
-        LimitedInputStream in = new LimitedInputStream(bytes(0), 0);
-
-        assertEquals(-1, in.read());
+        try (LimitedInputStream in = new LimitedInputStream(bytes(0), 0)) {
+            assertEquals(-1, in.read(), "read should return EOF when budget is zero and stream is empty");
+        }
     }
 }

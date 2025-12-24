@@ -6,7 +6,7 @@ package net.openhft.chronicle.core.io;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
-import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -23,16 +23,17 @@ class ReferenceCountingFuzzTest {
 
     @RepeatedTest(25)
     void randomisedReserveReleaseSequence(org.junit.jupiter.api.RepetitionInfo repetitionInfo) throws ClosedIllegalStateException {
-        TestReference ref = new TestReference(false);
+        ReferenceStub ref = new ReferenceStub(false);
         boolean[] hasOwner = new boolean[OWNERS.length];
-        Random random = new Random(repetitionInfo.getCurrentRepetition());
+        ThreadLocalRandom random = ThreadLocalRandom.current();
 
         for (int step = 0; step < 200; step++) {
             int idx = random.nextInt(OWNERS.length);
             ReferenceOwner owner = OWNERS[idx];
             if (random.nextBoolean()) {
                 if (!hasOwner[idx]) {
-                    assertTrue(ref.tryReserve(owner));
+                    assertTrue(ref.tryReserve(owner),
+                            "tryReserve should succeed when owner does not yet hold a reservation at step " + step);
                     hasOwner[idx] = true;
                 }
             } else {
@@ -51,29 +52,31 @@ class ReferenceCountingFuzzTest {
         }
 
         ref.releaseLast(ReferenceOwner.INIT);
-        assertEquals(1, ref.releaseCount.get());
-        assertThrows(ClosedIllegalStateException.class, () -> ref.reserve(OWNERS[0]));
-        assertThrows(ClosedIllegalStateException.class, ref::throwExceptionIfReleased);
+        assertEquals(1, ref.releaseCount.get(), "performRelease should be invoked exactly once after all references released");
+        assertThrows(ClosedIllegalStateException.class, () -> ref.reserve(OWNERS[0]),
+                "reserve should fail after release");
+        assertThrows(ClosedIllegalStateException.class, ref::throwExceptionIfReleased,
+                "throwExceptionIfReleased should throw after release");
     }
 
     @Test
     void backgroundReleaseHappensOnReleaserThread() throws ClosedIllegalStateException {
-        TestReference ref = new TestReference(true);
+        ReferenceStub ref = new ReferenceStub(true);
         ref.releaseLast(ReferenceOwner.INIT);
         BackgroundResourceReleaser.releasePendingResources();
 
-        assertEquals(1, ref.releaseCount.get());
+        assertEquals(1, ref.releaseCount.get(), "performRelease should be invoked exactly once on background thread");
         assertNotNull(ref.releasedOnBackgroundThread.get(),
                 "performRelease should have been invoked exactly once");
     }
 
-    private static final class TestReference extends AbstractReferenceCounted {
+    private static final class ReferenceStub extends AbstractReferenceCounted {
         private final boolean background;
         private final AtomicReference<Thread> releaseThread = new AtomicReference<>();
         private final AtomicInteger releaseCount = new AtomicInteger();
         private final AtomicReference<Boolean> releasedOnBackgroundThread = new AtomicReference<>();
 
-        TestReference(boolean background) {
+        ReferenceStub(boolean background) {
             this.background = background;
             singleThreadedCheckDisabled(true);
         }

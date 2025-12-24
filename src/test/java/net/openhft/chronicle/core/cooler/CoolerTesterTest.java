@@ -4,10 +4,11 @@
 package net.openhft.chronicle.core.cooler;
 
 import org.junit.jupiter.api.Test;
+
 import java.util.concurrent.Callable;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 class CoolerTesterTest {
@@ -32,10 +33,10 @@ class CoolerTesterTest {
         CoolerTester tester = new CoolerTester();
         tester.repeat(5).runTimeMS(1000).minCount(10).maxCount(100);
 
-        assertEquals(5, tester.repeat());
-        assertEquals(1000, tester.runTimeMS());
-        assertEquals(10, tester.minCount());
-        assertEquals(100, tester.maxCount());
+        assertEquals(5, tester.repeat(), "repeat getter should return the configured repeat count");
+        assertEquals(1000, tester.runTimeMS(), "runTimeMS getter should return the configured run time");
+        assertEquals(10, tester.minCount(), "minCount getter should return the configured minimum count");
+        assertEquals(100, tester.maxCount(), "maxCount getter should return the configured maximum count");
     }
 
     @Test
@@ -44,6 +45,6 @@ class CoolerTesterTest {
         CpuCooler mockCooler = mock(CpuCooler.class);
 
         CoolerTester tester = new CoolerTester(mockCooler, mockTask);
-        assertDoesNotThrow(tester::run);
+        assertDoesNotThrow(tester::run, "run should execute without errors");
     }
 }

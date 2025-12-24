@@ -10,12 +10,13 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 class CleanerServiceFallbackTest {
 
@@ -26,6 +27,12 @@ class CleanerServiceFallbackTest {
         java.lang.reflect.Field inst = CleanerServiceLocator.class.getDeclaredField("instance");
         inst.setAccessible(true);
         inst.set(null, null);
+    }
+
+    private static void prepareBrokenServiceDescriptor(Path serviceFile) throws IOException {
+        Files.createDirectories(serviceFile.getParent());
+        // Reference a class that does not exist so ServiceLoader triggers ServiceConfigurationError
+        Files.write(serviceFile, "non.existent.Cleaner\n".getBytes(UTF_8));
     }
 
     @AfterEach
@@ -71,16 +78,10 @@ class CleanerServiceFallbackTest {
         try {
             current.setContextClassLoader(cl);
             ByteBufferCleanerService service = CleanerServiceLocator.cleanerService();
-            assertEquals(ReflectionBasedByteBufferCleanerService.class, service.getClass());
+            assertEquals(ReflectionBasedByteBufferCleanerService.class, service.getClass(), "Cleaner service should fallback to ReflectionBasedByteBufferCleanerService when ServiceLoader fails with broken descriptor");
             assertSame(service, CleanerServiceLocator.cleanerService(), "Locator should cache the fallback instance");
         } finally {
             current.setContextClassLoader(previous);
         }
-    }
-
-    private static void prepareBrokenServiceDescriptor(Path serviceFile) throws IOException {
-        Files.createDirectories(serviceFile.getParent());
-        // Reference a class that does not exist so ServiceLoader triggers ServiceConfigurationError
-        Files.write(serviceFile, "non.existent.Cleaner\n".getBytes(StandardCharsets.ISO_8859_1));
     }
 }

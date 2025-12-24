@@ -7,107 +7,133 @@ import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.testframework.process.JavaProcessBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-public class BackgroundResourceReleaserTest extends CoreTestCommon {
+class BackgroundResourceReleaserTest extends CoreTestCommon {
     private final AtomicLong closed = new AtomicLong();
     private final AtomicLong released = new AtomicLong();
 
-    @Test
-    public void testResourcesCleanedUp() throws IllegalStateException {
-        int count = 20;
-        for (int i = 0; i < count - 1; i++) {
-            new BGCloseable().close();
-            new BGReferenceCounted().releaseLast();
-        }
-        int expectedCount = BackgroundResourceReleaser.BG_RELEASER ? 2 : count;
-        assertEquals(expectedCount, closed.get(), 2);
-        assertEquals(expectedCount, released.get(), 2);
-        BGCloseable bgc = new BGCloseable();
-        bgc.close();
-        assertTrue(bgc.isClosing());
-        assertEquals(!BackgroundResourceReleaser.BG_RELEASER, bgc.isClosed());
+    private static void verifyBetween(long min, long actual, long max) {
+        if (min <= actual && actual <= max)
+            return;
+        throw new AssertionError("Not in range " + min + " <= " + actual + " <= " + max);
+    }
 
-        BGReferenceCounted bgr = new BGReferenceCounted();
-        bgr.releaseLast();
-        assertEquals(0, bgr.refCount());
+    @Test
+    void testResourcesCleanedUp() throws IllegalStateException {
+        int count = 20;
+        BackgroundResourceReleaserSupport.createResources(0, count - 1, closed, released);
+        BackgroundResourceReleaserSupport.verifyExpectedCounts(count, closed, released);
+        BackgroundResourceReleaserSupport.exerciseCloseableAndReferenceCounted(closed, released, !BackgroundResourceReleaser.BG_RELEASER);
 
         long start0 = System.currentTimeMillis();
-        WaitingCloseable wc = new WaitingCloseable();
+        BackgroundResourceReleaserSupport.WaitingCloseable wc = BackgroundResourceReleaserSupport.createWaitingCloseable();
         new Thread(wc::close).start();
         wc.close();
         long time0 = System.currentTimeMillis() - start0;
         int error = Jvm.isAzulZing() || Jvm.isAzulZulu() || Jvm.isMacArm() ? 45 : 20;
-        assertBetween(10, time0, 20 + 3 * error);
+        verifyBetween(10, time0, 20 + 3 * error);
 
         BackgroundResourceReleaser.releasePendingResources();
         long time = System.currentTimeMillis() - start0;
         if (BackgroundResourceReleaser.BG_RELEASER) {
-            int factor = count * (Jvm.isAzulZulu() || OS.isMacOSX() ? 80 : OS.isWindows() ? 20 : 18);
-            assertBetween(count * 9, time, factor);
+            long factor = (long) count * (Jvm.isAzulZulu() || OS.isMacOSX() ? 80L : OS.isWindows() ? 20L : 18L);
+            verifyBetween(count * 9L, time, factor);
         }
-        assertEquals(count, closed.get());
-        assertEquals(count, released.get());
-        AbstractCloseable.assertCloseablesClosed();
+        assertEquals(count, closed.get(), "closed count should equal total resource count");
+        assertEquals(count, released.get(), "released count should equal total resource count");
+        assertDoesNotThrow(AbstractCloseable::assertCloseablesClosed, "closeables should be closed");
     }
 
     @Test
-    public void testResourcesCleanedUpManually() throws IllegalStateException, InterruptedException {
+    void testResourcesCleanedUpManually() throws IllegalStateException, InterruptedException {
         Process process = JavaProcessBuilder.create(BackgroundResourceReleaserMain.class)
                 .withJvmArguments("-Dbackground.releaser=false").withProgramArguments("manual").start();
 
         try {
-            assertEquals(0, process.waitFor());
+            assertEquals(0, process.waitFor(), "process exit code should be 0 for successful manual cleanup");
         } finally {
             JavaProcessBuilder.printProcessOutput("BackgroundResourceReleaserMain manual", process);
         }
     }
 
     @Test
-    public void testResourcesCleanedUpAndThreadStopped() throws IllegalStateException, InterruptedException {
+    void testResourcesCleanedUpAndThreadStopped() throws IllegalStateException, InterruptedException {
         Process process = JavaProcessBuilder.create(BackgroundResourceReleaserMain.class).withProgramArguments("stop").start();
 
         try {
-            assertEquals(0, process.waitFor());
+            assertEquals(0, process.waitFor(), "process exit code should be 0 after stopping background thread");
         } finally {
             JavaProcessBuilder.printProcessOutput("BackgroundResourceReleaserMain stop", process);
         }
     }
 
     @Test
-    public void testResourcesCleanedUpInForeground() throws IllegalStateException, InterruptedException {
+    void testResourcesCleanedUpInForeground() throws IllegalStateException, InterruptedException {
         Process process = JavaProcessBuilder.create(BackgroundResourceReleaserMain.class)
                 .withJvmArguments("-Dbackground.releaser=false").withProgramArguments("foreground").start();
 
         try {
-            assertEquals(0, process.waitFor());
+            assertEquals(0, process.waitFor(), "process exit code should be 0 for foreground cleanup");
         } finally {
             JavaProcessBuilder.printProcessOutput("BackgroundResourceReleaserMain stop", process);
         }
     }
 
     @Test
-    public void isOnBackgroundResourceReleaserThreadIsTrueWhenOnThread() {
+    void isOnBackgroundResourceReleaserThreadIsTrueWhenOnThread() {
         assumeTrue(BackgroundResourceReleaser.BG_RELEASER);
         final WasInBackgroundResourceReleaserRecorder recorder = new WasInBackgroundResourceReleaserRecorder(true);
         recorder.close();
         assertValueBecomes(true, recorder::wasClosedInBackgroundResourceReleaserThread);
-        assertTrue(recorder.wasClosedInBackgroundResourceReleaserThread());
+        assertTrue(recorder.wasClosedInBackgroundResourceReleaserThread(),
+                "recorder should close on background resource releaser thread with background cleanup");
     }
 
     @Test
-    public void isOnBackgroundResourceReleaserThreadIsFalseWhenNotOnThread() {
+    void isOnBackgroundResourceReleaserThreadIsFalseWhenNotOnThread() {
         final WasInBackgroundResourceReleaserRecorder recorder = new WasInBackgroundResourceReleaserRecorder(false);
         recorder.close();
         assertValueBecomes(false, recorder::wasClosedInBackgroundResourceReleaserThread);
-        assertFalse(recorder.wasClosedInBackgroundResourceReleaserThread());
+        assertFalse(recorder.wasClosedInBackgroundResourceReleaserThread(),
+                "recorder should not close on background resource releaser thread with foreground cleanup");
+    }
+
+    @Test
+    void releasePendingResourcesFlushesQueuedWork() {
+        AtomicInteger closedCount = new AtomicInteger();
+        int total = 32;
+        for (int i = 0; i < total; i++) {
+            CountingCloseable closeable = new CountingCloseable(closedCount);
+            BackgroundResourceReleaser.release(closeable);
+        }
+        BackgroundResourceReleaser.releasePendingResources();
+        assertEquals(total, closedCount.get(), "closed count should equal total after flushing pending work");
+    }
+
+    @Test
+    void releasePendingResourcesReassertsInterrupt() throws InterruptedException {
+        AtomicBoolean interrupted = new AtomicBoolean();
+        AtomicInteger closedCount = new AtomicInteger();
+        Thread t = new Thread(() -> {
+            CountingCloseable closeable = new CountingCloseable(closedCount);
+            BackgroundResourceReleaser.release(closeable);
+            Thread.currentThread().interrupt();
+            BackgroundResourceReleaser.releasePendingResources();
+            interrupted.set(Thread.currentThread().isInterrupted());
+        });
+        t.start();
+        t.join();
+        assertEquals(1, closedCount.get(), "closed count should be 1 after releasing pending resources");
+        assertTrue(interrupted.get(), "interrupt flag should be reasserted after releasing pending resources");
     }
 
     private void assertValueBecomes(boolean expectedValue, Supplier<Boolean> supplier) {
@@ -118,7 +144,7 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
                 fail("Timed out waiting for value");
             }
         }
-        assertEquals(expectedValue, supplier.get());
+        assertEquals(expectedValue, supplier.get(), "value should become expected value within timeout period");
     }
 
     private static class WasInBackgroundResourceReleaserRecorder extends AbstractCloseable {
@@ -145,12 +171,6 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
         }
     }
 
-    private static void assertBetween(long min, long actual, long max) {
-        if (min <= actual && actual <= max)
-            return;
-        throw new AssertionError("Not in range " + min + " <= " + actual + " <= " + max);
-    }
-
     static class WaitingCloseable extends AbstractCloseable {
         @Override
         protected boolean shouldWaitForClosed() {
@@ -163,7 +183,14 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
         }
     }
 
-    class BGCloseable extends AbstractCloseable {
+    static class CountingCloseable extends AbstractCloseable {
+
+        private final AtomicInteger counter;
+
+        CountingCloseable(AtomicInteger counter) {
+            this.counter = counter;
+        }
+
         @Override
         protected boolean shouldPerformCloseInBackground() {
             return true;
@@ -171,21 +198,7 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
 
         @Override
         protected void performClose() {
-            closed.incrementAndGet();
-            Jvm.pause(10);
-        }
-    }
-
-    class BGReferenceCounted extends AbstractReferenceCounted {
-        @Override
-        protected boolean canReleaseInBackground() {
-            return true;
-        }
-
-        @Override
-        protected void performRelease() {
-            released.incrementAndGet();
-            Jvm.pause(10);
+            counter.incrementAndGet();
         }
     }
 }

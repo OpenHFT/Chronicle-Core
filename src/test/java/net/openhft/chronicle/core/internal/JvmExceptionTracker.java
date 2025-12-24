@@ -25,7 +25,7 @@ public enum JvmExceptionTracker {
     private static final Set<LogLevel> IGNORED_LOG_LEVELS = EnumSet.of(DEBUG, PERF);
 
     /**
-     * Create a JvmExceptionTracker
+     * Create an exception tracker that records Jvm exception events.
      *
      * @return the exception tracker
      */
@@ -34,9 +34,9 @@ public enum JvmExceptionTracker {
     }
 
     /**
-     * Create a JvmExceptionTracker
+     * Create an exception tracker configured to include or exclude debug-level events.
      *
-     * @param debug Whether to track debug messages
+     * @param debug whether to track debug messages
      * @return the exception tracker
      */
     public static ExceptionTracker<ExceptionKey> create(final boolean debug) {
@@ -44,10 +44,10 @@ public enum JvmExceptionTracker {
     }
 
     /**
-     * Create a JvmExceptionTracker
+     * Create an exception tracker that can restrict output to exception-bearing events.
      *
-     * @param debug          Whether to track debug messages
-     * @param exceptionsOnly Whether to track only messages with exceptions
+     * @param debug          whether to track debug messages
+     * @param exceptionsOnly whether to track only messages with exceptions
      * @return the exception tracker
      */
     public static ExceptionTracker<ExceptionKey> create(final boolean debug,
@@ -56,11 +56,11 @@ public enum JvmExceptionTracker {
     }
 
     /**
-     * Create a JvmExceptionTracker
+     * Create an exception tracker that optionally forwards events to SLF4J.
      *
-     * @param debug          Whether to track debug messages
-     * @param exceptionsOnly Whether to track only messages with exceptions
-     * @param logToSlf4j     Whether to also log messages to slf4j
+     * @param debug          whether to track debug messages
+     * @param exceptionsOnly whether to track only messages with exceptions
+     * @param logToSlf4j     whether to also log messages to SLF4J
      * @return the exception tracker
      */
     public static ExceptionTracker<ExceptionKey> create(final boolean debug,
@@ -70,7 +70,7 @@ public enum JvmExceptionTracker {
     }
 
     /**
-     * Create a JvmExceptionTracker
+     * Create an exception tracker from the recorded exception map.
      *
      * @return the exception tracker
      */

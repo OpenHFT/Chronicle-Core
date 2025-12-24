@@ -30,16 +30,17 @@ class SyncableTest {
     void syncIfAvailableShouldNotThrowExceptionForNonSyncableObjects() {
         Object nonSyncableObject = new Object();
 
-        assertDoesNotThrow(() -> Syncable.syncIfAvailable(nonSyncableObject));
+        assertDoesNotThrow(() -> Syncable.syncIfAvailable(nonSyncableObject),
+                "syncIfAvailable should ignore non-syncable object");
     }
 
     @Test
     void syncShouldSetSyncedToTrueForSyncableImpl() {
         SyncableImpl syncableImpl = new SyncableImpl();
-        assertFalse(syncableImpl.synced);
+        assertFalse(syncableImpl.synced, "syncable should start unsynchronised");
 
         syncableImpl.sync();
 
-        assertTrue(syncableImpl.synced);
+        assertTrue(syncableImpl.synced, "synchronization should be complete");
     }
 }

@@ -6,14 +6,13 @@ package net.openhft.chronicle.core.pool;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Maths;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class EnumInternerTest extends CoreTestCommon {
+class EnumInternerTest extends CoreTestCommon {
 
     private static final int MASK = 63;
 
@@ -31,12 +30,12 @@ public class EnumInternerTest extends CoreTestCommon {
     }
 
     @Test
-    public void clashTest() {
+    void clashTest() {
         for (TestEnum value : TestEnum.values()) {
             @NotNull String s = value.toString();
             long h = Maths.hash64(s);
             h ^= h >> 32;
-            assertEquals(0, (int) h & MASK);
+            assertEquals(0, (int) h & MASK, "Hash value should produce zero when masked with MASK for " + s);
         }
 
         final EnumInterner<TestEnum> testEnum
@@ -48,7 +47,7 @@ public class EnumInternerTest extends CoreTestCommon {
                     final String cs = te.toString();
                     for (int i = 0; i < 20000; i++) {
                         final TestEnum interned = testEnum.intern(cs);
-                        Assert.assertEquals("i: " + i, interned, te);
+                        assertEquals(te, interned, "Interned enum should match original enum value for parallel access iteration " + i);
                     }
                 });
     }

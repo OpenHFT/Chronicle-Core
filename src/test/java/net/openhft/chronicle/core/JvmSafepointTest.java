@@ -4,16 +4,20 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.testframework.FlakyTestRunner;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
-public class JvmSafepointTest extends CoreTestCommon {
+class JvmSafepointTest extends CoreTestCommon {
+
+    private volatile long safePointPerfLastAvg;
 
     @Test
-    public void testSafepoint() throws InterruptedException {
+    void testSafepoint() throws InterruptedException {
         @SuppressWarnings("AnonymousHasLambdaAlternative")
         Thread t = new Thread() {
+            @Override
             public void run() {
                 long start = System.currentTimeMillis();
                 while (System.currentTimeMillis() < start + 1000
@@ -45,13 +49,20 @@ public class JvmSafepointTest extends CoreTestCommon {
         t.interrupt();
         t.join();
         System.out.println("counter: " + counter);
-        assertTrue("counter: " + counter, counter >= min);
+        assertTrue(counter >= min, "safepoint counter " + counter + " should be >= " + min);
     }
 
     @Test
-    public void safePointPerf() {
+    void safePointPerf() {
         // This will enable the C2 compiler to kick in.
-        FlakyTestRunner.<RuntimeException>builder(this::safePointPerf0).withFlakyOnThisArchitecture(true).withMaxIterations(3).build().run();
+        FlakyTestRunner.builder(this::safePointPerf0)
+                .withFlakyOnThisArchitecture(true)
+                .withMaxIterations(3)
+                .build()
+                .runOrThrow();
+        int maxAvg = Jvm.isArm() ? 400 : 200;
+        long avg = safePointPerfLastAvg;
+        assertTrue(1 <= avg && avg < maxAvg, "safePointPerf: avg=" + avg + ", maxAvg=" + maxAvg);
     }
 
     private void safePointPerf0() {
@@ -65,14 +76,14 @@ public class JvmSafepointTest extends CoreTestCommon {
             long time = System.nanoTime() - start;
             if (t > 2) {
                 long avg = time / count;
+                safePointPerfLastAvg = avg;
                 System.out.println("avg: " + avg);
                 int maxAvg = Jvm.isArm() ? 400 : 200;
-                try {
-                    assertTrue("avg: " + avg, 1 <= avg && avg < maxAvg);
+                if (1 <= avg && avg < maxAvg) {
                     break;
-                } catch (AssertionError e) {
-                    if (t == 5)
-                        throw e;
+                }
+                if (t == 5) {
+                    fail("safepoint average exceeds limit at attempt " + t);
                 }
             }
             Jvm.pause(5);

@@ -14,8 +14,8 @@ class ReadResolvableTest {
         ReadResolvableImpl original = new ReadResolvableImpl();
         ReadResolvableImpl replacement = original.readResolve();
 
-        assertNotNull(replacement);
-        assertNotSame(original, replacement);
+        assertNotNull(replacement, "reflection should find method");
+        assertNotSame(original, replacement, "readResolve on ReadResolvable should return new replacement object");
         // Additional assertions based on the expected behavior of the replacement object
     }
 
@@ -24,8 +24,8 @@ class ReadResolvableTest {
         ReadResolvableImpl original = new ReadResolvableImpl();
         ReadResolvableImpl resolved = ReadResolvable.readResolve(original);
 
-        assertNotNull(resolved);
-        assertNotSame(original, resolved);
+        assertNotNull(resolved, "required object should not be null");
+        assertNotSame(original, resolved, "static readResolve should return different instance for ReadResolvable");
     }
 
     @Test
@@ -33,7 +33,7 @@ class ReadResolvableTest {
         SerializableObject serializableObject = new SerializableObject();
         SerializableObject resolved = ReadResolvable.readResolve(serializableObject);
 
-        assertSame(serializableObject, resolved);
+        assertSame(serializableObject, resolved, "static readResolve should return same Serializable non-ReadResolvable object");
     }
 
     @Test
@@ -41,7 +41,7 @@ class ReadResolvableTest {
         NonSerializableObject nonSerializableObject = new NonSerializableObject();
         NonSerializableObject resolved = ReadResolvable.readResolve(nonSerializableObject);
 
-        assertSame(nonSerializableObject, resolved);
+        assertSame(nonSerializableObject, resolved, "static readResolve should return same non-Serializable non-ReadResolvable object");
     }
 
     // Hypothetical implementation of ReadResolvable

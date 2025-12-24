@@ -29,12 +29,12 @@ class CleanerServiceImpactVersionTest {
     void lowerImpactPreferredAndVersionGateApplied() throws Exception {
         resetLocator();
         ByteBufferCleanerService svc = CleanerServiceLocator.cleanerService();
-        assertNotNull(svc);
+        assertNotNull(svc, "service implementation should be found");
         String name = svc.getClass().getName();
         // SomeImpactCleaner is available but NO_IMPACT (AllowedCleaner) must be chosen.
-        assertEquals("net.openhft.chronicle.core.cleaner.testimpl.AllowedCleaner", name);
+        assertEquals("net.openhft.chronicle.core.cleaner.testimpl.AllowedCleaner", name, "version string should match");
         // And DisallowedCleaner must never be selected due to @TargetMajorVersion(99)
-        assertNotEquals("net.openhft.chronicle.core.cleaner.testimpl.DisallowedCleaner", name);
+        assertNotEquals("net.openhft.chronicle.core.cleaner.testimpl.DisallowedCleaner", name,
+                "disallowed cleaner should not be selected");
     }
 }
-

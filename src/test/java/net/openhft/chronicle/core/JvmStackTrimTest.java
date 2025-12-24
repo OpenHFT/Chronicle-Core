@@ -11,15 +11,15 @@ class JvmStackTrimTest {
 
     @Test
     void isInternalClassNameClassification() {
-        assertTrue(Jvm.isInternal("java.lang.String"));
-        assertTrue(Jvm.isInternal("sun.nio.fs.UnixFileSystem"));
-        assertTrue(Jvm.isInternal("jdk.internal.module.ModuleBootstrap"));
-        assertFalse(Jvm.isInternal("net.openhft.chronicle.core.Jvm"));
+        assertTrue(Jvm.isInternal("java.lang.String"), "isInternal should classify java.lang classes as internal");
+        assertTrue(Jvm.isInternal("sun.nio.fs.UnixFileSystem"), "isInternal should classify sun.* classes as internal");
+        assertTrue(Jvm.isInternal("jdk.internal.module.ModuleBootstrap"), "isInternal should classify jdk.internal classes as internal");
+        assertFalse(Jvm.isInternal("net.openhft.chronicle.core.Jvm"), "isInternal should classify user application classes as non-internal");
     }
 
     @Test
     void trimFirstAndLastIndices() {
-        StackTraceElement[] st = new StackTraceElement[] {
+        StackTraceElement[] st = {
                 new StackTraceElement("java.lang.Object", "m", "Object.java", 1),
                 new StackTraceElement("sun.misc.Unsafe", "n", "Unsafe.java", 1),
                 new StackTraceElement("net.openhft.User", "x", "User.java", 10),
@@ -28,7 +28,7 @@ class JvmStackTrimTest {
         int first = Jvm.trimFirst(st);
         int last = Jvm.trimLast(first, st);
         // trimFirst returns up to 2 frames of context; here it returns 0
-        assertEquals(0, first);
-        assertTrue(last >= first && last <= st.length);
+        assertEquals(0, first, "index should be within valid range");
+        assertTrue(last >= first && last <= st.length, "range indices should be valid");
     }
 }

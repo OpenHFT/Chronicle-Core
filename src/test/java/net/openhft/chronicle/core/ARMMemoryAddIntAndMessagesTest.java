@@ -15,22 +15,30 @@ class ARMMemoryAddIntAndMessagesTest {
 
     private long alloc(int bytes) {
         allocated = UnsafeMemory.UNSAFE.allocateMemory(bytes);
-        for (int i = 0; i < bytes; i++) UnsafeMemory.UNSAFE.putByte(allocated + i, (byte) 0);
+        for (int i = 0; i < bytes; i++) {
+            UnsafeMemory.UNSAFE.putByte(allocated + i, (byte) 0);
+        }
         return allocated;
     }
 
     @AfterEach
-    void tearDown() { if (allocated != 0) UnsafeMemory.UNSAFE.freeMemory(allocated); allocated = 0; }
+    void tearDown() {
+        if (allocated != 0) {
+            UnsafeMemory.UNSAFE.freeMemory(allocated);
+        }
+        allocated = 0;
+    }
 
     @Test
     void addIntAlignedAndMisaligned() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
         long base = alloc(16);
         long aligned = base + 4;
-        assertEquals(1, arm.addInt(aligned, 1));
-        assertEquals(2, arm.addInt(aligned, 1));
+        assertEquals(1, arm.addInt(aligned, 1), "addInt should return previous value of 0 plus delta of 1");
+        assertEquals(2, arm.addInt(aligned, 1), "addInt should return previous value of 1 plus delta of 1");
         long mis = base + 2;
-        assertThrows(MisAlignedAssertionError.class, () -> arm.addInt(mis, 1));
+        assertThrows(MisAlignedAssertionError.class, () -> arm.addInt(mis, 1),
+                "addInt should reject misaligned address");
     }
 
     @Test
@@ -40,8 +48,12 @@ class ARMMemoryAddIntAndMessagesTest {
         long aligned = base + 4;
         // current value 0, expected 1 -> mismatch
         IllegalStateException ex = assertThrows(IllegalStateException.class,
-                () -> arm.testAndSetInt(aligned, 4L, 1, 2));
-        assertTrue(ex.getMessage().contains("Expected") || ex.getMessage().contains("expected"));
-        assertFalse(ex.getMessage().contains("mis-aligned"));
+                () -> arm.testAndSetInt(aligned, 4L, 1, 2),
+                "testAndSetInt should report mismatch");
+        String message = ex.getMessage();
+        assertTrue(message.contains("Expected") || message.contains("expected"),
+                "mismatch message should mention expected vs actual but was: " + message);
+        assertFalse(message.contains("mis-aligned"),
+                "aligned path should not mention mis-aligned: " + message);
     }
 }

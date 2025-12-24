@@ -6,21 +6,22 @@ package net.openhft.chronicle.core.threads;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("deprecation")
 class InterruptedRuntimeExceptionTest {
 
     @Test
     void defaultConstructorShouldCreateExceptionWithNoMessageOrCause() {
         InterruptedRuntimeException exception = new InterruptedRuntimeException();
-        assertNull(exception.getMessage());
-        assertNull(exception.getCause());
+        assertNull(exception.getMessage(), "exception created with default constructor should have null message");
+        assertNull(exception.getCause(), "exception created with default constructor should have null cause");
     }
 
     @Test
     void constructorWithMessageShouldSetCorrectMessage() {
         String message = "Interrupted";
         InterruptedRuntimeException exception = new InterruptedRuntimeException(message);
-        assertEquals(message, exception.getMessage());
-        assertNull(exception.getCause());
+        assertEquals(message, exception.getMessage(), "exception created with message should preserve the provided message");
+        assertNull(exception.getCause(), "exception created with message only should have null cause");
     }
 
     @Test
@@ -28,15 +29,15 @@ class InterruptedRuntimeExceptionTest {
         String message = "Interrupted";
         Throwable cause = new RuntimeException("Cause");
         InterruptedRuntimeException exception = new InterruptedRuntimeException(message, cause);
-        assertEquals(message, exception.getMessage());
-        assertEquals(cause, exception.getCause());
+        assertEquals(message, exception.getMessage(), "exception created with message and cause should preserve the message");
+        assertEquals(cause, exception.getCause(), "exception created with message and cause should preserve the cause");
     }
 
     @Test
     void constructorWithCauseShouldSetCauseAndDeriveMessage() {
         Throwable cause = new RuntimeException("Cause");
         InterruptedRuntimeException exception = new InterruptedRuntimeException(cause);
-        assertEquals(cause.toString(), exception.getMessage());
-        assertEquals(cause, exception.getCause());
+        assertEquals(cause.toString(), exception.getMessage(), "exception created with cause only should derive message from cause toString");
+        assertEquals(cause, exception.getCause(), "exception created with cause only should preserve the cause");
     }
 }

@@ -3,10 +3,12 @@
  */
 package net.openhft.chronicle.core.io;
 
-import junit.framework.TestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class UnsafeCloseableTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+class UnsafeCloseableTest {
 
     private final UnsafeCloseable uc;
 
@@ -17,87 +19,55 @@ public class UnsafeCloseableTest extends TestCase {
     }
 
     @Test
-    public void testGetLong() {
-        try {
-            uc.getLong();
-            fail();
-        } catch (IllegalStateException ise) {
-            // expected.
-        }
+    void testGetLong() {
+        assertThrows(IllegalStateException.class, uc::getLong,
+                "getLong should reject closed instance");
     }
 
     @Test
-    public void testSetLong() {
-        try {
-            uc.setLong(0);
-            fail();
-        } catch (IllegalStateException ise) {
-            // expected.
-        }
+    void testSetLong() {
+        assertThrows(IllegalStateException.class, () -> uc.setLong(0),
+                "setLong should reject closed instance");
     }
 
     @Test
-    public void testGetVolatileLong() {
-        assertEquals(128, uc.getVolatileLong(128));
+    void testGetVolatileLong() {
+        assertEquals(128, uc.getVolatileLong(128), "getVolatileLong should return fallback value when called on closed UnsafeCloseable");
     }
 
     @Test
-    public void testSetVolatileLong() {
-        try {
-            uc.setVolatileLong(0);
-            fail();
-        } catch (IllegalStateException ise) {
-            // expected.
-        }
+    void testSetVolatileLong() {
+        assertThrows(IllegalStateException.class, () -> uc.setVolatileLong(0),
+                "setVolatileLong should reject closed instance");
     }
 
     @Test
-    public void testTestGetVolatileLong() {
-        try {
-            uc.getVolatileLong();
-            fail();
-        } catch (IllegalStateException ise) {
-            // expected.
-        }
+    void testTestGetVolatileLong() {
+        assertThrows(IllegalStateException.class, uc::getVolatileLong,
+                "getVolatileLong should reject closed instance");
     }
 
     @Test
-    public void testSetOrderedLong() {
-        try {
-            uc.setOrderedLong(0);
-            fail();
-        } catch (IllegalStateException ise) {
-            // expected.
-        }
+    void testSetOrderedLong() {
+        assertThrows(IllegalStateException.class, () -> uc.setOrderedLong(0),
+                "setOrderedLong should reject closed instance");
     }
 
     @Test
-    public void testAddLong() {
-        try {
-            uc.addLong(0);
-            fail();
-        } catch (IllegalStateException ise) {
-            // expected.
-        }
+    void testAddLong() {
+        assertThrows(IllegalStateException.class, () -> uc.addLong(0),
+                "addLong should reject closed instance");
     }
 
     @Test
-    public void testAddAtomicLong() {
-        try {
-            uc.addAtomicLong(0);
-            fail();
-        } catch (IllegalStateException ise) {
-            // expected.
-        }
+    void testAddAtomicLong() {
+        assertThrows(IllegalStateException.class, () -> uc.addAtomicLong(0),
+                "addAtomicLong should reject closed instance");
     }
 
     @Test
-    public void testCompareAndSwapLong() {
-        try {
-            uc.compareAndSwapLong(0, 0);
-            fail();
-        } catch (IllegalStateException ise) {
-            // expected.
-        }
+    void testCompareAndSwapLong() {
+        assertThrows(IllegalStateException.class, () -> uc.compareAndSwapLong(0, 0),
+                "compareAndSwapLong should reject closed instance");
     }
 }

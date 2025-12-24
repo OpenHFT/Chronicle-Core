@@ -13,7 +13,7 @@ class CharSequenceComparatorTest {
         CharSequence seq1 = "test";
         CharSequence seq2 = "test";
 
-        assertEquals(0, CharSequenceComparator.INSTANCE.compare(seq1, seq2));
+        assertEquals(0, CharSequenceComparator.INSTANCE.compare(seq1, seq2), "comparing identical sequences should return zero");
     }
 
     @Test
@@ -21,8 +21,10 @@ class CharSequenceComparatorTest {
         CharSequence seq1 = "abc";
         CharSequence seq2 = "abd";
 
-        assertTrue(CharSequenceComparator.INSTANCE.compare(seq1, seq2) < 0);
-        assertTrue(CharSequenceComparator.INSTANCE.compare(seq2, seq1) > 0);
+        int firstResult = CharSequenceComparator.INSTANCE.compare(seq1, seq2);
+        int secondResult = CharSequenceComparator.INSTANCE.compare(seq2, seq1);
+        assertTrue(firstResult < 0, "same-length comparison compare(\"" + seq1 + "\", \"" + seq2 + "\") should be < 0, was " + firstResult);
+        assertTrue(secondResult > 0, "same-length comparison compare(\"" + seq2 + "\", \"" + seq1 + "\") should be > 0, was " + secondResult);
     }
 
     @Test
@@ -30,8 +32,10 @@ class CharSequenceComparatorTest {
         CharSequence seq1 = "abc";
         CharSequence seq2 = "abcd";
 
-        assertTrue(CharSequenceComparator.INSTANCE.compare(seq1, seq2) < 0);
-        assertTrue(CharSequenceComparator.INSTANCE.compare(seq2, seq1) > 0);
+        int firstResult = CharSequenceComparator.INSTANCE.compare(seq1, seq2);
+        int secondResult = CharSequenceComparator.INSTANCE.compare(seq2, seq1);
+        assertTrue(firstResult < 0, "prefix-length comparison compare(\"" + seq1 + "\", \"" + seq2 + "\") should be < 0, was " + firstResult);
+        assertTrue(secondResult > 0, "prefix-length comparison compare(\"" + seq2 + "\", \"" + seq1 + "\") should be > 0, was " + secondResult);
     }
 
     @Test
@@ -39,7 +43,9 @@ class CharSequenceComparatorTest {
         CharSequence emptySeq = "";
         CharSequence nonEmptySeq = "test";
 
-        assertTrue(CharSequenceComparator.INSTANCE.compare(emptySeq, nonEmptySeq) < 0);
-        assertTrue(CharSequenceComparator.INSTANCE.compare(nonEmptySeq, emptySeq) > 0);
+        int firstResult = CharSequenceComparator.INSTANCE.compare(emptySeq, nonEmptySeq);
+        int secondResult = CharSequenceComparator.INSTANCE.compare(nonEmptySeq, emptySeq);
+        assertTrue(firstResult < 0, "empty sequence comparison compare(\"" + emptySeq + "\", \"" + nonEmptySeq + "\") should be < 0, was " + firstResult);
+        assertTrue(secondResult > 0, "empty sequence comparison compare(\"" + nonEmptySeq + "\", \"" + emptySeq + "\") should be > 0, was " + secondResult);
     }
 }

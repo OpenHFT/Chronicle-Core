@@ -6,52 +6,52 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class AbstractCloseableTest extends CoreTestCommon {
+class AbstractCloseableTest extends CoreTestCommon {
 
     @Test
-    public void close() throws IllegalStateException {
+    void close() throws IllegalStateException {
         MyCloseable mc = new MyCloseable();
-        assertFalse(mc.isClosed());
-        assertEquals(0, mc.performClose);
+        assertFalse(mc.isClosed(), "newly created closeable should not be closed");
+        assertEquals(0, mc.performClose, "performClose should not have been called before first close");
 
         mc.throwExceptionIfClosed();
 
         mc.close();
-        assertTrue(mc.isClosed());
-        assertEquals(1, mc.performClose);
+        assertTrue(mc.isClosed(), "first call marks closed");
+        assertEquals(1, mc.performClose, "performClose should have been called exactly once after first close");
 
         mc.close();
-        assertTrue(mc.isClosed());
-        assertEquals(1, mc.performClose);
+        assertTrue(mc.isClosed(), "second call keeps closed");
+        assertEquals(1, mc.performClose, "performClose should not be called again on second close");
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void throwExceptionIfClosed() throws IllegalStateException {
+    @Test
+    void throwExceptionIfClosed() {
         MyCloseable mc = new MyCloseable();
         mc.close();
-        mc.throwExceptionIfClosed();
+        assertThrows(IllegalStateException.class, mc::throwExceptionIfClosed, "closed resource rejects access");
 
     }
 
     @Test
-    public void warnAndCloseIfNotClosed() {
+    void warnAndCloseIfNotClosed() {
         Jvm.setResourceTracing(true);
 
-        Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
+        final Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
         MyCloseable mc = new MyCloseable();
 
         // not recorded for now.
         System.err.println("!!! The following warning is expected !!!");
         mc.warnAndCloseIfNotClosed();
 
-        assertTrue(mc.isClosed());
+        assertTrue(mc.isClosed(), "resource should be closed after warnAndCloseIfNotClosed");
         Jvm.resetExceptionHandlers();
         if (!AbstractCloseable.DISABLE_DISCARD_WARNING)
             assertEquals("Discarded without closing\n" +
@@ -59,11 +59,12 @@ public class AbstractCloseableTest extends CoreTestCommon {
                     map.keySet().stream()
                             .map(e -> e.message() + "\n" + e.throwable())
                             .collect(Collectors.joining(", "))
-                            .split(" at ")[0]);
+                            .split(" at ")[0],
+                    "warning message should indicate resource was discarded without closing");
     }
 
     @Test
-    public void assertCloseable() {
+    void assertCloseable() {
 
         final MyCloseable myCloseable = new MyCloseable() {
             int cnt = 0;
@@ -75,16 +76,12 @@ public class AbstractCloseableTest extends CoreTestCommon {
             }
         };
 
-        try {
-            myCloseable.close();
-            fail();
-        } catch (IllegalStateException expected) {
-            // do Nothing
-        }
-        assertEquals(0, myCloseable.performClose);
+        assertThrows(IllegalStateException.class, myCloseable::close,
+                "close should throw when assertCloseable fails");
+        assertEquals(0, myCloseable.performClose, "performClose should not be called when assertCloseable fails");
 
         myCloseable.close();
-        assertEquals(1, myCloseable.performClose);
+        assertEquals(1, myCloseable.performClose, "performClose should be called once after assertCloseable passes");
     }
 
     static class MyCloseable extends AbstractCloseable {
@@ -92,8 +89,8 @@ public class AbstractCloseableTest extends CoreTestCommon {
 
         @Override
         protected void performClose() {
-            assertTrue(isClosing());
-            assertFalse(isClosed());
+            assertTrue(isClosing(), "isClosing should return true during performClose execution");
+            assertFalse(isClosed(), "isClosed should return false until performClose completes");
             performClose++;
         }
     }
