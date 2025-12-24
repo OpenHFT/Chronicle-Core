@@ -54,9 +54,6 @@ public final class DirectBufferUtil {
      */
     public static long addressOrThrow(final ByteBuffer buffer) {
         requireNonNull(buffer);
-        if (!(buffer instanceof DirectBuffer)) {
-            throw new ClassCastException("Buffer is not a DirectBuffer: " + buffer.getClass().getName());
-        }
         try {
             return ((DirectBuffer) buffer).address();
         } catch (IllegalAccessError e) {

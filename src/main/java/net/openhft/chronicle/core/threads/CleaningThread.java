@@ -48,6 +48,7 @@ public class CleaningThread extends Thread {
     public CleaningThread(Runnable target) {
         super(target);
         inEventLoop = false;
+        touchCreatedHere();
     }
 
     /**
@@ -70,6 +71,16 @@ public class CleaningThread extends Thread {
     public CleaningThread(Runnable target, String name, boolean inEventLoop) {
         super(target, name);
         this.inEventLoop = inEventLoop;
+        touchCreatedHere();
+    }
+
+    private void touchCreatedHere() {
+        if (createdHere != null) {
+            String message = createdHere.getMessage();
+            if (message == null) {
+                Jvm.safepoint();
+            }
+        }
     }
 
     /**

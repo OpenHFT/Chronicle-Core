@@ -37,105 +37,135 @@ public enum CpuCoolers implements CpuCooler {
             Jvm.pause(1);
         }
     },
-    /** Causes the CPU to pause for roughly 3 nanoseconds. */
+    /**
+     * Causes the CPU to pause for roughly 3 nanoseconds.
+     */
     PAUSE3 {
         @Override
         public void disturb() {
             Jvm.pause(3);
         }
     },
-    /** Causes the CPU to pause for roughly 6 nanoseconds. */
+    /**
+     * Causes the CPU to pause for roughly 6 nanoseconds.
+     */
     PAUSE6 {
         @Override
         public void disturb() {
             Jvm.pause(6);
         }
     },
-    /** Causes the CPU to pause for roughly 10 nanoseconds. */
+    /**
+     * Causes the CPU to pause for roughly 10 nanoseconds.
+     */
     PAUSE10 {
         @Override
         public void disturb() {
             Jvm.pause(10);
         }
     },
-    /** Causes the CPU to pause for roughly 100 nanoseconds. */
+    /**
+     * Causes the CPU to pause for roughly 100 nanoseconds.
+     */
     PAUSE100 {
         @Override
         public void disturb() {
             Jvm.pause(100);
         }
     },
-    /** Causes the CPU to pause for roughly 1 microsecond. */
+    /**
+     * Causes the CPU to pause for roughly 1 microsecond.
+     */
     PAUSE1000 {
         @Override
         public void disturb() {
             Jvm.pause(1000);
         }
     },
-    /** Yields the thread to let other runnable threads proceed. */
+    /**
+     * Yields the thread to let other runnable threads proceed.
+     */
     YIELD {
         @Override
         public void disturb() {
             Thread.yield();
         }
     },
-    /** Performs a short busy-spin to generate load. */
+    /**
+     * Performs a short busy-spin to generate load.
+     */
     BUSY {
         @Override
         public void disturb() {
             busyWait(0.1e6);
         }
     },
-    /** Busy-spin for approximately 0.3 ms. */
+    /**
+     * Busy-spin for approximately 0.3 ms.
+     */
     BUSY_3 {
         @Override
         public void disturb() {
             busyWait(0.3e6);
         }
     },
-    /** Busy-spin for approximately 1 ms. */
+    /**
+     * Busy-spin for approximately 1 ms.
+     */
     BUSY1 {
         @Override
         public void disturb() {
             busyWait(1e6);
         }
     },
-    /** Busy-spin for approximately 3 ms. */
+    /**
+     * Busy-spin for approximately 3 ms.
+     */
     BUSY3 {
         @Override
         public void disturb() {
             busyWait(3e6);
         }
     },
-    /** Busy-spin for approximately 10 ms. */
+    /**
+     * Busy-spin for approximately 10 ms.
+     */
     BUSY10 {
         @Override
         public void disturb() {
             busyWait(10e6);
         }
     },
-    /** Busy-spin for approximately 30 ms. */
+    /**
+     * Busy-spin for approximately 30 ms.
+     */
     BUSY30 {
         @Override
         public void disturb() {
             busyWait(30e6);
         }
     },
-    /** Busy-spin for approximately 100 ms. */
+    /**
+     * Busy-spin for approximately 100 ms.
+     */
     BUSY100 {
         @Override
         public void disturb() {
             busyWait(100e6);
         }
     },
-    /** Busy-spin for approximately 300 ms. */
+    /**
+     * Busy-spin for approximately 300 ms.
+     */
     BUSY300 {
         @Override
         public void disturb() {
             busyWait(300e6);
         }
     },
-    /** Busy-spin for approximately 1 second. */
+    /**
+     * Busy-spin for approximately 1 second.
+     */
     BUSY1000 {
         @Override
         public void disturb() {
@@ -155,11 +185,10 @@ public enum CpuCoolers implements CpuCooler {
             toogle = !toogle;
         }
     },
-    /** Performs repeated Java object serialisation/deserialisation to generate CPU work. */
+    /**
+     * Performs repeated Java object serialisation/deserialisation to generate CPU work.
+     */
     SERIALIZATION {
-        @SuppressWarnings("unused")
-        private volatile Object lastRead;
-
         @Override
         public void disturb() {
             ByteArrayOutputStream out = new ByteArrayOutputStream();
@@ -167,10 +196,15 @@ public enum CpuCoolers implements CpuCooler {
             oos.writeObject(System.getProperties());
             oos.close();
             XMLDecoder ois = new XMLDecoder(new ByteArrayInputStream(out.toByteArray()));
-            lastRead = ois.readObject();
+            this.blackhole = ois.readObject();
+            if (this.blackhole == null) {
+                Jvm.safepoint();
+            }
         }
     },
-    /** Copies a large array to exercise memory bandwidth. */
+    /**
+     * Copies a large array to exercise memory bandwidth.
+     */
     MEMORY_COPY {
         final long[] from = new long[8 << 20];
         final long[] to = new long[8 << 20];
@@ -180,7 +214,9 @@ public enum CpuCoolers implements CpuCooler {
             System.arraycopy(from, 0, to, 0, from.length);
         }
     },
-    /** Executes serialization and copy workloads to exercise CPU and memory. */
+    /**
+     * Performs multiple disturbing operations at once.
+     */
     ALL {
         @Override
         public void disturb() {
@@ -189,6 +225,7 @@ public enum CpuCoolers implements CpuCooler {
             PAUSE10.disturb();
         }
     };
+    static volatile Object blackhole;
 
     /**
      * Spins, periodically issuing safepoints, for roughly the requested duration.

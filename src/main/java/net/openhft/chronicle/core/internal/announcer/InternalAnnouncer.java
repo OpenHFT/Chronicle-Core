@@ -30,8 +30,8 @@ public final class InternalAnnouncer {
     }
 
     private static final boolean DISABLE_ANNOUNCEMENT = Jvm.getBoolean("chronicle.announcer.disable");
-    private static final Consumer<String> LINE_PRINTER = DISABLE_ANNOUNCEMENT ? s -> {
-    } : m -> Jvm.startup().on(InternalAnnouncer.class, m);
+    private static final Consumer<String> LINE_PRINTER =
+            DISABLE_ANNOUNCEMENT ? InternalAnnouncer::ignoreLine : InternalAnnouncer::logLine;
     private static final AtomicBoolean JVM_ANNOUNCED = new AtomicBoolean();
     private static final Map<String, Set<String>> ANNOUNCED_GROUP_IDS = new ConcurrentHashMap<>();
 
@@ -58,6 +58,14 @@ public final class InternalAnnouncer {
                 Jvm.getProperty("java.runtime.version", Jvm.getProperty("java.vm.version")),
                 Runtime.getRuntime().availableProcessors()));
         LINE_PRINTER.accept("Leave your e-mail to get information about the latest releases and patches at https://chronicle.software/release-notes/");
+    }
+
+    private static void ignoreLine(@NotNull final String message) {
+        // Intentionally empty when announcements are disabled.
+    }
+
+    private static void logLine(@NotNull final String message) {
+        Jvm.startup().on(InternalAnnouncer.class, message);
     }
 
     private static void announceArtifact(@NotNull final String groupId,

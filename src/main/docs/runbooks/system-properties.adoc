@@ -39,10 +39,6 @@ Use this when Chronicle Init hooks or `system.properties` overrides are not taki
 * Run `iconv -f iso-8859-1 -t iso-8859-1 < /path/to/system.properties > /dev/null` to catch invalid bytes.
 . *Override temp dir safely (if needed)*
 * When `java.io.tmpdir` is unwritable, restart with `-Djava.io.tmpdir=/var/tmp/chronicle` (or another writable path) and rerun Chronicle Init checks.
-. *Dry-run ChronicleInit*
-* Execute `java -cp <app classpath> net.openhft.chronicle.core.init.SystemPropertiesProbeMain`.
-* The program should print the value of `chronicle.init.test.flag`.
-Failure indicates the init hook could not load.
 . *Validate file encoding*
 * Ensure the file referenced by `-Dsystem.properties` is ISO-8859-1. Non ASCII entries will be ignored.
 . *Check log output*

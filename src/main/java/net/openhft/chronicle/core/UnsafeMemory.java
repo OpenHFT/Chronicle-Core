@@ -63,7 +63,9 @@ public class UnsafeMemory implements Memory {
     // during a large copy
     static final long UNSAFE_COPY_THRESHOLD = 1024L * 1024L;
     // NOSONAR
-    /** Indicates whether the native platform is little-endian. */
+    /**
+     * Indicates whether the native platform is little-endian.
+     */
     @Deprecated(/* to be removed in 2027, only used in tests */)
     public static final boolean IS_LITTLE_ENDIAN = ByteOrder.nativeOrder() == ByteOrder.LITTLE_ENDIAN;
 
@@ -1209,8 +1211,10 @@ public class UnsafeMemory implements Memory {
         copyMemoryLoop(null, srcAddress, dest, destOffset, length);
         if (length > 128 << 10) {
             long time = System.nanoTime() - start;
-            if (time > 100_000)
-                Jvm.perf().on(getClass(), "Took " + time / 1000 / 1e3 + " ms to copy " + length / 1024 + " KB");
+            if (time > 100_000) {
+                double millis = time / 1000 / 1e3;
+                Jvm.perf().on(getClass(), "Took " + millis + " ms to copy " + length / 1024 + " KB");
+            }
         }
     }
 

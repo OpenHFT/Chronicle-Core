@@ -16,7 +16,7 @@ import java.util.Objects;
  * <ul>
  *   <li>If the wrapped stream is at true end-of-file, {@code -1} is returned (normal EOF).</li>
  *   <li>If additional data is still available, an {@link IOException} with the message
- *       <q>Size limit exceeded</q> is thrown.  This ensures the caller can never read past
+ *       <q>read exceeds configured size limit</q> is thrown.  This ensures the caller can never read past
  *       the configured limit.</li>
  * </ul>
  *
@@ -57,7 +57,7 @@ final class LimitedInputStream extends FilterInputStream {
     @Override
     public int read(final byte @NotNull [] buf, final int off, final int len) throws IOException {
         // Classic Java-8 bounds checks
-        Objects.requireNonNull(buf, "buffer");
+        Objects.requireNonNull(buf, "buf");
         if (off < 0 || len < 0 || len > buf.length - off)
             throw new IndexOutOfBoundsException();
         if (len == 0)

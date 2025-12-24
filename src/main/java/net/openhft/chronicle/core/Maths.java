@@ -615,7 +615,7 @@ public final class Maths {
      */
     public static long hash64(@NotNull String s) {
         //noinspection ConstantValue
-        if (s == null) throw new IllegalArgumentException(); // NOSONAR
+        if (s == null) throw new IllegalArgumentException();
         long hash;
 
         if (Jvm.isJava9Plus() && Jvm.maxDirectMemory() > 0) {

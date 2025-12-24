@@ -142,8 +142,8 @@ public enum GenericReflection {
         }
         if (type instanceof ParameterizedType)
             return erase(((ParameterizedType) type).getRawType());
-        if (type instanceof Class)
+        if (type instanceof Class<?>)
             return (Class<?>) type;
-        throw new UnsupportedOperationException("Unsupported type: " + type);
+        throw new ClassCastException("Cannot erase non-class type " + type);
     }
 }
