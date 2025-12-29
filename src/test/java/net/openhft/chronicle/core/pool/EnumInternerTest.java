@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.pool;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Maths;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.stream.Stream;
@@ -29,8 +30,9 @@ class EnumInternerTest extends CoreTestCommon {
         }
     }
 
+    @DisplayName("clashTest behaviour under expected input and output conditions")
     @Test
-    public void clashTest() {
+    void clashTest() {
         for (TestEnum value : TestEnum.values()) {
             @NotNull String s = value.toString();
             long h = Maths.hash64(s);

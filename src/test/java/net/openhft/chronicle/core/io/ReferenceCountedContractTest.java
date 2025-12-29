@@ -5,6 +5,7 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
@@ -21,10 +22,10 @@ import static org.junit.jupiter.api.Assertions.*;
  * Any implementor of {@link ReferenceCounted} should implement a test class
  * that extends this or one of its more specific children
  */
-public abstract class ReferenceCountedContractTest extends CoreTestCommon {
+abstract class ReferenceCountedContractTest extends CoreTestCommon {
 
     /**
-     * Create an instance of the {@link ReferenceCounted} under test
+     * Create and return a fresh {@link ReferenceCounted} instance for contract testing.
      *
      * @return the instance
      */
@@ -35,8 +36,9 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         // this tests isn't expected to clean up it's resources
     }
 
+    @DisplayName("reserve increments reference count for each owner")
     @Test
-    public void reserveWillIncrementReferenceCount() {
+    void reserveWillIncrementReferenceCount() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         assertEquals(1, referenceCounted.refCount(), "reserveWillIncrementReferenceCount: refCount should be 1 initially");
@@ -53,18 +55,21 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         referenceCounted.releaseLast();
     }
 
+    @DisplayName("reserve fails after resource is released")
     @Test
-    public void reserveWillFailWhenResourceIsAlreadyReleased() {
+    void reserveWillFailWhenResourceIsAlreadyReleased() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         referenceCounted.releaseLast();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
-        assertThrows(IllegalStateException.class, () -> referenceCounted.reserve(a));
+        assertThrows(IllegalStateException.class, () -> referenceCounted.reserve(a),
+                "reserve should fail after resource is released");
     }
 
+    @DisplayName("reserveTransfer keeps reference count unchanged here")
     @Test
-    public void reserveTransferWillNotChangeReferenceCount() {
+    void reserveTransferWillNotChangeReferenceCount() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -78,8 +83,9 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         referenceCounted.releaseLast();
     }
 
+    @DisplayName("release decrements reference count for owners")
     @Test
-    public void releaseWillDecrementReferenceCount() {
+    void releaseWillDecrementReferenceCount() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         assertEquals(1, referenceCounted.refCount(), "releaseWillDecrementReferenceCount: refCount should be 1 initially");
@@ -101,26 +107,30 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         referenceCounted.releaseLast();
     }
 
+    @DisplayName("release fails when resource already released")
     @Test
-    public void releaseWillFailWhenResourceAlreadyReleased() {
+    void releaseWillFailWhenResourceAlreadyReleased() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         referenceCounted.releaseLast();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
-        assertThrows(IllegalStateException.class, () -> referenceCounted.release(a));
+        assertThrows(IllegalStateException.class, () -> referenceCounted.release(a),
+                "release should fail after resource is already released");
     }
 
+    @DisplayName("release reaches zero when INIT released")
     @Test
-    public void releaseWillGoAllTheWayToZero() {
+    void releaseWillGoAllTheWayToZero() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         referenceCounted.release(ReferenceOwner.INIT);
         assertEquals(0, referenceCounted.refCount(), "reference count should be 0 after releasing INIT owner");
     }
 
+    @DisplayName("releaseLast decrements reference count to zero")
     @Test
-    public void releaseLastWillDecrementReferenceCount() {
+    void releaseLastWillDecrementReferenceCount() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         assertEquals(1, referenceCounted.refCount(), "releaseLastWillDecrementReferenceCount: refCount should be 1 initially");
@@ -129,8 +139,9 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         assertEquals(0, referenceCounted.refCount(), "releaseLastWillDecrementReferenceCount: refCount should be 0 after releaseLast");
     }
 
+    @DisplayName("releaseLast fails when reference is not last")
     @Test
-    public void releaseLastWillReleaseThenFailWhenReferenceIsNotLast() {
+    void releaseLastWillReleaseThenFailWhenReferenceIsNotLast() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -139,22 +150,26 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         assertEquals(2, referenceCounted.refCount(), "releaseLastWillReleaseThenFail: refCount should be 2 after reserve");
 
         // not reserved is an ISE not a CISE
-        assertThrows(IllegalStateException.class, referenceCounted::releaseLast);
+        assertThrows(IllegalStateException.class, referenceCounted::releaseLast,
+                "releaseLast should fail when reference is not last");
 
         assertEquals(1, referenceCounted.refCount(), "releaseLastWillReleaseThenFail: refCount should be 1 after failed releaseLast attempt");
         referenceCounted.releaseLast(a);
     }
 
+    @DisplayName("releaseLast fails after resource already released")
     @Test
-    public void releaseLastWillFailWhenResourceAlreadyReleased() {
+    void releaseLastWillFailWhenResourceAlreadyReleased() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         referenceCounted.releaseLast();
-        assertThrows(IllegalStateException.class, referenceCounted::releaseLast);
+        assertThrows(IllegalStateException.class, referenceCounted::releaseLast,
+                "releaseLast should fail when resource is already released");
     }
 
+    @DisplayName("tryReserve returns true when reservation succeeds behaviour under expected input and output conditions")
     @Test
-    public void tryReserveWillReturnTrueWhenReservationWasSuccessful() {
+    void tryReserveWillReturnTrueWhenReservationWasSuccessful() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -163,8 +178,9 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         referenceCounted.releaseLast();
     }
 
+    @DisplayName("tryReserve returns false when resource released behaviour under expected input and output conditions")
     @Test
-    public void tryReserveWillReturnFalseWhenResourceIsAlreadyReleased() {
+    void tryReserveWillReturnFalseWhenResourceIsAlreadyReleased() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         referenceCounted.releaseLast();
@@ -172,8 +188,9 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         assertFalse(referenceCounted.tryReserve(a), "tryReserve should return false when resource is already released");
     }
 
+    @DisplayName("reference counted implementations remain thread safe")
     @Test
-    public void implementationsShouldBeThreadSafe() throws InterruptedException {
+    void implementationsShouldBeThreadSafe() throws InterruptedException {
         int numThreads = Math.max(3, Math.min(6, Runtime.getRuntime().availableProcessors()));
         int numReferences = 10;
         AtomicBoolean running = new AtomicBoolean(true);
@@ -196,8 +213,9 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         assertTrue(counted.refCount() >= 0, "reference count should remain non-negative after concurrent operations");
     }
 
+    @DisplayName("listeners are notified on reference add and remove")
     @Test
-    public void shouldNotifyListenersWhenReferencesAreAddedAndRemoved() {
+    void shouldNotifyListenersWhenReferencesAreAddedAndRemoved() {
         ReferenceCounted rc = createReferenceCounted();
         assertEquals(1, rc.refCount(), "shouldNotifyListeners: refCount should be 1 initially");
         Set<ReferenceOwner> currentOwners = new HashSet<>();
@@ -224,34 +242,35 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         });
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
-        ReferenceOwner b = ReferenceOwner.temporary("b");
-
         rc.reserve(a);
         assertEquals(1, currentOwners.size(), "currentOwners size should be 1 after first reserve");
-        assertContains("currentOwners should include first reserved owner", currentOwners, a);
+        verifyContains("currentOwners should include first reserved owner", currentOwners, a);
 
+        ReferenceOwner b = ReferenceOwner.temporary("b");
         rc.reserve(b);
         assertEquals(2, currentOwners.size(), "currentOwners size should be 2 after second reserve");
-        assertContains("currentOwners should include second reserved owner", currentOwners, b);
+        verifyContains("currentOwners should include second reserved owner", currentOwners, b);
 
         rc.release(a);
         assertEquals(1, currentOwners.size(), "currentOwners size should be 1 after first release");
-        assertContains("currentOwners should still include second owner after releasing first", currentOwners, b);
+        verifyContains("currentOwners should still include second owner after releasing first", currentOwners, b);
 
         rc.reserveTransfer(b, a);
         assertEquals(1, currentOwners.size(), "currentOwners size should remain 1 after transfer");
-        assertContains("currentOwners should include transferred owner", currentOwners, a);
+        verifyContains("currentOwners should include transferred owner", currentOwners, a);
 
         rc.release(a);
         assertEquals(0, currentOwners.size(), "currentOwners size should be 0 after releasing all tracked owners");
 
         rc.releaseLast(ReferenceOwner.INIT);
         assertEquals(1, untrackedOwners.size(), "untrackedOwners size should be 1 after releasing INIT");
-        assertFalse(currentOwners.contains(ReferenceOwner.INIT), "INIT owner should not remain tracked");
+        assertFalse(currentOwners.contains(ReferenceOwner.INIT),
+                "INIT owner should not remain tracked: owners=" + currentOwners);
     }
 
+    @DisplayName("listener fires when reference is added")
     @Test
-    public void whenAReferenceIsAddedTheReferenceChangeListenerShouldFire() {
+    void whenAReferenceIsAddedTheReferenceChangeListenerShouldFire() {
         ReferenceCounted rc = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -264,8 +283,9 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         rc.releaseLast();
     }
 
+    @DisplayName("listener fires when reference is removed")
     @Test
-    public void whenAReferenceIsRemovedTheReferenceChangeListenerShouldFire() {
+    void whenAReferenceIsRemovedTheReferenceChangeListenerShouldFire() {
         ReferenceCounted rc = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -278,12 +298,13 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         rc.releaseLast();
     }
 
-    private static void assertContains(String message, Set<ReferenceOwner> owners, ReferenceOwner expected) {
+    private static void verifyContains(String message, Set<ReferenceOwner> owners, ReferenceOwner expected) {
         assertTrue(owners.contains(expected), message + " [expected=" + expected + ", owners=" + owners + "]");
     }
 
+    @DisplayName("listener fires when reference is transferred")
     @Test
-    public void referenceChangeListenerShouldFireWhenAReferenceIsTransferred() {
+    void referenceChangeListenerShouldFireWhenAReferenceIsTransferred() {
         ReferenceCounted rc = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -298,18 +319,19 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
         rc.releaseLast();
     }
 
+    @DisplayName("listeners can be added and removed")
     @Test
-    public void shouldBeAbleToAddAndRemoveListeners() {
+    void shouldBeAbleToAddAndRemoveListeners() {
         ReferenceCounted rc = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
 
         CounterReferenceChangeListener listener1 = new CounterReferenceChangeListener();
-        CounterReferenceChangeListener listener2 = new CounterReferenceChangeListener();
 
         rc.addReferenceChangeListener(listener1);
         rc.reserve(a);
         assertEquals(1, listener1.referenceAddedCount, "listener1 should track first reference addition");
+        CounterReferenceChangeListener listener2 = new CounterReferenceChangeListener();
         assertEquals(0, listener2.referenceAddedCount, "listener2 should not track events before registration");
         rc.addReferenceChangeListener(listener2);
 

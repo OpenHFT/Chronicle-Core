@@ -91,7 +91,7 @@ public class WeakIdentityHashMap<K, V> extends AbstractMap<K, V> {
                     @Override
                     public K next() {
                         if (next == null && !hasNext()) {
-                            throw new NoSuchElementException();
+                            throw new NoSuchElementException("No more elements in weak identity set iterator");
                         }
                         K ret = next;
                         next = null;

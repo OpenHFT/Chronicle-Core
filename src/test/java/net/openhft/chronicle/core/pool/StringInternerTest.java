@@ -5,15 +5,18 @@ package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class StringInternerTest extends CoreTestCommon {
+@SuppressWarnings("deprecation")
+class StringInternerTest extends CoreTestCommon {
     private String[] uppercase;
 
+    @DisplayName("testIntern behaviour under expected input and output conditions")
     @Test
-    public void testIntern() throws IllegalArgumentException {
+    void testIntern() throws IllegalArgumentException {
         @NotNull StringInterner si = new StringInterner(128);
         for (int i = 0; i < 100; i++) {
             si.intern("" + i);
@@ -21,11 +24,13 @@ public class StringInternerTest extends CoreTestCommon {
         assertEquals(82, si.valueCount(), "valueCount should equal interned entries after collisions");
     }
 
+    @DisplayName("testInternIndex behaviour under expected input and output conditions")
     @Test
-    public void testInternIndex() throws IllegalArgumentException {
+    void testInternIndex() throws IllegalArgumentException {
         @NotNull StringInterner si = new StringInterner(128);
         for (int i = 0; i < 100; i++) {
-            assertEquals("" + i, si.get(si.index("" + i, null)), "get should return same string after indexing");
+            assertEquals("" + i, si.get(si.index("" + i, null)),
+                    "get should return same string after indexing i=" + i);
         }
     }
 
@@ -34,8 +39,9 @@ public class StringInternerTest extends CoreTestCommon {
      *
      * @throws IllegalArgumentException if the interner cannot allocate entries
      */
+    @DisplayName("testToUppercaseInternIndex behaviour under expected input and output conditions")
     @Test
-    public void testToUppercaseInternIndex() throws IllegalArgumentException {
+    void testToUppercaseInternIndex() throws IllegalArgumentException {
 
         @NotNull StringInterner si = new StringInterner(128);
         uppercase = new String[si.capacity()];
@@ -44,7 +50,8 @@ public class StringInternerTest extends CoreTestCommon {
             System.out.println(lowerCaseString);
             int index = si.index(lowerCaseString, this::changed);
             if (index != -1)
-                assertEquals(lowerCaseString.toUpperCase(), uppercase[index], "uppercase cache should contain uppercased version of indexed string");
+                assertEquals(lowerCaseString.toUpperCase(), uppercase[index],
+                        "uppercase cache should contain uppercased version of indexed string i=" + i + ", index=" + index);
         }
     }
 

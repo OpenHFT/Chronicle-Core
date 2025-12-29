@@ -6,7 +6,7 @@ package net.openhft.chronicle.core.util;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.Closeable;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -32,14 +32,9 @@ class ConcreteInvocationHandler extends AbstractInvocationHandler {
 
 class AbstractInvocationHandlerTest extends CoreTestCommon {
 
-    @BeforeEach
-    public void setUp() throws NoSuchMethodException {
-        AbstractInvocationHandler handler = new ConcreteInvocationHandler();
-        Method exampleMethod = String.class.getMethod("length");
-    }
-
+    @DisplayName("testCloseable behaviour under expected input and output conditions")
     @Test
-    public void testCloseable() throws Throwable {
+    void testCloseable() throws Throwable {
         AbstractInvocationHandler handler = new ConcreteInvocationHandler();
         Closeable mockCloseable = mock(Closeable.class);
         handler.onClose(mockCloseable);
@@ -50,8 +45,9 @@ class AbstractInvocationHandlerTest extends CoreTestCommon {
         verify(mockCloseable, times(1)).close();
     }
 
+    @DisplayName("testMethodHandleForProxy behaviour under expected input and output conditions")
     @Test
-    public void testMethodHandleForProxy() throws Throwable {
+    void testMethodHandleForProxy() throws Throwable {
         assumeTrue(Jvm.majorVersion() >= 17);
         AbstractInvocationHandler handler = new ConcreteInvocationHandler();
         Method exampleMethod = String.class.getMethod("length");
@@ -59,8 +55,9 @@ class AbstractInvocationHandlerTest extends CoreTestCommon {
         assertNotNull(handler.methodHandleForProxy("example", exampleMethod), "methodHandleForProxy should return a non-null method handle");
     }
 
+    @DisplayName("testInvoke behaviour under expected input and output conditions")
     @Test
-    public void testInvoke() {
+    void testInvoke() {
         final List<String> messages = new ArrayList<>();
         final Consumer<String> consumer = messages::add;
         final CallMe mocked = Mocker.intercepting(CallMe.class, "", consumer);

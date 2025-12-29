@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.io;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
@@ -23,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Tests for the Wget class, which provides a simple way to fetch content from URLs.
  */
+@SuppressWarnings("deprecation")
 class WgetTest {
 
     private static java.nio.charset.Charset nullDetector(InputStream in, String contentType) {
@@ -30,9 +32,10 @@ class WgetTest {
     }
 
     private static java.nio.charset.Charset throwingDetector(InputStream in, String contentType) {
-        throw new RuntimeException("boom");
+        throw new RuntimeException("charset detector failure occurred");
     }
 
+    @DisplayName("fetch appends response body to appendable")
     @Test
     void fetch_appends_response_body() throws IOException {
         String expected = "hello world";
@@ -44,22 +47,27 @@ class WgetTest {
         assertEquals(expected, sb.toString(), "Response body should be appended to StringBuilder");
     }
 
+    @DisplayName("invalid scheme rejects non-http URL requests")
     @Test
     void invalid_scheme_throws_MalformedURLException() {
         Wget wget = new Wget.Builder()
                 .connectionProvider(u -> new ByteArrayInputStream(new byte[0]))
                 .build();
-        assertThrows(IOException.class, () -> wget.fetch("ftp://example.com", new StringBuilder()));
+        assertThrows(IOException.class, () -> wget.fetch("ftp://example.com", new StringBuilder()),
+                "fetch should reject unsupported URL schemes");
     }
 
+    @DisplayName("null appendable throws NullPointerException as expected behaviour under expected input and output conditions")
     @Test
     void null_appendable_throws() {
         Wget wget = new Wget.Builder()
                 .connectionProvider(u -> new ByteArrayInputStream(new byte[0]))
                 .build();
-        assertThrows(NullPointerException.class, () -> wget.fetch("http://x", null));
+        assertThrows(NullPointerException.class, () -> wget.fetch("http://x", null),
+                "fetch should throw for null appendable");
     }
 
+    @DisplayName("body equal to limit is allowed")
     @Test
     void body_equal_to_limit_is_allowed() throws IOException {
         byte[] five = "12345".getBytes(StandardCharsets.UTF_8);
@@ -72,6 +80,7 @@ class WgetTest {
         assertEquals("12345", sb.toString(), "Response body exactly matching maxResponseBytes limit should be allowed");
     }
 
+    @DisplayName("unknown content length limit is enforced")
     @Test
     void unknown_content_length_still_enforced() throws IOException {
         try (InputStream neverEnding = new InputStream() {
@@ -84,20 +93,24 @@ class WgetTest {
                     .connectionProvider(u -> neverEnding)
                     .maxResponseBytes(128)
                     .build();
-            assertThrows(IOException.class, () -> wget.fetch("http://x", new StringBuilder()));
+            assertThrows(IOException.class, () -> wget.fetch("http://x", new StringBuilder()),
+                    "fetch should enforce limits when content length is unknown");
         }
     }
 
+    @DisplayName("connection provider IOException bubbles up unchanged")
     @Test
     void ioExceptionFromConnectionProviderBubblesUp() {
         Wget wget = new Wget.Builder()
                 .connectionProvider(u -> {
-                    throw new IOException("boom");
+                    throw new IOException("connection provider failure occurred");
                 })
                 .build();
-        assertThrows(IOException.class, () -> wget.fetch("http://x", new StringBuilder()));
+        assertThrows(IOException.class, () -> wget.fetch("http://x", new StringBuilder()),
+                "connection provider IOException should bubble up");
     }
 
+    @DisplayName("null charset detector falls back to UTF-8")
     @Test
     void null_charset_detector_result_falls_back_to_utf8() throws IOException {
         byte[] cafe = "Café".getBytes(StandardCharsets.UTF_8);
@@ -110,12 +123,13 @@ class WgetTest {
         assertEquals("Café", sb.toString(), "Null charset detector result should fall back to UTF-8 for decoding");
     }
 
+    @DisplayName("appendable exception is propagated to caller")
     @Test
     void appendable_exception_is_propagated() {
         Appendable broken = new Appendable() {
             @Override
             public Appendable append(char c) throws IOException {
-                throw new IOException("disk full");
+                throw new IOException("disk full while appending response");
             }
 
             @Override
@@ -131,16 +145,20 @@ class WgetTest {
         Wget wget = new Wget.Builder()
                 .connectionProvider(u -> new ByteArrayInputStream("x".getBytes(StandardCharsets.UTF_8)))
                 .build();
-        assertThrows(IOException.class, () -> wget.fetch("http://x", broken));
+        assertThrows(IOException.class, () -> wget.fetch("http://x", broken),
+                "appendable IOException should propagate from fetch");
     }
 
+    @DisplayName("static url method rejects oversized URL")
     @Test
     void static_url_method_rejects_oversized_url() {
         StringBuilder sbUrl = new StringBuilder("http://a");
         while (sbUrl.length() <= 2100) sbUrl.append('b');
-        assertThrows(IllegalArgumentException.class, () -> Wget.url(sbUrl.toString(), new StringBuilder()));
+        assertThrows(IllegalArgumentException.class, () -> Wget.url(sbUrl.toString(), new StringBuilder()),
+                "Wget.url should reject oversized URL inputs");
     }
 
+    @DisplayName("fetch is thread safe when shared instance")
     @Test
     void fetch_is_thread_safe_when_instance_is_shared() throws Exception {
         Wget wget = new Wget.Builder()
@@ -166,6 +184,7 @@ class WgetTest {
         assertEquals(20, successes.get(), "All 20 concurrent fetch operations should complete successfully when sharing a single Wget instance");
     }
 
+    @DisplayName("limited stream behaves like EOF after budget")
     @Test
     void limited_stream_behaves_like_eof_after_budget() throws IOException {
         byte[] data = "abc".getBytes(StandardCharsets.UTF_8);
@@ -176,6 +195,7 @@ class WgetTest {
         assertEquals(-1, lim.read(), "LimitedInputStream should return -1 (EOF) after exhausting the byte budget");
     }
 
+    @DisplayName("zero budget allows empty body but blocks data")
     @Test
     void zero_budget_allows_empty_body_but_blocks_data() throws IOException {
         Wget empty = new Wget.Builder()
@@ -190,14 +210,18 @@ class WgetTest {
                 .connectionProvider(u -> new ByteArrayInputStream("x".getBytes(StandardCharsets.UTF_8)))
                 .maxResponseBytes(0)
                 .build();
-        assertThrows(IOException.class, () -> tooMuch.fetch("http://x", new StringBuilder()));
+        assertThrows(IOException.class, () -> tooMuch.fetch("http://x", new StringBuilder()),
+                "zero budget should reject non-empty responses");
     }
 
+    @DisplayName("negative byte budget is rejected safely")
     @Test
     void negative_budget_rejected() {
-        assertThrows(IllegalArgumentException.class, () -> new Wget.Builder().maxResponseBytes(-1).build());
+        assertThrows(IllegalArgumentException.class, () -> new Wget.Builder().maxResponseBytes(-1).build(),
+                "negative budget should be rejected by builder");
     }
 
+    @DisplayName("limited stream byte array path respects limit")
     @Test
     void limited_stream_byte_array_path_respects_limit() throws IOException {
         byte[] data = "abcdef".getBytes(StandardCharsets.UTF_8);
@@ -206,18 +230,22 @@ class WgetTest {
         int n = lim.read(buf);
         assertEquals(4, n, "LimitedInputStream should read exactly 4 bytes when limit is 4");
         assertEquals("abcd", new String(buf, 0, n, StandardCharsets.UTF_8), "LimitedInputStream byte array read should respect the byte limit and return only the first 4 bytes");
-        assertThrows(IOException.class, () -> lim.read(buf));
+        assertThrows(IOException.class, () -> lim.read(buf),
+                "LimitedInputStream should throw once byte limit is exceeded");
     }
 
+    @DisplayName("charset detector exception bubbles up unchanged")
     @Test
     void charset_detector_exception_bubbles_up() {
         Wget wget = new Wget.Builder()
                 .connectionProvider(u -> new ByteArrayInputStream("x".getBytes(StandardCharsets.UTF_8)))
                 .charsetDetector(WgetTest::throwingDetector)
                 .build();
-        assertThrows(RuntimeException.class, () -> wget.fetch("http://x", new StringBuilder()));
+        assertThrows(RuntimeException.class, () -> wget.fetch("http://x", new StringBuilder()),
+                "charset detector exception should bubble up");
     }
 
+    @DisplayName("default connection provider applies timeouts correctly")
     @Test
     void default_provider_sets_timeouts() throws Exception {
         AtomicInteger seenConnect = new AtomicInteger(-1);

@@ -45,7 +45,7 @@ import java.nio.BufferUnderflowException;
  */
 public interface IntArrayValues extends Closeable {
     /**
-     * Retrieves the capacity of the array.
+     * Retrieves the configured capacity of the underlying array storage.
      *
      * @return the capacity of the array
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
@@ -153,7 +153,7 @@ public interface IntArrayValues extends Closeable {
     long sizeInBytes(long capacity) throws IllegalStateException;
 
     /**
-     * Checks if the array is null.
+     * Checks whether the underlying array storage reference is null.
      *
      * @return true if the array is null, false otherwise
      * @throws ClosedIllegalStateException    If the resource has been released or closed.

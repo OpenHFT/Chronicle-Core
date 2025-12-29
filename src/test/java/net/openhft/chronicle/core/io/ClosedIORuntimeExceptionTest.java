@@ -4,12 +4,14 @@
 package net.openhft.chronicle.core.io;
 
 import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-public class ClosedIORuntimeExceptionTest {
+class ClosedIORuntimeExceptionTest {
 
+    @DisplayName("testConstructorWithMessage behaviour under expected input and output conditions")
     @Test
-    public void testConstructorWithMessage() {
+    void testConstructorWithMessage() {
         String testMessage = "Test message";
         ClosedIORuntimeException exception = new ClosedIORuntimeException(testMessage);
 
@@ -17,8 +19,9 @@ public class ClosedIORuntimeExceptionTest {
                 "message-only constructor should set the exception message correctly");
     }
 
+    @DisplayName("testConstructorWithMessageAndCause behaviour under expected input and output conditions")
     @Test
-    public void testConstructorWithMessageAndCause() {
+    void testConstructorWithMessageAndCause() {
         String testMessage = "Test message";
         Throwable testCause = new Throwable("Test cause");
         ClosedIORuntimeException exception = new ClosedIORuntimeException(testMessage, testCause);
@@ -29,13 +32,14 @@ public class ClosedIORuntimeExceptionTest {
                 "message-and-cause constructor should set the cause correctly");
     }
 
+    @DisplayName("testConstructorWithNullCause behaviour under expected input and output conditions")
     @Test
-    public void testConstructorWithNullCause() {
+    void testConstructorWithNullCause() {
         String testMessage = "Test message";
         ClosedIORuntimeException exception = new ClosedIORuntimeException(testMessage, null);
 
         assertEquals(testMessage, exception.getMessage(),
                 "constructor with null cause should still set the exception message correctly");
-        assertNull(exception.getCause(), "The cause should be null");
+        assertNull(exception.getCause(), "constructor with null cause should leave cause unset");
     }
 }

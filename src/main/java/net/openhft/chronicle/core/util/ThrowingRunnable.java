@@ -11,7 +11,7 @@ package net.openhft.chronicle.core.util;
 @FunctionalInterface
 public interface ThrowingRunnable<T extends Throwable> {
     /**
-     * Executes the runnable.
+     * Executes the runnable action, possibly throwing a checked exception.
      *
      * @throws T if execution fails
      */

@@ -37,14 +37,14 @@ package net.openhft.chronicle.core.values;
  */
 public interface FloatValue {
     /**
-     * Retrieves the float value.
+     * Retrieves the current float value from the backing store.
      *
      * @return the float value
      */
     float getValue();
 
     /**
-     * Sets the float value.
+     * Sets the float value in the backing store.
      *
      * @param value the float value to set
      */

@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.cleaner;
 import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;
 import net.openhft.chronicle.core.internal.cleaner.ReflectionBasedByteBufferCleanerService;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -40,6 +41,7 @@ class CleanerServiceFallbackTest {
         resetLocator();
     }
 
+    @DisplayName("falls back when service loading fails")
     @Test
     void fallsBackWhenServiceLoadingFails() throws Exception {
         resetLocator();

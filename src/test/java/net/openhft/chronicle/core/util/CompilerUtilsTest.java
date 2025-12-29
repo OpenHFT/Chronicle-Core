@@ -3,12 +3,15 @@
  */
 package net.openhft.chronicle.core.util;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 
+@SuppressWarnings("deprecation")
 class CompilerUtilsTest {
+    @DisplayName("defineClassShouldThrowAssertionErrorForIllegalAccessException behaviour under expected input and output conditions")
     @Test
     void defineClassShouldThrowAssertionErrorForIllegalAccessException() {
         ClassLoader classLoader = mock(ClassLoader.class);
@@ -16,9 +19,11 @@ class CompilerUtilsTest {
         byte[] bytes = { /* class file bytes */};
 
         // Simulate IllegalAccessException
-        assertThrows(AssertionError.class, () -> CompilerUtils.defineClass(classLoader, className, bytes));
+        assertThrows(AssertionError.class, () -> CompilerUtils.defineClass(classLoader, className, bytes),
+                "defineClass should throw AssertionError for illegal access");
     }
 
+    @DisplayName("defineClassShouldThrowAssertionErrorForInvocationTargetException behaviour under expected input and output conditions")
     @Test
     void defineClassShouldThrowAssertionErrorForInvocationTargetException() {
         ClassLoader classLoader = mock(ClassLoader.class);
@@ -26,6 +31,7 @@ class CompilerUtilsTest {
         byte[] bytes = { /* class file bytes */};
 
         // Simulate InvocationTargetException
-        assertThrows(AssertionError.class, () -> CompilerUtils.defineClass(classLoader, className, bytes));
+        assertThrows(AssertionError.class, () -> CompilerUtils.defineClass(classLoader, className, bytes),
+                "defineClass should throw AssertionError for invocation target failure");
     }
 }

@@ -5,6 +5,7 @@ package net.openhft.chronicle.core.cleaner;
 
 import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -25,6 +26,7 @@ class CleanerServiceImpactVersionTest {
         resetLocator();
     }
 
+    @DisplayName("lower impact preferred and version gate applied")
     @Test
     void lowerImpactPreferredAndVersionGateApplied() throws Exception {
         resetLocator();
@@ -32,9 +34,9 @@ class CleanerServiceImpactVersionTest {
         assertNotNull(svc, "service implementation should be found");
         String name = svc.getClass().getName();
         // SomeImpactCleaner is available but NO_IMPACT (AllowedCleaner) must be chosen.
-        assertEquals("net.openhft.chronicle.core.cleaner.testimpl.AllowedCleaner", name, "version string should match");
+        assertEquals("net.openhft.chronicle.core.cleaner.testimpl.AllowedCleaner", name, "allowed cleaner should be selected with lowest impact");
         // And DisallowedCleaner must never be selected due to @TargetMajorVersion(99)
-        assertNotEquals("net.openhft.chronicle.core.cleaner.testimpl.DisallowedCleaner", name);
+        assertNotEquals("net.openhft.chronicle.core.cleaner.testimpl.DisallowedCleaner", name,
+                "disallowed cleaner should never be selected due to major version gate");
     }
 }
-

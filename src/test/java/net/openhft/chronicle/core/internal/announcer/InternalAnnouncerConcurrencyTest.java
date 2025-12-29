@@ -5,6 +5,7 @@ package net.openhft.chronicle.core.internal.announcer;
 
 import net.openhft.chronicle.core.announcer.Announcer;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Collections;
@@ -23,6 +24,7 @@ class InternalAnnouncerConcurrencyTest {
         System.setProperty("chronicle.announcer.disable", "true");
     }
 
+    @DisplayName("concurrentAnnounceDoesNotRaceOrThrow behaviour under expected input and output conditions")
     @Test
     void concurrentAnnounceDoesNotRaceOrThrow() throws InterruptedException {
         int n = 8;
@@ -34,7 +36,8 @@ class InternalAnnouncerConcurrencyTest {
             pool.execute(() -> {
                 try {
                     start.await();
-                    assertDoesNotThrow(() -> Announcer.announce("net.openhft", "artifact-" + (idx % 3), Collections.emptyMap()));
+                    assertDoesNotThrow(() -> Announcer.announce("net.openhft", "artifact-" + (idx % 3), Collections.emptyMap()),
+                            "announce should not throw in concurrent thread i=" + idx);
                 } catch (InterruptedException ignored) {
                     Thread.currentThread().interrupt();
                 } finally {
@@ -47,4 +50,3 @@ class InternalAnnouncerConcurrencyTest {
         pool.shutdownNow();
     }
 }
-

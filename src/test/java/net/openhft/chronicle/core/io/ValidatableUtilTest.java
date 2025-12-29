@@ -3,12 +3,14 @@
  */
 package net.openhft.chronicle.core.io;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class ValidatableUtilTest {
 
+    @DisplayName("testValidateToggle behaviour under expected input and output conditions")
     @Test
     void testValidateToggle() {
         assertTrue(ValidatableUtil.validateEnabled(), "validation should be enabled by default");
@@ -20,12 +22,15 @@ class ValidatableUtilTest {
         assertTrue(ValidatableUtil.validateEnabled(), "validation should be re-enabled after endValidateDisabled");
     }
 
+    @DisplayName("testEndValidateDisabledWithoutStart behaviour under expected input and output conditions")
     @Test
     void testEndValidateDisabledWithoutStart() {
-        AssertionError exception = assertThrows(AssertionError.class, ValidatableUtil::endValidateDisabled);
+        AssertionError exception = assertThrows(AssertionError.class, ValidatableUtil::endValidateDisabled,
+                "endValidateDisabled should throw without a matching startValidateDisabled");
         assertNotNull(exception, "exception should be captured");
     }
 
+    @DisplayName("testValidate behaviour under expected input and output conditions")
     @Test
     void testValidate() throws InvalidMarshallableException {
         Validatable validatable = mock(Validatable.class);

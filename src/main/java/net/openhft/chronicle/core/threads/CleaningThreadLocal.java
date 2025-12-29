@@ -17,7 +17,7 @@ import java.util.function.UnaryOperator;
 import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 
 /**
- * <h2>CleaningThreadLocal - a ThreadLocal that never leaks native resources</h2>
+ * <h2>CleaningThreadLocal - a ThreadLocal that prevents native resource leaks across threads</h2>
  *
  * <p>{@code CleaningThreadLocal} augments {@link ThreadLocal} with two additional
  * capabilities:</p>
@@ -256,7 +256,7 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
     }
 
     /**
-     * Returns the value of this CleaningThreadLocal.
+     * Returns the current thread's value of this CleaningThreadLocal instance.
      *
      * @return The current value.
      */

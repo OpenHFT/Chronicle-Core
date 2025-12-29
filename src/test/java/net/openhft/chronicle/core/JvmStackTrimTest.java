@@ -3,12 +3,14 @@
  */
 package net.openhft.chronicle.core;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class JvmStackTrimTest {
 
+    @DisplayName("isInternal class name classification returns expected internal results")
     @Test
     void isInternalClassNameClassification() {
         assertTrue(Jvm.isInternal("java.lang.String"), "isInternal should classify java.lang classes as internal");
@@ -17,6 +19,7 @@ class JvmStackTrimTest {
         assertFalse(Jvm.isInternal("net.openhft.chronicle.core.Jvm"), "isInternal should classify user application classes as non-internal");
     }
 
+    @DisplayName("trimFirst and trimLast return valid indices")
     @Test
     void trimFirstAndLastIndices() {
         StackTraceElement[] st = {

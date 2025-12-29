@@ -12,7 +12,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Utility class for monitoring and managing threads.
+ * Utility class for monitoring and managing threads during test diagnostics and leak detection.
  * <p>
  * Intended for unit and integration test assertions to detect stray threads and
  * should not be used on hot paths as the checks are relatively expensive.

@@ -27,7 +27,7 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
     private static final ClassLocal<MethodHandles.Lookup> PRIVATE_LOOKUP = ClassLocal.withInitial(AbstractInvocationHandler::acquireLookup);
 
     /**
-     * Constant for representing no arguments.
+     * Constant for representing an empty argument list when invoking methods.
      */
     private static final Object[] NO_ARGS = {};
 
@@ -153,7 +153,7 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
                     .unreflectSpecial(m, declaringClass)
                     .bindTo(proxy);
         } catch (IllegalAccessException e) {
-            throw new AssertionError(e);
+            throw new AssertionError("Failed to bind default method handle", e);
         }
     }
 

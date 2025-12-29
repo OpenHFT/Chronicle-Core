@@ -6,12 +6,13 @@ package net.openhft.chronicle.core;
 import net.openhft.chronicle.core.internal.ChronicleGuarding;
 
 /**
- * Contains the pieces which must be loaded first
+ * Holds bootstrap wiring that must load before other Chronicle components initialise.
  */
 public class Bootstrap {
     /**
      * Provided for reflective usage; prefer {@link #bootstrap()}.
      */
+    @SuppressWarnings("PMD.UnnecessaryConstructor")
     @Deprecated(/* make private in 2026 */)
     public Bootstrap() {
     }

@@ -28,14 +28,14 @@ package net.openhft.chronicle.core.values;
  */
 public interface ByteValue {
     /**
-     * Retrieves the byte value.
+     * Retrieves the current byte value from the backing store.
      *
      * @return the byte value
      */
     byte getValue();
 
     /**
-     * Sets the byte value.
+     * Sets the byte value in the backing store.
      *
      * @param value the byte value to set
      */

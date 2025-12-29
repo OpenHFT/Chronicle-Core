@@ -4,7 +4,7 @@
 package net.openhft.chronicle.core.io;
 
 /**
- * Implement to provide a validation hook for the object.
+ * Implement to provide a validation hook for object state checks before serialisation.
  * <p>
  * Chronicle libraries call {@link ValidatableUtil#validate(Object)} before
  * serialising method-writer arguments and it is common to invoke it from
@@ -15,7 +15,7 @@ package net.openhft.chronicle.core.io;
 public interface Validatable {
 
     /**
-     * Validates the state of the object.
+     * Validates the state of the object before it is marshalled.
      *
      * <p>This method should be called prior to writing the object via a method writer.
      * Implementations should check the state of the object and throw an

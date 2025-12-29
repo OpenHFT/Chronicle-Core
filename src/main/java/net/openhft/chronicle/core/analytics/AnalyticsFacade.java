@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 /**
- * Provides means for libraries to report analytics to an upstream receiver.
+ * Provides means for libraries to report analytics telemetry to an upstream receiver.
  * <p>
  * Analytics instances only provides a best-effort to propagate
  * events to the upstream receiver.
@@ -56,7 +56,7 @@ public interface AnalyticsFacade {
     void sendEvent(@NotNull String name, @NotNull Map<String, String> additionalEventParameters);
 
     /**
-     * Returns if Analytics is enabled.
+     * Returns whether Analytics reporting is enabled.
      *
      * @return if Analytics is enabled
      */
@@ -133,7 +133,7 @@ public interface AnalyticsFacade {
     }
 
     /**
-     * Creates and returns a new map of standard user properties.
+     * Creates and returns a new map of standard additional event properties.
      * <p>
      * The map may contain properties like:
      * <ul>
@@ -168,7 +168,7 @@ public interface AnalyticsFacade {
     }
 
     /**
-     * Builder for {@link AnalyticsFacade} instances.
+     * Builder for {@link AnalyticsFacade} instances and configuration.
      */
     interface Builder {
 
@@ -295,7 +295,7 @@ public interface AnalyticsFacade {
         Builder withReportDespiteJUnit();
 
         /**
-         * Creates and returns a new Analytics instance for this Builder.
+         * Creates and returns a new Analytics instance for this configured builder.
          *
          * @return a new Analytics instance for this Builder
          */

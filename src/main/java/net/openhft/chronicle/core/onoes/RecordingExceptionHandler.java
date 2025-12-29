@@ -57,7 +57,7 @@ public class RecordingExceptionHandler implements ExceptionHandler {
     }
 
     /**
-     * Records an exception by incrementing the count of its corresponding ExceptionKey in the map.
+     * Records an exception keyed by logger name by incrementing its count in the map.
      *
      * @param logger  the logger instance. Must not be null.
      * @param message a custom message detailing the error, or null.

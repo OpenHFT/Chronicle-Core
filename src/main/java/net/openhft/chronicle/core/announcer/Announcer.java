@@ -12,7 +12,7 @@ import java.util.Map;
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 /**
- * Provides means for libraries to announce themselves.
+ * Provides a way for libraries to announce themselves and record runtime metadata.
  * <p>
  * Announcements can be turned off by setting the system property and provide other information elements.
  * "chronicle.announcer.disable=true" prior to making any announcements.

@@ -16,7 +16,7 @@ import org.jetbrains.annotations.NotNull;
 @FunctionalInterface
 public interface ThrowingCallable<R, T extends Throwable> {
     /**
-     * Executes the callable.
+     * Executes the callable action and returns the computed result value.
      *
      * @return result of the computation
      * @throws T if execution fails

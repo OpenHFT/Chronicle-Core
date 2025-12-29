@@ -184,7 +184,7 @@ public final class StandardMaps {
     }
 
     /**
-     * Simple key/value entry factory.
+     * Simple key/value entry factory helper method.
      */
     private static Map.Entry<String, String> entry(@NotNull final String key, @Nullable final String value) {
         return new AbstractMap.SimpleImmutableEntry<>(key, value);

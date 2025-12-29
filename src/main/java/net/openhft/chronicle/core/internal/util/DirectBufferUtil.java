@@ -10,7 +10,7 @@ import java.nio.ByteBuffer;
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 /**
- * Centralises interaction with {@code sun.nio.ch.DirectBuffer} to reduce compiler warnings.
+ * Centralises interaction with {@code sun.nio.ch.DirectBuffer} to reduce compiler warnings and direct buffer duplication.
  * <p>
  * Used to query direct buffer addresses and invoke the cleaner when available.
  */
@@ -54,6 +54,9 @@ public final class DirectBufferUtil {
      */
     public static long addressOrThrow(final ByteBuffer buffer) {
         requireNonNull(buffer);
+        if (!(buffer instanceof DirectBuffer)) {
+            throw new ClassCastException("ByteBuffer is not a DirectBuffer: " + buffer.getClass().getName());
+        }
         try {
             return ((DirectBuffer) buffer).address();
         } catch (IllegalAccessError e) {

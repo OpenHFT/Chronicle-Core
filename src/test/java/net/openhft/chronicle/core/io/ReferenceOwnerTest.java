@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.io;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
@@ -10,9 +11,10 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ReferenceOwnerTest {
+class ReferenceOwnerTest {
+    @DisplayName("testReferenceId behaviour under expected input and output conditions")
     @Test
-    public void testReferenceId() {
+    void testReferenceId() {
         Set<Integer> ints = new HashSet<>();
         for (int i = 0; i < 101; i++)
             ints.add(new VanillaReferenceOwner("hi").referenceId());

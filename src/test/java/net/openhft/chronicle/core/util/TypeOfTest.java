@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -11,10 +12,11 @@ import java.util.function.BiFunction;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TypeOfTest extends CoreTestCommon {
+class TypeOfTest extends CoreTestCommon {
 
+    @DisplayName("type behaviour under expected input and output conditions")
     @Test
-    public <T extends Number> void type() {
+    <T extends Number> void type() {
         assertEquals("java.util.List<?>", new TypeOf<List<?>>() {
         }.type().toString(), "TypeOf should capture wildcard type as List<?>");
         assertEquals("java.util.List<java.lang.String>", new TypeOf<List<String>>() {

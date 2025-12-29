@@ -4,16 +4,17 @@
 package net.openhft.chronicle.core;
 
 import org.jetbrains.annotations.Nullable;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import sun.misc.Unsafe;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class MemoryTest extends CoreTestCommon {
+class MemoryTest extends CoreTestCommon {
 
+    @DisplayName("testReadme behaviour under expected input and output conditions")
     @Test
-    public void testReadme() {
+    void testReadme() {
         @Nullable Memory memory = OS.memory();
         long address = memory.allocate(1024);
         try {
@@ -27,16 +28,18 @@ public class MemoryTest extends CoreTestCommon {
         }
     }
 
+    @DisplayName("sizeOf behaviour under expected input and output conditions")
     @Test
-    public void sizeOf() {
-        assertEquals(Unsafe.ARRAY_BOOLEAN_INDEX_SCALE, Memory.sizeOf(boolean.class), "Expected Memory.sizeOf(boolean.class) to match Unsafe.ARRAY_BOOLEAN_INDEX_SCALE");
-        assertEquals(Unsafe.ARRAY_BYTE_INDEX_SCALE, Memory.sizeOf(byte.class), "Expected Memory.sizeOf(byte.class) to match Unsafe.ARRAY_BYTE_INDEX_SCALE");
-        assertEquals(Unsafe.ARRAY_CHAR_INDEX_SCALE, Memory.sizeOf(char.class), "Expected Memory.sizeOf(char.class) to match Unsafe.ARRAY_CHAR_INDEX_SCALE");
-        assertEquals(Unsafe.ARRAY_SHORT_INDEX_SCALE, Memory.sizeOf(short.class), "Expected Memory.sizeOf(short.class) to match Unsafe.ARRAY_SHORT_INDEX_SCALE");
-        assertEquals(Unsafe.ARRAY_INT_INDEX_SCALE, Memory.sizeOf(int.class), "Expected Memory.sizeOf(int.class) to match Unsafe.ARRAY_INT_INDEX_SCALE");
-        assertEquals(Unsafe.ARRAY_FLOAT_INDEX_SCALE, Memory.sizeOf(float.class), "Expected Memory.sizeOf(float.class) to match Unsafe.ARRAY_FLOAT_INDEX_SCALE");
-        assertEquals(Unsafe.ARRAY_DOUBLE_INDEX_SCALE, Memory.sizeOf(double.class), "Expected Memory.sizeOf(double.class) to match Unsafe.ARRAY_DOUBLE_INDEX_SCALE");
-        assertEquals(Unsafe.ARRAY_LONG_INDEX_SCALE, Memory.sizeOf(long.class), "Expected Memory.sizeOf(long.class) to match Unsafe.ARRAY_LONG_INDEX_SCALE");
-        assertEquals(Unsafe.ARRAY_OBJECT_INDEX_SCALE, Memory.sizeOf(Long.class), "Expected Memory.sizeOf(Long.class) to match Unsafe.ARRAY_OBJECT_INDEX_SCALE for object types");
+    void sizeOf() {
+        assertEquals(1, Memory.sizeOf(boolean.class), "Expected Memory.sizeOf(boolean.class) to match a single byte");
+        assertEquals(Byte.BYTES, Memory.sizeOf(byte.class), "Expected Memory.sizeOf(byte.class) to match Byte.BYTES");
+        assertEquals(Character.BYTES, Memory.sizeOf(char.class), "Expected Memory.sizeOf(char.class) to match Character.BYTES");
+        assertEquals(Short.BYTES, Memory.sizeOf(short.class), "Expected Memory.sizeOf(short.class) to match Short.BYTES");
+        assertEquals(Integer.BYTES, Memory.sizeOf(int.class), "Expected Memory.sizeOf(int.class) to match Integer.BYTES");
+        assertEquals(Float.BYTES, Memory.sizeOf(float.class), "Expected Memory.sizeOf(float.class) to match Float.BYTES");
+        assertEquals(Double.BYTES, Memory.sizeOf(double.class), "Expected Memory.sizeOf(double.class) to match Double.BYTES");
+        assertEquals(Long.BYTES, Memory.sizeOf(long.class), "Expected Memory.sizeOf(long.class) to match Long.BYTES");
+        int objectScale = Memory.sizeOf(Long.class);
+        assertTrue(objectScale == 4 || objectScale == 8, "Expected Memory.sizeOf(Long.class) to be 4 or 8 bytes on supported JVMs");
     }
 }

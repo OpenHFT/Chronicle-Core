@@ -69,6 +69,7 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
         ordinalField = Jvm.getFieldOrNull(eClass, "ordinal");
     }
 
+    @SuppressWarnings("PMD.UseArraysAsList")
     private void reset0() {
         E[] enumConstants = type.isEnum() ? type.getEnumConstants() : getStaticConstants(type);
         for (E e : enumConstants) {
@@ -134,7 +135,7 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
             return e;
 
         } catch (Exception e1) {
-            throw new AssertionError(e1);
+            throw new AssertionError("Failed to create dynamic enum instance", e1);
         }
     }
 
@@ -154,6 +155,7 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
      *
      * @return an array containing the enum instances
      */
+    @Deprecated(/* to be removed in 2027 */)
     @Override
     public E forIndex(int index) {
         return eList.get(index);

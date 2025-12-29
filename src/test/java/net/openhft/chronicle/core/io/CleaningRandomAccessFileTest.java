@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -36,7 +37,7 @@ class CleaningRandomAccessFileTest extends CoreTestCommon {
         for (int j = 0; j < repeat; j++) {
             int files = getFDs();
             if (files > 0) {
-                assertEquals(200, files, 200, "j: " + j);
+                assertEquals(200, files, 200, "file descriptor count should remain stable j=" + j);
             }
             ByteBuffer bb = ByteBuffer.allocateDirect(64);
             for (int i = 0; i < 200; i++) {
@@ -61,26 +62,29 @@ class CleaningRandomAccessFileTest extends CoreTestCommon {
         IOTools.deleteDirWithFiles(tempDir);
     }
 
+    @DisplayName("testOpenAndClose behaviour under expected input and output conditions")
     @Test
-    public void testOpenAndClose() throws IOException {
+    void testOpenAndClose() throws IOException {
         File tempFile = File.createTempFile("test", "raf");
         CleaningRandomAccessFile raf = new CleaningRandomAccessFile(tempFile, "rw");
 
         // Write and read to verify file is open
         raf.writeUTF("test");
         raf.seek(0);
-        assertEquals("test", raf.readUTF(), "should read back 'test' string written to file");
+        assertEquals("test", raf.readUTF(), "readUTF should read back 'test' string written to file");
 
         raf.close();
 
-        assertThrows(IOException.class, () -> raf.writeUTF("should fail"));
+        assertThrows(IOException.class, () -> raf.writeUTF("should fail"),
+                "writeUTF should throw after file is closed");
 
         assertTrue(tempFile.delete(), "temp file should be deletable after closing");
     }
 
     @SuppressWarnings("removal")
+    @DisplayName("testFinalizeAndCleanup behaviour under expected input and output conditions")
     @Test
-    public void testFinalizeAndCleanup() throws IOException {
+    void testFinalizeAndCleanup() throws IOException {
         File tempFile = File.createTempFile("test", "raf");
 
         //noinspection resource
@@ -96,8 +100,9 @@ class CleaningRandomAccessFileTest extends CoreTestCommon {
         assertTrue(true, "execution should reach this point without exception"); // If we reach here, the test passes
     }
 
+    @DisplayName("resourceLeak behaviour under expected input and output conditions")
     @Test
-    public void resourceLeak() throws IOException {
+    void resourceLeak() throws IOException {
         assertNoResourceLeak();
     }
 }

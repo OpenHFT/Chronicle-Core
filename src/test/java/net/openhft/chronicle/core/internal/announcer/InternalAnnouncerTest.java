@@ -5,6 +5,7 @@ package net.openhft.chronicle.core.internal.announcer;
 
 import net.openhft.chronicle.core.announcer.Announcer;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.HashMap;
@@ -20,14 +21,16 @@ class InternalAnnouncerTest {
         System.setProperty("chronicle.announcer.disable", "true");
     }
 
+    @DisplayName("announceEmptyPropertiesAnnouncesOncePerArtifact behaviour under expected input and output conditions")
     @Test
     void announceEmptyPropertiesAnnouncesOncePerArtifact() {
         assertDoesNotThrow(() -> {
             Announcer.announce("net.openhft", "chronicle-core");
             Announcer.announce("net.openhft", "chronicle-core");
-        });
+        }, "announce should not throw when called twice with empty properties");
     }
 
+    @DisplayName("announceWithLogoOnly behaviour under expected input and output conditions")
     @Test
     void announceWithLogoOnly() {
         Map<String, String> props = new HashMap<>();
@@ -35,15 +38,16 @@ class InternalAnnouncerTest {
         assertDoesNotThrow(() -> {
             Announcer.announce("net.openhft", "chronicle-map", props);
             Announcer.announce("net.openhft", "chronicle-map", props);
-        });
+        }, "announce should not throw when logo property is provided");
     }
 
+    @DisplayName("announceWithAdditionalProperties behaviour under expected input and output conditions")
     @Test
     void announceWithAdditionalProperties() {
         Map<String, String> props = new HashMap<>();
         props.put(Announcer.LOGO, "ASCII-LOGO");
         props.put("build", "test");
-        assertDoesNotThrow(() -> Announcer.announce("net.openhft", "chronicle-queue", props));
+        assertDoesNotThrow(() -> Announcer.announce("net.openhft", "chronicle-queue", props),
+                "announce should not throw when additional properties are present");
     }
 }
-

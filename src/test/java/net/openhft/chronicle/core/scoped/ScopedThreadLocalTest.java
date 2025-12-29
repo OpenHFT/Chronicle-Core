@@ -7,6 +7,7 @@ import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.threads.CleaningThread;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.Closeable;
@@ -17,7 +18,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import static net.openhft.chronicle.core.io.Closeable.closeQuietly;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ScopedThreadLocalTest extends CoreTestCommon {
+class ScopedThreadLocalTest extends CoreTestCommon {
 
     private static final int MAX_INSTANCES = 3;
 
@@ -28,8 +29,9 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
         scopedThreadLocal = new ScopedThreadLocal<>(AtomicLong::new, al -> al.set(0), MAX_INSTANCES);
     }
 
+    @DisplayName("warning appears when max instances exceeded")
     @Test
-    public void warningWillBeDisplayedWhenWeUseMoreThanMaxInstances() {
+    void warningWillBeDisplayedWhenWeUseMoreThanMaxInstances() {
         expectException("Pool capacity exceeded, consider increasing maxInstances, maxInstances=3");
         ArrayList<ScopedResource<AtomicLong>> allLongs = new ArrayList<>();
         for (int i = 0; i < MAX_INSTANCES + 1; i++) {
@@ -39,8 +41,9 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
         closeQuietly(allLongs);
     }
 
+    @DisplayName("nested calls return distinct resources each")
     @Test
-    public void nestedCallsWillGetDifferentResources() {
+    void nestedCallsWillGetDifferentResources() {
         try (ScopedResource<AtomicLong> l1 = scopedThreadLocal.get()) {
             l1.get().set(123);
             try (ScopedResource<AtomicLong> l2 = scopedThreadLocal.get()) {
@@ -54,15 +57,16 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
         }
     }
 
+    @DisplayName("different threads return distinct resources each")
     @Test
-    public void differentThreadsWillGetDifferentResources() throws InterruptedException {
+    void differentThreadsWillGetDifferentResources() throws InterruptedException {
         Set<Integer> instanceObjectIDs = new HashSet<>();
         final int numThreads = 10;
         for (int i = 0; i < numThreads; i++) {
             final Thread thread = new CleaningThread(() -> {
                 try (final ScopedResource<AtomicLong> resource = scopedThreadLocal.get()) {
                     if (resource == null) {
-                        throw new IllegalStateException();
+                        throw new IllegalStateException("scoped resource should not be null");
                     }
                     final int e = System.identityHashCode(resource.get());
                     instanceObjectIDs.add(e);
@@ -76,8 +80,9 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
         assertEquals(numThreads, instanceObjectIDs.size(), "each thread should receive a unique resource instance");
     }
 
+    @DisplayName("onAcquire resets resource before each acquisition")
     @Test
-    public void onAcquireIsPerformedBeforeEachAcquisition() {
+    void onAcquireIsPerformedBeforeEachAcquisition() {
         int objectId;
         try (ScopedResource<AtomicLong> l1 = scopedThreadLocal.get()) {
             l1.get().set(123);
@@ -89,8 +94,9 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
         }
     }
 
+    @DisplayName("cleaning thread closes resources after use")
     @Test
-    public void cleaningThreadWillCloseResources() throws InterruptedException {
+    void cleaningThreadWillCloseResources() throws InterruptedException {
         List<CloseableResource> allResources = new ArrayList<>();
         ScopedThreadLocal<CloseableResource> stl = new ScopedThreadLocal<>(() -> {
             CloseableResource cr = new CloseableResource();
@@ -110,12 +116,13 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
         cleaningThread.start();
         cleaningThread.join();
         // All should be closed
-        assertEquals(2, allResources.size(), "two resources should have been created");
+        assertEquals(2, allResources.size(), "cleaning thread should create two resources");
         assertTrue(allResources.stream().allMatch(cr -> cr.closed), "all resources should be closed after thread completes");
     }
 
+    @DisplayName("overflow discards newest instance and allocates")
     @Test
-    public void whenOverflowOccursNewestInstanceIsDiscarded() {
+    void whenOverflowOccursNewestInstanceIsDiscarded() {
         expectException("Pool capacity exceeded, consider increasing maxInstances, maxInstances=3");
         AtomicInteger values = new AtomicInteger(0);
         ScopedThreadLocal<Integer> ints = new ScopedThreadLocal<>(values::getAndIncrement, i -> {

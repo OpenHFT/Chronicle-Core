@@ -5,6 +5,7 @@ package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -19,8 +20,9 @@ class InvalidEventHandlerExceptionTest extends CoreTestCommon {
 
     private InvalidEventHandlerException e;
 
+    @DisplayName("testStandardConstructors behaviour under expected input and output conditions")
     @Test
-    public void testStandardConstructors() {
+    void testStandardConstructors() {
         String message = "Error occurred";
         Throwable cause = new RuntimeException("Cause of error");
 
@@ -34,10 +36,11 @@ class InvalidEventHandlerExceptionTest extends CoreTestCommon {
         assertNull(defaultException.getMessage(), "default constructor should create exception with null message");
     }
 
+    @DisplayName("testReusableInstance behaviour under expected input and output conditions")
     @Test
-    public void testReusableInstance() {
+    void testReusableInstance() {
         InvalidEventHandlerException reusableInstance = InvalidEventHandlerException.reusable();
-        assertNotNull(reusableInstance, "instance should be created");
+        assertNotNull(reusableInstance, "reusable exception instance should be created");
         assertEquals(0, reusableInstance.getStackTrace().length, "reusable instance should have empty stack trace");
 
         // Test immutability
@@ -55,8 +58,9 @@ class InvalidEventHandlerExceptionTest extends CoreTestCommon {
         e = InvalidEventHandlerException.reusable();
     }
 
+    @DisplayName("stacktrace behaviour under expected input and output conditions")
     @Test
-    public void stacktrace() {
+    void stacktrace() {
         assertEquals(0, e.getStackTrace().length, "reusable exception should have empty stack trace initially");
 
         StackTraceElement[] newStackTrace = Stream.of(new StackTraceElement("A", "foo", "A.java", 42))
@@ -66,8 +70,9 @@ class InvalidEventHandlerExceptionTest extends CoreTestCommon {
         assertEquals(0, e.getStackTrace().length, "reusable exception should ignore setStackTrace calls");
     }
 
+    @DisplayName("printStackTrace behaviour under expected input and output conditions")
     @Test
-    public void printStackTrace() throws IOException {
+    void printStackTrace() throws IOException {
         final StringBuilder sb = new StringBuilder();
 
         try (OutputStream os = new OutputStream() {
@@ -80,13 +85,17 @@ class InvalidEventHandlerExceptionTest extends CoreTestCommon {
             e.printStackTrace(ps);
         }
         final String stackTrace = sb.toString();
-        assertTrue(stackTrace.contains("Reusable"), "stack trace output should indicate reusable exception");
-        assertTrue(stackTrace.contains("no stack trace"), "stack trace output should indicate no stack trace available");
+        assertTrue(stackTrace.contains("Reusable"),
+                "stack trace output should indicate reusable exception: " + stackTrace);
+        assertTrue(stackTrace.contains("no stack trace"),
+                "stack trace output should indicate no stack trace available: " + stackTrace);
     }
 
+    @DisplayName("toStringTest behaviour under expected input and output conditions")
     @Test
-    public void toStringTest() {
-        assertTrue(e.toString().contains("Reusable"), "toString should indicate reusable exception");
-        assertTrue(e.toString().contains("no stack trace"), "toString should indicate no stack trace available");
+    void toStringTest() {
+        String value = e.toString();
+        assertTrue(value.contains("Reusable"), "toString should indicate reusable exception: " + value);
+        assertTrue(value.contains("no stack trace"), "toString should indicate no stack trace available: " + value);
     }
 }

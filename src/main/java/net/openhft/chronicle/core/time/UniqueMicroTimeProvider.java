@@ -33,16 +33,6 @@ public class UniqueMicroTimeProvider implements TimeProvider {
     private TimeProvider provider = SystemTimeProvider.INSTANCE;
 
     /**
-     * Constructs a new UniqueMicroTimeProvider.
-     * <p>
-     * This constructor initialises the provider with zero. Instances are typically used for testing as
-     * the class maintains the last issued time.
-     */
-    public UniqueMicroTimeProvider() {
-        // Do nothing
-    }
-
-    /**
      * Sets the underlying time provider for this instance and initialises the last time value.
      *
      * @param provider delegate provider, not {@code null}

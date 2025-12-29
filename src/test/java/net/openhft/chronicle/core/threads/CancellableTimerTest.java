@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.threads;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.time.SetTimeProvider;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -44,6 +45,7 @@ class CancellableTimerTest extends CoreTestCommon {
         timer = new CancellableTimer(eventLoop, timeProvider);
     }
 
+    @DisplayName("willExecuteScheduledTaskPeriodically behaviour under expected input and output conditions")
     @Test
     void willExecuteScheduledTaskPeriodically() throws InvalidEventHandlerException {
         final long submittedTime = System.currentTimeMillis();
@@ -72,6 +74,7 @@ class CancellableTimerTest extends CoreTestCommon {
         verify(handler).action();
     }
 
+    @DisplayName("willSubmitHandlerWithConfiguredPriority behaviour under expected input and output conditions")
     @Test
     void willSubmitHandlerWithConfiguredPriority() {
         final HandlerPriority configuredPriority = HandlerPriority.REPLICATION_TIMER;
@@ -79,12 +82,14 @@ class CancellableTimerTest extends CoreTestCommon {
         assertEquals(configuredPriority, scheduledEventHandler.priority(), "scheduled handler should use configured priority");
     }
 
+    @DisplayName("willSubmitHandlerWithTimerPriorityByDefault behaviour under expected input and output conditions")
     @Test
     void willSubmitHandlerWithTimerPriorityByDefault() {
         timer.scheduleAtFixedRate(handler, INITIAL_DELAY_MS, PERIOD_MS);
         assertEquals(HandlerPriority.TIMER, scheduledEventHandler.priority(), "scheduled handler should default to TIMER priority when not specified");
     }
 
+    @DisplayName("willThrowInvalidEventHandlerWhenCloseIsCalled behaviour under expected input and output conditions")
     @Test
     void willThrowInvalidEventHandlerWhenCloseIsCalled() throws InvalidEventHandlerException, IOException {
         final Closeable closeable = timer.scheduleAtFixedRate(handler, INITIAL_DELAY_MS, PERIOD_MS);
@@ -92,9 +97,11 @@ class CancellableTimerTest extends CoreTestCommon {
         scheduledEventHandler.action();
 
         closeable.close();
-        assertThrows(InvalidEventHandlerException.class, scheduledEventHandler::action);
+        assertThrows(InvalidEventHandlerException.class, scheduledEventHandler::action,
+                "scheduled handler should throw after closeable is closed");
     }
 
+    @DisplayName("willScheduleSingleExecutionTask behaviour under expected input and output conditions")
     @Test
     void willScheduleSingleExecutionTask() throws InvalidEventHandlerException {
         final long submittedTime = System.currentTimeMillis();
@@ -108,10 +115,12 @@ class CancellableTimerTest extends CoreTestCommon {
         // Handler is called after initialDelayMs and InvalidEventHandlerExceptionIsThrown
         final long firstCallTime = submittedTime + INITIAL_DELAY_MS + 1;
         timeProvider.currentTimeMillis(firstCallTime);
-        assertThrows(InvalidEventHandlerException.class, scheduledEventHandler::action);
+        assertThrows(InvalidEventHandlerException.class, scheduledEventHandler::action,
+                "scheduled handler should throw after one-shot execution");
         verify(runnable).run();
     }
 
+    @DisplayName("canCancelSingleExecutionTask behaviour under expected input and output conditions")
     @Test
     void canCancelSingleExecutionTask() throws InvalidEventHandlerException, IOException {
         final long submittedTime = System.currentTimeMillis();
@@ -127,7 +136,8 @@ class CancellableTimerTest extends CoreTestCommon {
         // Handler is NOT called after initialDelayMs because it was cancelled, but InvalidEventHandlerExceptionIsThrown
         final long firstCallTime = submittedTime + INITIAL_DELAY_MS + 1;
         timeProvider.currentTimeMillis(firstCallTime);
-        assertThrows(InvalidEventHandlerException.class, scheduledEventHandler::action);
+        assertThrows(InvalidEventHandlerException.class, scheduledEventHandler::action,
+                "scheduled handler should throw after cancellation");
         verifyNoInteractions(runnable);
     }
 }

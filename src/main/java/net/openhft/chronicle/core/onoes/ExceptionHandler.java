@@ -88,7 +88,7 @@ public interface ExceptionHandler {
     void on(@NotNull Logger logger, @Nullable String message, @Nullable Throwable thrown);
 
     /**
-     * Convenience overload delegating to {@link #on(Logger, String, Throwable)} with a {@code null} throwable.
+     * Convenience overload that forwards to {@link #on(Logger, String, Throwable)} without a throwable.
      *
      * @param logger  the logger used to record the error
      * @param message a custom message detailing the error, may be {@code null}

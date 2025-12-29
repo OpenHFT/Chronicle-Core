@@ -20,7 +20,7 @@ public interface QueryCloseable {
     }
 
     /**
-     * Checks if this object is closed.
+     * Checks if this object is closed and no longer usable.
      *
      * @return true if the {@code close()} method has completed, false otherwise
      */

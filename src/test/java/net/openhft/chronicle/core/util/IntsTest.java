@@ -4,14 +4,17 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.internal.invariant.ints.IntCondition;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class IntsTest {
+@SuppressWarnings("deprecation")
+class IntsTest {
 
+    @DisplayName("requireNonNegativeAllowsZeroAndPositive behaviour under expected input and output conditions")
     @Test
-    public void requireNonNegativeAllowsZeroAndPositive() {
+    void requireNonNegativeAllowsZeroAndPositive() {
         String codeSource = Ints.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         assertTrue(codeSource.contains("/target/classes"), "Expected Ints to be loaded from target/classes but was " + codeSource);
 
@@ -19,31 +22,35 @@ public class IntsTest {
         assertEquals(42, Ints.requireNonNegative(42), "requireNonNegative should accept positive values");
     }
 
+    @DisplayName("requireNonNegativeRejectsNegative behaviour under expected input and output conditions")
     @Test
-    public void requireNonNegativeRejectsNegative() {
+    void requireNonNegativeRejectsNegative() {
         try {
             Ints.requireNonNegative(-1);
-            fail("Expected IllegalArgumentException");
+            fail("requireNonNegative should throw IllegalArgumentException for negative input");
         } catch (IllegalArgumentException iae) {
-            assertTrue(iae.getMessage().contains("negative"), "exception message should contain 'negative'");
+            assertTrue(iae.getMessage().contains("negative"), "exception message should contain \"negative\": " + iae.getMessage());
         }
     }
 
+    @DisplayName("assertIfEnabledReturnsTrue behaviour under expected input and output conditions")
     @Test
-    public void assertIfEnabledReturnsTrue() {
+    void assertIfEnabledReturnsTrue() {
         assertTrue(Ints.assertIfEnabled(IntCondition.NON_NEGATIVE, 0), "assertIfEnabled should return true for zero with NON_NEGATIVE condition");
         assertTrue(Ints.assertIfEnabled(IntCondition.NON_NEGATIVE, 8), "assertIfEnabled should return true for positive value with NON_NEGATIVE condition");
     }
 
-    @Test
-    public void failDescriptionExplainsRequirement() {
-        String description = Ints.failDescription(IntCondition.POSITIVE, -7);
-        assertTrue(description.contains("-7"), "fail description should include the failing value");
-        assertTrue(description.contains(">"), "fail description should include the comparison operator");
-    }
+        @DisplayName("failDescriptionExplainsRequirement behaviour under expected input and output conditions")
+        @Test
+        void failDescriptionExplainsRequirement() {
+            String description = Ints.failDescription(IntCondition.POSITIVE, -7);
+            assertTrue(description.contains("-7"), "fail description should include \"-7\": " + description);
+            assertTrue(description.contains(">"), "fail description should include comparison operator: " + description);
+        }
 
+    @DisplayName("nonNegativePredicateMatchesExpectations behaviour under expected input and output conditions")
     @Test
-    public void nonNegativePredicateMatchesExpectations() {
+    void nonNegativePredicateMatchesExpectations() {
         assertTrue(Ints.nonNegative().test(0), "nonNegative predicate should accept zero");
         assertTrue(Ints.nonNegative().test(3), "nonNegative predicate should accept positive values");
         assertFalse(Ints.nonNegative().test(-3), "nonNegative predicate should reject negative values");

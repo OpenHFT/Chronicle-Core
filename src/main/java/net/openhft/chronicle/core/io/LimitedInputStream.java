@@ -26,11 +26,11 @@ import java.util.Objects;
 @Deprecated(/* to be removed in 2026, only used in tests */)
 final class LimitedInputStream extends FilterInputStream {
 
-    /** Remaining budget in bytes. */
+    /** Remaining byte budget for this limited stream. */
     private long remainingBytes;
 
     /**
-     * Creates a new wrapper.
+     * Creates a new wrapper that enforces a byte budget.
      *
      * @param in        source stream (non-null)
      * @param maxBytes  maximum number of bytes that may be read &gt;=0
@@ -58,8 +58,9 @@ final class LimitedInputStream extends FilterInputStream {
     public int read(final byte @NotNull [] buf, final int off, final int len) throws IOException {
         // Classic Java-8 bounds checks
         Objects.requireNonNull(buf, "buf");
-        if (off < 0 || len < 0 || len > buf.length - off)
-            throw new IndexOutOfBoundsException();
+        if (off < 0 || len < 0 || len > buf.length - off) {
+            throw new IndexOutOfBoundsException("Invalid offset/length: off=" + off + ", len=" + len + ", size=" + buf.length);
+        }
         if (len == 0)
             return 0;
 

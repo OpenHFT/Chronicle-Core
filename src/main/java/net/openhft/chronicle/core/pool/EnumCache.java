@@ -58,7 +58,7 @@ public abstract class EnumCache<E> {
     }
 
     /**
-     * Returns the enum instance with the specified name.
+     * Returns the cached enum instance for the specified name.
      *
      * @param name the name of the enum instance to be returned.
      * @return the enum instance with the specified name, or {@code null}
@@ -69,7 +69,7 @@ public abstract class EnumCache<E> {
     }
 
     /**
-     * Returns the enum instance with the specified name.
+     * Resolves the enum instance with the specified name from the cache.
      *
      * @param name the name of the enum instance to be returned.
      * @return the enum instance with the specified name, or {@code null}

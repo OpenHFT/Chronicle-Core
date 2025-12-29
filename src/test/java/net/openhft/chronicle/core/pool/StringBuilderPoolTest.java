@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.pool;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.scoped.ScopedResource;
 import net.openhft.chronicle.core.scoped.ScopedResourcePool;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -18,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class StringBuilderPoolTest extends CoreTestCommon {
 
+    @DisplayName("createThreadLocalProvidesPool behaviour under expected input and output conditions")
     @ParameterizedTest
     @ValueSource(ints = {-1, 2})
     void createThreadLocalProvidesPool(int capacity) {
@@ -27,6 +29,7 @@ class StringBuilderPoolTest extends CoreTestCommon {
         assertNotNull(pool, "Thread-local StringBuilderPool should be created successfully");
     }
 
+    @DisplayName("reusesBuilderWithinThreadAndClearsContent behaviour under expected input and output conditions")
     @Test
     void reusesBuilderWithinThreadAndClearsContent() {
         ScopedResourcePool<StringBuilder> pool = StringBuilderPool.createThreadLocal(1);
@@ -40,11 +43,12 @@ class StringBuilderPoolTest extends CoreTestCommon {
 
         try (ScopedResource<StringBuilder> resource = pool.get()) {
             StringBuilder builder = resource.get();
-            assertSame(firstBuilder, builder, "should return same instance (reference equality)");
+            assertSame(firstBuilder, builder, "builder pool should return same instance (reference equality)");
             assertEquals(0, builder.length(), "Builder should be cleared before reuse");
         }
     }
 
+    @DisplayName("suppliesIndependentBuildersPerThread behaviour under expected input and output conditions")
     @Test
     void suppliesIndependentBuildersPerThread() throws InterruptedException {
         ScopedResourcePool<StringBuilder> pool = StringBuilderPool.createThreadLocal(1);

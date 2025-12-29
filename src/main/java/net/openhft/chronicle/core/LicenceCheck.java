@@ -17,7 +17,7 @@ import static net.openhft.chronicle.core.Jvm.startup;
 import static net.openhft.chronicle.core.Jvm.warn;
 
 /**
- * Contract for checking Chronicle enterprise licence validity.
+ * Contract for checking Chronicle enterprise licence validity and expiry status.
  * <p>
  * Provides static helpers to read expiry information from licence keys or resource files and an
  * instance {@link #licenceCheck()} used by guarded entry points.
@@ -69,7 +69,7 @@ public interface LicenceCheck {
     }
 
     /**
-     * Provide licence expiry details
+     * Provide licence expiry details for the supplied product and callback.
      *
      * @param product              product
      * @param caller               caller

@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.Consumer;
@@ -11,14 +12,16 @@ import java.util.function.Consumer;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class IgnoresEverythingTest extends CoreTestCommon {
+class IgnoresEverythingTest extends CoreTestCommon {
+    @DisplayName("ignored Consumer returns IgnoresEverything instance correctly")
     @Test
-    public void test() {
+    void test() {
         assertInstanceOf(IgnoresEverything.class, Mocker.ignored(Consumer.class), "Mocker.ignored should return an IgnoresEverything instance for Consumer interface");
     }
 
+    @DisplayName("returnsIgnored behaviour under expected input and output conditions")
     @Test
-    public void returnsIgnored() {
+    void returnsIgnored() {
         assertInstanceOf(IgnoresEverything.class, Mocker.ignored(Chained.class).method1(), "chained method call should return IgnoresEverything instance when invoked on ignored mock");
     }
 

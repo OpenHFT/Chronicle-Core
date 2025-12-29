@@ -3,12 +3,14 @@
  */
 package net.openhft.chronicle.core.internal.pom;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class InternalPomPropertiesCorruptTest {
 
+    @DisplayName("versionUnknownWhenVersionMissingInResource behaviour under expected input and output conditions")
     @Test
     void versionUnknownWhenVersionMissingInResource() {
         String v = InternalPomProperties.version("test.group", "corrupt-artifact");

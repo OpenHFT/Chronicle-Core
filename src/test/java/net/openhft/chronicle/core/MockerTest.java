@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.util.Mocker;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringWriter;
@@ -11,10 +12,11 @@ import java.io.StringWriter;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-public class MockerTest extends CoreTestCommon {
+class MockerTest extends CoreTestCommon {
 
+    @DisplayName("intercepting behaviour under expected input and output conditions")
     @Test
-    public void intercepting() {
+    void intercepting() {
         StringWriter out = new StringWriter();
         final ChainedChainingTerminal logging = Mocker.logging(ChainedChainingTerminal.class, "", out);
         logging.chains("one").alsoChains("two").end("three");
@@ -27,8 +29,9 @@ public class MockerTest extends CoreTestCommon {
                 "end[333]%n"), out.toString(), "logging mocker should capture all method calls with arguments");
     }
 
+    @DisplayName("ignored behaviour under expected input and output conditions")
     @Test
-    public void ignored() {
+    void ignored() {
         final ChainedChainingTerminal logging = Mocker.ignored(ChainedChainingTerminal.class);
         logging.chains("one").alsoChains("two").end("three");
         logging.chains("111").alsoChains("222").end("333");

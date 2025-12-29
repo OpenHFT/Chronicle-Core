@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.util;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -10,6 +11,7 @@ import static org.mockito.Mockito.*;
 
 class SimpleCleanerTest {
 
+    @DisplayName("cleanShouldExecuteRunnableOnce behaviour under expected input and output conditions")
     @Test
     void cleanShouldExecuteRunnableOnce() {
         Runnable runnable = mock(Runnable.class);
@@ -21,6 +23,7 @@ class SimpleCleanerTest {
         verify(runnable, times(1)).run();
     }
 
+    @DisplayName("cleanShouldNotExecuteRunnableIfAlreadyCleaned behaviour under expected input and output conditions")
     @Test
     void cleanShouldNotExecuteRunnableIfAlreadyCleaned() {
         Runnable runnable = mock(Runnable.class);
@@ -32,6 +35,7 @@ class SimpleCleanerTest {
         verify(runnable, times(1)).run();
     }
 
+    @DisplayName("constructorShouldInitializeWithProvidedRunnable behaviour under expected input and output conditions")
     @Test
     void constructorShouldInitializeWithProvidedRunnable() {
         Runnable runnable = mock(Runnable.class);

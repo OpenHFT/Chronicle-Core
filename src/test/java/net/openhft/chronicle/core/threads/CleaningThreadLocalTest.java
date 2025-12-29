@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.util.ThrowingConsumer;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -15,6 +16,7 @@ import static org.mockito.Mockito.verify;
 
 class CleaningThreadLocalTest {
 
+    @DisplayName("testConstructor behaviour under expected input and output conditions")
     @Test
     void testConstructor() {
         Supplier<String> supplier = () -> "test";
@@ -25,6 +27,7 @@ class CleaningThreadLocalTest {
         assertNotNull(ctl, "withCleanup should return non-null CleaningThreadLocal");
     }
 
+    @DisplayName("testWithCloseQuietly behaviour under expected input and output conditions")
     @Test
     void testWithCloseQuietly() {
         Supplier<String> supplier = () -> "test";
@@ -33,6 +36,7 @@ class CleaningThreadLocalTest {
         assertNotNull(ctl, "withCloseQuietly should return non-null CleaningThreadLocal");
     }
 
+    @DisplayName("testResourceCleanup behaviour under expected input and output conditions")
     @Test
     void testResourceCleanup() {
         Runnable cleanupAction = mock(Runnable.class);
@@ -48,6 +52,7 @@ class CleaningThreadLocalTest {
         verify(cleanupAction).run();
     }
 
+    @DisplayName("testThreadSafety behaviour under expected input and output conditions")
     @Test
     void testThreadSafety() throws InterruptedException {
         Supplier<String> supplier = () -> "test";
@@ -66,6 +71,7 @@ class CleaningThreadLocalTest {
         assertEquals("test", ctl.get(), "main thread should retain its own thread-local value independent of other threads");
     }
 
+    @DisplayName("testExceptionInCleanup behaviour under expected input and output conditions")
     @Test
     void testExceptionInCleanup() {
         Supplier<String> supplier = () -> "test";
@@ -77,13 +83,14 @@ class CleaningThreadLocalTest {
         };
         CleaningThreadLocal<String> ctl = CleaningThreadLocal.withCleanup(supplier, cleanup);
         ctl.set("temp");
-        assertDoesNotThrow(ctl::remove);
+        assertDoesNotThrow(ctl::remove, "remove should not throw even when cleanup handler fails");
         // After remove, next get() should re-initialize using supplier
         assertEquals("test", ctl.get(), "get after remove should reinitialize value using supplier despite cleanup exception");
         ctl.remove();
         assertTrue(ran.get(), "cleanup action should have executed despite throwing exception");
     }
 
+    @DisplayName("testThreadSpecificValue behaviour under expected input and output conditions")
     @Test
     void testThreadSpecificValue() {
         CleaningThreadLocal<Integer> ctl = CleaningThreadLocal.withCleanup(() -> 0, (value) -> {
@@ -108,7 +115,7 @@ class CleaningThreadLocalTest {
             thread.join();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
+            throw new RuntimeException("Thread join interrupted during test", e);
         }
     }
 }

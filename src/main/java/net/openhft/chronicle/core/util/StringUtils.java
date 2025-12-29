@@ -65,7 +65,7 @@ public final class StringUtils {
                 HAS_ONE_BYTE_PER_CHAR = false;
             }
         } catch (Exception e) {
-            throw new AssertionError(e);
+            throw new AssertionError("Failed to initialise string access fields", e);
         }
 
         long sCountOffset = -1;
@@ -84,7 +84,7 @@ public final class StringUtils {
             SB_VALUE_OFFSET = sbFields.sbValOffset;
             SB_COUNT_OFFSET = sbFields.sbCountOffset;
         } catch (Exception e) {
-            throw new AssertionError(e);
+            throw new AssertionError("Failed to initialise StringBuilder field offsets", e);
         }
     }
 
@@ -135,7 +135,7 @@ public final class StringUtils {
         try {
             SB_COUNT.set(sb, length);
         } catch (IllegalAccessException | IllegalArgumentException e) {
-            throw new AssertionError(e);
+            throw new AssertionError("Failed to set StringBuilder length via reflection", e);
         }
     }
 
@@ -219,7 +219,7 @@ public final class StringUtils {
     }
 
     /**
-     * Extracts the backing character array from a {@link StringBuilder}.
+     * Extracts the backing character array from a {@link StringBuilder} for mutable access.
      *
      * @param sb builder to inspect
      * @return characters representing the current content
@@ -295,12 +295,12 @@ public final class StringUtils {
             assert coder != null;
             return coder.getByte(charSequence);
         } catch (IllegalArgumentException | IllegalAccessException e) {
-            throw new AssertionError(e);
+            throw new AssertionError("Failed to read coder value from string", e);
         }
     }
 
     /**
-     * Returns the string coder for the provided {@link String}.
+     * Returns the string coder used by the JVM for a {@link String} instance.
      *
      * @param str string to inspect
      * @return coder constant used by the JVM
@@ -311,7 +311,7 @@ public final class StringUtils {
     }
 
     /**
-     * Returns the string coder for the provided {@link StringBuilder}.
+     * Returns the string coder used by the JVM for a {@link StringBuilder} instance backing bytes.
      *
      * @param str builder to inspect
      * @return coder constant used by the JVM
@@ -322,7 +322,7 @@ public final class StringUtils {
     }
 
     /**
-     * Extracts the encoded byte array from a {@link StringBuilder} on Java 9+.
+     * Extracts the encoded byte array from a {@link StringBuilder} on Java 9+ for internal storage.
      *
      * @param sb builder to read
      * @return encoded bytes backing the builder
@@ -335,7 +335,7 @@ public final class StringUtils {
     }
 
     /**
-     * Extracts the backing character array from a {@link String}.
+     * Extracts the backing character array from a {@link String} when available.
      *
      * @param s string to inspect
      * @return character array representing the content
@@ -348,7 +348,7 @@ public final class StringUtils {
     }
 
     /**
-     * Extracts the encoded byte array from a {@link String} on Java 9+.
+     * Extracts the encoded byte array from a {@link String} on Java 9+ when available.
      *
      * @param s string to inspect
      * @return encoded bytes backing the string
@@ -391,7 +391,7 @@ public final class StringUtils {
                 getMemory().writeInt(str, S_COUNT_OFFSET, chars.length);
             return str;
         } catch (Exception e) {
-            throw new AssertionError(e);
+            throw new AssertionError("Failed to create string from char array", e);
         }
     }
 
@@ -419,12 +419,12 @@ public final class StringUtils {
             S_VALUE.set(str, bytes);
             return str;
         } catch (Exception e) {
-            throw new AssertionError(e);
+            throw new AssertionError("Failed to create string from bytes", e);
         }
     }
 
     /**
-     * Lowercases the first character if present.
+     * Lowercases the first character of the input string if present.
      *
      * @param str source string, may be null
      * @return string with first character lower-cased, or the original when null/empty
@@ -611,7 +611,7 @@ public final class StringUtils {
          * the valueOf method.
          */
         if (s == null) {
-            throw new NumberFormatException("null");
+            throw new NumberFormatException("Input sequence is null for parseInt");
         }
 
         if (radix < Character.MIN_RADIX) {
@@ -691,7 +691,7 @@ public final class StringUtils {
     public static long parseLong(CharSequence s, int radix)
             throws NumberFormatException {
         if (s == null) {
-            throw new NumberFormatException("null");
+            throw new NumberFormatException("Input sequence is null for parseLong");
         }
 
         if (radix < Character.MIN_RADIX) {

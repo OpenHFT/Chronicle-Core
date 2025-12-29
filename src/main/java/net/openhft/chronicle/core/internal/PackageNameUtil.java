@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
 import java.util.function.Function;
 
 /**
- * Utility class to provide package name functionality.
+ * Utility class providing package name lookup for classes, class loaders, and resources.
  */
 public final class PackageNameUtil {
 
@@ -53,7 +53,7 @@ public final class PackageNameUtil {
     }
 
     /**
-     * Returns the package name of the specified class.
+     * Returns the package name for the specified class reference.
      * <p>
      * This method uses {@code Class.getPackageName()} if running on Java 9 or newer.
      * For older versions, it uses a cached value determined by the class name.

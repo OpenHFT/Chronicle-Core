@@ -13,7 +13,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * Utility methods for caching values in a {@link ThreadLocal} without locking.
+ * Utility methods for caching values in a {@link ThreadLocal} without locking, contention, or shared state.
  * <p>
  * Each thread keeps its own instance so no synchronisation is required. Where
  * {@link WeakReference}s are used the value can be reclaimed once nothing else

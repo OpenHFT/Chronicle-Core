@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -24,6 +25,7 @@ class ARMMemoryMoreAlignmentTest {
         allocated = 0;
     }
 
+    @DisplayName("volatile short handles misaligned object offset")
     @Test
     void volatileCharMisalignedObjectOffset() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
@@ -33,6 +35,7 @@ class ARMMemoryMoreAlignmentTest {
         assertEquals((short) 0x1234, arm.readVolatileShort(bytes, off), "volatile short read should return previously written value at misaligned offset");
     }
 
+    @DisplayName("getAndSet and CAS work at aligned object offset")
     @Test
     void getAndSetAndCasAlignedObjectOffset() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
@@ -46,6 +49,7 @@ class ARMMemoryMoreAlignmentTest {
         assertEquals(9, UnsafeMemory.UNSAFE.getInt(bytes, aligned), "final value should reflect the successful compareAndSwap update");
     }
 
+    @DisplayName("writeOrderedLong handles misaligned memory address correctly")
     @Test
     void writeOrderedLongMisalignedAddress() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();

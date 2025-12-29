@@ -3,66 +3,155 @@
  */
 package net.openhft.chronicle.core.threads;
 
-import net.openhft.chronicle.core.Jvm;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.Closeable;
 import java.io.IOException;
 
-import static org.mockito.Mockito.*;
-
 class EventHandlerTest {
 
-    @BeforeEach
-    void mockitoNotSupportedOnJava21() {
-        Assumptions.assumeTrue(Jvm.majorVersion() <= 17);
-    }
-
+    @DisplayName("eventLoopShouldBeCalledWithCorrectEventLoop behaviour under expected input and output conditions")
     @Test
     void eventLoopShouldBeCalledWithCorrectEventLoop() {
-        EventLoop mockEventLoop = mock(EventLoop.class);
-        EventHandler handler = mock(EventHandler.class, CALLS_REAL_METHODS);
+        RecordingEventHandler handler = new RecordingEventHandler();
+        EventLoop eventLoop = new StubEventLoop();
 
-        handler.eventLoop(mockEventLoop);
+        handler.eventLoop(eventLoop);
 
-        verify(handler).eventLoop(mockEventLoop);
+        Assertions.assertSame(eventLoop, handler.eventLoop(), "eventLoop should be recorded when invoked");
     }
 
+    @DisplayName("loopStartedShouldBeCalled behaviour under expected input and output conditions")
     @Test
     void loopStartedShouldBeCalled() {
-        EventHandler handler = mock(EventHandler.class, CALLS_REAL_METHODS);
+        RecordingEventHandler handler = new RecordingEventHandler();
 
         handler.loopStarted();
 
-        verify(handler).loopStarted();
+        Assertions.assertTrue(handler.wasLoopStarted(), "loopStarted flag should be set after invocation");
     }
 
+    @DisplayName("loopFinishedShouldBeCalled behaviour under expected input and output conditions")
     @Test
     void loopFinishedShouldBeCalled() {
-        EventHandler handler = mock(EventHandler.class, CALLS_REAL_METHODS);
+        RecordingEventHandler handler = new RecordingEventHandler();
 
         handler.loopFinished();
 
-        verify(handler).loopFinished();
+        Assertions.assertTrue(handler.wasLoopFinished(), "loopFinished flag should be set after invocation");
     }
 
+    @DisplayName("priorityShouldReturnMediumByDefault behaviour under expected input and output conditions")
     @Test
     void priorityShouldReturnMediumByDefault() {
-        EventHandler handler = mock(EventHandler.class, CALLS_REAL_METHODS);
+        EventHandler handler = () -> false;
 
         Assertions.assertEquals(HandlerPriority.MEDIUM, handler.priority(), "default priority should be MEDIUM when not explicitly set");
     }
 
+    @DisplayName("closeShouldBeCalledIfEventHandlerIsCloseable behaviour under expected input and output conditions")
     @Test
     void closeShouldBeCalledIfEventHandlerIsCloseable() throws IOException {
-        EventHandler handler = mock(EventHandler.class, withSettings().extraInterfaces(Closeable.class));
+        RecordingEventHandler handler = new RecordingEventHandler();
 
         handler.loopFinished();
-        ((Closeable) handler).close();
+        handler.close();
 
-        verify((Closeable) handler).close();
+        Assertions.assertTrue(handler.wasClosed(), "close should be invoked for closeable event handlers");
+    }
+
+    private static final class RecordingEventHandler implements EventHandler, Closeable {
+        private EventLoop eventLoop;
+        private boolean loopStarted;
+        private boolean loopFinished;
+        private boolean closed;
+
+        @Override
+        public boolean action() {
+            return false;
+        }
+
+        @Override
+        public void eventLoop(EventLoop eventLoop) {
+            this.eventLoop = eventLoop;
+            EventHandler.super.eventLoop(eventLoop);
+        }
+
+        @Override
+        public void loopStarted() {
+            loopStarted = true;
+            EventHandler.super.loopStarted();
+        }
+
+        @Override
+        public void loopFinished() {
+            loopFinished = true;
+            EventHandler.super.loopFinished();
+        }
+
+        @Override
+        public void close() {
+            closed = true;
+        }
+
+        EventLoop eventLoop() {
+            return eventLoop;
+        }
+
+        boolean wasLoopStarted() {
+            return loopStarted;
+        }
+
+        boolean wasLoopFinished() {
+            return loopFinished;
+        }
+
+        boolean wasClosed() {
+            return closed;
+        }
+    }
+
+    private static final class StubEventLoop implements EventLoop {
+        @Override
+        public String name() {
+            return "stub";
+        }
+
+        @Override
+        public void addHandler(EventHandler handler) {
+        }
+
+        @Override
+        public void start() {
+        }
+
+        @Override
+        public void unpause() {
+        }
+
+        @Override
+        public void stop() {
+        }
+
+        @Override
+        public boolean isAlive() {
+            return false;
+        }
+
+        @Override
+        public boolean isStopped() {
+            return true;
+        }
+
+        @Override
+        public void close() {
+        }
+
+        @Override
+        public boolean isClosed() {
+            return false;
+        }
     }
 }

@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Exception handler that logs using the SLF4J API.
+ * Exception handler that logs using the SLF4J API at configured levels.
  *
  * <p>Each enum constant represents a logging level and calls the matching
  * method on the SLF4J {@link Logger}. When SLF4J fails to initialise, or
@@ -19,14 +19,14 @@ import org.slf4j.LoggerFactory;
  */
 public enum Slf4jExceptionHandler implements ExceptionHandler {
     /**
-     * Logs messages at ERROR level.
+     * Logs messages at ERROR level for failures and exceptions.
      */
     ERROR(Logger::error),
-    /** Logs messages at WARN level. */
+    /** Logs messages at WARN level for recoverable issues. */
     WARN(Logger::warn),
     /** Logs messages at INFO level intended for performance events. */
     PERF(Logger::info),
-    /** Logs messages at DEBUG level. */
+    /** Logs messages at DEBUG level for diagnostic detail. */
     DEBUG(Logger::debug);
 
     private final LogMethod logMethod;

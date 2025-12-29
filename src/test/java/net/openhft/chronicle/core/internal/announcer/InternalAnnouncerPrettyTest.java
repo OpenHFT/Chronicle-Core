@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.internal.announcer;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -17,6 +18,7 @@ class InternalAnnouncerPrettyTest {
         return (String) m.invoke(null, s);
     }
 
+    @DisplayName("formatsCommonCases behaviour under expected input and output conditions")
     @Test
     void formatsCommonCases() throws Exception {
         assertEquals("Chronicle Queue", pretty("chronicle-queue"), "pretty should convert hyphenated lowercase to title case with spaces");

@@ -225,7 +225,7 @@ public enum CpuCoolers implements CpuCooler {
             PAUSE10.disturb();
         }
     };
-    static volatile Object blackhole;
+    volatile Object blackhole;
 
     /**
      * Spins, periodically issuing safepoints, for roughly the requested duration.

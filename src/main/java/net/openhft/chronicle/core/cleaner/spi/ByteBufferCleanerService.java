@@ -6,7 +6,7 @@ package net.openhft.chronicle.core.cleaner.spi;
 import java.nio.ByteBuffer;
 
 /**
- * Service interface to perform cleaning operation on ByteBuffers.
+ * Service interface for performing ByteBuffer cleaning operations in a predictable, pluggable way.
  *
  * <p>This interface defines a contract for cleaning memory resources associated with ByteBuffers.
  * It can be implemented by different service providers offering different mechanisms for resource cleanup.

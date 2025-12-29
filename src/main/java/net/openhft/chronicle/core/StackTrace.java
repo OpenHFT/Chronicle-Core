@@ -56,6 +56,7 @@ import java.util.concurrent.TimeUnit;
  * <p>
  * For a deep dive into the StackTrace class see <a href="https://github.com/OpenHFT/Chronicle-Core/tree/ea/src/main/docs/StackTrace-user-guide.adoc">StackTrace User Guide.adoc</a>
  */
+@SuppressWarnings("PMD.DoNotExtendJavaLangThrowable")
 public class StackTrace extends Throwable {
     private static final long serialVersionUID = 1L;
     private static final long NANOS_PER_SECOND = TimeUnit.SECONDS.toNanos(1);

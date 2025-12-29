@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.scoped;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.Closeable;
 import net.openhft.chronicle.core.util.ThreadConfinementAsserter;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.lang.ref.WeakReference;
@@ -24,20 +25,22 @@ class ScopedThreadLocalLifecycleTest {
             System.gc();
             Jvm.pause(50);
         }
-        assertNull(ref.get(), "Reference should be cleared after GC");
+        assertNull(ref.get(), "reference should be cleared after GC");
     }
 
+    @DisplayName("zero capacity is rejected by constructor")
     @Test
     void zeroCapacityIsRejected() {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
                 new ScopedThreadLocal<>(() -> new CloseableProbe(1, new AtomicInteger(), new CopyOnWriteArrayList<>()),
                         CloseableProbe::reset,
-                        0)
-        );
+                        0),
+                "zero capacity should throw IllegalArgumentException");
         assertTrue(ex.getMessage().contains("maxInstances"),
                 "exception message should mention maxInstances but was: " + ex.getMessage());
     }
 
+    @DisplayName("newest resource closes when capacity exceeded")
     @Test
     void newestResourceIsClosedWhenCapacityExceeded() {
         AtomicInteger idSeq = new AtomicInteger();
@@ -63,6 +66,7 @@ class ScopedThreadLocalLifecycleTest {
         assertEquals(Collections.singletonList(acquired.get(2)), closedIds, "The most recently created resource must be closed");
     }
 
+    @DisplayName("weak reference pool rehydrates after GC")
     @Test
     void weakReferencePoolRehydratesAfterGc() {
         AtomicInteger idSeq = new AtomicInteger();
@@ -90,6 +94,7 @@ class ScopedThreadLocalLifecycleTest {
         }
     }
 
+    @DisplayName("thread confinement violation is surfaced to caller")
     @Test
     void threadConfinementViolationIsSurfaced() throws Exception {
         ScopedThreadLocal<ConfinementAwareResource> pool = new ScopedThreadLocal<>(
@@ -103,8 +108,10 @@ class ScopedThreadLocalLifecycleTest {
             resource.get().touch(); // establishes owning thread
 
             Future<?> future = executor.submit(resource.get()::touch);
-            ExecutionException exception = assertThrows(ExecutionException.class, () -> future.get(5, TimeUnit.SECONDS));
-            assertInstanceOf(IllegalStateException.class, exception.getCause());
+            ExecutionException exception = assertThrows(ExecutionException.class, () -> future.get(5, TimeUnit.SECONDS),
+                    "thread confinement violation should surface as ExecutionException");
+            assertInstanceOf(IllegalStateException.class, exception.getCause(),
+                    "thread confinement should throw IllegalStateException from background thread");
         } finally {
             executor.shutdownNow();
             executor.awaitTermination(5, TimeUnit.SECONDS);

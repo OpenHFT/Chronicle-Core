@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 /**
- * Null-Object implementation of {@link ExceptionHandler} that ignores every event.
+ * Null-Object implementation of {@link ExceptionHandler} that ignores every received event message.
  * <p>
  * {@code isEnabled} always returns {@code false}.
  *
@@ -21,7 +21,7 @@ public enum NullExceptionHandler implements ExceptionHandler, IgnoresEverything 
      */
     NOTHING {
         /**
-         * Ignores the supplied event.
+         * Ignores the supplied event without recording or throwing.
          *
          * @param logger  ignored
          * @param message ignored
@@ -33,7 +33,7 @@ public enum NullExceptionHandler implements ExceptionHandler, IgnoresEverything 
         }
 
         /**
-         * Always returns {@code false}.
+         * Always returns {@code false} to indicate logging is disabled.
          *
          * @param aClass the class being checked
          * @return {@code false}

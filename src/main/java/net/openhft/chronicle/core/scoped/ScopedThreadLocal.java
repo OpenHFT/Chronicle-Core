@@ -16,7 +16,7 @@ import java.util.function.Supplier;
 import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 
 /**
- * Bounded per-thread pool of {@link ScopedResource} instances.
+ * Bounded per-thread pool of {@link ScopedResource} instances for scoped reuse.
  * <p>
  * Every thread owns its own stack of resources supplied by {@code supplier}. An
  * instance is taken from the stack when {@link #get()} is called and returned to
@@ -111,7 +111,7 @@ public class ScopedThreadLocal<T> implements ScopedResourcePool<T> {
     }
 
     /**
-     * The default onAcquire function
+     * The default onAcquire function that performs no work.
      */
     @SuppressWarnings("EmptyMethod")
     private static <T> void noOp(T instance) {

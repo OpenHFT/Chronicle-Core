@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static net.openhft.chronicle.core.io.AbstractCloseable.*;
 
 /**
- * Utility class for managing reference counted resources and related operations.
+ * Utility class for managing reference counted resources, tracing, and leak checks.
  */
 public final class ReferenceCountedUtils {
     private static final AtomicReference<Set<AbstractReferenceCounted>> REFERENCE_COUNTED_SET
@@ -69,7 +69,7 @@ public final class ReferenceCountedUtils {
     public static void assertReferencesReleased() {
         final Set<AbstractReferenceCounted> traceSet = REFERENCE_COUNTED_SET.get();
         if (traceSet == null) {
-            Jvm.warn().on(ReferenceCountedUtils.class, "Reference tracing disabled");
+            Jvm.warn().on(ReferenceCountedUtils.class, "Reference tracing is disabled for this run");
             return;
         }
 

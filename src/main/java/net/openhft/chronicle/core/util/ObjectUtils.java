@@ -81,7 +81,7 @@ public final class ObjectUtils {
         } catch (NoSuchMethodException expected) {
             return null;
         } catch (Exception e) {
-            throw new AssertionError(e);
+            throw new AssertionError("Failed to resolve readResolve method", e);
         }
     });
     private static final Map<Class<?>, Function<String, Number>> conversionMap = new HashMap<>();
@@ -130,7 +130,7 @@ public final class ObjectUtils {
     }
 
     /**
-     * Creates a supplier for the provided class.
+     * Creates a supplier for the provided class using Chronicle construction rules.
      *
      * @param c The class to create a supplier for.
      * @return A supplier that creates instances of the provided class.
@@ -175,7 +175,7 @@ public final class ObjectUtils {
             try {
                 return OS.memory().allocateInstance(c);
             } catch (Exception e) {
-                throw new AssertionError(e);
+                throw new AssertionError("Failed to instantiate enum via Unsafe", e);
             }
         };
     }
@@ -203,7 +203,7 @@ public final class ObjectUtils {
     }
 
     /**
-     * Registers the immutability status of a class.
+     * Registers the immutability status of a class for later lookups.
      *
      * @param clazz       The class whose immutability status is to be registered.
      * @param isImmutable True if the class is immutable, false otherwise.
@@ -213,7 +213,7 @@ public final class ObjectUtils {
     }
 
     /**
-     * Checks if a class is immutable.
+     * Checks whether a class is immutable using the registered immutability map.
      *
      * @param clazz The class to check.
      * @return The immutability status of the class.
@@ -262,7 +262,7 @@ public final class ObjectUtils {
                     char ch = Character.toLowerCase(s.charAt(0));
                     return ch == 'f' || ch == 'n';
                 } catch (IndexOutOfBoundsException e) {
-                    throw new AssertionError(e);
+                    throw new AssertionError("Failed to read first character in isFalse", e);
                 }
             case 2:
                 return equalsCaseIgnore(s, "no");
@@ -429,7 +429,7 @@ public final class ObjectUtils {
         if (s.length() == 1)
             return (E) (Character) s.charAt(0);
         if (s.isEmpty())
-            return (E) Character.valueOf((char) 0);
+            return (E) (Character) '\0';
         return null;
     }
 
@@ -441,7 +441,7 @@ public final class ObjectUtils {
                 try {
                     return (E) (Character) cs.charAt(0);
                 } catch (IndexOutOfBoundsException e) {
-                    throw new AssertionError(e);
+                    throw new AssertionError("Failed to read first character in convertCharSequence", e);
                 }
             } else {
                 return null;
@@ -568,7 +568,7 @@ public final class ObjectUtils {
     }
 
     /**
-     * Creates a new instance of the class with the given class name.
+     * Creates a new instance of the class with the given class name via alias lookup.
      *
      * @param <T>       The type of the class to be instantiated.
      * @param className The fully qualified name of the class to be instantiated.
@@ -581,7 +581,7 @@ public final class ObjectUtils {
     }
 
     /**
-     * Creates a new instance of the specified class.
+     * Creates a new instance of the specified class using cached suppliers.
      *
      * @param <T>   The type of the class to be instantiated.
      * @param clazz The class to be instantiated.
@@ -632,7 +632,7 @@ public final class ObjectUtils {
     }
 
     /**
-     * Checks if two classes are matching.
+     * Checks whether two classes match for interface aliases or enum enclosing rules.
      *
      * @param base    The base class to be compared.
      * @param toMatch The class to be matched against the base class.
@@ -713,7 +713,7 @@ public final class ObjectUtils {
     }
 
     /**
-     * Converts a string to a Boolean.
+     * Converts a string to a Boolean using Chronicle true/false parsing rules.
      *
      * @param s The string to be converted.
      * @return Boolean.TRUE if the string is "true", Boolean.FALSE if the string is "false", null otherwise.
@@ -873,11 +873,11 @@ public final class ObjectUtils {
      */
     public enum Immutability {
         /**
-         * Object does not change after creation.
+         * Object does not change state after creation.
          */
         YES,
         /**
-         * Object may change state.
+         * Object may change state after creation.
          */
         NO,
         /**

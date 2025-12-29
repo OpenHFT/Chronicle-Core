@@ -62,7 +62,7 @@ public class EnumInterner<E extends Enum<E>> {
     }
 
     /**
-     * Creates an EnumInterner for a specified class.
+     * Creates an EnumInterner for a specified class using the default capacity.
      *
      * @param aClass the class for which to create the EnumInterner
      * @return an EnumInterner for the specified class

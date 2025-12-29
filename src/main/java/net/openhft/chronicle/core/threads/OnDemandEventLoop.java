@@ -46,7 +46,7 @@ public class OnDemandEventLoop implements EventLoop {
     }
 
     /**
-     * Checks if the EventLoop has been created.
+     * Checks whether the EventLoop instance has been created and cached by this wrapper.
      *
      * @return true if the EventLoop has been created, false otherwise.
      */
@@ -98,7 +98,7 @@ public class OnDemandEventLoop implements EventLoop {
     }
 
     /**
-     * Closes the EventLoop if it has been created.
+     * Closes the EventLoop if it has been created already.
      */
     @Override
     public void close() {

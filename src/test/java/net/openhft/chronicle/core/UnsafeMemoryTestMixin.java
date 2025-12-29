@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.testframework.Product;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.TestFactory;
 import org.junit.jupiter.params.provider.Arguments;
@@ -33,7 +34,7 @@ interface UnsafeMemoryTestMixin<T> {
         try {
             return cyclicBarrier.await();
         } catch (InterruptedException | BrokenBarrierException e) {
-            throw new AssertionError(e);
+            throw new AssertionError("Barrier await failed without timeout", e);
         }
     }
 
@@ -41,7 +42,7 @@ interface UnsafeMemoryTestMixin<T> {
         try {
             return cyclicBarrier.await(timeOut, timeUnit);
         } catch (InterruptedException | BrokenBarrierException | TimeoutException e) {
-            throw new AssertionError(e);
+            throw new AssertionError("Barrier await failed with timeout", e);
         }
     }
 
@@ -95,6 +96,7 @@ interface UnsafeMemoryTestMixin<T> {
 
     MemoryObjLongFunction<T> objectReadVolatileOperation();
 
+    @DisplayName("Read and write operations round trip tests")
     @TestFactory
     default Stream<DynamicTest> readWriteTests() {
         List<DynamicTest> tests = arguments()
@@ -105,7 +107,7 @@ interface UnsafeMemoryTestMixin<T> {
                                     final Variant variant = new Variant(args);
                                     final String operationName = p.first().name() + " and " + p.second().name();
                                     return DynamicTest.dynamicTest(variant.name() + " using " + operationName, () -> {
-                                        test(variant, nonZero(), p.first().operation(), p.second().operation());
+                                        verify(variant, nonZero(), p.first().operation(), p.second().operation());
                                         variant.close();
                                     });
                                 });
@@ -115,7 +117,7 @@ interface UnsafeMemoryTestMixin<T> {
                                     final Variant variant = new Variant(args);
                                     final String operationName = p.first().name() + " and " + p.second().name();
                                     return DynamicTest.dynamicTest(variant.name() + " using " + operationName, () -> {
-                                        testObj(variant, nonZero(), p.first().operation(), p.second().operation());
+                                        verifyObj(variant, nonZero(), p.first().operation(), p.second().operation());
                                         variant.close();
                                     });
                                 });
@@ -126,6 +128,7 @@ interface UnsafeMemoryTestMixin<T> {
         return tests.stream();
     }
 
+    @DisplayName("Volatile read and write consistency tests")
     @TestFactory
     default Stream<DynamicTest> volatileTests() {
         List<DynamicTest> tests = arguments()
@@ -177,14 +180,14 @@ interface UnsafeMemoryTestMixin<T> {
                                                 if (threadErrors.isEmpty()) {
                                                     System.err.println("Barrier timed out: " + e.getMessage());
                                                 } else {
-                                                    fail(threadErrors.toString());
+                                                    fail("Thread errors during volatile test: " + threadErrors);
                                                 }
                                             }
                                             barrier.reset();
                                         });
 
                                         if (!threadErrors.isEmpty())
-                                            fail(threadErrors.toString());
+                                            fail("Thread errors after volatile test: " + threadErrors);
 
                                         for (Thread t : threads) {
                                             t.join();
@@ -198,25 +201,25 @@ interface UnsafeMemoryTestMixin<T> {
         return tests.stream();
     }
 
-    default void test(final Variant variant,
-                      final T testValue,
-                      final MemoryLongObjConsumer<T> addressWriter,
-                      final MemoryLongFunction<T> addressReader) {
+    default void verify(final Variant variant,
+                        final T testValue,
+                        final MemoryLongObjConsumer<T> addressWriter,
+                        final MemoryLongFunction<T> addressReader) {
         for (int i = 0; i <= CACHE_LINE_SIZE; i++) {
             addressWriter.accept(variant.memory(), variant.addr() + i, testValue);
             final T t = addressReader.apply(variant.memory(), variant.addr() + i);
-            assertEquals(testValue, t, "test: offset=" + i);
+            assertEquals(testValue, t, "read/write mismatch at offset=" + i);
         }
     }
 
-    default <T> void testObj(final Variant variant,
-                             final T testValue,
-                             final MemoryObjLongObjConsumer<T> objectWriter,
-                             final MemoryObjLongFunction<T> objectReader) {
+    default <T> void verifyObj(final Variant variant,
+                               final T testValue,
+                               final MemoryObjLongObjConsumer<T> objectWriter,
+                               final MemoryObjLongFunction<T> objectReader) {
         for (int i = 0; i <= CACHE_LINE_SIZE; i++) {
             objectWriter.accept(variant.memory(), variant.object(), variant.addr() + i, testValue);
             final T t = objectReader.apply(variant.memory(), variant.object(), variant.addr() + i);
-            assertEquals(testValue, t, "testObj: offset=" + i);
+            assertEquals(testValue, t, "object read/write mismatch at offset=" + i);
         }
     }
 

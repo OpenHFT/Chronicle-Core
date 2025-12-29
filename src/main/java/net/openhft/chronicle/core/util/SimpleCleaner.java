@@ -8,7 +8,7 @@ import net.openhft.chronicle.core.annotation.UsedViaReflection;
 import java.util.concurrent.atomic.AtomicIntegerFieldUpdater;
 
 /**
- * Lightweight one shot cleaner.
+ * Lightweight one shot cleaner for release callbacks and resource cleanup tasks.
  * <p>
  * Wraps a {@link Runnable} and guarantees it is only executed once even when {@link #clean()}
  * is called concurrently from multiple threads.

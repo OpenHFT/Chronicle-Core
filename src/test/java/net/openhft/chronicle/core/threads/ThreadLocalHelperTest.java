@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.threads;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.lang.ref.WeakReference;
@@ -10,8 +11,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@SuppressWarnings("deprecation")
 class ThreadLocalHelperTest {
 
+    @DisplayName("testGetTLWithSupplier behaviour under expected input and output conditions")
     @Test
     void testGetTLWithSupplier() {
         ThreadLocal<WeakReference<String>> threadLocal = new ThreadLocal<>();
@@ -22,6 +25,7 @@ class ThreadLocalHelperTest {
         assertEquals("Value1", ThreadLocalHelper.getTL(threadLocal, () -> "Value" + counter.incrementAndGet()), "getTL should return cached value (supplier not invoked)");
     }
 
+    @DisplayName("testGetSTL behaviour under expected input and output conditions")
     @Test
     void testGetSTL() {
         ThreadLocal<String> threadLocal = new ThreadLocal<>();
@@ -32,6 +36,7 @@ class ThreadLocalHelperTest {
         assertEquals("Value1", ThreadLocalHelper.getSTL(threadLocal, () -> "Value" + counter.incrementAndGet()), "getSTL should return cached value (supplier not invoked)");
     }
 
+    @DisplayName("testGetTLWithFunction behaviour under expected input and output conditions")
     @Test
     void testGetTLWithFunction() {
         ThreadLocal<WeakReference<Integer>> threadLocal = new ThreadLocal<>();

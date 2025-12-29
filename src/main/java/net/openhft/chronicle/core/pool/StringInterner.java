@@ -30,10 +30,10 @@ import java.util.stream.Stream;
  */
 public class StringInterner {
     /**
-     * Slots for cached interned strings.
+     * Slots for cached interned strings used for memory reuse.
      */
     protected final String[] interner;
-    /** Mask for hashing into {@link #interner}. */
+    /** Mask for hashing into the {@link #interner} array slots. */
     protected final int mask;
     /** Secondary hash shift used for double hashing. */
     protected final int shift;
@@ -45,7 +45,7 @@ public class StringInterner {
      */
     public interface Changed {
         /**
-         * Invoked when a value is inserted or replaced.
+         * Invoked when a value is inserted or replaced in the cache.
          *
          * @param index the slot used for storage
          * @param value the interned string
@@ -77,7 +77,7 @@ public class StringInterner {
     }
 
     /**
-     * Interns the specified CharSequence.
+     * Interns the specified CharSequence, returning a cached String when available.
      *
      * @param cs the CharSequence to intern.
      * @return the interned string, or the original CharSequence
@@ -162,7 +162,7 @@ public class StringInterner {
     }
 
     /**
-     * Returns the number of values in the interner.
+     * Returns the number of non-null values held in the interner array.
      *
      * @return the count of non-null strings in the interner.
      */

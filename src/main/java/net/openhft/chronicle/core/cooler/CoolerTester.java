@@ -35,12 +35,12 @@ public class CoolerTester {
     private final List<Histogram> histograms = new ArrayList<>();
 
     /**
-     * List of test names.
+     * List of test names used when reporting results.
      */
     private final List<String> testNames = new ArrayList<>();
 
     /**
-     * List of tests to be run.
+     * List of tests to be run during each cooler pass.
      */
     private final List<Callable<?>> tests = new ArrayList<>();
     private int repeat = 10;
@@ -106,10 +106,6 @@ public class CoolerTester {
         if (blackhole == null) {
             Jvm.safepoint();
         }
-        if (blackhole == BLACK_HOLE_SENTINEL) {
-            throw new AssertionError("Blackhole sentinel reached");
-        }
-//            UNSAFE.fullFence();
         long time0 = System.nanoTime() - start0;
         histogram.sample(time0);
     }
@@ -229,7 +225,7 @@ public class CoolerTester {
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Cooler test run failed", e);
         }
     }
 

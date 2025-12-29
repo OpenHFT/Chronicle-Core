@@ -5,27 +5,33 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ValidatableTest extends CoreTestCommon {
+class ValidatableTest extends CoreTestCommon {
 
+    @DisplayName("validate behaviour under expected input and output conditions")
     @Test
-    public void validate() {
+    void validate() {
         DTOWithValidateToString d = new DTOWithValidateToString();
-        assertThrows(InvalidMarshallableException.class, d::toString);
+        assertThrows(InvalidMarshallableException.class, d::toString,
+                "toString should throw when a and b are unset");
         d.b = 1;
-        assertThrows(InvalidMarshallableException.class, d::toString);
+        assertThrows(InvalidMarshallableException.class, d::toString,
+                "toString should throw when a is null");
         d.a = "hi";
         d.b = 1;
         assertEquals("DTOWithValidateToString{a='hi', b=1}", d.toString(), "toString should succeed when all fields are valid"); // is ok
         d.b = 0;
-        assertThrows(InvalidMarshallableException.class, d::toString);
+        assertThrows(InvalidMarshallableException.class, d::toString,
+                "toString should throw when b is non-positive");
     }
 
+    @DisplayName("validateDisabled behaviour under expected input and output conditions")
     @Test
-    public void validateDisabled() {
+    void validateDisabled() {
 
         assertTrue(ValidatableUtil.validateEnabled(), "validation should be enabled by default");
         ValidatableUtil.startValidateDisabled();
@@ -52,8 +58,10 @@ public class ValidatableTest extends CoreTestCommon {
             ValidatableUtil.endValidateDisabled();
             assertTrue(ValidatableUtil.validateEnabled(), "validation should be re-enabled after calling endValidateDisabled");
         }
-        assertThrows(InvalidMarshallableException.class, d::toString);
-        assertThrows(AssertionError.class, ValidatableUtil::endValidateDisabled);
+        assertThrows(InvalidMarshallableException.class, d::toString,
+                "toString should throw when validation is re-enabled and fields are invalid");
+        assertThrows(AssertionError.class, ValidatableUtil::endValidateDisabled,
+                "endValidateDisabled should throw when called without a matching start");
         assertTrue(ValidatableUtil.validateEnabled(), "validation should remain enabled after endValidateDisabled throws");
     }
 
@@ -63,7 +71,7 @@ public class ValidatableTest extends CoreTestCommon {
 
         @Override
         public void validate() throws InvalidMarshallableException {
-            if (a == null) throw new InvalidMarshallableException("a must not be null");
+            if (a == null) throw new InvalidMarshallableException("DTO field a must not be null");
             if (b <= 0) throw new InvalidMarshallableException("b must be positive");
         }
 

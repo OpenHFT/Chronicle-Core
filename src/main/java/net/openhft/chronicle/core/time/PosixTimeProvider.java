@@ -33,7 +33,7 @@ public enum PosixTimeProvider implements TimeProvider {
     }
 
     /**
-     * Returns the current time in microseconds.
+     * Returns the current time in microseconds since the Unix epoch.
      * <p>
      * This method provides microsecond precision by dividing the nanosecond value by 1000.
      *
@@ -46,7 +46,7 @@ public enum PosixTimeProvider implements TimeProvider {
     }
 
     /**
-     * Returns the current time in nanoseconds.
+     * Returns the current time in nanoseconds since the Unix epoch.
      * <p>
      * This method directly calls the native {@code clock_gettime} function, providing
      * highly precise and accurate nanosecond resolution time. It uses {@link ClockId#CLOCK_REALTIME}

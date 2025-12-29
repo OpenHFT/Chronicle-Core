@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.annotation;
 
 import net.openhft.chronicle.core.CoreTestCommon;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -15,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ScopeConfinedTest extends CoreTestCommon {
 
+    @DisplayName("a behaviour under expected input and output conditions")
     @Test
     void a() throws NoSuchMethodException {
         Method method = Foo.class.getMethod("stream");

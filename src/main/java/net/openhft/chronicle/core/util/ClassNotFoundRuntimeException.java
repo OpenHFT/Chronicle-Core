@@ -4,7 +4,7 @@
 package net.openhft.chronicle.core.util;
 
 /**
- * A runtime exception used to wrap a {@link ClassNotFoundException}.
+ * A runtime exception used to wrap a {@link ClassNotFoundException} for unchecked propagation across APIs.
  * <p>
  * This exception is typically used to convert a checked exception (ClassNotFoundException)
  * into an unchecked exception, allowing it to propagate up the call stack without the need

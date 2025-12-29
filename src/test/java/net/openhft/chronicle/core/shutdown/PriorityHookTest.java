@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.shutdown;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
@@ -19,6 +20,7 @@ class PriorityHookTest {
         PriorityHook.clear();
     }
 
+    @DisplayName("testAddHook behaviour under expected input and output conditions")
     @Test
     void testAddHook() {
         Runnable hook1 = mock(Runnable.class);
@@ -29,6 +31,7 @@ class PriorityHookTest {
         assertFalse(addedAgain, "add() returns false when re-adding same hook at same priority");
     }
 
+    @DisplayName("testHookExecutionOrder behaviour under expected input and output conditions")
     @Test
     void testHookExecutionOrder() {
         Runnable hook1 = mock(Runnable.class);
@@ -43,6 +46,7 @@ class PriorityHookTest {
         inOrder.verify(hook2).run();
     }
 
+    @DisplayName("testClearHooks behaviour under expected input and output conditions")
     @Test
     void testClearHooks() {
         Runnable hook = mock(Runnable.class);

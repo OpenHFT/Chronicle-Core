@@ -5,6 +5,7 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.util.MisAlignedAssertionError;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,7 +15,7 @@ class ARMMemoryMisalignmentEdgeTest {
     private long allocated = 0;
 
     private long alloc(int bytes) {
-        if (allocated != 0) throw new IllegalStateException("already allocated");
+        if (allocated != 0) throw new IllegalStateException("memory block is already allocated for this test");
         allocated = UnsafeMemory.UNSAFE.allocateMemory(bytes);
         // zero it for predictable assertions
         for (int i = 0; i < bytes; i++) UnsafeMemory.UNSAFE.putByte(allocated + i, (byte) 0);
@@ -29,6 +30,7 @@ class ARMMemoryMisalignmentEdgeTest {
         }
     }
 
+    @DisplayName("volatileShortOnMisalignedAddressOffheap behaviour under expected input and output conditions")
     @Test
     void volatileShortOnMisalignedAddressOffheap() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
@@ -42,14 +44,17 @@ class ARMMemoryMisalignmentEdgeTest {
         assertEquals(123, arm.readVolatileShort(base), "volatile short read should return written value at aligned offheap address");
     }
 
+    @DisplayName("compareAndSwapIntMisalignedThrows behaviour under expected input and output conditions")
     @Test
     void compareAndSwapIntMisalignedThrows() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
         long base = alloc(16);
         long mis = base + 1; // not 4-byte aligned
-        assertThrows(MisAlignedAssertionError.class, () -> arm.compareAndSwapInt(mis, 0, 1));
+        assertThrows(MisAlignedAssertionError.class, () -> arm.compareAndSwapInt(mis, 0, 1),
+                "compareAndSwapInt should throw for misaligned offheap address");
     }
 
+    @DisplayName("testAndSetIntMisalignedMismatchIncludesTag behaviour under expected input and output conditions")
     @Test
     void testAndSetIntMisalignedMismatchIncludesTag() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
@@ -58,9 +63,11 @@ class ARMMemoryMisalignmentEdgeTest {
         // initial value is 0; expect!=actual triggers error mentioning mis-aligned
         IllegalStateException ex = assertThrows(IllegalStateException.class,
                 () -> arm.testAndSetInt(mis, 1L, /*expected*/ 1, /*value*/ 2));
-        assertTrue(ex.getMessage().contains("mis-aligned"), "exception message should indicate misalignment when testAndSet fails on misaligned address");
+        assertTrue(ex.getMessage().contains("mis-aligned"),
+                "testAndSet failure message should include \"mis-aligned\": " + ex.getMessage());
     }
 
+    @DisplayName("floatReadWriteOnMisalignedAddressOffheap behaviour under expected input and output conditions")
     @Test
     void floatReadWriteOnMisalignedAddressOffheap() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
@@ -74,6 +81,7 @@ class ARMMemoryMisalignmentEdgeTest {
         assertEquals(f, arm.readVolatileFloat(mis), "volatile float read should return written value at misaligned offheap address");
     }
 
+    @DisplayName("volatileLongOnMisalignedAddressOffheap behaviour under expected input and output conditions")
     @Test
     void volatileLongOnMisalignedAddressOffheap() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
@@ -84,4 +92,3 @@ class ARMMemoryMisalignmentEdgeTest {
         assertEquals(v, arm.readVolatileLong(mis), "volatile long read should return written value at misaligned offheap address");
     }
 }
-

@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Extension of {@link java.io.Closeable} that participates in the Chronicle
- * resource lifecycle.
+ * resource lifecycle and monitoring.
  * <p>
  * Typical usage is via <em>try-with-resources</em> where {@link #close()} is
  * invoked automatically. Implementations normally extend

@@ -9,15 +9,16 @@ import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.Histogram;
 import net.openhft.chronicle.testframework.FlakyTestRunner;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ThreadLocalRandom;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class SystemTimeProviderTest extends CoreTestCommon {
+class SystemTimeProviderTest extends CoreTestCommon {
     static void assertBetween(long min, long actual, long max) {
-        assertBetween("range check", min, actual, max);
+        assertBetween("time value within expected range", min, actual, max);
     }
 
     static void assertBetween(String label, long min, long actual, long max) {
@@ -26,8 +27,9 @@ public class SystemTimeProviderTest extends CoreTestCommon {
         throw new AssertionError(label + ": Not in range " + min + " <= " + actual + " <= " + max);
     }
 
+    @DisplayName("currentTimeMicros behaviour under expected input and output conditions")
     @Test
-    public void currentTimeMicros() throws IllegalStateException {
+    void currentTimeMicros() throws IllegalStateException {
         // doCurrentTimeMicros() is very flaky so that is why we retry this operation
         boolean success = false;
         Throwable lastFailure = null;
@@ -53,8 +55,9 @@ public class SystemTimeProviderTest extends CoreTestCommon {
         assertCurrentTimeMicros(SystemTimeProvider.INSTANCE, false, false);
     }
 
+    @DisplayName("currentTime behaviour under expected input and output conditions")
     @Test
-    public void currentTime() throws IllegalStateException {
+    void currentTime() throws IllegalStateException {
         for (int i = 3; i >= 0; i--) {
             TimeProvider tp = SystemTimeProvider.INSTANCE;
             long time2 = tp.currentTimeMillis();
@@ -71,8 +74,9 @@ public class SystemTimeProviderTest extends CoreTestCommon {
         }
     }
 
+    @DisplayName("resolution behaviour under expected input and output conditions")
     @Test
-    public void resolution() {
+    void resolution() {
         for (int j = 0; j < 3; j++) {
             Histogram h = new Histogram(32, 10, 1);
             long last = SystemTimeProvider.INSTANCE.currentTimeNanos();
@@ -86,7 +90,7 @@ public class SystemTimeProviderTest extends CoreTestCommon {
             System.out.println(h.toMicrosFormat());
 
             // Performance test
-            assertTrue(h.totalCount() > 0, "histogram should record samples");
+            assertTrue(h.totalCount() > 0, "histogram should record samples j=" + j);
         }
     }
 
@@ -129,23 +133,23 @@ public class SystemTimeProviderTest extends CoreTestCommon {
                 long ns = System.nanoTime();
                 while (System.nanoTime() < ns + 100)
                     Jvm.nanoPause();
-                assertTrue(time2 >= lastTimeMicros, "currentTimeMicros should be monotonic");
+                assertTrue(time2 >= lastTimeMicros, "currentTimeMicros should be monotonic i=" + i);
                 lastTimeMicros = time2;
             } while (System.currentTimeMillis() < start + 500);
 
             try {
                 if (!skipWindowsMinCheck) {
-                    assertBetween("minDiff lower bound", -5L * error, minDiff, 5L * error);
+                    assertBetween("minDiff lower bound attempt " + i, -5L * error, minDiff, 5L * error);
                 }
-                assertBetween("maxDiff upper bound", 990L, maxDiff, 1000L + 30L * error);
+                assertBetween("maxDiff upper bound attempt " + i, 990L, maxDiff, 1000L + 30L * error);
                 break;
             } catch (AssertionError e) {
                 // retry
             }
         }
         if (!skipWindowsMinCheck) {
-            assertBetween("minDiff lower bound", -5L * error, minDiff, 5L * error);
+            assertBetween("minDiff lower bound final", -5L * error, minDiff, 5L * error);
         }
-        assertBetween("maxDiff upper bound", 990L, maxDiff, 1000L + 30L * error);
+        assertBetween("maxDiff upper bound final", 990L, maxDiff, 1000L + 30L * error);
     }
 }

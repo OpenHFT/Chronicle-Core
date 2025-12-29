@@ -37,7 +37,7 @@ import java.nio.BufferUnderflowException;
  */
 public interface BooleanValue {
     /**
-     * Retrieves the boolean value.
+     * Retrieves the current boolean value from the backing store.
      *
      * @return the boolean value
      * @throws BufferUnderflowException       If there is not enough data available to read the value
@@ -47,7 +47,7 @@ public interface BooleanValue {
     boolean getValue() throws IllegalStateException, BufferUnderflowException;
 
     /**
-     * Sets the boolean value.
+     * Sets the boolean value in the backing store.
      *
      * @param value the boolean value to set
      * @throws ClosedIllegalStateException    If the resource has been released or closed.

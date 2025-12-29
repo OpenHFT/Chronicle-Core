@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 /**
- * Provides a per-thread {@link ExceptionHandler}.
+ * Provides a per-thread {@link ExceptionHandler} with a shared default handler fallback.
  *
  * <p>The handler supplied to the constructor becomes the default. Each thread may
  * override this via {@link #threadLocalHandler(ExceptionHandler)} and the override can
@@ -73,7 +73,7 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
     }
 
     /**
-     * Returns the current default handler.
+     * Returns the current default handler used when no thread-local override is set.
      *
      * @return the default handler in use
      */

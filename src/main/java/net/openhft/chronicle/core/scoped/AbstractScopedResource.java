@@ -60,7 +60,7 @@ abstract class AbstractScopedResource<T> implements ScopedResource<T> {
     abstract void closeResource();
 
     /**
-     * The time this resource was created
+     * The time this resource was created, expressed in nanoseconds.
      *
      * @return the {@link System#nanoTime()} of creation
      */

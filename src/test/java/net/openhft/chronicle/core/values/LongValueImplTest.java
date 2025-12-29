@@ -3,12 +3,14 @@
  */
 package net.openhft.chronicle.core.values;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class LongValueImplTest {
 
+    @DisplayName("testSetValueAndGetValue behaviour under expected input and output conditions")
     @Test
     void testSetValueAndGetValue() {
         LongValueImpl longValue = new LongValueImpl();
@@ -16,6 +18,7 @@ class LongValueImplTest {
         assertEquals(10L, longValue.getValue(), "getValue should return value set by setValue");
     }
 
+    @DisplayName("testAddValue behaviour under expected input and output conditions")
     @Test
     void testAddValue() {
         LongValueImpl longValue = new LongValueImpl();
@@ -24,6 +27,7 @@ class LongValueImplTest {
         assertEquals(8L, longValue.getValue(), "getValue should return sum after addValue");
     }
 
+    @DisplayName("testCompareAndSwapValueSuccess behaviour under expected input and output conditions")
     @Test
     void testCompareAndSwapValueSuccess() {
         LongValueImpl longValue = new LongValueImpl();
@@ -32,6 +36,7 @@ class LongValueImplTest {
         assertEquals(20L, longValue.getValue(), "getValue should return new value after successful compareAndSwapValue");
     }
 
+    @DisplayName("testCompareAndSwapValueFailure behaviour under expected input and output conditions")
     @Test
     void testCompareAndSwapValueFailure() {
         LongValueImpl longValue = new LongValueImpl();
@@ -40,6 +45,7 @@ class LongValueImplTest {
         assertEquals(15L, longValue.getValue(), "getValue should return unchanged value after failed compareAndSwapValue");
     }
 
+    @DisplayName("testSetMaxValue behaviour under expected input and output conditions")
     @Test
     void testSetMaxValue() {
         LongValueImpl longValue = new LongValueImpl();
@@ -50,6 +56,7 @@ class LongValueImplTest {
         assertEquals(100L, longValue.getValue(), "getValue should return unchanged value after setMaxValue with lesser value");
     }
 
+    @DisplayName("testSetMinValue behaviour under expected input and output conditions")
     @Test
     void testSetMinValue() {
         LongValueImpl longValue = new LongValueImpl();
@@ -60,6 +67,7 @@ class LongValueImplTest {
         assertEquals(25L, longValue.getValue(), "getValue should return unchanged value after setMinValue with greater value");
     }
 
+    @DisplayName("testGetAndSetVolatileValue behaviour under expected input and output conditions")
     @Test
     void testGetAndSetVolatileValue() {
         LongValueImpl longValue = new LongValueImpl();
@@ -67,6 +75,7 @@ class LongValueImplTest {
         assertEquals(123L, longValue.getVolatileValue(), "getVolatileValue should return value set by setVolatileValue");
     }
 
+    @DisplayName("testSetOrderedValue behaviour under expected input and output conditions")
     @Test
     void testSetOrderedValue() {
         LongValueImpl longValue = new LongValueImpl();
@@ -74,6 +83,7 @@ class LongValueImplTest {
         assertEquals(456L, longValue.getValue(), "getValue should return value set by setOrderedValue");
     }
 
+    @DisplayName("testAddAtomicValue behaviour under expected input and output conditions")
     @Test
     void testAddAtomicValue() {
         LongValueImpl longValue = new LongValueImpl();
@@ -84,6 +94,7 @@ class LongValueImplTest {
         assertEquals(12L, longValue.getValue(), "getValue should return sum after addAtomicValue with negative value");
     }
 
+    @DisplayName("testIsClosed behaviour under expected input and output conditions")
     @Test
     void testIsClosed() {
         LongValueImpl longValue = new LongValueImpl();
@@ -93,6 +104,7 @@ class LongValueImplTest {
         assertTrue(longValue.isClosed(), "isClosed should return true after close");
     }
 
+    @DisplayName("testGetVolatileValue behaviour under expected input and output conditions")
     @Test
     void testGetVolatileValue() {
         LongValueImpl longValue = new LongValueImpl();
@@ -100,6 +112,7 @@ class LongValueImplTest {
         assertEquals(10L, longValue.getVolatileValue(), "getVolatileValue should return value set by setValue");
     }
 
+    @DisplayName("testGetVolatileValueWithClosedValue behaviour under expected input and output conditions")
     @Test
     void testGetVolatileValueWithClosedValue() {
         LongValueImpl longValue = new LongValueImpl();

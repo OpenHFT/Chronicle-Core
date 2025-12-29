@@ -50,7 +50,7 @@ public class CancellableTimer {
     }
 
     /**
-     * Schedules {@code eventHandler} for fixed-rate execution on the event loop.
+     * Schedules {@code eventHandler} for fixed-rate execution with explicit handler priority.
      * Timing is best-effort; missed runs are not queued.
      *
      * @param eventHandler The handler to be invoked.
@@ -159,7 +159,7 @@ public class CancellableTimer {
             try {
                 return eventHandler.action();
             } catch (RuntimeException e) {
-                Jvm.warn().on(getClass(), "Unexpected runtime exception", e);
+                Jvm.warn().on(getClass(), "Unexpected runtime exception in scheduled event handler", e);
             }
 
             return false;

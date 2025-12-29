@@ -28,14 +28,14 @@ package net.openhft.chronicle.core.values;
  */
 public interface CharValue {
     /**
-     * Retrieves the char value.
+     * Retrieves the current char value from the backing store.
      *
      * @return the char value
      */
     char getValue();
 
     /**
-     * Sets the char value.
+     * Sets the char value in the backing store.
      *
      * @param value the char value to set
      */

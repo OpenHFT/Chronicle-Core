@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.time.TimeProvider;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -13,10 +14,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class TimerTest {
+class TimerTest {
 
+    @DisplayName("fixedRateFiresAfterInitialDelayAndPeriod behaviour under expected input and output conditions")
     @Test
-    public void fixedRateFiresAfterInitialDelayAndPeriod() {
+    void fixedRateFiresAfterInitialDelayAndPeriod() {
         FakeLoop loop = new FakeLoop();
         FakeTime time = new FakeTime();
         Timer timer = new Timer(loop, time);
@@ -49,8 +51,9 @@ public class TimerTest {
         assertEquals(2, calls.get(), "timer should fire again when the next period boundary is reached");
     }
 
+    @DisplayName("scheduleOnceRemovesItselfAfterRun behaviour under expected input and output conditions")
     @Test
-    public void scheduleOnceRemovesItselfAfterRun() {
+    void scheduleOnceRemovesItselfAfterRun() {
         FakeLoop loop = new FakeLoop();
         FakeTime time = new FakeTime();
         CancellableTimer ct = new CancellableTimer(loop, time);

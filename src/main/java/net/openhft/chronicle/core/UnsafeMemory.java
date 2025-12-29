@@ -43,7 +43,7 @@ import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 public class UnsafeMemory implements Memory {
 
     /**
-     * A constant for the Unsafe object.
+     * A shared Unsafe instance used for low-level memory operations.
      */
     @NotNull
     public static final Unsafe UNSAFE;
@@ -85,7 +85,7 @@ public class UnsafeMemory implements Memory {
         } catch (@NotNull NoSuchFieldException | IllegalAccessException | IllegalArgumentException e) {
             //noinspection CallToPrintStackTrace
             e.printStackTrace(); // NOSONAR
-            throw new AssertionError(e);
+            throw new AssertionError("Unable to access the Unsafe instance", e);
         }
         //noinspection StaticInitializerReferencesSubClass
         INSTANCE = Bootstrap.isArm0() ? new ARMMemory() : new UnsafeMemory();
@@ -96,7 +96,7 @@ public class UnsafeMemory implements Memory {
     private final ObjectToAddress copyMemoryObjectToAddress;
 
     /**
-     * Creates a new instance of UnsafeMemory.
+     * Creates a new instance configured for platform-specific copy operations.
      */
     public UnsafeMemory() {
         copyMemoryObjectToAddress = (Bootstrap.isJava9Plus() || Bootstrap.isArm0()) ?
@@ -249,7 +249,7 @@ public class UnsafeMemory implements Memory {
     }
 
     /**
-     * Puts the provided {@code value} into the provided {@code bytes} array at the provided byte {@code offset}.
+     * Puts the provided long value into the {@code bytes} array at the given byte {@code offset}.
      *
      * @param bytes  non-null byte array.
      * @param offset in the provided bytes where the value is written
@@ -262,7 +262,7 @@ public class UnsafeMemory implements Memory {
     }
 
     /**
-     * Puts the provided {@code value} into the provided {@code bytes} array at the provided byte {@code offset}.
+     * Puts the provided int value into the {@code bytes} array at the given byte {@code offset}.
      *
      * @param bytes  non-null byte array.
      * @param offset in the provided bytes where the value is written
@@ -276,7 +276,7 @@ public class UnsafeMemory implements Memory {
     }
 
     /**
-     * Puts the provided {@code value} into the provided {@code bytes} array at the provided byte {@code offset}.
+     * Puts the provided byte value into the {@code bytes} array at the given byte {@code offset}.
      *
      * @param bytes  non-null byte array.
      * @param offset in the provided bytes where the value is written
@@ -521,7 +521,7 @@ public class UnsafeMemory implements Memory {
     }
 
     /**
-     * Retrieves the offset of the provided field within its class or interface.
+     * Returns the field offset using the Unsafe-backed implementation.
      *
      * @param field the field whose offset should be fetched.
      * @return the offset of the field.
@@ -575,7 +575,7 @@ public class UnsafeMemory implements Memory {
     }
 
     /**
-     * Fetches an object of type {@code T} from the given object at the specified {@code offset}.
+     * Fetches an object of type {@code T} from the given instance at the specified {@code offset}.
      *
      * @param <T>    the type of the object to fetch.
      * @param object the object containing the object to fetch.
@@ -732,7 +732,7 @@ public class UnsafeMemory implements Memory {
         assert SKIP_ASSERTIONS || offset >= 0;
         assert SKIP_ASSERTIONS || length >= 0;
         if (offset + length > b.length)
-            throw new IllegalArgumentException("Invalid offset or length, array's length is " + b.length);
+            throw new IllegalArgumentException("Invalid offset or length for read; array length is " + b.length);
         UnsafeMemory.UNSAFE.copyMemory(b, ARRAY_BYTE_BASE_OFFSET + offset, null, address, length);
     }
 
@@ -1212,7 +1212,10 @@ public class UnsafeMemory implements Memory {
         if (length > 128 << 10) {
             long time = System.nanoTime() - start;
             if (time > 100_000) {
-                double millis = time / 1000 / 1e3;
+                // Warning: time / 1000 / 1e3 truncates after the first division (e.g. 1234567 -> 1.234), while
+                // time / 1_000_000.0 keeps the fractional precision (e.g. 1234567 -> 1.234567).
+                long micros = time / 1000;
+                double millis = micros / 1e3;
                 Jvm.perf().on(getClass(), "Took " + millis + " ms to copy " + length / 1024 + " KB");
             }
         }
@@ -1700,7 +1703,7 @@ public class UnsafeMemory implements Memory {
     @Override
     public boolean compareAndSwapLong(long address, long expected, long value) throws MisAlignedAssertionError {
         if (!safeAlignedLong(address))
-            throw new MisAlignedAssertionError();
+            throw new MisAlignedAssertionError("Misaligned long CAS address: " + address);
         assert SKIP_ASSERTIONS || address != 0;
         return UNSAFE.compareAndSwapLong(null, address, expected, value);
     }
@@ -1756,7 +1759,7 @@ public class UnsafeMemory implements Memory {
     }
 
     /**
-     * Returns the memory page size.
+     * Returns the native memory page size for the current platform.
      *
      * @return the memory page size.
      */
@@ -2649,7 +2652,7 @@ public class UnsafeMemory implements Memory {
             assert SKIP_ASSERTIONS || address != 0;
             if (safeAlignedInt(address))
                 return super.addInt(address, increment);
-            throw new MisAlignedAssertionError();
+            throw new MisAlignedAssertionError("Misaligned int address for add: " + address);
         }
 
         /**
@@ -2668,7 +2671,7 @@ public class UnsafeMemory implements Memory {
             assert SKIP_ASSERTIONS || address != 0;
             if (safeAlignedInt(address))
                 return super.compareAndSwapInt(address, expected, value);
-            throw new MisAlignedAssertionError();
+            throw new MisAlignedAssertionError("Misaligned int address for CAS: " + address);
         }
 
         /**
@@ -2688,7 +2691,7 @@ public class UnsafeMemory implements Memory {
             assert SKIP_ASSERTIONS || offset > 0;
             if (safeAlignedInt(offset))
                 return super.compareAndSwapInt(object, offset, expected, value);
-            throw new MisAlignedAssertionError();
+            throw new MisAlignedAssertionError("Misaligned int offset for CAS: " + offset);
         }
 
         /**
@@ -2706,7 +2709,7 @@ public class UnsafeMemory implements Memory {
             assert SKIP_ASSERTIONS || address != 0;
             if (safeAlignedInt(address))
                 return super.getAndSetInt(address, value);
-            throw new MisAlignedAssertionError();
+            throw new MisAlignedAssertionError("Misaligned int address for getAndSet: " + address);
         }
 
         /**
@@ -2725,7 +2728,7 @@ public class UnsafeMemory implements Memory {
             assert SKIP_ASSERTIONS || offset > 0;
             if (safeAlignedInt(offset))
                 return super.getAndSetInt(object, offset, value);
-            throw new MisAlignedAssertionError();
+            throw new MisAlignedAssertionError("Misaligned int offset for getAndSet: " + offset);
         }
 
         /**
@@ -2781,7 +2784,7 @@ public class UnsafeMemory implements Memory {
                     return;
                 }
                 int actual = UNSAFE.getIntVolatile(object, offset);
-                throw new IllegalStateException("Cannot change " + object.getClass().getSimpleName() + " at " + offset + EXPECTED + expected + WAS + actual);
+                throw new IllegalStateException("Cannot change " + object.getClass().getSimpleName() + " at " + offset + EXPECTED + expected + WAS + actual + " after fallback CAS");
             } else {
                 UNSAFE.loadFence();
                 int actual = UNSAFE.getInt(object, offset);
@@ -3020,7 +3023,7 @@ public class UnsafeMemory implements Memory {
             assert SKIP_ASSERTIONS || address != 0;
             if (safeAlignedLong(address))
                 return super.addLong(address, increment);
-            throw new MisAlignedAssertionError();
+            throw new MisAlignedAssertionError("Misaligned long address for add: " + address);
         }
 
         /**
@@ -3039,7 +3042,7 @@ public class UnsafeMemory implements Memory {
             assert SKIP_ASSERTIONS || offset > 0;
             if (safeAlignedLong(offset))
                 return super.compareAndSwapLong(object, offset, expected, value);
-            throw new MisAlignedAssertionError();
+            throw new MisAlignedAssertionError("Misaligned long offset for CAS: " + offset);
         }
 
         /**
@@ -3057,7 +3060,7 @@ public class UnsafeMemory implements Memory {
             assert SKIP_ASSERTIONS || address != 0;
             if (safeAlignedLong(address))
                 return super.compareAndSwapLong(address, expected, value);
-            throw new MisAlignedAssertionError();
+            throw new MisAlignedAssertionError("Misaligned long address for CAS: " + address);
         }
 
         /**
@@ -3097,7 +3100,7 @@ public class UnsafeMemory implements Memory {
             assert SKIP_ASSERTIONS || offset > 8;
             if (safeAlignedLong(offset))
                 return super.addLong(object, offset, increment);
-            throw new MisAlignedAssertionError();
+            throw new MisAlignedAssertionError("Misaligned long offset for add: " + offset);
         }
     }
 }

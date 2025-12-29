@@ -11,7 +11,7 @@ package net.openhft.chronicle.core.io;
 public interface Monitorable {
 
     /**
-     * Stops monitoring the resource.
+     * Stops monitoring the resource and releases monitoring hooks.
      * <p>
      * Implementations of this method should ensure that the resource and any resources it uses
      * are no longer being tracked for any purpose such as cleanup, resource management, or debugging.

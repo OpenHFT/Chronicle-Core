@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.io;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -15,24 +16,30 @@ class VanillaReferenceCountedEdgeTest {
         return new VanillaReferenceCounted(released::incrementAndGet, VanillaReferenceCounted.class);
     }
 
+    @DisplayName("double release throws closed state exception")
     @Test
     void doubleReleaseThrows() {
         AtomicInteger released = new AtomicInteger();
         VanillaReferenceCounted ref = newRef(released);
         ref.release(ReferenceOwner.INIT);
         assertEquals(1, released.get(), "release callback should be invoked once after first release");
-        ClosedIllegalStateException ex = assertThrows(ClosedIllegalStateException.class, () -> ref.release(ReferenceOwner.INIT));
-        assertTrue(ex.getMessage().contains("released"), "exception message should indicate resource already released");
+        ClosedIllegalStateException ex = assertThrows(ClosedIllegalStateException.class, () -> ref.release(ReferenceOwner.INIT),
+                "double release should throw ClosedIllegalStateException");
+        assertTrue(ex.getMessage().contains("released"),
+                "exception message should mention \"released\": " + ex.getMessage());
     }
 
+    @DisplayName("reserve after release throws closed exception")
     @Test
     void reserveAfterReleasedThrows() {
         AtomicInteger released = new AtomicInteger();
         VanillaReferenceCounted ref = newRef(released);
         ref.release(ReferenceOwner.INIT);
-        assertThrows(ClosedIllegalStateException.class, () -> ref.reserve(ReferenceOwner.INIT));
+        assertThrows(ClosedIllegalStateException.class, () -> ref.reserve(ReferenceOwner.INIT),
+                "reserve should fail after resource is released");
     }
 
+    @DisplayName("not last release is detected correctly")
     @Test
     void notLastReleaseIsDetected() {
         AtomicInteger released = new AtomicInteger();
@@ -41,12 +48,14 @@ class VanillaReferenceCountedEdgeTest {
         // release once (leaving one outstanding)
         ref.release(ReferenceOwner.INIT);
         // still reserved -> throwExceptionIfNotReleased should throw
-        assertThrows(IllegalStateException.class, ref::throwExceptionIfNotReleased);
+        assertThrows(IllegalStateException.class, ref::throwExceptionIfNotReleased,
+                "throwExceptionIfNotReleased should throw when still reserved");
         // cleanup
         ref.release(ReferenceOwner.INIT);
         assertEquals(1, released.get(), "release callback should be invoked once after final release");
     }
 
+    @DisplayName("listeners are called on add and remove")
     @Test
     void listenersAreCalledOnAddRemove() {
         AtomicInteger added = new AtomicInteger();

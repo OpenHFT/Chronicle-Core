@@ -5,6 +5,7 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.onoes.ExceptionKey;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import javax.naming.TimeLimitExceededException;
@@ -15,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class LicenceCheckTest extends CoreTestCommon {
+class LicenceCheckTest extends CoreTestCommon {
 
     @AfterEach
     public void tearDown() {
@@ -23,28 +24,32 @@ public class LicenceCheckTest extends CoreTestCommon {
         Jvm.resetExceptionHandlers();
     }
 
+    @DisplayName("checkExpiredExpiryFile behaviour under expected input and output conditions")
     @Test
-    public void checkExpiredExpiryFile() {
+    void checkExpiredExpiryFile() {
         assertThrows(TimeLimitExceededException.class,
                 () -> LicenceCheck.check("test", LicenceCheck.class),
-                "checkExpiredExpiryFile");
+                "expired expiry file should trigger TimeLimitExceededException");
     }
 
+    @DisplayName("checkUnexpiredExpiryFileWithNewline behaviour under expected input and output conditions")
     @Test
-    public void checkUnexpiredExpiryFileWithNewline() {
+    void checkUnexpiredExpiryFileWithNewline() {
         assertDoesNotThrow(() -> LicenceCheck.check("test2", LicenceCheck.class),
-                "checkUnexpiredExpiryFileWithNewline");
+                "unexpired expiry file with newline should not throw");
     }
 
+    @DisplayName("checkEvalExpired behaviour under expected input and output conditions")
     @Test
-    public void checkEvalExpired() {
+    void checkEvalExpired() {
         assertThrows(TimeLimitExceededException.class,
                 () -> LicenceCheck.check("test", LicenceCheckTest.class),
-                "checkEvalExpired");
+                "evaluation licence expiry should trigger TimeLimitExceededException");
     }
 
+    @DisplayName("checkLicense behaviour under expected input and output conditions")
     @Test
-    public void checkLicense() {
+    void checkLicense() {
         System.setProperty(CHRONICLE_LICENSE, "product=test.,owner=Test Unit,expires=9999-01-01,code=123456789");
 
         Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
@@ -54,11 +59,12 @@ public class LicenceCheckTest extends CoreTestCommon {
                 "expected warning about licence expiry in map: " + map);
     }
 
+    @DisplayName("checkLicenseExpired behaviour under expected input and output conditions")
     @Test
-    public void checkLicenseExpired() {
+    void checkLicenseExpired() {
         System.setProperty(CHRONICLE_LICENSE, "product=test.,owner=Test Unit,expires=2019-01-01,code=123456789");
         assertThrows(TimeLimitExceededException.class,
                 () -> LicenceCheck.check("test", null),
-                "checkLicenseExpired");
+                "expired licence should trigger TimeLimitExceededException");
     }
 }

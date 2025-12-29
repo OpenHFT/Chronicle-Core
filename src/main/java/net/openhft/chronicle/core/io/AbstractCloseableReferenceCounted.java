@@ -9,7 +9,7 @@ import net.openhft.chronicle.core.internal.CloseableUtils;
 import net.openhft.chronicle.core.internal.ReferenceCountedUtils;
 
 /**
- * Represents a closeable resource with reference counting.
+ * Represents a closeable resource with reference counting, lifecycle tracking, and leak diagnostics.
  * <p>
  * The resource starts reserved by {@link ReferenceOwner#INIT}. Once all calls
  * to {@link #release(ReferenceOwner)} (or {@link #releaseLast(ReferenceOwner)})
@@ -119,7 +119,7 @@ public abstract class AbstractCloseableReferenceCounted
     }
 
     /**
-     * Closes the resource in the background.
+     * Closes the resource in the background and marks it as closing.
      */
     @Override
     protected void backgroundPerformRelease() {
@@ -141,7 +141,7 @@ public abstract class AbstractCloseableReferenceCounted
     }
 
     /**
-     * Sets the resource as closed.
+     * Marks the resource as closed and records the close site.
      */
     protected void setClosed() {
         closing = closed = true;

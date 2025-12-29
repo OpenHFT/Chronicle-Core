@@ -77,7 +77,7 @@ public class RecordingHistogram extends Histogram {
     }
 
     /**
-     * Resets the state of this RecordingHistogram.
+     * Resets the state of this RecordingHistogram and clears top sample tracking.
      */
     @Override
     public void reset() {
@@ -126,7 +126,7 @@ public class RecordingHistogram extends Histogram {
         }
 
         /**
-         * Resets the state of Top10.
+         * Resets the state of Top10 tracking entries for new samples.
          */
         void reset() {
             count = 0;

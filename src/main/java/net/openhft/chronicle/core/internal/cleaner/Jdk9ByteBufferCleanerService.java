@@ -33,7 +33,9 @@ public final class Jdk9ByteBufferCleanerService implements ByteBufferCleanerServ
         try {
             return MethodHandles.publicLookup().findVirtual(UnsafeMemory.UNSAFE.getClass(), "invokeCleaner", signature);
         } catch (NoSuchMethodException | IllegalAccessException e) {
-            throw new ExceptionInInitializerError(e);
+            ExceptionInInitializerError error = new ExceptionInInitializerError("Unable to access Unsafe.invokeCleaner");
+            error.initCause(e);
+            throw error;
         }
     }
 

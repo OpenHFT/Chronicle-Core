@@ -6,7 +6,7 @@ package net.openhft.chronicle.core.threads;
 import net.openhft.chronicle.core.io.InvalidMarshallableException;
 
 /**
- * Marker interface identical to {@link EventHandler} kept for binary compatibility.
+ * Marker interface identical to {@link EventHandler} kept for binary compatibility and migration.
  * <p>
  * Implementations perform non-blocking units of work on an event loop thread. Returning
  * {@code true} hints that more work is immediately available; throwing

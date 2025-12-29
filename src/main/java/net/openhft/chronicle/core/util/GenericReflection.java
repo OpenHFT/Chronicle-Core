@@ -16,7 +16,7 @@ import java.util.Set;
 import java.util.stream.Stream;
 
 /**
- * Provides utility methods for reflective operations on generic types.
+ * Provides utility methods for reflective operations on generic types and method signatures.
  *
  * <p>This enum serves as a utility class for obtaining generic type information of methods
  * and classes at runtime. This is especially useful for reflective operations that deal with

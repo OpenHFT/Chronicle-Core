@@ -6,14 +6,15 @@ package net.openhft.chronicle.core.util;
 import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Verifies behaviour of StringUtils when reflective optimisation flags are disabled.
+ * Verifies behaviour of StringUtils when reflective optimisation flags are disabled in fallback mode.
  */
-public class StringUtilsFlagsTest extends CoreTestCommon {
+class StringUtilsFlagsTest extends CoreTestCommon {
 
     private String oldFlag;
 
@@ -31,10 +32,10 @@ public class StringUtilsFlagsTest extends CoreTestCommon {
             System.setProperty("chronicle.core.allow.reflection.string", oldFlag);
     }
 
+    @DisplayName("newStringFallsBackToSafeConstructor behaviour under expected input and output conditions")
     @Test
-    public void newStringFallsBackToSafeConstructor() {
+    void newStringFallsBackToSafeConstructor() {
         char[] chars = {'C', 'o', 'r', 'e'};
         assertEquals(new String(chars), StringUtils.newString(chars), "StringUtils.newString should use safe constructor when reflection is disabled");
     }
 }
-

@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.function.Predicate;
 
 /**
- * Serializable variant of {@link Predicate}.
+ * Serializable variant of {@link Predicate} for capturing lambdas in serialised workflows and transport.
  *
  * @param <T> input type
  */

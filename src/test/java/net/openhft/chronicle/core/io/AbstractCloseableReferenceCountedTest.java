@@ -6,11 +6,12 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.Jvm;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTracerContractTest {
+class AbstractCloseableReferenceCountedTest extends ReferenceCountedTracerContractTest {
 
     private MyCloseableReferenceCounted referenceCounted;
 
@@ -24,8 +25,9 @@ public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTrace
         referenceCounted = null;
     }
 
+    @DisplayName("reserve behaviour under expected input and output conditions")
     @Test
-    public void reserve() throws IllegalStateException, IllegalArgumentException {
+    void reserve() throws IllegalStateException, IllegalArgumentException {
         Jvm.setResourceTracing(true);
 
         MyCloseableReferenceCounted rc = createReferenceCounted();
@@ -34,8 +36,9 @@ public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTrace
         exerciseReserveLifecycle(rc, () -> rc.performRelease);
     }
 
+    @DisplayName("reserveWhenClosed behaviour under expected input and output conditions")
     @Test
-    public void reserveWhenClosed() throws IllegalStateException, IllegalArgumentException {
+    void reserveWhenClosed() throws IllegalStateException, IllegalArgumentException {
         MyCloseableReferenceCounted rc = createReferenceCounted();
         assertEquals(1, rc.refCount(), "reserveWhenClosed: initial refCount should be 1");
 
@@ -47,7 +50,8 @@ public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTrace
         assertEquals(1, rc.refCount(), "Reference count should be 1 after close() (owner 'a' still holds reference)");
 
         ReferenceOwner b = ReferenceOwner.temporary("b");
-        assertThrows(IllegalStateException.class, () -> rc.reserve(b));
+        assertThrows(IllegalStateException.class, () -> rc.reserve(b),
+                "reserve should throw when resource is closed");
         assertEquals(1, rc.refCount(), "Reference count should remain 1 after failed reserve() on closed resource");
 
         assertFalse(rc.tryReserve(b), "tryReserve() should return false when resource is closed");
@@ -57,7 +61,8 @@ public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTrace
         assertEquals(0, rc.refCount(), "Reference count should be 0 after releasing final owner 'a'");
         assertEquals(1, rc.performRelease, "performRelease() should be invoked exactly once after final release");
 
-        assertThrows(IllegalStateException.class, rc::throwExceptionIfReleased);
+        assertThrows(IllegalStateException.class, rc::throwExceptionIfReleased,
+                "throwExceptionIfReleased should throw after final release");
     }
 
     @Override
@@ -74,9 +79,6 @@ public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTrace
 
     static class MyCloseableReferenceCounted extends AbstractCloseableReferenceCounted {
         int performRelease = 0;
-
-        MyCloseableReferenceCounted() {
-        }
 
         @Override
         protected void performRelease() {

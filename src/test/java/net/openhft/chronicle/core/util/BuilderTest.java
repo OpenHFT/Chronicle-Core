@@ -3,33 +3,39 @@
  */
 package net.openhft.chronicle.core.util;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BuilderTest {
 
+    @DisplayName("buildShouldReturnNonNullInstance behaviour under expected input and output conditions")
     @Test
     void buildShouldReturnNonNullInstance() {
         Builder<MyClass> builder = new MyClassBuilder(); // MyClassBuilder is a hypothetical implementation
         MyClass instance = builder.build();
-        assertNotNull(instance, "build() should return a non-null instance");
+        assertNotNull(instance, "Builder.build should return a non-null instance");
     }
 
+    @DisplayName("buildShouldReturnNewInstanceForMutableTypes behaviour under expected input and output conditions")
     @Test
     void buildShouldReturnNewInstanceForMutableTypes() {
         Builder<MyClass> builder = new MyClassBuilder(); // Assuming MyClass is mutable
         MyClass firstInstance = builder.build();
         MyClass secondInstance = builder.build();
-        assertNotSame(firstInstance, secondInstance, "should return different instance");
+        assertNotSame(firstInstance, secondInstance, "Builder.build should return a fresh instance for mutable types");
     }
 
+    @DisplayName("buildShouldThrowExceptionIfInvokedMultipleTimesWhenNotAllowed behaviour under expected input and output conditions")
     @Test
     void buildShouldThrowExceptionIfInvokedMultipleTimesWhenNotAllowed() {
         Builder<MyClass> oneTimeUseBuilder = new OneTimeUseMyClassBuilder(); // Hypothetical one-time use builder
         oneTimeUseBuilder.build();
-        assertThrows(IllegalStateException.class, oneTimeUseBuilder::build);
+        assertThrows(IllegalStateException.class, oneTimeUseBuilder::build,
+                "one-time builder should throw when build is invoked twice");
     }
 
+    @DisplayName("getShouldDelegateToBuild behaviour under expected input and output conditions")
     @Test
     void getShouldDelegateToBuild() {
         Builder<MyClass> builder = new MyClassBuilder();

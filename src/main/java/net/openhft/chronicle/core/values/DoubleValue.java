@@ -37,14 +37,14 @@ package net.openhft.chronicle.core.values;
  */
 public interface DoubleValue {
     /**
-     * Retrieves the double value.
+     * Retrieves the current double value from the backing store.
      *
      * @return the double value
      */
     double getValue();
 
     /**
-     * Sets the double value.
+     * Sets the double value in the backing store.
      *
      * @param value the double value to set
      */

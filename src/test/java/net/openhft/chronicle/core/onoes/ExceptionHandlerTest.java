@@ -4,76 +4,108 @@
 package net.openhft.chronicle.core.onoes;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.util.IgnoresEverything;
 import net.openhft.chronicle.core.util.Mocker;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ExceptionHandlerTest extends CoreTestCommon {
+class ExceptionHandlerTest extends CoreTestCommon {
 
-    @BeforeEach
-    public void mockitoNotSupportedOnJava21() {
-        assumeTrue(Jvm.majorVersion() <= 17);
+    @DisplayName("ignoresEverything behaviour under expected input and output conditions")
+    @Test
+    void ignoresEverything() {
+        assertInstanceOf(IgnoresEverything.class, ExceptionHandler.ignoresEverything(),
+                "ignoresEverything factory should return a no-op exception handler implementation");
     }
 
+    @DisplayName("ignoresEverything2 behaviour under expected input and output conditions")
     @Test
-    public void ignoresEverything() {
-        assertInstanceOf(IgnoresEverything.class, ExceptionHandler.ignoresEverything(), "ignoresEverything should return an IgnoresEverything implementation");
-    }
-
-    @Test
-    public void ignoresEverything2() {
+    void ignoresEverything2() {
         assertInstanceOf(IgnoresEverything.class, Mocker.ignored(ExceptionHandler.class), "Mocker.ignored should return an IgnoresEverything implementation for ExceptionHandler");
     }
 
+    @DisplayName("onWithClassAndThrowableShouldDelegateProperly behaviour under expected input and output conditions")
     @Test
-    public void onWithClassAndThrowableShouldDelegateProperly() {
-        ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
+    void onWithClassAndThrowableShouldDelegateProperly() {
+        RecordingExceptionHandler handler = new RecordingExceptionHandler();
         Class<?> clazz = this.getClass();
-        Throwable thrown = new RuntimeException();
+        Throwable thrown = new RuntimeException("onWithClassAndThrowableShouldDelegateProperly");
 
         handler.on(clazz, thrown);
 
-        verify(handler).on(clazz, "", thrown);
+        assertEquals(clazz.getName(), handler.logger().getName(), "logger name should match class name for on(Class, Throwable)");
+        assertEquals("", handler.message(), "default message should be empty");
+        assertSame(thrown, handler.thrown(), "thrown should be forwarded for on(Class, Throwable)");
     }
 
+    @DisplayName("onWithClassAndMessageShouldDelegateProperly behaviour under expected input and output conditions")
     @Test
-    public void onWithClassAndMessageShouldDelegateProperly() {
-        ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
+    void onWithClassAndMessageShouldDelegateProperly() {
+        RecordingExceptionHandler handler = new RecordingExceptionHandler();
         Class<?> clazz = this.getClass();
         String message = "Test message";
 
         handler.on(clazz, message);
 
-        verify(handler).on(clazz, message, null);
+        assertEquals(clazz.getName(), handler.logger().getName(), "logger name should match class name for on(Class, String)");
+        assertEquals(message, handler.message(), "message should be forwarded for on(Class, String)");
+        assertNull(handler.thrown(), "thrown should be null for on(Class, String)");
     }
 
+    @DisplayName("onWithLoggerAndMessageShouldDelegateProperly behaviour under expected input and output conditions")
     @Test
-    public void onWithLoggerAndMessageShouldDelegateProperly() {
-        ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
-        Logger logger = mock(Logger.class);
+    void onWithLoggerAndMessageShouldDelegateProperly() {
+        RecordingExceptionHandler handler = new RecordingExceptionHandler();
+        Logger logger = LoggerFactory.getLogger("test");
         String message = "Test message";
 
         handler.on(logger, message);
 
-        verify(handler).on(logger, message, null);
+        assertSame(logger, handler.logger(), "logger instance should be forwarded for on(Logger, String)");
+        assertEquals(message, handler.message(), "message should be forwarded for on(Logger, String)");
+        assertNull(handler.thrown(), "thrown should be null for on(Logger, String)");
     }
 
+    @DisplayName("isEnabledShouldAlwaysReturnTrue behaviour under expected input and output conditions")
     @Test
-    public void isEnabledShouldAlwaysReturnTrue() {
-        ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
+    void isEnabledShouldAlwaysReturnTrue() {
+        ExceptionHandler handler = new RecordingExceptionHandler();
         assertTrue(handler.isEnabled(this.getClass()), "isEnabled should return true by default for any class");
     }
 
+    @DisplayName("defaultHandlerShouldReturnSelf behaviour under expected input and output conditions")
     @Test
-    public void defaultHandlerShouldReturnSelf() {
-        ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
+    void defaultHandlerShouldReturnSelf() {
+        ExceptionHandler handler = new RecordingExceptionHandler();
         assertSame(handler, handler.defaultHandler(), "defaultHandler should return the handler itself");
+    }
+
+    private static final class RecordingExceptionHandler implements ExceptionHandler {
+        private Logger logger;
+        private String message;
+        private Throwable thrown;
+
+        @Override
+        public void on(Logger logger, String message, Throwable thrown) {
+            this.logger = logger;
+            this.message = message;
+            this.thrown = thrown;
+        }
+
+        Logger logger() {
+            return logger;
+        }
+
+        String message() {
+            return message;
+        }
+
+        Throwable thrown() {
+            return thrown;
+        }
     }
 }

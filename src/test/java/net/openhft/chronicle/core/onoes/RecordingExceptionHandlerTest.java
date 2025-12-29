@@ -25,6 +25,7 @@ class RecordingExceptionHandlerTest {
         handler = new RecordingExceptionHandler(logLevel, exceptionMap, exceptionsOnly);
     }
 
+    @DisplayName("testRecordExceptionWithThrowable behaviour under expected input and output conditions")
     @Test
     void testRecordExceptionWithThrowable() {
         Throwable throwable = new RuntimeException("Test exception");
@@ -35,6 +36,7 @@ class RecordingExceptionHandlerTest {
         assertEquals(1, exceptionMap.get(expectedKey), "exception count should be 1 after single recording");
     }
 
+    @DisplayName("testRecordExceptionWithLogger behaviour under expected input and output conditions")
     @Test
     void testRecordExceptionWithLogger() {
         Logger logger = mock(Logger.class);
@@ -47,6 +49,7 @@ class RecordingExceptionHandlerTest {
         assertEquals(1, exceptionMap.get(expectedKey), "exception count should be 1 when logged via Logger");
     }
 
+    @DisplayName("testExceptionsOnly behaviour under expected input and output conditions")
     @Test
     void testExceptionsOnly() {
         exceptionsOnly = true;
@@ -56,6 +59,7 @@ class RecordingExceptionHandlerTest {
         assertTrue(exceptionMap.isEmpty(), "exception map should remain empty when exceptionsOnly is true and no throwable provided");
     }
 
+    @DisplayName("testConcurrentAccess behaviour under expected input and output conditions")
     @Test
     void testConcurrentAccess() throws InterruptedException {
         // This test simulates concurrent access to the RecordingExceptionHandler

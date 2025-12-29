@@ -290,7 +290,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
         try {
             performClose();
         } catch (Throwable t) { // NOSONAR
-            Jvm.warn().on(getClass(), "Error occurred in close method", t);
+            Jvm.warn().on(getClass(), "Error occurred while performing resource close operation", t);
         } finally {
             closed = STATE_CLOSED;
         }
@@ -308,7 +308,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     }
 
     /**
-     * Checks if the resource is closed.
+     * Checks if the resource is fully closed and released.
      *
      * @return {@code true} if the resource is closed; {@code false} otherwise.
      */

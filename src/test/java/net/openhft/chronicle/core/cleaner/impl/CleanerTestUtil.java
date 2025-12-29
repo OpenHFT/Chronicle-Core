@@ -27,7 +27,7 @@ public final class CleanerTestUtil {
     private CleanerTestUtil() {
     }
 
-    public static ReservedMemorySnapshot test(final Consumer<ByteBuffer> cleaner) {
+    public static ReservedMemorySnapshot captureReservedMemorySnapshot(final Consumer<ByteBuffer> cleaner) {
         requireNonNull(cleaner);
         try {
             final AtomicLong reservedMemory;
@@ -55,7 +55,9 @@ public final class CleanerTestUtil {
 
             return new ReservedMemorySnapshot(allocatedBefore, allocatedAfter);
         } catch (ClassNotFoundException | NoSuchFieldException | IllegalAccessException e) {
-            throw new AssertionError(e);
+            AssertionError assertionError = new AssertionError("Failed to access java.nio.Bits reserved memory field");
+            assertionError.initCause(e);
+            throw assertionError;
         }
     }
 }

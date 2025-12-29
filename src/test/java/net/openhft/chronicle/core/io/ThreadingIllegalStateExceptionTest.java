@@ -3,11 +3,13 @@
  */
 package net.openhft.chronicle.core.io;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ThreadingIllegalStateExceptionTest {
 
+    @DisplayName("testConstructorWithMessageAndCause behaviour under expected input and output conditions")
     @Test
     void testConstructorWithMessageAndCause() {
         String expectedMessage = "Custom threading error message";

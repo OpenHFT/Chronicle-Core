@@ -3,12 +3,13 @@
  */
 package net.openhft.chronicle.core.io;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class UnsafeCloseableTest {
+class UnsafeCloseableTest {
 
     private final UnsafeCloseable uc;
 
@@ -18,48 +19,65 @@ public class UnsafeCloseableTest {
         uc.close();
     }
 
+    @DisplayName("testGetLong behaviour under expected input and output conditions")
     @Test
-    public void testGetLong() {
-        assertThrows(IllegalStateException.class, uc::getLong);
+    void testGetLong() {
+        assertThrows(IllegalStateException.class, uc::getLong,
+                "getLong should throw when called on closed UnsafeCloseable");
     }
 
+    @DisplayName("testSetLong behaviour under expected input and output conditions")
     @Test
-    public void testSetLong() {
-        assertThrows(IllegalStateException.class, () -> uc.setLong(0));
+    void testSetLong() {
+        assertThrows(IllegalStateException.class, () -> uc.setLong(0),
+                "setLong should throw when called on closed UnsafeCloseable");
     }
 
+    @DisplayName("testGetVolatileLong behaviour under expected input and output conditions")
     @Test
-    public void testGetVolatileLong() {
+    void testGetVolatileLong() {
         assertEquals(128, uc.getVolatileLong(128), "getVolatileLong should return fallback value when called on closed UnsafeCloseable");
     }
 
+    @DisplayName("testSetVolatileLong behaviour under expected input and output conditions")
     @Test
-    public void testSetVolatileLong() {
-        assertThrows(IllegalStateException.class, () -> uc.setVolatileLong(0));
+    void testSetVolatileLong() {
+        assertThrows(IllegalStateException.class, () -> uc.setVolatileLong(0),
+                "setVolatileLong should throw when called on closed UnsafeCloseable");
     }
 
+    @DisplayName("testTestGetVolatileLong behaviour under expected input and output conditions")
     @Test
-    public void testTestGetVolatileLong() {
-        assertThrows(IllegalStateException.class, uc::getVolatileLong);
+    void testTestGetVolatileLong() {
+        assertThrows(IllegalStateException.class, uc::getVolatileLong,
+                "getVolatileLong should throw when called on closed UnsafeCloseable");
     }
 
+    @DisplayName("testSetOrderedLong behaviour under expected input and output conditions")
     @Test
-    public void testSetOrderedLong() {
-        assertThrows(IllegalStateException.class, () -> uc.setOrderedLong(0));
+    void testSetOrderedLong() {
+        assertThrows(IllegalStateException.class, () -> uc.setOrderedLong(0),
+                "setOrderedLong should throw when called on closed UnsafeCloseable");
     }
 
+    @DisplayName("testAddLong behaviour under expected input and output conditions")
     @Test
-    public void testAddLong() {
-        assertThrows(IllegalStateException.class, () -> uc.addLong(0));
+    void testAddLong() {
+        assertThrows(IllegalStateException.class, () -> uc.addLong(0),
+                "addLong should throw when called on closed UnsafeCloseable");
     }
 
+    @DisplayName("testAddAtomicLong behaviour under expected input and output conditions")
     @Test
-    public void testAddAtomicLong() {
-        assertThrows(IllegalStateException.class, () -> uc.addAtomicLong(0));
+    void testAddAtomicLong() {
+        assertThrows(IllegalStateException.class, () -> uc.addAtomicLong(0),
+                "addAtomicLong should throw when called on closed UnsafeCloseable");
     }
 
+    @DisplayName("testCompareAndSwapLong behaviour under expected input and output conditions")
     @Test
-    public void testCompareAndSwapLong() {
-        assertThrows(IllegalStateException.class, () -> uc.compareAndSwapLong(0, 0));
+    void testCompareAndSwapLong() {
+        assertThrows(IllegalStateException.class, () -> uc.compareAndSwapLong(0, 0),
+                "compareAndSwapLong should throw when called on closed UnsafeCloseable");
     }
 }

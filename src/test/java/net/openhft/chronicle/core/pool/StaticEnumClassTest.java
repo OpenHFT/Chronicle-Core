@@ -5,13 +5,15 @@ package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Maths;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-public class StaticEnumClassTest extends CoreTestCommon {
+class StaticEnumClassTest extends CoreTestCommon {
 
+    @DisplayName("testInitialSize behaviour under expected input and output conditions")
     @Test
-    public void testInitialSize() throws IllegalArgumentException {
+    void testInitialSize() throws IllegalArgumentException {
         EnumCache<Ecn> ecnEnumCache = EnumCache.of(Ecn.class);
         assertEquals(32, Maths.nextPower2(ecnEnumCache.size(), 1), "EnumCache size should round up to next power of 2 equal to 32");
     }

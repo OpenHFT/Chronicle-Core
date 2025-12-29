@@ -19,7 +19,7 @@ package net.openhft.chronicle.core.util;
 public interface ThrowingLongSupplier<T extends Throwable> {
 
     /**
-     * Gets a result.
+     * Gets a long result, possibly throwing a checked exception.
      *
      * @return a result
      * @throws T if supplying fails

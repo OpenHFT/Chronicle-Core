@@ -113,9 +113,7 @@ public final class IOTools {
     }
 
     /**
-     * Attempts to delete a directory with its files. If the directory or any
-     * subdirectories contain directories themselves, the method will stop at the
-     * first layer of directories and will not delete them.
+     * File-based overload that deletes a directory and its files to one level.
      *
      * @param dir The directory to be deleted
      * @return true if deletion is successful, false otherwise
@@ -156,8 +154,7 @@ public final class IOTools {
     }
 
     /**
-     * Attempts to delete directories and their files. If any directory is not
-     * deleted successfully, throws an {@link AssertionError}.
+     * File-based overload that deletes a directory and its files with default depth.
      *
      * @param dir The directories to be deleted
      * @return {@code true} if the directory was deleted
@@ -264,7 +261,7 @@ public final class IOTools {
     }
 
     /**
-     * Ensures that directory is absent or deleted, awaits for given timeout if necessary.
+     * Resolves a resource URL using the class loader from {@code clazz}, with leading-slash, gzip, and file fallbacks.
      *
      * @param clazz file to use to determine the class loader.
      * @param name  Name of the file to find.
@@ -277,7 +274,7 @@ public final class IOTools {
     }
 
     /**
-     * Ensures that directory is absent or deleted, awaits for given timeout if necessary.
+     * Resolves a resource URL using the supplied loader, retrying with leading-slash and gzip variants before file lookup.
      *
      * @param classLoader Class loader to use to find the file.
      * @param name        Name of the file to find.
@@ -293,7 +290,7 @@ public final class IOTools {
             url = classLoader.getResource(name + ".gz");
         if (url == null && new File(name).exists())
             try {
-                url = new URL("file", "", new File(name).getAbsolutePath());
+                url = new File(name).toURI().toURL();
             } catch (MalformedURLException e) {
                 FileNotFoundException fnfe = new FileNotFoundException(name);
                 fnfe.initCause(e);
@@ -354,7 +351,7 @@ public final class IOTools {
                 byte[] bytes = new byte[fis.available()];
                 int read = fis.read(bytes);
                 if (read != bytes.length)
-                    throw new AssertionError();
+                    throw new AssertionError("Expected to read " + bytes.length + " bytes, read " + read);
                 return bytes;
             }
         }
@@ -430,7 +427,7 @@ public final class IOTools {
         try {
             Files.createDirectories(path.getParent());
         } catch (IOException e) {
-            throw new IORuntimeException(e);
+            throw new IORuntimeException("Failed to create temp file parent directory for " + path, e);
         }
         File file = path.toFile();
         file.deleteOnExit();
@@ -449,7 +446,7 @@ public final class IOTools {
         try {
             Files.createDirectories(path);
         } catch (IOException e) {
-            throw new IORuntimeException(e);
+            throw new IORuntimeException("Failed to create temp directory for " + path, e);
         }
         return path;
     }

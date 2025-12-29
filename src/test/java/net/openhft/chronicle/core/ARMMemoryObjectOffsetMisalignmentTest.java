@@ -3,12 +3,14 @@
  */
 package net.openhft.chronicle.core;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class ARMMemoryObjectOffsetMisalignmentTest {
 
+    @DisplayName("volatileShortOnMisalignedObjectOffset behaviour under expected input and output conditions")
     @Test
     void volatileShortOnMisalignedObjectOffset() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
@@ -18,6 +20,7 @@ class ARMMemoryObjectOffsetMisalignmentTest {
         assertEquals((short) 0x1234, arm.readVolatileShort(bytes, off), "readVolatileShort should return written value at misaligned offset");
     }
 
+    @DisplayName("testAndSetIntObjectAlignedMismatchVsMisaligned behaviour under expected input and output conditions")
     @Test
     void testAndSetIntObjectAlignedMismatchVsMisaligned() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
@@ -25,11 +28,15 @@ class ARMMemoryObjectOffsetMisalignmentTest {
         long aligned = UnsafeMemory.UNSAFE.arrayBaseOffset(byte[].class) + 4L; // 4-byte aligned
         long mis = aligned + 2; // misaligned
         IllegalStateException alignedMsg = assertThrows(IllegalStateException.class,
-                () -> arm.testAndSetInt(bytes, aligned, 1, 2));
-        assertTrue(alignedMsg.getMessage().contains("Cannot change"), "testAndSetInt should throw exception with 'Cannot change' message when expected value mismatches");
+                () -> arm.testAndSetInt(bytes, aligned, 1, 2),
+                "testAndSetInt should throw on aligned mismatch for object offset");
+        assertTrue(alignedMsg.getMessage().contains("Cannot change"),
+                "aligned testAndSetInt message should include \"Cannot change\": " + alignedMsg.getMessage());
 
         IllegalStateException misMsg = assertThrows(IllegalStateException.class,
-                () -> arm.testAndSetInt(bytes, mis, 1, 2));
-        assertTrue(misMsg.getMessage().contains("mis-aligned"), "testAndSetInt should throw exception with 'mis-aligned' message at misaligned offset");
+                () -> arm.testAndSetInt(bytes, mis, 1, 2),
+                "testAndSetInt should throw on misaligned object offset");
+        assertTrue(misMsg.getMessage().contains("mis-aligned"),
+                "misaligned testAndSetInt message should include \"mis-aligned\": " + misMsg.getMessage());
     }
 }

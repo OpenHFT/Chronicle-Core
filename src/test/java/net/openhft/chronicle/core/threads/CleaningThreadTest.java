@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.threads;
 import net.openhft.affinity.Affinity;
 import net.openhft.affinity.AffinityLock;
 import net.openhft.chronicle.core.CoreTestCommon;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.BitSet;
@@ -16,9 +17,10 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
-public class CleaningThreadTest extends CoreTestCommon {
+class CleaningThreadTest extends CoreTestCommon {
+    @DisplayName("cleanupThreadLocal behaviour under expected input and output conditions")
     @Test
-    public void cleanupThreadLocal() throws InterruptedException {
+    void cleanupThreadLocal() throws InterruptedException {
         String threadName = "ctl-test";
         BlockingQueue<String> ints = new LinkedBlockingQueue<>();
         CleaningThreadLocal<String> counter = CleaningThreadLocal.withCleanup(() -> Thread.currentThread().getName(), ints::add);
@@ -28,8 +30,9 @@ public class CleaningThreadTest extends CoreTestCommon {
         assertEquals(threadName, poll, "thread should have expected name");
     }
 
+    @DisplayName("testRemove behaviour under expected input and output conditions")
     @Test
-    public void testRemove() {
+    void testRemove() {
         int[] counter = {0};
         CleaningThreadLocal<Integer> ctl = CleaningThreadLocal.withCloseQuietly(() -> counter[0]++);
         assertEquals(0, (int) ctl.get(), "initial get should return first supplier value");
@@ -37,8 +40,9 @@ public class CleaningThreadTest extends CoreTestCommon {
         assertEquals(1, (int) ctl.get(), "get after cleanup should return incremented supplier value");
     }
 
+    @DisplayName("resetThreadAffinity behaviour under expected input and output conditions")
     @Test
-    public void resetThreadAffinity() throws InterruptedException {
+    void resetThreadAffinity() throws InterruptedException {
         final BitSet affinity = Affinity.getAffinity();
         assumeTrue(affinity.cardinality() > 2);
         assumeTrue(AffinityLock.BASE_AFFINITY.cardinality() > 2);
@@ -48,7 +52,8 @@ public class CleaningThreadTest extends CoreTestCommon {
             CleaningThread ct = new CleaningThread(() -> nestedAffinity[0] = Affinity.getAffinity());
             ct.start();
             ct.join();
-            assertEquals(AffinityLock.BASE_AFFINITY, nestedAffinity[0], "operation result should equal expected value");
+            assertEquals(AffinityLock.BASE_AFFINITY, nestedAffinity[0],
+                    "cleaning thread affinity should reset to base affinity");
         } finally {
             Affinity.setAffinity(affinity);
         }

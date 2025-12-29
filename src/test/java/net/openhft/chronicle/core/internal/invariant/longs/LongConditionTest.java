@@ -3,16 +3,18 @@
  */
 package net.openhft.chronicle.core.internal.invariant.longs;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.LongPredicate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class LongConditionTest {
+class LongConditionTest {
 
+    @DisplayName("basicComparisons behaviour under expected input and output conditions")
     @Test
-    public void basicComparisons() {
+    void basicComparisons() {
         String codeSource = LongCondition.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         assertTrue(codeSource.contains("/target/classes"), "Expected instrumented class from target/classes but was " + codeSource);
 
@@ -37,8 +39,9 @@ public class LongConditionTest {
         assertFalse(LongCondition.NON_ZERO.test(0), "non-zero condition should reject zero");
     }
 
+    @DisplayName("rangeAndAlignmentChecks behaviour under expected input and output conditions")
     @Test
-    public void rangeAndAlignmentChecks() {
+    void rangeAndAlignmentChecks() {
         assertTrue(LongCondition.BYTE_CONVERTIBLE.test(Byte.MAX_VALUE), "byte convertible condition should accept value within byte range");
         assertFalse(LongCondition.BYTE_CONVERTIBLE.test(Byte.MAX_VALUE + 1L), "byte convertible condition should reject value exceeding byte maximum");
 
@@ -58,8 +61,9 @@ public class LongConditionTest {
         assertFalse(LongCondition.LONG_ALIGNED.test(4), "long aligned condition should reject unaligned value");
     }
 
+    @DisplayName("negateMappings behaviour under expected input and output conditions")
     @Test
-    public void negateMappings() {
+    void negateMappings() {
         LongPredicate positiveNegated = LongCondition.POSITIVE.negate();
         assertTrue(positiveNegated.test(-1), "negated positive condition should accept non-positive value");
         assertFalse(positiveNegated.test(2), "negated positive condition should reject positive value");
@@ -89,8 +93,9 @@ public class LongConditionTest {
         assertTrue(notShortAligned.test(3), "negated short aligned condition should accept unaligned value");
     }
 
+    @DisplayName("descriptiveToString behaviour under expected input and output conditions")
     @Test
-    public void descriptiveToString() {
+    void descriptiveToString() {
         assertEquals("> 0", LongCondition.POSITIVE.toString(), "positive condition should have descriptive string representation");
         assertEquals("!= 0", LongCondition.NON_ZERO.toString(), "non-zero condition should have descriptive string representation");
 

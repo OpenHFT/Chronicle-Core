@@ -37,14 +37,18 @@ final class CleanerServiceTestSupport {
         try (FileOutputStream fos = new FileOutputStream(svc)) {
             fos.write(content.getBytes(UTF_8));
         }
-        URLClassLoader cl = new URLClassLoader(new URL[]{root.toURI().toURL()}, CleanerServiceLocator.class.getClassLoader());
-        Thread t = Thread.currentThread();
-        ClassLoader prev = t.getContextClassLoader();
-        try {
-            t.setContextClassLoader(cl);
-            return CleanerServiceLocator.cleanerService();
-        } finally {
-            t.setContextClassLoader(prev);
+        URL[] urls = {root.toURI().toURL()};
+        try (URLClassLoader cl = new URLClassLoader(
+                urls,
+                CleanerServiceLocator.class.getClassLoader())) {
+            Thread t = Thread.currentThread();
+            ClassLoader prev = t.getContextClassLoader();
+            try {
+                t.setContextClassLoader(cl);
+                return CleanerServiceLocator.cleanerService();
+            } finally {
+                t.setContextClassLoader(prev);
+            }
         }
     }
 }

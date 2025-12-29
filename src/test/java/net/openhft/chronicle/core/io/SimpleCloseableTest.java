@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.io;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,6 +25,7 @@ class SimpleCloseableTest {
         }
     }
 
+    @DisplayName("testClose behaviour under expected input and output conditions")
     @Test
     void testClose() {
         SimpleCloseableStub closeable = new SimpleCloseableStub();
@@ -37,6 +39,7 @@ class SimpleCloseableTest {
         assertTrue(closeable.isClosed(), "closeable should remain closed after calling close again");
     }
 
+    @DisplayName("testIsClosed behaviour under expected input and output conditions")
     @Test
     void testIsClosed() {
         SimpleCloseableStub closeable = new SimpleCloseableStub();

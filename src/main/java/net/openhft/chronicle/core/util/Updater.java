@@ -6,7 +6,7 @@ package net.openhft.chronicle.core.util;
 import java.util.function.Consumer;
 
 /**
- * Represents an operation that alters an object.
+ * Represents an operation that alters an object in place or mutates its state.
  *
  * <p>Similar to {@link Consumer}, but unlike Consumer, Updater is explicitly
  * expected to perform modifications on its argument.

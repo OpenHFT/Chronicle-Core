@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.values;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -17,12 +18,14 @@ class LongValueTest {
         longValue = mock(LongValue.class); // Creating a mock instance of LongValue
     }
 
+    @DisplayName("testGetValue behaviour under expected input and output conditions")
     @Test
     void testGetValue() {
         when(longValue.getValue()).thenReturn(10L); // Setup the mock to return 10
         assertEquals(10L, longValue.getValue(), "getValue should return mocked value");
     }
 
+    @DisplayName("testSetValue behaviour under expected input and output conditions")
     @Test
     void testSetValue() {
         doNothing().when(longValue).setValue(anyLong());
@@ -32,6 +35,7 @@ class LongValueTest {
 
     // Additional tests for other methods...
 
+    @DisplayName("testCloseAndIsClosed behaviour under expected input and output conditions")
     @Test
     void testCloseAndIsClosed() {
         when(longValue.isClosed()).thenReturn(false, true); // Before and after close

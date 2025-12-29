@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.InvocationTargetException;
 
 /**
- * Runtime wrapper for exceptions thrown by reflective invocation targets.
+ * Runtime wrapper for exceptions thrown by reflective invocation targets and method handles.
  * <p>
  * Unwraps {@link InvocationTargetException} to surface the underlying cause, enabling callers to
  * rethrow unchecked without losing the original failure.

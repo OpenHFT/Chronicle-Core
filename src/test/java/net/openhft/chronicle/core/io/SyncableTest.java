@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.io;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
@@ -18,6 +19,7 @@ class SyncableTest {
         }
     }
 
+    @DisplayName("syncIfAvailable calls sync on Syncable objects")
     @Test
     void syncIfAvailableShouldCallSyncOnSyncableObjects() {
         Syncable syncableMock = mock(Syncable.class);
@@ -26,17 +28,20 @@ class SyncableTest {
         verify(syncableMock, times(1)).sync();
     }
 
+    @DisplayName("syncIfAvailable ignores non-Syncable objects safely")
     @Test
     void syncIfAvailableShouldNotThrowExceptionForNonSyncableObjects() {
         Object nonSyncableObject = new Object();
 
-        assertDoesNotThrow(() -> Syncable.syncIfAvailable(nonSyncableObject));
+        assertDoesNotThrow(() -> Syncable.syncIfAvailable(nonSyncableObject),
+                "syncIfAvailable should not throw for non-Syncable object");
     }
 
+    @DisplayName("sync sets synced flag for implementation")
     @Test
     void syncShouldSetSyncedToTrueForSyncableImpl() {
         SyncableImpl syncableImpl = new SyncableImpl();
-        assertFalse(syncableImpl.synced, "should not be synchronized initially");
+        assertFalse(syncableImpl.synced, "syncable implementation should not be synced initially");
 
         syncableImpl.sync();
 

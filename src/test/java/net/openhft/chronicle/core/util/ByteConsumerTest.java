@@ -3,12 +3,14 @@
  */
 package net.openhft.chronicle.core.util;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ByteConsumerTest {
 
+    @DisplayName("acceptShouldPerformOperation behaviour under expected input and output conditions")
     @Test
     void acceptShouldPerformOperation() {
         byte[] resultContainer = new byte[1];

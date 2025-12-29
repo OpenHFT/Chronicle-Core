@@ -12,7 +12,7 @@ import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 
 /**
- * The Memory interface provides low-level memory access methods.
+ * The Memory interface provides low-level memory access methods and primitives.
  */
 public interface Memory {
 
@@ -181,7 +181,7 @@ public interface Memory {
     void writeInt(Object object, long offset, int i32);
 
     /**
-     * Writes an int value to the memory at the specified offset within the given object in an ordered manner.
+     * Writes an ordered int value at the specified native memory offset.
      *
      * @param offset The offset within the object where the int should be written.
      * @param i32    The int value to be written.
@@ -189,7 +189,7 @@ public interface Memory {
     void writeOrderedInt(long offset, int i32);
 
     /**
-     * Writes an int value to the memory at the specified offset within the given object in an ordered manner.
+     * Writes an ordered int value at the specified offset within the given object.
      *
      * @param object The object containing the memory block.
      * @param offset The offset within the object where the int should be written.
@@ -491,7 +491,7 @@ public interface Memory {
     void testAndSetInt(Object object, long offset, int expected, int value) throws IllegalStateException;
 
     /**
-     * Compares the value at the specified memory address with the expected value and, if equal, sets it to the new value.
+     * Compares the int value at the specified memory address with the expected value and, if equal, sets it to the new value.
      * Returns {@code true} if the value was successfully swapped, {@code false} otherwise.
      *
      * @param address  the memory address
@@ -503,7 +503,7 @@ public interface Memory {
     boolean compareAndSwapInt(long address, int expected, int value) throws MisAlignedAssertionError;
 
     /**
-     * Compares the value at the specified offset in the object with the expected value and, if equal, sets it to the new value.
+     * Compares the int value at the specified offset in the object with the expected value and, if equal, sets it to the new value.
      * Returns {@code true} if the value was successfully swapped, {@code false} otherwise.
      *
      * @param object   the destination object
@@ -516,7 +516,7 @@ public interface Memory {
     boolean compareAndSwapInt(Object object, long offset, int expected, int value) throws MisAlignedAssertionError;
 
     /**
-     * Compares the value at the specified memory address with the expected value and, if equal, sets it to the new value.
+     * Compares the long value at the specified memory address with the expected value and, if equal, sets it to the new value.
      * Returns {@code true} if the value was successfully swapped, {@code false} otherwise.
      *
      * @param address  the memory address
@@ -528,7 +528,7 @@ public interface Memory {
     boolean compareAndSwapLong(long address, long expected, long value) throws MisAlignedAssertionError;
 
     /**
-     * Compares the value at the specified offset in the object with the expected value and, if equal, sets it to the new value.
+     * Compares the long value at the specified offset in the object with the expected value and, if equal, sets it to the new value.
      * Returns {@code true} if the value was successfully swapped, {@code false} otherwise.
      *
      * @param object   the destination object
@@ -775,7 +775,7 @@ public interface Memory {
     void writeVolatileDouble(Object object, long offset, double d);
 
     /**
-     * Adds the specified increment to the value at the given memory address and returns the updated value.
+     * Adds the specified int increment to the value at the given memory address and returns the updated value.
      *
      * @param address   the memory address
      * @param increment the value to add
@@ -785,7 +785,7 @@ public interface Memory {
     int addInt(long address, int increment) throws MisAlignedAssertionError;
 
     /**
-     * Adds the specified increment to the value at the given offset in the object and returns the updated value.
+     * Adds the specified int increment to the value at the given object offset and returns the updated value.
      *
      * @param object    the destination object
      * @param offset    the offset in the destination object
@@ -795,7 +795,7 @@ public interface Memory {
     int addInt(Object object, long offset, int increment);
 
     /**
-     * Adds the specified increment to the value at the given memory address and returns the updated value.
+     * Adds the specified long increment to the value at the given memory address and returns the updated value.
      *
      * @param address   the memory address
      * @param increment the value to add
@@ -805,7 +805,7 @@ public interface Memory {
     long addLong(long address, long increment) throws MisAlignedAssertionError;
 
     /**
-     * Adds the specified increment to the value at the given offset in the object and returns the updated value.
+     * Adds the specified long increment to the value at the given object offset and returns the updated value.
      *
      * @param object    the destination object
      * @param offset    the offset in the destination object
@@ -816,7 +816,7 @@ public interface Memory {
     long addLong(Object object, long offset, long increment) throws MisAlignedAssertionError;
 
     /**
-     * Allocates and returns a new instance of the specified class.
+     * Allocates and returns a new instance of the specified class using Unsafe.
      *
      * @param clazz the class to instantiate
      * @param <E>   the type of the class
@@ -826,7 +826,7 @@ public interface Memory {
     @NotNull <E> E allocateInstance(Class<? extends E> clazz) throws InstantiationException;
 
     /**
-     * Returns the offset of the specified field in its containing object.
+     * Returns the offset of the specified field for direct access.
      *
      * @param field the field
      * @return the offset of the field
@@ -861,7 +861,7 @@ public interface Memory {
     int arrayBaseOffset(Class<?> type);
 
     /**
-     * Returns the offset of the specified field in its containing object.
+     * Returns the offset of the specified field within an object instance.
      *
      * @param field the field
      * @return the offset of the field

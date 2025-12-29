@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.function.BiFunction;
 
 /**
- * Serializable variant of {@link BiFunction}.
+ * Serializable variant of {@link BiFunction} for capturing lambdas in serialised workflows and transport.
  *
  * @param <I> first argument type
  * @param <T> second argument type

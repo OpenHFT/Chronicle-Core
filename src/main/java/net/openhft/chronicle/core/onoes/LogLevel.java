@@ -4,7 +4,7 @@
 package net.openhft.chronicle.core.onoes;
 
 /**
- * Levels used by Chronicle when reporting messages.
+ * Levels used by Chronicle when reporting operational messages, diagnostics, and runtime health signals.
  *
  * <table>
  *     <caption>Usage and SLF4J mapping</caption>
@@ -24,8 +24,8 @@ public enum LogLevel {
     ERROR,
     /** Unexpected conditions that do not halt execution. */
     WARN,
-    /** Performance events or metrics. */
+    /** Performance events or metrics that should be logged at INFO. */
     PERF,
-    /** Verbose diagnostic output for developers. */
+    /** Verbose diagnostic output intended for developers and tooling. */
     DEBUG
 }

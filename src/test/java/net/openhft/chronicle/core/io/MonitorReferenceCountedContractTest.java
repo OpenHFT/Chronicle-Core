@@ -3,21 +3,23 @@
  */
 package net.openhft.chronicle.core.io;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Any implementation of {@link ReferenceCountedTracer} should implement a test class
- * that extends this class
+ * Any implementation of {@link ReferenceCountedTracer} should provide a contract test
+ * that extends this class to verify monitoring behaviour.
  */
 abstract class MonitorReferenceCountedContractTest extends ReferenceCountedTracerContractTest {
 
     @Override
     protected abstract MonitorReferenceCounted createReferenceCounted();
 
+    @DisplayName("warnAndRelease logs warning and releases when monitored")
     @Test
-    public void warnAndReleaseWillLogAWarningAndReleaseWhenMonitored() {
+    void warnAndReleaseWillLogAWarningAndReleaseWhenMonitored() {
         final MonitorReferenceCounted referenceCounted = createReferenceCounted();
         referenceCounted.unmonitored(false);
         referenceCounted.warnAndReleaseIfNotReleased();
@@ -25,16 +27,18 @@ abstract class MonitorReferenceCountedContractTest extends ReferenceCountedTrace
         expectException("Discarded without being released");
     }
 
+    @DisplayName("warnAndRelease releases silently when unmonitored flag")
     @Test
-    public void warnAndReleaseWillJustReleaseWhenMonitored() {
+    void warnAndReleaseWillJustReleaseWhenMonitored() {
         final MonitorReferenceCounted referenceCounted = createReferenceCounted();
         referenceCounted.unmonitored(true);
         referenceCounted.warnAndReleaseIfNotReleased();
         assertEquals(0, referenceCounted.refCount(), "reference count should be zero after warnAndRelease when unmonitored");
     }
 
+    @DisplayName("warnAndRelease does nothing when resource released")
     @Test
-    public void warnAndReleaseWillDoNothingIfTheResourceIsAlreadyReleased() {
+    void warnAndReleaseWillDoNothingIfTheResourceIsAlreadyReleased() {
         final MonitorReferenceCounted referenceCounted = createReferenceCounted();
         referenceCounted.unmonitored(false);
         referenceCounted.releaseLast();

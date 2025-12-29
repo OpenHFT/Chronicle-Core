@@ -52,7 +52,7 @@ import net.openhft.chronicle.core.io.ThreadingIllegalStateException;
 public interface TwoLongValue extends LongValue {
 
     /**
-     * Retrieves the second long value.
+     * Retrieves the second long value from the backing store.
      *
      * @return The second long value.
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
@@ -61,7 +61,7 @@ public interface TwoLongValue extends LongValue {
     long getValue2() throws IllegalStateException;
 
     /**
-     * Sets the second long value.
+     * Sets the second long value in the backing store.
      *
      * @param value2 The value to set.
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
@@ -100,7 +100,7 @@ public interface TwoLongValue extends LongValue {
     void setOrderedValue2(long value) throws IllegalStateException;
 
     /**
-     * Adds the specified value to the second long value and returns the result.
+     * Adds the specified delta to the second long value and returns the updated value.
      *
      * @param delta The value to add.
      * @return The result after addition.

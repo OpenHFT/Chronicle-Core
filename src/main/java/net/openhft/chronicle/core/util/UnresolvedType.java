@@ -32,7 +32,7 @@ public class UnresolvedType implements Type {
     }
 
     /**
-     * Returns the name of the unresolved type.
+     * Returns the stored name of the unresolved type instance.
      *
      * @return the name of the unresolved type
      */

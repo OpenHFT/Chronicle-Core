@@ -18,11 +18,13 @@ class ThreadLocalisedExceptionHandlerTest {
         tlExceptionHandler = new ThreadLocalisedExceptionHandler(defaultHandler);
     }
 
+    @DisplayName("testUnwrapExceptionHandler behaviour under expected input and output conditions")
     @Test
     void testUnwrapExceptionHandler() {
         assertSame(defaultHandler, ThreadLocalisedExceptionHandler.unwrap(tlExceptionHandler), "unwrap should return the wrapped default handler");
     }
 
+    @DisplayName("testIsEnabled behaviour under expected input and output conditions")
     @Test
     void testIsEnabled() {
         when(defaultHandler.isEnabled(Exception.class)).thenReturn(true);

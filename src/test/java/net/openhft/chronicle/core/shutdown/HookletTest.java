@@ -3,13 +3,15 @@
  */
 package net.openhft.chronicle.core.shutdown;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class HookletTest {
+class HookletTest {
+    @DisplayName("onShutdown callback is invoked on shutdown")
     @Test
-    public void testOnShutdown() {
+    void testOnShutdown() {
         AtomicBoolean called = new AtomicBoolean(false);
         Hooklet hooklet = new Hooklet() {
             @Override
@@ -25,8 +27,9 @@ public class HookletTest {
         assertTrue(called.get(), "onShutdown callback should be invoked when hooklet is triggered");
     }
 
+    @DisplayName("priority returns configured hooklet value behaviour under expected input and output conditions")
     @Test
-    public void testPriority() {
+    void testPriority() {
         Hooklet hooklet = new Hooklet() {
             @Override
             public void onShutdown() {
@@ -40,8 +43,9 @@ public class HookletTest {
         assertEquals(10, hooklet.priority(), "hooklet priority should return the configured value");
     }
 
+    @DisplayName("Hooklet.of creates hooklet with priority and runnable")
     @Test
-    public void testOf() {
+    void testOf() {
         AtomicBoolean called = new AtomicBoolean(false);
         Runnable hook = () -> called.set(true);
         Hooklet hooklet = Hooklet.of(20, hook);
@@ -50,11 +54,13 @@ public class HookletTest {
         assertTrue(called.get(), "hooklet created with of() should execute the provided runnable on shutdown");
     }
 
+    @DisplayName("compareTo orders hooklets by priority behaviour under expected input and output conditions")
     @Test
-    public void testCompareTo() {
+    void testCompareTo() {
         Hooklet hooklet1 = Hooklet.of(10, () -> {});
         Hooklet hooklet2 = Hooklet.of(20, () -> {});
-        assertTrue(hooklet1.compareTo(hooklet2) < 0, "hooklet with lower priority should compare as less than hooklet with higher priority");
+        int comparison = hooklet1.compareTo(hooklet2);
+        assertTrue(comparison < 0, "compareTo should be negative for lower priority: comparison=" + comparison);
     }
 
     static class NoOpRunnable implements Runnable {
@@ -64,21 +70,25 @@ public class HookletTest {
         }
     }
 
+    @DisplayName("equals and hashCode reflect priority and runnable")
     @Test
-    public void testEqualsAndHashCode() {
+    void testEqualsAndHashCode() {
         Runnable runnable = new NoOpRunnable();
         Hooklet hooklet1 = Hooklet.of(10, runnable);
         Hooklet hooklet2 = Hooklet.of(10, runnable);
 
-        assertEquals(hooklet1, hooklet2, "operation result should equal expected value");
+        assertEquals(hooklet1, hooklet2, "hooklets with identical priority and runnable should be equal");
         assertEquals(hooklet1.hashCode(), hooklet2.hashCode(), "equal hooklets should have identical hash codes");
     }
 
+    @DisplayName("toString includes priority and identity information")
     @Test
-    public void testToString() {
+    void testToString() {
         Hooklet hooklet = Hooklet.of(10, () -> {});
         String toStringResult = hooklet.toString();
-        assertTrue(toStringResult.startsWith("Hooklet{ priority: 10, identity: "), "toString should start with priority and identity prefix");
-        assertTrue(toStringResult.contains("HookletTest"), "toString should contain the test class name in the identity");
+        assertTrue(toStringResult.startsWith("Hooklet{ priority: 10, identity: "),
+                "toString should start with priority and identity prefix: " + toStringResult);
+        assertTrue(toStringResult.contains("HookletTest"),
+                "toString should contain \"HookletTest\": " + toStringResult);
     }
 }

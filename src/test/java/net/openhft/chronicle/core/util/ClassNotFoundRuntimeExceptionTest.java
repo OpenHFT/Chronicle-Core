@@ -3,11 +3,13 @@
  */
 package net.openhft.chronicle.core.util;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ClassNotFoundRuntimeExceptionTest {
 
+    @DisplayName("testConstructor behaviour under expected input and output conditions")
     @Test
     void testConstructor() {
         ClassNotFoundException cause = new ClassNotFoundException("Test class not found");
@@ -17,6 +19,7 @@ class ClassNotFoundRuntimeExceptionTest {
         assertEquals(cause, exception.getCause(), "exception should preserve the original ClassNotFoundException as its cause");
     }
 
+    @DisplayName("testGetCause behaviour under expected input and output conditions")
     @Test
     void testGetCause() {
         ClassNotFoundException cause = new ClassNotFoundException("Test class not found");
@@ -24,7 +27,8 @@ class ClassNotFoundRuntimeExceptionTest {
 
         Throwable throwableCause = exception.getCause();
 
-        assertInstanceOf(ClassNotFoundException.class, throwableCause);
+        assertInstanceOf(ClassNotFoundException.class, throwableCause,
+                "getCause should return a ClassNotFoundException instance");
         assertEquals(cause, throwableCause, "getCause should return the original ClassNotFoundException");
     }
 }

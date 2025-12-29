@@ -43,7 +43,7 @@ public interface ReferenceCountedTracer extends ReferenceCounted {
     // TODO move implementation to sub-classes in x.24
     default void throwExceptionIfReleased() throws ClosedIllegalStateException {
         if (refCount() <= 0)
-            throw new ClosedIllegalStateException("Released");
+            throw new ClosedIllegalStateException("Reference-counted resource already released");
     }
 
     /**

@@ -63,11 +63,11 @@ public final class OS {
             }
             return MethodHandles.lookup().unreflect(map0);
         } catch (IllegalAccessException e) {
-            throw new AssertionError(e);
+            throw new AssertionError("Unable to access map0 method handle on " + c.getName(), e);
         }
     });
     private static final String USER_DIR = Jvm.getProperty("user.dir");
-    /** Directory used for temporary files. */
+    /** Directory used for temporary files in this process. */
     public static final String TMP = findTmp();
     private static final String TARGET = findTarget();
     private static final String USER_NAME = Jvm.getProperty("user.name");
@@ -119,7 +119,7 @@ public final class OS {
     }
 
     /**
-     * Finds the temporary directory path.
+     * Finds the temporary directory path for this runtime.
      *
      * @return the path of the temporary directory
      */
@@ -243,7 +243,7 @@ public final class OS {
     }
 
     /**
-     * Returns the username of the current user.
+     * Returns the username of the current operating system user.
      *
      * @return the username
      */
@@ -252,7 +252,7 @@ public final class OS {
     }
 
     /**
-     * Returns the target of the operating system.
+     * Returns the target operating system identifier string.
      *
      * @return the target
      */
@@ -261,7 +261,7 @@ public final class OS {
     }
 
     /**
-     * Returns the temporary directory path.
+     * Returns the temporary directory path used by this process.
      *
      * @return the temporary directory path
      */
@@ -290,7 +290,7 @@ public final class OS {
     }
 
     /**
-     * Align the size to page boundary
+     * Aligns the size to the specified page boundary.
      *
      * @param size     the size to align
      * @param pageSize the size of pages
@@ -303,7 +303,7 @@ public final class OS {
     }
 
     /**
-     * Align the size to page boundary
+     * Aligns the size to the default page boundary.
      *
      * @param size the size to align
      * @return aligned size
@@ -409,7 +409,7 @@ public final class OS {
     }
 
     /**
-     * Returns the process ID of the current running process.
+     * Returns the process ID using platform-specific fallbacks.
      *
      * <p>
      * Note: Getting the process ID may be slow if the reserve DNS is not set up correctly.
@@ -504,7 +504,7 @@ public final class OS {
         @NotNull File file = new File(path);
         if (file.canRead())
             try {
-                try (Scanner scanner = new Scanner(file, StandardCharsets.UTF_8.name())) {
+                try (Scanner scanner = new Scanner(file, UTF_8.name())) {
                     return Maths.nextPower2(scanner.nextLong(), 1);
                 }
             } catch (FileNotFoundException e) {
@@ -579,7 +579,7 @@ public final class OS {
         } catch (IOException ioe) {
             throw ioe;
         } catch (Throwable e) {
-            throw new IOException(e);
+            throw new IOException("Unexpected failure invoking map0", e);
         }
     }
 
@@ -652,7 +652,7 @@ public final class OS {
             e = e.getCause();
         if (e instanceof IOException)
             return (IOException) e;
-        return new IOException(e);
+        return new IOException("Unexpected I/O failure in OS operation", e);
     }
 
     static int imodeFor(FileChannel.MapMode mode) {
@@ -733,7 +733,7 @@ public final class OS {
         } catch (IOException ioe) {
             throw ioe;
         } catch (Throwable e) {
-            throw new IOException(e);
+            throw new IOException("read0 failed", e);
         }
     }
 
@@ -759,13 +759,14 @@ public final class OS {
         } catch (IOException ioe) {
             throw ioe;
         } catch (Throwable e) {
-            throw new IOException(e);
+            throw new IOException("write0 failed", e);
         }
     }
 
     /**
      * Resolves and caches the primary IP address using multiple fallbacks.
      */
+    @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
     static class IPAddressHolder {
 
         public static final String GOOGLE_DNS = "8.8.8.8"; // NOSONAR
@@ -890,7 +891,7 @@ public final class OS {
             try {
                 UNMAPP0_MH = MethodHandles.lookup().unreflect(unmap0);
             } catch (IllegalAccessException e) {
-                throw new IORuntimeException(e);
+                throw new IORuntimeException("Unable to access unmap0 method handle", e);
             }
         }
 
@@ -911,12 +912,12 @@ public final class OS {
                 Method read0 = Jvm.getMethod(fdi, "read0", FileDescriptor.class, long.class, int.class);
                 READ0_MH = MethodHandles.lookup().unreflect(read0);
             } catch (Throwable t) {
-                throw new IORuntimeException(t);
+                throw new IORuntimeException("Unable to access read0 method handle", t);
             }
         }
 
         /**
-         * Prevents instantiation; all logic is exposed through static handles.
+         * Prevents instantiation; read0 handle is exposed through static access.
          */
         private Read0Holder() {
         }
@@ -940,14 +941,14 @@ public final class OS {
                     write0Mh2 = MethodHandles.lookup().unreflect(write0);
                 }
             } catch (Throwable t) {
-                throw new IORuntimeException(t);
+                throw new IORuntimeException("Unable to access write0 method handle", t);
             }
             WRITE0_MH = write0Mh;
             WRITE0_MH2 = write0Mh2;
         }
 
         /**
-         * Prevents instantiation; all logic is exposed through static handles.
+         * Prevents instantiation; write0 handles are exposed through static access.
          */
         private Write0Holder() {
         }

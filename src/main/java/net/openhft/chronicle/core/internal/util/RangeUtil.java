@@ -4,7 +4,7 @@
 package net.openhft.chronicle.core.internal.util;
 
 /**
- * Common fragments for constructing range validation messages.
+ * Common fragments for constructing range validation messages in assertions and invariants.
  * <p>
  * Shared by assertion and invariant helpers to keep error wording consistent.
  */

@@ -5,6 +5,7 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.util.MisAlignedAssertionError;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,6 +30,7 @@ class ARMMemoryAddIntAndMessagesTest {
         allocated = 0;
     }
 
+    @DisplayName("addIntAlignedAndMisaligned behaviour under expected input and output conditions")
     @Test
     void addIntAlignedAndMisaligned() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
@@ -37,9 +39,11 @@ class ARMMemoryAddIntAndMessagesTest {
         assertEquals(1, arm.addInt(aligned, 1), "addInt should return previous value of 0 plus delta of 1");
         assertEquals(2, arm.addInt(aligned, 1), "addInt should return previous value of 1 plus delta of 1");
         long mis = base + 2;
-        assertThrows(MisAlignedAssertionError.class, () -> arm.addInt(mis, 1));
+        assertThrows(MisAlignedAssertionError.class, () -> arm.addInt(mis, 1),
+                "addInt should throw for misaligned address");
     }
 
+    @DisplayName("testAndSetIntAlignedMismatchMessage behaviour under expected input and output conditions")
     @Test
     void testAndSetIntAlignedMismatchMessage() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
@@ -47,9 +51,11 @@ class ARMMemoryAddIntAndMessagesTest {
         long aligned = base + 4;
         // current value 0, expected 1 -> mismatch
         IllegalStateException ex = assertThrows(IllegalStateException.class,
-                () -> arm.testAndSetInt(aligned, 4L, 1, 2));
+                () -> arm.testAndSetInt(aligned, 4L, 1, 2),
+                "testAndSetInt should throw when expected value mismatches");
         assertTrue(ex.getMessage().contains("Expected") || ex.getMessage().contains("expected"),
                 "mismatch message should mention expected vs actual but was: " + ex.getMessage());
-        assertFalse(ex.getMessage().contains("mis-aligned"), "aligned path should not report mis-aligned");
+        assertFalse(ex.getMessage().contains("mis-aligned"),
+                "aligned path message should not contain \"mis-aligned\": " + ex.getMessage());
     }
 }

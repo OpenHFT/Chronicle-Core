@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -18,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * Canonical test suite for size parsing and retrieval via {@link Jvm#parseSize(String)} and
  * {@link Jvm#getSize(String, long)}. Keep related assertions here to avoid duplication.
  */
-public class JvmParseSizeTest extends CoreTestCommon {
+class JvmParseSizeTest extends CoreTestCommon {
     private static final String PROPERTY = "JvmParseSizeTest";
 
     static Stream<Arguments> data() {
@@ -43,21 +44,25 @@ public class JvmParseSizeTest extends CoreTestCommon {
         System.getProperties().remove(PROPERTY);
     }
 
+    @DisplayName("parseSize parses numeric sizes with units")
     @ParameterizedTest(name = "{0} => {1}")
     @MethodSource("data")
-    public void parseSize(String text, long value) throws IllegalArgumentException {
+    void parseSize(String text, long value) throws IllegalArgumentException {
         assertEquals(value, Jvm.parseSize(text), "parsed size should match expected value");
     }
 
+    @DisplayName("getSize reads size from system property")
     @ParameterizedTest(name = "{0} => {1}")
     @MethodSource("data")
-    public void getSize(String text, long value) {
+    void getSize(String text, long value) {
         System.setProperty(PROPERTY, text);
         assertEquals(value, Jvm.getSize(PROPERTY, -1), "size from system property should match expected value");
     }
 
+    @DisplayName("parseSize rejects unknown size suffix behaviour under expected input and output conditions")
     @Test
-    public void parseSizeRejectsUnknownSuffix() {
-        assertThrows(IllegalArgumentException.class, () -> Jvm.parseSize("10XB"), "parseSizeRejectsUnknownSuffix");
+    void parseSizeRejectsUnknownSuffix() {
+        assertThrows(IllegalArgumentException.class, () -> Jvm.parseSize("10XB"),
+                "parseSize should reject unknown size suffix");
     }
 }

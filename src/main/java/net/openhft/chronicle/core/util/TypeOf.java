@@ -7,7 +7,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 /**
- * Utility class for capturing and retaining a generic type.
+ * Utility class for capturing and retaining a generic type token at runtime for reflection.
  *
  * <p> This class is intended to be subclassed and allows for type information
  * to be retained at runtime. When subclassing, the generic type parameter should be specified.
@@ -31,7 +31,7 @@ public class TypeOf<T> {
     }
 
     /**
-     * Retrieves the captured type.
+     * Retrieves the captured generic type token for this instance.
      *
      * @return The captured type as a {@link Type}.
      */

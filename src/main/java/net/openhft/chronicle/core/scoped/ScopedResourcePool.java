@@ -21,7 +21,7 @@ package net.openhft.chronicle.core.scoped;
 public interface ScopedResourcePool<T> {
 
     /**
-     * Get a scoped instance of the shared resource
+     * Gets a scoped instance of the shared resource from the pool.
      *
      * @return the {@link ScopedResource}, to be closed once it is finished being used
      */

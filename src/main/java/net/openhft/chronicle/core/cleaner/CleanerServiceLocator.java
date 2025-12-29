@@ -12,7 +12,7 @@ import java.util.ServiceConfigurationError;
 import java.util.ServiceLoader;
 
 /**
- * A utility class to locate the appropriate {@link ByteBufferCleanerService} implementation.
+ * A utility class that locates the appropriate {@link ByteBufferCleanerService} implementation for the current runtime.
  *
  * <p>This class employs the ServiceLoader mechanism to dynamically locate and instantiate
  * an implementation of the ByteBufferCleanerService interface. It selects the most suitable
@@ -33,7 +33,7 @@ public final class CleanerServiceLocator {
     }
 
     /**
-     * Returns a singleton instance of {@link ByteBufferCleanerService}.
+     * Returns the singleton {@link ByteBufferCleanerService} selected for the current JVM and impact level.
      *
      * <p>This method uses the ServiceLoader mechanism to dynamically locate and instantiate
      * an implementation of the ByteBufferCleanerService interface. If no suitable service

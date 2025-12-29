@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.io;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 
@@ -21,6 +22,7 @@ class ReferenceCountingFuzzTest {
             ReferenceOwner.temporary("owner-D")
     };
 
+    @DisplayName("randomisedReserveReleaseSequence behaviour under expected input and output conditions")
     @RepeatedTest(25)
     void randomisedReserveReleaseSequence(org.junit.jupiter.api.RepetitionInfo repetitionInfo) throws ClosedIllegalStateException {
         ReferenceStub ref = new ReferenceStub(false);
@@ -32,7 +34,8 @@ class ReferenceCountingFuzzTest {
             ReferenceOwner owner = OWNERS[idx];
             if (random.nextBoolean()) {
                 if (!hasOwner[idx]) {
-                    assertTrue(ref.tryReserve(owner), "tryReserve should succeed when owner does not yet hold a reservation");
+                    assertTrue(ref.tryReserve(owner),
+                            "tryReserve should succeed when owner does not yet hold a reservation step=" + step + " owner=" + owner);
                     hasOwner[idx] = true;
                 }
             } else {
@@ -52,10 +55,13 @@ class ReferenceCountingFuzzTest {
 
         ref.releaseLast(ReferenceOwner.INIT);
         assertEquals(1, ref.releaseCount.get(), "performRelease should be invoked exactly once after all references released");
-        assertThrows(ClosedIllegalStateException.class, () -> ref.reserve(OWNERS[0]));
-        assertThrows(ClosedIllegalStateException.class, ref::throwExceptionIfReleased);
+        assertThrows(ClosedIllegalStateException.class, () -> ref.reserve(OWNERS[0]),
+                "reserve should throw after final release");
+        assertThrows(ClosedIllegalStateException.class, ref::throwExceptionIfReleased,
+                "throwExceptionIfReleased should throw after final release");
     }
 
+    @DisplayName("backgroundReleaseHappensOnReleaserThread behaviour under expected input and output conditions")
     @Test
     void backgroundReleaseHappensOnReleaserThread() throws ClosedIllegalStateException {
         ReferenceStub ref = new ReferenceStub(true);

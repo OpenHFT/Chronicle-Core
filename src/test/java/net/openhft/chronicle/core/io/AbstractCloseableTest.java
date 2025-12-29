@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -13,10 +14,11 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AbstractCloseableTest extends CoreTestCommon {
+class AbstractCloseableTest extends CoreTestCommon {
 
+    @DisplayName("close behaviour under expected input and output conditions")
     @Test
-    public void close() throws IllegalStateException {
+    void close() throws IllegalStateException {
         MyCloseable mc = new MyCloseable();
         assertFalse(mc.isClosed(), "newly created closeable should not be closed");
         assertEquals(0, mc.performClose, "performClose should not have been called before first close");
@@ -24,24 +26,26 @@ public class AbstractCloseableTest extends CoreTestCommon {
         mc.throwExceptionIfClosed();
 
         mc.close();
-        assertTrue(mc.isClosed(), "isClosed should return true after first close call");
+        assertTrue(mc.isClosed(), "resource status indicator should be true after first close call");
         assertEquals(1, mc.performClose, "performClose should have been called exactly once after first close");
 
         mc.close();
-        assertTrue(mc.isClosed(), "isClosed should remain true after second close call");
+        assertTrue(mc.isClosed(), "resource status indicator should remain true after second close call");
         assertEquals(1, mc.performClose, "performClose should not be called again on second close");
     }
 
+    @DisplayName("throwExceptionIfClosed behaviour under expected input and output conditions")
     @Test
-    public void throwExceptionIfClosed() {
+    void throwExceptionIfClosed() {
         MyCloseable mc = new MyCloseable();
         mc.close();
         assertThrows(IllegalStateException.class, mc::throwExceptionIfClosed, "throwExceptionIfClosed should throw IllegalStateException when resource is closed");
 
     }
 
+    @DisplayName("warnAndCloseIfNotClosed behaviour under expected input and output conditions")
     @Test
-    public void warnAndCloseIfNotClosed() {
+    void warnAndCloseIfNotClosed() {
         Jvm.setResourceTracing(true);
 
         final Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
@@ -63,8 +67,9 @@ public class AbstractCloseableTest extends CoreTestCommon {
                     "warning message should indicate resource was discarded without closing");
     }
 
+    @DisplayName("assertCloseable behaviour under expected input and output conditions")
     @Test
-    public void assertCloseable() {
+    void assertCloseable() {
 
         final MyCloseable myCloseable = new MyCloseable() {
             int cnt = 0;
@@ -76,7 +81,8 @@ public class AbstractCloseableTest extends CoreTestCommon {
             }
         };
 
-        assertThrows(IllegalStateException.class, myCloseable::close);
+        assertThrows(IllegalStateException.class, myCloseable::close,
+                "first close should throw when assertCloseable fails");
         assertEquals(0, myCloseable.performClose, "performClose should not be called when assertCloseable fails");
 
         myCloseable.close();

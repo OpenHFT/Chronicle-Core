@@ -4,7 +4,7 @@
 package net.openhft.chronicle.core.time;
 
 /**
- * Supplies wall clock timestamps in milliseconds, microseconds and nanoseconds.
+ * Supplies wall clock timestamps in milliseconds, microseconds, and nanoseconds for time provider implementations.
  * <p>
  * Implementations typically delegate to the operating system clock, so the value returned can
  * move backwards if the wall clock is corrected. Key implementations include

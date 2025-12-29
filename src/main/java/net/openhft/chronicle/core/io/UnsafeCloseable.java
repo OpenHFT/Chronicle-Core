@@ -14,7 +14,7 @@ import sun.misc.Unsafe;
 public abstract class UnsafeCloseable extends AbstractCloseable {
 
     /**
-     * Native address backing this resource.
+     * Native address backing this resource in off-heap memory.
      */
     protected long address;
     /** Unsafe instance used to access the memory address. */
@@ -30,7 +30,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
     }
 
     /**
-     * Assign the backing memory address.
+     * Assign the backing memory address for this resource instance.
      *
      * @param address native address to operate on
      */

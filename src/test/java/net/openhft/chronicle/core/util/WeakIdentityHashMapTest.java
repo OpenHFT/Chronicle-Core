@@ -4,14 +4,16 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class WeakIdentityHashMapTest extends CoreTestCommon {
+class WeakIdentityHashMapTest extends CoreTestCommon {
+    @DisplayName("twoKeys behaviour under expected input and output conditions")
     @Test
-    public void twoKeys() {
+    void twoKeys() {
         String a1 = Character.toString('a');
         String a2 = Character.toString('a');
         WeakIdentityHashMap<String, Integer> map = new WeakIdentityHashMap<>();

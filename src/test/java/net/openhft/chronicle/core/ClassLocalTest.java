@@ -4,14 +4,16 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.util.ClassLocal;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ClassLocalTest extends CoreTestCommon {
+class ClassLocalTest extends CoreTestCommon {
 
+    @DisplayName("computeValue behaviour under expected input and output conditions")
     @Test
-    public void computeValue() {
+    void computeValue() {
         long[] count = {0};
         ClassLocal<String> toString = ClassLocal.withInitial(aClass -> {
             count[0]++;
@@ -20,7 +22,7 @@ public class ClassLocalTest extends CoreTestCommon {
         for (int i = 0; i < 1000; i++) {
             toString.get(ClassValue.class);
         }
-        assertEquals(1, count[0], "operation result should equal expected value");
+        assertEquals(1, count[0], "ClassLocal should compute value once for ClassValue");
 
     }
 }

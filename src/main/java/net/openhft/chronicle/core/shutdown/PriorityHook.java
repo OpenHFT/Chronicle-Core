@@ -8,7 +8,7 @@ import java.util.*;
 import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 
 /**
- * Manager for orderly shutdown.
+ * Manager for orderly shutdown sequencing across registered hooklets in priority order.
  * <p>
  * Hooklets are stored in a priority ordered map and executed by a single
  * dedicated thread when the JVM terminates. All modifications are
@@ -41,7 +41,7 @@ public class PriorityHook {
     }
 
     /**
-     * Add a custom shutdown hook.
+     * Registers a custom shutdown hooklet with the current priority registry.
      * <p>
      * Will prevent adding the same hook (by parameter's class) more than once, return the existing one in that case.
      * See {@link Hooklet#identity()}.

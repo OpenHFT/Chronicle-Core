@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 /**
- * Chains exception handlers.
+ * Chains exception handlers and forwards events in evaluation order for reporting.
  * <p>
  * Handlers are evaluated left to right. If a handler throws, the failure is
  * logged at error level and the next handler is called.
@@ -38,7 +38,7 @@ public class ChainedExceptionHandler implements ExceptionHandler {
     private final ExceptionHandler[] chain;
 
     /**
-     * Creates a new chain of handlers.
+     * Creates a new chain of handlers evaluated left to right.
      *
      * @param chain the handlers to evaluate from left to right
      * @throws NullPointerException if {@code chain} or any element is null
@@ -53,7 +53,7 @@ public class ChainedExceptionHandler implements ExceptionHandler {
     }
 
     /**
-     * Passes the event to each handler.
+     * Forwards the event to each handler in order.
      *
      * @param clazz   the originating class, not null
      * @param message an optional message
@@ -72,7 +72,7 @@ public class ChainedExceptionHandler implements ExceptionHandler {
     }
 
     /**
-     * Passes the event to each handler.
+     * Forwards the logger event to each handler in order.
      *
      * @param logger  the logger to use, not null
      * @param message an optional message
@@ -90,7 +90,7 @@ public class ChainedExceptionHandler implements ExceptionHandler {
     }
 
     /**
-     * Returns the handlers in evaluation order.
+     * Returns the handlers in evaluation order as an immutable array.
      *
      * @return the immutable handler array
      */

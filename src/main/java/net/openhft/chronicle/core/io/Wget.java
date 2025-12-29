@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.io;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
@@ -13,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
- * <h2>Minimal HTTP-GET helper with a hard response cap</h2>
+ * <h2>Minimal HTTP-GET helper with a hard response size cap enforced</h2>
  *
  * <p>{@code Wget} is intentionally simple and dependency-free.  It opens a connection to
  * an {@code http://} or {@code https://} URL, honours user-defined time-outs, and streams
@@ -44,8 +45,9 @@ public final class Wget {
      */
     @Deprecated(/* to be removed in 2027, only used in tests */)
     public static void url(final String url, final StringBuilder sb) throws IOException {
-        if (url.length() > MAX_URL_LENGTH)
+        if (url.length() > MAX_URL_LENGTH) {
             throw new IllegalArgumentException("URL too long (" + url.length() + ")");
+        }
         new Builder().build().fetch(url, sb);
     }
 
@@ -56,23 +58,35 @@ public final class Wget {
      * @param out destination to append content
      * @throws IOException on I/O errors or unsupported schemes
      */
+    @SuppressWarnings("deprecation")
     public void fetch(final String url, final Appendable out) throws IOException {
         Objects.requireNonNull(out, "out");
 
-        final URL u = new URL(url);
+        final URL u;
+        try {
+            u = URI.create(url).toURL();
+        } catch (IllegalArgumentException e) {
+            MalformedURLException exception = new MalformedURLException("Invalid URL: " + url);
+            exception.initCause(e);
+            throw exception;
+        }
         final String scheme = u.getProtocol();
-        if (!"http".equals(scheme) && !"https".equals(scheme))
+        if (!"http".equals(scheme) && !"https".equals(scheme)) {
             throw new MalformedURLException("Only http/https allowed, not " + scheme);
+        }
 
         try (InputStream raw = connectionProvider.open(u);
              InputStream limited = new LimitedInputStream(raw, maxResponseBytes)) {
 
             Charset cs = charsetDetector.detect(raw, null);
-            if (cs == null) cs = StandardCharsets.UTF_8;
+            if (cs == null) {
+                cs = StandardCharsets.UTF_8;
+            }
 
             try (Reader reader = new BufferedReader(new InputStreamReader(limited, cs))) {
-                for (int ch; (ch = reader.read()) != -1; )
+                for (int ch; (ch = reader.read()) != -1; ) {
                     out.append((char) ch);
+                }
             }
         }
     }
@@ -120,12 +134,6 @@ public final class Wget {
         private long maxResponseBytes = 10L << 20; // 10 MiB
 
         /**
-         * Creates a builder with default connection settings.
-         */
-        public Builder() {
-        }
-
-        /**
          * Overrides the connection provider for testing.
          *
          * @param provider supplier for URL connections
@@ -162,7 +170,7 @@ public final class Wget {
         }
 
         /**
-         * Sets the read timeout in milliseconds.
+         * Sets the read timeout in milliseconds for HTTP connections.
          *
          * @param timeoutMs timeout in milliseconds
          * @return this builder
@@ -181,8 +189,9 @@ public final class Wget {
          */
         @Deprecated(/* to be removed in 2027, only used in tests */)
         public Builder maxResponseBytes(final long maxResponseBytes) {
-            if (maxResponseBytes < 0)
+            if (maxResponseBytes < 0) {
                 throw new IllegalArgumentException("maxResponseBytes must be >= 0");
+            }
             this.maxResponseBytes = maxResponseBytes;
             return this;
         }
@@ -201,8 +210,9 @@ public final class Wget {
                     URLConnection conn = url.openConnection();
                     conn.setConnectTimeout(ct);
                     conn.setReadTimeout(rt);
-                    if (conn instanceof HttpURLConnection)
+                    if (conn instanceof HttpURLConnection) {
                         ((HttpURLConnection) conn).setInstanceFollowRedirects(false);
+                    }
                     return conn.getInputStream();
                 };
             }

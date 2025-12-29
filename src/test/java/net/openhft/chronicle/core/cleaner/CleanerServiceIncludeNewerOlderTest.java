@@ -5,6 +5,7 @@ package net.openhft.chronicle.core.cleaner;
 
 import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -31,6 +32,7 @@ class CleanerServiceIncludeNewerOlderTest {
         resetLocator();
     }
 
+    @DisplayName("include newer or older gate allows providers")
     @Test
     void includeNewerOlderGateAllowsAppropriateProviders() throws Exception {
         resetLocator();
@@ -53,7 +55,8 @@ class CleanerServiceIncludeNewerOlderTest {
             // There may be existing providers on the classpath; assert that at least one of our
             // includeNewer/includeOlder candidates was considered acceptable by not being rejected outright.
             String name = svcChosen.getClass().getName();
-            assertTrue(name.contains("AllowedCleaner") || name.contains("OlderInclNewerCleaner"), "selected service should be a version-compatible provider when includeNewer/includeOlder gates are satisfied");
+            assertTrue(name.contains("AllowedCleaner") || name.contains("OlderInclNewerCleaner"),
+                    "selected service should be a version-compatible provider, got " + name);
         } finally {
             t.setContextClassLoader(prev);
         }

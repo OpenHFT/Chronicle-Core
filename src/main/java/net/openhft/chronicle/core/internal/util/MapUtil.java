@@ -16,7 +16,7 @@ import static java.util.stream.Collectors.toMap;
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 /**
- * Small helpers for building immutable maps.
+ * Small helpers for building immutable maps with predictable iteration order.
  * <p>
  * Provides {@link #entry(Object, Object)} and {@link #ofUnmodifiable(Map.Entry[])} to create
  * unmodifiable maps in a concise and type safe way.

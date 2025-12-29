@@ -4,7 +4,7 @@
 package net.openhft.chronicle.core;
 
 /**
- * Hook invoked when {@link Jvm} finishes static initialisation.
+ * Hook invoked when {@link Jvm} finishes static initialisation for bootstrap tasks.
  * <p>
  * Implementations may perform one off initialisation work that depends on {@link Jvm} being
  * fully configured before any application code runs.

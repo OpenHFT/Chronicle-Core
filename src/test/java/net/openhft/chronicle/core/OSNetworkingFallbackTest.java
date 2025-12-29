@@ -3,12 +3,15 @@
  */
 package net.openhft.chronicle.core;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("deprecation")
 class OSNetworkingFallbackTest {
 
+    @DisplayName("hostname and IP address fallbacks are non empty")
     @Test
     void hostnameAndIpAddressNonEmpty() {
         String hn = OS.getHostName();

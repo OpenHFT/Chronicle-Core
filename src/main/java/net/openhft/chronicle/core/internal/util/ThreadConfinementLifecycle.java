@@ -8,7 +8,7 @@ import net.openhft.chronicle.core.util.ThreadConfinementAsserter;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Factory and lifecycle utilities for {@link ThreadConfinementAsserter}.
+ * Factory and lifecycle utilities for {@link ThreadConfinementAsserter} instances, defaults, and confinement tracking.
  * <p>
  * Detects whether assertions are enabled and returns either a real asserter or a no-op
  * implementation accordingly.

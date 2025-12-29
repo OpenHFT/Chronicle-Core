@@ -3,19 +3,21 @@
  */
 package net.openhft.chronicle.core;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class OSPageAlignmentTest {
+class OSPageAlignmentTest {
 
+    @DisplayName("pageAlignAlignsToCurrentPageSize behaviour under expected input and output conditions")
     @Test
-    public void pageAlignAlignsToCurrentPageSize() {
+    void pageAlignAlignsToCurrentPageSize() {
         int pageSize = OS.pageSize();
         long base = 123;
         long aligned = OS.pageAlign(base);
-        assertTrue(aligned >= base, "Aligned value should be >= base");
+        assertTrue(aligned >= base, "aligned value should be >= base: aligned=" + aligned + ", base=" + base);
         assertEquals(0L, aligned % pageSize, "memory should be aligned to page boundary");
 
         long large = (long) pageSize * 123456 + 7;
@@ -23,11 +25,12 @@ public class OSPageAlignmentTest {
         assertEquals(expected, OS.pageAlign(large), "pageAlign should round up large values to next page boundary");
     }
 
+    @DisplayName("defaultOsPageSizeFallsBackToSafeSizeOnWindows behaviour under expected input and output conditions")
     @Test
-    public void defaultOsPageSizeFallsBackToSafeSizeOnWindows() {
+    void defaultOsPageSizeFallsBackToSafeSizeOnWindows() {
         int defaultSize = OS.defaultOsPageSize();
         if (OS.isWindows()) {
-            assertEquals(OS.SAFE_PAGE_SIZE, defaultSize, "operation result should equal expected value");
+            assertEquals(OS.SAFE_PAGE_SIZE, defaultSize, "default page size should fall back to SAFE_PAGE_SIZE on Windows");
         } else {
             assertEquals(OS.pageSize(), defaultSize, "defaultOsPageSize should equal actual page size on non-Windows platforms");
         }

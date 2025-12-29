@@ -6,7 +6,7 @@ package net.openhft.chronicle.core.util;
 import java.io.Serializable;
 
 /**
- * Serializable wrapper for an {@link Updater}.
+ * Serializable wrapper for an {@link Updater} used in serialised pipelines and replayed updates.
  *
  * @param <U> target type being updated
  */

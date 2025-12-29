@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.function.Consumer;
 
 /**
- * Serializable variant of {@link Consumer}.
+ * Serializable variant of {@link Consumer} for capturing lambdas in serialised workflows and transport.
  * <p>
  * Allows lambdas and method references to be sent over the wire or persisted where required.
  *

@@ -17,7 +17,7 @@ import static net.openhft.chronicle.core.Jvm.isResourceTracing;
 import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 
 /**
- * Thread that clears its ThreadLocal values when finished.
+ * Thread that clears its ThreadLocal values when finished to avoid leaks.
  * <p>
  * Threads can retain references left in their {@code ThreadLocalMap} even once
  * the {@link ThreadLocal} instance is no longer reachable. Long-lived threads
@@ -187,6 +187,7 @@ public class CleaningThread extends Thread {
      * <p> Sub-classes overriding this method should call
      * {@code super.run()} to retain the affinity reset and cleanup behaviour.
      */
+    @SuppressWarnings("PMD.DontCallThreadRun")
     @Override
     public void run() {
         // ensure the logger has loaded before attempting to access affinity

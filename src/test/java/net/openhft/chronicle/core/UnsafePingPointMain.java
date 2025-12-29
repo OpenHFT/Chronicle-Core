@@ -4,42 +4,33 @@
 package net.openhft.chronicle.core;
 
 import org.jetbrains.annotations.NotNull;
-import sun.misc.Unsafe;
-
-import java.lang.reflect.Field;
 
 public class UnsafePingPointMain implements Runnable {
-    private final Unsafe unsafe;
+    private final Memory memory;
     private final long addrA;
     private final long addrB;
 
-    private UnsafePingPointMain(Unsafe unsafe, long addrA, long addrB) {
-        this.unsafe = unsafe;
+    private UnsafePingPointMain(Memory memory, long addrA, long addrB) {
+        this.memory = memory;
         this.addrA = addrA;
         this.addrB = addrB;
     }
 
     @NotNull
-    private static Unsafe getUnsafe() {
-        try {
-            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
-            theUnsafe.setAccessible(true);
-            return (Unsafe) theUnsafe.get(null);
-        } catch (NoSuchFieldException | IllegalAccessException | IllegalArgumentException e) {
-            throw new AssertionError(e);
-        }
+    private static Memory getMemory() {
+        return OS.memory();
     }
 
     public static void main(String[] args) {
-        @NotNull Unsafe unsafe = getUnsafe();
+        @NotNull Memory memory = getMemory();
         // make sure its a memory mapping.
-        long memory = unsafe.allocateMemory(256 << 10);
+        long baseAddress = memory.allocate(256 << 10);
 
-        long addr1 = memory + 63;
+        long addr1 = baseAddress + 63;
         long addr2 = addr1 + 4096;
 
-        new Thread(new UnsafePingPointMain(unsafe, addr1, addr2)).start();
-        new Thread(new UnsafePingPointMain(unsafe, addr2, addr1)).start();
+        new Thread(new UnsafePingPointMain(memory, addr1, addr2)).start();
+        new Thread(new UnsafePingPointMain(memory, addr2, addr1)).start();
     }
 
     @Override
@@ -52,13 +43,13 @@ public class UnsafePingPointMain implements Runnable {
     }
 
     private void toggle(int x, int y) {
-        assert unsafe.compareAndSwapInt(null, addrA, x, y);
-        int value = unsafe.getIntVolatile(null, addrB);
+        assert memory.compareAndSwapInt(addrA, x, y);
+        int value = memory.readVolatileInt(addrB);
         int count = 1000;
         while (value != y && count-- > 0) {
             if (value != x)
                 System.out.println(Long.toHexString(addrB) + " was " + Integer.toHexString(value));
-            value = unsafe.getIntVolatile(null, addrB);
+            value = memory.readVolatileInt(addrB);
         }
     }
 }

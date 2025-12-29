@@ -26,17 +26,17 @@ public class ExceptionKey {
     public final LogLevel level;
 
     /**
-     * The class where the exception occurred
+     * The originating class that raised the exception event
      */
     public final Class<?> clazz;
 
     /**
-     * A message associated with the exception
+     * The message text associated with the exception event
      */
     public final String message;
 
     /**
-     * The Throwable instance representing the exception
+     * The Throwable instance captured for the exception event
      */
     public final Throwable throwable;
 
@@ -66,7 +66,7 @@ public class ExceptionKey {
     }
 
     /**
-     * Returns the class where the exception occurred.
+     * Returns the originating class that raised the exception event.
      *
      * @return The class.
      */
@@ -75,7 +75,7 @@ public class ExceptionKey {
     }
 
     /**
-     * Returns the message associated with the exception.
+     * Returns the message text associated with the exception event.
      *
      * @return The message.
      */
@@ -84,7 +84,7 @@ public class ExceptionKey {
     }
 
     /**
-     * Returns the Throwable instance representing the exception.
+     * Returns the Throwable instance captured for the exception event.
      *
      * @return The throwable.
      */

@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.function.Function;
 
 /**
- * Serializable variant of {@link Function}.
+ * Serializable variant of {@link Function} for capturing lambdas in serialised workflows and transport.
  *
  * @param <I> input type
  * @param <O> output type

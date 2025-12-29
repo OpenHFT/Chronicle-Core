@@ -235,7 +235,7 @@ public class Histogram implements NanoSampler {
     }
 
     /**
-     * Gets the minimum value in the histogram.
+     * Gets the minimum recorded value in the histogram sample set.
      *
      * @return the minimum value
      */
@@ -244,7 +244,7 @@ public class Histogram implements NanoSampler {
     }
 
     /**
-     * Gets the median value in the histogram.
+     * Gets the median value in the histogram sample set.
      *
      * @return the median value
      */
@@ -254,7 +254,7 @@ public class Histogram implements NanoSampler {
     }
 
     /**
-     * Gets the maximum value in the histogram.
+     * Gets the maximum recorded value in the histogram sample set.
      *
      * @return the maximum value
      */

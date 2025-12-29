@@ -37,7 +37,7 @@ public class Timer {
     }
 
     /**
-     * Schedules {@code eventHandler} to run at a fixed-rate on the event loop.
+     * Schedules {@code eventHandler} to run at a fixed-rate with explicit handler priority.
      * Timing is best-effort and any delay does not trigger multiple catch-up
      * invocations. The underlying call returns a {@link java.io.Closeable};
      * closing it aborts future executions.

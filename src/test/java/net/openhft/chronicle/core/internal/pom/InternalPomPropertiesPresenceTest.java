@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.internal.pom;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.net.URL;
@@ -12,6 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class InternalPomPropertiesPresenceTest {
 
+    @DisplayName("versionLoadedFromResourceAndThenCached behaviour under expected input and output conditions")
     @Test
     void versionLoadedFromResourceAndThenCached() {
         String v1 = InternalPomProperties.version("test.group", "test-artifact");

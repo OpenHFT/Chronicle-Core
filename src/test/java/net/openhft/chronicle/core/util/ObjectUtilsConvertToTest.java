@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -12,7 +13,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class ObjectUtilsConvertToTest extends CoreTestCommon {
+class ObjectUtilsConvertToTest extends CoreTestCommon {
 
     static Stream<Arguments> data() {
         return Stream.of(
@@ -29,9 +30,10 @@ public class ObjectUtilsConvertToTest extends CoreTestCommon {
         );
     }
 
+    @DisplayName("convertTo behaviour under expected input and output conditions")
     @ParameterizedTest
     @MethodSource("data")
-    public void convertTo(Object converted, String input) throws IllegalStateException, IllegalArgumentException {
+    void convertTo(Object converted, String input) throws IllegalStateException, IllegalArgumentException {
         assertEquals(converted, ObjectUtils.convertTo(converted.getClass(), input), "ObjectUtils.convertTo should parse string input into expected target type");
     }
 

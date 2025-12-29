@@ -5,6 +5,7 @@ package net.openhft.chronicle.core.cleaner;
 
 import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -27,6 +28,7 @@ class CleanerServiceLocatorTest {
         resetLocator();
     }
 
+    @DisplayName("selects allowed cleaner service with lowest impact")
     @Test
     void picksAllowedServiceWithLowestImpact() throws Exception {
         resetLocator();
@@ -37,6 +39,7 @@ class CleanerServiceLocatorTest {
         assertEquals(ByteBufferCleanerService.Impact.NO_IMPACT, svc.impact(), "service impact should be NO_IMPACT for allowed cleaner");
     }
 
+    @DisplayName("falls back to reflection cleaner without providers")
     @Test
     void fallsBackToReflectionCleanerWhenNoProviders() throws Exception {
         resetLocator();
@@ -71,7 +74,8 @@ class CleanerServiceLocatorTest {
             current.setContextClassLoader(noServiceCL);
             ByteBufferCleanerService svc = CleanerServiceLocator.cleanerService();
             assertNotNull(svc, "cleanerService() should fall back to reflection cleaner when no providers");
-            assertTrue(svc.getClass().getName().contains("internal.cleaner"), "fallback service should be internal reflection cleaner");
+            String className = svc.getClass().getName();
+            assertTrue(className.contains("internal.cleaner"), "fallback service class should contain internal.cleaner but was " + className);
         } finally {
             current.setContextClassLoader(prev);
         }

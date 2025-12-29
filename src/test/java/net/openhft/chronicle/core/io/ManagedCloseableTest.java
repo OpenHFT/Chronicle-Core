@@ -3,47 +3,73 @@
  */
 package net.openhft.chronicle.core.io;
 
-import net.openhft.chronicle.core.Jvm;
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ManagedCloseableTest {
-    @BeforeEach
-    void mockitoNotSupportedOnJava21() {
-        Assumptions.assumeTrue(Jvm.majorVersion() <= 17);
-    }
-
+    @DisplayName("testWarnAndCloseIfNotClosed behaviour under expected input and output conditions")
     @Test
     void testWarnAndCloseIfNotClosed() {
-        ManagedCloseable closeable = spy(ManagedCloseable.class);
-
-        when(closeable.isClosing()).thenReturn(false);
+        ManagedCloseableProbe closeable = new ManagedCloseableProbe();
 
         closeable.warnAndCloseIfNotClosed();
 
-        verify(closeable, times(1)).close();
+        assertTrue(closeable.wasClosed(), "warnAndCloseIfNotClosed should close when not already closing");
     }
 
+    @DisplayName("testThrowExceptionIfClosed behaviour under expected input and output conditions")
     @Test
     void testThrowExceptionIfClosed() {
-        ManagedCloseable closeable = Mockito.spy(ManagedCloseable.class);
+        ManagedCloseableProbe closeable = new ManagedCloseableProbe();
+        closeable.setClosed(true);
 
-        when(closeable.isClosing()).thenReturn(true);
-        when(closeable.isClosed()).thenReturn(true);
-
-        assertThrows(ClosedIllegalStateException.class, closeable::throwExceptionIfClosed);
+        assertThrows(ClosedIllegalStateException.class, closeable::throwExceptionIfClosed,
+                "throwExceptionIfClosed should throw when closeable reports closed");
     }
 
+    @DisplayName("testCreatedHere behaviour under expected input and output conditions")
     @Test
     void testCreatedHere() {
-        ManagedCloseable closeable = Mockito.spy(ManagedCloseable.class);
+        ManagedCloseable closeable = new ManagedCloseableProbe();
 
-        assertNull(closeable.createdHere(), "ManagedCloseable createdHere should return null for mock instance");
+        assertNull(closeable.createdHere(), "ManagedCloseable createdHere should return null for default implementation");
+    }
+
+    private static final class ManagedCloseableProbe implements ManagedCloseable {
+        private boolean closing;
+        private boolean closed;
+        private boolean closeCalled;
+
+        @Override
+        public void close() {
+            closeCalled = true;
+            closed = true;
+            closing = true;
+        }
+
+        @Override
+        public boolean isClosing() {
+            return closing;
+        }
+
+        @Override
+        public boolean isClosed() {
+            return closed;
+        }
+
+        void setClosed(boolean closed) {
+            this.closed = closed;
+            if (closed) {
+                this.closing = true;
+            }
+        }
+
+        boolean wasClosed() {
+            return closeCalled;
+        }
     }
 }

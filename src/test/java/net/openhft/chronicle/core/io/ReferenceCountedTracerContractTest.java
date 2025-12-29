@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.io;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.IntSupplier;
@@ -14,21 +15,24 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * Any implementor of {@link ReferenceCountedTracer} should implement a test class
  * that extends this or one of its more specific children
  */
-public abstract class ReferenceCountedTracerContractTest extends ReferenceCountedContractTest {
+abstract class ReferenceCountedTracerContractTest extends ReferenceCountedContractTest {
 
     @Override
     protected abstract ReferenceCountedTracer createReferenceCounted();
 
+    @DisplayName("throwIfReleasedWillThrowIfResourceIsReleased behaviour under expected input and output conditions")
     @Test
-    public void throwIfReleasedWillThrowIfResourceIsReleased() {
+    void throwIfReleasedWillThrowIfResourceIsReleased() {
         ReferenceCountedTracer referenceCounted = createReferenceCounted();
 
         referenceCounted.releaseLast();
-        assertThrows(ClosedIllegalStateException.class, referenceCounted::throwExceptionIfReleased);
+        assertThrows(ClosedIllegalStateException.class, referenceCounted::throwExceptionIfReleased,
+                "throwExceptionIfReleased should throw after final release");
     }
 
+    @DisplayName("throwIfReleasedWillNotThrowIfResourceIsNotReleased behaviour under expected input and output conditions")
     @Test
-    public void throwIfReleasedWillNotThrowIfResourceIsNotReleased() {
+    void throwIfReleasedWillNotThrowIfResourceIsNotReleased() {
         ReferenceCountedTracer referenceCounted = createReferenceCounted();
         try {
             referenceCounted.throwExceptionIfReleased();
@@ -38,8 +42,9 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
         }
     }
 
+    @DisplayName("throwIfNotReleasedWillThrowIfResourceIsNotReleased behaviour under expected input and output conditions")
     @Test
-    public void throwIfNotReleasedWillThrowIfResourceIsNotReleased() {
+    void throwIfNotReleasedWillThrowIfResourceIsNotReleased() {
         ReferenceCountedTracer referenceCounted = createReferenceCounted();
         try {
             assertThrows(IllegalStateException.class,
@@ -50,8 +55,9 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
         }
     }
 
+    @DisplayName("throwIfNotReleasedWillNotThrowIfResourceIsReleased behaviour under expected input and output conditions")
     @Test
-    public void throwIfNotReleasedWillNotThrowIfResourceIsReleased() {
+    void throwIfNotReleasedWillNotThrowIfResourceIsReleased() {
         ReferenceCountedTracer referenceCounted = createReferenceCounted();
 
         referenceCounted.releaseLast();
@@ -59,8 +65,9 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
         assertEquals(0, referenceCounted.refCount(), "reference count should be zero after final release");
     }
 
+    @DisplayName("listenersShouldNotBeNotifiedOnWarnAndReleaseIfNotReleased behaviour under expected input and output conditions")
     @Test
-    public void listenersShouldNotBeNotifiedOnWarnAndReleaseIfNotReleased() {
+    void listenersShouldNotBeNotifiedOnWarnAndReleaseIfNotReleased() {
         ReferenceCountedTracer rc = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -85,7 +92,8 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
         rc.reserve(b);
         assertEquals(3, rc.refCount(), "second reserve should increment count from 2 to 3");
 
-        assertThrows(IllegalStateException.class, () -> rc.reserve(a));
+        assertThrows(IllegalStateException.class, () -> rc.reserve(a),
+                "reserve should reject the same owner being reserved twice");
         assertEquals(3, rc.refCount(), "duplicate reserve attempt should not modify reference count");
 
         rc.release(b);

@@ -38,8 +38,11 @@ public final class ClassUtil {
                 if (field != null)
                     return field;
             }
-            if (error)
-                throw new AssertionError(e);
+            if (error) {
+                AssertionError assertionError = new AssertionError("Failed to access field " + name + " on " + clazz.getName());
+                assertionError.initCause(e);
+                throw assertionError;
+            }
             return null;
         }
     }
@@ -64,7 +67,9 @@ public final class ClassUtil {
                 boolean newFlag = (boolean) SetAccessibleHolder.setAccessible0_Method.invokeExact(accessibleObject, true);
                 assert newFlag;
             } catch (Throwable throwable) {
-                throw new AssertionError(throwable);
+                AssertionError assertionError = new AssertionError("Failed to set accessible flag on " + accessibleObject);
+                assertionError.initCause(throwable);
+                throw assertionError;
             }
         } else {
             accessibleObject.setAccessible(true);
@@ -92,8 +97,11 @@ public final class ClassUtil {
                 } catch (Exception ignored) {
                     // Ignore
                 }
-            if (first)
-                throw new AssertionError(e);
+            if (first) {
+                AssertionError assertionError = new AssertionError("Failed to access method " + name + " on " + clazz.getName());
+                assertionError.initCause(e);
+                throw assertionError;
+            }
             return null;
         }
     }

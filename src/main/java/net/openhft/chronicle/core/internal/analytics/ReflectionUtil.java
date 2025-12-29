@@ -15,7 +15,7 @@ import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 /**
- * Reflection utilities for integrating with the optional {@code chronicle-analytics} module.
+ * Reflection utilities for integrating with the optional {@code chronicle-analytics} module and avoiding linkage failures.
  *
  * <p>Locates analytics types by name, returns builder instances, and exposes helpers to look up
  * and invoke methods while wrapping reflective failures in Chronicle's unchecked exception

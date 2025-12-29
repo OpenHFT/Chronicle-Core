@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Performs close and release operations on a background thread.
+ * Performs close and release operations on a background thread for latency control.
  * <p>
  * Closing in the background reduces worst case pause times because the caller
  * does not have to perform the tidy up work. The behaviour is controlled by two
@@ -69,7 +69,7 @@ public final class BackgroundResourceReleaser {
             for (; ; ) {
                 Object o = RESOURCES.take();
                 if (o == POISON_PILL) {
-                    Jvm.debug().on(BackgroundResourceReleaser.class, "Stopped thread");
+                    Jvm.debug().on(BackgroundResourceReleaser.class, "Stopped background resource release thread");
                     break;
                 }
                 performRelease(o, true);
@@ -77,7 +77,7 @@ public final class BackgroundResourceReleaser {
         } catch (InterruptedException e) {
             // Restore the interrupt state...
             Thread.currentThread().interrupt();
-            Jvm.warn().on(BackgroundResourceReleaser.class, "Died on interrupt");
+            Jvm.warn().on(BackgroundResourceReleaser.class, "Background release thread interrupted during shutdown");
         }
     }
 
@@ -95,7 +95,7 @@ public final class BackgroundResourceReleaser {
     }
 
     /**
-     * Releases the specified closeable resource.
+     * Releases the specified closeable resource using the background queue when enabled.
      *
      * @param closeable the resource to release
      */
@@ -138,7 +138,7 @@ public final class BackgroundResourceReleaser {
     }
 
     /**
-     * Releases all pending resources.
+     * Releases all pending resources queued for background release.
      * <p>
      * Should be called when you want to make sure that all the resources that have been
      * queued for release are actually released.
@@ -166,7 +166,7 @@ public final class BackgroundResourceReleaser {
                 Jvm.perf().on(BackgroundResourceReleaser.class, "Still got " + left + " resources to clean");
 
         } catch (InterruptedException e) {
-            Jvm.warn().on(BackgroundResourceReleaser.class, "Interrupted in releasePendingResources");
+            Jvm.warn().on(BackgroundResourceReleaser.class, "Interrupted while draining pending resource releases");
             interrupted = true;
         } finally {
             if (interrupted)

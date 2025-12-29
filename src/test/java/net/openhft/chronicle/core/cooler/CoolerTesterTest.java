@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.cooler;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.Callable;
@@ -13,6 +14,7 @@ import static org.mockito.Mockito.*;
 
 class CoolerTesterTest {
 
+    @DisplayName("shouldExecuteCallableWithEachCooler behaviour under expected input and output conditions")
     @Test
     void shouldExecuteCallableWithEachCooler() throws Exception {
         Callable<?> mockTask = mock(Callable.class);
@@ -27,6 +29,7 @@ class CoolerTesterTest {
         verify(mockCooler, atLeastOnce()).disturb();
     }
 
+    @DisplayName("getterMethodsShouldReturnCorrectValues behaviour under expected input and output conditions")
     @Test
     void getterMethodsShouldReturnCorrectValues() {
         // Setup a CoolerTester instance with known configuration values
@@ -39,12 +42,13 @@ class CoolerTesterTest {
         assertEquals(100, tester.maxCount(), "maxCount getter should return the configured maximum count");
     }
 
+    @DisplayName("runMethodShouldExecuteWithoutErrors behaviour under expected input and output conditions")
     @Test
     void runMethodShouldExecuteWithoutErrors() {
         Callable<?> mockTask = mock(Callable.class);
         CpuCooler mockCooler = mock(CpuCooler.class);
 
         CoolerTester tester = new CoolerTester(mockCooler, mockTask);
-        assertDoesNotThrow(tester::run);
+        assertDoesNotThrow(tester::run, "CoolerTester.run should not throw with valid cooler and task");
     }
 }

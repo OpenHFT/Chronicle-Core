@@ -36,11 +36,11 @@ final class BackgroundResourceReleaserSupport {
         BGCloseable bgc = new BGCloseable(closed);
         bgc.close();
         assertTrue(bgc.isClosing(), "closeable should report closing");
-        assertEquals(expectClosed, bgc.isClosed(), "closeable closed state");
+        assertEquals(expectClosed, bgc.isClosed(), "closeable closed state should match expected value");
 
         BGReferenceCounted bgr = new BGReferenceCounted(released);
         bgr.releaseLast();
-        assertEquals(0, bgr.refCount(), "refCount after releaseLast");
+        assertEquals(0, bgr.refCount(), "refCount should be zero after releaseLast");
     }
 
     static WaitingCloseable createWaitingCloseable() {

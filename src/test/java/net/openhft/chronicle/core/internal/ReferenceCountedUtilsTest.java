@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.internal;
 import net.openhft.chronicle.core.io.AbstractReferenceCounted;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,6 +24,7 @@ class ReferenceCountedUtilsTest {
         ReferenceCountedUtils.disableReferenceTracing();
     }
 
+    @DisplayName("unmonitorShouldRemoveReference behaviour under expected input and output conditions")
     @Test
     void unmonitorShouldRemoveReference() {
         AbstractReferenceCounted referenceCounted = mock(AbstractReferenceCounted.class);

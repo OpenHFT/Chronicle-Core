@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -14,20 +15,23 @@ import java.util.concurrent.BlockingQueue;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MockerFacadeTest {
+class MockerFacadeTest {
 
+    @DisplayName("loggingToStringWriterDelegates behaviour under expected input and output conditions")
     @Test
-    public void loggingToStringWriterDelegates() {
+    void loggingToStringWriterDelegates() {
         StringWriter writer = new StringWriter();
         Sample sample = Mocker.logging(Sample.class, "sample-", writer);
         sample.run("value");
 
-        assertTrue(writer.toString().contains("sample-run"), "logged output should contain method name with prefix");
-        assertTrue(writer.toString().contains("value"), "logged output should contain method argument");
+        String logged = writer.toString();
+        assertTrue(logged.contains("sample-run"), "logged output should contain \"sample-run\": " + logged);
+        assertTrue(logged.contains("value"), "logged output should contain \"value\": " + logged);
     }
 
+    @DisplayName("loggingToPrintStreamDelegates behaviour under expected input and output conditions")
     @Test
-    public void loggingToPrintStreamDelegates() {
+    void loggingToPrintStreamDelegates() {
         ByteArrayOutputStream backing = new ByteArrayOutputStream();
         PrintStream stream;
         try {
@@ -39,12 +43,13 @@ public class MockerFacadeTest {
         sample.run("data");
 
         String logged = new String(backing.toByteArray(), UTF_8);
-        assertTrue(logged.contains("ps-run"), "logged output should contain method name with prefix");
-        assertTrue(logged.contains("data"), "logged output should contain method argument");
+        assertTrue(logged.contains("ps-run"), "logged output should contain \"ps-run\": " + logged);
+        assertTrue(logged.contains("data"), "logged output should contain \"data\": " + logged);
     }
 
+    @DisplayName("queuingAddsEntries behaviour under expected input and output conditions")
     @Test
-    public void queuingAddsEntries() throws InterruptedException {
+    void queuingAddsEntries() throws InterruptedException {
         BlockingQueue<String> queue = new ArrayBlockingQueue<>(2);
         Sample sample = Mocker.queuing(Sample.class, "queue-", queue);
         sample.run("payload");
@@ -52,8 +57,9 @@ public class MockerFacadeTest {
         assertEquals("queue-run[payload]", queue.take(), "queue should contain formatted method call with prefix and argument");
     }
 
+    @DisplayName("ignoredProxySupportsCalls behaviour under expected input and output conditions")
     @Test
-    public void ignoredProxySupportsCalls() {
+    void ignoredProxySupportsCalls() {
         Sample sample = Mocker.ignored(Sample.class);
         sample.run("whatever");
         assertNotNull(sample, "required object should not be null");

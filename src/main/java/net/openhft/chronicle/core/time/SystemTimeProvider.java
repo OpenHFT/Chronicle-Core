@@ -6,7 +6,7 @@ package net.openhft.chronicle.core.time;
 import net.openhft.chronicle.core.Jvm;
 
 /**
- * Synthesises a nanosecond wall clock from the system clock.
+ * Synthesises a nanosecond wall clock from the system clock with drift correction.
  *
  * <p>This provider keeps a running {@code delta} between
  * {@code System.nanoTime()} and {@code System.currentTimeMillis()}.

@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 public interface Builder<T> extends Supplier<T> {
 
     /**
-     * Builds and returns a non-null T instance.
+     * Builds and returns a non-null T instance configured by this builder.
      * <p>
      * The builder should always creates a new instance if the
      * instance is mutable. If the instance is immutable,

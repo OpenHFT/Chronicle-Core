@@ -12,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.lang.ref.Reference;
+import java.lang.ref.WeakReference;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.nio.channels.ServerSocketChannel;
@@ -22,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Utility class for managing closeable resources and related operations.
+ * Utility class for managing closeable resources, tracing, lifecycle checks, and diagnostics.
  */
 public final class CloseableUtils {
     /**
@@ -89,14 +90,14 @@ public final class CloseableUtils {
         final BlockingQueue<String> q = new LinkedBlockingQueue<>();
 
         // Anonymous inner class overriding the finalize() method to track finalization.
-        new Object() {
-            @SuppressWarnings({"deprecation", "removal", "java:S1113"})
+        new WeakReference<>(new Object() {
+            @SuppressWarnings({"deprecation", "removal", "java:S1113", "PMD.FinalizeDoesNotCallSuperFinalize"})
             @Override
             protected void finalize() throws Throwable {
                 super.finalize();
                 q.add("finalized");
             }
-        }.hashCode();
+        }).clear();
 
         try {
             // Zing JVM is not always satisfied with a single GC call:
@@ -112,7 +113,9 @@ public final class CloseableUtils {
             AbstractCloseable.waitForCloseablesToClose(1000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new AssertionError(e);
+            AssertionError assertionError = new AssertionError("Interrupted while waiting for closeables to close");
+            assertionError.initCause(e);
+            throw assertionError;
         }
     }
 
@@ -178,7 +181,7 @@ public final class CloseableUtils {
     public static void assertCloseablesClosed() {
         final Set<ManagedCloseable> traceSet = CLOSEABLES.get();
         if (traceSet == null) {
-            Jvm.warn().on(AbstractCloseable.class, "closable tracing disabled");
+            Jvm.warn().on(AbstractCloseable.class, "Closeable tracing is disabled for this run");
             return;
         }
         if (Thread.interrupted())
@@ -279,7 +282,7 @@ public final class CloseableUtils {
     }
 
     /**
-     * Close a closeable quietly, i.e. without throwing an exception.
+     * Closes each supplied closeable quietly without throwing an exception.
      * If the closeable is a collection, close all the elements.
      * If the closeable is an array, close all the elements.
      * If the closeable is a ServerSocketChannel, close it quietly.
@@ -294,7 +297,7 @@ public final class CloseableUtils {
     }
 
     /**
-     * Close a closeable quietly, i.e. without throwing an exception.
+     * Closes a single closeable quietly and handles collections or arrays.
      * If the closeable is a collection, close all the elements.
      * If the closeable is an array, close all the elements.
      * If the closeable is a ServerSocketChannel, close it quietly.

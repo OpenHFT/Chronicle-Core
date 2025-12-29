@@ -36,7 +36,7 @@ public abstract class SimpleCloseable implements Closeable, ReferenceOwner, Mana
     }
 
     /**
-     * Checks if the resource is closed.
+     * Checks if the resource is closed and no longer usable.
      *
      * @return {@code true} if the resource is closed, {@code false} otherwise.
      */

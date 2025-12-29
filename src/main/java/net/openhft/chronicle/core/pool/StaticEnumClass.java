@@ -73,6 +73,7 @@ public class StaticEnumClass<E extends Enum<E>> extends EnumCache<E> {
      * @return the enum instance at the given index.
      * @throws ArrayIndexOutOfBoundsException if the index is out of range.
      */
+    @Deprecated(/* to be removed in 2027 */)
     @Override
     public E forIndex(int index) {
         return values[index];

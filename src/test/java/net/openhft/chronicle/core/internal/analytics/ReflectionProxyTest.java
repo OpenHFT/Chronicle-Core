@@ -3,19 +3,22 @@
  */
 package net.openhft.chronicle.core.internal.analytics;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
+@SuppressWarnings("deprecation")
 class ReflectionProxyTest {
 
+    @DisplayName("reflectiveProxyCanReturnProxyForFluent behaviour under expected input and output conditions")
     @Test
     void reflectiveProxyCanReturnProxyForFluent() {
         Delegate delegate = new Delegate();
         Fluent proxy = ReflectionUtil.reflectiveProxy(Fluent.class, delegate, true);
         Fluent chained = proxy.withA(7).withB("ok");
-        assertSame(proxy, chained, "should return same instance (reference equality)");
+        assertSame(proxy, chained, "proxy should return same instance (reference equality)");
         assertEquals("7:ok", proxy.build(), "proxy should build correct value from chained method calls");
     }
 

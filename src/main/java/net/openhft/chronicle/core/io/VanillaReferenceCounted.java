@@ -9,7 +9,7 @@ import net.openhft.chronicle.core.UnsafeMemory;
 import net.openhft.chronicle.core.annotation.UsedViaReflection;
 
 /**
- * Lightweight {@link MonitorReferenceCounted} used when resource tracing is disabled.
+ * Lightweight {@link MonitorReferenceCounted} used when resource tracing is disabled, suppressed, or intentionally skipped.
  * <p>
  * Maintains a volatile reference count and invokes the supplied {@link Runnable} when it drops to
  * zero. Can still notify {@link ReferenceChangeListenerManager} listeners if present.
@@ -198,7 +198,9 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
             callOnRelease();
         } catch (ClosedIllegalStateException e) {
             // this shouldn't happen given we just tested the refCount.
-            throw new AssertionError(e);
+            AssertionError assertionError = new AssertionError("Unexpected close failure after release check");
+            assertionError.initCause(e);
+            throw assertionError;
         }
     }
 

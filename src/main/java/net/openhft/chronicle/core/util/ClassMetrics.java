@@ -26,7 +26,7 @@ public class ClassMetrics {
     }
 
     /**
-     * Returns the recorded offset.
+     * Returns the recorded offset value in bytes for this class metrics instance.
      *
      * @return the offset
      */
@@ -35,7 +35,7 @@ public class ClassMetrics {
     }
 
     /**
-     * Returns the recorded length.
+     * Returns the recorded length value in bytes for this class metrics instance.
      *
      * @return the length
      */

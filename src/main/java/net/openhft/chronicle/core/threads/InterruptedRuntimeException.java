@@ -4,7 +4,7 @@
 package net.openhft.chronicle.core.threads;
 
 /**
- * A runtime exception representing interruption of a thread.
+ * A runtime exception representing interruption of a thread during blocking work.
  * <p>
  * This unchecked exception serves as an alternative to the checked {@link InterruptedException}.
  * Generally, it is recommended to use {@link InterruptedException} to handle interruptions.

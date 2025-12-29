@@ -5,6 +5,7 @@ package net.openhft.chronicle.core.cleaner;
 
 import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -17,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Exercises the ServiceConfigurationError path by providing a bogus provider entry.
+ * Exercises the ServiceConfigurationError path by providing a bogus provider entry for service loading.
  */
 class CleanerServiceLoaderErrorTest {
 
@@ -35,6 +36,7 @@ class CleanerServiceLoaderErrorTest {
         resetLocator();
     }
 
+    @DisplayName("service configuration error falls back to reflection")
     @Test
     void serviceConfigurationErrorFallsBackToReflection() throws Exception {
         resetLocator();
@@ -54,7 +56,8 @@ class CleanerServiceLoaderErrorTest {
             t.setContextClassLoader(cl);
             ByteBufferCleanerService selected = CleanerServiceLocator.cleanerService();
             assertNotNull(selected, "service implementation should be found");
-            assertTrue(selected.getClass().getName().contains("internal.cleaner"), "service should fall back to reflection-based internal cleaner when ServiceConfigurationError occurs");
+            String className = selected.getClass().getName();
+            assertTrue(className.contains("internal.cleaner"), "service should fall back to internal cleaner when ServiceConfigurationError occurs, got " + className);
         } finally {
             t.setContextClassLoader(prev);
         }

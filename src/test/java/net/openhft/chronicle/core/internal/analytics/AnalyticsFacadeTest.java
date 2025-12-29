@@ -6,13 +6,14 @@ package net.openhft.chronicle.core.internal.analytics;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.analytics.AnalyticsFacade;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AnalyticsFacadeTest extends CoreTestCommon {
+class AnalyticsFacadeTest extends CoreTestCommon {
 
     private static final String TEST_RESPONSE = "A";
 
@@ -21,19 +22,21 @@ public class AnalyticsFacadeTest extends CoreTestCommon {
         System.clearProperty("chronicle.analytics.disable");
     }
 
+    @DisplayName("systemProp behaviour under expected input and output conditions")
     @Test
-    public void systemProp() {
+    void systemProp() {
         System.setProperty("chronicle.analytics.disable", "true");
         final AnalyticsFacade facade = AnalyticsFacade.builder("measurementId", "apiSecret")
                 .withReportDespiteJUnit()
                 .build();
 
-        assertInstanceOf(MuteAnalytics.class, facade, "condition should be true");
+        assertInstanceOf(MuteAnalytics.class, facade, "analytics facade should be mute when analytics is disabled");
 
     }
 
+    @DisplayName("analytics behaviour under expected input and output conditions")
     @Test
-    public void analytics() {
+    void analytics() {
         final AnalyticsFacade.Builder builder = AnalyticsFacade.builder("measurementId", "apiSecret")
                 .putEventParameter("e", "1")
                 .putUserProperty("u", "2")

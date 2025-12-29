@@ -3,11 +3,13 @@
  */
 package net.openhft.chronicle.core.threads;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class HandlerPriorityTest {
 
+    @DisplayName("testAliasForPrioritiesWithAliases behaviour under expected input and output conditions")
     @Test
     void testAliasForPrioritiesWithAliases() {
         assertEquals(HandlerPriority.MEDIUM, HandlerPriority.REPLICATION.alias(), "REPLICATION priority should alias to MEDIUM");
@@ -15,6 +17,7 @@ class HandlerPriorityTest {
         assertEquals(HandlerPriority.MEDIUM, HandlerPriority.CONCURRENT.alias(), "CONCURRENT priority should alias to MEDIUM");
     }
 
+    @DisplayName("testAliasForPrioritiesWithoutAliases behaviour under expected input and output conditions")
     @Test
     void testAliasForPrioritiesWithoutAliases() {
         assertEquals(HandlerPriority.HIGH, HandlerPriority.HIGH.alias(), "HIGH priority should alias to itself");

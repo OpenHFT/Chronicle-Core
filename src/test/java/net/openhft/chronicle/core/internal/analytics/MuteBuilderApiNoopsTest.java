@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.internal.analytics;
 import net.openhft.chronicle.core.analytics.AnalyticsFacade;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
@@ -13,7 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MuteBuilderApiNoopsTest {
+class MuteBuilderApiNoopsTest {
 
     private String prev;
 
@@ -29,8 +30,9 @@ public class MuteBuilderApiNoopsTest {
         else System.setProperty("chronicle.analytics.disable", prev);
     }
 
+    @DisplayName("builderMethodsAreNoOpsAndBuildsMuteAnalytics behaviour under expected input and output conditions")
     @Test
-    public void builderMethodsAreNoOpsAndBuildsMuteAnalytics() {
+    void builderMethodsAreNoOpsAndBuildsMuteAnalytics() {
         AtomicBoolean called = new AtomicBoolean(false);
         AnalyticsFacade.Builder b = AnalyticsFacade.builder("mid", "sec")
                 .putUserProperty("k1", "v1")

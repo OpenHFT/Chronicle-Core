@@ -3,11 +3,13 @@
  */
 package net.openhft.chronicle.core.io;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import static org.mockito.Mockito.*;
 
 class ReferenceChangeListenerTest {
 
+    @DisplayName("testOnReferenceAdded behaviour under expected input and output conditions")
     @Test
     void testOnReferenceAdded() {
         ReferenceChangeListener listener = mock(ReferenceChangeListener.class);
@@ -19,6 +21,7 @@ class ReferenceChangeListenerTest {
         verify(listener, times(1)).onReferenceAdded(referenceCounted, referenceOwner);
     }
 
+    @DisplayName("testOnReferenceRemoved behaviour under expected input and output conditions")
     @Test
     void testOnReferenceRemoved() {
         ReferenceChangeListener listener = mock(ReferenceChangeListener.class);
@@ -30,6 +33,7 @@ class ReferenceChangeListenerTest {
         verify(listener, times(1)).onReferenceRemoved(referenceCounted, referenceOwner);
     }
 
+    @DisplayName("testOnReferenceTransferred behaviour under expected input and output conditions")
     @Test
     void testOnReferenceTransferred() {
         ReferenceChangeListener listener = mock(ReferenceChangeListener.class);

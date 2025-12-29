@@ -3,16 +3,18 @@
  */
 package net.openhft.chronicle.core.internal.invariant.ints;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.function.IntPredicate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class IntConditionTest {
+class IntConditionTest {
 
+    @DisplayName("basicComparisons behaviour under expected input and output conditions")
     @Test
-    public void basicComparisons() {
+    void basicComparisons() {
         assertTrue(IntCondition.POSITIVE.test(3), "positive value 3 should satisfy positive condition");
         assertFalse(IntCondition.POSITIVE.test(0), "zero should not satisfy positive condition");
 
@@ -34,8 +36,9 @@ public class IntConditionTest {
         assertFalse(IntCondition.NON_ZERO.test(0), "zero should not satisfy non-zero condition");
     }
 
+    @DisplayName("rangeAndAlignmentChecks behaviour under expected input and output conditions")
     @Test
-    public void rangeAndAlignmentChecks() {
+    void rangeAndAlignmentChecks() {
         assertTrue(IntCondition.BYTE_CONVERTIBLE.test(Byte.MAX_VALUE), "byte max value should be byte-convertible");
         assertFalse(IntCondition.BYTE_CONVERTIBLE.test(Byte.MAX_VALUE + 1), "value exceeding byte max should not be byte-convertible");
 
@@ -56,8 +59,9 @@ public class IntConditionTest {
         assertFalse(IntCondition.LONG_ALIGNED.test(4), "value 4 not divisible by 8 should not be long-aligned");
     }
 
+    @DisplayName("negateMappings behaviour under expected input and output conditions")
     @Test
-    public void negateMappings() {
+    void negateMappings() {
         IntPredicate positiveNegated = IntCondition.POSITIVE.negate();
         assertTrue(positiveNegated.test(-1), "negated positive condition should accept negative value -1");
         assertFalse(positiveNegated.test(3), "negated positive condition should reject positive value 3");
@@ -87,8 +91,9 @@ public class IntConditionTest {
         assertTrue(notShortAligned.test(7), "negated short-aligned condition should accept unaligned value 7");
     }
 
+    @DisplayName("descriptiveToString behaviour under expected input and output conditions")
     @Test
-    public void descriptiveToString() {
+    void descriptiveToString() {
         assertEquals("> 0", IntCondition.POSITIVE.toString(), "positive condition should have descriptive string representation");
         assertEquals("!= 0", IntCondition.NON_ZERO.toString(), "non-zero condition should have descriptive string representation");
 

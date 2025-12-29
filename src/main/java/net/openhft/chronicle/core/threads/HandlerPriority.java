@@ -53,7 +53,7 @@ public enum HandlerPriority {
         }
     },
     /**
-     * Timing based replication tasks.
+     * Timing based replication tasks scheduled on the timer cadence.
      *
      * <p> Alias for {@link #TIMER}; use {@link #alias()} for the effective priority.
      * Typical call frequency follows {@link #TIMER}.

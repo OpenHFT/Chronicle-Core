@@ -12,7 +12,7 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Loads Maven {@code pom.properties} resources for Chronicle modules.
+ * Loads Maven {@code pom.properties} resources for Chronicle modules and build metadata inspection.
  * <p>
  * Provides cached lookup of groupId/artifactId versions so libraries can report their own
  * version information at runtime without hard coding it.

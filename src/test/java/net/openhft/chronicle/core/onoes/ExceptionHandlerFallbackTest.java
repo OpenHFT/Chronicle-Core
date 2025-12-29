@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.onoes;
 
 import net.openhft.chronicle.core.Jvm;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.TestAbortedException;
 import org.slf4j.LoggerFactory;
@@ -13,14 +14,15 @@ import java.lang.reflect.Field;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Test for {@link Slf4jExceptionHandler} to ensure that it falls back to the default
+ * Test for {@link Slf4jExceptionHandler} fallback to default logger behaviour during initialisation failure handling.
  */
 class ExceptionHandlerFallbackTest {
     private static final int FAILED_INITIALIZATION = 2;
 
     /**
-     * Test to ensure that the Slf4jExceptionHandler falls back to the default
+     * Ensures Slf4jExceptionHandler falls back to the default logger when initialisation fails.
      */
+    @DisplayName("classShouldFallBackWhenDelegateThrows behaviour under expected input and output conditions")
     @Test
     void classShouldFallBackWhenDelegateThrows() throws IllegalAccessException {
         Field initializationState = Jvm.getField(LoggerFactory.class, "INITIALIZATION_STATE");
@@ -39,6 +41,6 @@ class ExceptionHandlerFallbackTest {
         } finally {
             initializationState.setInt(null, state);
         }
-        assertTrue(true, "execution should reach this point without exception"); // If we reach here, the test passes
+        assertTrue(true, "fallback handler should not throw after delegate initialisation failure"); // If we reach here, the test passes
     }
 }

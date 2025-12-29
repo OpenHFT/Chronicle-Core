@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.util;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UpdaterTest {
 
+    @DisplayName("updateShouldModifyInputAsExpected behaviour under expected input and output conditions")
     @Test
     void updateShouldModifyInputAsExpected() {
         Updater<List<String>> appender = list -> list.add("newElement");
@@ -18,9 +20,10 @@ class UpdaterTest {
         appender.update(myList);
 
         assertEquals(1, myList.size(), "list should contain one element after update");
-        assertTrue(myList.contains("newElement"), "list should contain the newly added element");
+        assertTrue(myList.contains("newElement"), "list should contain \"newElement\": " + myList);
     }
 
+    @DisplayName("acceptShouldDelegateToUpdate behaviour under expected input and output conditions")
     @Test
     void acceptShouldDelegateToUpdate() {
         Updater<List<String>> appender = list -> list.add("newElement");
@@ -29,6 +32,6 @@ class UpdaterTest {
         appender.accept(myList); // Using accept instead of update
 
         assertEquals(1, myList.size(), "list should contain one element when accept delegates to update");
-        assertTrue(myList.contains("newElement"), "accept should apply the same modification as update");
+        assertTrue(myList.contains("newElement"), "accept should add \"newElement\": " + myList);
     }
 }

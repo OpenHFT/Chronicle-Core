@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEASER;
 
 /**
- * Abstract base class for managing reference counted resources.
+ * Abstract base class for managing reference counted resources and release behaviour.
  * <p>
  * Subclasses hold the actual resource and implement {@link #performRelease()}
  * which is invoked when the reference count reaches zero. Release may occur on
@@ -42,14 +42,14 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     private boolean singleThreadedCheckDisabled;
 
     /**
-     * Constructs an AbstractReferenceCounted with default monitoring.
+     * Constructs a reference-counted resource with default monitoring enabled.
      */
     protected AbstractReferenceCounted() {
         this(true);
     }
 
     /**
-     * Constructs an AbstractReferenceCounted.
+     * Constructs a reference-counted resource with configurable monitoring.
      *
      * @param monitored If true, the resource will be monitored for reference counted release.
      */
@@ -67,14 +67,14 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     }
 
     /**
-     * Enables reference tracing.
+     * Enables reference tracing for resource lifecycle diagnostics.
      */
     public static void enableReferenceTracing() {
         ReferenceCountedUtils.enableReferenceTracing();
     }
 
     /**
-     * Disables reference tracing.
+     * Disables reference tracing while still releasing resources safely.
      * <p>
      * <b>NOTE:</b> The resources will still be released appropriately, however if detailed tracing won't be recorded
      */
@@ -230,7 +230,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     }
 
     /**
-     * Retrieves the current reference count.
+     * Retrieves the current reference count for this instance.
      *
      * @return The current reference count.
      */
@@ -338,7 +338,7 @@ public abstract class AbstractReferenceCounted implements ReferenceCountedTracer
     }
 
     /**
-     * Enables or disables monitoring for this instance.
+     * Enables or disables monitoring for this instance and its reference tracking.
      *
      * @param unmonitored {@code true} to stop monitoring
      */

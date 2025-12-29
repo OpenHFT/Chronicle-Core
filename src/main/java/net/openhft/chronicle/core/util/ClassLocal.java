@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.function.Function;
 
 /**
- * Lambda friendly, ClassLocal value to cache information relating to a class.
+ * Lambda friendly ClassLocal cache for per-class metadata and derived values.
  *
  * @param <V> the type of value in this ClassLocal
  */
@@ -32,7 +32,7 @@ public class ClassLocal<V> extends ClassValue<V> {
     }
 
     /**
-     * WARNING Do not call this directly
+     * WARNING: Do not call this directly; use {@link #withInitial(Function)} and {@link #get(Class)}.
      */
     @Override
     protected V computeValue(Class<?> type) {

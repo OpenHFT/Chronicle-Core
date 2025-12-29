@@ -6,7 +6,7 @@ package net.openhft.chronicle.core.util;
 import java.io.Serializable;
 
 /**
- * Serializable updater that accepts an extra argument.
+ * Serializable updater that accepts an extra argument for stateful updates.
  *
  * @param <U> target type being updated
  * @param <A> argument type supplied to the update

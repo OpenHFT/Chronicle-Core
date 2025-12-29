@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.internal.analytics;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -10,15 +11,18 @@ import java.lang.reflect.Proxy;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("deprecation")
 class ReflectionUtilTest {
 
+    @DisplayName("analyticsPresentShouldReturnTrueOrFalse behaviour under expected input and output conditions")
     @Test
     void analyticsPresentShouldReturnTrueOrFalse() {
         // This test depends on the presence or absence of the analytics class in the classpath
         boolean result = ReflectionUtil.analyticsPresent();
-        assertTrue(result || !result, "analyticsPresent should return true or false");
+        assertTrue(result || !result, "analyticsPresent should return a boolean classpath availability value");
     }
 
+    @DisplayName("methodOrThrowShouldReturnMethod behaviour under expected input and output conditions")
     @Test
     void methodOrThrowShouldReturnMethod() throws NoSuchMethodException {
         Method expected = String.class.getMethod("length");
@@ -26,6 +30,7 @@ class ReflectionUtilTest {
         assertEquals(expected, actual, "methodOrThrow should return the correct method");
     }
 
+    @DisplayName("invokeOrThrowShouldInvokeMethod behaviour under expected input and output conditions")
     @Test
     void invokeOrThrowShouldInvokeMethod() throws NoSuchMethodException {
         Method lengthMethod = String.class.getMethod("length");
@@ -33,25 +38,27 @@ class ReflectionUtilTest {
         assertEquals(4, result, "invokeOrThrow should correctly invoke the method and return the result");
     }
 
+    @DisplayName("reflectiveProxyShouldCreateProxy behaviour under expected input and output conditions")
     @Test
     void reflectiveProxyShouldCreateProxy() {
         TestInterface delegate = () -> "test";
         TestInterface proxy = ReflectionUtil.reflectiveProxy(TestInterface.class, delegate);
 
         assertTrue(Proxy.isProxyClass(proxy.getClass()), "reflectiveProxy should return Proxy subclass");
-        assertEquals("test", proxy.testMethod(), "reflectiveProxy should correctly delegate method calls");
+        assertEquals("test", proxy.sampleMethod(), "reflectiveProxy should correctly delegate method calls");
     }
 
+    @DisplayName("reflectiveProxyWithReturnProxyShouldReturnProxy behaviour under expected input and output conditions")
     @Test
     void reflectiveProxyWithReturnProxyShouldReturnProxy() {
         TestInterface delegate = () -> "test";
         TestInterface proxy = ReflectionUtil.reflectiveProxy(TestInterface.class, delegate, true);
 
         assertTrue(Proxy.isProxyClass(proxy.getClass()), "reflectiveProxy with returnProxy should return Proxy subclass");
-        assertSame(proxy, proxy.testMethod(), "reflectiveProxy should return the proxy itself for chaining");
+        assertSame(proxy, proxy.sampleMethod(), "reflectiveProxy should return the proxy itself for chaining");
     }
 
     private interface TestInterface {
-        Object testMethod();
+        Object sampleMethod();
     }
 }

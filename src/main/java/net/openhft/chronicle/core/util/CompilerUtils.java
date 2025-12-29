@@ -29,7 +29,7 @@ public final class CompilerUtils {
                     "defineClass", String.class, byte[].class, int.class, int.class);
             ClassUtil.setAccessible(DEFINE_CLASS_METHOD);
         } catch (NoSuchMethodException e) {
-            throw new AssertionError(e);
+            throw new AssertionError("Failed to access ClassLoader.defineClass", e);
         }
     }
 
@@ -54,10 +54,10 @@ public final class CompilerUtils {
             return (Class<?>) DEFINE_CLASS_METHOD
                     .invoke(classLoader, className, bytes, 0, bytes.length);
         } catch (IllegalAccessException e) {
-            throw new AssertionError(e);
+            throw new AssertionError("Failed to invoke ClassLoader.defineClass", e);
         } catch (InvocationTargetException e) {
             //noinspection ThrowInsideCatchBlockWhichIgnoresCaughtException
-            throw new AssertionError(e.getCause());
+            throw new AssertionError("ClassLoader.defineClass threw exception", e.getCause());
         }
     }
 }

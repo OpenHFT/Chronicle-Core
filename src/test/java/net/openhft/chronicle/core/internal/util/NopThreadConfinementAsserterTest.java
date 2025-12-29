@@ -3,12 +3,14 @@
  */
 package net.openhft.chronicle.core.internal.util;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class NopThreadConfinementAsserterTest {
 
+    @DisplayName("assertThreadConfinedShouldDoNothing behaviour under expected input and output conditions")
     @Test
     void assertThreadConfinedShouldDoNothing() {
         NopThreadConfinementAsserter asserter = NopThreadConfinementAsserter.INSTANCE;

@@ -6,11 +6,12 @@ package net.openhft.chronicle.core.analytics;
 import net.openhft.chronicle.core.internal.analytics.MuteBuilder;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AnalyticsFacadeTest {
+class AnalyticsFacadeTest {
 
     private String originalDisableProperty;
 
@@ -28,8 +29,9 @@ public class AnalyticsFacadeTest {
         }
     }
 
+    @DisplayName("enabledWhenAnalyticsPresent behaviour under expected input and output conditions")
     @Test
-    public void enabledWhenAnalyticsPresent() {
+    void enabledWhenAnalyticsPresent() {
         System.clearProperty("chronicle.analytics.disable");
         assertTrue(AnalyticsFacade.isEnabled(), "Analytics should be enabled when dependency is available");
 
@@ -37,13 +39,14 @@ public class AnalyticsFacadeTest {
         assertEquals("net.openhft.chronicle.core.internal.analytics.ReflectiveBuilder", builder.getClass().getName(), "builder should be reflective implementation when analytics enabled");
     }
 
+    @DisplayName("disabledWhenSystemPropertyExplicit behaviour under expected input and output conditions")
     @Test
-    public void disabledWhenSystemPropertyExplicit() {
+    void disabledWhenSystemPropertyExplicit() {
         System.setProperty("chronicle.analytics.disable", "true");
         assertFalse(AnalyticsFacade.isEnabled(), "analytics should be disabled when system property set");
 
         AnalyticsFacade.Builder builder = AnalyticsFacade.builder("measurement", "secret");
-        assertSame(MuteBuilder.INSTANCE, builder, "should return same instance (reference equality)");
+        assertSame(MuteBuilder.INSTANCE, builder, "builder should return same instance (reference equality)");
         assertSame(MuteBuilder.INSTANCE.build(), builder.build(), "built facade should be same mute instance");
     }
 }

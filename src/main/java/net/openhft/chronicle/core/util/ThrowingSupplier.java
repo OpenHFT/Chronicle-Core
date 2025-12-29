@@ -45,7 +45,7 @@ public interface ThrowingSupplier<V, T extends Throwable> {
     }
 
     /**
-     * Gets a result.
+     * Gets a result, possibly throwing a checked exception.
      *
      * @return a result
      * @throws InvalidMarshallableException if the object created is not valid

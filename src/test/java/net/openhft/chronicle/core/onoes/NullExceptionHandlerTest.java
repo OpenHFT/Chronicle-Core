@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.onoes;
 
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import static org.mockito.Mockito.*;
@@ -10,17 +11,20 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class NullExceptionHandlerTest {
 
+    @DisplayName("onMethodShouldDoNothing behaviour under expected input and output conditions")
     @Test
     void onMethodShouldDoNothing() {
         Logger mockLogger = mock(Logger.class);
         Throwable mockThrowable = new RuntimeException("Test exception");
 
-        assertDoesNotThrow(() -> NullExceptionHandler.NOTHING.on(mockLogger, "Test message", mockThrowable));
+        assertDoesNotThrow(() -> NullExceptionHandler.NOTHING.on(mockLogger, "Test message", mockThrowable),
+                "NullExceptionHandler should ignore on call without throwing");
 
         // Since the method should do nothing, there should be no interactions with the logger
         verifyNoInteractions(mockLogger);
     }
 
+    @DisplayName("isEnabledShouldAlwaysReturnFalse behaviour under expected input and output conditions")
     @Test
     void isEnabledShouldAlwaysReturnFalse() {
         assertFalse(NullExceptionHandler.NOTHING.isEnabled(String.class), "isEnabled should return false for String class");

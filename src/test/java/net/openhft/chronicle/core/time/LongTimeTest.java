@@ -4,13 +4,15 @@
 package net.openhft.chronicle.core.time;
 
 import net.openhft.chronicle.core.CoreTestCommon;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class LongTimeTest extends CoreTestCommon {
+class LongTimeTest extends CoreTestCommon {
+    @DisplayName("secs behaviour under expected input and output conditions")
     @Test
-    public void secs() {
+    void secs() {
         long epoch = LongTime.EPOCH_SECS;
         assertTrue(LongTime.isSecs(epoch), "EPOCH_SECS should be identified as seconds");
         assertTrue(LongTime.isSecs(LongTime.MAX_SECS), "MAX_SECS should be identified as seconds");
@@ -22,8 +24,9 @@ public class LongTimeTest extends CoreTestCommon {
         assertEquals(epoch, LongTime.toSecs(LongTime.toNanos(epoch)), "toSecs should convert nanoseconds back to original seconds");
     }
 
+    @DisplayName("millis behaviour under expected input and output conditions")
     @Test
-    public void millis() {
+    void millis() {
         long epoch = LongTime.EPOCH_MILLIS;
         assertTrue(LongTime.isMillis(epoch), "EPOCH_MILLIS should be identified as milliseconds");
         assertTrue(LongTime.isMillis(LongTime.MAX_MILLIS), "MAX_MILLIS should be identified as milliseconds");
@@ -36,8 +39,9 @@ public class LongTimeTest extends CoreTestCommon {
         assertEquals(epoch, LongTime.toMillis(LongTime.toNanos(epoch)), "toMillis should convert nanoseconds back to original milliseconds");
     }
 
+    @DisplayName("micros behaviour under expected input and output conditions")
     @Test
-    public void micros() {
+    void micros() {
         long epoch = LongTime.EPOCH_MICROS;
         assertTrue(LongTime.isMicros(epoch), "EPOCH_MICROS should be identified as microseconds");
         assertTrue(LongTime.isMicros(LongTime.MAX_MICROS), "MAX_MICROS should be identified as microseconds");
@@ -50,8 +54,9 @@ public class LongTimeTest extends CoreTestCommon {
         assertEquals(epoch, LongTime.toMicros(LongTime.toNanos(epoch)), "toMicros should convert nanoseconds back to original microseconds");
     }
 
+    @DisplayName("nanos behaviour under expected input and output conditions")
     @Test
-    public void nanos() {
+    void nanos() {
         long epoch = LongTime.EPOCH_NANOS;
         assertTrue(LongTime.isNanos(epoch), "EPOCH_NANOS should be identified as nanoseconds");
         assertTrue(LongTime.isNanos(LongTime.MAX_NANOS), "MAX_NANOS should be identified as nanoseconds");

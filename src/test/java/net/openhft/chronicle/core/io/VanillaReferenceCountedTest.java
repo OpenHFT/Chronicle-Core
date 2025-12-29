@@ -4,13 +4,14 @@
 package net.openhft.chronicle.core.io;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-public class VanillaReferenceCountedTest extends MonitorReferenceCountedContractTest {
+class VanillaReferenceCountedTest extends MonitorReferenceCountedContractTest {
 
     private AtomicInteger onReleasedCallCount;
 
@@ -24,8 +25,9 @@ public class VanillaReferenceCountedTest extends MonitorReferenceCountedContract
         return new VanillaReferenceCounted(onReleasedCallCount::incrementAndGet, VanillaReferenceCounted.class);
     }
 
+    @DisplayName("createdHereWillReturnNull behaviour under expected input and output conditions")
     @Test
-    public void createdHereWillReturnNull() {
+    void createdHereWillReturnNull() {
         final VanillaReferenceCounted referenceCounted = createReferenceCounted();
         assertNull(referenceCounted.createdHere(), "VanillaReferenceCounted createdHere should return null when resource tracing is disabled");
     }

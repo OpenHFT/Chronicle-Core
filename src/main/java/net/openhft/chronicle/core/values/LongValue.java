@@ -34,7 +34,7 @@ import net.openhft.chronicle.core.io.ThreadingIllegalStateException;
 public interface LongValue extends Closeable {
 
     /**
-     * Retrieves the current long value.
+     * Retrieves the current long value from the backing store.
      *
      * @return the current long value.
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
@@ -43,7 +43,7 @@ public interface LongValue extends Closeable {
     long getValue() throws IllegalStateException;
 
     /**
-     * Sets the long value.
+     * Sets the long value in the backing store.
      *
      * @param value the new long value.
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
@@ -173,7 +173,7 @@ public interface LongValue extends Closeable {
     }
 
     /**
-     * Checks if the LongValue instance is closed.
+     * Checks whether the LongValue instance has been closed and released.
      *
      * @return true if the instance is closed, false otherwise.
      */

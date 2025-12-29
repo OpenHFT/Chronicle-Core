@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.internal;
 
 import net.openhft.chronicle.core.io.Closeable;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -15,15 +16,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CloseableUtilsEdgeTest {
 
+    @DisplayName("closeQuietlyHandlesNullArrayAndCollections behaviour under expected input and output conditions")
     @Test
     void closeQuietlyHandlesNullArrayAndCollections() {
-        assertDoesNotThrow(() -> Closeable.closeQuietly((Object[]) null));
+        assertDoesNotThrow(() -> Closeable.closeQuietly((Object[]) null),
+                "closeQuietly should ignore null arrays");
         List<Object> list = new ArrayList<>();
         list.add(null);
         list.add(new Object[]{null});
-        assertDoesNotThrow(() -> Closeable.closeQuietly(list));
+        assertDoesNotThrow(() -> Closeable.closeQuietly(list),
+                "closeQuietly should ignore null elements in collections");
     }
 
+    @DisplayName("closeQuietlyClosesElementsAndIgnoresThrowers behaviour under expected input and output conditions")
     @Test
     void closeQuietlyClosesElementsAndIgnoresThrowers() {
         AtomicInteger c = new AtomicInteger();
@@ -32,7 +37,8 @@ class CloseableUtilsEdgeTest {
                 new ThrowingCloseable(),
                 new CountingCloseable(c)
         };
-        assertDoesNotThrow(() -> Closeable.closeQuietly(arr));
+        assertDoesNotThrow(() -> Closeable.closeQuietly(arr),
+                "closeQuietly should suppress close exceptions for array elements");
         assertEquals(2, c.get(), "both non-throwing closeables should be closed despite thrower in between");
     }
 
@@ -51,8 +57,8 @@ class CloseableUtilsEdgeTest {
 
     static final class ThrowingCloseable implements AutoCloseable {
         @Override
-        public void close() throws Exception {
-            throw new Exception("boom");
+        public void close() {
+            throw new IllegalStateException("close failed during test");
         }
     }
 }

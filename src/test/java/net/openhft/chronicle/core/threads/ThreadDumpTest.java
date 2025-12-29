@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.threads;
 import net.openhft.chronicle.core.Jvm;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -19,6 +20,7 @@ class ThreadDumpTest {
         threadDump = new ThreadDump();
     }
 
+    @DisplayName("testIgnoreThread behaviour under expected input and output conditions")
     @Test
     void testIgnoreThread() {
         String ignoredThreadName = "IgnoredThread";
@@ -35,11 +37,13 @@ class ThreadDumpTest {
         ignoredThread.interrupt();
     }
 
+    @DisplayName("testAssertNoNewThreads behaviour under expected input and output conditions")
     @Test
     void testAssertNoNewThreads() {
         threadDump.assertNoNewThreads();
     }
 
+    @DisplayName("testAssertNewThreads behaviour under expected input and output conditions")
     @Test
     void testAssertNewThreads() {
         Assumptions.assumeFalse(Jvm.isArm());
@@ -52,7 +56,8 @@ class ThreadDumpTest {
         Jvm.pause(100);
 
         // Expect an AssertionError since a new thread is running
-        assertThrows(AssertionError.class, threadDump::assertNoNewThreads, "newThread.isAlive()= " + newThread.isAlive());
+        assertThrows(AssertionError.class, threadDump::assertNoNewThreads,
+                "assertNoNewThreads should fail when newThread.isAlive()= " + newThread.isAlive());
 
         // Clean up
         newThread.interrupt();

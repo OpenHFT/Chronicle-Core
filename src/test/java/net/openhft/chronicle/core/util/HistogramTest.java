@@ -5,6 +5,7 @@ package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -13,39 +14,46 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class HistogramTest extends CoreTestCommon {
 
+    @DisplayName("defaultConstructorInitializesProperly behaviour under expected input and output conditions")
     @Test
-    public void defaultConstructorInitializesProperly() {
+    void defaultConstructorInitializesProperly() {
         Histogram histogram = new Histogram();
         assertNotNull(histogram, "Histogram should be created with default constructor");
     }
 
+    @DisplayName("constructorWithParametersInitializesProperly behaviour under expected input and output conditions")
     @Test
-    public void constructorWithParametersInitializesProperly() {
+    void constructorWithParametersInitializesProperly() {
         int powersOf2 = 10;
         int fractionBits = 5;
         Histogram histogram = new Histogram(powersOf2, fractionBits);
         assertNotNull(histogram, "Histogram should be created with custom powersOf2 and fractionBits");
     }
 
+    @DisplayName("sampleCorrectlyUpdatesHistogram behaviour under expected input and output conditions")
     @Test
-    public void sampleCorrectlyUpdatesHistogram() {
+    void sampleCorrectlyUpdatesHistogram() {
         Histogram histogram = new Histogram();
         int bucket = histogram.sample(1000.0);
-        assertTrue(bucket >= 0, "bucket index should be non-negative for sampled value");
-        assertTrue(histogram.toMicrosFormat().contains("worst"), "formatted output should contain worst-case value after sampling");
+        assertTrue(bucket >= 0, "bucket index should be non-negative: bucket=" + bucket);
+        String micros = histogram.toMicrosFormat();
+        assertTrue(micros.contains("worst"), "formatted output should contain \"worst\": " + micros);
     }
 
+    @DisplayName("addCombinesHistogramsCorrectly behaviour under expected input and output conditions")
     @Test
-    public void addCombinesHistogramsCorrectly() {
+    void addCombinesHistogramsCorrectly() {
         Histogram h1 = new Histogram();
         Histogram h2 = new Histogram();
         h2.sample(10);
         h1.add(h2);
-        assertTrue(h1.toMicrosFormat().contains("worst"), "combined histogram should contain worst-case value after adding");
+        String micros = h1.toMicrosFormat();
+        assertTrue(micros.contains("worst"), "combined histogram should contain \"worst\": " + micros);
     }
 
+    @DisplayName("testEqualsAndHashCode behaviour under expected input and output conditions")
     @Test
-    public void testEqualsAndHashCode() {
+    void testEqualsAndHashCode() {
         Histogram h1 = new Histogram();
         Histogram h2 = new Histogram();
 
@@ -53,28 +61,32 @@ class HistogramTest extends CoreTestCommon {
         assertEquals(h1.hashCode(), h2.hashCode(), "equal histograms should have equal hash codes");
     }
 
+    @DisplayName("percentilesForReturnsCorrectValues behaviour under expected input and output conditions")
     @Test
-    public void percentilesForReturnsCorrectValues() {
+    void percentilesForReturnsCorrectValues() {
         long count = 10000;
         double[] percentiles = Histogram.percentilesFor(count);
         assertNotNull(percentiles, "percentilesFor should return non-null array for valid count");
-        assertTrue(percentiles.length > 0, "percentiles array should contain at least one element");
+        assertTrue(percentiles.length > 0, "percentiles array should contain at least one element: length=" + percentiles.length);
     }
 
+    @DisplayName("percentilesFor behaviour under expected input and output conditions")
     @Test
-    public void percentilesFor() {
+    void percentilesFor() {
         assertEquals("[0.5, 0.9, 0.99, 0.997, 0.999, 0.9997, 0.9999, 0.99997, 0.99999, 0.999997, 1.0]", Arrays.toString(Histogram.percentilesFor(50_000_000)), "percentilesFor 50M samples should include standard percentiles up to six nines");
     }
 
+    @DisplayName("singleSample behaviour under expected input and output conditions")
     @Test
-    public void singleSample() {
+    void singleSample() {
         Histogram h = new Histogram();
         h.sampleNanos(100_000);
         assertEquals("50/90 97/99 99.7/99.9 99.97/99.99 - worst was 100.0 / 100.0  100.0 / 100.0  100.0 / 100.0  100.0 / 100.0 - 100.0", h.toLongMicrosFormat(), "single 100us sample should show 100.0 for all percentiles");
     }
 
+    @DisplayName("testSampleRange behaviour under expected input and output conditions")
     @Test
-    public void testSampleRange() {
+    void testSampleRange() {
         @NotNull Histogram h = new Histogram(40, 2);
         double base = 1;
         for (int i = 0; i < 40; i++) {
@@ -89,8 +101,9 @@ class HistogramTest extends CoreTestCommon {
                 "40-power histogram should produce expected percentile distribution format");
     }
 
+    @DisplayName("testSamples behaviour under expected input and output conditions")
     @Test
-    public void testSamples() {
+    void testSamples() {
         @NotNull Histogram h = new Histogram(10, 5, 1000);
 
         sampleWithSeed(h, 2141);
@@ -117,8 +130,9 @@ class HistogramTest extends CoreTestCommon {
         }
     }
 
+    @DisplayName("testAdd behaviour under expected input and output conditions")
     @Test
-    public void testAdd() {
+    void testAdd() {
         int seed1 = 2141;
         int seed2 = 33;
         Histogram h1 = Histogram.timeMicros();

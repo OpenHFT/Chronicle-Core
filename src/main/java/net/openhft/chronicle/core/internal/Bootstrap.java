@@ -12,7 +12,7 @@ import static java.lang.Runtime.getRuntime;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 
 /**
- * Contains the pieces which must be loaded first
+ * Holds internal bootstrap wiring that must load before platform checks and flags are used.
  */
 public final class Bootstrap {
 

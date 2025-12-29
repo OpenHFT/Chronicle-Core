@@ -17,6 +17,7 @@ class Slf4jExceptionHandlerTest {
         logger = mock(Logger.class);
     }
 
+    @DisplayName("testErrorLogLevel behaviour under expected input and output conditions")
     @Test
     void testErrorLogLevel() {
         Throwable throwable = new RuntimeException("Test exception");
@@ -25,6 +26,7 @@ class Slf4jExceptionHandlerTest {
         verify(logger).error("Error message", throwable);
     }
 
+    @DisplayName("testWarnLogLevel behaviour under expected input and output conditions")
     @Test
     void testWarnLogLevel() {
         Throwable throwable = new RuntimeException("Test exception");
@@ -33,6 +35,7 @@ class Slf4jExceptionHandlerTest {
         verify(logger).warn("Warn message", throwable);
     }
 
+    @DisplayName("testPerfLogLevel behaviour under expected input and output conditions")
     @Test
     void testPerfLogLevel() {
         Throwable throwable = new RuntimeException("Test exception");
@@ -41,6 +44,7 @@ class Slf4jExceptionHandlerTest {
         verify(logger).info("Perf message", throwable);
     }
 
+    @DisplayName("testDebugLogLevel behaviour under expected input and output conditions")
     @Test
     void testDebugLogLevel() {
         Throwable throwable = new RuntimeException("Test exception");
@@ -49,6 +53,7 @@ class Slf4jExceptionHandlerTest {
         verify(logger).debug("Debug message", throwable);
     }
 
+    @DisplayName("testValueOfLogLevel behaviour under expected input and output conditions")
     @Test
     void testValueOfLogLevel() {
         assertEquals(Slf4jExceptionHandler.ERROR, Slf4jExceptionHandler.valueOf(LogLevel.ERROR), "valueOf should return ERROR handler for ERROR log level");
@@ -57,6 +62,7 @@ class Slf4jExceptionHandlerTest {
         assertEquals(Slf4jExceptionHandler.DEBUG, Slf4jExceptionHandler.valueOf(LogLevel.DEBUG), "valueOf should return DEBUG handler for DEBUG log level");
     }
 
+    @DisplayName("testDirectLoggerOverrideThrowsOnce behaviour under expected input and output conditions")
     @Test
     void testDirectLoggerOverrideThrowsOnce() {
         // 1. Create a real exception instance to throw
@@ -73,14 +79,17 @@ class Slf4jExceptionHandlerTest {
         assertTrue(true, "execution should reach this point without exception"); // if we reach here, the test passes
     }
 
+    @DisplayName("testOnClassSucceedsUnderNormalConditions behaviour under expected input and output conditions")
     @Test
     void testOnClassSucceedsUnderNormalConditions() {
         // Should never throw (uses the same DEFAULT logger, which is healthy)
         assertDoesNotThrow(() ->
-                Slf4jExceptionHandler.WARN.on(Slf4jExceptionHandlerTest.class, "all good", null)
+                Slf4jExceptionHandler.WARN.on(Slf4jExceptionHandlerTest.class, "all good", null),
+                "WARN handler should not throw when logging against class"
         );
         assertDoesNotThrow(() ->
-                Slf4jExceptionHandler.ERROR.on(Slf4jExceptionHandlerTest.class, "all good", null)
+                Slf4jExceptionHandler.ERROR.on(Slf4jExceptionHandlerTest.class, "all good", null),
+                "ERROR handler should not throw when logging against class"
         );
     }
 }

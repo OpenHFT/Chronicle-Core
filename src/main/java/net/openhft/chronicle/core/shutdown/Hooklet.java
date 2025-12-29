@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Objects;
 
 /**
- * Unit of work that can be registered with {@link PriorityHook}.
+ * Unit of work that can be registered with {@link PriorityHook} for orderly shutdown.
  * <p>
  * Implementations should be effectively immutable. Registration may occur from
  * many threads but each hooklet is executed sequentially by the shutdown

@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.util.ThrowingConsumer;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -17,7 +18,7 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Unit-tests the constructor flag {@code overrideTrackNonCleaningThreads}.
+ * Unit-tests the constructor flag {@code overrideTrackNonCleaningThreads} for orphan pruning behaviour.
  *
  * <p>The same test body is run twice by JUnit's parameter-mechanism:
  * once with tracking <em>forced ON</em>, once with tracking <em>forced OFF</em>.
@@ -33,6 +34,7 @@ class CleaningThreadLocalOrphanPruningTest {
         );
     }
 
+    @DisplayName("orphanPruningBehaviour behaviour under expected input and output conditions")
     @ParameterizedTest(name = "track={0} -> expectCleanup={1}")
     @MethodSource("cases")
     void orphanPruningBehaviour(Boolean trackFlag, boolean expectCleanup) throws InterruptedException {

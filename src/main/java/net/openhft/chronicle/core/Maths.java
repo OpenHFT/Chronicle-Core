@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Arrays;
 
 /**
- * High performance numeric helper methods used across Chronicle components.
+ * High performance numeric helper methods used across Chronicle core components.
  * <p>
  * Provides rounding functions tuned for double precision, power of two utilities, hashing and
  * small helpers such as clamping and sign checks.
@@ -60,7 +60,7 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp.
+     * Rounds to one decimal place with upward bias, accurate to within 1 ulp.
      * The value 0.5 should round up however the value one ulp less might round up or down.
      * This is a pragmatic choice for performance reasons as it is
      * assumed you are not working on the edge of the precision of double.
@@ -216,10 +216,8 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp.
-     * The value 0.5 should round up however the value one ulp less might round up or down.
-     * This is a pragmatic choice for performance reasons as it is
-     * assumed you are not working on the edge of the precision of double.
+     * Compatibility wrapper for {@link #round1(double)} kept for legacy callers.
+     * Rounds to one decimal place with the same accuracy considerations as {@code round1}.
      *
      * @param d value to round
      * @return rounded value
@@ -242,7 +240,7 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp.
+     * Rounds to two decimal places with upward bias, accurate to within 1 ulp.
      * The value 0.5 should round up however the value one ulp less might round up or down.
      * This is a pragmatic choice for performance reasons as it is
      * assumed you are not working on the edge of the precision of double.
@@ -265,8 +263,8 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
-     * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
+     * Rounds to three decimal places, accurate to within 1 ulp.
+     * For values very close to 0.5 it might be rounded up or down. This is a pragmatic choice for performance reasons as it is
      * assumed you are not working on the edge of the precision of double.
      *
      * @param d value to round
@@ -279,7 +277,7 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp.
+     * Rounds to three decimal places with upward bias, accurate to within 1 ulp.
      * The value 0.5 should round up however the value one ulp less might round up or down.
      * This is a pragmatic choice for performance reasons as it is
      * assumed you are not working on the edge of the precision of double.
@@ -302,8 +300,8 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
-     * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
+     * Rounds to four decimal places, accurate to within 1 ulp.
+     * For values very close to 0.5 it might be rounded up or down. This is a pragmatic choice for performance reasons as it is
      * assumed you are not working on the edge of the precision of double.
      *
      * @param d value to round
@@ -316,7 +314,7 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp.
+     * Rounds to four decimal places with upward bias, accurate to within 1 ulp.
      * The value 0.5 should round up however the value one ulp less might round up or down.
      * This is a pragmatic choice for performance reasons as it is
      * assumed you are not working on the edge of the precision of double.
@@ -339,8 +337,8 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
-     * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
+     * Rounds to five decimal places, accurate to within 1 ulp.
+     * For values very close to 0.5 it might be rounded up or down. This is a pragmatic choice for performance reasons as it is
      * assumed you are not working on the edge of the precision of double.
      *
      * @param d value to round
@@ -353,7 +351,7 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp.
+     * Rounds to five decimal places with upward bias, accurate to within 1 ulp.
      * The value 0.5 should round up however the value one ulp less might round up or down.
      * This is a pragmatic choice for performance reasons as it is
      * assumed you are not working on the edge of the precision of double.
@@ -376,7 +374,7 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp.
+     * Rounds to six decimal places, accurate to within 1 ulp.
      * The value 0.5 should round up however the value one ulp less might round up or down.
      * This is a pragmatic choice for performance reasons as it is
      * assumed you are not working on the edge of the precision of double.
@@ -391,7 +389,7 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp.
+     * Rounds to six decimal places with upward bias, accurate to within 1 ulp.
      * The value 0.5 should round up however the value one ulp less might round up or down.
      * This is a pragmatic choice for performance reasons as it is
      * assumed you are not working on the edge of the precision of double.
@@ -414,8 +412,8 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
-     * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
+     * Rounds to seven decimal places, accurate to within 1 ulp.
+     * For values very close to 0.5 it might be rounded up or down. This is a pragmatic choice for performance reasons as it is
      * assumed you are not working on the edge of the precision of double.
      *
      * @param d value to round
@@ -428,7 +426,7 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp.
+     * Rounds to seven decimal places with upward bias, accurate to within 1 ulp.
      * The value 0.5 should round up however the value one ulp less might round up or down.
      * This is a pragmatic choice for performance reasons as it is
      * assumed you are not working on the edge of the precision of double.
@@ -451,8 +449,8 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp. i.e. for values very close to 0.5 it
-     * might be rounded up or down. This is a pragmatic choice for performance reasons as it is
+     * Rounds to eight decimal places, accurate to within 1 ulp.
+     * For values very close to 0.5 it might be rounded up or down. This is a pragmatic choice for performance reasons as it is
      * assumed you are not working on the edge of the precision of double.
      *
      * @param d value to round
@@ -465,7 +463,7 @@ public final class Maths {
     }
 
     /**
-     * Performs a round which is accurate to within 1 ulp.
+     * Rounds to eight decimal places with upward bias, accurate to within 1 ulp.
      * The value 0.5 should round up however the value one ulp less might round up or down.
      * This is a pragmatic choice for performance reasons as it is
      * assumed you are not working on the edge of the precision of double.
@@ -488,7 +486,7 @@ public final class Maths {
     }
 
     /**
-     * Returns the next power of two greater than or equal to the given number, with a specified minimum.
+     * Returns the next power of two for an int value, with a specified minimum.
      *
      * @param n   the number to find the next power of two for
      * @param min the minimum power of two to return if n is less than min
@@ -497,7 +495,7 @@ public final class Maths {
      */
     public static int nextPower2(int n, int min) throws IllegalArgumentException {
         if (min <= 0 || (min & (min - 1)) != 0)
-            throw new IllegalArgumentException("min (" + min + ") must be a positive power of 2");
+            throw new IllegalArgumentException("min (" + min + ") must be a positive power of 2 for long input");
 
         if (n <= min) return min;
         if ((n & (n - 1)) == 0)
@@ -520,7 +518,7 @@ public final class Maths {
     }
 
     /**
-     * Returns the next power of two greater than or equal to the given number, with a specified minimum.
+     * Returns the next power of two for a long value, with a specified minimum.
      *
      * @param n   the number to find the next power of two for
      * @param min the minimum power of two to return if n is less than min
@@ -553,7 +551,7 @@ public final class Maths {
     }
 
     /**
-     * Checks if a number is a power of two.
+     * Checks if a number is a positive power of two.
      *
      * @param n the number to check
      * @return true if n is a positive power of two, false otherwise
@@ -615,7 +613,7 @@ public final class Maths {
      */
     public static long hash64(@NotNull String s) {
         //noinspection ConstantValue
-        if (s == null) throw new IllegalArgumentException();
+        if (s == null) throw new IllegalArgumentException("String must not be null");
         long hash;
 
         if (Jvm.isJava9Plus() && Jvm.maxDirectMemory() > 0) {
@@ -670,7 +668,7 @@ public final class Maths {
     }
 
     /**
-     * Returns the value of the {@code long} argument;
+     * Returns the {@code long} argument as a signed byte;
      * throwing an exception if the value overflows a {@code byte}.
      *
      * @param value the long value
@@ -684,7 +682,7 @@ public final class Maths {
     }
 
     /**
-     * Returns the value of the {@code long} argument;
+     * Returns the {@code long} argument as a signed short;
      * throwing an exception if the value overflows a {@code short}.
      *
      * @param value the long value
@@ -698,7 +696,7 @@ public final class Maths {
     }
 
     /**
-     * Returns the value of the {@code long} argument;
+     * Returns the {@code long} argument as a signed int with formatted overflow message;
      * throwing an exception if the value overflows an {@code int}.
      *
      * @param value the long value
@@ -713,7 +711,7 @@ public final class Maths {
     }
 
     /**
-     * Returns the value of the {@code long} argument;
+     * Returns the {@code long} argument as a signed int;
      * throwing an exception if the value overflows an {@code int}.
      *
      * @param value the long value
@@ -727,7 +725,7 @@ public final class Maths {
     }
 
     /**
-     * Returns the value of the {@code long} argument;
+     * Returns the {@code long} argument as an unsigned byte value;
      * throwing an exception if the value overflows an unsigned byte (0xFF).
      *
      * @param value the long value
@@ -741,7 +739,7 @@ public final class Maths {
     }
 
     /**
-     * Returns the value of the {@code long} argument;
+     * Returns the {@code long} argument as an unsigned short value;
      * throwing an exception if the value overflows an unsigned short (0xFFFF).
      *
      * @param value the long value
@@ -755,7 +753,7 @@ public final class Maths {
     }
 
     /**
-     * Returns the value of the {@code long} argument;
+     * Returns the {@code long} argument as an unsigned 31-bit int;
      * throwing an exception if the value overflows an unsigned 31 bit value (0x7FFFFFFFL).
      *
      * @param value the long value
@@ -769,7 +767,7 @@ public final class Maths {
     }
 
     /**
-     * Returns the value of the {@code long} argument;
+     * Returns the {@code long} argument as an unsigned 32-bit long;
      * throwing an exception if the value overflows an unsigned int (0xFFFFFFFFL).
      *
      * @param value the long value
@@ -948,7 +946,7 @@ public final class Maths {
     }
 
     /**
-     * Convert components to a double value
+     * Converts the integer components into a double value.
      *
      * @param value         The integer value
      * @param exponent      The exponent

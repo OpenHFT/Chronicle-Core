@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.OS;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -15,7 +16,8 @@ import java.nio.file.Paths;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class IOToolsCreateDirectoriesTest {
+@SuppressWarnings("deprecation")
+class IOToolsCreateDirectoriesTest {
 
     private static void delete(File file) throws IOException {
         if (!file.exists())
@@ -29,8 +31,9 @@ public class IOToolsCreateDirectoriesTest {
             throw new IOException("Failed to delete " + file);
     }
 
+    @DisplayName("createDirectoriesBuildsNestedStructure behaviour under expected input and output conditions")
     @Test
-    public void createDirectoriesBuildsNestedStructure() throws IOException {
+    void createDirectoriesBuildsNestedStructure() throws IOException {
         Path base = Files.createTempDirectory(Paths.get(OS.getTarget()), "iotools-dir-test");
         Path nested = base.resolve("a/b/c");
         try {
@@ -41,13 +44,15 @@ public class IOToolsCreateDirectoriesTest {
         }
     }
 
+    @DisplayName("createDirectoriesFailsWhenFileWithSameNameExists behaviour under expected input and output conditions")
     @Test
-    public void createDirectoriesFailsWhenFileWithSameNameExists() throws IOException {
+    void createDirectoriesFailsWhenFileWithSameNameExists() throws IOException {
         Path base = Files.createTempDirectory(Paths.get(OS.getTarget()), "iotools-file-test");
         Path file = base.resolve("exists");
         Files.write(file, new byte[]{1, 2, 3});
         try {
-            assertThrows(IOException.class, () -> IOTools.createDirectories(file));
+            assertThrows(IOException.class, () -> IOTools.createDirectories(file),
+                    "createDirectories should throw when path already exists as a file");
         } finally {
             delete(base.toFile());
         }

@@ -3,13 +3,19 @@
  */
 package net.openhft.chronicle.core.internal;
 
-import net.openhft.chronicle.core.Jvm;
-import net.openhft.chronicle.core.io.*;
+import net.openhft.chronicle.core.io.AbstractCloseable;
+import net.openhft.chronicle.core.io.Closeable;
+import net.openhft.chronicle.core.io.IOTools;
+import net.openhft.chronicle.core.io.ManagedCloseable;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -19,28 +25,25 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assumptions.assumeTrue;
-import static org.mockito.Mockito.*;
 
-public class CloseableUtilsTest {
-    private ManagedCloseable mockCloseable;
+class CloseableUtilsTest {
+    private ManagedCloseableProbe managedCloseable;
     private AbstractCloseable anonCloseable;
-    private AutoCloseable mockAutoCloseable;
-    private HttpURLConnection mockHttpURLConnection;
+    private AutoCloseableProbe autoCloseable;
+    private HttpURLConnectionStub httpURLConnection;
 
     @BeforeEach
     public void setUp() {
-        assumeTrue(Jvm.majorVersion() <= 17);
         anonCloseable = new AbstractCloseable() {
             @Override
             protected void performClose() {
 
             }
         };
-        mockCloseable = mock(ManagedCloseable.class);
+        managedCloseable = new ManagedCloseableProbe();
         CloseableUtils.enableCloseableTracing();
-        mockAutoCloseable = mock(AutoCloseable.class);
-        mockHttpURLConnection = mock(HttpURLConnection.class);
+        autoCloseable = new AutoCloseableProbe();
+        httpURLConnection = new HttpURLConnectionStub();
     }
 
     @AfterEach
@@ -49,20 +52,24 @@ public class CloseableUtilsTest {
         Closeable.closeQuietly(anonCloseable);
     }
 
+    @DisplayName("add tracks closeables in tracing set")
     @Test
-    public void testAdd() {
-        CloseableUtils.add(mockCloseable);
+    void testAdd() {
+        CloseableUtils.add(managedCloseable);
         AtomicReference<Set<Closeable>> closeablesRef = getCloseablesRef();
-        assertTrue(closeablesRef.get().contains(mockCloseable), "added closeable should be present in tracked closeables set");
+        assertTrue(closeablesRef.get().contains(managedCloseable),
+                "added closeable should be present in tracked closeables set: " + closeablesRef.get());
     }
 
+    @DisplayName("enableCloseableTracing initialises tracked set behaviour under expected input and output conditions")
     @Test
-    public void testEnableCloseableTracing() {
+    void testEnableCloseableTracing() {
         assertNotNull(getCloseablesRef().get(), "closeables set should be initialized when tracing is enabled");
     }
 
+    @DisplayName("disableCloseableTracing clears tracked set behaviour under expected input and output conditions")
     @Test
-    public void testDisableCloseableTracing() {
+    void testDisableCloseableTracing() {
         CloseableUtils.disableCloseableTracing();
         assertNull(getCloseablesRef().get(), "closeables set should be null when tracing is disabled");
     }
@@ -76,86 +83,202 @@ public class CloseableUtilsTest {
             //noinspection unchecked
             return (AtomicReference<Set<Closeable>>) field.get(null);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Failed to access CloseableUtils.CLOSEABLES via reflection", e);
         }
     }
 
+    @DisplayName("waitForCloseablesToClose returns true when closing behaviour under expected input and output conditions")
     @Test
-    public void testWaitForCloseablesToClose() {
-        CloseableUtils.add(mockCloseable);
-        when(mockCloseable.isClosing()).thenReturn(true);
+    void testWaitForCloseablesToClose() {
+        managedCloseable.setClosing(true);
+        CloseableUtils.add(managedCloseable);
 
         assertTrue(CloseableUtils.waitForCloseablesToClose(1000), "waitForCloseablesToClose should return true when all closeables are closing");
     }
 
+    @DisplayName("waitForCloseablesToClose propagates closeable exceptions behaviour under expected input and output conditions")
     @Test
-    public void testWaitForCloseablesToCloseWithException() {
-        CloseableUtils.add(mockCloseable);
-        when(mockCloseable.isClosing()).thenThrow(new IllegalStateException("testWaitForCloseablesToCloseWithException"));
+    void testWaitForCloseablesToCloseWithException() {
+        managedCloseable.throwOnIsClosing(new IllegalStateException("testWaitForCloseablesToCloseWithException"));
+        CloseableUtils.add(managedCloseable);
 
         assertThrows(IllegalStateException.class,
                 () -> CloseableUtils.waitForCloseablesToClose(1000),
-                "testWaitForCloseablesToCloseWithException");
+                "exception from closeable should propagate");
     }
 
+    @DisplayName("assertCloseablesClosed succeeds when all closed behaviour under expected input and output conditions")
     @Test
-    public void testAssertCloseablesClosed() {
-        CloseableUtils.add(mockCloseable);
-        when(mockCloseable.isClosed()).thenReturn(true);
+    void testAssertCloseablesClosed() {
+        managedCloseable.setClosed(true);
+        CloseableUtils.add(managedCloseable);
 
-        assertDoesNotThrow(CloseableUtils::assertCloseablesClosed, "testAssertCloseablesClosed");
+        assertDoesNotThrow(CloseableUtils::assertCloseablesClosed, "assertCloseablesClosed should not throw when closed");
     }
 
+    @DisplayName("assertCloseablesClosed fails when closeables open behaviour under expected input and output conditions")
     @Test
-    public void testAssertCloseablesClosedWithOpenCloseables() {
-        CloseableUtils.add(mockCloseable);
-        when(mockCloseable.isClosed()).thenReturn(false);
+    void testAssertCloseablesClosedWithOpenCloseables() {
+        managedCloseable.setClosed(false);
+        managedCloseable.setClosing(false);
+        CloseableUtils.add(managedCloseable);
 
         assertThrows(AssertionError.class,
                 CloseableUtils::assertCloseablesClosed,
-                "testAssertCloseablesClosedWithOpenCloseables");
+                "assertCloseablesClosed should throw when open");
     }
 
+    @DisplayName("unmonitor removes closeable from tracking set")
     @Test
-    public void testUnmonitor() {
-        CloseableUtils.add(mockCloseable);
-        CloseableUtils.unmonitor(mockCloseable);
+    void testUnmonitor() {
+        CloseableUtils.add(managedCloseable);
+        CloseableUtils.unmonitor(managedCloseable);
         AtomicReference<Set<Closeable>> closeablesRef = getCloseablesRef();
-        assertFalse(closeablesRef.get().contains(mockCloseable), "unmonitored closeable should be removed from tracked closeables set");
+        assertFalse(closeablesRef.get().contains(managedCloseable),
+                "unmonitored closeable should be removed from tracked closeables set: " + closeablesRef.get());
     }
 
+    @DisplayName("IOTools.unmonitor removes tracked closeables behaviour under expected input and output conditions")
     @Test
-    public void testIOToolsUnmonitor() {
+    void testIOToolsUnmonitor() {
         IOTools.unmonitor(null);
         IOTools.unmonitor("hello");
         CloseableUtils.add(anonCloseable);
         IOTools.unmonitor(anonCloseable);
         AtomicReference<Set<Closeable>> closeablesRef = getCloseablesRef();
-        assertFalse(closeablesRef.get().contains(anonCloseable), "IOTools.unmonitor should remove closeable from tracked closeables set");
+        assertFalse(closeablesRef.get().contains(anonCloseable),
+                "IOTools.unmonitor should remove closeable from tracked closeables set: " + closeablesRef.get());
     }
 
+    @DisplayName("closeQuietly closes each element in array")
     @Test
-    public void testCloseQuietlyArray() {
-        Object[] array = {mock(Closeable.class), mock(Closeable.class)};
+    void testCloseQuietlyArray() {
+        CloseableProbe first = new CloseableProbe();
+        CloseableProbe second = new CloseableProbe();
+        Object[] array = {first, second};
 
         CloseableUtils.closeQuietly(array);
 
-        for (Object o : array) {
-            verify((Closeable) o, times(1)).close();
+        assertTrue(first.isClosed(), "first closeable should be closed");
+        assertTrue(second.isClosed(), "second closeable should be closed");
+    }
+
+    @DisplayName("closeQuietly closes AutoCloseable once behaviour under expected input and output conditions")
+    @Test
+    void testCloseQuietlyAutoCloseable() throws Exception {
+        CloseableUtils.closeQuietly(autoCloseable);
+
+        assertTrue(autoCloseable.isClosed(), "auto-closeable should be closed");
+    }
+
+    @DisplayName("closeQuietly disconnects HttpURLConnection instance behaviour under expected input and output conditions")
+    @Test
+    void testCloseQuietlyHttpURLConnection() {
+        CloseableUtils.closeQuietly(httpURLConnection);
+
+        assertTrue(httpURLConnection.isDisconnected(), "http connection should be disconnected");
+    }
+
+    private static final class ManagedCloseableProbe implements ManagedCloseable {
+        private boolean closing;
+        private boolean closed;
+        private RuntimeException isClosingException;
+
+        @Override
+        public void close() {
+            closed = true;
+            closing = true;
+        }
+
+        @Override
+        public boolean isClosing() {
+            if (isClosingException != null) {
+                throw isClosingException;
+            }
+            return closing;
+        }
+
+        @Override
+        public boolean isClosed() {
+            return closed;
+        }
+
+        void setClosing(boolean closing) {
+            this.closing = closing;
+        }
+
+        void setClosed(boolean closed) {
+            this.closed = closed;
+            if (closed) {
+                this.closing = true;
+            }
+        }
+
+        void throwOnIsClosing(RuntimeException exception) {
+            this.isClosingException = exception;
+        }
+
+    }
+
+    private static final class AutoCloseableProbe implements AutoCloseable {
+        private boolean closed;
+
+        @Override
+        public void close() {
+            closed = true;
+        }
+
+        boolean isClosed() {
+            return closed;
         }
     }
 
-    @Test
-    public void testCloseQuietlyAutoCloseable() throws Exception {
-        CloseableUtils.closeQuietly(mockAutoCloseable);
+    private static final class HttpURLConnectionStub extends HttpURLConnection {
+        private boolean disconnected;
 
-        verify(mockAutoCloseable, times(1)).close();
+        HttpURLConnectionStub() {
+            super(localUrl());
+        }
+
+        @Override
+        public void disconnect() {
+            disconnected = true;
+        }
+
+        @Override
+        public boolean usingProxy() {
+            return false;
+        }
+
+        @Override
+        public void connect() {
+        }
+
+        boolean isDisconnected() {
+            return disconnected;
+        }
     }
 
-    @Test
-    public void testCloseQuietlyHttpURLConnection() {
-        CloseableUtils.closeQuietly(mockHttpURLConnection);
+    private static final class CloseableProbe implements Closeable {
+        private boolean closed;
 
-        verify(mockHttpURLConnection, times(1)).disconnect();
+        @Override
+        public void close() {
+            closed = true;
+        }
+
+        @Override
+        public boolean isClosed() {
+            return closed;
+        }
+
+    }
+
+    private static URL localUrl() {
+        try {
+            return URI.create("http://localhost").toURL();
+        } catch (MalformedURLException e) {
+            throw new AssertionError("Failed to create test URL", e);
+        }
     }
 }

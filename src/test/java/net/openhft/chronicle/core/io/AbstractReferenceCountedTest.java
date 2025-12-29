@@ -4,14 +4,16 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class AbstractReferenceCountedTest extends ReferenceCountedTracerContractTest {
+class AbstractReferenceCountedTest extends ReferenceCountedTracerContractTest {
 
+    @DisplayName("reserve behaviour under expected input and output conditions")
     @Test
-    public void reserve() throws IllegalStateException, IllegalArgumentException {
+    void reserve() throws IllegalStateException, IllegalArgumentException {
         Jvm.setResourceTracing(true);
 
         MyReferenceCounted rc = createReferenceCounted();
@@ -27,9 +29,6 @@ public class AbstractReferenceCountedTest extends ReferenceCountedTracerContract
 
     static class MyReferenceCounted extends AbstractReferenceCounted {
         int performRelease;
-
-        MyReferenceCounted() {
-        }
 
         @Override
         protected void performRelease() {

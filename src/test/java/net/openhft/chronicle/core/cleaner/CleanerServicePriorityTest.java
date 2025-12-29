@@ -5,6 +5,7 @@ package net.openhft.chronicle.core.cleaner;
 
 import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,6 +17,7 @@ class CleanerServicePriorityTest {
         CleanerServiceTestSupport.resetLocator();
     }
 
+    @DisplayName("lowest impact chosen regardless of discovery order")
     @Test
     void lowestImpactChosenRegardlessOfDiscoveryOrder() throws Exception {
         ByteBufferCleanerService svcChosen = CleanerServiceTestSupport.chooseService("tmp-services-priority",

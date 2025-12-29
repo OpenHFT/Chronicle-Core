@@ -14,7 +14,7 @@ public class ValidatableUtil {
     }
 
     /**
-     * Checks if validation is enabled.
+     * Checks whether validation is enabled for the current thread.
      *
      * @return {@code true} if validation is enabled, {@code false} otherwise.
      */

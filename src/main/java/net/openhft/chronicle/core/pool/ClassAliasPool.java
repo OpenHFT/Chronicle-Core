@@ -205,19 +205,19 @@ public class ClassAliasPool implements ClassLookup {
         try {
             return doLookup(name);
         } catch (NoClassDefFoundError e) {
-            throw new ClassNotFoundRuntimeException(new ClassNotFoundException(e.getMessage(), e));
+            throw new ClassNotFoundRuntimeException(/* class lookup failed */ new ClassNotFoundException(e.getMessage(), e));
         }
     }
 
     private Class<?> doLookup(String name) {
         if (banned(name))
-            throw new ClassNotFoundRuntimeException(new ClassNotFoundException(name + " not available"));
+            throw new ClassNotFoundRuntimeException(/* class lookup failed */ new ClassNotFoundException(name + " not available"));
         try {
             return Class.forName(name, true, classLoader);
         } catch (ClassNotFoundException e) {
             if (parent != null)
                 return parent.forName(name);
-            throw new ClassNotFoundRuntimeException(e);
+            throw new ClassNotFoundRuntimeException(/* class lookup failed */ e);
         }
     }
 
@@ -238,7 +238,7 @@ public class ClassAliasPool implements ClassLookup {
     }
 
     /**
-     * Returns the primary alias for a given class.
+     * Returns the primary alias registered for a given class.
      *
      * @param clazz the class to query
      * @return the registered alias
@@ -308,7 +308,7 @@ public class ClassAliasPool implements ClassLookup {
     }
 
     /**
-     * Registers a class with one or more explicit aliases.
+     * Registers a class with one or more explicit aliases for lookup.
      *
      * @param clazz  the class to register
      * @param names  comma separated list of aliases
@@ -332,6 +332,7 @@ public class ClassAliasPool implements ClassLookup {
      * @param name the original class name or alias
      * @return the resolved alias or the input if none exists
      */
+    @Deprecated(/* to be removed in 2027, only used in tests */)
     @Override
     public CharSequence applyAlias(CharSequence name) {
         Objects.requireNonNull(name);

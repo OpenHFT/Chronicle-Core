@@ -33,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 public interface StringValue {
 
     /**
-     * Retrieves the String value.
+     * Retrieves the current String value from the backing store.
      *
      * @return The current String value.
      */
@@ -46,6 +46,7 @@ public interface StringValue {
      *
      * @param value The CharSequence from which the String value is set.
      */
+    @SuppressWarnings("deprecation")
     void setValue(@MaxBytes CharSequence value);
 
     /**

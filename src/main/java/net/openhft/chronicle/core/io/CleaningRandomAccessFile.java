@@ -39,7 +39,7 @@ public class CleaningRandomAccessFile extends RandomAccessFile {
         super(file, mode);
     }
 
-    @SuppressWarnings({"deprecation", "removal", "java:S1113"})
+    @SuppressWarnings({"deprecation", "removal", "java:S1113", "PMD.FinalizeDoesNotCallSuperFinalize"})
     @Override
     protected void finalize() throws Throwable {
         // best-efforts attempt to close the file if the owner forgot

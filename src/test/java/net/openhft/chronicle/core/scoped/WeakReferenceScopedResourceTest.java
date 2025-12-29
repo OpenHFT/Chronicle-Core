@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.scoped;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -19,19 +20,21 @@ class WeakReferenceScopedResourceTest {
         scopedThreadLocal = new ScopedThreadLocal<>(AtomicLong::new, 3);
     }
 
+    @DisplayName("preAcquire creates a new weak resource")
     @Test
     void resourceIsCreatedPreAcquire() {
         final WeakReferenceScopedResource<AtomicLong> sr = new WeakReferenceScopedResource<>(scopedThreadLocal, AtomicLong::new);
         assertNull(sr.get(), "resource should be null before preAcquire"); // There should be nothing in it (this would never happen in the real world)
         sr.preAcquire();
-        assertNotNull(sr.get(), "resource should be non-null after preAcquire");
+        assertNotNull(sr.get(), "resource should be non-null after preAcquire on weak reference");
     }
 
+    @DisplayName("preAcquire creates strong reference for reuse")
     @Test
     void strongReferenceIsCreatedPreAcquire() {
         final WeakReferenceScopedResource<AtomicLong> sr = new WeakReferenceScopedResource<>(scopedThreadLocal, AtomicLong::new);
         sr.preAcquire(); // creates the strong reference
-        assertNotNull(sr.get(), "resource should be non-null after preAcquire");
+        assertNotNull(sr.get(), "resource should be non-null after preAcquire with strong reference");
         System.gc();
         assertNotNull(sr.get(), "resource should survive GC when strong reference exists");
         sr.close(); // clears the strong reference

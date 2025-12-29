@@ -45,8 +45,8 @@ public class BackgroundResourceReleaserMain {
         new Thread(wc::close).start();
         wc.close();
         if (BackgroundResourceReleaser.BG_RELEASER) {
-            assertNotEquals(count, closed.get());
-            assertNotEquals(count, released.get());
+            assertNotEquals(count, closed.get(), "background releaser should not close all resources immediately");
+            assertNotEquals(count, released.get(), "background releaser should not release all resources immediately");
         } else {
             assertEquals(count, closed.get(), "all resources should be closed without background releaser");
             assertEquals(count, released.get(), "all resources should be released without background releaser");

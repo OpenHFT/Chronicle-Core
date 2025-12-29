@@ -4,7 +4,7 @@
 package net.openhft.chronicle.core.util;
 
 /**
- * A marker interface which shows this implementation ignores everything.
+ * A marker interface indicating that an implementation ignores all calls and inputs.
  * <p>
  * A caller can assume it doesn't need to call this.
  * <p>

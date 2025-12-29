@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
@@ -15,6 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class GenericReflectionTest extends CoreTestCommon {
 
+    @DisplayName("getReturnType behaviour under expected input and output conditions")
     @Test
     void getReturnType() {
         assertEquals(String.class,
@@ -31,6 +33,7 @@ class GenericReflectionTest extends CoreTestCommon {
         }.type(), t, "return type should be resolved to Returns<String> parameterized type");
     }
 
+    @DisplayName("getMethodReturnTypes behaviour under expected input and output conditions")
     @Test
     void getMethodReturnTypes() {
         final Type returnString = new TypeOf<Returns<String>>() {
@@ -40,6 +43,7 @@ class GenericReflectionTest extends CoreTestCommon {
                 GenericReflection.getMethodReturnTypes(returnString), "method return types should match between class and parameterized type");
     }
 
+    @DisplayName("getGenericClassesSuperclassesAndInterfaces behaviour under expected input and output conditions")
     @Test
     void getGenericClassesSuperclassesAndInterfaces() {
         final Type returnString = new TypeOf<Returns<String>>() {
@@ -49,6 +53,7 @@ class GenericReflectionTest extends CoreTestCommon {
                 GenericReflection.getGenericClassesSuperclassesAndInterfaces(returnString).toArray(), "generic hierarchy should match between class and parameterized type");
     }
 
+    @DisplayName("getParameterTypes behaviour under expected input and output conditions")
     @Test
     void getParameterTypes() throws NoSuchMethodException {
         final Method method = GenericMethod.class.getDeclaredMethod("method", Object.class, Object.class);
@@ -72,6 +77,7 @@ class GenericReflectionTest extends CoreTestCommon {
                 Arrays.toString(GenericReflection.getParameterTypes(method0, MassivelyNestedExtendsGenericMethod.class)), "parameter type should resolve to Long in nested generic method");
     }
 
+    @DisplayName("getParameterTypesExtends behaviour under expected input and output conditions")
     @Test
     void getParameterTypesExtends() {
         Method method = null;

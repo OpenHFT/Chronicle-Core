@@ -7,13 +7,15 @@ import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.time.SetTimeProvider;
 import net.openhft.chronicle.core.time.SystemTimeProvider;
 import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RecordingHistogramTest extends CoreTestCommon {
+class RecordingHistogramTest extends CoreTestCommon {
+    @DisplayName("singleSample behaviour under expected input and output conditions")
     @Test
-    public void singleSample() {
+    void singleSample() {
         Histogram h = new MyRecordingHistogram();
         h.sampleNanos(100_000);
         assertEquals("{ 50/90 99/99.9 99.99 - worst  was: 100.0 / 100.0  100.0 / 100.0  100.0 - 100.0, top: [{ off: 1.0, dur: 100.0 }] }", h.toMicrosFormat(), "histogram format should show single sample percentiles and top duration");
@@ -24,8 +26,9 @@ public class RecordingHistogramTest extends CoreTestCommon {
         assertEquals("{ 50/90 99/99.9 99.99 - worst  was: 500 / 900  1000 / 1000  1000 - 1000, top: [{ off: 10.0, dur: 1000.0 }, { off: 11.0, dur: 950.0 }, { off: 9.0, dur: 900.0 }, { off: 12.0, dur: 850.0 }, { off: 8.0, dur: 800.0 }] }", h.toMicrosFormat(), "histogram format should show multiple samples with correct percentiles and top 5 durations");
     }
 
+    @DisplayName("testSampleNanosAndTopDurations behaviour under expected input and output conditions")
     @Test
-    public void testSampleNanosAndTopDurations() {
+    void testSampleNanosAndTopDurations() {
         SystemTimeProvider.CLOCK = new SetTimeProvider();
         RecordingHistogram histogram = new RecordingHistogram();
 
@@ -38,21 +41,24 @@ public class RecordingHistogramTest extends CoreTestCommon {
 
         // Assert that formatted output reflects recorded samples
         String s = histogram.toMicrosFormat(d -> d);
-        assertTrue(s.contains("top:"), "formatted output should contain top durations section");
+        assertTrue(s.contains("top:"), "formatted output should contain \"top:\": " + s);
     }
 
+    @DisplayName("testReset behaviour under expected input and output conditions")
     @Test
-    public void testReset() {
+    void testReset() {
         RecordingHistogram histogram = new RecordingHistogram();
         String noData = histogram.toMicrosFormat();
         histogram.sampleNanos(10000);
-        assertNotEquals(noData, histogram.toMicrosFormat());
+        assertNotEquals(noData, histogram.toMicrosFormat(),
+                "histogram format should change after sampling");
         histogram.reset();
         assertEquals(noData, histogram.toMicrosFormat(), "histogram format should return to initial state after reset");
     }
 
+    @DisplayName("testSamples behaviour under expected input and output conditions")
     @Test
-    public void testSamples() {
+    void testSamples() {
         Histogram h = new MyRecordingHistogram();
 
         long seed = 2141;
@@ -64,7 +70,8 @@ public class RecordingHistogramTest extends CoreTestCommon {
         }
 
         for (int i = 1; i <= 100; i++)
-            assertEquals(i, percentile(h, i / 100.0), 1, "percentile calculation should be accurate within delta of 1");
+            assertEquals(i, percentile(h, i / 100.0), 1,
+                    "percentile calculation should be accurate within delta of 1 at i=" + i);
 
         assertEquals("{ 50/90 99/99.9 99.99 - worst  was: 500 / 900  990 / 998  998 - 998, " +
                 "top: [{ off: 32.0, dur: 998.963 }, { off: 36.0, dur: 997.374 }, { off: 39.0, dur: 995.785 }, { off: 41.0, dur: 994.196 }, { off: 43.0, dur: 992.607 }] }", h.toMicrosFormat(), "histogram short format should show standard percentiles with top 5 durations");

@@ -2,6 +2,7 @@
  * Copyright 2013-2025 chronicle.software; SPDX-License-Identifier: Apache-2.0
  */
 package net.openhft.chronicle.core.analytics;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -11,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AnalyticsFallbackTest {
 
+    @DisplayName("builderFallsBackWhenLibraryAbsentOrDisabled behaviour under expected input and output conditions")
     @Test
     void builderFallsBackWhenLibraryAbsentOrDisabled() throws Exception {
         System.setProperty("chronicle.analytics.disable", "true");
@@ -28,6 +30,6 @@ class AnalyticsFallbackTest {
         Field cnt = muteCls.getDeclaredField("invocationCounter");
         cnt.setAccessible(true);
         int v = (int) cnt.get(inst);
-        assertTrue(v >= 1, "comparison should hold true");
+        assertTrue(v >= 1, "invocation counter should be >= 1 but was " + v);
     }
 }

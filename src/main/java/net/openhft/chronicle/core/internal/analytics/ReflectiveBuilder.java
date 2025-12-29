@@ -13,7 +13,7 @@ import java.util.function.Consumer;
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 /**
- * Reflection based {@link AnalyticsFacade.Builder} bridge.
+ * Reflection based {@link AnalyticsFacade.Builder} bridge for the optional analytics module at runtime.
  * <p>
  * Proxies builder calls to {@code chronicle-analytics} when present, allowing Chronicle-Core to
  * remain decoupled from the analytics implementation.

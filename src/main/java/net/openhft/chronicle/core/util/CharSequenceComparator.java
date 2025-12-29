@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Comparator;
 
 /**
- * A singleton enum implementing a Comparator for comparing instances of {@code CharSequence}.
+ * A singleton enum implementing a Comparator for comparing {@code CharSequence} instances in lexicographic order.
  * <p>
  * This comparator can be used, for instance, in sorting lists or performing binary searches where
  * the elements are CharSequence instances. It performs a lexicographic comparison character by
@@ -28,12 +28,12 @@ import java.util.Comparator;
  */
 public enum CharSequenceComparator implements Comparator<CharSequence> {
     /**
-     * The singleton instance of CharSequenceComparator.
+     * The singleton instance used for comparing {@code CharSequence} values.
      */
     INSTANCE;
 
     /**
-     * Compares two {@code CharSequence} instances lexicographically.
+     * Compares two {@code CharSequence} instances lexicographically, character by character.
      * <p>
      * Returns a negative integer, zero, or a positive integer as the first argument is less than,
      * equal to, or greater than the second, respectively.

@@ -5,15 +5,17 @@ package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Maths;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class DynamicEnumPooledClassTest extends CoreTestCommon {
+class DynamicEnumPooledClassTest extends CoreTestCommon {
+    @DisplayName("additionalEnum behaviour under expected input and output conditions")
     @Test
-    public void additionalEnum() {
+    void additionalEnum() {
         EnumCache<YesNo> yesNoEnumCache = EnumCache.of(YesNo.class);
         assertEquals(YesNo.Yes, yesNoEnumCache.valueOf("Yes"), "valueOf should return Yes enum constant");
         assertEquals(YesNo.No, yesNoEnumCache.valueOf("No"), "valueOf should return No enum constant");
@@ -31,15 +33,16 @@ public class DynamicEnumPooledClassTest extends CoreTestCommon {
 
         // check that asArray returns YesNo instances
         for (YesNo yesNo : yesNoEnumCache.asArray())
-            assertEquals(yesNo.name(), yesNo.toString(), "enum toString should match its name");
+            assertEquals(yesNo.name(), yesNo.toString(), "enum toString should match its name: " + yesNo);
 
         DynamicEnumClass<YesNo> dynamicEnumClass = (DynamicEnumClass<YesNo>) yesNoEnumCache;
         dynamicEnumClass.reset();
         assertEquals("[Yes, No]", Arrays.toString(yesNoEnumCache.asArray()), "reset should remove dynamically created constants");
     }
 
+    @DisplayName("testInitialSize behaviour under expected input and output conditions")
     @Test
-    public void testInitialSize() throws IllegalArgumentException {
+    void testInitialSize() throws IllegalArgumentException {
         EnumCache<EcnDynamic> ecnEnumCache = EnumCache.of(EcnDynamic.class);
         assertEquals(32, Maths.nextPower2(ecnEnumCache.size(), 1), "enum cache size should be rounded to power of 2");
     }

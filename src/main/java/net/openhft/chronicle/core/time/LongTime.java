@@ -4,7 +4,7 @@
 package net.openhft.chronicle.core.time;
 
 /**
- * Utilities for working with timestamps represented as {@code long} values.
+ * Utilities for working with timestamps represented as {@code long} values across time units.
  * <p>
  * Provides heuristics for detecting the unit (seconds, millis, micros, nanos) and helpers to
  * convert between them without overflowing.

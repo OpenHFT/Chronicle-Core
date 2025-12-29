@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.Closeable;
 
 /**
- * Represents a handler for events within an {@link EventLoop}.
+ * Represents a handler for events within an {@link EventLoop} execution cycle and lifecycle callbacks.
  * <p>
  * The typical sequence of calls is:
  * <ol>

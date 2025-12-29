@@ -4,17 +4,19 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.testframework.FlakyTestRunner;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-public class JvmSafepointTest extends CoreTestCommon {
+class JvmSafepointTest extends CoreTestCommon {
 
     private volatile long safePointPerfLastAvg;
 
+    @DisplayName("testSafepoint behaviour under expected input and output conditions")
     @Test
-    public void testSafepoint() throws InterruptedException {
+    void testSafepoint() throws InterruptedException {
         @SuppressWarnings("AnonymousHasLambdaAlternative")
         Thread t = new Thread() {
             @Override
@@ -49,11 +51,12 @@ public class JvmSafepointTest extends CoreTestCommon {
         t.interrupt();
         t.join();
         System.out.println("counter: " + counter);
-        assertTrue(counter >= min, "counter: " + counter);
+        assertTrue(counter >= min, "safepoint stack trace hits should reach minimum: counter=" + counter + ", min=" + min);
     }
 
+    @DisplayName("safePointPerf behaviour under expected input and output conditions")
     @Test
-    public void safePointPerf() {
+    void safePointPerf() {
         // This will enable the C2 compiler to kick in.
         FlakyTestRunner.builder(this::safePointPerf0)
                 .withFlakyOnThisArchitecture(true)
@@ -62,7 +65,7 @@ public class JvmSafepointTest extends CoreTestCommon {
                 .runOrThrow();
         int maxAvg = Jvm.isArm() ? 400 : 200;
         long avg = safePointPerfLastAvg;
-        assertTrue(1 <= avg && avg < maxAvg, "safePointPerf: avg=" + avg + ", maxAvg=" + maxAvg);
+        assertTrue(1 <= avg && avg < maxAvg, "safepoint average should be within bounds: avg=" + avg + ", maxAvg=" + maxAvg);
     }
 
     private void safePointPerf0() {
@@ -83,7 +86,7 @@ public class JvmSafepointTest extends CoreTestCommon {
                     break;
                 }
                 if (t == 5) {
-                    fail("avg: " + avg);
+                    fail("avg: " + avg + " at t=" + t);
                 }
             }
             Jvm.pause(5);

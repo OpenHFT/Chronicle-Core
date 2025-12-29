@@ -9,7 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Properties;
 
 /**
- * Access to Maven build metadata at runtime.
+ * Access to Maven build metadata at runtime for diagnostics, reporting, and version inspection.
  *
  * <p>It loads the {@code pom.properties} resource for a given
  * {@code groupId} and {@code artifactId}, allowing callers to

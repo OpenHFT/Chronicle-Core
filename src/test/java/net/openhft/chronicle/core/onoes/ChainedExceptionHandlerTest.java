@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.onoes;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 
@@ -23,6 +24,7 @@ class ChainedExceptionHandlerTest {
         chainedHandler = new ChainedExceptionHandler(handler1, handler2);
     }
 
+    @DisplayName("testChainExecution behaviour under expected input and output conditions")
     @Test
     void testChainExecution() {
         Throwable throwable = new RuntimeException("Test");
@@ -32,6 +34,7 @@ class ChainedExceptionHandlerTest {
         verify(handler2).on(Exception.class, "Test message", throwable);
     }
 
+    @DisplayName("onWithClassShouldCallEachHandler behaviour under expected input and output conditions")
     @Test
     void onWithClassShouldCallEachHandler() {
         ExceptionHandler firstHandler = mock(ExceptionHandler.class);
@@ -49,6 +52,7 @@ class ChainedExceptionHandlerTest {
         inOrder.verify(secondHandler).on(clazz, message, thrown);
     }
 
+    @DisplayName("onShouldCatchExceptionsFromHandlers behaviour under expected input and output conditions")
     @Test
     void onShouldCatchExceptionsFromHandlers() {
         ExceptionHandler faultyHandler = (clazz, msg, thr) -> {

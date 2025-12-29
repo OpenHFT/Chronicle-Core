@@ -55,7 +55,7 @@ import static net.openhft.chronicle.core.internal.Bootstrap.*;
 import static net.openhft.chronicle.core.internal.util.MapUtil.entry;
 
 /**
- * Utility class to access information in the JVM.
+ * Utility class to access JVM properties, thread diagnostics, and runtime configuration details.
  */
 @SuppressWarnings({"java:S1191", "java:S1181", "java:S3011", "java:S106", "jaca:S3008", "java:S3077", "java:S3008", "RedundantSuppression"})
 public final class Jvm {
@@ -90,6 +90,7 @@ public final class Jvm {
     @NotNull
     private static final ExceptionHandler DEBUG;
     private static final boolean SAFEPOINT_ENABLED;
+    @SuppressWarnings("deprecation")
     private static final Map<Class<?>, ClassMetrics> CLASS_METRICS_MAP = new ConcurrentHashMap<>();
     @SuppressWarnings("RedundantTypeArguments")
     private static final Map<Class<?>, Integer> PRIMITIVE_SIZE = MapUtil.<Class<?>, Integer>ofUnmodifiable(
@@ -352,7 +353,7 @@ public final class Jvm {
     }
 
     /**
-     * Returns the current process id.
+     * Returns the current process id for the running JVM instance.
      *
      * @return the current process id or, if the process id cannot be determined, 1 is used.
      */
@@ -593,7 +594,7 @@ public final class Jvm {
                 if (target == null)
                     return null;
             } catch (IllegalAccessException | IllegalArgumentException e) {
-                throw new AssertionError(e);
+                throw new AssertionError("Unable to read field '" + n + "' from " + aClass.getName(), e);
             }
             aClass = target.getClass();
         }
@@ -630,7 +631,7 @@ public final class Jvm {
         try {
             return UNSAFE.objectFieldOffset(clazz.getDeclaredField(fieldName));
         } catch (NoSuchFieldException e) {
-            throw new AssertionError(e);
+            throw new AssertionError("Unable to resolve field '" + fieldName + "' on " + clazz.getName(), e);
         }
     }
 
@@ -690,7 +691,7 @@ public final class Jvm {
     }
 
     /**
-     * Overrides the global error handler.
+     * Overrides the global error handler used for reporting.
      *
      * @param exceptionHandler replacement handler or {@code null} to disable reporting
      */
@@ -699,7 +700,7 @@ public final class Jvm {
     }
 
     /**
-     * Overrides the global warning handler.
+     * Overrides the global warning handler used for reporting.
      *
      * @param exceptionHandler replacement handler or {@code null} to disable reporting
      */
@@ -708,7 +709,7 @@ public final class Jvm {
     }
 
     /**
-     * Overrides the global debug handler.
+     * Overrides the global debug handler used for reporting.
      *
      * @param exceptionHandler replacement handler or {@code null} to disable reporting
      */
@@ -718,7 +719,7 @@ public final class Jvm {
     }
 
     /**
-     * Overrides the global performance handler.
+     * Overrides the global performance handler used for reporting.
      *
      * @param exceptionHandler replacement handler or {@code null} to disable reporting
      */
@@ -748,7 +749,7 @@ public final class Jvm {
     }
 
     /**
-     * Starts capturing exceptions for diagnostics.
+     * Starts capturing exceptions for diagnostics with default logging.
      *
      * @return map keyed by exception signatures with occurrence counts
      */
@@ -758,7 +759,7 @@ public final class Jvm {
     }
 
     /**
-     * Starts capturing exceptions for diagnostics.
+     * Starts capturing exceptions for diagnostics with debug control.
      *
      * @param debug whether to log debug output as exceptions are recorded
      * @return map keyed by exception signatures with occurrence counts
@@ -1075,6 +1076,7 @@ public final class Jvm {
         return CLASS_METRICS_MAP.computeIfAbsent(clazz, Jvm::getClassMetrics);
     }
 
+    @SuppressWarnings("deprecation")
     private static ClassMetrics getClassMetrics(final Class<?> c) {
         assert !c.isArray();
         final Class<?> superclass = c.getSuperclass();
@@ -1160,11 +1162,11 @@ public final class Jvm {
     }
 
     /**
-     * Guarantees that Jvm class is initialized before property is read.
+     * Ensures the Jvm class is initialised before reading a String system property.
      *
      * @param systemPropertyKey property name
-     * @see System#getProperty(String)
      * @return property value or {@code null} if unset
+     * @see System#getProperty(String)
      */
     public static String getProperty(final String systemPropertyKey) {
         init();
@@ -1173,12 +1175,12 @@ public final class Jvm {
     }
 
     /**
-     * Guarantees that Jvm class is initialized before property is read.
+     * Ensures the Jvm class is initialised before reading a String system property with default.
      *
      * @param systemPropertyKey property name
      * @param defaultValue      fallback when unset
-     * @see System#getProperty(String, String)
      * @return property value or {@code defaultValue} if unset
+     * @see System#getProperty(String, String)
      */
     public static String getProperty(final String systemPropertyKey, final String defaultValue) {
         init();
@@ -1187,12 +1189,12 @@ public final class Jvm {
     }
 
     /**
-     * Guarantees that Jvm class is initialised before property is read.
+     * Ensures the Jvm class is initialised before reading a Long system property.
      *
      * @param systemPropertyKey property name
      * @param defVal            fallback value when unset or unparsable
-     * @see Long#getLong(String, Long)
      * @return property value as {@link Long} or {@code defVal} when absent
+     * @see Long#getLong(String, Long)
      */
     public static Long getLong(final String systemPropertyKey, final Long defVal) {
         init();
@@ -1201,12 +1203,12 @@ public final class Jvm {
     }
 
     /**
-     * Guarantees that Jvm class is initialised before property is read.
+     * Ensures the Jvm class is initialised before reading an Integer system property.
      *
      * @param systemPropertyKey property name
      * @param defVal            fallback value when unset or unparsable
-     * @see Integer#getInteger(String, Integer)
      * @return property value as {@link Integer} or {@code defVal} when absent
+     * @see Integer#getInteger(String, Integer)
      */
     public static Integer getInteger(final String systemPropertyKey, final Integer defVal) {
         init();
@@ -1221,7 +1223,7 @@ public final class Jvm {
      * This provides a more permissive boolean System systemPropertyKey flag where
      * {@code -Dflag} {@code -Dflag=true} {@code -Dflag=yes} are all accepted.
      * <p>
-     * Guarantees that Jvm class is initialized before property is read.
+     * Ensures the Jvm class is initialised before reading the boolean property flag.
      *
      * @param systemPropertyKey name to lookup
      * @return if a System Property with the provided {@code systemPropertyKey}
@@ -1239,7 +1241,7 @@ public final class Jvm {
      * This provides a more permissive boolean System systemPropertyKey flag where
      * {@code -Dflag} {@code -Dflag=true} {@code -Dflag=yes} are all accepted.
      * <p>
-     * Guarantees that Jvm class is initialized before property is read.
+     * Ensures the Jvm class is initialised before reading the boolean property with default.
      *
      * @param systemPropertyKey name to lookup
      * @param defaultValue      value to be used if unknown
@@ -1407,7 +1409,7 @@ public final class Jvm {
                 }
             });
         } catch (Throwable e) {
-            Jvm.warn().on(clazz, "Couldn't disable close on interrupt", e);
+            Jvm.warn().on(clazz, "Couldn't disable close-on-interrupt in Java 8 path", e);
         }
     }
 
@@ -1430,7 +1432,7 @@ public final class Jvm {
                         return ObjectUtils.defaultValue(m.getReturnType());
                     }));
         } catch (Throwable e) {
-            Jvm.warn().on(clazz, "Couldn't disable close on interrupt", e);
+            Jvm.warn().on(clazz, "Couldn't disable close-on-interrupt in Java 9+ path", e);
         }
     }
 
@@ -1473,7 +1475,7 @@ public final class Jvm {
      * parsed as a {@code double} or, if no such parsable System Property exists,
      * returns the provided {@code defaultValue}.
      * <p>
-     * Guarantees that Jvm class is initialized before property is read.
+     * Ensures the Jvm class is initialised before reading the double property value.
      *
      * @param systemPropertyKey to lookup in the System Properties
      * @param defaultValue      to be used if no parsable key association exists
@@ -1714,7 +1716,7 @@ public final class Jvm {
     }
 
     /**
-     * Returns the package name of the specified class.
+     * Returns the package name for the specified class reference.
      * <p>
      * This method uses {@code Class.getPackageName()} if running on Java 9 or newer.
      * For older versions, it uses a cached value determined by the class name.
@@ -1747,7 +1749,7 @@ public final class Jvm {
      */
     public interface SignalHandler {
         /**
-         * Handle a Signal
+         * Handle an operating system signal notification.
          *
          * @param signal to handle
          */
@@ -1840,7 +1842,7 @@ public final class Jvm {
                     if (handler != null)
                         handler.handle(signal);
                 } catch (Throwable t) {
-                    Jvm.warn().on(this.getClass(), "Problem handling signal", t);
+                    Jvm.warn().on(this.getClass(), "Problem handling signal in native handler", t);
                 }
             }
             for (SignalHandler handler : handlers2) {
@@ -1848,7 +1850,7 @@ public final class Jvm {
                     if (handler != null)
                         handler.handle(signal.getName());
                 } catch (Throwable t) {
-                    Jvm.warn().on(this.getClass(), "Problem handling signal", t);
+                    Jvm.warn().on(this.getClass(), "Problem handling signal in string handler", t);
                 }
             }
         }

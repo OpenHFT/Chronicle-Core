@@ -6,7 +6,7 @@ package net.openhft.chronicle.core.scoped;
 import java.io.Closeable;
 
 /**
- * A short-lived handle to a shared resource.
+ * A short-lived handle to a shared resource within a scoped lifecycle and pool.
  * <p>
  * Instances are obtained from a {@link ScopedResourcePool} such as
  * {@link ScopedThreadLocal} and are expected to be used with the
@@ -21,7 +21,7 @@ import java.io.Closeable;
 public interface ScopedResource<T> extends Closeable {
 
     /**
-     * Get the contained resource
+     * Returns the contained resource for the current scope.
      *
      * @return The resource
      */

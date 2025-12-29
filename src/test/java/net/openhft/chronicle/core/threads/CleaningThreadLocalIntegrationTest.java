@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.threads;
 import net.openhft.chronicle.core.io.AbstractReferenceCounted;
 import net.openhft.chronicle.core.io.BackgroundResourceReleaser;
 import net.openhft.chronicle.core.io.ReferenceOwner;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Field;
@@ -41,10 +42,11 @@ class CleaningThreadLocalIntegrationTest {
             Map<?, ?> map = (Map<?, ?>) field.get(ctl);
             return map == null ? 0 : map.size();
         } catch (ReflectiveOperationException e) {
-            throw new AssertionError(e);
+            throw new AssertionError("Unable to access nonCleaningThreadValues via reflection", e);
         }
     }
 
+    @DisplayName("cleanupNonCleaningThreadsHandlesConcurrentCallers behaviour under expected input and output conditions")
     @Test
     void cleanupNonCleaningThreadsHandlesConcurrentCallers() throws Exception {
         int ctls = 4;
@@ -114,6 +116,7 @@ class CleaningThreadLocalIntegrationTest {
         assertEquals(expectedOrphans, cleaned.get(), "every orphan should be cleaned exactly once");
     }
 
+    @DisplayName("cleanupTriggersBackgroundReferenceRelease behaviour under expected input and output conditions")
     @Test
     void cleanupTriggersBackgroundReferenceRelease() throws Exception {
         AtomicInteger releases = new AtomicInteger();

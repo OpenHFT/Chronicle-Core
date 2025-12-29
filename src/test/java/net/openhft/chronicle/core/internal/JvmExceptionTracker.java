@@ -25,7 +25,7 @@ public enum JvmExceptionTracker {
     private static final Set<LogLevel> IGNORED_LOG_LEVELS = EnumSet.of(DEBUG, PERF);
 
     /**
-     * Create a JvmExceptionTracker
+     * Builds an ExceptionTracker using the current {@link Jvm} exception recording configuration.
      *
      * @return the exception tracker
      */
@@ -34,7 +34,7 @@ public enum JvmExceptionTracker {
     }
 
     /**
-     * Create a JvmExceptionTracker
+     * Builds an ExceptionTracker with optional debug exception tracking.
      *
      * @param debug Whether to track debug messages
      * @return the exception tracker
@@ -44,7 +44,7 @@ public enum JvmExceptionTracker {
     }
 
     /**
-     * Create a JvmExceptionTracker
+     * Builds an ExceptionTracker with debug and exceptions-only options.
      *
      * @param debug          Whether to track debug messages
      * @param exceptionsOnly Whether to track only messages with exceptions
@@ -56,7 +56,7 @@ public enum JvmExceptionTracker {
     }
 
     /**
-     * Create a JvmExceptionTracker
+     * Builds an ExceptionTracker with debug, exceptions-only, and SLF4J logging options.
      *
      * @param debug          Whether to track debug messages
      * @param exceptionsOnly Whether to track only messages with exceptions
@@ -70,7 +70,7 @@ public enum JvmExceptionTracker {
     }
 
     /**
-     * Create a JvmExceptionTracker
+     * Builds an ExceptionTracker from an existing recorded exceptions map.
      *
      * @return the exception tracker
      */
