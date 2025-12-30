@@ -3,10 +3,14 @@
  */
 package net.openhft.chronicle.core.internal;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 
 import static java.lang.Runtime.getRuntime;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
@@ -38,6 +42,7 @@ public final class Bootstrap {
     public static final boolean IS_ARM = Bootstrap.isArm0();
     public static final boolean IS_MAC_ARM = Bootstrap.isMacArm0();
     public static final boolean IS_LINUX = LOWER_OS_NAME.startsWith("linux");
+    public static final boolean IS_WSL = isWsl0();
 
     static {
 
@@ -76,6 +81,41 @@ public final class Bootstrap {
 
     public static boolean isAzulZulu0() {
         return VM_VENDOR.startsWith("Azul ") && (VM_NAME.startsWith("OpenJDK ") || VM_NAME.startsWith("Zulu"));
+    }
+
+    private static boolean isWsl0() {
+        if (!LOWER_OS_NAME.startsWith("linux")) {
+            return false;
+        }
+        if (isEnvSet("WSL_DISTRO_NAME") || isEnvSet("WSL_INTEROP") || isEnvSet("WSLENV")) {
+            return true;
+        }
+        return fileContainsIgnoreCase("/proc/sys/kernel/osrelease", "microsoft")
+                || fileContainsIgnoreCase("/proc/version", "microsoft");
+    }
+
+    private static boolean isEnvSet(String name) {
+        String value = System.getenv(name);
+        return value != null && !value.isEmpty();
+    }
+
+    private static boolean fileContainsIgnoreCase(String path, String token) {
+        File file = new File(path);
+        if (!file.canRead()) {
+            return false;
+        }
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(
+                new FileInputStream(file), StandardCharsets.UTF_8))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.toLowerCase().contains(token)) {
+                    return true;
+                }
+            }
+        } catch (IOException ignored) {
+            // ignore
+        }
+        return false;
     }
 
     public static int getJvmJavaMajorVersion() {

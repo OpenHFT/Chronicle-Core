@@ -484,6 +484,15 @@ public final class OS {
     }
 
     /**
+     * Returns if this JVM runs under Windows Subsystem for Linux (WSL).
+     *
+     * @return if runs on WSL
+     */
+    public static boolean isWsl() {
+        return Bootstrap.IS_WSL;
+    }
+
+    /**
      * Returns the maximum PID the operating system may allocate.
      *
      * @return the maximum PID.
