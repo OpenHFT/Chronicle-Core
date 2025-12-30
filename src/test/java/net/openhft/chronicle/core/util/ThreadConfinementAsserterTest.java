@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ThreadConfinementAsserterTest {
 
-    @DisplayName("assertThreadConfinedSameThread behaviour under expected input and output conditions")
+    @DisplayName("Assert thread confined same thread confinement")
     @Test
     void assertThreadConfinedSameThread() {
         ThreadConfinementAsserter asserter = ThreadConfinementAsserter.createEnabled();
@@ -22,7 +22,7 @@ class ThreadConfinementAsserterTest {
         assertDoesNotThrow(asserter::assertThreadConfined, "repeat assertThreadConfined should remain valid on owning thread");
     }
 
-    @DisplayName("assertThreadConfinedDifferentThreads behaviour under expected input and output conditions")
+    @DisplayName("Assert thread confined different threads confinement")
     @Test
     void assertThreadConfinedDifferentThreads() throws InterruptedException {
         ThreadConfinementAsserter asserter = ThreadConfinementAsserter.createEnabled();
@@ -41,7 +41,7 @@ class ThreadConfinementAsserterTest {
         executorService.shutdown();
     }
 
-    @DisplayName("createShouldReturnCorrectTypeBasedOnAssertions behaviour under expected input and output conditions")
+    @DisplayName("Create should return correct type based on assertions")
     @Test
     void createShouldReturnCorrectTypeBasedOnAssertions() {
         // This test's behavior will depend on whether assertions are enabled in the JVM.
@@ -50,7 +50,7 @@ class ThreadConfinementAsserterTest {
         assertNotNull(asserter, "create() should return a non-null asserter regardless of assertion state");
     }
 
-    @DisplayName("createEnabledShouldAlwaysReturnFunctionalAsserter behaviour under expected input and output conditions")
+    @DisplayName("Create enabled should always return functional asserter")
     @Test
     void createEnabledShouldAlwaysReturnFunctionalAsserter() {
         ThreadConfinementAsserter asserter = ThreadConfinementAsserter.createEnabled();

@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class InternalPomPropertiesPresenceTest {
 
-    @DisplayName("versionLoadedFromResourceAndThenCached behaviour under expected input and output conditions")
+    @DisplayName("Version loaded from resource and then cached")
     @Test
     void versionLoadedFromResourceAndThenCached() {
         String v1 = InternalPomProperties.version("test.group", "test-artifact");

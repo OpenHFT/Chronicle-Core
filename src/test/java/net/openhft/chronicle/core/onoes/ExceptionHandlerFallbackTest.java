@@ -22,7 +22,7 @@ class ExceptionHandlerFallbackTest {
     /**
      * Ensures Slf4jExceptionHandler falls back to the default logger when initialisation fails.
      */
-    @DisplayName("classShouldFallBackWhenDelegateThrows behaviour under expected input and output conditions")
+    @DisplayName("Class should fall back when delegate throws")
     @Test
     void classShouldFallBackWhenDelegateThrows() throws IllegalAccessException {
         Field initializationState = Jvm.getField(LoggerFactory.class, "INITIALIZATION_STATE");

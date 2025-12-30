@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OSPageCacheTest {
 
-    @DisplayName("pageSizeAndMapAlignmentCache behaviour under expected input and output conditions")
+    @DisplayName("Page size and map alignment cache")
     @Test
     void pageSizeAndMapAlignmentCache() throws Exception {
         int first = OS.pageSize();

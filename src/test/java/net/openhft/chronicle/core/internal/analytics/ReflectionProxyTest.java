@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 @SuppressWarnings("deprecation")
 class ReflectionProxyTest {
 
-    @DisplayName("reflectiveProxyCanReturnProxyForFluent behaviour under expected input and output conditions")
+    @DisplayName("Reflective proxy can return proxy for fluent")
     @Test
     void reflectiveProxyCanReturnProxyForFluent() {
         Delegate delegate = new Delegate();

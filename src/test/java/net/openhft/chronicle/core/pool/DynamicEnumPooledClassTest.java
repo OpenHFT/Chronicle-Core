@@ -13,7 +13,7 @@ import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DynamicEnumPooledClassTest extends CoreTestCommon {
-    @DisplayName("additionalEnum behaviour under expected input and output conditions")
+    @DisplayName("Dynamic enum cache adds new constants on demand")
     @Test
     void additionalEnum() {
         EnumCache<YesNo> yesNoEnumCache = EnumCache.of(YesNo.class);
@@ -40,7 +40,7 @@ class DynamicEnumPooledClassTest extends CoreTestCommon {
         assertEquals("[Yes, No]", Arrays.toString(yesNoEnumCache.asArray()), "reset should remove dynamically created constants");
     }
 
-    @DisplayName("testInitialSize behaviour under expected input and output conditions")
+    @DisplayName("Dynamic enum cache size rounds to power of two")
     @Test
     void testInitialSize() throws IllegalArgumentException {
         EnumCache<EcnDynamic> ecnEnumCache = EnumCache.of(EcnDynamic.class);

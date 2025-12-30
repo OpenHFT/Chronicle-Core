@@ -128,7 +128,7 @@ class ObjectUtilsTest extends CoreTestCommon {
         assertThrows(IllegalArgumentException.class, supplier::get, "supplier for internal package should throw when invoked");
     }
 
-    @DisplayName("Supplier for enum returns non null enum instance behaviour under expected input and output conditions")
+    @DisplayName("Enum supplier yields non null constant")
     @Test
     void supplierForEnumTest() {
         Supplier<MyEnum> supplier = ObjectUtils.supplierForEnum(MyEnum.class);
@@ -154,20 +154,20 @@ class ObjectUtilsTest extends CoreTestCommon {
         assertNull(ObjectUtils.convertChar("long"), "multi-character string should return null when converting to char");
     }
 
-    @DisplayName("Conversion to same class returns original instance value behaviour under expected input and output conditions")
+    @DisplayName("Same class conversion keeps original instance")
     @Test
     void convertTo0SameClassTest() {
         String testString = "test";
         assertEquals(testString, ObjectUtils.convertTo0(String.class, testString), "converting to same class should return original instance");
     }
 
-    @DisplayName("Null input conversion returns expected null result value behaviour under expected input and output conditions")
+    @DisplayName("Null conversion uses fallback path for defaults")
     @Test
     void convertTo0NullTest() {
         assertNull(ObjectUtils.convertTo0(String.class, null), "null input should return null conversion result");
     }
 
-    @DisplayName("Conversion to void class returns expected null result behaviour under expected input and output conditions")
+    @DisplayName("Void class conversion yields null marker output")
     @Test
     void convertTo0VoidClassTest() {
         assertNull(ObjectUtils.convertTo0(Void.class, "anyValue"), "converting to void class should always return null");
@@ -245,14 +245,14 @@ class ObjectUtilsTest extends CoreTestCommon {
         assertEquals(1, ObjectUtils.convertToNumber(Integer.class, "1"), "string '1' should convert to integer 1");
     }
 
-    @DisplayName("New instance is created from class name string behaviour under expected input and output conditions")
+    @DisplayName("Class name instantiation creates reflection object")
     @Test
     void newInstanceWithClassNameTest() {
         RegularClass instance = ObjectUtils.newInstance(RegularClass.class.getName());
         assertNotNull(instance, "new instance should be created from class name string");
     }
 
-    @DisplayName("newInstanceOrNull returns instance for valid class input behaviour under expected input and output conditions")
+    @DisplayName("Factory creates concrete type instance from supplier")
     @Test
     void newInstanceOrNullValidClassTest() {
         RegularClass instance = (RegularClass) ObjectUtils.newInstanceOrNull(RegularClass.class);
@@ -282,7 +282,7 @@ class ObjectUtilsTest extends CoreTestCommon {
                 "implementing class should report all interfaces in hierarchy");
     }
 
-    @DisplayName("getAllInterfaces rejects null accumulator argument behaviour under expected input and output conditions")
+    @DisplayName("Interface collection rejects null accumulator argument")
     @Test
     void getAllInterfacesWithNullAccumulatorTest() {
         assertThrows(IllegalArgumentException.class,
@@ -290,7 +290,7 @@ class ObjectUtilsTest extends CoreTestCommon {
                 "null accumulator should throw IllegalArgumentException");
     }
 
-    @DisplayName("implementationToUse returns concrete class for non interface behaviour under expected input and output conditions")
+    @DisplayName("Implementation lookup keeps concrete type selection")
     @Test
     void implementationToUseNonInterfaceTest() {
         Class<?> impl = ObjectUtils.implementationToUse(RegularClass.class);
@@ -330,13 +330,13 @@ class ObjectUtilsTest extends CoreTestCommon {
         assertNull(ObjectUtils.defaultValue(BigDecimal.class), "bigdecimal class default should be null");
     }
 
-    @DisplayName("Default value for unsupported type is null result behaviour under expected input and output conditions")
+    @DisplayName("Unsupported type default yields null sentinel")
     @Test
     void testDefaultValueForUnsupportedType() {
         assertNull(ObjectUtils.defaultValue(Object.class), "object class default should be null");
     }
 
-    @DisplayName("Default value with null class is null result behaviour under expected input and output conditions")
+    @DisplayName("Null class parameter yields default null sentinel")
     @Test
     void testDefaultValueWithNullClass() {
         assertNull(ObjectUtils.defaultValue(null), "null class parameter should return null default value");

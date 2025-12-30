@@ -61,13 +61,13 @@ class CloseableUtilsTest {
                 "added closeable should be present in tracked closeables set: " + closeablesRef.get());
     }
 
-    @DisplayName("enableCloseableTracing initialises tracked set behaviour under expected input and output conditions")
+    @DisplayName("Enable closeable tracing initialises tracked set")
     @Test
     void testEnableCloseableTracing() {
         assertNotNull(getCloseablesRef().get(), "closeables set should be initialized when tracing is enabled");
     }
 
-    @DisplayName("disableCloseableTracing clears tracked set behaviour under expected input and output conditions")
+    @DisplayName("Disable closeable tracing clears tracked set")
     @Test
     void testDisableCloseableTracing() {
         CloseableUtils.disableCloseableTracing();
@@ -87,7 +87,7 @@ class CloseableUtilsTest {
         }
     }
 
-    @DisplayName("waitForCloseablesToClose returns true when closing behaviour under expected input and output conditions")
+    @DisplayName("Wait for closeables to close returns true when closing")
     @Test
     void testWaitForCloseablesToClose() {
         managedCloseable.setClosing(true);
@@ -96,7 +96,7 @@ class CloseableUtilsTest {
         assertTrue(CloseableUtils.waitForCloseablesToClose(1000), "waitForCloseablesToClose should return true when all closeables are closing");
     }
 
-    @DisplayName("waitForCloseablesToClose propagates closeable exceptions behaviour under expected input and output conditions")
+    @DisplayName("Wait for closeables to close propagates closeable exceptions")
     @Test
     void testWaitForCloseablesToCloseWithException() {
         managedCloseable.throwOnIsClosing(new IllegalStateException("testWaitForCloseablesToCloseWithException"));
@@ -107,7 +107,7 @@ class CloseableUtilsTest {
                 "exception from closeable should propagate");
     }
 
-    @DisplayName("assertCloseablesClosed succeeds when all closed behaviour under expected input and output conditions")
+    @DisplayName("Assert closeables closed succeeds when all closed closeable")
     @Test
     void testAssertCloseablesClosed() {
         managedCloseable.setClosed(true);
@@ -116,7 +116,7 @@ class CloseableUtilsTest {
         assertDoesNotThrow(CloseableUtils::assertCloseablesClosed, "assertCloseablesClosed should not throw when closed");
     }
 
-    @DisplayName("assertCloseablesClosed fails when closeables open behaviour under expected input and output conditions")
+    @DisplayName("Assert closeables closed fails when closeables open")
     @Test
     void testAssertCloseablesClosedWithOpenCloseables() {
         managedCloseable.setClosed(false);
@@ -138,7 +138,7 @@ class CloseableUtilsTest {
                 "unmonitored closeable should be removed from tracked closeables set: " + closeablesRef.get());
     }
 
-    @DisplayName("IOTools.unmonitor removes tracked closeables behaviour under expected input and output conditions")
+    @DisplayName("IO tools unmonitor removes tracked closeables")
     @Test
     void testIOToolsUnmonitor() {
         IOTools.unmonitor(null);
@@ -163,7 +163,7 @@ class CloseableUtilsTest {
         assertTrue(second.isClosed(), "second closeable should be closed");
     }
 
-    @DisplayName("closeQuietly closes AutoCloseable once behaviour under expected input and output conditions")
+    @DisplayName("Close quietly closes auto closeable once")
     @Test
     void testCloseQuietlyAutoCloseable() throws Exception {
         CloseableUtils.closeQuietly(autoCloseable);
@@ -171,7 +171,7 @@ class CloseableUtilsTest {
         assertTrue(autoCloseable.isClosed(), "auto-closeable should be closed");
     }
 
-    @DisplayName("closeQuietly disconnects HttpURLConnection instance behaviour under expected input and output conditions")
+    @DisplayName("Close quietly disconnects http URL connection instance")
     @Test
     void testCloseQuietlyHttpURLConnection() {
         CloseableUtils.closeQuietly(httpURLConnection);

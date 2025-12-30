@@ -24,7 +24,7 @@ class InternalAnnouncerConcurrencyTest {
         System.setProperty("chronicle.announcer.disable", "true");
     }
 
-    @DisplayName("concurrentAnnounceDoesNotRaceOrThrow behaviour under expected input and output conditions")
+    @DisplayName("Concurrent announce does not race or throw")
     @Test
     void concurrentAnnounceDoesNotRaceOrThrow() throws InterruptedException {
         int n = 8;

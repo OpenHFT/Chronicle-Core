@@ -12,7 +12,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ReferenceOwnerTest {
-    @DisplayName("testReferenceId behaviour under expected input and output conditions")
+    @DisplayName("Reference owner ids are unique across instances")
     @Test
     void testReferenceId() {
         Set<Integer> ints = new HashSet<>();

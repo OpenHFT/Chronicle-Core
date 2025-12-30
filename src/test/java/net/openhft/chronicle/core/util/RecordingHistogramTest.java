@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RecordingHistogramTest extends CoreTestCommon {
-    @DisplayName("singleSample behaviour under expected input and output conditions")
+    @DisplayName("Single sample formats percentiles and top durations")
     @Test
     void singleSample() {
         Histogram h = new MyRecordingHistogram();
@@ -26,7 +26,7 @@ class RecordingHistogramTest extends CoreTestCommon {
         assertEquals("{ 50/90 99/99.9 99.99 - worst  was: 500 / 900  1000 / 1000  1000 - 1000, top: [{ off: 10.0, dur: 1000.0 }, { off: 11.0, dur: 950.0 }, { off: 9.0, dur: 900.0 }, { off: 12.0, dur: 850.0 }, { off: 8.0, dur: 800.0 }] }", h.toMicrosFormat(), "histogram format should show multiple samples with correct percentiles and top 5 durations");
     }
 
-    @DisplayName("testSampleNanosAndTopDurations behaviour under expected input and output conditions")
+    @DisplayName("Samples record nanos and sort top durations")
     @Test
     void testSampleNanosAndTopDurations() {
         SystemTimeProvider.CLOCK = new SetTimeProvider();
@@ -44,7 +44,7 @@ class RecordingHistogramTest extends CoreTestCommon {
         assertTrue(s.contains("top:"), "formatted output should contain \"top:\": " + s);
     }
 
-    @DisplayName("testReset behaviour under expected input and output conditions")
+    @DisplayName("Reset returns histogram format to initial state")
     @Test
     void testReset() {
         RecordingHistogram histogram = new RecordingHistogram();
@@ -56,7 +56,7 @@ class RecordingHistogramTest extends CoreTestCommon {
         assertEquals(noData, histogram.toMicrosFormat(), "histogram format should return to initial state after reset");
     }
 
-    @DisplayName("testSamples behaviour under expected input and output conditions")
+    @DisplayName("Samples produce expected percentiles and top durations")
     @Test
     void testSamples() {
         Histogram h = new MyRecordingHistogram();

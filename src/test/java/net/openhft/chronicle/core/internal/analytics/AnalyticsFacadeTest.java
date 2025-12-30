@@ -22,7 +22,7 @@ class AnalyticsFacadeTest extends CoreTestCommon {
         System.clearProperty("chronicle.analytics.disable");
     }
 
-    @DisplayName("systemProp behaviour under expected input and output conditions")
+    @DisplayName("System property disables analytics facade builder")
     @Test
     void systemProp() {
         System.setProperty("chronicle.analytics.disable", "true");
@@ -34,7 +34,7 @@ class AnalyticsFacadeTest extends CoreTestCommon {
 
     }
 
-    @DisplayName("analytics behaviour under expected input and output conditions")
+    @DisplayName("Analytics facade builder creates real implementation")
     @Test
     void analytics() {
         final AnalyticsFacade.Builder builder = AnalyticsFacade.builder("measurementId", "apiSecret")

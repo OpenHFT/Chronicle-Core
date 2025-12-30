@@ -30,7 +30,7 @@ class UniqueMicroTimeProviderTest extends CoreTestCommon {
         timeProvider.provider(setTimeProvider);
     }
 
-    @DisplayName("shouldProvideUniqueTimeAcrossThreadsMillis behaviour under expected input and output conditions")
+    @DisplayName("Millis timestamps remain unique across threads")
     @Test
     void shouldProvideUniqueTimeAcrossThreadsMillis() throws InterruptedException {
         final Set<Long> allGeneratedTimestamps = ConcurrentHashMap.newKeySet();
@@ -71,7 +71,7 @@ class UniqueMicroTimeProviderTest extends CoreTestCommon {
                 "all millis timestamps across threads and iterations should be unique");
     }
 
-    @DisplayName("shouldProvideUniqueTimeAcrossThreadsMicros behaviour under expected input and output conditions")
+    @DisplayName("Micros timestamps remain unique across threads")
     @Test
     void shouldProvideUniqueTimeAcrossThreadsMicros() throws InterruptedException {
         final Set<Long> allGeneratedTimestamps = ConcurrentHashMap.newKeySet();
@@ -113,7 +113,7 @@ class UniqueMicroTimeProviderTest extends CoreTestCommon {
                 "all micros timestamps across threads and iterations should be unique");
     }
 
-    @DisplayName("shouldProvideUniqueTimeAcrossThreadsNanos behaviour under expected input and output conditions")
+    @DisplayName("Nanos timestamps remain unique across threads")
     @Test
     void shouldProvideUniqueTimeAcrossThreadsNanos() throws InterruptedException {
         final Set<Long> allGeneratedTimestamps = ConcurrentHashMap.newKeySet();
@@ -155,7 +155,7 @@ class UniqueMicroTimeProviderTest extends CoreTestCommon {
                 "all nanos timestamps across threads and iterations should be unique");
     }
 
-    @DisplayName("shouldAdvanceTimeWhenExceedingCallsPerSecond behaviour under expected input and output conditions")
+    @DisplayName("Time advances when call rate exceeds limit")
     @Test
     void shouldAdvanceTimeWhenExceedingCallsPerSecond() {
         final int iterations = 1_000_001;
@@ -170,7 +170,7 @@ class UniqueMicroTimeProviderTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("currentTimeMillisShouldBeCorrect behaviour under expected input and output conditions")
+    @DisplayName("Millis reading tracks advancing clock range")
     @Test
     void currentTimeMillisShouldBeCorrect() {
         int iterations = 1_000;
@@ -190,7 +190,7 @@ class UniqueMicroTimeProviderTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("currentTimeMicrosShouldBeCorrect behaviour under expected input and output conditions")
+    @DisplayName("Micros reading advances with monotonic steps")
     @Test
     void currentTimeMicrosShouldBeCorrect() {
         long lastTimeMicros = 0;
@@ -204,7 +204,7 @@ class UniqueMicroTimeProviderTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("currentTimeMicrosShouldBeCorrectBackwards behaviour under expected input and output conditions")
+    @DisplayName("Micros reading stays monotonic when clock goes backward")
     @Test
     void currentTimeMicrosShouldBeCorrectBackwards() {
         long lastTimeMicros = 0;
@@ -218,7 +218,7 @@ class UniqueMicroTimeProviderTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("currentTimeNanosShouldBeCorrect behaviour under expected input and output conditions")
+    @DisplayName("Nanosecond reading advances at microsecond granularity")
     @Test
     void currentTimeNanosShouldBeCorrect() {
         long lastTimeMicros = 0;

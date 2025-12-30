@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BuilderTest {
 
-    @DisplayName("buildShouldReturnNonNullInstance behaviour under expected input and output conditions")
+    @DisplayName("Builder build returns fresh instance for each call")
     @Test
     void buildShouldReturnNonNullInstance() {
         Builder<MyClass> builder = new MyClassBuilder(); // MyClassBuilder is a hypothetical implementation
@@ -17,7 +17,7 @@ class BuilderTest {
         assertNotNull(instance, "Builder.build should return a non-null instance");
     }
 
-    @DisplayName("buildShouldReturnNewInstanceForMutableTypes behaviour under expected input and output conditions")
+    @DisplayName("Build should return new instance for mutable types builder")
     @Test
     void buildShouldReturnNewInstanceForMutableTypes() {
         Builder<MyClass> builder = new MyClassBuilder(); // Assuming MyClass is mutable
@@ -26,7 +26,7 @@ class BuilderTest {
         assertNotSame(firstInstance, secondInstance, "Builder.build should return a fresh instance for mutable types");
     }
 
-    @DisplayName("buildShouldThrowExceptionIfInvokedMultipleTimesWhenNotAllowed behaviour under expected input and output conditions")
+    @DisplayName("Build should throw exception if invoked multiple times when not allowed")
     @Test
     void buildShouldThrowExceptionIfInvokedMultipleTimesWhenNotAllowed() {
         Builder<MyClass> oneTimeUseBuilder = new OneTimeUseMyClassBuilder(); // Hypothetical one-time use builder
@@ -35,7 +35,7 @@ class BuilderTest {
                 "one-time builder should throw when build is invoked twice");
     }
 
-    @DisplayName("getShouldDelegateToBuild behaviour under expected input and output conditions")
+    @DisplayName("Builder get delegates to build factory method")
     @Test
     void getShouldDelegateToBuild() {
         Builder<MyClass> builder = new MyClassBuilder();

@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ReadResolvableTest {
 
-    @DisplayName("readResolveMethodInImplementingClassShouldReturnReplacementObject behaviour under expected input and output conditions")
+    @DisplayName("Read resolve method in implementing class should return replacement object")
     @Test
     void readResolveMethodInImplementingClassShouldReturnReplacementObject() {
         ReadResolvableImpl original = new ReadResolvableImpl();
@@ -21,7 +21,7 @@ class ReadResolvableTest {
         // Additional assertions based on the expected behavior of the replacement object
     }
 
-    @DisplayName("staticReadResolveShouldCallReadResolveForReadResolvableObjects behaviour under expected input and output conditions")
+    @DisplayName("Static read resolve should call read resolve for read resolvable objects")
     @Test
     void staticReadResolveShouldCallReadResolveForReadResolvableObjects() {
         ReadResolvableImpl original = new ReadResolvableImpl();
@@ -31,7 +31,7 @@ class ReadResolvableTest {
         assertNotSame(original, resolved, "static readResolve should return different instance for ReadResolvable");
     }
 
-    @DisplayName("staticReadResolveShouldReturnSameObjectForSerializableNonReadResolvableObjects behaviour under expected input and output conditions")
+    @DisplayName("Static read resolve should return same object for serializable non read resolvable objects")
     @Test
     void staticReadResolveShouldReturnSameObjectForSerializableNonReadResolvableObjects() {
         SerializableObject serializableObject = new SerializableObject();
@@ -40,7 +40,7 @@ class ReadResolvableTest {
         assertSame(serializableObject, resolved, "static readResolve should return same Serializable non-ReadResolvable object");
     }
 
-    @DisplayName("staticReadResolveShouldReturnSameObjectForNonSerializableNonReadResolvableObjects behaviour under expected input and output conditions")
+    @DisplayName("Static read resolve should return same object for non serializable non read resolvable objects")
     @Test
     void staticReadResolveShouldReturnSameObjectForNonSerializableNonReadResolvableObjects() {
         NonSerializableObject nonSerializableObject = new NonSerializableObject();

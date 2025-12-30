@@ -17,7 +17,7 @@ class JvmFlagsTest {
         System.clearProperty("foo.baz");
     }
 
-    @DisplayName("getBooleanRespectsDefaultsAndSystemProperty behaviour under expected input and output conditions")
+    @DisplayName("Get boolean respects defaults and system property")
     @Test
     void getBooleanRespectsDefaultsAndSystemProperty() {
         assertFalse(Jvm.getBoolean("foo.bar"), "getBoolean should return false when property is not set and no default is provided");
@@ -29,7 +29,7 @@ class JvmFlagsTest {
         assertFalse(Jvm.getBoolean("foo.baz", true), "getBoolean should return system property value when set, ignoring default");
     }
 
-    @DisplayName("majorVersionIsSaneAndPausesDoNotThrow behaviour under expected input and output conditions")
+    @DisplayName("Major version is sane and pauses do not throw")
     @Test
     void majorVersionIsSaneAndPausesDoNotThrow() {
         int majorVersion = Jvm.majorVersion();

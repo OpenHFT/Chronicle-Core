@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class OSMapAlignTest {
 
-    @DisplayName("mapAlignBasicAndEdgeCases behaviour under expected input and output conditions")
+    @DisplayName("Map align basic and edge cases")
     @Test
     void mapAlignBasicAndEdgeCases() {
         int page = OS.defaultOsPageSize();

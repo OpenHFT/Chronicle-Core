@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @SuppressWarnings("deprecation")
 class ThreadLocalHelperTest {
 
-    @DisplayName("testGetTLWithSupplier behaviour under expected input and output conditions")
+    @DisplayName("Get TL with supplier thread local")
     @Test
     void testGetTLWithSupplier() {
         ThreadLocal<WeakReference<String>> threadLocal = new ThreadLocal<>();
@@ -25,7 +25,7 @@ class ThreadLocalHelperTest {
         assertEquals("Value1", ThreadLocalHelper.getTL(threadLocal, () -> "Value" + counter.incrementAndGet()), "getTL should return cached value (supplier not invoked)");
     }
 
-    @DisplayName("testGetSTL behaviour under expected input and output conditions")
+    @DisplayName("getSTL caches supplier value in thread local")
     @Test
     void testGetSTL() {
         ThreadLocal<String> threadLocal = new ThreadLocal<>();
@@ -36,7 +36,7 @@ class ThreadLocalHelperTest {
         assertEquals("Value1", ThreadLocalHelper.getSTL(threadLocal, () -> "Value" + counter.incrementAndGet()), "getSTL should return cached value (supplier not invoked)");
     }
 
-    @DisplayName("testGetTLWithFunction behaviour under expected input and output conditions")
+    @DisplayName("Get TL with function thread local")
     @Test
     void testGetTLWithFunction() {
         ThreadLocal<WeakReference<Integer>> threadLocal = new ThreadLocal<>();

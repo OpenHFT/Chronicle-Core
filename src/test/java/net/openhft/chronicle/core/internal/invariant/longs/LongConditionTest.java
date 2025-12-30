@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LongConditionTest {
 
-    @DisplayName("basicComparisons behaviour under expected input and output conditions")
+    @DisplayName("Basic comparisons validate long invariant predicates")
     @Test
     void basicComparisons() {
         String codeSource = LongCondition.class.getProtectionDomain().getCodeSource().getLocation().getPath();
@@ -39,7 +39,7 @@ class LongConditionTest {
         assertFalse(LongCondition.NON_ZERO.test(0), "non-zero condition should reject zero");
     }
 
-    @DisplayName("rangeAndAlignmentChecks behaviour under expected input and output conditions")
+    @DisplayName("Range and alignment checks validate long constraints")
     @Test
     void rangeAndAlignmentChecks() {
         assertTrue(LongCondition.BYTE_CONVERTIBLE.test(Byte.MAX_VALUE), "byte convertible condition should accept value within byte range");
@@ -61,7 +61,7 @@ class LongConditionTest {
         assertFalse(LongCondition.LONG_ALIGNED.test(4), "long aligned condition should reject unaligned value");
     }
 
-    @DisplayName("negateMappings behaviour under expected input and output conditions")
+    @DisplayName("Negated predicates invert long invariant expectations")
     @Test
     void negateMappings() {
         LongPredicate positiveNegated = LongCondition.POSITIVE.negate();
@@ -93,7 +93,7 @@ class LongConditionTest {
         assertTrue(notShortAligned.test(3), "negated short aligned condition should accept unaligned value");
     }
 
-    @DisplayName("descriptiveToString behaviour under expected input and output conditions")
+    @DisplayName("Descriptive toString exposes invariant predicate labels")
     @Test
     void descriptiveToString() {
         assertEquals("> 0", LongCondition.POSITIVE.toString(), "positive condition should have descriptive string representation");

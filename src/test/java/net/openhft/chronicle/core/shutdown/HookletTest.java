@@ -27,7 +27,7 @@ class HookletTest {
         assertTrue(called.get(), "onShutdown callback should be invoked when hooklet is triggered");
     }
 
-    @DisplayName("priority returns configured hooklet value behaviour under expected input and output conditions")
+    @DisplayName("Priority returns configured hooklet setting value")
     @Test
     void testPriority() {
         Hooklet hooklet = new Hooklet() {
@@ -54,7 +54,7 @@ class HookletTest {
         assertTrue(called.get(), "hooklet created with of() should execute the provided runnable on shutdown");
     }
 
-    @DisplayName("compareTo orders hooklets by priority behaviour under expected input and output conditions")
+    @DisplayName("Compare to orders hooklets by priority")
     @Test
     void testCompareTo() {
         Hooklet hooklet1 = Hooklet.of(10, () -> {});

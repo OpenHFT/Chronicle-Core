@@ -226,7 +226,11 @@ class IOToolsTest extends CoreTestCommon {
         IOTools.createDirectories(ro);
         if (!ro.toFile().setWritable(false))
             throw new IllegalStateException("Cannot make read-only");
-        assertFalse(ro.toFile().canWrite(), "read-only directory should not be writable: " + ro);
+        boolean writable = ro.toFile().canWrite();
+        if (OS.isWsl() && writable) {
+            Assumptions.assumeTrue(false, "WSL does not enforce read-only permissions on this filesystem");
+        }
+        assertFalse(writable, "read-only directory should not be writable: " + ro);
         boolean restored;
         IOException deleteFailure = null;
         try {

@@ -28,7 +28,7 @@ class PosixTimeProviderTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("currentTimeMicros behaviour under expected input and output conditions")
+    @DisplayName("POSIX current time micros retries flaky provider")
     @Test
     void currentTimeMicros() throws IllegalStateException {
         assumeFalse(OS.isMacOSX() || Jvm.isArm());
@@ -48,7 +48,7 @@ class PosixTimeProviderTest extends CoreTestCommon {
         SystemTimeProviderTest.assertCurrentTimeMicros(PosixTimeProvider.INSTANCE, true, OS.isWindows());
     }
 
-    @DisplayName("currentTime behaviour under expected input and output conditions")
+    @DisplayName("POSIX time values stay within cross unit bounds")
     @Test
     void currentTime() throws IllegalStateException {
         assumeTrue(!OS.isMacOSX());
@@ -68,7 +68,7 @@ class PosixTimeProviderTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("resolution behaviour under expected input and output conditions")
+    @DisplayName("POSIX resolution samples nanos clock histogram")
     @Test
     void resolution() {
         assumeTrue(!OS.isMacOSX());

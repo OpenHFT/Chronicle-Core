@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AbstractCloseableTest extends CoreTestCommon {
 
-    @DisplayName("close behaviour under expected input and output conditions")
+    @DisplayName("Close triggers performClose once and marks closed")
     @Test
     void close() throws IllegalStateException {
         MyCloseable mc = new MyCloseable();
@@ -34,7 +34,7 @@ class AbstractCloseableTest extends CoreTestCommon {
         assertEquals(1, mc.performClose, "performClose should not be called again on second close");
     }
 
-    @DisplayName("throwExceptionIfClosed behaviour under expected input and output conditions")
+    @DisplayName("Throw exception if closed abstract closeable")
     @Test
     void throwExceptionIfClosed() {
         MyCloseable mc = new MyCloseable();
@@ -43,7 +43,7 @@ class AbstractCloseableTest extends CoreTestCommon {
 
     }
 
-    @DisplayName("warnAndCloseIfNotClosed behaviour under expected input and output conditions")
+    @DisplayName("Warn and close if not closed abstract")
     @Test
     void warnAndCloseIfNotClosed() {
         Jvm.setResourceTracing(true);
@@ -67,7 +67,7 @@ class AbstractCloseableTest extends CoreTestCommon {
                     "warning message should indicate resource was discarded without closing");
     }
 
-    @DisplayName("assertCloseable behaviour under expected input and output conditions")
+    @DisplayName("assertCloseable validation guards performClose on first failure")
     @Test
     void assertCloseable() {
 

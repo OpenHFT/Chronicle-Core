@@ -14,14 +14,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class HistogramTest extends CoreTestCommon {
 
-    @DisplayName("defaultConstructorInitializesProperly behaviour under expected input and output conditions")
+    @DisplayName("Default histogram starts with empty bucket state")
     @Test
     void defaultConstructorInitializesProperly() {
         Histogram histogram = new Histogram();
         assertNotNull(histogram, "Histogram should be created with default constructor");
     }
 
-    @DisplayName("constructorWithParametersInitializesProperly behaviour under expected input and output conditions")
+    @DisplayName("Custom histogram uses powers and fraction bits")
     @Test
     void constructorWithParametersInitializesProperly() {
         int powersOf2 = 10;
@@ -30,7 +30,7 @@ class HistogramTest extends CoreTestCommon {
         assertNotNull(histogram, "Histogram should be created with custom powersOf2 and fractionBits");
     }
 
-    @DisplayName("sampleCorrectlyUpdatesHistogram behaviour under expected input and output conditions")
+    @DisplayName("Sampling updates bucket index and worst entry")
     @Test
     void sampleCorrectlyUpdatesHistogram() {
         Histogram histogram = new Histogram();
@@ -40,7 +40,7 @@ class HistogramTest extends CoreTestCommon {
         assertTrue(micros.contains("worst"), "formatted output should contain \"worst\": " + micros);
     }
 
-    @DisplayName("addCombinesHistogramsCorrectly behaviour under expected input and output conditions")
+    @DisplayName("Adding histogram merges sample distributions together")
     @Test
     void addCombinesHistogramsCorrectly() {
         Histogram h1 = new Histogram();
@@ -51,7 +51,7 @@ class HistogramTest extends CoreTestCommon {
         assertTrue(micros.contains("worst"), "combined histogram should contain \"worst\": " + micros);
     }
 
-    @DisplayName("testEqualsAndHashCode behaviour under expected input and output conditions")
+    @DisplayName("Equality compares histogram configuration and buckets")
     @Test
     void testEqualsAndHashCode() {
         Histogram h1 = new Histogram();
@@ -61,7 +61,7 @@ class HistogramTest extends CoreTestCommon {
         assertEquals(h1.hashCode(), h2.hashCode(), "equal histograms should have equal hash codes");
     }
 
-    @DisplayName("percentilesForReturnsCorrectValues behaviour under expected input and output conditions")
+    @DisplayName("Percentile array includes expected percentile markers")
     @Test
     void percentilesForReturnsCorrectValues() {
         long count = 10000;
@@ -70,13 +70,13 @@ class HistogramTest extends CoreTestCommon {
         assertTrue(percentiles.length > 0, "percentiles array should contain at least one element: length=" + percentiles.length);
     }
 
-    @DisplayName("percentilesFor behaviour under expected input and output conditions")
+    @DisplayName("Percentile table matches standard high quantiles")
     @Test
     void percentilesFor() {
         assertEquals("[0.5, 0.9, 0.99, 0.997, 0.999, 0.9997, 0.9999, 0.99997, 0.99999, 0.999997, 1.0]", Arrays.toString(Histogram.percentilesFor(50_000_000)), "percentilesFor 50M samples should include standard percentiles up to six nines");
     }
 
-    @DisplayName("singleSample behaviour under expected input and output conditions")
+    @DisplayName("Single sample renders full percentile summary")
     @Test
     void singleSample() {
         Histogram h = new Histogram();
@@ -84,7 +84,7 @@ class HistogramTest extends CoreTestCommon {
         assertEquals("50/90 97/99 99.7/99.9 99.97/99.99 - worst was 100.0 / 100.0  100.0 / 100.0  100.0 / 100.0  100.0 / 100.0 - 100.0", h.toLongMicrosFormat(), "single 100us sample should show 100.0 for all percentiles");
     }
 
-    @DisplayName("testSampleRange behaviour under expected input and output conditions")
+    @DisplayName("Sample range maps powers to bucket offsets")
     @Test
     void testSampleRange() {
         @NotNull Histogram h = new Histogram(40, 2);
@@ -101,7 +101,7 @@ class HistogramTest extends CoreTestCommon {
                 "40-power histogram should produce expected percentile distribution format");
     }
 
-    @DisplayName("testSamples behaviour under expected input and output conditions")
+    @DisplayName("Seeded samples match percentile and percentage outputs")
     @Test
     void testSamples() {
         @NotNull Histogram h = new Histogram(10, 5, 1000);
@@ -130,7 +130,7 @@ class HistogramTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("testAdd behaviour under expected input and output conditions")
+    @DisplayName("Combining histograms equals dual seed sampling")
     @Test
     void testAdd() {
         int seed1 = 2141;

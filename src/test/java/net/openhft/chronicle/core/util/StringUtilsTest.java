@@ -119,7 +119,7 @@ class StringUtilsTest extends CoreTestCommon {
         assertFalse(StringUtils.equalsCaseIgnore(cs1, "AnotherString"), "equalsCaseIgnore should not match strings with different content");
     }
 
-    @DisplayName("toString handles null and non null objects behaviour under expected input and output conditions")
+    @DisplayName("To string handles null and non null objects utils")
     @Test
     void testToStringMethod() {
         Object obj = "test";
@@ -149,7 +149,7 @@ class StringUtilsTest extends CoreTestCommon {
         assertEquals("test", StringUtils.newStringFromBytes(bytes), "StringUtils.newStringFromBytes should create string from UTF-8 byte array");
     }
 
-    @DisplayName("firstLowerCase lowercases only the first character behaviour under expected input and output conditions")
+    @DisplayName("First lower case lowercases only the first character")
     @Test
     void testFirstLowerCase() {
         assertEquals("", StringUtils.firstLowerCase(""), "firstLowerCase should leave empty string unchanged");
@@ -260,14 +260,14 @@ class StringUtilsTest extends CoreTestCommon {
                 "parseDouble should parse large integer value consistently with JDK parser");
     }
 
-    @DisplayName("parseInt handles standard numeric scenarios correctly")
+    @DisplayName("parseInt handles standard numeric inputs correctly")
     @Test
     void testParseInt() {
         assertEquals(6, validate((s, integer) -> (long) StringUtils.parseInt(s, integer)),
                 "validate should confirm parseInt handles all standard parsing scenarios");
     }
 
-    @DisplayName("parseLong handles standard numeric scenarios correctly")
+    @DisplayName("parseLong handles standard numeric inputs correctly")
     @Test
     void testParseLong() {
         assertEquals(6, validate(StringUtils::parseLong),

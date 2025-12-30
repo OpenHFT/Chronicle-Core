@@ -62,7 +62,7 @@ class CleaningRandomAccessFileTest extends CoreTestCommon {
         IOTools.deleteDirWithFiles(tempDir);
     }
 
-    @DisplayName("testOpenAndClose behaviour under expected input and output conditions")
+    @DisplayName("Open and close cleaning random access")
     @Test
     void testOpenAndClose() throws IOException {
         File tempFile = File.createTempFile("test", "raf");
@@ -82,7 +82,7 @@ class CleaningRandomAccessFileTest extends CoreTestCommon {
     }
 
     @SuppressWarnings("removal")
-    @DisplayName("testFinalizeAndCleanup behaviour under expected input and output conditions")
+    @DisplayName("Finalize and cleanup cleaning random access")
     @Test
     void testFinalizeAndCleanup() throws IOException {
         File tempFile = File.createTempFile("test", "raf");
@@ -100,7 +100,7 @@ class CleaningRandomAccessFileTest extends CoreTestCommon {
         assertTrue(true, "execution should reach this point without exception"); // If we reach here, the test passes
     }
 
-    @DisplayName("resourceLeak behaviour under expected input and output conditions")
+    @DisplayName("Resource leak cleaning random access file")
     @Test
     void resourceLeak() throws IOException {
         assertNoResourceLeak();

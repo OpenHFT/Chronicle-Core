@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CloseableUtilsEdgeTest {
 
-    @DisplayName("closeQuietlyHandlesNullArrayAndCollections behaviour under expected input and output conditions")
+    @DisplayName("Close quietly handles null array and collections")
     @Test
     void closeQuietlyHandlesNullArrayAndCollections() {
         assertDoesNotThrow(() -> Closeable.closeQuietly((Object[]) null),
@@ -28,7 +28,7 @@ class CloseableUtilsEdgeTest {
                 "closeQuietly should ignore null elements in collections");
     }
 
-    @DisplayName("closeQuietlyClosesElementsAndIgnoresThrowers behaviour under expected input and output conditions")
+    @DisplayName("Close quietly closes elements and ignores throwers")
     @Test
     void closeQuietlyClosesElementsAndIgnoresThrowers() {
         AtomicInteger c = new AtomicInteger();

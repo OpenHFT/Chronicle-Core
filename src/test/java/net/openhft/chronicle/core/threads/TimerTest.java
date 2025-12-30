@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TimerTest {
 
-    @DisplayName("fixedRateFiresAfterInitialDelayAndPeriod behaviour under expected input and output conditions")
+    @DisplayName("Fixed rate fires after initial delay and period")
     @Test
     void fixedRateFiresAfterInitialDelayAndPeriod() {
         FakeLoop loop = new FakeLoop();
@@ -51,7 +51,7 @@ class TimerTest {
         assertEquals(2, calls.get(), "timer should fire again when the next period boundary is reached");
     }
 
-    @DisplayName("scheduleOnceRemovesItselfAfterRun behaviour under expected input and output conditions")
+    @DisplayName("Schedule once removes itself after run")
     @Test
     void scheduleOnceRemovesItselfAfterRun() {
         FakeLoop loop = new FakeLoop();

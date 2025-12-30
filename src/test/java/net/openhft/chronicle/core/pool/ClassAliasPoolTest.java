@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.CoreTestCommon;
+import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.ClassNotFoundRuntimeException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -97,7 +98,7 @@ class ClassAliasPoolTest extends CoreTestCommon {
         assertEquals(ClassAliasPoolTest.class, CLASS_ALIASES.forName(sb), "forName with StringBuilder should resolve to registered class");
     }
 
-    @DisplayName("static addAlias method registers aliases behaviour under expected input and output conditions")
+    @DisplayName("Static add alias method registers aliases")
     @Test
     void addAliasViaStaticCompatibilityMethod() throws Exception {
         boolean methodInvoked = false;
@@ -128,7 +129,7 @@ class ClassAliasPoolTest extends CoreTestCommon {
         assertEquals("String", CLASS_ALIASES.nameFor(String.class), "nameFor(String.class) should return 'String' after clean");
     }
 
-    @DisplayName("nameFor returns enum type name behaviour under expected input and output conditions")
+    @DisplayName("Name for returns enum type name alias")
     @Test
     void testEnum() throws IllegalArgumentException {
         assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum", CLASS_ALIASES.nameFor(TestEnum.class), "nameFor(TestEnum.class) should return full qualified name");
@@ -136,7 +137,7 @@ class ClassAliasPoolTest extends CoreTestCommon {
         assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum", CLASS_ALIASES.nameFor(TestEnum.BAR.getClass()), "nameFor(TestEnum.BAR) should return enum type name");
     }
 
-    @DisplayName("addAlias replaces existing alias mapping behaviour under expected input and output conditions")
+    @DisplayName("Add alias replaces existing alias mapping")
     @Test
     void replace() {
         expectException("Replaced class net.openhft.chronicle.core.pool.ClassAliasPoolTest with class net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum");
@@ -151,12 +152,16 @@ class ClassAliasPoolTest extends CoreTestCommon {
     @DisplayName("forName rejects wrong case class name")
     @Test
     void wrongCaseClassName() {
-        assertThrows(ClassNotFoundRuntimeException.class,
+        Class<? extends Throwable> expected = (OS.isWindows() || OS.isWsl())
+                ? NoClassDefFoundError.class
+                : ClassNotFoundRuntimeException.class;
+        String expectedName = expected.getSimpleName();
+        assertThrows(expected,
                 () -> CLASS_ALIASES.forName(TestEnum.class.getName().toLowerCase()),
-                "forName should reject lower-case class name aliases");
+                "forName should reject lower-case class name aliases with " + expectedName);
     }
 
-    @DisplayName("forName rejects banned internal classes behaviour under expected input and output conditions")
+    @DisplayName("For name rejects banned internal classes")
     @Test
     void banned() {
         for (int i = 0; i < 2; i++) {

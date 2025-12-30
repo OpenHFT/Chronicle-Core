@@ -167,7 +167,7 @@ abstract class ReferenceCountedContractTest extends CoreTestCommon {
                 "releaseLast should fail when resource is already released");
     }
 
-    @DisplayName("tryReserve returns true when reservation succeeds behaviour under expected input and output conditions")
+    @DisplayName("Try reserve returns true when reservation succeeds")
     @Test
     void tryReserveWillReturnTrueWhenReservationWasSuccessful() {
         ReferenceCounted referenceCounted = createReferenceCounted();
@@ -178,7 +178,7 @@ abstract class ReferenceCountedContractTest extends CoreTestCommon {
         referenceCounted.releaseLast();
     }
 
-    @DisplayName("tryReserve returns false when resource released behaviour under expected input and output conditions")
+    @DisplayName("Try reserve returns false when resource released")
     @Test
     void tryReserveWillReturnFalseWhenResourceIsAlreadyReleased() {
         ReferenceCounted referenceCounted = createReferenceCounted();

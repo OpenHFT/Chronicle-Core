@@ -71,20 +71,20 @@ class ChronicleInitTest extends CoreTestCommon {
         System.setErr(originalErr);
     }
 
-    @DisplayName("ChronicleInit class loads without exception behaviour under expected input and output conditions")
+    @DisplayName("Chronicle init class loads without exception")
     @Test
     void initShouldNotThrowException() {
         assertDoesNotThrow(() -> Class.forName(ChronicleInit.class.getName()),
                 "Loading ChronicleInit should not throw an exception");
     }
 
-    @DisplayName("postInit completes without throwing exception behaviour under expected input and output conditions")
+    @DisplayName("Post init completes without throwing exception")
     @Test
     void postInitShouldNotThrowException() {
         assertDoesNotThrow(ChronicleInit::postInit, "Calling postInit should not throw an exception");
     }
 
-    @DisplayName("ServiceLoader discovers ChronicleInitRunnable providers behaviour under expected input and output conditions")
+    @DisplayName("Service loader discovers chronicle init runnable providers")
     @Test
     void shouldLoadServiceProviders() {
         ServiceLoader<ChronicleInitRunnable> runnableLoader = ServiceLoader.load(ChronicleInitRunnable.class);

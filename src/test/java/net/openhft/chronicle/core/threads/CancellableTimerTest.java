@@ -45,7 +45,7 @@ class CancellableTimerTest extends CoreTestCommon {
         timer = new CancellableTimer(eventLoop, timeProvider);
     }
 
-    @DisplayName("willExecuteScheduledTaskPeriodically behaviour under expected input and output conditions")
+    @DisplayName("Scheduled handler fires after delay and period")
     @Test
     void willExecuteScheduledTaskPeriodically() throws InvalidEventHandlerException {
         final long submittedTime = System.currentTimeMillis();
@@ -74,7 +74,7 @@ class CancellableTimerTest extends CoreTestCommon {
         verify(handler).action();
     }
 
-    @DisplayName("willSubmitHandlerWithConfiguredPriority behaviour under expected input and output conditions")
+    @DisplayName("Scheduled handler uses configured priority value")
     @Test
     void willSubmitHandlerWithConfiguredPriority() {
         final HandlerPriority configuredPriority = HandlerPriority.REPLICATION_TIMER;
@@ -82,14 +82,14 @@ class CancellableTimerTest extends CoreTestCommon {
         assertEquals(configuredPriority, scheduledEventHandler.priority(), "scheduled handler should use configured priority");
     }
 
-    @DisplayName("willSubmitHandlerWithTimerPriorityByDefault behaviour under expected input and output conditions")
+    @DisplayName("Scheduled handler defaults to timer priority")
     @Test
     void willSubmitHandlerWithTimerPriorityByDefault() {
         timer.scheduleAtFixedRate(handler, INITIAL_DELAY_MS, PERIOD_MS);
         assertEquals(HandlerPriority.TIMER, scheduledEventHandler.priority(), "scheduled handler should default to TIMER priority when not specified");
     }
 
-    @DisplayName("willThrowInvalidEventHandlerWhenCloseIsCalled behaviour under expected input and output conditions")
+    @DisplayName("Closed schedule triggers invalid handler exception")
     @Test
     void willThrowInvalidEventHandlerWhenCloseIsCalled() throws InvalidEventHandlerException, IOException {
         final Closeable closeable = timer.scheduleAtFixedRate(handler, INITIAL_DELAY_MS, PERIOD_MS);
@@ -101,7 +101,7 @@ class CancellableTimerTest extends CoreTestCommon {
                 "scheduled handler should throw after closeable is closed");
     }
 
-    @DisplayName("willScheduleSingleExecutionTask behaviour under expected input and output conditions")
+    @DisplayName("One shot schedule runs runnable once")
     @Test
     void willScheduleSingleExecutionTask() throws InvalidEventHandlerException {
         final long submittedTime = System.currentTimeMillis();
@@ -120,7 +120,7 @@ class CancellableTimerTest extends CoreTestCommon {
         verify(runnable).run();
     }
 
-    @DisplayName("canCancelSingleExecutionTask behaviour under expected input and output conditions")
+    @DisplayName("Cancellation prevents one shot runnable execution")
     @Test
     void canCancelSingleExecutionTask() throws InvalidEventHandlerException, IOException {
         final long submittedTime = System.currentTimeMillis();

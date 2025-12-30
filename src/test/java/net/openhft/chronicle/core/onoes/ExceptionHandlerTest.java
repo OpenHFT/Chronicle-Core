@@ -15,20 +15,20 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ExceptionHandlerTest extends CoreTestCommon {
 
-    @DisplayName("ignoresEverything behaviour under expected input and output conditions")
+    @DisplayName("IgnoresEverything factory returns no op handler")
     @Test
     void ignoresEverything() {
         assertInstanceOf(IgnoresEverything.class, ExceptionHandler.ignoresEverything(),
                 "ignoresEverything factory should return a no-op exception handler implementation");
     }
 
-    @DisplayName("ignoresEverything2 behaviour under expected input and output conditions")
+    @DisplayName("Mocker ignored returns no op handler")
     @Test
     void ignoresEverything2() {
         assertInstanceOf(IgnoresEverything.class, Mocker.ignored(ExceptionHandler.class), "Mocker.ignored should return an IgnoresEverything implementation for ExceptionHandler");
     }
 
-    @DisplayName("onWithClassAndThrowableShouldDelegateProperly behaviour under expected input and output conditions")
+    @DisplayName("Handler on class passes logger and throwable")
     @Test
     void onWithClassAndThrowableShouldDelegateProperly() {
         RecordingExceptionHandler handler = new RecordingExceptionHandler();
@@ -42,7 +42,7 @@ class ExceptionHandlerTest extends CoreTestCommon {
         assertSame(thrown, handler.thrown(), "thrown should be forwarded for on(Class, Throwable)");
     }
 
-    @DisplayName("onWithClassAndMessageShouldDelegateProperly behaviour under expected input and output conditions")
+    @DisplayName("Handler on class passes logger and text")
     @Test
     void onWithClassAndMessageShouldDelegateProperly() {
         RecordingExceptionHandler handler = new RecordingExceptionHandler();
@@ -56,7 +56,7 @@ class ExceptionHandlerTest extends CoreTestCommon {
         assertNull(handler.thrown(), "thrown should be null for on(Class, String)");
     }
 
-    @DisplayName("onWithLoggerAndMessageShouldDelegateProperly behaviour under expected input and output conditions")
+    @DisplayName("Handler on logger passes logger and text")
     @Test
     void onWithLoggerAndMessageShouldDelegateProperly() {
         RecordingExceptionHandler handler = new RecordingExceptionHandler();
@@ -70,14 +70,14 @@ class ExceptionHandlerTest extends CoreTestCommon {
         assertNull(handler.thrown(), "thrown should be null for on(Logger, String)");
     }
 
-    @DisplayName("isEnabledShouldAlwaysReturnTrue behaviour under expected input and output conditions")
+    @DisplayName("Handler isEnabled stays active for any class")
     @Test
     void isEnabledShouldAlwaysReturnTrue() {
         ExceptionHandler handler = new RecordingExceptionHandler();
         assertTrue(handler.isEnabled(this.getClass()), "isEnabled should return true by default for any class");
     }
 
-    @DisplayName("defaultHandlerShouldReturnSelf behaviour under expected input and output conditions")
+    @DisplayName("Default handler returns same singleton handler instance")
     @Test
     void defaultHandlerShouldReturnSelf() {
         ExceptionHandler handler = new RecordingExceptionHandler();

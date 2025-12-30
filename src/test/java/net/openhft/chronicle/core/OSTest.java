@@ -204,7 +204,7 @@ class OSTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("getHostName resolves host name value behaviour under expected input and output conditions")
+    @DisplayName("Host name lookup resolves OS host name value")
     @Test
     void getHostname() throws IOException {
         System.out.println("exec hostname: " + OS.HostnameHolder.execHostname());
@@ -218,7 +218,7 @@ class OSTest extends CoreTestCommon {
     }
 
     @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
-    @DisplayName("getIPAddress resolves IP address value behaviour under expected input and output conditions")
+    @DisplayName("IP address lookup resolves OS address value")
     @Test
     void getIPAddress() {
         System.out.println("getIpAddressByLocalHost: " + OS.IPAddressHolder.getIpAddressByLocalHost());
@@ -234,7 +234,7 @@ class OSTest extends CoreTestCommon {
         assertNotEquals("0.0.0.0", ipAddress, "IP address should be actual network address, not '0.0.0.0' on Windows/Linux/macOS");
     }
 
-    @DisplayName("getTarget resolves target directory path behaviour under expected input and output conditions")
+    @DisplayName("Target directory lookup resolves build target path")
     @Test
     void getTarget() {
         String target = OS.getTarget();
@@ -242,7 +242,7 @@ class OSTest extends CoreTestCommon {
             assertEquals("target", target, "getTarget should return 'target' as directory name");
     }
 
-    @DisplayName("getTmp returns temporary directory path behaviour under expected input and output conditions")
+    @DisplayName("Temporary directory lookup returns OS temp path")
     @Test
     void getTmp() {
         String tmp = OS.getTmp();
@@ -341,7 +341,7 @@ class OSTest extends CoreTestCommon {
         assertThrows(IllegalArgumentException.class, () -> OS.mapAlign(-1), "single-argument mapAlign should reject negative offset");
     }
 
-    @DisplayName("getProcessId0 returns process id value behaviour under expected input and output conditions")
+    @DisplayName("Process id lookup returns OS process identifier")
     @Test
     void testGetProcessId0() {
         int processId = OS.getProcessId0();

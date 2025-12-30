@@ -20,7 +20,7 @@ class ThreadDumpTest {
         threadDump = new ThreadDump();
     }
 
-    @DisplayName("testIgnoreThread behaviour under expected input and output conditions")
+    @DisplayName("Ignored thread names are excluded from dump checks")
     @Test
     void testIgnoreThread() {
         String ignoredThreadName = "IgnoredThread";
@@ -37,13 +37,13 @@ class ThreadDumpTest {
         ignoredThread.interrupt();
     }
 
-    @DisplayName("testAssertNoNewThreads behaviour under expected input and output conditions")
+    @DisplayName("Thread dump passes when no new threads")
     @Test
     void testAssertNoNewThreads() {
         threadDump.assertNoNewThreads();
     }
 
-    @DisplayName("testAssertNewThreads behaviour under expected input and output conditions")
+    @DisplayName("Thread dump fails when new thread appears")
     @Test
     void testAssertNewThreads() {
         Assumptions.assumeFalse(Jvm.isArm());

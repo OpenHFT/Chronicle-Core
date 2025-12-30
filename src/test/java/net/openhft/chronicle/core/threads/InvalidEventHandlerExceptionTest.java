@@ -20,7 +20,7 @@ class InvalidEventHandlerExceptionTest extends CoreTestCommon {
 
     private InvalidEventHandlerException e;
 
-    @DisplayName("testStandardConstructors behaviour under expected input and output conditions")
+    @DisplayName("Standard constructors invalid event handler exception")
     @Test
     void testStandardConstructors() {
         String message = "Error occurred";
@@ -36,7 +36,7 @@ class InvalidEventHandlerExceptionTest extends CoreTestCommon {
         assertNull(defaultException.getMessage(), "default constructor should create exception with null message");
     }
 
-    @DisplayName("testReusableInstance behaviour under expected input and output conditions")
+    @DisplayName("Reusable instance invalid event handler exception")
     @Test
     void testReusableInstance() {
         InvalidEventHandlerException reusableInstance = InvalidEventHandlerException.reusable();
@@ -58,7 +58,7 @@ class InvalidEventHandlerExceptionTest extends CoreTestCommon {
         e = InvalidEventHandlerException.reusable();
     }
 
-    @DisplayName("stacktrace behaviour under expected input and output conditions")
+    @DisplayName("Reusable exception ignores stack trace assignment")
     @Test
     void stacktrace() {
         assertEquals(0, e.getStackTrace().length, "reusable exception should have empty stack trace initially");
@@ -70,7 +70,7 @@ class InvalidEventHandlerExceptionTest extends CoreTestCommon {
         assertEquals(0, e.getStackTrace().length, "reusable exception should ignore setStackTrace calls");
     }
 
-    @DisplayName("printStackTrace behaviour under expected input and output conditions")
+    @DisplayName("Print stack trace invalid event handler")
     @Test
     void printStackTrace() throws IOException {
         final StringBuilder sb = new StringBuilder();
@@ -91,7 +91,7 @@ class InvalidEventHandlerExceptionTest extends CoreTestCommon {
                 "stack trace output should indicate no stack trace available: " + stackTrace);
     }
 
-    @DisplayName("toStringTest behaviour under expected input and output conditions")
+    @DisplayName("To string test invalid event handler")
     @Test
     void toStringTest() {
         String value = e.toString();

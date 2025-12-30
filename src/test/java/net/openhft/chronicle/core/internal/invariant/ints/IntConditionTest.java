@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class IntConditionTest {
 
-    @DisplayName("basicComparisons behaviour under expected input and output conditions")
+    @DisplayName("Basic comparisons validate integer invariant predicates")
     @Test
     void basicComparisons() {
         assertTrue(IntCondition.POSITIVE.test(3), "positive value 3 should satisfy positive condition");
@@ -36,7 +36,7 @@ class IntConditionTest {
         assertFalse(IntCondition.NON_ZERO.test(0), "zero should not satisfy non-zero condition");
     }
 
-    @DisplayName("rangeAndAlignmentChecks behaviour under expected input and output conditions")
+    @DisplayName("Range and alignment checks validate integer constraints")
     @Test
     void rangeAndAlignmentChecks() {
         assertTrue(IntCondition.BYTE_CONVERTIBLE.test(Byte.MAX_VALUE), "byte max value should be byte-convertible");
@@ -59,7 +59,7 @@ class IntConditionTest {
         assertFalse(IntCondition.LONG_ALIGNED.test(4), "value 4 not divisible by 8 should not be long-aligned");
     }
 
-    @DisplayName("negateMappings behaviour under expected input and output conditions")
+    @DisplayName("Negated predicates invert integer invariant expectations")
     @Test
     void negateMappings() {
         IntPredicate positiveNegated = IntCondition.POSITIVE.negate();
@@ -91,7 +91,7 @@ class IntConditionTest {
         assertTrue(notShortAligned.test(7), "negated short-aligned condition should accept unaligned value 7");
     }
 
-    @DisplayName("descriptiveToString behaviour under expected input and output conditions")
+    @DisplayName("Descriptive toString exposes invariant predicate labels")
     @Test
     void descriptiveToString() {
         assertEquals("> 0", IntCondition.POSITIVE.toString(), "positive condition should have descriptive string representation");

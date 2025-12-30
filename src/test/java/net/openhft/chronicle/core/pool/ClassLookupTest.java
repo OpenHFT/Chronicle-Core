@@ -14,14 +14,14 @@ class ClassLookupTest {
 
     private final ClassLookup classLookup = ClassAliasPool.CLASS_ALIASES;
 
-    @DisplayName("testClassLookupByName behaviour under expected input and output conditions")
+    @DisplayName("Lookup resolves fully qualified class name to class")
     @Test
     void testClassLookupByName() {
         Class<?> clazz = classLookup.forName("java.lang.String");
         assertEquals(String.class, clazz, "forName should resolve fully-qualified class name to String.class");
     }
 
-    @DisplayName("testAddingAliasAndLookupByAlias behaviour under expected input and output conditions")
+    @DisplayName("Alias registration resolves alias to target class")
     @Test
     void testAddingAliasAndLookupByAlias() {
         classLookup.addAlias(String.class, "StringAlias");
@@ -29,7 +29,7 @@ class ClassLookupTest {
         assertEquals(String.class, clazz, "forName should resolve alias 'StringAlias' to String.class");
     }
 
-    @DisplayName("testImmutabilityOfWrappedInstance behaviour under expected input and output conditions")
+    @DisplayName("Wrapped lookup does not mutate alias pool")
     @Test
     void testImmutabilityOfWrappedInstance() {
         ClassLookup wrapped = classLookup.wrap();
@@ -39,7 +39,7 @@ class ClassLookupTest {
                 "wrapped lookup should not mutate the original alias pool");
     }
 
-    @DisplayName("testLookupOfLambdaClass behaviour under expected input and output conditions")
+    @DisplayName("Lookup rejects lambda class name resolution")
     @Test
     void testLookupOfLambdaClass() {
         Runnable lambda = () -> {

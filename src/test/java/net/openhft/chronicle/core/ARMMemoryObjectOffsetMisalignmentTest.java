@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ARMMemoryObjectOffsetMisalignmentTest {
 
-    @DisplayName("volatileShortOnMisalignedObjectOffset behaviour under expected input and output conditions")
+    @DisplayName("Volatile short on misaligned object offset")
     @Test
     void volatileShortOnMisalignedObjectOffset() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
@@ -20,7 +20,7 @@ class ARMMemoryObjectOffsetMisalignmentTest {
         assertEquals((short) 0x1234, arm.readVolatileShort(bytes, off), "readVolatileShort should return written value at misaligned offset");
     }
 
-    @DisplayName("testAndSetIntObjectAlignedMismatchVsMisaligned behaviour under expected input and output conditions")
+    @DisplayName("And set int object aligned mismatch vs misaligned")
     @Test
     void testAndSetIntObjectAlignedMismatchVsMisaligned() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();

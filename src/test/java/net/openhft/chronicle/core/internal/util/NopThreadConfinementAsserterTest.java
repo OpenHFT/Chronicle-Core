@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class NopThreadConfinementAsserterTest {
 
-    @DisplayName("assertThreadConfinedShouldDoNothing behaviour under expected input and output conditions")
+    @DisplayName("Assert thread confined should do nothing")
     @Test
     void assertThreadConfinedShouldDoNothing() {
         NopThreadConfinementAsserter asserter = NopThreadConfinementAsserter.INSTANCE;

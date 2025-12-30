@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SuppressWarnings("deprecation")
 class SetTimeProviderTest extends CoreTestCommon {
 
-    @DisplayName("testNoOpConstructor behaviour under expected input and output conditions")
+    @DisplayName("Default provider starts at zero nanosecond time")
     @Test
     void testNoOpConstructor() throws IllegalArgumentException {
         final SetTimeProvider tp = new SetTimeProvider();
@@ -36,7 +36,7 @@ class SetTimeProviderTest extends CoreTestCommon {
         assertEquals(99_130_461_792L, tp.currentTimeNanos(), "time should advance by cumulative milliseconds, microseconds, and nanoseconds");
     }
 
-    @DisplayName("testNanosConstructor behaviour under expected input and output conditions")
+    @DisplayName("Nanosecond constructor preserves supplied time precision")
     @Test
     void testNanosConstructor() throws IllegalArgumentException {
         final SetTimeProvider tp = new SetTimeProvider(99_999_999_999_000_000L);
@@ -60,7 +60,7 @@ class SetTimeProviderTest extends CoreTestCommon {
         assertEquals(101_987_001_013_000_123L, tp.currentTimeNanos(), "time should advance by chained milliseconds, microseconds, and nanoseconds increments");
     }
 
-    @DisplayName("testNanosConstructorLowNumber behaviour under expected input and output conditions")
+    @DisplayName("Nanosecond constructor accepts small timestamp values")
     @Test
     void testNanosConstructorLowNumber() {
         // many customers use "wrong" values
@@ -68,7 +68,7 @@ class SetTimeProviderTest extends CoreTestCommon {
         assertEquals(1_000L, tp.currentTimeNanos(), "constructor should accept small nanosecond values without validation");
     }
 
-    @DisplayName("testAttemptToGoBackwardsNanos behaviour under expected input and output conditions")
+    @DisplayName("Backward nanosecond time update throws IllegalArgumentException")
     @Test
     void testAttemptToGoBackwardsNanos() {
         final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
@@ -77,7 +77,7 @@ class SetTimeProviderTest extends CoreTestCommon {
                 "setting time backwards in nanos should throw IllegalArgumentException");
     }
 
-    @DisplayName("testAttemptToGoBackwardsMicros behaviour under expected input and output conditions")
+    @DisplayName("Backward microsecond time update throws IllegalArgumentException")
     @Test
     void testAttemptToGoBackwardsMicros() {
         final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
@@ -86,7 +86,7 @@ class SetTimeProviderTest extends CoreTestCommon {
                 "setting time backwards in micros should throw IllegalArgumentException");
     }
 
-    @DisplayName("testAttemptToGoBackwardsMillis behaviour under expected input and output conditions")
+    @DisplayName("Backward millisecond time update throws IllegalArgumentException")
     @Test
     void testAttemptToGoBackwardsMillis() {
         final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
@@ -95,7 +95,7 @@ class SetTimeProviderTest extends CoreTestCommon {
                 "setting time backwards in millis should throw IllegalArgumentException");
     }
 
-    @DisplayName("withTimestamp behaviour under expected input and output conditions")
+    @DisplayName("Timestamp constructor parses millisecond and microsecond precision")
     @Test
     void withTimestamp() {
         SetTimeProvider tp = new SetTimeProvider("2018-08-20T12:53:04.075");
@@ -106,7 +106,7 @@ class SetTimeProviderTest extends CoreTestCommon {
         assertEquals(1534769584075123L, tp2.currentTimeMicros(), "timestamp constructor should parse microsecond precision correctly");
     }
 
-    @DisplayName("withInstant behaviour under expected input and output conditions")
+    @DisplayName("Instant constructor parses millisecond and microsecond precision")
     @Test
     void withInstant() {
         SetTimeProvider tp = new SetTimeProvider(Instant.parse("2018-08-20T12:53:04.075Z"));
@@ -117,7 +117,7 @@ class SetTimeProviderTest extends CoreTestCommon {
         assertEquals(1534769584075123L, tp2.currentTimeMicros(), "instant constructor should parse microsecond precision correctly");
     }
 
-    @DisplayName("autoIncrement behaviour under expected input and output conditions")
+    @DisplayName("Auto increment advances milliseconds on each read")
     @Test
     void autoIncrement() {
         SetTimeProvider tp = new SetTimeProvider("2018-08-20T12:53:04.075")
@@ -128,7 +128,7 @@ class SetTimeProviderTest extends CoreTestCommon {
 
     }
 
-    @DisplayName("invalidTimestampFormatThrows behaviour under expected input and output conditions")
+    @DisplayName("Invalid timestamp text throws parse exception")
     @Test
     void invalidTimestampFormatThrows() {
         assertThrows(DateTimeParseException.class,
@@ -136,7 +136,7 @@ class SetTimeProviderTest extends CoreTestCommon {
                 "constructor should reject invalid timestamp format");
     }
 
-    @DisplayName("autoIncrementIsMonotonicAcrossThreads behaviour under expected input and output conditions")
+    @DisplayName("Auto increment remains monotonic across threads")
     @Test
     void autoIncrementIsMonotonicAcrossThreads() throws InterruptedException {
         SetTimeProvider tp = new SetTimeProvider(0).autoIncrement(1, TimeUnit.MICROSECONDS);
@@ -172,7 +172,7 @@ class SetTimeProviderTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("advanceAllowsNegativeOffsets behaviour under expected input and output conditions")
+    @DisplayName("Advance supports negative offsets for time")
     @Test
     void advanceAllowsNegativeOffsets() {
         SetTimeProvider tp = new SetTimeProvider(2_000_000);
@@ -181,7 +181,7 @@ class SetTimeProviderTest extends CoreTestCommon {
         assertEquals(expected, tp.currentTimeNanos(), "advance methods should support negative offsets to move time backwards");
     }
 
-    @DisplayName("currentTimeConversionUsesExactUnits behaviour under expected input and output conditions")
+    @DisplayName("Time conversion truncates nanoseconds to smaller units")
     @Test
     void currentTimeConversionUsesExactUnits() {
         SetTimeProvider tp = new SetTimeProvider(123_456_789_123L);

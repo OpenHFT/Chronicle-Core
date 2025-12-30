@@ -76,7 +76,7 @@ class JvmTest extends CoreTestCommon {
                 "rethrow should surface ConfigurationException");
     }
 
-    @DisplayName("majorVersion returns positive value for JVM behaviour under expected input and output conditions")
+    @DisplayName("Major version returns positive value for JVM")
     @Test
     void shouldGetMajorVersion() {
         int majorVersion = Jvm.majorVersion();
@@ -159,7 +159,7 @@ class JvmTest extends CoreTestCommon {
                 "classMetrics should reject layout introspection for ClassD");
     }
 
-    @DisplayName("nanoPause runs repeatedly without failure here behaviour under expected input and output conditions")
+    @DisplayName("Nano pause runs repeatedly without failure")
     @Test
     void microPause() {
         for (int t = 0; t < 4; t++) {
@@ -192,7 +192,7 @@ class JvmTest extends CoreTestCommon {
         assertEquals(1, bytes[0], "byte array element at base offset should be updated to 1 via unsafe memory write");
     }
 
-    @DisplayName("doNotCloseOnInterrupt leaves channel open safely behaviour under expected input and output conditions")
+    @DisplayName("Do not close on interrupt leaves channel open safely")
     @Test
     void doNotCloseOnInterrupt() throws IOException {
         final AtomicBoolean failed = new AtomicBoolean();
@@ -335,7 +335,7 @@ class JvmTest extends CoreTestCommon {
         assertTrue(trimmed.contains("Class2.method2"), "trimmed stack trace should contain \"Class2.method2\": " + trimmed);
     }
 
-    @DisplayName("usedNativeMemory reports non-negative usage value here")
+    @DisplayName("usedNativeMemory reports non negative usage value")
     @Test
     void testUsedNativeMemory() {
         long memory = Jvm.usedNativeMemory();
@@ -363,7 +363,7 @@ class JvmTest extends CoreTestCommon {
         assertSame(NullExceptionHandler.NOTHING, ThreadLocalisedExceptionHandler.unwrap(Jvm.warn()), "warn handler should be set to NullExceptionHandler.NOTHING after disabling");
     }
 
-    @DisplayName("setThreadLocalExceptionHandlers applies provided handlers correctly behaviour under expected input and output conditions")
+    @DisplayName("Set thread local exception handlers applies provided handlers correctly")
     @Test
     void testSetThreadLocalExceptionHandlers() {
         ExceptionHandler mockErrorHandler = mock(ExceptionHandler.class);
@@ -373,7 +373,7 @@ class JvmTest extends CoreTestCommon {
         assertEquals(NullExceptionHandler.NOTHING, ThreadLocalisedExceptionHandler.unwrap(Jvm.debug()), "debug handler should default to NullExceptionHandler.NOTHING when null is passed");
     }
 
-    @DisplayName("isDebugEnabled and isPerfEnabled return defaults behaviour under expected input and output conditions")
+    @DisplayName("Is debug enabled and is perf enabled return defaults")
     @Test
     void testIsDebugEnabledAndIsPerfEnabled() {
         assertTrue(Jvm.isDebugEnabled(SomeClass.class), "debug logging should be enabled for SomeClass by default");
@@ -387,7 +387,7 @@ class JvmTest extends CoreTestCommon {
         assertEquals(defaultValue, Jvm.getSize("nonexistentProperty", defaultValue), "getSize should return default value when property does not exist");
     }
 
-    @DisplayName("getCpuClass returns non-null CPU class string behaviour under expected input and output conditions")
+    @DisplayName("CPU class lookup returns non null identifier string")
     @Test
     void testGetCpuClass() {
         String cpuClass = Jvm.getCpuClass();
@@ -404,7 +404,7 @@ class JvmTest extends CoreTestCommon {
         assertNotNull(commonInterruptible, "CommonInterruptible instance should not be null after creation and interrupt");
     }
 
-    @DisplayName("getPackageName returns package for Jvm class behaviour under expected input and output conditions")
+    @DisplayName("Jvm package name returns class package string")
     @Test
     void getPackageName() {
         assertEquals("net.openhft.chronicle.core", Jvm.getPackageName(Jvm.class), "package name for Jvm class should be 'net.openhft.chronicle.core'");

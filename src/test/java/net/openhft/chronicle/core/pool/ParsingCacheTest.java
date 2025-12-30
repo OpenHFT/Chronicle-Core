@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("deprecation")
 class ParsingCacheTest extends CoreTestCommon {
-    @DisplayName("intern behaviour under expected input and output conditions")
+    @DisplayName("Parsing cache interns and reuses parsed values")
     @Test
     void intern() {
         @NotNull ParsingCache<BigDecimal> pc = new ParsingCache<>(128, BigDecimal::new);

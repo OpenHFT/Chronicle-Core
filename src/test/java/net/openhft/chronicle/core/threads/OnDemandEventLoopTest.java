@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class OnDemandEventLoopTest extends CoreTestCommon {
-    @DisplayName("onDemand behaviour under expected input and output conditions")
+    @DisplayName("On demand event loop lazily creates delegate")
     @Test
     void onDemand() {
         OnDemandEventLoop el = new OnDemandEventLoop(() -> new EventLoop() {

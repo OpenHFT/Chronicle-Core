@@ -34,7 +34,7 @@ class CleaningThreadLocalOrphanPruningTest {
         );
     }
 
-    @DisplayName("orphanPruningBehaviour behaviour under expected input and output conditions")
+    @DisplayName("Orphan pruning behaviour cleaning thread local")
     @ParameterizedTest(name = "track={0} -> expectCleanup={1}")
     @MethodSource("cases")
     void orphanPruningBehaviour(Boolean trackFlag, boolean expectCleanup) throws InterruptedException {

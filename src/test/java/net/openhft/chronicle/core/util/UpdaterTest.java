@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UpdaterTest {
 
-    @DisplayName("updateShouldModifyInputAsExpected behaviour under expected input and output conditions")
+    @DisplayName("Update adds element to list input")
     @Test
     void updateShouldModifyInputAsExpected() {
         Updater<List<String>> appender = list -> list.add("newElement");
@@ -23,7 +23,7 @@ class UpdaterTest {
         assertTrue(myList.contains("newElement"), "list should contain \"newElement\": " + myList);
     }
 
-    @DisplayName("acceptShouldDelegateToUpdate behaviour under expected input and output conditions")
+    @DisplayName("Accept delegates to update for list input")
     @Test
     void acceptShouldDelegateToUpdate() {
         Updater<List<String>> appender = list -> list.add("newElement");

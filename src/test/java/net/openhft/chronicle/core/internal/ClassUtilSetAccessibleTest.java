@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ClassUtilSetAccessibleTest {
 
-    @DisplayName("getMethod0OnNonPublicClassMakesMethodUsable behaviour under expected input and output conditions")
+    @DisplayName("Get method 0 on non public class makes method usable")
     @Test
     void getMethod0OnNonPublicClassMakesMethodUsable() throws Exception {
         Method m = ClassUtil.getMethod0(PkgClass.class, "greet", new Class<?>[0], true);

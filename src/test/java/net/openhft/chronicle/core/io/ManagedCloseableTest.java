@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ManagedCloseableTest {
-    @DisplayName("testWarnAndCloseIfNotClosed behaviour under expected input and output conditions")
+    @DisplayName("Warn and close if not closed managed")
     @Test
     void testWarnAndCloseIfNotClosed() {
         ManagedCloseableProbe closeable = new ManagedCloseableProbe();
@@ -21,7 +21,7 @@ class ManagedCloseableTest {
         assertTrue(closeable.wasClosed(), "warnAndCloseIfNotClosed should close when not already closing");
     }
 
-    @DisplayName("testThrowExceptionIfClosed behaviour under expected input and output conditions")
+    @DisplayName("Throw exception if closed managed closeable")
     @Test
     void testThrowExceptionIfClosed() {
         ManagedCloseableProbe closeable = new ManagedCloseableProbe();
@@ -31,7 +31,7 @@ class ManagedCloseableTest {
                 "throwExceptionIfClosed should throw when closeable reports closed");
     }
 
-    @DisplayName("testCreatedHere behaviour under expected input and output conditions")
+    @DisplayName("createdHere returns null for default closeable implementation")
     @Test
     void testCreatedHere() {
         ManagedCloseable closeable = new ManagedCloseableProbe();

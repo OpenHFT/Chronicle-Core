@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 class CpuClassTest {
-    @DisplayName("getCpuModel behaviour under expected input and output conditions")
+    @DisplayName("CPU model string matches expected vendor patterns")
     @Test
     void getCpuModel() {
         final String cpuClass = CpuClass.getCpuModel();
@@ -33,7 +33,7 @@ class CpuClassTest {
         assertNotNull(cpuClass, "required object should not be null");
     }
 
-    @DisplayName("removingTag behaviour under expected input and output conditions")
+    @DisplayName("Removing tag strips prefix and returns value")
     @Test
     void removingTag() {
         // TODO FIX on MacOS. sysctl -a returned 141, https://github.com/OpenHFT/Chronicle-Core/issues/557
@@ -42,13 +42,13 @@ class CpuClassTest {
         assertEquals("value", actual, "removingTag should strip prefix and return value");
     }
 
-    @DisplayName("getCpuModelShouldReturnNonNullValue behaviour under expected input and output conditions")
+    @DisplayName("CPU model returns non null identifier string")
     @Test
     void getCpuModelShouldReturnNonNullValue() {
         assertNotNull(CpuClass.getCpuModel(), "CPU model should not be null");
     }
 
-    @DisplayName("getCpuModelShouldReturnNonEmptyValue behaviour under expected input and output conditions")
+    @DisplayName("CPU model returns non empty identifier string")
     @Test
     void getCpuModelShouldReturnNonEmptyValue() {
         assertNotEquals("", CpuClass.getCpuModel(), "CPU model should not be an empty string");

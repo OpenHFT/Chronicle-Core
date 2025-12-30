@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SuppressWarnings("deprecation")
 class InterruptedRuntimeExceptionTest {
 
-    @DisplayName("defaultConstructorShouldCreateExceptionWithNoMessageOrCause behaviour under expected input and output conditions")
+    @DisplayName("Default constructor should create exception with no message or cause")
     @Test
     void defaultConstructorShouldCreateExceptionWithNoMessageOrCause() {
         InterruptedRuntimeException exception = new InterruptedRuntimeException();
@@ -18,7 +18,7 @@ class InterruptedRuntimeExceptionTest {
         assertNull(exception.getCause(), "exception created with default constructor should have null cause");
     }
 
-    @DisplayName("constructorWithMessageShouldSetCorrectMessage behaviour under expected input and output conditions")
+    @DisplayName("Constructor with message should set correct message interrupted")
     @Test
     void constructorWithMessageShouldSetCorrectMessage() {
         String message = "Interrupted";
@@ -27,7 +27,7 @@ class InterruptedRuntimeExceptionTest {
         assertNull(exception.getCause(), "exception created with message only should have null cause");
     }
 
-    @DisplayName("constructorWithMessageAndCauseShouldSetBothCorrectly behaviour under expected input and output conditions")
+    @DisplayName("Constructor with message and cause should set both correctly")
     @Test
     void constructorWithMessageAndCauseShouldSetBothCorrectly() {
         String message = "Interrupted";
@@ -37,7 +37,7 @@ class InterruptedRuntimeExceptionTest {
         assertEquals(cause, exception.getCause(), "exception created with message and cause should preserve the cause");
     }
 
-    @DisplayName("constructorWithCauseShouldSetCauseAndDeriveMessage behaviour under expected input and output conditions")
+    @DisplayName("Constructor with cause should set cause and derive message")
     @Test
     void constructorWithCauseShouldSetCauseAndDeriveMessage() {
         Throwable cause = new RuntimeException("Cause");

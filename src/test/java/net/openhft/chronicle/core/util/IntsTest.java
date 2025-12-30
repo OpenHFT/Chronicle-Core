@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SuppressWarnings("deprecation")
 class IntsTest {
 
-    @DisplayName("requireNonNegativeAllowsZeroAndPositive behaviour under expected input and output conditions")
+    @DisplayName("Require non negative allows zero and positive")
     @Test
     void requireNonNegativeAllowsZeroAndPositive() {
         String codeSource = Ints.class.getProtectionDomain().getCodeSource().getLocation().getPath();
@@ -22,7 +22,7 @@ class IntsTest {
         assertEquals(42, Ints.requireNonNegative(42), "requireNonNegative should accept positive values");
     }
 
-    @DisplayName("requireNonNegativeRejectsNegative behaviour under expected input and output conditions")
+    @DisplayName("Require non negative rejects negative ints")
     @Test
     void requireNonNegativeRejectsNegative() {
         try {
@@ -33,22 +33,22 @@ class IntsTest {
         }
     }
 
-    @DisplayName("assertIfEnabledReturnsTrue behaviour under expected input and output conditions")
+    @DisplayName("assertIfEnabled returns true for non negative predicate argument")
     @Test
     void assertIfEnabledReturnsTrue() {
         assertTrue(Ints.assertIfEnabled(IntCondition.NON_NEGATIVE, 0), "assertIfEnabled should return true for zero with NON_NEGATIVE condition");
         assertTrue(Ints.assertIfEnabled(IntCondition.NON_NEGATIVE, 8), "assertIfEnabled should return true for positive value with NON_NEGATIVE condition");
     }
 
-        @DisplayName("failDescriptionExplainsRequirement behaviour under expected input and output conditions")
-        @Test
-        void failDescriptionExplainsRequirement() {
-            String description = Ints.failDescription(IntCondition.POSITIVE, -7);
-            assertTrue(description.contains("-7"), "fail description should include \"-7\": " + description);
-            assertTrue(description.contains(">"), "fail description should include comparison operator: " + description);
-        }
+    @DisplayName("Fail description includes argument value and operator")
+    @Test
+    void failDescriptionExplainsRequirement() {
+        String description = Ints.failDescription(IntCondition.POSITIVE, -7);
+        assertTrue(description.contains("-7"), "fail description should include \"-7\": " + description);
+        assertTrue(description.contains(">"), "fail description should include comparison operator: " + description);
+    }
 
-    @DisplayName("nonNegativePredicateMatchesExpectations behaviour under expected input and output conditions")
+    @DisplayName("Non negative predicate matches expectations ints")
     @Test
     void nonNegativePredicateMatchesExpectations() {
         assertTrue(Ints.nonNegative().test(0), "nonNegative predicate should accept zero");

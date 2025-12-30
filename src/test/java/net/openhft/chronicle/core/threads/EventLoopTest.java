@@ -22,14 +22,14 @@ class EventLoopTest {
         handler = mock(EventHandler.class);
     }
 
-    @DisplayName("testName behaviour under expected input and output conditions")
+    @DisplayName("Event loop name returns configured label")
     @Test
     void testName() {
         when(eventLoop.name()).thenReturn("TestEventLoop");
         assertEquals("TestEventLoop", eventLoop.name(), "event loop name should return the configured name");
     }
 
-    @DisplayName("testAddHandler behaviour under expected input and output conditions")
+    @DisplayName("Handler registration forwards to event loop")
     @Test
     void testAddHandler() {
         doNothing().when(eventLoop).addHandler(handler);
@@ -37,7 +37,7 @@ class EventLoopTest {
         verify(eventLoop).addHandler(handler);
     }
 
-    @DisplayName("testStart behaviour under expected input and output conditions")
+    @DisplayName("Event loop start triggers underlying run")
     @Test
     void testStart() {
         doNothing().when(eventLoop).start();
@@ -45,7 +45,7 @@ class EventLoopTest {
         verify(eventLoop).start();
     }
 
-    @DisplayName("testUnpause behaviour under expected input and output conditions")
+    @DisplayName("Event loop unpause resumes processing cycle")
     @Test
     void testUnpause() {
         doNothing().when(eventLoop).unpause();
@@ -53,7 +53,7 @@ class EventLoopTest {
         verify(eventLoop).unpause();
     }
 
-    @DisplayName("testStop behaviour under expected input and output conditions")
+    @DisplayName("Event loop stop halts processing cycle")
     @Test
     void testStop() {
         doNothing().when(eventLoop).stop();
@@ -61,21 +61,21 @@ class EventLoopTest {
         verify(eventLoop).stop();
     }
 
-    @DisplayName("testIsAlive behaviour under expected input and output conditions")
+    @DisplayName("Event loop alive status reports running")
     @Test
     void testIsAlive() {
         when(eventLoop.isAlive()).thenReturn(true);
         assertTrue(eventLoop.isAlive(), "event loop should report as alive when running");
     }
 
-    @DisplayName("testIsStopped behaviour under expected input and output conditions")
+    @DisplayName("Event loop stopped status reports halted")
     @Test
     void testIsStopped() {
         when(eventLoop.isStopped()).thenReturn(true);
         assertTrue(eventLoop.isStopped(), "event loop should report as stopped when halted");
     }
 
-    @DisplayName("testClose behaviour under expected input and output conditions")
+    @DisplayName("Event loop close forwards shutdown request")
     @Test
     void testClose() {
         doNothing().when(eventLoop).close();
@@ -83,7 +83,7 @@ class EventLoopTest {
         verify(eventLoop).close();
     }
 
-    @DisplayName("testRunsInsideCoreLoop behaviour under expected input and output conditions")
+    @DisplayName("Core loop flag reports execution context")
     @Test
     void testRunsInsideCoreLoop() {
         when(eventLoop.runsInsideCoreLoop()).thenReturn(true);

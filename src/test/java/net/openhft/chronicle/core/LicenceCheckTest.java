@@ -24,7 +24,7 @@ class LicenceCheckTest extends CoreTestCommon {
         Jvm.resetExceptionHandlers();
     }
 
-    @DisplayName("checkExpiredExpiryFile behaviour under expected input and output conditions")
+    @DisplayName("Expired expiry file triggers time limit exception")
     @Test
     void checkExpiredExpiryFile() {
         assertThrows(TimeLimitExceededException.class,
@@ -32,14 +32,14 @@ class LicenceCheckTest extends CoreTestCommon {
                 "expired expiry file should trigger TimeLimitExceededException");
     }
 
-    @DisplayName("checkUnexpiredExpiryFileWithNewline behaviour under expected input and output conditions")
+    @DisplayName("Unexpired expiry file with newline passes check")
     @Test
     void checkUnexpiredExpiryFileWithNewline() {
         assertDoesNotThrow(() -> LicenceCheck.check("test2", LicenceCheck.class),
                 "unexpired expiry file with newline should not throw");
     }
 
-    @DisplayName("checkEvalExpired behaviour under expected input and output conditions")
+    @DisplayName("Evaluation licence expiry triggers time limit exception")
     @Test
     void checkEvalExpired() {
         assertThrows(TimeLimitExceededException.class,
@@ -47,7 +47,7 @@ class LicenceCheckTest extends CoreTestCommon {
                 "evaluation licence expiry should trigger TimeLimitExceededException");
     }
 
-    @DisplayName("checkLicense behaviour under expected input and output conditions")
+    @DisplayName("Valid licence records expiry warning in exception map")
     @Test
     void checkLicense() {
         System.setProperty(CHRONICLE_LICENSE, "product=test.,owner=Test Unit,expires=9999-01-01,code=123456789");
@@ -59,7 +59,7 @@ class LicenceCheckTest extends CoreTestCommon {
                 "expected warning about licence expiry in map: " + map);
     }
 
-    @DisplayName("checkLicenseExpired behaviour under expected input and output conditions")
+    @DisplayName("Expired licence triggers time limit exception")
     @Test
     void checkLicenseExpired() {
         System.setProperty(CHRONICLE_LICENSE, "product=test.,owner=Test Unit,expires=2019-01-01,code=123456789");

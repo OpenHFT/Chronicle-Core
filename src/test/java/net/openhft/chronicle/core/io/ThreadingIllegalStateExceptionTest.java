@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ThreadingIllegalStateExceptionTest {
 
-    @DisplayName("testConstructorWithMessageAndCause behaviour under expected input and output conditions")
+    @DisplayName("Constructor with message and cause threading")
     @Test
     void testConstructorWithMessageAndCause() {
         String expectedMessage = "Custom threading error message";

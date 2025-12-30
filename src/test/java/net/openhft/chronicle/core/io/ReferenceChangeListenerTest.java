@@ -9,7 +9,7 @@ import static org.mockito.Mockito.*;
 
 class ReferenceChangeListenerTest {
 
-    @DisplayName("testOnReferenceAdded behaviour under expected input and output conditions")
+    @DisplayName("Reference added callback forwards to listener")
     @Test
     void testOnReferenceAdded() {
         ReferenceChangeListener listener = mock(ReferenceChangeListener.class);
@@ -21,7 +21,7 @@ class ReferenceChangeListenerTest {
         verify(listener, times(1)).onReferenceAdded(referenceCounted, referenceOwner);
     }
 
-    @DisplayName("testOnReferenceRemoved behaviour under expected input and output conditions")
+    @DisplayName("Reference removed callback forwards to listener")
     @Test
     void testOnReferenceRemoved() {
         ReferenceChangeListener listener = mock(ReferenceChangeListener.class);
@@ -33,7 +33,7 @@ class ReferenceChangeListenerTest {
         verify(listener, times(1)).onReferenceRemoved(referenceCounted, referenceOwner);
     }
 
-    @DisplayName("testOnReferenceTransferred behaviour under expected input and output conditions")
+    @DisplayName("Reference transferred callback forwards to listener")
     @Test
     void testOnReferenceTransferred() {
         ReferenceChangeListener listener = mock(ReferenceChangeListener.class);

@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ZeroCostAssertionStatusTest extends CoreTestCommon {
 
-    @DisplayName("show behaviour under expected input and output conditions")
+    @DisplayName("Reports zero cost assertion status without errors")
     @Test
     void show() {
         boolean ae = false;

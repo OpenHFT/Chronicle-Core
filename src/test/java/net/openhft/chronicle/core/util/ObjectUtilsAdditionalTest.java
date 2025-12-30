@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ObjectUtilsAdditionalTest {
 
-    @DisplayName("booleanParsingAcceptsYesTrueAndNoFalse behaviour under expected input and output conditions")
+    @DisplayName("Boolean text parsing recognises yes and no")
     @Test
     void booleanParsingAcceptsYesTrueAndNoFalse() {
         assertTrue(ObjectUtils.isTrue("t"), "isTrue should return true for 't'");
@@ -32,14 +32,14 @@ class ObjectUtilsAdditionalTest {
         assertFalse(ObjectUtils.isFalse(null), "isFalse should return false for null input value");
     }
 
-    @DisplayName("convertTextToBoolean behaviour under expected input and output conditions")
+    @DisplayName("Text conversion maps yes and no booleans")
     @Test
     void convertTextToBoolean() {
         assertEquals(Boolean.TRUE, ObjectUtils.convertTo(Boolean.class, "yes"), "convertTo should convert 'yes' to Boolean.TRUE");
         assertEquals(Boolean.FALSE, ObjectUtils.convertTo(Boolean.class, "no"), "convertTo should convert 'no' to Boolean.FALSE");
     }
 
-    @DisplayName("convertTextUsingValueOfParseAndConstructor behaviour under expected input and output conditions")
+    @DisplayName("Text conversion uses valueOf parse and constructor")
     @Test
     void convertTextUsingValueOfParseAndConstructor() {
         Object v1 = ObjectUtils.convertTo(WithValueOf.class, "x1");
@@ -52,7 +52,7 @@ class ObjectUtilsAdditionalTest {
         assertInstanceOf(WithCtor.class, v3, "constructor-based conversion should return WithCtor instance");
     }
 
-    @DisplayName("convertListToObjectArray behaviour under expected input and output conditions")
+    @DisplayName("List conversion builds object array elements")
     @Test
     void convertListToObjectArray() {
         List<Object> list = Arrays.asList("a", 1);
@@ -60,7 +60,7 @@ class ObjectUtilsAdditionalTest {
         assertArrayEquals(new Object[]{"a", 1}, arr, "arrays should contain identical elements");
     }
 
-    @DisplayName("requireNonNullThrowsOnNull behaviour under expected input and output conditions")
+    @DisplayName("requireNonNull rejects null argument with exception")
     @Test
     void requireNonNullThrowsOnNull() {
         assertThrows(NullPointerException.class, () -> ObjectUtils.requireNonNull(null),
@@ -68,7 +68,7 @@ class ObjectUtilsAdditionalTest {
         assertEquals("abc", ObjectUtils.requireNonNull("abc"), "requireNonNull should return input when non-null");
     }
 
-    @DisplayName("convertNumberToBigDecimalFromNumberPath behaviour under expected input and output conditions")
+    @DisplayName("Numeric conversion yields BigDecimal from long")
     @Test
     void convertNumberToBigDecimalFromNumberPath() {
         BigDecimal bd = (BigDecimal) ObjectUtils.convertToNumber(BigDecimal.class, 5L);

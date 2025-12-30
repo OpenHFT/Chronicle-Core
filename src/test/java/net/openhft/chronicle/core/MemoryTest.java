@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MemoryTest extends CoreTestCommon {
 
-    @DisplayName("testReadme behaviour under expected input and output conditions")
+    @DisplayName("Readme memory example writes reads and swaps values")
     @Test
     void testReadme() {
         @Nullable Memory memory = OS.memory();
@@ -28,7 +28,7 @@ class MemoryTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("sizeOf behaviour under expected input and output conditions")
+    @DisplayName("Memory sizeOf reports primitive byte widths")
     @Test
     void sizeOf() {
         assertEquals(1, Memory.sizeOf(boolean.class), "Expected Memory.sizeOf(boolean.class) to match a single byte");

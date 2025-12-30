@@ -32,7 +32,7 @@ class StringUtilsFlagsTest extends CoreTestCommon {
             System.setProperty("chronicle.core.allow.reflection.string", oldFlag);
     }
 
-    @DisplayName("newStringFallsBackToSafeConstructor behaviour under expected input and output conditions")
+    @DisplayName("New string falls back to safe constructor")
     @Test
     void newStringFallsBackToSafeConstructor() {
         char[] chars = {'C', 'o', 'r', 'e'};

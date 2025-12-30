@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class WeakIdentityHashMapTest extends CoreTestCommon {
-    @DisplayName("twoKeys behaviour under expected input and output conditions")
+    @DisplayName("Two keys weak identity hash map")
     @Test
     void twoKeys() {
         String a1 = Character.toString('a');

@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LongTimeTest extends CoreTestCommon {
-    @DisplayName("secs behaviour under expected input and output conditions")
+    @DisplayName("Seconds conversion detects unit and preserves epoch")
     @Test
     void secs() {
         long epoch = LongTime.EPOCH_SECS;
@@ -24,7 +24,7 @@ class LongTimeTest extends CoreTestCommon {
         assertEquals(epoch, LongTime.toSecs(LongTime.toNanos(epoch)), "toSecs should convert nanoseconds back to original seconds");
     }
 
-    @DisplayName("millis behaviour under expected input and output conditions")
+    @DisplayName("Millis conversion detects unit and truncates precision")
     @Test
     void millis() {
         long epoch = LongTime.EPOCH_MILLIS;
@@ -39,7 +39,7 @@ class LongTimeTest extends CoreTestCommon {
         assertEquals(epoch, LongTime.toMillis(LongTime.toNanos(epoch)), "toMillis should convert nanoseconds back to original milliseconds");
     }
 
-    @DisplayName("micros behaviour under expected input and output conditions")
+    @DisplayName("Micros conversion detects unit and truncates precision")
     @Test
     void micros() {
         long epoch = LongTime.EPOCH_MICROS;
@@ -54,7 +54,7 @@ class LongTimeTest extends CoreTestCommon {
         assertEquals(epoch, LongTime.toMicros(LongTime.toNanos(epoch)), "toMicros should convert nanoseconds back to original microseconds");
     }
 
-    @DisplayName("nanos behaviour under expected input and output conditions")
+    @DisplayName("Nanos conversion detects unit and truncates precision")
     @Test
     void nanos() {
         long epoch = LongTime.EPOCH_NANOS;

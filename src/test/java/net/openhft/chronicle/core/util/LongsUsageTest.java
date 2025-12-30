@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class LongsUsageTest {
 
-    @DisplayName("requireNonNegativeMatchesBytesStores behaviour under expected input and output conditions")
+    @DisplayName("Non negative guard matches native store preconditions")
     @Test
     void requireNonNegativeMatchesBytesStores() {
         // Chronicle-Bytes calls Longs.requireNonNegative before copying into native stores
@@ -29,7 +29,7 @@ class LongsUsageTest {
         assertTrue(ex.getMessage().contains("negative"), "exception message should include \"negative\": " + ex.getMessage());
     }
 
-    @DisplayName("requirePositiveReflectsOSGuards behaviour under expected input and output conditions")
+    @DisplayName("Positive guard mirrors operating system checks")
     @Test
     void requirePositiveReflectsOSGuards() {
         // OS.map* methods demand strictly positive lengths
@@ -40,7 +40,7 @@ class LongsUsageTest {
         assertTrue(ex.getMessage().contains("not positive"), "exception message should include \"not positive\": " + ex.getMessage());
     }
 
-    @DisplayName("alignmentChecksMirrorNativeAccess behaviour under expected input and output conditions")
+    @DisplayName("Alignment guard matches native memory access")
     @Test
     void alignmentChecksMirrorNativeAccess() {
         long address = 1L << 16; // naturally aligned
@@ -53,7 +53,7 @@ class LongsUsageTest {
                 "exception message should include alignment requirement: " + misAligned.getMessage());
     }
 
-    @DisplayName("requireAppliesPredicateForByteConvertibleValues behaviour under expected input and output conditions")
+    @DisplayName("Byte convertible guard enforces size limits")
     @Test
     void requireAppliesPredicateForByteConvertibleValues() {
         long withinByte = 120L;
@@ -66,7 +66,7 @@ class LongsUsageTest {
                 "exception message should include byte convertibility rule: " + ex.getMessage());
     }
 
-    @DisplayName("negateBehaviourMatchesDownstreamExpectations behaviour under expected input and output conditions")
+    @DisplayName("Negated predicates match downstream expectations rules")
     @Test
     void negateBehaviourMatchesDownstreamExpectations() {
         LongPredicate notNonPositive = LongCondition.NON_POSITIVE.negate();
@@ -78,7 +78,7 @@ class LongsUsageTest {
         assertFalse(notEvenPowerOfTwo.test(1L << 12), "even power of two should fail negated condition");
     }
 
-    @DisplayName("nonNegativePredicateCachesForRepeatedChecks behaviour under expected input and output conditions")
+    @DisplayName("Non negative predicate reused for repeated checks")
     @Test
     void nonNegativePredicateCachesForRepeatedChecks() {
         AtomicLong counter = new AtomicLong();

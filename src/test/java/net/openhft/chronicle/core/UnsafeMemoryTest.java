@@ -490,7 +490,7 @@ class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @DisplayName("Get and set int returns previous stored value behaviour under expected input and output conditions")
+    @DisplayName("Get and set int returns previous stored value unsafe")
     @TestTemplate
     void getAndSetInt() throws MisAlignedAssertionError {
         int initialValue = 9876;

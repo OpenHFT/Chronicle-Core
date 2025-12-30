@@ -20,7 +20,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ThrowingFunctionTest extends CoreTestCommon {
-    @DisplayName("asFunction behaviour under expected input and output conditions")
+    @DisplayName("asFunction rethrows IO failures from lambda")
     @Test
     void asFunction() {
         @NotNull Function<String, String> sc = ThrowingFunction.asFunction(s -> {

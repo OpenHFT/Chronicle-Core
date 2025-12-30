@@ -18,7 +18,7 @@ class InternalAnnouncerPrettyTest {
         return (String) m.invoke(null, s);
     }
 
-    @DisplayName("formatsCommonCases behaviour under expected input and output conditions")
+    @DisplayName("Formats common cases internal announcer pretty")
     @Test
     void formatsCommonCases() throws Exception {
         assertEquals("Chronicle Queue", pretty("chronicle-queue"), "pretty should convert hyphenated lowercase to title case with spaces");

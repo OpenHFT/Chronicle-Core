@@ -30,7 +30,7 @@ class ObjectUtilsConvertToTest extends CoreTestCommon {
         );
     }
 
-    @DisplayName("convertTo behaviour under expected input and output conditions")
+    @DisplayName("ObjectUtils convertTo parses string into target type")
     @ParameterizedTest
     @MethodSource("data")
     void convertTo(Object converted, String input) throws IllegalStateException, IllegalArgumentException {

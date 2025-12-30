@@ -57,7 +57,7 @@ class WgetTest {
                 "fetch should reject unsupported URL schemes");
     }
 
-    @DisplayName("null appendable throws NullPointerException as expected behaviour under expected input and output conditions")
+    @DisplayName("Null appendable throws null pointer exception as expected")
     @Test
     void null_appendable_throws() {
         Wget wget = new Wget.Builder()

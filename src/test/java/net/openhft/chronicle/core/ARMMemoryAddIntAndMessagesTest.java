@@ -30,7 +30,7 @@ class ARMMemoryAddIntAndMessagesTest {
         allocated = 0;
     }
 
-    @DisplayName("addIntAlignedAndMisaligned behaviour under expected input and output conditions")
+    @DisplayName("Add int aligned and misaligned arm")
     @Test
     void addIntAlignedAndMisaligned() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
@@ -43,7 +43,7 @@ class ARMMemoryAddIntAndMessagesTest {
                 "addInt should throw for misaligned address");
     }
 
-    @DisplayName("testAndSetIntAlignedMismatchMessage behaviour under expected input and output conditions")
+    @DisplayName("And set int aligned mismatch message")
     @Test
     void testAndSetIntAlignedMismatchMessage() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();

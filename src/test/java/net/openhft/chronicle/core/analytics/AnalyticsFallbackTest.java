@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AnalyticsFallbackTest {
 
-    @DisplayName("builderFallsBackWhenLibraryAbsentOrDisabled behaviour under expected input and output conditions")
+    @DisplayName("Builder falls back when library absent or disabled")
     @Test
     void builderFallsBackWhenLibraryAbsentOrDisabled() throws Exception {
         System.setProperty("chronicle.analytics.disable", "true");

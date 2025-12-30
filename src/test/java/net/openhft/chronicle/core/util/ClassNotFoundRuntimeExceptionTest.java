@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ClassNotFoundRuntimeExceptionTest {
 
-    @DisplayName("testConstructor behaviour under expected input and output conditions")
+    @DisplayName("Constructor preserves ClassNotFoundException cause for runtime exception")
     @Test
     void testConstructor() {
         ClassNotFoundException cause = new ClassNotFoundException("Test class not found");
@@ -19,7 +19,7 @@ class ClassNotFoundRuntimeExceptionTest {
         assertEquals(cause, exception.getCause(), "exception should preserve the original ClassNotFoundException as its cause");
     }
 
-    @DisplayName("testGetCause behaviour under expected input and output conditions")
+    @DisplayName("getCause returns original ClassNotFoundException instance for runtime")
     @Test
     void testGetCause() {
         ClassNotFoundException cause = new ClassNotFoundException("Test class not found");

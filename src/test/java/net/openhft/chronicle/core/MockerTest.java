@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class MockerTest extends CoreTestCommon {
 
-    @DisplayName("intercepting behaviour under expected input and output conditions")
+    @DisplayName("Logging mocker captures chained calls and arguments")
     @Test
     void intercepting() {
         StringWriter out = new StringWriter();
@@ -29,7 +29,7 @@ class MockerTest extends CoreTestCommon {
                 "end[333]%n"), out.toString(), "logging mocker should capture all method calls with arguments");
     }
 
-    @DisplayName("ignored behaviour under expected input and output conditions")
+    @DisplayName("Ignored mocker ignores calls and returns toString")
     @Test
     void ignored() {
         final ChainedChainingTerminal logging = Mocker.ignored(ChainedChainingTerminal.class);

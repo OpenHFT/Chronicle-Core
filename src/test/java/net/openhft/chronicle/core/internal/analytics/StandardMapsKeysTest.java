@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class StandardMapsKeysTest {
 
-    @DisplayName("standardUserPropertiesContainExpectedKeys behaviour under expected input and output conditions")
+    @DisplayName("Standard user properties contain expected keys")
     @Test
     void standardUserPropertiesContainExpectedKeys() {
         Map<String, String> m = AnalyticsFacade.standardUserProperties();
@@ -27,7 +27,7 @@ class StandardMapsKeysTest {
             assertNotNull(v, "each user property value should be non-null: " + v);
     }
 
-    @DisplayName("additionalPropertiesMayBeEmptyButAreNonNull behaviour under expected input and output conditions")
+    @DisplayName("Additional properties may be empty but are non null")
     @Test
     void additionalPropertiesMayBeEmptyButAreNonNull() {
         Map<String, String> m = AnalyticsFacade.standardAdditionalProperties();

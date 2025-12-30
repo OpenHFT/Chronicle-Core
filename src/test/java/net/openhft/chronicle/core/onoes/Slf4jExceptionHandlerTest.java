@@ -17,7 +17,7 @@ class Slf4jExceptionHandlerTest {
         logger = mock(Logger.class);
     }
 
-    @DisplayName("testErrorLogLevel behaviour under expected input and output conditions")
+    @DisplayName("Error handler logs exception at error level")
     @Test
     void testErrorLogLevel() {
         Throwable throwable = new RuntimeException("Test exception");
@@ -26,7 +26,7 @@ class Slf4jExceptionHandlerTest {
         verify(logger).error("Error message", throwable);
     }
 
-    @DisplayName("testWarnLogLevel behaviour under expected input and output conditions")
+    @DisplayName("Warn handler logs with warn level")
     @Test
     void testWarnLogLevel() {
         Throwable throwable = new RuntimeException("Test exception");
@@ -35,7 +35,7 @@ class Slf4jExceptionHandlerTest {
         verify(logger).warn("Warn message", throwable);
     }
 
-    @DisplayName("testPerfLogLevel behaviour under expected input and output conditions")
+    @DisplayName("Perf handler logs with info level")
     @Test
     void testPerfLogLevel() {
         Throwable throwable = new RuntimeException("Test exception");
@@ -44,7 +44,7 @@ class Slf4jExceptionHandlerTest {
         verify(logger).info("Perf message", throwable);
     }
 
-    @DisplayName("testDebugLogLevel behaviour under expected input and output conditions")
+    @DisplayName("Debug handler logs with debug level")
     @Test
     void testDebugLogLevel() {
         Throwable throwable = new RuntimeException("Test exception");
@@ -53,7 +53,7 @@ class Slf4jExceptionHandlerTest {
         verify(logger).debug("Debug message", throwable);
     }
 
-    @DisplayName("testValueOfLogLevel behaviour under expected input and output conditions")
+    @DisplayName("ValueOf maps log level to handler")
     @Test
     void testValueOfLogLevel() {
         assertEquals(Slf4jExceptionHandler.ERROR, Slf4jExceptionHandler.valueOf(LogLevel.ERROR), "valueOf should return ERROR handler for ERROR log level");
@@ -62,7 +62,7 @@ class Slf4jExceptionHandlerTest {
         assertEquals(Slf4jExceptionHandler.DEBUG, Slf4jExceptionHandler.valueOf(LogLevel.DEBUG), "valueOf should return DEBUG handler for DEBUG log level");
     }
 
-    @DisplayName("testDirectLoggerOverrideThrowsOnce behaviour under expected input and output conditions")
+    @DisplayName("Logger failure falls back without throwing")
     @Test
     void testDirectLoggerOverrideThrowsOnce() {
         // 1. Create a real exception instance to throw
@@ -79,7 +79,7 @@ class Slf4jExceptionHandlerTest {
         assertTrue(true, "execution should reach this point without exception"); // if we reach here, the test passes
     }
 
-    @DisplayName("testOnClassSucceedsUnderNormalConditions behaviour under expected input and output conditions")
+    @DisplayName("Logger class logging succeeds for warn and error events")
     @Test
     void testOnClassSucceedsUnderNormalConditions() {
         // Should never throw (uses the same DEFAULT logger, which is healthy)

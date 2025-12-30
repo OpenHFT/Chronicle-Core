@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AbstractReferenceCountedTest extends ReferenceCountedTracerContractTest {
 
-    @DisplayName("reserve behaviour under expected input and output conditions")
+    @DisplayName("Reserve increments reference count on resource")
     @Test
     void reserve() throws IllegalStateException, IllegalArgumentException {
         Jvm.setResourceTracing(true);

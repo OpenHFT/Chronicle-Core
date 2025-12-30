@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UnresolvedTypeTest {
 
-    @DisplayName("constructorShouldInitializeTypeName behaviour under expected input and output conditions")
+    @DisplayName("Constructor should initialize type name unresolved")
     @Test
     void constructorShouldInitializeTypeName() {
         String expectedTypeName = "MyType";
@@ -20,7 +20,7 @@ class UnresolvedTypeTest {
         assertEquals(expectedTypeName, unresolvedType.getTypeName(), "constructor should initialize type name to provided value");
     }
 
-    @DisplayName("factoryMethodShouldCreateUnresolvedType behaviour under expected input and output conditions")
+    @DisplayName("Factory method should create unresolved type")
     @Test
     void factoryMethodShouldCreateUnresolvedType() {
         String expectedTypeName = "MyType";
@@ -30,7 +30,7 @@ class UnresolvedTypeTest {
         assertEquals(expectedTypeName, type.getTypeName(), "factory method should create UnresolvedType with correct type name");
     }
 
-    @DisplayName("getTypeNameShouldReturnCorrectTypeName behaviour under expected input and output conditions")
+    @DisplayName("Get type name should return correct type name unresolved")
     @Test
     void getTypeNameShouldReturnCorrectTypeName() {
         String expectedTypeName = "MyType";
@@ -39,7 +39,7 @@ class UnresolvedTypeTest {
         assertEquals(expectedTypeName, unresolvedType.getTypeName(), "getTypeName should return the type name provided at construction");
     }
 
-    @DisplayName("toStringShouldReturnTypeName behaviour under expected input and output conditions")
+    @DisplayName("To string should return type name unresolved")
     @Test
     void toStringShouldReturnTypeName() {
         String expectedTypeName = "MyType";

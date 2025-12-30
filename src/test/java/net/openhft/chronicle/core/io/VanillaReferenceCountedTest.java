@@ -25,7 +25,7 @@ class VanillaReferenceCountedTest extends MonitorReferenceCountedContractTest {
         return new VanillaReferenceCounted(onReleasedCallCount::incrementAndGet, VanillaReferenceCounted.class);
     }
 
-    @DisplayName("createdHereWillReturnNull behaviour under expected input and output conditions")
+    @DisplayName("Created here will return null vanilla reference counted")
     @Test
     void createdHereWillReturnNull() {
         final VanillaReferenceCounted referenceCounted = createReferenceCounted();

@@ -66,7 +66,7 @@ final class LimitedInputStreamTest {
         }
     }
 
-    @DisplayName("bulk read within budget returns all bytes behaviour under expected input and output conditions")
+    @DisplayName("Bulk read within budget returns all bytes limited")
     @Test
     void read_bulkWithinLimit_returnsRequestedBytes() throws IOException {
         try (LimitedInputStream in = new LimitedInputStream(bytes(10), 10)) {

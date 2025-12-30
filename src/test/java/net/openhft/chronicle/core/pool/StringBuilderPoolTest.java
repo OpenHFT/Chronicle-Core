@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class StringBuilderPoolTest extends CoreTestCommon {
 
-    @DisplayName("createThreadLocalProvidesPool behaviour under expected input and output conditions")
+    @DisplayName("Create thread local provides pool string")
     @ParameterizedTest
     @ValueSource(ints = {-1, 2})
     void createThreadLocalProvidesPool(int capacity) {
@@ -29,7 +29,7 @@ class StringBuilderPoolTest extends CoreTestCommon {
         assertNotNull(pool, "Thread-local StringBuilderPool should be created successfully");
     }
 
-    @DisplayName("reusesBuilderWithinThreadAndClearsContent behaviour under expected input and output conditions")
+    @DisplayName("Reuses builder within thread and clears content")
     @Test
     void reusesBuilderWithinThreadAndClearsContent() {
         ScopedResourcePool<StringBuilder> pool = StringBuilderPool.createThreadLocal(1);
@@ -48,7 +48,7 @@ class StringBuilderPoolTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("suppliesIndependentBuildersPerThread behaviour under expected input and output conditions")
+    @DisplayName("Supplies independent builders per thread string")
     @Test
     void suppliesIndependentBuildersPerThread() throws InterruptedException {
         ScopedResourcePool<StringBuilder> pool = StringBuilderPool.createThreadLocal(1);

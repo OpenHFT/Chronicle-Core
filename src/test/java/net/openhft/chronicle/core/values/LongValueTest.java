@@ -18,14 +18,14 @@ class LongValueTest {
         longValue = mock(LongValue.class); // Creating a mock instance of LongValue
     }
 
-    @DisplayName("testGetValue behaviour under expected input and output conditions")
+    @DisplayName("Long value getter returns mocked proxy result")
     @Test
     void testGetValue() {
         when(longValue.getValue()).thenReturn(10L); // Setup the mock to return 10
         assertEquals(10L, longValue.getValue(), "getValue should return mocked value");
     }
 
-    @DisplayName("testSetValue behaviour under expected input and output conditions")
+    @DisplayName("Long value setter invokes setValue with argument")
     @Test
     void testSetValue() {
         doNothing().when(longValue).setValue(anyLong());
@@ -35,7 +35,7 @@ class LongValueTest {
 
     // Additional tests for other methods...
 
-    @DisplayName("testCloseAndIsClosed behaviour under expected input and output conditions")
+    @DisplayName("Close toggles isClosed state from false to true")
     @Test
     void testCloseAndIsClosed() {
         when(longValue.isClosed()).thenReturn(false, true); // Before and after close

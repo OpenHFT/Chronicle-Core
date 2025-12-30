@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MockerFacadeTest {
 
-    @DisplayName("loggingToStringWriterDelegates behaviour under expected input and output conditions")
+    @DisplayName("Logging mocker writes to string writer")
     @Test
     void loggingToStringWriterDelegates() {
         StringWriter writer = new StringWriter();
@@ -29,7 +29,7 @@ class MockerFacadeTest {
         assertTrue(logged.contains("value"), "logged output should contain \"value\": " + logged);
     }
 
-    @DisplayName("loggingToPrintStreamDelegates behaviour under expected input and output conditions")
+    @DisplayName("Logging mocker writes to print stream")
     @Test
     void loggingToPrintStreamDelegates() {
         ByteArrayOutputStream backing = new ByteArrayOutputStream();
@@ -47,7 +47,7 @@ class MockerFacadeTest {
         assertTrue(logged.contains("data"), "logged output should contain \"data\": " + logged);
     }
 
-    @DisplayName("queuingAddsEntries behaviour under expected input and output conditions")
+    @DisplayName("Queuing mocker enqueues formatted method calls")
     @Test
     void queuingAddsEntries() throws InterruptedException {
         BlockingQueue<String> queue = new ArrayBlockingQueue<>(2);
@@ -57,7 +57,7 @@ class MockerFacadeTest {
         assertEquals("queue-run[payload]", queue.take(), "queue should contain formatted method call with prefix and argument");
     }
 
-    @DisplayName("ignoredProxySupportsCalls behaviour under expected input and output conditions")
+    @DisplayName("Ignored mocker proxy accepts method calls")
     @Test
     void ignoredProxySupportsCalls() {
         Sample sample = Mocker.ignored(Sample.class);

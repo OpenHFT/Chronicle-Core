@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class CleaningThreadTest extends CoreTestCommon {
-    @DisplayName("cleanupThreadLocal behaviour under expected input and output conditions")
+    @DisplayName("Cleanup thread local executes cleanup callback")
     @Test
     void cleanupThreadLocal() throws InterruptedException {
         String threadName = "ctl-test";
@@ -30,7 +30,7 @@ class CleaningThreadTest extends CoreTestCommon {
         assertEquals(threadName, poll, "thread should have expected name");
     }
 
-    @DisplayName("testRemove behaviour under expected input and output conditions")
+    @DisplayName("Cleaning thread remove triggers cleanup for current thread")
     @Test
     void testRemove() {
         int[] counter = {0};
@@ -40,7 +40,7 @@ class CleaningThreadTest extends CoreTestCommon {
         assertEquals(1, (int) ctl.get(), "get after cleanup should return incremented supplier value");
     }
 
-    @DisplayName("resetThreadAffinity behaviour under expected input and output conditions")
+    @DisplayName("Cleaning thread resets affinity to base")
     @Test
     void resetThreadAffinity() throws InterruptedException {
         final BitSet affinity = Affinity.getAffinity();

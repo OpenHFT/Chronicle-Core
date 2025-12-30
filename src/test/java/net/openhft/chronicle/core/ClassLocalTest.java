@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ClassLocalTest extends CoreTestCommon {
 
-    @DisplayName("computeValue behaviour under expected input and output conditions")
+    @DisplayName("ClassLocal computes value once per class")
     @Test
     void computeValue() {
         long[] count = {0};

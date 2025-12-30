@@ -10,14 +10,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ThrowingSupplierTest {
 
-    @DisplayName("getShouldReturnResultWhenNoException behaviour under expected input and output conditions")
+    @DisplayName("ThrowingSupplier get returns string success value from lambda")
     @Test
     void getShouldReturnResultWhenNoException() throws Exception {
         ThrowingSupplier<String, Exception> throwingSupplier = () -> "test";
         assertEquals("test", throwingSupplier.get(), "ThrowingSupplier get should return result when no exception thrown");
     }
 
-    @DisplayName("getShouldThrowException behaviour under expected input and output conditions")
+    @DisplayName("Get propagates exception from throwing supplier")
     @Test
     void getShouldThrowException() {
         ThrowingSupplier<String, Exception> throwingSupplier = ThrowingSupplierTest::alwaysThrows;
@@ -27,7 +27,7 @@ class ThrowingSupplierTest {
                 "ThrowingSupplier get should propagate exception with original message");
     }
 
-    @DisplayName("asSupplierShouldReturnResultWhenNoException behaviour under expected input and output conditions")
+    @DisplayName("asSupplier returns string value when lambda succeeds")
     @Test
     void asSupplierShouldReturnResultWhenNoException() {
         ThrowingSupplier<String, Exception> throwingSupplier = () -> "test";

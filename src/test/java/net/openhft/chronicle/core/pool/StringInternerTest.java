@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class StringInternerTest extends CoreTestCommon {
     private String[] uppercase;
 
-    @DisplayName("testIntern behaviour under expected input and output conditions")
+    @DisplayName("String interner stores interned values with collisions")
     @Test
     void testIntern() throws IllegalArgumentException {
         @NotNull StringInterner si = new StringInterner(128);
@@ -24,7 +24,7 @@ class StringInternerTest extends CoreTestCommon {
         assertEquals(82, si.valueCount(), "valueCount should equal interned entries after collisions");
     }
 
-    @DisplayName("testInternIndex behaviour under expected input and output conditions")
+    @DisplayName("String interner index resolves stored strings")
     @Test
     void testInternIndex() throws IllegalArgumentException {
         @NotNull StringInterner si = new StringInterner(128);
@@ -39,7 +39,7 @@ class StringInternerTest extends CoreTestCommon {
      *
      * @throws IllegalArgumentException if the interner cannot allocate entries
      */
-    @DisplayName("testToUppercaseInternIndex behaviour under expected input and output conditions")
+    @DisplayName("To uppercase intern index string interner")
     @Test
     void testToUppercaseInternIndex() throws IllegalArgumentException {
 

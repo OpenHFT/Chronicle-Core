@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class IORuntimeExceptionTest {
 
-    @DisplayName("testConstructorWithMessage behaviour under expected input and output conditions")
+    @DisplayName("Constructor with message io runtime exception")
     @Test
     void testConstructorWithMessage() {
         String message = "Error message";
@@ -20,7 +20,7 @@ class IORuntimeExceptionTest {
                 "exception message should match the provided message for string constructor");
     }
 
-    @DisplayName("testConstructorWithThrowable behaviour under expected input and output conditions")
+    @DisplayName("Constructor with throwable io runtime exception")
     @Test
     void testConstructorWithThrowable() {
         Throwable cause = new IOException("Cause");
@@ -30,7 +30,7 @@ class IORuntimeExceptionTest {
                 "exception cause should match the provided throwable for cause constructor");
     }
 
-    @DisplayName("testConstructorWithMessageAndThrowable behaviour under expected input and output conditions")
+    @DisplayName("Constructor with message and throwable io")
     @Test
     void testConstructorWithMessageAndThrowable() {
         String message = "Error message";
@@ -43,7 +43,7 @@ class IORuntimeExceptionTest {
                 "exception cause should match the provided throwable for message-and-cause constructor");
     }
 
-    @DisplayName("testNewIORuntimeException behaviour under expected input and output conditions")
+    @DisplayName("newIORuntimeException classifies closed and other errors")
     @Test
     void testNewIORuntimeException() {
         Exception closedException = new IOException("Connection reset by peer");

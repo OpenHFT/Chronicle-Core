@@ -29,7 +29,7 @@ class Jdk9ByteBufferCleanerServiceTest {
                 "clean should throw when invoked on a non-direct heap buffer");
     }
 
-    @DisplayName("impact reports no performance impact behaviour under expected input and output conditions")
+    @DisplayName("Impact reports no performance impact jdk")
     @Test
     void impactShouldBeNoImpact() {
         assertEquals(Impact.NO_IMPACT, cleanerService.impact(), "cleaner service impact should be NO_IMPACT");

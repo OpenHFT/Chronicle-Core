@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class InternalPomPropertiesMixedFieldsTest {
 
-    @DisplayName("versionResolvesWhenOnlyVersionIsPresent behaviour under expected input and output conditions")
+    @DisplayName("Version resolves when only version is present internal pom")
     @Test
     void versionResolvesWhenOnlyVersionIsPresent() {
         String v = InternalPomProperties.version("test.group", "only-version");

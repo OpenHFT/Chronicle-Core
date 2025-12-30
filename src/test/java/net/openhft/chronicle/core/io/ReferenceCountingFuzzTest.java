@@ -22,7 +22,7 @@ class ReferenceCountingFuzzTest {
             ReferenceOwner.temporary("owner-D")
     };
 
-    @DisplayName("randomisedReserveReleaseSequence behaviour under expected input and output conditions")
+    @DisplayName("Randomised reserve release sequence reference counting")
     @RepeatedTest(25)
     void randomisedReserveReleaseSequence(org.junit.jupiter.api.RepetitionInfo repetitionInfo) throws ClosedIllegalStateException {
         ReferenceStub ref = new ReferenceStub(false);
@@ -61,7 +61,7 @@ class ReferenceCountingFuzzTest {
                 "throwExceptionIfReleased should throw after final release");
     }
 
-    @DisplayName("backgroundReleaseHappensOnReleaserThread behaviour under expected input and output conditions")
+    @DisplayName("Background release happens on releaser thread")
     @Test
     void backgroundReleaseHappensOnReleaserThread() throws ClosedIllegalStateException {
         ReferenceStub ref = new ReferenceStub(true);

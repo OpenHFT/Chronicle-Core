@@ -19,7 +19,7 @@ class IgnoresEverythingTest extends CoreTestCommon {
         assertInstanceOf(IgnoresEverything.class, Mocker.ignored(Consumer.class), "Mocker.ignored should return an IgnoresEverything instance for Consumer interface");
     }
 
-    @DisplayName("returnsIgnored behaviour under expected input and output conditions")
+    @DisplayName("Ignored chained call returns IgnoresEverything proxy instance")
     @Test
     void returnsIgnored() {
         assertInstanceOf(IgnoresEverything.class, Mocker.ignored(Chained.class).method1(), "chained method call should return IgnoresEverything instance when invoked on ignored mock");

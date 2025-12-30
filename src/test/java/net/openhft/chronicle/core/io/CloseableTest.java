@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CloseableTest extends CoreTestCommon {
 
-    @DisplayName("closeQuietlyHandlesNull behaviour under expected input and output conditions")
+    @DisplayName("closeQuietly skips nulls and closes resources")
     @Test
     void closeQuietlyHandlesNull() {
         CloseableImpl closeable = new CloseableImpl();
@@ -27,7 +27,7 @@ class CloseableTest extends CoreTestCommon {
         assertTrue(closeable.wasClosed, "closeQuietly should close non-null resource despite null parameters");
     }
 
-    @DisplayName("closeQuietlyCallsCloseOnAutoCloseable behaviour under expected input and output conditions")
+    @DisplayName("closeQuietly invokes AutoCloseable close operation directly")
     @Test
     void closeQuietlyCallsCloseOnAutoCloseable() {
         final AutoCloseableImpl autoCloseable = new AutoCloseableImpl();
@@ -35,7 +35,7 @@ class CloseableTest extends CoreTestCommon {
         assertTrue(autoCloseable.wasClosed, "closeQuietly should invoke close() on AutoCloseable instance");
     }
 
-    @DisplayName("closeQuietlyCallsCloseOnCloseable behaviour under expected input and output conditions")
+    @DisplayName("closeQuietly invokes Closeable close operation directly")
     @Test
     void closeQuietlyCallsCloseOnCloseable() {
         final CloseableImpl closeable = new CloseableImpl();
@@ -43,7 +43,7 @@ class CloseableTest extends CoreTestCommon {
         assertTrue(closeable.wasClosed, "closeQuietly should invoke close() on Closeable instance");
     }
 
-    @DisplayName("closeQuietlyClosesCollections behaviour under expected input and output conditions")
+    @DisplayName("closeQuietly closes collection elements recursively nested")
     @Test
     void closeQuietlyClosesCollections() {
         final List<CloseableImpl> closeables = Arrays.asList(new CloseableImpl(), new CloseableImpl(), new CloseableImpl(), new CloseableImpl());
@@ -53,7 +53,7 @@ class CloseableTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("closeQuietlyClosesReferences behaviour under expected input and output conditions")
+    @DisplayName("closeQuietly closes soft reference contents safely")
     @Test
     void closeQuietlyClosesReferences() {
         final CloseableImpl closeable = new CloseableImpl();
@@ -62,7 +62,7 @@ class CloseableTest extends CoreTestCommon {
         assertTrue(closeable.wasClosed, "closeQuietly should dereference and close SoftReference contents");
     }
 
-    @DisplayName("closeQuietlyClosesRecursively behaviour under expected input and output conditions")
+    @DisplayName("closeQuietly closes nested reference structures fully")
     @Test
     void closeQuietlyClosesRecursively() {
         CloseableImpl closeable1 = new CloseableImpl();
@@ -78,7 +78,7 @@ class CloseableTest extends CoreTestCommon {
         assertTrue(closeable4.wasClosed, "closeQuietly should recursively close fourth element in nested structure");
     }
 
-    @DisplayName("closeQuietlyServerSocketChannel behaviour under expected input and output conditions")
+    @DisplayName("closeQuietly handles closed server socket channel")
     @Test
     void closeQuietlyServerSocketChannel() throws IOException {
         ServerSocketChannel ssc;

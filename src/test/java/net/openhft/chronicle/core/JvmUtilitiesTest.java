@@ -20,13 +20,13 @@ class JvmUtilitiesTest extends CoreTestCommon {
         System.clearProperty(FLAG_PROPERTY);
     }
 
-    @DisplayName("majorVersionMatchesSpecification behaviour under expected input and output conditions")
+    @DisplayName("Major version matches java specification value")
     @Test
     void majorVersionMatchesSpecification() {
         assertEquals(detectMajorVersionFromSpecification(), Jvm.majorVersion(), "JVM major version should match specification version");
     }
 
-    @DisplayName("getBooleanUnderstandsEmptyAndFalseValues behaviour under expected input and output conditions")
+    @DisplayName("Boolean property parsing accepts empty and false values")
     @Test
     void getBooleanUnderstandsEmptyAndFalseValues() {
         System.clearProperty(FLAG_PROPERTY);
@@ -44,7 +44,7 @@ class JvmUtilitiesTest extends CoreTestCommon {
 
     // parseSize and getSize are covered by JvmParseSizeTest
 
-    @DisplayName("getPropertyFallsBackToDefault behaviour under expected input and output conditions")
+    @DisplayName("Property lookup falls back to default value")
     @Test
     void getPropertyFallsBackToDefault() {
         System.clearProperty("chronicle.test.prop");
@@ -54,7 +54,7 @@ class JvmUtilitiesTest extends CoreTestCommon {
         assertEquals("value", Jvm.getProperty("chronicle.test.prop", "fallback"), "getProperty should return actual value when property is set");
     }
 
-    @DisplayName("getLongReturnsParsedValueOrDefault behaviour under expected input and output conditions")
+    @DisplayName("Long property parses value or returns default")
     @Test
     void getLongReturnsParsedValueOrDefault() {
         System.clearProperty("chronicle.test.long");
@@ -64,7 +64,7 @@ class JvmUtilitiesTest extends CoreTestCommon {
         assertEquals(1234L, Jvm.getLong("chronicle.test.long", 0L), "getLong should return parsed value when property is set");
     }
 
-    @DisplayName("resourceTracingToggles behaviour under expected input and output conditions")
+    @DisplayName("Resource tracing toggles reflect current state")
     @Test
     void resourceTracingToggles() {
         boolean original = Jvm.isResourceTracing();

@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class HandlerPriorityTest {
 
-    @DisplayName("testAliasForPrioritiesWithAliases behaviour under expected input and output conditions")
+    @DisplayName("Alias for priorities with aliases handler")
     @Test
     void testAliasForPrioritiesWithAliases() {
         assertEquals(HandlerPriority.MEDIUM, HandlerPriority.REPLICATION.alias(), "REPLICATION priority should alias to MEDIUM");
@@ -17,7 +17,7 @@ class HandlerPriorityTest {
         assertEquals(HandlerPriority.MEDIUM, HandlerPriority.CONCURRENT.alias(), "CONCURRENT priority should alias to MEDIUM");
     }
 
-    @DisplayName("testAliasForPrioritiesWithoutAliases behaviour under expected input and output conditions")
+    @DisplayName("Alias for priorities without aliases handler")
     @Test
     void testAliasForPrioritiesWithoutAliases() {
         assertEquals(HandlerPriority.HIGH, HandlerPriority.HIGH.alias(), "HIGH priority should alias to itself");

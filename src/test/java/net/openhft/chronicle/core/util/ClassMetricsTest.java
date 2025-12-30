@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SuppressWarnings("deprecation")
 class ClassMetricsTest {
 
-    @DisplayName("constructorAndMethodsWorkCorrectly behaviour under expected input and output conditions")
+    @DisplayName("Constructor and methods work correctly metrics")
     @Test
     void constructorAndMethodsWorkCorrectly() {
         int expectedOffset = 10;
@@ -21,7 +21,7 @@ class ClassMetricsTest {
         assertEquals(expectedLength, metrics.length(), "length should match constructor argument");
     }
 
-    @DisplayName("equalsAndHashCode behaviour under expected input and output conditions")
+    @DisplayName("Equals and hashCode reflect offset and length")
     @Test
     void equalsAndHashCode() {
         ClassMetrics metrics1 = new ClassMetrics(10, 20);
@@ -35,7 +35,7 @@ class ClassMetricsTest {
         assertNotEquals(metrics1.hashCode(), metrics3.hashCode(), "different objects should have different hash codes");
     }
 
-    @DisplayName("testToString behaviour under expected input and output conditions")
+    @DisplayName("toString includes offset and length values")
     @Test
     void testToString() {
         ClassMetrics metrics = new ClassMetrics(10, 20);

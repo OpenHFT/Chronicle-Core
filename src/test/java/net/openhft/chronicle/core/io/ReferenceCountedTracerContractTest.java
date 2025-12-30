@@ -20,7 +20,7 @@ abstract class ReferenceCountedTracerContractTest extends ReferenceCountedContra
     @Override
     protected abstract ReferenceCountedTracer createReferenceCounted();
 
-    @DisplayName("throwIfReleasedWillThrowIfResourceIsReleased behaviour under expected input and output conditions")
+    @DisplayName("Throw if released will throw if resource is released")
     @Test
     void throwIfReleasedWillThrowIfResourceIsReleased() {
         ReferenceCountedTracer referenceCounted = createReferenceCounted();
@@ -30,7 +30,7 @@ abstract class ReferenceCountedTracerContractTest extends ReferenceCountedContra
                 "throwExceptionIfReleased should throw after final release");
     }
 
-    @DisplayName("throwIfReleasedWillNotThrowIfResourceIsNotReleased behaviour under expected input and output conditions")
+    @DisplayName("Throw if released will not throw if resource is not released")
     @Test
     void throwIfReleasedWillNotThrowIfResourceIsNotReleased() {
         ReferenceCountedTracer referenceCounted = createReferenceCounted();
@@ -42,7 +42,7 @@ abstract class ReferenceCountedTracerContractTest extends ReferenceCountedContra
         }
     }
 
-    @DisplayName("throwIfNotReleasedWillThrowIfResourceIsNotReleased behaviour under expected input and output conditions")
+    @DisplayName("Throw if not released will throw if resource is not released")
     @Test
     void throwIfNotReleasedWillThrowIfResourceIsNotReleased() {
         ReferenceCountedTracer referenceCounted = createReferenceCounted();
@@ -55,7 +55,7 @@ abstract class ReferenceCountedTracerContractTest extends ReferenceCountedContra
         }
     }
 
-    @DisplayName("throwIfNotReleasedWillNotThrowIfResourceIsReleased behaviour under expected input and output conditions")
+    @DisplayName("Throw if not released will not throw if resource is released")
     @Test
     void throwIfNotReleasedWillNotThrowIfResourceIsReleased() {
         ReferenceCountedTracer referenceCounted = createReferenceCounted();
@@ -65,7 +65,7 @@ abstract class ReferenceCountedTracerContractTest extends ReferenceCountedContra
         assertEquals(0, referenceCounted.refCount(), "reference count should be zero after final release");
     }
 
-    @DisplayName("listenersShouldNotBeNotifiedOnWarnAndReleaseIfNotReleased behaviour under expected input and output conditions")
+    @DisplayName("Listeners should not be notified on warn and release if not released")
     @Test
     void listenersShouldNotBeNotifiedOnWarnAndReleaseIfNotReleased() {
         ReferenceCountedTracer rc = createReferenceCounted();

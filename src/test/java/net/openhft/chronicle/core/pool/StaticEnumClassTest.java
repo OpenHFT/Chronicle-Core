@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 class StaticEnumClassTest extends CoreTestCommon {
 
-    @DisplayName("testInitialSize behaviour under expected input and output conditions")
+    @DisplayName("Static enum cache size rounds to power of two")
     @Test
     void testInitialSize() throws IllegalArgumentException {
         EnumCache<Ecn> ecnEnumCache = EnumCache.of(Ecn.class);

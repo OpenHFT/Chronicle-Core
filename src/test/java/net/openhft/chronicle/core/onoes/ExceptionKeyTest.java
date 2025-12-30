@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class ExceptionKeyTest extends CoreTestCommon {
 
-    @DisplayName("testEqualsAndHashCode behaviour under expected input and output conditions")
+    @DisplayName("Equals and hash code exception key")
     @Test
     void testEqualsAndHashCode() {
         ExceptionKey ek1 = new ExceptionKey(LogLevel.PERF, getClass(), "one", null);

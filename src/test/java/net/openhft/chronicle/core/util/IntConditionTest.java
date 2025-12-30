@@ -58,7 +58,7 @@ class IntConditionTest extends CoreTestCommon {
         ), "Zero predicate scenarios cover negative zero and positive values");
     }
 
-    @DisplayName("byteConvertible behaviour under expected input and output conditions")
+    @DisplayName("Byte convertible predicate accepts boundary values")
     @Test
     void byteConvertible() {
         assertEquals(5, test(
@@ -73,7 +73,7 @@ class IntConditionTest extends CoreTestCommon {
         ), "Byte conversion scenarios cover bounds and overflow values");
     }
 
-    @DisplayName("shortConvertible behaviour under expected input and output conditions")
+    @DisplayName("Short convertible predicate accepts boundary values")
     @Test
     void shortConvertible() {
         assertEquals(5, test(
@@ -88,7 +88,7 @@ class IntConditionTest extends CoreTestCommon {
         ), "Short conversion scenarios cover bounds and overflow values");
     }
 
-    @DisplayName("evenPowerOfTwo behaviour under expected input and output conditions")
+    @DisplayName("Even power of two int condition")
     @Test
     void evenPowerOfTwo() {
         assertEquals(7, test(

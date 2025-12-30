@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 class ClosedIORuntimeExceptionTest {
 
-    @DisplayName("testConstructorWithMessage behaviour under expected input and output conditions")
+    @DisplayName("Constructor with message closed io runtime")
     @Test
     void testConstructorWithMessage() {
         String testMessage = "Test message";
@@ -19,7 +19,7 @@ class ClosedIORuntimeExceptionTest {
                 "message-only constructor should set the exception message correctly");
     }
 
-    @DisplayName("testConstructorWithMessageAndCause behaviour under expected input and output conditions")
+    @DisplayName("Constructor with message and cause closed")
     @Test
     void testConstructorWithMessageAndCause() {
         String testMessage = "Test message";
@@ -32,7 +32,7 @@ class ClosedIORuntimeExceptionTest {
                 "message-and-cause constructor should set the cause correctly");
     }
 
-    @DisplayName("testConstructorWithNullCause behaviour under expected input and output conditions")
+    @DisplayName("Constructor with null cause closed io")
     @Test
     void testConstructorWithNullCause() {
         String testMessage = "Test message";

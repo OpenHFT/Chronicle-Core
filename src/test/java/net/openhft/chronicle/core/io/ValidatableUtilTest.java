@@ -10,7 +10,7 @@ import static org.mockito.Mockito.*;
 
 class ValidatableUtilTest {
 
-    @DisplayName("testValidateToggle behaviour under expected input and output conditions")
+    @DisplayName("Validation toggle disables and re enables checks")
     @Test
     void testValidateToggle() {
         assertTrue(ValidatableUtil.validateEnabled(), "validation should be enabled by default");
@@ -22,7 +22,7 @@ class ValidatableUtilTest {
         assertTrue(ValidatableUtil.validateEnabled(), "validation should be re-enabled after endValidateDisabled");
     }
 
-    @DisplayName("testEndValidateDisabledWithoutStart behaviour under expected input and output conditions")
+    @DisplayName("End validate disabled without start validatable")
     @Test
     void testEndValidateDisabledWithoutStart() {
         AssertionError exception = assertThrows(AssertionError.class, ValidatableUtil::endValidateDisabled,
@@ -30,7 +30,7 @@ class ValidatableUtilTest {
         assertNotNull(exception, "exception should be captured");
     }
 
-    @DisplayName("testValidate behaviour under expected input and output conditions")
+    @DisplayName("ValidatableUtil validate invokes validate on target")
     @Test
     void testValidate() throws InvalidMarshallableException {
         Validatable validatable = mock(Validatable.class);

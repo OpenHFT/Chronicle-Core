@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ValidatableTest extends CoreTestCommon {
 
-    @DisplayName("validate behaviour under expected input and output conditions")
+    @DisplayName("Validatable toString enforces validate before formatting")
     @Test
     void validate() {
         DTOWithValidateToString d = new DTOWithValidateToString();
@@ -29,7 +29,7 @@ class ValidatableTest extends CoreTestCommon {
                 "toString should throw when b is non-positive");
     }
 
-    @DisplayName("validateDisabled behaviour under expected input and output conditions")
+    @DisplayName("Validation disabled allows invalid toString output")
     @Test
     void validateDisabled() {
 

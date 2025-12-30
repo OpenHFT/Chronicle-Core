@@ -12,7 +12,7 @@ import java.io.IOException;
 
 class EventHandlerTest {
 
-    @DisplayName("eventLoopShouldBeCalledWithCorrectEventLoop behaviour under expected input and output conditions")
+    @DisplayName("Event loop should be called with correct event loop")
     @Test
     void eventLoopShouldBeCalledWithCorrectEventLoop() {
         RecordingEventHandler handler = new RecordingEventHandler();
@@ -23,7 +23,7 @@ class EventHandlerTest {
         Assertions.assertSame(eventLoop, handler.eventLoop(), "eventLoop should be recorded when invoked");
     }
 
-    @DisplayName("loopStartedShouldBeCalled behaviour under expected input and output conditions")
+    @DisplayName("Loop started should be called event")
     @Test
     void loopStartedShouldBeCalled() {
         RecordingEventHandler handler = new RecordingEventHandler();
@@ -33,7 +33,7 @@ class EventHandlerTest {
         Assertions.assertTrue(handler.wasLoopStarted(), "loopStarted flag should be set after invocation");
     }
 
-    @DisplayName("loopFinishedShouldBeCalled behaviour under expected input and output conditions")
+    @DisplayName("Loop finished should be called event")
     @Test
     void loopFinishedShouldBeCalled() {
         RecordingEventHandler handler = new RecordingEventHandler();
@@ -43,7 +43,7 @@ class EventHandlerTest {
         Assertions.assertTrue(handler.wasLoopFinished(), "loopFinished flag should be set after invocation");
     }
 
-    @DisplayName("priorityShouldReturnMediumByDefault behaviour under expected input and output conditions")
+    @DisplayName("Priority should return medium by default event")
     @Test
     void priorityShouldReturnMediumByDefault() {
         EventHandler handler = () -> false;
@@ -51,7 +51,7 @@ class EventHandlerTest {
         Assertions.assertEquals(HandlerPriority.MEDIUM, handler.priority(), "default priority should be MEDIUM when not explicitly set");
     }
 
-    @DisplayName("closeShouldBeCalledIfEventHandlerIsCloseable behaviour under expected input and output conditions")
+    @DisplayName("Close should be called if event handler is closeable")
     @Test
     void closeShouldBeCalledIfEventHandlerIsCloseable() throws IOException {
         RecordingEventHandler handler = new RecordingEventHandler();

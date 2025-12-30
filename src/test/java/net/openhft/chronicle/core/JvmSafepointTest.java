@@ -14,7 +14,7 @@ class JvmSafepointTest extends CoreTestCommon {
 
     private volatile long safePointPerfLastAvg;
 
-    @DisplayName("testSafepoint behaviour under expected input and output conditions")
+    @DisplayName("Safepoint stack traces report expected hits")
     @Test
     void testSafepoint() throws InterruptedException {
         @SuppressWarnings("AnonymousHasLambdaAlternative")
@@ -54,7 +54,7 @@ class JvmSafepointTest extends CoreTestCommon {
         assertTrue(counter >= min, "safepoint stack trace hits should reach minimum: counter=" + counter + ", min=" + min);
     }
 
-    @DisplayName("safePointPerf behaviour under expected input and output conditions")
+    @DisplayName("Safepoint performance stays within expected bounds")
     @Test
     void safePointPerf() {
         // This will enable the C2 compiler to kick in.
