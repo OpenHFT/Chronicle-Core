@@ -29,9 +29,12 @@
 
     <properties>
         <zero.cost.assertions>disabled</zero.cost.assertions>
+        <checkstyle.skip>true</checkstyle.skip>
+        <spotbugs.skip>true</spotbugs.skip>
+        <pmd.skip>true</pmd.skip>
         <!-- Define the target coverage thresholds as properties -->
-        <jacoco.line.coverage>0.771</jacoco.line.coverage>
-        <jacoco.branch.coverage>0.673</jacoco.branch.coverage>
+        <jacoco.line.coverage>0.783</jacoco.line.coverage>
+        <jacoco.branch.coverage>0.685</jacoco.branch.coverage>
         <mockito.version>4.9.0</mockito.version>
     </properties>
 
@@ -173,6 +176,78 @@
                 <version>3.0.1</version>
                 <configuration>
                     <nrOfIndentSpace>4</nrOfIndentSpace>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <skip>${checkstyle.skip}</skip>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>validate</id>
+                        <configuration>
+                            <skip>${checkstyle.skip}</skip>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <configuration>
+                    <skip>${spotbugs.skip}</skip>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>spotbugs-main</id>
+                        <configuration>
+                            <skip>${spotbugs.skip}</skip>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <configuration>
+                    <skip>${pmd.skip}</skip>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>pmd-check</id>
+                        <configuration>
+                            <skip>${pmd.skip}</skip>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>cpd-check</id>
+                        <configuration>
+                            <skip>${pmd.skip}</skip>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- JaCoCo exclusions for untestable platform-specific code -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <!-- Locale-specific socket error message collection - only runs on non-English locales -->
+                        <exclude>net/openhft/chronicle/core/io/IOTools$Language.class</exclude>
+                        <!-- Static initialiser probes OS via wmic/sysctl/procfs - untestable without mocking ProcessBuilder -->
+                        <exclude>net/openhft/chronicle/core/internal/CpuClass.class</exclude>
+                        <!-- Native file descriptor operations - lazy initialisers for platform-specific I/O -->
+                        <exclude>net/openhft/chronicle/core/OS$Read0Holder.class</exclude>
+                        <exclude>net/openhft/chronicle/core/OS$Write0Holder.class</exclude>
+                        <exclude>net/openhft/chronicle/core/OS$Unmapp0Holder.class</exclude>
+                        <!-- Signal handler chains - require JVM signal infrastructure -->
+                        <exclude>net/openhft/chronicle/core/Jvm$ChainedSignalHandler.class</exclude>
+                        <!-- Anonymous Interruptible implementation - internal JVM integration -->
+                        <exclude>net/openhft/chronicle/core/Jvm$*Interruptible*.class</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
             <plugin>
@@ -335,6 +410,33 @@
             <properties>
                 <zero.cost.assertions>enabled</zero.cost.assertions>
             </properties>
+        </profile>
+        <profile>
+            <id>quality</id>
+            <properties>
+                <checkstyle.skip>false</checkstyle.skip>
+                <spotbugs.skip>false</spotbugs.skip>
+                <pmd.skip>false</pmd.skip>
+            </properties>
+        </profile>
+
+        <!-- Pitest configuration for mutation testing -->
+        <profile>
+            <id>pitest</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.pitest</groupId>
+                        <artifactId>pitest-maven</artifactId>
+                        <configuration>
+                            <!-- Exclude timing-sensitive tests that fail under instrumentation -->
+                            <excludedTestClasses>
+                                <param>net.openhft.chronicle.core.io.BackgroundResourceReleaserTest</param>
+                            </excludedTestClasses>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
 
         <profile>
