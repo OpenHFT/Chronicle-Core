@@ -83,7 +83,7 @@ class StringInternerTest extends CoreTestCommon {
     void internLongStringReturnsToString() {
         @NotNull StringInterner si = new StringInterner(128);
         // Create a string longer than 128 characters
-        String longString = "a".repeat(200);
+        String longString = repeatChar('a', 200);
         String result = si.intern(longString);
         assertEquals(longString, result, "intern should return toString for long string");
         // Verify it wasn't stored - valueCount should be 0
@@ -116,7 +116,7 @@ class StringInternerTest extends CoreTestCommon {
     @DisplayName("index returns -1 for string longer than capacity")
     void indexLongStringReturnsMinus1() {
         @NotNull StringInterner si = new StringInterner(128);
-        String longString = "a".repeat(200);
+        String longString = repeatChar('a', 200);
         assertEquals(-1, si.index(longString, null), "index should return -1 for long string");
     }
 
@@ -201,5 +201,12 @@ class StringInternerTest extends CoreTestCommon {
     void capacityReturnsArrayLength() {
         @NotNull StringInterner si = new StringInterner(128);
         assertEquals(128, si.capacity(), "capacity should return 128");
+    }
+
+    // Java 8 compatible replacement for String.repeat()
+    private static String repeatChar(char c, int count) {
+        char[] chars = new char[count];
+        java.util.Arrays.fill(chars, c);
+        return new String(chars);
     }
 }

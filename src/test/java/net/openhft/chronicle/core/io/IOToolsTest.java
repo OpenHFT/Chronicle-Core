@@ -513,7 +513,7 @@ class IOToolsTest extends CoreTestCommon {
 
         // Read back and verify it's actually gzipped
         try (java.util.zip.GZIPInputStream gis = new java.util.zip.GZIPInputStream(Files.newInputStream(path))) {
-            byte[] read = gis.readAllBytes();
+            byte[] read = IOTools.readAsBytes(gis);
             assertArrayEquals(encoded, read, "gzip file content should match written data after decompression");
         }
 
@@ -623,7 +623,7 @@ class IOToolsTest extends CoreTestCommon {
         // Test opening it via URL
         java.net.URL url = new File(testFilename).toURI().toURL();
         try (InputStream is = IOTools.open(url)) {
-            byte[] read = is.readAllBytes();
+            byte[] read = IOTools.readAsBytes(is);
             assertArrayEquals(encoded, read, "open should decompress gzip content");
         }
 
@@ -635,7 +635,7 @@ class IOToolsTest extends CoreTestCommon {
     void readAsBytesFileInputStream() throws IOException {
         Path tempFile = Files.createTempFile("readAsBytes", ".txt");
         String testData = "FileInputStream test data";
-        Files.writeString(tempFile, testData);
+        Files.write(tempFile, testData.getBytes(UTF_8));
 
         try (FileInputStream fis = new FileInputStream(tempFile.toFile())) {
             byte[] bytes = IOTools.readAsBytes(fis);

@@ -900,7 +900,7 @@ class JvmTest extends CoreTestCommon {
     void setAccessibleTest() throws NoSuchFieldException {
         Field field = SomeClass.class.getDeclaredField("somePrivateField");
         Jvm.setAccessible(field);
-        assertTrue(field.canAccess(new SomeClass()), "field should be accessible after setAccessible");
+        assertDoesNotThrow(() -> field.get(new SomeClass()), "field should be accessible after setAccessible");
     }
 
     @Test

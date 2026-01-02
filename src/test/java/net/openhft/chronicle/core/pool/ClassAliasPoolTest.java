@@ -4,7 +4,6 @@
 package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.ClassNotFoundRuntimeException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -146,18 +145,16 @@ class ClassAliasPoolTest extends CoreTestCommon {
     }
 
     /**
-     * On Windows this would cause a NoClassDefFoundError
+     * On case-insensitive filesystems (Windows, macOS) a wrong-case class name causes
+     * NoClassDefFoundError (file found but class not matched). On case-sensitive filesystems
+     * (Linux) it causes ClassNotFoundException. Both are normalised to ClassNotFoundRuntimeException.
      */
     @Test
     @DisplayName("forName rejects wrong case class name")
     void wrongCaseClassName() {
-        Class<? extends Throwable> expected = (OS.isWindows() || OS.isWsl())
-                ? NoClassDefFoundError.class
-                : ClassNotFoundRuntimeException.class;
-        String expectedName = expected.getSimpleName();
-        assertThrows(expected,
+        assertThrows(ClassNotFoundRuntimeException.class,
                 () -> CLASS_ALIASES.forName(TestEnum.class.getName().toLowerCase()),
-                "forName should reject lower-case class name aliases with " + expectedName);
+                "forName should reject lower-case class name aliases with ClassNotFoundRuntimeException");
     }
 
     @Test
