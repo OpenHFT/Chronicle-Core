@@ -550,7 +550,7 @@ class JvmTest extends CoreTestCommon {
     @DisplayName("startup completed flag is set")
     void startupCompleted() {
         // Accessing any Jvm method means startup has completed
-        Jvm.majorVersion();
+        assertDoesNotThrow(Jvm::majorVersion, "accessing Jvm.majorVersion should not throw");
         // If we get here without errors, startup completed successfully
         assertTrue(true, "startup should have completed");
     }
@@ -839,9 +839,7 @@ class JvmTest extends CoreTestCommon {
     @Test
     @DisplayName("pause handles interrupt during sleep")
     void pauseWithInterrupt() throws InterruptedException {
-        Thread testThread = new Thread(() -> {
-            Jvm.pause(1000);
-        });
+        Thread testThread = new Thread(() -> Jvm.pause(1000));
         testThread.start();
         Thread.sleep(50); // let it start sleeping
         testThread.interrupt();
@@ -964,6 +962,7 @@ class JvmTest extends CoreTestCommon {
         }
     }
 
+    @SuppressWarnings("unused")
     static class ClassA {
         long l;
         int i;
@@ -972,14 +971,17 @@ class JvmTest extends CoreTestCommon {
         boolean flag;
     }
 
+    @SuppressWarnings("unused")
     static class ClassB extends ClassA {
         String text;
     }
 
+    @SuppressWarnings("unused")
     static class ClassC extends ClassB {
         String hi;
     }
 
+    @SuppressWarnings("unused")
     private static class ClassD extends ClassC {
         byte x;
     }
@@ -990,6 +992,7 @@ class JvmTest extends CoreTestCommon {
         }
     }
 
+    @SuppressWarnings("unused")
     private static class SomeClass {
         private int somePrivateField;
     }

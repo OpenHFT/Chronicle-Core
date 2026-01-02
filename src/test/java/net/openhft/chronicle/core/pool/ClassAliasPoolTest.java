@@ -246,8 +246,8 @@ class ClassAliasPoolTest extends CoreTestCommon {
     @DisplayName("CAPKey equals returns false for non-CharSequence")
     void capKeyEqualsNonCharSequence() {
         ClassAliasPool.CAPKey key = new ClassAliasPool.CAPKey("test");
-        assertNotEquals(key, Integer.valueOf(123), "CAPKey should not equal Integer");
-        assertNotEquals(key, new Object(), "CAPKey should not equal Object");
+        assertNotEquals(Integer.valueOf(123), key, "CAPKey should not equal Integer");
+        assertNotEquals(new Object(), key, "CAPKey should not equal Object");
     }
 
     @Test

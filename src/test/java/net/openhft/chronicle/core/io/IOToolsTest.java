@@ -26,6 +26,7 @@ import java.util.stream.IntStream;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
 @SuppressWarnings("deprecation")
 class IOToolsTest extends CoreTestCommon {
@@ -188,7 +189,7 @@ class IOToolsTest extends CoreTestCommon {
     @Test
     @DisplayName("createDirectories fails on broken symbolic link")
     void createDirectoriesWithBrokenLink() throws IOException, IllegalStateException {
-        Assumptions.assumeTrue(OS.isLinux(), "requires Linux symlink behaviour for broken link check");
+        assumeTrue(OS.isLinux(), "requires Linux symlink behaviour for broken link check");
 
         String path = OS.getTarget();
         Path link = Paths.get(path, "link2nowhere" + Time.uniqueId());
@@ -219,7 +220,7 @@ class IOToolsTest extends CoreTestCommon {
     @Test
     @DisplayName("createDirectories fails for read-only directory permissions")
     void createDirectoriesReadOnly() throws IOException, IllegalStateException {
-        Assumptions.assumeTrue(OS.isLinux(), "requires Linux permissions for read-only directory check");
+        assumeTrue(OS.isLinux(), "requires Linux permissions for read-only directory check");
 
         String path = OS.getTarget();
         Path ro = Paths.get(path, "read-only" + Time.uniqueId());
@@ -227,9 +228,7 @@ class IOToolsTest extends CoreTestCommon {
         if (!ro.toFile().setWritable(false))
             throw new IllegalStateException("Cannot make read-only");
         boolean writable = ro.toFile().canWrite();
-        if (OS.isWsl() && writable) {
-            Assumptions.assumeTrue(false, "WSL does not enforce read-only permissions on this filesystem");
-        }
+        assumeFalse(OS.isWsl() && writable, "WSL does not enforce read-only permissions on this filesystem");
         assertFalse(writable, "read-only directory should not be writable: " + ro);
         boolean restored;
         IOException deleteFailure = null;
@@ -259,7 +258,7 @@ class IOToolsTest extends CoreTestCommon {
     @Test
     @DisplayName("createDirectories rejects file in place of directory")
     void cannotTurnAfileIntoADirectory() throws IOException {
-        Assumptions.assumeTrue(OS.isLinux(), "requires Linux file and directory conflict handling");
+        assumeTrue(OS.isLinux(), "requires Linux file and directory conflict handling");
 
         String path = OS.getTarget();
         Path file = Paths.get(path, "test-file" + Time.uniqueId());
@@ -317,7 +316,7 @@ class IOToolsTest extends CoreTestCommon {
             ss = new ServerSocket(0);
         } catch (IOException ioe) {
             // Some CI environments disallow socket operations; skip in that case.
-            Assumptions.assumeTrue(false, "socket bind blocked; loopback required for closed-socket test");
+            assumeTrue(false, "socket bind blocked; loopback required for closed-socket test");
             return;
         }
         Socket s = new Socket("localhost", ss.getLocalPort());
@@ -351,7 +350,7 @@ class IOToolsTest extends CoreTestCommon {
         try {
             ss = new ServerSocket(0);
         } catch (IOException ioe) {
-            Assumptions.assumeTrue(false, "socket channel test needs ServerSocket; network access blocked");
+            assumeTrue(false, "socket channel test needs ServerSocket; network access blocked");
             return;
         }
         SocketChannel sc = SocketChannel.open(new InetSocketAddress("localhost", ss.getLocalPort()));
@@ -387,7 +386,7 @@ class IOToolsTest extends CoreTestCommon {
         try {
             ss = new ServerSocket(0);
         } catch (IOException ioe) {
-            Assumptions.assumeTrue(false, "socket close race test needs ServerSocket; network access blocked");
+            assumeTrue(false, "socket close race test needs ServerSocket; network access blocked");
             return;
         }
         SocketChannel sc = SocketChannel.open(new InetSocketAddress("localhost", ss.getLocalPort()));
@@ -425,7 +424,7 @@ class IOToolsTest extends CoreTestCommon {
         try {
             ss = new ServerSocket(0);
         } catch (IOException ioe) {
-            Assumptions.assumeTrue(false, "interrupt close test needs ServerSocket; network access blocked");
+            assumeTrue(false, "interrupt close test needs ServerSocket; network access blocked");
             return;
         }
         SocketChannel sc = SocketChannel.open(new InetSocketAddress("localhost", ss.getLocalPort()));
