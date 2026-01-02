@@ -6,16 +6,15 @@ package net.openhft.chronicle.core.internal.analytics;
 import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Stream;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toMap;
 import static java.util.stream.Collectors.toSet;
-import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 /**
  * Helpers for building standard analytics maps (event parameters and user properties).

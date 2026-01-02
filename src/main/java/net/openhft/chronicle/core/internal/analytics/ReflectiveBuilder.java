@@ -5,12 +5,11 @@ package net.openhft.chronicle.core.internal.analytics;
 
 import net.openhft.chronicle.core.analytics.AnalyticsFacade;
 import org.jetbrains.annotations.NotNull;
-
 import java.lang.reflect.Method;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Reflection based {@link AnalyticsFacade.Builder} bridge for the optional analytics module at runtime.

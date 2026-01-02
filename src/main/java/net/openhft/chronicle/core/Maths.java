@@ -843,7 +843,7 @@ public final class Maths {
     }
 
     /**
-     * Returns the number of digits in the given number.
+     * Returns the number of decimal digits in the given number.
      *
      * @param num the number to count the digits of
      * @return the number of digits in the given number

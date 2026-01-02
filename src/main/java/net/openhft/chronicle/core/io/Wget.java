@@ -11,7 +11,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.Objects;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * <h2>Minimal HTTP-GET helper with a hard response size cap enforced</h2>
@@ -60,7 +61,7 @@ public final class Wget {
      */
     @SuppressWarnings("deprecation")
     public void fetch(final String url, final Appendable out) throws IOException {
-        Objects.requireNonNull(out, "out");
+        requireNonNull(out, "out");
 
         final URL u;
         try {
@@ -141,7 +142,7 @@ public final class Wget {
          */
         @Deprecated(/* to be removed in 2027, only used in tests */)
         public Builder connectionProvider(final ConnectionProvider provider) {
-            this.connectionProvider = Objects.requireNonNull(provider);
+            this.connectionProvider = requireNonNull(provider);
             return this;
         }
 
@@ -153,7 +154,7 @@ public final class Wget {
          */
         @Deprecated(/* to be removed in 2027, only used in tests */)
         public Builder charsetDetector(final CharsetDetector detector) {
-            this.charsetDetector = Objects.requireNonNull(detector);
+            this.charsetDetector = requireNonNull(detector);
             return this;
         }
 

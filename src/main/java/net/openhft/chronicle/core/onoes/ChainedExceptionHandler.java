@@ -4,15 +4,15 @@
 package net.openhft.chronicle.core.onoes;
 
 import net.openhft.chronicle.core.util.IgnoresEverything;
-import net.openhft.chronicle.core.util.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.stream.Stream;
 
-import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Chains exception handlers and forwards events in evaluation order for reporting.
@@ -47,7 +47,7 @@ public class ChainedExceptionHandler implements ExceptionHandler {
         requireNonNull(chain);
         this.chain = Stream.of(chain)
                 .filter(e -> !(e instanceof IgnoresEverything))
-                .map(ObjectUtils::requireNonNull)
+                .map(Objects::requireNonNull)
                 .map(ThreadLocalisedExceptionHandler::unwrap)
                 .toArray(ExceptionHandler[]::new);
     }

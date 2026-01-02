@@ -4,10 +4,9 @@
 package net.openhft.chronicle.core.internal.util;
 
 import sun.nio.ch.DirectBuffer;
-
 import java.nio.ByteBuffer;
 
-import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Centralises interaction with {@code sun.nio.ch.DirectBuffer} to reduce compiler warnings and direct buffer duplication.

@@ -3,13 +3,13 @@
  */
 package net.openhft.chronicle.core.internal.pom;
 
-import net.openhft.chronicle.core.util.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
-
 import java.io.InputStream;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Loads Maven {@code pom.properties} resources for Chronicle modules and build metadata inspection.
@@ -27,8 +27,8 @@ public final class InternalPomProperties {
 
     @NotNull
     public static Properties create(final String groupId, final String artifactId) {
-        ObjectUtils.requireNonNull(groupId);
-        ObjectUtils.requireNonNull(artifactId);
+        requireNonNull(groupId);
+        requireNonNull(artifactId);
         final Properties properties = new Properties();
         try {
             final String resourceName = resourceName(groupId, artifactId);

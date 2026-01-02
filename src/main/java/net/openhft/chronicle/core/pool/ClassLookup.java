@@ -6,7 +6,7 @@ package net.openhft.chronicle.core.pool;
 import net.openhft.chronicle.core.util.ClassNotFoundRuntimeException;
 import org.jetbrains.annotations.NotNull;
 
-import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
+import static java.util.Objects.requireNonNull;
 
 /**
  * An interface for looking up classes by name and associating them with aliases.

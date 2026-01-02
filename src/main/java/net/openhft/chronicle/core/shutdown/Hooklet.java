@@ -4,8 +4,9 @@
 package net.openhft.chronicle.core.shutdown;
 
 import org.jetbrains.annotations.NotNull;
-
 import java.util.Objects;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Unit of work that can be registered with {@link PriorityHook} for orderly shutdown.
@@ -71,7 +72,7 @@ public abstract class Hooklet implements Comparable<Hooklet> {
      * @throws NullPointerException if {@code hook} is {@code null}
      */
     public static Hooklet of(int priority, Runnable hook) {
-        Objects.requireNonNull(hook);
+        requireNonNull(hook);
         return new Hooklet() {
             @Override
             public void onShutdown() {

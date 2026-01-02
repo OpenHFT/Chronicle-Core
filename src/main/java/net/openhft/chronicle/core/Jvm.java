@@ -1403,7 +1403,7 @@ public final class Jvm {
                     ci.interrupt();
                 }
 
-                @SuppressWarnings({"EmptyMethod", "unused"})
+                @SuppressWarnings({"EmptyMethod", "unused", "PMD.MissingOverride"})
                 public void postInterrupt() {
                     // added in Java 23+
                 }

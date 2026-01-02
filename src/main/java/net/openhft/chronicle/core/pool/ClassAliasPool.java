@@ -7,7 +7,6 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.ClassNotFoundRuntimeException;
 import org.jetbrains.annotations.NotNull;
-
 import java.lang.reflect.Array;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,6 +15,9 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+
+import static java.util.Objects.requireNonNull;
+
 /**
  * A class responsible for looking up classes and associating them with aliases for
  * more convenient referencing. ClassAliasPool supports custom class loaders and allows
@@ -151,7 +153,7 @@ public class ClassAliasPool implements ClassLookup {
     @Override
     @NotNull
     public Class<?> forName(@NotNull CharSequence name) throws ClassNotFoundRuntimeException {
-        Objects.requireNonNull(name);
+        requireNonNull(name);
         CAPKey key = CAP_KEY_TL.get();
         key.value = name;
         Class<?> clazz = aliasClassMap.get(key);
@@ -335,7 +337,7 @@ public class ClassAliasPool implements ClassLookup {
     @Deprecated(/* to be removed in 2027, only used in tests */)
     @Override
     public CharSequence applyAlias(CharSequence name) {
-        Objects.requireNonNull(name);
+        requireNonNull(name);
         CAPKey key = CAP_KEY_TL.get();
         key.value = name;
         Class<?> clazz = aliasClassMap.get(key);

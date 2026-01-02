@@ -4,7 +4,6 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.internal.invariant.longs.LongCondition;
-
 import java.util.function.Function;
 import java.util.function.LongPredicate;
 

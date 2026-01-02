@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import static net.openhft.chronicle.core.io.BackgroundResourceReleaser.BG_RELEASER;
 
 /**
- * Abstract base class for managing reference counted resources and release behaviour.
+ * Abstract base class for managing reference counted resources and release lifecycle behaviour.
  * <p>
  * Subclasses hold the actual resource and implement {@link #performRelease()}
  * which is invoked when the reference count reaches zero. Release may occur on

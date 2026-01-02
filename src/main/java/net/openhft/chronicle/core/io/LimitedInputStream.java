@@ -4,11 +4,11 @@
 package net.openhft.chronicle.core.io;
 
 import org.jetbrains.annotations.NotNull;
-
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * <p>An {@link InputStream} decorator that enforces an upper bound on the number of bytes
@@ -36,7 +36,7 @@ final class LimitedInputStream extends FilterInputStream {
      * @param maxBytes  maximum number of bytes that may be read &gt;=0
      */
     LimitedInputStream(final InputStream in, final long maxBytes) {
-        super(Objects.requireNonNull(in, "in"));
+        super(requireNonNull(in, "in"));
         if (maxBytes < 0)
             throw new IllegalArgumentException("maxBytes must be >= 0");
         this.remainingBytes = maxBytes;
@@ -57,7 +57,7 @@ final class LimitedInputStream extends FilterInputStream {
     @Override
     public int read(final byte @NotNull [] buf, final int off, final int len) throws IOException {
         // Classic Java-8 bounds checks
-        Objects.requireNonNull(buf, "buf");
+        requireNonNull(buf, "buf");
         if (off < 0 || len < 0 || len > buf.length - off) {
             throw new IndexOutOfBoundsException("Invalid offset/length: off=" + off + ", len=" + len + ", size=" + buf.length);
         }

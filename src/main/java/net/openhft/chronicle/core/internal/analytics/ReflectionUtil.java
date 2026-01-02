@@ -5,14 +5,13 @@ package net.openhft.chronicle.core.internal.analytics;
 
 import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.NotNull;
-
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.stream.Stream;
 
+import static java.util.Objects.requireNonNull;
 import static net.openhft.chronicle.core.Jvm.uncheckedCast;
-import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 /**
  * Reflection utilities for integrating with the optional {@code chronicle-analytics} module and avoiding linkage failures.

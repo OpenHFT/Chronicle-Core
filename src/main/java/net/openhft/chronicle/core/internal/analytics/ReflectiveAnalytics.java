@@ -5,11 +5,10 @@ package net.openhft.chronicle.core.internal.analytics;
 
 import net.openhft.chronicle.core.analytics.AnalyticsFacade;
 import org.jetbrains.annotations.NotNull;
-
 import java.lang.reflect.Method;
 import java.util.Map;
 
-import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
+import static java.util.Objects.requireNonNull;
 
 /**
  * {@link AnalyticsFacade} implementation that delegates to the optional analytics module via reflection.

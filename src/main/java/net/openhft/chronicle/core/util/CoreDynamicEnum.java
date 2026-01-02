@@ -6,7 +6,7 @@ package net.openhft.chronicle.core.util;
 import net.openhft.chronicle.core.pool.DynamicEnumClass;
 
 /**
- * Represents the core behaviour expected of a dynamic enumeration instance and its identity fields.
+ * Represents the core behaviour expected of a dynamic enumeration instance and its identity field and ordinal metadata.
  *
  * <p>Dynamic enumerations extend the capabilities of traditional enums in Java.
  * Unlike traditional enums, which have a fixed set of instances, dynamic enumerations

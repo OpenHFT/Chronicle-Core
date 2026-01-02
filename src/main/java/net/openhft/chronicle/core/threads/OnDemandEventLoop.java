@@ -4,10 +4,9 @@
 package net.openhft.chronicle.core.threads;
 
 import org.jetbrains.annotations.NotNull;
-
 import java.util.function.Supplier;
 
-import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
+import static java.util.Objects.requireNonNull;
 
 /**
  * A wrapper for an {@link EventLoop} which is created on demand when any of its methods are called.

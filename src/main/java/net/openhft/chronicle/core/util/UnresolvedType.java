@@ -6,7 +6,7 @@ package net.openhft.chronicle.core.util;
 import java.lang.reflect.Type;
 
 /**
- * The UnresolvedType class represents an unresolved type.
+ * The UnresolvedType class represents an unresolved type placeholder.
  * It implements the Type interface.
  */
 public class UnresolvedType implements Type {

@@ -8,12 +8,12 @@ import net.openhft.chronicle.core.io.Closeable;
 import net.openhft.chronicle.core.util.ThrowingConsumer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import static java.util.Objects.requireNonNull;
 import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 
 /**
@@ -143,9 +143,9 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
                         UnaryOperator<T> getWrapper,
                         Boolean overrideTrackNonCleaningThreads) {
 
-        this.supplier = Objects.requireNonNull(supplier, "supplier");
-        this.cleanup = Objects.requireNonNull(cleanup, "cleanup");
-        this.getWrapper = Objects.requireNonNull(getWrapper, "getWrapper");
+        this.supplier = requireNonNull(supplier, "supplier");
+        this.cleanup = requireNonNull(cleanup, "cleanup");
+        this.getWrapper = requireNonNull(getWrapper, "getWrapper");
 
         boolean track = CleaningThreadLocal.class.desiredAssertionStatus() && enableOrphanTracking();
         this.trackNonCleaningThreads =

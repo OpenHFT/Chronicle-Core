@@ -424,7 +424,7 @@ public final class StringUtils {
     }
 
     /**
-     * Lowercases the first character of the input string if present.
+     * Lowercases the first character of the input string and leaves remaining characters unchanged.
      *
      * @param str source string, may be null
      * @return string with first character lower-cased, or the original when null/empty

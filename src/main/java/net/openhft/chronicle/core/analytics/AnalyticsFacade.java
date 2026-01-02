@@ -9,13 +9,12 @@ import net.openhft.chronicle.core.internal.analytics.ReflectionUtil;
 import net.openhft.chronicle.core.internal.analytics.ReflectiveBuilder;
 import net.openhft.chronicle.core.internal.analytics.StandardMaps;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
-import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Provides means for libraries to report analytics telemetry to an upstream receiver.

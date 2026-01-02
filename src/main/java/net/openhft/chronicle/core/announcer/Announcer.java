@@ -5,11 +5,10 @@ package net.openhft.chronicle.core.announcer;
 
 import net.openhft.chronicle.core.internal.announcer.InternalAnnouncer;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.Collections;
 import java.util.Map;
 
-import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Provides a way for libraries to announce themselves and record runtime metadata.

@@ -5,6 +5,7 @@ package net.openhft.chronicle.core.shutdown;
 
 import java.util.*;
 
+import static java.util.Objects.requireNonNull;
 import static net.openhft.chronicle.core.Jvm.uncheckedCast;
 
 /**
@@ -52,7 +53,7 @@ public class PriorityHook {
      * @throws NullPointerException if {@code hooklet} is {@code null}
      */
     public static synchronized <H extends Hooklet> H addAndGet(H hooklet) {
-        Objects.requireNonNull(hooklet);
+        requireNonNull(hooklet);
         if (registeredHook == null) {
             registeredHook = new PriorityHook();
 

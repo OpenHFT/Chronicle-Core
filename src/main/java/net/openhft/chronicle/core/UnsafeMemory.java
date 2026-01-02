@@ -9,14 +9,13 @@ import net.openhft.chronicle.core.util.MisAlignedAssertionError;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import sun.misc.Unsafe; // NOSONAR
-
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static java.util.Objects.requireNonNull;
 import static net.openhft.chronicle.assertions.AssertUtil.SKIP_ASSERTIONS;
-import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 /**
  * UnsafeMemory is a class that provides efficient, low-level operations for direct memory manipulation. It

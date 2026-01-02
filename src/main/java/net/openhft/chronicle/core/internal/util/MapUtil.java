@@ -3,17 +3,16 @@
  */
 package net.openhft.chronicle.core.internal.util;
 
-import net.openhft.chronicle.core.util.ObjectUtils;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Stream;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toMap;
-import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 /**
  * Small helpers for building immutable maps with predictable iteration order.
@@ -37,7 +36,7 @@ public final class MapUtil {
     public static <K, V> Map<K, V> ofUnmodifiable(final Map.Entry<K, V>... entries) {
         requireNonNull(entries);
         return Stream.of(entries)
-                .map(ObjectUtils::requireNonNull)
+                .map(Objects::requireNonNull)
                 .collect(collectingAndThen(toMap(Map.Entry::getKey, Map.Entry::getValue), Collections::unmodifiableMap));
     }
 }

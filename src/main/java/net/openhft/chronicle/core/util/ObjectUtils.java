@@ -10,7 +10,6 @@ import net.openhft.chronicle.core.pool.ClassAliasPool;
 import net.openhft.chronicle.core.pool.EnumCache;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
 import java.lang.reflect.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -21,6 +20,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 
+import static java.util.Objects.requireNonNull;
 import static net.openhft.chronicle.core.internal.util.MapUtil.entry;
 import static net.openhft.chronicle.core.internal.util.MapUtil.ofUnmodifiable;
 import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
@@ -136,7 +136,7 @@ public final class ObjectUtils {
      * @return A supplier that creates instances of the provided class.
      */
     static <T> Supplier<T> supplierForClass(Class<T> c) {
-        Objects.requireNonNull(c);
+        requireNonNull(c);
         if (isInternalPackage(c)) return supplierForInternalPackage();
         if (c.isPrimitive()) return supplierForPrimitive(c);
         if (c.isInterface()) return supplierForInterface(c);
