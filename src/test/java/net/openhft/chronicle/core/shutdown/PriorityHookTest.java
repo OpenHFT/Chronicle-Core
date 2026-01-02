@@ -20,8 +20,8 @@ class PriorityHookTest {
         PriorityHook.clear();
     }
 
-    @DisplayName("Registering priority hook returns false for duplicates")
     @Test
+    @DisplayName("Registering priority hook returns false for duplicates")
     void testAddHook() {
         Runnable hook1 = mock(Runnable.class);
         boolean added1 = PriorityHook.add(1, hook1);
@@ -31,8 +31,8 @@ class PriorityHookTest {
         assertFalse(addedAgain, "add() returns false when re-adding same hook at same priority");
     }
 
-    @DisplayName("Hook execution order respects priority values")
     @Test
+    @DisplayName("Hook execution order respects priority values")
     void testHookExecutionOrder() {
         Runnable hook1 = mock(Runnable.class);
         Runnable hook2 = mock(Runnable.class);
@@ -46,8 +46,8 @@ class PriorityHookTest {
         inOrder.verify(hook2).run();
     }
 
-    @DisplayName("Clear removes registered shutdown hook entry")
     @Test
+    @DisplayName("Clear removes registered shutdown hook entry")
     void testClearHooks() {
         Runnable hook = mock(Runnable.class);
         PriorityHook.add(1, hook);

@@ -32,8 +32,8 @@ class ConcreteInvocationHandler extends AbstractInvocationHandler {
 
 class AbstractInvocationHandlerTest extends CoreTestCommon {
 
-    @DisplayName("Invocation handler forwards close to Closeable")
     @Test
+    @DisplayName("Invocation handler forwards close to Closeable")
     void testCloseable() throws Throwable {
         AbstractInvocationHandler handler = new ConcreteInvocationHandler();
         Closeable mockCloseable = mock(Closeable.class);
@@ -45,18 +45,18 @@ class AbstractInvocationHandlerTest extends CoreTestCommon {
         verify(mockCloseable, times(1)).close();
     }
 
-    @DisplayName("Method handle for proxy abstract invocation")
     @Test
+    @DisplayName("Method handle for proxy abstract invocation")
     void testMethodHandleForProxy() throws Throwable {
-        assumeTrue(Jvm.majorVersion() >= 17);
+        assumeTrue(Jvm.majorVersion() >= 17, "method handle proxy requires Java 17+");
         AbstractInvocationHandler handler = new ConcreteInvocationHandler();
         Method exampleMethod = String.class.getMethod("length");
 
         assertNotNull(handler.methodHandleForProxy("example", exampleMethod), "methodHandleForProxy should return a non-null method handle");
     }
 
-    @DisplayName("Invocation handler intercepts interface method calls")
     @Test
+    @DisplayName("Invocation handler intercepts interface method calls")
     void testInvoke() {
         final List<String> messages = new ArrayList<>();
         final Consumer<String> consumer = messages::add;

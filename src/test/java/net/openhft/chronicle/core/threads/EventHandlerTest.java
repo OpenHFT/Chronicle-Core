@@ -12,8 +12,8 @@ import java.io.IOException;
 
 class EventHandlerTest {
 
-    @DisplayName("Event loop should be called with correct event loop")
     @Test
+    @DisplayName("Event loop should be called with correct event loop")
     void eventLoopShouldBeCalledWithCorrectEventLoop() {
         RecordingEventHandler handler = new RecordingEventHandler();
         EventLoop eventLoop = new StubEventLoop();
@@ -23,8 +23,8 @@ class EventHandlerTest {
         Assertions.assertSame(eventLoop, handler.eventLoop(), "eventLoop should be recorded when invoked");
     }
 
-    @DisplayName("Loop started should be called event")
     @Test
+    @DisplayName("Loop started should be called event")
     void loopStartedShouldBeCalled() {
         RecordingEventHandler handler = new RecordingEventHandler();
 
@@ -33,8 +33,8 @@ class EventHandlerTest {
         Assertions.assertTrue(handler.wasLoopStarted(), "loopStarted flag should be set after invocation");
     }
 
-    @DisplayName("Loop finished should be called event")
     @Test
+    @DisplayName("Loop finished should be called event")
     void loopFinishedShouldBeCalled() {
         RecordingEventHandler handler = new RecordingEventHandler();
 
@@ -43,16 +43,16 @@ class EventHandlerTest {
         Assertions.assertTrue(handler.wasLoopFinished(), "loopFinished flag should be set after invocation");
     }
 
-    @DisplayName("Priority should return medium by default event")
     @Test
+    @DisplayName("Priority should return medium by default event")
     void priorityShouldReturnMediumByDefault() {
         EventHandler handler = () -> false;
 
         Assertions.assertEquals(HandlerPriority.MEDIUM, handler.priority(), "default priority should be MEDIUM when not explicitly set");
     }
 
-    @DisplayName("Close should be called if event handler is closeable")
     @Test
+    @DisplayName("Close should be called if event handler is closeable")
     void closeShouldBeCalledIfEventHandlerIsCloseable() throws IOException {
         RecordingEventHandler handler = new RecordingEventHandler();
 

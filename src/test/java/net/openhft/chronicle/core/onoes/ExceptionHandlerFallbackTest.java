@@ -14,7 +14,7 @@ import java.lang.reflect.Field;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * Test for {@link Slf4jExceptionHandler} fallback to default logger behaviour during initialisation failure handling.
+ * Test for {@link Slf4jExceptionHandler} fallback to default logger behaviour during initialisation failure handling flow.
  */
 class ExceptionHandlerFallbackTest {
     private static final int FAILED_INITIALIZATION = 2;
@@ -22,8 +22,8 @@ class ExceptionHandlerFallbackTest {
     /**
      * Ensures Slf4jExceptionHandler falls back to the default logger when initialisation fails.
      */
-    @DisplayName("Class should fall back when delegate throws")
     @Test
+    @DisplayName("Class should fall back when delegate throws")
     void classShouldFallBackWhenDelegateThrows() throws IllegalAccessException {
         Field initializationState = Jvm.getField(LoggerFactory.class, "INITIALIZATION_STATE");
         int state;

@@ -12,8 +12,8 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ReferenceOwnerTest {
-    @DisplayName("Reference owner ids are unique across instances")
     @Test
+    @DisplayName("Reference owner ids are unique across instances")
     void testReferenceId() {
         Set<Integer> ints = new HashSet<>();
         for (int i = 0; i < 101; i++)

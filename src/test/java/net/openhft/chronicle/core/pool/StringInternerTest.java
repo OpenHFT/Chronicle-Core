@@ -8,14 +8,14 @@ import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("deprecation")
 class StringInternerTest extends CoreTestCommon {
     private String[] uppercase;
 
-    @DisplayName("String interner stores interned values with collisions")
     @Test
+    @DisplayName("String interner stores interned values with collisions")
     void testIntern() throws IllegalArgumentException {
         @NotNull StringInterner si = new StringInterner(128);
         for (int i = 0; i < 100; i++) {
@@ -24,8 +24,8 @@ class StringInternerTest extends CoreTestCommon {
         assertEquals(82, si.valueCount(), "valueCount should equal interned entries after collisions");
     }
 
-    @DisplayName("String interner index resolves stored strings")
     @Test
+    @DisplayName("String interner index resolves stored strings")
     void testInternIndex() throws IllegalArgumentException {
         @NotNull StringInterner si = new StringInterner(128);
         for (int i = 0; i < 100; i++) {
@@ -39,8 +39,8 @@ class StringInternerTest extends CoreTestCommon {
      *
      * @throws IllegalArgumentException if the interner cannot allocate entries
      */
-    @DisplayName("To uppercase intern index string interner")
     @Test
+    @DisplayName("To uppercase intern index string interner")
     void testToUppercaseInternIndex() throws IllegalArgumentException {
 
         @NotNull StringInterner si = new StringInterner(128);
@@ -67,5 +67,139 @@ class StringInternerTest extends CoreTestCommon {
             sb.append(CHARS.charAt((int) (Math.random() * CHARS.length())));
         }
         return sb.toString();
+    }
+
+    // --- Additional tests for branch coverage ---
+
+    @Test
+    @DisplayName("intern returns null for null input")
+    void internNullReturnsNull() {
+        @NotNull StringInterner si = new StringInterner(128);
+        assertNull(si.intern(null), "intern(null) should return null");
+    }
+
+    @Test
+    @DisplayName("intern returns toString for string longer than capacity")
+    void internLongStringReturnsToString() {
+        @NotNull StringInterner si = new StringInterner(128);
+        // Create a string longer than 128 characters
+        String longString = "a".repeat(200);
+        String result = si.intern(longString);
+        assertEquals(longString, result, "intern should return toString for long string");
+        // Verify it wasn't stored - valueCount should be 0
+        assertEquals(0, si.valueCount(), "long string should not be stored in interner");
+    }
+
+    @Test
+    @DisplayName("intern returns cached string on second slot match")
+    void internSecondSlotMatch() {
+        @NotNull StringInterner si = new StringInterner(128);
+        // Fill both slots for the same hash with different strings
+        // by interning multiple strings until we hit the second slot case
+        String first = "test1";
+        String interned1 = si.intern(first);
+        assertEquals(first, interned1, "first intern should succeed");
+
+        // Intern same string again - should return cached
+        String interned2 = si.intern(first);
+        assertSame(interned1, interned2, "second intern of same string should return cached");
+    }
+
+    @Test
+    @DisplayName("index returns -1 for null input")
+    void indexNullReturnsMinus1() {
+        @NotNull StringInterner si = new StringInterner(128);
+        assertEquals(-1, si.index(null, null), "index(null) should return -1");
+    }
+
+    @Test
+    @DisplayName("index returns -1 for string longer than capacity")
+    void indexLongStringReturnsMinus1() {
+        @NotNull StringInterner si = new StringInterner(128);
+        String longString = "a".repeat(200);
+        assertEquals(-1, si.index(longString, null), "index should return -1 for long string");
+    }
+
+    @Test
+    @DisplayName("index returns same index for same string")
+    void indexReturnsSameIndexForSameString() {
+        @NotNull StringInterner si = new StringInterner(128);
+        String test = "testString";
+        int index1 = si.index(test, null);
+        int index2 = si.index(test, null);
+        assertTrue(index1 >= 0, "first index should be valid");
+        assertEquals(index1, index2, "index should return same slot for same string");
+    }
+
+    @Test
+    @DisplayName("get returns null for empty slot")
+    void getReturnsNullForEmptySlot() {
+        @NotNull StringInterner si = new StringInterner(128);
+        // Before interning anything, all slots should be null
+        assertNull(si.get(0), "get should return null for empty slot");
+        assertNull(si.get(64), "get should return null for another empty slot");
+    }
+
+    @Test
+    @DisplayName("intern triggers toggle when both slots occupied")
+    void internTogglesBetweenSlots() {
+        @NotNull StringInterner si = new StringInterner(128);
+        // Fill many entries to force toggle behaviour
+        for (int i = 0; i < 200; i++) {
+            si.intern("string" + i);
+        }
+        // After many inserts, valueCount should be less than 200 due to collisions
+        int count = si.valueCount();
+        assertTrue(count > 0 && count <= 128, "valueCount should be between 1 and 128: " + count);
+    }
+
+    @Test
+    @DisplayName("index invokes onChanged callback when storing new value")
+    void indexInvokesOnChangedCallback() {
+        @NotNull StringInterner si = new StringInterner(128);
+        int[] callbackCount = {0};
+        String[] lastValue = {null};
+        int[] lastIndex = {-1};
+
+        String test = "callbackTest";
+        int index = si.index(test, (idx, val) -> {
+            callbackCount[0]++;
+            lastIndex[0] = idx;
+            lastValue[0] = val;
+        });
+
+        assertEquals(1, callbackCount[0], "onChanged should be called once");
+        assertEquals(index, lastIndex[0], "callback should receive correct index");
+        assertEquals(test, lastValue[0], "callback should receive correct value");
+    }
+
+    @Test
+    @DisplayName("index does not invoke onChanged on cache hit")
+    void indexDoesNotInvokeOnChangedOnCacheHit() {
+        @NotNull StringInterner si = new StringInterner(128);
+        int[] callbackCount = {0};
+
+        String test = "cacheHitTest";
+        // First call - should invoke callback
+        si.index(test, (idx, val) -> callbackCount[0]++);
+        assertEquals(1, callbackCount[0], "first index should invoke callback");
+
+        // Second call - should not invoke callback (cache hit)
+        si.index(test, (idx, val) -> callbackCount[0]++);
+        assertEquals(1, callbackCount[0], "second index should not invoke callback on cache hit");
+    }
+
+    @Test
+    @DisplayName("valueCount returns zero for empty interner")
+    void valueCountZeroForEmpty() {
+        @NotNull StringInterner si = new StringInterner(128);
+        assertEquals(0, si.valueCount(), "valueCount should be 0 for empty interner");
+    }
+
+    @Test
+    @DisplayName("capacity returns interner array length")
+    void capacityReturnsArrayLength() {
+        @NotNull StringInterner si = new StringInterner(128);
+        assertEquals(128, si.capacity(), "capacity should return 128");
     }
 }

@@ -10,8 +10,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @SuppressWarnings("deprecation")
 class ClassMetricsTest {
 
-    @DisplayName("Constructor and methods work correctly metrics")
     @Test
+    @DisplayName("Constructor and methods work correctly metrics")
     void constructorAndMethodsWorkCorrectly() {
         int expectedOffset = 10;
         int expectedLength = 20;
@@ -21,8 +21,8 @@ class ClassMetricsTest {
         assertEquals(expectedLength, metrics.length(), "length should match constructor argument");
     }
 
-    @DisplayName("Equals and hashCode reflect offset and length")
     @Test
+    @DisplayName("Equals and hashCode reflect offset and length")
     void equalsAndHashCode() {
         ClassMetrics metrics1 = new ClassMetrics(10, 20);
         ClassMetrics metrics2 = new ClassMetrics(10, 20);
@@ -35,13 +35,52 @@ class ClassMetricsTest {
         assertNotEquals(metrics1.hashCode(), metrics3.hashCode(), "different objects should have different hash codes");
     }
 
-    @DisplayName("toString includes offset and length values")
     @Test
+    @DisplayName("toString includes offset and length values")
     void testToString() {
         ClassMetrics metrics = new ClassMetrics(10, 20);
         String toStringResult = metrics.toString();
 
         assertTrue(toStringResult.contains("offset=10"), "toString should include \"offset=10\": " + toStringResult);
         assertTrue(toStringResult.contains("length=20"), "toString should include \"length=20\": " + toStringResult);
+    }
+
+    // --- Additional tests for branch coverage ---
+
+    @Test
+    @DisplayName("equals returns true for same object")
+    void equalsSameObject() {
+        ClassMetrics metrics = new ClassMetrics(10, 20);
+        assertEquals(metrics, metrics, "same object should be equal to itself");
+    }
+
+    @Test
+    @DisplayName("equals returns false for null")
+    void equalsNull() {
+        ClassMetrics metrics = new ClassMetrics(10, 20);
+        assertNotEquals(null, metrics, "ClassMetrics should not be equal to null");
+    }
+
+    @Test
+    @DisplayName("equals returns false for different class type")
+    void equalsDifferentClass() {
+        ClassMetrics metrics = new ClassMetrics(10, 20);
+        assertNotEquals("not a ClassMetrics", metrics, "ClassMetrics should not be equal to a String");
+    }
+
+    @Test
+    @DisplayName("equals returns false when only offset differs")
+    void equalsOffsetDiffers() {
+        ClassMetrics metrics1 = new ClassMetrics(10, 20);
+        ClassMetrics metrics2 = new ClassMetrics(15, 20);
+        assertNotEquals(metrics1, metrics2, "ClassMetrics with different offset should not be equal");
+    }
+
+    @Test
+    @DisplayName("equals returns false when only length differs")
+    void equalsLengthDiffers() {
+        ClassMetrics metrics1 = new ClassMetrics(10, 20);
+        ClassMetrics metrics2 = new ClassMetrics(10, 25);
+        assertNotEquals(metrics1, metrics2, "ClassMetrics with different length should not be equal");
     }
 }

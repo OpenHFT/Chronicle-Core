@@ -17,8 +17,8 @@ abstract class MonitorReferenceCountedContractTest extends ReferenceCountedTrace
     @Override
     protected abstract MonitorReferenceCounted createReferenceCounted();
 
-    @DisplayName("warnAndRelease logs warning and releases when monitored")
     @Test
+    @DisplayName("warnAndRelease logs warning and releases when monitored")
     void warnAndReleaseWillLogAWarningAndReleaseWhenMonitored() {
         final MonitorReferenceCounted referenceCounted = createReferenceCounted();
         referenceCounted.unmonitored(false);
@@ -27,8 +27,8 @@ abstract class MonitorReferenceCountedContractTest extends ReferenceCountedTrace
         expectException("Discarded without being released");
     }
 
-    @DisplayName("warnAndRelease releases silently when unmonitored flag")
     @Test
+    @DisplayName("warnAndRelease releases silently when unmonitored flag")
     void warnAndReleaseWillJustReleaseWhenMonitored() {
         final MonitorReferenceCounted referenceCounted = createReferenceCounted();
         referenceCounted.unmonitored(true);
@@ -36,8 +36,8 @@ abstract class MonitorReferenceCountedContractTest extends ReferenceCountedTrace
         assertEquals(0, referenceCounted.refCount(), "reference count should be zero after warnAndRelease when unmonitored");
     }
 
-    @DisplayName("warnAndRelease does nothing when resource released")
     @Test
+    @DisplayName("warnAndRelease does nothing when resource released")
     void warnAndReleaseWillDoNothingIfTheResourceIsAlreadyReleased() {
         final MonitorReferenceCounted referenceCounted = createReferenceCounted();
         referenceCounted.unmonitored(false);

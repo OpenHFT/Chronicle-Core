@@ -12,8 +12,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class IntConditionTest {
 
-    @DisplayName("Basic comparisons validate integer invariant predicates")
     @Test
+    @DisplayName("Basic comparisons validate integer invariant predicates")
     void basicComparisons() {
         assertTrue(IntCondition.POSITIVE.test(3), "positive value 3 should satisfy positive condition");
         assertFalse(IntCondition.POSITIVE.test(0), "zero should not satisfy positive condition");
@@ -36,8 +36,8 @@ class IntConditionTest {
         assertFalse(IntCondition.NON_ZERO.test(0), "zero should not satisfy non-zero condition");
     }
 
-    @DisplayName("Range and alignment checks validate integer constraints")
     @Test
+    @DisplayName("Range and alignment checks validate integer constraints")
     void rangeAndAlignmentChecks() {
         assertTrue(IntCondition.BYTE_CONVERTIBLE.test(Byte.MAX_VALUE), "byte max value should be byte-convertible");
         assertFalse(IntCondition.BYTE_CONVERTIBLE.test(Byte.MAX_VALUE + 1), "value exceeding byte max should not be byte-convertible");
@@ -59,8 +59,8 @@ class IntConditionTest {
         assertFalse(IntCondition.LONG_ALIGNED.test(4), "value 4 not divisible by 8 should not be long-aligned");
     }
 
-    @DisplayName("Negated predicates invert integer invariant expectations")
     @Test
+    @DisplayName("Negated predicates invert integer invariant expectations")
     void negateMappings() {
         IntPredicate positiveNegated = IntCondition.POSITIVE.negate();
         assertTrue(positiveNegated.test(-1), "negated positive condition should accept negative value -1");
@@ -91,8 +91,8 @@ class IntConditionTest {
         assertTrue(notShortAligned.test(7), "negated short-aligned condition should accept unaligned value 7");
     }
 
-    @DisplayName("Descriptive toString exposes invariant predicate labels")
     @Test
+    @DisplayName("Descriptive toString exposes invariant predicate labels")
     void descriptiveToString() {
         assertEquals("> 0", IntCondition.POSITIVE.toString(), "positive condition should have descriptive string representation");
         assertEquals("!= 0", IntCondition.NON_ZERO.toString(), "non-zero condition should have descriptive string representation");

@@ -24,8 +24,8 @@ class ChainedExceptionHandlerTest {
         chainedHandler = new ChainedExceptionHandler(handler1, handler2);
     }
 
-    @DisplayName("Chained handler forwards events to both handlers")
     @Test
+    @DisplayName("Chained handler forwards events to both handlers")
     void testChainExecution() {
         Throwable throwable = new RuntimeException("Test");
         chainedHandler.on(Exception.class, "Test message", throwable);
@@ -34,8 +34,8 @@ class ChainedExceptionHandlerTest {
         verify(handler2).on(Exception.class, "Test message", throwable);
     }
 
-    @DisplayName("On with class should call each handler chained exception")
     @Test
+    @DisplayName("On with class should call each handler chained exception")
     void onWithClassShouldCallEachHandler() {
         ExceptionHandler firstHandler = mock(ExceptionHandler.class);
         ExceptionHandler secondHandler = mock(ExceptionHandler.class);
@@ -52,8 +52,8 @@ class ChainedExceptionHandlerTest {
         inOrder.verify(secondHandler).on(clazz, message, thrown);
     }
 
-    @DisplayName("On should catch exceptions from handlers chained")
     @Test
+    @DisplayName("On should catch exceptions from handlers chained")
     void onShouldCatchExceptionsFromHandlers() {
         ExceptionHandler faultyHandler = (clazz, msg, thr) -> {
             throw new RuntimeException("Handler error");

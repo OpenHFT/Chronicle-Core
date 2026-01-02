@@ -30,8 +30,8 @@ class ARMMemoryMisalignmentEdgeTest {
         }
     }
 
-    @DisplayName("Volatile short on misaligned address offheap")
     @Test
+    @DisplayName("Volatile short on misaligned address offheap")
     void volatileShortOnMisalignedAddressOffheap() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
         long base = alloc(8);
@@ -44,8 +44,8 @@ class ARMMemoryMisalignmentEdgeTest {
         assertEquals(123, arm.readVolatileShort(base), "volatile short read should return written value at aligned offheap address");
     }
 
-    @DisplayName("Compare and swap int misaligned throws")
     @Test
+    @DisplayName("Compare and swap int misaligned throws")
     void compareAndSwapIntMisalignedThrows() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
         long base = alloc(16);
@@ -54,8 +54,8 @@ class ARMMemoryMisalignmentEdgeTest {
                 "compareAndSwapInt should throw for misaligned offheap address");
     }
 
-    @DisplayName("And set int misaligned mismatch includes tag")
     @Test
+    @DisplayName("And set int misaligned mismatch includes tag")
     void testAndSetIntMisalignedMismatchIncludesTag() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
         long base = alloc(16);
@@ -67,8 +67,8 @@ class ARMMemoryMisalignmentEdgeTest {
                 "testAndSet failure message should include \"mis-aligned\": " + ex.getMessage());
     }
 
-    @DisplayName("Float read write on misaligned address offheap")
     @Test
+    @DisplayName("Float read write on misaligned address offheap")
     void floatReadWriteOnMisalignedAddressOffheap() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
         long base = alloc(16);
@@ -81,8 +81,8 @@ class ARMMemoryMisalignmentEdgeTest {
         assertEquals(f, arm.readVolatileFloat(mis), "volatile float read should return written value at misaligned offheap address");
     }
 
-    @DisplayName("Volatile long on misaligned address offheap")
     @Test
+    @DisplayName("Volatile long on misaligned address offheap")
     void volatileLongOnMisalignedAddressOffheap() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
         long base = alloc(24);

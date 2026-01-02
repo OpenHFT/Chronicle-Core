@@ -12,15 +12,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @SuppressWarnings("deprecation")
 class PomPropertiesTest {
 
-    @DisplayName("Create with valid arguments pom properties")
     @Test
+    @DisplayName("Create with valid arguments pom properties")
     void testCreateWithValidArguments() {
         assertEquals("{}",
                 PomProperties.create("net.openhft", "chronicle-queue").toString(), "PomProperties should return empty map string representation when created with valid groupId and artifactId");
     }
 
-    @DisplayName("Create with null group id pom")
     @Test
+    @DisplayName("Create with null group id pom")
     void testCreateWithNullGroupId() {
         assertThrows(NullPointerException.class,
                 () -> {
@@ -33,8 +33,8 @@ class PomPropertiesTest {
                 "create should throw when groupId is null");
     }
 
-    @DisplayName("Create with null artifact id pom")
     @Test
+    @DisplayName("Create with null artifact id pom")
     void testCreateWithNullArtifactId() {
         assertThrows(NullPointerException.class,
                 () -> {

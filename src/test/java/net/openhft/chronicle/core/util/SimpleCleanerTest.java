@@ -11,8 +11,8 @@ import static org.mockito.Mockito.*;
 
 class SimpleCleanerTest {
 
-    @DisplayName("Clean should execute runnable once simple")
     @Test
+    @DisplayName("Clean should execute runnable once simple")
     void cleanShouldExecuteRunnableOnce() {
         Runnable runnable = mock(Runnable.class);
         SimpleCleaner cleaner = new SimpleCleaner(runnable);
@@ -23,8 +23,8 @@ class SimpleCleanerTest {
         verify(runnable, times(1)).run();
     }
 
-    @DisplayName("Clean should not execute runnable if already cleaned")
     @Test
+    @DisplayName("Clean should not execute runnable if already cleaned")
     void cleanShouldNotExecuteRunnableIfAlreadyCleaned() {
         Runnable runnable = mock(Runnable.class);
         SimpleCleaner cleaner = new SimpleCleaner(runnable);
@@ -35,8 +35,8 @@ class SimpleCleanerTest {
         verify(runnable, times(1)).run();
     }
 
-    @DisplayName("Constructor should initialize with provided runnable")
     @Test
+    @DisplayName("Constructor should initialize with provided runnable")
     void constructorShouldInitializeWithProvidedRunnable() {
         Runnable runnable = mock(Runnable.class);
         SimpleCleaner cleaner = new SimpleCleaner(runnable);

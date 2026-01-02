@@ -14,32 +14,32 @@ import static org.junit.jupiter.api.Assertions.*;
 @SuppressWarnings("deprecation")
 class ReflectionUtilTest {
 
-    @DisplayName("analyticsPresent reports classpath availability boolean flag")
     @Test
+    @DisplayName("analyticsPresent reports classpath availability boolean flag")
     void analyticsPresentShouldReturnTrueOrFalse() {
         // This test depends on the presence or absence of the analytics class in the classpath
         boolean result = ReflectionUtil.analyticsPresent();
         assertTrue(result || !result, "analyticsPresent should return a boolean classpath availability value");
     }
 
-    @DisplayName("methodOrThrow returns declared reflection method or throws")
     @Test
+    @DisplayName("methodOrThrow returns declared reflection method or throws")
     void methodOrThrowShouldReturnMethod() throws NoSuchMethodException {
         Method expected = String.class.getMethod("length");
         Method actual = ReflectionUtil.methodOrThrow("java.lang.String", "length");
         assertEquals(expected, actual, "methodOrThrow should return the correct method");
     }
 
-    @DisplayName("Invoke or throw should invoke method reflection util")
     @Test
+    @DisplayName("Invoke or throw should invoke method reflection util")
     void invokeOrThrowShouldInvokeMethod() throws NoSuchMethodException {
         Method lengthMethod = String.class.getMethod("length");
         Object result = ReflectionUtil.invokeOrThrow(lengthMethod, "test");
         assertEquals(4, result, "invokeOrThrow should correctly invoke the method and return the result");
     }
 
-    @DisplayName("Reflective proxy should create proxy reflection")
     @Test
+    @DisplayName("Reflective proxy should create proxy reflection")
     void reflectiveProxyShouldCreateProxy() {
         TestInterface delegate = () -> "test";
         TestInterface proxy = ReflectionUtil.reflectiveProxy(TestInterface.class, delegate);
@@ -48,8 +48,8 @@ class ReflectionUtilTest {
         assertEquals("test", proxy.sampleMethod(), "reflectiveProxy should correctly delegate method calls");
     }
 
-    @DisplayName("Reflective proxy with return proxy should return proxy reflection util")
     @Test
+    @DisplayName("Reflective proxy with return proxy should return proxy reflection util")
     void reflectiveProxyWithReturnProxyShouldReturnProxy() {
         TestInterface delegate = () -> "test";
         TestInterface proxy = ReflectionUtil.reflectiveProxy(TestInterface.class, delegate, true);

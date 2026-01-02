@@ -10,8 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ByteConsumerTest {
 
-    @DisplayName("Accept should perform operation byte consumer")
     @Test
+    @DisplayName("Accept should perform operation byte consumer")
     void acceptShouldPerformOperation() {
         byte[] resultContainer = new byte[1];
         ByteConsumer consumer = value -> resultContainer[0] = value;

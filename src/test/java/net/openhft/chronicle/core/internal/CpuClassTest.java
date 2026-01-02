@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.assumeFalse;
 
 class CpuClassTest {
-    @DisplayName("CPU model string matches expected vendor patterns")
     @Test
+    @DisplayName("CPU model string matches expected vendor patterns")
     void getCpuModel() {
         final String cpuClass = CpuClass.getCpuModel();
         System.out.println("cpuClass: " + cpuClass + ", os.name: " + System.getProperty("os.name") + ", os.arch: " + System.getProperty("os.arch"));
@@ -33,23 +33,24 @@ class CpuClassTest {
         assertNotNull(cpuClass, "required object should not be null");
     }
 
-    @DisplayName("Removing tag strips prefix and returns value")
     @Test
+    @DisplayName("Removing tag strips prefix and returns value")
     void removingTag() {
         // TODO FIX on MacOS. sysctl -a returned 141, https://github.com/OpenHFT/Chronicle-Core/issues/557
-        assumeFalse(net.openhft.chronicle.core.internal.Bootstrap.IS_MAC);
+        assumeFalse(net.openhft.chronicle.core.internal.Bootstrap.IS_MAC,
+                "skipped on macOS due to sysctl output mismatch");
         final String actual = CpuClass.removingTag().apply("tag: value");
         assertEquals("value", actual, "removingTag should strip prefix and return value");
     }
 
-    @DisplayName("CPU model returns non null identifier string")
     @Test
+    @DisplayName("CPU model returns non null identifier string")
     void getCpuModelShouldReturnNonNullValue() {
         assertNotNull(CpuClass.getCpuModel(), "CPU model should not be null");
     }
 
-    @DisplayName("CPU model returns non empty identifier string")
     @Test
+    @DisplayName("CPU model returns non empty identifier string")
     void getCpuModelShouldReturnNonEmptyValue() {
         assertNotEquals("", CpuClass.getCpuModel(), "CPU model should not be an empty string");
     }

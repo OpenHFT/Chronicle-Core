@@ -61,8 +61,8 @@ class ReferenceCountingFuzzTest {
                 "throwExceptionIfReleased should throw after final release");
     }
 
-    @DisplayName("Background release happens on releaser thread")
     @Test
+    @DisplayName("Background release happens on releaser thread")
     void backgroundReleaseHappensOnReleaserThread() throws ClosedIllegalStateException {
         ReferenceStub ref = new ReferenceStub(true);
         ref.releaseLast(ReferenceOwner.INIT);

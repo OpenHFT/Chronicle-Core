@@ -9,8 +9,8 @@ import static org.mockito.Mockito.*;
 
 class ReferenceChangeListenerTest {
 
-    @DisplayName("Reference added callback forwards to listener")
     @Test
+    @DisplayName("Reference added callback forwards to listener")
     void testOnReferenceAdded() {
         ReferenceChangeListener listener = mock(ReferenceChangeListener.class);
         ReferenceCounted referenceCounted = mock(ReferenceCounted.class);
@@ -21,8 +21,8 @@ class ReferenceChangeListenerTest {
         verify(listener, times(1)).onReferenceAdded(referenceCounted, referenceOwner);
     }
 
-    @DisplayName("Reference removed callback forwards to listener")
     @Test
+    @DisplayName("Reference removed callback forwards to listener")
     void testOnReferenceRemoved() {
         ReferenceChangeListener listener = mock(ReferenceChangeListener.class);
         ReferenceCounted referenceCounted = mock(ReferenceCounted.class);
@@ -33,8 +33,8 @@ class ReferenceChangeListenerTest {
         verify(listener, times(1)).onReferenceRemoved(referenceCounted, referenceOwner);
     }
 
-    @DisplayName("Reference transferred callback forwards to listener")
     @Test
+    @DisplayName("Reference transferred callback forwards to listener")
     void testOnReferenceTransferred() {
         ReferenceChangeListener listener = mock(ReferenceChangeListener.class);
         ReferenceCounted referenceCounted = mock(ReferenceCounted.class);

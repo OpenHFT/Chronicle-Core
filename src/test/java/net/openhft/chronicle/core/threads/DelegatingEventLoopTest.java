@@ -22,87 +22,87 @@ class DelegatingEventLoopTest {
         delegatingEventLoop = new DelegatingEventLoop(innerEventLoop);
     }
 
-    @DisplayName("Constructor stores inner event loop reference")
     @Test
+    @DisplayName("Constructor stores inner event loop reference")
     void constructorShouldAssignEventLoop() {
         assertEquals(innerEventLoop, delegatingEventLoop.inner,
                 "constructor should store the supplied inner event loop");
     }
 
-    @DisplayName("Delegating loop forwards name query to inner")
     @Test
+    @DisplayName("Delegating loop forwards name query to inner")
     void nameShouldDelegateToInner() {
         delegatingEventLoop.name();
         verify(innerEventLoop).name();
     }
 
-    @DisplayName("Delegating loop forwards start signal to inner")
     @Test
+    @DisplayName("Delegating loop forwards start signal to inner")
     void startShouldDelegateToInner() {
         delegatingEventLoop.start();
         verify(innerEventLoop).start();
     }
 
-    @DisplayName("Delegating loop forwards unpause signal to inner")
     @Test
+    @DisplayName("Delegating loop forwards unpause signal to inner")
     void unpauseShouldDelegateToInner() {
         delegatingEventLoop.unpause();
         verify(innerEventLoop).unpause();
     }
 
-    @DisplayName("Delegating loop forwards stop signal to inner")
     @Test
+    @DisplayName("Delegating loop forwards stop signal to inner")
     void stopShouldDelegateToInner() {
         delegatingEventLoop.stop();
         verify(innerEventLoop).stop();
     }
 
-    @DisplayName("Delegating loop forwards closed status query")
     @Test
+    @DisplayName("Delegating loop forwards closed status query")
     void isClosedShouldDelegateToInner() {
         delegatingEventLoop.isClosed();
         verify(innerEventLoop).isClosed();
     }
 
-    @DisplayName("Delegating loop forwards stopped status query")
     @Test
+    @DisplayName("Delegating loop forwards stopped status query")
     void isStoppedShouldDelegateToInner() {
         when(innerEventLoop.isStopped()).thenReturn(true);
         assertTrue(delegatingEventLoop.isStopped(), "delegating event loop should return stopped state from inner event loop");
         verify(innerEventLoop).isStopped();
     }
 
-    @DisplayName("Delegating loop forwards closing status query")
     @Test
+    @DisplayName("Delegating loop forwards closing status query")
     void isClosingShouldDelegateToInner() {
         delegatingEventLoop.isClosing();
         verify(innerEventLoop).isClosing();
     }
 
-    @DisplayName("Delegating loop forwards alive status query")
     @Test
+    @DisplayName("Delegating loop forwards alive status query")
     void isAliveShouldDelegateToInner() {
         delegatingEventLoop.isAlive();
         verify(innerEventLoop).isAlive();
     }
 
-    @DisplayName("Delegating loop forwards close signal to inner")
     @Test
+    @DisplayName("Delegating loop forwards close signal to inner")
     void closeShouldDelegateToInner() {
         delegatingEventLoop.close();
         verify(innerEventLoop).close();
     }
 
-    @DisplayName("Delegating loop forwards handler registration to inner")
     @Test
+    @DisplayName("Delegating loop forwards handler registration to inner")
     void addHandlerShouldDelegateToInner() {
         EventHandler handler = mock(EventHandler.class);
         delegatingEventLoop.addHandler(handler);
         verify(innerEventLoop).addHandler(handler);
     }
 
-    @DisplayName("Delegating loop forwards core loop membership query")
     @Test
+    @DisplayName("Delegating loop forwards core loop membership query")
     void runsInsideCoreLoopShouldDelegateToInner() {
         delegatingEventLoop.runsInsideCoreLoop();
         verify(innerEventLoop).runsInsideCoreLoop();

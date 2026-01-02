@@ -26,8 +26,8 @@ class CleanerServiceImpactVersionTest {
         resetLocator();
     }
 
-    @DisplayName("lower impact preferred and version gate applied")
     @Test
+    @DisplayName("lower impact preferred and version gate applied")
     void lowerImpactPreferredAndVersionGateApplied() throws Exception {
         resetLocator();
         ByteBufferCleanerService svc = CleanerServiceLocator.cleanerService();

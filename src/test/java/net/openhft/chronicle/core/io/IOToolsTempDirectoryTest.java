@@ -33,8 +33,8 @@ class IOToolsTempDirectoryTest {
                 });
     }
 
-    @DisplayName("createTempDirectory returns unique temp directories each time")
     @Test
+    @DisplayName("createTempDirectory returns unique temp directories each time")
     void createTempDirectoryCreatesUniqueFolders() throws IOException {
         Path dir1 = IOTools.createTempDirectory("temp-test");
         Path dir2 = IOTools.createTempDirectory("temp-test");
@@ -57,8 +57,8 @@ class IOToolsTempDirectoryTest {
         }
     }
 
-    @DisplayName("createTempFile uses target temp directory base")
     @Test
+    @DisplayName("createTempFile uses target temp directory base")
     void createTempFileUsesTempDirectory() throws IOException {
         File file = IOTools.createTempFile("temp-file");
         Path base = Paths.get(OS.getTarget()).toAbsolutePath().normalize();

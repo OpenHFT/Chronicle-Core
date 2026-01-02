@@ -27,8 +27,8 @@ class SystemTimeProviderTest extends CoreTestCommon {
         throw new AssertionError(label + ": Not in range " + min + " <= " + actual + " <= " + max);
     }
 
-    @DisplayName("Current time micros retries flaky system provider")
     @Test
+    @DisplayName("Current time micros retries flaky system provider")
     void currentTimeMicros() throws IllegalStateException {
         // doCurrentTimeMicros() is very flaky so that is why we retry this operation
         boolean success = false;
@@ -55,8 +55,8 @@ class SystemTimeProviderTest extends CoreTestCommon {
         assertCurrentTimeMicros(SystemTimeProvider.INSTANCE, false, false);
     }
 
-    @DisplayName("Current time values stay within cross unit bounds")
     @Test
+    @DisplayName("Current time values stay within cross unit bounds")
     void currentTime() throws IllegalStateException {
         for (int i = 3; i >= 0; i--) {
             TimeProvider tp = SystemTimeProvider.INSTANCE;
@@ -74,8 +74,8 @@ class SystemTimeProviderTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("Resolution samples system time nanos histogram")
     @Test
+    @DisplayName("Resolution samples system time nanos histogram")
     void resolution() {
         for (int j = 0; j < 3; j++) {
             Histogram h = new Histogram(32, 10, 1);

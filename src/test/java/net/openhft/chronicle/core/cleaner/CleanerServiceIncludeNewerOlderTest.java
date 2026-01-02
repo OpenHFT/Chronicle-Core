@@ -32,8 +32,8 @@ class CleanerServiceIncludeNewerOlderTest {
         resetLocator();
     }
 
-    @DisplayName("include newer or older gate allows providers")
     @Test
+    @DisplayName("include newer or older gate allows providers")
     void includeNewerOlderGateAllowsAppropriateProviders() throws Exception {
         resetLocator();
         File root = new File("target/tmp-services-include");

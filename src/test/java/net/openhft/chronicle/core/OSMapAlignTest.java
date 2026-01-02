@@ -10,8 +10,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class OSMapAlignTest {
 
-    @DisplayName("Map align basic and edge cases")
     @Test
+    @DisplayName("Map align basic and edge cases")
     void mapAlignBasicAndEdgeCases() {
         int page = OS.defaultOsPageSize();
         assertEquals(page, OS.mapAlign(1, page), "mapAlign should round up size less than page to one page");

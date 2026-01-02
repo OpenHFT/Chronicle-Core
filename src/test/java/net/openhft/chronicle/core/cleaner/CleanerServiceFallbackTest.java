@@ -41,8 +41,8 @@ class CleanerServiceFallbackTest {
         resetLocator();
     }
 
-    @DisplayName("falls back when service loading fails")
     @Test
+    @DisplayName("falls back when service loading fails")
     void fallsBackWhenServiceLoadingFails() throws Exception {
         resetLocator();
         Path root = Paths.get("target", "tmp-services-fallback");

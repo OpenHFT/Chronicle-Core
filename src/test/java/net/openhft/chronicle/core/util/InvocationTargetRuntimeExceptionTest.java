@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class InvocationTargetRuntimeExceptionTest {
 
-    @DisplayName("Constructor with invocation target exception runtime")
     @Test
+    @DisplayName("Constructor with invocation target exception runtime")
     void testConstructorWithInvocationTargetException() {
         Exception targetException = new Exception("Target exception");
         InvocationTargetException invocationCause = new InvocationTargetException(targetException);
@@ -23,8 +23,8 @@ class InvocationTargetRuntimeExceptionTest {
                 "The cause should be the target exception of the InvocationTargetException");
     }
 
-    @DisplayName("Constructor with non invocation target exception")
     @Test
+    @DisplayName("Constructor with non invocation target exception")
     void testConstructorWithNonInvocationTargetException() {
         Exception nonInvocationCause = new Exception("Non-invocation exception");
 

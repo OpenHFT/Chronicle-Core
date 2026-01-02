@@ -14,10 +14,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class Jdk9ByteBufferCleanerServiceTest extends CoreTestCommon {
-    @DisplayName("cleaning buffer leaves reserved memory non-decreasing")
     @Test
+    @DisplayName("cleaning buffer leaves reserved memory non-decreasing")
     void shouldCleanBuffer() {
-        assumeTrue(Jvm.isJava9Plus());
+        assumeTrue(Jvm.isJava9Plus(), "requires Java 9+ for JDK 9 cleaner service");
 
         CleanerTestUtil.ReservedMemorySnapshot snapshot = CleanerTestUtil.captureReservedMemorySnapshot(new Jdk9ByteBufferCleanerService()::clean);
         assertTrue(snapshot.before <= snapshot.after,

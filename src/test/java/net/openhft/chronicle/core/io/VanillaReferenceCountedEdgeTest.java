@@ -16,8 +16,8 @@ class VanillaReferenceCountedEdgeTest {
         return new VanillaReferenceCounted(released::incrementAndGet, VanillaReferenceCounted.class);
     }
 
-    @DisplayName("double release throws closed state exception")
     @Test
+    @DisplayName("double release throws closed state exception")
     void doubleReleaseThrows() {
         AtomicInteger released = new AtomicInteger();
         VanillaReferenceCounted ref = newRef(released);
@@ -29,8 +29,8 @@ class VanillaReferenceCountedEdgeTest {
                 "exception message should mention \"released\": " + ex.getMessage());
     }
 
-    @DisplayName("reserve after release throws closed exception")
     @Test
+    @DisplayName("reserve after release throws closed exception")
     void reserveAfterReleasedThrows() {
         AtomicInteger released = new AtomicInteger();
         VanillaReferenceCounted ref = newRef(released);
@@ -39,8 +39,8 @@ class VanillaReferenceCountedEdgeTest {
                 "reserve should fail after resource is released");
     }
 
-    @DisplayName("not last release is detected correctly")
     @Test
+    @DisplayName("not last release is detected correctly")
     void notLastReleaseIsDetected() {
         AtomicInteger released = new AtomicInteger();
         VanillaReferenceCounted ref = newRef(released);
@@ -55,8 +55,8 @@ class VanillaReferenceCountedEdgeTest {
         assertEquals(1, released.get(), "release callback should be invoked once after final release");
     }
 
-    @DisplayName("listeners are called on add and remove")
     @Test
+    @DisplayName("listeners are called on add and remove")
     void listenersAreCalledOnAddRemove() {
         AtomicInteger added = new AtomicInteger();
         AtomicInteger removed = new AtomicInteger();

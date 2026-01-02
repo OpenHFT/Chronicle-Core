@@ -16,8 +16,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ScopeConfinedTest extends CoreTestCommon {
 
-    @DisplayName("Scope confined annotation preserves generic stream return")
     @Test
+    @DisplayName("Scope confined annotation preserves generic stream return")
     void a() throws NoSuchMethodException {
         Method method = Foo.class.getMethod("stream");
         final Type genericReturnType = method.getGenericReturnType();

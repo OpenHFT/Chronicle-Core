@@ -59,8 +59,8 @@ class JvmParseSizeTest extends CoreTestCommon {
         assertEquals(value, Jvm.getSize(PROPERTY, -1), "size from system property should match expected value");
     }
 
-    @DisplayName("Parse size rejects unknown size suffix")
     @Test
+    @DisplayName("Parse size rejects unknown size suffix")
     void parseSizeRejectsUnknownSuffix() {
         assertThrows(IllegalArgumentException.class, () -> Jvm.parseSize("10XB"),
                 "parseSize should reject unknown size suffix");

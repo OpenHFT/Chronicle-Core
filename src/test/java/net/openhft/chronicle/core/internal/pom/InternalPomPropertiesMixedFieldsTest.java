@@ -10,8 +10,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class InternalPomPropertiesMixedFieldsTest {
 
-    @DisplayName("Version resolves when only version is present internal pom")
     @Test
+    @DisplayName("Version resolves when only version is present internal pom")
     void versionResolvesWhenOnlyVersionIsPresent() {
         String v = InternalPomProperties.version("test.group", "only-version");
         assertEquals("9.9.9", v, "version string should match");

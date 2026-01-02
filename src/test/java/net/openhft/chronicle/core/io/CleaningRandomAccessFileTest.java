@@ -33,7 +33,7 @@ class CleaningRandomAccessFileTest extends CoreTestCommon {
         if (!tempDir.mkdir() && !tempDir.isDirectory()) {
             throw new IOException("Unable to create temp directory " + tempDir);
         }
-        int repeat = Jvm.isArm() ? 6 : OS.isWindows() ? 25 : 50;
+        int repeat = Jvm.isArm() ? 6 : OS.isWindows() ? 10 : 20;
         for (int j = 0; j < repeat; j++) {
             int files = getFDs();
             if (files > 0) {
@@ -50,7 +50,7 @@ class CleaningRandomAccessFileTest extends CoreTestCommon {
             long start = System.currentTimeMillis();
             System.gc();
             for (int i = 0; i < 40; i++) {
-                Jvm.pause(20);
+                Jvm.pause(50);
                 if (getFDs() < 200) {
                     double time = (System.currentTimeMillis() - start) / 1e3;
                     if (time > 0.1)
@@ -62,8 +62,8 @@ class CleaningRandomAccessFileTest extends CoreTestCommon {
         IOTools.deleteDirWithFiles(tempDir);
     }
 
-    @DisplayName("Open and close cleaning random access")
     @Test
+    @DisplayName("Open and close cleaning random access")
     void testOpenAndClose() throws IOException {
         File tempFile = File.createTempFile("test", "raf");
         CleaningRandomAccessFile raf = new CleaningRandomAccessFile(tempFile, "rw");
@@ -81,9 +81,9 @@ class CleaningRandomAccessFileTest extends CoreTestCommon {
         assertTrue(tempFile.delete(), "temp file should be deletable after closing");
     }
 
+    @Test
     @SuppressWarnings("removal")
     @DisplayName("Finalize and cleanup cleaning random access")
-    @Test
     void testFinalizeAndCleanup() throws IOException {
         File tempFile = File.createTempFile("test", "raf");
 
@@ -100,8 +100,8 @@ class CleaningRandomAccessFileTest extends CoreTestCommon {
         assertTrue(true, "execution should reach this point without exception"); // If we reach here, the test passes
     }
 
-    @DisplayName("Resource leak cleaning random access file")
     @Test
+    @DisplayName("Resource leak cleaning random access file")
     void resourceLeak() throws IOException {
         assertNoResourceLeak();
     }

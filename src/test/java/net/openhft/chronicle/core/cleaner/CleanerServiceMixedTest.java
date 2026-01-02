@@ -17,8 +17,8 @@ class CleanerServiceMixedTest {
         CleanerServiceTestSupport.resetLocator();
     }
 
-    @DisplayName("mixed valid and invalid entries choose valid provider")
     @Test
+    @DisplayName("mixed valid and invalid entries choose valid provider")
     void mixedValidAndInvalidEntriesStillChooseValidProvider() throws Exception {
         ByteBufferCleanerService svcChosen = CleanerServiceTestSupport.chooseService("tmp-services-mixed",
                 "does.not.ExistProvider\nnet.openhft.chronicle.core.cleaner.testimpl.AllowedCleaner\n");

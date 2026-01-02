@@ -29,8 +29,8 @@ class AnalyticsFacadeTest {
         }
     }
 
-    @DisplayName("Analytics facade enabled when dependency is present")
     @Test
+    @DisplayName("Analytics facade enabled when dependency is present")
     void enabledWhenAnalyticsPresent() {
         System.clearProperty("chronicle.analytics.disable");
         assertTrue(AnalyticsFacade.isEnabled(), "Analytics should be enabled when dependency is available");
@@ -39,8 +39,8 @@ class AnalyticsFacadeTest {
         assertEquals("net.openhft.chronicle.core.internal.analytics.ReflectiveBuilder", builder.getClass().getName(), "builder should be reflective implementation when analytics enabled");
     }
 
-    @DisplayName("Analytics facade disabled when system property set")
     @Test
+    @DisplayName("Analytics facade disabled when system property set")
     void disabledWhenSystemPropertyExplicit() {
         System.setProperty("chronicle.analytics.disable", "true");
         assertFalse(AnalyticsFacade.isEnabled(), "analytics should be disabled when system property set");

@@ -25,8 +25,8 @@ class VanillaReferenceCountedTest extends MonitorReferenceCountedContractTest {
         return new VanillaReferenceCounted(onReleasedCallCount::incrementAndGet, VanillaReferenceCounted.class);
     }
 
-    @DisplayName("Created here will return null vanilla reference counted")
     @Test
+    @DisplayName("Created here will return null vanilla reference counted")
     void createdHereWillReturnNull() {
         final VanillaReferenceCounted referenceCounted = createReferenceCounted();
         assertNull(referenceCounted.createdHere(), "VanillaReferenceCounted createdHere should return null when resource tracing is disabled");

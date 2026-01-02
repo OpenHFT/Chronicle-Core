@@ -21,8 +21,8 @@ class InternalAnnouncerTest {
         System.setProperty("chronicle.announcer.disable", "true");
     }
 
-    @DisplayName("Announce empty properties announces once per artifact")
     @Test
+    @DisplayName("Announce empty properties announces once per artifact")
     void announceEmptyPropertiesAnnouncesOncePerArtifact() {
         assertDoesNotThrow(() -> {
             Announcer.announce("net.openhft", "chronicle-core");
@@ -30,8 +30,8 @@ class InternalAnnouncerTest {
         }, "announce should not throw when called twice with empty properties");
     }
 
-    @DisplayName("Announce with logo only internal announcer")
     @Test
+    @DisplayName("Announce with logo only internal announcer")
     void announceWithLogoOnly() {
         Map<String, String> props = new HashMap<>();
         props.put(Announcer.LOGO, "ASCII-LOGO");
@@ -41,8 +41,8 @@ class InternalAnnouncerTest {
         }, "announce should not throw when logo property is provided");
     }
 
-    @DisplayName("Announce with additional properties internal announcer")
     @Test
+    @DisplayName("Announce with additional properties internal announcer")
     void announceWithAdditionalProperties() {
         Map<String, String> props = new HashMap<>();
         props.put(Announcer.LOGO, "ASCII-LOGO");

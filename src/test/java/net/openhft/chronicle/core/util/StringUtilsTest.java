@@ -54,8 +54,8 @@ class StringUtilsTest extends CoreTestCommon {
         return scenarios;
     }
 
-    @DisplayName("StringBuilder and CharSequence equality matches content")
     @Test
+    @DisplayName("StringBuilder and CharSequence equality matches content")
     void testIsEqualWithStringBuilderAndCharSequence() {
         StringBuilder sb = new StringBuilder("test");
         CharSequence cs = "test";
@@ -64,8 +64,8 @@ class StringUtilsTest extends CoreTestCommon {
         assertFalse(StringUtils.isEqual(sb, "different"), "StringUtils.isEqual should recognise differing StringBuilder and String content as unequal");
     }
 
-    @DisplayName("setLength truncates StringBuilder content correctly in place")
     @Test
+    @DisplayName("setLength truncates StringBuilder content correctly in place")
     void testSetLengthOfStringBuilder() {
         StringBuilder sb = new StringBuilder("test");
         StringUtils.setLength(sb, 2);
@@ -73,8 +73,8 @@ class StringUtilsTest extends CoreTestCommon {
         assertEquals("te", sb.toString(), "StringUtils.setLength should truncate StringBuilder to specified length");
     }
 
-    @DisplayName("set replaces StringBuilder content with new text")
     @Test
+    @DisplayName("set replaces StringBuilder content with new text")
     void testSetStringBuilderContent() {
         StringBuilder sb = new StringBuilder("original");
         StringUtils.set(sb, "updated");
@@ -82,24 +82,42 @@ class StringUtilsTest extends CoreTestCommon {
         assertEquals("updated", sb.toString(), "StringUtils.set should replace StringBuilder content with new string");
     }
 
-    @DisplayName("endsWith matches expected suffixes for String values")
     @Test
+    @DisplayName("endsWith matches expected suffixes for String values")
     void testEndsWith() {
         CharSequence cs = "testString";
         assertTrue(StringUtils.endsWith(cs, "String"), "endsWith should match uppercase suffix \"String\" for: " + cs);
         assertTrue(StringUtils.endsWith(cs, "string"), "endsWith should match lowercase suffix \"string\" for: " + cs);
     }
 
-    @DisplayName("startsWith matches expected prefixes for String values")
     @Test
+    @DisplayName("startsWith matches expected prefixes for String values")
     void testStartsWith() {
         CharSequence cs = "testString";
         assertTrue(StringUtils.startsWith(cs, "test"), "startsWith should match prefix \"test\" for: " + cs);
         assertFalse(StringUtils.startsWith(cs, "String"), "startsWith should not match prefix \"String\" for: " + cs);
     }
 
-    @DisplayName("CharSequence equality compares content correctly for inputs")
     @Test
+    @DisplayName("startsWith returns false when prefix is longer than source")
+    void startsWithRejectsLongerPrefix() {
+        CharSequence cs = "short";
+        assertFalse(StringUtils.startsWith(cs, "shorter"),
+                "startsWith should reject prefix \"shorter\" for source \"" + cs + "\"");
+    }
+
+    @Test
+    @DisplayName("endsWith returns false for longer suffix or mismatch")
+    void endsWithRejectsLongerOrMismatch() {
+        CharSequence cs = "short";
+        assertFalse(StringUtils.endsWith(cs, "longer"),
+                "endsWith should reject suffix \"longer\" for source \"" + cs + "\"");
+        assertFalse(StringUtils.endsWith(cs, "shorf"),
+                "endsWith should reject suffix \"shorf\" for source \"" + cs + "\"");
+    }
+
+    @Test
+    @DisplayName("CharSequence equality compares content correctly for inputs")
     void testIsEqualWithCharSequences() {
         CharSequence cs1 = "test";
         CharSequence cs2 = "test";
@@ -109,8 +127,34 @@ class StringUtilsTest extends CoreTestCommon {
         assertFalse(StringUtils.isEqual(cs1, cs3), "StringUtils.isEqual should recognise differing CharSequence content as unequal");
     }
 
-    @DisplayName("equalsCaseIgnore matches strings ignoring case correctly")
     @Test
+    @DisplayName("CharSequence equality handles nulls and StringBuilder inputs")
+    void charSequenceEqualityHandlesNullsAndBuilders() {
+        assertTrue(StringUtils.isEqual((CharSequence) null, (CharSequence) null),
+                "StringUtils.isEqual should return true when both CharSequence values are null");
+        assertFalse(StringUtils.isEqual((CharSequence) null, "x"),
+                "StringUtils.isEqual should return false when only left side is null");
+        assertFalse(StringUtils.isEqual("x", (CharSequence) null),
+                "StringUtils.isEqual should return false when only right side is null");
+
+        CharSequence builder = new StringBuilder("builder");
+        assertTrue(StringUtils.isEqual(builder, "builder"),
+                "StringUtils.isEqual should compare StringBuilder content via CharSequence overload");
+    }
+
+    @Test
+    @DisplayName("StringBuilder equality handles nulls and identical instances")
+    void stringBuilderEqualityHandlesNullsAndIdentical() {
+        StringBuilder sb = new StringBuilder("equal");
+        assertTrue(StringUtils.isEqual(sb, sb), "StringUtils.isEqual should return true for identical StringBuilder instances");
+        assertFalse(StringUtils.isEqual((StringBuilder) null, "x"),
+                "StringUtils.isEqual should return false when StringBuilder is null");
+        assertFalse(StringUtils.isEqual(sb, null),
+                "StringUtils.isEqual should return false when CharSequence is null");
+    }
+
+    @Test
+    @DisplayName("equalsCaseIgnore matches strings ignoring case correctly")
     void testEqualsCaseIgnore() {
         CharSequence cs1 = "TestString";
         CharSequence cs2 = "teststring";
@@ -119,38 +163,38 @@ class StringUtilsTest extends CoreTestCommon {
         assertFalse(StringUtils.equalsCaseIgnore(cs1, "AnotherString"), "equalsCaseIgnore should not match strings with different content");
     }
 
-    @DisplayName("To string handles null and non null objects utils")
     @Test
+    @DisplayName("To string handles null and non null objects utils")
     void testToStringMethod() {
         Object obj = "test";
         assertNull(StringUtils.toString(null), "StringUtils.toString should return null for null object");
         assertEquals("test", StringUtils.toString(obj), "StringUtils.toString should convert non-null object to string");
     }
 
-    @DisplayName("extractBytes returns UTF 8 bytes for String input")
     @Test
+    @DisplayName("extractBytes returns UTF 8 bytes for String input")
     void testExtractBytesString() {
         String str = "test";
         byte[] expectedBytes = str.getBytes(UTF_8);
         assertArrayEquals(expectedBytes, StringUtils.extractBytes(str), "StringUtils.extractBytes should return UTF-8 bytes from string");
     }
 
-    @DisplayName("newString builds String from char array")
     @Test
+    @DisplayName("newString builds String from char array")
     void testNewStringFromChars() {
         char[] chars = {'t', 'e', 's', 't'};
         assertEquals("test", StringUtils.newString(chars), "StringUtils.newString should create string from character array");
     }
 
-    @DisplayName("newStringFromBytes builds String from UTF 8 bytes")
     @Test
+    @DisplayName("newStringFromBytes builds String from UTF 8 bytes")
     void testNewStringFromBytes() {
         byte[] bytes = "test".getBytes(UTF_8);
         assertEquals("test", StringUtils.newStringFromBytes(bytes), "StringUtils.newStringFromBytes should create string from UTF-8 byte array");
     }
 
-    @DisplayName("First lower case lowercases only the first character")
     @Test
+    @DisplayName("First lower case lowercases only the first character")
     void testFirstLowerCase() {
         assertEquals("", StringUtils.firstLowerCase(""), "firstLowerCase should leave empty string unchanged");
         assertEquals("99", StringUtils.firstLowerCase("99"), "firstLowerCase should leave numeric string unchanged");
@@ -160,8 +204,8 @@ class StringUtilsTest extends CoreTestCommon {
         assertEquals("aa", StringUtils.firstLowerCase("Aa"), "firstLowerCase should lowercase the first character in mixed case");
     }
 
-    @DisplayName("toTitleCase formats mixed case strings correctly")
     @Test
+    @DisplayName("toTitleCase formats mixed case strings correctly")
     void testToTitleCase() {
         assertEquals("", StringUtils.toTitleCase(""), "toTitleCase should return empty string unchanged");
         assertEquals("99", StringUtils.toTitleCase("99"), "toTitleCase should return numeric string unchanged");
@@ -184,44 +228,44 @@ class StringUtilsTest extends CoreTestCommon {
         assertEquals("AAAA", StringUtils.toTitleCase("Aaaa"), "toTitleCase should uppercase all lowercase letters in title case word");
     }
 
-    @DisplayName("extractChars returns characters from StringBuilder content")
     @Test
+    @DisplayName("extractChars returns characters from StringBuilder content")
     void shouldGetCharsOfStringBuilder() {
         final StringBuilder sb = new StringBuilder(11).append("foobar_nine");
         final char[] chars = StringUtils.extractChars(sb);
         assertEquals(sb.toString(), new String(chars), "extractChars should return character array matching StringBuilder content");
     }
 
-    @DisplayName("extractChars returns characters from String content")
     @Test
+    @DisplayName("extractChars returns characters from String content")
     void shouldGetCharsOfString() {
         final String s = "foobar_nine";
         final char[] chars = StringUtils.extractChars(s);
         assertEquals(s, new String(chars), "extractChars should return character array matching String content");
     }
 
-    @DisplayName("extractBytes returns UTF 8 bytes from String")
     @Test
+    @DisplayName("extractBytes returns UTF 8 bytes from String")
     void shouldExtractBytesFromString() {
         assertArrayEquals("foobar".getBytes(UTF_8), StringUtils.extractBytes("foobar"), "extractBytes should return UTF-8 bytes matching String encoding");
     }
 
-    @DisplayName("hash64 uses bytes from StringBuilder content")
     @Test
+    @DisplayName("hash64 uses bytes from StringBuilder content")
     void shouldExtractBytesFromStringBuilder() {
         // uses StringUtils.extractBytes/extractChars as appropriate
         assertEquals(0xdf8d42fa7e05af8aL, Maths.hash64(new StringBuilder("foobar")), "hash64 should produce consistent hash from StringBuilder bytes");
     }
 
-    @DisplayName("newString creates String from char array")
     @Test
+    @DisplayName("newString creates String from char array")
     void shouldCreateNewStringFromChars() {
         final char[] chars = {'A', 'B', 'C'};
         assertEquals(new String(chars), StringUtils.newString(chars), "newString should create string equivalent to standard String constructor");
     }
 
-    @DisplayName("newStringFromBytes creates String from byte array")
     @Test
+    @DisplayName("newStringFromBytes creates String from byte array")
     void shouldCreateNewStringFromBytes() {
         final byte[] bytes = {'A', 'B', 'C'};
         String expected = new String(bytes, UTF_8);
@@ -229,8 +273,8 @@ class StringUtilsTest extends CoreTestCommon {
         assertEquals(expected, actual, "newStringFromBytes should create string equivalent to standard UTF-8 String constructor");
     }
 
-    @DisplayName("parseDouble handles standard double formats correctly")
     @Test
+    @DisplayName("parseDouble handles standard double formats correctly")
     void testParseDouble() {
         for (double d : new double[]{Double.NaN, Double.NEGATIVE_INFINITY, Double
                 .POSITIVE_INFINITY, 0.0, -1.0, 1.0, 9999.0}) {
@@ -244,8 +288,8 @@ class StringUtilsTest extends CoreTestCommon {
         assertEquals(-1.0, StringUtils.parseDouble("-1"), 0, "parseDouble should parse negative integer string as double");
     }
 
-    @DisplayName("parseDouble handles edge case strings correctly")
     @Test
+    @DisplayName("parseDouble handles edge case strings correctly")
     void testParseDoubleEdgeCases() {
         // Trailing dot
         assertEquals(123.0, StringUtils.parseDouble("123."), 0, "parseDouble should parse number with trailing decimal point");
@@ -260,38 +304,38 @@ class StringUtilsTest extends CoreTestCommon {
                 "parseDouble should parse large integer value consistently with JDK parser");
     }
 
-    @DisplayName("parseInt handles standard numeric inputs correctly")
     @Test
+    @DisplayName("parseInt handles standard numeric inputs correctly")
     void testParseInt() {
         assertEquals(6, validate((s, integer) -> (long) StringUtils.parseInt(s, integer)),
                 "validate should confirm parseInt handles all standard parsing scenarios");
     }
 
-    @DisplayName("parseLong handles standard numeric inputs correctly")
     @Test
+    @DisplayName("parseLong handles standard numeric inputs correctly")
     void testParseLong() {
         assertEquals(6, validate(StringUtils::parseLong),
                 "validate should confirm parseLong handles all standard parsing scenarios");
     }
 
-    @DisplayName("reverse reverses StringBuilder content from offset")
     @Test
+    @DisplayName("reverse reverses StringBuilder content from offset")
     void reverse() {
         StringBuilder stringBuilder = new StringBuilder("test");
         StringUtils.reverse(stringBuilder, 0);
         assertEquals("tset", stringBuilder.toString(), "StringUtils.reverse should reverse StringBuilder content from specified offset");
     }
 
-    @DisplayName("equalsCaseIgnore compares case insensitive strings correctly")
     @Test
+    @DisplayName("equalsCaseIgnore compares case insensitive strings correctly")
     void equalsCaseIgnore_equals() {
         assertTrue(StringUtils.equalsCaseIgnore("aaa", "AAA"), "equalsCaseIgnore should match strings differing only in case");
         assertFalse(StringUtils.equalsCaseIgnore("aaa", "AAAA"), "equalsCaseIgnore should not match strings of different lengths");
         assertFalse(StringUtils.equalsCaseIgnore("aaa", "AA_"), "equalsCaseIgnore should not match strings with different characters");
     }
 
-    @DisplayName("startsWith matches valid prefixes for inputs")
     @Test
+    @DisplayName("startsWith matches valid prefixes for inputs")
     void startsWith_isValidPrefix() {
         String input = "abcd";
         String prefix = "ab";
@@ -302,8 +346,8 @@ class StringUtilsTest extends CoreTestCommon {
                 "startsWith should not match mismatched prefix \"" + wrongPrefix + "\" for input=" + input);
     }
 
-    @DisplayName("startsWith rejects longer search string inputs")
     @Test
+    @DisplayName("startsWith rejects longer search string inputs")
     void startsWith_searchStringTooLong() {
         String input = "a";
         String prefix = "ab";
@@ -311,8 +355,8 @@ class StringUtilsTest extends CoreTestCommon {
                 "startsWith should not match overlong prefix \"" + prefix + "\" for input=" + input);
     }
 
-    @DisplayName("endsWith matches valid suffixes for inputs")
     @Test
+    @DisplayName("endsWith matches valid suffixes for inputs")
     void endsWith_isValidSuffix() {
         String input = "abcd";
         String suffix = "cd";
@@ -323,8 +367,8 @@ class StringUtilsTest extends CoreTestCommon {
                 "endsWith should not match mismatched suffix \"" + wrongSuffix + "\" for input=" + input);
     }
 
-    @DisplayName("endsWith rejects longer search string inputs")
     @Test
+    @DisplayName("endsWith rejects longer search string inputs")
     void endsWith_searchStringIsTooLong() {
         String input = "abcd";
         String suffix = "aaabcd";
@@ -332,8 +376,8 @@ class StringUtilsTest extends CoreTestCommon {
                 "endsWith should not match overlong suffix \"" + suffix + "\" for input=" + input);
     }
 
-    @DisplayName("isEqual compares StringBuilder and String correctly")
     @Test
+    @DisplayName("isEqual compares StringBuilder and String correctly")
     void testIsEqual() {
 
         // The same instances
@@ -363,5 +407,134 @@ class StringUtilsTest extends CoreTestCommon {
 
         // Empty strings
         assertTrue(StringUtils.isEqual(new StringBuilder(), ""), "StringUtils.isEqual should recognise empty StringBuilder and empty String as equal");
+    }
+
+    @Test
+    @DisplayName("parseDouble handles Infinity without minus sign")
+    void parseDoubleHandlesPositiveInfinity() {
+        assertEquals(Double.POSITIVE_INFINITY, StringUtils.parseDouble("Infinity"), 0,
+                "parseDouble should parse 'Infinity' to POSITIVE_INFINITY");
+    }
+
+    @Test
+    @DisplayName("parseDouble handles incomplete special values")
+    void parseDoubleHandlesIncompleteSpecialValues() {
+        // "N" alone without "aN" should return NaN
+        assertTrue(Double.isNaN(StringUtils.parseDouble("N")),
+                "parseDouble should return NaN for incomplete 'N' input");
+        // "I" alone without "nfinity" should return NaN
+        assertTrue(Double.isNaN(StringUtils.parseDouble("I")),
+                "parseDouble should return NaN for incomplete 'I' input");
+        // "In" without rest should return NaN
+        assertTrue(Double.isNaN(StringUtils.parseDouble("In")),
+                "parseDouble should return NaN for incomplete 'In' input");
+    }
+
+    @Test
+    @DisplayName("parseInt handles empty string with exception")
+    void parseIntHandlesEmptyString() {
+        assertThrows(NumberFormatException.class, () -> StringUtils.parseInt("", 10),
+                "parseInt should throw for empty string input");
+    }
+
+    @Test
+    @DisplayName("parseLong handles empty string with exception")
+    void parseLongHandlesEmptyString() {
+        assertThrows(NumberFormatException.class, () -> StringUtils.parseLong("", 10),
+                "parseLong should throw for empty string input");
+    }
+
+    @Test
+    @DisplayName("parseInt handles positive sign prefix")
+    void parseIntHandlesPositiveSign() {
+        assertEquals(42, StringUtils.parseInt("+42", 10),
+                "parseInt should parse number with positive sign prefix");
+    }
+
+    @Test
+    @DisplayName("parseLong handles positive sign prefix")
+    void parseLongHandlesPositiveSign() {
+        assertEquals(42L, StringUtils.parseLong("+42", 10),
+                "parseLong should parse number with positive sign prefix");
+    }
+
+    @Test
+    @DisplayName("parseInt handles invalid digit for radix")
+    void parseIntHandlesInvalidDigit() {
+        assertThrows(NumberFormatException.class, () -> StringUtils.parseInt("1G", 16),
+                "parseInt should throw for digit exceeding radix");
+    }
+
+    @Test
+    @DisplayName("parseLong handles invalid digit for radix")
+    void parseLongHandlesInvalidDigit() {
+        assertThrows(NumberFormatException.class, () -> StringUtils.parseLong("1G", 16),
+                "parseLong should throw for digit exceeding radix");
+    }
+
+    @Test
+    @DisplayName("parseInt handles overflow condition")
+    void parseIntHandlesOverflow() {
+        // Integer.MAX_VALUE is 2147483647, so 2147483648 should overflow
+        assertThrows(NumberFormatException.class, () -> StringUtils.parseInt("2147483648", 10),
+                "parseInt should throw for value exceeding Integer.MAX_VALUE");
+        // Integer.MIN_VALUE is -2147483648, so -2147483649 should overflow
+        assertThrows(NumberFormatException.class, () -> StringUtils.parseInt("-2147483649", 10),
+                "parseInt should throw for value below Integer.MIN_VALUE");
+    }
+
+    @Test
+    @DisplayName("parseLong handles overflow condition")
+    void parseLongHandlesOverflow() {
+        // Long.MAX_VALUE is 9223372036854775807, so one more should overflow
+        assertThrows(NumberFormatException.class, () -> StringUtils.parseLong("9223372036854775808", 10),
+                "parseLong should throw for value exceeding Long.MAX_VALUE");
+        assertThrows(NumberFormatException.class, () -> StringUtils.parseLong("-9223372036854775809", 10),
+                "parseLong should throw for value below Long.MIN_VALUE");
+    }
+
+    @Test
+    @DisplayName("firstLowerCase handles null input")
+    void firstLowerCaseHandlesNull() {
+        assertNull(StringUtils.firstLowerCase(null),
+                "firstLowerCase should return null for null input");
+    }
+
+    @Test
+    @DisplayName("toTitleCase handles null input")
+    void toTitleCaseHandlesNull() {
+        assertNull(StringUtils.toTitleCase(null),
+                "toTitleCase should return null for null input");
+    }
+
+    @Test
+    @DisplayName("toTitleCase handles consecutive underscores and symbols")
+    void toTitleCaseHandlesUnderscoresAndSymbols() {
+        // Tests branch where wasUnder is set by underscore character
+        assertEquals("A__B", StringUtils.toTitleCase("a__b"),
+                "toTitleCase should handle consecutive underscores");
+        assertEquals("A_B_C", StringUtils.toTitleCase("a_b_c"),
+                "toTitleCase should handle words separated by underscores");
+    }
+
+    @Test
+    @DisplayName("equalsCaseIgnore handles null first argument")
+    void equalsCaseIgnoreHandlesNull() {
+        assertFalse(StringUtils.equalsCaseIgnore(null, "test"),
+                "equalsCaseIgnore should return false when first argument is null");
+    }
+
+    @Test
+    @DisplayName("parseInt handles first character not digit or sign")
+    void parseIntHandlesInvalidFirstChar() {
+        assertThrows(NumberFormatException.class, () -> StringUtils.parseInt("@123", 10),
+                "parseInt should throw when first character is not digit or sign");
+    }
+
+    @Test
+    @DisplayName("parseLong handles first character not digit or sign")
+    void parseLongHandlesInvalidFirstChar() {
+        assertThrows(NumberFormatException.class, () -> StringUtils.parseLong("@123", 10),
+                "parseLong should throw when first character is not digit or sign");
     }
 }

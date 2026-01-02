@@ -9,16 +9,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class HandlerPriorityTest {
 
-    @DisplayName("Alias for priorities with aliases handler")
     @Test
+    @DisplayName("Alias for priorities with aliases handler")
     void testAliasForPrioritiesWithAliases() {
         assertEquals(HandlerPriority.MEDIUM, HandlerPriority.REPLICATION.alias(), "REPLICATION priority should alias to MEDIUM");
         assertEquals(HandlerPriority.TIMER, HandlerPriority.REPLICATION_TIMER.alias(), "REPLICATION_TIMER priority should alias to TIMER");
         assertEquals(HandlerPriority.MEDIUM, HandlerPriority.CONCURRENT.alias(), "CONCURRENT priority should alias to MEDIUM");
     }
 
-    @DisplayName("Alias for priorities without aliases handler")
     @Test
+    @DisplayName("Alias for priorities without aliases handler")
     void testAliasForPrioritiesWithoutAliases() {
         assertEquals(HandlerPriority.HIGH, HandlerPriority.HIGH.alias(), "HIGH priority should alias to itself");
         assertEquals(HandlerPriority.MEDIUM, HandlerPriority.MEDIUM.alias(), "MEDIUM priority should alias to itself");

@@ -25,8 +25,8 @@ class SimpleCloseableTest {
         }
     }
 
-    @DisplayName("SimpleCloseable closes once and marks closed")
     @Test
+    @DisplayName("SimpleCloseable closes once and marks closed")
     void testClose() {
         SimpleCloseableStub closeable = new SimpleCloseableStub();
 
@@ -39,8 +39,8 @@ class SimpleCloseableTest {
         assertTrue(closeable.isClosed(), "closeable should remain closed after calling close again");
     }
 
-    @DisplayName("isClosed reflects SimpleCloseable closed state changes")
     @Test
+    @DisplayName("isClosed reflects SimpleCloseable closed state changes")
     void testIsClosed() {
         SimpleCloseableStub closeable = new SimpleCloseableStub();
 

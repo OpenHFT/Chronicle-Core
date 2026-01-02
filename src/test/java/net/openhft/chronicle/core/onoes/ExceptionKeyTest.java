@@ -7,13 +7,12 @@ import net.openhft.chronicle.core.CoreTestCommon;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ExceptionKeyTest extends CoreTestCommon {
 
-    @DisplayName("Equals and hash code exception key")
     @Test
+    @DisplayName("Equals and hash code exception key")
     void testEqualsAndHashCode() {
         ExceptionKey ek1 = new ExceptionKey(LogLevel.PERF, getClass(), "one", null);
         ExceptionKey ek1b = new ExceptionKey(LogLevel.PERF, getClass(), "one", null);
@@ -26,5 +25,173 @@ class ExceptionKeyTest extends CoreTestCommon {
                 "ExceptionKey toString should include level, class, message and throwable for WARN key");
         assertNotEquals(ek1, ek2, "ExceptionKey values with different levels or messages should not be equal");
         assertNotEquals(ek1.hashCode(), ek2.hashCode(), "ExceptionKey values with different fields should not share a hashCode");
+    }
+
+    // --- Additional tests for branch coverage ---
+
+    @Test
+    @DisplayName("message() returns throwable.toString() when message is null")
+    void messageReturnsThrowableWhenNull() {
+        Exception ex = new RuntimeException("test error");
+        ExceptionKey ek = new ExceptionKey(LogLevel.ERROR, getClass(), null, ex);
+        assertEquals(ex.toString(), ek.message(),
+                "message() should return throwable.toString() when message is null");
+    }
+
+    @Test
+    @DisplayName("message() returns throwable.toString() when message is empty")
+    void messageReturnsThrowableWhenEmpty() {
+        Exception ex = new RuntimeException("test error");
+        ExceptionKey ek = new ExceptionKey(LogLevel.ERROR, getClass(), "", ex);
+        assertEquals(ex.toString(), ek.message(),
+                "message() should return throwable.toString() when message is empty");
+    }
+
+    @Test
+    @DisplayName("message() returns message when present")
+    void messageReturnsMessageWhenPresent() {
+        ExceptionKey ek = new ExceptionKey(LogLevel.ERROR, getClass(), "custom message", null);
+        assertEquals("custom message", ek.message(),
+                "message() should return the message when it is present");
+    }
+
+    @Test
+    @DisplayName("hashCode handles null message")
+    void hashCodeNullMessage() {
+        ExceptionKey ek = new ExceptionKey(LogLevel.ERROR, getClass(), null, null);
+        int hash = ek.hashCode();
+        // Should not throw and should produce consistent result
+        assertEquals(hash, ek.hashCode(), "hashCode should be consistent");
+    }
+
+    @Test
+    @DisplayName("hashCode handles null throwable")
+    void hashCodeNullThrowable() {
+        ExceptionKey ek = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", null);
+        int hash = ek.hashCode();
+        assertEquals(hash, ek.hashCode(), "hashCode should be consistent with null throwable");
+    }
+
+    @Test
+    @DisplayName("hashCode includes throwable when present")
+    void hashCodeWithThrowable() {
+        Exception ex = new RuntimeException("err");
+        ExceptionKey ek1 = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", ex);
+        ExceptionKey ek2 = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", null);
+        assertNotEquals(ek1.hashCode(), ek2.hashCode(),
+                "hashCode should differ when throwable differs");
+    }
+
+    @Test
+    @DisplayName("equals returns true for same instance")
+    void equalsSameInstance() {
+        ExceptionKey ek = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", null);
+        assertEquals(ek, ek, "same instance should be equal to itself");
+    }
+
+    @Test
+    @DisplayName("equals returns false for null")
+    void equalsNull() {
+        ExceptionKey ek = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", null);
+        assertNotEquals(ek, null, "ExceptionKey should not equal null");
+    }
+
+    @Test
+    @DisplayName("equals returns false for different class")
+    void equalsDifferentClass() {
+        ExceptionKey ek = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", null);
+        assertNotEquals(ek, "not an ExceptionKey", "ExceptionKey should not equal String");
+    }
+
+    @Test
+    @DisplayName("equals returns false for different level")
+    void equalsDifferentLevel() {
+        ExceptionKey ek1 = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", null);
+        ExceptionKey ek2 = new ExceptionKey(LogLevel.WARN, getClass(), "msg", null);
+        assertNotEquals(ek1, ek2, "ExceptionKey with different level should not be equal");
+    }
+
+    @Test
+    @DisplayName("equals returns false for different clazz")
+    void equalsDifferentClazz() {
+        ExceptionKey ek1 = new ExceptionKey(LogLevel.ERROR, String.class, "msg", null);
+        ExceptionKey ek2 = new ExceptionKey(LogLevel.ERROR, Integer.class, "msg", null);
+        assertNotEquals(ek1, ek2, "ExceptionKey with different clazz should not be equal");
+    }
+
+    @Test
+    @DisplayName("equals returns false for different message")
+    void equalsDifferentMessage() {
+        ExceptionKey ek1 = new ExceptionKey(LogLevel.ERROR, getClass(), "msg1", null);
+        ExceptionKey ek2 = new ExceptionKey(LogLevel.ERROR, getClass(), "msg2", null);
+        assertNotEquals(ek1, ek2, "ExceptionKey with different message should not be equal");
+    }
+
+    @Test
+    @DisplayName("equals handles null message comparison")
+    void equalsNullMessageComparison() {
+        ExceptionKey ek1 = new ExceptionKey(LogLevel.ERROR, getClass(), null, null);
+        ExceptionKey ek2 = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", null);
+        assertNotEquals(ek1, ek2, "ExceptionKey with null vs non-null message should not be equal");
+    }
+
+    @Test
+    @DisplayName("equals returns true when both messages are null")
+    void equalsBothMessagesNull() {
+        ExceptionKey ek1 = new ExceptionKey(LogLevel.ERROR, getClass(), null, null);
+        ExceptionKey ek2 = new ExceptionKey(LogLevel.ERROR, getClass(), null, null);
+        assertEquals(ek1, ek2, "ExceptionKey with both null messages should be equal");
+    }
+
+    @Test
+    @DisplayName("equals returns false for different throwable")
+    void equalsDifferentThrowable() {
+        Exception ex1 = new RuntimeException("err1");
+        Exception ex2 = new RuntimeException("err2");
+        ExceptionKey ek1 = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", ex1);
+        ExceptionKey ek2 = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", ex2);
+        assertNotEquals(ek1, ek2, "ExceptionKey with different throwable should not be equal");
+    }
+
+    @Test
+    @DisplayName("equals handles null throwable comparison")
+    void equalsNullThrowableComparison() {
+        Exception ex = new RuntimeException("err");
+        ExceptionKey ek1 = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", ex);
+        ExceptionKey ek2 = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", null);
+        assertNotEquals(ek1, ek2, "ExceptionKey with null vs non-null throwable should not be equal");
+    }
+
+    @Test
+    @DisplayName("toString includes stack trace when throwable present")
+    void toStringWithThrowable() {
+        Exception ex = new RuntimeException("test error");
+        ExceptionKey ek = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", ex);
+        String str = ek.toString();
+        assertTrue(str.contains("RuntimeException"), "toString should include exception class");
+        assertTrue(str.contains("test error"), "toString should include exception message");
+        assertTrue(str.contains("ExceptionKeyTest"), "toString should include stack trace");
+    }
+
+    @Test
+    @DisplayName("toString handles null throwable")
+    void toStringNullThrowable() {
+        ExceptionKey ek = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", null);
+        String str = ek.toString();
+        assertTrue(str.contains("level=ERROR"), "toString should include level");
+        assertTrue(str.contains("message='msg'"), "toString should include message");
+        assertTrue(str.contains("throwable="), "toString should include throwable field");
+    }
+
+    @Test
+    @DisplayName("accessor methods return correct values")
+    void accessorMethods() {
+        Exception ex = new RuntimeException("err");
+        ExceptionKey ek = new ExceptionKey(LogLevel.WARN, String.class, "test", ex);
+
+        assertEquals(LogLevel.WARN, ek.level(), "level() should return WARN");
+        assertEquals(String.class, ek.clazz(), "clazz() should return String.class");
+        assertEquals("test", ek.message(), "message() should return 'test'");
+        assertSame(ex, ek.throwable(), "throwable() should return same exception");
     }
 }

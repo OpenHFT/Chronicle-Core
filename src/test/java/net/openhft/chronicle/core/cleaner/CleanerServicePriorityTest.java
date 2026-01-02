@@ -17,8 +17,8 @@ class CleanerServicePriorityTest {
         CleanerServiceTestSupport.resetLocator();
     }
 
-    @DisplayName("lowest impact chosen regardless of discovery order")
     @Test
+    @DisplayName("lowest impact chosen regardless of discovery order")
     void lowestImpactChosenRegardlessOfDiscoveryOrder() throws Exception {
         ByteBufferCleanerService svcChosen = CleanerServiceTestSupport.chooseService("tmp-services-priority",
                 "net.openhft.chronicle.core.cleaner.testimpl.AllowedCleaner\n" +

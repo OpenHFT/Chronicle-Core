@@ -24,8 +24,8 @@ class StackTraceTest extends CoreTestCommon {
         Jvm.pause(5_000);
     }
 
-    @DisplayName("Default stack trace includes thread and timestamp")
     @Test
+    @DisplayName("Default stack trace includes thread and timestamp")
     void testDefaultConstructor() {
         StackTrace st = new StackTrace(true);
         String currentThreadName = Thread.currentThread().getName();
@@ -34,8 +34,8 @@ class StackTraceTest extends CoreTestCommon {
                 st.getMessage() + " expected to match " + regex);
     }
 
-    @DisplayName("Message constructor appends thread and timestamp")
     @Test
+    @DisplayName("Message constructor appends thread and timestamp")
     void testConstructorWithMessage() {
         String message = "test message";
         StackTrace st = new StackTrace(message, true);
@@ -45,8 +45,8 @@ class StackTraceTest extends CoreTestCommon {
                         st.getMessage(), message, Thread.currentThread().getName()));
     }
 
-    @DisplayName("Message with cause preserves cause and timestamp")
     @Test
+    @DisplayName("Message with cause preserves cause and timestamp")
     void testConstructorWithMessageAndCause() {
         String message = "test message";
         Throwable cause = new RuntimeException("cause");
@@ -58,14 +58,14 @@ class StackTraceTest extends CoreTestCommon {
         assertEquals(cause, st.getCause(), "Cause should match the supplied runtime exception");
     }
 
-    @DisplayName("Null thread returns empty stack trace object")
     @Test
+    @DisplayName("Null thread returns empty stack trace object")
     void testForThread_NullThread() {
         assertNull(StackTrace.forThread(null), "StackTrace.forThread should return null when thread is null");
     }
 
-    @DisplayName("Thread stack trace prefixes with thread name")
     @Test
+    @DisplayName("Thread stack trace prefixes with thread name")
     void testForThread() {
         Thread thread = new Thread();
         StackTrace st = StackTrace.forThread(thread);
@@ -77,8 +77,8 @@ class StackTraceTest extends CoreTestCommon {
     /**
      * Verifies capturing a live thread's stack trace.
      */
-    @DisplayName("Live thread capture includes pause frames")
     @Test
+    @DisplayName("Live thread capture includes pause frames")
     void forThread() throws InterruptedException {
         // Ensure Jvm class is loaded before spawning threads
         Jvm.init();
@@ -110,8 +110,8 @@ class StackTraceTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("Timestamp suffix uses UTC Z format")
     @Test
+    @DisplayName("Timestamp suffix uses UTC Z format")
     void testTimeIsUTC() {
         // Confirm the appended timestamp is in UTC
         StackTrace st = new StackTrace(true);

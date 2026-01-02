@@ -32,8 +32,8 @@ class StringUtilsFlagsTest extends CoreTestCommon {
             System.setProperty("chronicle.core.allow.reflection.string", oldFlag);
     }
 
-    @DisplayName("New string falls back to safe constructor")
     @Test
+    @DisplayName("New string falls back to safe constructor")
     void newStringFallsBackToSafeConstructor() {
         char[] chars = {'C', 'o', 'r', 'e'};
         assertEquals(new String(chars), StringUtils.newString(chars), "StringUtils.newString should use safe constructor when reflection is disabled");

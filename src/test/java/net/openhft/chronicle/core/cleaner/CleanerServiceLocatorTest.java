@@ -28,8 +28,8 @@ class CleanerServiceLocatorTest {
         resetLocator();
     }
 
-    @DisplayName("selects allowed cleaner service with lowest impact")
     @Test
+    @DisplayName("selects allowed cleaner service with lowest impact")
     void picksAllowedServiceWithLowestImpact() throws Exception {
         resetLocator();
         ByteBufferCleanerService svc = CleanerServiceLocator.cleanerService();
@@ -39,8 +39,8 @@ class CleanerServiceLocatorTest {
         assertEquals(ByteBufferCleanerService.Impact.NO_IMPACT, svc.impact(), "service impact should be NO_IMPACT for allowed cleaner");
     }
 
-    @DisplayName("falls back to reflection cleaner without providers")
     @Test
+    @DisplayName("falls back to reflection cleaner without providers")
     void fallsBackToReflectionCleanerWhenNoProviders() throws Exception {
         resetLocator();
         final String serviceName = "META-INF/services/" + ByteBufferCleanerService.class.getName();

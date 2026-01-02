@@ -24,31 +24,31 @@ class LicenceCheckTest extends CoreTestCommon {
         Jvm.resetExceptionHandlers();
     }
 
-    @DisplayName("Expired expiry file triggers time limit exception")
     @Test
+    @DisplayName("Expired expiry file triggers time limit exception")
     void checkExpiredExpiryFile() {
         assertThrows(TimeLimitExceededException.class,
                 () -> LicenceCheck.check("test", LicenceCheck.class),
                 "expired expiry file should trigger TimeLimitExceededException");
     }
 
-    @DisplayName("Unexpired expiry file with newline passes check")
     @Test
+    @DisplayName("Unexpired expiry file with newline passes check")
     void checkUnexpiredExpiryFileWithNewline() {
         assertDoesNotThrow(() -> LicenceCheck.check("test2", LicenceCheck.class),
                 "unexpired expiry file with newline should not throw");
     }
 
-    @DisplayName("Evaluation licence expiry triggers time limit exception")
     @Test
+    @DisplayName("Evaluation licence expiry triggers time limit exception")
     void checkEvalExpired() {
         assertThrows(TimeLimitExceededException.class,
                 () -> LicenceCheck.check("test", LicenceCheckTest.class),
                 "evaluation licence expiry should trigger TimeLimitExceededException");
     }
 
-    @DisplayName("Valid licence records expiry warning in exception map")
     @Test
+    @DisplayName("Valid licence records expiry warning in exception map")
     void checkLicense() {
         System.setProperty(CHRONICLE_LICENSE, "product=test.,owner=Test Unit,expires=9999-01-01,code=123456789");
 
@@ -59,8 +59,8 @@ class LicenceCheckTest extends CoreTestCommon {
                 "expected warning about licence expiry in map: " + map);
     }
 
-    @DisplayName("Expired licence triggers time limit exception")
     @Test
+    @DisplayName("Expired licence triggers time limit exception")
     void checkLicenseExpired() {
         System.setProperty(CHRONICLE_LICENSE, "product=test.,owner=Test Unit,expires=2019-01-01,code=123456789");
         assertThrows(TimeLimitExceededException.class,

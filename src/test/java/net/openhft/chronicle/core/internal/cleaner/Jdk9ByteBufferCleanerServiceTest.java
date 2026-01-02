@@ -21,16 +21,16 @@ class Jdk9ByteBufferCleanerServiceTest {
         cleanerService = new Jdk9ByteBufferCleanerService();
     }
 
-    @DisplayName("clean rejects heap buffer without cleaner")
     @Test
+    @DisplayName("clean rejects heap buffer without cleaner")
     void cleanInvalidByteBuffer() {
         ByteBuffer buffer = ByteBuffer.allocate(1024);
         assertThrows(Exception.class, () -> cleanerService.clean(buffer),
                 "clean should throw when invoked on a non-direct heap buffer");
     }
 
-    @DisplayName("Impact reports no performance impact jdk")
     @Test
+    @DisplayName("Impact reports no performance impact jdk")
     void impactShouldBeNoImpact() {
         assertEquals(Impact.NO_IMPACT, cleanerService.impact(), "cleaner service impact should be NO_IMPACT");
     }

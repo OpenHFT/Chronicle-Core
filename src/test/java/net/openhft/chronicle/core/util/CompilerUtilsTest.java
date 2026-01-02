@@ -11,8 +11,8 @@ import static org.mockito.Mockito.mock;
 
 @SuppressWarnings("deprecation")
 class CompilerUtilsTest {
-    @DisplayName("Define class should throw assertion error for illegal access exception")
     @Test
+    @DisplayName("Define class should throw assertion error for illegal access exception")
     void defineClassShouldThrowAssertionErrorForIllegalAccessException() {
         ClassLoader classLoader = mock(ClassLoader.class);
         String className = "com.example.MyClass";
@@ -23,8 +23,8 @@ class CompilerUtilsTest {
                 "defineClass should throw AssertionError for illegal access");
     }
 
-    @DisplayName("Define class should throw assertion error for invocation target exception")
     @Test
+    @DisplayName("Define class should throw assertion error for invocation target exception")
     void defineClassShouldThrowAssertionErrorForInvocationTargetException() {
         ClassLoader classLoader = mock(ClassLoader.class);
         String className = "com.example.MyClass";

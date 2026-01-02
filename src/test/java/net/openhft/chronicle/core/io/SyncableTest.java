@@ -19,8 +19,8 @@ class SyncableTest {
         }
     }
 
-    @DisplayName("syncIfAvailable calls sync on Syncable objects")
     @Test
+    @DisplayName("syncIfAvailable calls sync on Syncable objects")
     void syncIfAvailableShouldCallSyncOnSyncableObjects() {
         Syncable syncableMock = mock(Syncable.class);
         Syncable.syncIfAvailable(syncableMock);
@@ -28,8 +28,8 @@ class SyncableTest {
         verify(syncableMock, times(1)).sync();
     }
 
-    @DisplayName("syncIfAvailable ignores non-Syncable objects safely")
     @Test
+    @DisplayName("syncIfAvailable ignores non-Syncable objects safely")
     void syncIfAvailableShouldNotThrowExceptionForNonSyncableObjects() {
         Object nonSyncableObject = new Object();
 
@@ -37,8 +37,8 @@ class SyncableTest {
                 "syncIfAvailable should not throw for non-Syncable object");
     }
 
-    @DisplayName("sync sets synced flag for implementation")
     @Test
+    @DisplayName("sync sets synced flag for implementation")
     void syncShouldSetSyncedToTrueForSyncableImpl() {
         SyncableImpl syncableImpl = new SyncableImpl();
         assertFalse(syncableImpl.synced, "syncable implementation should not be synced initially");

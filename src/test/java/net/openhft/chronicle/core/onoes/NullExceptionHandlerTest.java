@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class NullExceptionHandlerTest {
 
-    @DisplayName("On method should do nothing exception handler")
     @Test
+    @DisplayName("On method should do nothing exception handler")
     void onMethodShouldDoNothing() {
         Logger mockLogger = mock(Logger.class);
         Throwable mockThrowable = new RuntimeException("Test exception");
@@ -24,8 +24,8 @@ class NullExceptionHandlerTest {
         verifyNoInteractions(mockLogger);
     }
 
-    @DisplayName("Is enabled should always return false exception handler")
     @Test
+    @DisplayName("Is enabled should always return false exception handler")
     void isEnabledShouldAlwaysReturnFalse() {
         assertFalse(NullExceptionHandler.NOTHING.isEnabled(String.class), "isEnabled should return false for String class");
         assertFalse(NullExceptionHandler.NOTHING.isEnabled(Integer.class), "isEnabled should return false for Integer class");

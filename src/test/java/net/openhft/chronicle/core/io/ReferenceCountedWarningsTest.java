@@ -16,8 +16,8 @@ class ReferenceCountedWarningsTest {
         return new VanillaReferenceCounted(releasedCount::incrementAndGet, VanillaReferenceCounted.class);
     }
 
-    @DisplayName("Warn and release if not released closes and clears")
     @Test
+    @DisplayName("Warn and release if not released closes and clears")
     void warnAndReleaseIfNotReleasedClosesAndClears() {
         AtomicInteger released = new AtomicInteger();
         VanillaReferenceCounted ref = newRef(released);
@@ -30,8 +30,8 @@ class ReferenceCountedWarningsTest {
         assertFalse(ref.tryReserve(ReferenceOwner.INIT), "tryReserve should fail after reference has been released");
     }
 
-    @DisplayName("Reserve transfer notifies listener reference counted")
     @Test
+    @DisplayName("Reserve transfer notifies listener reference counted")
     void reserveTransferNotifiesListener() {
         AtomicInteger xfers = new AtomicInteger();
         VanillaReferenceCounted ref = newRef(new AtomicInteger());

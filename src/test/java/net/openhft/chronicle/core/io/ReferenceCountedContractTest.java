@@ -36,8 +36,8 @@ abstract class ReferenceCountedContractTest extends CoreTestCommon {
         // this tests isn't expected to clean up it's resources
     }
 
-    @DisplayName("reserve increments reference count for each owner")
     @Test
+    @DisplayName("reserve increments reference count for each owner")
     void reserveWillIncrementReferenceCount() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
@@ -55,8 +55,8 @@ abstract class ReferenceCountedContractTest extends CoreTestCommon {
         referenceCounted.releaseLast();
     }
 
-    @DisplayName("reserve fails after resource is released")
     @Test
+    @DisplayName("reserve fails after resource is released")
     void reserveWillFailWhenResourceIsAlreadyReleased() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
@@ -67,8 +67,8 @@ abstract class ReferenceCountedContractTest extends CoreTestCommon {
                 "reserve should fail after resource is released");
     }
 
-    @DisplayName("reserveTransfer keeps reference count unchanged here")
     @Test
+    @DisplayName("reserveTransfer keeps reference count unchanged here")
     void reserveTransferWillNotChangeReferenceCount() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
@@ -83,8 +83,8 @@ abstract class ReferenceCountedContractTest extends CoreTestCommon {
         referenceCounted.releaseLast();
     }
 
-    @DisplayName("release decrements reference count for owners")
     @Test
+    @DisplayName("release decrements reference count for owners")
     void releaseWillDecrementReferenceCount() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
@@ -107,8 +107,8 @@ abstract class ReferenceCountedContractTest extends CoreTestCommon {
         referenceCounted.releaseLast();
     }
 
-    @DisplayName("release fails when resource already released")
     @Test
+    @DisplayName("release fails when resource already released")
     void releaseWillFailWhenResourceAlreadyReleased() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
@@ -119,8 +119,8 @@ abstract class ReferenceCountedContractTest extends CoreTestCommon {
                 "release should fail after resource is already released");
     }
 
-    @DisplayName("release reaches zero when INIT released")
     @Test
+    @DisplayName("release reaches zero when INIT released")
     void releaseWillGoAllTheWayToZero() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
@@ -128,8 +128,8 @@ abstract class ReferenceCountedContractTest extends CoreTestCommon {
         assertEquals(0, referenceCounted.refCount(), "reference count should be 0 after releasing INIT owner");
     }
 
-    @DisplayName("releaseLast decrements reference count to zero")
     @Test
+    @DisplayName("releaseLast decrements reference count to zero")
     void releaseLastWillDecrementReferenceCount() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
@@ -139,8 +139,8 @@ abstract class ReferenceCountedContractTest extends CoreTestCommon {
         assertEquals(0, referenceCounted.refCount(), "releaseLastWillDecrementReferenceCount: refCount should be 0 after releaseLast");
     }
 
-    @DisplayName("releaseLast fails when reference is not last")
     @Test
+    @DisplayName("releaseLast fails when reference is not last")
     void releaseLastWillReleaseThenFailWhenReferenceIsNotLast() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
@@ -157,8 +157,8 @@ abstract class ReferenceCountedContractTest extends CoreTestCommon {
         referenceCounted.releaseLast(a);
     }
 
-    @DisplayName("releaseLast fails after resource already released")
     @Test
+    @DisplayName("releaseLast fails after resource already released")
     void releaseLastWillFailWhenResourceAlreadyReleased() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
@@ -167,8 +167,8 @@ abstract class ReferenceCountedContractTest extends CoreTestCommon {
                 "releaseLast should fail when resource is already released");
     }
 
-    @DisplayName("Try reserve returns true when reservation succeeds")
     @Test
+    @DisplayName("Try reserve returns true when reservation succeeds")
     void tryReserveWillReturnTrueWhenReservationWasSuccessful() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
@@ -178,8 +178,8 @@ abstract class ReferenceCountedContractTest extends CoreTestCommon {
         referenceCounted.releaseLast();
     }
 
-    @DisplayName("Try reserve returns false when resource released")
     @Test
+    @DisplayName("Try reserve returns false when resource released")
     void tryReserveWillReturnFalseWhenResourceIsAlreadyReleased() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
@@ -188,8 +188,8 @@ abstract class ReferenceCountedContractTest extends CoreTestCommon {
         assertFalse(referenceCounted.tryReserve(a), "tryReserve should return false when resource is already released");
     }
 
-    @DisplayName("reference counted implementations remain thread safe")
     @Test
+    @DisplayName("reference counted implementations remain thread safe")
     void implementationsShouldBeThreadSafe() throws InterruptedException {
         int numThreads = Math.max(3, Math.min(6, Runtime.getRuntime().availableProcessors()));
         int numReferences = 10;
@@ -213,8 +213,8 @@ abstract class ReferenceCountedContractTest extends CoreTestCommon {
         assertTrue(counted.refCount() >= 0, "reference count should remain non-negative after concurrent operations");
     }
 
-    @DisplayName("listeners are notified on reference add and remove")
     @Test
+    @DisplayName("listeners are notified on reference add and remove")
     void shouldNotifyListenersWhenReferencesAreAddedAndRemoved() {
         ReferenceCounted rc = createReferenceCounted();
         assertEquals(1, rc.refCount(), "shouldNotifyListeners: refCount should be 1 initially");
@@ -268,8 +268,8 @@ abstract class ReferenceCountedContractTest extends CoreTestCommon {
                 "INIT owner should not remain tracked: owners=" + currentOwners);
     }
 
-    @DisplayName("listener fires when reference is added")
     @Test
+    @DisplayName("listener fires when reference is added")
     void whenAReferenceIsAddedTheReferenceChangeListenerShouldFire() {
         ReferenceCounted rc = createReferenceCounted();
 
@@ -283,8 +283,8 @@ abstract class ReferenceCountedContractTest extends CoreTestCommon {
         rc.releaseLast();
     }
 
-    @DisplayName("listener fires when reference is removed")
     @Test
+    @DisplayName("listener fires when reference is removed")
     void whenAReferenceIsRemovedTheReferenceChangeListenerShouldFire() {
         ReferenceCounted rc = createReferenceCounted();
 
@@ -302,8 +302,8 @@ abstract class ReferenceCountedContractTest extends CoreTestCommon {
         assertTrue(owners.contains(expected), message + " [expected=" + expected + ", owners=" + owners + "]");
     }
 
-    @DisplayName("listener fires when reference is transferred")
     @Test
+    @DisplayName("listener fires when reference is transferred")
     void referenceChangeListenerShouldFireWhenAReferenceIsTransferred() {
         ReferenceCounted rc = createReferenceCounted();
 
@@ -319,8 +319,8 @@ abstract class ReferenceCountedContractTest extends CoreTestCommon {
         rc.releaseLast();
     }
 
-    @DisplayName("listeners can be added and removed")
     @Test
+    @DisplayName("listeners can be added and removed")
     void shouldBeAbleToAddAndRemoveListeners() {
         ReferenceCounted rc = createReferenceCounted();
 

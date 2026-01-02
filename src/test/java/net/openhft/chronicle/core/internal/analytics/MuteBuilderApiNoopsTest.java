@@ -30,8 +30,8 @@ class MuteBuilderApiNoopsTest {
         else System.setProperty("chronicle.analytics.disable", prev);
     }
 
-    @DisplayName("Builder methods are no ops and builds mute analytics")
     @Test
+    @DisplayName("Builder methods are no ops and builds mute analytics")
     void builderMethodsAreNoOpsAndBuildsMuteAnalytics() {
         AtomicBoolean called = new AtomicBoolean(false);
         AnalyticsFacade.Builder b = AnalyticsFacade.builder("mid", "sec")

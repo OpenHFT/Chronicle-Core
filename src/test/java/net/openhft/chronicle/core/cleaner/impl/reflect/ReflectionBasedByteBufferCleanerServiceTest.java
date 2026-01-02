@@ -12,8 +12,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ReflectionBasedByteBufferCleanerServiceTest extends CoreTestCommon {
-    @DisplayName("cleaning buffer leaves reserved memory non-decreasing")
     @Test
+    @DisplayName("cleaning buffer leaves reserved memory non-decreasing")
     void shouldCleanBuffer() {
         CleanerTestUtil.ReservedMemorySnapshot snapshot = CleanerTestUtil.captureReservedMemorySnapshot(new ReflectionBasedByteBufferCleanerService()::clean);
         assertTrue(snapshot.before <= snapshot.after,

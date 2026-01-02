@@ -9,8 +9,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 class HookletTest {
-    @DisplayName("onShutdown callback is invoked on shutdown")
     @Test
+    @DisplayName("onShutdown callback is invoked on shutdown")
     void testOnShutdown() {
         AtomicBoolean called = new AtomicBoolean(false);
         Hooklet hooklet = new Hooklet() {
@@ -27,8 +27,8 @@ class HookletTest {
         assertTrue(called.get(), "onShutdown callback should be invoked when hooklet is triggered");
     }
 
-    @DisplayName("Priority returns configured hooklet setting value")
     @Test
+    @DisplayName("Priority returns configured hooklet setting value")
     void testPriority() {
         Hooklet hooklet = new Hooklet() {
             @Override
@@ -43,8 +43,8 @@ class HookletTest {
         assertEquals(10, hooklet.priority(), "hooklet priority should return the configured value");
     }
 
-    @DisplayName("Hooklet.of creates hooklet with priority and runnable")
     @Test
+    @DisplayName("Hooklet.of creates hooklet with priority and runnable")
     void testOf() {
         AtomicBoolean called = new AtomicBoolean(false);
         Runnable hook = () -> called.set(true);
@@ -54,8 +54,8 @@ class HookletTest {
         assertTrue(called.get(), "hooklet created with of() should execute the provided runnable on shutdown");
     }
 
-    @DisplayName("Compare to orders hooklets by priority")
     @Test
+    @DisplayName("Compare to orders hooklets by priority")
     void testCompareTo() {
         Hooklet hooklet1 = Hooklet.of(10, () -> {});
         Hooklet hooklet2 = Hooklet.of(20, () -> {});
@@ -70,8 +70,8 @@ class HookletTest {
         }
     }
 
-    @DisplayName("equals and hashCode reflect priority and runnable")
     @Test
+    @DisplayName("equals and hashCode reflect priority and runnable")
     void testEqualsAndHashCode() {
         Runnable runnable = new NoOpRunnable();
         Hooklet hooklet1 = Hooklet.of(10, runnable);
@@ -81,8 +81,8 @@ class HookletTest {
         assertEquals(hooklet1.hashCode(), hooklet2.hashCode(), "equal hooklets should have identical hash codes");
     }
 
-    @DisplayName("toString includes priority and identity information")
     @Test
+    @DisplayName("toString includes priority and identity information")
     void testToString() {
         Hooklet hooklet = Hooklet.of(10, () -> {});
         String toStringResult = hooklet.toString();

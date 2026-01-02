@@ -46,8 +46,8 @@ class CleaningThreadLocalIntegrationTest {
         }
     }
 
-    @DisplayName("Cleanup non cleaning threads handles concurrent callers")
     @Test
+    @DisplayName("Cleanup non cleaning threads handles concurrent callers")
     void cleanupNonCleaningThreadsHandlesConcurrentCallers() throws Exception {
         int ctls = 4;
         int orphansPerCtl = 64;
@@ -116,8 +116,8 @@ class CleaningThreadLocalIntegrationTest {
         assertEquals(expectedOrphans, cleaned.get(), "every orphan should be cleaned exactly once");
     }
 
-    @DisplayName("Cleanup triggers background reference release cleaning")
     @Test
+    @DisplayName("Cleanup triggers background reference release cleaning")
     void cleanupTriggersBackgroundReferenceRelease() throws Exception {
         AtomicInteger releases = new AtomicInteger();
         CleaningThreadLocal<CountingReference> ctl = new CleaningThreadLocal<>(

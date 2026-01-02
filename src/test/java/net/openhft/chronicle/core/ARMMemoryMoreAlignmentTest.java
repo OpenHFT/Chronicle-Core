@@ -25,8 +25,8 @@ class ARMMemoryMoreAlignmentTest {
         allocated = 0;
     }
 
-    @DisplayName("volatile short handles misaligned object offset")
     @Test
+    @DisplayName("volatile short handles misaligned object offset")
     void volatileCharMisalignedObjectOffset() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
         byte[] bytes = new byte[8];
@@ -35,8 +35,8 @@ class ARMMemoryMoreAlignmentTest {
         assertEquals((short) 0x1234, arm.readVolatileShort(bytes, off), "volatile short read should return previously written value at misaligned offset");
     }
 
-    @DisplayName("getAndSet and CAS work at aligned object offset")
     @Test
+    @DisplayName("getAndSet and CAS work at aligned object offset")
     void getAndSetAndCasAlignedObjectOffset() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
         byte[] bytes = new byte[16];
@@ -49,8 +49,8 @@ class ARMMemoryMoreAlignmentTest {
         assertEquals(9, UnsafeMemory.UNSAFE.getInt(bytes, aligned), "final value should reflect the successful compareAndSwap update");
     }
 
-    @DisplayName("writeOrderedLong handles misaligned memory address correctly")
     @Test
+    @DisplayName("writeOrderedLong handles misaligned memory address correctly")
     void writeOrderedLongMisalignedAddress() {
         UnsafeMemory.ARMMemory arm = new UnsafeMemory.ARMMemory();
         long base = alloc(16);

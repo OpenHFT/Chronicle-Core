@@ -10,8 +10,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class PomPropertiesVersionTest {
 
-    @DisplayName("Version unknown when resource missing pom")
     @Test
+    @DisplayName("Version unknown when resource missing pom")
     void versionUnknownWhenResourceMissing() {
         String v = PomProperties.version("net.openhft", "non-existent-artifact");
         assertEquals("unknown", v, "version string should match");

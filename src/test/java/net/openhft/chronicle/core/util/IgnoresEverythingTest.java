@@ -13,14 +13,14 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class IgnoresEverythingTest extends CoreTestCommon {
-    @DisplayName("ignored Consumer returns IgnoresEverything instance correctly")
     @Test
+    @DisplayName("ignored Consumer returns IgnoresEverything instance correctly")
     void test() {
         assertInstanceOf(IgnoresEverything.class, Mocker.ignored(Consumer.class), "Mocker.ignored should return an IgnoresEverything instance for Consumer interface");
     }
 
-    @DisplayName("Ignored chained call returns IgnoresEverything proxy instance")
     @Test
+    @DisplayName("Ignored chained call returns IgnoresEverything proxy instance")
     void returnsIgnored() {
         assertInstanceOf(IgnoresEverything.class, Mocker.ignored(Chained.class).method1(), "chained method call should return IgnoresEverything instance when invoked on ignored mock");
     }

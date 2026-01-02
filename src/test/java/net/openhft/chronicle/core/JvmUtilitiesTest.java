@@ -20,14 +20,14 @@ class JvmUtilitiesTest extends CoreTestCommon {
         System.clearProperty(FLAG_PROPERTY);
     }
 
-    @DisplayName("Major version matches java specification value")
     @Test
+    @DisplayName("Major version matches java specification value")
     void majorVersionMatchesSpecification() {
         assertEquals(detectMajorVersionFromSpecification(), Jvm.majorVersion(), "JVM major version should match specification version");
     }
 
-    @DisplayName("Boolean property parsing accepts empty and false values")
     @Test
+    @DisplayName("Boolean property parsing accepts empty and false values")
     void getBooleanUnderstandsEmptyAndFalseValues() {
         System.clearProperty(FLAG_PROPERTY);
         assertFalse(Jvm.getBoolean(FLAG_PROPERTY), "getBoolean should return false when property is not set");
@@ -44,8 +44,8 @@ class JvmUtilitiesTest extends CoreTestCommon {
 
     // parseSize and getSize are covered by JvmParseSizeTest
 
-    @DisplayName("Property lookup falls back to default value")
     @Test
+    @DisplayName("Property lookup falls back to default value")
     void getPropertyFallsBackToDefault() {
         System.clearProperty("chronicle.test.prop");
         assertEquals("fallback", Jvm.getProperty("chronicle.test.prop", "fallback"), "getProperty should return default value when property is not set");
@@ -54,8 +54,8 @@ class JvmUtilitiesTest extends CoreTestCommon {
         assertEquals("value", Jvm.getProperty("chronicle.test.prop", "fallback"), "getProperty should return actual value when property is set");
     }
 
-    @DisplayName("Long property parses value or returns default")
     @Test
+    @DisplayName("Long property parses value or returns default")
     void getLongReturnsParsedValueOrDefault() {
         System.clearProperty("chronicle.test.long");
         assertEquals(42L, Jvm.getLong("chronicle.test.long", 42L), "getLong should return default value when property is not set");
@@ -64,8 +64,8 @@ class JvmUtilitiesTest extends CoreTestCommon {
         assertEquals(1234L, Jvm.getLong("chronicle.test.long", 0L), "getLong should return parsed value when property is set");
     }
 
-    @DisplayName("Resource tracing toggles reflect current state")
     @Test
+    @DisplayName("Resource tracing toggles reflect current state")
     void resourceTracingToggles() {
         boolean original = Jvm.isResourceTracing();
         try {

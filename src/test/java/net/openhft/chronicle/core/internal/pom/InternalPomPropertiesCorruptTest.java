@@ -10,8 +10,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class InternalPomPropertiesCorruptTest {
 
-    @DisplayName("Version unknown when version missing in resource")
     @Test
+    @DisplayName("Version unknown when version missing in resource")
     void versionUnknownWhenVersionMissingInResource() {
         String v = InternalPomProperties.version("test.group", "corrupt-artifact");
         assertEquals("unknown", v, "version string should match");

@@ -10,16 +10,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LongValueImplTest {
 
-    @DisplayName("Long wrapper reads stored long field")
     @Test
+    @DisplayName("Long wrapper reads stored long field")
     void testSetValueAndGetValue() {
         LongValueImpl longValue = new LongValueImpl();
         longValue.setValue(10L);
         assertEquals(10L, longValue.getValue(), "getValue should return value set by setValue");
     }
 
-    @DisplayName("Long wrapper adds delta to stored number")
     @Test
+    @DisplayName("Long wrapper adds delta to stored number")
     void testAddValue() {
         LongValueImpl longValue = new LongValueImpl();
         longValue.setValue(5L);
@@ -27,8 +27,8 @@ class LongValueImplTest {
         assertEquals(8L, longValue.getValue(), "getValue should return sum after addValue");
     }
 
-    @DisplayName("Compare swap updates number on match success")
     @Test
+    @DisplayName("Compare swap updates number on match success")
     void testCompareAndSwapValueSuccess() {
         LongValueImpl longValue = new LongValueImpl();
         longValue.setValue(15L);
@@ -36,8 +36,8 @@ class LongValueImplTest {
         assertEquals(20L, longValue.getValue(), "getValue should return new value after successful compareAndSwapValue");
     }
 
-    @DisplayName("Compare swap keeps number when expectation fails")
     @Test
+    @DisplayName("Compare swap keeps number when expectation fails")
     void testCompareAndSwapValueFailure() {
         LongValueImpl longValue = new LongValueImpl();
         longValue.setValue(15L);
@@ -45,8 +45,8 @@ class LongValueImplTest {
         assertEquals(15L, longValue.getValue(), "getValue should return unchanged value after failed compareAndSwapValue");
     }
 
-    @DisplayName("Max setter keeps greater number only")
     @Test
+    @DisplayName("Max setter keeps greater number only")
     void testSetMaxValue() {
         LongValueImpl longValue = new LongValueImpl();
         longValue.setValue(50L);
@@ -56,8 +56,8 @@ class LongValueImplTest {
         assertEquals(100L, longValue.getValue(), "getValue should return unchanged value after setMaxValue with lesser value");
     }
 
-    @DisplayName("Min setter keeps smaller number only")
     @Test
+    @DisplayName("Min setter keeps smaller number only")
     void testSetMinValue() {
         LongValueImpl longValue = new LongValueImpl();
         longValue.setValue(50L);
@@ -67,24 +67,24 @@ class LongValueImplTest {
         assertEquals(25L, longValue.getValue(), "getValue should return unchanged value after setMinValue with greater value");
     }
 
-    @DisplayName("Volatile field mirrors stored long number")
     @Test
+    @DisplayName("Volatile field mirrors stored long number")
     void testGetAndSetVolatileValue() {
         LongValueImpl longValue = new LongValueImpl();
         longValue.setVolatileValue(123L);
         assertEquals(123L, longValue.getVolatileValue(), "getVolatileValue should return value set by setVolatileValue");
     }
 
-    @DisplayName("Ordered write updates underlying long field")
     @Test
+    @DisplayName("Ordered write updates underlying long field")
     void testSetOrderedValue() {
         LongValueImpl longValue = new LongValueImpl();
         longValue.setOrderedValue(456L);
         assertEquals(456L, longValue.getValue(), "getValue should return value set by setOrderedValue");
     }
 
-    @DisplayName("Atomic add adjusts long number for delta")
     @Test
+    @DisplayName("Atomic add adjusts long number for delta")
     void testAddAtomicValue() {
         LongValueImpl longValue = new LongValueImpl();
         longValue.setValue(10L);
@@ -94,8 +94,8 @@ class LongValueImplTest {
         assertEquals(12L, longValue.getValue(), "getValue should return sum after addAtomicValue with negative value");
     }
 
-    @DisplayName("Close flag reports closed state transitions")
     @Test
+    @DisplayName("Close flag reports closed state transitions")
     void testIsClosed() {
         LongValueImpl longValue = new LongValueImpl();
         assertFalse(longValue.isClosed(), "isClosed should return false before close");
@@ -104,16 +104,16 @@ class LongValueImplTest {
         assertTrue(longValue.isClosed(), "isClosed should return true after close");
     }
 
-    @DisplayName("Volatile access mirrors stored long number")
     @Test
+    @DisplayName("Volatile access mirrors stored long number")
     void testGetVolatileValue() {
         LongValueImpl longValue = new LongValueImpl();
         longValue.setValue(10L);
         assertEquals(10L, longValue.getVolatileValue(), "getVolatileValue should return value set by setValue");
     }
 
-    @DisplayName("Closed fallback uses provided long number")
     @Test
+    @DisplayName("Closed fallback uses provided long number")
     void testGetVolatileValueWithClosedValue() {
         LongValueImpl longValue = new LongValueImpl();
         longValue.setValue(10L);

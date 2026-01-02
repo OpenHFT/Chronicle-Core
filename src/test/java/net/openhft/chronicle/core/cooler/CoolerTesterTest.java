@@ -14,8 +14,8 @@ import static org.mockito.Mockito.*;
 
 class CoolerTesterTest {
 
-    @DisplayName("Should execute callable with each cooler")
     @Test
+    @DisplayName("Should execute callable with each cooler")
     void shouldExecuteCallableWithEachCooler() throws Exception {
         Callable<?> mockTask = mock(Callable.class);
         CpuCooler mockCooler = mock(CpuCooler.class);
@@ -29,8 +29,8 @@ class CoolerTesterTest {
         verify(mockCooler, atLeastOnce()).disturb();
     }
 
-    @DisplayName("Getter methods should return correct values")
     @Test
+    @DisplayName("Getter methods should return correct values")
     void getterMethodsShouldReturnCorrectValues() {
         // Setup a CoolerTester instance with known configuration values
         CoolerTester tester = new CoolerTester();
@@ -42,8 +42,8 @@ class CoolerTesterTest {
         assertEquals(100, tester.maxCount(), "maxCount getter should return the configured maximum count");
     }
 
-    @DisplayName("Run method should execute without errors cooler")
     @Test
+    @DisplayName("Run method should execute without errors cooler")
     void runMethodShouldExecuteWithoutErrors() {
         Callable<?> mockTask = mock(Callable.class);
         CpuCooler mockCooler = mock(CpuCooler.class);

@@ -16,16 +16,16 @@ class ReflectionBasedByteBufferCleanerServiceTest {
 
     private final ReflectionBasedByteBufferCleanerService cleanerService = new ReflectionBasedByteBufferCleanerService();
 
-    @DisplayName("cleaning direct buffer works across supported runtimes")
     @Test
+    @DisplayName("cleaning direct buffer works across supported runtimes")
     void cleanShouldWorkOnSupportedJdks() {
         ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
         String version = System.getProperty("java.version");
         assertDoesNotThrow(() -> cleanerService.clean(buffer), "Cleaning a direct buffer should not throw on Java " + version);
     }
 
-    @DisplayName("impact reports supported reflection-based outcomes")
     @Test
+    @DisplayName("impact reports supported reflection-based outcomes")
     void impactShouldReturnValidImpact() {
         Impact impact = cleanerService.impact();
         assertTrue(impact == Impact.SOME_IMPACT || impact == Impact.UNAVAILABLE, "Impact should be either SOME_IMPACT or UNAVAILABLE");

@@ -19,8 +19,8 @@ class CloseableUtilsAssertTest {
         }
     }
 
-    @DisplayName("Assert closeables closed finds unclosed and closes")
     @Test
+    @DisplayName("Assert closeables closed finds unclosed and closes")
     void assertCloseablesClosedFindsUnclosedAndCloses() {
         // Ensure tracing is enabled for this test
         AbstractCloseable.enableCloseableTracing();

@@ -19,8 +19,8 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class IntConditionTest extends CoreTestCommon {
 
-    @DisplayName("Positive values satisfy predicate expectations in tests")
     @Test
+    @DisplayName("Positive values satisfy predicate expectations in tests")
     void positive() {
         assertEquals(3, test(
                 POSITIVE, NON_POSITIVE,
@@ -32,8 +32,8 @@ class IntConditionTest extends CoreTestCommon {
         ), "Positive predicate scenarios cover negative zero and positive values");
     }
 
-    @DisplayName("Negative values satisfy predicate expectations in tests")
     @Test
+    @DisplayName("Negative values satisfy predicate expectations in tests")
     void negative() {
         assertEquals(3, test(
                 NEGATIVE, NON_NEGATIVE,
@@ -45,8 +45,8 @@ class IntConditionTest extends CoreTestCommon {
         ), "Negative predicate scenarios cover negative zero and positive values");
     }
 
-    @DisplayName("Zero value satisfies predicate expectations in tests")
     @Test
+    @DisplayName("Zero value satisfies predicate expectations in tests")
     void zero() {
         assertEquals(3, test(
                 ZERO, NON_ZERO,
@@ -58,8 +58,8 @@ class IntConditionTest extends CoreTestCommon {
         ), "Zero predicate scenarios cover negative zero and positive values");
     }
 
-    @DisplayName("Byte convertible predicate accepts boundary values")
     @Test
+    @DisplayName("Byte convertible predicate accepts boundary values")
     void byteConvertible() {
         assertEquals(5, test(
                 BYTE_CONVERTIBLE,
@@ -73,8 +73,8 @@ class IntConditionTest extends CoreTestCommon {
         ), "Byte conversion scenarios cover bounds and overflow values");
     }
 
-    @DisplayName("Short convertible predicate accepts boundary values")
     @Test
+    @DisplayName("Short convertible predicate accepts boundary values")
     void shortConvertible() {
         assertEquals(5, test(
                 SHORT_CONVERTIBLE,
@@ -88,8 +88,8 @@ class IntConditionTest extends CoreTestCommon {
         ), "Short conversion scenarios cover bounds and overflow values");
     }
 
-    @DisplayName("Even power of two int condition")
     @Test
+    @DisplayName("Even power of two int condition")
     void evenPowerOfTwo() {
         assertEquals(7, test(
                 EVEN_POWER_OF_TWO,

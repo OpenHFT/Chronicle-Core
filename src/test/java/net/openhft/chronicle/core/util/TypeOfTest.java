@@ -14,8 +14,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class TypeOfTest extends CoreTestCommon {
 
-    @DisplayName("TypeOf captures wildcard and nested generic types")
     @Test
+    @DisplayName("TypeOf captures wildcard and nested generic types")
     <T extends Number> void type() {
         assertEquals("java.util.List<?>", new TypeOf<List<?>>() {
         }.type().toString(), "TypeOf should capture wildcard type as List<?>");

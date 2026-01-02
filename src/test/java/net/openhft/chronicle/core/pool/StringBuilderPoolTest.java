@@ -29,8 +29,8 @@ class StringBuilderPoolTest extends CoreTestCommon {
         assertNotNull(pool, "Thread-local StringBuilderPool should be created successfully");
     }
 
-    @DisplayName("Reuses builder within thread and clears content")
     @Test
+    @DisplayName("Reuses builder within thread and clears content")
     void reusesBuilderWithinThreadAndClearsContent() {
         ScopedResourcePool<StringBuilder> pool = StringBuilderPool.createThreadLocal(1);
 
@@ -48,8 +48,8 @@ class StringBuilderPoolTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("Supplies independent builders per thread string")
     @Test
+    @DisplayName("Supplies independent builders per thread string")
     void suppliesIndependentBuildersPerThread() throws InterruptedException {
         ScopedResourcePool<StringBuilder> pool = StringBuilderPool.createThreadLocal(1);
 

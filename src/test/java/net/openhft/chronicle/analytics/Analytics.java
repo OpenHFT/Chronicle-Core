@@ -5,13 +5,13 @@ package net.openhft.chronicle.analytics;
 
 import net.openhft.chronicle.core.analytics.AnalyticsFacade;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Test double that mimics the public API expected by {@code ReflectionUtil} and {@code ReflectiveBuilder} during tests.
@@ -37,8 +37,8 @@ public interface Analytics extends AnalyticsFacade {
         private boolean reportDespiteJUnit;
 
         private Builder(final String measurementId, final String apiSecret) {
-            this.measurementId = Objects.requireNonNull(measurementId);
-            this.apiSecret = Objects.requireNonNull(apiSecret);
+            this.measurementId = requireNonNull(measurementId);
+            this.apiSecret = requireNonNull(apiSecret);
         }
 
         public Builder putUserProperty(final String key, final String value) {
@@ -54,27 +54,27 @@ public interface Analytics extends AnalyticsFacade {
         public Builder withFrequencyLimit(final int messages, final long duration, final TimeUnit timeUnit) {
             this.frequencyMessages = messages;
             this.frequencyDuration = duration;
-            this.frequencyUnit = Objects.requireNonNull(timeUnit);
+            this.frequencyUnit = requireNonNull(timeUnit);
             return this;
         }
 
         public Builder withErrorLogger(final Consumer<? super String> logger) {
-            this.errorLogger = Objects.requireNonNull(logger);
+            this.errorLogger = requireNonNull(logger);
             return this;
         }
 
         public Builder withDebugLogger(final Consumer<? super String> logger) {
-            this.debugLogger = Objects.requireNonNull(logger);
+            this.debugLogger = requireNonNull(logger);
             return this;
         }
 
         public Builder withClientIdFileName(final String fileName) {
-            this.clientIdFileName = Objects.requireNonNull(fileName);
+            this.clientIdFileName = requireNonNull(fileName);
             return this;
         }
 
         public Builder withUrl(final String url) {
-            this.url = Objects.requireNonNull(url);
+            this.url = requireNonNull(url);
             return this;
         }
 

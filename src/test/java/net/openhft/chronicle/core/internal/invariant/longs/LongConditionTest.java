@@ -12,8 +12,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LongConditionTest {
 
-    @DisplayName("Basic comparisons validate long invariant predicates")
     @Test
+    @DisplayName("Basic comparisons validate long invariant predicates")
     void basicComparisons() {
         String codeSource = LongCondition.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         assertTrue(codeSource.contains("/target/classes"), "Expected instrumented class from target/classes but was " + codeSource);
@@ -39,8 +39,8 @@ class LongConditionTest {
         assertFalse(LongCondition.NON_ZERO.test(0), "non-zero condition should reject zero");
     }
 
-    @DisplayName("Range and alignment checks validate long constraints")
     @Test
+    @DisplayName("Range and alignment checks validate long constraints")
     void rangeAndAlignmentChecks() {
         assertTrue(LongCondition.BYTE_CONVERTIBLE.test(Byte.MAX_VALUE), "byte convertible condition should accept value within byte range");
         assertFalse(LongCondition.BYTE_CONVERTIBLE.test(Byte.MAX_VALUE + 1L), "byte convertible condition should reject value exceeding byte maximum");
@@ -61,8 +61,8 @@ class LongConditionTest {
         assertFalse(LongCondition.LONG_ALIGNED.test(4), "long aligned condition should reject unaligned value");
     }
 
-    @DisplayName("Negated predicates invert long invariant expectations")
     @Test
+    @DisplayName("Negated predicates invert long invariant expectations")
     void negateMappings() {
         LongPredicate positiveNegated = LongCondition.POSITIVE.negate();
         assertTrue(positiveNegated.test(-1), "negated positive condition should accept non-positive value");
@@ -93,8 +93,8 @@ class LongConditionTest {
         assertTrue(notShortAligned.test(3), "negated short aligned condition should accept unaligned value");
     }
 
-    @DisplayName("Descriptive toString exposes invariant predicate labels")
     @Test
+    @DisplayName("Descriptive toString exposes invariant predicate labels")
     void descriptiveToString() {
         assertEquals("> 0", LongCondition.POSITIVE.toString(), "positive condition should have descriptive string representation");
         assertEquals("!= 0", LongCondition.NON_ZERO.toString(), "non-zero condition should have descriptive string representation");

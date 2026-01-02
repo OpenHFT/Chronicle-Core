@@ -19,23 +19,23 @@ class IntValueTest {
         intValue = mock(IntValue.class); // Create a mock object of IntValue
     }
 
-    @DisplayName("Int value getter returns mocked proxy result")
     @Test
+    @DisplayName("Int value getter returns mocked proxy result")
     void testGetValue() {
         when(intValue.getValue()).thenReturn(10); // Setup the mock to return 10
         assertEquals(10, intValue.getValue(), "getValue should return mocked value");
     }
 
-    @DisplayName("Int value setter invokes setValue with argument")
     @Test
+    @DisplayName("Int value setter invokes setValue with argument")
     void testSetValue() {
         doNothing().when(intValue).setValue(anyInt());
         intValue.setValue(20);
         verify(intValue, times(1)).setValue(20);
     }
 
-    @DisplayName("Close toggles isClosed state from false to true")
     @Test
+    @DisplayName("Close toggles isClosed state from false to true")
     void testCloseAndIsClosed() {
         when(intValue.isClosed()).thenReturn(false, true); // Before and after close
         assertFalse(intValue.isClosed(), "isClosed should return false before close");

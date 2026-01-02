@@ -20,8 +20,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ThrowingFunctionTest extends CoreTestCommon {
-    @DisplayName("asFunction rethrows IO failures from lambda")
     @Test
+    @DisplayName("asFunction rethrows IO failures from lambda")
     void asFunction() {
         @NotNull Function<String, String> sc = ThrowingFunction.asFunction(s -> {
             try (@NotNull BufferedReader br = new BufferedReader(

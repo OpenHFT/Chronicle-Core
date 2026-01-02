@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ThreadConfinementAsserterTest {
 
-    @DisplayName("Assert thread confined same thread confinement")
     @Test
+    @DisplayName("Assert thread confined same thread confinement")
     void assertThreadConfinedSameThread() {
         ThreadConfinementAsserter asserter = ThreadConfinementAsserter.createEnabled();
 
@@ -22,8 +22,8 @@ class ThreadConfinementAsserterTest {
         assertDoesNotThrow(asserter::assertThreadConfined, "repeat assertThreadConfined should remain valid on owning thread");
     }
 
-    @DisplayName("Assert thread confined different threads confinement")
     @Test
+    @DisplayName("Assert thread confined different threads confinement")
     void assertThreadConfinedDifferentThreads() throws InterruptedException {
         ThreadConfinementAsserter asserter = ThreadConfinementAsserter.createEnabled();
         CountDownLatch latch = new CountDownLatch(1);
@@ -41,8 +41,8 @@ class ThreadConfinementAsserterTest {
         executorService.shutdown();
     }
 
-    @DisplayName("Create should return correct type based on assertions")
     @Test
+    @DisplayName("Create should return correct type based on assertions")
     void createShouldReturnCorrectTypeBasedOnAssertions() {
         // This test's behavior will depend on whether assertions are enabled in the JVM.
         ThreadConfinementAsserter asserter = ThreadConfinementAsserter.create();
@@ -50,8 +50,8 @@ class ThreadConfinementAsserterTest {
         assertNotNull(asserter, "create() should return a non-null asserter regardless of assertion state");
     }
 
-    @DisplayName("Create enabled should always return functional asserter")
     @Test
+    @DisplayName("Create enabled should always return functional asserter")
     void createEnabledShouldAlwaysReturnFunctionalAsserter() {
         ThreadConfinementAsserter asserter = ThreadConfinementAsserter.createEnabled();
         assertNotNull(asserter, "createEnabled() should always return a functional non-null asserter");

@@ -9,8 +9,8 @@ import org.junit.jupiter.api.Test;
 
 class ClosedIORuntimeExceptionTest {
 
-    @DisplayName("Constructor with message closed io runtime")
     @Test
+    @DisplayName("Constructor with message closed io runtime")
     void testConstructorWithMessage() {
         String testMessage = "Test message";
         ClosedIORuntimeException exception = new ClosedIORuntimeException(testMessage);
@@ -19,8 +19,8 @@ class ClosedIORuntimeExceptionTest {
                 "message-only constructor should set the exception message correctly");
     }
 
-    @DisplayName("Constructor with message and cause closed")
     @Test
+    @DisplayName("Constructor with message and cause closed")
     void testConstructorWithMessageAndCause() {
         String testMessage = "Test message";
         Throwable testCause = new Throwable("Test cause");
@@ -32,8 +32,8 @@ class ClosedIORuntimeExceptionTest {
                 "message-and-cause constructor should set the cause correctly");
     }
 
-    @DisplayName("Constructor with null cause closed io")
     @Test
+    @DisplayName("Constructor with null cause closed io")
     void testConstructorWithNullCause() {
         String testMessage = "Test message";
         ClosedIORuntimeException exception = new ClosedIORuntimeException(testMessage, null);

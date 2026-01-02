@@ -4,13 +4,12 @@
 package net.openhft.chronicle.core.cleaner.impl;
 
 import net.openhft.chronicle.core.Jvm;
-
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
-import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
+import static java.util.Objects.requireNonNull;
 
 public final class CleanerTestUtil {
 

@@ -30,8 +30,8 @@ class EnumInternerTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("Enum interner handles hash collisions in parallel")
     @Test
+    @DisplayName("Enum interner handles hash collisions in parallel")
     void clashTest() {
         for (TestEnum value : TestEnum.values()) {
             @NotNull String s = value.toString();

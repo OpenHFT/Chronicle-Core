@@ -28,8 +28,8 @@ class ScopedThreadLocalLifecycleTest {
         assertNull(ref.get(), "reference should be cleared after GC");
     }
 
-    @DisplayName("zero capacity is rejected by constructor")
     @Test
+    @DisplayName("zero capacity is rejected by constructor")
     void zeroCapacityIsRejected() {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () ->
                 new ScopedThreadLocal<>(() -> new CloseableProbe(1, new AtomicInteger(), new CopyOnWriteArrayList<>()),
@@ -40,8 +40,8 @@ class ScopedThreadLocalLifecycleTest {
                 "exception message should mention maxInstances but was: " + ex.getMessage());
     }
 
-    @DisplayName("newest resource closes when capacity exceeded")
     @Test
+    @DisplayName("newest resource closes when capacity exceeded")
     void newestResourceIsClosedWhenCapacityExceeded() {
         AtomicInteger idSeq = new AtomicInteger();
         AtomicInteger closedCount = new AtomicInteger();
@@ -66,8 +66,8 @@ class ScopedThreadLocalLifecycleTest {
         assertEquals(Collections.singletonList(acquired.get(2)), closedIds, "The most recently created resource must be closed");
     }
 
-    @DisplayName("weak reference pool rehydrates after GC")
     @Test
+    @DisplayName("weak reference pool rehydrates after GC")
     void weakReferencePoolRehydratesAfterGc() {
         AtomicInteger idSeq = new AtomicInteger();
 
@@ -94,8 +94,8 @@ class ScopedThreadLocalLifecycleTest {
         }
     }
 
-    @DisplayName("thread confinement violation is surfaced to caller")
     @Test
+    @DisplayName("thread confinement violation is surfaced to caller")
     void threadConfinementViolationIsSurfaced() throws Exception {
         ScopedThreadLocal<ConfinementAwareResource> pool = new ScopedThreadLocal<>(
                 ConfinementAwareResource::new,

@@ -27,8 +27,8 @@ class TracingReferenceCountedTest extends MonitorReferenceCountedContractTest {
         return new TracingReferenceCounted(onReleaseCallCount::incrementAndGet, "uniqueId", TracingReferenceCounted.class);
     }
 
-    @DisplayName("reserve rejects duplicate reservation from same owner")
     @Test
+    @DisplayName("reserve rejects duplicate reservation from same owner")
     void reserveWillThrowAndNotReserveWhenReferenceOwnerAttemptsToMakeASecondReservation() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
@@ -41,8 +41,8 @@ class TracingReferenceCountedTest extends MonitorReferenceCountedContractTest {
         assertEquals(2, referenceCounted.refCount(), "refCount should remain 2 after failed duplicate reserve");
     }
 
-    @DisplayName("release fails when owner has no reservation")
     @Test
+    @DisplayName("release fails when owner has no reservation")
     void releaseWillFailWhenResourceOwnerHasNoReservation() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
@@ -51,8 +51,8 @@ class TracingReferenceCountedTest extends MonitorReferenceCountedContractTest {
                 "release should fail when owner has no reservation");
     }
 
-    @DisplayName("releaseLast throws with details when not last")
     @Test
+    @DisplayName("releaseLast throws with details when not last")
     void releaseLastWillThrowWithReferenceDetailsWhenReleaseIsNotLast() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
@@ -67,8 +67,8 @@ class TracingReferenceCountedTest extends MonitorReferenceCountedContractTest {
         }
     }
 
-    @DisplayName("releaseLast exposes suppressed failures when release fails")
     @Test
+    @DisplayName("releaseLast exposes suppressed failures when release fails")
     void releaseLastWillThrowWithSuppressedInnerFailuresWhenReleaseFails() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
@@ -84,15 +84,15 @@ class TracingReferenceCountedTest extends MonitorReferenceCountedContractTest {
         }
     }
 
-    @DisplayName("asString includes reference counted details output")
     @Test
+    @DisplayName("asString includes reference counted details output")
     void asStringWillIncludeReferenceCountedDetails() {
         final TracingReferenceCounted referenceCounted = createReferenceCounted();
         assertTrue(Pattern.matches("TracingReferenceCounted@\\w+ refCount=1", asString(referenceCounted)), "asString output should include class name and refCount");
     }
 
-    @DisplayName("asString includes closeable details output text")
     @Test
+    @DisplayName("asString includes closeable details output text")
     void asStringWillIncludeCloseableDetails() {
         class SomeCloseable implements QueryCloseable, ReferenceOwner {
 
@@ -109,8 +109,8 @@ class TracingReferenceCountedTest extends MonitorReferenceCountedContractTest {
         assertEquals("testCloseable closed=false", asString(new SomeCloseable()), "asString output should include reference name and closed state");
     }
 
-    @DisplayName("asString renders class name and address")
     @Test
+    @DisplayName("asString renders class name and address")
     void asStringRenderClassNameAndAddressForPojos() {
         class SomePlainObject {
 
@@ -118,16 +118,16 @@ class TracingReferenceCountedTest extends MonitorReferenceCountedContractTest {
         assertTrue(Pattern.matches("SomePlainObject@\\w+", asString(new SomePlainObject())), "asString output should include class name and memory address for plain objects");
     }
 
-    @DisplayName("createdHere returns created stack trace details")
     @Test
+    @DisplayName("createdHere returns created stack trace details")
     void createdHereWillReturnCreatedStackTrace() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
         assertNotNull(referenceCounted.createdHere(), "createdHere should return non-null stack trace");
     }
 
-    @DisplayName("reserveTransfer fails when source has no reservation")
     @Test
+    @DisplayName("reserveTransfer fails when source has no reservation")
     void reserveTransferWillThrowWhenFromHasNoReservation() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
@@ -138,8 +138,8 @@ class TracingReferenceCountedTest extends MonitorReferenceCountedContractTest {
                 "reserveTransfer should fail when source has no reservation");
     }
 
-    @DisplayName("reserveTransfer fails when target already reserved")
     @Test
+    @DisplayName("reserveTransfer fails when target already reserved")
     void reserveTransferWillThrowWhenToAlreadyHasAReservation() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
@@ -152,8 +152,8 @@ class TracingReferenceCountedTest extends MonitorReferenceCountedContractTest {
                 "reserveTransfer should fail when target already has a reservation");
     }
 
-    @DisplayName("reserve throws when called with self")
     @Test
+    @DisplayName("reserve throws when called with self")
     void reserveWillThrowWhenCalledWithSelf() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 

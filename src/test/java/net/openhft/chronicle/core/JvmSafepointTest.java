@@ -14,8 +14,8 @@ class JvmSafepointTest extends CoreTestCommon {
 
     private volatile long safePointPerfLastAvg;
 
-    @DisplayName("Safepoint stack traces report expected hits")
     @Test
+    @DisplayName("Safepoint stack traces report expected hits")
     void testSafepoint() throws InterruptedException {
         @SuppressWarnings("AnonymousHasLambdaAlternative")
         Thread t = new Thread() {
@@ -54,8 +54,8 @@ class JvmSafepointTest extends CoreTestCommon {
         assertTrue(counter >= min, "safepoint stack trace hits should reach minimum: counter=" + counter + ", min=" + min);
     }
 
-    @DisplayName("Safepoint performance stays within expected bounds")
     @Test
+    @DisplayName("Safepoint performance stays within expected bounds")
     void safePointPerf() {
         // This will enable the C2 compiler to kick in.
         FlakyTestRunner.builder(this::safePointPerf0)

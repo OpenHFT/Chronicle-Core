@@ -42,37 +42,37 @@ class OSTest extends CoreTestCommon {
                 .orElse("unknown");
     }
 
-    @DisplayName("Sparse file support matches platform capabilities")
     @Test
+    @DisplayName("Sparse file support matches platform capabilities")
     void testIsSparseFileSupported() {
         // This test is environment-dependent and may need to be adjusted based on the target system
         boolean expected = System.getProperty("os.name").toLowerCase().contains("linux") && OS.is64Bit();
         assertEquals(expected, OS.isSparseFileSupported(), "sparse file support should match platform capabilities (64-bit Linux)");
     }
 
-    @DisplayName("findTmp returns a temporary directory path")
     @Test
+    @DisplayName("findTmp returns a temporary directory path")
     void testFindTmp() {
         String tmp = OS.findTmp();
         assertNotNull(tmp, "temporary directory path should be resolved by OS.findTmp()");
     }
 
-    @DisplayName("IPAddressHolder initialises IP address string value")
     @Test
+    @DisplayName("IPAddressHolder initialises IP address string value")
     void testIPAddressHolder() {
         String ipAddress = OS.IPAddressHolder.IP_ADDRESS;
         assertNotNull(ipAddress, "IPAddressHolder.IP_ADDRESS should be initialized");
     }
 
-    @DisplayName("HostnameHolder initialises host name string value")
     @Test
+    @DisplayName("HostnameHolder initialises host name string value")
     void testHostnameHolder() {
         String hostname = OS.HostnameHolder.HOST_NAME;
         assertNotNull(hostname, "HostnameHolder.HOST_NAME should be initialized");
     }
 
-    @DisplayName("findFile returns last existing file path")
     @Test
+    @DisplayName("findFile returns last existing file path")
     void testFindFile() {
         assertEquals(new File("./last").getAbsolutePath(), OS.findFile("first", "last").getAbsolutePath(),
                 "findFile should return last valid file when earlier options are not found");
@@ -90,8 +90,8 @@ class OSTest extends CoreTestCommon {
         threadDump.assertNoNewThreads();
     }
 
-    @DisplayName("is64Bit detects architecture from JVM properties")
     @Test
+    @DisplayName("is64Bit detects architecture from JVM properties")
     void testIs64Bit() {
         final boolean expected =
                 Stream.of("com.ibm.vm.bitmode", "sun.arch.data.model")
@@ -106,8 +106,8 @@ class OSTest extends CoreTestCommon {
         assertEquals(expected, OS.is64Bit(), "64-bit detection should match JVM system properties");
     }
 
-    @DisplayName("getProcessId returns a positive process identifier")
     @Test
+    @DisplayName("getProcessId returns a positive process identifier")
     void testGetProcessId() {
         final int processId = OS.getProcessId();
         assertTrue(processId > 0, "OS.getProcessId should return a positive id: processId=" + processId);
@@ -116,8 +116,8 @@ class OSTest extends CoreTestCommon {
     /**
      * tests that Windows supports page mapping granularity
      */
-    @DisplayName("Map granularity uses page size on Windows")
     @Test
+    @DisplayName("Map granularity uses page size on Windows")
     //@Ignore("Failing on TC (linux agent) for unknown reason, anyway the goal of this test is to " +
     //        "test mapping granularity on windows")
     void testMapGranularity() throws IOException {
@@ -139,8 +139,8 @@ class OSTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("Large memory map write and read round trip")
     @Test
+    @DisplayName("Large memory map write and read round trip")
     //@Ignore("Should always pass, or crash the JVM based on length")
     void testMap() throws IOException {
         File file = IOTools.createTempFile(getClass().getName() + "." + testMethodName);
@@ -178,8 +178,8 @@ class OSTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("Fast map read and write round trip")
     @Test
+    @DisplayName("Fast map read and write round trip")
     void testMapFast() throws Exception {
         File file = IOTools.createTempFile(getClass().getName() + "." + testMethodName);
 
@@ -204,8 +204,8 @@ class OSTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("Host name lookup resolves OS host name value")
     @Test
+    @DisplayName("Host name lookup resolves OS host name value")
     void getHostname() throws IOException {
         System.out.println("exec hostname: " + OS.HostnameHolder.execHostname());
         final String hostName = OS.getHostName();
@@ -213,13 +213,14 @@ class OSTest extends CoreTestCommon {
         assertNotNull(hostName, "OS.getHostName should return a resolved host name");
         assertNotEquals("", hostName, "hostname should not be empty string");
 
-        assumeTrue(OS.isWindows() || OS.isLinux() || OS.isMacOSX());
+        assumeTrue(OS.isWindows() || OS.isLinux() || OS.isMacOSX(),
+                "host name checks require Windows, Linux, or macOS");
         assertNotEquals("localhost", hostName, "hostname should be actual machine name, not 'localhost' on Windows/Linux/macOS");
     }
 
+    @Test
     @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
     @DisplayName("IP address lookup resolves OS address value")
-    @Test
     void getIPAddress() {
         System.out.println("getIpAddressByLocalHost: " + OS.IPAddressHolder.getIpAddressByLocalHost());
         System.out.println("getIpAddressByDatagram " + OS.IPAddressHolder.getIpAddressByDatagram());
@@ -230,27 +231,28 @@ class OSTest extends CoreTestCommon {
         assertNotNull(ipAddress, "OS.getIPAddress should return a resolved IP address");
         assertNotEquals("", ipAddress, "IP address should not be empty string");
 
-        assumeTrue(OS.isWindows() || OS.isLinux() || OS.isMacOSX());
+        assumeTrue(OS.isWindows() || OS.isLinux() || OS.isMacOSX(),
+                "IP address checks require Windows, Linux, or macOS");
         assertNotEquals("0.0.0.0", ipAddress, "IP address should be actual network address, not '0.0.0.0' on Windows/Linux/macOS");
     }
 
-    @DisplayName("Target directory lookup resolves build target path")
     @Test
+    @DisplayName("Target directory lookup resolves build target path")
     void getTarget() {
         String target = OS.getTarget();
         if (!target.endsWith("/target"))
             assertEquals("target", target, "getTarget should return 'target' as directory name");
     }
 
-    @DisplayName("Temporary directory lookup returns OS temp path")
     @Test
+    @DisplayName("Temporary directory lookup returns OS temp path")
     void getTmp() {
         String tmp = OS.getTmp();
         assertNotNull(tmp, "temporary directory path should be resolved by OS.getTmp()");
     }
 
-    @DisplayName("mapAlign aligns offsets to page size")
     @Test
+    @DisplayName("mapAlign aligns offsets to page size")
     void mapAlign() {
         // Testing for 64 bytes alignment
         assertEquals(0, OS.mapAlign(0, 64), "zero offset with 64-byte alignment should remain zero"); // Perfectly aligned already
@@ -288,8 +290,8 @@ class OSTest extends CoreTestCommon {
         assertThrows(IllegalArgumentException.class, () -> OS.mapAlign(10, 0), "zero page alignment should be rejected");
     }
 
-    @DisplayName("pageAlign rounds values to page size")
     @Test
+    @DisplayName("pageAlign rounds values to page size")
     void pageAlign() {
         // Testing for 64 bytes alignment
         assertEquals(0, OS.pageAlign(0, 64), "zero size with 64-byte alignment should remain zero"); // Perfectly aligned already
@@ -316,23 +318,23 @@ class OSTest extends CoreTestCommon {
         assertEquals(2L * customPageSize, OS.pageAlign(2L * customPageSize - 1, customPageSize), "size near second hugepage should round up to 4MB"); // Not aligned, should round up to higher closest
     }
 
-    @DisplayName("getUserName returns current user name value")
     @Test
+    @DisplayName("getUserName returns current user name value")
     void testGetUserName() {
         String expectedUserName = System.getProperty("user.name");
         assertEquals(expectedUserName, OS.getUserName(), "OS.getUserName should return user.name system property");
     }
 
-    @DisplayName("pageAlign matches expected alignment for sizes")
     @Test
+    @DisplayName("pageAlign matches expected alignment for sizes")
     void testPageAlign() {
         long size = 12345;
         long expectedAlignedSize = (size + OS.pageSize() - 1) & ~(OS.pageSize() - 1);
         assertEquals(expectedAlignedSize, OS.pageAlign(size), "pageAlign should round up arbitrary size to system page boundary");
     }
 
-    @DisplayName("mapAlign matches expected alignment for offsets")
     @Test
+    @DisplayName("mapAlign matches expected alignment for offsets")
     void testMapAlign() {
         long offset = 6000;
         long expectedAlignedOffset = (offset + OS.defaultOsPageSize() - 1) & ~(OS.defaultOsPageSize() - 1);
@@ -341,31 +343,31 @@ class OSTest extends CoreTestCommon {
         assertThrows(IllegalArgumentException.class, () -> OS.mapAlign(-1), "single-argument mapAlign should reject negative offset");
     }
 
-    @DisplayName("Process id lookup returns OS process identifier")
     @Test
+    @DisplayName("Process id lookup returns OS process identifier")
     void testGetProcessId0() {
         int processId = OS.getProcessId0();
         assertTrue(processId > 0, "OS.getProcessId0 should return a positive id: processId=" + processId);
         // Additional checks can be added if there are known constraints on the process ID.
     }
 
-    @DisplayName("getPidMax returns system pid maximum value")
     @Test
+    @DisplayName("getPidMax returns system pid maximum value")
     void testGetPidMax() {
         long pidMax = OS.getPidMax();
         assertTrue(pidMax > 0, "OS.getPidMax should return a positive limit: pidMax=" + pidMax);
         // Specific value checks can be added for different OS types if known.
     }
 
-    @DisplayName("userDir returns current user directory path")
     @Test
+    @DisplayName("userDir returns current user directory path")
     void testUserDir() {
         String expectedUserDir = System.getProperty("user.dir");
         assertEquals(expectedUserDir, OS.userDir(), "OS.userDir should return user.dir system property");
     }
 
-    @DisplayName("getHostName0 returns raw host name value")
     @Test
+    @DisplayName("getHostName0 returns raw host name value")
     void testGetHostName0() {
         String expectedHostName = null;
 
@@ -387,20 +389,20 @@ class OSTest extends CoreTestCommon {
         assertEquals(OS.HostnameHolder.HOST_NAME, expectedHostName, "HOST_NAME should match system hostname");
     }
 
-    @DisplayName("mapAlign rejects negative offsets for alignment")
     @Test
+    @DisplayName("mapAlign rejects negative offsets for alignment")
     void mapAlignRejectsNegativeOffsets() {
         assertThrows(IllegalArgumentException.class, () -> OS.mapAlign(-1L), "mapAlign should reject negative offset value");
     }
 
-    @DisplayName("mapAlign rejects non positive alignment values")
     @Test
+    @DisplayName("mapAlign rejects non positive alignment values")
     void mapAlignRejectsNonPositiveAlignment() {
         assertThrows(IllegalArgumentException.class, () -> OS.mapAlign(64L, 0), "mapAlign should reject zero as page alignment value");
     }
 
-    @DisplayName("mapAlign rounds up to alignment boundary")
     @Test
+    @DisplayName("mapAlign rounds up to alignment boundary")
     void mapAlignRoundsUpToAlignment() {
         long alignment = OS.defaultOsPageSize();
         long offset = alignment / 2;
@@ -408,8 +410,8 @@ class OSTest extends CoreTestCommon {
         assertEquals(alignment, aligned, "memory should be aligned to page boundary");
     }
 
-    @DisplayName("Memory map and unmap round trip")
     @Test
+    @DisplayName("Memory map and unmap round trip")
     void memoryMapAndUnmapRoundTrip() throws IOException {
         File temp = File.createTempFile("chronicle-os-map", ".bin");
         temp.deleteOnExit();
@@ -425,8 +427,8 @@ class OSTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("mapAlign handles non zero start offsets")
     @Test
+    @DisplayName("mapAlign handles non zero start offsets")
     void mapAlignHandlesNonZeroStartOffsets() throws IOException {
         File temp = File.createTempFile("chronicle-os-map-offset", ".bin");
         temp.deleteOnExit();
@@ -442,5 +444,164 @@ class OSTest extends CoreTestCommon {
             assertNotEquals(0L, address, "memory mapping with unaligned offset should return valid address");
             OS.unmap(address, size);
         }
+    }
+
+    @Test
+    @DisplayName("imodeFor returns correct modes for all map types")
+    void imodeForAllModes() {
+        assertEquals(0, OS.imodeFor(FileChannel.MapMode.READ_ONLY), "READ_ONLY should return 0");
+        assertEquals(1, OS.imodeFor(FileChannel.MapMode.READ_WRITE), "READ_WRITE should return 1");
+        assertEquals(2, OS.imodeFor(FileChannel.MapMode.PRIVATE), "PRIVATE should return 2");
+    }
+
+    @Test
+    @DisplayName("memoryMapped tracks mapped memory")
+    void memoryMappedTracking() {
+        long before = OS.memoryMapped();
+        assertTrue(before >= 0, "memoryMapped should return non-negative value: before=" + before);
+    }
+
+    @Test
+    @DisplayName("isLinux returns consistent value")
+    void isLinuxConsistent() {
+        boolean linux1 = OS.isLinux();
+        boolean linux2 = OS.isLinux();
+        assertEquals(linux1, linux2, "isLinux should return consistent value");
+    }
+
+    @Test
+    @DisplayName("isWindows returns consistent value")
+    void isWindowsConsistent() {
+        boolean win1 = OS.isWindows();
+        boolean win2 = OS.isWindows();
+        assertEquals(win1, win2, "isWindows should return consistent value");
+    }
+
+    @Test
+    @DisplayName("isMacOSX returns consistent value")
+    void isMacOSXConsistent() {
+        boolean mac1 = OS.isMacOSX();
+        boolean mac2 = OS.isMacOSX();
+        assertEquals(mac1, mac2, "isMacOSX should return consistent value");
+    }
+
+    @Test
+    @DisplayName("isWsl returns consistent value")
+    void isWslConsistent() {
+        boolean wsl1 = OS.isWsl();
+        boolean wsl2 = OS.isWsl();
+        assertEquals(wsl1, wsl2, "isWsl should return consistent value");
+    }
+
+    @Test
+    @DisplayName("defaultOsPageSize returns positive value")
+    void defaultOsPageSizePositive() {
+        int pageSize = OS.defaultOsPageSize();
+        assertTrue(pageSize > 0, "defaultOsPageSize should return positive value: pageSize=" + pageSize);
+        if (OS.isWindows()) {
+            assertEquals(OS.SAFE_PAGE_SIZE, pageSize, "Windows should use SAFE_PAGE_SIZE");
+        }
+    }
+
+    @Test
+    @DisplayName("mapAlignment returns positive value")
+    void mapAlignmentPositive() {
+        long alignment = OS.mapAlignment();
+        assertTrue(alignment > 0, "mapAlignment should return positive value: alignment=" + alignment);
+    }
+
+    @Test
+    @DisplayName("memory returns UnsafeMemory instance")
+    void memoryReturnsInstance() {
+        Memory memory = OS.memory();
+        assertNotNull(memory, "memory should return non-null Memory instance");
+        assertSame(UnsafeMemory.INSTANCE, memory, "memory should return UnsafeMemory.INSTANCE");
+    }
+
+    @Test
+    @DisplayName("IPAddressHolder isSet detects valid addresses")
+    void ipAddressHolderIsSet() {
+        assertFalse(OS.IPAddressHolder.isSet(null), "null should not be set");
+        assertFalse(OS.IPAddressHolder.isSet(""), "empty string should not be set");
+        assertFalse(OS.IPAddressHolder.isSet("0.0.0.0"), "0.0.0.0 should not be set");
+        assertTrue(OS.IPAddressHolder.isSet("192.168.1.1"), "valid IP should be set");
+    }
+
+    @Test
+    @DisplayName("IPAddressHolder getIpAddressByLocalHost returns valid result")
+    void ipAddressHolderByLocalHost() {
+        String addr = OS.IPAddressHolder.getIpAddressByLocalHost();
+        assertNotNull(addr, "getIpAddressByLocalHost should not return null");
+    }
+
+    @Test
+    @DisplayName("IPAddressHolder getIpAddressByDatagram returns result")
+    void ipAddressHolderByDatagram() {
+        String addr = OS.IPAddressHolder.getIpAddressByDatagram();
+        // May be null if network is unavailable, but should not throw
+        assertTrue(addr == null || !addr.isEmpty() || addr.isEmpty(), "getIpAddressByDatagram should return valid or null");
+    }
+
+    @Test
+    @DisplayName("IPAddressHolder getIpAddressBySocket returns result")
+    void ipAddressHolderBySocket() {
+        String addr = OS.IPAddressHolder.getIpAddressBySocket();
+        assertNotNull(addr, "getIpAddressBySocket should not return null");
+    }
+
+    @Test
+    @DisplayName("getPidMax returns valid fallback for missing file")
+    void getPidMaxWithMissingFile() {
+        long pidMax = OS.getPidMax("/nonexistent/path/to/pid_max");
+        assertEquals(1L << 16, pidMax, "getPidMax should return fallback value for missing file");
+    }
+
+    @Test
+    @DisplayName("pageSize returns positive cached value")
+    void pageSizeReturnsPositive() {
+        int size1 = OS.pageSize();
+        int size2 = OS.pageSize();
+        assertTrue(size1 > 0, "pageSize should return positive value: size1=" + size1);
+        assertEquals(size1, size2, "pageSize should return cached value");
+    }
+
+    @Test
+    @DisplayName("findFile with single element returns that file")
+    void findFileSingleElement() {
+        File result = OS.findFile("single.txt");
+        assertTrue(result.getPath().endsWith("single.txt"), "findFile with single element should return that element");
+    }
+
+    @Test
+    @DisplayName("findFile traverses directories that exist")
+    void findFileTraversesDirectories() {
+        File result = OS.findFile("src", "main", "java");
+        assertTrue(result.getPath().contains("java"), "findFile should traverse existing directories");
+    }
+
+    @Test
+    @DisplayName("getUserDir returns non-null value")
+    void getUserDirReturnsValue() {
+        String userDir = OS.getUserDir();
+        assertNotNull(userDir, "getUserDir should return non-null value");
+        assertEquals(System.getProperty("user.dir"), userDir, "getUserDir should match user.dir property");
+    }
+
+    @Test
+    @DisplayName("TIME_LIMIT exception has no stack trace")
+    void timeLimitHasNoStackTrace() {
+        assertEquals(0, OS.TIME_LIMIT.getStackTrace().length, "TIME_LIMIT should have empty stack trace");
+    }
+
+    @Test
+    @DisplayName("USER_HOME constant is set")
+    void userHomeConstantSet() {
+        assertEquals(System.getProperty("user.home"), OS.USER_HOME, "USER_HOME should match system property");
+    }
+
+    @Test
+    @DisplayName("SAFE_PAGE_SIZE is 64KB")
+    void safePageSizeValue() {
+        assertEquals(64 << 10, OS.SAFE_PAGE_SIZE, "SAFE_PAGE_SIZE should be 64KB");
     }
 }

@@ -28,10 +28,11 @@ class PosixTimeProviderTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("POSIX current time micros retries flaky provider")
     @Test
+    @DisplayName("POSIX current time micros retries flaky provider")
     void currentTimeMicros() throws IllegalStateException {
-        assumeFalse(OS.isMacOSX() || Jvm.isArm());
+        assumeFalse(OS.isMacOSX() || Jvm.isArm(),
+                "POSIX micros test requires non-macOS and non-ARM platforms");
         AtomicBoolean ran = new AtomicBoolean();
         FlakyTestRunner.builder(() -> {
                     ran.set(true);
@@ -48,10 +49,10 @@ class PosixTimeProviderTest extends CoreTestCommon {
         SystemTimeProviderTest.assertCurrentTimeMicros(PosixTimeProvider.INSTANCE, true, OS.isWindows());
     }
 
-    @DisplayName("POSIX time values stay within cross unit bounds")
     @Test
+    @DisplayName("POSIX time values stay within cross unit bounds")
     void currentTime() throws IllegalStateException {
-        assumeTrue(!OS.isMacOSX());
+        assumeTrue(!OS.isMacOSX(), "POSIX time unit bounds require non-macOS clock");
         TimeProvider tp = PosixTimeProvider.INSTANCE;
         for (int i = 3; i >= 0; i--) {
             long time2 = tp.currentTimeMillis();
@@ -68,10 +69,10 @@ class PosixTimeProviderTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("POSIX resolution samples nanos clock histogram")
     @Test
+    @DisplayName("POSIX resolution samples nanos clock histogram")
     void resolution() {
-        assumeTrue(!OS.isMacOSX());
+        assumeTrue(!OS.isMacOSX(), "POSIX resolution histogram requires non-macOS clock");
         final PosixTimeProvider instance = PosixTimeProvider.INSTANCE;
         for (int j = 0; j < 3; j++) {
             Histogram h = new Histogram(32, 10, 1);

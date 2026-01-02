@@ -10,8 +10,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class JvmStackTrimTest {
 
-    @DisplayName("isInternal class name classification returns expected internal results")
     @Test
+    @DisplayName("isInternal class name classification returns expected internal results")
     void isInternalClassNameClassification() {
         assertTrue(Jvm.isInternal("java.lang.String"), "isInternal should classify java.lang classes as internal");
         assertTrue(Jvm.isInternal("sun.nio.fs.UnixFileSystem"), "isInternal should classify sun.* classes as internal");
@@ -19,8 +19,8 @@ class JvmStackTrimTest {
         assertFalse(Jvm.isInternal("net.openhft.chronicle.core.Jvm"), "isInternal should classify user application classes as non-internal");
     }
 
-    @DisplayName("trimFirst and trimLast return valid indices")
     @Test
+    @DisplayName("trimFirst and trimLast return valid indices")
     void trimFirstAndLastIndices() {
         StackTraceElement[] st = {
                 new StackTraceElement("java.lang.Object", "m", "Object.java", 1),

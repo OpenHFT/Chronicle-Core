@@ -17,8 +17,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MockerFacadeTest {
 
-    @DisplayName("Logging mocker writes to string writer")
     @Test
+    @DisplayName("Logging mocker writes to string writer")
     void loggingToStringWriterDelegates() {
         StringWriter writer = new StringWriter();
         Sample sample = Mocker.logging(Sample.class, "sample-", writer);
@@ -29,8 +29,8 @@ class MockerFacadeTest {
         assertTrue(logged.contains("value"), "logged output should contain \"value\": " + logged);
     }
 
-    @DisplayName("Logging mocker writes to print stream")
     @Test
+    @DisplayName("Logging mocker writes to print stream")
     void loggingToPrintStreamDelegates() {
         ByteArrayOutputStream backing = new ByteArrayOutputStream();
         PrintStream stream;
@@ -47,8 +47,8 @@ class MockerFacadeTest {
         assertTrue(logged.contains("data"), "logged output should contain \"data\": " + logged);
     }
 
-    @DisplayName("Queuing mocker enqueues formatted method calls")
     @Test
+    @DisplayName("Queuing mocker enqueues formatted method calls")
     void queuingAddsEntries() throws InterruptedException {
         BlockingQueue<String> queue = new ArrayBlockingQueue<>(2);
         Sample sample = Mocker.queuing(Sample.class, "queue-", queue);
@@ -57,8 +57,8 @@ class MockerFacadeTest {
         assertEquals("queue-run[payload]", queue.take(), "queue should contain formatted method call with prefix and argument");
     }
 
-    @DisplayName("Ignored mocker proxy accepts method calls")
     @Test
+    @DisplayName("Ignored mocker proxy accepts method calls")
     void ignoredProxySupportsCalls() {
         Sample sample = Mocker.ignored(Sample.class);
         sample.run("whatever");

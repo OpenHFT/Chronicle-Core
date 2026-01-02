@@ -18,8 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 class LongsUsageTest {
 
-    @DisplayName("Non negative guard matches native store preconditions")
     @Test
+    @DisplayName("Non negative guard matches native store preconditions")
     void requireNonNegativeMatchesBytesStores() {
         // Chronicle-Bytes calls Longs.requireNonNegative before copying into native stores
         assertEquals(128L, Longs.requireNonNegative(128L), "positive value should pass non-negative validation");
@@ -29,8 +29,8 @@ class LongsUsageTest {
         assertTrue(ex.getMessage().contains("negative"), "exception message should include \"negative\": " + ex.getMessage());
     }
 
-    @DisplayName("Positive guard mirrors operating system checks")
     @Test
+    @DisplayName("Positive guard mirrors operating system checks")
     void requirePositiveReflectsOSGuards() {
         // OS.map* methods demand strictly positive lengths
         assertEquals(4096L, Longs.requirePositive(4096L), "positive value should pass positive validation");
@@ -40,8 +40,8 @@ class LongsUsageTest {
         assertTrue(ex.getMessage().contains("not positive"), "exception message should include \"not positive\": " + ex.getMessage());
     }
 
-    @DisplayName("Alignment guard matches native memory access")
     @Test
+    @DisplayName("Alignment guard matches native memory access")
     void alignmentChecksMirrorNativeAccess() {
         long address = 1L << 16; // naturally aligned
         assertEquals(address, Longs.require(LongCondition.LONG_ALIGNED, address, IllegalArgumentException::new), "aligned address should pass long alignment check");
@@ -53,8 +53,8 @@ class LongsUsageTest {
                 "exception message should include alignment requirement: " + misAligned.getMessage());
     }
 
-    @DisplayName("Byte convertible guard enforces size limits")
     @Test
+    @DisplayName("Byte convertible guard enforces size limits")
     void requireAppliesPredicateForByteConvertibleValues() {
         long withinByte = 120L;
         assertEquals(withinByte, Longs.require(LongCondition.BYTE_CONVERTIBLE, withinByte, IllegalArgumentException::new), "value within byte range should pass convertibility check");
@@ -66,8 +66,8 @@ class LongsUsageTest {
                 "exception message should include byte convertibility rule: " + ex.getMessage());
     }
 
-    @DisplayName("Negated predicates match downstream expectations rules")
     @Test
+    @DisplayName("Negated predicates match downstream expectations rules")
     void negateBehaviourMatchesDownstreamExpectations() {
         LongPredicate notNonPositive = LongCondition.NON_POSITIVE.negate();
         assertTrue(notNonPositive.test(7), "positive value should pass negated non-positive condition");
@@ -78,8 +78,8 @@ class LongsUsageTest {
         assertFalse(notEvenPowerOfTwo.test(1L << 12), "even power of two should fail negated condition");
     }
 
-    @DisplayName("Non negative predicate reused for repeated checks")
     @Test
+    @DisplayName("Non negative predicate reused for repeated checks")
     void nonNegativePredicateCachesForRepeatedChecks() {
         AtomicLong counter = new AtomicLong();
         LongPredicate guard = Longs.nonNegative();

@@ -29,8 +29,8 @@ class ScopedThreadLocalTest extends CoreTestCommon {
         scopedThreadLocal = new ScopedThreadLocal<>(AtomicLong::new, al -> al.set(0), MAX_INSTANCES);
     }
 
-    @DisplayName("warning appears when max instances exceeded")
     @Test
+    @DisplayName("warning appears when max instances exceeded")
     void warningWillBeDisplayedWhenWeUseMoreThanMaxInstances() {
         expectException("Pool capacity exceeded, consider increasing maxInstances, maxInstances=3");
         ArrayList<ScopedResource<AtomicLong>> allLongs = new ArrayList<>();
@@ -41,8 +41,8 @@ class ScopedThreadLocalTest extends CoreTestCommon {
         closeQuietly(allLongs);
     }
 
-    @DisplayName("nested calls return distinct resources each")
     @Test
+    @DisplayName("nested calls return distinct resources each")
     void nestedCallsWillGetDifferentResources() {
         try (ScopedResource<AtomicLong> l1 = scopedThreadLocal.get()) {
             l1.get().set(123);
@@ -57,8 +57,8 @@ class ScopedThreadLocalTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("different threads return distinct resources each")
     @Test
+    @DisplayName("different threads return distinct resources each")
     void differentThreadsWillGetDifferentResources() throws InterruptedException {
         Set<Integer> instanceObjectIDs = new HashSet<>();
         final int numThreads = 10;
@@ -80,8 +80,8 @@ class ScopedThreadLocalTest extends CoreTestCommon {
         assertEquals(numThreads, instanceObjectIDs.size(), "each thread should receive a unique resource instance");
     }
 
-    @DisplayName("onAcquire resets resource before each acquisition")
     @Test
+    @DisplayName("onAcquire resets resource before each acquisition")
     void onAcquireIsPerformedBeforeEachAcquisition() {
         int objectId;
         try (ScopedResource<AtomicLong> l1 = scopedThreadLocal.get()) {
@@ -94,8 +94,8 @@ class ScopedThreadLocalTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("cleaning thread closes resources after use")
     @Test
+    @DisplayName("cleaning thread closes resources after use")
     void cleaningThreadWillCloseResources() throws InterruptedException {
         List<CloseableResource> allResources = new ArrayList<>();
         ScopedThreadLocal<CloseableResource> stl = new ScopedThreadLocal<>(() -> {
@@ -120,8 +120,8 @@ class ScopedThreadLocalTest extends CoreTestCommon {
         assertTrue(allResources.stream().allMatch(cr -> cr.closed), "all resources should be closed after thread completes");
     }
 
-    @DisplayName("overflow discards newest instance and allocates")
     @Test
+    @DisplayName("overflow discards newest instance and allocates")
     void whenOverflowOccursNewestInstanceIsDiscarded() {
         expectException("Pool capacity exceeded, consider increasing maxInstances, maxInstances=3");
         AtomicInteger values = new AtomicInteger(0);

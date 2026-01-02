@@ -10,15 +10,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ThrowingSupplierTest {
 
-    @DisplayName("ThrowingSupplier get returns string success value from lambda")
     @Test
+    @DisplayName("ThrowingSupplier get returns string success value from lambda")
     void getShouldReturnResultWhenNoException() throws Exception {
         ThrowingSupplier<String, Exception> throwingSupplier = () -> "test";
         assertEquals("test", throwingSupplier.get(), "ThrowingSupplier get should return result when no exception thrown");
     }
 
-    @DisplayName("Get propagates exception from throwing supplier")
     @Test
+    @DisplayName("Get propagates exception from throwing supplier")
     void getShouldThrowException() {
         ThrowingSupplier<String, Exception> throwingSupplier = ThrowingSupplierTest::alwaysThrows;
         Exception exception = assertThrows(Exception.class, throwingSupplier::get,
@@ -27,8 +27,8 @@ class ThrowingSupplierTest {
                 "ThrowingSupplier get should propagate exception with original message");
     }
 
-    @DisplayName("asSupplier returns string value when lambda succeeds")
     @Test
+    @DisplayName("asSupplier returns string value when lambda succeeds")
     void asSupplierShouldReturnResultWhenNoException() {
         ThrowingSupplier<String, Exception> throwingSupplier = () -> "test";
         Supplier<String> supplier = ThrowingSupplier.asSupplier(throwingSupplier);

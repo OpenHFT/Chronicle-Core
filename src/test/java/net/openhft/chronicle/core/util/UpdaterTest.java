@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UpdaterTest {
 
-    @DisplayName("Update adds element to list input")
     @Test
+    @DisplayName("Update adds element to list input")
     void updateShouldModifyInputAsExpected() {
         Updater<List<String>> appender = list -> list.add("newElement");
         List<String> myList = new ArrayList<>();
@@ -23,8 +23,8 @@ class UpdaterTest {
         assertTrue(myList.contains("newElement"), "list should contain \"newElement\": " + myList);
     }
 
-    @DisplayName("Accept delegates to update for list input")
     @Test
+    @DisplayName("Accept delegates to update for list input")
     void acceptShouldDelegateToUpdate() {
         Updater<List<String>> appender = list -> list.add("newElement");
         List<String> myList = new ArrayList<>();

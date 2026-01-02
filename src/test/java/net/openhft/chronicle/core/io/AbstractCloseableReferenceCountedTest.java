@@ -25,8 +25,8 @@ class AbstractCloseableReferenceCountedTest extends ReferenceCountedTracerContra
         referenceCounted = null;
     }
 
-    @DisplayName("Reserve increments reference count on closeable")
     @Test
+    @DisplayName("Reserve increments reference count on closeable")
     void reserve() throws IllegalStateException, IllegalArgumentException {
         Jvm.setResourceTracing(true);
 
@@ -36,8 +36,8 @@ class AbstractCloseableReferenceCountedTest extends ReferenceCountedTracerContra
         exerciseReserveLifecycle(rc, () -> rc.performRelease);
     }
 
-    @DisplayName("Reserve when closed abstract closeable reference")
     @Test
+    @DisplayName("Reserve when closed abstract closeable reference")
     void reserveWhenClosed() throws IllegalStateException, IllegalArgumentException {
         MyCloseableReferenceCounted rc = createReferenceCounted();
         assertEquals(1, rc.refCount(), "reserveWhenClosed: initial refCount should be 1");

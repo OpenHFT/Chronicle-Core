@@ -11,16 +11,16 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class AnnouncerTest {
 
-    @DisplayName("Announce accepts valid group and artefact values")
     @Test
+    @DisplayName("Announce accepts valid group and artefact values")
     void testAnnounceWithValidArguments() {
         // This is a simple test to ensure no exceptions are thrown with valid arguments
         assertDoesNotThrow(() -> Announcer.announce("net.openhft", "chronicle-queue"),
                 "announce should not throw for valid group and artefact values");
     }
 
-    @DisplayName("Announce with null group id announcer")
     @Test
+    @DisplayName("Announce with null group id announcer")
     void testAnnounceWithNullGroupId() {
         assertThrows(NullPointerException.class, () -> {
             try {
@@ -31,8 +31,8 @@ class AnnouncerTest {
         }, "announce should throw when groupId is null");
     }
 
-    @DisplayName("Announce with null artifact id announcer")
     @Test
+    @DisplayName("Announce with null artifact id announcer")
     void testAnnounceWithNullArtifactId() {
         assertThrows(NullPointerException.class, () -> {
             try {

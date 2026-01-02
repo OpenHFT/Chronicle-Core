@@ -12,8 +12,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ValidatableTest extends CoreTestCommon {
 
-    @DisplayName("Validatable toString enforces validate before formatting")
     @Test
+    @DisplayName("Validatable toString enforces validate before formatting")
     void validate() {
         DTOWithValidateToString d = new DTOWithValidateToString();
         assertThrows(InvalidMarshallableException.class, d::toString,
@@ -29,8 +29,8 @@ class ValidatableTest extends CoreTestCommon {
                 "toString should throw when b is non-positive");
     }
 
-    @DisplayName("Validation disabled allows invalid toString output")
     @Test
+    @DisplayName("Validation disabled allows invalid toString output")
     void validateDisabled() {
 
         assertTrue(ValidatableUtil.validateEnabled(), "validation should be enabled by default");

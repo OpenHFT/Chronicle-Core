@@ -24,8 +24,8 @@ class ReferenceTracingIntegrationTest {
         ReferenceCountedUtils.disableReferenceTracing();
     }
 
-    @DisplayName("leak reports include suppressed stack trace details")
     @Test
+    @DisplayName("leak reports include suppressed stack trace details")
     void leaksAreReportedWithSuppressedStackTrace() {
         final SampleReference ref = new SampleReference();
 
@@ -41,8 +41,8 @@ class ReferenceTracingIntegrationTest {
         ReferenceCountedUtils.assertReferencesReleased();
     }
 
-    @DisplayName("createdHere captures allocation site stack trace")
     @Test
+    @DisplayName("createdHere captures allocation site stack trace")
     void createdHereCapturesAllocationSite() {
         SampleReference ref = new SampleReference();
         StackTrace stackTrace = ref.createdHere();

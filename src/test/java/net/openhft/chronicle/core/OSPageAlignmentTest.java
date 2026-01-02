@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OSPageAlignmentTest {
 
-    @DisplayName("Page align aligns to current page size")
     @Test
+    @DisplayName("Page align aligns to current page size")
     void pageAlignAlignsToCurrentPageSize() {
         int pageSize = OS.pageSize();
         long base = 123;
@@ -25,8 +25,8 @@ class OSPageAlignmentTest {
         assertEquals(expected, OS.pageAlign(large), "pageAlign should round up large values to next page boundary");
     }
 
-    @DisplayName("Default os page size falls back to safe size on windows")
     @Test
+    @DisplayName("Default os page size falls back to safe size on windows")
     void defaultOsPageSizeFallsBackToSafeSizeOnWindows() {
         int defaultSize = OS.defaultOsPageSize();
         if (OS.isWindows()) {

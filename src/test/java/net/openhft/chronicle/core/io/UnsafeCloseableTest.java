@@ -19,63 +19,63 @@ class UnsafeCloseableTest {
         uc.close();
     }
 
-    @DisplayName("Closed closeable rejects long read operation")
     @Test
+    @DisplayName("Closed closeable rejects long read operation")
     void testGetLong() {
         assertThrows(IllegalStateException.class, uc::getLong,
                 "getLong should throw when called on closed UnsafeCloseable");
     }
 
-    @DisplayName("Closed closeable rejects long write operation")
     @Test
+    @DisplayName("Closed closeable rejects long write operation")
     void testSetLong() {
         assertThrows(IllegalStateException.class, () -> uc.setLong(0),
                 "setLong should throw when called on closed UnsafeCloseable");
     }
 
-    @DisplayName("Closed closeable supplies fallback volatile long")
     @Test
+    @DisplayName("Closed closeable supplies fallback volatile long")
     void testGetVolatileLong() {
         assertEquals(128, uc.getVolatileLong(128), "getVolatileLong should return fallback value when called on closed UnsafeCloseable");
     }
 
-    @DisplayName("Closed closeable rejects volatile long write")
     @Test
+    @DisplayName("Closed closeable rejects volatile long write")
     void testSetVolatileLong() {
         assertThrows(IllegalStateException.class, () -> uc.setVolatileLong(0),
                 "setVolatileLong should throw when called on closed UnsafeCloseable");
     }
 
-    @DisplayName("Closed closeable rejects volatile long read")
     @Test
+    @DisplayName("Closed closeable rejects volatile long read")
     void testTestGetVolatileLong() {
         assertThrows(IllegalStateException.class, uc::getVolatileLong,
                 "getVolatileLong should throw when called on closed UnsafeCloseable");
     }
 
-    @DisplayName("Closed closeable rejects ordered long write")
     @Test
+    @DisplayName("Closed closeable rejects ordered long write")
     void testSetOrderedLong() {
         assertThrows(IllegalStateException.class, () -> uc.setOrderedLong(0),
                 "setOrderedLong should throw when called on closed UnsafeCloseable");
     }
 
-    @DisplayName("Closed closeable rejects long add operation")
     @Test
+    @DisplayName("Closed closeable rejects long add operation")
     void testAddLong() {
         assertThrows(IllegalStateException.class, () -> uc.addLong(0),
                 "addLong should throw when called on closed UnsafeCloseable");
     }
 
-    @DisplayName("Closed closeable rejects atomic long add")
     @Test
+    @DisplayName("Closed closeable rejects atomic long add")
     void testAddAtomicLong() {
         assertThrows(IllegalStateException.class, () -> uc.addAtomicLong(0),
                 "addAtomicLong should throw when called on closed UnsafeCloseable");
     }
 
-    @DisplayName("Closed closeable rejects compare swap long")
     @Test
+    @DisplayName("Closed closeable rejects compare swap long")
     void testCompareAndSwapLong() {
         assertThrows(IllegalStateException.class, () -> uc.compareAndSwapLong(0, 0),
                 "compareAndSwapLong should throw when called on closed UnsafeCloseable");

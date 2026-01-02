@@ -36,8 +36,8 @@ class CleanerServiceLoaderErrorTest {
         resetLocator();
     }
 
-    @DisplayName("service configuration error falls back to reflection")
     @Test
+    @DisplayName("service configuration error falls back to reflection")
     void serviceConfigurationErrorFallsBackToReflection() throws Exception {
         resetLocator();
         File root = new File("target/tmp-services-error");

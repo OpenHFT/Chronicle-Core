@@ -11,8 +11,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @SuppressWarnings("deprecation")
 class OSNetworkingFallbackTest {
 
-    @DisplayName("hostname and IP address fallbacks are non empty")
     @Test
+    @DisplayName("hostname and IP address fallbacks are non empty")
     void hostnameAndIpAddressNonEmpty() {
         String hn = OS.getHostName();
         assertNotNull(hn, "hostname fallback should return non-null");

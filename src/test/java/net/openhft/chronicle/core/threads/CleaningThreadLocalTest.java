@@ -16,8 +16,8 @@ import static org.mockito.Mockito.verify;
 
 class CleaningThreadLocalTest {
 
-    @DisplayName("withCleanup creates thread local wrapper instance")
     @Test
+    @DisplayName("withCleanup creates thread local wrapper instance")
     void testConstructor() {
         Supplier<String> supplier = () -> "test";
         ThrowingConsumer<String, Exception> cleanup = value -> { /* cleanup logic */ };
@@ -27,8 +27,8 @@ class CleaningThreadLocalTest {
         assertNotNull(ctl, "withCleanup should return non-null CleaningThreadLocal");
     }
 
-    @DisplayName("withCloseQuietly creates thread local wrapper instance")
     @Test
+    @DisplayName("withCloseQuietly creates thread local wrapper instance")
     void testWithCloseQuietly() {
         Supplier<String> supplier = () -> "test";
         CleaningThreadLocal<String> ctl = CleaningThreadLocal.withCloseQuietly(supplier);
@@ -36,8 +36,8 @@ class CleaningThreadLocalTest {
         assertNotNull(ctl, "withCloseQuietly should return non-null CleaningThreadLocal");
     }
 
-    @DisplayName("Remove triggers cleanup action for thread")
     @Test
+    @DisplayName("Remove triggers cleanup action for thread")
     void testResourceCleanup() {
         Runnable cleanupAction = mock(Runnable.class);
         CleaningThreadLocal<Runnable> ctl = CleaningThreadLocal.withCleanup(() -> cleanupAction, Runnable::run);
@@ -52,8 +52,8 @@ class CleaningThreadLocalTest {
         verify(cleanupAction).run();
     }
 
-    @DisplayName("Thread local values remain isolated across threads")
     @Test
+    @DisplayName("Thread local values remain isolated across threads")
     void testThreadSafety() throws InterruptedException {
         Supplier<String> supplier = () -> "test";
         ThrowingConsumer<String, Exception> cleanup = value -> { /* cleanup logic */ };
@@ -71,8 +71,8 @@ class CleaningThreadLocalTest {
         assertEquals("test", ctl.get(), "main thread should retain its own thread-local value independent of other threads");
     }
 
-    @DisplayName("Cleanup exception does not break remove")
     @Test
+    @DisplayName("Cleanup exception does not break remove")
     void testExceptionInCleanup() {
         Supplier<String> supplier = () -> "test";
         AtomicBoolean ran = new AtomicBoolean(false);
@@ -90,8 +90,8 @@ class CleaningThreadLocalTest {
         assertTrue(ran.get(), "cleanup action should have executed despite throwing exception");
     }
 
-    @DisplayName("Each thread keeps independent local value")
     @Test
+    @DisplayName("Each thread keeps independent local value")
     void testThreadSpecificValue() {
         CleaningThreadLocal<Integer> ctl = CleaningThreadLocal.withCleanup(() -> 0, (value) -> {
         });

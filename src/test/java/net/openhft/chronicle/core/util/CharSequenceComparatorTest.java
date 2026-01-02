@@ -9,8 +9,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class CharSequenceComparatorTest {
 
-    @DisplayName("Identical sequences compare equal with comparator")
     @Test
+    @DisplayName("Identical sequences compare equal with comparator")
     void compareIdenticalSequences() {
         CharSequence seq1 = "test";
         CharSequence seq2 = "test";
@@ -18,8 +18,8 @@ class CharSequenceComparatorTest {
         assertEquals(0, CharSequenceComparator.INSTANCE.compare(seq1, seq2), "comparing identical sequences should return zero");
     }
 
-    @DisplayName("Different same length sequences compare lexicographically")
     @Test
+    @DisplayName("Different same length sequences compare lexicographically")
     void compareDifferentSequencesSameLength() {
         CharSequence seq1 = "abc";
         CharSequence seq2 = "abd";
@@ -30,8 +30,8 @@ class CharSequenceComparatorTest {
         assertTrue(reverse > 0, "lexically later sequence should compare as greater: comparison=" + reverse);
     }
 
-    @DisplayName("Shorter sequence compares less when prefix matches")
     @Test
+    @DisplayName("Shorter sequence compares less when prefix matches")
     void compareDifferentLengthSequences() {
         CharSequence seq1 = "abc";
         CharSequence seq2 = "abcd";
@@ -42,8 +42,8 @@ class CharSequenceComparatorTest {
         assertTrue(reverse > 0, "longer sequence should compare as greater: comparison=" + reverse);
     }
 
-    @DisplayName("Empty sequence sorts before populated sequence order")
     @Test
+    @DisplayName("Empty sequence sorts before populated sequence order")
     void compareEmptyAndNonEmptySequences() {
         CharSequence emptySeq = "";
         CharSequence nonEmptySeq = "test";

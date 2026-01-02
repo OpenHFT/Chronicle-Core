@@ -13,8 +13,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class OSPageCacheTest {
 
-    @DisplayName("Page size and map alignment cache")
     @Test
+    @DisplayName("Page size and map alignment cache")
     void pageSizeAndMapAlignmentCache() throws Exception {
         int first = OS.pageSize();
         assertTrue(first > 0, "page size should be positive on first call: first=" + first);

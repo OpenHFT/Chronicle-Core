@@ -15,8 +15,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ByteBufferCleanerServiceTest {
 
-    @DisplayName("JDK9 cleaner has no impact and cleans")
     @Test
+    @DisplayName("JDK9 cleaner has no impact and cleans")
     void jdk9CleanerHasNoImpactAndCleans() {
         Assumptions.assumeTrue(Jvm.isJava9Plus(), "JDK9+ required for Jdk9ByteBufferCleanerService");
         ByteBufferCleanerService service = new Jdk9ByteBufferCleanerService();
@@ -28,8 +28,8 @@ class ByteBufferCleanerServiceTest {
         assertTrue(buffer.isDirect(), "buffer should remain direct after JDK9 cleaner run");
     }
 
-    @DisplayName("reflection-based cleaner completes without throwing")
     @Test
+    @DisplayName("reflection-based cleaner completes without throwing")
     void reflectionBasedCleanerDoesNotThrow() {
         ReflectionBasedByteBufferCleanerService service = new ReflectionBasedByteBufferCleanerService();
         ByteBuffer buffer = ByteBuffer.allocateDirect(32);

@@ -31,8 +31,8 @@ class IOToolsCreateDirectoriesTest {
             throw new IOException("Failed to delete " + file);
     }
 
-    @DisplayName("Create directories builds nested structure io")
     @Test
+    @DisplayName("Create directories builds nested structure io")
     void createDirectoriesBuildsNestedStructure() throws IOException {
         Path base = Files.createTempDirectory(Paths.get(OS.getTarget()), "iotools-dir-test");
         Path nested = base.resolve("a/b/c");
@@ -44,8 +44,8 @@ class IOToolsCreateDirectoriesTest {
         }
     }
 
-    @DisplayName("Create directories fails when file with same name exists")
     @Test
+    @DisplayName("Create directories fails when file with same name exists")
     void createDirectoriesFailsWhenFileWithSameNameExists() throws IOException {
         Path base = Files.createTempDirectory(Paths.get(OS.getTarget()), "iotools-file-test");
         Path file = base.resolve("exists");

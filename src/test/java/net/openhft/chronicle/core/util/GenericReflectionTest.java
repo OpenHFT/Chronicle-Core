@@ -16,8 +16,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class GenericReflectionTest extends CoreTestCommon {
 
-    @DisplayName("Generic reflection resolves method return type")
     @Test
+    @DisplayName("Generic reflection resolves method return type")
     void getReturnType() {
         assertEquals(String.class,
                 GenericReflection.getReturnType(Returns.class.getMethods()[0], ReturnsString.class), "return type should be resolved to String from generic interface");
@@ -33,8 +33,8 @@ class GenericReflectionTest extends CoreTestCommon {
         }.type(), t, "return type should be resolved to Returns<String> parameterized type");
     }
 
-    @DisplayName("Generic reflection returns method return type collection")
     @Test
+    @DisplayName("Generic reflection returns method return type collection")
     void getMethodReturnTypes() {
         final Type returnString = new TypeOf<Returns<String>>() {
         }.type();
@@ -43,8 +43,8 @@ class GenericReflectionTest extends CoreTestCommon {
                 GenericReflection.getMethodReturnTypes(returnString), "method return types should match between class and parameterized type");
     }
 
-    @DisplayName("Get generic classes superclasses and interfaces")
     @Test
+    @DisplayName("Get generic classes superclasses and interfaces")
     void getGenericClassesSuperclassesAndInterfaces() {
         final Type returnString = new TypeOf<Returns<String>>() {
         }.type();
@@ -53,8 +53,8 @@ class GenericReflectionTest extends CoreTestCommon {
                 GenericReflection.getGenericClassesSuperclassesAndInterfaces(returnString).toArray(), "generic hierarchy should match between class and parameterized type");
     }
 
-    @DisplayName("Generic reflection resolves parameter types for methods")
     @Test
+    @DisplayName("Generic reflection resolves parameter types for methods")
     void getParameterTypes() throws NoSuchMethodException {
         final Method method = GenericMethod.class.getDeclaredMethod("method", Object.class, Object.class);
         final String expected = "[class java.lang.Byte, class java.lang.Short]";
@@ -77,8 +77,8 @@ class GenericReflectionTest extends CoreTestCommon {
                 Arrays.toString(GenericReflection.getParameterTypes(method0, MassivelyNestedExtendsGenericMethod.class)), "parameter type should resolve to Long in nested generic method");
     }
 
-    @DisplayName("Generic reflection resolves bounded parameter types")
     @Test
+    @DisplayName("Generic reflection resolves bounded parameter types")
     void getParameterTypesExtends() {
         Method method = null;
         for (Method m : GenericMethodExtends.class.getMethods()) {

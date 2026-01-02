@@ -8,12 +8,12 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
- * Test class without a package declaration to exercise package name lookup behaviour in Jvm.
+ * Test class without a package declaration to exercise package name lookup behaviour in Jvm edge cases.
  */
 @SuppressWarnings("PMD.NoPackage")
 class ClassWithNoPackageTest {
-    @DisplayName("package name resolves to empty string without package")
     @Test
+    @DisplayName("package name resolves to empty string without package")
     void getPackageName() {
         assertEquals("", Jvm.getPackageName(ClassWithNoPackageTest.class), "package name should be empty string for class with no package");
     }

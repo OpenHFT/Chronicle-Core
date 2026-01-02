@@ -14,30 +14,30 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ClassUtilExtraTest {
 
-    @DisplayName("Get field 0 finds private field in hierarchy")
     @Test
+    @DisplayName("Get field 0 finds private field in hierarchy")
     void getField0FindsPrivateFieldInHierarchy() {
         Field f = ClassUtil.getField0(Child.class, "hidden", true, true);
         assertNotNull(f, "reflection should find field");
         assertEquals("hidden", f.getName(), "field name should be 'hidden' when found in parent class");
     }
 
-    @DisplayName("Get field 0 returns null when missing and error false util")
     @Test
+    @DisplayName("Get field 0 returns null when missing and error false util")
     void getField0ReturnsNullWhenMissingAndErrorFalse() {
         Field f = ClassUtil.getField0(Child.class, "nope", false, true);
         assertNull(f, "requested field should not exist when not present");
     }
 
-    @DisplayName("Get field 0 throws when missing and error true")
     @Test
+    @DisplayName("Get field 0 throws when missing and error true")
     void getField0ThrowsWhenMissingAndErrorTrue() {
         assertThrows(AssertionError.class, () -> ClassUtil.getField0(Child.class, "nope", true, true),
                 "getField0 should throw when missing field is requested with error flag true");
     }
 
-    @DisplayName("Get method 0 finds private method in hierarchy")
     @Test
+    @DisplayName("Get method 0 finds private method in hierarchy")
     void getMethod0FindsPrivateMethodInHierarchy() {
         Method m = ClassUtil.getMethod0(Child.class, "greet", new Class<?>[0], true);
         assertNotNull(m, "reflection should find method");

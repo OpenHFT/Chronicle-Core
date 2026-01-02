@@ -24,8 +24,8 @@ class ReferenceCountedUtilsTest {
         ReferenceCountedUtils.disableReferenceTracing();
     }
 
-    @DisplayName("Unmonitor should remove reference counted utils")
     @Test
+    @DisplayName("Unmonitor should remove reference counted utils")
     void unmonitorShouldRemoveReference() {
         AbstractReferenceCounted referenceCounted = mock(AbstractReferenceCounted.class);
         when(referenceCounted.refCount()).thenReturn(1);

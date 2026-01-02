@@ -71,28 +71,28 @@ class ChronicleInitTest extends CoreTestCommon {
         System.setErr(originalErr);
     }
 
-    @DisplayName("Chronicle init class loads without exception")
     @Test
+    @DisplayName("Chronicle init class loads without exception")
     void initShouldNotThrowException() {
         assertDoesNotThrow(() -> Class.forName(ChronicleInit.class.getName()),
                 "Loading ChronicleInit should not throw an exception");
     }
 
-    @DisplayName("Post init completes without throwing exception")
     @Test
+    @DisplayName("Post init completes without throwing exception")
     void postInitShouldNotThrowException() {
         assertDoesNotThrow(ChronicleInit::postInit, "Calling postInit should not throw an exception");
     }
 
-    @DisplayName("Service loader discovers chronicle init runnable providers")
     @Test
+    @DisplayName("Service loader discovers chronicle init runnable providers")
     void shouldLoadServiceProviders() {
         ServiceLoader<ChronicleInitRunnable> runnableLoader = ServiceLoader.load(ChronicleInitRunnable.class);
         assertTrue(runnableLoader.iterator().hasNext(), "Service providers should be loaded");
     }
 
-    @DisplayName("process exits when init runnable disables tracing")
     @Test
+    @DisplayName("process exits when init runnable disables tracing")
     void testPositive() throws Exception {
         Process process = builderWithTracingDisabled("-Dchronicle.init.runnable=" + ResourceTracingInit.class.getName()).start();
 
@@ -106,8 +106,8 @@ class ChronicleInitTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("process exits when postInit enables tracing")
     @Test
+    @DisplayName("process exits when postInit enables tracing")
     void testPostInitNegative() throws Exception {
         Process process = builder("-Dchronicle.postinit.runnable=" + ResourceTracingInit.class.getName()).start();
 
@@ -118,8 +118,8 @@ class ChronicleInitTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("process exits 10 when postInit overrides property")
     @Test
+    @DisplayName("process exits 10 when postInit overrides property")
     void testExitCode10WhenServiceLoaderPropertyOverridden() throws Exception {
         Process process = builder("-Dchronicle.postinit.runnable=" + PostInitOverridesLoremIpsum.class.getName()).start();
 
@@ -130,8 +130,8 @@ class ChronicleInitTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("process exits 12 when safepoints disabled")
     @Test
+    @DisplayName("process exits 12 when safepoints disabled")
     void testExitCode12WhenOptionalSafepointsDisabled() throws Exception {
         Process process = builder(
                 "-Djvm.resource.tracing=false",
@@ -145,8 +145,8 @@ class ChronicleInitTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("process exits 13 when tracing flag differs")
     @Test
+    @DisplayName("process exits 13 when tracing flag differs")
     void testExitCode13WhenResourceTracingPropertyDiffersFromFlag() throws Exception {
         Process process = builder(
                 "-Djvm.resource.tracing=false",
@@ -160,8 +160,8 @@ class ChronicleInitTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("process exits nonzero without init class")
     @Test
+    @DisplayName("process exits nonzero without init class")
     void testNoInit() throws Exception {
         Process process = builder().start();
 
@@ -172,8 +172,8 @@ class ChronicleInitTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("process exits nonzero for invalid init class")
     @Test
+    @DisplayName("process exits nonzero for invalid init class")
     void testBadClass() throws Exception {
         Process process = builder("-Dchronicle.init.class=" + ChronicleInitTest.class.getName()).start();
 
@@ -184,8 +184,8 @@ class ChronicleInitTest extends CoreTestCommon {
         }
     }
 
-    @DisplayName("command line override disables resource tracing")
     @Test
+    @DisplayName("command line override disables resource tracing")
     void testCommandLineOverride() throws Exception {
         Process process = builderWithTracingDisabled().start();
 

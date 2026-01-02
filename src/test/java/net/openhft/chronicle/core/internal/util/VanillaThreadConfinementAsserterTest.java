@@ -20,14 +20,14 @@ class VanillaThreadConfinementAsserterTest extends CoreTestCommon {
         asserter = new VanillaThreadConfinementAsserter();
     }
 
-    @DisplayName("Assert thread confined same vanilla confinement")
     @Test
+    @DisplayName("Assert thread confined same vanilla confinement")
     void assertThreadConfinedSame() {
         asserter.assertThreadConfined();
     }
 
-    @DisplayName("Assert thread confined other vanilla confinement")
     @Test
+    @DisplayName("Assert thread confined other vanilla confinement")
     void assertThreadConfinedOther() throws InterruptedException {
         final Thread other = new Thread(asserter::assertThreadConfined, "first");
         other.start();
@@ -38,15 +38,15 @@ class VanillaThreadConfinementAsserterTest extends CoreTestCommon {
                 "assertThreadConfined should throw after another thread accessed the asserter");
     }
 
-    @DisplayName("Should not throw exception for same thread access")
     @Test
+    @DisplayName("Should not throw exception for same thread access")
     void shouldNotThrowExceptionForSameThreadAccess() {
         VanillaThreadConfinementAsserter asserter = new VanillaThreadConfinementAsserter();
         assertDoesNotThrow(asserter::assertThreadConfined, "Access by the same thread should not throw an exception");
     }
 
-    @DisplayName("Should throw exception for different thread access")
     @Test
+    @DisplayName("Should throw exception for different thread access")
     void shouldThrowExceptionForDifferentThreadAccess() throws InterruptedException {
         VanillaThreadConfinementAsserter asserter = new VanillaThreadConfinementAsserter();
         asserter.assertThreadConfined(); // Initialize with the current thread
@@ -60,8 +60,8 @@ class VanillaThreadConfinementAsserterTest extends CoreTestCommon {
         otherThread.join();
     }
 
-    @DisplayName("To string should return non null value vanilla thread confinement")
     @Test
+    @DisplayName("To string should return non null value vanilla thread confinement")
     void toStringShouldReturnNonNullValue() {
         VanillaThreadConfinementAsserter asserter = new VanillaThreadConfinementAsserter();
         assertNotNull(asserter.toString(), "toString should return a non-null diagnostic string");
