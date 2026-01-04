@@ -67,7 +67,7 @@ class ThreadDumpTest {
     // --- Additional tests for branch coverage ---
 
     @Test
-    @DisplayName("Thread with ~ in name is ignored")
+    @DisplayName("Thread with ~ in name is ignored by filter")
     void testIgnoreThreadWithTilde() {
         Thread tildeThread = new Thread(() -> Jvm.pause(5000), "test~ignored");
         tildeThread.start();
@@ -90,7 +90,7 @@ class ThreadDumpTest {
     }
 
     @Test
-    @DisplayName("HttpClient SelectorManager thread is ignored")
+    @DisplayName("HttpClient SelectorManager thread is ignored by filter")
     void testHttpClientSelectorManagerIgnored() {
         // HttpClient-X-SelectorManager threads are ignored
         threadDump.ignore("HttpClient-1-SelectorManager");
@@ -111,7 +111,7 @@ class ThreadDumpTest {
     }
 
     @Test
-    @DisplayName("createdHereFor returns null for untracked thread")
+    @DisplayName("createdHereFor returns null for untracked thread stack trace")
     void testCreatedHereForUntracked() {
         Thread untrackedThread = new Thread(() -> { }, "untracked");
         assertNull(ThreadDump.createdHereFor(untrackedThread),

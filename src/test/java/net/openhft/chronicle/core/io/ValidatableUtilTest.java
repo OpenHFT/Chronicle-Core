@@ -50,7 +50,7 @@ class ValidatableUtilTest {
     }
 
     @Test
-    @DisplayName("validate skips validation when disabled")
+    @DisplayName("validate skips validation when global toggle is disabled")
     void validateSkipsWhenDisabled() throws InvalidMarshallableException {
         Validatable validatable = mock(Validatable.class);
 
@@ -64,9 +64,9 @@ class ValidatableUtilTest {
     }
 
     @Test
-    @DisplayName("nested disable/enable works correctly")
+    @DisplayName("nested disable/enable preserves validation state across calls")
     void nestedDisableEnable() {
-        assertTrue(ValidatableUtil.validateEnabled(), "initially enabled");
+        assertTrue(ValidatableUtil.validateEnabled(), "validation should start enabled before toggle");
 
         ValidatableUtil.startValidateDisabled();
         assertFalse(ValidatableUtil.validateEnabled(), "disabled after first start");
@@ -82,41 +82,44 @@ class ValidatableUtilTest {
     }
 
     @Test
-    @DisplayName("requireNonNull does not throw for non-null value")
+    @DisplayName("requireNonNull does not throw for non-null argument reference")
     void requireNonNullWithValue() {
-        assertDoesNotThrow(() -> ValidatableUtil.requireNonNull("value", "field"),
+        assertDoesNotThrow(() -> ValidatableUtil.requireNonNull("value", "field name for test"),
                 "requireNonNull should not throw for non-null value");
     }
 
     @Test
-    @DisplayName("requireNonNull throws for null value")
+    @DisplayName("requireNonNull throws for null argument reference")
     void requireNonNullWithNull() {
         InvalidMarshallableException ex = assertThrows(InvalidMarshallableException.class,
-                () -> ValidatableUtil.requireNonNull(null, "myField"),
+                () -> ValidatableUtil.requireNonNull(null, "field name for null"),
                 "requireNonNull should throw for null value");
-        assertTrue(ex.getMessage().contains("myField"), "message should contain field name");
-        assertTrue(ex.getMessage().contains("must not be null"), "message should contain must not be null");
+        assertTrue(ex.getMessage().contains("field name for null"), "message should contain field name");
+        assertTrue(ex.getMessage().contains("must not be null"),
+                "exception message should contain text 'must not be null'");
     }
 
     @Test
-    @DisplayName("requireTrue does not throw when test is true")
+    @DisplayName("requireTrue does not throw when condition flag is true")
     void requireTrueWithTrue() {
-        assertDoesNotThrow(() -> ValidatableUtil.requireTrue(true, "should pass"),
+        assertDoesNotThrow(() -> ValidatableUtil.requireTrue(true, "validation should pass for true input"),
                 "requireTrue should not throw when test is true");
     }
 
     @Test
-    @DisplayName("requireTrue throws when test is false")
+    @DisplayName("requireTrue throws when condition flag is false")
     void requireTrueWithFalse() {
         InvalidMarshallableException ex = assertThrows(InvalidMarshallableException.class,
-                () -> ValidatableUtil.requireTrue(false, "validation failed"),
+                () -> ValidatableUtil.requireTrue(false, "requireTrue failed for false input flag"),
                 "requireTrue should throw when test is false");
-        assertEquals("validation failed", ex.getMessage(), "message should match");
+        assertEquals("requireTrue failed for false input flag", ex.getMessage(),
+                "exception message should match validation failure text");
     }
 
     @Test
-    @DisplayName("validate returns null for null input")
+    @DisplayName("validate returns null when input argument reference is missing")
     void validateNull() throws InvalidMarshallableException {
-        assertNull(ValidatableUtil.validate(null), "validate should return null for null input");
+        assertNull(ValidatableUtil.validate(null),
+                "validate should return null when input argument reference is missing");
     }
 }

@@ -153,7 +153,7 @@ class HistogramTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("equals returns false for non-Histogram object")
+    @DisplayName("Histogram equals returns false for non-Histogram object type comparison")
     void equalsNonHistogram() {
         Histogram h = new Histogram();
         assertNotEquals(h, "not a histogram", "Histogram should not equal a String");
@@ -161,7 +161,7 @@ class HistogramTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("equals returns false for different configuration")
+    @DisplayName("Histogram equals returns false for different configuration settings like fractionBits")
     void equalsDifferentConfiguration() {
         Histogram h1 = new Histogram(10, 4);
         Histogram h2 = new Histogram(10, 5);
@@ -172,7 +172,7 @@ class HistogramTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("equals returns false for different sample counts")
+    @DisplayName("equals returns false for different sample count values")
     void equalsDifferentSamples() {
         Histogram h1 = new Histogram();
         Histogram h2 = new Histogram();
@@ -192,13 +192,13 @@ class HistogramTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("sample handles negative bucket gracefully")
+    @DisplayName("sample handles negative bucket values gracefully")
     void sampleNegativeBucket() {
         Histogram h = new Histogram(10, 2, 1000); // floor at 1000
         // Sample a value below the floor
         int bucket = h.sample(1); // much smaller than floor
 
-        assertTrue(bucket < 0, "bucket should be negative for values below floor");
+        assertTrue(bucket < 0, "bucket " + bucket + " should be negative for values below floor");
         assertEquals(1, h.totalCount(), "totalCount should still increment");
     }
 
@@ -223,7 +223,7 @@ class HistogramTest extends CoreTestCommon {
         h.sample(2000);
 
         double min = h.percentile(0);
-        assertTrue(min > 0, "min percentile should be positive when samples exist");
+        assertTrue(min > 0, "min percentile " + min + " should be positive when samples exist");
     }
 
     @Test
@@ -236,7 +236,7 @@ class HistogramTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("toMicrosFormat handles large sample counts")
+    @DisplayName("toMicrosFormat handles large sample count output")
     void toMicrosFormatLargeSampleCount() {
         Histogram h = new Histogram();
         // Add many samples to trigger different format branches
@@ -262,7 +262,7 @@ class HistogramTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("toLongMicrosFormat handles large sample counts")
+    @DisplayName("toLongMicrosFormat handles large sample count output")
     void toLongMicrosFormatLargeSampleCount() {
         Histogram h = new Histogram();
         for (int i = 0; i < 2_000_000; i++) {
@@ -286,7 +286,7 @@ class HistogramTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("init resizes sampleCount when needed")
+    @DisplayName("init resizes sampleCount array when needed")
     void initResizesSampleCount() {
         Histogram h = new Histogram(5, 2); // small initial size
         int originalLength = h.sampleCount().length;
@@ -294,7 +294,7 @@ class HistogramTest extends CoreTestCommon {
         h.init(20, 4, 0, 0, 0); // larger configuration
 
         assertTrue(h.sampleCount().length > originalLength,
-                "sampleCount should be resized for larger configuration");
+                "sampleCount length " + h.sampleCount().length + " should exceed original length " + originalLength);
     }
 
     @Test
@@ -323,13 +323,15 @@ class HistogramTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("toString includes histogram configuration")
+    @DisplayName("toString includes histogram configuration fields for powersOf2 and fractionBits")
     void toStringIncludesConfiguration() {
         Histogram h = new Histogram(10, 5);
         String str = h.toString();
 
-        assertTrue(str.contains("powersOf2=10"), "toString should include powersOf2");
-        assertTrue(str.contains("fractionBits=5"), "toString should include fractionBits");
+        assertTrue(str.contains("powersOf2=10"),
+                "toString output '" + str + "' should contain 'powersOf2=10'");
+        assertTrue(str.contains("fractionBits=5"),
+                "toString output '" + str + "' should contain 'fractionBits=5'");
     }
 
     @Test
@@ -339,12 +341,14 @@ class HistogramTest extends CoreTestCommon {
         double[] medium = Histogram.percentilesFor(100_000);
         double[] large = Histogram.percentilesFor(10_000_000);
 
-        assertTrue(small.length < medium.length, "larger counts should have more percentiles");
-        assertTrue(medium.length < large.length, "even larger counts should have even more percentiles");
+        assertTrue(small.length < medium.length,
+                "small length " + small.length + " should be < medium length " + medium.length);
+        assertTrue(medium.length < large.length,
+                "medium length " + medium.length + " should be < large length " + large.length);
     }
 
     @Test
-    @DisplayName("getPercentiles returns array matching percentilesFor")
+    @DisplayName("getPercentiles returns array matching percentilesFor output")
     void getPercentilesMatchesPercentilesFor() {
         Histogram h = new Histogram();
         for (int i = 0; i < 1000; i++) {
@@ -352,12 +356,13 @@ class HistogramTest extends CoreTestCommon {
         }
 
         double[] percentiles = h.getPercentiles();
-        assertNotNull(percentiles, "getPercentiles should return non-null");
-        assertTrue(percentiles.length > 0, "getPercentiles should return non-empty array");
+        assertNotNull(percentiles, "getPercentiles should return non-null percentile array");
+        assertTrue(percentiles.length > 0,
+                "percentiles length " + percentiles.length + " should be > 0");
     }
 
     @Test
-    @DisplayName("accessor methods return correct values")
+    @DisplayName("accessor methods return correct histogram values")
     void accessorMethods() {
         Histogram h = new Histogram(15, 6, 500);
         h.sample(1000);
@@ -379,12 +384,12 @@ class HistogramTest extends CoreTestCommon {
         double min = h.min();
         double max = h.max();
 
-        assertTrue(min > 0, "min should be positive");
-        assertTrue(max >= min, "max should be >= min");
+        assertTrue(min > 0, "min value " + min + " should be positive");
+        assertTrue(max >= min, "max value " + max + " should be >= min value " + min);
     }
 
     @Test
-    @DisplayName("typical returns median value")
+    @DisplayName("typical returns median percentile value from sampled histogram")
     @SuppressWarnings("deprecation")
     void typicalReturnsMedian() {
         Histogram h = new Histogram();

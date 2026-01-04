@@ -469,7 +469,7 @@ class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("isClosedException returns false for non-IOException")
+    @DisplayName("isClosedException returns false for RuntimeException with no closed marker")
     void isClosedExceptionNonIOException() {
         Exception e = new RuntimeException("Connection reset by peer");
         assertFalse(IOTools.isClosedException(e),
@@ -477,29 +477,32 @@ class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("tempName handles filename without extension")
+    @DisplayName("tempName retains base filename when extension is missing")
     void tempNameNoExtension() {
         String filename = "testfile";
         String tempFilename = IOTools.tempName(filename);
 
         assertNotEquals(filename, tempFilename, "temp filename should differ from original");
-        assertTrue(tempFilename.startsWith("testfile"), "temp filename should start with original name");
-        assertFalse(tempFilename.contains("."), "temp filename without extension should not contain dot");
+        assertTrue(tempFilename.startsWith("testfile"),
+                "tempFilename '" + tempFilename + "' should start with 'testfile'");
+        assertFalse(tempFilename.contains("."),
+                "tempFilename '" + tempFilename + "' should not contain '.' when extension is missing");
     }
 
     @Test
-    @DisplayName("tempName handles filename with short extension")
+    @DisplayName("tempName retains full name when extension is long")
     void tempNameShortExtension() {
         // Extension longer than 4 chars should not be treated as extension
         String filename = "test.longext";
         String tempFilename = IOTools.tempName(filename);
 
         // Since .longext is > 4 chars, it won't be treated as extension
-        assertTrue(tempFilename.startsWith("test.longext"), "long extension should be treated as part of name");
+        assertTrue(tempFilename.startsWith("test.longext"),
+                "tempFilename '" + tempFilename + "' should start with 'test.longext' when extension is long");
     }
 
     @Test
-    @DisplayName("writeFile handles gzip compression")
+    @DisplayName("writeFile writes gzip content that round-trips via decompression")
     void writeFileGzip() throws IOException {
         String testFilename = OS.getTarget() + "/testFile-" + Time.uniqueId() + ".gz";
         String testData = "Test Data for gzip";
@@ -525,7 +528,8 @@ class IOToolsTest extends CoreTestCommon {
     void urlForLeadingSlash() throws FileNotFoundException {
         // This tests the branch where name starts with /
         // Use a resource that exists - the test resource file
-        java.net.URL url = IOTools.urlFor(IOToolsTest.class, "/readFileManyTimes.txt");
+        String resourceName = String.format("/%s", "readFileManyTimes.txt");
+        java.net.URL url = IOTools.urlFor(IOToolsTest.class, resourceName);
         assertNotNull(url, "urlFor should find resource with leading slash");
     }
 
@@ -538,18 +542,19 @@ class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("shallowDeleteDirWithFiles by string path")
+    @DisplayName("shallowDeleteDirWithFiles deletes flat directory from string path")
     void shallowDeleteDirWithFilesString() throws IOException {
         Path tempDir = Files.createTempDirectory("shallowTest");
         Files.createFile(tempDir.resolve("test.txt"));
 
         assertTrue(IOTools.shallowDeleteDirWithFiles(tempDir.toString()),
                 "shallowDeleteDirWithFiles should succeed on flat directory");
-        assertFalse(tempDir.toFile().exists(), "directory should be deleted");
+        assertFalse(tempDir.toFile().exists(),
+                "shallowDeleteDirWithFiles should remove temporary directory " + tempDir);
     }
 
     @Test
-    @DisplayName("deleteDirWithFiles by string array")
+    @DisplayName("deleteDirWithFiles deletes multiple directories from string array")
     void deleteDirWithFilesStringArray() throws IOException {
         Path tempDir1 = Files.createTempDirectory("deleteTest1");
         Path tempDir2 = Files.createTempDirectory("deleteTest2");
@@ -561,21 +566,22 @@ class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("deleteDirWithFiles returns false for non-existent directory")
+    @DisplayName("deleteDirWithFiles returns false for missing directory argument")
     void deleteDirWithFilesNonExistent() {
-        assertFalse(IOTools.deleteDirWithFiles(new File("/nonexistent/path/xyz123")),
+        assertFalse(IOTools.deleteDirWithFiles(new File("nonexistent/path/xyz123")),
                 "deleteDirWithFiles should return false for non-existent directory");
     }
 
     @Test
-    @DisplayName("deleteDirWithFilesOrThrow succeeds for existing directory")
+    @DisplayName("deleteDirWithFilesOrThrow removes existing directory without throwing")
     void deleteDirWithFilesOrThrowSuccess() throws IOException {
         Path tempDir = Files.createTempDirectory("throwTest");
         Files.createFile(tempDir.resolve("test.txt"));
 
         assertDoesNotThrow(() -> IOTools.deleteDirWithFilesOrThrow(tempDir.toString()),
                 "deleteDirWithFilesOrThrow should succeed for existing directory");
-        assertFalse(tempDir.toFile().exists(), "directory should be deleted");
+        assertFalse(tempDir.toFile().exists(),
+                "deleteDirWithFilesOrThrow should remove directory " + tempDir);
     }
 
     @Test
@@ -589,7 +595,7 @@ class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("createTempDirectory creates directory in target")
+    @DisplayName("createTempDirectory creates a new directory under target")
     void createTempDirectoryTest() {
         Path tempDir = IOTools.createTempDirectory("testDirPrefix");
 
@@ -611,7 +617,7 @@ class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("open handles gzip input stream")
+    @DisplayName("open reads gzip URL and returns decompressed stream")
     void openGzipStream() throws IOException {
         // Create a gzip file first
         String testFilename = OS.getTarget() + "/openTest-" + Time.uniqueId() + ".gz";
@@ -630,7 +636,7 @@ class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("readAsBytes handles FileInputStream specially")
+    @DisplayName("readAsBytes reads FileInputStream data without truncation")
     void readAsBytesFileInputStream() throws IOException {
         Path tempFile = Files.createTempFile("readAsBytes", ".txt");
         String testData = "FileInputStream test data";
@@ -646,13 +652,14 @@ class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("deleteDirWithFilesOrWait succeeds within timeout")
+    @DisplayName("deleteDirWithFilesOrWait deletes directory before timeout expiry")
     void deleteDirWithFilesOrWaitSuccess() throws IOException {
         Path tempDir = Files.createTempDirectory("waitTest");
         Files.createFile(tempDir.resolve("test.txt"));
 
         assertDoesNotThrow(() -> IOTools.deleteDirWithFilesOrWait(1000, tempDir.toFile()),
                 "deleteDirWithFilesOrWait should succeed within timeout");
-        assertFalse(tempDir.toFile().exists(), "directory should be deleted");
+        assertFalse(tempDir.toFile().exists(),
+                "deleteDirWithFilesOrWait should remove directory " + tempDir + " within timeout");
     }
 }

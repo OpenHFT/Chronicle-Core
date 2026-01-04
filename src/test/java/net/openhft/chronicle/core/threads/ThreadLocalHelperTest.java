@@ -42,12 +42,15 @@ class ThreadLocalHelperTest {
     @Test
     @DisplayName("Get TL with function thread local")
     void testGetTLWithFunction() {
-        ThreadLocal<WeakReference<Integer>> threadLocal = new ThreadLocal<>();
+        ThreadLocal<WeakReference<AtomicInteger>> threadLocal = new ThreadLocal<>();
         String input = "123";
-        Integer value = ThreadLocalHelper.getTL(threadLocal, input, Integer::valueOf);
+        AtomicInteger value = ThreadLocalHelper.getTL(threadLocal, input,
+                s -> new AtomicInteger(Integer.parseInt(s)));
 
-        assertEquals(123, value, "first getTL call with function should parse and return value");
-        assertEquals(123, ThreadLocalHelper.getTL(threadLocal, "456", Integer::valueOf), "getTL should return cached value (function not invoked)");
+        assertEquals(123, value.get(), "first getTL call should parse and return value");
+        AtomicInteger cached = ThreadLocalHelper.getTL(threadLocal, "456",
+                s -> new AtomicInteger(Integer.parseInt(s)));
+        assertSame(value, cached, "getTL should return cached value (function not invoked)");
     }
 
     // --- Additional tests for branch coverage ---
@@ -61,7 +64,7 @@ class ThreadLocalHelperTest {
 
         String value = ThreadLocalHelper.getTL(threadLocal, "input", s -> "Created:" + s, queue, registered::add);
 
-        assertEquals("Created:input", value, "getTL should create value using constructor function");
+        assertEquals("Created:input", value, "getTL should create value using constructor for reference queue");
         assertEquals(1, registered.size(), "registrar should have been called once");
         assertNotNull(registered.get(0), "registered weak reference should not be null");
     }
@@ -74,7 +77,7 @@ class ThreadLocalHelperTest {
 
         String value = ThreadLocalHelper.getTL(threadLocal, "input", s -> "Created:" + s, null, registered::add);
 
-        assertEquals("Created:input", value, "getTL should create value using constructor function");
+        assertEquals("Created:input", value, "getTL should create value with null reference queue");
         assertEquals(0, registered.size(), "registrar should not have been called when queue is null");
     }
 
@@ -86,7 +89,7 @@ class ThreadLocalHelperTest {
 
         String value = ThreadLocalHelper.getTL(threadLocal, "input", s -> "Created:" + s, queue, null);
 
-        assertEquals("Created:input", value, "getTL should create value using constructor function");
+        assertEquals("Created:input", value, "getTL should create value when registrar is null");
     }
 
     @Test
@@ -97,31 +100,36 @@ class ThreadLocalHelperTest {
 
         // First call creates value
         String value1 = ThreadLocalHelper.getTL(threadLocal, () -> "Value" + counter.incrementAndGet());
-        assertEquals("Value1", value1, "first call should create value");
+        assertEquals("Value1", value1, "first call should create value from supplier");
 
         // Clear the weak reference manually
         threadLocal.get().clear();
 
         // Second call should recreate since weak reference was cleared
         String value2 = ThreadLocalHelper.getTL(threadLocal, () -> "Value" + counter.incrementAndGet());
-        assertEquals("Value2", value2, "second call should recreate value after weak ref cleared");
+        assertEquals("Value2", value2, "second call should recreate value after cleared weak reference");
     }
 
     @Test
     @DisplayName("getTL with function recreates value when weak reference is cleared")
     void testGetTLWithFunctionRecreatesWhenCleared() {
-        ThreadLocal<WeakReference<Integer>> threadLocal = new ThreadLocal<>();
+        ThreadLocal<WeakReference<AtomicInteger>> threadLocal = new ThreadLocal<>();
         AtomicInteger counter = new AtomicInteger(0);
 
         // First call creates value
-        Integer value1 = ThreadLocalHelper.getTL(threadLocal, 10, n -> n + counter.incrementAndGet());
-        assertEquals(11, value1, "first call should create value");
+        AtomicInteger value1 = ThreadLocalHelper.getTL(threadLocal, 10,
+                n -> new AtomicInteger(n + counter.incrementAndGet()));
+        assertEquals(11, value1.get(), "first call should create value from function");
 
         // Clear the weak reference manually
         threadLocal.get().clear();
 
         // Second call should recreate since weak reference was cleared
-        Integer value2 = ThreadLocalHelper.getTL(threadLocal, 10, n -> n + counter.incrementAndGet());
-        assertEquals(12, value2, "second call should recreate value after weak ref cleared");
+        AtomicInteger value2 = ThreadLocalHelper.getTL(threadLocal, 10,
+                n -> new AtomicInteger(n + counter.incrementAndGet()));
+        assertEquals(12, value2.get(),
+                "second call should recreate value after cleared weak reference using function");
+        assertNotSame(value1, value2,
+                "second call should return new AtomicInteger instance after weak reference clear");
     }
 }

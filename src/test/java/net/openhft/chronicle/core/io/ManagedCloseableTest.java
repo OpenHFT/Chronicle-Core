@@ -65,7 +65,7 @@ class ManagedCloseableTest {
     }
 
     @Test
-    @DisplayName("throwExceptionIfClosed does not throw when not closing")
+    @DisplayName("throwExceptionIfClosed does not throw in open state")
     void throwExceptionIfClosedDoesNotThrowWhenOpen() {
         ManagedCloseableProbe closeable = new ManagedCloseableProbe();
 

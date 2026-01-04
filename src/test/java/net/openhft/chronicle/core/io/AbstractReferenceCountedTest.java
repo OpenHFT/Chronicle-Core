@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.Jvm;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -27,12 +28,12 @@ class AbstractReferenceCountedTest extends ReferenceCountedTracerContractTest {
     }
 
     @Test
-    @DisplayName("referenceId returns positive stable value")
+    @DisplayName("referenceId returns positive stable identifier value")
     void referenceIdReturnsPositiveValue() {
         MyReferenceCounted rc = createReferenceCounted();
         int id = rc.referenceId();
-        assertTrue(id > 0, "referenceId should be positive");
-        assertEquals(id, rc.referenceId(), "referenceId should be stable");
+        assertTrue(id > 0, "referenceId should be positive, id=" + id);
+        assertEquals(id, rc.referenceId(), "referenceId should be stable across repeated calls");
         rc.releaseLast(ReferenceOwner.INIT);
     }
 
@@ -51,17 +52,17 @@ class AbstractReferenceCountedTest extends ReferenceCountedTracerContractTest {
     }
 
     @Test
-    @DisplayName("toString returns referenceName")
+    @DisplayName("toString returns referenceName containing class identifier")
     void toStringReturnsReferenceName() {
         MyReferenceCounted rc = createReferenceCounted();
         String str = rc.toString();
-        assertNotNull(str, "toString should not return null");
+        assertNotNull(str, "toString should return non-null referenceName string");
         assertTrue(str.contains("MyReferenceCounted"), "toString should contain class name: " + str);
         rc.releaseLast(ReferenceOwner.INIT);
     }
 
     @Test
-    @DisplayName("inThreadPerformRelease catches exceptions")
+    @DisplayName("inThreadPerformRelease catches exceptions from performRelease without throwing")
     void inThreadPerformReleaseCatchesExceptions() {
         expectException("Test exception from performRelease");
         ExceptionThrowingReferenceCounted rc = new ExceptionThrowingReferenceCounted();
@@ -71,18 +72,18 @@ class AbstractReferenceCountedTest extends ReferenceCountedTracerContractTest {
     }
 
     @Test
-    @DisplayName("singleThreadedCheckDisabled can be toggled")
+    @DisplayName("singleThreadedCheckDisabled toggles thread safety checks flag")
     void singleThreadedCheckDisabledToggle() {
         MyReferenceCounted rc = createReferenceCounted();
         rc.singleThreadedCheckDisabled(true);
         // No exception should occur when accessed after disabling
         assertDoesNotThrow(() -> rc.threadSafetyCheck(true),
-                "no exception when single-threaded check disabled");
+                "threadSafetyCheck should not throw when single-threaded check is disabled");
         rc.releaseLast(ReferenceOwner.INIT);
     }
 
     @Test
-    @DisplayName("singleThreadedCheckReset clears thread association")
+    @DisplayName("singleThreadedCheckReset clears thread association after reset")
     void singleThreadedCheckResetClearsThread() {
         TestableReferenceCounted rc = new TestableReferenceCounted();
         rc.singleThreadedCheckDisabled(false);
@@ -95,7 +96,7 @@ class AbstractReferenceCountedTest extends ReferenceCountedTracerContractTest {
 
         // Should not throw after reset
         assertDoesNotThrow(() -> rc.threadSafetyCheck(true),
-                "should not throw after reset");
+                "threadSafetyCheck should not throw after reset");
         rc.releaseLast(ReferenceOwner.INIT);
     }
 
@@ -112,19 +113,19 @@ class AbstractReferenceCountedTest extends ReferenceCountedTracerContractTest {
     }
 
     @Test
-    @DisplayName("thread safety check with isUsed=false on null thread")
+    @DisplayName("thread safety check returns true when isUsed is false and thread unset")
     void threadSafetyCheckWithIsUsedFalse() {
         TestableReferenceCounted rc = new TestableReferenceCounted();
         rc.singleThreadedCheckDisabled(false);
 
         // isUsed=false with no thread set should return early
         assertTrue(rc.threadSafetyCheck(false),
-                "should return true when isUsed=false and no thread set");
+                "threadSafetyCheck should return true when isUsed is false and no thread set");
         rc.releaseLast(ReferenceOwner.INIT);
     }
 
     @Test
-    @DisplayName("thread safety check allows access after thread dies")
+    @DisplayName("thread safety check allows access after original thread dies")
     void threadSafetyCheckAllowsAfterThreadDies() throws InterruptedException {
         TestableReferenceCounted rc = new TestableReferenceCounted();
         rc.singleThreadedCheckDisabled(false);
@@ -140,29 +141,30 @@ class AbstractReferenceCountedTest extends ReferenceCountedTracerContractTest {
 
         // Access from main thread after first thread dies should succeed
         assertDoesNotThrow(() -> rc.threadSafetyCheck(true),
-                "should allow access after original thread dies");
+                "threadSafetyCheck should allow access after original thread dies");
         rc.releaseLast(ReferenceOwner.INIT);
     }
 
     @Test
-    @DisplayName("unmonitor removes from tracking")
+    @DisplayName("unmonitor removes reference from tracking list")
     void unmonitorRemovesFromTracking() {
         MyReferenceCounted rc = createReferenceCounted();
-        assertDoesNotThrow(() -> rc.unmonitor(), "unmonitor should not throw");
+        assertDoesNotThrow((Executable) rc::unmonitor,
+                "unmonitor should not throw while reference tracking is enabled");
         rc.releaseLast(ReferenceOwner.INIT);
     }
 
     @Test
-    @DisplayName("referenceCountedUnmonitored sets unmonitored state")
+    @DisplayName("referenceCountedUnmonitored sets unmonitored state flag on instance")
     void referenceCountedUnmonitoredSetsState() {
         MyReferenceCounted rc = createReferenceCounted();
         assertDoesNotThrow(() -> rc.referenceCountedUnmonitored(true),
-                "referenceCountedUnmonitored should not throw");
+                "referenceCountedUnmonitored should not throw when toggling state");
         rc.releaseLast(ReferenceOwner.INIT);
     }
 
     @Test
-    @DisplayName("canReleaseInBackground returns false by default")
+    @DisplayName("canReleaseInBackground returns false for default release setting")
     void canReleaseInBackgroundDefault() {
         BackgroundTestReferenceCounted rc = new BackgroundTestReferenceCounted();
         assertFalse(rc.testCanReleaseInBackground(),

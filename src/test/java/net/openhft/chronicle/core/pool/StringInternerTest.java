@@ -72,10 +72,11 @@ class StringInternerTest extends CoreTestCommon {
     // --- Additional tests for branch coverage ---
 
     @Test
-    @DisplayName("intern returns null for null input")
+    @DisplayName("StringInterner intern returns null when String input argument is null")
     void internNullReturnsNull() {
         @NotNull StringInterner si = new StringInterner(128);
-        assertNull(si.intern(null), "intern(null) should return null");
+        assertNull(si.intern(null),
+                "StringInterner intern should return null for null String input argument");
     }
 
     @Test
@@ -106,10 +107,12 @@ class StringInternerTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("index returns -1 for null input")
+    @DisplayName("StringInterner index returns -1 when String input argument is null")
     void indexNullReturnsMinus1() {
         @NotNull StringInterner si = new StringInterner(128);
-        assertEquals(-1, si.index(null, null), "index(null) should return -1");
+        int result = si.index(null, null);
+        assertEquals(-1, result,
+                "index should return -1 for null String input argument: result=" + result);
     }
 
     @Test
@@ -121,23 +124,23 @@ class StringInternerTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("index returns same index for same string")
+    @DisplayName("index returns same slot for same string")
     void indexReturnsSameIndexForSameString() {
         @NotNull StringInterner si = new StringInterner(128);
         String test = "testString";
         int index1 = si.index(test, null);
         int index2 = si.index(test, null);
-        assertTrue(index1 >= 0, "first index should be valid");
+        assertTrue(index1 >= 0, "index1=" + index1 + " should be >= 0 for cached string");
         assertEquals(index1, index2, "index should return same slot for same string");
     }
 
     @Test
-    @DisplayName("get returns null for empty slot")
+    @DisplayName("StringInterner get returns null for empty table slot before insert")
     void getReturnsNullForEmptySlot() {
         @NotNull StringInterner si = new StringInterner(128);
         // Before interning anything, all slots should be null
-        assertNull(si.get(0), "get should return null for empty slot");
-        assertNull(si.get(64), "get should return null for another empty slot");
+        assertNull(si.get(0), "get should return null before insert for slot 0");
+        assertNull(si.get(64), "get should return null before insert for slot 64");
     }
 
     @Test
@@ -190,14 +193,14 @@ class StringInternerTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("valueCount returns zero for empty interner")
+    @DisplayName("valueCount returns zero for empty interner cache")
     void valueCountZeroForEmpty() {
         @NotNull StringInterner si = new StringInterner(128);
         assertEquals(0, si.valueCount(), "valueCount should be 0 for empty interner");
     }
 
     @Test
-    @DisplayName("capacity returns interner array length")
+    @DisplayName("capacity returns interner array length value")
     void capacityReturnsArrayLength() {
         @NotNull StringInterner si = new StringInterner(128);
         assertEquals(128, si.capacity(), "capacity should return 128");

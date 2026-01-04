@@ -439,13 +439,13 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("safepoint can be called without error")
+    @DisplayName("safepoint can be called without throwing exception in tests")
     void safepointDoesNotThrow() {
         assertDoesNotThrow(Jvm::safepoint, "safepoint should not throw");
     }
 
     @Test
-    @DisplayName("getFieldOrNull returns null for non-existent field")
+    @DisplayName("getFieldOrNull returns null for missing field name on class")
     void getFieldOrNullReturnsNullForMissing() {
         assertNull(Jvm.getFieldOrNull(String.class, "nonExistentField123"), "getFieldOrNull should return null for non-existent field");
     }
@@ -458,7 +458,7 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("getField finds existing field")
+    @DisplayName("getField finds existing private field on class")
     void getFieldFindsExistingField() {
         assertNotNull(Jvm.getField(SomeClass.class, "somePrivateField"), "getField should find private field");
     }
@@ -495,14 +495,14 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("startup checks complete without errors")
+    @DisplayName("startup checks complete without errors on initial load")
     void startupChecksComplete() {
         // Startup has already happened, just verify it didn't fail
         assertTrue(Jvm.majorVersion() > 0, "JVM should have completed startup with valid major version");
     }
 
     @Test
-    @DisplayName("isArm returns consistent value")
+    @DisplayName("isArm returns consistent value across repeated calls")
     void isArmConsistent() {
         boolean arm1 = Jvm.isArm();
         boolean arm2 = Jvm.isArm();
@@ -510,7 +510,7 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("isAzulZing returns consistent value")
+    @DisplayName("isAzulZing returns consistent value across repeated calls")
     void isAzulZingConsistent() {
         boolean zing1 = Jvm.isAzulZing();
         boolean zing2 = Jvm.isAzulZing();
@@ -518,7 +518,7 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("isResourceTracing can be toggled")
+    @DisplayName("isResourceTracing can be toggled and restored")
     void isResourceTracingToggle() {
         boolean original = Jvm.isResourceTracing();
         try {
@@ -531,7 +531,7 @@ class JvmTest extends CoreTestCommon {
 
     @SuppressWarnings("deprecation")
     @Test
-    @DisplayName("stackTraceEndsWith detects matching endings")
+    @DisplayName("stackTraceEndsWith detects matching class name endings")
     void stackTraceEndsWithMatching() {
         // Use maxDepth=0 so it starts looking at index 2 in the stack trace
         assertTrue(Jvm.stackTraceEndsWith("JvmTest", 0),
@@ -540,14 +540,14 @@ class JvmTest extends CoreTestCommon {
 
     @SuppressWarnings("deprecation")
     @Test
-    @DisplayName("stackTraceEndsWith returns false for non-matching")
+    @DisplayName("stackTraceEndsWith returns false for non-matching class name suffix")
     void stackTraceEndsWithNonMatching() {
         assertFalse(Jvm.stackTraceEndsWith("NonExistentClassName123", 0),
                 "stackTraceEndsWith should return false for non-matching class name ending");
     }
 
     @Test
-    @DisplayName("startup completed flag is set")
+    @DisplayName("startup completed flag is set after Jvm access")
     void startupCompleted() {
         // Accessing any Jvm method means startup has completed
         assertDoesNotThrow(Jvm::majorVersion, "accessing Jvm.majorVersion should not throw");
@@ -556,10 +556,10 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("recordExceptions returns mutable map")
+    @DisplayName("recordExceptions returns mutable map for exception records")
     void recordExceptionsReturnsMap() {
         Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
-        assertNotNull(map, "recordExceptions should return non-null map");
+        assertNotNull(map, "recordExceptions should return non-null map for default options");
     }
 
     @Test
@@ -570,59 +570,59 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("parseSize handles plain bytes")
+    @DisplayName("parseSize handles plain byte count without suffix")
     void parseSizePlainBytes() {
         assertEquals(100, Jvm.parseSize("100"), "parseSize should parse plain number as bytes");
-        assertEquals(100, Jvm.parseSize("100b"), "parseSize should handle 'b' suffix");
-        assertEquals(100, Jvm.parseSize("100B"), "parseSize should handle 'B' suffix");
+        assertEquals(100, Jvm.parseSize("100b"), "parseSize should handle lowercase 'b' suffix");
+        assertEquals(100, Jvm.parseSize("100B"), "parseSize should handle uppercase 'B' suffix");
     }
 
     @Test
-    @DisplayName("parseSize handles kilobyte suffixes")
+    @DisplayName("parseSize handles kilobyte suffixes and fractions")
     void parseSizeKilobytes() {
-        assertEquals(1024, Jvm.parseSize("1k"), "parseSize should handle 'k' suffix");
-        assertEquals(1024, Jvm.parseSize("1K"), "parseSize should handle 'K' suffix");
+        assertEquals(1024, Jvm.parseSize("1k"), "parseSize should handle lowercase 'k' suffix");
+        assertEquals(1024, Jvm.parseSize("1K"), "parseSize should handle uppercase 'K' suffix");
         assertEquals(1024, Jvm.parseSize("1KB"), "parseSize should handle 'KB' suffix");
         assertEquals(1024, Jvm.parseSize("1KiB"), "parseSize should handle 'KiB' suffix");
         assertEquals(512, Jvm.parseSize("0.5kb"), "parseSize should handle fractional kilobytes");
     }
 
     @Test
-    @DisplayName("parseSize handles megabyte suffixes")
+    @DisplayName("parseSize handles megabyte suffixes in binary units")
     void parseSizeMegabytes() {
-        assertEquals(1L << 20, Jvm.parseSize("1m"), "parseSize should handle 'm' suffix");
-        assertEquals(1L << 20, Jvm.parseSize("1M"), "parseSize should handle 'M' suffix");
+        assertEquals(1L << 20, Jvm.parseSize("1m"), "parseSize should handle lowercase 'm' suffix");
+        assertEquals(1L << 20, Jvm.parseSize("1M"), "parseSize should handle uppercase 'M' suffix");
         assertEquals(1L << 20, Jvm.parseSize("1MB"), "parseSize should handle 'MB' suffix");
         assertEquals(1L << 20, Jvm.parseSize("1MiB"), "parseSize should handle 'MiB' suffix");
     }
 
     @Test
-    @DisplayName("parseSize handles gigabyte suffixes")
+    @DisplayName("parseSize handles gigabyte suffixes in binary units")
     void parseSizeGigabytes() {
-        assertEquals(1L << 30, Jvm.parseSize("1g"), "parseSize should handle 'g' suffix");
-        assertEquals(1L << 30, Jvm.parseSize("1G"), "parseSize should handle 'G' suffix");
+        assertEquals(1L << 30, Jvm.parseSize("1g"), "parseSize should handle lowercase 'g' suffix");
+        assertEquals(1L << 30, Jvm.parseSize("1G"), "parseSize should handle uppercase 'G' suffix");
         assertEquals(1L << 30, Jvm.parseSize("1GB"), "parseSize should handle 'GB' suffix");
         assertEquals(1L << 30, Jvm.parseSize("1GiB"), "parseSize should handle 'GiB' suffix");
     }
 
     @Test
-    @DisplayName("parseSize handles terabyte suffixes")
+    @DisplayName("parseSize handles terabyte suffixes in binary units")
     void parseSizeTerabytes() {
-        assertEquals(1L << 40, Jvm.parseSize("1t"), "parseSize should handle 't' suffix");
-        assertEquals(1L << 40, Jvm.parseSize("1T"), "parseSize should handle 'T' suffix");
+        assertEquals(1L << 40, Jvm.parseSize("1t"), "parseSize should handle lowercase 't' suffix");
+        assertEquals(1L << 40, Jvm.parseSize("1T"), "parseSize should handle uppercase 'T' suffix");
         assertEquals(1L << 40, Jvm.parseSize("1TB"), "parseSize should handle 'TB' suffix");
         assertEquals(1L << 40, Jvm.parseSize("1TiB"), "parseSize should handle 'TiB' suffix");
     }
 
     @Test
-    @DisplayName("parseSize throws for unrecognised suffix")
+    @DisplayName("parseSize throws for unrecognised suffix token")
     void parseSizeUnrecognisedSuffix() {
         assertThrows(IllegalArgumentException.class, () -> Jvm.parseSize("100X"),
                 "parseSize should throw for unrecognised suffix");
     }
 
     @Test
-    @DisplayName("parseSize handles single character value")
+    @DisplayName("parseSize handles single character numeric value")
     void parseSizeSingleChar() {
         assertEquals(5, Jvm.parseSize("5"), "parseSize should handle single digit");
     }
@@ -640,7 +640,7 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("trimLast handles all internal classes")
+    @DisplayName("trimLast handles all internal class frames")
     void trimLastAllInternal() {
         StackTraceElement[] stes = {
                 new StackTraceElement("com.example.App", "main", "App.java", 1),
@@ -651,7 +651,7 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("isInternal identifies JDK class prefixes")
+    @DisplayName("isInternal identifies JDK class name prefixes")
     void testIsInternalDetection() {
         assertTrue(Jvm.isInternal("java.lang.String"), "java.lang.String should be internal");
         assertTrue(Jvm.isInternal("jdk.internal.misc.Unsafe"), "jdk.internal should be internal");
@@ -660,7 +660,7 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("hasException returns false for debug-only map")
+    @DisplayName("hasException returns false for debug-only exception map")
     void hasExceptionDebugOnly() {
         Map<ExceptionKey, Integer> exceptions = new java.util.LinkedHashMap<>();
         exceptions.put(new ExceptionKey(net.openhft.chronicle.core.onoes.LogLevel.DEBUG, Jvm.class, "test", null), 1);
@@ -668,7 +668,7 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("hasException returns false for perf-only map")
+    @DisplayName("hasException returns false for perf-only exception map")
     void hasExceptionPerfOnly() {
         Map<ExceptionKey, Integer> exceptions = new java.util.LinkedHashMap<>();
         exceptions.put(new ExceptionKey(net.openhft.chronicle.core.onoes.LogLevel.PERF, Jvm.class, "test", null), 1);
@@ -676,7 +676,7 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("hasException returns true for warn level")
+    @DisplayName("hasException returns true for warn level entry")
     void hasExceptionWarnLevel() {
         Map<ExceptionKey, Integer> exceptions = new java.util.LinkedHashMap<>();
         exceptions.put(new ExceptionKey(net.openhft.chronicle.core.onoes.LogLevel.WARN, Jvm.class, "test", null), 1);
@@ -684,7 +684,7 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("hasException returns true for error level")
+    @DisplayName("hasException returns true for error severity exception entry")
     void hasExceptionErrorLevel() {
         Map<ExceptionKey, Integer> exceptions = new java.util.LinkedHashMap<>();
         exceptions.put(new ExceptionKey(net.openhft.chronicle.core.onoes.LogLevel.ERROR, Jvm.class, "test", null), 1);
@@ -705,7 +705,7 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("supportThread detects Finalizer thread name")
+    @DisplayName("supportThread detects Finalizer thread name pattern")
     void supportThreadFinalizer() {
         String originalName = Thread.currentThread().getName();
         try {
@@ -741,56 +741,56 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("recordExceptions with debug false and exceptionsOnly true")
+    @DisplayName("recordExceptions with debug false and exceptionsOnly true flags")
     void recordExceptionsWithOptions() {
         Map<ExceptionKey, Integer> map = Jvm.recordExceptions(false, true);
-        assertNotNull(map, "recordExceptions should return non-null map");
+        assertNotNull(map, "recordExceptions should return non-null map for debug=false, exceptionsOnly=true");
         Jvm.resetExceptionHandlers();
     }
 
     @Test
-    @DisplayName("recordExceptions with all options specified")
+    @DisplayName("recordExceptions with all options specified returns map")
     void recordExceptionsAllOptions() {
         Map<ExceptionKey, Integer> map = Jvm.recordExceptions(false, false, false);
-        assertNotNull(map, "recordExceptions should return non-null map");
+        assertNotNull(map, "recordExceptions should return non-null map for all options");
         Jvm.resetExceptionHandlers();
     }
 
     @Test
-    @DisplayName("dumpException logs and resets handlers")
+    @DisplayName("dumpException logs warnings and resets handlers")
     void dumpExceptionTest() {
         Map<ExceptionKey, Integer> exceptions = Jvm.recordExceptions();
         Jvm.warn().on(JvmTest.class, "Test warning for dumpException");
-        Jvm.warn().on(JvmTest.class, "Test warning for dumpException"); // twice to test repeat count
+        Jvm.warn().on(JvmTest.class, "Test warning for dumpException repeat"); // twice to test repeat count
         Jvm.dumpException(exceptions);
         // If we get here without error, the test passes
         assertTrue(true, "dumpException should complete without error");
     }
 
     @Test
-    @DisplayName("getSize returns default for null property")
+    @DisplayName("getSize returns default for missing size property")
     void getSizeNullProperty() {
         assertEquals(1024, Jvm.getSize("nonexistent.size.property.xyz", 1024),
                 "getSize should return default for missing property");
     }
 
     @Test
-    @DisplayName("isLambdaClass returns false for non-synthetic classes")
+    @DisplayName("isLambdaClass returns false for regular non-synthetic classes")
     void isLambdaClassNonSynthetic() {
         assertFalse(Jvm.isLambdaClass(String.class), "String should not be detected as lambda class");
         assertFalse(Jvm.isLambdaClass(JvmTest.class), "JvmTest should not be detected as lambda class");
     }
 
     @Test
-    @DisplayName("uncheckedCast works for object arrays")
+    @DisplayName("uncheckedCast works for object arrays without class cast")
     void uncheckedCastArray() {
-        Object[] objects = new String[]{"a", "b", "c"};
+        String[] objects = {"a", "b", "c"};
         String[] result = Jvm.uncheckedCast(objects);
-        assertArrayEquals(new String[]{"a", "b", "c"}, result, "uncheckedCast should cast object array");
+        assertArrayEquals(objects, result, "uncheckedCast should cast object array");
     }
 
     @Test
-    @DisplayName("uncheckedCast works for Class objects")
+    @DisplayName("uncheckedCast works for Class objects without class cast")
     void uncheckedCastClass() {
         Class<?> clazz = String.class;
         Class<String> result = Jvm.uncheckedCast(clazz);
@@ -798,14 +798,14 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("currentThreadId returns positive value")
+    @DisplayName("currentThreadId returns positive value for running thread")
     void currentThreadIdPositive() {
         long id = Jvm.currentThreadId();
         assertTrue(id > 0, "currentThreadId should return positive value: id=" + id);
     }
 
     @Test
-    @DisplayName("isCodeCoverage returns consistent value")
+    @DisplayName("isCodeCoverage returns consistent value across repeated calls")
     void isCodeCoverageConsistent() {
         boolean cov1 = Jvm.isCodeCoverage();
         boolean cov2 = Jvm.isCodeCoverage();
@@ -813,7 +813,7 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("isDebug returns consistent value")
+    @DisplayName("isDebug returns consistent value across repeated calls")
     void isDebugConsistent() {
         boolean debug1 = Jvm.isDebug();
         boolean debug2 = Jvm.isDebug();
@@ -821,7 +821,7 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("is64bit returns consistent value")
+    @DisplayName("is64bit returns consistent value across repeated calls")
     void is64bitConsistent() {
         boolean bit1 = Jvm.is64bit();
         boolean bit2 = Jvm.is64bit();
@@ -829,7 +829,7 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("isMacArm returns consistent value")
+    @DisplayName("isMacArm returns consistent value across repeated calls")
     void isMacArmConsistent() {
         boolean mac1 = Jvm.isMacArm();
         boolean mac2 = Jvm.isMacArm();
@@ -837,7 +837,7 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("pause handles interrupt during sleep")
+    @DisplayName("pause handles interrupt during sleep without hanging")
     void pauseWithInterrupt() throws InterruptedException {
         Thread testThread = new Thread(() -> Jvm.pause(1000));
         testThread.start();
@@ -848,14 +848,14 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("startup accessor returns startup handler")
+    @DisplayName("startup accessor returns startup handler instance object")
     void startupHandler() {
         assertNotNull(Jvm.startup(), "startup handler should not be null");
         assertSame(Jvm.perf(), Jvm.startup(), "startup and perf should return same handler");
     }
 
     @Test
-    @DisplayName("busyWaitMicros completes for short duration")
+    @DisplayName("busyWaitMicros completes for short duration wait")
     void busyWaitMicrosShort() {
         long start = System.nanoTime();
         Jvm.busyWaitMicros(10);
@@ -864,7 +864,7 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("busyWaitUntil completes at target time")
+    @DisplayName("busyWaitUntil completes at target time boundary")
     void busyWaitUntilTarget() {
         long target = System.nanoTime() + 10_000; // 10us from now
         Jvm.busyWaitUntil(target);
@@ -894,7 +894,7 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("setAccessible makes private field accessible")
+    @DisplayName("setAccessible makes private field accessible for reflection")
     void setAccessibleTest() throws NoSuchFieldException {
         Field field = SomeClass.class.getDeclaredField("somePrivateField");
         Jvm.setAccessible(field);
@@ -902,7 +902,7 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("isAssertEnabled returns consistent value")
+    @DisplayName("isAssertEnabled returns consistent value across repeated calls")
     void isAssertEnabledConsistent() {
         boolean assert1 = Jvm.isAssertEnabled();
         boolean assert2 = Jvm.isAssertEnabled();

@@ -103,7 +103,7 @@ class RecordingExceptionHandlerTest {
 
         assertFalse(exceptionMap.isEmpty(),
                 "exception map should contain entry when exceptionsOnly is false and no throwable");
-        assertEquals(1, exceptionMap.size(), "should have one entry");
+        assertEquals(1, exceptionMap.size(), "exception map should have one entry");
     }
 
     @Test

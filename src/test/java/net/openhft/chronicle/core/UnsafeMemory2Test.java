@@ -17,6 +17,7 @@ import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE_COPY_THRESHOLD;
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("removal")
 class UnsafeMemory2Test extends CoreTestCommon {
     private static final int INT_VAL = 0x12345678;
     private static final Random TEST_RANDOM = new Random(1);

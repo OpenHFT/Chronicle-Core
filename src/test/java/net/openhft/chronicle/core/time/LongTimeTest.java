@@ -70,7 +70,7 @@ class LongTimeTest extends CoreTestCommon {
     // --- Additional tests for branch coverage ---
 
     @Test
-    @DisplayName("toSecs handles negative values")
+    @DisplayName("toSecs handles negative values without conversion")
     void toSecsNegative() {
         long negative = -1000L;
         assertEquals(negative, LongTime.toSecs(negative),
@@ -78,7 +78,7 @@ class LongTimeTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("toSecs handles different time units")
+    @DisplayName("toSecs handles different time unit ranges")
     void toSecsAllUnits() {
         // Seconds range
         long secs = 1234567890L;
@@ -98,7 +98,7 @@ class LongTimeTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("toMillis handles negative values")
+    @DisplayName("toMillis handles negative values without conversion")
     void toMillisNegative() {
         long negative = -1000L;
         assertEquals(negative, LongTime.toMillis(negative),
@@ -126,7 +126,7 @@ class LongTimeTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("toMicros handles negative values")
+    @DisplayName("toMicros handles negative values without conversion")
     void toMicrosNegative() {
         long negative = -1000L;
         assertEquals(negative, LongTime.toMicros(negative),
@@ -154,7 +154,7 @@ class LongTimeTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("toNanos handles negative values")
+    @DisplayName("toNanos handles negative values without conversion")
     void toNanosNegative() {
         long negative = -1000L;
         assertEquals(negative, LongTime.toNanos(negative),
@@ -182,7 +182,7 @@ class LongTimeTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("Boundary values for isSecs")
+    @DisplayName("Boundary values for isSecs classification checks")
     void isSecsBoundary() {
         assertFalse(LongTime.isSecs(-1L), "negative should not be identified as secs");
         assertTrue(LongTime.isSecs(0L), "zero should be identified as secs");
@@ -191,7 +191,7 @@ class LongTimeTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("Boundary values for isMillis")
+    @DisplayName("Boundary values for isMillis classification checks")
     void isMillisBoundary() {
         assertFalse(LongTime.isMillis(LongTime.EPOCH_MILLIS - 1), "below EPOCH_MILLIS should not be millis");
         assertTrue(LongTime.isMillis(LongTime.EPOCH_MILLIS), "EPOCH_MILLIS should be millis");
@@ -200,7 +200,7 @@ class LongTimeTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("Boundary values for isMicros")
+    @DisplayName("Boundary values for isMicros classification checks")
     void isMicrosBoundary() {
         assertFalse(LongTime.isMicros(LongTime.EPOCH_MICROS - 1), "below EPOCH_MICROS should not be micros");
         assertTrue(LongTime.isMicros(LongTime.EPOCH_MICROS), "EPOCH_MICROS should be micros");
@@ -209,7 +209,7 @@ class LongTimeTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("Boundary values for isNanos")
+    @DisplayName("Boundary values for isNanos classification checks")
     void isNanosBoundary() {
         assertFalse(LongTime.isNanos(LongTime.EPOCH_NANOS - 1), "below EPOCH_NANOS should not be nanos");
         assertTrue(LongTime.isNanos(LongTime.EPOCH_NANOS), "EPOCH_NANOS should be nanos");

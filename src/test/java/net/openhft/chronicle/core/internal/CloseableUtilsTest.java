@@ -179,7 +179,7 @@ class CloseableUtilsTest {
     void testCloseQuietlyAutoCloseable() throws Exception {
         CloseableUtils.closeQuietly(autoCloseable);
 
-        assertTrue(autoCloseable.isClosed(), "auto-closeable should be closed");
+        assertTrue(autoCloseable.isClosed(), "AutoCloseable instance should be closed by closeQuietly");
     }
 
     @Test
@@ -187,16 +187,16 @@ class CloseableUtilsTest {
     void testCloseQuietlyHttpURLConnection() {
         CloseableUtils.closeQuietly(httpURLConnection);
 
-        assertTrue(httpURLConnection.isDisconnected(), "http connection should be disconnected");
+        assertTrue(httpURLConnection.isDisconnected(), "HttpURLConnection should be disconnected after closeQuietly");
     }
 
     @Test
-    @DisplayName("closeQuietly handles null input gracefully")
+    @DisplayName("closeQuietly ignores null input without throwing exceptions")
     void testCloseQuietlyNull() {
         assertDoesNotThrow(() -> CloseableUtils.closeQuietly((Object[]) null),
-                "closeQuietly should handle null array gracefully");
+                "closeQuietly should ignore null Object array without throwing");
         assertDoesNotThrow(() -> CloseableUtils.closeQuietly((Object) null),
-                "closeQuietly should handle null object gracefully");
+                "closeQuietly should ignore null Object without throwing");
     }
 
     @Test
@@ -210,38 +210,38 @@ class CloseableUtilsTest {
 
         CloseableUtils.closeQuietly(collection);
 
-        assertTrue(first.isClosed(), "first closeable in collection should be closed");
-        assertTrue(second.isClosed(), "second closeable in collection should be closed");
+        assertTrue(first.isClosed(), "First Closeable in collection should be closed by closeQuietly");
+        assertTrue(second.isClosed(), "Second Closeable in collection should be closed by closeQuietly");
     }
 
     @Test
-    @DisplayName("closeQuietly handles empty collection gracefully")
+    @DisplayName("closeQuietly ignores empty Closeable collection without throwing")
     void testCloseQuietlyEmptyCollection() {
         List<Closeable> emptyCollection = Collections.emptyList();
 
         assertDoesNotThrow(() -> CloseableUtils.closeQuietly(emptyCollection),
-                "closeQuietly should handle empty collection gracefully");
+                "closeQuietly should handle empty Closeable collection without throwing");
     }
 
     @Test
-    @DisplayName("closeQuietly closes ServerSocketChannel")
+    @DisplayName("closeQuietly closes ServerSocketChannel resources cleanly without error")
     void testCloseQuietlyServerSocketChannel() throws IOException {
         ServerSocketChannel channel = ServerSocketChannel.open();
         channel.bind(new InetSocketAddress(0)); // bind to any available port
 
         CloseableUtils.closeQuietly(channel);
 
-        assertFalse(channel.isOpen(), "ServerSocketChannel should be closed");
+        assertFalse(channel.isOpen(), "ServerSocketChannel should be closed by closeQuietly");
     }
 
     @Test
-    @DisplayName("closeQuietly handles ServerSocketChannel IOException gracefully")
+    @DisplayName("closeQuietly handles ServerSocketChannel IOException without throwing")
     void testCloseQuietlyServerSocketChannelAlreadyClosed() throws IOException {
         ServerSocketChannel channel = ServerSocketChannel.open();
         channel.close(); // close it first
 
         assertDoesNotThrow(() -> CloseableUtils.closeQuietly(channel),
-                "closeQuietly should handle already closed ServerSocketChannel gracefully");
+                "closeQuietly should ignore already closed ServerSocketChannel without throwing");
     }
 
     @Test
@@ -252,31 +252,31 @@ class CloseableUtilsTest {
         };
 
         assertDoesNotThrow(() -> CloseableUtils.closeQuietly(throwingCloseable),
-                "closeQuietly should suppress exceptions from AutoCloseable");
+                "closeQuietly should suppress IOException thrown by AutoCloseable");
     }
 
     @Test
-    @DisplayName("closeQuietly handles Reference wrapper")
+    @DisplayName("closeQuietly closes Closeable inside Reference wrapper")
     void testCloseQuietlyReference() {
         CloseableProbe closeable = new CloseableProbe();
         WeakReference<CloseableProbe> ref = new WeakReference<>(closeable);
 
         CloseableUtils.closeQuietly(ref);
 
-        assertTrue(closeable.isClosed(), "closeable inside Reference should be closed");
+        assertTrue(closeable.isClosed(), "Closeable held by Reference should be closed by closeQuietly");
     }
 
     @Test
-    @DisplayName("closeQuietly handles cleared Reference gracefully")
+    @DisplayName("closeQuietly ignores cleared Reference without throwing")
     void testCloseQuietlyClearedReference() {
         WeakReference<CloseableProbe> ref = new WeakReference<>(null);
 
         assertDoesNotThrow(() -> CloseableUtils.closeQuietly(ref),
-                "closeQuietly should handle cleared Reference gracefully");
+                "closeQuietly should handle cleared Reference without throwing");
     }
 
     @Test
-    @DisplayName("waitForCloseablesToClose returns true when tracing disabled")
+    @DisplayName("waitForCloseablesToClose returns true when closeable tracing is disabled")
     void testWaitForCloseablesToCloseTracingDisabled() {
         CloseableUtils.disableCloseableTracing();
 
@@ -303,7 +303,7 @@ class CloseableUtilsTest {
     }
 
     @Test
-    @DisplayName("asString returns INIT for ReferenceOwner.INIT")
+    @DisplayName("asString returns INIT for ReferenceOwner.INIT state")
     void testAsStringInit() {
         String result = CloseableUtils.asString(ReferenceOwner.INIT);
 
@@ -333,7 +333,7 @@ class CloseableUtilsTest {
     }
 
     @Test
-    @DisplayName("asString uses referenceName for ReferenceOwner")
+    @DisplayName("asString uses referenceName for ReferenceOwner in trace output")
     void testAsStringReferenceOwner() {
         ReferenceOwner owner = new ReferenceOwner() {
             @Override

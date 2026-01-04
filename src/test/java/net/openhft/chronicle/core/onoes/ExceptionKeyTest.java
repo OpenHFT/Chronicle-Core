@@ -30,7 +30,7 @@ class ExceptionKeyTest extends CoreTestCommon {
     // --- Additional tests for branch coverage ---
 
     @Test
-    @DisplayName("message() returns throwable.toString() when message is null")
+    @DisplayName("message() returns throwable.toString() when message is null fallback")
     void messageReturnsThrowableWhenNull() {
         Exception ex = new RuntimeException("test error");
         ExceptionKey ek = new ExceptionKey(LogLevel.ERROR, getClass(), null, ex);
@@ -39,7 +39,7 @@ class ExceptionKeyTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("message() returns throwable.toString() when message is empty")
+    @DisplayName("message() returns throwable.toString() when message is empty fallback")
     void messageReturnsThrowableWhenEmpty() {
         Exception ex = new RuntimeException("test error");
         ExceptionKey ek = new ExceptionKey(LogLevel.ERROR, getClass(), "", ex);
@@ -48,7 +48,7 @@ class ExceptionKeyTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("message() returns message when present")
+    @DisplayName("ExceptionKey message() returns custom text when caller supplies message value")
     void messageReturnsMessageWhenPresent() {
         ExceptionKey ek = new ExceptionKey(LogLevel.ERROR, getClass(), "custom message", null);
         assertEquals("custom message", ek.message(),
@@ -56,7 +56,7 @@ class ExceptionKeyTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("hashCode handles null message")
+    @DisplayName("hashCode handles null message input safely")
     void hashCodeNullMessage() {
         ExceptionKey ek = new ExceptionKey(LogLevel.ERROR, getClass(), null, null);
         int hash = ek.hashCode();
@@ -65,7 +65,7 @@ class ExceptionKeyTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("hashCode handles null throwable")
+    @DisplayName("hashCode handles null throwable input safely")
     void hashCodeNullThrowable() {
         ExceptionKey ek = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", null);
         int hash = ek.hashCode();
@@ -73,7 +73,7 @@ class ExceptionKeyTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("hashCode includes throwable when present")
+    @DisplayName("hashCode includes throwable hash when present")
     void hashCodeWithThrowable() {
         Exception ex = new RuntimeException("err");
         ExceptionKey ek1 = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", ex);
@@ -83,28 +83,28 @@ class ExceptionKeyTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("equals returns true for same instance")
+    @DisplayName("ExceptionKey equals returns true for same instance identity comparison")
     void equalsSameInstance() {
         ExceptionKey ek = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", null);
         assertEquals(ek, ek, "same instance should be equal to itself");
     }
 
     @Test
-    @DisplayName("equals returns false for null")
+    @DisplayName("ExceptionKey equals returns false for null reference input argument comparison")
     void equalsNull() {
         ExceptionKey ek = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", null);
         assertNotEquals(ek, null, "ExceptionKey should not equal null");
     }
 
     @Test
-    @DisplayName("equals returns false for different class")
+    @DisplayName("ExceptionKey equals returns false for different class type comparison")
     void equalsDifferentClass() {
         ExceptionKey ek = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", null);
         assertNotEquals(ek, "not an ExceptionKey", "ExceptionKey should not equal String");
     }
 
     @Test
-    @DisplayName("equals returns false for different level")
+    @DisplayName("ExceptionKey equals returns false for different log level severity")
     void equalsDifferentLevel() {
         ExceptionKey ek1 = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", null);
         ExceptionKey ek2 = new ExceptionKey(LogLevel.WARN, getClass(), "msg", null);
@@ -112,7 +112,7 @@ class ExceptionKeyTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("equals returns false for different clazz")
+    @DisplayName("ExceptionKey equals returns false for different clazz type comparison")
     void equalsDifferentClazz() {
         ExceptionKey ek1 = new ExceptionKey(LogLevel.ERROR, String.class, "msg", null);
         ExceptionKey ek2 = new ExceptionKey(LogLevel.ERROR, Integer.class, "msg", null);
@@ -120,7 +120,7 @@ class ExceptionKeyTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("equals returns false for different message")
+    @DisplayName("ExceptionKey equals returns false for different message text content")
     void equalsDifferentMessage() {
         ExceptionKey ek1 = new ExceptionKey(LogLevel.ERROR, getClass(), "msg1", null);
         ExceptionKey ek2 = new ExceptionKey(LogLevel.ERROR, getClass(), "msg2", null);
@@ -128,7 +128,7 @@ class ExceptionKeyTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("equals handles null message comparison")
+    @DisplayName("equals handles null message comparison safely")
     void equalsNullMessageComparison() {
         ExceptionKey ek1 = new ExceptionKey(LogLevel.ERROR, getClass(), null, null);
         ExceptionKey ek2 = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", null);
@@ -136,7 +136,7 @@ class ExceptionKeyTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("equals returns true when both messages are null")
+    @DisplayName("equals returns true when both message values are null inputs")
     void equalsBothMessagesNull() {
         ExceptionKey ek1 = new ExceptionKey(LogLevel.ERROR, getClass(), null, null);
         ExceptionKey ek2 = new ExceptionKey(LogLevel.ERROR, getClass(), null, null);
@@ -144,7 +144,7 @@ class ExceptionKeyTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("equals returns false for different throwable")
+    @DisplayName("ExceptionKey equals returns false for different throwable cause reference")
     void equalsDifferentThrowable() {
         Exception ex1 = new RuntimeException("err1");
         Exception ex2 = new RuntimeException("err2");
@@ -154,7 +154,7 @@ class ExceptionKeyTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("equals handles null throwable comparison")
+    @DisplayName("equals handles null throwable comparison safely")
     void equalsNullThrowableComparison() {
         Exception ex = new RuntimeException("err");
         ExceptionKey ek1 = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", ex);
@@ -168,30 +168,36 @@ class ExceptionKeyTest extends CoreTestCommon {
         Exception ex = new RuntimeException("test error");
         ExceptionKey ek = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", ex);
         String str = ek.toString();
-        assertTrue(str.contains("RuntimeException"), "toString should include exception class");
-        assertTrue(str.contains("test error"), "toString should include exception message");
-        assertTrue(str.contains("ExceptionKeyTest"), "toString should include stack trace");
+        assertTrue(str.contains("RuntimeException"),
+                "toString output '" + str + "' should contain 'RuntimeException'");
+        assertTrue(str.contains("test error"),
+                "toString output '" + str + "' should contain 'test error'");
+        assertTrue(str.contains("ExceptionKeyTest"),
+                "toString output '" + str + "' should contain stack trace class 'ExceptionKeyTest'");
     }
 
     @Test
-    @DisplayName("toString handles null throwable")
+    @DisplayName("toString handles null throwable value safely")
     void toStringNullThrowable() {
         ExceptionKey ek = new ExceptionKey(LogLevel.ERROR, getClass(), "msg", null);
         String str = ek.toString();
-        assertTrue(str.contains("level=ERROR"), "toString should include level");
-        assertTrue(str.contains("message='msg'"), "toString should include message");
-        assertTrue(str.contains("throwable="), "toString should include throwable field");
+        assertTrue(str.contains("level=ERROR"),
+                "toString output '" + str + "' should contain 'level=ERROR'");
+        assertTrue(str.contains("message='msg'"),
+                "toString output '" + str + "' should contain \"message='msg'\"");
+        assertTrue(str.contains("throwable="),
+                "toString output '" + str + "' should contain 'throwable='");
     }
 
     @Test
-    @DisplayName("accessor methods return correct values")
+    @DisplayName("accessor methods return correct field values")
     void accessorMethods() {
         Exception ex = new RuntimeException("err");
         ExceptionKey ek = new ExceptionKey(LogLevel.WARN, String.class, "test", ex);
 
         assertEquals(LogLevel.WARN, ek.level(), "level() should return WARN");
         assertEquals(String.class, ek.clazz(), "clazz() should return String.class");
-        assertEquals("test", ek.message(), "message() should return 'test'");
+        assertEquals("test", ek.message(), "message() should return test string value 'test'");
         assertSame(ex, ek.throwable(), "throwable() should return same exception");
     }
 }

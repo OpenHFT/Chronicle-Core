@@ -45,7 +45,7 @@ class WeakReferenceScopedResourceTest {
     // --- Additional tests for branch coverage ---
 
     @Test
-    @DisplayName("closeResource when ref is null does nothing")
+    @DisplayName("closeResource when ref is null does nothing safely")
     void closeResourceWhenRefIsNull() {
         final WeakReferenceScopedResource<AtomicLong> sr = new WeakReferenceScopedResource<>(scopedThreadLocal, AtomicLong::new);
         // ref is null before preAcquire
@@ -53,7 +53,7 @@ class WeakReferenceScopedResourceTest {
     }
 
     @Test
-    @DisplayName("closeResource clears the weak reference")
+    @DisplayName("closeResource clears the weak reference after preAcquire")
     void closeResourceClearsWeakReference() {
         final WeakReferenceScopedResource<AtomicLong> sr = new WeakReferenceScopedResource<>(scopedThreadLocal, AtomicLong::new);
         sr.preAcquire();
@@ -63,15 +63,15 @@ class WeakReferenceScopedResourceTest {
     }
 
     @Test
-    @DisplayName("getType returns null when ref is null")
+    @DisplayName("WeakReferenceScopedResource getType returns null when weak reference is missing")
     void getTypeWhenRefIsNull() {
         final WeakReferenceScopedResource<AtomicLong> sr = new WeakReferenceScopedResource<>(scopedThreadLocal, AtomicLong::new);
         // ref is null before preAcquire
-        assertNull(sr.getType(), "getType should return null when ref is null");
+        assertNull(sr.getType(), "getType returns null when weak reference is missing");
     }
 
     @Test
-    @DisplayName("getType returns class type when resource exists")
+    @DisplayName("getType returns class type when AtomicLong resource exists")
     void getTypeReturnsClassType() {
         final WeakReferenceScopedResource<AtomicLong> sr = new WeakReferenceScopedResource<>(scopedThreadLocal, AtomicLong::new);
         sr.preAcquire();
@@ -84,7 +84,7 @@ class WeakReferenceScopedResourceTest {
         final WeakReferenceScopedResource<AtomicLong> sr = new WeakReferenceScopedResource<>(scopedThreadLocal, AtomicLong::new);
         sr.preAcquire();
         AtomicLong first = sr.get();
-        assertNotNull(first, "first resource should exist");
+        assertNotNull(first, "first resource should exist before GC collection");
         first.set(42);
 
         sr.close(); // Clear strong reference
@@ -107,12 +107,12 @@ class WeakReferenceScopedResourceTest {
     }
 
     @Test
-    @DisplayName("close sets strongRef to null")
+    @DisplayName("close sets strongRef to null after release")
     void closeSetsStrongRefToNull() {
         final WeakReferenceScopedResource<AtomicLong> sr = new WeakReferenceScopedResource<>(scopedThreadLocal, AtomicLong::new);
         sr.preAcquire();
         assertNotNull(sr.get(), "resource should exist before close");
         sr.close();
-        assertNull(sr.get(), "get should return null after close");
+        assertNull(sr.get(), "get should return null after close releases resource");
     }
 }

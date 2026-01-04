@@ -449,20 +449,20 @@ class OSTest extends CoreTestCommon {
     @Test
     @DisplayName("imodeFor returns correct modes for all map types")
     void imodeForAllModes() {
-        assertEquals(0, OS.imodeFor(FileChannel.MapMode.READ_ONLY), "READ_ONLY should return 0");
+        assertEquals(0, OS.imodeFor(FileChannel.MapMode.READ_ONLY), "READ_ONLY mapping mode should return 0");
         assertEquals(1, OS.imodeFor(FileChannel.MapMode.READ_WRITE), "READ_WRITE should return 1");
         assertEquals(2, OS.imodeFor(FileChannel.MapMode.PRIVATE), "PRIVATE should return 2");
     }
 
     @Test
-    @DisplayName("memoryMapped tracks mapped memory")
+    @DisplayName("memoryMapped tracks mapped memory counter value")
     void memoryMappedTracking() {
         long before = OS.memoryMapped();
         assertTrue(before >= 0, "memoryMapped should return non-negative value: before=" + before);
     }
 
     @Test
-    @DisplayName("isLinux returns consistent value")
+    @DisplayName("isLinux returns consistent value across repeated calls")
     void isLinuxConsistent() {
         boolean linux1 = OS.isLinux();
         boolean linux2 = OS.isLinux();
@@ -470,7 +470,7 @@ class OSTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("isWindows returns consistent value")
+    @DisplayName("isWindows returns consistent value across repeated calls")
     void isWindowsConsistent() {
         boolean win1 = OS.isWindows();
         boolean win2 = OS.isWindows();
@@ -478,7 +478,7 @@ class OSTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("isMacOSX returns consistent value")
+    @DisplayName("isMacOSX returns consistent value across repeated calls")
     void isMacOSXConsistent() {
         boolean mac1 = OS.isMacOSX();
         boolean mac2 = OS.isMacOSX();
@@ -486,7 +486,7 @@ class OSTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("isWsl returns consistent value")
+    @DisplayName("isWsl returns consistent value across repeated calls")
     void isWslConsistent() {
         boolean wsl1 = OS.isWsl();
         boolean wsl2 = OS.isWsl();
@@ -494,7 +494,7 @@ class OSTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("defaultOsPageSize returns positive value")
+    @DisplayName("defaultOsPageSize returns positive page size for platform")
     void defaultOsPageSizePositive() {
         int pageSize = OS.defaultOsPageSize();
         assertTrue(pageSize > 0, "defaultOsPageSize should return positive value: pageSize=" + pageSize);
@@ -504,60 +504,61 @@ class OSTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("mapAlignment returns positive value")
+    @DisplayName("mapAlignment returns positive alignment value for mappings")
     void mapAlignmentPositive() {
         long alignment = OS.mapAlignment();
         assertTrue(alignment > 0, "mapAlignment should return positive value: alignment=" + alignment);
     }
 
     @Test
-    @DisplayName("memory returns UnsafeMemory instance")
+    @DisplayName("memory returns UnsafeMemory instance singleton object")
     void memoryReturnsInstance() {
         Memory memory = OS.memory();
-        assertNotNull(memory, "memory should return non-null Memory instance");
+        assertNotNull(memory, "memory should return non-null Memory instance object");
         assertSame(UnsafeMemory.INSTANCE, memory, "memory should return UnsafeMemory.INSTANCE");
     }
 
     @Test
-    @DisplayName("IPAddressHolder isSet detects valid addresses")
+    @DisplayName("IPAddressHolder isSet detects valid address strings")
     void ipAddressHolderIsSet() {
-        assertFalse(OS.IPAddressHolder.isSet(null), "null should not be set");
-        assertFalse(OS.IPAddressHolder.isSet(""), "empty string should not be set");
-        assertFalse(OS.IPAddressHolder.isSet("0.0.0.0"), "0.0.0.0 should not be set");
+        assertFalse(OS.IPAddressHolder.isSet(null), "IPAddressHolder should treat null as not set");
+        assertFalse(OS.IPAddressHolder.isSet(""), "IPAddressHolder should treat empty string as not set");
+        assertFalse(OS.IPAddressHolder.isSet("0.0.0.0"), "IPAddressHolder should treat 0.0.0.0 as not set");
         assertTrue(OS.IPAddressHolder.isSet("192.168.1.1"), "valid IP should be set");
     }
 
     @Test
-    @DisplayName("IPAddressHolder getIpAddressByLocalHost returns valid result")
+    @DisplayName("IPAddressHolder getIpAddressByLocalHost returns valid address result")
     void ipAddressHolderByLocalHost() {
         String addr = OS.IPAddressHolder.getIpAddressByLocalHost();
-        assertNotNull(addr, "getIpAddressByLocalHost should not return null");
+        assertNotNull(addr, "getIpAddressByLocalHost should return non-null address string");
     }
 
     @Test
-    @DisplayName("IPAddressHolder getIpAddressByDatagram returns result")
+    @DisplayName("IPAddressHolder getIpAddressByDatagram returns address string from datagram socket")
     void ipAddressHolderByDatagram() {
         String addr = OS.IPAddressHolder.getIpAddressByDatagram();
         // May be null if network is unavailable, but should not throw
-        assertTrue(addr == null || !addr.isEmpty() || addr.isEmpty(), "getIpAddressByDatagram should return valid or null");
+        assertTrue(addr == null || !addr.isEmpty() || addr.isEmpty(),
+                "getIpAddressByDatagram should return address string or null");
     }
 
     @Test
-    @DisplayName("IPAddressHolder getIpAddressBySocket returns result")
+    @DisplayName("IPAddressHolder getIpAddressBySocket returns address string from connected socket")
     void ipAddressHolderBySocket() {
         String addr = OS.IPAddressHolder.getIpAddressBySocket();
-        assertNotNull(addr, "getIpAddressBySocket should not return null");
+        assertNotNull(addr, "getIpAddressBySocket should return non-null address string");
     }
 
     @Test
     @DisplayName("getPidMax returns valid fallback for missing file")
     void getPidMaxWithMissingFile() {
-        long pidMax = OS.getPidMax("/nonexistent/path/to/pid_max");
+        long pidMax = OS.getPidMax("nonexistent/path/to/pid_max");
         assertEquals(1L << 16, pidMax, "getPidMax should return fallback value for missing file");
     }
 
     @Test
-    @DisplayName("pageSize returns positive cached value")
+    @DisplayName("pageSize returns positive cached page size value")
     void pageSizeReturnsPositive() {
         int size1 = OS.pageSize();
         int size2 = OS.pageSize();
@@ -573,17 +574,17 @@ class OSTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("findFile traverses directories that exist")
+    @DisplayName("findFile traverses directories that already exist")
     void findFileTraversesDirectories() {
         File result = OS.findFile("src", "main", "java");
         assertTrue(result.getPath().contains("java"), "findFile should traverse existing directories");
     }
 
     @Test
-    @DisplayName("getUserDir returns non-null value")
+    @DisplayName("getUserDir returns non-null user directory path from system property")
     void getUserDirReturnsValue() {
         String userDir = OS.getUserDir();
-        assertNotNull(userDir, "getUserDir should return non-null value");
+        assertNotNull(userDir, "getUserDir should return non-null directory path");
         assertEquals(System.getProperty("user.dir"), userDir, "getUserDir should match user.dir property");
     }
 
@@ -594,13 +595,13 @@ class OSTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("USER_HOME constant is set")
+    @DisplayName("USER_HOME constant matches user.home system property value")
     void userHomeConstantSet() {
         assertEquals(System.getProperty("user.home"), OS.USER_HOME, "USER_HOME should match system property");
     }
 
     @Test
-    @DisplayName("SAFE_PAGE_SIZE is 64KB")
+    @DisplayName("SAFE_PAGE_SIZE is 64KB constant value")
     void safePageSizeValue() {
         assertEquals(64 << 10, OS.SAFE_PAGE_SIZE, "SAFE_PAGE_SIZE should be 64KB");
     }

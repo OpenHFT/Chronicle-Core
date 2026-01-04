@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
 import static org.junit.jupiter.api.Assertions.*;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({"deprecation", "removal"})
 @ExtendWith(UnsafeMemoryTest.UnsafeMemoryTemplateProvider.class)
 class UnsafeMemoryTest extends CoreTestCommon {
 

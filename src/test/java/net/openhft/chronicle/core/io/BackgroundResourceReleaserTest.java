@@ -224,7 +224,7 @@ class BackgroundResourceReleaserTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("run handles multiple Runnables")
+    @DisplayName("run queues multiple Runnables for background release")
     void runHandlesMultipleRunnables() {
         AtomicInteger runCount = new AtomicInteger();
         int total = 10;
@@ -236,14 +236,14 @@ class BackgroundResourceReleaserTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("isOnBackgroundResourceReleaserThread returns false for main thread")
+    @DisplayName("isOnBackgroundResourceReleaserThread returns false on main thread context")
     void isOnBackgroundResourceReleaserThreadFalseForMainThread() {
         assertFalse(BackgroundResourceReleaser.isOnBackgroundResourceReleaserThread(),
                 "main thread should not be the background resource releaser thread");
     }
 
     @Test
-    @DisplayName("BG_RELEASER constant is accessible")
+    @DisplayName("BG_RELEASER boolean constant is readable from test")
     void bgReleaserConstantIsAccessible() {
         // Just verify the constant is accessible - actual value depends on system property
         assertTrue(BackgroundResourceReleaser.BG_RELEASER || !BackgroundResourceReleaser.BG_RELEASER,

@@ -13,6 +13,7 @@ import java.util.stream.Stream;
 
 // Inherits parameterized test cases from UnsafeMemoryTestMixin
 
+@SuppressWarnings("deprecation")
 final class UnsafeMemoryLongSpec implements UnsafeMemoryTestMixin<Long> {
 
     @Override

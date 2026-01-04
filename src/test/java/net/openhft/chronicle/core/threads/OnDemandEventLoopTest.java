@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * Tests for {@link OnDemandEventLoop} covering lazy initialisation and delegation.
+ * Tests for {@link OnDemandEventLoop} covering lazy initialisation, delegation, and lifecycle edge cases.
  */
 class OnDemandEventLoopTest extends CoreTestCommon {
 
@@ -123,7 +123,7 @@ class OnDemandEventLoopTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("isClosed returns false when event loop exists")
+    @DisplayName("isClosed returns false when event loop exists and is open")
     void isClosedReturnsFalseWhenEventLoopExists() {
         StubEventLoop stub = new StubEventLoop();
         OnDemandEventLoop loop = new OnDemandEventLoop(() -> stub);
@@ -158,7 +158,7 @@ class OnDemandEventLoopTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("isAlive returns false when event loop not created")
+    @DisplayName("OnDemandEventLoop isAlive returns false before event loop creation")
     void isAliveReturnsFalseWithoutEventLoop() {
         OnDemandEventLoop loop = new OnDemandEventLoop(StubEventLoop::new);
         assertFalse(loop.isAlive(), "isAlive should return false when event loop not created");
@@ -189,7 +189,7 @@ class OnDemandEventLoopTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("isStopped returns false when event loop not created")
+    @DisplayName("isStopped returns false when event loop is not created yet")
     void isStoppedReturnsFalseWithoutEventLoop() {
         OnDemandEventLoop loop = new OnDemandEventLoop(StubEventLoop::new);
         assertFalse(loop.isStopped(), "isStopped should return false when event loop not created");
@@ -244,7 +244,7 @@ class OnDemandEventLoopTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("constructor rejects null supplier")
+    @DisplayName("constructor rejects null supplier argument input")
     void constructorRejectsNull() {
         assertThrows(NullPointerException.class,
                 () -> new OnDemandEventLoop(null),
@@ -262,7 +262,7 @@ class OnDemandEventLoopTest extends CoreTestCommon {
 
         Thread[] threads = new Thread[10];
         for (int i = 0; i < threads.length; i++) {
-            threads[i] = new Thread(() -> loop.name());
+            threads[i] = new Thread(loop::name);
         }
 
         for (Thread t : threads) t.start();

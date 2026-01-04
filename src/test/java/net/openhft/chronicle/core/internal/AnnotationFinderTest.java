@@ -14,80 +14,84 @@ import static org.junit.jupiter.api.Assertions.*;
 class AnnotationFinderTest {
 
     @Test
-    @DisplayName("findAnnotation returns direct annotation on class")
+    @DisplayName("findAnnotation returns DirectlyAnnotated for class level annotation")
     void findDirectAnnotationOnClass() {
         DirectlyAnnotated annotation = AnnotationFinder.findAnnotation(DirectlyAnnotatedClass.class, DirectlyAnnotated.class);
-        assertNotNull(annotation, "should find direct annotation on class");
-        assertEquals("class-level", annotation.value(), "annotation value should match");
+        assertNotNull(annotation, "DirectlyAnnotatedClass should include DirectlyAnnotated class annotation");
+        assertEquals("class-level", annotation.value(),
+                "DirectlyAnnotated class annotation value should be class-level");
     }
 
     @Test
-    @DisplayName("findAnnotation returns null when annotation not present")
+    @DisplayName("findAnnotation returns null when DirectlyAnnotated marker annotation is absent")
     void findAnnotationReturnsNullWhenNotPresent() {
         DirectlyAnnotated annotation = AnnotationFinder.findAnnotation(UnannotatedClass.class, DirectlyAnnotated.class);
-        assertNull(annotation, "should return null when annotation not present");
+        assertNull(annotation, "UnannotatedClass should have no DirectlyAnnotated class annotation");
     }
 
     @Test
-    @DisplayName("findAnnotation finds nested meta-annotation")
+    @DisplayName("findAnnotation finds DirectlyAnnotated via nested meta-annotation")
     void findNestedMetaAnnotation() {
         DirectlyAnnotated annotation = AnnotationFinder.findAnnotation(MetaAnnotatedClass.class, DirectlyAnnotated.class);
-        assertNotNull(annotation, "should find nested annotation via meta-annotation");
-        assertEquals("meta", annotation.value(), "annotation value should match meta-annotation");
+        assertNotNull(annotation, "MetaAnnotatedClass should include DirectlyAnnotated meta-annotation");
+        assertEquals("meta", annotation.value(),
+                "MetaAnnotatedClass meta-annotation value should be meta");
     }
 
     @Test
-    @DisplayName("findAnnotation returns direct annotation on method")
+    @DisplayName("findAnnotation lookup returns DirectlyAnnotated marker for method annotation")
     void findDirectAnnotationOnMethod() throws NoSuchMethodException {
         Method method = DirectlyAnnotatedClass.class.getMethod("annotatedMethod");
         DirectlyAnnotated annotation = AnnotationFinder.findAnnotation(method, DirectlyAnnotated.class);
-        assertNotNull(annotation, "should find direct annotation on method");
-        assertEquals("method-level", annotation.value(), "annotation value should match");
+        assertNotNull(annotation, "annotatedMethod should include DirectlyAnnotated method annotation");
+        assertEquals("method-level", annotation.value(),
+                "annotatedMethod annotation value should be method-level");
     }
 
     @Test
-    @DisplayName("findAnnotation finds annotation from superclass method")
+    @DisplayName("findAnnotation finds DirectlyAnnotated from superclass method")
     void findAnnotationFromSuperclassMethod() throws NoSuchMethodException {
         Method method = ChildClass.class.getMethod("inheritedMethod");
         DirectlyAnnotated annotation = AnnotationFinder.findAnnotation(method, DirectlyAnnotated.class);
-        assertNotNull(annotation, "should find annotation from superclass method");
-        assertEquals("inherited", annotation.value(), "annotation value should match");
+        assertNotNull(annotation, "inheritedMethod should include DirectlyAnnotated from superclass");
+        assertEquals("inherited", annotation.value(),
+                "inheritedMethod annotation value should be inherited");
     }
 
     @Test
-    @DisplayName("findAnnotation finds annotation from interface method")
+    @DisplayName("findAnnotation finds DirectlyAnnotated from interface method")
     void findAnnotationFromInterfaceMethod() throws NoSuchMethodException {
         Method method = InterfaceImpl.class.getMethod("interfaceMethod");
         DirectlyAnnotated annotation = AnnotationFinder.findAnnotation(method, DirectlyAnnotated.class);
-        assertNotNull(annotation, "should find annotation from interface method");
-        assertEquals("interface", annotation.value(), "annotation value should match");
+        assertNotNull(annotation, "interfaceMethod should include DirectlyAnnotated from interface");
+        assertEquals("interface", annotation.value(),
+                "interfaceMethod annotation value should be interface");
     }
 
     @Test
-    @DisplayName("findAnnotation returns null for method without annotation")
+    @DisplayName("findAnnotation returns null when DirectlyAnnotated marker on method is absent")
     void findAnnotationReturnsNullForUnannotatedMethod() throws NoSuchMethodException {
         Method method = UnannotatedClass.class.getMethod("unannotatedMethod");
         DirectlyAnnotated annotation = AnnotationFinder.findAnnotation(method, DirectlyAnnotated.class);
-        assertNull(annotation, "should return null for unannotated method");
+        assertNull(annotation, "unannotatedMethod should have no DirectlyAnnotated method annotation");
     }
 
     @Test
-    @DisplayName("findAnnotation handles method with parameters")
+    @DisplayName("findAnnotation handles method parameters and returns annotation")
     void findAnnotationOnMethodWithParameters() throws NoSuchMethodException {
         Method method = DirectlyAnnotatedClass.class.getMethod("methodWithParams", String.class, int.class);
         DirectlyAnnotated annotation = AnnotationFinder.findAnnotation(method, DirectlyAnnotated.class);
-        assertNotNull(annotation, "should find annotation on method with parameters");
-        assertEquals("with-params", annotation.value(), "annotation value should match");
+        assertNotNull(annotation, "methodWithParams should include DirectlyAnnotated method annotation");
+        assertEquals("with-params", annotation.value(),
+                "methodWithParams annotation value should be with-params");
     }
 
     @Test
     @DisplayName("findAnnotation avoids infinite loop with cyclic meta-annotations")
     void findAnnotationHandlesCyclicMetaAnnotations() {
-        // CyclicAnnotatedClass has annotations that reference each other
-        DirectlyAnnotated annotation = AnnotationFinder.findAnnotation(CyclicAnnotatedClass.class, DirectlyAnnotated.class);
-        // Should not hang or throw - may or may not find annotation depending on path
-        // Just ensure it completes without error
-        assertTrue(true, "should complete without infinite loop");
+        assertDoesNotThrow(
+                () -> AnnotationFinder.findAnnotation(CyclicAnnotatedClass.class, DirectlyAnnotated.class),
+                "AnnotationFinder should handle cyclic meta-annotations without looping");
     }
 
     // --- Test annotations ---

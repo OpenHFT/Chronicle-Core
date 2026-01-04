@@ -191,9 +191,9 @@ final class LimitedInputStreamTest {
             byte[] buf = new byte[10];
             int n = in.read(buf, 0, 10);
             assertEquals(3, n, "bulk read should only return budget-permitted bytes");
-            assertEquals(0, buf[0], "first byte should be 0");
-            assertEquals(1, buf[1], "second byte should be 1");
-            assertEquals(2, buf[2], "third byte should be 2");
+            assertEquals(0, buf[0], "bulk read buffer[0] should be 0 after limited read");
+            assertEquals(1, buf[1], "bulk read buffer[1] should be 1 after limited read");
+            assertEquals(2, buf[2], "bulk read buffer[2] should be 2 after limited read");
         }
     }
 }

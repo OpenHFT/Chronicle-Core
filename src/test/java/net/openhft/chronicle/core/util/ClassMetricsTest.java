@@ -48,28 +48,28 @@ class ClassMetricsTest {
     // --- Additional tests for branch coverage ---
 
     @Test
-    @DisplayName("equals returns true for same object")
+    @DisplayName("ClassMetrics equals returns true for same instance identity comparison")
     void equalsSameObject() {
         ClassMetrics metrics = new ClassMetrics(10, 20);
         assertEquals(metrics, metrics, "same object should be equal to itself");
     }
 
     @Test
-    @DisplayName("equals returns false for null")
+    @DisplayName("ClassMetrics equals returns false for null reference input argument comparison")
     void equalsNull() {
         ClassMetrics metrics = new ClassMetrics(10, 20);
         assertNotEquals(null, metrics, "ClassMetrics should not be equal to null");
     }
 
     @Test
-    @DisplayName("equals returns false for different class type")
+    @DisplayName("ClassMetrics equals returns false for different class type comparison")
     void equalsDifferentClass() {
         ClassMetrics metrics = new ClassMetrics(10, 20);
         assertNotEquals("not a ClassMetrics", metrics, "ClassMetrics should not be equal to a String");
     }
 
     @Test
-    @DisplayName("equals returns false when only offset differs")
+    @DisplayName("ClassMetrics equals returns false when offset value differs in metrics comparison")
     void equalsOffsetDiffers() {
         ClassMetrics metrics1 = new ClassMetrics(10, 20);
         ClassMetrics metrics2 = new ClassMetrics(15, 20);
@@ -77,7 +77,7 @@ class ClassMetricsTest {
     }
 
     @Test
-    @DisplayName("equals returns false when only length differs")
+    @DisplayName("ClassMetrics equals returns false when length value differs in metrics comparison")
     void equalsLengthDiffers() {
         ClassMetrics metrics1 = new ClassMetrics(10, 20);
         ClassMetrics metrics2 = new ClassMetrics(10, 25);

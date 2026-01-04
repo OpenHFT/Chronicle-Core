@@ -38,7 +38,7 @@ class ThreadLocalisedExceptionHandlerTest {
     // --- Additional tests for branch coverage ---
 
     @Test
-    @DisplayName("on(Class) with null handler returns early")
+    @DisplayName("on(Class) returns early when thread-local exception handler is null")
     void onClassWithNullHandler() {
         // Set thread-local to null handler which should cause early return
         tlExceptionHandler.threadLocalHandler(NullExceptionHandler.NOTHING);
@@ -47,7 +47,7 @@ class ThreadLocalisedExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("on(Class) preserves interrupt status")
+    @DisplayName("on(Class) preserves interrupt status for current thread")
     void onClassPreservesInterrupt() {
         Thread.currentThread().interrupt();
         try {
@@ -60,7 +60,7 @@ class ThreadLocalisedExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("on(Logger) with null handler returns early")
+    @DisplayName("on(Logger) returns early when thread-local exception handler is null")
     void onLoggerWithNullHandler() {
         Logger logger = LoggerFactory.getLogger(getClass());
         tlExceptionHandler.threadLocalHandler(NullExceptionHandler.NOTHING);
@@ -79,7 +79,7 @@ class ThreadLocalisedExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("on(Logger) preserves interrupt status")
+    @DisplayName("on(Logger) preserves interrupt status for current thread")
     void onLoggerPreservesInterrupt() {
         Logger logger = LoggerFactory.getLogger(getClass());
         Thread.currentThread().interrupt();
@@ -101,15 +101,15 @@ class ThreadLocalisedExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("defaultHandler(null) sets NullExceptionHandler.NOTHING")
+    @DisplayName("defaultHandler(null) sets NullExceptionHandler.NOTHING as default")
     void defaultHandlerNull() {
         tlExceptionHandler.defaultHandler(null);
         assertSame(NullExceptionHandler.NOTHING, tlExceptionHandler.defaultHandler(),
-                "setting null should use NullExceptionHandler.NOTHING");
+                "default handler should use NullExceptionHandler.NOTHING when null");
     }
 
     @Test
-    @DisplayName("defaultHandler unwraps ThreadLocalisedExceptionHandler")
+    @DisplayName("defaultHandler unwraps ThreadLocalisedExceptionHandler to inner handler")
     void defaultHandlerUnwraps() {
         ExceptionHandler inner = mock(ExceptionHandler.class);
         ThreadLocalisedExceptionHandler wrapped = new ThreadLocalisedExceptionHandler(inner);
@@ -120,7 +120,7 @@ class ThreadLocalisedExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("defaultHandler rejects recursive ChainedExceptionHandler")
+    @DisplayName("defaultHandler rejects recursive ChainedExceptionHandler cycle configuration")
     void defaultHandlerRejectsRecursive() {
         ChainedExceptionHandler chain = mock(ChainedExceptionHandler.class);
         when(chain.chain()).thenReturn(new ExceptionHandler[]{tlExceptionHandler});
@@ -130,16 +130,16 @@ class ThreadLocalisedExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("threadLocalHandler(null) uses NullExceptionHandler.NOTHING")
+    @DisplayName("threadLocalHandler(null) uses NullExceptionHandler.NOTHING as default")
     @SuppressWarnings("deprecation")
     void threadLocalHandlerNull() {
         tlExceptionHandler.threadLocalHandler(null);
         assertSame(NullExceptionHandler.NOTHING, tlExceptionHandler.threadLocalHandler(),
-                "setting null should use NullExceptionHandler.NOTHING");
+                "thread-local handler should use NullExceptionHandler.NOTHING when null");
     }
 
     @Test
-    @DisplayName("threadLocalHandler sets and retrieves handler")
+    @DisplayName("threadLocalHandler sets and retrieves thread-local handler")
     @SuppressWarnings("deprecation")
     void threadLocalHandlerSetAndGet() {
         ExceptionHandler local = mock(ExceptionHandler.class);
@@ -149,7 +149,7 @@ class ThreadLocalisedExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("resetThreadLocalHandler clears thread-local")
+    @DisplayName("resetThreadLocalHandler clears thread-local handler state")
     @SuppressWarnings("deprecation")
     void resetThreadLocalHandlerClears() {
         ExceptionHandler local = mock(ExceptionHandler.class);
@@ -160,7 +160,7 @@ class ThreadLocalisedExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("isEnabled delegates to NullExceptionHandler")
+    @DisplayName("isEnabled delegates to NullExceptionHandler for disabled state")
     void isEnabledWithNullHandler() {
         tlExceptionHandler.resetThreadLocalHandler();
         // Set default handler to NullExceptionHandler.NOTHING
@@ -171,7 +171,7 @@ class ThreadLocalisedExceptionHandlerTest {
     }
 
     @Test
-    @DisplayName("Thread-local handler overrides default")
+    @DisplayName("thread-local handler overrides default handler selection")
     void threadLocalOverridesDefault() {
         ExceptionHandler local = mock(ExceptionHandler.class);
         when(local.isEnabled(any())).thenReturn(false);

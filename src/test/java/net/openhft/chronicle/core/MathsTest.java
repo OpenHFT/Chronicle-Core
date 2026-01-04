@@ -424,7 +424,7 @@ class MathsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("divideRoundUp handles zero dividend boundary")
+    @DisplayName("divideRoundUp handles zero dividend boundary cases")
     void divideRoundUpZeroDividend() {
         assertEquals(0, Maths.divideRoundUp(0, 5), "zero dividend with positive divisor should return 0");
         assertEquals(0, Maths.divideRoundUp(0, -5), "zero dividend with negative divisor should return 0");
@@ -432,7 +432,7 @@ class MathsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("divideRoundUp handles unit values boundary")
+    @DisplayName("divideRoundUp handles unit values boundary cases")
     void divideRoundUpUnitValues() {
         assertEquals(1, Maths.divideRoundUp(1, 1), "1 divided by 1 should be 1");
         assertEquals(-1, Maths.divideRoundUp(-1, 1), "-1 divided by 1 should be -1");
@@ -816,7 +816,7 @@ class MathsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("hash handles null objects correctly")
+    @DisplayName("hash handles null object input correctly")
     void testHashNullObject() {
         assertEquals(0, Maths.hash((Object) null), "hash of null should return 0");
     }
@@ -868,7 +868,7 @@ class MathsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("hash64 with StringBuilder returns consistent value")
+    @DisplayName("hash64 with StringBuilder returns consistent hash value")
     void testHash64StringBuilder() {
         StringBuilder sb = new StringBuilder("test string");
         long hash1 = Maths.hash64(sb);
@@ -881,7 +881,7 @@ class MathsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("round1 handles negative values correctly")
+    @DisplayName("round1 handles negative values with correct rounding")
     void testRound1Negative() {
         assertEquals(-1.5, Maths.round1(-1.45), 0.0, "round1 should handle negative values");
         assertEquals(-1.4, Maths.round1(-1.44), 0.0, "round1 should handle negative values below threshold");
@@ -903,7 +903,7 @@ class MathsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("asDouble handles zero value correctly")
+    @DisplayName("asDouble handles zero value with correct sign")
     void testAsDoubleZero() {
         assertEquals(0.0, Maths.asDouble(0L, 0, false, 0), "asDouble(0,0,false,0) should return 0.0");
         assertEquals(-0.0, Maths.asDouble(0L, 0, true, 0), "asDouble(0,0,true,0) should return -0.0");
@@ -961,7 +961,7 @@ class MathsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("roundXup methods handle NaN correctly")
+    @DisplayName("roundXup methods handle NaN inputs correctly")
     void roundUpMethodsHandleNaN() {
         // Test NaN branch in each roundXup method
         assertTrue(Double.isNaN(Maths.round2up(Double.NaN)), "round2up should preserve NaN");
@@ -1008,7 +1008,7 @@ class MathsTest extends CoreTestCommon {
 
         // Test n = min - 1 (ensures < vs <= distinction)
         assertEquals(4, Maths.nextPower2(3, 4), "int: n = min-1 should return min");
-        assertEquals(8, Maths.nextPower2(7, 8), "int: n = min-1 should return min");
+        assertEquals(8, Maths.nextPower2(7, 8), "int: n = min-1 for min 8 should return 8");
 
         // Test n = min + 1 (ensures > vs >= distinction)
         assertEquals(8, Maths.nextPower2(5, 4), "int: n = min+1 should round to next power");

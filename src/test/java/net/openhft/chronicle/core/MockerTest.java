@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -65,9 +67,9 @@ class MockerTest extends CoreTestCommon {
 
     @Test
     @DisplayName("logging with PrintStream captures method calls")
-    void loggingWithPrintStream() {
+    void loggingWithPrintStream() throws UnsupportedEncodingException {
         StringWriter sw = new StringWriter();
-        PrintStream ps = new PrintStream(System.out) {
+        PrintStream ps = new PrintStream(System.out, true, StandardCharsets.UTF_8.name()) {
             @Override
             public void println(String x) {
                 sw.append(x).append(System.lineSeparator());
@@ -99,7 +101,7 @@ class MockerTest extends CoreTestCommon {
         queuing.doSomething("value");
         String result = queue.take();
         assertTrue(result.contains("q.doSomething[value]"),
-                "queuing should add method call to queue");
+                "queued result '" + result + "' should contain 'q.doSomething[value]'");
     }
 
     @Test
@@ -108,7 +110,7 @@ class MockerTest extends CoreTestCommon {
         List<String> captured = new ArrayList<>();
         final SimpleInterface intercepting = Mocker.intercepting(SimpleInterface.class, "i.", captured::add);
         intercepting.doSomething("test");
-        assertEquals(1, captured.size(), "consumer should have received one invocation");
+        assertEquals(1, captured.size(), "intercepting consumer should capture one invocation");
         assertTrue(captured.get(0).contains("i.doSomething[test]"),
                 "captured string should contain method call");
     }
@@ -127,7 +129,7 @@ class MockerTest extends CoreTestCommon {
         List<String> captured = new ArrayList<>();
         final NoArgsInterface intercepting = Mocker.intercepting(NoArgsInterface.class, "", captured::add);
         intercepting.noArgs();
-        assertEquals(1, captured.size(), "consumer should have received one invocation");
+        assertEquals(1, captured.size(), "no-args consumer should capture one invocation");
         // No args shows as [] not ()
         assertTrue(captured.get(0).contains("noArgs[]"),
                 "no-args method should show empty array: " + captured.get(0));

@@ -363,14 +363,14 @@ class ObjectUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("requireNonNull with valid value returns value")
+    @DisplayName("requireNonNull with valid value returns same argument value")
     void requireNonNullWithValidValue() {
         String value = "test";
         assertEquals(value, ObjectUtils.requireNonNull(value), "requireNonNull should return the same non-null value");
     }
 
     @Test
-    @DisplayName("requireNonNull with null throws NullPointerException")
+    @DisplayName("ObjectUtils requireNonNull throws NullPointerException for null input argument")
     void requireNonNullWithNull() {
         assertThrows(NullPointerException.class, () -> ObjectUtils.requireNonNull(null),
                 "requireNonNull should throw NullPointerException for null input");
@@ -391,7 +391,7 @@ class ObjectUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("Boolean string converts to boolean value")
+    @DisplayName("Boolean string converts to boolean value type")
     void convertToBooleanTest() {
         assertTrue(ObjectUtils.convertTo(Boolean.class, "true"), "string 'true' should convert to boolean true");
         assertFalse(ObjectUtils.convertTo(Boolean.class, "false"), "string 'false' should convert to boolean false");
@@ -406,15 +406,16 @@ class ObjectUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("Byte array converts from string")
+    @DisplayName("Byte array converts from string value")
     void convertToByteArrayTest() {
         byte[] result = ObjectUtils.convertTo(byte[].class, "hello");
         assertNotNull(result, "string should convert to byte array");
-        assertTrue(result.length > 0, "converted byte array should not be empty");
+        assertTrue(result.length > 0,
+                "converted byte array length " + result.length + " should be > 0");
     }
 
     @Test
-    @DisplayName("convertTo returns null for null input")
+    @DisplayName("convertTo returns null when conversion parameter for target is null")
     void convertToNullInput() {
         assertNull(ObjectUtils.convertTo(String.class, null), "null input should return null for any target type");
     }
@@ -427,7 +428,7 @@ class ObjectUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("UUID converts from string representation")
+    @DisplayName("convertTo converts UUID from string representation")
     void convertToUUIDTest() {
         UUID uuid = UUID.randomUUID();
         assertEquals(uuid, ObjectUtils.convertTo(UUID.class, uuid.toString()),
@@ -435,7 +436,7 @@ class ObjectUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("Byte converts from numeric value")
+    @DisplayName("convertTo converts byte from numeric value")
     void convertToByteTest() {
         assertEquals((byte) 42, (byte) ObjectUtils.convertTo(Byte.class, 42),
                 "integer should convert to byte");
@@ -444,7 +445,7 @@ class ObjectUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("Short converts from numeric value")
+    @DisplayName("convertTo converts short from numeric value")
     void convertToShortTest() {
         assertEquals((short) 1234, (short) ObjectUtils.convertTo(Short.class, 1234),
                 "integer should convert to short");
@@ -453,7 +454,7 @@ class ObjectUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("Double converts from various sources")
+    @DisplayName("convertTo converts double from numeric and string sources")
     void convertToDoubleTest() {
         assertEquals(3.14159, ObjectUtils.convertTo(Double.class, "3.14159"), 0.00001,
                 "string should convert to double");
@@ -462,7 +463,7 @@ class ObjectUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("Float converts from various sources")
+    @DisplayName("convertTo converts float from numeric and string sources")
     void convertToFloatTest() {
         assertEquals(2.71828f, ObjectUtils.convertTo(Float.class, "2.71828"), 0.0001f,
                 "string should convert to float");
@@ -471,7 +472,7 @@ class ObjectUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("Enum converts from string name")
+    @DisplayName("convertTo converts enum from string name")
     void convertToEnumTest() {
         assertEquals(MyEnum.MY_VALUE, ObjectUtils.convertTo(MyEnum.class, "MY_VALUE"),
                 "string should convert to enum constant");
@@ -535,21 +536,21 @@ class ObjectUtilsTest extends CoreTestCommon {
     // --- Additional tests for branch coverage ---
 
     @Test
-    @DisplayName("isTrue returns true for 't' character")
+    @DisplayName("ObjectUtils.isTrue returns true for 't' token input")
     void isTrueSingleCharT() {
         assertTrue(ObjectUtils.isTrue("t"), "lowercase 't' should be true");
         assertTrue(ObjectUtils.isTrue("T"), "uppercase 'T' should be true");
     }
 
     @Test
-    @DisplayName("isTrue returns true for 'y' character")
+    @DisplayName("ObjectUtils.isTrue returns true for 'y' token input")
     void isTrueSingleCharY() {
         assertTrue(ObjectUtils.isTrue("y"), "lowercase 'y' should be true");
         assertTrue(ObjectUtils.isTrue("Y"), "uppercase 'Y' should be true");
     }
 
     @Test
-    @DisplayName("isTrue returns true for 'yes' string")
+    @DisplayName("ObjectUtils.isTrue returns true for 'yes' token input")
     void isTrueYesString() {
         assertTrue(ObjectUtils.isTrue("yes"), "lowercase 'yes' should be true");
         assertTrue(ObjectUtils.isTrue("YES"), "uppercase 'YES' should be true");
@@ -557,145 +558,152 @@ class ObjectUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("isTrue returns true for 'true' string")
+    @DisplayName("ObjectUtils.isTrue returns true for 'true' token string input")
     void isTrueTrueString() {
-        assertTrue(ObjectUtils.isTrue("true"), "lowercase 'true' should be true");
-        assertTrue(ObjectUtils.isTrue("TRUE"), "uppercase 'TRUE' should be true");
+        assertTrue(ObjectUtils.isTrue("true"), "isTrue should return true for lowercase 'true' token");
+        assertTrue(ObjectUtils.isTrue("TRUE"), "isTrue should return true for uppercase 'TRUE' token");
     }
 
     @Test
-    @DisplayName("isTrue returns false for null")
+    @DisplayName("ObjectUtils.isTrue returns false when input string parameter is null")
     void isTrueNull() {
-        assertFalse(ObjectUtils.isTrue(null), "null should return false for isTrue");
+        assertFalse(ObjectUtils.isTrue(null), "isTrue should return false when input string is null");
     }
 
     @Test
-    @DisplayName("isTrue returns false for other strings")
+    @DisplayName("ObjectUtils.isTrue returns false for non-true token strings")
     void isTrueOtherStrings() {
-        assertFalse(ObjectUtils.isTrue("x"), "single char 'x' should be false");
-        assertFalse(ObjectUtils.isTrue("no"), "two char string should be false");
-        assertFalse(ObjectUtils.isTrue("maybe"), "five char non-true string should be false");
-        assertFalse(ObjectUtils.isTrue("yess"), "four char 'yess' should be false");
+        assertFalse(ObjectUtils.isTrue("x"), "isTrue should return false for single char 'x' token");
+        assertFalse(ObjectUtils.isTrue("no"), "isTrue should return false for two char 'no' token");
+        assertFalse(ObjectUtils.isTrue("maybe"), "isTrue should return false for non-true token 'maybe'");
+        assertFalse(ObjectUtils.isTrue("yess"), "isTrue should return false for non-true token 'yess'");
     }
 
     @Test
-    @DisplayName("isFalse returns true for 'f' character")
+    @DisplayName("ObjectUtils.isFalse returns true for 'f' token input")
     void isFalseSingleCharF() {
-        assertTrue(ObjectUtils.isFalse("f"), "lowercase 'f' should be false-ish");
-        assertTrue(ObjectUtils.isFalse("F"), "uppercase 'F' should be false-ish");
+        assertTrue(ObjectUtils.isFalse("f"), "isFalse should return true for lowercase 'f' token");
+        assertTrue(ObjectUtils.isFalse("F"), "isFalse should return true for uppercase 'F' token");
     }
 
     @Test
-    @DisplayName("isFalse returns true for 'n' character")
+    @DisplayName("ObjectUtils.isFalse returns true for 'n' token input")
     void isFalseSingleCharN() {
-        assertTrue(ObjectUtils.isFalse("n"), "lowercase 'n' should be false-ish");
-        assertTrue(ObjectUtils.isFalse("N"), "uppercase 'N' should be false-ish");
+        assertTrue(ObjectUtils.isFalse("n"), "isFalse should return true for lowercase 'n' token");
+        assertTrue(ObjectUtils.isFalse("N"), "isFalse should return true for uppercase 'N' token");
     }
 
     @Test
-    @DisplayName("isFalse returns true for 'no' string")
+    @DisplayName("ObjectUtils.isFalse returns true for 'no' token string input")
     void isFalseNoString() {
-        assertTrue(ObjectUtils.isFalse("no"), "lowercase 'no' should be false-ish");
-        assertTrue(ObjectUtils.isFalse("NO"), "uppercase 'NO' should be false-ish");
-        assertTrue(ObjectUtils.isFalse("No"), "mixed case 'No' should be false-ish");
+        assertTrue(ObjectUtils.isFalse("no"), "isFalse should return true for lowercase 'no' token");
+        assertTrue(ObjectUtils.isFalse("NO"), "isFalse should return true for uppercase 'NO' token");
+        assertTrue(ObjectUtils.isFalse("No"), "isFalse should return true for mixed case 'No' token");
     }
 
     @Test
-    @DisplayName("isFalse returns true for 'false' string")
+    @DisplayName("ObjectUtils.isFalse returns true for 'false' token string input")
     void isFalseFalseString() {
-        assertTrue(ObjectUtils.isFalse("false"), "lowercase 'false' should be false-ish");
-        assertTrue(ObjectUtils.isFalse("FALSE"), "uppercase 'FALSE' should be false-ish");
+        assertTrue(ObjectUtils.isFalse("false"), "isFalse should return true for lowercase 'false' token");
+        assertTrue(ObjectUtils.isFalse("FALSE"), "isFalse should return true for uppercase 'FALSE' token");
     }
 
     @Test
-    @DisplayName("isFalse returns false for null")
+    @DisplayName("ObjectUtils.isFalse returns false when input string parameter is null")
     void isFalseNull() {
-        assertFalse(ObjectUtils.isFalse(null), "null should return false for isFalse");
+        assertFalse(ObjectUtils.isFalse(null), "isFalse should return false when input string is null");
     }
 
     @Test
-    @DisplayName("isFalse returns false for other strings")
+    @DisplayName("ObjectUtils.isFalse returns false for non-false token strings")
     void isFalseOtherStrings() {
-        assertFalse(ObjectUtils.isFalse("x"), "single char 'x' should not be false-ish");
-        assertFalse(ObjectUtils.isFalse("yes"), "three char 'yes' should not be false-ish");
-        assertFalse(ObjectUtils.isFalse("maybe"), "other length strings should not be false-ish");
+        assertFalse(ObjectUtils.isFalse("x"), "isFalse should return false for single char 'x' token");
+        assertFalse(ObjectUtils.isFalse("yes"), "isFalse should return false for non-false token 'yes'");
+        assertFalse(ObjectUtils.isFalse("maybe"), "isFalse should return false for non-false token 'maybe'");
     }
 
     @Test
-    @DisplayName("toBoolean handles null input")
+    @DisplayName("toBoolean returns null when conversion string parameter is null")
     void toBooleanNull() {
-        assertNull(ObjectUtils.toBoolean(null), "null input should return null");
+        assertNull(ObjectUtils.toBoolean(null), "toBoolean should return null when input string is null");
     }
 
     @Test
-    @DisplayName("toBoolean handles empty string")
+    @DisplayName("toBoolean returns null for empty or whitespace string parameter")
     void toBooleanEmpty() {
-        assertNull(ObjectUtils.toBoolean(""), "empty string should return null");
-        assertNull(ObjectUtils.toBoolean("   "), "whitespace-only string should return null");
+        assertNull(ObjectUtils.toBoolean(""), "toBoolean should return null for empty string input");
+        assertNull(ObjectUtils.toBoolean("   "), "toBoolean should return null for whitespace-only input");
     }
 
     @Test
-    @DisplayName("toBoolean returns true for true-ish strings")
+    @DisplayName("toBoolean returns TRUE for true-like keyword token strings")
     void toBooleanTrue() {
-        assertEquals(Boolean.TRUE, ObjectUtils.toBoolean("true"), "toBoolean should return TRUE for 'true'");
-        assertEquals(Boolean.TRUE, ObjectUtils.toBoolean("  yes  "), "toBoolean should trim and return TRUE");
+        assertEquals(Boolean.TRUE, ObjectUtils.toBoolean("true"),
+                "toBoolean should return TRUE for 'true' token");
+        assertEquals(Boolean.TRUE, ObjectUtils.toBoolean("  yes  "),
+                "toBoolean should trim whitespace and return TRUE for 'yes'");
     }
 
     @Test
-    @DisplayName("toBoolean returns false for false-ish strings")
+    @DisplayName("toBoolean returns FALSE for false-like keyword token strings")
     void toBooleanFalse() {
-        assertEquals(Boolean.FALSE, ObjectUtils.toBoolean("false"), "toBoolean should return FALSE for 'false'");
-        assertEquals(Boolean.FALSE, ObjectUtils.toBoolean("  no  "), "toBoolean should trim and return FALSE");
+        assertEquals(Boolean.FALSE, ObjectUtils.toBoolean("false"),
+                "toBoolean should return FALSE for 'false' token");
+        assertEquals(Boolean.FALSE, ObjectUtils.toBoolean("  no  "),
+                "toBoolean should trim whitespace and return FALSE for 'no'");
     }
 
     @Test
-    @DisplayName("toBoolean returns false for unknown strings")
+    @DisplayName("toBoolean returns FALSE for unknown keyword token strings")
     void toBooleanUnknown() {
-        assertEquals(Boolean.FALSE, ObjectUtils.toBoolean("maybe"), "unknown string should return FALSE");
-        assertEquals(Boolean.FALSE, ObjectUtils.toBoolean("unknown"), "unknown string should return FALSE");
+        assertEquals(Boolean.FALSE, ObjectUtils.toBoolean("maybe"),
+                "toBoolean should return FALSE for unknown token 'maybe'");
+        assertEquals(Boolean.FALSE, ObjectUtils.toBoolean("unknown"),
+                "toBoolean should return FALSE for unknown token 'unknown'");
     }
 
     @Test
-    @DisplayName("convertChar handles empty string")
+    @DisplayName("convertChar returns null character for empty string parameter")
     void convertCharEmpty() {
-        assertEquals('\0', (char) ObjectUtils.convertChar(""), "empty string should convert to null character");
+        assertEquals('\0', (char) ObjectUtils.convertChar(""),
+                "convertChar should return null character for empty string input");
     }
 
     @Test
     @DisplayName("lookForImplEnum returns LinkedHashMap for Map interface")
     void lookForImplEnumMap() {
         assertEquals(LinkedHashMap.class, ObjectUtils.lookForImplEnum(Map.class),
-                "Map interface should resolve to LinkedHashMap");
+                "lookForImplEnum should map Map interface to LinkedHashMap");
     }
 
     @Test
-    @DisplayName("lookForImplEnum returns LinkedHashSet for Set interface")
+    @DisplayName("lookForImplEnum maps Set interface to LinkedHashSet")
     void lookForImplEnumSet() {
         assertEquals(LinkedHashSet.class, ObjectUtils.lookForImplEnum(Set.class),
-                "Set interface should resolve to LinkedHashSet");
+                "lookForImplEnum should map Set interface to LinkedHashSet");
     }
 
     @Test
     @DisplayName("lookForImplEnum returns ArrayList for List interface")
     void lookForImplEnumList() {
         assertEquals(ArrayList.class, ObjectUtils.lookForImplEnum(List.class),
-                "List interface should resolve to ArrayList");
+                "lookForImplEnum should map List interface to ArrayList");
     }
 
     @Test
-    @DisplayName("lookForImplEnum returns same class for non-interface")
+    @DisplayName("lookForImplEnum returns input class for non-interface concrete types")
     void lookForImplEnumNonInterface() {
         assertEquals(String.class, ObjectUtils.lookForImplEnum(String.class),
-                "non-interface class should return itself");
+                "lookForImplEnum should return input class for non-interface type");
     }
 
     @Test
-    @DisplayName("convertToNumber handles Number input")
+    @DisplayName("convertToNumber converts numeric inputs to target type")
     void convertToNumberFromNumber() {
         assertEquals(10L, ObjectUtils.convertToNumber(Long.class, 10),
-                "Integer should convert to Long");
+                "convertToNumber should convert Integer 10 to Long 10");
         assertEquals(3.14, (Double) ObjectUtils.convertToNumber(Double.class, 3.14f), 0.01,
-                "Float should convert to Double");
+                "convertToNumber should convert Float 3.14f to Double 3.14");
     }
 
     @Test
@@ -703,7 +711,7 @@ class ObjectUtilsTest extends CoreTestCommon {
     void convertToNumberBigDecimalFromLong() {
         Number result = ObjectUtils.convertToNumber(BigDecimal.class, 123L);
         assertEquals(new BigDecimal("123"), result,
-                "Long should convert to BigDecimal");
+                "convertToNumber should convert Long 123 to BigDecimal 123");
     }
 
     @Test
@@ -711,32 +719,32 @@ class ObjectUtilsTest extends CoreTestCommon {
     void convertToNumberBigDecimalFromDouble() {
         Number result = ObjectUtils.convertToNumber(BigDecimal.class, 3.14);
         assertEquals(BigDecimal.valueOf(3.14), result,
-                "Double should convert to BigDecimal");
+                "convertToNumber should convert Double 3.14 to BigDecimal 3.14");
     }
 
     @Test
-    @DisplayName("convertToNumber handles BigInteger conversion")
+    @DisplayName("convertToNumber converts integer input to BigInteger")
     void convertToNumberBigInteger() {
         Number result = ObjectUtils.convertToNumber(BigInteger.class, 999);
         assertEquals(new BigInteger("999"), result,
-                "Integer should convert to BigInteger");
+                "convertToNumber should convert Integer 999 to BigInteger 999");
     }
 
     @Test
-    @DisplayName("convertToNumber handles string input")
+    @DisplayName("convertToNumber converts string input to numeric type")
     void convertToNumberFromString() {
         assertEquals(42, ObjectUtils.convertToNumber(Integer.class, "42"),
-                "string '42' should convert to Integer 42");
+                "convertToNumber should convert string '42' to Integer 42");
         assertEquals(3.14, (Double) ObjectUtils.convertToNumber(Double.class, "3.14"), 0.001,
-                "string '3.14' should convert to Double");
+                "convertToNumber should convert string '3.14' to Double 3.14");
     }
 
     @Test
-    @DisplayName("convertToNumber throws for unsupported type")
+    @DisplayName("convertToNumber throws for unsupported target type")
     void convertToNumberUnsupported() {
         assertThrows(UnsupportedOperationException.class,
                 () -> ObjectUtils.convertToNumber(Object.class, 123),
-                "unsupported number type should throw");
+                "convertToNumber should throw for unsupported target type");
     }
 
     @Test
@@ -744,30 +752,31 @@ class ObjectUtilsTest extends CoreTestCommon {
     void getSingletonForEnumMultiValue() {
         expectException("has multiple INSTANCEs");
         assertEquals(MultiValueEnum.FIRST, ObjectUtils.getSingletonForEnum(MultiValueEnum.class),
-                "should return first enum constant when multiple exist");
+                "getSingletonForEnum should return first constant when multiple exist");
     }
 
     @Test
-    @DisplayName("getSingletonForEnum throws for empty enum")
+    @DisplayName("getSingletonForEnum throws AssertionError for empty enum")
     void getSingletonForEnumEmpty() {
         assertThrows(AssertionError.class,
                 () -> ObjectUtils.getSingletonForEnum(EmptyEnum.class),
-                "empty enum should throw AssertionError");
+                "getSingletonForEnum should throw AssertionError for empty enum");
     }
 
     @Test
-    @DisplayName("getAllInterfaces handles interface input directly")
+    @DisplayName("getAllInterfaces returns interface list for interface input type")
     void getAllInterfacesForInterface() {
         Class<?>[] interfaces = ObjectUtils.getAllInterfaces(Runnable.class);
-        assertTrue(interfaces.length > 0, "should return at least the interface itself");
+        assertTrue(interfaces.length > 0,
+                "getAllInterfaces should return at least one interface for Runnable, count=" + interfaces.length);
     }
 
     @Test
-    @DisplayName("getAllInterfaces handles null input")
+    @DisplayName("getAllInterfaces ignores null class parameter and leaves interface collection empty")
     void getAllInterfacesNull() {
         Set<Class<?>> result = new HashSet<>();
         ObjectUtils.getAllInterfaces(null, result::add);
-        assertTrue(result.isEmpty(), "null input should not add any interfaces");
+        assertTrue(result.isEmpty(), "getAllInterfaces should not add interfaces when input is null");
     }
 
     @Test
@@ -779,84 +788,98 @@ class ObjectUtilsTest extends CoreTestCommon {
             result.add(c);
             return Boolean.FALSE;
         });
-        assertEquals(1, result.size(), "accumulator returning false should limit traversal");
+        assertEquals(1, result.size(),
+                "getAllInterfaces should stop recursion when accumulator returns false");
     }
 
     @Test
-    @DisplayName("primToWrapper returns wrapper for primitives")
+    @DisplayName("primToWrapper maps primitive types to wrapper classes")
     void primToWrapperPrimitives() {
-        assertEquals(Boolean.class, ObjectUtils.primToWrapper(boolean.class), "boolean should map to Boolean");
-        assertEquals(Byte.class, ObjectUtils.primToWrapper(byte.class), "byte should map to Byte");
-        assertEquals(Character.class, ObjectUtils.primToWrapper(char.class), "char should map to Character");
-        assertEquals(Short.class, ObjectUtils.primToWrapper(short.class), "short should map to Short");
-        assertEquals(Integer.class, ObjectUtils.primToWrapper(int.class), "int should map to Integer");
-        assertEquals(Long.class, ObjectUtils.primToWrapper(long.class), "long should map to Long");
-        assertEquals(Float.class, ObjectUtils.primToWrapper(float.class), "float should map to Float");
-        assertEquals(Double.class, ObjectUtils.primToWrapper(double.class), "double should map to Double");
-        assertEquals(Void.class, ObjectUtils.primToWrapper(void.class), "void should map to Void");
+        assertEquals(Boolean.class, ObjectUtils.primToWrapper(boolean.class),
+                "primToWrapper should map boolean.class to Boolean.class");
+        assertEquals(Byte.class, ObjectUtils.primToWrapper(byte.class),
+                "primToWrapper should map byte.class to Byte.class");
+        assertEquals(Character.class, ObjectUtils.primToWrapper(char.class),
+                "primToWrapper should map char.class to Character.class");
+        assertEquals(Short.class, ObjectUtils.primToWrapper(short.class),
+                "primToWrapper should map short.class to Short.class");
+        assertEquals(Integer.class, ObjectUtils.primToWrapper(int.class),
+                "primToWrapper should map int.class to Integer.class");
+        assertEquals(Long.class, ObjectUtils.primToWrapper(long.class),
+                "primToWrapper should map long.class to Long.class");
+        assertEquals(Float.class, ObjectUtils.primToWrapper(float.class),
+                "primToWrapper should map float.class to Float.class");
+        assertEquals(Double.class, ObjectUtils.primToWrapper(double.class),
+                "primToWrapper should map double.class to Double.class");
+        assertEquals(Void.class, ObjectUtils.primToWrapper(void.class),
+                "primToWrapper should map void.class to Void.class");
     }
 
     @Test
-    @DisplayName("primToWrapper returns same class for non-primitives")
+    @DisplayName("primToWrapper returns same class for non-primitive parameter type")
     void primToWrapperNonPrimitive() {
-        assertEquals(String.class, ObjectUtils.primToWrapper(String.class), "String should return String");
-        assertEquals(Object.class, ObjectUtils.primToWrapper(Object.class), "Object should return Object");
+        assertEquals(String.class, ObjectUtils.primToWrapper(String.class),
+                "primToWrapper should return String.class for String.class input");
+        assertEquals(Object.class, ObjectUtils.primToWrapper(Object.class),
+                "primToWrapper should return Object.class for Object.class input");
     }
 
     @Test
-    @DisplayName("sizeOf handles primitive arrays")
+    @DisplayName("sizeOf reports length for primitive arrays")
     void sizeOfPrimitiveArray() {
         int[] intArray = {1, 2, 3, 4, 5};
-        assertEquals(5, ObjectUtils.sizeOf(intArray), "primitive int array should report size 5");
+        assertEquals(5, ObjectUtils.sizeOf(intArray), "sizeOf should report length 5 for int array");
     }
 
     @Test
-    @DisplayName("matchingClass returns true for same class")
+    @DisplayName("matchingClass returns true for identical class comparison types")
     void matchingClassSame() {
         assertTrue(ObjectUtils.matchingClass(String.class, String.class),
-                "same class should match");
+                "matchingClass should return true for identical classes");
     }
 
     @Test
-    @DisplayName("matchingClass returns false for different classes")
+    @DisplayName("matchingClass returns false for differing class comparison types")
     void matchingClassDifferent() {
         assertFalse(ObjectUtils.matchingClass(String.class, Integer.class),
-                "different classes should not match");
+                "matchingClass should return false for different classes");
     }
 
     @Test
-    @DisplayName("isConcreteClass returns true for concrete classes")
+    @DisplayName("isConcreteClass returns true for concrete implementation class types")
     void isConcreteClassTrue() {
-        assertTrue(ObjectUtils.isConcreteClass(String.class), "String is concrete");
-        assertTrue(ObjectUtils.isConcreteClass(ArrayList.class), "ArrayList is concrete");
+        assertTrue(ObjectUtils.isConcreteClass(String.class), "isConcreteClass should return true for String.class");
+        assertTrue(ObjectUtils.isConcreteClass(ArrayList.class),
+                "isConcreteClass should return true for ArrayList.class");
     }
 
     @Test
-    @DisplayName("isConcreteClass returns false for abstract and interfaces")
+    @DisplayName("isConcreteClass returns false for abstract classes and interfaces")
     void isConcreteClassFalse() {
-        assertFalse(ObjectUtils.isConcreteClass(List.class), "List is an interface");
-        assertFalse(ObjectUtils.isConcreteClass(AbstractList.class), "AbstractList is abstract");
+        assertFalse(ObjectUtils.isConcreteClass(List.class), "isConcreteClass should return false for List.class");
+        assertFalse(ObjectUtils.isConcreteClass(AbstractList.class),
+                "isConcreteClass should return false for AbstractList.class");
     }
 
     @Test
     @DisplayName("implementationToUse returns concrete impl for Map interface")
     void implementationToUseMap() {
         Class<?> impl = ObjectUtils.implementationToUse(Map.class);
-        assertEquals(LinkedHashMap.class, impl, "Map interface should resolve to LinkedHashMap");
+        assertEquals(LinkedHashMap.class, impl, "implementationToUse should map Map to LinkedHashMap");
     }
 
     @Test
     @DisplayName("implementationToUse returns concrete impl for List interface")
     void implementationToUseList() {
         Class<?> impl = ObjectUtils.implementationToUse(List.class);
-        assertEquals(ArrayList.class, impl, "List interface should resolve to ArrayList");
+        assertEquals(ArrayList.class, impl, "implementationToUse should map List to ArrayList");
     }
 
     @Test
     @DisplayName("implementationToUse returns same class for concrete types")
     void implementationToUseConcrete() {
         Class<?> impl = ObjectUtils.implementationToUse(HashMap.class);
-        assertEquals(HashMap.class, impl, "concrete class should return itself");
+        assertEquals(HashMap.class, impl, "implementationToUse should return HashMap.class for HashMap input");
     }
 
     @Test
@@ -865,7 +888,7 @@ class ObjectUtilsTest extends CoreTestCommon {
         List<String> list = Arrays.asList("a", "b", "c");
         String[] result = ObjectUtils.convertTo(String[].class, list);
         assertArrayEquals(new String[]{"a", "b", "c"}, result,
-                "List should convert to String array");
+                "convertTo should convert List<String> to String array");
     }
 
     @Test
@@ -874,29 +897,32 @@ class ObjectUtilsTest extends CoreTestCommon {
         Object[] source = {"x", "y"};
         String[] result = ObjectUtils.convertTo(String[].class, source);
         assertArrayEquals(new String[]{"x", "y"}, result,
-                "Object array should convert to String array");
+                "convertTo should convert Object array to String array");
     }
 
     @Test
-    @DisplayName("onMethodCall creates working proxy")
+    @DisplayName("onMethodCall creates proxy that implements interface methods")
     void onMethodCallProxy() {
         Runnable proxy = ObjectUtils.onMethodCall(
                 (method, args) -> null,
                 Runnable.class
         );
-        assertNotNull(proxy, "proxy should be created");
-        assertDoesNotThrow(proxy::run, "proxy run should not throw");
+        assertNotNull(proxy, "onMethodCall should return non-null proxy instance");
+        assertDoesNotThrow(proxy::run, "Proxy run invocation should not throw");
     }
 
     @Test
-    @DisplayName("onMethodCall proxy delegates Object methods")
+    @DisplayName("onMethodCall proxy delegates Object method calls")
     void onMethodCallProxyObjectMethods() {
-        Comparable<String> proxy = ObjectUtils.onMethodCall(
+        TestComparable proxy = ObjectUtils.onMethodCall(
                 (method, args) -> 0,
-                Comparable.class
+                TestComparable.class
         );
-        assertNotNull(proxy.toString(), "toString should work on proxy");
-        assertNotNull(proxy.hashCode(), "hashCode should work on proxy");
+        assertNotNull(proxy.toString(), "Proxy toString should return non-null result");
+        assertNotNull(proxy.hashCode(), "Proxy hashCode should return non-null result");
+    }
+
+    interface TestComparable extends Comparable<TestComparable> {
     }
 
     enum MultiValueEnum {

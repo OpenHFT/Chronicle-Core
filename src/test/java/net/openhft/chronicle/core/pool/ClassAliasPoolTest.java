@@ -196,7 +196,7 @@ class ClassAliasPoolTest extends CoreTestCommon {
     // --- Additional tests for branch coverage ---
 
     @Test
-    @DisplayName("forName throws for empty class name")
+    @DisplayName("forName throws for empty class name argument")
     void forNameEmptyName() {
         assertThrows(ClassNotFoundRuntimeException.class,
                 () -> CLASS_ALIASES.forName(""),
@@ -204,7 +204,7 @@ class ClassAliasPoolTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("forName caches resolution failures")
+    @DisplayName("forName caches resolution failures for repeated lookup")
     void forNameCachesFailure() {
         String invalidName = "nonexistent.class.Name" + System.nanoTime();
         // First call - should throw
@@ -218,7 +218,7 @@ class ClassAliasPoolTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("resetResolutionFailures clears exception cache")
+    @DisplayName("resetResolutionFailures clears resolution failure cache entries for lookup")
     void resetResolutionFailuresTest() {
         String invalidName = "nonexistent.class.ResetTest" + System.nanoTime();
         // Trigger caching
@@ -243,10 +243,10 @@ class ClassAliasPoolTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("CAPKey equals returns false for non-CharSequence")
+    @DisplayName("CAPKey equals returns false for non-CharSequence key type comparison input")
     void capKeyEqualsNonCharSequence() {
         ClassAliasPool.CAPKey key = new ClassAliasPool.CAPKey("test");
-        assertNotEquals(Integer.valueOf(123), key, "CAPKey should not equal Integer");
+        assertNotEquals(123, key, "CAPKey should not equal Integer");
         assertNotEquals(new Object(), key, "CAPKey should not equal Object");
     }
 
@@ -269,7 +269,7 @@ class ClassAliasPoolTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("CAPKey equals returns false for different characters")
+    @DisplayName("CAPKey equals returns false for different character sequence")
     void capKeyEqualsDifferentChars() {
         ClassAliasPool.CAPKey key1 = new ClassAliasPool.CAPKey("test");
         StringBuilder sb = new StringBuilder("teST");
@@ -291,7 +291,7 @@ class ClassAliasPoolTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("CAPKey subSequence throws UnsupportedOperationException")
+    @DisplayName("CAPKey subSequence throws UnsupportedOperationException for unsupported range")
     void capKeySubSequence() {
         ClassAliasPool.CAPKey key = new ClassAliasPool.CAPKey("test");
         assertThrows(UnsupportedOperationException.class,
@@ -300,7 +300,7 @@ class ClassAliasPoolTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("nameFor with lambda throws IllegalArgumentException")
+    @DisplayName("nameFor with lambda throws IllegalArgumentException for lambda class")
     void nameForLambda() {
         Runnable lambda = () -> { };
         assertThrows(IllegalArgumentException.class,
@@ -324,12 +324,12 @@ class ClassAliasPoolTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("removePackage removes matching aliases")
+    @DisplayName("removePackage removes matching aliases from pool")
     void removePackageTest() {
         ClassAliasPool pool = new ClassAliasPool(null);
         pool.addAlias(ClassAliasPoolTest.class);
         assertEquals(ClassAliasPoolTest.class, pool.forName("ClassAliasPoolTest"),
-                "class should be registered");
+                "ClassAliasPoolTest should be registered in pool");
         pool.removePackage("net.openhft.chronicle.core.pool");
         assertThrows(ClassNotFoundRuntimeException.class,
                 () -> pool.forName("ClassAliasPoolTest"),
@@ -337,7 +337,7 @@ class ClassAliasPoolTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("testPackage returns true for matching package")
+    @DisplayName("testPackage returns true for matching package name")
     void testPackageMatches() {
         assertTrue(ClassAliasPool.testPackage("java.lang", String.class),
                 "String should be in java.lang package");
@@ -346,7 +346,7 @@ class ClassAliasPoolTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("testPackage returns false for non-matching package")
+    @DisplayName("testPackage returns false for non-matching package name")
     void testPackageNoMatch() {
         assertFalse(ClassAliasPool.testPackage("com.example", String.class),
                 "String should not be in com.example package");

@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.fail;
 
+@SuppressWarnings("removal")
 interface UnsafeMemoryTestMixin<T> {
 
     int CACHE_LINE_SIZE = 64;

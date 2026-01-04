@@ -63,10 +63,10 @@ class CleaningThreadTest extends CoreTestCommon {
     // --- Additional tests for branch coverage ---
 
     @Test
-    @DisplayName("inEventLoop returns false for regular thread")
+    @DisplayName("CleaningThread inEventLoop returns false for standard caller thread")
     void inEventLoopFalseForRegularThread() {
         assertFalse(CleaningThread.inEventLoop(Thread.currentThread()),
-                "inEventLoop should return false for regular thread");
+                "CleaningThread inEventLoop should return false for standard thread caller");
     }
 
     @Test

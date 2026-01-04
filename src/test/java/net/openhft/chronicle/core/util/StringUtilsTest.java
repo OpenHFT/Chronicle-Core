@@ -417,17 +417,17 @@ class StringUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("parseDouble handles incomplete special values")
+    @DisplayName("parseDouble returns NaN for incomplete special tokens")
     void parseDoubleHandlesIncompleteSpecialValues() {
         // "N" alone without "aN" should return NaN
         assertTrue(Double.isNaN(StringUtils.parseDouble("N")),
-                "parseDouble should return NaN for incomplete 'N' input");
+                "parseDouble should return NaN for incomplete 'N' token");
         // "I" alone without "nfinity" should return NaN
         assertTrue(Double.isNaN(StringUtils.parseDouble("I")),
-                "parseDouble should return NaN for incomplete 'I' input");
+                "parseDouble should return NaN for incomplete 'I' token");
         // "In" without rest should return NaN
         assertTrue(Double.isNaN(StringUtils.parseDouble("In")),
-                "parseDouble should return NaN for incomplete 'In' input");
+                "parseDouble should return NaN for incomplete 'In' token");
     }
 
     @Test
@@ -445,17 +445,17 @@ class StringUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("parseInt handles positive sign prefix")
+    @DisplayName("parseInt parses positive sign prefix for decimal input")
     void parseIntHandlesPositiveSign() {
         assertEquals(42, StringUtils.parseInt("+42", 10),
-                "parseInt should parse number with positive sign prefix");
+                "parseInt should parse +42 with positive sign prefix");
     }
 
     @Test
-    @DisplayName("parseLong handles positive sign prefix")
+    @DisplayName("parseLong parses positive sign prefix for decimal input")
     void parseLongHandlesPositiveSign() {
         assertEquals(42L, StringUtils.parseLong("+42", 10),
-                "parseLong should parse number with positive sign prefix");
+                "parseLong should parse +42 with positive sign prefix");
     }
 
     @Test
@@ -473,38 +473,38 @@ class StringUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("parseInt handles overflow condition")
+    @DisplayName("parseInt throws for decimal overflow beyond Integer limits")
     void parseIntHandlesOverflow() {
         // Integer.MAX_VALUE is 2147483647, so 2147483648 should overflow
         assertThrows(NumberFormatException.class, () -> StringUtils.parseInt("2147483648", 10),
-                "parseInt should throw for value exceeding Integer.MAX_VALUE");
+                "parseInt should throw for value above Integer.MAX_VALUE");
         // Integer.MIN_VALUE is -2147483648, so -2147483649 should overflow
         assertThrows(NumberFormatException.class, () -> StringUtils.parseInt("-2147483649", 10),
                 "parseInt should throw for value below Integer.MIN_VALUE");
     }
 
     @Test
-    @DisplayName("parseLong handles overflow condition")
+    @DisplayName("parseLong throws for decimal overflow beyond Long limits")
     void parseLongHandlesOverflow() {
         // Long.MAX_VALUE is 9223372036854775807, so one more should overflow
         assertThrows(NumberFormatException.class, () -> StringUtils.parseLong("9223372036854775808", 10),
-                "parseLong should throw for value exceeding Long.MAX_VALUE");
+                "parseLong should throw for value above Long.MAX_VALUE");
         assertThrows(NumberFormatException.class, () -> StringUtils.parseLong("-9223372036854775809", 10),
                 "parseLong should throw for value below Long.MIN_VALUE");
     }
 
     @Test
-    @DisplayName("firstLowerCase handles null input")
+    @DisplayName("firstLowerCase returns null when input string argument is missing")
     void firstLowerCaseHandlesNull() {
         assertNull(StringUtils.firstLowerCase(null),
-                "firstLowerCase should return null for null input");
+                "firstLowerCase should return null when input string is null");
     }
 
     @Test
-    @DisplayName("toTitleCase handles null input")
+    @DisplayName("toTitleCase returns null when input string argument is missing")
     void toTitleCaseHandlesNull() {
         assertNull(StringUtils.toTitleCase(null),
-                "toTitleCase should return null for null input");
+                "toTitleCase should return null when input string is null");
     }
 
     @Test
@@ -518,7 +518,7 @@ class StringUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("equalsCaseIgnore handles null first argument")
+    @DisplayName("equalsCaseIgnore returns false when first string argument is missing")
     void equalsCaseIgnoreHandlesNull() {
         assertFalse(StringUtils.equalsCaseIgnore(null, "test"),
                 "equalsCaseIgnore should return false when first argument is null");

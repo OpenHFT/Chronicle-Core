@@ -28,10 +28,10 @@ class ParsingCacheTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("Parsing cache returns null for null input")
+    @DisplayName("ParsingCache returns null when null input string argument is supplied")
     void internReturnsNullForNullInput() {
         @NotNull ParsingCache<BigDecimal> pc = new ParsingCache<>(128, BigDecimal::new);
-        assertNull(pc.intern(null), "intern should return null for null input");
+        assertNull(pc.intern(null), "ParsingCache intern returns null when input string is null");
     }
 
     @Test
@@ -42,7 +42,7 @@ class ParsingCacheTest extends CoreTestCommon {
         for (int i = 0; i < 256; i++) {
             String s = "value" + i;
             String interned = pc.intern(s);
-            assertEquals(s, interned, "interned value should equal original");
+            assertEquals(s, interned, "interned value should equal original at index " + i);
         }
         // Verify some values are still retrievable
         assertEquals("value0", pc.intern("value0"), "cache should return same value on re-intern");
@@ -53,11 +53,11 @@ class ParsingCacheTest extends CoreTestCommon {
     void toggleAlternatesBucketSelection() {
         @NotNull ParsingCache<String> pc = new ParsingCache<>(128, s -> s);
         // Access toggle to verify it alternates
-        assertFalse(pc.toggle, "toggle should start false");
+        assertFalse(pc.toggle, "cache toggle should start false");
         pc.toggle();
-        assertTrue(pc.toggle, "toggle should be true after first toggle");
+        assertTrue(pc.toggle, "cache toggle should be true after first toggle");
         pc.toggle();
-        assertFalse(pc.toggle, "toggle should be false after second toggle");
+        assertFalse(pc.toggle, "cache toggle should be false after second toggle");
     }
 
     @Test
@@ -74,7 +74,7 @@ class ParsingCacheTest extends CoreTestCommon {
         for (int i = 0; i < 512; i++) {
             String s = String.valueOf(i);
             String result = pc.intern(s);
-            assertEquals(s, result, "re-interning should return equivalent value");
+            assertEquals(s, result, "re-interning should return equivalent value at index " + i);
         }
     }
 
@@ -90,7 +90,7 @@ class ParsingCacheTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("Parsing cache handles StringBuilder input")
+    @DisplayName("Parsing cache handles StringBuilder input values")
     void internHandlesStringBuilder() {
         @NotNull ParsingCache<BigDecimal> pc = new ParsingCache<>(128, BigDecimal::new);
         StringBuilder sb = new StringBuilder("1.234");

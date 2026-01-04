@@ -111,7 +111,7 @@ class AbstractCloseableTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("throwExceptionIfClosedInSetter throws when closed")
+    @DisplayName("throwExceptionIfClosedInSetter throws ClosedIllegalStateException when resource is closed")
     void throwExceptionIfClosedInSetterWhenClosed() {
         MyCloseable mc = new MyCloseable();
         mc.close();
@@ -121,7 +121,7 @@ class AbstractCloseableTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("throwExceptionIfClosedInSetter succeeds when open")
+    @DisplayName("throwExceptionIfClosedInSetter succeeds when resource remains open")
     void throwExceptionIfClosedInSetterWhenOpen() {
         MyCloseable mc = new MyCloseable();
 
@@ -131,20 +131,20 @@ class AbstractCloseableTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("referenceId returns stable unique identifier")
+    @DisplayName("referenceId returns stable unique identifier value for instance")
     void referenceIdStable() {
         MyCloseable mc = new MyCloseable();
 
         int id1 = mc.referenceId();
         int id2 = mc.referenceId();
 
-        assertTrue(id1 > 0, "referenceId should be positive");
+        assertTrue(id1 > 0, "referenceId should be positive, id1=" + id1);
         assertEquals(id1, id2, "referenceId should return same value on subsequent calls");
         mc.close();
     }
 
     @Test
-    @DisplayName("createdHere returns null when tracing disabled")
+    @DisplayName("createdHere returns null when closeable tracing is disabled")
     void createdHereWithoutTracing() {
         boolean wasTracing = Jvm.isResourceTracing();
         try {
@@ -159,7 +159,7 @@ class AbstractCloseableTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("singleThreadedCheckDisabled can be toggled")
+    @DisplayName("singleThreadedCheckDisabled toggles single-threaded checks on demand")
     void singleThreadedCheckDisabledToggle() {
         MyCloseable mc = new MyCloseable();
 
@@ -175,7 +175,7 @@ class AbstractCloseableTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("singleThreadedCheckReset clears thread association")
+    @DisplayName("singleThreadedCheckReset clears thread association after reset")
     void singleThreadedCheckResetClearsThread() {
         MyCloseable mc = new MyCloseable();
 
@@ -187,35 +187,35 @@ class AbstractCloseableTest extends CoreTestCommon {
 
         // Should not throw when accessed from same thread after reset
         assertDoesNotThrow(mc::throwExceptionIfClosed,
-                "access after reset should not throw");
+                "throwExceptionIfClosed should not throw after reset");
         mc.close();
     }
 
     @Test
-    @DisplayName("toString returns referenceName")
+    @DisplayName("toString returns referenceName including class identifier")
     void toStringReturnsReferenceName() {
         MyCloseable mc = new MyCloseable();
 
         String str = mc.toString();
 
-        assertNotNull(str, "toString should not return null");
+        assertNotNull(str, "toString should return non-null referenceName string");
         assertTrue(str.contains("MyCloseable"), "toString should contain class name: " + str);
         mc.close();
     }
 
     @Test
-    @DisplayName("isInUserThread returns true for user threads")
+    @DisplayName("isInUserThread returns true for user thread names")
     void isInUserThreadForUserThread() {
         TestableCloseable mc = new TestableCloseable();
 
         // Main thread is a user thread (no ~ in name)
         assertTrue(mc.testIsInUserThread(),
-                "main thread should be considered a user thread");
+                "isInUserThread should treat main thread as user thread");
         mc.close();
     }
 
     @Test
-    @DisplayName("isInUserThread returns false for system threads")
+    @DisplayName("isInUserThread returns false for system thread names")
     void isInUserThreadForSystemThread() throws InterruptedException {
         AtomicBoolean result = new AtomicBoolean(true);
         TestableCloseable mc = new TestableCloseable();
@@ -226,12 +226,12 @@ class AbstractCloseableTest extends CoreTestCommon {
         systemThread.start();
         systemThread.join();
 
-        assertFalse(result.get(), "thread with ~ in name should not be considered a user thread");
+        assertFalse(result.get(), "isInUserThread should ignore thread names containing '~'");
         mc.close();
     }
 
     @Test
-    @DisplayName("unmonitor removes from tracking")
+    @DisplayName("unmonitor removes instance from closeable tracking list")
     void unmonitorRemovesFromTracking() {
         ignoreException("Closeable tracing is disabled");
         AbstractCloseable.enableCloseableTracing();
@@ -239,7 +239,7 @@ class AbstractCloseableTest extends CoreTestCommon {
             MyCloseable mc = new MyCloseable();
 
             // Unmonitor should not throw
-            assertDoesNotThrow(mc::unmonitor, "unmonitor should not throw");
+            assertDoesNotThrow(mc::unmonitor, "unmonitor should not throw while tracing is enabled");
 
             mc.close();
         } finally {
@@ -264,7 +264,7 @@ class AbstractCloseableTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("shouldPerformCloseInBackground returns false by default")
+    @DisplayName("shouldPerformCloseInBackground returns false for default closeable setting")
     void shouldPerformCloseInBackgroundDefault() {
         BackgroundTestCloseable mc = new BackgroundTestCloseable();
 
@@ -274,7 +274,7 @@ class AbstractCloseableTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("shouldWaitForClosed returns false by default")
+    @DisplayName("shouldWaitForClosed returns false for default closeable setting")
     void shouldWaitForClosedDefault() {
         WaitTestCloseable mc = new WaitTestCloseable();
 
@@ -321,7 +321,7 @@ class AbstractCloseableTest extends CoreTestCommon {
     }
 
     @Test
-    @DisplayName("waitForCloseablesToClose returns true when tracing disabled")
+    @DisplayName("waitForCloseablesToClose returns true when closeable tracing is disabled")
     void waitForCloseablesToCloseTracingDisabled() {
         AbstractCloseable.disableCloseableTracing();
         try {
