@@ -216,6 +216,10 @@ public class ClassAliasPool implements ClassLookup {
             throw new ClassNotFoundRuntimeException(/* class lookup failed */ new ClassNotFoundException(name + " not available"));
         try {
             return Class.forName(name, true, classLoader);
+        } catch (NoClassDefFoundError e) {
+            if (parent != null)
+                return parent.forName(name);
+            throw new ClassNotFoundRuntimeException(/* class lookup failed */ new ClassNotFoundException(e.getMessage(), e));
         } catch (ClassNotFoundException e) {
             if (parent != null)
                 return parent.forName(name);
