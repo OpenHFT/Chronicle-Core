@@ -16,7 +16,7 @@ class LongConditionTest {
     @DisplayName("Basic comparisons validate long invariant predicates")
     void basicComparisons() {
         String codeSource = LongCondition.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        assertTrue(codeSource.contains("/target/classes"), "Expected instrumented class from target/classes but was " + codeSource);
+        assertTrue(codeSource.contains("/target/classes"), "LongCondition should be loaded from target/classes but was " + codeSource);
 
         assertTrue(LongCondition.POSITIVE.test(7), "positive condition should accept value greater than zero");
         assertFalse(LongCondition.POSITIVE.test(0), "positive condition should reject zero");

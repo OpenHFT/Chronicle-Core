@@ -16,7 +16,7 @@ class IntsTest {
     @DisplayName("Require non negative allows zero and positive")
     void requireNonNegativeAllowsZeroAndPositive() {
         String codeSource = Ints.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        assertTrue(codeSource.contains("/target/classes"), "Expected Ints to be loaded from target/classes but was " + codeSource);
+        assertTrue(codeSource.contains("/target/classes"), "Ints should be loaded from target/classes but was " + codeSource);
 
         assertEquals(0, Ints.requireNonNegative(0), "requireNonNegative should accept zero");
         assertEquals(42, Ints.requireNonNegative(42), "requireNonNegative should accept positive values");

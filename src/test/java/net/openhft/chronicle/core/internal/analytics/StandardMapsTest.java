@@ -140,7 +140,7 @@ class StandardMapsTest extends CoreTestCommon {
 
         Map<String, String> additional = StandardMaps.standardAdditionalEventParameters(elements);
 
-        assertTrue(additional.size() <= 3, "Expected at most three entries");
+        assertTrue(additional.size() <= 3, "additional event parameters should include at most three entries");
         assertTrue(additional.values().stream().anyMatch(v -> v.contains("run.chronicle.demo")), "additional event parameters should include whitelisted packages");
         assertFalse(additional.values().stream().anyMatch(v -> v.startsWith("software.chronicle")), "Enterprise packages should be filtered");
     }

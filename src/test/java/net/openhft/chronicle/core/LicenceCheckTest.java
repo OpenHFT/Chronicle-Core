@@ -56,7 +56,7 @@ class LicenceCheckTest extends CoreTestCommon {
         // licensed
         LicenceCheck.check("test", null);
         assertTrue(map.toString().contains("license for Test Unit expires in about 7"),
-                "expected warning about licence expiry in map: " + map);
+                "licence expiry warning should be recorded in map: " + map);
     }
 
     @Test
