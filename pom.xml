@@ -200,6 +200,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
                     <compilerArgument>-Xlint:all,-options</compilerArgument>
+                    <!-- uses sun.misc.Unsafe so we can't have warnings as errors -->
                     <failOnWarning>false</failOnWarning>
                 </configuration>
                 <!-- build a multi-release jar -->
