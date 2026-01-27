@@ -12,7 +12,7 @@
         <groupId>net.openhft</groupId>
         <artifactId>java-parent-pom</artifactId>
         <!-- processing annotations is off on 1.26.0, and turning it on requires Java 11 -->
-        <version>2026.0-SNAPSHOT</version>
+        <version>2026.0</version>
         <relativePath />
     </parent>
 
@@ -31,7 +31,7 @@
             <dependency>
                 <groupId>net.openhft</groupId>
                 <artifactId>third-party-bom</artifactId>
-                <version>2026.0-SNAPSHOT</version>
+                <version>2026.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -39,7 +39,7 @@
             <dependency>
                 <groupId>net.openhft</groupId>
                 <artifactId>chronicle-bom</artifactId>
-                <version>2026.0-SNAPSHOT</version>
+                <version>2026.0</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
