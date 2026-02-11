@@ -5,6 +5,9 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.internal.Bootstrap;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
+import net.openhft.chronicle.core.alloc.AllocationListener;
+import net.openhft.chronicle.core.alloc.AllocationTrace;
+import net.openhft.chronicle.core.alloc.NoOpAllocationListener;
 import net.openhft.chronicle.core.util.MisAlignedAssertionError;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -53,6 +56,11 @@ public class UnsafeMemory implements Memory {
      */
     public static final UnsafeMemory INSTANCE;
     public static final UnsafeMemory MEMORY;
+
+    private static volatile AllocationListener allocationListener = NoOpAllocationListener.INSTANCE;
+
+    private static final ThreadLocal<AllocationTrace> TRACE_POOL =
+        ThreadLocal.withInitial(AllocationTrace::new);
 
     // see java.nio.Bits.copyMemory
     // This number limits the number of bytes to copy per call to Unsafe's
@@ -629,8 +637,17 @@ public class UnsafeMemory implements Memory {
     @Override
     public void freeMemory(long address, long size) {
         assert SKIP_ASSERTIONS || size >= 0;
-        if (address != 0)
+        if (address != 0) {
+            AllocationListener listener = allocationListener;
+            if (listener != NoOpAllocationListener.INSTANCE) {
+                long timestampMs = System.currentTimeMillis();
+                AllocationTrace trace = TRACE_POOL.get();
+                trace.capture();
+                try { listener.onFree(timestampMs, address, size, trace); }
+                catch (Throwable t) { Jvm.warn().on(UnsafeMemory.class, "AllocationListener.onFree threw", t); }
+            }
             UNSAFE.freeMemory(address);
+        }
         nativeMemoryUsed.addAndGet(-size);
     }
 
@@ -651,7 +668,14 @@ public class UnsafeMemory implements Memory {
             throw new OutOfMemoryError("Not enough free native memory, capacity attempted: " + capacity / 1024 + " KiB");
 
         nativeMemoryUsed.addAndGet(capacity);
-
+        AllocationListener listener = allocationListener;
+        if (listener != NoOpAllocationListener.INSTANCE) {
+            long timestampMs = System.currentTimeMillis();
+            AllocationTrace trace = TRACE_POOL.get();
+            trace.capture();
+            try { listener.onAllocate(timestampMs, address, capacity, trace); }
+            catch (Throwable t) { Jvm.warn().on(UnsafeMemory.class, "AllocationListener.onAllocate threw", t); }
+        }
         return address;
     }
 
@@ -663,6 +687,20 @@ public class UnsafeMemory implements Memory {
     @Override
     public long nativeMemoryUsed() {
         return nativeMemoryUsed.get();
+    }
+
+    /**
+     * Installs an allocation listener. Pass {@code null} to reset to the no-op default.
+     */
+    public static void setAllocationListener(AllocationListener listener) {
+        allocationListener = (listener != null) ? listener : NoOpAllocationListener.INSTANCE;
+    }
+
+    /**
+     * Returns the currently installed allocation listener.
+     */
+    public static AllocationListener getAllocationListener() {
+        return allocationListener;
     }
 
     /**
