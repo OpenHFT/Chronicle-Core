@@ -109,7 +109,7 @@ public final class CloseableUtils {
                     throw new AssertionError("Timed out waiting for the Finalizer");
             }
 
-            AbstractCloseable.waitForCloseablesToClose(1000);
+            waitForCloseablesToClose(1000);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new AssertionError(e);
@@ -124,6 +124,7 @@ public final class CloseableUtils {
      *
      * @param millis The time limit in milliseconds to wait for the closeable resources to close.
      * @return true if all closeable resources are closed within the time limit, false otherwise.
+     * @see #assertCloseablesClosed()
      */
     @SuppressWarnings({"java:S3776", "java:S3516"}) // turned on by assert
     public static boolean waitForCloseablesToClose(long millis) {
@@ -131,42 +132,30 @@ public final class CloseableUtils {
         if (traceSet == null) {
             return true;
         }
-        if (Thread.interrupted())
+        if (Thread.currentThread().isInterrupted())
             System.err.println("Interrupted in waitForCloseablesToClose!");
 
         long end = System.currentTimeMillis() + millis;
+        CleaningThreadLocal.cleanupNonCleaningThreads();
+        BackgroundResourceReleaser.releasePendingResources();
 
-        toWait:
         while (true) {
-            Collection<Closeable> traceSetCopy;
             synchronized (traceSet) {
-                traceSetCopy = new ArrayList<>(traceSet);
-            }
-            for (Closeable key : traceSetCopy) {
-                if (key.isClosing())
-                    continue;
-                try {
-                    // too late to be checking thread safety.
-                    if (key instanceof AbstractCloseable) {
-                        ((AbstractCloseable) key).singleThreadedCheckDisabled(true);
+                boolean allClosed = true;
+
+                for (ManagedCloseable key : traceSet) {
+                    if (!key.isClosing()) {
+                        allClosed = false;
+                        break;
                     }
-                    if (key instanceof ReferenceCountedTracer) {
-                        ((ReferenceCountedTracer) key).throwExceptionIfNotReleased();
-                    }
-
-                } catch (IllegalStateException e) {
-                    if (System.currentTimeMillis() > end)
-                        throw e;
-
-                    BackgroundResourceReleaser.releasePendingResources();
-
-                    CleaningThreadLocal.cleanupNonCleaningThreads();
-
-                    Jvm.pause(1);
-                    continue toWait;
                 }
+                if (allClosed)
+                    return true;
             }
-            return true;
+
+            if (System.currentTimeMillis() > end)
+                return false;
+            Jvm.pause(25);
         }
     }
 
@@ -174,6 +163,8 @@ public final class CloseableUtils {
      * Asserts that all closeable resources are closed.
      * This method checks if there are any remaining open closeable resources.
      * If any resources are found to be open, an AssertionError is thrown.
+     *
+     * @see #waitForCloseablesToClose(long)
      */
     public static void assertCloseablesClosed() {
         final Set<ManagedCloseable> traceSet = CLOSEABLES.get();
@@ -301,7 +292,8 @@ public final class CloseableUtils {
      *
      * @param o the object to close
      */
-    @SuppressWarnings({"java:S1181", "java:S3776"}) // Catching Throwable intentionally to prevent cleanup paths from throwing.
+    @SuppressWarnings({"java:S1181", "java:S3776"})
+    // Catching Throwable intentionally to prevent cleanup paths from throwing.
     static void closeQuietly(@Nullable Object o) {
         if (o instanceof Collection) {
             Collection<?> coll = (Collection<?>) o;
