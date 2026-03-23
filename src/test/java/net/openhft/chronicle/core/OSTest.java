@@ -5,8 +5,10 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.io.IOTools;
 import net.openhft.chronicle.core.threads.ThreadDump;
-import org.junit.*;
-import org.junit.rules.TestName;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.mockito.MockitoAnnotations;
 
 import java.io.File;
@@ -23,18 +25,22 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
 public class OSTest extends CoreTestCommon {
-    @Rule
-    public final TestName testName = new TestName();
     private ThreadDump threadDump;
+    private String testName;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    public void beforeEachOSTest(TestInfo testInfo) {
+        setUp(testInfo);
+        threadDump();
+    }
+
+    public void setUp(TestInfo testInfo) {
         MockitoAnnotations.openMocks(this);
+        testName = testInfo.getTestMethod().map(m -> m.getName()).orElse("unknown");
     }
 
     @Test
@@ -67,12 +73,11 @@ public class OSTest extends CoreTestCommon {
         assertEquals(new File("./last").getAbsolutePath(), OS.findFile("first", "last").getAbsolutePath());
     }
 
-    @Before
     public void threadDump() {
         threadDump = new ThreadDump();
     }
 
-    @After
+    @AfterEach
     public void checkThreadDump() {
         threadDump.assertNoNewThreads();
     }
@@ -102,10 +107,8 @@ public class OSTest extends CoreTestCommon {
      * tests that Windows supports page mapping granularity
      */
     @Test
-    //@Ignore("Failing on TC (linux agent) for unknown reason, anyway the goal of this test is to " +
-    //        "test mapping granularity on windows")
     public void testMapGranularity() throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        File file = IOTools.createTempFile(getClass().getName() + "." + testName.getMethodName());
+        File file = IOTools.createTempFile(getClass().getName() + "." + testName);
 
         try (RandomAccessFile rw = new RandomAccessFile(file, "rw")) {
             FileChannel fc = rw.getChannel();
@@ -124,9 +127,8 @@ public class OSTest extends CoreTestCommon {
     }
 
     @Test
-    //@Ignore("Should always pass, or crash the JVM based on length")
     public void testMap() throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        File file = IOTools.createTempFile(getClass().getName() + "." + testName.getMethodName());
+        File file = IOTools.createTempFile(getClass().getName() + "." + testName);
 
         try (RandomAccessFile rw = new RandomAccessFile(file, "rw")) {
             FileChannel fc = rw.getChannel();
@@ -163,7 +165,7 @@ public class OSTest extends CoreTestCommon {
 
     @Test
     public void testMapFast() throws Exception {
-        File file = IOTools.createTempFile(getClass().getName() + "." + testName.getMethodName());
+        File file = IOTools.createTempFile(getClass().getName() + "." + testName);
 
         try (RandomAccessFile rw = new RandomAccessFile(file, "rw")) {
             FileChannel fc = rw.getChannel();
@@ -355,14 +357,14 @@ public class OSTest extends CoreTestCommon {
         assertEquals(expectedHostName, OS.HostnameHolder.HOST_NAME);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void mapAlignRejectsNegativeOffsets() {
-        OS.mapAlign(-1L);
+        assertThrows(IllegalArgumentException.class, () -> OS.mapAlign(-1L));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void mapAlignRejectsNonPositiveAlignment() {
-        OS.mapAlign(64L, 0);
+        assertThrows(IllegalArgumentException.class, () -> OS.mapAlign(64L, 0));
     }
 
     @Test
@@ -383,7 +385,7 @@ public class OSTest extends CoreTestCommon {
             raf.setLength(size);
 
             long address = OS.map(channel, FileChannel.MapMode.READ_WRITE, 0L, size);
-            Assert.assertTrue("Expected non-zero mapping address", address != 0L);
+            assertTrue(address != 0L, "Expected non-zero mapping address");
 
             OS.unmap(address, size);
         }
@@ -402,7 +404,7 @@ public class OSTest extends CoreTestCommon {
             raf.setLength(start + size);
 
             long address = OS.map(channel, FileChannel.MapMode.READ_WRITE, start, size);
-            Assert.assertTrue(address != 0L);
+            assertTrue(address != 0L);
             OS.unmap(address, size);
         }
     }
