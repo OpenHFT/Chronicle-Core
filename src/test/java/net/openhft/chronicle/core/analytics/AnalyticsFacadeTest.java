@@ -3,27 +3,23 @@
  */
 package net.openhft.chronicle.core.analytics;
 
-import net.openhft.chronicle.analytics.Analytics;
 import net.openhft.chronicle.core.internal.analytics.MuteBuilder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
-import java.util.Collections;
-import java.util.Map;
-
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AnalyticsFacadeTest {
 
     private String originalDisableProperty;
 
-    @Before
+    @BeforeEach
     public void captureProperty() {
         originalDisableProperty = System.getProperty("chronicle.analytics.disable");
     }
 
-    @After
+    @AfterEach
     public void restoreProperty() {
         if (originalDisableProperty == null) {
             System.clearProperty("chronicle.analytics.disable");
@@ -35,7 +31,7 @@ public class AnalyticsFacadeTest {
     @Test
     public void enabledWhenAnalyticsPresent() {
         System.clearProperty("chronicle.analytics.disable");
-        assertTrue("Analytics should be enabled when dependency is available", AnalyticsFacade.isEnabled());
+        assertTrue(AnalyticsFacade.isEnabled(), "Analytics should be enabled when dependency is available");
 
         AnalyticsFacade.Builder builder = AnalyticsFacade.builder("measurement", "secret");
         assertEquals("net.openhft.chronicle.core.internal.analytics.ReflectiveBuilder", builder.getClass().getName());

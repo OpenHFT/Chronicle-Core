@@ -6,9 +6,8 @@ package net.openhft.chronicle.core.cooler;
 import org.junit.jupiter.api.Test;
 import java.util.concurrent.Callable;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CoolerTesterTest {
 
