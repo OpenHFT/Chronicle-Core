@@ -5,13 +5,13 @@ package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Maths;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.function.BiFunction;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class StringUtilsTest extends CoreTestCommon {
 
@@ -148,17 +148,15 @@ public class StringUtilsTest extends CoreTestCommon {
 
     @Test
     public void shouldExtractBytesFromString() {
-        assertTrue(
-                Arrays.equals(
-                    "foobar".getBytes(StandardCharsets.US_ASCII),
-                    StringUtils.extractBytes("foobar")));
+        assertTrue(Arrays.equals(
+            "foobar".getBytes(StandardCharsets.US_ASCII),
+            StringUtils.extractBytes("foobar")));
     }
 
     @Test
     public void shouldExtractBytesFromStringBuilder() {
         // uses StringUtils.extractBytes/extractChars as appropriate
-        assertEquals(0xdf8d42fa7e05af8aL,
-                Maths.hash64(new StringBuilder("foobar")));
+        assertEquals(0xdf8d42fa7e05af8aL, Maths.hash64(new StringBuilder("foobar")));
     }
 
     @Test

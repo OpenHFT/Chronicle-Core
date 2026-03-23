@@ -6,19 +6,19 @@ package net.openhft.chronicle.core.util;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.Closeable;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.Mockito;
+
 import java.lang.reflect.Method;
 
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
 class ConcreteInvocationHandler extends AbstractInvocationHandler {
     ConcreteInvocationHandler() {

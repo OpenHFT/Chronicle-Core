@@ -5,12 +5,11 @@ package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.Assert.assertEquals;
 
 public class HistogramTest extends CoreTestCommon {
 
@@ -85,8 +84,7 @@ public class HistogramTest extends CoreTestCommon {
             assertEquals(i * 4 + 3, h.sample(base * 1.75));
             base *= 2;
         }
-        assertEquals("50/90 99/99.9 99.99 - worst was 980 / 77,309,410  893,353,200 / 1,030,792,150  1,030,792,150 - 1,030,792,150",
-                h.toMicrosFormat());
+        assertEquals("50/90 99/99.9 99.99 - worst was 980 / 77,309,410  893,353,200 / 1,030,792,150  1,030,792,150 - 1,030,792,150", h.toMicrosFormat());
     }
 
     @Test
@@ -95,13 +93,11 @@ public class HistogramTest extends CoreTestCommon {
 
         sampleWithSeed(h, 2141);
 
-        assertEquals("50/90 99/99.9 99.99 - worst was 500 / 890  990 / 990  990 - 990",
-                h.toMicrosFormat());
-        assertEquals("50/90 97/99 99.7/99.9 99.97/99.99 - worst was 500 / 890  970 / 990  990 / 990  990 / 990 - 990",
-                h.toLongMicrosFormat());
+        assertEquals("50/90 99/99.9 99.99 - worst was 500 / 890  990 / 990  990 - 990", h.toMicrosFormat());
+        assertEquals("50/90 97/99 99.7/99.9 99.97/99.99 - worst was 500 / 890  970 / 990  990 / 990  990 / 990 - 990", h.toLongMicrosFormat());
 
         for (int i = 1; i <= 100; i++)
-            assertEquals("i: " + i, i, percentile(h, i / 100.0), 1);
+            assertEquals(i, percentile(h, i / 100.0), 1, "i: " + i);
         for (int i = 1; i <= 100; i++)
             assertEquals(i, h.percentageLessThan(i * 10_000), 2);
     }

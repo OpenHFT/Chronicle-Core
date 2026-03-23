@@ -5,15 +5,14 @@ package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.internal.invariant.ints.IntCondition;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Map;
 
 import static net.openhft.chronicle.core.internal.invariant.ints.IntCondition.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class IntConditionTest extends CoreTestCommon {
 
@@ -93,8 +92,8 @@ public class IntConditionTest extends CoreTestCommon {
 
         Arrays.stream(expected)
                 .forEach(e -> {
-                    assertEquals(e.getKey() + " expected " + e.getValue(), e.getValue(), predicate.test(e.getKey()));
-                    assertNotEquals(e.getKey() + " expected " + !e.getValue(), e.getValue(), negatedPredicate.test(e.getKey()));
+                    assertEquals(e.getValue(), predicate.test(e.getKey()), e.getKey() + " expected " + e.getValue());
+                    assertNotEquals(e.getValue(), negatedPredicate.test(e.getKey()), e.getKey() + " expected " + !e.getValue());
                 });
     }
 
@@ -103,7 +102,7 @@ public class IntConditionTest extends CoreTestCommon {
 
         Arrays.stream(expected)
                 .forEach(e -> {
-                    assertEquals(e.getKey() + " expected " + e.getValue(), e.getValue(), predicate.test(e.getKey()));
+                    assertEquals(e.getValue(), predicate.test(e.getKey()), e.getKey() + " expected " + e.getValue());
                 });
     }
 

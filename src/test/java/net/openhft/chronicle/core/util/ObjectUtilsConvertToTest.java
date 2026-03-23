@@ -4,27 +4,22 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Arrays;
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
-@RunWith(Parameterized.class)
 public class ObjectUtilsConvertToTest extends CoreTestCommon {
 
-    private final Object converted;
-    private final String input;
-
-    public ObjectUtilsConvertToTest(Object converted, String input) {
-        this.converted = converted;
-        this.input = input;
+    @ParameterizedTest
+    @MethodSource("data")
+    public void convertTo(Object converted, String input) throws IllegalStateException, IllegalArgumentException {
+        assertEquals(converted, ObjectUtils.convertTo(converted.getClass(), input));
     }
 
-    @Parameterized.Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
                 {Boolean.TRUE, "Y"},
@@ -38,11 +33,6 @@ public class ObjectUtilsConvertToTest extends CoreTestCommon {
                 {DEnum.ONE, "One"},
                 {DEnum.TWO, "Two"},
         });
-    }
-
-    @Test
-    public void convertTo() throws IllegalStateException, IllegalArgumentException {
-        assertEquals(converted, ObjectUtils.convertTo(converted.getClass(), input));
     }
 
     static class DEnum implements CoreDynamicEnum<DEnum> {

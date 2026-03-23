@@ -6,8 +6,8 @@ package net.openhft.chronicle.core.scoped;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.threads.CleaningThread;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.Closeable;
 import java.util.*;
@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static net.openhft.chronicle.core.io.Closeable.closeQuietly;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ScopedThreadLocalTest extends CoreTestCommon {
 
@@ -23,7 +23,7 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
 
     private ScopedThreadLocal<AtomicLong> scopedThreadLocal;
 
-    @Before
+    @BeforeEach
     public void createSTL() {
         scopedThreadLocal = new ScopedThreadLocal<>(AtomicLong::new, al -> al.set(0), MAX_INSTANCES);
     }
@@ -121,16 +121,13 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
         }, MAX_INSTANCES);
 
         // Should get 0,1,2,3 on the first excessive acquire
-        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 3)),
-                retrieveAndReturnNValues(MAX_INSTANCES + 1, ints));
+        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 3)), retrieveAndReturnNValues(MAX_INSTANCES + 1, ints));
 
         // Should get 0,1,2,4,5 on the next excessive acquire
-        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 4, 5)),
-                retrieveAndReturnNValues(MAX_INSTANCES + 2, ints));
+        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 4, 5)), retrieveAndReturnNValues(MAX_INSTANCES + 2, ints));
 
         // Should get 0,1,2,6,7 on the next excessive acquire
-        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 6, 7)),
-                retrieveAndReturnNValues(MAX_INSTANCES + 2, ints));
+        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 6, 7)), retrieveAndReturnNValues(MAX_INSTANCES + 2, ints));
     }
 
     private Set<Integer> retrieveAndReturnNValues(int numberToRetrieve, ScopedThreadLocal<Integer> scopedInts) {

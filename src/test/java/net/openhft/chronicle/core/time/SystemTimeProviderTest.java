@@ -9,11 +9,11 @@ import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.Histogram;
 import net.openhft.chronicle.testframework.FlakyTestRunner;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.security.SecureRandom;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SystemTimeProviderTest extends CoreTestCommon {
     @Test

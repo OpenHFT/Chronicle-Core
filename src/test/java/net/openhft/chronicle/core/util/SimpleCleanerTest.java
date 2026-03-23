@@ -6,8 +6,8 @@ package net.openhft.chronicle.core.util;
 import net.openhft.chronicle.core.util.SimpleCleaner;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class SimpleCleanerTest {
 

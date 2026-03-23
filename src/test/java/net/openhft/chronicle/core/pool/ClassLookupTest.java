@@ -14,14 +14,14 @@ class ClassLookupTest {
     @Test
     void testClassLookupByName() {
         Class<?> clazz = classLookup.forName("java.lang.String");
-        assertEquals(String.class, clazz);
+        assertSame(String.class, clazz);
     }
 
     @Test
     void testAddingAliasAndLookupByAlias() {
         classLookup.addAlias(String.class, "StringAlias");
         Class<?> clazz = classLookup.forName("StringAlias");
-        assertEquals(String.class, clazz);
+        assertSame(String.class, clazz);
     }
 
     @Test

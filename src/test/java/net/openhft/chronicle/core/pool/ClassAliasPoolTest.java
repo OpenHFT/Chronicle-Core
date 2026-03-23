@@ -5,13 +5,12 @@ package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.util.ClassNotFoundRuntimeException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
 import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ClassAliasPoolTest extends CoreTestCommon {
 
@@ -79,9 +78,9 @@ public class ClassAliasPoolTest extends CoreTestCommon {
         CLASS_ALIASES.addAlias(ClassAliasPoolTest.class);
         assertEquals("ClassAliasPoolTest", CLASS_ALIASES.applyAlias(ClassAliasPoolTest.class.getName()));
         String simpleName = getClass().getSimpleName();
-        assertEquals(ClassAliasPoolTest.class, CLASS_ALIASES.forName(simpleName));
+        assertSame(ClassAliasPoolTest.class, ClassAliasPool.CLASS_ALIASES.forName(simpleName));
         StringBuilder sb = new StringBuilder(simpleName);
-        assertEquals(ClassAliasPoolTest.class, CLASS_ALIASES.forName(sb));
+        assertSame(ClassAliasPoolTest.class, ClassAliasPool.CLASS_ALIASES.forName(sb));
     }
 
     @Test
@@ -93,12 +92,9 @@ public class ClassAliasPoolTest extends CoreTestCommon {
 
     @Test
     public void testEnum() throws IllegalArgumentException {
-        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum",
-                CLASS_ALIASES.nameFor(TestEnum.class));
-        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum",
-                CLASS_ALIASES.nameFor(TestEnum.FOO.getClass()));
-        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum",
-                CLASS_ALIASES.nameFor(TestEnum.BAR.getClass()));
+        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum", CLASS_ALIASES.nameFor(TestEnum.class));
+        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum", CLASS_ALIASES.nameFor(TestEnum.FOO.getClass()));
+        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum", CLASS_ALIASES.nameFor(TestEnum.BAR.getClass()));
     }
 
     @Test

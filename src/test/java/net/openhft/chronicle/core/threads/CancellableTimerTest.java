@@ -14,9 +14,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.io.Closeable;
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class CancellableTimerTest extends CoreTestCommon {

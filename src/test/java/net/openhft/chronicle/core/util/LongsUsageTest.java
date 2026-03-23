@@ -4,12 +4,12 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.internal.invariant.longs.LongCondition;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.LongPredicate;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * These tests mirror the guard patterns used in peer Chronicle modules (e.g. Chronicle-Bytes)

@@ -14,7 +14,7 @@ import java.util.function.Supplier;
 import java.util.function.UnaryOperator;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit-tests the constructor flag {@code overrideTrackNonCleaningThreads}.

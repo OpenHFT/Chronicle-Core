@@ -5,9 +5,9 @@ package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Maths;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 public class StaticEnumClassTest extends CoreTestCommon {
 
     @Test

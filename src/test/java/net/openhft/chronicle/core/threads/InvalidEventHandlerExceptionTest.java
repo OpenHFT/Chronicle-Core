@@ -4,8 +4,8 @@
 package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -13,8 +13,6 @@ import java.io.PrintStream;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class InvalidEventHandlerExceptionTest extends CoreTestCommon {
 
@@ -50,7 +48,7 @@ public class InvalidEventHandlerExceptionTest extends CoreTestCommon {
     }
     private InvalidEventHandlerException e;
 
-    @Before
+    @BeforeEach
     public void setup() {
         e = InvalidEventHandlerException.reusable();
     }

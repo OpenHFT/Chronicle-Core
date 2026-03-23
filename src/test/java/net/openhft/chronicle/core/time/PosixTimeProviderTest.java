@@ -11,12 +11,11 @@ import net.openhft.chronicle.testframework.FlakyTestRunner;
 import net.openhft.posix.ClockId;
 import net.openhft.posix.PosixAPI;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static net.openhft.chronicle.core.time.SystemTimeProviderTest.assertBetween;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
 public class PosixTimeProviderTest extends CoreTestCommon {
 

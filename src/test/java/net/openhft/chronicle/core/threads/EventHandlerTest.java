@@ -4,20 +4,20 @@
 package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.Jvm;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import java.io.Closeable;
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
 class EventHandlerTest {
 
     @BeforeEach
     void mockitoNotSupportedOnJava21() {
-        Assumptions.assumeTrue(Jvm.majorVersion() <= 17);
+        assumeTrue(Jvm.majorVersion() <= 17);
     }
     @Test
     void eventLoopShouldBeCalledWithCorrectEventLoop() {
