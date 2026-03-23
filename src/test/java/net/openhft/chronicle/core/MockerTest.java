@@ -4,12 +4,11 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.util.Mocker;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.StringWriter;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MockerTest extends CoreTestCommon {
 
@@ -24,8 +23,7 @@ public class MockerTest extends CoreTestCommon {
                         "end[three]%n" +
                         "chains[111]%n" +
                         "alsoChains[222]%n" +
-                        "end[333]%n"),
-                out.toString());
+                        "end[333]%n"), out.toString());
     }
 
     @Test

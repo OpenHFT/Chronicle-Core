@@ -18,8 +18,7 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 interface UnsafeMemoryTestMixin<T> {
 
