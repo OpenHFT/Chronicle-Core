@@ -4,26 +4,26 @@
 package net.openhft.chronicle.core.internal.analytics;
 
 import net.openhft.chronicle.core.analytics.AnalyticsFacade;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MuteBuilderApiNoopsTest {
 
     private String prev;
 
-    @Before
+    @BeforeEach
     public void disableAnalytics() {
         prev = System.getProperty("chronicle.analytics.disable");
         System.setProperty("chronicle.analytics.disable", "true");
     }
 
-    @After
+    @AfterEach
     public void restoreProperty() {
         if (prev == null) System.clearProperty("chronicle.analytics.disable");
         else System.setProperty("chronicle.analytics.disable", prev);

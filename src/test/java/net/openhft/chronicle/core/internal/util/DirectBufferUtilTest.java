@@ -9,9 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
-import static org.junit.Assume.assumeTrue;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.*;
 
 class DirectBufferUtilTest {
 
@@ -22,7 +21,7 @@ class DirectBufferUtilTest {
 
     @Test
     void directBufferClassShouldReturnCorrectClass() {
-        assertEquals(sun.nio.ch.DirectBuffer.class, DirectBufferUtil.directBufferClass(), "DirectBuffer class should be returned");
+        assertSame(sun.nio.ch.DirectBuffer.class, DirectBufferUtil.directBufferClass(), "DirectBuffer class should be returned");
     }
 
     @Test

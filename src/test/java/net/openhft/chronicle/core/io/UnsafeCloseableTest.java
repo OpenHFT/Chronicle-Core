@@ -3,10 +3,11 @@
  */
 package net.openhft.chronicle.core.io;
 
-import junit.framework.TestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class UnsafeCloseableTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.*;
+
+public class UnsafeCloseableTest {
 
     private final UnsafeCloseable uc;
 

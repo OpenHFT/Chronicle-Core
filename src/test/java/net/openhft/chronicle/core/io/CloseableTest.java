@@ -4,8 +4,7 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import org.junit.Test;
-import org.junit.Assume;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.lang.ref.SoftReference;
@@ -14,7 +13,8 @@ import java.nio.channels.ServerSocketChannel;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
 public class CloseableTest extends CoreTestCommon {
 
@@ -79,7 +79,7 @@ public class CloseableTest extends CoreTestCommon {
             ssc.bind(new InetSocketAddress(0));
         } catch (IOException ioe) {
             // Some CI environments disallow socket operations; skip in that case.
-            Assume.assumeTrue("Network not permitted in this environment", false);
+            assumeTrue(false, "Network not permitted in this environment");
             return;
         }
         ssc.close();

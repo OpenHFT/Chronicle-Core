@@ -4,14 +4,14 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.OS;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.Comparator;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class IOToolsTempDirectoryTest {
 
@@ -21,7 +21,7 @@ public class IOToolsTempDirectoryTest {
         Path dir2 = IOTools.createTempDirectory("temp-test");
         Path base = Paths.get(OS.getTarget()).toAbsolutePath().normalize();
         try {
-            assertNotEquals("Each invocation should return a new directory", dir1, dir2);
+            assertNotEquals(dir1, dir2, "Each invocation should return a new directory");
             assertTrue(Files.isDirectory(dir1));
             assertTrue(Files.isDirectory(dir2));
             assertTrue(dir1.toString().contains("temp-test"));
@@ -39,7 +39,7 @@ public class IOToolsTempDirectoryTest {
         File file = IOTools.createTempFile("temp-file");
         Path base = Paths.get(OS.getTarget()).toAbsolutePath().normalize();
         try {
-            assertFalse("Temp file paths are not materialised until needed", file.exists());
+            assertFalse(file.exists(), "Temp file paths are not materialised until needed");
             assertTrue(file.getAbsolutePath().contains("temp-file"));
             assertTrue(file.toPath().toAbsolutePath().normalize().startsWith(base));
             // When callers need a real file they can create it themselves.

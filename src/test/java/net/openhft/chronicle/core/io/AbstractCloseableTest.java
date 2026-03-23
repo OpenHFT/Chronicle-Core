@@ -6,12 +6,12 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AbstractCloseableTest extends CoreTestCommon {
 
@@ -32,12 +32,13 @@ public class AbstractCloseableTest extends CoreTestCommon {
         assertEquals(1, mc.performClose);
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void throwExceptionIfClosed() throws IllegalStateException {
-        MyCloseable mc = new MyCloseable();
-        mc.close();
-        mc.throwExceptionIfClosed();
-
+        assertThrows(IllegalStateException.class, () -> {
+            MyCloseable mc = new MyCloseable();
+            mc.close();
+            mc.throwExceptionIfClosed();
+        });
     }
 
     @Test
@@ -55,11 +56,10 @@ public class AbstractCloseableTest extends CoreTestCommon {
         Jvm.resetExceptionHandlers();
         if (!AbstractCloseable.DISABLE_DISCARD_WARNING)
             assertEquals("Discarded without closing\n" +
-                            "java.lang.IllegalStateException: net.openhft.chronicle.core.StackTrace: net.openhft.chronicle.core.io.AbstractCloseableTest$MyCloseable created here on main",
-                    map.keySet().stream()
-                            .map(e -> e.message() + "\n" + e.throwable())
-                            .collect(Collectors.joining(", "))
-                            .split(" at ")[0]);
+                            "java.lang.IllegalStateException: net.openhft.chronicle.core.StackTrace: net.openhft.chronicle.core.io.AbstractCloseableTest$MyCloseable created here on main", map.keySet().stream()
+                                    .map(e -> e.message() + "\n" + e.throwable())
+                                    .collect(Collectors.joining(", "))
+                                    .split(" at ")[0]);
     }
 
     @Test

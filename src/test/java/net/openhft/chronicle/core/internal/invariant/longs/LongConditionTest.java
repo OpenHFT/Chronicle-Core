@@ -3,18 +3,18 @@
  */
 package net.openhft.chronicle.core.internal.invariant.longs;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.function.LongPredicate;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class LongConditionTest {
 
     @Test
     public void basicComparisons() {
         String codeSource = LongCondition.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        assertTrue("Expected instrumented class from target/classes but was " + codeSource, codeSource.contains("/target/classes"));
+        assertTrue(codeSource.contains("/target/classes"), "Expected instrumented class from target/classes but was " + codeSource);
 
         assertTrue(LongCondition.POSITIVE.test(7));
         assertFalse(LongCondition.POSITIVE.test(0));

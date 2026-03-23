@@ -3,8 +3,9 @@
  */
 package net.openhft.chronicle.core.io;
 
-import static org.junit.Assert.*;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+import org.junit.jupiter.api.Test;
 
 public class ClosedIORuntimeExceptionTest {
 
@@ -13,8 +14,7 @@ public class ClosedIORuntimeExceptionTest {
         String testMessage = "Test message";
         ClosedIORuntimeException exception = new ClosedIORuntimeException(testMessage);
 
-        assertEquals("The message should match the one provided to the constructor",
-                testMessage, exception.getMessage());
+        assertEquals(testMessage, exception.getMessage(), "The message should match the one provided to the constructor");
     }
 
     @Test
@@ -23,10 +23,8 @@ public class ClosedIORuntimeExceptionTest {
         Throwable testCause = new Throwable("Test cause");
         ClosedIORuntimeException exception = new ClosedIORuntimeException(testMessage, testCause);
 
-        assertEquals("The message should match the one provided to the constructor",
-                testMessage, exception.getMessage());
-        assertEquals("The cause should match the one provided to the constructor",
-                testCause, exception.getCause());
+        assertEquals(testMessage, exception.getMessage(), "The message should match the one provided to the constructor");
+        assertEquals(testCause, exception.getCause(), "The cause should match the one provided to the constructor");
     }
 
     @Test
@@ -34,8 +32,7 @@ public class ClosedIORuntimeExceptionTest {
         String testMessage = "Test message";
         ClosedIORuntimeException exception = new ClosedIORuntimeException(testMessage, null);
 
-        assertEquals("The message should match the one provided to the constructor",
-                testMessage, exception.getMessage());
-        assertNull("The cause should be null", exception.getCause());
+        assertEquals(testMessage, exception.getMessage(), "The message should match the one provided to the constructor");
+        assertNull(exception.getCause(), "The cause should be null");
     }
 }

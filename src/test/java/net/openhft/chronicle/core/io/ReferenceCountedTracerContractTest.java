@@ -3,10 +3,9 @@
  */
 package net.openhft.chronicle.core.io;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Any implementor of {@link ReferenceCountedTracer} should implement a test class
@@ -36,14 +35,16 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
         }
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void throwIfNotReleasedWillThrowIfResourceIsNotReleased() {
-        ReferenceCountedTracer referenceCounted = createReferenceCounted();
-        try {
-            referenceCounted.throwExceptionIfNotReleased();
-        } finally {
-            referenceCounted.releaseLast();
-        }
+        assertThrows(IllegalStateException.class, () -> {
+            ReferenceCountedTracer referenceCounted = createReferenceCounted();
+            try {
+                referenceCounted.throwExceptionIfNotReleased();
+            } finally {
+                referenceCounted.releaseLast();
+            }
+        });
     }
 
     @Test

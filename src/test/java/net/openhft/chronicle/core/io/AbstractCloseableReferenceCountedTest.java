@@ -4,22 +4,22 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTracerContractTest {
 
     private MyCloseableReferenceCounted referenceCounted;
 
-    @Before
+    @BeforeEach
     public void discardResources() {
         ignoreException("Failed to release LAST, closing anyway");
     }
 
-    @After
+    @AfterEach
     public void checkResources() {
         referenceCounted = null;
     }

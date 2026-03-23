@@ -4,20 +4,18 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
-import net.openhft.chronicle.core.io.ManagedCloseable;
-import org.junit.Before;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
 class ManagedCloseableTest {
     @BeforeEach
     void mockitoNotSupportedOnJava21() {
-        Assumptions.assumeTrue(Jvm.majorVersion() <= 17);
+        assumeTrue(Jvm.majorVersion() <= 17);
     }
     @Test
     void testWarnAndCloseIfNotClosed() {

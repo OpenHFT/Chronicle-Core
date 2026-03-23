@@ -8,8 +8,7 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.cleaner.impl.CleanerTestUtil;
 import net.openhft.chronicle.core.util.Time;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
@@ -28,7 +27,8 @@ import java.nio.file.Paths;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
 public class IOToolsTest extends CoreTestCommon {
 
@@ -174,7 +174,7 @@ public class IOToolsTest extends CoreTestCommon {
 
     @Test
     public void createDirectoriesWithBrokenLink() throws IOException, IllegalStateException {
-        Assume.assumeTrue(OS.isLinux());
+        assumeTrue(OS.isLinux());
 
         String path = OS.getTarget();
         Path link = Paths.get(path, "link2nowhere" + Time.uniqueId());
@@ -201,7 +201,7 @@ public class IOToolsTest extends CoreTestCommon {
 
     @Test
     public void createDirectoriesReadOnly() throws IOException, IllegalStateException {
-        Assume.assumeTrue(OS.isLinux());
+        assumeTrue(OS.isLinux());
 
         String path = OS.getTarget();
         Path ro = Paths.get(path, "read-only" + Time.uniqueId());
@@ -224,7 +224,7 @@ public class IOToolsTest extends CoreTestCommon {
 
     @Test
     public void cannotTurnAfileIntoADirectory() throws IOException {
-        Assume.assumeTrue(OS.isLinux());
+        assumeTrue(OS.isLinux());
 
         String path = OS.getTarget();
         Path file = Paths.get(path, "test-file" + Time.uniqueId());
@@ -276,7 +276,7 @@ public class IOToolsTest extends CoreTestCommon {
             ss = new ServerSocket(0);
         } catch (IOException ioe) {
             // Some CI environments disallow socket operations; skip in that case.
-            Assume.assumeTrue("Network not permitted in this environment", false);
+            assumeTrue(false, "Network not permitted in this environment");
             return;
         }
         Socket s = new Socket("localhost", ss.getLocalPort());
@@ -292,7 +292,7 @@ public class IOToolsTest extends CoreTestCommon {
             }
             fail();
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         } finally {
             os.close();
         }
@@ -300,7 +300,7 @@ public class IOToolsTest extends CoreTestCommon {
             s2.getOutputStream().write(bytes);
             fail();
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         }
     }
 
@@ -310,7 +310,7 @@ public class IOToolsTest extends CoreTestCommon {
         try {
             ss = new ServerSocket(0);
         } catch (IOException ioe) {
-            Assume.assumeTrue("Network not permitted in this environment", false);
+            assumeTrue(false, "Network not permitted in this environment");
             return;
         }
         SocketChannel sc = SocketChannel.open(new InetSocketAddress("localhost", ss.getLocalPort()));
@@ -323,7 +323,7 @@ public class IOToolsTest extends CoreTestCommon {
             os.write(1);
             fail();
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         }
         ss.close();
         try {
@@ -334,7 +334,7 @@ public class IOToolsTest extends CoreTestCommon {
             }
             fail();
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         } finally {
             sc.close();
         }
@@ -346,7 +346,7 @@ public class IOToolsTest extends CoreTestCommon {
         try {
             ss = new ServerSocket(0);
         } catch (IOException ioe) {
-            Assume.assumeTrue("Network not permitted in this environment", false);
+            assumeTrue(false, "Network not permitted in this environment");
             return;
         }
         SocketChannel sc = SocketChannel.open(new InetSocketAddress("localhost", ss.getLocalPort()));
@@ -371,7 +371,7 @@ public class IOToolsTest extends CoreTestCommon {
             }
             fail();
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         } finally {
             s2.close();
             sc.close();
@@ -384,7 +384,7 @@ public class IOToolsTest extends CoreTestCommon {
         try {
             ss = new ServerSocket(0);
         } catch (IOException ioe) {
-            Assume.assumeTrue("Network not permitted in this environment", false);
+            assumeTrue(false, "Network not permitted in this environment");
             return;
         }
         SocketChannel sc = SocketChannel.open(new InetSocketAddress("localhost", ss.getLocalPort()));
@@ -413,7 +413,7 @@ public class IOToolsTest extends CoreTestCommon {
             }
             fail();
         } catch (IOException ioe) {
-            assertTrue(ioe.toString(), IOTools.isClosedException(ioe));
+            assertTrue(IOTools.isClosedException(ioe), ioe.toString());
         } finally {
             s2.close();
             sc.close();

@@ -4,15 +4,13 @@
 package net.openhft.chronicle.core.internal.analytics;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class StandardMapsTest extends CoreTestCommon {
 
@@ -126,9 +124,9 @@ public class StandardMapsTest extends CoreTestCommon {
 
         Map<String, String> additional = StandardMaps.standardAdditionalEventParameters(elements);
 
-        assertTrue("Expected at most three entries", additional.size() <= 3);
+        assertTrue(additional.size() <= 3, "Expected at most three entries");
         assertTrue(additional.values().stream().anyMatch(v -> v.contains("run.chronicle.demo")));
-        assertFalse("Enterprise packages should be filtered", additional.values().stream().anyMatch(v -> v.startsWith("software.chronicle")));
+        assertFalse(additional.values().stream().anyMatch(v -> v.startsWith("software.chronicle")), "Enterprise packages should be filtered");
     }
 
     @Test
