@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * Canonical test suite for size parsing and retrieval via {@link Jvm#parseSize(String)} and
  * {@link Jvm#getSize(String, long)}. Keep related assertions here to avoid duplication.
  */
-public class JvmParseSizeTest extends CoreTestCommon {
+class JvmParseSizeTest extends CoreTestCommon {
     private static final String PROPERTY = "JvmParseSizeTest";
 
     public static Collection<Object[]> data() {
@@ -38,25 +38,25 @@ public class JvmParseSizeTest extends CoreTestCommon {
     }
 
     @AfterEach
-    public void teardown() {
+    void teardown() {
         System.getProperties().remove(PROPERTY);
     }
 
     @ParameterizedTest(name = "{0} => {1}")
     @MethodSource("data")
-    public void parseSize(String text, long value) throws IllegalArgumentException {
+    void parseSize(String text, long value) throws IllegalArgumentException {
         assertEquals(value, Jvm.parseSize(text));
     }
 
     @ParameterizedTest(name = "{0} => {1}")
     @MethodSource("data")
-    public void getSize(String text, long value) {
+    void getSize(String text, long value) {
         System.setProperty(PROPERTY, text);
         assertEquals(value, Jvm.getSize(PROPERTY, -1));
     }
 
     @Test
-    public void parseSizeRejectsUnknownSuffix() {
+    void parseSizeRejectsUnknownSuffix() {
         assertThrows(IllegalArgumentException.class, () -> {
             Jvm.parseSize("10XB");
         });

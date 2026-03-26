@@ -14,16 +14,16 @@ import java.util.Map;
 import static net.openhft.chronicle.core.LicenceCheck.CHRONICLE_LICENSE;
 import static org.junit.jupiter.api.Assertions.*;
 
-public class LicenceCheckTest extends CoreTestCommon {
+class LicenceCheckTest extends CoreTestCommon {
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         System.getProperties().remove(CHRONICLE_LICENSE);
         Jvm.resetExceptionHandlers();
     }
 
     @Test
-    public void checkExpiredExpiryFile() {
+    void checkExpiredExpiryFile() {
         assertThrows(TimeLimitExceededException.class, () -> {
             LicenceCheck.check("test", LicenceCheck.class);
             fail("should have got an AssertionError");
@@ -31,17 +31,17 @@ public class LicenceCheckTest extends CoreTestCommon {
     }
 
     @Test
-    public void checkUnexpiredExpiryFileWithNewline() {
+    void checkUnexpiredExpiryFileWithNewline() {
         LicenceCheck.check("test2", LicenceCheck.class);
     }
 
     @Test
-    public void checkEvalExpired() {
+    void checkEvalExpired() {
         assertThrows(TimeLimitExceededException.class, () -> LicenceCheck.check("test", TestCase.class));
     }
 
     @Test
-    public void checkLicense() {
+    void checkLicense() {
         System.setProperty(CHRONICLE_LICENSE, "product=test.,owner=Test Unit,expires=9999-01-01,code=123456789");
 
         Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
@@ -51,7 +51,7 @@ public class LicenceCheckTest extends CoreTestCommon {
     }
 
     @Test
-    public void checkLicenseExpired() {
+    void checkLicenseExpired() {
         assertThrows(TimeLimitExceededException.class, () -> {
             System.setProperty(CHRONICLE_LICENSE, "product=test.,owner=Test Unit,expires=2019-01-01,code=123456789");
             LicenceCheck.check("test", null);

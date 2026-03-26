@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.cooler;
 
 import org.junit.jupiter.api.Test;
+
 import java.util.concurrent.Callable;
 
 import static org.mockito.Mockito.*;

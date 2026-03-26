@@ -12,17 +12,17 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AnalyticsFacadeTest extends CoreTestCommon {
+class AnalyticsFacadeTest extends CoreTestCommon {
 
     private static final String TEST_RESPONSE = "A";
 
     @BeforeEach
-    public void setSystemProp() {
+    void setSystemProp() {
         System.clearProperty("chronicle.analytics.disable");
     }
 
     @Test
-    public void systemProp() {
+    void systemProp() {
         System.setProperty("chronicle.analytics.disable", "true");
         final AnalyticsFacade facade = AnalyticsFacade.builder("measurementId", "apiSecret")
                 .withReportDespiteJUnit()
@@ -33,7 +33,7 @@ public class AnalyticsFacadeTest extends CoreTestCommon {
     }
 
     @Test
-    public void analytics() {
+    void analytics() {
         final AnalyticsFacade.Builder builder = AnalyticsFacade.builder("measurementId", "apiSecret")
                 .putEventParameter("e", "1")
                 .putUserProperty("u", "2")

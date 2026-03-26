@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AbstractReferenceCountedTest extends ReferenceCountedTracerContractTest {
+class AbstractReferenceCountedTest extends ReferenceCountedTracerContractTest {
 
     @Test
-    public void reserve() throws IllegalStateException, IllegalArgumentException {
+    void reserve() throws IllegalStateException, IllegalArgumentException {
         Jvm.setResourceTracing(true);
 
         MyReferenceCounted rc = createReferenceCounted();

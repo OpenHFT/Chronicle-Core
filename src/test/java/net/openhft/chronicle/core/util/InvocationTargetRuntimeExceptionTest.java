@@ -4,14 +4,15 @@
 package net.openhft.chronicle.core.util;
 
 import org.junit.jupiter.api.Test;
+
 import java.lang.reflect.InvocationTargetException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class InvocationTargetRuntimeExceptionTest {
+class InvocationTargetRuntimeExceptionTest {
 
     @Test
-    public void testConstructorWithInvocationTargetException() {
+    void testConstructorWithInvocationTargetException() {
         Exception targetException = new Exception("Target exception");
         InvocationTargetException invocationCause = new InvocationTargetException(targetException);
 
@@ -21,7 +22,7 @@ public class InvocationTargetRuntimeExceptionTest {
     }
 
     @Test
-    public void testConstructorWithNonInvocationTargetException() {
+    void testConstructorWithNonInvocationTargetException() {
         Exception nonInvocationCause = new Exception("Non-invocation exception");
 
         InvocationTargetRuntimeException exception = new InvocationTargetRuntimeException(nonInvocationCause);
@@ -30,7 +31,7 @@ public class InvocationTargetRuntimeExceptionTest {
     }
 
     @Test
-    public void testConstructorWithNullCause() {
+    void testConstructorWithNullCause() {
         InvocationTargetRuntimeException exception = new InvocationTargetRuntimeException(null);
 
         assertNull(exception.getCause(), "The cause should be null");

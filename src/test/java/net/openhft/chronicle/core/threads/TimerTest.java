@@ -14,23 +14,58 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TimerTest {
+class TimerTest {
 
     private static final class FakeLoop implements EventLoop {
         final List<EventHandler> handlers = new ArrayList<>();
-        @Override public String name() { return "fake"; }
-        @Override public void addHandler(EventHandler handler) { handlers.add(handler); }
-        @Override public void start() { }
-        @Override public void unpause() { }
-        @Override public void stop() { }
-        @Override public boolean isAlive() { return true; }
-        @Override public boolean isStopped() { return false; }
+
+        @Override
+        public String name() {
+            return "fake";
+        }
+
+        @Override
+        public void addHandler(EventHandler handler) {
+            handlers.add(handler);
+        }
+
+        @Override
+        public void start() {
+        }
+
+        @Override
+        public void unpause() {
+        }
+
+        @Override
+        public void stop() {
+        }
+
+        @Override
+        public boolean isAlive() {
+            return true;
+        }
+
+        @Override
+        public boolean isStopped() {
+            return false;
+        }
+
         private boolean closed;
-        @Override public void close() { closed = true; handlers.clear(); }
-        @Override public boolean isClosed() { return closed; }
+
+        @Override
+        public void close() {
+            closed = true;
+            handlers.clear();
+        }
+
+        @Override
+        public boolean isClosed() {
+            return closed;
+        }
 
         void tickOnce() {
-            for (Iterator<EventHandler> it = handlers.iterator(); it.hasNext();) {
+            for (Iterator<EventHandler> it = handlers.iterator(); it.hasNext(); ) {
                 EventHandler h = it.next();
                 try {
                     h.action();
@@ -43,17 +78,24 @@ public class TimerTest {
 
     private static final class FakeTime implements TimeProvider {
         long now;
-        @Override public long currentTimeMillis() { return now; }
+
+        @Override
+        public long currentTimeMillis() {
+            return now;
+        }
     }
 
     @Test
-    public void fixedRateFiresAfterInitialDelayAndPeriod() {
+    void fixedRateFiresAfterInitialDelayAndPeriod() {
         FakeLoop loop = new FakeLoop();
         FakeTime time = new FakeTime();
         Timer timer = new Timer(loop, time);
 
         AtomicInteger calls = new AtomicInteger();
-        VanillaEventHandler vh = () -> { calls.incrementAndGet(); return false; };
+        VanillaEventHandler vh = () -> {
+            calls.incrementAndGet();
+            return false;
+        };
 
         timer.scheduleAtFixedRate(vh, 10, 5);
 
@@ -78,7 +120,7 @@ public class TimerTest {
     }
 
     @Test
-    public void scheduleOnceRemovesItselfAfterRun() throws IOException {
+    void scheduleOnceRemovesItselfAfterRun() throws IOException {
         FakeLoop loop = new FakeLoop();
         FakeTime time = new FakeTime();
         CancellableTimer ct = new CancellableTimer(loop, time);

@@ -16,10 +16,10 @@ import java.nio.file.Files;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CleaningRandomAccessFileTest extends CoreTestCommon {
+class CleaningRandomAccessFileTest extends CoreTestCommon {
 
     @Test
-    public void testOpenAndClose() throws IOException {
+    void testOpenAndClose() throws IOException {
         File tempFile = File.createTempFile("test", "raf");
         CleaningRandomAccessFile raf = new CleaningRandomAccessFile(tempFile, "rw");
 
@@ -37,7 +37,7 @@ public class CleaningRandomAccessFileTest extends CoreTestCommon {
 
     @SuppressWarnings("removal")
     @Test
-    public void testFinalizeAndCleanup() throws IOException {
+    void testFinalizeAndCleanup() throws IOException {
         File tempFile = File.createTempFile("test", "raf");
 
         //noinspection resource
@@ -54,7 +54,7 @@ public class CleaningRandomAccessFileTest extends CoreTestCommon {
     }
 
     @Test
-    public void resourceLeak() throws IOException {
+    void resourceLeak() throws IOException {
         File tempDir = IOTools.createTempFile("resourceLeak");
         //noinspection ResultOfMethodCallIgnored
         tempDir.mkdir();

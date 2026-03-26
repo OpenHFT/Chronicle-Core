@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.*;
 
-public class CpuClassTest {
+class CpuClassTest {
     @Test
-    public void getCpuModel() {
+    void getCpuModel() {
         final String cpuClass = CpuClass.getCpuModel();
         System.out.println("cpuClass: " + cpuClass + ", os.name: " + System.getProperty("os.name") + ", os.arch: " + System.getProperty("os.arch"));
         if (Jvm.isMacArm()) {
@@ -19,7 +19,7 @@ public class CpuClassTest {
 
         } else if (Jvm.isArm()) {
             assertTrue(cpuClass.startsWith("ARMv")
-                            || cpuClass.startsWith("aarch64"), cpuClass);
+                    || cpuClass.startsWith("aarch64"), cpuClass);
 
         } else {
             assertTrue(cpuClass.contains("Intel")
@@ -30,7 +30,7 @@ public class CpuClassTest {
     }
 
     @Test
-    public void removingTag() {
+    void removingTag() {
         // TODO FIX on MacOS. sysctl -a returned 141, https://github.com/OpenHFT/Chronicle-Core/issues/557
         assumeFalse(Bootstrap.IS_MAC);
         final String actual = CpuClass.removingTag().apply("tag: value");
@@ -38,12 +38,12 @@ public class CpuClassTest {
     }
 
     @Test
-    public void getCpuModelShouldReturnNonNullValue() {
+    void getCpuModelShouldReturnNonNullValue() {
         assertNotNull(CpuClass.getCpuModel(), "CPU model should not be null");
     }
 
     @Test
-    public void getCpuModelShouldReturnNonEmptyValue() {
+    void getCpuModelShouldReturnNonEmptyValue() {
         assertNotEquals("", CpuClass.getCpuModel(), "CPU model should not be an empty string");
     }
 }

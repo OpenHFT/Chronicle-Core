@@ -15,12 +15,12 @@ import java.util.function.Supplier;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.*;
 
-public class BackgroundResourceReleaserTest extends CoreTestCommon {
+class BackgroundResourceReleaserTest extends CoreTestCommon {
     private final AtomicLong closed = new AtomicLong();
     private final AtomicLong released = new AtomicLong();
 
     @Test
-    public void testResourcesCleanedUp() throws IllegalStateException {
+    void testResourcesCleanedUp() throws IllegalStateException {
         int count = 20;
         for (int i = 0; i < count - 1; i++) {
             new BGCloseable().close();
@@ -58,7 +58,7 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
     }
 
     @Test
-    public void testResourcesCleanedUpManually() throws IllegalStateException, InterruptedException {
+    void testResourcesCleanedUpManually() throws IllegalStateException, InterruptedException {
         Process process = JavaProcessBuilder.create(BackgroundResourceReleaserMain.class)
                 .withJvmArguments("-Dbackground.releaser=false").withProgramArguments("manual").start();
 
@@ -70,7 +70,7 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
     }
 
     @Test
-    public void testResourcesCleanedUpAndThreadStopped() throws IllegalStateException, InterruptedException {
+    void testResourcesCleanedUpAndThreadStopped() throws IllegalStateException, InterruptedException {
         Process process = JavaProcessBuilder.create(BackgroundResourceReleaserMain.class).withProgramArguments("stop").start();
 
         try {
@@ -81,7 +81,7 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
     }
 
     @Test
-    public void testResourcesCleanedUpInForeground() throws IllegalStateException, InterruptedException {
+    void testResourcesCleanedUpInForeground() throws IllegalStateException, InterruptedException {
         Process process = JavaProcessBuilder.create(BackgroundResourceReleaserMain.class)
                 .withJvmArguments("-Dbackground.releaser=false").withProgramArguments("foreground").start();
 
@@ -93,7 +93,7 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
     }
 
     @Test
-    public void isOnBackgroundResourceReleaserThreadIsTrueWhenOnThread() {
+    void isOnBackgroundResourceReleaserThreadIsTrueWhenOnThread() {
         assumeTrue(BackgroundResourceReleaser.BG_RELEASER);
         final WasInBackgroundResourceReleaserRecorder recorder = new WasInBackgroundResourceReleaserRecorder(true);
         recorder.close();
@@ -102,7 +102,7 @@ public class BackgroundResourceReleaserTest extends CoreTestCommon {
     }
 
     @Test
-    public void isOnBackgroundResourceReleaserThreadIsFalseWhenNotOnThread() {
+    void isOnBackgroundResourceReleaserThreadIsFalseWhenNotOnThread() {
         final WasInBackgroundResourceReleaserRecorder recorder = new WasInBackgroundResourceReleaserRecorder(false);
         recorder.close();
         assertValueBecomes(false, recorder::wasClosedInBackgroundResourceReleaserThread);

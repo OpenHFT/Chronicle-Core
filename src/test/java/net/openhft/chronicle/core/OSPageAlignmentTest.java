@@ -7,10 +7,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class OSPageAlignmentTest {
+class OSPageAlignmentTest {
 
     @Test
-    public void pageAlignAlignsToCurrentPageSize() {
+    void pageAlignAlignsToCurrentPageSize() {
         int pageSize = OS.pageSize();
         long base = 123;
         long aligned = OS.pageAlign(base);
@@ -23,7 +23,7 @@ public class OSPageAlignmentTest {
     }
 
     @Test
-    public void defaultOsPageSizeFallsBackToSafeSizeOnWindows() {
+    void defaultOsPageSizeFallsBackToSafeSizeOnWindows() {
         int defaultSize = OS.defaultOsPageSize();
         if (OS.isWindows()) {
             assertEquals(OS.SAFE_PAGE_SIZE, defaultSize);

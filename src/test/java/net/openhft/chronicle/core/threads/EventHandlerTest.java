@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.threads;
 import net.openhft.chronicle.core.Jvm;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+
 import java.io.Closeable;
 import java.io.IOException;
 
@@ -19,6 +20,7 @@ class EventHandlerTest {
     void mockitoNotSupportedOnJava21() {
         assumeTrue(Jvm.majorVersion() <= 17);
     }
+
     @Test
     void eventLoopShouldBeCalledWithCorrectEventLoop() {
         EventLoop mockEventLoop = mock(EventLoop.class);

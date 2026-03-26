@@ -10,14 +10,14 @@ import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class IgnoresEverythingTest extends CoreTestCommon {
+class IgnoresEverythingTest extends CoreTestCommon {
     @Test
-    public void test() {
+    void test() {
         assertTrue(Mocker.ignored(Consumer.class) instanceof IgnoresEverything);
     }
 
     @Test
-    public void returnsIgnored() {
+    void returnsIgnored() {
         assertTrue(Mocker.ignored(Chained.class).method1() instanceof IgnoresEverything);
     }
 

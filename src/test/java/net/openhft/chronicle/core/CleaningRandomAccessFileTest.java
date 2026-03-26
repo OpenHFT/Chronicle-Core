@@ -14,7 +14,7 @@ import java.nio.ByteBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class CleaningRandomAccessFileTest extends CoreTestCommon {
+class CleaningRandomAccessFileTest extends CoreTestCommon {
 
     private static int getFDs() {
         if (!OS.isLinux())
@@ -23,7 +23,7 @@ public class CleaningRandomAccessFileTest extends CoreTestCommon {
     }
 
     @Test
-    public void resourceLeak() throws IOException {
+    void resourceLeak() throws IOException {
         File tempDir = IOTools.createTempFile("resourceLeak");
         tempDir.mkdir();
         int repeat = Jvm.isArm() ? 6 : 50;

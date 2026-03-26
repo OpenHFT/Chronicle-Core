@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+
 import org.junit.jupiter.api.BeforeEach;
 
 import java.lang.reflect.Method;
@@ -31,19 +32,19 @@ class ConcreteInvocationHandler extends AbstractInvocationHandler {
     }
 }
 
-public class AbstractInvocationHandlerTest extends CoreTestCommon {
+class AbstractInvocationHandlerTest extends CoreTestCommon {
 
     private AbstractInvocationHandler handler;
     private Method exampleMethod;
 
     @BeforeEach
-    public void setUp() throws NoSuchMethodException {
+    void setUp() throws NoSuchMethodException {
         handler = new ConcreteInvocationHandler();
         exampleMethod = String.class.getMethod("length");
     }
 
     @Test
-    public void testCloseable() throws Throwable {
+    void testCloseable() throws Throwable {
         AbstractInvocationHandler handler = new ConcreteInvocationHandler();
         Closeable mockCloseable = mock(Closeable.class);
         handler.onClose(mockCloseable);
@@ -55,7 +56,7 @@ public class AbstractInvocationHandlerTest extends CoreTestCommon {
     }
 
     @Test
-    public void testMethodHandleForProxy() throws Throwable {
+    void testMethodHandleForProxy() throws Throwable {
         assumeTrue(Jvm.majorVersion() >= 17);
         AbstractInvocationHandler handler = new ConcreteInvocationHandler();
         Method exampleMethod = String.class.getMethod("length");
@@ -64,7 +65,7 @@ public class AbstractInvocationHandlerTest extends CoreTestCommon {
     }
 
     @Test
-    public void testInvoke() {
+    void testInvoke() {
         final List<String> messages = new ArrayList<>();
         final Consumer<String> consumer = s -> messages.add(s);
         final CallMe mocked = Mocker.intercepting(CallMe.class, "", consumer);

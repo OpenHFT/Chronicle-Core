@@ -10,22 +10,22 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTracerContractTest {
+class AbstractCloseableReferenceCountedTest extends ReferenceCountedTracerContractTest {
 
     private MyCloseableReferenceCounted referenceCounted;
 
     @BeforeEach
-    public void discardResources() {
+    void discardResources() {
         ignoreException("Failed to release LAST, closing anyway");
     }
 
     @AfterEach
-    public void checkResources() {
+    void checkResources() {
         referenceCounted = null;
     }
 
     @Test
-    public void reserve() throws IllegalStateException, IllegalArgumentException {
+    void reserve() throws IllegalStateException, IllegalArgumentException {
         Jvm.setResourceTracing(true);
 
         MyCloseableReferenceCounted rc = createReferenceCounted();
@@ -59,7 +59,7 @@ public class AbstractCloseableReferenceCountedTest extends ReferenceCountedTrace
     }
 
     @Test
-    public void reserveWhenClosed() throws IllegalStateException, IllegalArgumentException {
+    void reserveWhenClosed() throws IllegalStateException, IllegalArgumentException {
         MyCloseableReferenceCounted rc = createReferenceCounted();
         assertEquals(1, rc.refCount());
 

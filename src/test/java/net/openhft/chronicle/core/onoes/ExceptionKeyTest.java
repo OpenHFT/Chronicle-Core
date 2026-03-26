@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ExceptionKeyTest extends CoreTestCommon {
+class ExceptionKeyTest extends CoreTestCommon {
 
     @Test
-    public void testEqualsAndHashCode() {
+    void testEqualsAndHashCode() {
         ExceptionKey ek1 = new ExceptionKey(LogLevel.PERF, getClass(), "one", null);
         ExceptionKey ek1b = new ExceptionKey(LogLevel.PERF, getClass(), "one", null);
         assertEquals(ek1, ek1b);

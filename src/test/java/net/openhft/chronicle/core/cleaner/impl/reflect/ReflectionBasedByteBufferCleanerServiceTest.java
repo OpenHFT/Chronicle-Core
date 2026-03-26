@@ -8,9 +8,9 @@ import net.openhft.chronicle.core.cleaner.impl.CleanerTestUtil;
 import net.openhft.chronicle.core.internal.cleaner.ReflectionBasedByteBufferCleanerService;
 import org.junit.jupiter.api.Test;
 
-public class ReflectionBasedByteBufferCleanerServiceTest extends CoreTestCommon {
+class ReflectionBasedByteBufferCleanerServiceTest extends CoreTestCommon {
     @Test
-    public void shouldCleanBuffer() {
+    void shouldCleanBuffer() {
         CleanerTestUtil.test(new ReflectionBasedByteBufferCleanerService()::clean);
     }
 }

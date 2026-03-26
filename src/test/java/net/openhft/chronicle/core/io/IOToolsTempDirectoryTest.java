@@ -13,10 +13,10 @@ import java.util.Comparator;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class IOToolsTempDirectoryTest {
+class IOToolsTempDirectoryTest {
 
     @Test
-    public void createTempDirectoryCreatesUniqueFolders() throws IOException {
+    void createTempDirectoryCreatesUniqueFolders() throws IOException {
         Path dir1 = IOTools.createTempDirectory("temp-test");
         Path dir2 = IOTools.createTempDirectory("temp-test");
         Path base = Paths.get(OS.getTarget()).toAbsolutePath().normalize();
@@ -35,7 +35,7 @@ public class IOToolsTempDirectoryTest {
     }
 
     @Test
-    public void createTempFileUsesTempDirectory() throws IOException {
+    void createTempFileUsesTempDirectory() throws IOException {
         File file = IOTools.createTempFile("temp-file");
         Path base = Paths.get(OS.getTarget()).toAbsolutePath().normalize();
         try {

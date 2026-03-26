@@ -10,9 +10,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.HashSet;
 import java.util.Set;
 
-public class ReferenceOwnerTest {
+class ReferenceOwnerTest {
     @Test
-    public void testReferenceId() {
+    void testReferenceId() {
         Set<Integer> ints = new HashSet<>();
         for (int i = 0; i < 101; i++)
             ints.add(new VanillaReferenceOwner("hi").referenceId());

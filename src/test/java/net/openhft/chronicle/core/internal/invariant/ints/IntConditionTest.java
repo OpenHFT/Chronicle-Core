@@ -9,10 +9,10 @@ import java.util.function.IntPredicate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class IntConditionTest {
+class IntConditionTest {
 
     @Test
-    public void basicComparisons() {
+    void basicComparisons() {
         assertTrue(IntCondition.POSITIVE.test(3));
         assertFalse(IntCondition.POSITIVE.test(0));
 
@@ -35,7 +35,7 @@ public class IntConditionTest {
     }
 
     @Test
-    public void rangeAndAlignmentChecks() {
+    void rangeAndAlignmentChecks() {
         assertTrue(IntCondition.BYTE_CONVERTIBLE.test(Byte.MAX_VALUE));
         assertFalse(IntCondition.BYTE_CONVERTIBLE.test(Byte.MAX_VALUE + 1));
 
@@ -57,7 +57,7 @@ public class IntConditionTest {
     }
 
     @Test
-    public void negateMappings() {
+    void negateMappings() {
         IntPredicate positiveNegated = IntCondition.POSITIVE.negate();
         assertTrue(positiveNegated.test(-1));
         assertFalse(positiveNegated.test(3));
@@ -88,7 +88,7 @@ public class IntConditionTest {
     }
 
     @Test
-    public void descriptiveToString() {
+    void descriptiveToString() {
         assertEquals("> 0", IntCondition.POSITIVE.toString());
         assertEquals("!= 0", IntCondition.NON_ZERO.toString());
 

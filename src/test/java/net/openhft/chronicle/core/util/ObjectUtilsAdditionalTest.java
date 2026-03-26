@@ -11,17 +11,43 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ObjectUtilsAdditionalTest {
+class ObjectUtilsAdditionalTest {
 
     // --- Helpers used by conversion tests ---
-    public static final class WithCtor {
-        final String v; public WithCtor(String v) { this.v = v; }
+    static final class WithCtor {
+        final String v;
+
+        public WithCtor(String v) {
+            this.v = v;
+        }
     }
-    public static final class WithValueOf { final String v; private WithValueOf(String v){this.v=v;} public static WithValueOf valueOf(String s){return new WithValueOf(s);} }
-    public static final class WithParse { final String v; private WithParse(String v){this.v=v;} public static WithParse parse(CharSequence s){return new WithParse(s.toString());} }
+
+    static final class WithValueOf {
+        final String v;
+
+        private WithValueOf(String v) {
+            this.v = v;
+        }
+
+        public static WithValueOf valueOf(String s) {
+            return new WithValueOf(s);
+        }
+    }
+
+    static final class WithParse {
+        final String v;
+
+        private WithParse(String v) {
+            this.v = v;
+        }
+
+        public static WithParse parse(CharSequence s) {
+            return new WithParse(s.toString());
+        }
+    }
 
     @Test
-    public void booleanParsingAcceptsYesTrueAndNoFalse() {
+    void booleanParsingAcceptsYesTrueAndNoFalse() {
         assertTrue(ObjectUtils.isTrue("t"));
         assertTrue(ObjectUtils.isTrue("y"));
         assertTrue(ObjectUtils.isTrue("yes"));
@@ -38,13 +64,13 @@ public class ObjectUtilsAdditionalTest {
     }
 
     @Test
-    public void convertTextToBoolean() {
+    void convertTextToBoolean() {
         assertEquals(Boolean.TRUE, ObjectUtils.convertTo(Boolean.class, "yes"));
         assertEquals(Boolean.FALSE, ObjectUtils.convertTo(Boolean.class, "no"));
     }
 
     @Test
-    public void convertTextUsingValueOfParseAndConstructor() {
+    void convertTextUsingValueOfParseAndConstructor() {
         Object v1 = ObjectUtils.convertTo(WithValueOf.class, "x1");
         assertTrue(v1 instanceof WithValueOf);
 
@@ -56,20 +82,20 @@ public class ObjectUtilsAdditionalTest {
     }
 
     @Test
-    public void convertListToObjectArray() {
+    void convertListToObjectArray() {
         List<Object> list = Arrays.asList("a", 1);
         Object[] arr = ObjectUtils.convertTo(Object[].class, list);
         assertArrayEquals(new Object[]{"a", 1}, arr);
     }
 
     @Test
-    public void requireNonNullThrowsOnNull() {
+    void requireNonNullThrowsOnNull() {
         assertThrows(NullPointerException.class, () -> ObjectUtils.<Object>requireNonNull(null));
         assertEquals("abc", ObjectUtils.requireNonNull("abc"));
     }
 
     @Test
-    public void convertNumberToBigDecimalFromNumberPath() {
+    void convertNumberToBigDecimalFromNumberPath() {
         BigDecimal bd = (BigDecimal) ObjectUtils.convertToNumber(BigDecimal.class, 5L);
         assertEquals(BigDecimal.valueOf(5L), bd);
     }

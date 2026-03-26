@@ -14,9 +14,9 @@ import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ThrowingFunctionTest extends CoreTestCommon {
+class ThrowingFunctionTest extends CoreTestCommon {
     @Test
-    public void asFunction() throws Exception {
+    void asFunction() throws Exception {
         @NotNull Function<String, String> sc = ThrowingFunction.asFunction(s -> {
             try (@NotNull BufferedReader br = new BufferedReader(new FileReader(s))) {
                 return br.readLine();

@@ -12,7 +12,7 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class EnumInternerTest extends CoreTestCommon {
+class EnumInternerTest extends CoreTestCommon {
 
     private static final int MASK = 63;
 
@@ -30,7 +30,7 @@ public class EnumInternerTest extends CoreTestCommon {
     }
 
     @Test
-    public void clashTest() {
+    void clashTest() {
         for (TestEnum value : TestEnum.values()) {
             @NotNull String s = value.toString();
             long h = Maths.hash64(s);

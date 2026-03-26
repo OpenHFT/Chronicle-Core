@@ -11,9 +11,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RecordingHistogramTest extends CoreTestCommon {
+class RecordingHistogramTest extends CoreTestCommon {
     @Test
-    public void singleSample() {
+    void singleSample() {
         Histogram h = new MyRecordingHistogram();
         h.sampleNanos(100_000);
         assertEquals("{ 50/90 99/99.9 99.99 - worst  was: 100.0 / 100.0  100.0 / 100.0  100.0 - 100.0, top: [{ off: 1.0, dur: 100.0 }] }", h.toMicrosFormat());
@@ -25,7 +25,7 @@ public class RecordingHistogramTest extends CoreTestCommon {
     }
 
     @Test
-    public void testSampleNanosAndTopDurations() {
+    void testSampleNanosAndTopDurations() {
         SystemTimeProvider.CLOCK = new SetTimeProvider();
         RecordingHistogram histogram = new RecordingHistogram();
 
@@ -34,7 +34,7 @@ public class RecordingHistogramTest extends CoreTestCommon {
         histogram.sampleNanos(5500);
         histogram.sampleNanos(3000);
         assertEquals("{ 50/90 99/99.9 99.99 - worst  was: 2.002 / 5.50  5.50 / 5.50  5.50 - 5.50, " +
-                        "top: [{ off: 0.0, dur: 5.5 }, { off: 0.0, dur: 3.0 }, { off: 0.0, dur: 2.0 }, { off: 0.0, dur: 1.0 }] }", histogram.toMicrosFormat());
+                "top: [{ off: 0.0, dur: 5.5 }, { off: 0.0, dur: 3.0 }, { off: 0.0, dur: 2.0 }, { off: 0.0, dur: 1.0 }] }", histogram.toMicrosFormat());
 
         // Assert that formatted output reflects recorded samples
         String s = histogram.toMicrosFormat(d -> d);
@@ -42,7 +42,7 @@ public class RecordingHistogramTest extends CoreTestCommon {
     }
 
     @Test
-    public void testReset() {
+    void testReset() {
         RecordingHistogram histogram = new RecordingHistogram();
         String noData = histogram.toMicrosFormat();
         histogram.sampleNanos(10000);
@@ -52,7 +52,7 @@ public class RecordingHistogramTest extends CoreTestCommon {
     }
 
     @Test
-    public void testSamples() {
+    void testSamples() {
         Histogram h = new MyRecordingHistogram();
 
         long seed = 2141;
@@ -67,9 +67,9 @@ public class RecordingHistogramTest extends CoreTestCommon {
             assertEquals(i, percentile(h, i / 100.0), 1);
 
         assertEquals("{ 50/90 99/99.9 99.99 - worst  was: 500 / 900  990 / 998  998 - 998, " +
-                        "top: [{ off: 32.0, dur: 998.963 }, { off: 36.0, dur: 997.374 }, { off: 39.0, dur: 995.785 }, { off: 41.0, dur: 994.196 }, { off: 43.0, dur: 992.607 }] }", h.toMicrosFormat());
+                "top: [{ off: 32.0, dur: 998.963 }, { off: 36.0, dur: 997.374 }, { off: 39.0, dur: 995.785 }, { off: 41.0, dur: 994.196 }, { off: 43.0, dur: 992.607 }] }", h.toMicrosFormat());
         assertEquals("{ 50/90 97/99 99.7/99.9 99.97/99.99 - worst  was: 500 / 900  970 / 990  996 / 998  998 / 998 - 998, " +
-                        "top: [{ off: 32.0, dur: 998.963 }, { off: 36.0, dur: 997.374 }, { off: 39.0, dur: 995.785 }, { off: 41.0, dur: 994.196 }, { off: 43.0, dur: 992.607 }, { off: 44.0, dur: 991.018 }, { off: 45.0, dur: 989.429 }, { off: 46.0, dur: 987.84 }, { off: 47.0, dur: 986.251 }, { off: 48.0, dur: 984.662 }] }", h.toLongMicrosFormat());
+                "top: [{ off: 32.0, dur: 998.963 }, { off: 36.0, dur: 997.374 }, { off: 39.0, dur: 995.785 }, { off: 41.0, dur: 994.196 }, { off: 43.0, dur: 992.607 }, { off: 44.0, dur: 991.018 }, { off: 45.0, dur: 989.429 }, { off: 46.0, dur: 987.84 }, { off: 47.0, dur: 986.251 }, { off: 48.0, dur: 984.662 }] }", h.toLongMicrosFormat());
     }
 
     private int percentile(@NotNull Histogram h, double fraction) {

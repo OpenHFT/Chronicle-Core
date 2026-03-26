@@ -12,11 +12,11 @@ import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ObjectUtilsConvertToTest extends CoreTestCommon {
+class ObjectUtilsConvertToTest extends CoreTestCommon {
 
     @ParameterizedTest
     @MethodSource("data")
-    public void convertTo(Object converted, String input) throws IllegalStateException, IllegalArgumentException {
+    void convertTo(Object converted, String input) throws IllegalStateException, IllegalArgumentException {
         assertEquals(converted, ObjectUtils.convertTo(converted.getClass(), input));
     }
 

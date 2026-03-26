@@ -24,7 +24,8 @@ class ThreadDumpTest {
         threadDump.ignore(ignoredThreadName);
 
         // Simulate an ignored thread
-        Thread ignoredThread = new Thread(() -> {}, ignoredThreadName);
+        Thread ignoredThread = new Thread(() -> {
+        }, ignoredThreadName);
         ignoredThread.start();
 
         threadDump.assertNoNewThreads();

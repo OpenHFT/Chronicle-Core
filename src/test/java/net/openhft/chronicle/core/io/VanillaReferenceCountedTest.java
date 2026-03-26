@@ -10,12 +10,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class VanillaReferenceCountedTest extends MonitorReferenceCountedContractTest {
+class VanillaReferenceCountedTest extends MonitorReferenceCountedContractTest {
 
     private AtomicInteger onReleasedCallCount;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         onReleasedCallCount = new AtomicInteger(0);
     }
 
@@ -25,7 +25,7 @@ public class VanillaReferenceCountedTest extends MonitorReferenceCountedContract
     }
 
     @Test
-    public void createdHereWillReturnNull() {
+    void createdHereWillReturnNull() {
         final VanillaReferenceCounted referenceCounted = createReferenceCounted();
         assertNull(referenceCounted.createdHere());
     }

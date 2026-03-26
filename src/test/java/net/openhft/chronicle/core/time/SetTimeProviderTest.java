@@ -11,10 +11,10 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class SetTimeProviderTest extends CoreTestCommon {
+class SetTimeProviderTest extends CoreTestCommon {
 
     @Test
-    public void testNoOpConstructor() throws IllegalArgumentException {
+    void testNoOpConstructor() throws IllegalArgumentException {
         final SetTimeProvider tp = new SetTimeProvider();
         assertEquals(0, tp.currentTimeNanos());
         tp.currentTimeNanos(99_123_456_789L);
@@ -27,7 +27,7 @@ public class SetTimeProviderTest extends CoreTestCommon {
     }
 
     @Test
-    public void testNanosConstructor() throws IllegalArgumentException {
+    void testNanosConstructor() throws IllegalArgumentException {
         final SetTimeProvider tp = new SetTimeProvider(99_999_999_999_000_000L);
         assertEquals(99_999_999_999_000_000L, tp.currentTimeNanos());
         assertEquals(99_999_999_999_000L, tp.currentTimeMicros());
@@ -50,14 +50,14 @@ public class SetTimeProviderTest extends CoreTestCommon {
     }
 
     @Test
-    public void testNanosConstructorLowNumber() {
+    void testNanosConstructorLowNumber() {
         // many customers use "wrong" values
         final SetTimeProvider tp = new SetTimeProvider(1_000L);
         assertEquals(1_000L, tp.currentTimeNanos());
     }
 
     @Test
-    public void testAttemptToGoBackwardsNanos() {
+    void testAttemptToGoBackwardsNanos() {
         assertThrows(IllegalArgumentException.class, () -> {
             final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
             tp.currentTimeNanos(99_999_999_999L);
@@ -65,7 +65,7 @@ public class SetTimeProviderTest extends CoreTestCommon {
     }
 
     @Test
-    public void testAttemptToGoBackwardsMicros() {
+    void testAttemptToGoBackwardsMicros() {
         assertThrows(IllegalArgumentException.class, () -> {
             final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
             tp.currentTimeMicros(99_999_999L);
@@ -73,7 +73,7 @@ public class SetTimeProviderTest extends CoreTestCommon {
     }
 
     @Test
-    public void testAttemptToGoBackwardsMillis() {
+    void testAttemptToGoBackwardsMillis() {
         assertThrows(IllegalArgumentException.class, () -> {
             final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
             tp.currentTimeMillis(99_999L);
@@ -81,7 +81,7 @@ public class SetTimeProviderTest extends CoreTestCommon {
     }
 
     @Test
-    public void withTimestamp() {
+    void withTimestamp() {
         SetTimeProvider tp = new SetTimeProvider("2018-08-20T12:53:04.075");
         assertEquals(1534769584075L, tp.currentTimeMillis());
         assertEquals(1534769584075000L, tp.currentTimeMicros());
@@ -91,7 +91,7 @@ public class SetTimeProviderTest extends CoreTestCommon {
     }
 
     @Test
-    public void withInstant() {
+    void withInstant() {
         SetTimeProvider tp = new SetTimeProvider(Instant.parse("2018-08-20T12:53:04.075Z"));
         assertEquals(1534769584075L, tp.currentTimeMillis());
         assertEquals(1534769584075000L, tp.currentTimeMicros());
@@ -101,7 +101,7 @@ public class SetTimeProviderTest extends CoreTestCommon {
     }
 
     @Test
-    public void autoIncrement() {
+    void autoIncrement() {
         SetTimeProvider tp = new SetTimeProvider("2018-08-20T12:53:04.075")
                 .autoIncrement(1, TimeUnit.MILLISECONDS);
         assertEquals(1534769584075L, tp.currentTimeMillis());

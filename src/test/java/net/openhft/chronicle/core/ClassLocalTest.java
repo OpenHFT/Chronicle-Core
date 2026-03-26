@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class ClassLocalTest extends CoreTestCommon {
+class ClassLocalTest extends CoreTestCommon {
 
     @Test
-    public void computeValue() {
+    void computeValue() {
         long[] count = {0};
         ClassLocal<String> toString = ClassLocal.withInitial(aClass -> {
 //            System.out.println(aClass);

@@ -8,10 +8,11 @@ import net.openhft.chronicle.core.Maths;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
-public class StaticEnumClassTest extends CoreTestCommon {
+
+class StaticEnumClassTest extends CoreTestCommon {
 
     @Test
-    public void testInitialSize() throws IllegalArgumentException {
+    void testInitialSize() throws IllegalArgumentException {
         EnumCache<Ecn> ecnEnumCache = EnumCache.of(Ecn.class);
         assertEquals(32, Maths.nextPower2(ecnEnumCache.size(), 1));
     }

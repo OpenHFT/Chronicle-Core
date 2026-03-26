@@ -13,14 +13,14 @@ import java.util.concurrent.BlockingQueue;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MockerFacadeTest {
+class MockerFacadeTest {
 
     interface Sample {
         void run(String value);
     }
 
     @Test
-    public void loggingToStringWriterDelegates() {
+    void loggingToStringWriterDelegates() {
         StringWriter writer = new StringWriter();
         Sample sample = Mocker.logging(Sample.class, "sample-", writer);
         sample.run("value");
@@ -30,7 +30,7 @@ public class MockerFacadeTest {
     }
 
     @Test
-    public void loggingToPrintStreamDelegates() {
+    void loggingToPrintStreamDelegates() {
         ByteArrayOutputStream backing = new ByteArrayOutputStream();
         PrintStream stream = new PrintStream(backing, true);
         Sample sample = Mocker.logging(Sample.class, "ps-", stream);
@@ -42,7 +42,7 @@ public class MockerFacadeTest {
     }
 
     @Test
-    public void queuingAddsEntries() throws InterruptedException {
+    void queuingAddsEntries() throws InterruptedException {
         BlockingQueue<String> queue = new ArrayBlockingQueue<>(2);
         Sample sample = Mocker.queuing(Sample.class, "queue-", queue);
         sample.run("payload");
@@ -51,7 +51,7 @@ public class MockerFacadeTest {
     }
 
     @Test
-    public void ignoredProxySupportsCalls() {
+    void ignoredProxySupportsCalls() {
         Sample sample = Mocker.ignored(Sample.class);
         sample.run("whatever");
         assertNotNull(sample);

@@ -11,10 +11,10 @@ import java.util.function.BiFunction;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TypeOfTest extends CoreTestCommon {
+class TypeOfTest extends CoreTestCommon {
 
     @Test
-    public <T extends Number> void type() {
+    <T extends Number> void type() {
         assertEquals("java.util.List<?>", new TypeOf<List<?>>() {
         }.type().toString());
         assertEquals("java.util.List<java.lang.String>", new TypeOf<List<String>>() {

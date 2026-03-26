@@ -9,9 +9,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class StringInternerTest extends CoreTestCommon {
+class StringInternerTest extends CoreTestCommon {
     @Test
-    public void testIntern() throws IllegalArgumentException {
+    void testIntern() throws IllegalArgumentException {
         @NotNull StringInterner si = new StringInterner(128);
         for (int i = 0; i < 100; i++) {
             si.intern("" + i);
@@ -20,7 +20,7 @@ public class StringInternerTest extends CoreTestCommon {
     }
 
     @Test
-    public void testInternIndex() throws IllegalArgumentException {
+    void testInternIndex() throws IllegalArgumentException {
         @NotNull StringInterner si = new StringInterner(128);
         for (int i = 0; i < 100; i++) {
             assertEquals("" + i, si.get(si.index("" + i, null)));
@@ -35,7 +35,7 @@ public class StringInternerTest extends CoreTestCommon {
      * @throws IllegalArgumentException
      */
     @Test
-    public void testToUppercaseInternIndex() throws IllegalArgumentException {
+    void testToUppercaseInternIndex() throws IllegalArgumentException {
 
         @NotNull StringInterner si = new StringInterner(128);
         uppercase = new String[si.capacity()];
@@ -47,6 +47,7 @@ public class StringInternerTest extends CoreTestCommon {
                 assertEquals(lowerCaseString.toUpperCase(), uppercase[index]);
         }
     }
+
     private void changed(int index, String value) {
         uppercase[index] = value.toUpperCase();
     }

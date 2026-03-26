@@ -10,17 +10,17 @@ import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AnalyticsFacadeTest {
+class AnalyticsFacadeTest {
 
     private String originalDisableProperty;
 
     @BeforeEach
-    public void captureProperty() {
+    void captureProperty() {
         originalDisableProperty = System.getProperty("chronicle.analytics.disable");
     }
 
     @AfterEach
-    public void restoreProperty() {
+    void restoreProperty() {
         if (originalDisableProperty == null) {
             System.clearProperty("chronicle.analytics.disable");
         } else {
@@ -29,7 +29,7 @@ public class AnalyticsFacadeTest {
     }
 
     @Test
-    public void enabledWhenAnalyticsPresent() {
+    void enabledWhenAnalyticsPresent() {
         System.clearProperty("chronicle.analytics.disable");
         assertTrue(AnalyticsFacade.isEnabled(), "Analytics should be enabled when dependency is available");
 
@@ -38,7 +38,7 @@ public class AnalyticsFacadeTest {
     }
 
     @Test
-    public void disabledWhenSystemPropertyExplicit() {
+    void disabledWhenSystemPropertyExplicit() {
         System.setProperty("chronicle.analytics.disable", "true");
         assertFalse(AnalyticsFacade.isEnabled());
 

@@ -12,10 +12,10 @@ import java.nio.ByteBuffer;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.*;
 
-public class ByteBufferCleanerServiceTest {
+class ByteBufferCleanerServiceTest {
 
     @Test
-    public void jdk9CleanerHasNoImpactAndCleans() {
+    void jdk9CleanerHasNoImpactAndCleans() {
         assumeTrue(Jvm.isJava9Plus(), "JDK9+ required for Jdk9ByteBufferCleanerService");
         ByteBufferCleanerService service = new Jdk9ByteBufferCleanerService();
         ByteBuffer buffer = ByteBuffer.allocateDirect(64);
@@ -27,7 +27,7 @@ public class ByteBufferCleanerServiceTest {
     }
 
     @Test
-    public void reflectionBasedCleanerDoesNotThrow() {
+    void reflectionBasedCleanerDoesNotThrow() {
         ReflectionBasedByteBufferCleanerService service = new ReflectionBasedByteBufferCleanerService();
         ByteBuffer buffer = ByteBuffer.allocateDirect(32);
 

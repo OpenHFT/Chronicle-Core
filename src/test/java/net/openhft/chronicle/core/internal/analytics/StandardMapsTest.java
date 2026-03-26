@@ -12,22 +12,22 @@ import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class StandardMapsTest extends CoreTestCommon {
+class StandardMapsTest extends CoreTestCommon {
 
     @Test
-    public void standardEventParameters() {
+    void standardEventParameters() {
         assertEquals(Collections.singletonMap("app_version", "1.0.0"), StandardMaps.standardEventParameters("1.0.0"));
     }
 
     @Test
-    public void standardAdditionalEventParametersThreadsStackTrace() {
+    void standardAdditionalEventParametersThreadsStackTrace() {
         final Map<String, String> actual = StandardMaps.standardAdditionalEventParameters();
         assertFalse(actual.containsValue("java.lang"));
         assertFalse(actual.containsValue("org.junit"));
     }
 
     @Test
-    public void standardAdditionalEventParameters() {
+    void standardAdditionalEventParameters() {
 
         final StackTraceElement[] stackTrace = Stream.of(
                         "a.Foo",
@@ -58,47 +58,47 @@ public class StandardMapsTest extends CoreTestCommon {
     }
 
     @Test
-    public void standardUserProperties() {
+    void standardUserProperties() {
         assertFalse(StandardMaps.standardUserProperties().values().stream().anyMatch(Objects::isNull));
     }
 
     @Test
-    public void packageNameUpToMaxLevel3Empty() {
+    void packageNameUpToMaxLevel3Empty() {
         assertEquals("", StandardMaps.packageNameUpToMaxLevel3(""));
     }
 
     @Test
-    public void packageNameUpToMaxLevel3L0() {
+    void packageNameUpToMaxLevel3L0() {
         assertEquals("foo", StandardMaps.packageNameUpToMaxLevel3("foo"));
     }
 
     @Test
-    public void packageNameUpToMaxLevel3L1() {
+    void packageNameUpToMaxLevel3L1() {
         assertEquals("a", StandardMaps.packageNameUpToMaxLevel3("a.foo"));
     }
 
     @Test
-    public void packageNameUpToMaxLevel3L2() {
+    void packageNameUpToMaxLevel3L2() {
         assertEquals("a.b", StandardMaps.packageNameUpToMaxLevel3("a.b.foo"));
     }
 
     @Test
-    public void packageNameUpToMaxLevel3L3() {
+    void packageNameUpToMaxLevel3L3() {
         assertEquals("a.b.c", StandardMaps.packageNameUpToMaxLevel3("a.b.c.foo"));
     }
 
     @Test
-    public void packageNameUpToMaxLevel3L4() {
+    void packageNameUpToMaxLevel3L4() {
         assertEquals("a.b.c", StandardMaps.packageNameUpToMaxLevel3("a.b.c.d.foo"));
     }
 
     @Test
-    public void packageNameUpToMaxLevelThisClass() {
+    void packageNameUpToMaxLevelThisClass() {
         assertEquals("net.openhft.chronicle", StandardMaps.packageNameUpToMaxLevel3(StandardMapsTest.class.getName()));
     }
 
     @Test
-    public void distinctUpToMaxLevel3() {
+    void distinctUpToMaxLevel3() {
         final Set<String> distinctKeys = new HashSet<>();
         final List<String> list = Stream.of("a.b.c.d", "a.b.c.d.e", "x", "y", "z")
                 .filter(pn -> StandardMaps.distinctUpToMaxLevel3(pn, distinctKeys))
@@ -108,13 +108,13 @@ public class StandardMapsTest extends CoreTestCommon {
     }
 
     @Test
-    public void standardEventParametersIncludesAppVersion() {
+    void standardEventParametersIncludesAppVersion() {
         Map<String, String> eventParameters = StandardMaps.standardEventParameters("9.9.9");
         assertEquals("9.9.9", eventParameters.get("app_version"));
     }
 
     @Test
-    public void additionalEventParametersHonoursWhitelistAndMaxThreeEntries() {
+    void additionalEventParametersHonoursWhitelistAndMaxThreeEntries() {
         StackTraceElement[] elements = {
                 new StackTraceElement("run.chronicle.demo.alpha.Component", "m", "Component.java", 1),
                 new StackTraceElement("run.chronicle.demo.beta.Helper", "m", "Helper.java", 1),
@@ -130,7 +130,7 @@ public class StandardMapsTest extends CoreTestCommon {
     }
 
     @Test
-    public void packageNameUpToMaxLevel3CollapsesDeepPackages() {
+    void packageNameUpToMaxLevel3CollapsesDeepPackages() {
         String collapsed = StandardMaps.packageNameUpToMaxLevel3("com.example.deep.pkg.name.Component");
         assertEquals("com.example.deep", collapsed);
 
@@ -139,7 +139,7 @@ public class StandardMapsTest extends CoreTestCommon {
     }
 
     @Test
-    public void standardUserPropertiesExposeRuntime() {
+    void standardUserPropertiesExposeRuntime() {
         Map<String, String> userProps = StandardMaps.standardUserProperties();
         assertTrue(userProps.containsKey("java_runtime_name"));
         assertNotNull(userProps.get("java_runtime_name"));

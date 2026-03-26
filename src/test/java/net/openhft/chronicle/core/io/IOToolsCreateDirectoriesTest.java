@@ -14,10 +14,10 @@ import java.nio.file.Paths;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class IOToolsCreateDirectoriesTest {
+class IOToolsCreateDirectoriesTest {
 
     @Test
-    public void createDirectoriesBuildsNestedStructure() throws IOException {
+    void createDirectoriesBuildsNestedStructure() throws IOException {
         Path base = Files.createTempDirectory(Paths.get(OS.getTarget()), "iotools-dir-test");
         Path nested = base.resolve("a/b/c");
         try {
@@ -29,7 +29,7 @@ public class IOToolsCreateDirectoriesTest {
     }
 
     @Test
-    public void createDirectoriesFailsWhenFileWithSameNameExists() throws IOException {
+    void createDirectoriesFailsWhenFileWithSameNameExists() throws IOException {
         Path base = Files.createTempDirectory(Paths.get(OS.getTarget()), "iotools-file-test");
         Path file = base.resolve("exists");
         Files.write(file, new byte[]{1, 2, 3});

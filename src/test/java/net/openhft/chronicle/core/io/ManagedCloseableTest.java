@@ -17,6 +17,7 @@ class ManagedCloseableTest {
     void mockitoNotSupportedOnJava21() {
         assumeTrue(Jvm.majorVersion() <= 17);
     }
+
     @Test
     void testWarnAndCloseIfNotClosed() {
         ManagedCloseable closeable = spy(ManagedCloseable.class);

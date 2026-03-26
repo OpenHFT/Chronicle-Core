@@ -13,18 +13,18 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * Verifies behaviour of StringUtils when reflective optimisation flags are disabled.
  */
-public class StringUtilsFlagsTest extends CoreTestCommon {
+class StringUtilsFlagsTest extends CoreTestCommon {
 
     private String oldFlag;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         oldFlag = System.getProperty("chronicle.core.allow.reflection.string");
         System.setProperty("chronicle.core.allow.reflection.string", "false");
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         if (oldFlag == null)
             System.clearProperty("chronicle.core.allow.reflection.string");
         else
@@ -32,7 +32,7 @@ public class StringUtilsFlagsTest extends CoreTestCommon {
     }
 
     @Test
-    public void newStringFallsBackToSafeConstructor() {
+    void newStringFallsBackToSafeConstructor() {
         char[] chars = {'C', 'o', 'r', 'e'};
         assertEquals(new String(chars), StringUtils.newString(chars));
     }

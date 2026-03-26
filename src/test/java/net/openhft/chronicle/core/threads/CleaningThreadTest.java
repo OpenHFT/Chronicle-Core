@@ -16,9 +16,9 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.*;
 
-public class CleaningThreadTest extends CoreTestCommon {
+class CleaningThreadTest extends CoreTestCommon {
     @Test
-    public void cleanupThreadLocal() throws InterruptedException {
+    void cleanupThreadLocal() throws InterruptedException {
         String threadName = "ctl-test";
         BlockingQueue<String> ints = new LinkedBlockingQueue<>();
         CleaningThreadLocal<String> counter = CleaningThreadLocal.withCleanup(() -> Thread.currentThread().getName(), ints::add);
@@ -29,7 +29,7 @@ public class CleaningThreadTest extends CoreTestCommon {
     }
 
     @Test
-    public void testRemove() {
+    void testRemove() {
         int[] counter = {0};
         CleaningThreadLocal<Integer> ctl = CleaningThreadLocal.withCloseQuietly(() -> counter[0]++);
         assertEquals(0, (int) ctl.get());
@@ -38,7 +38,7 @@ public class CleaningThreadTest extends CoreTestCommon {
     }
 
     @Test
-    public void resetThreadAffinity() throws InterruptedException {
+    void resetThreadAffinity() throws InterruptedException {
         final BitSet affinity = Affinity.getAffinity();
         assumeTrue(affinity.cardinality() > 2);
         assumeTrue(AffinityLock.BASE_AFFINITY.cardinality() > 2);

@@ -10,22 +10,22 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class VanillaThreadConfinementAsserterTest extends CoreTestCommon {
+class VanillaThreadConfinementAsserterTest extends CoreTestCommon {
 
     private ThreadConfinementAsserter asserter;
 
     @BeforeEach
-    public void before() {
+    void before() {
         asserter = new VanillaThreadConfinementAsserter();
     }
 
     @Test
-    public void assertThreadConfinedSame() {
+    void assertThreadConfinedSame() {
         asserter.assertThreadConfined();
     }
 
     @Test
-    public void assertThreadConfinedOther() throws InterruptedException {
+    void assertThreadConfinedOther() throws InterruptedException {
         final Thread other = new Thread(() -> asserter.assertThreadConfined(), "first");
         other.start();
         other.join();
@@ -37,13 +37,13 @@ public class VanillaThreadConfinementAsserterTest extends CoreTestCommon {
     }
 
     @Test
-    public void shouldNotThrowExceptionForSameThreadAccess() {
+    void shouldNotThrowExceptionForSameThreadAccess() {
         VanillaThreadConfinementAsserter asserter = new VanillaThreadConfinementAsserter();
         assertDoesNotThrow(asserter::assertThreadConfined, "Access by the same thread should not throw an exception");
     }
 
     @Test
-    public void shouldThrowExceptionForDifferentThreadAccess() throws InterruptedException {
+    void shouldThrowExceptionForDifferentThreadAccess() throws InterruptedException {
         VanillaThreadConfinementAsserter asserter = new VanillaThreadConfinementAsserter();
         asserter.assertThreadConfined(); // Initialize with the current thread
 
@@ -56,7 +56,7 @@ public class VanillaThreadConfinementAsserterTest extends CoreTestCommon {
     }
 
     @Test
-    public void toStringShouldReturnNonNullValue() {
+    void toStringShouldReturnNonNullValue() {
         VanillaThreadConfinementAsserter asserter = new VanillaThreadConfinementAsserter();
         assertNotNull(asserter.toString(), "toString should return a non-null value");
     }

@@ -8,10 +8,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class JvmSafepointTest extends CoreTestCommon {
+class JvmSafepointTest extends CoreTestCommon {
 
     @Test
-    public void testSafepoint() throws InterruptedException {
+    void testSafepoint() throws InterruptedException {
         @SuppressWarnings("AnonymousHasLambdaAlternative")
         Thread t = new Thread() {
             public void run() {
@@ -49,7 +49,7 @@ public class JvmSafepointTest extends CoreTestCommon {
     }
 
     @Test
-    public void safePointPerf() {
+    void safePointPerf() {
         // This will enable the C2 compiler to kick in.
         FlakyTestRunner.<RuntimeException>builder(this::safePointPerf0).withFlakyOnThisArchitecture(true).withMaxIterations(3).build().run();
     }

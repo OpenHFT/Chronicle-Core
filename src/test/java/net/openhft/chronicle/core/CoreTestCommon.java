@@ -19,7 +19,7 @@ public class CoreTestCommon {
     private ExceptionTracker<?> exceptionTracker;
 
     @BeforeEach
-    public void beforeEachCoreTestCommon() {
+    void beforeEachCoreTestCommon() {
         enableReferenceTracing();
         createExceptionTracker();
     }
@@ -50,7 +50,7 @@ public class CoreTestCommon {
     }
 
     @AfterEach
-    public void afterChecks() {
+    protected void afterChecks() {
         CleaningThread.performCleanup(Thread.currentThread());
 
         waitForCloseablesToClose(10000);

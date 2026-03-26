@@ -17,11 +17,11 @@ import java.util.function.Supplier;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("java:S1068")
-public class ObjectUtilsTest extends CoreTestCommon {
+class ObjectUtilsTest extends CoreTestCommon {
     @SuppressWarnings("rawtypes")
     @Test
-    public void testImmutable() {
-        for (@NotNull Class<?> c: new Class[]{
+    void testImmutable() {
+        for (@NotNull Class<?> c : new Class[]{
                 String.class,
                 Integer.class,
                 Date.class,
@@ -30,7 +30,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
         }) {
             assertEquals(ObjectUtils.Immutability.MAYBE, ObjectUtils.isImmutable(c), c.getName());
         }
-        for (@NotNull Class<?> c: new Class[]{
+        for (@NotNull Class<?> c : new Class[]{
                 // StringBuilder.class, // StringBuilder implements Comparable in Java 11
                 ArrayList.class,
                 HashMap.class,
@@ -40,7 +40,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    public void canConvertTo() {
+    void canConvertTo() {
         assertTrue(ObjectUtils.canConvertText(String.class));
         assertTrue(ObjectUtils.canConvertText(Class.class));
         assertTrue(ObjectUtils.canConvertText(Boolean.class));
@@ -92,6 +92,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
             return new ClassWithParse(s.toString());
         }
     }
+
     static class ClassWithSetter {
         private String s;
 
@@ -101,7 +102,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    public void testConvert() throws IllegalStateException, IllegalArgumentException {
+    void testConvert() throws IllegalStateException, IllegalArgumentException {
         assertEquals('1', (char) ObjectUtils.convertTo(char.class, 1));
         assertEquals('1', (char) ObjectUtils.convertTo(char.class, 1L));
         assertEquals(1, (int) ObjectUtils.convertTo(int.class, '1'));
@@ -110,12 +111,12 @@ public class ObjectUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    public void testNoDefaultClassForInterfaceNewInstanceThrows() {
+    void testNoDefaultClassForInterfaceNewInstanceThrows() {
         assertThrows(IllegalArgumentException.class, () -> ObjectUtils.newInstance(ExceptionHandler.class));
     }
 
     @Test
-    public void supplierForClassShouldHandleDifferentClassTypes() {
+    void supplierForClassShouldHandleDifferentClassTypes() {
         // Example for a regular class
         Supplier<RegularClass> regularClassSupplier = ObjectUtils.supplierForClass(RegularClass.class);
         assertNotNull(regularClassSupplier.get());
@@ -126,14 +127,14 @@ public class ObjectUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    public void immutableShouldRegisterImmutability() {
+    void immutableShouldRegisterImmutability() {
         Class<?> testClass = RegularClass.class;
         ObjectUtils.immutable(testClass, true);
         assertEquals(ObjectUtils.Immutability.YES, ObjectUtils.isImmutable(testClass));
     }
 
     @Test
-    public void caseIgnoreLookupShouldCreateCorrectMap() {
+    void caseIgnoreLookupShouldCreateCorrectMap() {
         // Assuming MyEnum is an enum class
         Map<String, Enum<?>> map = ObjectUtils.caseIgnoreLookup(MyEnum.class);
         // Assertions to check the map contents
@@ -141,14 +142,14 @@ public class ObjectUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    public void valueOfIgnoreCaseShouldReturnCorrectEnum() {
+    void valueOfIgnoreCaseShouldReturnCorrectEnum() {
         // Assuming MyEnum is an enum class with a constant MY_VALUE
         MyEnum result = ObjectUtils.valueOfIgnoreCase(MyEnum.class, "my_value");
         assertEquals(MyEnum.MY_VALUE, result);
     }
 
     @Test
-    public void supplierForInternalPackageTest() {
+    void supplierForInternalPackageTest() {
         assertThrows(IllegalArgumentException.class, () -> {
             Supplier<?> supplier = ObjectUtils.supplierForInternalPackage();
             supplier.get();
@@ -156,13 +157,13 @@ public class ObjectUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    public void supplierForEnumTest() {
+    void supplierForEnumTest() {
         Supplier<MyEnum> supplier = ObjectUtils.supplierForEnum(MyEnum.class);
         assertNotNull(supplier.get());
     }
 
     @Test
-    public void supplierForAbstractClassTest() {
+    void supplierForAbstractClassTest() {
         assertThrows(IllegalArgumentException.class, () -> {
             Supplier<AbstractTestClass> supplier = ObjectUtils.supplierForAbstractClass(AbstractTestClass.class);
             supplier.get();
@@ -170,73 +171,73 @@ public class ObjectUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    public void convertCharSingleCharacterTest() {
+    void convertCharSingleCharacterTest() {
         assertEquals(Character.valueOf('a'), ObjectUtils.convertChar("a"));
     }
 
     @Test
-    public void convertCharLongStringTest() {
+    void convertCharLongStringTest() {
         assertNull(ObjectUtils.convertChar("long"));
     }
 
     @Test
-    public void convertTo0SameClassTest() {
+    void convertTo0SameClassTest() {
         String testString = "test";
         assertEquals(testString, ObjectUtils.convertTo0(String.class, testString));
     }
 
     @Test
-    public void convertTo0NullTest() {
+    void convertTo0NullTest() {
         assertNull(ObjectUtils.convertTo0(String.class, null));
     }
 
     @Test
-    public void convertTo0VoidClassTest() {
+    void convertTo0VoidClassTest() {
         assertNull(ObjectUtils.convertTo0(Void.class, "anyValue"));
     }
 
     @Test
-    public void convertTo0ToStringTest() {
+    void convertTo0ToStringTest() {
         Object testObject = new Object();
         assertEquals(testObject.toString(), ObjectUtils.convertTo0(String.class, testObject));
     }
 
     @Test
-    public void convertTo0ToNumberTest() {
+    void convertTo0ToNumberTest() {
         assertEquals(Integer.valueOf(10), ObjectUtils.convertTo0(Integer.class, "10"));
     }
 
     @Test
-    public void convertTo0ToCharacterTest() {
+    void convertTo0ToCharacterTest() {
         assertEquals(Character.valueOf('a'), ObjectUtils.convertTo0(Character.class, "a"));
     }
 
     @Test
-    public void convertTo0ToCharSequenceUsingParserTest() {
+    void convertTo0ToCharSequenceUsingParserTest() {
         assertEquals("test", ObjectUtils.convertTo0(String.class, "test"));
     }
 
     @Test
-    public void convertTo0ToDateFromLongTest() {
+    void convertTo0ToDateFromLongTest() {
         long time = System.currentTimeMillis();
         Date expectedDate = new Date(time);
         assertEquals(expectedDate, ObjectUtils.convertTo0(Date.class, time));
     }
 
     @Test
-    public void convertTo0UnsupportedConversionTest() {
+    void convertTo0UnsupportedConversionTest() {
         assertThrows(ClassCastException.class, () -> ObjectUtils.convertTo0(Map.class, "test"));
     }
 
     @Test
-    public void asCCETest() {
+    void asCCETest() {
         Exception exception = new Exception("Test exception");
         ClassCastException cce = ObjectUtils.asCCE(exception);
         assertEquals(exception, cce.getCause());
     }
 
     @Test
-    public void sizeOfMapTest() {
+    void sizeOfMapTest() {
         Map<Integer, Integer> map = new HashMap<>();
         map.put(1, 1);
         map.put(2, 2);
@@ -244,66 +245,72 @@ public class ObjectUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    public void sizeOfUnsupportedTypeTest() {
+    void sizeOfUnsupportedTypeTest() {
         assertThrows(UnsupportedOperationException.class, () -> ObjectUtils.sizeOf(new Object()));
     }
 
     @Test
-    public void convertToNumberTest() {
+    void convertToNumberTest() {
         assertEquals(Integer.valueOf(1), ObjectUtils.convertToNumber(Integer.class, "1"));
     }
 
     @Test
-    public void newInstanceWithClassNameTest() {
+    void newInstanceWithClassNameTest() {
         RegularClass instance = ObjectUtils.newInstance(RegularClass.class.getName());
         assertNotNull(instance);
     }
 
     @Test
-    public void newInstanceOrNullValidClassTest() {
+    void newInstanceOrNullValidClassTest() {
         RegularClass instance = (RegularClass) ObjectUtils.newInstanceOrNull(RegularClass.class);
         assertNotNull(instance);
     }
 
     @Test
-    public void addAllTest() {
+    void addAllTest() {
         Integer[] result = ObjectUtils.addAll(1, 2, 3);
         assertArrayEquals(new Integer[]{1, 2, 3}, result);
     }
 
     @Test
-    public void addAllSingleElementTest() {
+    void addAllSingleElementTest() {
         Integer[] result = ObjectUtils.addAll(1);
         assertArrayEquals(new Integer[]{1}, result);
     }
 
     @Test
-    public void getAllInterfacesTest() {
+    void getAllInterfacesTest() {
         Class<?>[] interfaces = ObjectUtils.getAllInterfaces(new ImplementingClass());
         assertEquals("[interface net.openhft.chronicle.core.util.IgnoresEverything]", Arrays.toString(interfaces));
     }
 
     @Test
-    public void getAllInterfacesWithNullAccumulatorTest() {
+    void getAllInterfacesWithNullAccumulatorTest() {
         assertThrows(IllegalArgumentException.class, () -> ObjectUtils.getAllInterfaces(new ImplementingClass(), null));
     }
 
     @Test
-    public void implementationToUseNonInterfaceTest() {
+    void implementationToUseNonInterfaceTest() {
         Class<?> impl = ObjectUtils.implementationToUse(RegularClass.class);
         assertSame(RegularClass.class, impl);
     }
-        // Define MyEnum or use an existing enum for testing
+
+    // Define MyEnum or use an existing enum for testing
     enum MyEnum {
         MY_VALUE
     }
 
-    class ImplementingClass implements IgnoresEverything {}
-    private class AbstractTestClass {}
-    private class RegularClass {}
+    class ImplementingClass implements IgnoresEverything {
+    }
+
+    private class AbstractTestClass {
+    }
+
+    private class RegularClass {
+    }
 
     @Test
-    public void testDefaultValueForPrimitives() {
+    void testDefaultValueForPrimitives() {
         assertEquals(false, ObjectUtils.defaultValue(boolean.class));
         assertEquals((byte) 0, (byte) ObjectUtils.defaultValue(byte.class));
         assertEquals((short) 0, (short) ObjectUtils.defaultValue(short.class));
@@ -315,7 +322,7 @@ public class ObjectUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    public void testDefaultValueForWrapperTypes() {
+    void testDefaultValueForWrapperTypes() {
         assertNull(ObjectUtils.defaultValue(Boolean.class));
         assertNull(ObjectUtils.defaultValue(Byte.class));
         assertNull(ObjectUtils.defaultValue(Short.class));
@@ -327,18 +334,18 @@ public class ObjectUtilsTest extends CoreTestCommon {
     }
 
     @Test
-    public void testDefaultValueForCustomObjects() {
+    void testDefaultValueForCustomObjects() {
         assertNull(ObjectUtils.defaultValue(String.class));
         assertNull(ObjectUtils.defaultValue(BigDecimal.class));
     }
 
     @Test
-    public void testDefaultValueForUnsupportedType() {
+    void testDefaultValueForUnsupportedType() {
         assertNull(ObjectUtils.defaultValue(Object.class));
     }
 
     @Test
-    public void testDefaultValueWithNullClass() {
+    void testDefaultValueWithNullClass() {
         assertNull(ObjectUtils.defaultValue(null));
     }
 }

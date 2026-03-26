@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class ClassWithNoPackageTest {
     @Test
-    public void getPackageName() {
+    void getPackageName() {
         assertEquals("", Jvm.getPackageName(ClassWithNoPackageTest.class));
     }
 }

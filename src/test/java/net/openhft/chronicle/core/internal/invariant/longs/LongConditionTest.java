@@ -9,10 +9,10 @@ import java.util.function.LongPredicate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class LongConditionTest {
+class LongConditionTest {
 
     @Test
-    public void basicComparisons() {
+    void basicComparisons() {
         String codeSource = LongCondition.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         assertTrue(codeSource.contains("/target/classes"), "Expected instrumented class from target/classes but was " + codeSource);
 
@@ -38,7 +38,7 @@ public class LongConditionTest {
     }
 
     @Test
-    public void rangeAndAlignmentChecks() {
+    void rangeAndAlignmentChecks() {
         assertTrue(LongCondition.BYTE_CONVERTIBLE.test(Byte.MAX_VALUE));
         assertFalse(LongCondition.BYTE_CONVERTIBLE.test(Byte.MAX_VALUE + 1L));
 
@@ -59,7 +59,7 @@ public class LongConditionTest {
     }
 
     @Test
-    public void negateMappings() {
+    void negateMappings() {
         LongPredicate positiveNegated = LongCondition.POSITIVE.negate();
         assertTrue(positiveNegated.test(-1));
         assertFalse(positiveNegated.test(2));
@@ -90,7 +90,7 @@ public class LongConditionTest {
     }
 
     @Test
-    public void descriptiveToString() {
+    void descriptiveToString() {
         assertEquals("> 0", LongCondition.POSITIVE.toString());
         assertEquals("!= 0", LongCondition.NON_ZERO.toString());
 

@@ -17,19 +17,19 @@ import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UniqueMicroTimeProviderTest extends CoreTestCommon {
+class UniqueMicroTimeProviderTest extends CoreTestCommon {
     private UniqueMicroTimeProvider timeProvider;
     private SetTimeProvider setTimeProvider;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         timeProvider = new UniqueMicroTimeProvider();
         setTimeProvider = new SetTimeProvider(0);
         timeProvider.provider(setTimeProvider);
     }
 
     @Test
-    public void shouldProvideUniqueTimeAcrossThreadsMillis() throws InterruptedException {
+    void shouldProvideUniqueTimeAcrossThreadsMillis() throws InterruptedException {
         final Set<Long> allGeneratedTimestamps = ConcurrentHashMap.newKeySet();
         final int numberOfThreads = 100;
         final int iterationsPerThread = 100;
@@ -65,7 +65,7 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
     }
 
     @Test
-    public void shouldProvideUniqueTimeAcrossThreadsMicros() throws InterruptedException {
+    void shouldProvideUniqueTimeAcrossThreadsMicros() throws InterruptedException {
         final Set<Long> allGeneratedTimestamps = ConcurrentHashMap.newKeySet();
         final int numberOfThreads = 50;
         final int factor = 50;
@@ -102,7 +102,7 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
     }
 
     @Test
-    public void shouldProvideUniqueTimeAcrossThreadsNanos() throws InterruptedException {
+    void shouldProvideUniqueTimeAcrossThreadsNanos() throws InterruptedException {
         final Set<Long> allGeneratedTimestamps = ConcurrentHashMap.newKeySet();
         final int numberOfThreads = 50;
         final int factor = 50;
@@ -139,7 +139,7 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
     }
 
     @Test
-    public void shouldAdvanceTimeWhenExceedingCallsPerSecond() {
+    void shouldAdvanceTimeWhenExceedingCallsPerSecond() {
         final int iterations = 1_000_001;
         long lastTimeMicros = 0;
 
@@ -152,7 +152,7 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
     }
 
     @Test
-    public void currentTimeMillisShouldBeCorrect() {
+    void currentTimeMillisShouldBeCorrect() {
         int iterations = 1_000;
         long lastTimeMillis = 0;
         final long startTimeMillis = setTimeProvider.currentTimeMillis();
@@ -168,7 +168,7 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
     }
 
     @Test
-    public void currentTimeMicrosShouldBeCorrect() {
+    void currentTimeMicrosShouldBeCorrect() {
         long lastTimeMicros = 0;
 
         for (int i = 0; i < 4_000; i++) {
@@ -180,7 +180,7 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
     }
 
     @Test
-    public void currentTimeMicrosShouldBeCorrectBackwards() {
+    void currentTimeMicrosShouldBeCorrectBackwards() {
         long lastTimeMicros = 0;
 
         for (int i = 0; i < 4_000; i++) {
@@ -192,7 +192,7 @@ public class UniqueMicroTimeProviderTest extends CoreTestCommon {
     }
 
     @Test
-    public void currentTimeNanosShouldBeCorrect() {
+    void currentTimeNanosShouldBeCorrect() {
         long lastTimeMicros = 0;
 
         for (int i = 0; i < 4_000; i++) {

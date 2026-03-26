@@ -7,10 +7,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.Test;
 
-public class ClosedIORuntimeExceptionTest {
+class ClosedIORuntimeExceptionTest {
 
     @Test
-    public void testConstructorWithMessage() {
+    void testConstructorWithMessage() {
         String testMessage = "Test message";
         ClosedIORuntimeException exception = new ClosedIORuntimeException(testMessage);
 
@@ -18,7 +18,7 @@ public class ClosedIORuntimeExceptionTest {
     }
 
     @Test
-    public void testConstructorWithMessageAndCause() {
+    void testConstructorWithMessageAndCause() {
         String testMessage = "Test message";
         Throwable testCause = new Throwable("Test cause");
         ClosedIORuntimeException exception = new ClosedIORuntimeException(testMessage, testCause);
@@ -28,7 +28,7 @@ public class ClosedIORuntimeExceptionTest {
     }
 
     @Test
-    public void testConstructorWithNullCause() {
+    void testConstructorWithNullCause() {
         String testMessage = "Test message";
         ClosedIORuntimeException exception = new ClosedIORuntimeException(testMessage, null);
 

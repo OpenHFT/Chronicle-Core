@@ -11,13 +11,13 @@ import static org.junit.jupiter.api.Assertions.*;
  * Any implementor of {@link ReferenceCountedTracer} should implement a test class
  * that extends this or one of its more specific children
  */
-public abstract class ReferenceCountedTracerContractTest extends ReferenceCountedContractTest {
+abstract class ReferenceCountedTracerContractTest extends ReferenceCountedContractTest {
 
     @Override
     protected abstract ReferenceCountedTracer createReferenceCounted();
 
     @Test
-    public void throwIfReleasedWillThrowIfResourceIsReleased() {
+    void throwIfReleasedWillThrowIfResourceIsReleased() {
         ReferenceCountedTracer referenceCounted = createReferenceCounted();
 
         referenceCounted.releaseLast();
@@ -25,7 +25,7 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
     }
 
     @Test
-    public void throwIfReleasedWillNotThrowIfResourceIsNotReleased() {
+    void throwIfReleasedWillNotThrowIfResourceIsNotReleased() {
         ReferenceCountedTracer referenceCounted = createReferenceCounted();
         try {
             referenceCounted.throwExceptionIfReleased();
@@ -36,7 +36,7 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
     }
 
     @Test
-    public void throwIfNotReleasedWillThrowIfResourceIsNotReleased() {
+    void throwIfNotReleasedWillThrowIfResourceIsNotReleased() {
         assertThrows(IllegalStateException.class, () -> {
             ReferenceCountedTracer referenceCounted = createReferenceCounted();
             try {
@@ -48,7 +48,7 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
     }
 
     @Test
-    public void throwIfNotReleasedWillNotThrowIfResourceIsReleased() {
+    void throwIfNotReleasedWillNotThrowIfResourceIsReleased() {
         ReferenceCountedTracer referenceCounted = createReferenceCounted();
 
         referenceCounted.releaseLast();
@@ -57,7 +57,7 @@ public abstract class ReferenceCountedTracerContractTest extends ReferenceCounte
     }
 
     @Test
-    public void listenersShouldNotBeNotifiedOnWarnAndReleaseIfNotReleased() {
+    void listenersShouldNotBeNotifiedOnWarnAndReleaseIfNotReleased() {
         ReferenceCountedTracer rc = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");

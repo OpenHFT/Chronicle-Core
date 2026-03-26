@@ -11,16 +11,16 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class HistogramTest extends CoreTestCommon {
+class HistogramTest extends CoreTestCommon {
 
     @Test
-    public void defaultConstructorInitializesProperly() {
+    void defaultConstructorInitializesProperly() {
         Histogram histogram = new Histogram();
         assertNotNull(histogram);
     }
 
     @Test
-    public void constructorWithParametersInitializesProperly() {
+    void constructorWithParametersInitializesProperly() {
         int powersOf2 = 10;
         int fractionBits = 5;
         Histogram histogram = new Histogram(powersOf2, fractionBits);
@@ -28,7 +28,7 @@ public class HistogramTest extends CoreTestCommon {
     }
 
     @Test
-    public void sampleCorrectlyUpdatesHistogram() {
+    void sampleCorrectlyUpdatesHistogram() {
         Histogram histogram = new Histogram();
         int bucket = histogram.sample(1000.0);
         assertTrue(bucket >= 0);
@@ -36,7 +36,7 @@ public class HistogramTest extends CoreTestCommon {
     }
 
     @Test
-    public void addCombinesHistogramsCorrectly() {
+    void addCombinesHistogramsCorrectly() {
         Histogram h1 = new Histogram();
         Histogram h2 = new Histogram();
         h2.sample(10);
@@ -45,7 +45,7 @@ public class HistogramTest extends CoreTestCommon {
     }
 
     @Test
-    public void testEqualsAndHashCode() {
+    void testEqualsAndHashCode() {
         Histogram h1 = new Histogram();
         Histogram h2 = new Histogram();
 
@@ -54,7 +54,7 @@ public class HistogramTest extends CoreTestCommon {
     }
 
     @Test
-    public void percentilesForReturnsCorrectValues() {
+    void percentilesForReturnsCorrectValues() {
         long count = 10000;
         double[] percentiles = Histogram.percentilesFor(count);
         assertNotNull(percentiles);
@@ -62,19 +62,19 @@ public class HistogramTest extends CoreTestCommon {
     }
 
     @Test
-    public void percentilesFor() {
+    void percentilesFor() {
         assertEquals("[0.5, 0.9, 0.99, 0.997, 0.999, 0.9997, 0.9999, 0.99997, 0.99999, 0.999997, 1.0]", Arrays.toString(Histogram.percentilesFor(50_000_000)));
     }
 
     @Test
-    public void singleSample() {
+    void singleSample() {
         Histogram h = new Histogram();
         h.sampleNanos(100_000);
         assertEquals("50/90 97/99 99.7/99.9 99.97/99.99 - worst was 100.0 / 100.0  100.0 / 100.0  100.0 / 100.0  100.0 / 100.0 - 100.0", h.toLongMicrosFormat());
     }
 
     @Test
-    public void testSampleRange() {
+    void testSampleRange() {
         @NotNull Histogram h = new Histogram(40, 2);
         double base = 1;
         for (int i = 0; i < 40; i++) {
@@ -88,7 +88,7 @@ public class HistogramTest extends CoreTestCommon {
     }
 
     @Test
-    public void testSamples() {
+    void testSamples() {
         @NotNull Histogram h = new Histogram(10, 5, 1000);
 
         sampleWithSeed(h, 2141);
@@ -112,7 +112,7 @@ public class HistogramTest extends CoreTestCommon {
     }
 
     @Test
-    public void testAdd() {
+    void testAdd() {
         int seed1 = 2141;
         int seed2 = 33;
         Histogram h1 = Histogram.timeMicros();

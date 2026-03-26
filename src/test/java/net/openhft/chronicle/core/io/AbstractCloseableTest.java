@@ -13,10 +13,10 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class AbstractCloseableTest extends CoreTestCommon {
+class AbstractCloseableTest extends CoreTestCommon {
 
     @Test
-    public void close() throws IllegalStateException {
+    void close() throws IllegalStateException {
         MyCloseable mc = new MyCloseable();
         assertFalse(mc.isClosed());
         assertEquals(0, mc.performClose);
@@ -33,7 +33,7 @@ public class AbstractCloseableTest extends CoreTestCommon {
     }
 
     @Test
-    public void throwExceptionIfClosed() throws IllegalStateException {
+    void throwExceptionIfClosed() throws IllegalStateException {
         assertThrows(IllegalStateException.class, () -> {
             MyCloseable mc = new MyCloseable();
             mc.close();
@@ -42,7 +42,7 @@ public class AbstractCloseableTest extends CoreTestCommon {
     }
 
     @Test
-    public void warnAndCloseIfNotClosed() {
+    void warnAndCloseIfNotClosed() {
         Jvm.setResourceTracing(true);
 
         Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
@@ -56,14 +56,14 @@ public class AbstractCloseableTest extends CoreTestCommon {
         Jvm.resetExceptionHandlers();
         if (!AbstractCloseable.DISABLE_DISCARD_WARNING)
             assertEquals("Discarded without closing\n" +
-                            "java.lang.IllegalStateException: net.openhft.chronicle.core.StackTrace: net.openhft.chronicle.core.io.AbstractCloseableTest$MyCloseable created here on main", map.keySet().stream()
-                                    .map(e -> e.message() + "\n" + e.throwable())
-                                    .collect(Collectors.joining(", "))
-                                    .split(" at ")[0]);
+                    "java.lang.IllegalStateException: net.openhft.chronicle.core.StackTrace: net.openhft.chronicle.core.io.AbstractCloseableTest$MyCloseable created here on main", map.keySet().stream()
+                    .map(e -> e.message() + "\n" + e.throwable())
+                    .collect(Collectors.joining(", "))
+                    .split(" at ")[0]);
     }
 
     @Test
-    public void assertCloseable() {
+    void assertCloseable() {
 
         final MyCloseable myCloseable = new MyCloseable() {
             int cnt = 0;

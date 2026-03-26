@@ -13,24 +13,24 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class MuteBuilderApiNoopsTest {
+class MuteBuilderApiNoopsTest {
 
     private String prev;
 
     @BeforeEach
-    public void disableAnalytics() {
+    void disableAnalytics() {
         prev = System.getProperty("chronicle.analytics.disable");
         System.setProperty("chronicle.analytics.disable", "true");
     }
 
     @AfterEach
-    public void restoreProperty() {
+    void restoreProperty() {
         if (prev == null) System.clearProperty("chronicle.analytics.disable");
         else System.setProperty("chronicle.analytics.disable", prev);
     }
 
     @Test
-    public void builderMethodsAreNoOpsAndBuildsMuteAnalytics() {
+    void builderMethodsAreNoOpsAndBuildsMuteAnalytics() {
         AtomicBoolean called = new AtomicBoolean(false);
         AnalyticsFacade.Builder b = AnalyticsFacade.builder("mid", "sec")
                 .putUserProperty("k1", "v1")
@@ -39,7 +39,8 @@ public class MuteBuilderApiNoopsTest {
                 .withClientIdFileName("cid")
                 .withUrl("http://example.invalid")
                 .withErrorLogger(s -> called.set(true))
-                .withDebugLogger(s -> {})
+                .withDebugLogger(s -> {
+                })
                 .withReportDespiteJUnit();
 
         AnalyticsFacade facade = b.build();

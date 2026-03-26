@@ -15,25 +15,25 @@ import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.*;
 
-public class ExceptionHandlerTest extends CoreTestCommon {
+class ExceptionHandlerTest extends CoreTestCommon {
 
     @BeforeEach
-    public void mockitoNotSupportedOnJava21() {
+    void mockitoNotSupportedOnJava21() {
         assumeTrue(Jvm.majorVersion() <= 17);
     }
 
     @Test
-    public void ignoresEverything() {
+    void ignoresEverything() {
         assertTrue(ExceptionHandler.ignoresEverything() instanceof IgnoresEverything);
     }
 
     @Test
-    public void ignoresEverything2() {
+    void ignoresEverything2() {
         assertTrue(Mocker.ignored(ExceptionHandler.class) instanceof IgnoresEverything);
     }
 
     @Test
-    public void onWithClassAndThrowableShouldDelegateProperly() {
+    void onWithClassAndThrowableShouldDelegateProperly() {
         ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
         Class<?> clazz = this.getClass();
         Throwable thrown = new RuntimeException();
@@ -44,7 +44,7 @@ public class ExceptionHandlerTest extends CoreTestCommon {
     }
 
     @Test
-    public void onWithClassAndMessageShouldDelegateProperly() {
+    void onWithClassAndMessageShouldDelegateProperly() {
         ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
         Class<?> clazz = this.getClass();
         String message = "Test message";
@@ -55,7 +55,7 @@ public class ExceptionHandlerTest extends CoreTestCommon {
     }
 
     @Test
-    public void onWithLoggerAndMessageShouldDelegateProperly() {
+    void onWithLoggerAndMessageShouldDelegateProperly() {
         ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
         Logger logger = mock(Logger.class);
         String message = "Test message";
@@ -66,13 +66,13 @@ public class ExceptionHandlerTest extends CoreTestCommon {
     }
 
     @Test
-    public void isEnabledShouldAlwaysReturnTrue() {
+    void isEnabledShouldAlwaysReturnTrue() {
         ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
         assertTrue(handler.isEnabled(this.getClass()));
     }
 
     @Test
-    public void defaultHandlerShouldReturnSelf() {
+    void defaultHandlerShouldReturnSelf() {
         ExceptionHandler handler = mock(ExceptionHandler.class, CALLS_REAL_METHODS);
         assertSame(handler, handler.defaultHandler());
     }

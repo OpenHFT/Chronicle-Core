@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core;
 
 import org.junit.jupiter.api.Test;
+
 import java.util.Arrays;
 
 import java.util.concurrent.CountDownLatch;
@@ -11,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class StackTraceTest extends CoreTestCommon {
+class StackTraceTest extends CoreTestCommon {
     private static final CountDownLatch threadStarted = new CountDownLatch(1);
     private static final String TIMESTAMP_REGEX = "\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$";
 
@@ -24,7 +25,7 @@ public class StackTraceTest extends CoreTestCommon {
     }
 
     @Test
-    public void testDefaultConstructor() {
+    void testDefaultConstructor() {
         StackTrace st = new StackTrace(true);
         String currentThreadName = Thread.currentThread().getName();
         String regex = "stack trace on " + currentThreadName + " at " + TIMESTAMP_REGEX;
@@ -32,7 +33,7 @@ public class StackTraceTest extends CoreTestCommon {
     }
 
     @Test
-    public void testConstructorWithMessage() {
+    void testConstructorWithMessage() {
         String message = "test message";
         StackTrace st = new StackTrace(message, true);
 
@@ -40,7 +41,7 @@ public class StackTraceTest extends CoreTestCommon {
     }
 
     @Test
-    public void testConstructorWithMessageAndCause() {
+    void testConstructorWithMessageAndCause() {
         String message = "test message";
         Throwable cause = new RuntimeException("cause");
         StackTrace st = new StackTrace(message, cause, true);
@@ -50,12 +51,12 @@ public class StackTraceTest extends CoreTestCommon {
     }
 
     @Test
-    public void testForThread_NullThread() {
+    void testForThread_NullThread() {
         assertNull(StackTrace.forThread(null), "forThread(null) should return null");
     }
 
     @Test
-    public void testForThread() {
+    void testForThread() {
         Thread thread = new Thread();
         StackTrace st = StackTrace.forThread(thread);
         assertNotNull(st);
@@ -67,7 +68,7 @@ public class StackTraceTest extends CoreTestCommon {
      * Verifies capturing a live thread's stack trace.
      */
     @Test
-    public void forThread() throws InterruptedException {
+    void forThread() throws InterruptedException {
         // Ensure Jvm class is loaded before spawning threads
         Jvm.init();
 
@@ -94,9 +95,9 @@ public class StackTraceTest extends CoreTestCommon {
             String f1 = st.getStackTrace().length > 1 ? st.getStackTrace()[1].toString().split("\\(")[0].replaceAll("^app//", "").replaceFirst("^[^/]+/", "") : "";
             boolean ok =
                     "net.openhft.chronicle.core.Jvm.pause".equals(f0) ||
-                    "net.openhft.chronicle.core.Jvm.pause".equals(f1) ||
-                    "java.lang.Thread.sleep".equals(f0) ||
-                    "java.lang.Thread.sleep".equals(f1);
+                            "net.openhft.chronicle.core.Jvm.pause".equals(f1) ||
+                            "java.lang.Thread.sleep".equals(f0) ||
+                            "java.lang.Thread.sleep".equals(f1);
             assertTrue(ok, "Expected top frames to include Jvm.pause or Thread.sleep but were: " + Arrays.asList(f0, f1));
         } else {
             assertTrue(st.getMessage().matches("Thread\\[background,5,main\\] on main at " + TIMESTAMP_REGEX), st.getMessage() + " must match regular expression expecting timestamp to nanosecond precision");
@@ -105,15 +106,15 @@ public class StackTraceTest extends CoreTestCommon {
             String f1 = st.getStackTrace().length > 1 ? st.getStackTrace()[1].toString().split("\\(")[0].replaceAll("^app//", "").replaceFirst("^[^/]+/", "") : "";
             boolean ok =
                     "net.openhft.chronicle.core.Jvm.pause".equals(f0) ||
-                    "net.openhft.chronicle.core.Jvm.pause".equals(f1) ||
-                    "java.lang.Thread.sleep".equals(f0) ||
-                    "java.lang.Thread.sleep".equals(f1);
+                            "net.openhft.chronicle.core.Jvm.pause".equals(f1) ||
+                            "java.lang.Thread.sleep".equals(f0) ||
+                            "java.lang.Thread.sleep".equals(f1);
             assertTrue(ok, "Expected top frames to include Jvm.pause or Thread.sleep but were: " + Arrays.asList(f0, f1));
         }
     }
 
     @Test
-    public void testTimeIsUTC() {
+    void testTimeIsUTC() {
         // Confirm the appended timestamp is in UTC
         StackTrace st = new StackTrace(true);
         String msg = st.getMessage(); // e.g. "... at 2030-12-31T23:59:59.999999999Z"

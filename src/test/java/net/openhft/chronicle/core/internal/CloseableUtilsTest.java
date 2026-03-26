@@ -17,14 +17,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assumptions.*;
 
-public class CloseableUtilsTest {
+class CloseableUtilsTest {
     private ManagedCloseable mockCloseable;
     private AbstractCloseable anonCloseable;
     private AutoCloseable mockAutoCloseable;
     private HttpURLConnection mockHttpURLConnection;
 
     @BeforeEach
-    public void beforeEachCloseableUtilsTest() {
+    void beforeEachCloseableUtilsTest() {
         mockitoNotSupportedOnJava21();
         setUp();
     }
@@ -48,25 +48,25 @@ public class CloseableUtilsTest {
     }
 
     @AfterEach
-    public void tearDown() {
+    void tearDown() {
         CloseableUtils.disableCloseableTracing();
         Closeable.closeQuietly(anonCloseable);
     }
 
     @Test
-    public void testAdd() {
+    void testAdd() {
         CloseableUtils.add(mockCloseable);
         AtomicReference<Set<Closeable>> closeablesRef = getCloseablesRef();
         assertTrue(closeablesRef.get().contains(mockCloseable));
     }
 
     @Test
-    public void testEnableCloseableTracing() {
+    void testEnableCloseableTracing() {
         assertNotNull(getCloseablesRef().get());
     }
 
     @Test
-    public void testDisableCloseableTracing() {
+    void testDisableCloseableTracing() {
         CloseableUtils.disableCloseableTracing();
         assertNull(getCloseablesRef().get());
     }
@@ -85,7 +85,7 @@ public class CloseableUtilsTest {
     }
 
     @Test
-    public void testWaitForCloseablesToClose() {
+    void testWaitForCloseablesToClose() {
         CloseableUtils.add(mockCloseable);
         when(mockCloseable.isClosing()).thenReturn(true);
 
@@ -93,7 +93,7 @@ public class CloseableUtilsTest {
     }
 
     @Test
-    public void testWaitForCloseablesToCloseWithException() {
+    void testWaitForCloseablesToCloseWithException() {
         assertThrows(IllegalStateException.class, () -> {
             CloseableUtils.add(mockCloseable);
             when(mockCloseable.isClosing()).thenReturn(false);
@@ -104,7 +104,7 @@ public class CloseableUtilsTest {
     }
 
     @Test
-    public void testAssertCloseablesClosed() {
+    void testAssertCloseablesClosed() {
         CloseableUtils.add(mockCloseable);
         when(mockCloseable.isClosed()).thenReturn(true);
 
@@ -112,7 +112,7 @@ public class CloseableUtilsTest {
     }
 
     @Test
-    public void testAssertCloseablesClosedWithOpenCloseables() {
+    void testAssertCloseablesClosedWithOpenCloseables() {
         assertThrows(AssertionError.class, () -> {
             CloseableUtils.add(mockCloseable);
             when(mockCloseable.isClosed()).thenReturn(false);
@@ -122,7 +122,7 @@ public class CloseableUtilsTest {
     }
 
     @Test
-    public void testUnmonitor() {
+    void testUnmonitor() {
         CloseableUtils.add(mockCloseable);
         CloseableUtils.unmonitor(mockCloseable);
         AtomicReference<Set<Closeable>> closeablesRef = getCloseablesRef();
@@ -130,7 +130,7 @@ public class CloseableUtilsTest {
     }
 
     @Test
-    public void testIOToolsUnmonitor() {
+    void testIOToolsUnmonitor() {
         IOTools.unmonitor(null);
         IOTools.unmonitor("hello");
         CloseableUtils.add(anonCloseable);
@@ -140,7 +140,7 @@ public class CloseableUtilsTest {
     }
 
     @Test
-    public void testCloseQuietlyArray() {
+    void testCloseQuietlyArray() {
         Object[] array = {mock(Closeable.class), mock(Closeable.class)};
 
         CloseableUtils.closeQuietly(array);
@@ -151,14 +151,14 @@ public class CloseableUtilsTest {
     }
 
     @Test
-    public void testCloseQuietlyAutoCloseable() throws Exception {
+    void testCloseQuietlyAutoCloseable() throws Exception {
         CloseableUtils.closeQuietly(mockAutoCloseable);
 
         verify(mockAutoCloseable, times(1)).close();
     }
 
     @Test
-    public void testCloseQuietlyHttpURLConnection() {
+    void testCloseQuietlyHttpURLConnection() {
         CloseableUtils.closeQuietly(mockHttpURLConnection);
 
         verify(mockHttpURLConnection, times(1)).disconnect();

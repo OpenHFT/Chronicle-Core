@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class OnDemandEventLoopTest extends CoreTestCommon {
+class OnDemandEventLoopTest extends CoreTestCommon {
     @Test
-    public void onDemand() {
+    void onDemand() {
         OnDemandEventLoop el = new OnDemandEventLoop(() -> new EventLoop() {
             @Override
             public String name() {

@@ -17,7 +17,7 @@ import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE_COPY_THRESHOLD;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assumptions.*;
 
-public class UnsafeMemory2Test extends CoreTestCommon {
+class UnsafeMemory2Test extends CoreTestCommon {
     private static final int INT_VAL = 0x12345678;
 
     public static Collection<Object[]> data() {
@@ -35,7 +35,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void stopBitLengthInt(UnsafeMemory memory) {
+    void stopBitLengthInt(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         assertEquals(1, memory.stopBitLength(0));
         assertEquals(2, memory.stopBitLength(~0));
@@ -51,7 +51,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void stopBitLengthLong(UnsafeMemory memory) {
+    void stopBitLengthLong(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         assertEquals(1, memory.stopBitLength(0L));
         assertEquals(2, memory.stopBitLength(~0L));
@@ -68,7 +68,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void is7BitBytes(UnsafeMemory memory) {
+    void is7BitBytes(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         for (int i = 0; i <= 64; i++) {
             byte[] bytes = new byte[i];
@@ -82,7 +82,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void is7BitBytes2(UnsafeMemory memory) {
+    void is7BitBytes2(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         byte[] bytes = new byte[256];
         for (int i = 0; i < 256; i++)
@@ -104,7 +104,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void is7BitChars(UnsafeMemory memory) {
+    void is7BitChars(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         for (int i = 0; i <= 64; i++) {
             char[] chars = new char[i];
@@ -118,7 +118,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void is7BitChars2(UnsafeMemory memory) {
+    void is7BitChars2(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         char[] chars = new char[512];
         for (int i = 0; i < 512; i++)
@@ -140,7 +140,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void is7BitAddr(UnsafeMemory memory) {
+    void is7BitAddr(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         final long addr = UNSAFE.allocateMemory(64);
         assertTrue(memory.is7Bit(addr, 0));
@@ -154,7 +154,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void is7BitAddr2(UnsafeMemory memory) {
+    void is7BitAddr2(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         final long addr = UNSAFE.allocateMemory(256);
         for (int i = 0; i < 256; i++)
@@ -178,7 +178,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void partialReadBytes(UnsafeMemory memory) {
+    void partialReadBytes(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         byte[] bytes = new byte[16];
         for (int i = 0; i < bytes.length; i++)
@@ -192,7 +192,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void partialWriteBytes(UnsafeMemory memory) {
+    void partialWriteBytes(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         byte[] bytes = new byte[16];
         for (int i = 0; i < 8; i++) {
@@ -206,7 +206,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void partialReadAddr(UnsafeMemory memory) {
+    void partialReadAddr(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         long addr = memory.allocate(16);
         for (int i = 0; i < 16; i++)
@@ -221,7 +221,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void partialWriteAddr(UnsafeMemory memory) {
+    void partialWriteAddr(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         long addr = memory.allocate(16);
         memory.partialWrite(addr, 0, 8);
@@ -237,7 +237,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void copyMemory(UnsafeMemory memory) {
+    void copyMemory(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         final int capacity = 37;
         long addr = memory.allocate(capacity);
@@ -261,7 +261,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void copyMemoryMoreThanThreshold(UnsafeMemory memory) {
+    void copyMemoryMoreThanThreshold(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         final long capacity = (int) (UNSAFE_COPY_THRESHOLD * 2.5d);
         long addr = memory.allocate(capacity);
@@ -279,14 +279,14 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void address(UnsafeMemory memory) {
+    void address(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         assertNotEquals(0, memory.address(ByteBuffer.allocateDirect(32)));
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void setMemory(UnsafeMemory memory) {
+    void setMemory(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         long[] ds = new long[2];
         memory.setMemory(ds, memory.arrayBaseOffset(long[].class), 2 * Long.BYTES, (byte) 1);
@@ -296,7 +296,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void copyMemoryEachWayLongArrayMemory(UnsafeMemory memory) {
+    void copyMemoryEachWayLongArrayMemory(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         final long[] data = new long[]{1, 2, 3, 4};
         final int lengthInBytes = data.length * Long.BYTES;
@@ -309,7 +309,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void copyMemoryEachWayByteArrayMemory(UnsafeMemory memory) {
+    void copyMemoryEachWayByteArrayMemory(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         int capacity = 37;
         final byte[] data = new byte[capacity];
@@ -324,7 +324,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void copyMemoryByteArray(UnsafeMemory memory) {
+    void copyMemoryByteArray(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         int capacity = 37;
         final byte[] data = new byte[capacity];
@@ -337,7 +337,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void copyMemoryByteArrayAsObject(UnsafeMemory memory) {
+    void copyMemoryByteArrayAsObject(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         int capacity = 37;
         final byte[] data = new byte[capacity];
@@ -350,7 +350,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void copyMemoryEachWayByteArrayLongArray(UnsafeMemory memory) {
+    void copyMemoryEachWayByteArrayLongArray(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         final long[] longs = new long[]{0x0706050403020100L, 0x0f0e0d0c0b0a0908L};
         final long[] copy = new long[longs.length];
@@ -367,7 +367,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void copyMemoryOverlap(UnsafeMemory memory) {
+    void copyMemoryOverlap(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         int capacity = 32;
         final byte[] data = new byte[capacity];
@@ -384,7 +384,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void copyMemoryOverlapBackwards(UnsafeMemory memory) {
+    void copyMemoryOverlapBackwards(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         int capacity = 32;
         final byte[] data = new byte[capacity];
@@ -401,7 +401,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void copyMemoryHeapObject(UnsafeMemory memory) throws NoSuchFieldException {
+    void copyMemoryHeapObject(UnsafeMemory memory) throws NoSuchFieldException {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         Field num = MyDTO.class.getDeclaredField("num");
         long offset = memory.objectFieldOffset(num);
@@ -414,7 +414,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void copyMemoryEachWayByteArrayHeapObject(UnsafeMemory memory) throws NoSuchFieldException {
+    void copyMemoryEachWayByteArrayHeapObject(UnsafeMemory memory) throws NoSuchFieldException {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         Field num = MyDTO.class.getDeclaredField("num");
         long offset = memory.objectFieldOffset(num);
@@ -432,7 +432,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void copyMemoryEachWayAddressHeapObject(UnsafeMemory memory) throws NoSuchFieldException {
+    void copyMemoryEachWayAddressHeapObject(UnsafeMemory memory) throws NoSuchFieldException {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         Field num = MyDTO.class.getDeclaredField("num");
         long offset = memory.objectFieldOffset(num);
@@ -449,7 +449,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void safeAlignTest(UnsafeMemory memory) {
+    void safeAlignTest(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         for (int i = -1; i < 70; i++) {
             if (memory instanceof UnsafeMemory.ARMMemory)
@@ -461,14 +461,14 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void arrayBaseOffset(UnsafeMemory memory) {
+    void arrayBaseOffset(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         assertEquals(12, memory.arrayBaseOffset(byte[].class), 4);
     }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void objectFieldOffset(UnsafeMemory memory) throws NoSuchFieldException {
+    void objectFieldOffset(UnsafeMemory memory) throws NoSuchFieldException {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         Field num = MyDTO.class.getDeclaredField("num");
         assertEquals(12, memory.objectFieldOffset(num), 4);
@@ -476,7 +476,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void directMemoryByte(UnsafeMemory memory) {
+    void directMemoryByte(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         long mem = memory.allocate(32);
         memory.writeByte(null, mem, (byte) 12);
@@ -486,7 +486,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void directMemoryShort(UnsafeMemory memory) {
+    void directMemoryShort(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         long mem = memory.allocate(32);
         memory.writeShort(null, mem, (short) 12345);
@@ -496,7 +496,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void directMemoryInt(UnsafeMemory memory) {
+    void directMemoryInt(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         long mem = memory.allocate(32);
         memory.writeInt(null, mem, INT_VAL);
@@ -506,7 +506,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void directMemoryAddInt(UnsafeMemory memory) {
+    void directMemoryAddInt(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         long mem = memory.allocate(32);
         memory.writeInt(mem, 0);
@@ -518,7 +518,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void directMemoryCASInt(UnsafeMemory memory) {
+    void directMemoryCASInt(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         long mem = memory.allocate(32);
         memory.writeInt(mem, 0);
@@ -530,7 +530,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void directMemoryLong(UnsafeMemory memory) {
+    void directMemoryLong(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         long mem = memory.allocate(32);
         memory.writeLong(null, mem, Long.MAX_VALUE);
@@ -540,7 +540,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void directMemoryAddLong(UnsafeMemory memory) {
+    void directMemoryAddLong(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         long mem = memory.allocate(32);
         memory.writeLong(mem, 0);
@@ -552,7 +552,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void directMemoryCASLong(UnsafeMemory memory) {
+    void directMemoryCASLong(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         long mem = memory.allocate(32);
         memory.writeLong(mem, 0);
@@ -564,7 +564,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void directMemoryFloat(UnsafeMemory memory) {
+    void directMemoryFloat(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         long mem = memory.allocate(32);
         memory.writeFloat(null, mem, 1.2345f);
@@ -574,7 +574,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void directMemoryDouble(UnsafeMemory memory) {
+    void directMemoryDouble(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         long mem = memory.allocate(32);
         memory.writeDouble(null, mem, 1.2345);
@@ -585,7 +585,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     @SuppressWarnings("ConstantConditions")
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void directMemoryReference1(UnsafeMemory memory) {
+    void directMemoryReference1(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         assertThrows(Exception.class, () -> {
             long mem = memory.allocate(32);
@@ -601,7 +601,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
     @SuppressWarnings("ConstantConditions")
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void directMemoryReference2(UnsafeMemory memory) {
+    void directMemoryReference2(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         assertThrows(Exception.class, () -> {
             long mem = memory.allocate(32);
@@ -616,7 +616,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void directMemoryVolatileByte(UnsafeMemory memory) {
+    void directMemoryVolatileByte(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         long mem = memory.allocate(32);
         memory.writeVolatileByte(null, mem, (byte) 12);
@@ -626,7 +626,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void directMemoryVolatileShort(UnsafeMemory memory) {
+    void directMemoryVolatileShort(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         long mem = memory.allocate(32);
         memory.writeVolatileShort(null, mem, (short) 12345);
@@ -636,7 +636,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void directMemoryVolatileInt(UnsafeMemory memory) {
+    void directMemoryVolatileInt(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         long mem = memory.allocate(32);
         memory.writeVolatileInt(null, mem, INT_VAL);
@@ -646,7 +646,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void directMemoryOrderedInt(UnsafeMemory memory) {
+    void directMemoryOrderedInt(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         long mem = memory.allocate(32);
         memory.writeOrderedInt(null, mem, INT_VAL);
@@ -656,7 +656,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void directMemoryVolatileLong(UnsafeMemory memory) {
+    void directMemoryVolatileLong(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         long mem = memory.allocate(32);
         memory.writeVolatileLong(null, mem, Long.MAX_VALUE);
@@ -666,7 +666,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void directMemoryOrderedLong(UnsafeMemory memory) {
+    void directMemoryOrderedLong(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         long mem = memory.allocate(32);
         memory.writeOrderedLong(null, mem, Long.MAX_VALUE);
@@ -676,7 +676,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void directMemoryVolatileFloat(UnsafeMemory memory) {
+    void directMemoryVolatileFloat(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         long mem = memory.allocate(32);
         memory.writeVolatileFloat(null, mem, 1.2345f);
@@ -686,7 +686,7 @@ public class UnsafeMemory2Test extends CoreTestCommon {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
-    public void directMemoryVolatileDouble(UnsafeMemory memory) {
+    void directMemoryVolatileDouble(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
         long mem = memory.allocate(32);
         memory.writeVolatileDouble(null, mem, 1.2345);
