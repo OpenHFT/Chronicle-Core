@@ -88,7 +88,15 @@ public final class OS {
 
     private static Class<?> findClass(String name) {
         try {
-            return Thread.currentThread().getContextClassLoader().loadClass(name);
+            ClassLoader contextClassLoader = Thread.currentThread().getContextClassLoader();
+            if (contextClassLoader != null)
+                return contextClassLoader.loadClass(name);
+
+            ClassLoader osClassLoader = OS.class.getClassLoader();
+            if (osClassLoader != null)
+                return osClassLoader.loadClass(name);
+
+            return Class.forName(name);
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException("Not found: " + name, e);
         }
