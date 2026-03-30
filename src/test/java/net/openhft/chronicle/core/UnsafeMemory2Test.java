@@ -114,7 +114,7 @@ class UnsafeMemory2Test extends CoreTestCommon {
             chars[i - 1] = 0x8000;
             assertFalse(memory.is7Bit(chars, 0, i));
         }
-    }20:7
+    }
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("data")
