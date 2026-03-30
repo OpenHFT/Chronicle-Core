@@ -92,9 +92,12 @@ class ClassAliasPoolTest extends CoreTestCommon {
 
     @Test
     void testEnum() throws IllegalArgumentException {
-        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum", CLASS_ALIASES.nameFor(TestEnum.class));
-        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum", CLASS_ALIASES.nameFor(TestEnum.FOO.getClass()));
-        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum", CLASS_ALIASES.nameFor(TestEnum.BAR.getClass()));
+        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum",
+                CLASS_ALIASES.nameFor(TestEnum.class));
+        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum",
+                CLASS_ALIASES.nameFor(TestEnum.FOO.getClass()));
+        assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum",
+                CLASS_ALIASES.nameFor(TestEnum.BAR.getClass()));
     }
 
     @Test
