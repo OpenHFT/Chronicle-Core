@@ -4,7 +4,6 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.onoes.ExceptionKey;
-import junit.framework.TestCase;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +33,7 @@ class LicenceCheckTest extends CoreTestCommon {
 
     @Test
     void checkEvalExpired() {
-        assertThrows(TimeLimitExceededException.class, () -> LicenceCheck.check("test", TestCase.class));
+        assertThrows(TimeLimitExceededException.class, () -> LicenceCheck.check("test", LicenceCheckTest.class));
     }
 
     @Test
