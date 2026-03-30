@@ -47,7 +47,7 @@ class EnumInternerTest extends CoreTestCommon {
                     final String cs = te.toString();
                     for (int i = 0; i < 20000; i++) {
                         final TestEnum interned = testEnum.intern(cs);
-                        assertEquals(interned, te, "i: " + i);
+                        assertEquals(te, interned, "i: " + i);
                     }
                 });
     }
