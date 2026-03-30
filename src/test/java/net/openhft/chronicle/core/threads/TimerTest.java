@@ -18,51 +18,16 @@ class TimerTest {
 
     private static final class FakeLoop implements EventLoop {
         final List<EventHandler> handlers = new ArrayList<>();
-
-        @Override
-        public String name() {
-            return "fake";
-        }
-
-        @Override
-        public void addHandler(EventHandler handler) {
-            handlers.add(handler);
-        }
-
-        @Override
-        public void start() {
-        }
-
-        @Override
-        public void unpause() {
-        }
-
-        @Override
-        public void stop() {
-        }
-
-        @Override
-        public boolean isAlive() {
-            return true;
-        }
-
-        @Override
-        public boolean isStopped() {
-            return false;
-        }
-
+        @Override public String name() { return "fake"; }
+        @Override public void addHandler(EventHandler handler) { handlers.add(handler); }
+        @Override public void start() { }
+        @Override public void unpause() { }
+        @Override public void stop() { }
+        @Override public boolean isAlive() { return true; }
+        @Override public boolean isStopped() { return false; }
         private boolean closed;
-
-        @Override
-        public void close() {
-            closed = true;
-            handlers.clear();
-        }
-
-        @Override
-        public boolean isClosed() {
-            return closed;
-        }
+        @Override public void close() { closed = true; handlers.clear(); }
+        @Override public boolean isClosed() { return closed; }
 
         void tickOnce() {
             for (Iterator<EventHandler> it = handlers.iterator(); it.hasNext(); ) {
@@ -78,11 +43,7 @@ class TimerTest {
 
     private static final class FakeTime implements TimeProvider {
         long now;
-
-        @Override
-        public long currentTimeMillis() {
-            return now;
-        }
+        @Override public long currentTimeMillis() { return now; }
     }
 
     @Test

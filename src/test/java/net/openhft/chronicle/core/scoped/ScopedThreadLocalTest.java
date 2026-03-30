@@ -121,13 +121,16 @@ class ScopedThreadLocalTest extends CoreTestCommon {
         }, MAX_INSTANCES);
 
         // Should get 0,1,2,3 on the first excessive acquire
-        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 3)), retrieveAndReturnNValues(MAX_INSTANCES + 1, ints));
+        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 3)),
+                retrieveAndReturnNValues(MAX_INSTANCES + 1, ints));
 
         // Should get 0,1,2,4,5 on the next excessive acquire
-        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 4, 5)), retrieveAndReturnNValues(MAX_INSTANCES + 2, ints));
+        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 4, 5)),
+                retrieveAndReturnNValues(MAX_INSTANCES + 2, ints));
 
         // Should get 0,1,2,6,7 on the next excessive acquire
-        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 6, 7)), retrieveAndReturnNValues(MAX_INSTANCES + 2, ints));
+        assertEquals(new HashSet<>(Arrays.asList(0, 1, 2, 6, 7)),
+                retrieveAndReturnNValues(MAX_INSTANCES + 2, ints));
     }
 
     private Set<Integer> retrieveAndReturnNValues(int numberToRetrieve, ScopedThreadLocal<Integer> scopedInts) {
