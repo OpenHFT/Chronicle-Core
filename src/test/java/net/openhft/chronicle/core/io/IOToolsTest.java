@@ -136,7 +136,7 @@ class IOToolsTest extends CoreTestCommon {
                         IOTools.readFile(IOToolsTest.class, "readFileManyTimes.txt");
                         accumulator.accumulate(1);
                     } catch (IOException ioe) {
-                        Jvm.rethrow(ioe);
+                        throw Jvm.rethrow(ioe);
                     }
                 });
 
@@ -160,7 +160,7 @@ class IOToolsTest extends CoreTestCommon {
                         IOTools.readFile(IOToolsTest.class, file);
                         accumulator.accumulate(1);
                     } catch (IOException ioe) {
-                        Jvm.rethrow(ioe);
+                        throw Jvm.rethrow(ioe);
                     }
                 });
 
@@ -211,6 +211,7 @@ class IOToolsTest extends CoreTestCommon {
         assertFalse(ro.toFile().canWrite());
         try {
             IOTools.createDirectories(Paths.get(ro.toString(), "subdir" + Time.uniqueId()));
+            fail("Expected an IOException when trying to create a directory inside a read-only directory");
         } catch (IOException ioe) {
             assertSame(IOException.class, ioe.getClass());
             assertTrue(ioe.getMessage().startsWith("Cannot write to "));
@@ -233,6 +234,7 @@ class IOToolsTest extends CoreTestCommon {
         assertTrue(file.toFile().createNewFile());
         try {
             IOTools.createDirectories(Paths.get(file.toString(), "subdir" + Time.uniqueId()));
+            fail("Expected an IOException when trying to create a directory with the same name as a file");
         } catch (IOException ioe) {
             assertSame(IOException.class, ioe.getClass());
             assertTrue(ioe.getMessage().startsWith("Cannot create a directory with the same name as a file "));
@@ -255,7 +257,7 @@ class IOToolsTest extends CoreTestCommon {
         final ByteBuffer bb = ByteBuffer.allocate(1);
         try {
             IOTools.addressFor(bb);
-            fail();
+            fail("Expected a ClassCastException when trying to get the address of a non-direct ByteBuffer");
         } catch (ClassCastException cce) {
             // expected
         }
