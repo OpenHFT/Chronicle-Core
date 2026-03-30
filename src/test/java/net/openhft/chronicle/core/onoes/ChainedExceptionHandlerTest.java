@@ -3,11 +3,9 @@
  */
 package net.openhft.chronicle.core.onoes;
 
-import net.openhft.chronicle.core.util.IgnoresEverything;
-import org.junit.jupiter.api.Test;
 import org.mockito.InOrder;
 import org.junit.jupiter.api.*;
-import org.slf4j.Logger;
+
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 

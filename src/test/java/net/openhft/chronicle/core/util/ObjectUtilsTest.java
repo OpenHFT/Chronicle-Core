@@ -18,8 +18,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("java:S1068")
 class ObjectUtilsTest extends CoreTestCommon {
-    @SuppressWarnings("rawtypes")
     @Test
+    @SuppressWarnings("rawtypes")
     void testImmutable() {
         for (@NotNull Class<?> c : new Class[]{
                 String.class,
@@ -150,10 +150,8 @@ class ObjectUtilsTest extends CoreTestCommon {
 
     @Test
     void supplierForInternalPackageTest() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            Supplier<?> supplier = ObjectUtils.supplierForInternalPackage();
-            supplier.get();
-        });
+        Supplier<?> supplier = ObjectUtils.supplierForInternalPackage();
+        assertThrows(IllegalArgumentException.class, supplier::get);
     }
 
     @Test
@@ -164,10 +162,8 @@ class ObjectUtilsTest extends CoreTestCommon {
 
     @Test
     void supplierForAbstractClassTest() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            Supplier<AbstractTestClass> supplier = ObjectUtils.supplierForAbstractClass(AbstractTestClass.class);
-            supplier.get();
-        });
+        Supplier<AbstractTestClass> supplier = ObjectUtils.supplierForAbstractClass(AbstractTestClass.class);
+        assertThrows(IllegalArgumentException.class, supplier::get);
     }
 
     @Test

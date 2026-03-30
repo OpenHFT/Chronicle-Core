@@ -9,8 +9,6 @@ import net.openhft.chronicle.core.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -304,8 +302,8 @@ class MathsTest extends CoreTestCommon {
         }
     }
 
-    @SuppressWarnings("deprecation")
     @Test
+    @SuppressWarnings("deprecation")
     void testRounding() {
         @NotNull Random rand = new Random(1);
         for (int i = 0; i < 1000; i++) {

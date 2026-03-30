@@ -34,11 +34,10 @@ class AbstractCloseableTest extends CoreTestCommon {
 
     @Test
     void throwExceptionIfClosed() throws IllegalStateException {
-        assertThrows(IllegalStateException.class, () -> {
-            MyCloseable mc = new MyCloseable();
-            mc.close();
-            mc.throwExceptionIfClosed();
-        });
+        MyCloseable mc = new MyCloseable();
+        mc.close();
+
+        assertThrows(IllegalStateException.class, mc::throwExceptionIfClosed);
     }
 
     @Test

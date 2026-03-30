@@ -3,7 +3,6 @@
  */
 package net.openhft.chronicle.core.io;
 
-import net.openhft.chronicle.core.internal.CloseableUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

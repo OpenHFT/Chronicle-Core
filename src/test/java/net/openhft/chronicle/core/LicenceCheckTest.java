@@ -24,10 +24,7 @@ class LicenceCheckTest extends CoreTestCommon {
 
     @Test
     void checkExpiredExpiryFile() {
-        assertThrows(TimeLimitExceededException.class, () -> {
-            LicenceCheck.check("test", LicenceCheck.class);
-            fail("should have got an AssertionError");
-        });
+        assertThrows(TimeLimitExceededException.class, () -> LicenceCheck.check("test", LicenceCheck.class));
     }
 
     @Test
@@ -52,10 +49,8 @@ class LicenceCheckTest extends CoreTestCommon {
 
     @Test
     void checkLicenseExpired() {
-        assertThrows(TimeLimitExceededException.class, () -> {
-            System.setProperty(CHRONICLE_LICENSE, "product=test.,owner=Test Unit,expires=2019-01-01,code=123456789");
-            LicenceCheck.check("test", null);
-            fail("Expected TimeLimitExceededException");
-        });
+        System.setProperty(CHRONICLE_LICENSE, "product=test.,owner=Test Unit,expires=2019-01-01,code=123456789");
+
+        assertThrows(TimeLimitExceededException.class, () -> LicenceCheck.check("test", null));
     }
 }

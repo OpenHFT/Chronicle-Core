@@ -587,15 +587,12 @@ class UnsafeMemory2Test extends CoreTestCommon {
     @MethodSource("data")
     void directMemoryReference1(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
-        assertThrows(Exception.class, () -> {
-            long mem = memory.allocate(32);
-            try {
-                memory.putObject(null, mem, 1.2345);
-            } finally {
-                memory.freeMemory(mem, 32);
-            }
-            assertEquals(1.2345, memory.getObject(null, mem), 0f);
-        });
+        long mem = memory.allocate(32);
+        try {
+            assertThrows(Exception.class, () -> memory.putObject(null, mem, 1.2345));
+        } finally {
+            memory.freeMemory(mem, 32);
+        }
     }
 
     @SuppressWarnings("ConstantConditions")
@@ -603,15 +600,12 @@ class UnsafeMemory2Test extends CoreTestCommon {
     @MethodSource("data")
     void directMemoryReference2(UnsafeMemory memory) {
         assumeFalse(Jvm.isArm() && !(memory instanceof UnsafeMemory.ARMMemory));
-        assertThrows(Exception.class, () -> {
-            long mem = memory.allocate(32);
-            try {
-                memory.getObject(null, mem);
-                fail();
-            } finally {
-                memory.freeMemory(mem, 32);
-            }
-        });
+        long mem = memory.allocate(32);
+        try {
+            assertThrows(Exception.class, () -> memory.getObject(null, mem));
+        } finally {
+            memory.freeMemory(mem, 32);
+        }
     }
 
     @ParameterizedTest(name = "{0}")

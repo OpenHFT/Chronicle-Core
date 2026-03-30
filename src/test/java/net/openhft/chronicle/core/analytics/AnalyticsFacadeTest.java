@@ -5,8 +5,6 @@ package net.openhft.chronicle.core.analytics;
 
 import net.openhft.chronicle.core.internal.analytics.MuteBuilder;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 
 import static org.junit.jupiter.api.Assertions.*;
 

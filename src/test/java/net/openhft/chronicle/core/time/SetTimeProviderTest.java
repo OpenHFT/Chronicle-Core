@@ -58,26 +58,20 @@ class SetTimeProviderTest extends CoreTestCommon {
 
     @Test
     void testAttemptToGoBackwardsNanos() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
-            tp.currentTimeNanos(99_999_999_999L);
-        });
+        final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
+        assertThrows(IllegalArgumentException.class, () -> tp.currentTimeNanos(99_999_999_999L));
     }
 
     @Test
     void testAttemptToGoBackwardsMicros() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
-            tp.currentTimeMicros(99_999_999L);
-        });
+        final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
+        assertThrows(IllegalArgumentException.class, () -> tp.currentTimeMicros(99_999_999L));
     }
 
     @Test
     void testAttemptToGoBackwardsMillis() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
-            tp.currentTimeMillis(99_999L);
-        });
+        final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
+        assertThrows(IllegalArgumentException.class, () -> tp.currentTimeMillis(99_999L));
     }
 
     @Test

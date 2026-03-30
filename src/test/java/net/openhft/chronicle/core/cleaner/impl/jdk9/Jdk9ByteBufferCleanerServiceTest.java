@@ -9,8 +9,6 @@ import net.openhft.chronicle.core.cleaner.impl.CleanerTestUtil;
 import net.openhft.chronicle.core.internal.cleaner.Jdk9ByteBufferCleanerService;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import static org.junit.jupiter.api.Assumptions.*;
 
 class Jdk9ByteBufferCleanerServiceTest extends CoreTestCommon {

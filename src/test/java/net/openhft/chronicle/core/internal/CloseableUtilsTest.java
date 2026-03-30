@@ -94,13 +94,11 @@ class CloseableUtilsTest {
 
     @Test
     void testWaitForCloseablesToCloseWithException() {
-        assertThrows(IllegalStateException.class, () -> {
-            CloseableUtils.add(mockCloseable);
-            when(mockCloseable.isClosing()).thenReturn(false);
-            doThrow(IllegalStateException.class).when(mockCloseable).isClosing();
+        CloseableUtils.add(mockCloseable);
+        when(mockCloseable.isClosing()).thenReturn(false);
+        doThrow(IllegalStateException.class).when(mockCloseable).isClosing();
 
-            CloseableUtils.waitForCloseablesToClose(1000);
-        });
+        assertThrows(IllegalStateException.class, () -> CloseableUtils.waitForCloseablesToClose(1000));
     }
 
     @Test
@@ -113,12 +111,10 @@ class CloseableUtilsTest {
 
     @Test
     void testAssertCloseablesClosedWithOpenCloseables() {
-        assertThrows(AssertionError.class, () -> {
-            CloseableUtils.add(mockCloseable);
-            when(mockCloseable.isClosed()).thenReturn(false);
+        CloseableUtils.add(mockCloseable);
+        when(mockCloseable.isClosed()).thenReturn(false);
 
-            CloseableUtils.assertCloseablesClosed();
-        });
+        assertThrows(AssertionError.class, CloseableUtils::assertCloseablesClosed);
     }
 
     @Test
