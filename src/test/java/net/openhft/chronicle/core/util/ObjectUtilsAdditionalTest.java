@@ -14,37 +14,11 @@ import static org.junit.jupiter.api.Assertions.*;
 class ObjectUtilsAdditionalTest {
 
     // --- Helpers used by conversion tests ---
-    static final class WithCtor {
-        final String v;
-
-        public WithCtor(String v) {
-            this.v = v;
+    public static final class WithCtor {
+        final String v; public WithCtor(String v) { this.v = v; }
         }
-    }
-
-    static final class WithValueOf {
-        final String v;
-
-        private WithValueOf(String v) {
-            this.v = v;
-        }
-
-        public static WithValueOf valueOf(String s) {
-            return new WithValueOf(s);
-        }
-    }
-
-    static final class WithParse {
-        final String v;
-
-        private WithParse(String v) {
-            this.v = v;
-        }
-
-        public static WithParse parse(CharSequence s) {
-            return new WithParse(s.toString());
-        }
-    }
+    public static final class WithValueOf { final String v; private WithValueOf(String v){this.v=v;} public static WithValueOf valueOf(String s){return new WithValueOf(s);} }
+    public static final class WithParse { final String v; private WithParse(String v){this.v=v;} public static WithParse parse(CharSequence s){return new WithParse(s.toString());} }
 
     @Test
     void booleanParsingAcceptsYesTrueAndNoFalse() {
