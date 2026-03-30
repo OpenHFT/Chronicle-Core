@@ -59,8 +59,8 @@ class UnsafeMemoryTest extends CoreTestCommon {
     }
 
     private void initParams(String name, UnsafeMemory memory, Boolean onHeap) {
-        this.memory = memory;
-        this.onHeap = onHeap;
+        memory = memory;
+        onHeap = onHeap;
         if (Boolean.TRUE.equals(onHeap)) {
             object = new byte[128];
             addr = memory.arrayBaseOffset(byte[].class);
@@ -277,12 +277,12 @@ class UnsafeMemoryTest extends CoreTestCommon {
     void writeShort(String name, UnsafeMemory memory, Boolean onHeap) {
         initParams(name, memory, onHeap);
         for (int i = 0; i <= 64; i++) {
-            if (this.onHeap == null) {
-                this.memory.writeShort(this.addr + i, (short) 0xABCD);
-                assertEquals((short) 0xABCD, this.memory.readShort(this.addr + i));
+            if (onHeap == null) {
+                memory.writeShort(addr + i, (short) 0xABCD);
+                assertEquals((short) 0xABCD, memory.readShort(addr + i));
             } else {
-                this.memory.writeShort(this.object, this.addr + i, (short) 0xABCD);
-                assertEquals((short) 0xABCD, this.memory.readShort(this.object, this.addr + i));
+                memory.writeShort(object, addr + i, (short) 0xABCD);
+                assertEquals((short) 0xABCD, memory.readShort(object, addr + i));
             }
         }
     }
@@ -291,14 +291,14 @@ class UnsafeMemoryTest extends CoreTestCommon {
     @MethodSource("data")
     void readShort(String name, UnsafeMemory memory, Boolean onHeap) {
         initParams(name, memory, onHeap);
-        if (this.onHeap == null) {
-            this.memory.writeLong(this.addr, 0x123456789ABCDEFL);
-            assertEquals((short) 0xCDEF, this.memory.readShort(this.addr));
-            assertEquals((short) 0xABCD, this.memory.readShort(this.addr + 1));
+        if (onHeap == null) {
+            memory.writeLong(addr, 0x123456789ABCDEFL);
+            assertEquals((short) 0xCDEF, memory.readShort(addr));
+            assertEquals((short) 0xABCD, memory.readShort(addr + 1));
         } else {
-            this.memory.writeLong(this.object, this.addr, 0x123456789ABCDEFL);
-            assertEquals((short) 0xCDEF, this.memory.readShort(this.object, this.addr));
-            assertEquals((short) 0xABCD, this.memory.readShort(this.object, this.addr + 1));
+            memory.writeLong(object, addr, 0x123456789ABCDEFL);
+            assertEquals((short) 0xCDEF, memory.readShort(object, addr));
+            assertEquals((short) 0xABCD, memory.readShort(object, addr + 1));
         }
     }
 
@@ -307,12 +307,12 @@ class UnsafeMemoryTest extends CoreTestCommon {
     void readWriteInt(String name, UnsafeMemory memory, Boolean onHeap) {
         initParams(name, memory, onHeap);
         for (int i = 0; i <= 64; i++)
-            if (this.onHeap == null) {
-                this.memory.writeInt(this.addr + i, INT_VAL);
-                assertEquals(INT_VAL, this.memory.readInt(this.addr + i));
+            if (onHeap == null) {
+                memory.writeInt(addr + i, INT_VAL);
+                assertEquals(INT_VAL, memory.readInt(addr + i));
             } else {
-                this.memory.writeInt(this.object, this.addr + i, INT_VAL);
-                assertEquals(INT_VAL, this.memory.readInt(this.object, this.addr + i));
+                memory.writeInt(object, addr + i, INT_VAL);
+                assertEquals(INT_VAL, memory.readInt(object, addr + i));
             }
     }
 
@@ -321,12 +321,12 @@ class UnsafeMemoryTest extends CoreTestCommon {
     void writeOrderedInt(String name, UnsafeMemory memory, Boolean onHeap) {
         initParams(name, memory, onHeap);
         for (int i = 0; i <= 64; i++)
-            if (this.onHeap == null) {
-                this.memory.writeOrderedInt(this.addr + i, INT_VAL);
-                assertEquals(INT_VAL, this.memory.readInt(this.addr + i));
+            if (onHeap == null) {
+                memory.writeOrderedInt(addr + i, INT_VAL);
+                assertEquals(INT_VAL, memory.readInt(addr + i));
             } else {
-                this.memory.writeOrderedInt(this.object, this.addr + i, INT_VAL);
-                assertEquals(INT_VAL, this.memory.readInt(this.object, this.addr + i));
+                memory.writeOrderedInt(object, addr + i, INT_VAL);
+                assertEquals(INT_VAL, memory.readInt(object, addr + i));
             }
     }
 
@@ -335,12 +335,12 @@ class UnsafeMemoryTest extends CoreTestCommon {
     void readWriteLong(String name, UnsafeMemory memory, Boolean onHeap) {
         initParams(name, memory, onHeap);
         for (int i = 0; i <= 64; i++)
-            if (this.onHeap == null) {
-                this.memory.writeLong(this.addr + i, LONG_VAL);
-                assertEquals(LONG_VAL, this.memory.readLong(this.addr + i));
+            if (onHeap == null) {
+                memory.writeLong(addr + i, LONG_VAL);
+                assertEquals(LONG_VAL, memory.readLong(addr + i));
             } else {
-                this.memory.writeLong(this.object, this.addr + i, LONG_VAL);
-                assertEquals(LONG_VAL, this.memory.readLong(this.object, this.addr + i));
+                memory.writeLong(object, addr + i, LONG_VAL);
+                assertEquals(LONG_VAL, memory.readLong(object, addr + i));
             }
     }
 
@@ -349,12 +349,12 @@ class UnsafeMemoryTest extends CoreTestCommon {
     void readWriteFloat(String name, UnsafeMemory memory, Boolean onHeap) {
         initParams(name, memory, onHeap);
         for (int i = 0; i <= 64; i++)
-            if (this.onHeap == null) {
-                this.memory.writeFloat(this.addr + i, FLOAT_VAL);
-                assertEquals(FLOAT_VAL, this.memory.readFloat(this.addr + i), EPSILON);
+            if (onHeap == null) {
+                memory.writeFloat(addr + i, FLOAT_VAL);
+                assertEquals(FLOAT_VAL, memory.readFloat(addr + i), EPSILON);
             } else {
-                this.memory.writeFloat(this.object, this.addr + i, 1);
-                assertEquals(FLOAT_VAL, this.memory.readFloat(this.object, this.addr + i), EPSILON);
+                memory.writeFloat(object, addr + i, 1);
+                assertEquals(FLOAT_VAL, memory.readFloat(object, addr + i), EPSILON);
             }
     }
 
@@ -363,12 +363,12 @@ class UnsafeMemoryTest extends CoreTestCommon {
     void readWriteDouble(String name, UnsafeMemory memory, Boolean onHeap) {
         initParams(name, memory, onHeap);
         for (int i = 0; i <= 64; i++)
-            if (this.onHeap == null) {
-                this.memory.writeDouble(this.addr + i, DOUBLE_VAL);
-                assertEquals(DOUBLE_VAL, this.memory.readDouble(this.addr + i), EPSILON);
+            if (onHeap == null) {
+                memory.writeDouble(addr + i, DOUBLE_VAL);
+                assertEquals(DOUBLE_VAL, memory.readDouble(addr + i), EPSILON);
             } else {
-                this.memory.writeDouble(this.object, this.addr + i, DOUBLE_VAL);
-                assertEquals(DOUBLE_VAL, this.memory.readDouble(this.object, this.addr + i), EPSILON);
+                memory.writeDouble(object, addr + i, DOUBLE_VAL);
+                assertEquals(DOUBLE_VAL, memory.readDouble(object, addr + i), EPSILON);
             }
     }
 
@@ -376,15 +376,14 @@ class UnsafeMemoryTest extends CoreTestCommon {
     @MethodSource("data")
     void writeOrderedLong(String name, UnsafeMemory memory, Boolean onHeap) {
         initParams(name, memory, onHeap);
-        for (int i = (int) (-this.addr & 7); i <= 64; i += 8)
-            if (this.onHeap == null) {
-                this.memory.writeOrderedLong(this.addr + i, LONG_VAL);
-                assertEquals(LONG_VAL, this.memory.readLong(this.addr + i));
+        for (int i = (int) (-addr & 7); i <= 64; i += 8)
+            if (onHeap == null) {
+                memory.writeOrderedLong(addr + i, LONG_VAL);
+                assertEquals(LONG_VAL, memory.readLong(addr + i));
             } else {
-                this.memory.writeOrderedLong(this.object, this.addr + i, LONG_VAL);
-                assertEquals(LONG_VAL, this.memory.readLong(this.object, this.addr + i));
+                memory.writeOrderedLong(object, addr + i, LONG_VAL);
+                assertEquals(LONG_VAL, memory.readLong(object, addr + i));
             }
-        System.err.println("DONE");
     }
 
     @ParameterizedTest(name = "{0}")
@@ -393,19 +392,19 @@ class UnsafeMemoryTest extends CoreTestCommon {
         initParams(name, memory, onHeap);
         for (int i = 0; i <= 64; i += 4)
             try {
-                if (this.onHeap == null) {
-                    this.memory.writeInt(this.addr + i, 0);
-                    final boolean actual = this.memory.compareAndSwapInt(this.addr + i, 0, INT_VAL);
+                if (onHeap == null) {
+                    memory.writeInt(addr + i, 0);
+                    final boolean actual = memory.compareAndSwapInt(addr + i, 0, INT_VAL);
                     assertTrue(actual);
-                    assertEquals(INT_VAL, this.memory.readInt(this.addr + i));
+                    assertEquals(INT_VAL, memory.readInt(addr + i));
                 } else {
-                    this.memory.writeInt(this.object, this.addr + i, 0);
-                    final boolean actual = this.memory.compareAndSwapInt(this.object, this.addr + i, 0, INT_VAL);
+                    memory.writeInt(object, addr + i, 0);
+                    final boolean actual = memory.compareAndSwapInt(object, addr + i, 0, INT_VAL);
                     assertTrue(actual);
-                    assertEquals(INT_VAL, this.memory.readInt(this.object, this.addr + i));
+                    assertEquals(INT_VAL, memory.readInt(object, addr + i));
                 }
             } catch (MisAlignedAssertionError e) {
-                if (this.memory.safeAlignedInt(this.addr + i))
+                if (memory.safeAlignedInt(addr + i))
                     throw e;
             }
     }
@@ -414,21 +413,21 @@ class UnsafeMemoryTest extends CoreTestCommon {
     @MethodSource("data")
     void compareAndSwapLong(String name, UnsafeMemory memory, Boolean onHeap) throws MisAlignedAssertionError {
         initParams(name, memory, onHeap);
-        for (int i = (int) (-this.addr & 7); i <= 64; i += 8)
+        for (int i = (int) (-addr & 7); i <= 64; i += 8)
             try {
-                if (this.onHeap == null) {
-                    this.memory.writeLong(this.addr + i, 0);
-                    final boolean actual = this.memory.compareAndSwapLong(this.addr + i, 0, LONG_VAL);
+                if (onHeap == null) {
+                    memory.writeLong(addr + i, 0);
+                    final boolean actual = memory.compareAndSwapLong(addr + i, 0, LONG_VAL);
                     assertTrue(actual);
-                    assertEquals(LONG_VAL, this.memory.readLong(this.addr + i));
+                    assertEquals(LONG_VAL, memory.readLong(addr + i));
                 } else {
-                    this.memory.writeLong(this.object, this.addr + i, 0);
-                    final boolean actual = this.memory.compareAndSwapLong(this.object, this.addr + i, 0, LONG_VAL);
+                    memory.writeLong(object, addr + i, 0);
+                    final boolean actual = memory.compareAndSwapLong(object, addr + i, 0, LONG_VAL);
                     assertTrue(actual);
-                    assertEquals(LONG_VAL, this.memory.readLong(this.object, this.addr + i));
+                    assertEquals(LONG_VAL, memory.readLong(object, addr + i));
                 }
             } catch (MisAlignedAssertionError e) {
-                if (this.memory.safeAlignedLong(this.addr + i))
+                if (memory.safeAlignedLong(addr + i))
                     throw e;
             }
     }
@@ -440,19 +439,19 @@ class UnsafeMemoryTest extends CoreTestCommon {
         int initialValue = 9876;
         for (int i = 0; i <= 64; i += 4)
             try {
-                if (this.onHeap == null) {
-                    this.memory.writeInt(this.addr + i, initialValue);
-                    final int previous = this.memory.getAndSetInt(this.addr + i, INT_VAL);
+                if (onHeap == null) {
+                    memory.writeInt(addr + i, initialValue);
+                    final int previous = memory.getAndSetInt(addr + i, INT_VAL);
                     assertEquals(initialValue, previous);
-                    assertEquals(INT_VAL, this.memory.readInt(this.addr + i));
+                    assertEquals(INT_VAL, memory.readInt(addr + i));
                 } else {
-                    this.memory.writeInt(this.object, this.addr + i, initialValue);
-                    final int previous = this.memory.getAndSetInt(this.object, this.addr + i, INT_VAL);
+                    memory.writeInt(object, addr + i, initialValue);
+                    final int previous = memory.getAndSetInt(object, addr + i, INT_VAL);
                     assertEquals(initialValue, previous);
-                    assertEquals(INT_VAL, this.memory.readInt(this.object, this.addr + i));
+                    assertEquals(INT_VAL, memory.readInt(object, addr + i));
                 }
             } catch (MisAlignedAssertionError e) {
-                if (this.memory.safeAlignedInt(this.addr + i))
+                if (memory.safeAlignedInt(addr + i))
                     throw e;
             }
     }
@@ -462,13 +461,13 @@ class UnsafeMemoryTest extends CoreTestCommon {
     void readVolatileByte(String name, UnsafeMemory memory, Boolean onHeap) {
         initParams(name, memory, onHeap);
         for (int i = 0; i <= 64; i++)
-            if (this.onHeap == null) {
-                this.memory.writeByte(this.addr + i, BYTE_VAL);
-                final byte actual = this.memory.readVolatileByte(this.addr + i);
+            if (onHeap == null) {
+                memory.writeByte(addr + i, BYTE_VAL);
+                final byte actual = memory.readVolatileByte(addr + i);
                 assertEquals(BYTE_VAL, actual);
             } else {
-                this.memory.writeByte(this.object, this.addr + i, BYTE_VAL);
-                final byte actual = this.memory.readVolatileByte(this.object, this.addr + i);
+                memory.writeByte(object, addr + i, BYTE_VAL);
+                final byte actual = memory.readVolatileByte(object, addr + i);
                 assertEquals(BYTE_VAL, actual);
             }
     }
@@ -478,13 +477,13 @@ class UnsafeMemoryTest extends CoreTestCommon {
     void readVolatileShort(String name, UnsafeMemory memory, Boolean onHeap) {
         initParams(name, memory, onHeap);
         for (int i = 0; i <= 64; i += 2)
-            if (this.onHeap == null) {
-                this.memory.writeShort(this.addr + i, SHORT_VAL);
-                final short actual = this.memory.readVolatileShort(this.addr + i);
+            if (onHeap == null) {
+                memory.writeShort(addr + i, SHORT_VAL);
+                final short actual = memory.readVolatileShort(addr + i);
                 assertEquals(SHORT_VAL, actual);
             } else {
-                this.memory.writeShort(this.object, this.addr + i, SHORT_VAL);
-                final short actual = this.memory.readVolatileShort(this.object, this.addr + i);
+                memory.writeShort(object, addr + i, SHORT_VAL);
+                final short actual = memory.readVolatileShort(object, addr + i);
                 assertEquals(SHORT_VAL, actual);
             }
     }
@@ -494,13 +493,13 @@ class UnsafeMemoryTest extends CoreTestCommon {
     void readVolatileInt(String name, UnsafeMemory memory, Boolean onHeap) {
         initParams(name, memory, onHeap);
         for (int i = 0; i <= 64; i += 4)
-            if (this.onHeap == null) {
-                this.memory.writeInt(this.addr + i, INT_VAL);
-                final int actual = this.memory.readVolatileInt(this.addr + i);
+            if (onHeap == null) {
+                memory.writeInt(addr + i, INT_VAL);
+                final int actual = memory.readVolatileInt(addr + i);
                 assertEquals(INT_VAL, actual);
             } else {
-                this.memory.writeInt(this.object, this.addr + i, INT_VAL);
-                final int actual = this.memory.readVolatileInt(this.object, this.addr + i);
+                memory.writeInt(object, addr + i, INT_VAL);
+                final int actual = memory.readVolatileInt(object, addr + i);
                 assertEquals(INT_VAL, actual);
             }
     }
@@ -510,13 +509,13 @@ class UnsafeMemoryTest extends CoreTestCommon {
     void readVolatileFloat(String name, UnsafeMemory memory, Boolean onHeap) {
         initParams(name, memory, onHeap);
         for (int i = 0; i <= 64; i += 4)
-            if (this.onHeap == null) {
-                this.memory.writeFloat(this.addr + i, FLOAT_VAL);
-                final float actual = this.memory.readVolatileFloat(this.addr + i);
+            if (onHeap == null) {
+                memory.writeFloat(addr + i, FLOAT_VAL);
+                final float actual = memory.readVolatileFloat(addr + i);
                 assertEquals(FLOAT_VAL, actual, EPSILON);
             } else {
-                this.memory.writeFloat(this.object, this.addr + i, FLOAT_VAL);
-                final float actual = this.memory.readVolatileFloat(this.object, this.addr + i);
+                memory.writeFloat(object, addr + i, FLOAT_VAL);
+                final float actual = memory.readVolatileFloat(object, addr + i);
                 assertEquals(FLOAT_VAL, actual, EPSILON);
             }
     }
@@ -525,14 +524,14 @@ class UnsafeMemoryTest extends CoreTestCommon {
     @MethodSource("data")
     void readVolatileLong(String name, UnsafeMemory memory, Boolean onHeap) {
         initParams(name, memory, onHeap);
-        for (int i = (int) (-this.addr & 7); i <= 64; i += 8)
-            if (this.onHeap == null) {
-                this.memory.writeLong(this.addr + i, LONG_VAL);
-                final long actual = this.memory.readVolatileLong(this.addr + i);
+        for (int i = (int) (-addr & 7); i <= 64; i += 8)
+            if (onHeap == null) {
+                memory.writeLong(addr + i, LONG_VAL);
+                final long actual = memory.readVolatileLong(addr + i);
                 assertEquals(LONG_VAL, actual);
             } else {
-                this.memory.writeLong(this.object, this.addr + i, LONG_VAL);
-                final long actual = this.memory.readVolatileLong(this.object, this.addr + i);
+                memory.writeLong(object, addr + i, LONG_VAL);
+                final long actual = memory.readVolatileLong(object, addr + i);
                 assertEquals(LONG_VAL, actual);
             }
     }
@@ -541,14 +540,14 @@ class UnsafeMemoryTest extends CoreTestCommon {
     @MethodSource("data")
     void readVolatileDouble(String name, UnsafeMemory memory, Boolean onHeap) {
         initParams(name, memory, onHeap);
-        for (int i = (int) (-this.addr & 7); i <= 64; i += 8)
-            if (this.onHeap == null) {
-                this.memory.writeDouble(this.addr + i, DOUBLE_VAL);
-                final double actual = this.memory.readVolatileDouble(this.addr + i);
+        for (int i = (int) (-addr & 7); i <= 64; i += 8)
+            if (onHeap == null) {
+                memory.writeDouble(addr + i, DOUBLE_VAL);
+                final double actual = memory.readVolatileDouble(addr + i);
                 assertEquals(DOUBLE_VAL, actual, EPSILON);
             } else {
-                this.memory.writeDouble(this.object, this.addr + i, DOUBLE_VAL);
-                final double actual = this.memory.readVolatileDouble(this.object, this.addr + i);
+                memory.writeDouble(object, addr + i, DOUBLE_VAL);
+                final double actual = memory.readVolatileDouble(object, addr + i);
                 assertEquals(DOUBLE_VAL, actual, EPSILON);
             }
     }
@@ -558,12 +557,12 @@ class UnsafeMemoryTest extends CoreTestCommon {
     void writeVolatileByte(String name, UnsafeMemory memory, Boolean onHeap) {
         initParams(name, memory, onHeap);
         for (int i = 0; i <= 64; i++)
-            if (this.onHeap == null) {
-                this.memory.writeVolatileByte(this.addr + i, BYTE_VAL);
-                assertEquals(BYTE_VAL, this.memory.readByte(this.addr + i));
+            if (onHeap == null) {
+                memory.writeVolatileByte(addr + i, BYTE_VAL);
+                assertEquals(BYTE_VAL, memory.readByte(addr + i));
             } else {
-                this.memory.writeVolatileByte(this.object, this.addr + i, BYTE_VAL);
-                assertEquals(BYTE_VAL, this.memory.readByte(this.object, this.addr + i));
+                memory.writeVolatileByte(object, addr + i, BYTE_VAL);
+                assertEquals(BYTE_VAL, memory.readByte(object, addr + i));
             }
     }
 
@@ -572,12 +571,12 @@ class UnsafeMemoryTest extends CoreTestCommon {
     void writeVolatileShort(String name, UnsafeMemory memory, Boolean onHeap) {
         initParams(name, memory, onHeap);
         for (int i = 0; i <= 64; i += 2)
-            if (this.onHeap == null) {
-                this.memory.writeVolatileShort(this.addr + i, SHORT_VAL);
-                assertEquals(SHORT_VAL, this.memory.readShort(this.addr + i));
+            if (onHeap == null) {
+                memory.writeVolatileShort(addr + i, SHORT_VAL);
+                assertEquals(SHORT_VAL, memory.readShort(addr + i));
             } else {
-                this.memory.writeVolatileShort(this.object, this.addr + i, SHORT_VAL);
-                assertEquals(SHORT_VAL, this.memory.readShort(this.object, this.addr + i));
+                memory.writeVolatileShort(object, addr + i, SHORT_VAL);
+                assertEquals(SHORT_VAL, memory.readShort(object, addr + i));
             }
     }
 
@@ -586,12 +585,12 @@ class UnsafeMemoryTest extends CoreTestCommon {
     void writeVolatileInt(String name, UnsafeMemory memory, Boolean onHeap) {
         initParams(name, memory, onHeap);
         for (int i = 0; i <= 64; i += 4)
-            if (this.onHeap == null) {
-                this.memory.writeVolatileInt(this.addr + i, INT_VAL);
-                assertEquals(INT_VAL, this.memory.readInt(this.addr + i));
+            if (onHeap == null) {
+                memory.writeVolatileInt(addr + i, INT_VAL);
+                assertEquals(INT_VAL, memory.readInt(addr + i));
             } else {
-                this.memory.writeVolatileInt(this.object, this.addr + i, INT_VAL);
-                assertEquals(INT_VAL, this.memory.readInt(this.object, this.addr + i));
+                memory.writeVolatileInt(object, addr + i, INT_VAL);
+                assertEquals(INT_VAL, memory.readInt(object, addr + i));
             }
     }
 
@@ -600,12 +599,12 @@ class UnsafeMemoryTest extends CoreTestCommon {
     void writeVolatileFloat(String name, UnsafeMemory memory, Boolean onHeap) {
         initParams(name, memory, onHeap);
         for (int i = 0; i <= 64; i += 4)
-            if (this.onHeap == null) {
-                this.memory.writeVolatileFloat(this.addr + i, FLOAT_VAL);
-                assertEquals(FLOAT_VAL, this.memory.readFloat(this.addr + i), EPSILON);
+            if (onHeap == null) {
+                memory.writeVolatileFloat(addr + i, FLOAT_VAL);
+                assertEquals(FLOAT_VAL, memory.readFloat(addr + i), EPSILON);
             } else {
-                this.memory.writeVolatileFloat(this.object, this.addr + i, FLOAT_VAL);
-                assertEquals(FLOAT_VAL, this.memory.readFloat(this.object, this.addr + i), EPSILON);
+                memory.writeVolatileFloat(object, addr + i, FLOAT_VAL);
+                assertEquals(FLOAT_VAL, memory.readFloat(object, addr + i), EPSILON);
             }
     }
 
@@ -613,13 +612,13 @@ class UnsafeMemoryTest extends CoreTestCommon {
     @MethodSource("data")
     void writeVolatileLong(String name, UnsafeMemory memory, Boolean onHeap) {
         initParams(name, memory, onHeap);
-        for (int i = (int) (-this.addr & 7); i <= 64; i += 8)
-            if (this.onHeap == null) {
-                this.memory.writeVolatileLong(this.addr + i, LONG_VAL);
-                assertEquals(LONG_VAL, this.memory.readLong(this.addr + i));
+        for (int i = (int) (-addr & 7); i <= 64; i += 8)
+            if (onHeap == null) {
+                memory.writeVolatileLong(addr + i, LONG_VAL);
+                assertEquals(LONG_VAL, memory.readLong(addr + i));
             } else {
-                this.memory.writeVolatileLong(this.object, this.addr + i, LONG_VAL);
-                assertEquals(LONG_VAL, this.memory.readLong(this.object, this.addr + i));
+                memory.writeVolatileLong(object, addr + i, LONG_VAL);
+                assertEquals(LONG_VAL, memory.readLong(object, addr + i));
             }
     }
 
@@ -627,13 +626,13 @@ class UnsafeMemoryTest extends CoreTestCommon {
     @MethodSource("data")
     void writeVolatileDouble(String name, UnsafeMemory memory, Boolean onHeap) {
         initParams(name, memory, onHeap);
-        for (int i = (int) (-this.addr & 7); i <= 64; i += 8)
-            if (this.onHeap == null) {
-                this.memory.writeVolatileDouble(this.addr + i, DOUBLE_VAL);
-                assertEquals(DOUBLE_VAL, this.memory.readDouble(this.addr + i), EPSILON);
+        for (int i = (int) (-addr & 7); i <= 64; i += 8)
+            if (onHeap == null) {
+                memory.writeVolatileDouble(addr + i, DOUBLE_VAL);
+                assertEquals(DOUBLE_VAL, memory.readDouble(addr + i), EPSILON);
             } else {
-                this.memory.writeVolatileDouble(this.object, this.addr + i, DOUBLE_VAL);
-                assertEquals(DOUBLE_VAL, this.memory.readDouble(this.object, this.addr + i), EPSILON);
+                memory.writeVolatileDouble(object, addr + i, DOUBLE_VAL);
+                assertEquals(DOUBLE_VAL, memory.readDouble(object, addr + i), EPSILON);
             }
     }
 
@@ -643,19 +642,19 @@ class UnsafeMemoryTest extends CoreTestCommon {
         initParams(name, memory, onHeap);
         for (int i = 0; i <= 64; i += 4)
             try {
-                if (this.onHeap == null) {
-                    this.memory.writeInt(this.addr + i, 0);
-                    final int actual = this.memory.addInt(this.addr + i, INT_VAL);
+                if (onHeap == null) {
+                    memory.writeInt(addr + i, 0);
+                    final int actual = memory.addInt(addr + i, INT_VAL);
                     assertEquals(INT_VAL, actual);
-                    assertEquals(INT_VAL, this.memory.readInt(this.addr + i));
+                    assertEquals(INT_VAL, memory.readInt(addr + i));
                 } else {
-                    this.memory.writeInt(this.object, this.addr + i, 0);
-                    final int actual = this.memory.addInt(this.object, this.addr + i, INT_VAL);
+                    memory.writeInt(object, addr + i, 0);
+                    final int actual = memory.addInt(object, addr + i, INT_VAL);
                     assertEquals(INT_VAL, actual);
-                    assertEquals(INT_VAL, this.memory.readInt(this.object, this.addr + i));
+                    assertEquals(INT_VAL, memory.readInt(object, addr + i));
                 }
             } catch (MisAlignedAssertionError e) {
-                if (this.memory.safeAlignedInt(this.addr + i))
+                if (memory.safeAlignedInt(addr + i))
                     throw e;
             }
     }
@@ -664,21 +663,21 @@ class UnsafeMemoryTest extends CoreTestCommon {
     @MethodSource("data")
     void addLong(String name, UnsafeMemory memory, Boolean onHeap) throws MisAlignedAssertionError {
         initParams(name, memory, onHeap);
-        for (int i = (int) (-this.addr & 7); i <= 64; i += 8)
+        for (int i = (int) (-addr & 7); i <= 64; i += 8)
             try {
-                if (this.onHeap == null) {
-                    this.memory.writeLong(this.addr + i, 0);
-                    final long actual = this.memory.addLong(this.addr + i, LONG_VAL);
+                if (onHeap == null) {
+                    memory.writeLong(addr + i, 0);
+                    final long actual = memory.addLong(addr + i, LONG_VAL);
                     assertEquals(LONG_VAL, actual);
-                    assertEquals(LONG_VAL, this.memory.readLong(this.addr + i));
+                    assertEquals(LONG_VAL, memory.readLong(addr + i));
                 } else {
-                    this.memory.writeLong(this.object, this.addr + i, 0);
-                    final long actual = this.memory.addLong(this.object, this.addr + i, LONG_VAL);
+                    memory.writeLong(object, addr + i, 0);
+                    final long actual = memory.addLong(object, addr + i, LONG_VAL);
                     assertEquals(LONG_VAL, actual);
-                    assertEquals(LONG_VAL, this.memory.readLong(this.object, this.addr + i));
+                    assertEquals(LONG_VAL, memory.readLong(object, addr + i));
                 }
             } catch (MisAlignedAssertionError e) {
-                if (this.memory.safeAlignedLong(this.addr + i))
+                if (memory.safeAlignedLong(addr + i))
                     throw e;
             }
     }
