@@ -40,11 +40,11 @@ public class CpuClassTest {
 
     @Test
     public void getCpuModelShouldReturnNonNullValue() {
-        assertNotNull("CPU model should not be null", CpuClass.getCpuModel());
+        assertNotNull(CpuClass.getCpuModel(), "CPU model should not be null");
     }
 
     @Test
     public void getCpuModelShouldReturnNonEmptyValue() {
-        assertNotEquals(CpuClass.getCpuModel(), "CPU model should not be an empty string", "");
+        assertNotEquals("", CpuClass.getCpuModel(), "CPU model should not be an empty string");
     }
 }
