@@ -4,12 +4,13 @@
 package net.openhft.chronicle.core.time;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class SetTimeProviderTest extends CoreTestCommon {
 
@@ -56,22 +57,28 @@ public class SetTimeProviderTest extends CoreTestCommon {
         assertEquals(1_000L, tp.currentTimeNanos());
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testAttemptToGoBackwardsNanos() throws IllegalArgumentException {
-        final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
-        tp.currentTimeNanos(99_999_999_999L);
+    @Test
+    public void testAttemptToGoBackwardsNanos() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
+            tp.currentTimeNanos(99_999_999_999L);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testAttemptToGoBackwardsMicros() throws IllegalArgumentException {
-        final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
-        tp.currentTimeMicros(99_999_999L);
+    @Test
+    public void testAttemptToGoBackwardsMicros() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
+            tp.currentTimeMicros(99_999_999L);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testAttemptToGoBackwardsMillis() throws IllegalArgumentException {
-        final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
-        tp.currentTimeMillis(99_999L);
+    @Test
+    public void testAttemptToGoBackwardsMillis() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            final SetTimeProvider tp = new SetTimeProvider(100_000_000_000L);
+            tp.currentTimeMillis(99_999L);
+        });
     }
 
     @Test

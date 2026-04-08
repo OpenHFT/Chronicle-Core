@@ -5,17 +5,16 @@ package net.openhft.chronicle.core.internal.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.util.ThreadConfinementAsserter;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertThrows;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class VanillaThreadConfinementAsserterTest extends CoreTestCommon {
 
     private ThreadConfinementAsserter asserter;
 
-    @Before
+    @BeforeEach
     public void before() {
         asserter = new VanillaThreadConfinementAsserter();
     }
@@ -48,9 +47,8 @@ public class VanillaThreadConfinementAsserterTest extends CoreTestCommon {
         VanillaThreadConfinementAsserter asserter = new VanillaThreadConfinementAsserter();
         asserter.assertThreadConfined(); // Initialize with the current thread
 
-        Thread otherThread = new Thread(() -> {
-            assertThrows(IllegalStateException.class, asserter::assertThreadConfined);
-        });
+        Thread otherThread = new Thread(() ->
+            assertThrows(IllegalStateException.class, asserter::assertThreadConfined));
 
         otherThread.start();
         otherThread.join();

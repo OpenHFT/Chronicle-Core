@@ -3,20 +3,20 @@
  */
 package net.openhft.chronicle.core.io;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import static net.openhft.chronicle.core.internal.CloseableUtils.asString;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class TracingReferenceCountedTest extends MonitorReferenceCountedContractTest {
 
     private AtomicInteger onReleaseCallCount;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         onReleaseCallCount = new AtomicInteger(0);
     }

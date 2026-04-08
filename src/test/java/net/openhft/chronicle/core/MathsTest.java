@@ -8,10 +8,10 @@ import net.openhft.chronicle.core.threads.ThreadDump;
 import net.openhft.chronicle.core.util.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -19,7 +19,7 @@ import java.util.Random;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * User: peter.lawrey
@@ -114,8 +114,8 @@ public class MathsTest extends CoreTestCommon {
             double e = (i + 1) / factor2;
             double e0 = (i - 1) / factor2;
             final String msg = "i: " + i;
-            assertEquals(msg, e, rounder.round(d), 0);
-            assertEquals(msg, e0, rounder.round(d0), 0);
+            assertEquals(e, rounder.round(d), 0, msg);
+            assertEquals(e0, rounder.round(d0), 0, msg);
         }
     }
 
@@ -128,8 +128,8 @@ public class MathsTest extends CoreTestCommon {
             double e = (i + 1) / factor2;
             double e0 = (i - 1) / factor2;
             final String msg = "i: " + i;
-            assertEquals(msg, e, rounder.round(d), 0);
-            assertEquals(msg, e0, rounder.round(d0), 0);
+            assertEquals(e, rounder.round(d), 0, msg);
+            assertEquals(e0, rounder.round(d0), 0, msg);
         }
     }
 
@@ -268,12 +268,12 @@ public class MathsTest extends CoreTestCommon {
         assertEquals(1.14563, Maths.floorN(1.14563, 5), 0);
     }
 
-    @Before
+    @BeforeEach
     public void threadDump() {
         threadDump = new ThreadDump();
     }
 
-    @After
+    @AfterEach
     public void checkThreadDump() {
         threadDump.assertNoNewThreads();
     }
@@ -321,7 +321,7 @@ public class MathsTest extends CoreTestCommon {
     }
 
     @Test
-    @Ignore("Long running")
+    @Disabled("Long running")
     public void longRunningRound() {
         @NotNull double[] ds = new double[17];
         ds[0] = 1e-4;
@@ -350,9 +350,10 @@ public class MathsTest extends CoreTestCommon {
         assertEquals(3, Maths.divideRoundUp(-11, -5));
     }
 
-    @Test(expected = ArithmeticException.class)
+    @Test
     public void divideRoundUpZeroDivisorThrows() {
-        Maths.divideRoundUp(1, 0);
+        assertThrows(ArithmeticException.class, () ->
+            Maths.divideRoundUp(1, 0));
     }
 
     @Test
@@ -445,8 +446,8 @@ public class MathsTest extends CoreTestCommon {
             double floor0 = bd.setScale(i, RoundingMode.FLOOR).doubleValue();
             double ceil = Maths.ceilN(d, i);
             double floor = Maths.floorN(d, i);
-            assertEquals("i: " + i, ceil0, ceil, 0);
-            assertEquals("i: " + i, floor0, floor, 0);
+            assertEquals(ceil0, ceil, 0, "i: " + i);
+            assertEquals(floor0, floor, 0, "i: " + i);
         }
     }
 
@@ -613,16 +614,18 @@ public class MathsTest extends CoreTestCommon {
         assertEquals(1L, Maths.nextPower2(1L, 1L));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testNextPower2IntInvalidMin() {
-        // min is not a power of two
-        Maths.nextPower2(10, 7);
+        assertThrows(IllegalArgumentException.class, () ->
+            // min is not a power of two
+            Maths.nextPower2(10, 7));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testNextPower2LongInvalidMin() {
-        // min is not a power of two
-        Maths.nextPower2(20L, 9L);
+        assertThrows(IllegalArgumentException.class, () ->
+            // min is not a power of two
+            Maths.nextPower2(20L, 9L));
     }
 
     @Test

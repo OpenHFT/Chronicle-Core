@@ -6,8 +6,8 @@ package net.openhft.chronicle.core.scoped;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.threads.CleaningThread;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.Closeable;
 import java.util.*;
@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static net.openhft.chronicle.core.io.Closeable.closeQuietly;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ScopedThreadLocalTest extends CoreTestCommon {
 
@@ -23,7 +23,7 @@ public class ScopedThreadLocalTest extends CoreTestCommon {
 
     private ScopedThreadLocal<AtomicLong> scopedThreadLocal;
 
-    @Before
+    @BeforeEach
     public void createSTL() {
         scopedThreadLocal = new ScopedThreadLocal<>(AtomicLong::new, al -> al.set(0), MAX_INSTANCES);
     }

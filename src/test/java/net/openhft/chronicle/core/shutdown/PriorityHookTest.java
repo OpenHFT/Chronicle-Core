@@ -7,7 +7,8 @@ import org.junit.jupiter.api.*;
 import org.mockito.InOrder;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
 
 class PriorityHookTest {
 

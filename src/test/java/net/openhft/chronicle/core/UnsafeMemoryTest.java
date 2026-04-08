@@ -4,21 +4,17 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.util.MisAlignedAssertionError;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestName;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.TestInfo;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.*;
 
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("deprecation")
-@RunWith(Parameterized.class)
 public class UnsafeMemoryTest extends CoreTestCommon {
 
     private static final float EPSILON = 1e-7f;
@@ -29,10 +25,8 @@ public class UnsafeMemoryTest extends CoreTestCommon {
     private static final long LONG_VAL = Long.MAX_VALUE;
     private static final float FLOAT_VAL = 1f;
     private static final double DOUBLE_VAL = 1d;
-    @Rule
-    public final TestName testName = new TestName();
 
-    private final UnsafeMemory memory;
+    private UnsafeMemory memory;
     private Boolean onHeap;
     private Object object;
     private long addr;
@@ -42,20 +36,6 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         double doubleField = 0.0;
     }
 
-    @SuppressWarnings("unused")
-    public UnsafeMemoryTest(String name, UnsafeMemory memory, Boolean onHeap) {
-        this.memory = memory;
-        this.onHeap = onHeap;
-        if (Boolean.TRUE.equals(onHeap)) {
-            object = new byte[128];
-            addr = memory.arrayBaseOffset(byte[].class);
-        } else {
-            object = null;
-            addr = UNSAFE.allocateMemory(128);
-        }
-    }
-
-    @Parameterized.Parameters(name = "{0}")
     public static Collection<Object[]> data() {
         UnsafeMemory.ARMMemory memory2 = new UnsafeMemory.ARMMemory();
         Object[][] arm = {
@@ -78,16 +58,24 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         return all;
     }
 
-    @Before
-    public void setUp() {
-        System.err.println("testName: " + testName.getMethodName() + ", object: " + object + ", addr: " + addr);
+    private void initTest(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        this.memory = unsafeMemory;
+        this.onHeap = onHeap;
+        if (Boolean.TRUE.equals(onHeap)) {
+            object = new byte[128];
+            addr = unsafeMemory.arrayBaseOffset(byte[].class);
+        } else {
+            object = null;
+            addr = UNSAFE.allocateMemory(128);
+        }
+        System.err.println("testName: " + testInfo.getDisplayName() + ", object: " + object + ", addr: " + addr);
         if (object == null && addr == 0)
             addr = UNSAFE.allocateMemory(128);
     }
 
-    @After
+    @AfterEach
     public void tearDown() {
-        if (object == null) {
+        if (object == null && addr != 0) {
             UNSAFE.freeMemory(addr);
             addr = 0;
         }
@@ -95,8 +83,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         System.gc();
     }
 
-    @Test
-    public void testUnsafeBooleanOperations() throws NoSuchFieldException {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void testUnsafeBooleanOperations(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) throws NoSuchFieldException {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         TestClass testObj = new TestClass();
         long offset = UnsafeMemory.UNSAFE.objectFieldOffset(TestClass.class.getDeclaredField("booleanField"));
 
@@ -104,8 +94,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         assertTrue(UnsafeMemory.unsafeGetBoolean(testObj, offset));
     }
 
-    @Test
-    public void testUnsafeCharOperations() throws NoSuchFieldException {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void testUnsafeCharOperations(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) throws NoSuchFieldException {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         class CharHolder { char value; }
         CharHolder holder = new CharHolder();
         long offset = UnsafeMemory.UNSAFE.objectFieldOffset(CharHolder.class.getDeclaredField("value"));
@@ -115,8 +107,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         assertEquals(testChar, UnsafeMemory.unsafeGetChar(holder, offset));
     }
 
-    @Test
-    public void testUnsafeFloatOperations() throws NoSuchFieldException {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void testUnsafeFloatOperations(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) throws NoSuchFieldException {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         class FloatHolder { float value; }
         FloatHolder holder = new FloatHolder();
         long offset = UnsafeMemory.UNSAFE.objectFieldOffset(FloatHolder.class.getDeclaredField("value"));
@@ -126,8 +120,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         assertEquals(testFloat, UnsafeMemory.unsafeGetFloat(holder, offset), 0.0f);
     }
 
-    @Test
-    public void testUnsafeDoubleOperations() throws NoSuchFieldException {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void testUnsafeDoubleOperations(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) throws NoSuchFieldException {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         TestClass testObj = new TestClass();
         long offset = UnsafeMemory.UNSAFE.objectFieldOffset(TestClass.class.getDeclaredField("doubleField"));
 
@@ -136,8 +132,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         assertEquals(testValue, UnsafeMemory.unsafeGetDouble(testObj, offset), 0.0);
     }
 
-    @Test
-    public void testUnsafeObjectOperations() throws NoSuchFieldException {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void testUnsafeObjectOperations(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) throws NoSuchFieldException {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         class ObjectHolder { Object value; }
         ObjectHolder holder = new ObjectHolder();
         long offset = UnsafeMemory.UNSAFE.objectFieldOffset(ObjectHolder.class.getDeclaredField("value"));
@@ -147,8 +145,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         assertEquals(testObject, UnsafeMemory.unsafeGetObject(holder, offset));
     }
 
-    @Test
-    public void testWriteReadBytes() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void testWriteReadBytes(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         UnsafeMemory memory = UnsafeMemory.INSTANCE;
         byte[] originalBytes = {1, 2, 3, 4};
         byte[] buffer = new byte[4];
@@ -166,8 +166,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         }
     }
 
-    @Test
-    public void testTestAndSetInt() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void testTestAndSetInt(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         UnsafeMemory memory = UnsafeMemory.INSTANCE;
         long address = UnsafeMemory.UNSAFE.allocateMemory(4);
 
@@ -184,8 +186,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         }
     }
 
-    @Test
-    public void testCopy8bitAndIsEqual() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void testCopy8bitAndIsEqual(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         UnsafeMemory memory = UnsafeMemory.INSTANCE;
         String testString = "Hello, World!";
         int length = testString.length();
@@ -201,8 +205,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         }
     }
 
-    @Test
-    public void testReadVolatileFloat() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void testReadVolatileFloat(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         UnsafeMemory memory = UnsafeMemory.INSTANCE;
         long address = UnsafeMemory.UNSAFE.allocateMemory(4);
 
@@ -218,8 +224,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         }
     }
 
-    @Test
-    public void testTestAndSetIntMemoryAddress() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void testTestAndSetIntMemoryAddress(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         UnsafeMemory memory = UnsafeMemory.INSTANCE;
         long address = UnsafeMemory.UNSAFE.allocateMemory(4);
 
@@ -238,8 +246,10 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         }
     }
 
-    @Test
-    public void testTestAndSetIntObjectField() throws NoSuchFieldException {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void testTestAndSetIntObjectField(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) throws NoSuchFieldException {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         UnsafeMemory memory = UnsafeMemory.INSTANCE;
         TestObject obj = new TestObject();
         long offset = UnsafeMemory.UNSAFE.objectFieldOffset(TestObject.class.getDeclaredField("value"));
@@ -259,10 +269,12 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         int value;
     }
 
-    @Test
-    public void writeShort() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void writeShort(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = 0; i <= 64; i++) {
-            if (onHeap == null) {
+            if (this.onHeap == null) {
                 memory.writeShort(addr + i, (short) 0xABCD);
                 assertEquals((short) 0xABCD, memory.readShort(addr + i));
             } else {
@@ -272,9 +284,11 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         }
     }
 
-    @Test
-    public void readShort() {
-        if (onHeap == null) {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void readShort(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
+        if (this.onHeap == null) {
             memory.writeLong(addr, 0x123456789ABCDEFL);
             assertEquals((short) 0xCDEF, memory.readShort(addr));
             assertEquals((short) 0xABCD, memory.readShort(addr + 1));
@@ -285,10 +299,12 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         }
     }
 
-    @Test
-    public void readWriteInt() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void readWriteInt(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = 0; i <= 64; i++)
-            if (onHeap == null) {
+            if (this.onHeap == null) {
                 memory.writeInt(addr + i, INT_VAL);
                 assertEquals(INT_VAL, memory.readInt(addr + i));
             } else {
@@ -297,10 +313,12 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @Test
-    public void writeOrderedInt() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void writeOrderedInt(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = 0; i <= 64; i++)
-            if (onHeap == null) {
+            if (this.onHeap == null) {
                 memory.writeOrderedInt(addr + i, INT_VAL);
                 assertEquals(INT_VAL, memory.readInt(addr + i));
             } else {
@@ -309,10 +327,12 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @Test
-    public void readWriteLong() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void readWriteLong(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = 0; i <= 64; i++)
-            if (onHeap == null) {
+            if (this.onHeap == null) {
                 memory.writeLong(addr + i, LONG_VAL);
                 assertEquals(LONG_VAL, memory.readLong(addr + i));
             } else {
@@ -321,10 +341,12 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @Test
-    public void readWriteFloat() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void readWriteFloat(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = 0; i <= 64; i++)
-            if (onHeap == null) {
+            if (this.onHeap == null) {
                 memory.writeFloat(addr + i, FLOAT_VAL);
                 assertEquals(FLOAT_VAL, memory.readFloat(addr + i), EPSILON);
             } else {
@@ -333,10 +355,12 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @Test
-    public void readWriteDouble() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void readWriteDouble(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = 0; i <= 64; i++)
-            if (onHeap == null) {
+            if (this.onHeap == null) {
                 memory.writeDouble(addr + i, DOUBLE_VAL);
                 assertEquals(DOUBLE_VAL, memory.readDouble(addr + i), EPSILON);
             } else {
@@ -345,10 +369,12 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @Test
-    public void writeOrderedLong() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void writeOrderedLong(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = (int) (-addr & 7); i <= 64; i += 8)
-            if (onHeap == null) {
+            if (this.onHeap == null) {
                 memory.writeOrderedLong(addr + i, LONG_VAL);
                 assertEquals(LONG_VAL, memory.readLong(addr + i));
             } else {
@@ -358,11 +384,13 @@ public class UnsafeMemoryTest extends CoreTestCommon {
         System.err.println("DONE");
     }
 
-    @Test
-    public void compareAndSwapInt() throws MisAlignedAssertionError {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void compareAndSwapInt(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) throws MisAlignedAssertionError {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = 0; i <= 64; i += 4)
             try {
-                if (onHeap == null) {
+                if (this.onHeap == null) {
                     memory.writeInt(addr + i, 0);
                     final boolean actual = memory.compareAndSwapInt(addr + i, 0, INT_VAL);
                     assertTrue(actual);
@@ -379,11 +407,13 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @Test
-    public void compareAndSwapLong() throws MisAlignedAssertionError {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void compareAndSwapLong(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) throws MisAlignedAssertionError {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = (int) (-addr & 7); i <= 64; i += 8)
             try {
-                if (onHeap == null) {
+                if (this.onHeap == null) {
                     memory.writeLong(addr + i, 0);
                     final boolean actual = memory.compareAndSwapLong(addr + i, 0, LONG_VAL);
                     assertTrue(actual);
@@ -400,12 +430,14 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @Test
-    public void getAndSetInt() throws MisAlignedAssertionError {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void getAndSetInt(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) throws MisAlignedAssertionError {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         int initialValue = 9876;
         for (int i = 0; i <= 64; i += 4)
             try {
-                if (onHeap == null) {
+                if (this.onHeap == null) {
                     memory.writeInt(addr + i, initialValue);
                     final int previous = memory.getAndSetInt(addr + i, INT_VAL);
                     assertEquals(initialValue, previous);
@@ -422,10 +454,12 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @Test
-    public void readVolatileByte() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void readVolatileByte(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = 0; i <= 64; i++)
-            if (onHeap == null) {
+            if (this.onHeap == null) {
                 memory.writeByte(addr + i, BYTE_VAL);
                 final byte actual = memory.readVolatileByte(addr + i);
                 assertEquals(BYTE_VAL, actual);
@@ -436,10 +470,12 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @Test
-    public void readVolatileShort() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void readVolatileShort(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = 0; i <= 64; i += 2)
-            if (onHeap == null) {
+            if (this.onHeap == null) {
                 memory.writeShort(addr + i, SHORT_VAL);
                 final short actual = memory.readVolatileShort(addr + i);
                 assertEquals(SHORT_VAL, actual);
@@ -450,10 +486,12 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @Test
-    public void readVolatileInt() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void readVolatileInt(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = 0; i <= 64; i += 4)
-            if (onHeap == null) {
+            if (this.onHeap == null) {
                 memory.writeInt(addr + i, INT_VAL);
                 final int actual = memory.readVolatileInt(addr + i);
                 assertEquals(INT_VAL, actual);
@@ -464,10 +502,12 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @Test
-    public void readVolatileFloat() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void readVolatileFloat(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = 0; i <= 64; i += 4)
-            if (onHeap == null) {
+            if (this.onHeap == null) {
                 memory.writeFloat(addr + i, FLOAT_VAL);
                 final float actual = memory.readVolatileFloat(addr + i);
                 assertEquals(FLOAT_VAL, actual, EPSILON);
@@ -478,10 +518,12 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @Test
-    public void readVolatileLong() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void readVolatileLong(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = (int) (-addr & 7); i <= 64; i += 8)
-            if (onHeap == null) {
+            if (this.onHeap == null) {
                 memory.writeLong(addr + i, LONG_VAL);
                 final long actual = memory.readVolatileLong(addr + i);
                 assertEquals(LONG_VAL, actual);
@@ -492,10 +534,12 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @Test
-    public void readVolatileDouble() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void readVolatileDouble(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = (int) (-addr & 7); i <= 64; i += 8)
-            if (onHeap == null) {
+            if (this.onHeap == null) {
                 memory.writeDouble(addr + i, DOUBLE_VAL);
                 final double actual = memory.readVolatileDouble(addr + i);
                 assertEquals(DOUBLE_VAL, actual, EPSILON);
@@ -506,10 +550,12 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @Test
-    public void writeVolatileByte() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void writeVolatileByte(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = 0; i <= 64; i++)
-            if (onHeap == null) {
+            if (this.onHeap == null) {
                 memory.writeVolatileByte(addr + i, BYTE_VAL);
                 assertEquals(BYTE_VAL, memory.readByte(addr + i));
             } else {
@@ -518,10 +564,12 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @Test
-    public void writeVolatileShort() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void writeVolatileShort(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = 0; i <= 64; i += 2)
-            if (onHeap == null) {
+            if (this.onHeap == null) {
                 memory.writeVolatileShort(addr + i, SHORT_VAL);
                 assertEquals(SHORT_VAL, memory.readShort(addr + i));
             } else {
@@ -530,10 +578,12 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @Test
-    public void writeVolatileInt() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void writeVolatileInt(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = 0; i <= 64; i += 4)
-            if (onHeap == null) {
+            if (this.onHeap == null) {
                 memory.writeVolatileInt(addr + i, INT_VAL);
                 assertEquals(INT_VAL, memory.readInt(addr + i));
             } else {
@@ -542,10 +592,12 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @Test
-    public void writeVolatileFloat() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void writeVolatileFloat(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = 0; i <= 64; i += 4)
-            if (onHeap == null) {
+            if (this.onHeap == null) {
                 memory.writeVolatileFloat(addr + i, FLOAT_VAL);
                 assertEquals(FLOAT_VAL, memory.readFloat(addr + i), EPSILON);
             } else {
@@ -554,10 +606,12 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @Test
-    public void writeVolatileLong() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void writeVolatileLong(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = (int) (-addr & 7); i <= 64; i += 8)
-            if (onHeap == null) {
+            if (this.onHeap == null) {
                 memory.writeVolatileLong(addr + i, LONG_VAL);
                 assertEquals(LONG_VAL, memory.readLong(addr + i));
             } else {
@@ -566,10 +620,12 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @Test
-    public void writeVolatileDouble() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void writeVolatileDouble(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = (int) (-addr & 7); i <= 64; i += 8)
-            if (onHeap == null) {
+            if (this.onHeap == null) {
                 memory.writeVolatileDouble(addr + i, DOUBLE_VAL);
                 assertEquals(DOUBLE_VAL, memory.readDouble(addr + i), EPSILON);
             } else {
@@ -578,11 +634,13 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @Test
-    public void addInt() throws MisAlignedAssertionError {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void addInt(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) throws MisAlignedAssertionError {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = 0; i <= 64; i += 4)
             try {
-                if (onHeap == null) {
+                if (this.onHeap == null) {
                     memory.writeInt(addr + i, 0);
                     final int actual = memory.addInt(addr + i, INT_VAL);
                     assertEquals(INT_VAL, actual);
@@ -599,11 +657,13 @@ public class UnsafeMemoryTest extends CoreTestCommon {
             }
     }
 
-    @Test
-    public void addLong() throws MisAlignedAssertionError {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("data")
+    public void addLong(String name, UnsafeMemory unsafeMemory, Boolean onHeap, TestInfo testInfo) throws MisAlignedAssertionError {
+        initTest(name, unsafeMemory, onHeap, testInfo);
         for (int i = (int) (-addr & 7); i <= 64; i += 8)
             try {
-                if (onHeap == null) {
+                if (this.onHeap == null) {
                     memory.writeLong(addr + i, 0);
                     final long actual = memory.addLong(addr + i, LONG_VAL);
                     assertEquals(LONG_VAL, actual);

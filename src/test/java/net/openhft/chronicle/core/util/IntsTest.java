@@ -4,16 +4,16 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.internal.invariant.ints.IntCondition;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class IntsTest {
 
     @Test
     public void requireNonNegativeAllowsZeroAndPositive() {
         String codeSource = Ints.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        assertTrue("Expected Ints to be loaded from target/classes but was " + codeSource, codeSource.contains("/target/classes"));
+        assertTrue(codeSource.contains("/target/classes"), "Expected Ints to be loaded from target/classes but was " + codeSource);
 
         assertEquals(0, Ints.requireNonNegative(0));
         assertEquals(42, Ints.requireNonNegative(42));

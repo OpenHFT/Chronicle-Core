@@ -3,11 +3,11 @@
  */
 package net.openhft.chronicle.core.internal.invariant.ints;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.function.IntPredicate;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class IntConditionTest {
 

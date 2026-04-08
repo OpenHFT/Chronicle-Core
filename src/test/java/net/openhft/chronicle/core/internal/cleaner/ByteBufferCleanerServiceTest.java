@@ -5,18 +5,18 @@ package net.openhft.chronicle.core.internal.cleaner;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService;
-import org.junit.Assume;
-import org.junit.Test;
+import org.junit.jupiter.api.Assumptions;
+import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ByteBufferCleanerServiceTest {
 
     @Test
     public void jdk9CleanerHasNoImpactAndCleans() {
-        Assume.assumeTrue("JDK9+ required for Jdk9ByteBufferCleanerService", Jvm.isJava9Plus());
+        Assumptions.assumeTrue(Jvm.isJava9Plus(), "JDK9+ required for Jdk9ByteBufferCleanerService");
         ByteBufferCleanerService service = new Jdk9ByteBufferCleanerService();
         ByteBuffer buffer = ByteBuffer.allocateDirect(64);
 
@@ -33,7 +33,7 @@ public class ByteBufferCleanerServiceTest {
 
         service.clean(buffer);
 
-        assertNotNull("Impact should always be reported", service.impact());
+        assertNotNull(service.impact(), "Impact should always be reported");
         assertTrue(buffer.isDirect());
     }
 }

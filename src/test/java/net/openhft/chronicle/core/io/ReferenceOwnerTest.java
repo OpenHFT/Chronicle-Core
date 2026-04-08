@@ -3,13 +3,14 @@
  */
 package net.openhft.chronicle.core.io;
 
-import junit.framework.TestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class ReferenceOwnerTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class ReferenceOwnerTest {
     @Test
     public void testReferenceId() {
         Set<Integer> ints = new HashSet<>();

@@ -4,9 +4,9 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.testframework.process.JavaProcessBuilder;
-import org.junit.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;

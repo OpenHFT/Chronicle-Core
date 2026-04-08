@@ -6,8 +6,8 @@ package net.openhft.chronicle.core.pool;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Maths;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.stream.Stream;
 
@@ -48,7 +48,7 @@ public class EnumInternerTest extends CoreTestCommon {
                     final String cs = te.toString();
                     for (int i = 0; i < 20000; i++) {
                         final TestEnum interned = testEnum.intern(cs);
-                        Assert.assertEquals("i: " + i, interned, te);
+                        Assertions.assertEquals(interned, te, "i: " + i);
                     }
                 });
     }

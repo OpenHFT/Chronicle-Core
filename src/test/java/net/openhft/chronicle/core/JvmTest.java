@@ -9,10 +9,10 @@ import net.openhft.chronicle.core.onoes.NullExceptionHandler;
 import net.openhft.chronicle.core.onoes.ThreadLocalisedExceptionHandler;
 import net.openhft.chronicle.core.threads.ThreadDump;
 import net.openhft.chronicle.core.util.Time;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import sun.nio.ch.DirectBuffer;
 
 import javax.naming.ConfigurationException;
@@ -30,20 +30,20 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static net.openhft.chronicle.core.Jvm.*;
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeFalse;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
 import static org.mockito.Mockito.mock;
 
 public class JvmTest extends CoreTestCommon {
 
     private ThreadDump threadDump;
 
-    @Before
+    @BeforeEach
     public void threadDump() {
         threadDump = new ThreadDump();
     }
 
-    @After
+    @AfterEach
     public void checkThreadDump() {
         resetExceptionHandlers();
         threadDump.assertNoNewThreads();
@@ -62,9 +62,11 @@ public class JvmTest extends CoreTestCommon {
         }
     }
 
-    @Test(expected = ConfigurationException.class)
+    @Test
     public void testRethrow() {
-        throw Jvm.rethrow(new ConfigurationException());
+        assertThrows(ConfigurationException.class, () -> {
+            throw Jvm.rethrow(new ConfigurationException());
+        });
     }
 
     @Test
@@ -103,7 +105,7 @@ public class JvmTest extends CoreTestCommon {
         ReportUnoptimised.reportOnce();
 
         final String actual = map.keySet().toString();
-        assertTrue(actual, actual.contains("JvmTest.reportThis(JvmTest.java"));
+        assertTrue(actual.contains("JvmTest.reportThis(JvmTest.java"), actual);
     }
 
     @Test
@@ -214,15 +216,15 @@ public class JvmTest extends CoreTestCommon {
     @Test
     public void isProcessAliveTest() {
         long pid = getProcessId();
-        Assert.assertTrue(Jvm.isProcessAlive(pid));
+        Assertions.assertTrue(Jvm.isProcessAlive(pid));
         if (OS.isLinux())
-            Assert.assertTrue(Jvm.isProcessAlive(1)); // the kernel
-        Assert.assertFalse(Jvm.isProcessAlive(-1));
+            Assertions.assertTrue(Jvm.isProcessAlive(1)); // the kernel
+        Assertions.assertFalse(Jvm.isProcessAlive(-1));
     }
 
     @Test
     public void testGetMethod() {
-        Assert.assertNotNull(Jvm.getMethod(ClassIWDM.class, "hello", CharSequence.class));
+        Assertions.assertNotNull(Jvm.getMethod(ClassIWDM.class, "hello", CharSequence.class));
         boolean fail = false;
         try {
             Jvm.getMethod(ClassIWDM.class, "helloDefault", CharSequence.class);

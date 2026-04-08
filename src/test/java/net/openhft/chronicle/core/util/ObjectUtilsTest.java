@@ -7,14 +7,14 @@ import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.pool.Ecn;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.function.Supplier;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 @SuppressWarnings("java:S1068")
 public class ObjectUtilsTest extends CoreTestCommon {
@@ -28,14 +28,14 @@ public class ObjectUtilsTest extends CoreTestCommon {
                 BigDecimal.class,
                 ZonedDateTime.class,
         }) {
-            assertEquals(c.getName(), ObjectUtils.Immutability.MAYBE, ObjectUtils.isImmutable(c));
+            assertEquals(ObjectUtils.Immutability.MAYBE, ObjectUtils.isImmutable(c), c.getName());
         }
         for (@NotNull Class<?> c: new Class[]{
                 // StringBuilder.class, // StringBuilder implements Comparable in Java 11
                 ArrayList.class,
                 HashMap.class,
         }) {
-            assertEquals(c.getName(), ObjectUtils.Immutability.NO, ObjectUtils.isImmutable(c));
+            assertEquals(ObjectUtils.Immutability.NO, ObjectUtils.isImmutable(c), c.getName());
         }
     }
 
@@ -147,10 +147,12 @@ public class ObjectUtilsTest extends CoreTestCommon {
         assertEquals(MyEnum.MY_VALUE, result);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void supplierForInternalPackageTest() {
-        Supplier<?> supplier = ObjectUtils.supplierForInternalPackage();
-        supplier.get();
+        assertThrows(IllegalArgumentException.class, () -> {
+            Supplier<?> supplier = ObjectUtils.supplierForInternalPackage();
+            supplier.get();
+        });
     }
 
     @Test
@@ -159,10 +161,12 @@ public class ObjectUtilsTest extends CoreTestCommon {
         assertNotNull(supplier.get());
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void supplierForAbstractClassTest() {
-        Supplier<AbstractTestClass> supplier = ObjectUtils.supplierForAbstractClass(AbstractTestClass.class);
-        supplier.get();
+        assertThrows(IllegalArgumentException.class, () -> {
+            Supplier<AbstractTestClass> supplier = ObjectUtils.supplierForAbstractClass(AbstractTestClass.class);
+            supplier.get();
+        });
     }
 
     @Test
@@ -219,9 +223,10 @@ public class ObjectUtilsTest extends CoreTestCommon {
         assertEquals(expectedDate, ObjectUtils.convertTo0(Date.class, time));
     }
 
-    @Test(expected = ClassCastException.class)
+    @Test
     public void convertTo0UnsupportedConversionTest() {
-        ObjectUtils.convertTo0(Map.class, "test");
+        assertThrows(ClassCastException.class, () ->
+            ObjectUtils.convertTo0(Map.class, "test"));
     }
 
     @Test
@@ -239,9 +244,10 @@ public class ObjectUtilsTest extends CoreTestCommon {
         assertEquals(2, ObjectUtils.sizeOf(map));
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void sizeOfUnsupportedTypeTest() {
-        ObjectUtils.sizeOf(new Object());
+        assertThrows(UnsupportedOperationException.class, () ->
+            ObjectUtils.sizeOf(new Object()));
     }
 
     @Test
@@ -280,9 +286,10 @@ public class ObjectUtilsTest extends CoreTestCommon {
                 Arrays.toString(interfaces));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void getAllInterfacesWithNullAccumulatorTest() {
-        ObjectUtils.getAllInterfaces(new ImplementingClass(), null);
+        assertThrows(IllegalArgumentException.class, () ->
+            ObjectUtils.getAllInterfaces(new ImplementingClass(), null));
     }
 
     @Test

@@ -9,8 +9,8 @@ import net.openhft.chronicle.core.io.AbstractReferenceCounted;
 import net.openhft.chronicle.core.threads.CleaningThread;
 import net.openhft.chronicle.core.threads.ThreadDump;
 import net.openhft.chronicle.testframework.exception.ExceptionTracker;
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import static net.openhft.chronicle.core.io.AbstractCloseable.waitForCloseablesToClose;
 
@@ -18,7 +18,7 @@ public class CoreTestCommon {
     private ThreadDump threadDump;
     private ExceptionTracker<?> exceptionTracker;
 
-    @Before
+    @BeforeEach
     public void enableReferenceTracing() {
         AbstractReferenceCounted.enableReferenceTracing();
     }
@@ -32,7 +32,7 @@ public class CoreTestCommon {
         threadDump.assertNoNewThreads();
     }
 
-    @Before
+    @BeforeEach
     public void createExceptionTracker() {
         exceptionTracker = JvmExceptionTracker.create();
     }
@@ -45,7 +45,7 @@ public class CoreTestCommon {
         exceptionTracker.ignoreException(message);
     }
 
-    @After
+    @AfterEach
     public void afterChecks() {
         CleaningThread.performCleanup(Thread.currentThread());
 

@@ -4,9 +4,9 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.testframework.FlakyTestRunner;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class JvmSafepointTest extends CoreTestCommon {
 
@@ -45,7 +45,7 @@ public class JvmSafepointTest extends CoreTestCommon {
         t.interrupt();
         t.join();
         System.out.println("counter: " + counter);
-        assertTrue("counter: " + counter, counter >= min);
+        assertTrue(counter >= min, "counter: " + counter);
     }
 
     @Test
@@ -68,7 +68,7 @@ public class JvmSafepointTest extends CoreTestCommon {
                 System.out.println("avg: " + avg);
                 int maxAvg = Jvm.isArm() ? 400 : 200;
                 try {
-                    assertTrue("avg: " + avg, 1 <= avg && avg < maxAvg);
+                    assertTrue(1 <= avg && avg < maxAvg, "avg: " + avg);
                     break;
                 } catch (AssertionError e) {
                     if (t == 5)

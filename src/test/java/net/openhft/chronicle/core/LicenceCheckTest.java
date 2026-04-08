@@ -3,30 +3,31 @@
  */
 package net.openhft.chronicle.core;
 
-import junit.framework.TestCase;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
-import org.junit.After;
-import org.junit.Test;
+import org.junit.Assert;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 
 import javax.naming.TimeLimitExceededException;
 import java.util.Map;
 
 import static net.openhft.chronicle.core.LicenceCheck.CHRONICLE_LICENSE;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class LicenceCheckTest extends CoreTestCommon {
 
-    @After
+    @AfterEach
     public void tearDown() {
         System.getProperties().remove(CHRONICLE_LICENSE);
         Jvm.resetExceptionHandlers();
     }
 
-    @Test(expected = TimeLimitExceededException.class)
+    @Test
     public void checkExpiredExpiryFile() {
-        LicenceCheck.check("test", LicenceCheck.class);
-        fail("should have got an AssertionError");
+        assertThrows(TimeLimitExceededException.class, () -> {
+            LicenceCheck.check("test", LicenceCheck.class);
+            fail("should have got an AssertionError");
+        });
     }
 
     @Test
@@ -34,9 +35,10 @@ public class LicenceCheckTest extends CoreTestCommon {
         LicenceCheck.check("test2", LicenceCheck.class);
     }
 
-    @Test(expected = TimeLimitExceededException.class)
+    @Test
     public void checkEvalExpired() {
-        LicenceCheck.check("test", TestCase.class);
+        assertThrows(TimeLimitExceededException.class, () ->
+            LicenceCheck.check("test", Assert.class));
     }
 
     @Test
@@ -49,10 +51,12 @@ public class LicenceCheckTest extends CoreTestCommon {
         assertTrue(map.toString().contains("license for Test Unit expires in about 7"));
     }
 
-    @Test(expected = TimeLimitExceededException.class)
+    @Test
     public void checkLicenseExpired() {
-        System.setProperty(CHRONICLE_LICENSE, "product=test.,owner=Test Unit,expires=2019-01-01,code=123456789");
-        LicenceCheck.check("test", null);
-        fail("Expected TimeLimitExceededException");
+        assertThrows(TimeLimitExceededException.class, () -> {
+            System.setProperty(CHRONICLE_LICENSE, "product=test.,owner=Test Unit,expires=2019-01-01,code=123456789");
+            LicenceCheck.check("test", null);
+            fail("Expected TimeLimitExceededException");
+        });
     }
 }

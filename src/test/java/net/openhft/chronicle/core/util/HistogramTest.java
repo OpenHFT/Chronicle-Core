@@ -5,12 +5,11 @@ package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.Assert.assertEquals;
 
 public class HistogramTest extends CoreTestCommon {
 
@@ -101,7 +100,7 @@ public class HistogramTest extends CoreTestCommon {
                 h.toLongMicrosFormat());
 
         for (int i = 1; i <= 100; i++)
-            assertEquals("i: " + i, i, percentile(h, i / 100.0), 1);
+            assertEquals(i, percentile(h, i / 100.0), 1, "i: " + i);
         for (int i = 1; i <= 100; i++)
             assertEquals(i, h.percentageLessThan(i * 10_000), 2);
     }

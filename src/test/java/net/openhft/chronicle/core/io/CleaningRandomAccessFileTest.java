@@ -6,7 +6,7 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,9 +14,7 @@ import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CleaningRandomAccessFileTest extends CoreTestCommon {
 
@@ -64,7 +62,7 @@ public class CleaningRandomAccessFileTest extends CoreTestCommon {
         for (int j = 0; j < repeat; j++) {
             int files = getFDs();
             if (files > 0) {
-                assertEquals("j: " + j, 200, files, 200);
+                assertEquals(200, files, 200, "j: " + j);
             }
             ByteBuffer bb = ByteBuffer.allocateDirect(64);
             for (int i = 0; i < 200; i++) {
