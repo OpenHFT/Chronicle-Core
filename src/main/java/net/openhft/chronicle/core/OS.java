@@ -31,6 +31,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import static java.lang.management.ManagementFactory.getRuntimeMXBean;
 import static net.openhft.chronicle.core.util.Longs.requireNonNegative;
 import static net.openhft.chronicle.core.util.Longs.requirePositive;
+import net.openhft.chronicle.core.annotation.NonNegative;
+import net.openhft.chronicle.core.annotation.Positive;
 
 /**
  * Low level access to OS class. The OS class provides utility methods related to the operating system.
@@ -268,7 +270,7 @@ public final class OS {
      * @return aligned size
      * @see #pageSize()
      */
-    public static long pageAlign(long size, int pageSize) {
+    public static long pageAlign(@NonNegative long size, @Positive int pageSize) {
         final long mask = pageSize - 1L;
         return (size + mask) & ~mask;
     }
@@ -280,7 +282,7 @@ public final class OS {
      * @return aligned size
      * @see #pageSize()
      */
-    public static long pageAlign(long size) {
+    public static long pageAlign(@NonNegative long size) {
         return pageAlign(size, pageSize());
     }
 
@@ -317,7 +319,7 @@ public final class OS {
      * @throws IllegalArgumentException if offset is negative.
      * @see #mapAlignment()
      */
-    public static long mapAlign(long offset) {
+    public static long mapAlign(@NonNegative long offset) {
         return mapAlign(offset, defaultOsPageSize());
     }
 
@@ -333,7 +335,7 @@ public final class OS {
      * @return the aligned offset.
      * @throws IllegalArgumentException if offset is negative or pageAlignment is non-positive.
      */
-    public static long mapAlign(long offset, int pageAlignment) {
+    public static long mapAlign(@NonNegative long offset, @Positive int pageAlignment) {
         requireNonNegative(offset);
         requirePositive(pageAlignment);
 
@@ -481,7 +483,7 @@ public final class OS {
      * @throws IllegalArgumentException if the arguments are invalid
      */
     @SuppressWarnings("java:S106")
-    public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode, long start, long size, int pageSize)
+    public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode, @NonNegative long start, @NonNegative long size, @Positive int pageSize)
             throws IOException, IllegalArgumentException {
         if (isWindows() && size > 4L << 30)
             throw new IllegalArgumentException("Mapping more than 4096 MiB is unusable on Windows, size = " + (size >> 20) + " MiB");
@@ -496,7 +498,7 @@ public final class OS {
         return address;
     }
 
-    public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode, long start, long size)
+    public static long map(@NotNull FileChannel fileChannel, FileChannel.MapMode mode, @NonNegative long start, @NonNegative long size)
             throws IOException, IllegalArgumentException {
         return map(fileChannel, mode, start, size, (int) mapAlignment());
     }
@@ -550,7 +552,7 @@ public final class OS {
      * @param size    length of the region
      * @throws IOException if the unmap fails
      */
-    public static void unmap(long address, long size, int pageSize) throws IOException {
+    public static void unmap(@NonNegative long address, @NonNegative long size, @Positive int pageSize) throws IOException {
         try {
             final long size2 = pageAlign(size, pageSize);
             // n must be used here
@@ -566,7 +568,7 @@ public final class OS {
         return Unmapp0Holder.UNMAPP0_MH;
     }
 
-    public static void unmap(long address, long size) throws IOException {
+    public static void unmap(@NonNegative long address, @NonNegative long size) throws IOException {
         unmap(address, size, (int) mapAlignment());
     }
 
@@ -645,7 +647,7 @@ public final class OS {
         return USER_DIR;
     }
 
-    public static int read0(FileDescriptor fd, long address, int len) throws IOException {
+    public static int read0(FileDescriptor fd, long address, @NonNegative int len) throws IOException {
         try {
             return (int) getRead0Mh().invokeExact(fd, address, len);
         } catch (IOException ioe) {
@@ -659,7 +661,7 @@ public final class OS {
         return Read0Holder.READ0_MH;
     }
 
-    public static int write0(FileDescriptor fd, long address, int len) throws IOException {
+    public static int write0(FileDescriptor fd, long address, @NonNegative int len) throws IOException {
         try {
             if (Write0Holder.WRITE0_MH2 == null)
                 return (int) Write0Holder.WRITE0_MH.invokeExact(fd, address, len);

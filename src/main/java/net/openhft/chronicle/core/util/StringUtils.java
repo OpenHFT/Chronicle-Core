@@ -17,6 +17,7 @@ import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 
 import static java.lang.Character.toLowerCase;
+import net.openhft.chronicle.core.annotation.NonNegative;
 
 /**
  * A utility class that provides a collection of static methods for advanced string manipulation.
@@ -126,7 +127,7 @@ public final class StringUtils {
      * @param length the new length.
      * @throws AssertionError if there is an IllegalAccessException or IllegalArgumentException.
      */
-    public static void setLength(@NotNull StringBuilder sb, int length) {
+    public static void setLength(@NotNull StringBuilder sb, @NonNegative int length) {
         if (Jvm.maxDirectMemory() == 0) {
             sb.setLength(length);
             return;
@@ -324,7 +325,7 @@ public final class StringUtils {
         return getMemory().getObject(s, S_VALUE_OFFSET);
     }
 
-    public static void setCount(@NotNull StringBuilder sb, int count) {
+    public static void setCount(@NotNull StringBuilder sb, @NonNegative int count) {
         getMemory().writeInt(sb, SB_COUNT_OFFSET, count);
     }
 

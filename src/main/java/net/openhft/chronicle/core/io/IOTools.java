@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.annotation.NonNegative;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.cleaner.CleanerServiceLocator;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
@@ -147,7 +148,7 @@ public final class IOTools {
      * @return true if deletion is successful, false otherwise
      * @throws IORuntimeException if an I/O error occurs
      */
-    public static boolean deleteDirWithFiles(@NotNull String dir, int maxDepth) throws IORuntimeException {
+    public static boolean deleteDirWithFiles(@NotNull String dir, @NonNegative int maxDepth) throws IORuntimeException {
         return deleteDirWithFiles(new File(dir), maxDepth);
     }
 
@@ -170,7 +171,7 @@ public final class IOTools {
      * @param maxDepth The maximum depth of directories to be deleted
      * @throws IORuntimeException if an I/O error occurs
      */
-    public static boolean deleteDirWithFiles(@NotNull File dir, int maxDepth) throws IORuntimeException {
+    public static boolean deleteDirWithFiles(@NotNull File dir, @NonNegative int maxDepth) throws IORuntimeException {
         final File[] entries = dir.listFiles();
         if (entries == null) return false;
         Stream.of(entries).filter(File::isDirectory).forEach(f -> {
@@ -224,7 +225,7 @@ public final class IOTools {
      * @param dir       directory to remove
      * @throws AssertionError if the directory remains after the timeout
      */
-    public static void deleteDirWithFilesOrWait(long timeoutMs, @NotNull File dir) {
+    public static void deleteDirWithFilesOrWait(@NonNegative long timeoutMs, @NotNull File dir) {
         // CQTimeApiIndirection keep System.currentTimeMillis here because directory-deletion waits must use wall-clock time.
         long startTs = System.currentTimeMillis();
 
