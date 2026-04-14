@@ -8,6 +8,7 @@ import net.openhft.chronicle.core.util.CoreDynamicEnum;
 
 import java.util.Map;
 import java.util.Set;
+import net.openhft.chronicle.core.annotation.NonNegative;
 
 /**
  * Abstract base class for caching and efficient access to enum-like instances. This class
@@ -96,7 +97,7 @@ public abstract class EnumCache<E> {
      * @param index the ordinal index of the enum instance to retrieve.
      * @return the enum instance at the given index.
      */
-    public abstract E forIndex(int index);
+    public abstract E forIndex(@NonNegative int index);
 
     /**
      * Returns an array containing all the enum instances managed by this cache.

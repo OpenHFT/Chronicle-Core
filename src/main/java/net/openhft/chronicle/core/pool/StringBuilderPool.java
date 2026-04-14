@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.annotation.Positive;
 import net.openhft.chronicle.core.scoped.ScopedResourcePool;
 import net.openhft.chronicle.core.scoped.ScopedThreadLocal;
 
@@ -40,7 +41,7 @@ public final class StringBuilderPool {
      * @param instancesPerThread The maximum number of instances to retain for a thread
      * @return the pool of StringBuilders
      */
-    public static ScopedResourcePool<StringBuilder> createThreadLocal(int instancesPerThread) {
+    public static ScopedResourcePool<StringBuilder> createThreadLocal(@Positive int instancesPerThread) {
         return new ScopedThreadLocal<>(
                 () -> new StringBuilder(128),
                 sb -> sb.setLength(0),

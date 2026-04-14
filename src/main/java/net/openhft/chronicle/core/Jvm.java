@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.annotation.DontChain;
+import net.openhft.chronicle.core.annotation.NonNegative;
 import net.openhft.chronicle.core.internal.*;
 import net.openhft.chronicle.core.internal.Bootstrap;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
@@ -420,7 +421,7 @@ public final class Jvm {
      *
      * @param durationMs to sleep for.
      */
-    public static void pause(final long durationMs) {
+    public static void pause(final @NonNegative long durationMs) {
         if (durationMs <= 0) {
             Thread.yield();
             return;
@@ -452,7 +453,7 @@ public final class Jvm {
      *
      * @param durationUs Time in durationUs
      */
-    public static void busyWaitMicros(final long durationUs) {
+    public static void busyWaitMicros(final @NonNegative long durationUs) {
         // CQTimeApiIndirection keep System.nanoTime here because busy-wait deadlines must use the actual runtime monotonic clock.
         busyWaitUntil(System.nanoTime() + (durationUs * 1_000));
     }
@@ -875,7 +876,7 @@ public final class Jvm {
      * @return if there is a class name that ends with the provided {@code endsWith} string
      * when examining the current stack trace of depth at most up to the provided {@code maxDepth}
      */
-    public static boolean stackTraceEndsWith(final String endsWith, final int maxDepth) {
+    public static boolean stackTraceEndsWith(final String endsWith, final @NonNegative int maxDepth) {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         for (int i = maxDepth + 2; i < stackTrace.length; i++)
             if (stackTrace[i].getClassName().endsWith(endsWith))

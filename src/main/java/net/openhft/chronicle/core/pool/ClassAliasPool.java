@@ -16,6 +16,7 @@ import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import net.openhft.chronicle.core.annotation.NonNegative;
 /**
  * A class responsible for looking up classes and associating them with aliases for
  * more convenient referencing. ClassAliasPool supports custom class loaders and allows
@@ -354,7 +355,7 @@ public class ClassAliasPool implements ClassLookup {
         }
 
         @Override
-        public char charAt(int index) throws IndexOutOfBoundsException {
+        public char charAt(@NonNegative int index) throws IndexOutOfBoundsException {
             return value.charAt(index);
         }
 

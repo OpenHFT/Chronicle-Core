@@ -16,6 +16,7 @@ import java.util.*;
 import java.util.function.Function;
 
 import static net.openhft.chronicle.core.Jvm.uncheckedCast;
+import net.openhft.chronicle.core.annotation.NonNegative;
 
 /**
  * Represents a dynamic enumeration class that extends the capabilities of {@link EnumCache}.
@@ -99,12 +100,6 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
      * @param name the name of the enum instance to be retrieved.
      * @return the enum instance with the specified name, or {@code null} if not present.
      */
-    /**
-     * Returns the enum instance if it exists in the map.
-     *
-     * @param name the enum name to retrieve
-     * @return the enum instance or {@code null}
-     */
     @Override
     @Nullable
     public E get(String name) {
@@ -158,7 +153,7 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
      * @return an array containing the enum instances
      */
     @Override
-    public E forIndex(int index) {
+    public E forIndex(@NonNegative int index) {
         return eList.get(index);
     }
 

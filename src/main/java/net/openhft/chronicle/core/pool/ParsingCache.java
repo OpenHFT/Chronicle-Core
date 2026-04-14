@@ -13,6 +13,7 @@ import java.util.function.Function;
 import java.util.stream.Stream;
 
 import static net.openhft.chronicle.core.Jvm.uncheckedCast;
+import net.openhft.chronicle.core.annotation.NonNegative;
 
 /**
  * A cache for parsed values that is optimized for fast lookup. This class is used to cache objects
@@ -46,7 +47,7 @@ public class ParsingCache<E> {
      * @param capacity  The capacity of the cache.
      * @param eFunction A function that creates new instances of type E from a string.
      */
-    public ParsingCache(int capacity, Function<String, E> eFunction) {
+    public ParsingCache(@NonNegative int capacity, Function<String, E> eFunction) {
         this.eFunction = eFunction;
         int n = Maths.nextPower2(capacity, 128);
         shift = Maths.intLog2(n);

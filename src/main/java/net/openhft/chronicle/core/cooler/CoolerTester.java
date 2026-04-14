@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import static net.openhft.chronicle.core.UnsafeMemory.UNSAFE;
+import net.openhft.chronicle.core.annotation.NonNegative;
 
 /**
  * This class is used to test the effectiveness of various {@link CpuCooler} implementations.
@@ -174,7 +175,7 @@ public class CoolerTester {
      * @param minCount the minimum number of times each test is run with each cooler
      * @return this object
      */
-    public CoolerTester minCount(int minCount) {
+    public CoolerTester minCount(@NonNegative int minCount) {
         this.minCount = minCount;
         return this;
     }
@@ -192,7 +193,7 @@ public class CoolerTester {
      * @param maxCount the maximum number of times each test is run with each cooler
      * @return this object
      */
-    public CoolerTester maxCount(int maxCount) {
+    public CoolerTester maxCount(@NonNegative int maxCount) {
         this.maxCount = maxCount;
         return this;
     }

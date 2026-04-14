@@ -9,6 +9,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.stream.Stream;
+import net.openhft.chronicle.core.annotation.NonNegative;
 
 /**
  * <p>
@@ -54,7 +55,7 @@ public class StringInterner {
      * @param capacity the initial capacity of the interner.
      * @throws IllegalArgumentException if the capacity is invalid.
      */
-    public StringInterner(int capacity) throws IllegalArgumentException {
+    public StringInterner(@NonNegative int capacity) throws IllegalArgumentException {
         int n = Maths.nextPower2(capacity, 128);
         shift = Maths.intLog2(n);
         interner = new String[n];
@@ -137,7 +138,7 @@ public class StringInterner {
      * @return the interned string, or {@code null} if no value is stored at that index
      */
     @Nullable
-    public String get(int index) {
+    public String get(@NonNegative int index) {
         return interner[index];
     }
 

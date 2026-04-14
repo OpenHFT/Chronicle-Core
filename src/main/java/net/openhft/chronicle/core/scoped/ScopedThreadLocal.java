@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.scoped;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.annotation.Positive;
 import net.openhft.chronicle.core.StackTrace;
 import net.openhft.chronicle.core.threads.CleaningThreadLocal;
 import org.jetbrains.annotations.NotNull;
@@ -40,7 +41,7 @@ public class ScopedThreadLocal<T> implements ScopedResourcePool<T> {
      * @param supplier     provides new instances when the stack is empty
      * @param maxInstances maximum number of retained instances per thread
      */
-    public ScopedThreadLocal(Supplier<T> supplier, int maxInstances) {
+    public ScopedThreadLocal(Supplier<T> supplier, @Positive int maxInstances) {
         this(supplier, ScopedThreadLocal::noOp, maxInstances);
     }
 
@@ -51,7 +52,7 @@ public class ScopedThreadLocal<T> implements ScopedResourcePool<T> {
      * @param onAcquire    invoked each time an instance is retrieved from the pool
      * @param maxInstances maximum number of retained instances per thread
      */
-    public ScopedThreadLocal(@NotNull Supplier<T> supplier, @NotNull Consumer<T> onAcquire, int maxInstances) {
+    public ScopedThreadLocal(@NotNull Supplier<T> supplier, @NotNull Consumer<T> onAcquire, @Positive int maxInstances) {
         this(supplier, onAcquire, maxInstances, false);
     }
 
@@ -63,7 +64,7 @@ public class ScopedThreadLocal<T> implements ScopedResourcePool<T> {
      * @param maxInstances      maximum number of retained instances per thread
      * @param useWeakReferences if {@code true} weak references allow garbage collection
      */
-    public ScopedThreadLocal(@NotNull Supplier<T> supplier, @NotNull Consumer<T> onAcquire, int maxInstances, boolean useWeakReferences) {
+    public ScopedThreadLocal(@NotNull Supplier<T> supplier, @NotNull Consumer<T> onAcquire, @Positive int maxInstances, boolean useWeakReferences) {
         if (maxInstances <= 0)
             throw new IllegalArgumentException("maxInstances must be > 0");
         this.supplier = supplier;

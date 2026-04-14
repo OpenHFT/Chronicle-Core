@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.annotation.NonNegative;
 import net.openhft.chronicle.core.io.InvalidMarshallableException;
 import net.openhft.chronicle.core.time.SystemTimeProvider;
 import net.openhft.chronicle.core.time.TimeProvider;
@@ -59,8 +60,8 @@ public class CancellableTimer {
      * @return A {@link Closeable} that when closed aborts future executions.
      */
     public Closeable scheduleAtFixedRate(@NotNull VanillaEventHandler eventHandler,
-                                         long initialDelay,
-                                         long period) {
+                                         @NonNegative long initialDelay,
+                                         @NonNegative long period) {
         final ScheduledEventHandler handler =
                 new ScheduledEventHandler(timeProvider, eventHandler, initialDelay, period, HandlerPriority.TIMER);
         eventLoop.addHandler(handler);
@@ -78,8 +79,8 @@ public class CancellableTimer {
      * @return A {@link Closeable} that when closed aborts future executions.
      */
     public Closeable scheduleAtFixedRate(@NotNull VanillaEventHandler eventHandler,
-                                         long initialDelay,
-                                         long period,
+                                         @NonNegative long initialDelay,
+                                         @NonNegative long period,
                                          HandlerPriority priority) {
         final ScheduledEventHandler handler =
                 new ScheduledEventHandler(timeProvider, eventHandler, initialDelay, period, priority);
@@ -96,7 +97,7 @@ public class CancellableTimer {
      * @param delay        how long in milliseconds to wait before the handler runs.
      * @return A {@link Closeable} that when closed aborts future executions.
      */
-    public Closeable schedule(@NotNull Runnable eventHandler, long delay) {
+    public Closeable schedule(@NotNull Runnable eventHandler, @NonNegative long delay) {
         final ScheduledEventHandler handler = new ScheduledEventHandler(timeProvider, () -> {
             eventHandler.run();
             throw new InvalidEventHandlerException("just runs once");
