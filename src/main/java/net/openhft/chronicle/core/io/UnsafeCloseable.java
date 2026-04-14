@@ -45,6 +45,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If used in a non thread safe way
      */
+    @SuppressWarnings("CSRawAddressAccess")
     public long getLong() throws ClosedIllegalStateException, ThreadingIllegalStateException {
         try {
             return unsafe.getLong(address);
@@ -61,6 +62,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If used in a non thread safe way
      */
+    @SuppressWarnings("CSRawAddressAccess")
     public void setLong(long value) throws ClosedIllegalStateException, ThreadingIllegalStateException {
         try {
             unsafe.putLong(address, value);
@@ -77,6 +79,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If used in a non thread safe way
      */
+    @SuppressWarnings("CSRawAddressAccess")
     public long getVolatileLong() throws ClosedIllegalStateException, ThreadingIllegalStateException {
         try {
             return unsafe.getLongVolatile(null, address);
@@ -93,6 +96,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If used in a non thread safe way
      */
+    @SuppressWarnings("CSRawAddressAccess")
     public void setVolatileLong(long value) throws ClosedIllegalStateException, ThreadingIllegalStateException {
         try {
             unsafe.putLongVolatile(null, address, value);
@@ -127,6 +131,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If used in a non thread safe way
      */
+    @SuppressWarnings("CSRawAddressAccess")
     public void setOrderedLong(long value) throws ClosedIllegalStateException, ThreadingIllegalStateException {
         try {
             unsafe.putOrderedLong(null, address, value);
@@ -144,6 +149,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
      * @throws ThreadingIllegalStateException If used in a non thread safe way
      */
+    @SuppressWarnings("CSRawAddressAccess")
     public long addLong(long delta) throws ClosedIllegalStateException, ThreadingIllegalStateException {
         try {
             return unsafe.getAndAddLong(null, address, delta) + delta;
