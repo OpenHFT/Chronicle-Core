@@ -112,6 +112,8 @@ public final class Bootstrap {
         return IS_JAVA_21_PLUS;
     }
 
+    @SuppressWarnings({"CSReflectiveMethodInvoke", "CSClassForNameInput",
+            "CSCatchBroadException", "CSStdoutStderrOutput"})
     private static int getMajorVersion0() {
         try {
             final Method method = Runtime.class.getDeclaredMethod("version");

@@ -22,6 +22,7 @@ public final class ReflectionUtil {
     private ReflectionUtil() {
     }
 
+    @SuppressWarnings("CSClassForNameInput")
     public static boolean analyticsPresent() {
         try {
             Class.forName(ANALYTICS_NAME);
@@ -32,6 +33,7 @@ public final class ReflectionUtil {
     }
 
     @NotNull
+    @SuppressWarnings("CSReflectiveMethodInvoke")
     public static Object analyticsBuilder(@NotNull final String measurementId, @NotNull final String apiSecret) {
         requireNonNull(measurementId);
         requireNonNull(apiSecret);
@@ -44,6 +46,7 @@ public final class ReflectionUtil {
     }
 
     @NotNull
+    @SuppressWarnings("CSClassForNameInput")
     public static Method methodOrThrow(@NotNull final String className,
                                        @NotNull final String methodName,
                                        final Class<?>... parameterTypes) {
@@ -57,6 +60,7 @@ public final class ReflectionUtil {
         }
     }
 
+    @SuppressWarnings("CSReflectiveMethodInvoke")
     public static Object invokeOrThrow(@NotNull final Method method,
                                        @NotNull final Object target,
                                        Object... params) {

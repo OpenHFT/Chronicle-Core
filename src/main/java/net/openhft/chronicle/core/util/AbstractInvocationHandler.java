@@ -56,7 +56,8 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
      * @param c The class to get a MethodHandles.Lookup instance for.
      * @return MethodHandles.Lookup instance.
      */
-    @SuppressWarnings("java:S3011") // Justification: Access to private Lookup is required to bind default methods across packages.
+    @SuppressWarnings({"java:S3011", "CSReflectiveConstructorInvoke", "CSPrivateFieldReflection",
+            "CSSetAccessibleEscalation", "CSCatchBroadException"})
     private static MethodHandles.Lookup acquireLookup(Class<?> c) {
         try {
             // try to create one using a constructor
