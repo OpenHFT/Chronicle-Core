@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.internal.analytics;
 
 import net.openhft.chronicle.core.analytics.AnalyticsFacade;
+import net.openhft.chronicle.core.annotation.Positive;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.reflect.Method;
@@ -43,8 +44,8 @@ public final class ReflectiveBuilder implements AnalyticsFacade.Builder {
     }
 
     @Override
-    public AnalyticsFacade.@NotNull Builder withFrequencyLimit(final int messages,
-                                                               final long duration,
+    public AnalyticsFacade.@NotNull Builder withFrequencyLimit(final @Positive int messages,
+                                                               final @Positive long duration,
                                                                @NotNull final TimeUnit timeUnit) {
         requireNonNull(timeUnit);
         final Method m = ReflectionUtil.methodOrThrow(CLASS_NAME, "withFrequencyLimit", int.class, long.class, TimeUnit.class);

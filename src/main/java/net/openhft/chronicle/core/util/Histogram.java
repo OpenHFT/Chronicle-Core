@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.function.DoubleFunction;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
+import net.openhft.chronicle.core.annotation.NonNegative;
 
 /**
  * A {@link Histogram} class represents a histogram of samples. The histogram is defined by a set of buckets,
@@ -82,7 +83,7 @@ public class Histogram implements NanoSampler {
      * @param count the count of values
      * @return an array of doubles representing the calculated percentiles
      */
-    public static double[] percentilesFor(long count) {
+    public static double[] percentilesFor(@NonNegative long count) {
         List<Double> values = new ArrayList<>();
         values.add(50 / 100.0);
         values.add(90 / 100.0);
@@ -145,7 +146,7 @@ public class Histogram implements NanoSampler {
     /**
      * Re initialise this histogram from deserialized data
      */
-    public void init(int powersOf2, int fractionBits, long overRange, long totalCount, long floor) {
+    public void init(int powersOf2, int fractionBits, long overRange, @NonNegative long totalCount, long floor) {
         this.powersOf2 = powersOf2;
         this.fractionBits = fractionBits;
         this.overRange = overRange;
@@ -426,7 +427,7 @@ public class Histogram implements NanoSampler {
     }
 
     @Override
-    public void sampleNanos(long durationNs) {
+    public void sampleNanos(@NonNegative long durationNs) {
         sample(durationNs);
     }
 }
