@@ -142,6 +142,7 @@ public final class BackgroundResourceReleaser {
      *
      */
     public static void releasePendingResources() {
+        // CQInterruptStatusConsumption keep Thread.interrupted here because releasePendingResources must temporarily clear interrupt status during cleanup and restore it in finally.
         boolean interrupted = Thread.interrupted();
         try {
             for (; ; ) {

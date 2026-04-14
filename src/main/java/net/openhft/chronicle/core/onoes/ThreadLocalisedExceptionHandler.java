@@ -42,6 +42,7 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
         ExceptionHandler exceptionHandler = exceptionHandler();
         if (exceptionHandler == null)
             return;
+        // CQInterruptStatusConsumption keep Thread.interrupted here because message logging must temporarily clear interrupt status and restore it in finally.
         boolean interrupted = Thread.interrupted();
         try {
             exceptionHandler.on(clazz, message, thrown);
@@ -56,6 +57,7 @@ public class ThreadLocalisedExceptionHandler implements ExceptionHandler {
         ExceptionHandler exceptionHandler = exceptionHandler();
         if (exceptionHandler == null || exceptionHandler instanceof IgnoresEverything)
             return;
+        // CQInterruptStatusConsumption keep Thread.interrupted here because message logging must temporarily clear interrupt status and restore it in finally.
         boolean interrupted = Thread.interrupted();
         try {
             exceptionHandler.on(logger, message, thrown);
