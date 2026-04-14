@@ -131,9 +131,10 @@ public final class CloseableUtils {
         if (traceSet == null) {
             return true;
         }
-        if (Thread.interrupted())
+        if (Thread.currentThread().isInterrupted())
             System.err.println("Interrupted in waitForCloseablesToClose!");
 
+        // CQTimeApiIndirection keep System.currentTimeMillis here because closeable-wait deadlines must stay tied to wall-clock time.
         long end = System.currentTimeMillis() + millis;
 
         toWait:
@@ -155,6 +156,7 @@ public final class CloseableUtils {
                     }
 
                 } catch (IllegalStateException e) {
+                    // CQTimeApiIndirection keep System.currentTimeMillis here because closeable-wait expiry must use wall-clock time.
                     if (System.currentTimeMillis() > end)
                         throw e;
 
@@ -181,7 +183,7 @@ public final class CloseableUtils {
             Jvm.warn().on(AbstractCloseable.class, "closable tracing disabled");
             return;
         }
-        if (Thread.interrupted())
+        if (Thread.currentThread().isInterrupted())
             System.err.println("Interrupted in assertCloseablesClosed!");
 
         BackgroundResourceReleaser.releasePendingResources();

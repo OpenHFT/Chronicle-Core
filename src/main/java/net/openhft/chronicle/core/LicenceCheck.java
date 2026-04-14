@@ -81,6 +81,7 @@ public interface LicenceCheck {
             LocalDate date = LocalDate.parse(key.substring(start, end));
             int start2 = key.indexOf("owner=") + 6;
             int end2 = key.indexOf(",", start2);
+            // CQTimeApiIndirection keep System.currentTimeMillis here because licence-expiry checks must use wall-clock calendar time.
             long days = date.toEpochDay() - System.currentTimeMillis() / 86400000;
             if (days < 0)
                 throw Jvm.rethrow(new TimeLimitExceededException());

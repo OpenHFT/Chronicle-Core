@@ -453,6 +453,7 @@ public final class Jvm {
      * @param durationUs Time in durationUs
      */
     public static void busyWaitMicros(final long durationUs) {
+        // CQTimeApiIndirection keep System.nanoTime here because busy-wait deadlines must use the actual runtime monotonic clock.
         busyWaitUntil(System.nanoTime() + (durationUs * 1_000));
     }
 
@@ -465,6 +466,7 @@ public final class Jvm {
      * @param waitUntilNs nanosecond precision counter value to await.
      */
     public static void busyWaitUntil(final long waitUntilNs) {
+        // CQTimeApiIndirection keep System.nanoTime here because busy-wait loops must use the actual runtime monotonic clock.
         while (waitUntilNs > System.nanoTime()) {
             Jvm.nanoPause();
         }

@@ -5,6 +5,7 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.internal.Bootstrap;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
+import net.openhft.chronicle.core.time.SystemTimeProvider;
 import net.openhft.chronicle.core.util.MisAlignedAssertionError;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -1194,10 +1195,10 @@ public class UnsafeMemory implements Memory {
         assert SKIP_ASSERTIONS || srcAddress > 0;
         assert SKIP_ASSERTIONS || destOffset > 0;
         assert SKIP_ASSERTIONS || length >= 0;
-        long start = length > 128 << 10 ? System.nanoTime() : 0;
+        long start = length > 128 << 10 ? SystemTimeProvider.INSTANCE.currentTimeNanos() : 0;
         copyMemoryLoop(null, srcAddress, dest, destOffset, length);
         if (length > 128 << 10) {
-            long time = System.nanoTime() - start;
+            long time = SystemTimeProvider.INSTANCE.currentTimeNanos() - start;
             if (time > 100_000)
                 Jvm.perf().on(getClass(), "Took " + time / 1000 / 1e3 + " ms to copy " + length / 1024 + " KB");
         }

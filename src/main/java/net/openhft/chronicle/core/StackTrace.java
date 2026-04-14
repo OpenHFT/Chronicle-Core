@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core;
 
+import net.openhft.chronicle.core.time.SystemTimeProvider;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -147,7 +148,7 @@ public class StackTrace extends Throwable {
     @NotNull
     private static ZonedDateTime nanosAsZonedDateTime() {
         // temporary change to confirm effect - only creates time at millisecond precision
-        long nowNanos = System.currentTimeMillis() * NANOS_PER_MILLI;
+        long nowNanos = SystemTimeProvider.INSTANCE.currentTimeMillis() * NANOS_PER_MILLI;
         return ZonedDateTime.ofInstant(
                 Instant.ofEpochSecond(nowNanos / NANOS_PER_SECOND, nowNanos % NANOS_PER_SECOND),
                 ZoneOffset.UTC);

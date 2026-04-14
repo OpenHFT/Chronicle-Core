@@ -87,6 +87,7 @@ public class CoolerTester {
             innerLoop2(tested, histogram);
             count++;
         }
+        // CQTimeApiIndirection keep System.currentTimeMillis here because CoolerTester runtime windows should use the real wall clock.
         while (count < minCount || (System.currentTimeMillis() - start <= runTimeMS && count < maxCount * 10));
     }
 
@@ -96,14 +97,17 @@ public class CoolerTester {
             innerLoop2(tested, histogram);
             count++;
         }
+        // CQTimeApiIndirection keep System.currentTimeMillis here because CoolerTester runtime windows should use the real wall clock.
         while (count < minCount || (System.currentTimeMillis() - start <= runTimeMS && count < maxCount));
     }
 
     private static void innerLoop2(Callable<?> tested, Histogram histogram) throws Exception {
         UNSAFE.fullFence();
+        // CQTimeApiIndirection keep System.nanoTime here because CoolerTester histogram timing should use the real runtime clock.
         long start0 = System.nanoTime();
         blackhole = tested.call();
 //            UNSAFE.fullFence();
+        // CQTimeApiIndirection keep System.nanoTime here because CoolerTester histogram timing should use the real runtime clock.
         long time0 = System.nanoTime() - start0;
         histogram.sample(time0);
     }
@@ -225,6 +229,7 @@ public class CoolerTester {
             CpuCooler disturber = disturbers.get(i);
             Histogram histogram = histograms.get(j * disturbers.size() + i);
 
+            // CQTimeApiIndirection keep System.currentTimeMillis here because CoolerTester run windows should use the real wall clock.
             long start = System.currentTimeMillis();
             int count = 0;
             if (t > 0)

@@ -26,6 +26,7 @@ public enum PosixTimeProvider implements TimeProvider {
      */
     @Override
     public long currentTimeMillis() {
+        // CQTimeApiIndirection keep System.currentTimeMillis here because time-provider implementations must not delegate through another provider instance.
         return System.currentTimeMillis();
     }
 

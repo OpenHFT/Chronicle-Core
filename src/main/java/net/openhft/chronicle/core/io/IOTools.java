@@ -7,6 +7,7 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.cleaner.CleanerServiceLocator;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
+import net.openhft.chronicle.core.time.SystemTimeProvider;
 import net.openhft.chronicle.core.util.Time;
 import org.jetbrains.annotations.NotNull;
 import sun.nio.ch.IOStatus;
@@ -224,6 +225,7 @@ public final class IOTools {
      * @throws AssertionError if the directory remains after the timeout
      */
     public static void deleteDirWithFilesOrWait(long timeoutMs, @NotNull File dir) {
+        // CQTimeApiIndirection keep System.currentTimeMillis here because directory-deletion waits must use wall-clock time.
         long startTs = System.currentTimeMillis();
 
         do {
@@ -234,6 +236,7 @@ public final class IOTools {
                 Jvm.pause(50);
             else
                 return;
+            // CQTimeApiIndirection keep System.currentTimeMillis here because directory-deletion timeout checks must use wall-clock time.
         } while (System.currentTimeMillis() - startTs < timeoutMs);
 
         throw new AssertionError("Failed to delete dir " + dir + " within " + timeoutMs + "ms");
@@ -370,10 +373,11 @@ public final class IOTools {
     @NotNull
     public static String tempName(@NotNull String filename) {
         int ext = filename.lastIndexOf('.');
+        long currentTimeNanos = SystemTimeProvider.INSTANCE.currentTimeNanos();
         if (ext > 0 && ext > filename.length() - 5) {
-            return filename.substring(0, ext) + System.nanoTime() + filename.substring(ext);
+            return filename.substring(0, ext) + currentTimeNanos + filename.substring(ext);
         }
-        return filename + System.nanoTime();
+        return filename + currentTimeNanos;
     }
 
     /**
