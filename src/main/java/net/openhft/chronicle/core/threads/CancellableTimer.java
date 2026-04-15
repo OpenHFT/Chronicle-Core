@@ -156,6 +156,7 @@ public class CancellableTimer {
 
             try {
                 return eventHandler.action();
+                // CSWarnAndContinue keep trying so that it can be canceled later
             } catch (RuntimeException e) {
                 Jvm.warn().on(getClass(), "Unexpected runtime exception", e);
             }
