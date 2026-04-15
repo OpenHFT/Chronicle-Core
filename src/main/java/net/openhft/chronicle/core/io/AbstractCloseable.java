@@ -291,6 +291,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     void callPerformClose() {
         try {
             performClose();
+            // CSCatchThrowable warn on Throwable so that close doesn't fail
         } catch (Throwable t) { // NOSONAR
             Jvm.warn().on(getClass(), "Error occurred in close method", t);
         } finally {

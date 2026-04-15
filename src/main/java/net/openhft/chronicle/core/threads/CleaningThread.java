@@ -151,6 +151,7 @@ public class CleaningThread extends Thread {
                     break;
             } catch (IllegalAccessException e) {
                 Jvm.debug().on(CleaningThreadLocal.class, e.toString());
+                // CSCatchThrowable catch Throwable so that we can clean up as many resources as possible
             } catch (Throwable e) {
                 Jvm.debug().on(CleaningThreadLocal.class, e);
             }

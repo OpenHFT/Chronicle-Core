@@ -217,12 +217,14 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
         if (referenceOwner instanceof Closeable) {
             try {
                 ((ManagedCloseable) referenceOwner).throwExceptionIfClosed();
+                // CSCatchThrowable catch Throwable so that they are accumulated for later throwing
             } catch (Throwable ise3) {
                 ise2.addSuppressed(ise3);
             }
         } else if (referenceOwner instanceof AbstractReferenceCounted) {
             try {
                 ((AbstractReferenceCounted) referenceOwner).throwExceptionIfReleased();
+                // CSCatchThrowable catch Throwable so that they are accumulated for later throwing
             } catch (Throwable ise3) {
                 ise2.addSuppressed(ise3);
             }
@@ -233,6 +235,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     private void addCloseableSuppressed(Exception ise, AbstractCloseable ac) {
         try {
             ac.throwExceptionIfClosed();
+            // CSCatchThrowable catch Throwable so that they are accumulated for later throwing
         } catch (Throwable e) {
             ise.addSuppressed(e);
         }
@@ -241,6 +244,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
     private void addManagedCloseableSuppressed(Exception ise, ManagedCloseable mc) {
         try {
             mc.throwExceptionIfClosed();
+            // CSCatchThrowable catch Throwable so that they are accumulated for later throwing
         } catch (Throwable t) {
             ise.addSuppressed(new ClosedIllegalStateException(type.getName() + " closed " + asString(mc), t));
         }

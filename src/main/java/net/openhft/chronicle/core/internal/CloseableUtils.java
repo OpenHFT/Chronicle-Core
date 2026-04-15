@@ -324,6 +324,7 @@ public final class CloseableUtils {
                 // If you close a ServerSocketChannelImpl more than once it can throw an IOException that it doesn't exist.
                 if (!"No such file or directory".equals(e.getMessage()))
                     logErrorOnClose(e);
+                // CSCatchThrowable Errors during cleanup are better logged or ignored so that remaining resources still get closed
             } catch (Throwable e) {
                 logErrorOnClose(e);
             }
@@ -331,6 +332,7 @@ public final class CloseableUtils {
         } else if (o instanceof java.lang.AutoCloseable) {
             try {
                 ((java.lang.AutoCloseable) o).close();
+                // CSCatchThrowable Errors during cleanup are better logged or ignored so that remaining resources still get closed
             } catch (Throwable e) {
                 logErrorOnClose(e);
             }

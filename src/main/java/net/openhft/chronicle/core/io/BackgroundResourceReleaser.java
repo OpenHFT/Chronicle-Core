@@ -182,6 +182,7 @@ public final class BackgroundResourceReleaser {
                 ((Runnable) o).run();
             else
                 Jvm.warn().on(BackgroundResourceReleaser.class, "Don't know how to release a " + o.getClass());
+            // CSCatchThrowable Errors during cleanup are better logged or ignored so the background releaser keeps draining the queue
         } catch (Throwable e) {
             Jvm.warn().on(BackgroundResourceReleaser.class, "Failed in release/close", e);
         } finally {
