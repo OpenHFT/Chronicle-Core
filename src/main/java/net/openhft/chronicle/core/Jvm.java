@@ -28,6 +28,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.*;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
@@ -532,7 +533,8 @@ public final class Jvm {
      * @see SecurityManager#checkPermission
      * @see RuntimePermission
      */
-    @SuppressWarnings("java:S3011") // Justification: delegates to centralised ClassUtil.setAccessible for audited bypass.
+    @SuppressWarnings("java:S3011")
+    // Justification: delegates to centralised ClassUtil.setAccessible for audited bypass.
     public static void setAccessible(@NotNull final AccessibleObject accessibleObject) {
         ClassUtil.setAccessible(accessibleObject);
     }
@@ -1230,6 +1232,7 @@ public final class Jvm {
                     // added in Java 23+
                 }
             });
+            // CSCatchThrowable catch Throwable because the caller cannot catch and handle a Throwable from this best-effort reflection path
         } catch (Throwable e) {
             Jvm.warn().on(clazz, "Couldn't disable close on interrupt", e);
         }
@@ -1253,6 +1256,7 @@ public final class Jvm {
                             ci.interrupt();
                         return ObjectUtils.defaultValue(m.getReturnType());
                     }));
+            // CSCatchThrowable catch Throwable because the caller cannot catch and handle a Throwable from this best-effort reflection path
         } catch (Throwable e) {
             Jvm.warn().on(clazz, "Couldn't disable close on interrupt", e);
         }
@@ -1285,7 +1289,7 @@ public final class Jvm {
                         debug().on(Jvm.class, "Adding " + path + " to the classpath");
                     classpath.append(File.pathSeparator).append(path);
                 }
-            } catch (Throwable e) {
+            } catch (URISyntaxException e) {
                 debug().on(Jvm.class, "Could not add URL " + url + " to classpath");
             }
         }
@@ -1623,6 +1627,7 @@ public final class Jvm {
                 try {
                     if (handler != null)
                         handler.handle(signal);
+                    // CSCatchThrowable catch Throwable so that all signal handlers are called
                 } catch (Throwable t) {
                     Jvm.warn().on(this.getClass(), "Problem handling signal", t);
                 }
@@ -1631,6 +1636,7 @@ public final class Jvm {
                 try {
                     if (handler != null)
                         handler.handle(signal.getName());
+                    // CSCatchThrowable catch Throwable so that all signal handlers are called
                 } catch (Throwable t) {
                     Jvm.warn().on(this.getClass(), "Problem handling signal", t);
                 }
@@ -1652,7 +1658,9 @@ public final class Jvm {
     static class ReserveMemoryHolder {
         private ReserveMemoryHolder() {
         }
+
         static final Supplier<Long> reservedMemory;
+
         static {
             Supplier<Long> reservedMemoryGetter;
             try {
@@ -1673,9 +1681,11 @@ public final class Jvm {
             reservedMemory = reservedMemoryGetter;
         }
     }
+
     static class MaxMemoryHolder {
         private MaxMemoryHolder() {
         }
+
         static final long MAX_DIRECT_MEMORY = maxDirectMemory0();
 
         private static long maxDirectMemory0() {
