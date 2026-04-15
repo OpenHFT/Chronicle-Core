@@ -56,6 +56,7 @@ public final class CleanerServiceLocator {
                         cleanerService = next;
                     }
                 }
+                // CSWarnAndContinue catch ServiceConfigurationError so that we can fallback
             } catch (ServiceConfigurationError e) {
                 Jvm.error().on(CleanerServiceLocator.class, "Error while trying to load service providers", e);
             }

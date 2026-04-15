@@ -85,6 +85,7 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
                     field.setAccessible(true);
                     Object o = field.get(null);
                     fieldList.add(uncheckedCast(o));
+                    // CSWarnAndContinue catch because we can ignore inaccessible fields
                 } catch (IllegalAccessException | IllegalArgumentException e) {
                     Jvm.warn().on(getClass(), e.toString());
                 }

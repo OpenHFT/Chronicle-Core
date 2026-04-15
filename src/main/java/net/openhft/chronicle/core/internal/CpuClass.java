@@ -46,6 +46,7 @@ public final class CpuClass {
                     int ret = process.waitFor();
                     if (ret != 0)
                         logger.warn(PROCESS + cmd + " returned " + ret);
+                        // CSWarnAndContinue catch InterruptedException so that we can close the process
                 } catch (InterruptedException e) {
                     logger.warn(PROCESS + cmd + " waitFor threw ", e);
                     // Restore the interrupt state...
@@ -70,6 +71,7 @@ public final class CpuClass {
                     int ret = process.waitFor();
                     if (ret != 0)
                         logger.warn(PROCESS + cmd + " returned " + ret);
+                        // CSWarnAndContinue catch InterruptedException so that we can close the process
                 } catch (InterruptedException e) {
                     logger.warn(PROCESS + cmd + " waitFor threw ", e);
                     // Restore the interrupt state...
@@ -79,6 +81,7 @@ public final class CpuClass {
 
             }
 
+            // CSWarnAndContinue catch so that we fall back to making no assumptions about cpuinfo
         } catch (IOException e) {
             logger.debug("Unable to read cpuinfo", e);
         }

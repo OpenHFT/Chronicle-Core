@@ -71,6 +71,7 @@ public final class BackgroundResourceReleaser {
                 }
                 performRelease(o, true);
             }
+            // CSWarnAndContinue if interrupted stop waiting for more resources to clean up
         } catch (InterruptedException e) {
             // Restore the interrupt state...
             Thread.currentThread().interrupt();
@@ -163,6 +164,7 @@ public final class BackgroundResourceReleaser {
             if (left != 0)
                 Jvm.perf().on(BackgroundResourceReleaser.class, "Still got " + left + " resources to clean");
 
+            // CSWarnAndContinue if interrupted stop waiting for more resources to clean up
         } catch (InterruptedException e) {
             Jvm.warn().on(BackgroundResourceReleaser.class, "Interrupted in releasePendingResources");
             interrupted = true;
@@ -182,7 +184,8 @@ public final class BackgroundResourceReleaser {
                 ((Runnable) o).run();
             else
                 Jvm.warn().on(BackgroundResourceReleaser.class, "Don't know how to release a " + o.getClass());
-            // CSCatchThrowable Errors during cleanup are better logged or ignored so the background releaser keeps draining the queue
+
+            // CSCatchThrowable keep this catch-all cleanup boundary because errors during cleanup are better logged here so the background releaser keeps draining the queue
         } catch (Throwable e) {
             Jvm.warn().on(BackgroundResourceReleaser.class, "Failed in release/close", e);
         } finally {

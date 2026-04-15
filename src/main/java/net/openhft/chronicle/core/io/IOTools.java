@@ -185,7 +185,7 @@ public final class IOTools {
             try {
                 Files.delete(f.toPath());
             } catch (NoSuchFileException fe) {
-                // ignored
+                // CSWarnAndContinue ignore because the file is gone
             } catch (IOException e) {
                 Jvm.debug().on(Closeable.class, "Failed to delete " + f, e);
             }
@@ -532,6 +532,7 @@ public final class IOTools {
             if (!Locale.getDefault().getLanguage().equals(Locale.ENGLISH.getLanguage())) {
                 try {
                     addRegionalMessages();
+                    // CSWarnAndContinue catch because the impact is verbose messaging
                 } catch (IOException ioe) {
                     Jvm.warn().on(IOTools.class,
                             "Running under non-English locale '" + Locale.getDefault().getLanguage() +

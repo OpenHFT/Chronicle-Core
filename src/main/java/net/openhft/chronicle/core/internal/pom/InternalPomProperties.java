@@ -33,6 +33,7 @@ public final class InternalPomProperties {
                     properties.load(inputStream);
                 }
             }
+            // CSWarnAndContinue review catch because we can assume no properties
         } catch (IOException | IllegalArgumentException e) {
             Jvm.debug().on(InternalPomProperties.class, "Error reading " + resourceName, e);
             // Returns an empty set of properties if we fail.

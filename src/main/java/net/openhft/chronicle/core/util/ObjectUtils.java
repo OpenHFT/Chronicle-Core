@@ -805,6 +805,7 @@ public final class ObjectUtils {
             Class<?> c2;
             try {
                 c2 = defaultObjectForInterface.apply(c);
+                // CSWarnAndContinue catch so that we can conitnue without applying an alias
             } catch (ClassNotFoundException cne) {
                 Jvm.warn().on(ObjectUtils.class, "Unable to find alias for " + c + " " + cne);
                 c2 = c;

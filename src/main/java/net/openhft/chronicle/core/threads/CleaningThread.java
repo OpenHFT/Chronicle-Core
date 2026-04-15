@@ -149,6 +149,7 @@ public class CleaningThread extends Thread {
                 remove.invoke(o, key);
                 if (ctl != null)
                     break;
+                // CSWarnAndContinue catch IllegalAccessException so that we can clean up as many resources as possible, with a one line message
             } catch (IllegalAccessException e) {
                 Jvm.debug().on(CleaningThreadLocal.class, e.toString());
                 // CSCatchThrowable catch Throwable so that we can clean up as many resources as possible

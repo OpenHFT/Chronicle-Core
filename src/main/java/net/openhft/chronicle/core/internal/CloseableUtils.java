@@ -256,6 +256,8 @@ public final class CloseableUtils {
                 Closeable o = (Closeable) field.get(key);
                 if (o != null && nested.add(o) && depth > 1)
                     addNested(nested, o, depth - 1);
+
+                // CSWarnAndContinue catch IllegalAccessException so that we can obtain all the closeable object
             } catch (IllegalAccessException e) {
                 Jvm.warn().on(keyClass, e);
             }

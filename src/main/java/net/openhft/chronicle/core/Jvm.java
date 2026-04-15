@@ -114,12 +114,14 @@ public final class Jvm {
             // Eagerly initialise Posix & Affinity
             try {
                 PosixAPI.posix();
+                // CSWarnAndContinue catch so that we can continue without the posix API
             } catch (Error e) {
                 logger.debug("Unable to load PosixAPI ", e);
             }
 
             try {
                 Class.forName("net.openhft.affinity.Affinity");
+                // CSWarnAndContinue catch so that we can continue without Affinity
             } catch (ClassNotFoundException e) {
                 logger.trace("Unable to load Affinity", e);
             }
@@ -1289,6 +1291,7 @@ public final class Jvm {
                         debug().on(Jvm.class, "Adding " + path + " to the classpath");
                     classpath.append(File.pathSeparator).append(path);
                 }
+                // CSWarnAndContinue catch so that we can conitnue with with URLs available
             } catch (URISyntaxException e) {
                 debug().on(Jvm.class, "Could not add URL " + url + " to classpath");
             }
@@ -1608,6 +1611,7 @@ public final class Jvm {
             try {
                 Signal.handle(new Signal(sig), signalHandler);
 
+                // CSWarnAndContinue caught so that we can continue without a signal handler
             } catch (IllegalArgumentException e) {
                 // When -Xrs is specified the user is responsible for
                 // ensuring that shutdown hooks are run by calling
@@ -1673,6 +1677,7 @@ public final class Jvm {
                 } else {
                     reservedMemoryGetter = ThrowingSupplier.asSupplier(() -> f.getLong(null));
                 }
+                // CSWarnAndContinue catch so that we can continue without memory usage monitoring
             } catch (ClassNotFoundException | IllegalAccessException e) {
                 if (MAX_DIRECT_MEMORY > 0)
                     System.err.println(Jvm.class.getName() + ": Unable to determine the reservedMemory value, will always report 0");
