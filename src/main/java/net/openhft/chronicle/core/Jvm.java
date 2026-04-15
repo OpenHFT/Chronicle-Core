@@ -923,6 +923,7 @@ public final class Jvm {
         for (Field f : c.getDeclaredFields()) {
             if ((f.getModifiers() & (Modifier.STATIC | Modifier.TRANSIENT)) != 0 || !f.getType().isPrimitive())
                 continue;
+            // CSRawAddressAccess keep UnsafeMemory.unsafeObjectFieldOffset here because class metrics intentionally inspect fixed primitive field offsets.
             int start0 = Math.toIntExact(UnsafeMemory.unsafeObjectFieldOffset(f));
             int size = PRIMITIVE_SIZE.get(f.getType());
             start = Math.min(start0, start);
@@ -946,6 +947,7 @@ public final class Jvm {
         for (Field f : c.getDeclaredFields()) {
             if ((f.getModifiers() & Modifier.STATIC) != 0 || f.getType().isPrimitive())
                 continue;
+            // CSRawAddressAccess keep UnsafeMemory.unsafeObjectFieldOffset here because raw layout validation intentionally inspects declared field offsets.
             final int start0 = Math.toIntExact(UnsafeMemory.unsafeObjectFieldOffset(f));
             if (start <= start0 && start0 < end) {
                 rethrow(new IllegalArgumentException(c + " is not suitable for raw copies due to " + f));

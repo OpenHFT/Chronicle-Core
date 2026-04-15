@@ -44,6 +44,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     static {
         if (Jvm.isResourceTracing())
             enableCloseableTracing();
+        // CSRawAddressAccess keep UnsafeMemory.unsafeObjectFieldOffset here because the closed-state field offset drives the raw lifecycle state machine.
         CLOSED_OFFSET = UnsafeMemory.unsafeObjectFieldOffset(ClassUtil.getField0(AbstractCloseable.class, "closed", true, false));
     }
 

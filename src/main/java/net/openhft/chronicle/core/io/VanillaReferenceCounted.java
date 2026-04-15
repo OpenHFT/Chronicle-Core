@@ -18,6 +18,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     private static final long VALUE;
 
     static {
+        // CSRawAddressAccess keep UnsafeMemory.unsafeObjectFieldOffset here because the reference-count field offset drives atomic raw state updates.
         VALUE = UnsafeMemory.unsafeObjectFieldOffset(Jvm.getField(VanillaReferenceCounted.class, "value"));
     }
 
