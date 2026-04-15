@@ -74,13 +74,15 @@ public final class StringUtils {
             throw new AssertionError(e);
         }
 
-        long sCountOffset = -1;
+        long sCountOffset;
         try {
             Field sCount = String.class.getDeclaredField(COUNT_FIELD_NAME);
             ClassUtil.setAccessible(sCount);
             sCountOffset = getMemory().getFieldOffset(sCount);
-        } catch (Exception ignored) {
-            // Do nothing
+
+            // RuntimeException required to catch InaccessibleObjectException not present in JDK 8, but can be thrown in JDK 9+
+        } catch (NoSuchFieldException | RuntimeException ignored) {
+            sCountOffset = -1; // NOT FOUND
         }
         S_COUNT_OFFSET = sCountOffset;
 

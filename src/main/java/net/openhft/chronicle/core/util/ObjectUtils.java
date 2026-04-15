@@ -193,7 +193,8 @@ public final class ObjectUtils {
             ClassUtil.setAccessible(constructor);
             return ThrowingSupplier.asSupplier(constructor::newInstance);
 
-        } catch (Exception e) {
+            // RuntimeException required to catch InaccessibleObjectException not present in JDK 8, but can be thrown in JDK 9+
+        } catch (NoSuchMethodException | RuntimeException e) {
             return () -> {
                 try {
                     return OS.memory().allocateInstance(c);
@@ -604,7 +605,9 @@ public final class ObjectUtils {
     public static Object newInstanceOrNull(final Class<?> type) {
         try {
             return newInstance(type);
+            // CSCatchBroadException caught and logged because the caller accepts the object might not be created
         } catch (Exception e) {
+            Jvm.warn().on(ObjectUtils.class, "Failed to create type", e);
             return null;
         }
     }
@@ -893,6 +896,7 @@ public final class ObjectUtils {
                 final Constructor<?> constructor = c.getDeclaredConstructor(String.class);
                 ClassUtil.setAccessible(constructor);
                 return constructor::newInstance;
+            // CSCatchBroadException review catch (Exception e) because the local fallback still begins with returning new ThrowsCCE(e) and needs either narrower handling or an explicit reviewed recovery contract.
             } catch (Exception e) {
                 return new ThrowsCCE(e);
             }

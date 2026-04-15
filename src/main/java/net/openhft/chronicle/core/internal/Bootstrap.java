@@ -113,7 +113,7 @@ public final class Bootstrap {
     }
 
     @SuppressWarnings({"CSReflectiveMethodInvoke", "CSClassForNameInput",
-            "CSCatchBroadException", "CSStdoutStderrOutput"})
+            "CSStdoutStderrOutput"})
     private static int getMajorVersion0() {
         try {
             final Method method = Runtime.class.getDeclaredMethod("version");
@@ -126,7 +126,7 @@ public final class Bootstrap {
         }
         try {
             return Integer.parseInt(Runtime.class.getPackage().getSpecificationVersion().split("\\.")[1]);
-        } catch (Exception e) {
+        } catch (NumberFormatException e) {
             System.err.println("Unable to get the major version, defaulting to 8 " + e);
             return 8;
         }

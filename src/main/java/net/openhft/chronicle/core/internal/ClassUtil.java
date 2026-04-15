@@ -109,8 +109,8 @@ public final class ClassUtil {
                     final Method m = getMethod0(superclass, name, args, false);
                     if (m != null)
                         return m;
-                } catch (Exception ignored) {
-                    // Ignore
+                } catch (RuntimeException ignored) {
+                    // Ignore compatibility or accessibility failures while probing superclasses.
                 }
             if (first)
                 throw new AssertionError(e);
