@@ -605,6 +605,7 @@ public final class OS {
      * @param filename to get the actual size of
      * @return size in bytes.
      */
+    @Deprecated(/* to be removed in 2028 */)
     public static long spaceUsed(@NotNull String filename) {
         return spaceUsed(new File(filename));
     }
@@ -614,6 +615,7 @@ public final class OS {
             try {
                 final String du = run("du", "-ks", file.getAbsolutePath());
                 return Long.parseLong(du.substring(0, du.indexOf('\t')));
+                // CSWarnAndContinue catch so that we keep legacy behaviour
             } catch (@NotNull IOException | NumberFormatException e) {
                 Jvm.warn().on(OS.class, e);
             }
