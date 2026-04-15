@@ -33,6 +33,7 @@ import java.net.URLClassLoader;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.channels.spi.AbstractInterruptibleChannel;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.Map.Entry;
@@ -160,12 +161,12 @@ public final class Jvm {
             if (isJava9Plus())
                 //noinspection JavaLangInvokeHandleSignature
                 return lookup.findStatic(Thread.class, "onSpinWait", voidType);
-        } catch (Exception ignored) {
+        } catch (NoSuchMethodException | IllegalAccessException ignored) {
             // ignore
         }
         try {
             return lookup.findStatic(Safepoint.class, "force", voidType);
-        } catch (Exception ignored) {
+        } catch (NoSuchMethodException | IllegalAccessException ignored) {
             // ignore
         }
         return null;
@@ -218,7 +219,7 @@ public final class Jvm {
             if (is0 == null) {
                 File file = new File(name);
                 if (file.exists())
-                    is0 = new FileInputStream(file);
+                    is0 = Files.newInputStream(file.toPath());
             }
             try (InputStream is = is0) {
                 if (is == null) {
@@ -233,7 +234,7 @@ public final class Jvm {
                     Slf4jExceptionHandler.DEBUG.on(Jvm.class, "Loaded " + name + " with " + prop);
                 }
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             Slf4jExceptionHandler.WARN.on(Jvm.class, "Error loading " + name, e);
         }
     }
@@ -1353,7 +1354,7 @@ public final class Jvm {
             }
 
             return false;
-        } catch (Exception ex) {
+        } catch (IOException ex) {
             return true;
         }
     }
@@ -1664,7 +1665,7 @@ public final class Jvm {
                 } else {
                     reservedMemoryGetter = ThrowingSupplier.asSupplier(() -> f.getLong(null));
                 }
-            } catch (Exception e) {
+            } catch (ClassNotFoundException | IllegalAccessException e) {
                 if (MAX_DIRECT_MEMORY > 0)
                     System.err.println(Jvm.class.getName() + ": Unable to determine the reservedMemory value, will always report 0");
                 reservedMemoryGetter = () -> 0L;
@@ -1688,7 +1689,7 @@ public final class Jvm {
 
                 final Field f = getField(clz, "directMemory");
                 return f.getLong(null);
-            } catch (Exception e) {
+            } catch (ClassNotFoundException | IllegalAccessException e) {
                 // ignore
             }
             System.err.println(Jvm.class.getName() + ": Unable to determine max direct memory, will always report 0");

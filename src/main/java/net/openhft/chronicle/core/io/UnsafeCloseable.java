@@ -119,7 +119,7 @@ public abstract class UnsafeCloseable extends AbstractCloseable {
             return closedLong;
         try {
             return getVolatileLong();
-        } catch (Exception e) {
+        } catch (IllegalStateException | NullPointerException e) {
             return closedLong;
         }
     }
