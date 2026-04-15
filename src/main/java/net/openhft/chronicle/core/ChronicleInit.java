@@ -41,6 +41,7 @@ public final class ChronicleInit {
                 Class<? extends Runnable> descendant = uncheckedCast(Class.forName(initRunnableClass));
                 Runnable chronicleInit = descendant.getConstructor().newInstance();
                 chronicleInit.run();
+                // CSCatchBroadException keep this broad catch because this historical startup fallback still preserves legacy initialization behaviour and should be reviewed before narrowing
             } catch (Exception ex) {
                 // System.err since the logging subsystem may not be up at this point
                 ex.printStackTrace();
@@ -53,6 +54,7 @@ public final class ChronicleInit {
             for (Runnable runnable : runnableLoader) {
                 runQuietly(runnable);
             }
+            // CSCatchBroadException keep this broad catch because this helper is the terminal containment boundary for one startup hook invocation and failures are only reported here before that hook attempt ends
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -61,6 +63,7 @@ public final class ChronicleInit {
     private static void runQuietly(Runnable runnable) {
         try {
             runnable.run();
+            // CSCatchBroadException keep this broad catch because this historical service-loader fallback still preserves legacy initialization behaviour and should be reviewed before narrowing
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -85,6 +88,7 @@ public final class ChronicleInit {
                 Class<? extends Runnable> descendant = uncheckedCast(Class.forName(initRunnableClass));
                 Runnable chronicleInit = descendant.getConstructor().newInstance();
                 chronicleInit.run();
+                // CSCatchBroadException keep this broad catch because this historical service-loader fallback still preserves legacy initialization behaviour and should be reviewed before narrowing
             } catch (Exception ex) {
                 // System.err since the logging subsystem may not be up at this point
                 ex.printStackTrace();
@@ -97,6 +101,7 @@ public final class ChronicleInit {
             for (ChronicleInitRunnable runnable : runnableLoader) {
                 runQuietly(runnable);
             }
+            // CSCatchBroadException keep this broad catch because this historical service-loader fallback still preserves legacy initialization behaviour and should be reviewed before narrowing
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -105,6 +110,7 @@ public final class ChronicleInit {
     private static void runQuietly(ChronicleInitRunnable runnable) {
         try {
             runnable.postInit();
+            // CSCatchBroadException keep this broad catch because this helper is the terminal containment boundary for one post-init hook invocation and failures are only reported here before that hook attempt ends
         } catch (Exception ex) {
             ex.printStackTrace();
         }

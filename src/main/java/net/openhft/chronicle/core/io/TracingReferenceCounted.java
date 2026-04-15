@@ -152,6 +152,7 @@ public final class TracingReferenceCounted implements MonitorReferenceCounted {
         Exception e0 = null;
         try {
             release(id);
+            // CSCatchBroadException capture the exception so that causes can be added for context
         } catch (Exception e) {
             e0 = e;
         }

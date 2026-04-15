@@ -156,6 +156,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
         Exception thrownException = null;
         try {
             release(id);
+            // CSCatchBroadException trap the Exception so that we can add a suppressed cause
         } catch (Exception e) {
             thrownException = e;
         }
