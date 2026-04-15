@@ -67,10 +67,12 @@ public interface ExceptionHandler {
         requireNonNull(clazz);
         try {
             on(LoggerFactory.getLogger(clazz), message, thrown);
+            // CSCatchThrowable catch Throwable so that we can try again to log the message
         } catch (Throwable t) {
             try {
                 Slf4jExceptionHandler.ERROR.on(clazz, "Unable to handle the exception, logging to SLF", t);
                 Slf4jExceptionHandler.ERROR.on(clazz, message, thrown);
+                // CSCatchThrowable catch Throwable so that we can try again to log the message
             } catch (Throwable t0) {
                 t0.printStackTrace();
             }
