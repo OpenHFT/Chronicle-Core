@@ -37,8 +37,11 @@ public class CleaningThread extends Thread {
 
     // Static block to initialize reflection fields.
     static {
+        // CSReflectiveFieldLookup keep this field lookup because CleaningThread must reach Thread.threadLocals to clean abandoned thread-local state.
         THREAD_LOCALS = Jvm.getField(Thread.class, "threadLocals");
+        // CSReflectiveFieldLookup keep this field lookup because CleaningThread must walk the internal thread-local table to find stale entries.
         TABLE = Jvm.getField(THREAD_LOCALS.getType(), "table");
+        // CSReflectiveFieldLookup keep this field lookup because CleaningThread must read each entry value while the weak reference is still reachable.
         VALUE = Jvm.getField(TABLE.getType().getComponentType(), "value");
     }
 
@@ -140,6 +143,7 @@ public class CleaningThread extends Thread {
                 CleaningThreadLocal<Object> ctlKey = uncheckedCast(key);
                 ctlKey.cleanup(value);
 
+                // CSReflectiveMethodInvoke call remove via reflection so that it is called if not public
                 remove.invoke(o, key);
                 if (ctl != null)
                     break;

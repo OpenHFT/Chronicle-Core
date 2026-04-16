@@ -64,7 +64,9 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
     DynamicEnumClass(Class<E> eClass) {
         super(eClass);
         reset0();
+        // CSReflectiveFieldLookup keep this field lookup because DynamicEnumClass must set the runtime enum name when creating new instances.
         nameField = Jvm.getField(eClass, "name");
+        // CSReflectiveFieldLookup keep this field lookup because DynamicEnumClass must set the runtime enum ordinal when creating new instances.
         ordinalField = Jvm.getFieldOrNull(eClass, "ordinal");
     }
 

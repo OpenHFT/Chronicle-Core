@@ -44,7 +44,7 @@ public interface LicenceCheck {
 
     static boolean isJGuardProtected() {
         try {
-            //noinspection JavaReflectionMemberAccess
+            // CSReflectiveFieldLookup keep this field lookup because the isDecrypted field presence is the runtime signal that JGuard protection is active.
             ChronicleGuarding.class.getDeclaredField("isDecrypted");
             return true;
         } catch (NoSuchFieldException e) {

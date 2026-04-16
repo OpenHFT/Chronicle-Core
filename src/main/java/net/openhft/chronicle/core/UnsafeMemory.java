@@ -73,9 +73,10 @@ public class UnsafeMemory implements Memory {
     private static final String WAS = " was ";
     private static final String EXPECTED = " expected ";
 
-    static {
-        try {
-            Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+        static {
+            try {
+                // CSReflectiveFieldLookup keep this field lookup because UnsafeMemory must resolve Unsafe directly during bootstrap raw-memory initialization.
+                Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
             // CSSetAccessibleEscalation keep direct setAccessible(true) because UnsafeMemory must not depend on ClassUtil during bootstrapping class loading.
             theUnsafe.setAccessible(true);
             UNSAFE = (Unsafe) theUnsafe.get(null);
@@ -2303,7 +2304,9 @@ public class UnsafeMemory implements Memory {
         static {
             long offset = 0;
             try {
+                // TODO should probably be migrated to StringUtils
                 if (!Jvm.isJava9Plus()) {
+                    // CSReflectiveFieldLookup keep this field lookup because Java 8 string offset discovery still needs the backing value field.
                     final Field valueField = String.class.getDeclaredField("value");
                     @SuppressWarnings("deprecation")
                     long offset0 = UNSAFE.objectFieldOffset(valueField);

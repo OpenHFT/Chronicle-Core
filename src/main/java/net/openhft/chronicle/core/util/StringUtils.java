@@ -58,6 +58,7 @@ public final class StringUtils {
 
     static {
         try {
+            // CSReflectiveFieldLookup keep this field lookup because StringUtils reads the backing storage directly to avoid copying bytes or chars.
             S_VALUE = String.class.getDeclaredField(VALUE_FIELD_NAME);
             // CSSetAccessibleEscalation make accessible so that we can read the underlying fields
             ClassUtil.setAccessible(S_VALUE);

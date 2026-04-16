@@ -8,6 +8,8 @@ import net.openhft.chronicle.core.StackTrace;
 import net.openhft.chronicle.core.UnsafeMemory;
 import net.openhft.chronicle.core.annotation.UsedViaReflection;
 
+import java.lang.reflect.Field;
+
 /**
  * Lightweight implementation of {@link MonitorReferenceCounted} used when
  * resource tracing is disabled. It simply counts references and runs the given
@@ -18,8 +20,10 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     private static final long VALUE;
 
     static {
+        // CSReflectiveFieldLookup keep this field lookup because VanillaReferenceCounted needs the value field before deriving its raw offset.
+        Field valueField = Jvm.getField(VanillaReferenceCounted.class, "value");
         // CSRawAddressAccess keep UnsafeMemory.unsafeObjectFieldOffset here because the reference-count field offset drives atomic raw state updates.
-        VALUE = UnsafeMemory.unsafeObjectFieldOffset(Jvm.getField(VanillaReferenceCounted.class, "value"));
+        VALUE = UnsafeMemory.unsafeObjectFieldOffset(valueField);
     }
 
     private final Runnable onRelease;
