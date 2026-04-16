@@ -505,10 +505,9 @@ public final class IOTools {
 
     // has to be moved to another class to avoid a live lock
     @NotNull
-    static Runnable close3(SocketChannel sc, SocketChannel s2) {
+    static Runnable delayedCloseChannels(SocketChannel sc, SocketChannel s2) {
         return () -> {
             Jvm.pause(50);
-            System.out.println("Close " + sc);
             closeQuietly(sc);
             Jvm.pause(10);
             closeQuietly(s2);
@@ -517,7 +516,7 @@ public final class IOTools {
 
     // has to be moved to another class to avoid a live lock
     @NotNull
-    static Runnable close4(SocketChannel sc, SocketChannel s2, Thread main) {
+    static Runnable interruptThenCloseChannels(SocketChannel sc, SocketChannel s2, Thread main) {
         return () -> {
             Jvm.pause(50);
             main.interrupt();
@@ -590,7 +589,7 @@ public final class IOTools {
                 }
                 try (SocketChannel sc = SocketChannel.open(address);
                      SocketChannel s2 = ssc.accept()) {
-                    Thread t = new Thread(close3(sc, s2), "close~3");
+                    Thread t = new Thread(delayedCloseChannels(sc, s2), "close~3");
                     t.setDaemon(true);
                     t.start();
                     try {
@@ -606,7 +605,7 @@ public final class IOTools {
                 try (SocketChannel sc = SocketChannel.open(address);
                      SocketChannel s2 = ssc.accept()) {
                     Thread main = Thread.currentThread();
-                    Thread t = new Thread(close4(sc, s2, main), "close~4");
+                    Thread t = new Thread(interruptThenCloseChannels(sc, s2, main), "close~4");
                     t.setDaemon(true);
                     t.start();
                     try {

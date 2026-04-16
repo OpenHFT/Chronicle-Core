@@ -204,6 +204,7 @@ public class CoolerTester {
      */
     public void run() {
         try {
+            // CSStdoutStderrOutput keep direct System.out output because CoolerTester is an interactive CLI benchmark tool and its progress output is intended for immediate console use.
             System.out.println("---- Warmup ----");
             for (int j = 0; j < tests.size(); j++) {
                 for (int i = 0; i < disturbers.size(); i++) {
@@ -212,8 +213,10 @@ public class CoolerTester {
             }
             for (int t = 0; t <= repeat; t++) {
                 if (t == 1)
+                    // CSStdoutStderrOutput keep direct System.out output because CoolerTester is an interactive CLI benchmark tool and its progress output is intended for immediate console use.
                     System.out.println("\n---- Real Tests ----");
                 if (t == repeat)
+                    // CSStdoutStderrOutput keep direct System.out output because CoolerTester is an interactive CLI benchmark tool and its progress output is intended for immediate console use.
                     System.out.println("\n---- RESULTS ----\n");
                 for (int j = 0; j < tests.size(); j++) {
                     runInnerLoop(t, j);
@@ -238,8 +241,11 @@ public class CoolerTester {
             else
                 innerloop0(tested, histogram, start, count, minCount, runTimeMS, maxCount);
             if (tests.size() > 1)
+                // CSStdoutStderrOutput keep direct System.out output because CoolerTester is an interactive CLI benchmark tool and its tabular results are intended for immediate console use.
                 System.out.print(testNames.get(j) + " ");
+            // CSStdoutStderrOutput keep direct System.out output because CoolerTester is an interactive CLI benchmark tool and its tabular results are intended for immediate console use.
             System.out.print(disturber);
+            // CSStdoutStderrOutput keep direct System.out output because CoolerTester is an interactive CLI benchmark tool and its tabular results are intended for immediate console use.
             System.out.println(",band,<0.1,<1,<10,<100, "
                     + histogram.percentageLessThan(0.1e3) + ", "
                     + histogram.percentageLessThan(1e3) + ", "
