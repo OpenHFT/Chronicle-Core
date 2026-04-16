@@ -43,7 +43,7 @@ public final class ChronicleInit {
                 chronicleInit.run();
                 // CSCatchBroadException keep this broad catch because this historical startup fallback still preserves legacy initialization behaviour and should be reviewed before narrowing
             } catch (Exception ex) {
-                // System.err since the logging subsystem may not be up at this point
+                // CSPrintStackTrace write to System.err because the logging subsystem may not be up at this point
                 ex.printStackTrace();
             }
         }
@@ -56,6 +56,7 @@ public final class ChronicleInit {
             }
             // CSCatchBroadException keep this broad catch because this helper is the terminal containment boundary for one startup hook invocation and failures are only reported here before that hook attempt ends
         } catch (Exception ex) {
+            // CSPrintStackTrace write to System.err because the logging subsystem may not be up at this point
             ex.printStackTrace();
         }
     }
@@ -65,6 +66,7 @@ public final class ChronicleInit {
             runnable.run();
             // CSCatchBroadException keep this broad catch because this historical service-loader fallback still preserves legacy initialization behaviour and should be reviewed before narrowing
         } catch (Exception ex) {
+            // CSPrintStackTrace write to System.err because the logging subsystem may not be up at this point
             ex.printStackTrace();
         }
     }
@@ -90,7 +92,7 @@ public final class ChronicleInit {
                 chronicleInit.run();
                 // CSCatchBroadException keep this broad catch because this historical service-loader fallback still preserves legacy initialization behaviour and should be reviewed before narrowing
             } catch (Exception ex) {
-                // System.err since the logging subsystem may not be up at this point
+                // CSPrintStackTrace write to System.err because the logging subsystem may not be up at this point
                 ex.printStackTrace();
             }
         }
@@ -103,6 +105,7 @@ public final class ChronicleInit {
             }
             // CSCatchBroadException keep this broad catch because this historical service-loader fallback still preserves legacy initialization behaviour and should be reviewed before narrowing
         } catch (Exception ex) {
+            // CSPrintStackTrace keep printStackTrace because the logging subsystem may not be up during startup hook failure reporting.
             ex.printStackTrace();
         }
     }
@@ -112,6 +115,7 @@ public final class ChronicleInit {
             runnable.postInit();
             // CSCatchBroadException keep this broad catch because this helper is the terminal containment boundary for one post-init hook invocation and failures are only reported here before that hook attempt ends
         } catch (Exception ex) {
+            // CSPrintStackTrace keep printStackTrace because the logging subsystem may not be up during startup hook failure reporting.
             ex.printStackTrace();
         }
     }

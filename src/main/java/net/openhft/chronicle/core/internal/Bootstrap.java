@@ -127,7 +127,8 @@ public final class Bootstrap {
         try {
             return Integer.parseInt(Runtime.class.getPackage().getSpecificationVersion().split("\\.")[1]);
         } catch (NumberFormatException e) {
-            System.err.println("Unable to get the major version, defaulting to 8 " + e);
+            // CQJvmLogOverSystemErr write to System.err because we haven't finished bootstrapping
+            System.err.println(Bootstrap.class.getName() + ": Unable to get the major version, defaulting to 8 " + e);
             return 8;
         }
     }
@@ -170,6 +171,7 @@ public final class Bootstrap {
         }
 
         int rpid = 1;
+        // CQJvmLogOverSystemErr write to System.err because we haven't finished bootstrapping
         System.err.println(Bootstrap.class.getName() + ": Unable to determine PID, picked 1 as a PID");
         return rpid;
     }

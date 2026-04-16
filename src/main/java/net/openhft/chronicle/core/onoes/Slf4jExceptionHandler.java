@@ -34,7 +34,7 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
         this.logMethod = logMethod;
     }
 
-    @SuppressWarnings({"CallToPrintStackTrace", "java:S1181"}) // Catching Throwable ensures logging failures never mask the original error.
+    @SuppressWarnings({"CallToPrintStackTrace", "java:S1181", "CQJvmLogOverSystemErr"}) // Catching Throwable ensures logging failures never mask the original error.
     @Override
     public void on(@NotNull Logger logger, @Nullable String message, @Nullable Throwable thrown) {
         try {
@@ -45,11 +45,12 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
             if (thrown != null) {
                 System.err.println("Original exception: " + thrown.getMessage());
             }
+            // CSPrintStackTrace keep printStackTrace because this is the last-resort fallback after structured logging has already failed.
             t.printStackTrace();
         }
     }
 
-    @SuppressWarnings({"CallToPrintStackTrace", "java:S1181"})
+    @SuppressWarnings({"CallToPrintStackTrace", "java:S1181", "CQJvmLogOverSystemErr"})
     @Override
     public void on(@NotNull Class<?> clazz, @Nullable String message, @Nullable Throwable thrown) {
         try {
@@ -60,6 +61,7 @@ public enum Slf4jExceptionHandler implements ExceptionHandler {
             if (thrown != null) {
                 System.err.println("Original exception: " + thrown.getMessage());
             }
+            // CSPrintStackTrace keep printStackTrace because this is the last-resort fallback after structured logging has already failed.
             t.printStackTrace();
         }
     }

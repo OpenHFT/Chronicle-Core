@@ -76,11 +76,11 @@ public class UnsafeMemory implements Memory {
     static {
         try {
             Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
-            // CSSetAccessibleEscalation direct call for bootstrap robustness — UnsafeMemory must not depend on ClassUtil during class loading
+            // CSSetAccessibleEscalation keep direct setAccessible(true) because UnsafeMemory must not depend on ClassUtil during bootstrapping class loading.
             theUnsafe.setAccessible(true);
             UNSAFE = (Unsafe) theUnsafe.get(null);
         } catch (@NotNull NoSuchFieldException | IllegalAccessException | IllegalArgumentException e) {
-            //noinspection CallToPrintStackTrace
+            // CSPrintStackTrace keep printStackTrace because UnsafeMemory is still bootstrapping.
             e.printStackTrace(); // NOSONAR
             throw new AssertionError(e);
         }

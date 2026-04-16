@@ -138,6 +138,7 @@ public class ExceptionKey {
     public String toString() {
         @NotNull StringWriter sw = new StringWriter();
         if (throwable != null)
+            // CSPrintStackTrace to a buffer so that it can be included in the toString
             throwable.printStackTrace(new PrintWriter(sw));
         return "ExceptionKey{" +
                 "level=" + level +

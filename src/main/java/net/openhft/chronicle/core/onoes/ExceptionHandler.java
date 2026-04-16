@@ -74,6 +74,7 @@ public interface ExceptionHandler {
                 Slf4jExceptionHandler.ERROR.on(clazz, message, thrown);
                 // CSCatchThrowable catch Throwable so that we can try again to log the message
             } catch (Throwable t0) {
+                // CSPrintStackTrace as a last resort because it has already failed to log properly
                 t0.printStackTrace();
             }
         }

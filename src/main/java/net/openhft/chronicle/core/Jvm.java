@@ -1690,6 +1690,7 @@ public final class Jvm {
                 // CSWarnAndContinue catch so that we can continue without memory usage monitoring
             } catch (ClassNotFoundException | IllegalAccessException e) {
                 if (MAX_DIRECT_MEMORY > 0)
+                    // CQJvmLogOverSystemErr write to System.err because we are probably still bootstrapping.
                     System.err.println(Jvm.class.getName() + ": Unable to determine the reservedMemory value, will always report 0");
                 reservedMemoryGetter = () -> 0L;
             }
@@ -1717,6 +1718,7 @@ public final class Jvm {
             } catch (ClassNotFoundException | IllegalAccessException e) {
                 // ignore
             }
+            // CQJvmLogOverSystemErr write to System.err because we are probably still bootstrapping.
             System.err.println(Jvm.class.getName() + ": Unable to determine max direct memory, will always report 0");
             return 0L;
         }
