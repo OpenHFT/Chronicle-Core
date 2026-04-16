@@ -5,6 +5,7 @@ package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
+import net.openhft.chronicle.core.internal.ClassUtil;
 import net.openhft.chronicle.core.util.CoreDynamicEnum;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.TestOnly;
@@ -82,7 +83,8 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
         for (Field field : fields) {
             if (Modifier.isStatic(field.getModifiers()) && field.getType() == eClass) {
                 try {
-                    field.setAccessible(true);
+                    // CSSetAccessibleEscalation field so that we can access dynamic enums
+                    ClassUtil.setAccessible(field);
                     Object o = field.get(null);
                     fieldList.add(uncheckedCast(o));
                     // CSWarnAndContinue catch because we can ignore inaccessible fields

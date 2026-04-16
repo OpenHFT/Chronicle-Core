@@ -76,6 +76,7 @@ public class UnsafeMemory implements Memory {
     static {
         try {
             Field theUnsafe = Unsafe.class.getDeclaredField("theUnsafe");
+            // CSSetAccessibleEscalation direct call for bootstrap robustness — UnsafeMemory must not depend on ClassUtil during class loading
             theUnsafe.setAccessible(true);
             UNSAFE = (Unsafe) theUnsafe.get(null);
         } catch (@NotNull NoSuchFieldException | IllegalAccessException | IllegalArgumentException e) {

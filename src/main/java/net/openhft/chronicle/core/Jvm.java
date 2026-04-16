@@ -535,7 +535,7 @@ public final class Jvm {
      * @see SecurityManager#checkPermission
      * @see RuntimePermission
      */
-    @SuppressWarnings("java:S3011")
+    @SuppressWarnings({"java:S3011", "CSSetAccessibleEscalation"})
     // Justification: delegates to centralised ClassUtil.setAccessible for audited bypass.
     public static void setAccessible(@NotNull final AccessibleObject accessibleObject) {
         ClassUtil.setAccessible(accessibleObject);
@@ -1218,12 +1218,23 @@ public final class Jvm {
             doNotCloseOnInterrupt8(clazz, fc);
     }
 
+    @Nullable
+    private static Field interruptorField(final Class<?> clazz) {
+        final Field field = ClassUtil.getField0(AbstractInterruptibleChannel.class,
+                "interruptor",
+                false,
+                true);
+        if (field == null)
+            Jvm.warn().on(clazz, "Couldn't disable close on interrupt, interruptor field not accessible");
+        return field;
+    }
+
     private static void doNotCloseOnInterrupt8(final Class<?> clazz, final FileChannel fc) {
+        final Field field = interruptorField(clazz);
+        if (field == null)
+            return;
+        final CommonInterruptible ci = new CommonInterruptible(clazz, fc);
         try {
-            final Field field = AbstractInterruptibleChannel.class
-                    .getDeclaredField("interruptor");
-            ClassUtil.setAccessible(field);
-            final CommonInterruptible ci = new CommonInterruptible(clazz, fc);
             field.set(fc, new Interruptible() {
                 @Override
                 public void interrupt(Thread target) {
@@ -1234,8 +1245,7 @@ public final class Jvm {
                     // added in Java 23+
                 }
             });
-            // CSCatchThrowable catch Throwable because the caller cannot catch and handle a Throwable from this best-effort reflection path
-        } catch (Throwable e) {
+        } catch (IllegalArgumentException | IllegalAccessException e) {
             Jvm.warn().on(clazz, "Couldn't disable close on interrupt", e);
         }
     }
@@ -1244,11 +1254,12 @@ public final class Jvm {
     // https://stackoverflow.com/a/52262779/57695
     @SuppressWarnings("java:S3011") // Justification: No supported public API; guarded by property and try/catch.
     private static void doNotCloseOnInterrupt9(final Class<?> clazz, final FileChannel fc) {
+        final Field field = interruptorField(clazz);
+        if (field == null)
+            return;
+        final CommonInterruptible ci = new CommonInterruptible(clazz, fc);
+        final Class<?> interruptibleClass = field.getType();
         try {
-            final Field field = AbstractInterruptibleChannel.class.getDeclaredField("interruptor");
-            final Class<?> interruptibleClass = field.getType();
-            ClassUtil.setAccessible(field);
-            final CommonInterruptible ci = new CommonInterruptible(clazz, fc);
             Class<?>[] interfaces = {interruptibleClass};
             field.set(fc, Proxy.newProxyInstance(
                     interruptibleClass.getClassLoader(),
@@ -1258,8 +1269,7 @@ public final class Jvm {
                             ci.interrupt();
                         return ObjectUtils.defaultValue(m.getReturnType());
                     }));
-            // CSCatchThrowable catch Throwable because the caller cannot catch and handle a Throwable from this best-effort reflection path
-        } catch (Throwable e) {
+        } catch (IllegalArgumentException | IllegalAccessException e) {
             Jvm.warn().on(clazz, "Couldn't disable close on interrupt", e);
         }
     }

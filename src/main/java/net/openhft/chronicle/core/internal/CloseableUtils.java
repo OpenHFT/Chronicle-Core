@@ -252,7 +252,7 @@ public final class CloseableUtils {
         getCloseableFields(keyClass, fields);
         for (Field field : fields) {
             try {
-                field.setAccessible(true);
+                ClassUtil.setAccessible(field);
                 Closeable o = (Closeable) field.get(key);
                 if (o != null && nested.add(o) && depth > 1)
                     addNested(nested, o, depth - 1);

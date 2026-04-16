@@ -26,6 +26,7 @@ public final class CompilerUtils {
         try {
             DEFINE_CLASS_METHOD = ClassLoader.class.getDeclaredMethod(
                     "defineClass", String.class, byte[].class, int.class, int.class);
+            // CSSetAccessibleEscalation defineClass so that we can inject a compiled class
             ClassUtil.setAccessible(DEFINE_CLASS_METHOD);
         } catch (NoSuchMethodException e) {
             throw new AssertionError(e);

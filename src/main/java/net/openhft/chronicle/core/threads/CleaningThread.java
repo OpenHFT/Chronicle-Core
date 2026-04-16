@@ -7,6 +7,7 @@ import net.openhft.affinity.Affinity;
 import net.openhft.affinity.AffinityLock;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
+import net.openhft.chronicle.core.internal.ClassUtil;
 import org.jetbrains.annotations.Nullable;
 
 import java.lang.ref.WeakReference;
@@ -90,16 +91,9 @@ public class CleaningThread extends Thread {
     }
 
     @Nullable
-    @SuppressWarnings("java:S3011") // Justification: non-public remove(ThreadLocal) is required to clean thread-locals deterministically.
     private static Method getRemoveMethod(Object o) {
-        Method remove;
-        try {
-            remove = o.getClass().getDeclaredMethod("remove", ThreadLocal.class);
-            remove.setAccessible(true);
-        } catch (NoSuchMethodException e) {
-            return null;
-        }
-        return remove;
+        Class<?>[] params = {ThreadLocal.class};
+        return ClassUtil.getMethod0(o.getClass(), "remove", params, false);
     }
 
     /**

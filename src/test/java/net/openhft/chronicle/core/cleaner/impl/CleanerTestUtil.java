@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.cleaner.impl;
 
 import net.openhft.chronicle.core.Jvm;
+import net.openhft.chronicle.core.internal.ClassUtil;
 
 import java.lang.reflect.Field;
 import java.nio.ByteBuffer;
@@ -34,7 +35,7 @@ public final class CleanerTestUtil {
                     // Java8 name
                     field = bitsClass.getDeclaredField("reservedMemory");
                 }
-                field.setAccessible(true);
+                ClassUtil.setAccessible(field);
                 reservedMemory = (AtomicLong) field.get(null);
             } else {
                 // Just assume zero...
