@@ -109,8 +109,6 @@ public final class ObjectUtils {
             return m;
         } catch (NoSuchMethodException expected) {
             return null;
-        } catch (Exception e) {
-            throw new AssertionError(e);
         }
     });
     private static final Map<Class<?>, Immutability> IMMUTABILITY_MAP = new ConcurrentHashMap<>();
@@ -190,6 +188,7 @@ public final class ObjectUtils {
     private static <T> Supplier<T> defaultSupplier(Class<T> c) {
         try {
             Constructor<T> constructor = c.getDeclaredConstructor();
+            // CSSetAccessibleEscalation make accessible so that we can create the default object even if not public
             ClassUtil.setAccessible(constructor);
             return ThrowingSupplier.asSupplier(constructor::newInstance);
 
@@ -877,28 +876,20 @@ public final class ObjectUtils {
                 return String::getBytes;
             if (CoreDynamicEnum.class.isAssignableFrom(c))
                 return EnumCache.of(c)::get;
-            try {
-                Method valueOf = c.getDeclaredMethod("valueOf", String.class);
-                ClassUtil.setAccessible(valueOf);
+            Method valueOf = ClassUtil.getMethod0(c, "valueOf", new Class[]{String.class}, false);
+            if (valueOf != null)
                 return s -> valueOf.invoke(null, s);
-            } catch (NoSuchMethodException e) {
-                // ignored
-            }
 
-            try {
-                Method parse = c.getDeclaredMethod("parse", CharSequence.class);
-                ClassUtil.setAccessible(parse);
+            Method parse = ClassUtil.getMethod0(c, "parse", new Class[]{CharSequence.class}, false);
+            if (parse != null)
                 return s -> parse.invoke(null, s);
 
-            } catch (NoSuchMethodException e) {
-                // ignored
-            }
             try {
                 final Constructor<?> constructor = c.getDeclaredConstructor(String.class);
+                // CSSetAccessibleEscalation make accessible so that we can access non-public constructors
                 ClassUtil.setAccessible(constructor);
                 return constructor::newInstance;
-            // CSCatchBroadException review catch (Exception e) because the local fallback still begins with returning new ThrowsCCE(e) and needs either narrower handling or an explicit reviewed recovery contract.
-            } catch (Exception e) {
+            } catch (NoSuchMethodException e) {
                 return new ThrowsCCE(e);
             }
         }

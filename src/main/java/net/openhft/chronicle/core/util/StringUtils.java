@@ -17,6 +17,7 @@ import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 
 import static java.lang.Character.toLowerCase;
+
 import net.openhft.chronicle.core.annotation.NonNegative;
 
 /**
@@ -58,6 +59,7 @@ public final class StringUtils {
     static {
         try {
             S_VALUE = String.class.getDeclaredField(VALUE_FIELD_NAME);
+            // CSSetAccessibleEscalation make accessible so that we can read the underlying fields
             ClassUtil.setAccessible(S_VALUE);
             S_VALUE_OFFSET = getMemory().getFieldOffset(S_VALUE);
             if (Bootstrap.isJava9Plus() && Jvm.maxDirectMemory() > 0) {
@@ -74,17 +76,8 @@ public final class StringUtils {
             throw new AssertionError(e);
         }
 
-        long sCountOffset;
-        try {
-            Field sCount = String.class.getDeclaredField(COUNT_FIELD_NAME);
-            ClassUtil.setAccessible(sCount);
-            sCountOffset = getMemory().getFieldOffset(sCount);
-
-            // RuntimeException required to catch InaccessibleObjectException not present in JDK 8, but can be thrown in JDK 9+
-        } catch (NoSuchFieldException | RuntimeException ignored) {
-            sCountOffset = -1; // NOT FOUND
-        }
-        S_COUNT_OFFSET = sCountOffset;
+        Field sCount = ClassUtil.getField0(String.class, COUNT_FIELD_NAME, false, true);
+        S_COUNT_OFFSET = sCount == null ? -1 : getMemory().getFieldOffset(sCount);
 
         try {
             final SbFields sbFields = new SbFields();
@@ -441,22 +434,16 @@ public final class StringUtils {
         private Field sbCount;
         private long sbCountOffset;
 
-        public SbFields() throws ClassNotFoundException, NoSuchFieldException {
-            try {
-                sbValue = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField(VALUE_FIELD_NAME);
-                ClassUtil.setAccessible(sbValue);
-                sbValOffset = getMemory().getFieldOffset(sbValue);
-                sbCount = Class.forName("java.lang.AbstractStringBuilder").getDeclaredField(COUNT_FIELD_NAME);
-                ClassUtil.setAccessible(sbCount);
-                sbCountOffset = getMemory().getFieldOffset(sbCount);
-            } catch (NoSuchFieldException e) {
-                sbValue = Class.forName("java.lang.StringBuilder").getDeclaredField(VALUE_FIELD_NAME);
-                ClassUtil.setAccessible(sbValue);
-                sbValOffset = getMemory().getFieldOffset(sbValue);
-                sbCount = Class.forName("java.lang.StringBuilder").getDeclaredField(COUNT_FIELD_NAME);
-                ClassUtil.setAccessible(sbCount);
-                sbCountOffset = getMemory().getFieldOffset(sbCount);
+        public SbFields() throws ClassNotFoundException {
+            Class<?> asbClass = Class.forName("java.lang.AbstractStringBuilder");
+            sbValue = ClassUtil.getField0(asbClass, VALUE_FIELD_NAME, false, true);
+            sbCount = ClassUtil.getField0(asbClass, COUNT_FIELD_NAME, false, true);
+            if (sbValue == null || sbCount == null) {
+                sbValue = ClassUtil.getField0(StringBuilder.class, VALUE_FIELD_NAME, true, true);
+                sbCount = ClassUtil.getField0(StringBuilder.class, COUNT_FIELD_NAME, true, true);
             }
+            sbValOffset = getMemory().getFieldOffset(sbValue);
+            sbCountOffset = getMemory().getFieldOffset(sbCount);
         }
     }
 
