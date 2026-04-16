@@ -252,6 +252,7 @@ public final class CloseableUtils {
         getCloseableFields(keyClass, fields);
         for (Field field : fields) {
             try {
+                // CSSetAccessibleEscalation get the field value so that nested closeables are found and closed too
                 ClassUtil.setAccessible(field);
                 Closeable o = (Closeable) field.get(key);
                 if (o != null && nested.add(o) && depth > 1)

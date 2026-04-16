@@ -85,6 +85,7 @@ public final class OS {
     private OS() {
     }
 
+    @SuppressWarnings("CSClassForNameInput")
     private static Class<?> findClass(String name) {
         try {
             return Thread.currentThread().getContextClassLoader().loadClass(name);
@@ -774,6 +775,7 @@ public final class OS {
     static class FDFieldHolder {
         private FDFieldHolder() {
         }
+        // CSReflectiveFieldLookup keep this field lookup because fd-aware native paths still require the underlying FileChannelImpl descriptor field.
         static final Field FD_FIELD = Jvm.getField(FileChannelImpl.class, "fd");
     }
 
@@ -805,6 +807,7 @@ public final class OS {
         static final MethodHandle READ0_MH;
         static {
             try {
+                // CSClassForNameInput forName so that we can call read on the fd
                 Class<?> fdi = Class.forName(SUN_NIO_CH_FILE_DISPATCHER_IMPL);
                 Method read0 = Jvm.getMethod(fdi, "read0", FileDescriptor.class, long.class, int.class);
                 READ0_MH = MethodHandles.lookup().unreflect(read0);
@@ -824,6 +827,7 @@ public final class OS {
             MethodHandle write0Mh = null;
             MethodHandle write0Mh2 = null;
             try {
+                // CSClassForNameInput forName so that we can call write on the fd
                 Class<?> fdi = Class.forName(SUN_NIO_CH_FILE_DISPATCHER_IMPL);
                 try {
                     Method write0 = Jvm.getMethod(fdi, "write0", FileDescriptor.class, long.class, int.class);

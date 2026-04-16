@@ -141,6 +141,7 @@ public class ClassAliasPool implements ClassLookup {
      */
     @Override
     @NotNull
+    @SuppressWarnings("CSClassForNameInput")
     public Class<?> forName(@NotNull CharSequence name) throws ClassNotFoundRuntimeException {
         Objects.requireNonNull(name);
         CAPKey key = CAP_KEY_TL.get();
@@ -152,6 +153,7 @@ public class ClassAliasPool implements ClassLookup {
     }
 
     @NotNull
+    @SuppressWarnings("CSClassForNameInput")
     private synchronized Class<?> forName0(@NotNull CAPKey key) throws ClassNotFoundRuntimeException {
         ClassNotFoundRuntimeException resolutionFailure = nameExceptionMap.get(key);
         if (resolutionFailure != null)
@@ -192,6 +194,7 @@ public class ClassAliasPool implements ClassLookup {
      * @return The resolved class
      * @throws ClassNotFoundRuntimeException if the class can't be loaded
      */
+    @SuppressWarnings("CSClassForNameInput")
     private Class<?> doLookupWindowsOSX(String name) {
         try {
             return doLookup(name);
@@ -200,6 +203,7 @@ public class ClassAliasPool implements ClassLookup {
         }
     }
 
+    @SuppressWarnings("CSClassForNameInput")
     private Class<?> doLookup(String name) {
         if (banned(name))
             throw new ClassNotFoundRuntimeException(new ClassNotFoundException(name + " not available"));

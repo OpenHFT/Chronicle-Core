@@ -75,6 +75,7 @@ public final class ReflectionUtil {
     }
 
     @NotNull
+    @SuppressWarnings("CSProxyAdmission")
     public static <T> T reflectiveProxy(@NotNull final Class<T> interf, @NotNull final Object delegate) throws IllegalArgumentException {
         requireNonNull(interf);
         requireNonNull(delegate);
@@ -87,6 +88,7 @@ public final class ReflectionUtil {
     }
 
     @NotNull
+    @SuppressWarnings("CSProxyAdmission")
     public static <T> T reflectiveProxy(@NotNull final Class<T> interf,
                                         @NotNull final Object delegate,
                                         final boolean returnProxy) throws IllegalArgumentException {

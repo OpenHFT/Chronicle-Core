@@ -31,6 +31,7 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
         MethodHandle clean = null;
         Impact impact = Impact.SOME_IMPACT;
         try {
+            // CSClassForNameInput forName so that we can deterministically clean the resource
             final Class<?> cleanerClass = Class.forName(cleanerClassname);
             cleaner = lookup.findVirtual(DirectBufferUtil.directBufferClass(), "cleaner", MethodType.methodType(cleanerClass));
             clean = lookup.findVirtual(cleanerClass, "clean", MethodType.methodType(void.class));

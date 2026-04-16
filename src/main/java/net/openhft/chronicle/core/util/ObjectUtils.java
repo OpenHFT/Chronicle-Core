@@ -105,6 +105,7 @@ public final class ObjectUtils {
     static final ClassValue<Method> READ_RESOLVE = ClassLocal.withInitial(c -> {
         try {
             Method m = c.getDeclaredMethod("readResolve");
+            // CSSetAccessibleEscalation make accessible so that it can be called even if not public to the caller
             ClassUtil.setAccessible(m);
             return m;
         } catch (NoSuchMethodException expected) {
@@ -669,6 +670,7 @@ public final class ObjectUtils {
      * @return A dynamic proxy instance implementing the specified interfaces.
      * @throws IllegalArgumentException If the arguments are invalid.
      */
+    @SuppressWarnings({"CSProxyAdmission", "CSReflectiveMethodInvoke"})
     @NotNull
     public static <T> T onMethodCall(@NotNull final BiFunction<Method, Object[], Object> biFunction,
                                      @NotNull final Class<T> tClass,

@@ -56,7 +56,7 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
      * @param c The class to get a MethodHandles.Lookup instance for.
      * @return MethodHandles.Lookup instance.
      */
-    @SuppressWarnings({"java:S3011", "CSReflectiveConstructorInvoke", "CSPrivateFieldReflection",
+    @SuppressWarnings({"java:S3011", "CSReflectiveConstructorInvoke", "CSReflectiveFieldLookup",
             "CSSetAccessibleEscalation"})
     private static MethodHandles.Lookup acquireLookup(Class<?> c) {
         try {
@@ -92,6 +92,7 @@ public abstract class AbstractInvocationHandler implements InvocationHandler {
      * @return The result from the method call.
      * @throws Throwable if an error occurs during method invocation.
      */
+    @SuppressWarnings("CSReflectiveMethodInvoke")
     @Override
     public final Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Class<?> declaringClass = method.getDeclaringClass();

@@ -485,6 +485,7 @@ public final class Jvm {
      * @param fieldName of the field
      * @return the Field.
      */
+    @SuppressWarnings("CSReflectiveFieldLookup")
     @NotNull
     public static Field getField(@NotNull final Class<?> clazz, @NotNull final String fieldName) {
         return ClassUtil.getField0(clazz, fieldName, true, true);
@@ -499,6 +500,7 @@ public final class Jvm {
      * @return the Field.
      * @throws AssertionError if no such Field exists
      */
+    @SuppressWarnings("CSReflectiveFieldLookup")
     @Nullable
     public static Field getFieldOrNull(@NotNull final Class<?> clazz, @NotNull final String fieldName) {
         return ClassUtil.getField0(clazz, fieldName, false, true);
@@ -518,6 +520,7 @@ public final class Jvm {
      * @return method
      */
     @NotNull
+    @SuppressWarnings("CSReflectiveMethodLookup")
     public static Method getMethod(@NotNull final Class<?> clazz,
                                    @NotNull final String methodName,
                                    final Class<?>... argTypes) {
@@ -1261,6 +1264,7 @@ public final class Jvm {
         final Class<?> interruptibleClass = field.getType();
         try {
             Class<?>[] interfaces = {interruptibleClass};
+            // CSProxyAdmission create a proxy so that the interrupt can be recorded
             field.set(fc, Proxy.newProxyInstance(
                     interruptibleClass.getClassLoader(),
                     interfaces,

@@ -24,7 +24,7 @@ import static net.openhft.chronicle.core.internal.Bootstrap.uncheckedCast;
  * This class may also be replaced with different concrete implementation. Code should reside in a static block to
  * be run once. It should contain empty static init() method called to trigger class load.
  */
-@SuppressWarnings({"java:S4057", "CallToPrintStackTrace", "java:S4507"})
+@SuppressWarnings({"java:S4057", "java:S4507", "CallToPrintStackTrace", "CSClassForNameInput", "CSReflectiveConstructorInvoke", "CSServiceLoaderBoundary"})
 public final class ChronicleInit {
     public static final String CHRONICLE_INIT_CLASS = "chronicle.init.runnable";
     public static final String CHRONICLE_POSTINIT_CLASS = "chronicle.postinit.runnable";

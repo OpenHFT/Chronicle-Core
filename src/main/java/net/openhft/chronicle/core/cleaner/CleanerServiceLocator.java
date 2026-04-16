@@ -43,6 +43,7 @@ public final class CleanerServiceLocator {
      */
     public static synchronized ByteBufferCleanerService cleanerService() {
         if (!initialised) {
+            // CSServiceLoaderBoundary load services so that cleaning up of ByteBuffer is pluggable
             final ServiceLoader<ByteBufferCleanerService> available =
                     ServiceLoader.load(ByteBufferCleanerService.class,
                             Thread.currentThread().getContextClassLoader());

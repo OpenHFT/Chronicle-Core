@@ -51,6 +51,7 @@ public final class CompilerUtils {
     public static Class<?> defineClass(
             @NotNull ClassLoader classLoader, @NotNull String className, byte @NotNull [] bytes) {
         try {
+            // CSReflectiveMethodInvoke define a class dynamically so that we don't need an agent to do this
             return (Class<?>) DEFINE_CLASS_METHOD
                     .invoke(classLoader, className, bytes, 0, bytes.length);
         } catch (IllegalAccessException e) {

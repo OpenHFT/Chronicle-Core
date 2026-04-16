@@ -25,6 +25,7 @@ public final class ClassUtil {
             try {
                 // Access privateLookupIn() reflectively to support compilation with JDK 8
                 Method privateLookupIn = MethodHandles.class.getDeclaredMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
+                // CSReflectiveMethodInvoke lookup whether setAccessible0 is available so that it warns once for all attempts
                 MethodHandles.Lookup lookup = (MethodHandles.Lookup) privateLookupIn.invoke(null, AccessibleObject.class, MethodHandles.lookup());
                 return lookup.findVirtual(AccessibleObject.class, "setAccessible0", signature);
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException |
@@ -45,6 +46,7 @@ public final class ClassUtil {
         try {
             final Field field = clazz.getDeclaredField(name);
             if (setAccessible)
+                // CSSetAccessibleEscalation if requested so that security checks are turned off
                 setAccessible(field);
             return field;
 
@@ -92,6 +94,7 @@ public final class ClassUtil {
             accessibleObject.setAccessible(true);
     }
 
+    @SuppressWarnings("CSSetAccessibleEscalation")
     public static Method getMethod0(@NotNull final Class<?> clazz,
                                     @NotNull final String name,
                                     final Class<?>[] args,
