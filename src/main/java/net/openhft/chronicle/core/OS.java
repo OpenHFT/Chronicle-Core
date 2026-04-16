@@ -489,7 +489,7 @@ public final class OS {
         if (isLinux() && (address > 0 && address < threshold) && Jvm.is64bit()) {
             double ratio = (double) threshold / address;
             final long durationMs = Math.max(5000, (long) (250 * ratio * ratio * ratio));
-            System.err.println("Running low on virtual memory, pausing " + durationMs + " ms, address: " + Long.toUnsignedString(address, 16));
+            Jvm.warn().on(OS.class, "Running low on virtual memory, pausing " + durationMs + " ms, address: " + Long.toUnsignedString(address, 16));
             Jvm.pause(durationMs);
         }
         return address;

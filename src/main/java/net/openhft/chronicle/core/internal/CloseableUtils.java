@@ -132,7 +132,7 @@ public final class CloseableUtils {
             return true;
         }
         if (Thread.currentThread().isInterrupted())
-            System.err.println("Interrupted in waitForCloseablesToClose!");
+            Jvm.warn().on(CloseableUtils.class, "Interrupted in waitForCloseablesToClose!");
 
         // CQTimeApiIndirection keep System.currentTimeMillis here because closeable-wait deadlines must stay tied to wall-clock time.
         long end = System.currentTimeMillis() + millis;
@@ -184,7 +184,7 @@ public final class CloseableUtils {
             return;
         }
         if (Thread.currentThread().isInterrupted())
-            System.err.println("Interrupted in assertCloseablesClosed!");
+            Jvm.warn().on(CloseableUtils.class, "Interrupted in assertCloseablesClosed!");
 
         BackgroundResourceReleaser.releasePendingResources();
 
