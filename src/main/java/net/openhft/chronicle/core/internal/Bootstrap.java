@@ -112,7 +112,7 @@ public final class Bootstrap {
         return IS_JAVA_21_PLUS;
     }
 
-    @SuppressWarnings({"CSReflectiveMethodLookup", "CSClassForNameInput",
+    @SuppressWarnings({"CSReflectiveMethodLookup:silent", "CSClassForNameInput:silent",
             "CSStdoutStderrOutput"})
     private static int getMajorVersion0() {
         try {
@@ -127,7 +127,7 @@ public final class Bootstrap {
         try {
             return Integer.parseInt(Runtime.class.getPackage().getSpecificationVersion().split("\\.")[1]);
         } catch (NumberFormatException e) {
-            // CQJvmLogOverSystemErr write to System.err because we haven't finished bootstrapping
+            // CQJvmLogOverSystemErr keep System.err output here because major-version discovery can fail before Chronicle logging is fully bootstrapped.
             System.err.println(Bootstrap.class.getName() + ": Unable to get the major version, defaulting to 8 " + e);
             return 8;
         }
@@ -149,6 +149,7 @@ public final class Bootstrap {
 
     private static int getProcessId0() {
         String pid = null;
+        // CSPathFromInput keep this procfs lookup here because Linux PID discovery intentionally probes the fixed /proc/self entry before falling back to MXBean parsing.
         final File self = new File(PROC_SELF);
         try {
             if (self.exists()) {
@@ -171,7 +172,7 @@ public final class Bootstrap {
         }
 
         int rpid = 1;
-        // CQJvmLogOverSystemErr write to System.err because we haven't finished bootstrapping
+        // CQJvmLogOverSystemErr keep System.err output here because PID discovery can fail before Chronicle logging is fully bootstrapped.
         System.err.println(Bootstrap.class.getName() + ": Unable to determine PID, picked 1 as a PID");
         return rpid;
     }

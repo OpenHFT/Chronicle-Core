@@ -24,7 +24,7 @@ import static net.openhft.chronicle.core.internal.Bootstrap.uncheckedCast;
  * This class may also be replaced with different concrete implementation. Code should reside in a static block to
  * be run once. It should contain empty static init() method called to trigger class load.
  */
-@SuppressWarnings({"java:S4057", "java:S4507", "CallToPrintStackTrace", "CSClassForNameInput", "CSReflectiveConstructorInvoke", "CSServiceLoaderBoundary"})
+@SuppressWarnings({"java:S4057", "java:S4507", "CallToPrintStackTrace", "CSClassForNameInput", "CSReflectiveConstructorInvoke", "CSServiceLoaderBoundary", "CSStartupHookClassName"})
 public final class ChronicleInit {
     public static final String CHRONICLE_INIT_CLASS = "chronicle.init.runnable";
     public static final String CHRONICLE_POSTINIT_CLASS = "chronicle.postinit.runnable";
@@ -41,9 +41,9 @@ public final class ChronicleInit {
                 Class<? extends Runnable> descendant = uncheckedCast(Class.forName(initRunnableClass));
                 Runnable chronicleInit = descendant.getConstructor().newInstance();
                 chronicleInit.run();
-                // CSCatchBroadException keep this broad catch because this historical startup fallback still preserves legacy initialization behaviour and should be reviewed before narrowing
+                // CSCatchBroadException keep this broad catch because startup hook loading from the configured class name is best-effort and initialization should continue after reporting the failure.
             } catch (Exception ex) {
-                // CSPrintStackTrace write to System.err because the logging subsystem may not be up at this point
+                // CSPrintStackTrace keep printStackTrace here because startup hook failures can happen before Chronicle logging is configured.
                 ex.printStackTrace();
             }
         }
@@ -54,9 +54,9 @@ public final class ChronicleInit {
             for (Runnable runnable : runnableLoader) {
                 runQuietly(runnable);
             }
-            // CSCatchBroadException keep this broad catch because this helper is the terminal containment boundary for one startup hook invocation and failures are only reported here before that hook attempt ends
+            // CSCatchBroadException keep this broad catch because service-loader startup discovery is best-effort and initialization should continue after reporting the failure.
         } catch (Exception ex) {
-            // CSPrintStackTrace write to System.err because the logging subsystem may not be up at this point
+            // CSPrintStackTrace keep printStackTrace here because startup hook failures can happen before Chronicle logging is configured.
             ex.printStackTrace();
         }
     }
@@ -64,9 +64,9 @@ public final class ChronicleInit {
     private static void runQuietly(Runnable runnable) {
         try {
             runnable.run();
-            // CSCatchBroadException keep this broad catch because this historical service-loader fallback still preserves legacy initialization behaviour and should be reviewed before narrowing
+            // CSCatchBroadException keep this broad catch because this helper is the terminal boundary for one startup hook invocation and only reports the failure before moving to the next hook.
         } catch (Exception ex) {
-            // CSPrintStackTrace write to System.err because the logging subsystem may not be up at this point
+            // CSPrintStackTrace keep printStackTrace here because startup hook failures can happen before Chronicle logging is configured.
             ex.printStackTrace();
         }
     }
@@ -90,9 +90,9 @@ public final class ChronicleInit {
                 Class<? extends Runnable> descendant = uncheckedCast(Class.forName(initRunnableClass));
                 Runnable chronicleInit = descendant.getConstructor().newInstance();
                 chronicleInit.run();
-                // CSCatchBroadException keep this broad catch because this historical service-loader fallback still preserves legacy initialization behaviour and should be reviewed before narrowing
+                // CSCatchBroadException keep this broad catch because post-init hook loading from the configured class name is best-effort and initialization should continue after reporting the failure.
             } catch (Exception ex) {
-                // CSPrintStackTrace write to System.err because the logging subsystem may not be up at this point
+                // CSPrintStackTrace keep printStackTrace here because post-init hook failures can happen before Chronicle logging is configured.
                 ex.printStackTrace();
             }
         }
@@ -103,9 +103,9 @@ public final class ChronicleInit {
             for (ChronicleInitRunnable runnable : runnableLoader) {
                 runQuietly(runnable);
             }
-            // CSCatchBroadException keep this broad catch because this historical service-loader fallback still preserves legacy initialization behaviour and should be reviewed before narrowing
+            // CSCatchBroadException keep this broad catch because service-loader post-init discovery is best-effort and initialization should continue after reporting the failure.
         } catch (Exception ex) {
-            // CSPrintStackTrace keep printStackTrace because the logging subsystem may not be up during startup hook failure reporting.
+            // CSPrintStackTrace keep printStackTrace here because post-init hook failures can happen before Chronicle logging is configured.
             ex.printStackTrace();
         }
     }
@@ -113,9 +113,9 @@ public final class ChronicleInit {
     private static void runQuietly(ChronicleInitRunnable runnable) {
         try {
             runnable.postInit();
-            // CSCatchBroadException keep this broad catch because this helper is the terminal containment boundary for one post-init hook invocation and failures are only reported here before that hook attempt ends
+            // CSCatchBroadException keep this broad catch because this helper is the terminal boundary for one post-init hook invocation and only reports the failure before moving to the next hook.
         } catch (Exception ex) {
-            // CSPrintStackTrace keep printStackTrace because the logging subsystem may not be up during startup hook failure reporting.
+            // CSPrintStackTrace keep printStackTrace here because post-init hook failures can happen before Chronicle logging is configured.
             ex.printStackTrace();
         }
     }

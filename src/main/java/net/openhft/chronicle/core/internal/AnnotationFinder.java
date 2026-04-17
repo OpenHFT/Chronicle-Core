@@ -59,7 +59,8 @@ public class AnnotationFinder {
                 return annotation;
             }
 
-        } catch (Exception ex) {
+            // CSCatchBroadException keep this broad catch because annotation lookup is deliberately best-effort and returns null when malformed metadata blows up reflective traversal.
+        } catch (RuntimeException ex) {
             return null; // Opt to return null on any exception during retrieval.
         }
         return null;
