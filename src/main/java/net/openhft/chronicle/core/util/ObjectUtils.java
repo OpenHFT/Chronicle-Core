@@ -144,6 +144,7 @@ public final class ObjectUtils {
         if (c.isInterface()) return supplierForInterface(c);
         if (c.isEnum()) return supplierForEnum(c);
         if (Modifier.isAbstract(c.getModifiers())) return supplierForAbstractClass(c);
+        // CSReflectiveConstructorLookup defaultSupplier because we can only obtain an object via reflection at this point
         return defaultSupplier(c);
     }
 
@@ -879,10 +880,12 @@ public final class ObjectUtils {
                 return String::getBytes;
             if (CoreDynamicEnum.class.isAssignableFrom(c))
                 return EnumCache.of(c)::get;
+            // CSReflectiveMethodLookup valueOf so that we can use it if available
             Method valueOf = ClassUtil.getMethod0(c, "valueOf", new Class[]{String.class}, false);
             if (valueOf != null)
                 return s -> valueOf.invoke(null, s);
 
+            // CSReflectiveMethodLookup parse so that we can use it if available
             Method parse = ClassUtil.getMethod0(c, "parse", new Class[]{CharSequence.class}, false);
             if (parse != null)
                 return s -> parse.invoke(null, s);

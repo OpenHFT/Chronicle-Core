@@ -581,6 +581,7 @@ public final class Jvm {
      * @return the lock.toString plus a stack trace.
      */
     public static String lockWithStack(@NotNull final ReentrantLock lock) {
+        // CSReflectiveFieldLookup The current owner of exclusive mode synchronization so that we can report we are the owner
         final Thread t = getValue(lock, "sync/exclusiveOwnerThread");
         if (t == null) {
             return lock.toString();
