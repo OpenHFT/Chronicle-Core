@@ -391,6 +391,7 @@ public class IOToolsTest extends CoreTestCommon {
         Socket s2 = ss.accept();
         ss.close();
         ByteBuffer bytes = ByteBuffer.allocateDirect(1024);
+        boolean wasInterrupted = Thread.interrupted();
         Thread main = Thread.currentThread();
         Thread t = new Thread(() -> {
             Jvm.pause(100);
@@ -417,6 +418,9 @@ public class IOToolsTest extends CoreTestCommon {
         } finally {
             s2.close();
             sc.close();
+            Thread.interrupted();
+            if (wasInterrupted)
+                Thread.currentThread().interrupt();
         }
     }
 }

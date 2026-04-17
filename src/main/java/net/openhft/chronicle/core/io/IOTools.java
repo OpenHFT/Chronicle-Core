@@ -602,6 +602,7 @@ public final class IOTools {
                         CLOSED_MESSAGES.add(ioe.getMessage());
                     }
                 }
+                boolean wasInterrupted = Thread.interrupted();
                 try (SocketChannel sc = SocketChannel.open(address);
                      SocketChannel s2 = ssc.accept()) {
                     Thread main = Thread.currentThread();
@@ -617,6 +618,10 @@ public final class IOTools {
                     } catch (IOException ioe) {
                         CLOSED_MESSAGES.add(ioe.getMessage());
                     }
+                } finally {
+                    Thread.interrupted();
+                    if (wasInterrupted)
+                        Thread.currentThread().interrupt();
                 }
             }
         }
