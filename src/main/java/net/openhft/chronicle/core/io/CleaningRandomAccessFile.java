@@ -25,6 +25,7 @@ public class CleaningRandomAccessFile extends RandomAccessFile {
         super(file, mode);
     }
 
+    // CSFinalizerOverride keep finalize() here because this legacy wrapper still uses a finalizer as a last-resort close for forgotten file handles.
     @SuppressWarnings({"deprecation", "removal", "java:S1113"})
     @Override
     protected void finalize() throws Throwable {

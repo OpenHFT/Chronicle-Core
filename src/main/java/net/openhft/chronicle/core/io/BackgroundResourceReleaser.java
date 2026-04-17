@@ -71,7 +71,7 @@ public final class BackgroundResourceReleaser {
                 }
                 performRelease(o, true);
             }
-            // CSWarnAndContinue stop waiting for more resources to clean up because interruption should end the wait loop here
+            // CSWarnAndContinue keep this interrupted exit path because the background releaser should stop blocking for more work once the releaser thread is asked to shut down.
         } catch (InterruptedException e) {
             // Restore the interrupt state...
             Thread.currentThread().interrupt();
@@ -142,6 +142,7 @@ public final class BackgroundResourceReleaser {
      * queued for release are actually released.
      *
      */
+    @SuppressWarnings("CSWarnAndContinue:silent")
     public static void releasePendingResources() {
         // CQInterruptStatusConsumption keep Thread.interrupted here because releasePendingResources must temporarily clear interrupt status during cleanup and restore it in finally.
         boolean interrupted = Thread.interrupted();
@@ -158,13 +159,12 @@ public final class BackgroundResourceReleaser {
 
             if (!interrupted)
                 for (int i = 0; i < 1000 && COUNTER.get() > 0; i++)
-                    //noinspection BusyWait
-                    Thread.sleep(1);
+                    Jvm.pause(1);
             long left = COUNTER.get();
             if (left != 0)
                 Jvm.perf().on(BackgroundResourceReleaser.class, "Still got " + left + " resources to clean");
 
-            // CSWarnAndContinue stop waiting for more resources to clean up because interruption should end the wait loop here
+            // CSInterruptedExceptionPath keep catch here because we log and set the interrupt flag again
         } catch (InterruptedException e) {
             Jvm.warn().on(BackgroundResourceReleaser.class, "Interrupted in releasePendingResources");
             interrupted = true;
