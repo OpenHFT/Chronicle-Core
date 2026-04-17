@@ -112,7 +112,7 @@ public final class Bootstrap {
         return IS_JAVA_21_PLUS;
     }
 
-    @SuppressWarnings({"CSReflectiveMethodInvoke", "CSClassForNameInput",
+    @SuppressWarnings({"CSReflectiveMethodLookup", "CSClassForNameInput",
             "CSStdoutStderrOutput"})
     private static int getMajorVersion0() {
         try {

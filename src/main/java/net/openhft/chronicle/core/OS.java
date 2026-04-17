@@ -41,6 +41,7 @@ public final class OS {
     public static final Exception TIME_LIMIT = new TimeLimitExceededException();
     public static final int SAFE_PAGE_SIZE = 64 << 10;
     static final String SUN_NIO_CH_FILE_DISPATCHER_IMPL = "sun.nio.ch.FileDispatcherImpl";
+    // CSReflectiveMethodLookup map0 because we need access to the underlying 63-bit map operation, ByteBuffer is 31-bit length
     static final ClassLocal<MethodHandle> MAP0_MH = ClassLocal.withInitial(c -> {
         try {
             Method map0;
@@ -788,8 +789,10 @@ public final class OS {
             Method unmap0;
             if (Jvm.isJava20Plus()) {
                 Class<?> dispatcherClass = OS.isWindows() ? findClass(SUN_NIO_CH_FILE_DISPATCHER_IMPL) : findClass("sun.nio.ch.UnixFileDispatcherImpl");
+                // CSReflectiveMethodLookup unmapp0 so that we can unmap the map0-ed memory block
                 unmap0 = Jvm.getMethod(dispatcherClass, "unmap0", long.class, long.class);
             } else {
+                // CSReflectiveMethodLookup unmapp0 so that we can unmap the map0-ed memory block
                 unmap0 = Jvm.getMethod(FileChannelImpl.class, "unmap0", long.class, long.class);
             }
             try {
@@ -809,6 +812,7 @@ public final class OS {
             try {
                 // CSClassForNameInput forName so that we can call read on the fd
                 Class<?> fdi = Class.forName(SUN_NIO_CH_FILE_DISPATCHER_IMPL);
+                // CSReflectiveMethodLookup read0 so that we can read by fd
                 Method read0 = Jvm.getMethod(fdi, "read0", FileDescriptor.class, long.class, int.class);
                 READ0_MH = MethodHandles.lookup().unreflect(read0);
             } catch (Throwable t) {
@@ -830,9 +834,11 @@ public final class OS {
                 // CSClassForNameInput forName so that we can call write on the fd
                 Class<?> fdi = Class.forName(SUN_NIO_CH_FILE_DISPATCHER_IMPL);
                 try {
+                    // CSReflectiveMethodLookup write0 so that we can write0 by fd
                     Method write0 = Jvm.getMethod(fdi, "write0", FileDescriptor.class, long.class, int.class);
                     write0Mh = MethodHandles.lookup().unreflect(write0);
                 } catch (AssertionError ae) {
+                    // CSReflectiveMethodLookup write0 so that we can write0 by fd
                     Method write0 = Jvm.getMethod(fdi, "write0", FileDescriptor.class, long.class, int.class, boolean.class);
                     write0Mh2 = MethodHandles.lookup().unreflect(write0);
                 }

@@ -104,6 +104,7 @@ public final class ObjectUtils {
     static final ClassLocal<Map<String, Enum<?>>> CASE_IGNORE_LOOKUP = ClassLocal.withInitial(ObjectUtils::caseIgnoreLookup);
     static final ClassValue<Method> READ_RESOLVE = ClassLocal.withInitial(c -> {
         try {
+            // CSReflectiveMethodLookup readResolve so that we can resolve the object after deserialization
             Method m = c.getDeclaredMethod("readResolve");
             // CSSetAccessibleEscalation make accessible so that it can be called even if not public to the caller
             ClassUtil.setAccessible(m);
@@ -185,7 +186,7 @@ public final class ObjectUtils {
         return () -> (T) rethrow(new IllegalArgumentException("abstract class: " + c.getName()));
     }
 
-    @SuppressWarnings("java:S3011") // Justification: allow instantiation via non-public default constructor as a last resort.
+    @SuppressWarnings({"java:S3011", "CSReflectiveConstructorLookup"}) // Justification: allow instantiation via non-public default constructor as a last resort.
     private static <T> Supplier<T> defaultSupplier(Class<T> c) {
         try {
             Constructor<T> constructor = c.getDeclaredConstructor();
@@ -887,6 +888,7 @@ public final class ObjectUtils {
                 return s -> parse.invoke(null, s);
 
             try {
+                // CSReflectiveConstructorLookup constructor(String) so that we can do an implicit conversion by calling the constructor which takes a String
                 final Constructor<?> constructor = c.getDeclaredConstructor(String.class);
                 // CSSetAccessibleEscalation make accessible so that we can access non-public constructors
                 ClassUtil.setAccessible(constructor);

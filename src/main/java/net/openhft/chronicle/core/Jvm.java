@@ -557,6 +557,7 @@ public final class Jvm {
      * @return the value of the provided {@code fieldName} extracted from the provided {@code target}
      */
     @Nullable
+    @SuppressWarnings("CSReflectiveFieldLookup")
     public static <V> V getValue(@NotNull Object target, @NotNull final String fieldName) {
         Class<?> aClass = target.getClass();
         for (String n : fieldName.split("/")) {

@@ -24,6 +24,7 @@ public final class CompilerUtils {
 
     static {
         try {
+            // CSReflectiveMethodLookup defineClass so that we can inject a compiled class
             DEFINE_CLASS_METHOD = ClassLoader.class.getDeclaredMethod(
                     "defineClass", String.class, byte[].class, int.class, int.class);
             // CSSetAccessibleEscalation defineClass so that we can inject a compiled class
@@ -51,7 +52,6 @@ public final class CompilerUtils {
     public static Class<?> defineClass(
             @NotNull ClassLoader classLoader, @NotNull String className, byte @NotNull [] bytes) {
         try {
-            // CSReflectiveMethodInvoke define a class dynamically so that we don't need an agent to do this
             return (Class<?>) DEFINE_CLASS_METHOD
                     .invoke(classLoader, className, bytes, 0, bytes.length);
         } catch (IllegalAccessException e) {

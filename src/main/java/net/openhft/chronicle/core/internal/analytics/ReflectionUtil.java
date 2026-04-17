@@ -112,6 +112,7 @@ public final class ReflectionUtil {
             this.returnProxy = requireNonNull(returnProxy);
         }
 
+        @SuppressWarnings("CSReflectiveMethodInvoke")
         @Override
         public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
 
