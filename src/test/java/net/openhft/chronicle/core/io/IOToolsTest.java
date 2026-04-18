@@ -20,6 +20,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.nio.file.LinkOption;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -112,6 +113,39 @@ public class IOToolsTest extends CoreTestCommon {
 
         assertFalse(tempFile.exists());
         assertFalse(tempDir.toFile().exists());
+    }
+
+    @Test
+    public void testDeleteDirWithFilesDoesNotTraverseSymlinkedChildDirectory() throws IOException {
+        Assume.assumeTrue(OS.isLinux());
+
+        Path tempDir = Files.createTempDirectory("testDir");
+        Path foreignDir = Files.createTempDirectory("foreignDir");
+        Path foreignFile = Files.createTempFile(foreignDir, "test", ".tmp");
+        Path link = tempDir.resolve("linked-dir");
+        Files.createSymbolicLink(link, foreignDir);
+
+        assertTrue(Files.exists(link, LinkOption.NOFOLLOW_LINKS));
+        assertTrue(Files.exists(foreignFile));
+        assertTrue(IOTools.deleteDirWithFiles(tempDir.toFile()));
+
+        assertFalse(Files.exists(link, LinkOption.NOFOLLOW_LINKS));
+        assertFalse(Files.exists(tempDir, LinkOption.NOFOLLOW_LINKS));
+        assertTrue(Files.exists(foreignDir));
+        assertTrue(Files.exists(foreignFile));
+
+        IOTools.deleteDirWithFiles(foreignDir.toFile());
+    }
+
+    @Test
+    public void testDeleteDirWithFilesDoesNotDeletePlainFileRoot() throws IOException {
+        Path tempFile = Files.createTempFile("testFile", ".tmp");
+
+        assertTrue(Files.exists(tempFile, LinkOption.NOFOLLOW_LINKS));
+        assertFalse(IOTools.deleteDirWithFiles(tempFile.toFile()));
+        assertTrue(Files.exists(tempFile, LinkOption.NOFOLLOW_LINKS));
+
+        Files.delete(tempFile);
     }
 
     @Test

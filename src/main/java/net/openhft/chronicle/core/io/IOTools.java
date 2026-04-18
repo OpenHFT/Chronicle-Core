@@ -22,10 +22,11 @@ import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.nio.file.attribute.FileAttribute;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -109,6 +110,7 @@ public final class IOTools {
      * @return true if deletion is successful, false otherwise
      * @throws IORuntimeException if an I/O error occurs
      */
+    @SuppressWarnings("CSPathFromInput")
     public static boolean shallowDeleteDirWithFiles(@NotNull String directory) throws IORuntimeException {
         return shallowDeleteDirWithFiles(new File(directory));
     }
@@ -148,6 +150,7 @@ public final class IOTools {
      * @return true if deletion is successful, false otherwise
      * @throws IORuntimeException if an I/O error occurs
      */
+    @SuppressWarnings("CSPathFromInput")
     public static boolean deleteDirWithFiles(@NotNull String dir, @NonNegative int maxDepth) throws IORuntimeException {
         return deleteDirWithFiles(new File(dir), maxDepth);
     }
@@ -171,26 +174,77 @@ public final class IOTools {
      * @param maxDepth The maximum depth of directories to be deleted
      * @throws IORuntimeException if an I/O error occurs
      */
+    @SuppressWarnings("CSPathFromInput")
     public static boolean deleteDirWithFiles(@NotNull File dir, @NonNegative int maxDepth) throws IORuntimeException {
-        final File[] entries = dir.listFiles();
-        if (entries == null) return false;
-        Stream.of(entries).filter(File::isDirectory).forEach(f -> {
-            if (maxDepth < 1) {
-                throw new AssertionError("Contains directory " + f);
-            } else {
-                deleteDirWithFiles(f, maxDepth - 1);
+        final Path requested = dir.toPath();
+        if (!Files.exists(requested, LinkOption.NOFOLLOW_LINKS))
+            return false;
+        try {
+            if (Files.isSymbolicLink(requested)) {
+                // CSSymlinkTraversalBoundary keep this root-link delete here because recursive deletion must remove a symlink placeholder itself rather than traversing its target directory.
+                Files.delete(requested);
+                return true;
             }
-        });
-        Stream.of(entries).forEach(f -> {
-            try {
-                Files.delete(f.toPath());
-            } catch (NoSuchFileException fe) {
-                // CSWarnAndContinue ignore because the file is gone
-            } catch (IOException e) {
-                Jvm.debug().on(Closeable.class, "Failed to delete " + f, e);
-            }
-        });
-        return dir.delete();
+            if (!Files.isDirectory(requested, LinkOption.NOFOLLOW_LINKS))
+                return false;
+
+            final Path canonicalRoot = requested.toRealPath();
+            final int walkDepth = maxDepth == Integer.MAX_VALUE ? Integer.MAX_VALUE : maxDepth + 1;
+
+            // CSSymlinkTraversalBoundary keep Files.walkFileTree(...) here because recursive deletion must enumerate and delete descendants without following symlink placeholders into foreign trees.
+            Files.walkFileTree(canonicalRoot, EnumSet.noneOf(FileVisitOption.class), walkDepth, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult preVisitDirectory(Path current, BasicFileAttributes attrs) throws IOException {
+                    final int depth = canonicalRoot.equals(current) ? 0 : canonicalRoot.relativize(current).getNameCount();
+                    if (depth > maxDepth)
+                        throw new AssertionError("Contains directory " + current);
+
+                    final Path realCurrent = current.toRealPath();
+                    if (!realCurrent.startsWith(canonicalRoot))
+                        throw new IOException("Refusing to delete outside root " + canonicalRoot + ": " + current);
+
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                    try {
+                        // CSDirectFileDeleteOrRename keep Files.delete(file) here because this recursive delete helper intentionally removes each discovered child entry, including symlink placeholders treated as leaf entries.
+                        Files.delete(file);
+                    } catch (NoSuchFileException ignored) {
+                        // CSWarnAndContinue degraded fallback because concurrently deleted files are already gone and should not abort the directory cleanup.
+                    } catch (IOException e) {
+                        Jvm.debug().on(Closeable.class, "Failed to delete " + file, e);
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult visitFileFailed(Path file, IOException exc) {
+                    if (!(exc instanceof NoSuchFileException))
+                        Jvm.debug().on(Closeable.class, "Failed to access " + file, exc);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path current, IOException exc) throws IOException {
+                    if (exc != null && !(exc instanceof NoSuchFileException))
+                        throw exc;
+                    try {
+                        // CSDirectFileDeleteOrRename keep Files.delete(current) here because this helper intentionally removes each visited directory after its contents have been processed.
+                        Files.delete(current);
+                    } catch (NoSuchFileException ignored) {
+                        // CSWarnAndContinue degraded fallback because concurrently deleted directories are already gone and should not abort the directory cleanup.
+                    } catch (IOException e) {
+                        Jvm.debug().on(Closeable.class, "Failed to delete " + current, e);
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+            return !Files.exists(requested, LinkOption.NOFOLLOW_LINKS);
+        } catch (IOException e) {
+            throw new IORuntimeException(e);
+        }
     }
 
     /**
@@ -282,6 +336,7 @@ public final class IOTools {
      * @throws FileNotFoundException if the file is not found.
      */
     @NotNull
+    @SuppressWarnings({"CSPathFromInput", "CSClasspathResourceBoundary"})
     public static URL urlFor(ClassLoader classLoader, String name) throws FileNotFoundException {
         URL url = classLoader.getResource(name);
         if (url == null && name.startsWith("/"))
@@ -290,8 +345,8 @@ public final class IOTools {
             url = classLoader.getResource(name + ".gz");
         if (url == null && new File(name).exists())
             try {
-                url = new URL("file", "", new File(name).getAbsolutePath());
-            } catch (MalformedURLException e) {
+                url = Paths.get(name).toRealPath().toUri().toURL();
+            } catch (IOException e) {
                 FileNotFoundException fnfe = new FileNotFoundException(name);
                 fnfe.initCause(e);
                 throw fnfe;
@@ -314,7 +369,13 @@ public final class IOTools {
     public static InputStream open(URL url) throws IOException {
         final InputStream in = url.openStream();
         if (url.getFile().endsWith(".gz")) {
-            return new GZIPInputStream(in);
+            // CSCompressionUncompress keep GZIPInputStream here because open(URL) intentionally auto-decompresses '.gz' resources for callers.
+            try {
+                return new GZIPInputStream(in);
+            } catch (IOException ioe) {
+                in.close();
+                throw ioe;
+            }
         }
         return in;
     }
@@ -333,9 +394,9 @@ public final class IOTools {
      */
     public static byte[] readFile(Class<?> clazz, @NotNull String name) throws IOException {
         URL url = urlFor(clazz, name);
-        InputStream is = open(url);
-
-        return readAsBytes(is);
+        try (InputStream is = open(url)) {
+            return readAsBytes(is);
+        }
     }
 
     /**
@@ -393,9 +454,12 @@ public final class IOTools {
             return;
         createDirectories(dir.getParent());
         try {
+            // CSFileCreatePermissions keep Files.createDirectory(dir) here because createDirectories intentionally materialises each missing path segment itself so it can detect broken symlinks and conflicting files.
             Files.createDirectory(dir);
         } catch (FileAlreadyExistsException e) {
+            // CSSymlinkTraversalBoundary keep this symbolic-link check here because createDirectories must reject a symlink placeholder instead of silently following it.
             if (Files.isSymbolicLink(dir))
+                // CSSymlinkTraversalBoundary keep this explicit IOException here because a broken symlink at the requested directory path must abort directory creation.
                 throw new IOException("Symbolic link from " + dir + " to " + Files.readSymbolicLink(dir) + " is broken", e);
             if (Files.isRegularFile(dir))
                 throw new IOException("Cannot create a directory with the same name as a file " + dir, e);
@@ -425,11 +489,13 @@ public final class IOTools {
         Path path = Paths.get(OS.getTarget(), s + "-" + Time.uniqueId() + ".tmp");
         // make the directory
         try {
+            // CSFileCreatePermissions Files.createDirectories(...) here because temporary files are created under the target workspace and their parent directories must exist first.
             Files.createDirectories(path.getParent());
         } catch (IOException e) {
             throw new IORuntimeException(e);
         }
         File file = path.toFile();
+        // CSDirectFileDeleteOrRename file.deleteOnExit() here because temporary files created here are expected to be best-effort cleaned up on JVM exit.
         file.deleteOnExit();
         return file;
     }
@@ -444,6 +510,7 @@ public final class IOTools {
         Path path = Paths.get(OS.getTarget(), s + "-" + Time.uniqueId() + ".tmp");
         // make the directory
         try {
+            // CSFileCreatePermissions Files.createDirectories(...) here because temporary directories are created on demand inside the target workspace.
             Files.createDirectories(path);
         } catch (IOException e) {
             throw new IORuntimeException(e);
@@ -531,7 +598,7 @@ public final class IOTools {
             if (!Locale.getDefault().getLanguage().equals(Locale.ENGLISH.getLanguage())) {
                 try {
                     addRegionalMessages();
-                    // CSWarnAndContinue catch because the impact is verbose messaging
+                    // CSWarnAndContinue this degraded fallback because failing to learn locale-specific socket-close messages only affects how precisely verbose diagnostics are classified.
                 } catch (IOException ioe) {
                     Jvm.warn().on(IOTools.class,
                             "Running under non-English locale '" + Locale.getDefault().getLanguage() +
@@ -541,6 +608,7 @@ public final class IOTools {
         }
 
         static void addRegionalMessages() throws IOException {
+            // CSUrlOrSocketBoundary keep this loopback socket probe here because addRegionalMessages intentionally exercises local socket close paths to collect locale-specific IOException text.
             try (ServerSocketChannel ssc = ServerSocketChannel.open()) {
                 ssc.bind(new InetSocketAddress(0));
                 final int port = ssc.socket().getLocalPort();
@@ -575,6 +643,7 @@ public final class IOTools {
                     CLOSED_MESSAGES.add(ioe.getMessage());
                 }
                 ByteBuffer bytes = ByteBuffer.allocateDirect(1024);
+                // CSUrlOrSocketBoundary keep this loopback socket probe here because addRegionalMessages intentionally exercises local socket close paths to collect locale-specific IOException text.
                 try (SocketChannel sc = SocketChannel.open(address);
                      SocketChannel s2 = ssc.accept()) {
                     assert s2 != null;
@@ -587,6 +656,7 @@ public final class IOTools {
                         CLOSED_MESSAGES.add(ioe.getMessage());
                     }
                 }
+                // CSUrlOrSocketBoundary keep this loopback socket probe here because addRegionalMessages intentionally exercises local socket close paths to collect locale-specific IOException text.
                 try (SocketChannel sc = SocketChannel.open(address);
                      SocketChannel s2 = ssc.accept()) {
                     Thread t = new Thread(delayedCloseChannels(sc, s2), "close~3");
@@ -602,7 +672,9 @@ public final class IOTools {
                         CLOSED_MESSAGES.add(ioe.getMessage());
                     }
                 }
+                // CQInterruptStatusConsumption preserve so that we restore interrupt status instead of consuming it silently.
                 boolean wasInterrupted = Thread.interrupted();
+                // CSUrlOrSocketBoundary this loopback socket probe here because addRegionalMessages intentionally exercises local socket close paths to collect locale-specific IOException text.
                 try (SocketChannel sc = SocketChannel.open(address);
                      SocketChannel s2 = ssc.accept()) {
                     Thread main = Thread.currentThread();
@@ -619,9 +691,10 @@ public final class IOTools {
                         CLOSED_MESSAGES.add(ioe.getMessage());
                     }
                 } finally {
-                    Thread.interrupted();
                     if (wasInterrupted)
-                        Thread.currentThread().interrupt();
+                        Thread.currentThread().interrupt(); // set it as before
+                    else
+                        Thread.interrupted(); // clear it as before
                 }
             }
         }
