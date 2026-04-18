@@ -21,12 +21,12 @@ import java.lang.annotation.Target;
  * distinguish real caller-owned seams from ordinary suppressions. It is
  * retention {@code CLASS}; no runtime effect.</p>
  *
- * <pre>{@code
- * @CallerCheckedCopyBounds(srcAddress = "from", dstAddress = "to", length = "length")
- * public static void copyMemory(long from, long to, @NonNegative int length) {
+ * <pre>
+ * &#64;CallerCheckedCopyBounds(srcAddress = "from", dstAddress = "to", length = "length")
+ * public static void copyMemory(long from, long to, &#64;NonNegative int length) {
  *     MEMORY.copyMemory(from, to, (long) length);
  * }
- * }</pre>
+ * </pre>
  *
  * <p>The {@link #srcAddress()} and {@link #dstAddress()} attributes name the
  * method parameters that carry region starts. Either may be left empty for

@@ -5,15 +5,14 @@ package net.openhft.chronicle.core.aegis;
 
 import net.openhft.chronicle.core.annotation.NonNegative;
 
-import java.util.Objects;
-
 /**
  * Runtime proof helpers for off-heap and on-heap range validation. Chronicle's
  * security tooling ({@code CSCallerCheckedBounds}) recognises calls to the
  * methods here as valid discharge of a caller-owned slice obligation.
  *
- * <p>For on-heap sites with a known array length, prefer
- * {@link Objects#checkFromIndexSize(int, int, int)}; this class covers the
+ * <p>For on-heap sites with a known array length, prefer the JDK's indexed
+ * range-check helpers where they are available, for example
+ * {@code Objects.checkFromIndexSize(...)} on newer JDKs; this class covers the
  * off-heap cases where the source / destination size is known separately
  * from the starting address.</p>
  */

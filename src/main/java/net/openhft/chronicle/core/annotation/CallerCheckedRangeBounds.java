@@ -16,10 +16,10 @@ import java.lang.annotation.Target;
  *
  * <p>Retention is {@code CLASS}; no runtime effect.</p>
  *
- * <pre>{@code
- * @CallerCheckedRangeBounds(address = "addr", length = "length")
- * public boolean is7Bit(long addr, @NonNegative int length) { ... }
- * }</pre>
+ * <pre>
+ * &#64;CallerCheckedRangeBounds(address = "addr", length = "length")
+ * public boolean is7Bit(long addr, &#64;NonNegative int length) { ... }
+ * </pre>
  *
  * <p><b>Suppression mode.</b> The annotation always declares a
  * delegate-to-caller contract for {@code CSCallerCheckedBounds}. For the
