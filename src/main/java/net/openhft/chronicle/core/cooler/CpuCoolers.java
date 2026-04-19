@@ -139,12 +139,15 @@ public enum CpuCoolers implements CpuCooler {
     SERIALIZATION {
         @Override
         public void disturb() {
+            // ByteArrayOutputStream.close declares that it throws IOException which you must handle even though the method is empty, so don't call close on it
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            XMLEncoder oos = new XMLEncoder(out);
-            oos.writeObject(System.getProperties());
-            oos.close();
-            XMLDecoder ois = new XMLDecoder(new ByteArrayInputStream(out.toByteArray()));
-            blackhole = ois.readObject();
+            try (XMLEncoder oos = new XMLEncoder(out)) {
+                oos.writeObject(System.getProperties());
+            }
+            // CSXmlTransformerExternalAccess keep XMLDecoder here because this cooler deliberately stress-tests XML decode paths on trusted data it just encoded itself.
+            try (XMLDecoder ois = new XMLDecoder(new ByteArrayInputStream(out.toByteArray()))) {
+                blackhole = ois.readObject();
+            }
         }
     },
     MEMORY_COPY {

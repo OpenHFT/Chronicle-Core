@@ -102,6 +102,7 @@ public final class Jvm {
     private static final MethodHandle onSpinWaitMH;
     private static final ChainedSignalHandler signalHandlerGlobal;
     private static boolean RESOURCE_TRACING;
+    // CSPathFromInput keep File(PROC) here because this startup probe intentionally checks the fixed /proc filesystem before using Linux-specific process paths.
     private static final boolean PROC_EXISTS = new File(PROC).exists();
     @SuppressWarnings("unused")
     private static volatile Thread s_blackHole;
@@ -149,11 +150,14 @@ public final class Jvm {
         if (DISABLE_DEBUG)
             logger.info("-Ddisable.debug.info turned of debug logging");
         if (logger.isInfoEnabled() && notJUnitTest)
+            // CSGeneratedSourceLog keep logger.info here because reporting the loaded code source once at startup is an intentional operator diagnostic.
             logger.info(String.format("Chronicle core loaded from %s", Jvm.class.getProtectionDomain().getCodeSource().getLocation()));
         if (RESOURCE_TRACING && !Jvm.getBoolean("disable.resource.warning"))
+            // CSGeneratedSourceLog keep logger.warn here because enabling resource tracing materially changes runtime behaviour and should be surfaced once at startup.
             logger.warn("Resource tracing is turned on. If you are performance testing or running in PROD you probably don't want this");
         REPORT_UNOPTIMISED = Jvm.getBoolean("report.unoptimised");
 
+        // CSClassForNameInput keep ChronicleInit.postInit() here because Chronicle post-init hooks are an intentional startup extension point executed once during JVM bootstrap.
         ChronicleInit.postInit();
     }
 
@@ -212,12 +216,15 @@ public final class Jvm {
 
     public static void init() {
         // force static initialisation
+        // CSClassForNameInput keep ChronicleInit.init() here because Chronicle init hooks are an intentional startup extension point executed during JVM bootstrap.
         ChronicleInit.init();
     }
 
+    @SuppressWarnings("CSConvenienceFileOrStreamLoad")
     private static void loadSystemProperties(final String name, final boolean wasSet) {
         try {
             final ClassLoader classLoader = Jvm.class.getClassLoader();
+            // CQTryWithResourcesMissing the stream alias initialised here because it probes the classloader resource and then falls back to Files.newInputStream(...) before handing the chosen stream into try (InputStream is = is0)
             InputStream is0 = classLoader == null ? null : classLoader.getResourceAsStream(name);
             if (is0 == null) {
                 File file = new File(name);
@@ -431,6 +438,7 @@ public final class Jvm {
             return;
         }
         try {
+            // CQJvmPauseOverThreadSleep keep Thread.sleep(durationMs) here because this method is the implementation of Jvm.pause(...) itself and cannot delegate to Jvm.pause(...) without recursion.
             Thread.sleep(durationMs);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -581,7 +589,7 @@ public final class Jvm {
      * @return the lock.toString plus a stack trace.
      */
     public static String lockWithStack(@NotNull final ReentrantLock lock) {
-        // CSReflectiveFieldLookup The current owner of exclusive mode synchronization so that we can report we are the owner
+        // CSReflectiveFieldLookup keep this lock-owner lookup here because lockWithStack intentionally inspects the internal owner thread for diagnostics.
         final Thread t = getValue(lock, "sync/exclusiveOwnerThread");
         if (t == null) {
             return lock.toString();
@@ -850,9 +858,12 @@ public final class Jvm {
      * upon detecting system signals (e.g. HUP, INT, TERM).
      * <p>
      * Not all signals are available on all operating systems.
+     * <p>
+     * There is no matching removeSignalHandler. Each classloader reload appends another lambda holding the previous loader, so in-container / test-harness reloads leak handlers and references to the stale loader. No Checkstyle rule covers this
      *
      * @param signalHandler to call on a signal
      */
+    @SuppressWarnings("CSShutdownHookRegistration")
     public static void addSignalHandler(final SignalHandler signalHandler) {
         final SignalHandler signalHandler2 = signal -> {
             Jvm.warn().on(signalHandler.getClass(), "Signal " + signal + " triggered for " + signalHandler);
@@ -1173,6 +1184,7 @@ public final class Jvm {
             return defaultValue;
         try {
             return parseSize(value);
+            // CSWarnAndContinue catch IllegalArgumentException because the defaultValue is acceptable
         } catch (IllegalArgumentException iae) {
             Jvm.warn().on(Jvm.class, "Unable to parse the property " + property + " as a size " + iae.getMessage() + " using " + defaultValue);
             return defaultValue;
@@ -1250,6 +1262,7 @@ public final class Jvm {
                     // added in Java 23+
                 }
             });
+            // CSWarnAndContinue could disable because this is a best effort approach.
         } catch (IllegalArgumentException | IllegalAccessException e) {
             Jvm.warn().on(clazz, "Couldn't disable close on interrupt", e);
         }
@@ -1266,7 +1279,7 @@ public final class Jvm {
         final Class<?> interruptibleClass = field.getType();
         try {
             Class<?>[] interfaces = {interruptibleClass};
-            // CSProxyAdmission create a proxy so that the interrupt can be recorded
+            // CSProxyAdmission keep this proxy creation here because the Java 9+ interrupt hook must intercept the internal callback without depending on a public implementation type.
             field.set(fc, Proxy.newProxyInstance(
                     interruptibleClass.getClassLoader(),
                     interfaces,
@@ -1275,6 +1288,7 @@ public final class Jvm {
                             ci.interrupt();
                         return ObjectUtils.defaultValue(m.getReturnType());
                     }));
+            // CSWarnAndContinue could disable because this is a best effort approach.
         } catch (IllegalArgumentException | IllegalAccessException e) {
             Jvm.warn().on(clazz, "Couldn't disable close on interrupt", e);
         }
@@ -1283,6 +1297,8 @@ public final class Jvm {
     /**
      * Ensures that all the jars and other resources are added to the class path of the classloader
      * associated by the provided {@code clazz}.
+     * <p>
+     * NOTE: aggregates URLClassLoader.getURLs() into the widely-read java.class.path system property with no path allowlist. If any URL resolves to caller-plantable storage (e.g. /tmp/evil.jar via a rogue loader), it lands in a property other libraries trust. In-process only, but worth narrowing or documenting the trust model.
      *
      * @param clazz to use as a template.
      */
@@ -1307,7 +1323,7 @@ public final class Jvm {
                         debug().on(Jvm.class, "Adding " + path + " to the classpath");
                     classpath.append(File.pathSeparator).append(path);
                 }
-                // CSWarnAndContinue catch so that we can conitnue with with URLs available
+                // CSWarnAndContinue keep this degraded fallback because one malformed URL entry should not stop rebuilding the effective classpath from the remaining URLs.
             } catch (URISyntaxException e) {
                 debug().on(Jvm.class, "Could not add URL " + url + " to classpath");
             }
@@ -1351,6 +1367,7 @@ public final class Jvm {
             return isProcessAlive0(pid, command);
         }
         if (isLinux() && PROC_EXISTS) {
+            // CSProcfsOrRealPathInference keep this procfs lookup here because Linux process-liveness checks intentionally probe the fixed /proc/<pid> entry.
             return new File("/proc/" + pid).exists();
         }
         if (isMacOSX() || isLinux()) {
@@ -1365,18 +1382,20 @@ public final class Jvm {
     private static boolean isProcessAlive0(final long pid, final String command) {
 
         try {
-            InputStreamReader isReader = new InputStreamReader(
-                    getRuntime().exec(command).getInputStream());
-
-            final BufferedReader bReader = new BufferedReader(isReader);
-            String strLine;
-            while ((strLine = bReader.readLine()) != null) {
-                if (strLine.contains(" " + pid + " ") || strLine.startsWith(pid + " ")) {
-                    return true;
+            Process exec = getRuntime().exec(command);
+            try (InputStreamReader isReader = new InputStreamReader(exec.getInputStream());
+                 BufferedReader bReader = new BufferedReader(isReader)) {
+                String strLine;
+                while ((strLine = bReader.readLine()) != null) {
+                    if (strLine.contains(" " + pid + " ") || strLine.startsWith(pid + " ")) {
+                        return true;
+                    }
                 }
-            }
 
-            return false;
+                return false;
+            } finally {
+                exec.destroy();
+            }
         } catch (IOException ex) {
             return true;
         }
@@ -1625,9 +1644,10 @@ public final class Jvm {
 
         private static void addSignalHandler(final String sig, @SuppressWarnings("SameParameterValue") final sun.misc.SignalHandler signalHandler) {
             try {
+                // CSShutdownHookRegistration keep Signal.handle here because Chronicle installs process-signal forwarding once during startup to fan out registered handlers.
                 Signal.handle(new Signal(sig), signalHandler);
 
-                // CSWarnAndContinue caught so that we can continue without a signal handler
+                // CSWarnAndContinue keep this degraded fallback because unsupported signal registration should not stop the process from starting.
             } catch (IllegalArgumentException e) {
                 // When -Xrs is specified the user is responsible for
                 // ensuring that shutdown hooks are run by calling
@@ -1647,7 +1667,7 @@ public final class Jvm {
                 try {
                     if (handler != null)
                         handler.handle(signal);
-                    // CSCatchThrowable catch Throwable so that all signal handlers are called
+                    // CSCatchThrowable keep this catch-all here because one failing signal handler must not prevent the remaining registered handlers from running.
                 } catch (Throwable t) {
                     Jvm.warn().on(this.getClass(), "Problem handling signal", t);
                 }
@@ -1656,7 +1676,7 @@ public final class Jvm {
                 try {
                     if (handler != null)
                         handler.handle(signal.getName());
-                    // CSCatchThrowable catch Throwable so that all signal handlers are called
+                    // CSCatchThrowable keep this catch-all here because one failing signal handler must not prevent the remaining registered handlers from running.
                 } catch (Throwable t) {
                     Jvm.warn().on(this.getClass(), "Problem handling signal", t);
                 }
@@ -1665,6 +1685,7 @@ public final class Jvm {
     }
 
     private static boolean isJUnitTest0() {
+        // CSThreadDumpLogging keep this thread-dump scan here because JUnit detection intentionally inspects all live thread stacks before enabling startup diagnostics.
         for (StackTraceElement[] stackTrace : Thread.getAllStackTraces().values()) {
             for (StackTraceElement element : stackTrace) {
                 if (element.getClassName().contains(".junit")) {
@@ -1693,10 +1714,10 @@ public final class Jvm {
                 } else {
                     reservedMemoryGetter = ThrowingSupplier.asSupplier(() -> f.getLong(null));
                 }
-                // CSWarnAndContinue catch so that we can continue without memory usage monitoring
+                // CSWarnAndContinue keep this degraded fallback because reserved-memory introspection is optional and callers accept reporting zero when the platform does not expose it.
             } catch (ClassNotFoundException | IllegalAccessException e) {
                 if (MAX_DIRECT_MEMORY > 0)
-                    // CQJvmLogOverSystemErr write to System.err because we are probably still bootstrapping.
+                    // CQJvmLogOverSystemErr keep System.err output here because reserved-memory discovery can fail during bootstrap before Chronicle logging is fully available.
                     System.err.println(Jvm.class.getName() + ": Unable to determine the reservedMemory value, will always report 0");
                 reservedMemoryGetter = () -> 0L;
             }
@@ -1724,7 +1745,7 @@ public final class Jvm {
             } catch (ClassNotFoundException | IllegalAccessException e) {
                 // ignore
             }
-            // CQJvmLogOverSystemErr write to System.err because we are probably still bootstrapping.
+            // CQJvmLogOverSystemErr keep System.err output here because max-direct-memory discovery can fail during bootstrap before Chronicle logging is fully available.
             System.err.println(Jvm.class.getName() + ": Unable to determine max direct memory, will always report 0");
             return 0L;
         }
