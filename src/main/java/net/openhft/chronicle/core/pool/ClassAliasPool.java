@@ -23,7 +23,8 @@ import net.openhft.chronicle.core.annotation.NonNegative;
  * for modification of its lookup data without affecting parent lookups.
  */
 public class ClassAliasPool implements ClassLookup {
-    public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool(null).defaultAliases();
+    // CSMutableStaticState keep this shared CLASS_ALIASES registry here because Chronicle maintains one default alias pool for class-name and alias resolution.
+    public static final ClassAliasPool CLASS_ALIASES = new ClassAliasPool((ClassLookup) null).defaultAliases();
     static final ThreadLocal<CAPKey> CAP_KEY_TL = ThreadLocal.withInitial(() -> new CAPKey(null));
     private final ClassLookup parent;
     private final ClassLoader classLoader;
@@ -39,6 +40,7 @@ public class ClassAliasPool implements ClassLookup {
      *               in this ClassAliasPool.
      * @param classLoader The ClassLoader to be used for loading classes.
      */
+    @SuppressWarnings("CSClassLookupExposure")
     ClassAliasPool(ClassLookup parent, ClassLoader classLoader) {
         this.parent = parent;
         this.classLoader = classLoader;
@@ -51,6 +53,7 @@ public class ClassAliasPool implements ClassLookup {
      * @param parent The parent ClassLookup that can be consulted if a class cannot be found
      *               in this ClassAliasPool.
      */
+    @SuppressWarnings("CSClassLookupExposure")
     ClassAliasPool(ClassLookup parent) {
         this.parent = parent;
         this.classLoader = (parent == null ? this : parent).getClass().getClassLoader();
@@ -203,7 +206,7 @@ public class ClassAliasPool implements ClassLookup {
         }
     }
 
-    @SuppressWarnings("CSClassForNameInput")
+    @SuppressWarnings({"CSClassForNameInput", "CSAliasOrClassResolve"})
     private Class<?> doLookup(String name) {
         if (banned(name))
             throw new ClassNotFoundRuntimeException(new ClassNotFoundException(name + " not available"));

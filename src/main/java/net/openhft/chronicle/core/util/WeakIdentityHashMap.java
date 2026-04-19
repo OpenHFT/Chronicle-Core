@@ -132,6 +132,7 @@ public class WeakIdentityHashMap<K, V> extends AbstractMap<K, V> {
 
                             @Override
                             public V setValue(V value) {
+                                // assume the previous value was null
                                 return null;
                             }
                         };

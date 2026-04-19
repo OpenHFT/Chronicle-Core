@@ -94,6 +94,7 @@ public class CleaningThread extends Thread {
     }
 
     @Nullable
+    @SuppressWarnings("CSReflectiveMethodLookup")
     private static Method getRemoveMethod(Object o) {
         Class<?>[] params = {ThreadLocal.class};
         return ClassUtil.getMethod0(o.getClass(), "remove", params, false);
@@ -120,6 +121,7 @@ public class CleaningThread extends Thread {
         if (table == null)
             return;
 
+        // CSReflectiveMethodLookup use getRemoveMethod(o) so that we can access the remove method generically
         Method remove = getRemoveMethod(o);
         if (remove == null) return;
 

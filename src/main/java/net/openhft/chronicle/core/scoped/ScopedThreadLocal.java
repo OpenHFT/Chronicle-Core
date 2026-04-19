@@ -78,6 +78,7 @@ public class ScopedThreadLocal<T> implements ScopedResourcePool<T> {
      *
      * @return the handle that must be closed to return the instance to this thread
      */
+    @SuppressWarnings("CQTryWithResourcesMissing")
     public ScopedResource<T> get() {
         final SimpleStack scopedThreadLocalResources = instancesTL.get();
         AbstractScopedResource<T> instance;

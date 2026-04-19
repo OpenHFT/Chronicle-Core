@@ -46,6 +46,7 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
 
     public static final CoreDynamicEnum<?>[] CORE_DYNAMIC_ENUMS = {};
     // The map and list that holds the enum instances.
+    // CSUnboundedInternCache keep assuming the size will be reasonable
     private final Map<String, E> eMap = Collections.synchronizedMap(new LinkedHashMap<>());
     private final List<E> eList = new ArrayList<>();
     // Fields to reflectively set properties on new instances.

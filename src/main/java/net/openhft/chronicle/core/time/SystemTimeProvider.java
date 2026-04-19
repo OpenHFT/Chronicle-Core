@@ -35,13 +35,14 @@ public enum SystemTimeProvider implements TimeProvider {
 
     private static final int NANOS_PER_MILLI = 1_000_000;
     // Can be overridden for testing purposes.
+    // CSMutableStaticState this CLOCK override here because tests need a reviewed way to swap the global time provider without changing call sites.
     public static TimeProvider CLOCK = INSTANCE;
 
     static {
         // warmUp()
-        // CQTimeApiIndirection keep System.currentTimeMillis here because SystemTimeProvider initialisation must not delegate through INSTANCE.
+        // CQTimeApiIndirection System.currentTimeMillis here because SystemTimeProvider initialisation must not delegate through INSTANCE.
         long start = System.currentTimeMillis();
-        // CQTimeApiIndirection keep System.currentTimeMillis here because SystemTimeProvider initialisation must not delegate through INSTANCE.
+        // CQTimeApiIndirection System.currentTimeMillis here because SystemTimeProvider initialisation must not delegate through INSTANCE.
         while (System.currentTimeMillis() < start + 5) {
             INSTANCE.currentTimeNanos();
             Jvm.nanoPause();

@@ -88,8 +88,9 @@ public final class CloseableUtils {
         // find any discarded resources.
         final BlockingQueue<String> q = new LinkedBlockingQueue<>();
 
-        // Anonymous inner class overriding the finalize() method to track finalization.
-        new Object() {
+    // Anonymous inner class overriding the finalize() method to track finalization.
+    // CSFinalizerOverride keep this anonymous finalizer sentinel here because the test waits for one GC cycle to confirm cleanup has had a chance to run.
+    new Object() {
             @SuppressWarnings({"deprecation", "removal", "java:S1113"})
             @Override
             protected void finalize() throws Throwable {
@@ -149,6 +150,7 @@ public final class CloseableUtils {
                 try {
                     // too late to be checking thread safety.
                     if (key instanceof AbstractCloseable) {
+                        // CSOwnershipCheckDisable keep singleThreadedCheckDisabled(true) here because shutdown cleanup deliberately inspects closeables after normal thread-ownership checks have stopped mattering.
                         ((AbstractCloseable) key).singleThreadedCheckDisabled(true);
                     }
                     if (key instanceof ReferenceCountedTracer) {
@@ -254,6 +256,7 @@ public final class CloseableUtils {
             try {
                 // CSSetAccessibleEscalation get the field value so that nested closeables are found and closed too
                 ClassUtil.setAccessible(field);
+                // CQTryWithResourcesMissing we are only inspecting so that we can report on these closeables
                 Closeable o = (Closeable) field.get(key);
                 if (o != null && nested.add(o) && depth > 1)
                     addNested(nested, o, depth - 1);

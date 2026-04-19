@@ -437,6 +437,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
          *
          * @throws Throwable if an error occurs during finalization.
          */
+        // CSFinalizerOverride keep finalize() here because this diagnostic fallback reports leaked closeables before best-effort cleanup.
         @SuppressWarnings({"deprecation", "removal", "java:S1113"})
         @Override
         protected void finalize() throws Throwable {

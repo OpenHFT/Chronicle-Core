@@ -26,6 +26,7 @@ public final class InternalAnnouncer {
     private static final Consumer<String> LINE_PRINTER = DISABLE_ANNOUNCEMENT ? s -> {
     } : m -> Jvm.startup().on(InternalAnnouncer.class, m);
     private static final AtomicBoolean JVM_ANNOUNCED = new AtomicBoolean();
+    // CSUnboundedInternCache keep assuming the number of groupIds is low
     private static final Map<String, Set<String>> ANNOUNCED_GROUP_IDS = new ConcurrentHashMap<>();
 
     public static void announce(@NotNull final String groupId,

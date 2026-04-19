@@ -25,6 +25,7 @@ public final class CpuClass {
         Logger logger = LoggerFactory.getLogger(CpuClass.class);
 
         try {
+            // CSProcfsOrRealPathInference keep Paths.get("/proc/cpuinfo") here because Linux CPU-model detection intentionally reads the fixed procfs file when it is available.
             final Path path = Paths.get("/proc/cpuinfo");
             if (Files.isReadable(path)) {
                 model = Files.lines(path)

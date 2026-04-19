@@ -22,9 +22,9 @@ public final class ReflectionUtil {
     private ReflectionUtil() {
     }
 
-    @SuppressWarnings("CSClassForNameInput")
     public static boolean analyticsPresent() {
         try {
+            // CSClassForNameInput keep Class.forName(ANALYTICS_NAME) here because analytics support is an optional module that is detected reflectively at runtime.
             Class.forName(ANALYTICS_NAME);
             return true;
         } catch (ClassNotFoundException ignored) {
