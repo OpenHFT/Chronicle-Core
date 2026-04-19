@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
@@ -68,7 +69,8 @@ public interface ReferenceCountedTracer extends ReferenceCounted {
      * Retrieves the stack trace of the point where the object was created.
      * This can be useful for debugging and tracking down the origin of the object.
      *
-     * @return The stack trace where the object was created.
+     * @return The stack trace where the object was created, or null if not recorded.
      */
+    @Nullable
     StackTrace createdHere();
 }

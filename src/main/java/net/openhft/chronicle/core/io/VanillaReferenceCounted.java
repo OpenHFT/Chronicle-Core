@@ -7,6 +7,7 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.StackTrace;
 import net.openhft.chronicle.core.UnsafeMemory;
 import net.openhft.chronicle.core.annotation.UsedViaReflection;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Field;
 
@@ -51,6 +52,7 @@ public final class VanillaReferenceCounted implements MonitorReferenceCounted {
     }
 
     @Override
+    @Nullable
     public StackTrace createdHere() {
         return null;
     }

@@ -144,7 +144,8 @@ public final class Mocker {
                         if (t != null)
                             // CSReflectiveMethodInvoke call the underlying method because we have called the chained method above
                             return method.invoke(t, args);
-                        return null;
+                        // Assume the mocked method returns the default value
+                        return ObjectUtils.defaultValue(method.getReturnType());
                     }
                 }));
     }
@@ -187,7 +188,8 @@ public final class Mocker {
                         classes.toArray(NO_CLASSES), new AbstractInvocationHandler(interfaceType) {
                             @Override
                             protected Object doInvoke(Object proxy, Method method, Object[] args) {
-                                return null;
+                                // Assume the mocked method returns the default value
+                                return ObjectUtils.defaultValue(method.getReturnType());
                             }
                         }));
     }

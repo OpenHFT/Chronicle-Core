@@ -5,6 +5,7 @@ package net.openhft.chronicle.core.internal;
 
 import net.openhft.chronicle.core.Jvm;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,7 @@ public final class ClassUtil {
             final MethodType signature = MethodType.methodType(boolean.class, boolean.class);
             try {
                 // Access privateLookupIn() reflectively to support compilation with JDK 8
-                // CSReflectiveMethodLookup lookup whether setAccessible0 is available on JDK9+ so that it warns once for all attempts
+                // CSReflectiveMethodLookup keep this privateLookupIn lookup here because ClassUtil probes once for the JDK 9+ setAccessible0 path and reuses the result for all later access checks.
                 Method privateLookupIn = MethodHandles.class.getDeclaredMethod("privateLookupIn", Class.class, MethodHandles.Lookup.class);
                 MethodHandles.Lookup lookup = (MethodHandles.Lookup) privateLookupIn.invoke(null, AccessibleObject.class, MethodHandles.lookup());
                 return lookup.findVirtual(AccessibleObject.class, "setAccessible0", signature);
@@ -32,6 +33,7 @@ public final class ClassUtil {
                      IllegalArgumentException e) {
                 Logger logger = LoggerFactory.getLogger(ClassUtil.class);
                 logger.error("Chronicle products may require command line arguments to be provided for Java 11 and above. See https://chronicle.software/chronicle-support-java-17");
+                // Fallback to null here when the JDK 9+ setAccessible0 path is unavailable and let callers use the older accessibility path instead.
                 return null;
             }
         }
@@ -39,6 +41,7 @@ public final class ClassUtil {
     private ClassUtil() {
     }
 
+    @Nullable
     public static Field getField0(@NotNull final Class<?> clazz,
                                   @NotNull final String name,
                                   final boolean error,
@@ -46,10 +49,11 @@ public final class ClassUtil {
         try {
             final Field field = clazz.getDeclaredField(name);
             if (setAccessible)
-                // CSSetAccessibleEscalation if requested so that security checks are turned off
+                // CSSetAccessibleEscalation keep setAccessible(field) here because this helper intentionally exposes declared-field lookup that can bypass normal Java access checks.
                 setAccessible(field);
             return field;
 
+            // CSWarnAndContinue catch (IllegalAccessError e) because this reflective lookup reports the access failure and then falls back to treating the field as unavailable.
         } catch (IllegalAccessError e) {
             if (error)
                 Jvm.warn().on(clazz, "Unable to access " + name + " " + e.getMessage());
@@ -94,7 +98,8 @@ public final class ClassUtil {
             accessibleObject.setAccessible(true);
     }
 
-    @SuppressWarnings({"CSReflectiveMethodLookup", "CSSetAccessibleEscalation"})
+    @Nullable
+    @SuppressWarnings({"CSReflectiveMethodLookup", "CSSetAccessibleEscalation:silent"})
     public static Method getMethod0(@NotNull final Class<?> clazz,
                                     @NotNull final String name,
                                     final Class<?>[] args,
@@ -108,14 +113,11 @@ public final class ClassUtil {
 
         } catch (NoSuchMethodException e) {
             final Class<?> superclass = clazz.getSuperclass();
-            if (superclass != null)
-                try {
-                    final Method m = getMethod0(superclass, name, args, false);
-                    if (m != null)
-                        return m;
-                } catch (RuntimeException ignored) {
-                    // Ignore compatibility or accessibility failures while probing superclasses.
-                }
+            if (superclass != null) {
+                final Method m = getMethod0(superclass, name, args, false);
+                if (m != null)
+                    return m;
+            }
             if (first)
                 throw new AssertionError(e);
             return null;
