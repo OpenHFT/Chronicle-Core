@@ -32,9 +32,20 @@ public class MemoryAegisTest extends CoreTestCommon {
     }
 
     @Test
-    public void addressRangeRejectsWraparound() {
-        assertAssertionError("native range wraps",
-                () -> MemoryAegis.assertAddressRange(Long.MAX_VALUE - 1, 4));
+    public void addressRangeAcceptsConfiguredLowerBound() {
+        assertTrue(MemoryAegis.assertAddressRange(NativeAddressSpace.minAddress(), 1));
+    }
+
+    @Test
+    public void addressRangeRejectsReservedLowAddressSpace() {
+        assertAssertionError("address must be >=",
+                () -> MemoryAegis.assertAddressRange(NativeAddressSpace.minAddress() - 1, 1));
+    }
+
+    @Test
+    public void addressRangeRejectsConfiguredUpperBoundOverflow() {
+        assertAssertionError("configured address space",
+                () -> MemoryAegis.assertAddressRange(NativeAddressSpace.maxAddressInclusive(), 2));
     }
 
     @Test
@@ -44,28 +55,30 @@ public class MemoryAegisTest extends CoreTestCommon {
     }
 
     @Test
-    public void objectOrAddressRangeAcceptsNativeWhenObjectNull() {
-        assertTrue(MemoryAegis.assertObjectOrAddressRange(null, 64, Long.BYTES));
+    public void objectRangeRejectsConfiguredUpperBoundOverflow() {
+        assertAssertionError("configured address space",
+                () -> MemoryAegis.assertObjectRange(new Object(), NativeAddressSpace.maxAddressInclusive(), 2));
     }
 
     @Test
-    public void objectOrAddressRangeRejectsWrappedNativeRange() {
-        assertAssertionError("native range wraps",
-                () -> MemoryAegis.assertObjectOrAddressRange(null, Long.MAX_VALUE - 1, 4));
+    public void objectOrAddressRangeAcceptsNativeWhenObjectNull() {
+        assertTrue(MemoryAegis.assertObjectOrAddressRange(null, NativeAddressSpace.minAddress(), Long.BYTES));
+    }
+
+    @Test
+    public void objectOrAddressRangeRejectsConfiguredUpperBoundOverflow() {
+        assertAssertionError("configured address space",
+                () -> MemoryAegis.assertObjectOrAddressRange(null, NativeAddressSpace.maxAddressInclusive(), 2));
     }
 
     private static void assertAssertionError(final String messagePart,
-                                             final ThrowingRunnable action) {
+                                             final Runnable action) {
         try {
             action.run();
             fail("Expected AssertionError");
         } catch (AssertionError expected) {
-            assertTrue(expected.getMessage().contains(messagePart));
+            assertTrue("expected: " + expected.getMessage() + " needed: " + messagePart,
+                    expected.getMessage().contains(messagePart));
         }
-    }
-
-    @FunctionalInterface
-    private interface ThrowingRunnable {
-        void run();
     }
 }
