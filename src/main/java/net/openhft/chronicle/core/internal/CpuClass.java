@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.internal;
 
+import net.openhft.chronicle.core.io.IOTools;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 public final class CpuClass {
     static final String CPU_MODEL;
@@ -27,31 +29,36 @@ public final class CpuClass {
         try {
             final Path path = Paths.get("/proc/cpuinfo");
             if (Files.isReadable(path)) {
-                model = Files.lines(path)
-                        .filter(line -> line.startsWith("model name"))
-                        .map(removingTag())
-                        .findFirst().orElse(model);
+                try (Stream<String> lines = Files.lines(path)) {
+                    model = lines
+                            .filter(line -> line.startsWith("model name"))
+                            .map(removingTag())
+                            .findFirst().orElse(model);
+                }
             } else if (Bootstrap.IS_WIN) {
                 String cmd = "wmic cpu get name";
                 Process process = new ProcessBuilder(cmd.split(" "))
                         .redirectErrorStream(true)
                         .start();
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                    model = reader.lines()
-                            .map(String::trim)
-                            .filter(s -> !"Name".equals(s) && !s.isEmpty())
-                            .findFirst().orElse(model);
-                }
                 try {
-                    int ret = process.waitFor();
-                    if (ret != 0)
-                        logger.warn(PROCESS + cmd + " returned " + ret);
-                } catch (InterruptedException e) {
-                    logger.warn(PROCESS + cmd + " waitFor threw ", e);
-                    // Restore the interrupt state...
-                    Thread.currentThread().interrupt();
+                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                        model = reader.lines()
+                                .map(String::trim)
+                                .filter(s -> !"Name".equals(s) && !s.isEmpty())
+                                .findFirst().orElse(model);
+                    }
+                    try {
+                        int ret = process.waitFor();
+                        if (ret != 0)
+                            logger.warn(PROCESS + cmd + " returned " + ret);
+                    } catch (InterruptedException e) {
+                        logger.warn(PROCESS + cmd + " waitFor threw ", e);
+                        // Restore the interrupt state...
+                        Thread.currentThread().interrupt();
+                    }
+                } finally {
+                    IOTools.destroyProcess(process);
                 }
-                process.destroy();
 
             } else if (Bootstrap.IS_MAC) {
 
@@ -75,7 +82,7 @@ public final class CpuClass {
                     // Restore the interrupt state...
                     Thread.currentThread().interrupt();
                 }
-                process.destroy();
+                IOTools.destroyProcess(process);
 
             }
 

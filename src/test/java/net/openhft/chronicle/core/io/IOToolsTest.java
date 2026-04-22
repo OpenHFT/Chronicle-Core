@@ -12,9 +12,11 @@ import org.junit.Assume;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -25,6 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.stream.IntStream;
 
@@ -122,6 +125,32 @@ public class IOToolsTest extends CoreTestCommon {
         byte[] bytes = IOTools.readAsBytes(bais);
 
         assertArrayEquals(testData.getBytes(), bytes);
+    }
+
+    @Test
+    public void destroyProcessWaitsBeforeDestroying() {
+        StubProcess process = new StubProcess(false);
+
+        IOTools.destroyProcess(process);
+
+        assertTrue(process.waitForCalled);
+        assertTrue(process.destroyCalled);
+    }
+
+    @Test
+    public void destroyProcessRestoresInterruptStatus() {
+        StubProcess process = new StubProcess(true);
+
+        assertFalse(Thread.currentThread().isInterrupted());
+        try {
+            IOTools.destroyProcess(process);
+
+            assertTrue(process.waitForCalled);
+            assertTrue(process.destroyCalled);
+            assertTrue(Thread.currentThread().isInterrupted());
+        } finally {
+            Thread.interrupted();
+        }
     }
 
     @Test
@@ -417,6 +446,54 @@ public class IOToolsTest extends CoreTestCommon {
         } finally {
             s2.close();
             sc.close();
+        }
+    }
+
+    private static final class StubProcess extends Process {
+        private final boolean interruptOnWait;
+        private boolean waitForCalled;
+        private boolean destroyCalled;
+
+        private StubProcess(boolean interruptOnWait) {
+            this.interruptOnWait = interruptOnWait;
+        }
+
+        @Override
+        public OutputStream getOutputStream() {
+            return new ByteArrayOutputStream();
+        }
+
+        @Override
+        public InputStream getInputStream() {
+            return new ByteArrayInputStream(new byte[0]);
+        }
+
+        @Override
+        public InputStream getErrorStream() {
+            return new ByteArrayInputStream(new byte[0]);
+        }
+
+        @Override
+        public int waitFor() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean waitFor(long timeout, TimeUnit unit) throws InterruptedException {
+            waitForCalled = true;
+            if (interruptOnWait)
+                throw new InterruptedException("interrupted for test");
+            return false;
+        }
+
+        @Override
+        public int exitValue() {
+            throw new IllegalThreadStateException("process still running");
+        }
+
+        @Override
+        public void destroy() {
+            destroyCalled = true;
         }
     }
 }

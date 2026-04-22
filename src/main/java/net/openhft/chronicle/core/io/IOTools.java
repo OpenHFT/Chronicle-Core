@@ -22,6 +22,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.file.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import java.util.zip.GZIPInputStream;
@@ -310,7 +311,16 @@ public final class IOTools {
     public static InputStream open(URL url) throws IOException {
         final InputStream in = url.openStream();
         if (url.getFile().endsWith(".gz")) {
-            return new GZIPInputStream(in);
+            try {
+                return new GZIPInputStream(in);
+            } catch (IOException ioe) {
+                try {
+                    in.close();
+                } catch (IOException ioe2) {
+                    ioe.addSuppressed(ioe2);
+                }
+                throw ioe;
+            }
         }
         return in;
     }
@@ -329,8 +339,8 @@ public final class IOTools {
      */
     public static byte[] readFile(Class<?> clazz, @NotNull String name) throws IOException {
         URL url = urlFor(clazz, name);
+        // readAsBytes closes the stream
         InputStream is = open(url);
-
         return readAsBytes(is);
     }
 
@@ -520,6 +530,31 @@ public final class IOTools {
             closeQuietly(sc);
             closeQuietly(s2);
         };
+    }
+
+    /**
+     * Best-effort cleanup of a child {@link Process}: waits up to one second
+     * for the process to exit, then calls {@link Process#destroy()}. Intended
+     * for {@code finally}-block use after the caller has drained stdout; the
+     * {@code destroy()} step still runs even when the wait times out or is
+     * interrupted, so the child is not left behind.
+     *
+     * <p>This helper does not escalate to {@link Process#destroyForcibly()} if
+     * the child ignores the termination signal, and it does not report the
+     * exit code. Callers that need either should handle them directly.</p>
+     *
+     * <p>If the current thread is interrupted while waiting, the interrupt
+     * flag is restored before {@code destroy()} is invoked.</p>
+     *
+     * @param process the child process to tear down; must not be {@code null}
+     */
+    public static void destroyProcess(@NotNull Process process) {
+        try {
+            process.waitFor(1, TimeUnit.SECONDS);
+        } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+        }
+        process.destroy();
     }
 
     private static final class Language {

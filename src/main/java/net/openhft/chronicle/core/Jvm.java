@@ -8,6 +8,7 @@ import net.openhft.chronicle.core.internal.*;
 import net.openhft.chronicle.core.internal.Bootstrap;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
 import net.openhft.chronicle.core.internal.util.MapUtil;
+import net.openhft.chronicle.core.io.IOTools;
 import net.openhft.chronicle.core.onoes.*;
 import net.openhft.chronicle.core.util.ClassMetrics;
 import net.openhft.chronicle.core.util.ObjectUtils;
@@ -1336,19 +1337,21 @@ public final class Jvm {
     private static boolean isProcessAlive0(final long pid, final String command) {
 
         try {
-            InputStreamReader isReader = new InputStreamReader(
-                    getRuntime().exec(command).getInputStream());
-
-            final BufferedReader bReader = new BufferedReader(isReader);
-            String strLine;
-            while ((strLine = bReader.readLine()) != null) {
-                if (strLine.contains(" " + pid + " ") || strLine.startsWith(pid + " ")) {
-                    return true;
+            Process exec = getRuntime().exec(command);
+            try (InputStreamReader isReader = new InputStreamReader(exec.getInputStream());
+                 BufferedReader bReader = new BufferedReader(isReader)) {
+                String strLine;
+                while ((strLine = bReader.readLine()) != null) {
+                    if (strLine.contains(" " + pid + " ") || strLine.startsWith(pid + " ")) {
+                        return true;
+                    }
                 }
-            }
 
-            return false;
-        } catch (Exception ex) {
+                return false;
+            } finally {
+                IOTools.destroyProcess(exec);
+            }
+        } catch (IOException ex) {
             return true;
         }
     }
