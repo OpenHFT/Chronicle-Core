@@ -188,7 +188,6 @@ public class OSTest extends CoreTestCommon {
 
     @Test
     public void getHostname() throws IOException {
-        System.out.println("exec hostname: " + OS.HostnameHolder.execHostname());
         final String hostName = OS.getHostName();
         System.out.println("hostname: " + hostName);
         assertNotNull(hostName);

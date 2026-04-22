@@ -24,6 +24,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.util.Scanner;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -753,22 +755,10 @@ public final class OS {
                 return InetAddress.getLocalHost().getHostName();
             } catch (Throwable e) {
                 try {
-                    return execHostname();
+                    return new String(Files.readAllBytes(Paths.get("/etc/hostname"))).trim();
                 } catch (IOException ioe) {
                     return "localhost";
                 }
-            }
-        }
-
-        @SuppressWarnings({"deprecation", "RedundantSuppression"})
-        static String execHostname() throws IOException {
-            Process exec = Runtime.getRuntime().exec("hostname");
-            try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(
-                            exec.getInputStream()))) {
-                return br.readLine();
-            } finally {
-                IOTools.destroyProcess(exec);
             }
         }
 
