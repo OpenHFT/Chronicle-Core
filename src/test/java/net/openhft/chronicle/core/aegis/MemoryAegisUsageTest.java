@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
  * has already been wired to {@link MemoryAegis}.</p>
  */
 @DisplayName("MemoryAegis canonical `assert SKIP_ASSERTIONS || ...` usage")
-public class MemoryAegisUsageTest {
+class MemoryAegisUsageTest {
 
     private static final Memory MEMORY = OS.memory();
 
@@ -47,7 +47,7 @@ public class MemoryAegisUsageTest {
 
     @Test
     @DisplayName("primitive read at a native address uses assertAddressRange with TYPE.BYTES")
-    public void demonstratesAddressRangePrimitiveRead() {
+    void demonstratesAddressRangePrimitiveRead() {
         final long address = MEMORY.allocate(Long.BYTES);
         try {
             MEMORY.writeLong(address, 0x0102_0304_0506_0708L);
@@ -60,7 +60,7 @@ public class MemoryAegisUsageTest {
 
     @Test
     @DisplayName("on-heap byte-array slice uses assertByteArrayRange with TYPE.BYTES")
-    public void demonstratesByteArrayRangePrimitiveWrite() {
+    void demonstratesByteArrayRangePrimitiveWrite() {
         final byte[] bytes = new byte[16];
         final long baseOffset = MEMORY.arrayBaseOffset(byte[].class);
 
@@ -75,7 +75,7 @@ public class MemoryAegisUsageTest {
 
     @Test
     @DisplayName("native-to-native copy guards source and destination independently")
-    public void demonstratesTwoAssertAddressRangeCalls() {
+    void demonstratesTwoAssertAddressRangeCalls() {
         final long from = MEMORY.allocate(Long.BYTES);
         final long to = MEMORY.allocate(Long.BYTES);
         try {
@@ -94,7 +94,7 @@ public class MemoryAegisUsageTest {
 
     @Test
     @DisplayName("Unsafe-style access inlines the on-heap / off-heap dispatch at the call site")
-    public void demonstratesObjectOrAddressRangeDispatch() {
+    void demonstratesObjectOrAddressRangeDispatch() {
         final ByteFieldHolder onHeap = new ByteFieldHolder();
         final long fieldOffset = UnsafeMemory.unsafeObjectFieldOffset(
                 Jvm.getField(ByteFieldHolder.class, "value"));
@@ -112,7 +112,7 @@ public class MemoryAegisUsageTest {
 
     @Test
     @DisplayName("assertion guards still fire under hostile inputs when assertions are enabled")
-    public void sampleHelpersStillRejectBadInputs() {
+    void sampleHelpersStillRejectBadInputs() {
         // Passing an address below the reserved lower bound must still trip
         // the assertion when the idiom is active.
         assertThrows(AssertionError.class,
