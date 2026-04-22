@@ -20,14 +20,14 @@ import java.lang.annotation.Target;
  * such as {@code MemoryAegis.assertAddressRange(...)} when a concrete access
  * width or slice length is known.</p>
  *
- * <pre>{@code
- * @Address long address;
+ * <pre>
+ * {@code @Address} long address;
  *
- * int readInt(@Address long address) {
+ * int readInt({@code @Address} long address) {
  *     assert SKIP_ASSERTIONS || MemoryAegis.assertAddressRange(address, Integer.BYTES);
  *     return ...;
  * }
- * }</pre>
+ * </pre>
  *
  * @see NonNegative
  */
