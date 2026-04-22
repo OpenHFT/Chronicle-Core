@@ -45,7 +45,8 @@ import org.jetbrains.annotations.NotNull;
  * <h2>Usage patterns</h2>
  *
  * <p>The assertions return {@code true} so they chain cleanly into the
- * {@code assert SKIP_ASSERTIONS || ...} idiom; if assertions are disabled
+ * {@code assert SKIP_ASSERTIONS || ...} idiom; if SKIP_ASSERTIONS is true
+ * the whole line is compiled away and doesn't add to bytecode. if assertions are disabled
  * (the normal production posture) the JIT elides the whole right-hand side.
  * The following examples show the intended adoption pattern for low-level
  * callers such as {@code UnsafeMemory} and helpers built on {@code OS.memory()}.
