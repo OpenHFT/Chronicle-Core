@@ -8,6 +8,7 @@ import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.cleaner.impl.CleanerTestUtil;
 import net.openhft.chronicle.core.util.Time;
+import net.openhft.chronicle.testframework.process.JavaProcessBuilder;
 import org.junit.Assume;
 import org.junit.Test;
 
@@ -27,6 +28,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAccumulator;
 import java.util.stream.IntStream;
@@ -128,28 +132,87 @@ public class IOToolsTest extends CoreTestCommon {
     }
 
     @Test
-    public void destroyProcessWaitsBeforeDestroying() {
-        StubProcess process = new StubProcess(false);
+    public void destroyProcessWaitsThenDestroysWhenTimeoutElapses() {
+        StubProcess process = new StubProcess(StubProcess.Mode.TIMED_OUT);
 
         IOTools.destroyProcess(process);
 
-        assertTrue(process.waitForCalled);
-        assertTrue(process.destroyCalled);
+        assertEventsAre(process, "waitFor(1, SECONDS)", "destroy");
     }
 
     @Test
-    public void destroyProcessRestoresInterruptStatus() {
-        StubProcess process = new StubProcess(true);
+    public void destroyProcessStillDestroysAfterNaturalExit() {
+        // destroy() is a no-op on an already-exited Process per JDK semantics;
+        // this test pins the current "always call destroy()" behaviour so any
+        // future refactor that skips destroy() after a natural exit is deliberate.
+        StubProcess process = new StubProcess(StubProcess.Mode.EXITED);
 
-        assertFalse(Thread.currentThread().isInterrupted());
+        IOTools.destroyProcess(process);
+
+        assertEventsAre(process, "waitFor(1, SECONDS)", "destroy");
+    }
+
+    @Test
+    public void destroyProcessRestoresInterruptStatusAndStillDestroys() {
+        StubProcess process = new StubProcess(StubProcess.Mode.INTERRUPTED);
+
+        assertFalse("pre-condition: current thread is not already interrupted",
+                Thread.currentThread().isInterrupted());
         try {
             IOTools.destroyProcess(process);
 
-            assertTrue(process.waitForCalled);
-            assertTrue(process.destroyCalled);
-            assertTrue(Thread.currentThread().isInterrupted());
+            assertEventsAre(process, "waitFor(1, SECONDS)", "destroy");
+            assertTrue("interrupt flag must be restored on return",
+                    Thread.currentThread().isInterrupted());
         } finally {
+            // Clear the interrupt flag so it does not leak into later tests on
+            // this thread.
             Thread.interrupted();
+        }
+    }
+
+    @Test
+    public void destroyProcessIsSafeToCallRepeatedly() {
+        StubProcess process = new StubProcess(StubProcess.Mode.EXITED);
+
+        IOTools.destroyProcess(process);
+        IOTools.destroyProcess(process);
+
+        assertEventsAre(process,
+                "waitFor(1, SECONDS)", "destroy",
+                "waitFor(1, SECONDS)", "destroy");
+    }
+
+    private static void assertEventsAre(StubProcess process, String... expected) {
+        assertEquals(Arrays.asList(expected), process.events);
+    }
+
+    @Test
+    public void destroyProcessTerminatesRealRunningChild() throws InterruptedException {
+        final Process child = JavaProcessBuilder.create(SleepForever.class).start();
+        try {
+            assertTrue("sanity: child should still be alive before destroyProcess",
+                    child.isAlive());
+
+            IOTools.destroyProcess(child);
+
+            // destroyProcess sends SIGTERM and returns without waiting further;
+            // give the child a generous window to actually exit.
+            assertTrue("child must exit within 5s of destroyProcess",
+                    child.waitFor(5, TimeUnit.SECONDS));
+        } finally {
+            if (child.isAlive())
+                child.destroyForcibly();
+        }
+    }
+
+    /**
+     * Entry point spawned by {@link #destroyProcessTerminatesRealRunningChild}.
+     * Blocks on stdin so the child only exits when terminated by its parent.
+     */
+    public static final class SleepForever {
+        public static void main(String[] args) throws IOException {
+            int ignored = System.in.read();
         }
     }
 
@@ -449,13 +512,32 @@ public class IOToolsTest extends CoreTestCommon {
         }
     }
 
+    /**
+     * Recording fixture for {@link IOTools#destroyProcess(Process)} tests.
+     *
+     * <p>Captures every {@code waitFor}/{@code destroy} call (with arguments)
+     * into an ordered {@link #events} list so tests can assert both which
+     * methods ran and in what order. The three {@link Mode}s cover the three
+     * paths the helper must handle: a child that refuses to exit inside the
+     * wait window, a child that has already exited, and a wait that is
+     * interrupted before it can complete.</p>
+     */
     private static final class StubProcess extends Process {
-        private final boolean interruptOnWait;
-        private boolean waitForCalled;
-        private boolean destroyCalled;
 
-        private StubProcess(boolean interruptOnWait) {
-            this.interruptOnWait = interruptOnWait;
+        enum Mode {
+            /** {@code waitFor} returns {@code false} (wait window elapsed). */
+            TIMED_OUT,
+            /** {@code waitFor} returns {@code true} (child exited naturally). */
+            EXITED,
+            /** {@code waitFor} throws {@link InterruptedException}. */
+            INTERRUPTED
+        }
+
+        private final Mode mode;
+        private final List<String> events = new ArrayList<>();
+
+        private StubProcess(Mode mode) {
+            this.mode = mode;
         }
 
         @Override
@@ -475,15 +557,22 @@ public class IOToolsTest extends CoreTestCommon {
 
         @Override
         public int waitFor() {
-            throw new UnsupportedOperationException();
+            throw new UnsupportedOperationException(
+                    "destroyProcess must use the timed waitFor overload");
         }
 
         @Override
         public boolean waitFor(long timeout, TimeUnit unit) throws InterruptedException {
-            waitForCalled = true;
-            if (interruptOnWait)
-                throw new InterruptedException("interrupted for test");
-            return false;
+            events.add("waitFor(" + timeout + ", " + unit.name() + ")");
+            switch (mode) {
+                case EXITED:
+                    return true;
+                case INTERRUPTED:
+                    throw new InterruptedException("interrupted for test");
+                case TIMED_OUT:
+                default:
+                    return false;
+            }
         }
 
         @Override
@@ -493,7 +582,7 @@ public class IOToolsTest extends CoreTestCommon {
 
         @Override
         public void destroy() {
-            destroyCalled = true;
+            events.add("destroy");
         }
     }
 }
