@@ -115,8 +115,9 @@ class MemoryAegisUsageTest {
     void sampleHelpersStillRejectBadInputs() {
         // Passing an address below the reserved lower bound must still trip
         // the assertion when the idiom is active.
+        long minAddress = NativeAddressSpace.minAddress();
         assertThrows(AssertionError.class,
-                () -> sampleUnsafeGetLong(NativeAddressSpace.minAddress() - 1));
+                () -> sampleUnsafeGetLong(minAddress - 1));
         assertThrows(AssertionError.class,
                 () -> samplePutInt(new byte[4], 2, 0));
     }
