@@ -103,6 +103,7 @@ public final class ObjectUtils {
 
     static final ClassLocal<ThrowingFunction<String, Object, Exception>> PARSER_CL = ClassLocal.withInitial(new ConversionFunction());
     static final ClassLocal<Map<String, Enum<?>>> CASE_IGNORE_LOOKUP = ClassLocal.withInitial(ObjectUtils::caseIgnoreLookup);
+    // CSSetAccessibleEscalation REVIEW static final ClassValue<Method> READ_RESOLVE = ClassLocal.withInitial(c -> { because this access override still needs either encapsulation-preserving access or an explicit reviewed runtime-access contract.
     static final ClassValue<Method> READ_RESOLVE = ClassLocal.withInitial(c -> {
         try {
             // CSReflectiveMethodLookup keep this readResolve lookup here because deserialization support intentionally discovers a declared readResolve hook when one exists.
@@ -616,10 +617,12 @@ public final class ObjectUtils {
     @Nullable
     public static Object newInstanceOrNull(final Class<?> type) {
         try {
+            // CSResolvedTypeInstantiation REVIEW keep newInstance here because this type-materialization path still needs an explicit reviewed type-resolution contract.
             return newInstance(type);
             // CSWarnAndContinue keep this degraded fallback because a resolved supplier may produce a value that cannot be cast to the requested type after alias rewiring, and the caller accepts null in that single case.
         } catch (ClassCastException e) {
             Jvm.warn().on(ObjectUtils.class, "Failed to create type", e);
+            // CSWarnReturnNull REVIEW keep /** here because this fallback still needs an explicit reviewed degraded-outcome contract.
             return null;
         }
     }

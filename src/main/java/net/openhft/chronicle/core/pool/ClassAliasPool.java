@@ -103,6 +103,7 @@ public class ClassAliasPool implements ClassLookup {
         addAlias(String[].class, "String[]");
         Class<?>[] classes = {boolean.class, byte.class, short.class, char.class, int.class, long.class, float.class, double.class};
         for (@NotNull Class<?> prim : classes)
+            // CSClassAliasIntakeUnchecked REVIEW keep addAlias here because this type-materialization path still needs an explicit reviewed type-resolution contract.
             addAlias(Array.newInstance(prim, 0).getClass(), prim.getName() + "[]");
         // byte[] gets in before camel cased Byte[]
         addAlias(Byte[].class, "Byte[]");
@@ -214,6 +215,7 @@ public class ClassAliasPool implements ClassLookup {
             return Class.forName(name, true, classLoader);
         } catch (ClassNotFoundException e) {
             if (parent != null)
+                // CSClassAliasIntakeUnchecked REVIEW keep parent.forName here because this type-materialization path still needs an explicit reviewed type-resolution contract.
                 return parent.forName(name);
             throw new ClassNotFoundRuntimeException(e);
         }

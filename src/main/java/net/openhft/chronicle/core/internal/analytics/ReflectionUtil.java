@@ -41,6 +41,7 @@ public final class ReflectionUtil {
             final Method method = methodOrThrow(ANALYTICS_NAME, "builder", String.class, String.class);
             return method.invoke(null, measurementId, apiSecret);
         } catch (ReflectiveOperationException | IllegalArgumentException e) {
+            // CSCheckedSwallowThroughRethrow REVIEW keep Jvm.rethrow here because this fallback still needs an explicit reviewed degraded-outcome contract.
             throw Jvm.rethrow(e);
         }
     }
@@ -56,6 +57,7 @@ public final class ReflectionUtil {
             final Class<?> analyticsClass = Class.forName(className);
             return analyticsClass.getMethod(methodName, parameterTypes);
         } catch (ReflectiveOperationException e) {
+            // CSCheckedSwallowThroughRethrow REVIEW keep Jvm.rethrow here because this fallback still needs an explicit reviewed degraded-outcome contract.
             throw Jvm.rethrow(e);
         }
     }
@@ -70,6 +72,7 @@ public final class ReflectionUtil {
         try {
             return method.invoke(target, params);
         } catch (ReflectiveOperationException | IllegalArgumentException e) {
+            // CSCheckedSwallowThroughRethrow REVIEW keep Jvm.rethrow here because this fallback still needs an explicit reviewed degraded-outcome contract.
             throw Jvm.rethrow(e);
         }
     }

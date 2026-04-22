@@ -64,6 +64,7 @@ public final class ReflectionBasedByteBufferCleanerService implements ByteBuffer
                 final Object cleaner = CLEANER_METHOD.invoke(DirectBufferUtil.directBufferClass().cast(buffer));
                 CLEAN_METHOD.invoke(cleaner);
             } catch (Throwable throwable) {
+                // CSCheckedSwallowThroughRethrow REVIEW keep Jvm.rethrow here because this fallback still needs an explicit reviewed degraded-outcome contract.
                 throw Jvm.rethrow(throwable);
             }
         }

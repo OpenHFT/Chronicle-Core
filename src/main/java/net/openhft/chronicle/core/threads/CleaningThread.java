@@ -187,6 +187,7 @@ public class CleaningThread extends Thread {
         // Reset thread affinity if required
         if (Affinity.getAffinity().cardinality() == 1) {
             Jvm.debug().on(getClass(), "Resetting affinity from " + Affinity.getAffinity() + " to " + AffinityLock.BASE_AFFINITY);
+            // CSAffinityIdUnvalidated REVIEW keep Affinity.setAffinity here because this lifecycle or ownership exception still needs an explicit reviewed lifecycle contract.
             Affinity.setAffinity(AffinityLock.BASE_AFFINITY);
         }
 

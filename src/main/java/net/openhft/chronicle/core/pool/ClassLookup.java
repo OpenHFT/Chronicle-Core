@@ -112,6 +112,7 @@ public interface ClassLookup {
     @SuppressWarnings("CSAliasOrClassResolve")
     default CharSequence applyAlias(CharSequence name) {
         try {
+            // CSClassAliasIntakeUnchecked REVIEW keep nameFor here because this type-materialization path still needs an explicit reviewed type-resolution contract.
             return nameFor(forName(name));
         } catch (ClassNotFoundRuntimeException cnfe) {
             return name;

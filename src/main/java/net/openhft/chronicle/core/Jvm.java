@@ -453,6 +453,7 @@ public final class Jvm {
             if (onSpinWaitMH != null)
                 onSpinWaitMH.invokeExact();
         } catch (Throwable throwable) {
+            // CSCheckedSwallowThroughRethrow REVIEW keep Jvm.rethrow here because this fallback still needs an explicit reviewed degraded-outcome contract.
             Jvm.rethrow(throwable);
         }
     }

@@ -28,6 +28,7 @@ public final class PackageNameUtil {
             try {
                 Method getPackageNameMethod = Class.class.getMethod("getPackageName");
                 MethodHandle methodHandle = MethodHandles.lookup().unreflect(getPackageNameMethod);
+                // CSCheckedSwallowThroughRethrow REVIEW packageNameFunction = clazz -> { because this rethrow converts a checked cause into an unchecked wrapper and still needs either a declared `throws` at the enclosing method or an explicit reviewed note on why no local cleanup is performed.
                 packageNameFunction = clazz -> {
                     try {
                         return (String) methodHandle.invokeExact(clazz);

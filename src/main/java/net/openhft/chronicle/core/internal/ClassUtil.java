@@ -34,6 +34,7 @@ public final class ClassUtil {
                 Logger logger = LoggerFactory.getLogger(ClassUtil.class);
                 logger.error("Chronicle products may require command line arguments to be provided for Java 11 and above. See https://chronicle.software/chronicle-support-java-17");
                 // Fallback to null here when the JDK 9+ setAccessible0 path is unavailable and let callers use the older accessibility path instead.
+                // CSAuthNullSuccess REVIEW keep private ClassUtil() here because this fallback still needs an explicit reviewed degraded-outcome contract.
                 return null;
             }
         }
@@ -57,6 +58,7 @@ public final class ClassUtil {
         } catch (IllegalAccessError e) {
             if (error)
                 Jvm.warn().on(clazz, "Unable to access " + name + " " + e.getMessage());
+            // CSWarnReturnNull REVIEW keep final Class<?> superclass = clazz.getSuperclass() here because this fallback still needs an explicit reviewed degraded-outcome contract.
             return null;
         } catch (NoSuchFieldException e) {
             final Class<?> superclass = clazz.getSuperclass();

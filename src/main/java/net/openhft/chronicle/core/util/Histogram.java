@@ -403,6 +403,7 @@ public class Histogram implements NanoSampler {
     private String p(double v) {
         double v2 = v * 100 / (1 << fractionBits);
         // This lock protects the non thread safe F1, F2, F3 DecimalFormat
+        // REVIEW TASK CQSingleThreadedConsistency: make the single-threaded ownership or synchronization contract explicit in code.
         synchronized (Histogram.class) {
             return v2 < 1 ? F3.format(v) :
                     v2 < 10 ? F2.format(v) :

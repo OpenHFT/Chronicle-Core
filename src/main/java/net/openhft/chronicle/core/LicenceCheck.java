@@ -66,6 +66,7 @@ public interface LicenceCheck {
         if (key == null || !key.contains(product + '.')) {
             String expiryDateFile = product + ".expiry-date";
             try {
+                // CSIOToolsInputPath REVIEW touch String here because this filesystem boundary still needs an explicit reviewed path-handling contract.
                 String source = new String(IOTools.readFile(LicenceCheck.class, expiryDateFile));
                 LocalDate expiryDate = LocalDate.parse(source.trim());
                 long days = ChronoUnit.DAYS.between(LocalDate.now(), expiryDate);
@@ -73,6 +74,7 @@ public interface LicenceCheck {
                     throw Jvm.rethrow(new TimeLimitExceededException("Failed to read '" + expiryDateFile));
                 licenceExpiryDetails.accept(days, null);
             } catch (Throwable t) {
+                // CSCheckedSwallowThroughRethrow REVIEW keep Jvm.rethrow here because this fallback still needs an explicit reviewed degraded-outcome contract.
                 throw Jvm.rethrow(new TimeLimitExceededException("Failed to read expiry date, from '" + expiryDateFile + "'"));
             }
         } else {
