@@ -9,6 +9,7 @@ import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.UnsafeMemory;
 import net.openhft.chronicle.core.annotation.Address;
 import net.openhft.chronicle.core.annotation.NonNegative;
+import net.openhft.chronicle.core.annotation.UsedViaReflection;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -142,8 +143,8 @@ class MemoryAegisUsageTest {
      * offset.
      */
     private static void samplePutInt(final byte[] bytes,
-                                     @NonNegative final int offset,
-                                     final int value) {
+                                     final @NonNegative int offset,
+                                     final @NonNegative int value) {
         assert SKIP_ASSERTIONS || MemoryAegis.assertByteArrayRange(bytes, offset, Integer.BYTES);
         MEMORY.writeInt(bytes, MEMORY.arrayBaseOffset(byte[].class) + offset, value);
     }
@@ -153,9 +154,9 @@ class MemoryAegisUsageTest {
      * uses two separate assertions because {@code from} and {@code to} are
      * independent native-address ranges.
      */
-    private static void sampleCopyMemory(@Address final long from,
-                                         @Address final long to,
-                                         @NonNegative final int length) {
+    private static void sampleCopyMemory(final @Address long from,
+                                         final @Address long to,
+                                         final @NonNegative int length) {
         assert SKIP_ASSERTIONS || MemoryAegis.assertAddressRange(from, length);
         assert SKIP_ASSERTIONS || MemoryAegis.assertAddressRange(to, length);
         MEMORY.copyMemory(from, to, (long) length);
@@ -172,7 +173,7 @@ class MemoryAegisUsageTest {
      * reader and static analysis.
      */
     private static void sampleUnsafePutByte(final Object obj,
-                                               @NonNegative final long offset) {
+                                            final @NonNegative long offset) {
         assert SKIP_ASSERTIONS || (obj == null
                 ? MemoryAegis.assertAddressRange(offset, Byte.BYTES)
                 : MemoryAegis.assertObjectRange(obj, offset, Byte.BYTES));
@@ -184,6 +185,7 @@ class MemoryAegisUsageTest {
     }
 
     private static final class ByteFieldHolder {
+        @UsedViaReflection
         volatile byte value;
     }
 }
