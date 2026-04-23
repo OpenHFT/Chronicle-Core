@@ -98,8 +98,9 @@ In addition to normal get and set methods, it provides atomic operations and ord
 
 [source,java]
 ----
-// Assuming LongValueImpl is a concrete implementation
-LongValue value = new LongValueImpl(); // Example from test
+// Concrete LongValue implementations are provided by sibling Chronicle modules
+// (e.g. the Values factory in chronicle-bytes, or shared-map slots in chronicle-map).
+LongValue value = ...;
 value.setValue(42L);
 long current = value.getValue();
 boolean swapped = value.compareAndSwapValue(42L, 100L);

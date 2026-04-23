@@ -14,9 +14,7 @@ class ReflectionUtilTest {
 
     @Test
     void analyticsPresentShouldReturnTrueOrFalse() {
-        // This test depends on the presence or absence of the analytics class in the classpath
-        boolean result = ReflectionUtil.analyticsPresent();
-        assertTrue(result || !result, "analyticsPresent should return true or false");
+        assertDoesNotThrow(ReflectionUtil::analyticsPresent);
     }
 
     @Test

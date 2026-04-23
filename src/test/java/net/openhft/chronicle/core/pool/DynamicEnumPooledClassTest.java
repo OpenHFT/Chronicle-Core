@@ -5,15 +5,15 @@ package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Maths;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class DynamicEnumPooledClassTest extends CoreTestCommon {
+class DynamicEnumPooledClassTest extends CoreTestCommon {
     @Test
-    public void additionalEnum() {
+    void additionalEnum() {
         EnumCache<YesNo> yesNoEnumCache = EnumCache.of(YesNo.class);
         assertEquals(YesNo.Yes, yesNoEnumCache.valueOf("Yes"));
         assertEquals(YesNo.No, yesNoEnumCache.valueOf("No"));
@@ -39,7 +39,7 @@ public class DynamicEnumPooledClassTest extends CoreTestCommon {
     }
 
     @Test
-    public void testInitialSize() throws IllegalArgumentException {
+    void testInitialSize() throws IllegalArgumentException {
         EnumCache<EcnDynamic> ecnEnumCache = EnumCache.of(EcnDynamic.class);
         assertEquals(32, Maths.nextPower2(ecnEnumCache.size(), 1));
     }

@@ -6,17 +6,17 @@ package net.openhft.chronicle.core.io;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class AbstractCloseableTest extends CoreTestCommon {
+class AbstractCloseableTest extends CoreTestCommon {
 
     @Test
-    public void close() throws IllegalStateException {
+    void close() throws IllegalStateException {
         MyCloseable mc = new MyCloseable();
         assertFalse(mc.isClosed());
         assertEquals(0, mc.performClose);
@@ -32,16 +32,16 @@ public class AbstractCloseableTest extends CoreTestCommon {
         assertEquals(1, mc.performClose);
     }
 
-    @Test(expected = IllegalStateException.class)
-    public void throwExceptionIfClosed() throws IllegalStateException {
+    @Test
+    void throwExceptionIfClosed() throws IllegalStateException {
         MyCloseable mc = new MyCloseable();
         mc.close();
-        mc.throwExceptionIfClosed();
 
+        assertThrows(IllegalStateException.class, mc::throwExceptionIfClosed);
     }
 
     @Test
-    public void warnAndCloseIfNotClosed() {
+    void warnAndCloseIfNotClosed() {
         Jvm.setResourceTracing(true);
 
         Map<ExceptionKey, Integer> map = Jvm.recordExceptions();
@@ -63,7 +63,7 @@ public class AbstractCloseableTest extends CoreTestCommon {
     }
 
     @Test
-    public void assertCloseable() {
+    void assertCloseable() {
 
         final MyCloseable myCloseable = new MyCloseable() {
             int cnt = 0;

@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -72,7 +71,7 @@ class CleanerServiceFallbackTest {
         try {
             current.setContextClassLoader(cl);
             ByteBufferCleanerService service = CleanerServiceLocator.cleanerService();
-            assertEquals(ReflectionBasedByteBufferCleanerService.class, service.getClass());
+            assertSame(ReflectionBasedByteBufferCleanerService.class, service.getClass());
             assertSame(service, CleanerServiceLocator.cleanerService(), "Locator should cache the fallback instance");
         } finally {
             current.setContextClassLoader(previous);

@@ -9,9 +9,8 @@ import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
 
-import static org.junit.Assume.assumeTrue;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class DirectBufferUtilTest {
 
@@ -22,15 +21,18 @@ class DirectBufferUtilTest {
 
     @Test
     void directBufferClassShouldReturnCorrectClass() {
-        assertEquals(sun.nio.ch.DirectBuffer.class, DirectBufferUtil.directBufferClass(), "DirectBuffer class should be returned");
+        assertSame(sun.nio.ch.DirectBuffer.class, DirectBufferUtil.directBufferClass(), "DirectBuffer class should be returned");
     }
 
     @Test
-    void cleanIfInstanceOfDirectBufferShouldCleanDirectBuffer() {
-        assumeFalse(Jvm.isJava9Plus());
+    void cleanIfInstanceOfDirectBufferShouldFollowJvmAccessModel() {
         ByteBuffer directBuffer = ByteBuffer.allocateDirect(1024);
 
-        assertDoesNotThrow(() -> DirectBufferUtil.cleanIfInstanceOfDirectBuffer(directBuffer), "Cleaning a direct buffer should not throw an exception");
+        try {
+            DirectBufferUtil.cleanIfInstanceOfDirectBuffer(directBuffer);
+        } catch (IllegalAccessError | NoSuchMethodError e) {
+            assertTrue(Jvm.isJava9Plus(), "Only Java 9+ module access should reject DirectBuffer cleaner access or linkage");
+        }
     }
 
     @Test

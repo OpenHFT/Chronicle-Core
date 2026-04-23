@@ -9,15 +9,15 @@ import net.openhft.chronicle.core.OS;
 import net.openhft.chronicle.core.util.Histogram;
 import net.openhft.chronicle.testframework.FlakyTestRunner;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.security.SecureRandom;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class SystemTimeProviderTest extends CoreTestCommon {
+class SystemTimeProviderTest extends CoreTestCommon {
     @Test
-    public void currentTimeMicros() throws IllegalStateException {
+    void currentTimeMicros() throws IllegalStateException {
         // doCurrentTimeMicros() is very flaky so that is why we retry this operation
         for (int i = 0; i < 3; i++) {
             try {
@@ -90,7 +90,7 @@ public class SystemTimeProviderTest extends CoreTestCommon {
     }
 
     @Test
-    public void currentTime() throws IllegalStateException {
+    void currentTime() throws IllegalStateException {
         for (int i = 3; i >= 0; i--) {
             TimeProvider tp = SystemTimeProvider.INSTANCE;
             long time2 = tp.currentTimeMillis();
@@ -108,7 +108,7 @@ public class SystemTimeProviderTest extends CoreTestCommon {
     }
 
     @Test
-    public void resolution() {
+    void resolution() {
         for (int j = 0; j < 3; j++) {
             Histogram h = new Histogram(32, 10, 1);
             long last = SystemTimeProvider.INSTANCE.currentTimeNanos();

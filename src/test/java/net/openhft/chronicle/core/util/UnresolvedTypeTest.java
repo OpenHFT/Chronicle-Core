@@ -23,7 +23,7 @@ class UnresolvedTypeTest {
         String expectedTypeName = "MyType";
         Type type = UnresolvedType.of(expectedTypeName);
 
-        assertTrue(type instanceof UnresolvedType);
+        assertInstanceOf(UnresolvedType.class, type);
         assertEquals(expectedTypeName, type.getTypeName());
     }
 

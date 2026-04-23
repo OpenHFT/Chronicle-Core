@@ -6,15 +6,15 @@ package net.openhft.chronicle.core.pool;
 import net.openhft.chronicle.core.CoreTestCommon;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ParsingCacheTest extends CoreTestCommon {
+class ParsingCacheTest extends CoreTestCommon {
     @Test
-    public void intern() throws Exception {
+    void intern() {
         @NotNull ParsingCache<BigDecimal> pc = new ParsingCache<>(128, BigDecimal::new);
         @Nullable BigDecimal bd1 = pc.intern("1.234");
         @Nullable BigDecimal bd2 = pc.intern("12.234");

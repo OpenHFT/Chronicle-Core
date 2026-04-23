@@ -4,21 +4,21 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.function.Consumer;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class IgnoresEverythingTest extends CoreTestCommon {
+class IgnoresEverythingTest extends CoreTestCommon {
     @Test
-    public void test() {
-        assertTrue(Mocker.ignored(Consumer.class) instanceof IgnoresEverything);
+    void test() {
+        assertInstanceOf(IgnoresEverything.class, Mocker.ignored(Consumer.class));
     }
 
     @Test
-    public void returnsIgnored() {
-        assertTrue(Mocker.ignored(Chained.class).method1() instanceof IgnoresEverything);
+    void returnsIgnored() {
+        assertInstanceOf(IgnoresEverything.class, Mocker.ignored(Chained.class).method1());
     }
 
     interface Chained {

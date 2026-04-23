@@ -5,7 +5,7 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.HashSet;
 import java.util.List;
@@ -15,13 +15,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Any implementor of {@link ReferenceCounted} should implement a test class
  * that extends this or one of its more specific children
  */
-public abstract class ReferenceCountedContractTest extends CoreTestCommon {
+abstract class ReferenceCountedContractTest extends CoreTestCommon {
 
     /**
      * Create an instance of the {@link ReferenceCounted} under test
@@ -36,7 +36,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
     }
 
     @Test
-    public void reserveWillIncrementReferenceCount() {
+    void reserveWillIncrementReferenceCount() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         assertEquals(1, referenceCounted.refCount());
@@ -54,7 +54,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
     }
 
     @Test
-    public void reserveWillFailWhenResourceIsAlreadyReleased() {
+    void reserveWillFailWhenResourceIsAlreadyReleased() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         referenceCounted.releaseLast();
@@ -64,7 +64,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
     }
 
     @Test
-    public void reserveTransferWillNotChangeReferenceCount() {
+    void reserveTransferWillNotChangeReferenceCount() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -79,7 +79,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
     }
 
     @Test
-    public void releaseWillDecrementReferenceCount() {
+    void releaseWillDecrementReferenceCount() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         assertEquals(1, referenceCounted.refCount());
@@ -102,7 +102,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
     }
 
     @Test
-    public void releaseWillFailWhenResourceAlreadyReleased() {
+    void releaseWillFailWhenResourceAlreadyReleased() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         referenceCounted.releaseLast();
@@ -112,7 +112,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
     }
 
     @Test
-    public void releaseWillGoAllTheWayToZero() {
+    void releaseWillGoAllTheWayToZero() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         referenceCounted.release(ReferenceOwner.INIT);
@@ -120,7 +120,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
     }
 
     @Test
-    public void releaseLastWillDecrementReferenceCount() {
+    void releaseLastWillDecrementReferenceCount() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         assertEquals(1, referenceCounted.refCount());
@@ -130,7 +130,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
     }
 
     @Test
-    public void releaseLastWillReleaseThenFailWhenReferenceIsNotLast() {
+    void releaseLastWillReleaseThenFailWhenReferenceIsNotLast() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -146,7 +146,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
     }
 
     @Test
-    public void releaseLastWillFailWhenResourceAlreadyReleased() {
+    void releaseLastWillFailWhenResourceAlreadyReleased() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         referenceCounted.releaseLast();
@@ -154,7 +154,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
     }
 
     @Test
-    public void tryReserveWillReturnTrueWhenReservationWasSuccessful() {
+    void tryReserveWillReturnTrueWhenReservationWasSuccessful() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -164,7 +164,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
     }
 
     @Test
-    public void tryReserveWillReturnFalseWhenResourceIsAlreadyReleased() {
+    void tryReserveWillReturnFalseWhenResourceIsAlreadyReleased() {
         ReferenceCounted referenceCounted = createReferenceCounted();
 
         referenceCounted.releaseLast();
@@ -173,7 +173,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
     }
 
     @Test
-    public void implementationsShouldBeThreadSafe() throws InterruptedException {
+    void implementationsShouldBeThreadSafe() throws InterruptedException {
         int numThreads = Math.max(3, Math.min(6, Runtime.getRuntime().availableProcessors()));
         int numReferences = 10;
         AtomicBoolean running = new AtomicBoolean(true);
@@ -197,7 +197,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
     }
 
     @Test
-    public void shouldNotifyListenersWhenReferencesAreAddedAndRemoved() {
+    void shouldNotifyListenersWhenReferencesAreAddedAndRemoved() {
         ReferenceCounted rc = createReferenceCounted();
         assertEquals(1, rc.refCount());
         Set<ReferenceOwner> currentOwners = new HashSet<>();
@@ -251,7 +251,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
     }
 
     @Test
-    public void whenAReferenceIsAddedTheReferenceChangeListenerShouldFire() {
+    void whenAReferenceIsAddedTheReferenceChangeListenerShouldFire() {
         ReferenceCounted rc = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -265,7 +265,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
     }
 
     @Test
-    public void whenAReferenceIsRemovedTheReferenceChangeListenerShouldFire() {
+    void whenAReferenceIsRemovedTheReferenceChangeListenerShouldFire() {
         ReferenceCounted rc = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -279,7 +279,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
     }
 
     @Test
-    public void referenceChangeListenerShouldFireWhenAReferenceIsTransferred() {
+    void referenceChangeListenerShouldFireWhenAReferenceIsTransferred() {
         ReferenceCounted rc = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -295,7 +295,7 @@ public abstract class ReferenceCountedContractTest extends CoreTestCommon {
     }
 
     @Test
-    public void shouldBeAbleToAddAndRemoveListeners() {
+    void shouldBeAbleToAddAndRemoveListeners() {
         ReferenceCounted rc = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");

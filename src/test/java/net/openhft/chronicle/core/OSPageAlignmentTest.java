@@ -3,19 +3,18 @@
  */
 package net.openhft.chronicle.core;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class OSPageAlignmentTest {
+class OSPageAlignmentTest {
 
     @Test
-    public void pageAlignAlignsToCurrentPageSize() {
+    void pageAlignAlignsToCurrentPageSize() {
         int pageSize = OS.pageSize();
         long base = 123;
         long aligned = OS.pageAlign(base);
-        assertTrue("Aligned value should be >= base", aligned >= base);
+        assertTrue(aligned >= base, "Aligned value should be >= base");
         assertEquals(0L, aligned % pageSize);
 
         long large = (long) pageSize * 123456 + 7;
@@ -24,7 +23,7 @@ public class OSPageAlignmentTest {
     }
 
     @Test
-    public void defaultOsPageSizeFallsBackToSafeSizeOnWindows() {
+    void defaultOsPageSizeFallsBackToSafeSizeOnWindows() {
         int defaultSize = OS.defaultOsPageSize();
         if (OS.isWindows()) {
             assertEquals(OS.SAFE_PAGE_SIZE, defaultSize);

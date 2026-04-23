@@ -5,20 +5,19 @@ package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.internal.invariant.ints.IntCondition;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Map;
 
 import static net.openhft.chronicle.core.internal.invariant.ints.IntCondition.*;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class IntConditionTest extends CoreTestCommon {
+class IntConditionTest extends CoreTestCommon {
 
     @Test
-    public void positive() {
+    void positive() {
         test(
                 POSITIVE, NON_POSITIVE,
                 entry(-1, false),
@@ -28,7 +27,7 @@ public class IntConditionTest extends CoreTestCommon {
     }
 
     @Test
-    public void negative() {
+    void negative() {
         test(
                 NEGATIVE, NON_NEGATIVE,
                 entry(-1, true),
@@ -38,7 +37,7 @@ public class IntConditionTest extends CoreTestCommon {
     }
 
     @Test
-    public void zero() {
+    void zero() {
         test(
                 ZERO, NON_ZERO,
                 entry(-1, false),
@@ -48,7 +47,7 @@ public class IntConditionTest extends CoreTestCommon {
     }
 
     @Test
-    public void byteConvertible() {
+    void byteConvertible() {
         test(
                 BYTE_CONVERTIBLE,
                 entry(Byte.MIN_VALUE - 1, false),
@@ -60,7 +59,7 @@ public class IntConditionTest extends CoreTestCommon {
     }
 
     @Test
-    public void shortConvertible() {
+    void shortConvertible() {
         test(
                 SHORT_CONVERTIBLE,
                 entry(Short.MIN_VALUE - 1, false),
@@ -72,7 +71,7 @@ public class IntConditionTest extends CoreTestCommon {
     }
 
     @Test
-    public void evenPowerOfTwo() {
+    void evenPowerOfTwo() {
         test(
                 EVEN_POWER_OF_TWO,
                 entry(0, false),
@@ -93,8 +92,8 @@ public class IntConditionTest extends CoreTestCommon {
 
         Arrays.stream(expected)
                 .forEach(e -> {
-                    assertEquals(e.getKey() + " expected " + e.getValue(), e.getValue(), predicate.test(e.getKey()));
-                    assertNotEquals(e.getKey() + " expected " + !e.getValue(), e.getValue(), negatedPredicate.test(e.getKey()));
+                    assertEquals(e.getValue(), predicate.test(e.getKey()), e.getKey() + " expected " + e.getValue());
+                    assertNotEquals(e.getValue(), negatedPredicate.test(e.getKey()), e.getKey() + " expected " + !e.getValue());
                 });
     }
 
@@ -102,9 +101,8 @@ public class IntConditionTest extends CoreTestCommon {
                       Map.Entry<Integer, Boolean>... expected) {
 
         Arrays.stream(expected)
-                .forEach(e -> {
-                    assertEquals(e.getKey() + " expected " + e.getValue(), e.getValue(), predicate.test(e.getKey()));
-                });
+                .forEach(e ->
+                        assertEquals(e.getValue(), predicate.test(e.getKey()), e.getKey() + " expected " + e.getValue()));
     }
 
     private static Map.Entry<Integer, Boolean> entry(int value, boolean expected) {

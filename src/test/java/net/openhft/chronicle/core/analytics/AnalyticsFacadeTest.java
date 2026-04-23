@@ -3,28 +3,22 @@
  */
 package net.openhft.chronicle.core.analytics;
 
-import net.openhft.chronicle.analytics.Analytics;
 import net.openhft.chronicle.core.internal.analytics.MuteBuilder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
-import java.util.Collections;
-import java.util.Map;
+import static org.junit.jupiter.api.Assertions.*;
 
-import static org.junit.Assert.*;
-
-public class AnalyticsFacadeTest {
+class AnalyticsFacadeTest {
 
     private String originalDisableProperty;
 
-    @Before
-    public void captureProperty() {
+    @BeforeEach
+    void captureProperty() {
         originalDisableProperty = System.getProperty("chronicle.analytics.disable");
     }
 
-    @After
-    public void restoreProperty() {
+    @AfterEach
+    void restoreProperty() {
         if (originalDisableProperty == null) {
             System.clearProperty("chronicle.analytics.disable");
         } else {
@@ -33,16 +27,16 @@ public class AnalyticsFacadeTest {
     }
 
     @Test
-    public void enabledWhenAnalyticsPresent() {
+    void enabledWhenAnalyticsPresent() {
         System.clearProperty("chronicle.analytics.disable");
-        assertTrue("Analytics should be enabled when dependency is available", AnalyticsFacade.isEnabled());
+        assertTrue(AnalyticsFacade.isEnabled(), "Analytics should be enabled when dependency is available");
 
         AnalyticsFacade.Builder builder = AnalyticsFacade.builder("measurement", "secret");
         assertEquals("net.openhft.chronicle.core.internal.analytics.ReflectiveBuilder", builder.getClass().getName());
     }
 
     @Test
-    public void disabledWhenSystemPropertyExplicit() {
+    void disabledWhenSystemPropertyExplicit() {
         System.setProperty("chronicle.analytics.disable", "true");
         assertFalse(AnalyticsFacade.isEnabled());
 

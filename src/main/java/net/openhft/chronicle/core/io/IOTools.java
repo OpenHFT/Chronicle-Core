@@ -94,9 +94,7 @@ public final class IOTools {
                 || e.getClass().getName().contains("Close"));
     }
 
-
     // File operations
-
 
     /**
      * Attempts to delete a directory with its files. If the directory or any
@@ -360,6 +358,7 @@ public final class IOTools {
             closeQuietly(is);
         }
     }
+
     /**
      * Creates a temporary name for a file by appending the system's current
      * nanosecond time to the file name.
@@ -455,9 +454,7 @@ public final class IOTools {
         Monitorable.unmonitor(t);
     }
 
-
     // Buffer handling
-
 
     /**
      * Calls the system's Cleaner Service to clean the given ByteBuffer.
