@@ -13,12 +13,12 @@ import static org.junit.jupiter.api.Assertions.*;
 class IgnoresEverythingTest extends CoreTestCommon {
     @Test
     void test() {
-        assertTrue(Mocker.ignored(Consumer.class) instanceof IgnoresEverything);
+        assertInstanceOf(IgnoresEverything.class, Mocker.ignored(Consumer.class));
     }
 
     @Test
     void returnsIgnored() {
-        assertTrue(Mocker.ignored(Chained.class).method1() instanceof IgnoresEverything);
+        assertInstanceOf(IgnoresEverything.class, Mocker.ignored(Chained.class).method1());
     }
 
     interface Chained {

@@ -95,7 +95,7 @@ class ScopedThreadLocalLifecycleTest {
 
             Future<?> future = executor.submit(resource.get()::touch);
             ExecutionException exception = assertThrows(ExecutionException.class, () -> future.get(5, TimeUnit.SECONDS));
-            assertTrue(exception.getCause() instanceof IllegalStateException);
+            assertInstanceOf(IllegalStateException.class, exception.getCause());
         } finally {
             executor.shutdownNow();
             executor.awaitTermination(5, TimeUnit.SECONDS);

@@ -38,11 +38,13 @@ class JvmTest extends CoreTestCommon {
     private ThreadDump threadDump;
 
     @BeforeEach
+    @Override
     public void threadDump() {
         threadDump = new ThreadDump();
     }
 
     @AfterEach
+    @Override
     void checkThreadDump() {
         resetExceptionHandlers();
         threadDump.assertNoNewThreads();

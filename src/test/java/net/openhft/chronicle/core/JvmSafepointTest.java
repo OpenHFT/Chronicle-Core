@@ -14,6 +14,7 @@ class JvmSafepointTest extends CoreTestCommon {
     void testSafepoint() throws InterruptedException {
         @SuppressWarnings("AnonymousHasLambdaAlternative")
         Thread t = new Thread() {
+            @Override
             public void run() {
                 long start = System.currentTimeMillis();
                 while (System.currentTimeMillis() < start + 1000

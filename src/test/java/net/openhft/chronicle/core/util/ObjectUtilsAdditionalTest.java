@@ -46,13 +46,13 @@ class ObjectUtilsAdditionalTest {
     @Test
     void convertTextUsingValueOfParseAndConstructor() {
         Object v1 = ObjectUtils.convertTo(WithValueOf.class, "x1");
-        assertTrue(v1 instanceof WithValueOf);
+        assertInstanceOf(WithValueOf.class, v1);
 
         Object v2 = ObjectUtils.convertTo(WithParse.class, "x2");
-        assertTrue(v2 instanceof WithParse);
+        assertInstanceOf(WithParse.class, v2);
 
         Object v3 = ObjectUtils.convertTo(WithCtor.class, "x3");
-        assertTrue(v3 instanceof WithCtor);
+        assertInstanceOf(WithCtor.class, v3);
     }
 
     @Test

@@ -43,7 +43,7 @@ class IORuntimeExceptionTest {
         IORuntimeException runtimeClosedException = IORuntimeException.newIORuntimeException(closedException);
         IORuntimeException runtimeOtherException = IORuntimeException.newIORuntimeException(otherException);
 
-        assertTrue(runtimeClosedException instanceof ClosedIORuntimeException);
+        assertInstanceOf(ClosedIORuntimeException.class, runtimeClosedException);
         assertEquals(closedException, runtimeClosedException.getCause());
 
         assertFalse(runtimeOtherException instanceof ClosedIORuntimeException);

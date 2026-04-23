@@ -148,9 +148,7 @@ class StringUtilsTest extends CoreTestCommon {
 
     @Test
     void shouldExtractBytesFromString() {
-        assertTrue(Arrays.equals(
-                "foobar".getBytes(StandardCharsets.US_ASCII),
-                StringUtils.extractBytes("foobar")));
+        assertArrayEquals("foobar".getBytes(StandardCharsets.US_ASCII), StringUtils.extractBytes("foobar"));
     }
 
     @Test

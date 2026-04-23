@@ -44,7 +44,7 @@ class MuteBuilderApiNoopsTest {
                 .withReportDespiteJUnit();
 
         AnalyticsFacade facade = b.build();
-        assertTrue(facade instanceof MuteAnalytics);
+        assertInstanceOf(MuteAnalytics.class, facade);
 
         // Should not throw
         facade.sendEvent("startup");

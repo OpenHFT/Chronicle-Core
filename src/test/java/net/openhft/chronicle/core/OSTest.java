@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
@@ -40,7 +41,7 @@ class OSTest extends CoreTestCommon {
 
     public void setUp(TestInfo testInfo) {
         MockitoAnnotations.openMocks(this);
-        testName = testInfo.getTestMethod().map(m -> m.getName()).orElse("unknown");
+        testName = testInfo.getTestMethod().map(Method::getName).orElse("unknown");
     }
 
     @Test
@@ -73,10 +74,12 @@ class OSTest extends CoreTestCommon {
         assertEquals(new File("./last").getAbsolutePath(), OS.findFile("first", "last").getAbsolutePath());
     }
 
+    @Override
     public void threadDump() {
         threadDump = new ThreadDump();
     }
 
+    @Override
     @AfterEach
     void checkThreadDump() {
         threadDump.assertNoNewThreads();
@@ -107,7 +110,7 @@ class OSTest extends CoreTestCommon {
      * tests that Windows supports page mapping granularity
      */
     @Test
-    void testMapGranularity() throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    void testMapGranularity() throws IOException {
         File file = IOTools.createTempFile(getClass().getName() + "." + testName);
 
         try (RandomAccessFile rw = new RandomAccessFile(file, "rw")) {
@@ -127,7 +130,7 @@ class OSTest extends CoreTestCommon {
     }
 
     @Test
-    void testMap() throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+    void testMap() throws IOException {
         File file = IOTools.createTempFile(getClass().getName() + "." + testName);
 
         try (RandomAccessFile rw = new RandomAccessFile(file, "rw")) {

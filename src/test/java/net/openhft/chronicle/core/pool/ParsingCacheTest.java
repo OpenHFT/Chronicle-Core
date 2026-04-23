@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ParsingCacheTest extends CoreTestCommon {
     @Test
-    void intern() throws Exception {
+    void intern() {
         @NotNull ParsingCache<BigDecimal> pc = new ParsingCache<>(128, BigDecimal::new);
         @Nullable BigDecimal bd1 = pc.intern("1.234");
         @Nullable BigDecimal bd2 = pc.intern("12.234");

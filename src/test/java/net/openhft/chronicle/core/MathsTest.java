@@ -190,7 +190,7 @@ class MathsTest extends CoreTestCommon {
     }
 
     @Test
-    void ceilN() throws Exception {
+    void ceilN() {
         assertEquals(2, Maths.ceilN(2, 0), 0.0);
         assertEquals(2, Maths.ceilN(1 + err, 0), 0.0);
         assertEquals(1.5, Maths.ceilN(1.5, 0.3f), 0.0);
@@ -200,7 +200,7 @@ class MathsTest extends CoreTestCommon {
     }
 
     @Test
-    void floorN() throws Exception {
+    void floorN() {
         assertEquals(1, Maths.floorN(2 - err, 0), 0.0);
         assertEquals(2.0, Maths.floorN(2, 0), 0.0);
         assertEquals(1, Maths.floorN(1.5 - err, 0.3f), 0.0);
@@ -210,49 +210,49 @@ class MathsTest extends CoreTestCommon {
     }
 
     @Test
-    void round1() throws Exception {
+    void round1() {
         assertEquals(1.1, Maths.round1(1.1 + 0.4999999e-1), 0.0);
         assertEquals(1.2, Maths.round1(1.1 + 0.5e-1), 0.0);
     }
 
     @Test
-    void round2() throws Exception {
+    void round2() {
         assertEquals(1.1, Maths.round2(1.1 + 0.4999999e-2), 0.0);
         assertEquals(1.1 + 1e-2, Maths.round2(1.1 + 0.5e-2), 0.0);
     }
 
     @Test
-    void round3() throws Exception {
+    void round3() {
         assertEquals(1.1, Maths.round3(1.1 + 0.4999999e-3), 0.0);
         assertEquals(1.1 + 1e-3, Maths.round3(1.1 + 0.5e-3), 0.0);
     }
 
     @Test
-    void round4() throws Exception {
+    void round4() {
         assertEquals(1.1, Maths.round4(1.1 + 0.4999999e-4), 0.0);
         assertEquals(1.1 + 1e-4, Maths.round4(1.1 + 0.5e-4), 0.0);
     }
 
     @Test
-    void round5() throws Exception {
+    void round5() {
         assertEquals(1.1, Maths.round5(1.1 + 0.4999999e-5), 0.0);
         assertEquals(1.10001, Maths.round5(1.1 + 0.5e-5), 0.0);
     }
 
     @Test
-    void round6() throws Exception {
+    void round6() {
         assertEquals(1.1, Maths.round6(1.1 + 0.4999999e-6), 0.0);
         assertEquals(1.1 + 1e-6, Maths.round6(1.1 + 0.5e-6), 0.0);
     }
 
     @Test
-    void round7() throws Exception {
+    void round7() {
         assertEquals(1.1, Maths.round7(1.1 + 0.4999999e-7), 0.0);
         assertEquals(1.1000001, Maths.round7(1.1 + 0.5e-7), 0.0);
     }
 
     @Test
-    void round8() throws Exception {
+    void round8() {
         assertEquals(1, Maths.round8(1), 0.0);
         assertEquals(1.1, Maths.round8(1.1 + 0.4999999e-8), 0.0);
         assertEquals(1.1 + 1e-8, Maths.round8(1.1 + 0.5e-8), 0.0);
@@ -265,11 +265,13 @@ class MathsTest extends CoreTestCommon {
         assertEquals(1.14563, Maths.floorN(1.14563, 5), 0);
     }
 
+    @Override
     @BeforeEach
     public void threadDump() {
         threadDump = new ThreadDump();
     }
 
+    @Override
     @AfterEach
     void checkThreadDump() {
         threadDump.assertNoNewThreads();
@@ -374,7 +376,7 @@ class MathsTest extends CoreTestCommon {
     }
 
     @Test
-    void testHashStringBuilderFromInterner() throws Exception {
+    void testHashStringBuilderFromInterner() {
         @NotNull StringInterner interner = new StringInterner(16);
 
         @NotNull final CharSequence csToHash = "557";

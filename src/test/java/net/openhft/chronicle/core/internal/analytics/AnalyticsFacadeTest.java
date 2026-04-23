@@ -28,7 +28,7 @@ class AnalyticsFacadeTest extends CoreTestCommon {
                 .withReportDespiteJUnit()
                 .build();
 
-        assertTrue(facade instanceof MuteAnalytics);
+        assertInstanceOf(MuteAnalytics.class, facade);
 
     }
 

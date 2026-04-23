@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assumptions.*;
 
 class Jdk9ByteBufferCleanerServiceTest extends CoreTestCommon {
     @Test
-    void shouldCleanBuffer() throws ClassNotFoundException, NoSuchFieldException, IllegalAccessException {
+    void shouldCleanBuffer() {
         assumeTrue(Jvm.isJava9Plus());
 
         CleanerTestUtil.test(new Jdk9ByteBufferCleanerService()::clean);

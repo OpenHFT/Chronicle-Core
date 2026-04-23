@@ -66,7 +66,7 @@ class AbstractInvocationHandlerTest extends CoreTestCommon {
     @Test
     void testInvoke() {
         final List<String> messages = new ArrayList<>();
-        final Consumer<String> consumer = s -> messages.add(s);
+        final Consumer<String> consumer = messages::add;
         final CallMe mocked = Mocker.intercepting(CallMe.class, "", consumer);
         mocked.method1();
         mocked.method2();
