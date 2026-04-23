@@ -2726,7 +2726,7 @@ public class UnsafeMemory implements Memory {
         @Override
         public void testAndSetInt(long address, long offset, int expected, int value) throws IllegalStateException {
             assert SKIP_ASSERTIONS || address != 0;
-            assert SKIP_ASSERTIONS || offset > 0;
+            assert SKIP_ASSERTIONS || offset >= 0;
             if (safeAlignedInt(address)) {
                 if (UNSAFE.compareAndSwapInt(null, address, expected, value)) {
                     return;
