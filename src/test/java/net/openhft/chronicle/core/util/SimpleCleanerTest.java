@@ -3,39 +3,38 @@
  */
 package net.openhft.chronicle.core.util;
 
-import net.openhft.chronicle.core.util.SimpleCleaner;
+import net.openhft.chronicle.core.test.RecordingRunnable;
 import org.junit.jupiter.api.Test;
 
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SimpleCleanerTest {
 
     @Test
     void cleanShouldExecuteRunnableOnce() {
-        Runnable runnable = mock(Runnable.class);
+        RecordingRunnable runnable = new RecordingRunnable();
         SimpleCleaner cleaner = new SimpleCleaner(runnable);
 
         cleaner.clean();
         cleaner.clean(); // Second call to check idempotency
 
-        verify(runnable, times(1)).run();
+        assertEquals(1, runnable.runCount());
     }
 
     @Test
     void cleanShouldNotExecuteRunnableIfAlreadyCleaned() {
-        Runnable runnable = mock(Runnable.class);
+        RecordingRunnable runnable = new RecordingRunnable();
         SimpleCleaner cleaner = new SimpleCleaner(runnable);
 
         cleaner.clean(); // First call
         cleaner.clean(); // Second call
 
-        verify(runnable, times(1)).run();
+        assertEquals(1, runnable.runCount());
     }
 
     @Test
     void constructorShouldInitializeWithProvidedRunnable() {
-        Runnable runnable = mock(Runnable.class);
+        RecordingRunnable runnable = new RecordingRunnable();
         SimpleCleaner cleaner = new SimpleCleaner(runnable);
 
         assertNotNull(cleaner); // Verifying that cleaner is initialized

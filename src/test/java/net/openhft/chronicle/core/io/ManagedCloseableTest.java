@@ -3,45 +3,32 @@
  */
 package net.openhft.chronicle.core.io;
 
-import net.openhft.chronicle.core.Jvm;
-import org.junit.jupiter.api.BeforeEach;
+import net.openhft.chronicle.core.test.RecordingManagedCloseable;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.*;
 
 class ManagedCloseableTest {
-    @BeforeEach
-    void mockitoNotSupportedOnJava21() {
-        assumeTrue(Jvm.majorVersion() <= 17);
-    }
-
     @Test
     void testWarnAndCloseIfNotClosed() {
-        ManagedCloseable closeable = spy(ManagedCloseable.class);
-
-        when(closeable.isClosing()).thenReturn(false);
+        RecordingManagedCloseable closeable = new RecordingManagedCloseable();
 
         closeable.warnAndCloseIfNotClosed();
 
-        verify(closeable, times(1)).close();
+        assertEquals(1, closeable.closeCount());
     }
 
     @Test
     void testThrowExceptionIfClosed() {
-        ManagedCloseable closeable = Mockito.spy(ManagedCloseable.class);
-
-        when(closeable.isClosing()).thenReturn(true);
-        when(closeable.isClosed()).thenReturn(true);
+        RecordingManagedCloseable closeable = new RecordingManagedCloseable();
+        closeable.closed(true);
 
         assertThrows(ClosedIllegalStateException.class, closeable::throwExceptionIfClosed);
     }
 
     @Test
     void testCreatedHere() {
-        ManagedCloseable closeable = Mockito.spy(ManagedCloseable.class);
+        RecordingManagedCloseable closeable = new RecordingManagedCloseable();
 
         assertNull(closeable.createdHere());
     }

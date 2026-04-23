@@ -3,17 +3,24 @@
  */
 package net.openhft.chronicle.core.shutdown;
 
+import net.openhft.chronicle.core.test.RecordingRunnable;
 import org.junit.jupiter.api.*;
-import org.mockito.InOrder;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class PriorityHookTest {
 
+    @AfterEach
+    void tearDown() {
+        PriorityHook.clear();
+    }
+
     @Test
     void testAddHook() {
-        Runnable hook1 = mock(Runnable.class);
+        RecordingRunnable hook1 = new RecordingRunnable();
         boolean added1 = PriorityHook.add(1, hook1);
         assertFalse(added1);
 
@@ -23,21 +30,20 @@ class PriorityHookTest {
 
     @Test
     void testHookExecutionOrder() {
-        Runnable hook1 = mock(Runnable.class);
-        Runnable hook2 = mock(Runnable.class);
+        List<String> calls = new ArrayList<>();
+        Runnable hook1 = () -> calls.add("hook1");
+        Runnable hook2 = () -> calls.add("hook2");
         PriorityHook.add(1, hook1);
         PriorityHook.add(2, hook2);
 
         PriorityHook.getRegisteredHook().onShutdown();
 
-        InOrder inOrder = inOrder(hook1, hook2);
-        inOrder.verify(hook1).run();
-        inOrder.verify(hook2).run();
+        assertEquals(List.of("hook1", "hook2"), calls);
     }
 
     @Test
     void testClearHooks() {
-        Runnable hook = mock(Runnable.class);
+        RecordingRunnable hook = new RecordingRunnable();
         PriorityHook.add(1, hook);
 
         PriorityHook.clear();

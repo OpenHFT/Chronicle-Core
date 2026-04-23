@@ -3,6 +3,7 @@
  */
 package net.openhft.chronicle.core.threads;
 
+import net.openhft.chronicle.core.test.RecordingRunnable;
 import net.openhft.chronicle.core.util.ThrowingConsumer;
 import org.junit.jupiter.api.Test;
 
@@ -10,8 +11,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 class CleaningThreadLocalTest {
 
@@ -35,7 +34,7 @@ class CleaningThreadLocalTest {
 
     @Test
     void testResourceCleanup() {
-        Runnable cleanupAction = mock(Runnable.class);
+        RecordingRunnable cleanupAction = new RecordingRunnable();
         CleaningThreadLocal<Runnable> ctl = CleaningThreadLocal.withCleanup(() -> cleanupAction, Runnable::run);
 
         Thread thread = new Thread(() -> {
@@ -45,7 +44,7 @@ class CleaningThreadLocalTest {
         thread.start();
         joinThread(thread);
 
-        verify(cleanupAction).run();
+        assertEquals(1, cleanupAction.runCount());
     }
 
     @Test

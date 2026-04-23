@@ -7,6 +7,7 @@ import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
 import net.openhft.chronicle.core.onoes.NullExceptionHandler;
 import net.openhft.chronicle.core.onoes.ThreadLocalisedExceptionHandler;
+import net.openhft.chronicle.core.test.RecordingExceptionHandlerStub;
 import net.openhft.chronicle.core.threads.ThreadDump;
 import net.openhft.chronicle.core.util.Time;
 import org.junit.jupiter.api.AfterEach;
@@ -30,7 +31,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static net.openhft.chronicle.core.Jvm.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
 import static org.junit.jupiter.api.Assumptions.*;
 
 class JvmTest extends CoreTestCommon {
@@ -387,9 +387,9 @@ class JvmTest extends CoreTestCommon {
 
     @Test
     void testSetThreadLocalExceptionHandlers() {
-        ExceptionHandler mockErrorHandler = mock(ExceptionHandler.class);
-        Jvm.setThreadLocalExceptionHandlers(mockErrorHandler, null, null);
-        assertSame(mockErrorHandler, ThreadLocalisedExceptionHandler.unwrap(Jvm.error()));
+        ExceptionHandler errorHandler = new RecordingExceptionHandlerStub();
+        Jvm.setThreadLocalExceptionHandlers(errorHandler, null, null);
+        assertSame(errorHandler, ThreadLocalisedExceptionHandler.unwrap(Jvm.error()));
         assertEquals(NullExceptionHandler.NOTHING, ThreadLocalisedExceptionHandler.unwrap(Jvm.warn()));
         assertEquals(NullExceptionHandler.NOTHING, ThreadLocalisedExceptionHandler.unwrap(Jvm.debug()));
     }
@@ -413,12 +413,14 @@ class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    void testCommonInterruptible() {
-        FileChannel mockFileChannel = mock(FileChannel.class);
-        Jvm.CommonInterruptible commonInterruptible = new Jvm.CommonInterruptible(getClass(), mockFileChannel);
+    void testCommonInterruptible() throws IOException {
+        try (FileChannel fileChannel = FileChannel.open(Paths.get("target", "common-interruptible.tmp"),
+                StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE)) {
+            Jvm.CommonInterruptible commonInterruptible = new Jvm.CommonInterruptible(getClass(), fileChannel);
 
-        commonInterruptible.interrupt();
-        assertNotNull(commonInterruptible);
+            commonInterruptible.interrupt();
+            assertNotNull(commonInterruptible);
+        }
     }
 
     @Test

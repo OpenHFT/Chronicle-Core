@@ -9,7 +9,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.mockito.MockitoAnnotations;
 
 import java.io.File;
 import java.io.IOException;
@@ -40,7 +39,6 @@ class OSTest extends CoreTestCommon {
     }
 
     public void setUp(TestInfo testInfo) {
-        MockitoAnnotations.openMocks(this);
         testName = testInfo.getTestMethod().map(Method::getName).orElse("unknown");
     }
 

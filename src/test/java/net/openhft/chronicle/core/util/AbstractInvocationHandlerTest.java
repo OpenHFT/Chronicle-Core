@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.util;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.Closeable;
+import net.openhft.chronicle.core.test.RecordingCloseable;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -17,7 +18,6 @@ import org.junit.jupiter.api.BeforeEach;
 import java.lang.reflect.Method;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assumptions.*;
 
 class ConcreteInvocationHandler extends AbstractInvocationHandler {
@@ -45,13 +45,13 @@ class AbstractInvocationHandlerTest extends CoreTestCommon {
     @Test
     void testCloseable() throws Throwable {
         AbstractInvocationHandler handler = new ConcreteInvocationHandler();
-        Closeable mockCloseable = mock(Closeable.class);
-        handler.onClose(mockCloseable);
+        RecordingCloseable closeable = new RecordingCloseable();
+        handler.onClose(closeable);
 
         Method closeMethod = Closeable.class.getMethod("close");
-        handler.invoke(mockCloseable, closeMethod, null);
+        handler.invoke(closeable, closeMethod, null);
 
-        verify(mockCloseable, times(1)).close();
+        assertEquals(1, closeable.closeCount());
     }
 
     @Test

@@ -4,7 +4,7 @@
 package net.openhft.chronicle.core.io;
 
 import org.junit.jupiter.api.Test;
-import static org.mockito.Mockito.*;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class SyncableTest {
@@ -20,10 +20,10 @@ class SyncableTest {
 
     @Test
     void syncIfAvailableShouldCallSyncOnSyncableObjects() {
-        Syncable syncableMock = mock(Syncable.class);
-        Syncable.syncIfAvailable(syncableMock);
+        SyncableImpl syncable = new SyncableImpl();
+        Syncable.syncIfAvailable(syncable);
 
-        verify(syncableMock, times(1)).sync();
+        assertTrue(syncable.synced);
     }
 
     @Test

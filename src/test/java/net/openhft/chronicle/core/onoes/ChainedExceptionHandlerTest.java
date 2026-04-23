@@ -3,22 +3,24 @@
  */
 package net.openhft.chronicle.core.onoes;
 
-import org.mockito.InOrder;
+import net.openhft.chronicle.core.test.RecordingExceptionHandlerStub;
 import org.junit.jupiter.api.*;
 
-import static org.mockito.Mockito.*;
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ChainedExceptionHandlerTest {
 
-    private ExceptionHandler handler1;
-    private ExceptionHandler handler2;
+    private RecordingExceptionHandlerStub handler1;
+    private RecordingExceptionHandlerStub handler2;
     private ChainedExceptionHandler chainedHandler;
 
     @BeforeEach
     void setUp() {
-        handler1 = mock(ExceptionHandler.class);
-        handler2 = mock(ExceptionHandler.class);
+        handler1 = new RecordingExceptionHandlerStub();
+        handler2 = new RecordingExceptionHandlerStub();
         chainedHandler = new ChainedExceptionHandler(handler1, handler2);
     }
 
@@ -27,14 +29,21 @@ class ChainedExceptionHandlerTest {
         Throwable throwable = new RuntimeException("Test");
         chainedHandler.on(Exception.class, "Test message", throwable);
 
-        verify(handler1).on(Exception.class, "Test message", throwable);
-        verify(handler2).on(Exception.class, "Test message", throwable);
+        assertEquals(1, handler1.eventCount());
+        assertEquals(Exception.class, handler1.event(0).clazz());
+        assertEquals("Test message", handler1.event(0).message());
+        assertSame(throwable, handler1.event(0).thrown());
+        assertEquals(1, handler2.eventCount());
+        assertEquals(Exception.class, handler2.event(0).clazz());
+        assertEquals("Test message", handler2.event(0).message());
+        assertSame(throwable, handler2.event(0).thrown());
     }
 
     @Test
     void onWithClassShouldCallEachHandler() {
-        ExceptionHandler firstHandler = mock(ExceptionHandler.class);
-        ExceptionHandler secondHandler = mock(ExceptionHandler.class);
+        List<String> order = new ArrayList<>();
+        ExceptionHandler firstHandler = new OrderedClassExceptionHandler(order, "first");
+        ExceptionHandler secondHandler = new OrderedClassExceptionHandler(order, "second");
         ChainedExceptionHandler chained = new ChainedExceptionHandler(firstHandler, secondHandler);
 
         Class<?> clazz = String.class;
@@ -43,9 +52,7 @@ class ChainedExceptionHandlerTest {
 
         chained.on(clazz, message, thrown);
 
-        InOrder inOrder = inOrder(firstHandler, secondHandler);
-        inOrder.verify(firstHandler).on(clazz, message, thrown);
-        inOrder.verify(secondHandler).on(clazz, message, thrown);
+        assertEquals(List.of("first", "second"), order);
     }
 
     @Test
@@ -54,7 +61,26 @@ class ChainedExceptionHandlerTest {
         ChainedExceptionHandler chained = new ChainedExceptionHandler(faultyHandler);
 
         // This call should not throw an exception
-        chained.on(String.class, "message", new RuntimeException());
-        assertTrue(true); // If we reach here, the test passes
+        assertDoesNotThrow(() -> chained.on(String.class, "message", new RuntimeException()));
+    }
+
+    private static final class OrderedClassExceptionHandler implements ExceptionHandler {
+        private final List<String> order;
+        private final String name;
+
+        private OrderedClassExceptionHandler(List<String> order, String name) {
+            this.order = order;
+            this.name = name;
+        }
+
+        @Override
+        public void on(Class<?> clazz, String message, Throwable thrown) {
+            order.add(name);
+        }
+
+        @Override
+        public void on(org.slf4j.Logger logger, String message, Throwable thrown) {
+            throw new AssertionError("Logger overload should not be used");
+        }
     }
 }
