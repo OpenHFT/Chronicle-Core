@@ -404,7 +404,7 @@ class OSTest extends CoreTestCommon {
             raf.setLength(start + size);
 
             long address = OS.map(channel, FileChannel.MapMode.READ_WRITE, start, size);
-            assertTrue(address != 0L);
+            assertNotEquals(0L, address);
             OS.unmap(address, size);
         }
     }
