@@ -17,7 +17,7 @@ class ExceptionHandlerTest {
     }
 
     @Test
-    void nullExceptionHandlerUsesInheritedClassBasedDefault() {
+    void nullExceptionHandlerSwallowsClassMessageThrowable() {
         assertDoesNotThrow(() ->
                 NullExceptionHandler.NOTHING.on(ExceptionHandlerTest.class, "ignored", new RuntimeException("ignored")));
     }
