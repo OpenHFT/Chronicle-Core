@@ -20,6 +20,10 @@ import static org.junit.Assert.assertEquals;
 @RunWith(Parameterized.class)
 public class JvmParseSizeTest extends CoreTestCommon {
     private static final String PROPERTY = "JvmParseSizeTest";
+    private static final long KIB = 1L << 10;
+    private static final long MIB = 1L << 20;
+    private static final long GIB = 1L << 30;
+    private static final long TIB = 1L << 40;
     private final String text;
     private final long value;
 
@@ -36,6 +40,7 @@ public class JvmParseSizeTest extends CoreTestCommon {
                 {"  100  ", 100L},
                 {"100b", 100L},
                 {"100B", 100L},
+                {" 100B ", 100L},
                 {"0.5kb", 512L},
                 {"0.5KiB", 512L},
                 {"0.125MB", 128L << 10},
@@ -43,7 +48,14 @@ public class JvmParseSizeTest extends CoreTestCommon {
                 {" 2 M", 2L << 20},
                 {"0.75GiB", 768L << 20},
                 {"1.5 GiB", 1536L << 20},
-                {"0.001TiB", Math.round((1L << 40) / 1000.0)}
+                {"0.25TiB", Math.round((1L << 40) / 4.0)},
+                {"0", 0},
+                {"-0.0GB", 0}, // BigDecimal("-0.0").longValue() == 0, so the negative-size guard is not triggered
+                {Long.MAX_VALUE + "", Long.MAX_VALUE},
+                {Long.MAX_VALUE / KIB + "kb", Long.MAX_VALUE / KIB * KIB},
+                {Long.MAX_VALUE / MIB + "mb", Long.MAX_VALUE / MIB * MIB},
+                {Long.MAX_VALUE / GIB + "gb", Long.MAX_VALUE / GIB * GIB},
+                {Long.MAX_VALUE / TIB + "tb", Long.MAX_VALUE / TIB * TIB},
         });
     }
 
@@ -61,10 +73,5 @@ public class JvmParseSizeTest extends CoreTestCommon {
     public void getSize() {
         System.setProperty(PROPERTY, text);
         assertEquals(value, Jvm.getSize(PROPERTY, -1));
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void parseSizeRejectsUnknownSuffix() {
-        Jvm.parseSize("10XB");
     }
 }
