@@ -6,6 +6,7 @@ package net.openhft.chronicle.core.threads;
 import net.openhft.affinity.Affinity;
 import net.openhft.affinity.AffinityLock;
 import net.openhft.chronicle.core.CoreTestCommon;
+import net.openhft.chronicle.core.OS;
 import org.junit.jupiter.api.Test;
 
 import java.util.BitSet;
@@ -14,6 +15,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.assumeFalse;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class CleaningThreadTest extends CoreTestCommon {
     @Test
@@ -38,10 +41,11 @@ class CleaningThreadTest extends CoreTestCommon {
 
     @Test
     void resetThreadAffinity() throws InterruptedException {
+        assumeFalse(OS.isMacOSX(), "macOS does not support thread affinity");
         final BitSet affinity = Affinity.getAffinity();
         final BitSet baseAffinity = AffinityLock.BASE_AFFINITY;
         int cpu = baseAffinity.nextSetBit(0);
-        assertTrue(cpu >= 0, "Base affinity must expose at least one CPU");
+        assumeTrue(cpu >= 0, "Base affinity must expose at least one CPU");
         try {
             Affinity.setAffinity(cpu);
             BitSet[] nestedAffinity = {null};
