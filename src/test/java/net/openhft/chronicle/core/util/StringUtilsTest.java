@@ -297,4 +297,51 @@ public class StringUtilsTest extends CoreTestCommon {
         // Empty strings
         assertTrue(StringUtils.isEqual(new StringBuilder(), ""));
     }
+
+    /**
+     * Fuzz-surfaced: {@link StringUtils#parseDouble(CharSequence)} returns 0.
+     * The JDK {@link Double#parseDouble(String)} throws {@link NumberFormatException}
+     * in the same situation.
+     */
+    @Test
+    public void parseDoubleEmptyStringFuzzFinding() {
+        assertEquals(0, StringUtils.parseDouble(""));
+    }
+
+    /**
+     * Fuzz-surfaced: {@link StringUtils#toTitleCase(String)} is not idempotent
+     * for inputs that contain a case-less letter next to a lower-case run.
+     * Input {@code "_iiˁ_"} (where {@code ˁ} is U+02C1 "MODIFIER LETTER
+     * REVERSED GLOTTAL STOP", a letter that is neither upper nor lower case)
+     * produces {@code "_IIˁ_"} on the first pass and {@code "_I_Iˁ_"} on the
+     * second. The word-boundary detector treats the case-less letter as if it
+     * were lower-case once the preceding {@code II} is upper, so it inserts a
+     * separator between them on the second pass.
+     *
+     * <p>Pinned to current behaviour. If {@code toTitleCase} is adjusted to
+     * converge in one pass (or to explicitly document non-idempotence), this
+     * test should be updated to match.</p>
+     */
+    @Test
+    public void toTitleCaseIdempotenceWithCaselessLetterFuzzFinding() {
+        String once = StringUtils.toTitleCase("_iiˁ_");
+        String twice = StringUtils.toTitleCase(once);
+        assertEquals("_IIˁ_", once);
+        assertEquals("_I_Iˁ_", twice);
+    }
+
+    /**
+     * Fuzz-surfaced: {@link StringUtils#endsWith(CharSequence, String)} and
+     * {@link StringUtils#startsWith(CharSequence, String)} are case-insensitive
+     * by design (both sides are folded to lower case before comparison — see
+     * the implementation), which the Javadoc of those methods does not
+     * mention. A caller porting from {@link String#endsWith(String)} will be
+     * surprised. Pinned here so the contract is explicit in the test suite.
+     */
+    @Test
+    public void endsWithStartsWithAreCaseInsensitiveFuzzFinding() {
+        assertTrue("StringUtils.endsWith ignores case", StringUtils.endsWith("LLLLLL", "LLlL"));
+        assertTrue("StringUtils.startsWith ignores case", StringUtils.startsWith("LLLLLL", "LLlL"));
+        assertFalse("JDK String.endsWith is case-sensitive", "LLLLLL".endsWith("LLlL"));
+    }
 }

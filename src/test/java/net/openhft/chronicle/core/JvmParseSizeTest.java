@@ -43,7 +43,11 @@ public class JvmParseSizeTest extends CoreTestCommon {
                 {" 2 M", 2L << 20},
                 {"0.75GiB", 768L << 20},
                 {"1.5 GiB", 1536L << 20},
-                {"0.001TiB", Math.round((1L << 40) / 1000.0)}
+                {"0.001TiB", Math.round((1L << 40) / 1000.0)},
+                // Fuzz-surfaced: negatives pass through unvalidated. Pinned
+                // current behaviour so the question "should parseSize reject
+                // negative sizes?" is explicit rather than implicit.
+                {"-3", -3L}
         });
     }
 
@@ -66,5 +70,20 @@ public class JvmParseSizeTest extends CoreTestCommon {
     @Test(expected = IllegalArgumentException.class)
     public void parseSizeRejectsUnknownSuffix() {
         Jvm.parseSize("10XB");
+    }
+
+    /**
+     * Fuzz-surfaced: {@code parseSize("ib")} currently throws
+     * {@link StringIndexOutOfBoundsException} instead of the documented
+     * {@link IllegalArgumentException}. The implementation strips a trailing
+     * {@code 'b'} and then a trailing {@code 'i'} without checking that the
+     * string still has characters, so it calls {@code charAt(-1)} on an empty
+     * string. Pinned to current behaviour here; when the parser is fixed to
+     * surface {@code IllegalArgumentException}, this test will fail and
+     * should be updated to match the new contract.
+     */
+    @Test(expected = StringIndexOutOfBoundsException.class)
+    public void parseSizeIbInputFuzzFinding() {
+        Jvm.parseSize("ib");
     }
 }

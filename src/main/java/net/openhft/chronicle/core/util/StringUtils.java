@@ -170,7 +170,7 @@ public final class StringUtils {
     }
 
     /**
-     * Checks if the given {@link CharSequence} starts with the specified string.
+     * Checks if the given {@link CharSequence} starts with the specified string, in a case-insensitive way.
      *
      * @param source     the {@link CharSequence} to be checked.
      * @param startsWith the string to check if the {@link CharSequence} starts with.
