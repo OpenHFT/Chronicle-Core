@@ -39,12 +39,12 @@ public final class RecordingLogger implements InvocationHandler {
                 return proxy == args[0];
             case "hashCode":
                 return System.identityHashCode(proxy);
+            default:
+                calls.add(new Call(methodName, args == null ? new Object[0] : args.clone()));
+                if (methodName.equals(throwingMethod))
+                    throw thrown;
+                return defaultValue(method.getReturnType());
         }
-
-        calls.add(new Call(methodName, args == null ? new Object[0] : args.clone()));
-        if (methodName.equals(throwingMethod))
-            throw thrown;
-        return defaultValue(method.getReturnType());
     }
 
     private static Object defaultValue(Class<?> returnType) {
