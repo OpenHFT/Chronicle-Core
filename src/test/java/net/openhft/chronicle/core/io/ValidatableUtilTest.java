@@ -4,8 +4,8 @@
 package net.openhft.chronicle.core.io;
 
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class ValidatableUtilTest {
 
@@ -28,9 +28,18 @@ class ValidatableUtilTest {
 
     @Test
     void testValidate() throws InvalidMarshallableException {
-        Validatable validatable = mock(Validatable.class);
+        RecordingValidatable validatable = new RecordingValidatable();
         ValidatableUtil.validate(validatable);
 
-        verify(validatable, times(1)).validate();
+        assertEquals(1, validatable.validateCount);
+    }
+
+    private static final class RecordingValidatable implements Validatable {
+        private int validateCount;
+
+        @Override
+        public void validate() throws InvalidMarshallableException {
+            validateCount++;
+        }
     }
 }

@@ -3,40 +3,37 @@
  */
 package net.openhft.chronicle.core.util;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 import java.lang.reflect.InvocationTargetException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class InvocationTargetRuntimeExceptionTest {
+class InvocationTargetRuntimeExceptionTest {
 
     @Test
-    public void testConstructorWithInvocationTargetException() {
+    void testConstructorWithInvocationTargetException() {
         Exception targetException = new Exception("Target exception");
         InvocationTargetException invocationCause = new InvocationTargetException(targetException);
 
         InvocationTargetRuntimeException exception = new InvocationTargetRuntimeException(invocationCause);
 
-        assertEquals("The cause should be the target exception of the InvocationTargetException",
-                targetException, exception.getCause());
+        assertEquals(targetException, exception.getCause(), "The cause should be the target exception of the InvocationTargetException");
     }
 
     @Test
-    public void testConstructorWithNonInvocationTargetException() {
+    void testConstructorWithNonInvocationTargetException() {
         Exception nonInvocationCause = new Exception("Non-invocation exception");
 
         InvocationTargetRuntimeException exception = new InvocationTargetRuntimeException(nonInvocationCause);
 
-        assertEquals("The cause should be the non-invocation exception provided to the constructor",
-                nonInvocationCause, exception.getCause());
+        assertEquals(nonInvocationCause, exception.getCause(), "The cause should be the non-invocation exception provided to the constructor");
     }
 
     @Test
-    @Ignore
-    public void testConstructorWithNullCause() {
+    void testConstructorWithNullCause() {
         InvocationTargetRuntimeException exception = new InvocationTargetRuntimeException(null);
 
-        assertNull("The cause should be null", exception.getCause());
+        assertNull(exception.getCause(), "The cause should be null");
     }
 }

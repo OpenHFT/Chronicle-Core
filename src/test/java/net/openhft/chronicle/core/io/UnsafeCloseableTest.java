@@ -3,10 +3,11 @@
  */
 package net.openhft.chronicle.core.io;
 
-import junit.framework.TestCase;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-public class UnsafeCloseableTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.*;
+
+class UnsafeCloseableTest {
 
     private final UnsafeCloseable uc;
 
@@ -17,7 +18,7 @@ public class UnsafeCloseableTest extends TestCase {
     }
 
     @Test
-    public void testGetLong() {
+    void testGetLong() {
         try {
             uc.getLong();
             fail();
@@ -27,7 +28,7 @@ public class UnsafeCloseableTest extends TestCase {
     }
 
     @Test
-    public void testSetLong() {
+    void testSetLong() {
         try {
             uc.setLong(0);
             fail();
@@ -37,12 +38,12 @@ public class UnsafeCloseableTest extends TestCase {
     }
 
     @Test
-    public void testGetVolatileLong() {
+    void testGetVolatileLong() {
         assertEquals(128, uc.getVolatileLong(128));
     }
 
     @Test
-    public void testSetVolatileLong() {
+    void testSetVolatileLong() {
         try {
             uc.setVolatileLong(0);
             fail();
@@ -52,7 +53,7 @@ public class UnsafeCloseableTest extends TestCase {
     }
 
     @Test
-    public void testTestGetVolatileLong() {
+    void testTestGetVolatileLong() {
         try {
             uc.getVolatileLong();
             fail();
@@ -62,7 +63,7 @@ public class UnsafeCloseableTest extends TestCase {
     }
 
     @Test
-    public void testSetOrderedLong() {
+    void testSetOrderedLong() {
         try {
             uc.setOrderedLong(0);
             fail();
@@ -72,7 +73,7 @@ public class UnsafeCloseableTest extends TestCase {
     }
 
     @Test
-    public void testAddLong() {
+    void testAddLong() {
         try {
             uc.addLong(0);
             fail();
@@ -82,7 +83,7 @@ public class UnsafeCloseableTest extends TestCase {
     }
 
     @Test
-    public void testAddAtomicLong() {
+    void testAddAtomicLong() {
         try {
             uc.addAtomicLong(0);
             fail();
@@ -92,7 +93,7 @@ public class UnsafeCloseableTest extends TestCase {
     }
 
     @Test
-    public void testCompareAndSwapLong() {
+    void testCompareAndSwapLong() {
         try {
             uc.compareAndSwapLong(0, 0);
             fail();

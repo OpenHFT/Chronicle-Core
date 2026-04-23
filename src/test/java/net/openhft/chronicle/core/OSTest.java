@@ -5,14 +5,15 @@ package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.core.io.IOTools;
 import net.openhft.chronicle.core.threads.ThreadDump;
-import org.junit.*;
-import org.junit.rules.TestName;
-import org.mockito.MockitoAnnotations;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.nio.ByteOrder;
 import java.nio.MappedByteBuffer;
@@ -23,62 +24,66 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
-public class OSTest extends CoreTestCommon {
-    @Rule
-    public final TestName testName = new TestName();
+class OSTest extends CoreTestCommon {
     private ThreadDump threadDump;
+    private String testName;
 
-    @Before
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
+    @BeforeEach
+    void beforeEachOSTest(TestInfo testInfo) {
+        setUp(testInfo);
+        threadDump();
+    }
+
+    public void setUp(TestInfo testInfo) {
+        testName = testInfo.getTestMethod().map(Method::getName).orElse("unknown");
     }
 
     @Test
-    public void testIsSparseFileSupported() {
+    void testIsSparseFileSupported() {
         // This test is environment-dependent and may need to be adjusted based on the target system
         boolean expected = System.getProperty("os.name").toLowerCase().contains("linux") && OS.is64Bit();
         assertEquals(expected, OS.isSparseFileSupported());
     }
 
     @Test
-    public void testFindTmp() {
+    void testFindTmp() {
         String tmp = OS.findTmp();
         assertNotNull(tmp);
     }
 
     @Test
-    public void testIPAddressHolder() {
+    void testIPAddressHolder() {
         String ipAddress = OS.IPAddressHolder.IP_ADDRESS;
         assertNotNull(ipAddress);
     }
 
     @Test
-    public void testHostnameHolder() {
+    void testHostnameHolder() {
         String hostname = OS.HostnameHolder.HOST_NAME;
         assertNotNull(hostname);
     }
 
     @Test
-    public void testFindFile() {
+    void testFindFile() {
         assertEquals(new File("./last").getAbsolutePath(), OS.findFile("first", "last").getAbsolutePath());
     }
 
-    @Before
+    @Override
     public void threadDump() {
         threadDump = new ThreadDump();
     }
 
-    @After
-    public void checkThreadDump() {
+    @Override
+    @AfterEach
+    void checkThreadDump() {
         threadDump.assertNoNewThreads();
     }
 
     @Test
-    public void testIs64Bit() {
+    void testIs64Bit() {
         final boolean expected =
                 Stream.of("com.ibm.vm.bitmode", "sun.arch.data.model")
                         .map(System::getProperty)
@@ -93,7 +98,7 @@ public class OSTest extends CoreTestCommon {
     }
 
     @Test
-    public void testGetProcessId() {
+    void testGetProcessId() {
         final int processId = OS.getProcessId();
         assertTrue(processId > 0);
     }
@@ -102,10 +107,8 @@ public class OSTest extends CoreTestCommon {
      * tests that Windows supports page mapping granularity
      */
     @Test
-    //@Ignore("Failing on TC (linux agent) for unknown reason, anyway the goal of this test is to " +
-    //        "test mapping granularity on windows")
-    public void testMapGranularity() throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        File file = IOTools.createTempFile(getClass().getName() + "." + testName.getMethodName());
+    void testMapGranularity() throws IOException {
+        File file = IOTools.createTempFile(getClass().getName() + "." + testName);
 
         try (RandomAccessFile rw = new RandomAccessFile(file, "rw")) {
             FileChannel fc = rw.getChannel();
@@ -124,9 +127,8 @@ public class OSTest extends CoreTestCommon {
     }
 
     @Test
-    //@Ignore("Should always pass, or crash the JVM based on length")
-    public void testMap() throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        File file = IOTools.createTempFile(getClass().getName() + "." + testName.getMethodName());
+    void testMap() throws IOException {
+        File file = IOTools.createTempFile(getClass().getName() + "." + testName);
 
         try (RandomAccessFile rw = new RandomAccessFile(file, "rw")) {
             FileChannel fc = rw.getChannel();
@@ -162,8 +164,8 @@ public class OSTest extends CoreTestCommon {
     }
 
     @Test
-    public void testMapFast() throws Exception {
-        File file = IOTools.createTempFile(getClass().getName() + "." + testName.getMethodName());
+    void testMapFast() throws Exception {
+        File file = IOTools.createTempFile(getClass().getName() + "." + testName);
 
         try (RandomAccessFile rw = new RandomAccessFile(file, "rw")) {
             FileChannel fc = rw.getChannel();
@@ -187,7 +189,7 @@ public class OSTest extends CoreTestCommon {
     }
 
     @Test
-    public void getHostname() throws IOException {
+    void getHostname() throws IOException {
         System.out.println("exec hostname: " + OS.HostnameHolder.execHostname());
         final String hostName = OS.getHostName();
         System.out.println("hostname: " + hostName);
@@ -199,7 +201,7 @@ public class OSTest extends CoreTestCommon {
     }
 
     @Test
-    public void getIPAddress() {
+    void getIPAddress() {
         System.out.println("getIpAddressByLocalHost: " + OS.IPAddressHolder.getIpAddressByLocalHost());
         System.out.println("getIpAddressByDatagram " + OS.IPAddressHolder.getIpAddressByDatagram());
         System.out.println("getIpAddressBySocket: " + OS.IPAddressHolder.getIpAddressBySocket());
@@ -214,20 +216,20 @@ public class OSTest extends CoreTestCommon {
     }
 
     @Test
-    public void getTarget() {
+    void getTarget() {
         String target = OS.getTarget();
         if (!target.endsWith("/target"))
             assertEquals("target", target);
     }
 
     @Test
-    public void getTmp() {
+    void getTmp() {
         String tmp = OS.getTmp();
         assertNotNull(tmp);
     }
 
     @Test
-    public void mapAlign() {
+    void mapAlign() {
         // Testing for 64 bytes alignment
         assertEquals(0, OS.mapAlign(0, 64)); // Perfectly aligned already
         assertEquals(64, OS.mapAlign(1, 64)); // Not aligned, should round up to 64
@@ -265,7 +267,7 @@ public class OSTest extends CoreTestCommon {
     }
 
     @Test
-    public void pageAlign() {
+    void pageAlign() {
         // Testing for 64 bytes alignment
         assertEquals(0, OS.pageAlign(0, 64)); // Perfectly aligned already
         assertEquals(64, OS.pageAlign(1, 64)); // Not aligned, should round up to 64
@@ -292,49 +294,49 @@ public class OSTest extends CoreTestCommon {
     }
 
     @Test
-    public void testGetUserName() {
+    void testGetUserName() {
         String expectedUserName = System.getProperty("user.name");
         assertEquals(expectedUserName, OS.getUserName());
     }
 
     @Test
-    public void testPageAlign() {
+    void testPageAlign() {
         long size = 12345;
-        long expectedAlignedSize = (size + OS.pageSize() - 1) & ~(OS.pageSize() - 1);
+        long expectedAlignedSize = (size + OS.pageSize() - 1) & -OS.pageSize();
         assertEquals(expectedAlignedSize, OS.pageAlign(size));
     }
 
     @Test
-    public void testMapAlign() {
+    void testMapAlign() {
         long offset = 6000;
-        long expectedAlignedOffset = (offset + OS.defaultOsPageSize() - 1) & ~(OS.defaultOsPageSize() - 1);
+        long expectedAlignedOffset = (offset + OS.defaultOsPageSize() - 1) & -OS.defaultOsPageSize();
         assertEquals(expectedAlignedOffset, OS.mapAlign(offset));
 
         assertThrows(IllegalArgumentException.class, () -> OS.mapAlign(-1));
     }
 
     @Test
-    public void testGetProcessId0() {
+    void testGetProcessId0() {
         int processId = OS.getProcessId0();
         assertTrue(processId > 0);
         // Additional checks can be added if there are known constraints on the process ID.
     }
 
     @Test
-    public void testGetPidMax() {
+    void testGetPidMax() {
         long pidMax = OS.getPidMax();
         assertTrue(pidMax > 0);
         // Specific value checks can be added for different OS types if known.
     }
 
     @Test
-    public void testUserDir() {
+    void testUserDir() {
         String expectedUserDir = System.getProperty("user.dir");
         assertEquals(expectedUserDir, OS.userDir());
     }
 
     @Test
-    public void testGetHostName0() {
+    void testGetHostName0() {
         String expectedHostName = null;
 
         if (OS.isWindows()) {
@@ -355,18 +357,18 @@ public class OSTest extends CoreTestCommon {
         assertEquals(expectedHostName, OS.HostnameHolder.HOST_NAME);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void mapAlignRejectsNegativeOffsets() {
-        OS.mapAlign(-1L);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void mapAlignRejectsNonPositiveAlignment() {
-        OS.mapAlign(64L, 0);
+    @Test
+    void mapAlignRejectsNegativeOffsets() {
+        assertThrows(IllegalArgumentException.class, () -> OS.mapAlign(-1L));
     }
 
     @Test
-    public void mapAlignRoundsUpToAlignment() {
+    void mapAlignRejectsNonPositiveAlignment() {
+        assertThrows(IllegalArgumentException.class, () -> OS.mapAlign(64L, 0));
+    }
+
+    @Test
+    void mapAlignRoundsUpToAlignment() {
         long alignment = OS.defaultOsPageSize();
         long offset = alignment / 2;
         long aligned = OS.mapAlign(offset, (int) alignment);
@@ -374,7 +376,7 @@ public class OSTest extends CoreTestCommon {
     }
 
     @Test
-    public void memoryMapAndUnmapRoundTrip() throws IOException {
+    void memoryMapAndUnmapRoundTrip() throws IOException {
         File temp = File.createTempFile("chronicle-os-map", ".bin");
         temp.deleteOnExit();
         long size = OS.pageAlign(8192L);
@@ -383,14 +385,14 @@ public class OSTest extends CoreTestCommon {
             raf.setLength(size);
 
             long address = OS.map(channel, FileChannel.MapMode.READ_WRITE, 0L, size);
-            Assert.assertTrue("Expected non-zero mapping address", address != 0L);
+            assertNotEquals(0L, address, "Expected non-zero mapping address");
 
             OS.unmap(address, size);
         }
     }
 
     @Test
-    public void mapAlignHandlesNonZeroStartOffsets() throws IOException {
+    void mapAlignHandlesNonZeroStartOffsets() throws IOException {
         File temp = File.createTempFile("chronicle-os-map-offset", ".bin");
         temp.deleteOnExit();
         long pageSize = OS.pageSize();
@@ -402,7 +404,7 @@ public class OSTest extends CoreTestCommon {
             raf.setLength(start + size);
 
             long address = OS.map(channel, FileChannel.MapMode.READ_WRITE, start, size);
-            Assert.assertTrue(address != 0L);
+            assertNotEquals(0L, address);
             OS.unmap(address, size);
         }
     }

@@ -4,23 +4,23 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.internal.invariant.ints.IntCondition;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class IntsTest {
+class IntsTest {
 
     @Test
-    public void requireNonNegativeAllowsZeroAndPositive() {
+    void requireNonNegativeAllowsZeroAndPositive() {
         String codeSource = Ints.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        assertTrue("Expected Ints to be loaded from target/classes but was " + codeSource, codeSource.contains("/target/classes"));
+        assertTrue(codeSource.contains("/target/classes"), "Expected Ints to be loaded from target/classes but was " + codeSource);
 
         assertEquals(0, Ints.requireNonNegative(0));
         assertEquals(42, Ints.requireNonNegative(42));
     }
 
     @Test
-    public void requireNonNegativeRejectsNegative() {
+    void requireNonNegativeRejectsNegative() {
         try {
             Ints.requireNonNegative(-1);
             fail("Expected IllegalArgumentException");
@@ -30,20 +30,20 @@ public class IntsTest {
     }
 
     @Test
-    public void assertIfEnabledReturnsTrue() {
+    void assertIfEnabledReturnsTrue() {
         assertTrue(Ints.assertIfEnabled(IntCondition.NON_NEGATIVE, 0));
         assertTrue(Ints.assertIfEnabled(IntCondition.NON_NEGATIVE, 8));
     }
 
     @Test
-    public void failDescriptionExplainsRequirement() {
+    void failDescriptionExplainsRequirement() {
         String description = Ints.failDescription(IntCondition.POSITIVE, -7);
         assertTrue(description.contains("-7"));
         assertTrue(description.contains(">"));
     }
 
     @Test
-    public void nonNegativePredicateMatchesExpectations() {
+    void nonNegativePredicateMatchesExpectations() {
         assertTrue(Ints.nonNegative().test(0));
         assertTrue(Ints.nonNegative().test(3));
         assertFalse(Ints.nonNegative().test(-3));

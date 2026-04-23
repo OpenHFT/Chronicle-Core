@@ -4,15 +4,14 @@
 package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.Jvm;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class AbstractReferenceCountedTest extends ReferenceCountedTracerContractTest {
+class AbstractReferenceCountedTest extends ReferenceCountedTracerContractTest {
 
     @Test
-    public void reserve() throws IllegalStateException, IllegalArgumentException {
+    void reserve() throws IllegalStateException, IllegalArgumentException {
         Jvm.setResourceTracing(true);
 
         MyReferenceCounted rc = createReferenceCounted();

@@ -5,94 +5,93 @@ package net.openhft.chronicle.core.pool;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.util.ClassNotFoundRuntimeException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 
 import static net.openhft.chronicle.core.pool.ClassAliasPool.CLASS_ALIASES;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ClassAliasPoolTest extends CoreTestCommon {
+class ClassAliasPoolTest extends CoreTestCommon {
 
     @Test
-    public void testApplyAliasForSet() {
+    void testApplyAliasForSet() {
         assertEquals("!set", CLASS_ALIASES.applyAlias("Set").toString());
         assertEquals("!set", CLASS_ALIASES.applyAlias("java.util.Set").toString());
     }
 
     @Test
-    public void testApplyAliasForBitSet() {
+    void testApplyAliasForBitSet() {
         assertEquals("!bitset", CLASS_ALIASES.applyAlias("BitSet").toString());
         assertEquals("!bitset", CLASS_ALIASES.applyAlias("java.util.BitSet").toString());
     }
 
     @Test
-    public void testApplyAliasForSortedSet() {
+    void testApplyAliasForSortedSet() {
         assertEquals("!oset", CLASS_ALIASES.applyAlias("SortedSet").toString());
         assertEquals("!oset", CLASS_ALIASES.applyAlias("java.util.SortedSet").toString());
     }
 
     @Test
-    public void testApplyAliasForList() {
+    void testApplyAliasForList() {
         assertEquals("!seq", CLASS_ALIASES.applyAlias("List").toString());
         assertEquals("!seq", CLASS_ALIASES.applyAlias("java.util.List").toString());
     }
 
     @Test
-    public void testApplyAliasForMap() {
+    void testApplyAliasForMap() {
         assertEquals("!map", CLASS_ALIASES.applyAlias("Map").toString());
         assertEquals("!map", CLASS_ALIASES.applyAlias("java.util.Map").toString());
     }
 
     @Test
-    public void testApplyAliasForSortedMap() {
+    void testApplyAliasForSortedMap() {
         assertEquals("!omap", CLASS_ALIASES.applyAlias("SortedMap").toString());
         assertEquals("!omap", CLASS_ALIASES.applyAlias("java.util.SortedMap").toString());
     }
 
     @Test
-    public void testApplyAliasForString() {
+    void testApplyAliasForString() {
         assertEquals("String", CLASS_ALIASES.applyAlias("java.lang.String").toString());
     }
 
     @Test
-    public void testApplyAliasForByte() {
+    void testApplyAliasForByte() {
         assertEquals("byte", CLASS_ALIASES.applyAlias("Byte").toString());
         assertEquals("byte", CLASS_ALIASES.applyAlias("java.lang.Byte").toString());
     }
 
     @Test
-    public void testApplyAliasForInteger() {
+    void testApplyAliasForInteger() {
         assertEquals("int", CLASS_ALIASES.applyAlias("Integer").toString());
         assertEquals("int", CLASS_ALIASES.applyAlias(Integer.class.getName()).toString());
     }
 
     @Test
-    public void testApplyAliasForLocalDate() {
+    void testApplyAliasForLocalDate() {
         assertEquals("Date", CLASS_ALIASES.applyAlias("LocalDate").toString());
         assertEquals("Date", CLASS_ALIASES.applyAlias(LocalDate.class.getName()).toString());
     }
 
     @Test
-    public void forName() {
+    void forName() {
         CLASS_ALIASES.addAlias(ClassAliasPoolTest.class);
         assertEquals("ClassAliasPoolTest", CLASS_ALIASES.applyAlias(ClassAliasPoolTest.class.getName()));
         String simpleName = getClass().getSimpleName();
-        assertEquals(ClassAliasPoolTest.class, CLASS_ALIASES.forName(simpleName));
+        assertSame(ClassAliasPoolTest.class, ClassAliasPool.CLASS_ALIASES.forName(simpleName));
         StringBuilder sb = new StringBuilder(simpleName);
-        assertEquals(ClassAliasPoolTest.class, CLASS_ALIASES.forName(sb));
+        assertSame(ClassAliasPoolTest.class, ClassAliasPool.CLASS_ALIASES.forName(sb));
     }
 
     @Test
-    public void testClean() throws IllegalArgumentException {
+    void testClean() throws IllegalArgumentException {
         assertEquals("String", CLASS_ALIASES.nameFor(String.class));
         CLASS_ALIASES.clean();
         assertEquals("String", CLASS_ALIASES.nameFor(String.class));
     }
 
     @Test
-    public void testEnum() throws IllegalArgumentException {
+    void testEnum() throws IllegalArgumentException {
         assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum",
                 CLASS_ALIASES.nameFor(TestEnum.class));
         assertEquals("net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum",
@@ -102,7 +101,7 @@ public class ClassAliasPoolTest extends CoreTestCommon {
     }
 
     @Test
-    public void replace() {
+    void replace() {
         expectException("Replaced class net.openhft.chronicle.core.pool.ClassAliasPoolTest with class net.openhft.chronicle.core.pool.ClassAliasPoolTest$TestEnum");
         CLASS_ALIASES.addAlias(ClassAliasPoolTest.class, "name1");
         CLASS_ALIASES.addAlias(TestEnum.class, "name1");
@@ -112,12 +111,12 @@ public class ClassAliasPoolTest extends CoreTestCommon {
      * On Windows this would cause a NoClassDefFoundError
      */
     @Test
-    public void wrongCaseClassName() {
+    void wrongCaseClassName() {
         assertThrows(ClassNotFoundRuntimeException.class, () -> CLASS_ALIASES.forName(TestEnum.class.getName().toLowerCase()));
     }
 
     @Test
-    public void banned() {
+    void banned() {
         for (int i = 0; i < 2; i++) {
             assertThrows(ClassNotFoundRuntimeException.class, () -> CLASS_ALIASES.forName("com.sun.xml.internal.bind.v2.runtime.unmarshaller.Base64Data"));
             assertThrows(ClassNotFoundRuntimeException.class, () -> CLASS_ALIASES.forName("com.sun.istack.internal.ByteArrayDataSource"));
@@ -131,6 +130,7 @@ public class ClassAliasPoolTest extends CoreTestCommon {
         FOO {
             @Override
             void foo() {
+                // needed to have a subclass
             }
         },
         BAR;

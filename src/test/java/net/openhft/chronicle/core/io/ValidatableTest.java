@@ -5,14 +5,14 @@ package net.openhft.chronicle.core.io;
 
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ValidatableTest extends CoreTestCommon {
+class ValidatableTest extends CoreTestCommon {
 
     @Test
-    public void validate() {
+    void validate() {
         DTOWithValidateToString d = new DTOWithValidateToString();
         try {
             d.toString();
@@ -43,7 +43,7 @@ public class ValidatableTest extends CoreTestCommon {
     }
 
     @Test
-    public void validateDisabled() {
+    void validateDisabled() {
 
         assertTrue(ValidatableUtil.validateEnabled());
         ValidatableUtil.startValidateDisabled();

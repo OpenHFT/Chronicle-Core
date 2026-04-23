@@ -4,17 +4,16 @@
 package net.openhft.chronicle.core.threads;
 
 import net.openhft.chronicle.core.time.TimeProvider;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class TimerTest {
+class TimerTest {
 
     private static final class FakeLoop implements EventLoop {
         final List<EventHandler> handlers = new ArrayList<>();
@@ -30,7 +29,7 @@ public class TimerTest {
         @Override public boolean isClosed() { return closed; }
 
         void tickOnce() {
-            for (Iterator<EventHandler> it = handlers.iterator(); it.hasNext();) {
+            for (Iterator<EventHandler> it = handlers.iterator(); it.hasNext(); ) {
                 EventHandler h = it.next();
                 try {
                     h.action();
@@ -47,13 +46,16 @@ public class TimerTest {
     }
 
     @Test
-    public void fixedRateFiresAfterInitialDelayAndPeriod() {
+    void fixedRateFiresAfterInitialDelayAndPeriod() {
         FakeLoop loop = new FakeLoop();
         FakeTime time = new FakeTime();
         Timer timer = new Timer(loop, time);
 
         AtomicInteger calls = new AtomicInteger();
-        VanillaEventHandler vh = () -> { calls.incrementAndGet(); return false; };
+        VanillaEventHandler vh = () -> {
+            calls.incrementAndGet();
+            return false;
+        };
 
         timer.scheduleAtFixedRate(vh, 10, 5);
 
@@ -78,7 +80,7 @@ public class TimerTest {
     }
 
     @Test
-    public void scheduleOnceRemovesItselfAfterRun() throws IOException {
+    void scheduleOnceRemovesItselfAfterRun() {
         FakeLoop loop = new FakeLoop();
         FakeTime time = new FakeTime();
         CancellableTimer ct = new CancellableTimer(loop, time);

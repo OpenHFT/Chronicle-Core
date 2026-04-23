@@ -4,15 +4,14 @@
 package net.openhft.chronicle.core.onoes;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ExceptionKeyTest extends CoreTestCommon {
+class ExceptionKeyTest extends CoreTestCommon {
 
     @Test
-    public void testEqualsAndHashCode() {
+    void testEqualsAndHashCode() {
         ExceptionKey ek1 = new ExceptionKey(LogLevel.PERF, getClass(), "one", null);
         ExceptionKey ek1b = new ExceptionKey(LogLevel.PERF, getClass(), "one", null);
         assertEquals(ek1, ek1b);

@@ -3,10 +3,9 @@
  */
 package net.openhft.chronicle.core.internal.cleaner;
 
-import net.openhft.chronicle.core.internal.cleaner.ReflectionBasedByteBufferCleanerService;
+import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.cleaner.spi.ByteBufferCleanerService.Impact;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 import java.nio.ByteBuffer;
 
@@ -17,17 +16,10 @@ class ReflectionBasedByteBufferCleanerServiceTest {
     private final ReflectionBasedByteBufferCleanerService cleanerService = new ReflectionBasedByteBufferCleanerService();
 
     @Test
-    @EnabledIfSystemProperty(named = "java.version", matches = "1\\.8.*")
-    void cleanShouldWorkOnJava8() {
+    void cleanShouldWorkOnCurrentJvm() {
         ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
-        assertDoesNotThrow(() -> cleanerService.clean(buffer), "Cleaning a direct buffer should not throw an exception on Java 8");
-    }
-
-    @Test
-    @EnabledIfSystemProperty(named = "java.version", matches = "9|1[0-9].*")
-    void cleanShouldWorkOnJava9Plus() {
-        ByteBuffer buffer = ByteBuffer.allocateDirect(1024);
-        assertDoesNotThrow(() -> cleanerService.clean(buffer), "Cleaning a direct buffer should not throw an exception on Java 9+");
+        String javaFamily = Jvm.isJava9Plus() ? "Java 9+" : "Java 8";
+        assertDoesNotThrow(() -> cleanerService.clean(buffer), "Cleaning a direct buffer should not throw on " + javaFamily);
     }
 
     @Test

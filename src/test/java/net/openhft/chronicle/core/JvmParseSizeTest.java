@@ -3,33 +3,23 @@
  */
 package net.openhft.chronicle.core;
 
-import org.junit.After;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.Arrays;
 import java.util.Collection;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Canonical test suite for size parsing and retrieval via {@link Jvm#parseSize(String)} and
  * {@link Jvm#getSize(String, long)}. Keep related assertions here to avoid duplication.
  */
-@RunWith(Parameterized.class)
-public class JvmParseSizeTest extends CoreTestCommon {
+class JvmParseSizeTest extends CoreTestCommon {
     private static final String PROPERTY = "JvmParseSizeTest";
-    private final String text;
-    private final long value;
 
-    @SuppressWarnings("unused")
-    public JvmParseSizeTest(String text, long value) {
-        this.text = text;
-        this.value = value;
-    }
-
-    @Parameterized.Parameters(name = "{0} => {1}")
     public static Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
                 {"100", 100L},
@@ -47,24 +37,27 @@ public class JvmParseSizeTest extends CoreTestCommon {
         });
     }
 
-    @After
-    public void teardown() {
+    @AfterEach
+    void teardown() {
         System.getProperties().remove(PROPERTY);
     }
 
-    @Test
-    public void parseSize() throws IllegalArgumentException {
+    @ParameterizedTest(name = "{0} => {1}")
+    @MethodSource("data")
+    void parseSize(String text, long value) throws IllegalArgumentException {
         assertEquals(value, Jvm.parseSize(text));
     }
 
-    @Test
-    public void getSize() {
+    @ParameterizedTest(name = "{0} => {1}")
+    @MethodSource("data")
+    void getSize(String text, long value) {
         System.setProperty(PROPERTY, text);
         assertEquals(value, Jvm.getSize(PROPERTY, -1));
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void parseSizeRejectsUnknownSuffix() {
-        Jvm.parseSize("10XB");
+    @Test
+    void parseSizeRejectsUnknownSuffix() {
+        assertThrows(IllegalArgumentException.class, () ->
+                Jvm.parseSize("10XB"));
     }
 }

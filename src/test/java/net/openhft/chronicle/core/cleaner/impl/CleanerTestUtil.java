@@ -11,8 +11,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
 import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 
 public final class CleanerTestUtil {
 
