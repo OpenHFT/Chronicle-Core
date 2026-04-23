@@ -30,14 +30,16 @@ public final class RecordingLogger implements InvocationHandler {
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) {
         String methodName = method.getName();
-        if ("getName".equals(methodName))
-            return name;
-        if ("toString".equals(methodName))
-            return "RecordingLogger[" + name + ']';
-        if ("equals".equals(methodName))
-            return proxy == args[0];
-        if ("hashCode".equals(methodName))
-            return System.identityHashCode(proxy);
+        switch (methodName) {
+            case "getName":
+                return name;
+            case "toString":
+                return "RecordingLogger[" + name + ']';
+            case "equals":
+                return proxy == args[0];
+            case "hashCode":
+                return System.identityHashCode(proxy);
+        }
 
         calls.add(new Call(methodName, args == null ? new Object[0] : args.clone()));
         if (methodName.equals(throwingMethod))

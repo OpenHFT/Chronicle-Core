@@ -13,7 +13,6 @@ public final class RecordingEventLoop implements EventLoop {
     private boolean stopped;
     private boolean closing;
     private boolean closed;
-    private boolean runsInsideCoreLoop = true;
     private int nameCalls;
     private int addHandlerCalls;
     private int startCalls;
@@ -98,7 +97,7 @@ public final class RecordingEventLoop implements EventLoop {
     @Override
     public boolean runsInsideCoreLoop() {
         runsInsideCoreLoopCalls++;
-        return runsInsideCoreLoop;
+        return true;
     }
 
     public EventHandler lastHandler() {
