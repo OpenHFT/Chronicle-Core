@@ -30,8 +30,8 @@ class DirectBufferUtilTest {
 
         try {
             DirectBufferUtil.cleanIfInstanceOfDirectBuffer(directBuffer);
-        } catch (IllegalAccessError e) {
-            assertTrue(Jvm.isJava9Plus(), "Only Java 9+ module access should reject DirectBuffer cleaner access");
+        } catch (IllegalAccessError | NoSuchMethodError e) {
+            assertTrue(Jvm.isJava9Plus(), "Only Java 9+ module access should reject DirectBuffer cleaner access or linkage");
         }
     }
 
