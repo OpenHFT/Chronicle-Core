@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class CoolerTesterTest {
 
     @Test
-    void shouldExecuteCallableWithEachCooler() throws Exception {
+    void shouldExecuteCallableWithEachCooler() {
         RecordingCallable<?> task = new RecordingCallable<>();
         RecordingCpuCooler cooler = new RecordingCpuCooler();
 

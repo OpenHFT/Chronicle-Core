@@ -42,9 +42,8 @@ class ThreadDumpTest {
     @Test
     void testAssertNewThreads() {
         assumeFalse(Jvm.isArm());
-        Thread newThread = new Thread(() -> {
-            Jvm.pause(10000);
-        });
+        Thread newThread = new Thread(() ->
+                Jvm.pause(10000));
         newThread.start();
 
         // ensure the thread has started

@@ -37,6 +37,7 @@ class ReferenceCountedUtilsTest {
     private static final class TestReferenceCounted extends AbstractReferenceCounted {
         @Override
         protected void performRelease() {
+            // nothing to release for empty test object
         }
     }
 }

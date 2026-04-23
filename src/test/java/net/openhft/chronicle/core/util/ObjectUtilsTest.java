@@ -4,6 +4,7 @@
 package net.openhft.chronicle.core.util;
 
 import net.openhft.chronicle.core.CoreTestCommon;
+import net.openhft.chronicle.core.annotation.UsedViaReflection;
 import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.pool.Ecn;
 import org.jetbrains.annotations.NotNull;
@@ -62,6 +63,7 @@ class ObjectUtilsTest extends CoreTestCommon {
     }
 
     static class ClassWithString {
+        @UsedViaReflection
         private final String s;
 
         ClassWithString(String s) {
@@ -70,6 +72,7 @@ class ObjectUtilsTest extends CoreTestCommon {
     }
 
     static class ClassWithValueOf {
+        @UsedViaReflection
         private final String s;
 
         ClassWithValueOf(String s) {
@@ -82,6 +85,7 @@ class ObjectUtilsTest extends CoreTestCommon {
     }
 
     static class ClassWithParse {
+        @UsedViaReflection
         private final String s;
 
         ClassWithParse(String s) {
@@ -94,6 +98,7 @@ class ObjectUtilsTest extends CoreTestCommon {
     }
 
     static class ClassWithSetter {
+        @UsedViaReflection
         private String s;
 
         public void setS(String s) {
@@ -247,7 +252,7 @@ class ObjectUtilsTest extends CoreTestCommon {
 
     @Test
     void convertToNumberTest() {
-        assertEquals(Integer.valueOf(1), ObjectUtils.convertToNumber(Integer.class, "1"));
+        assertEquals(1, ObjectUtils.convertToNumber(Integer.class, "1"));
     }
 
     @Test
@@ -296,13 +301,13 @@ class ObjectUtilsTest extends CoreTestCommon {
         MY_VALUE
     }
 
-    class ImplementingClass implements IgnoresEverything {
+    static class ImplementingClass implements IgnoresEverything {
     }
 
-    private class AbstractTestClass {
+    private static class AbstractTestClass {
     }
 
-    private class RegularClass {
+    private static class RegularClass {
     }
 
     @Test

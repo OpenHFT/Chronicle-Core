@@ -57,8 +57,7 @@ class JvmParseSizeTest extends CoreTestCommon {
 
     @Test
     void parseSizeRejectsUnknownSuffix() {
-        assertThrows(IllegalArgumentException.class, () -> {
-            Jvm.parseSize("10XB");
-        });
+        assertThrows(IllegalArgumentException.class, () ->
+                Jvm.parseSize("10XB"));
     }
 }

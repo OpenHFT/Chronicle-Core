@@ -25,10 +25,6 @@ class CloseableUtilsTest {
     private RecordingHttpURLConnection httpURLConnection;
 
     @BeforeEach
-    void beforeEachCloseableUtilsTest() {
-        setUp();
-    }
-
     void setUp() {
         anonCloseable = new AbstractCloseable() {
             @Override
@@ -181,7 +177,8 @@ class CloseableUtilsTest {
         }
 
         @Override
-        public void connect() throws IOException {
+        public void connect() {
+            // nothing to be done for virtual connection
         }
 
         private static URL toUrl() {

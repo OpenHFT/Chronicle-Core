@@ -78,7 +78,7 @@ class HistogramTest extends CoreTestCommon {
         @NotNull Histogram h = new Histogram(40, 2);
         double base = 1;
         for (int i = 0; i < 40; i++) {
-            assertEquals(i * 4 + 0, h.sample(base));
+            assertEquals(i * 4, h.sample(base));
             assertEquals(i * 4 + 1, h.sample(base * 1.25));
             assertEquals(i * 4 + 2, h.sample(base * 1.5));
             assertEquals(i * 4 + 3, h.sample(base * 1.75));

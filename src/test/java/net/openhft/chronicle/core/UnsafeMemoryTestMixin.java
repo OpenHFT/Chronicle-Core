@@ -128,6 +128,7 @@ interface UnsafeMemoryTestMixin<T> {
                                             // Busy wait for a short time. This gives the threads some time to see changes
                                             final long expireNs = System.nanoTime() + TimeUnit.MICROSECONDS.toNanos(100);
                                             while (System.nanoTime() < expireNs) {
+                                                Jvm.nanoPause();
                                             }
 
                                             try {
@@ -184,6 +185,7 @@ interface UnsafeMemoryTestMixin<T> {
                 T actual;
                 // Expect a change, not a specific value
                 while ((actual = getter.get()).equals(previousValue)) {
+                    Jvm.nanoPause();
                 }
                 if (!expected.equals(actual)) {
                     errors.add("Reader " + no + " expected " + expected + " but was " + actual);
@@ -261,14 +263,14 @@ interface UnsafeMemoryTestMixin<T> {
         }
     }
 
-    default <T> void testObj(final Variant variant,
-                             final T testValue,
-                             final MemoryObjLongObjConsumer<T> objectWriter,
-                             final MemoryObjLongFunction<T> objectReader) {
+    default <S> void testObj(final Variant variant,
+                             final S testValue,
+                             final MemoryObjLongObjConsumer<S> objectWriter,
+                             final MemoryObjLongFunction<S> objectReader) {
         for (int i = 0; i <= CACHE_LINE_SIZE; i++) {
             objectWriter.accept(variant.memory(), variant.object(), variant.addr() + i, testValue);
-            final T t = objectReader.apply(variant.memory(), variant.object(), variant.addr() + i);
-            assertEquals(testValue, t);
+            final S s = objectReader.apply(variant.memory(), variant.object(), variant.addr() + i);
+            assertEquals(testValue, s);
         }
     }
 

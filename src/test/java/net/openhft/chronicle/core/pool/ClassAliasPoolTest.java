@@ -130,6 +130,7 @@ class ClassAliasPoolTest extends CoreTestCommon {
         FOO {
             @Override
             void foo() {
+                // needed to have a subclass
             }
         },
         BAR;

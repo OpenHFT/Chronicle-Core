@@ -33,15 +33,6 @@ class ConcreteInvocationHandler extends AbstractInvocationHandler {
 
 class AbstractInvocationHandlerTest extends CoreTestCommon {
 
-    private AbstractInvocationHandler handler;
-    private Method exampleMethod;
-
-    @BeforeEach
-    void setUp() throws NoSuchMethodException {
-        handler = new ConcreteInvocationHandler();
-        exampleMethod = String.class.getMethod("length");
-    }
-
     @Test
     void testCloseable() throws Throwable {
         AbstractInvocationHandler handler = new ConcreteInvocationHandler();

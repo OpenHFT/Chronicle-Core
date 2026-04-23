@@ -13,7 +13,6 @@ import org.junit.jupiter.api.TestInfo;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.nio.ByteOrder;
@@ -303,14 +302,14 @@ class OSTest extends CoreTestCommon {
     @Test
     void testPageAlign() {
         long size = 12345;
-        long expectedAlignedSize = (size + OS.pageSize() - 1) & ~(OS.pageSize() - 1);
+        long expectedAlignedSize = (size + OS.pageSize() - 1) & -OS.pageSize();
         assertEquals(expectedAlignedSize, OS.pageAlign(size));
     }
 
     @Test
     void testMapAlign() {
         long offset = 6000;
-        long expectedAlignedOffset = (offset + OS.defaultOsPageSize() - 1) & ~(OS.defaultOsPageSize() - 1);
+        long expectedAlignedOffset = (offset + OS.defaultOsPageSize() - 1) & -OS.defaultOsPageSize();
         assertEquals(expectedAlignedOffset, OS.mapAlign(offset));
 
         assertThrows(IllegalArgumentException.class, () -> OS.mapAlign(-1));
@@ -386,7 +385,7 @@ class OSTest extends CoreTestCommon {
             raf.setLength(size);
 
             long address = OS.map(channel, FileChannel.MapMode.READ_WRITE, 0L, size);
-            assertTrue(address != 0L, "Expected non-zero mapping address");
+            assertNotEquals(0L, address, "Expected non-zero mapping address");
 
             OS.unmap(address, size);
         }

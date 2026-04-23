@@ -47,9 +47,8 @@ class VanillaThreadConfinementAsserterTest extends CoreTestCommon {
         VanillaThreadConfinementAsserter asserter = new VanillaThreadConfinementAsserter();
         asserter.assertThreadConfined(); // Initialize with the current thread
 
-        Thread otherThread = new Thread(() -> {
-            assertThrows(IllegalStateException.class, asserter::assertThreadConfined);
-        });
+        Thread otherThread = new Thread(() ->
+                assertThrows(IllegalStateException.class, asserter::assertThreadConfined));
 
         otherThread.start();
         otherThread.join();

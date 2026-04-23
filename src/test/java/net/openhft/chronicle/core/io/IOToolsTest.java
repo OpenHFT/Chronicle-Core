@@ -219,7 +219,6 @@ class IOToolsTest extends CoreTestCommon {
             if (!ro.toFile().setWritable(true))
                 throw new IllegalStateException("Cannot make read-write");
             Files.delete(ro);
-
         }
     }
 
@@ -357,11 +356,7 @@ class IOToolsTest extends CoreTestCommon {
         ByteBuffer bytes = ByteBuffer.allocateDirect(1024);
         Thread t = new Thread(() -> {
             Jvm.pause(100);
-            try {
-                sc.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Closeable.closeQuietly(sc);
         }, "close~thread");
         t.start();
         try {
@@ -398,11 +393,7 @@ class IOToolsTest extends CoreTestCommon {
             Jvm.pause(100);
             main.interrupt();
             Jvm.pause(10);
-            try {
-                sc.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            Closeable.closeQuietly(sc);
         }, "close~thread");
         t.setDaemon(true);
         t.start();

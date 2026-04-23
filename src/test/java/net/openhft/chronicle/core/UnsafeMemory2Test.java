@@ -361,7 +361,7 @@ class UnsafeMemory2Test extends CoreTestCommon {
         for (int i = 0; i < lengthInBytes; i++)
             assertEquals(i, bytes[i]);
         Arrays.fill(longs, 0);
-        memory.copyMemory((Object) bytes, 0, longs, memory.arrayBaseOffset(longs.getClass()), lengthInBytes);
+        memory.copyMemory(bytes, 0, longs, memory.arrayBaseOffset(longs.getClass()), lengthInBytes);
         assertArrayEquals(copy, longs);
     }
 

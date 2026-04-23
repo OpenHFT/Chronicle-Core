@@ -7,6 +7,7 @@ import net.openhft.chronicle.core.test.RecordingRunnable;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,7 +39,7 @@ class PriorityHookTest {
 
         PriorityHook.getRegisteredHook().onShutdown();
 
-        assertEquals(List.of("hook1", "hook2"), calls);
+        assertEquals(Arrays.asList("hook1", "hook2"), calls);
     }
 
     @Test

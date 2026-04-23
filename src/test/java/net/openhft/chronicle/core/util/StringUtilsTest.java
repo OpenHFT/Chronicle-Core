@@ -8,7 +8,6 @@ import net.openhft.chronicle.core.Maths;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.function.BiFunction;
 
 import static org.junit.jupiter.api.Assertions.*;

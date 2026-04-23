@@ -55,7 +55,7 @@ class ObjectUtilsConvertToTest extends CoreTestCommon {
 
         @Override
         public int ordinal() {
-            return 0;
+            return ordinal;
         }
     }
 }

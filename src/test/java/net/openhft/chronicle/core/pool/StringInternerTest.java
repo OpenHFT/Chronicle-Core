@@ -31,17 +31,14 @@ class StringInternerTest extends CoreTestCommon {
 
     /**
      * an example of the StringInterner used in conjunction with  the uppercase[] to cache another value
-     *
-     * @throws IllegalArgumentException
      */
     @Test
-    void testToUppercaseInternIndex() throws IllegalArgumentException {
-
+    void testToUppercaseInternIndex() {
         @NotNull StringInterner si = new StringInterner(128);
         uppercase = new String[si.capacity()];
         for (int i = 0; i < 100; i++) {
             String lowerCaseString = randomLowercaseString();
-            System.out.println(lowerCaseString.toString());
+            System.out.println(lowerCaseString);
             int index = si.index(lowerCaseString, this::changed);
             if (index != -1)
                 assertEquals(lowerCaseString.toUpperCase(), uppercase[index]);

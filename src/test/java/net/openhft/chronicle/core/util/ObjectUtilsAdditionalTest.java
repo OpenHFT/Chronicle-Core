@@ -64,7 +64,7 @@ class ObjectUtilsAdditionalTest {
 
     @Test
     void requireNonNullThrowsOnNull() {
-        assertThrows(NullPointerException.class, () -> ObjectUtils.<Object>requireNonNull(null));
+        assertThrows(NullPointerException.class, () -> ObjectUtils.requireNonNull(null));
         assertEquals("abc", ObjectUtils.requireNonNull("abc"));
     }
 

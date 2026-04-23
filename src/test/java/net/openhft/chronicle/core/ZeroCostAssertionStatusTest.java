@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ZeroCostAssertionStatusTest extends CoreTestCommon {
 
+    @SuppressWarnings({"PointlessBooleanExpression", "ConstantValue"})
     @Test
     void show() {
         boolean ae = false;

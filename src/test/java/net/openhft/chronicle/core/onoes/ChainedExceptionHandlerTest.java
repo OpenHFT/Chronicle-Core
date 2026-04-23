@@ -4,9 +4,11 @@
 package net.openhft.chronicle.core.onoes;
 
 import net.openhft.chronicle.core.test.RecordingExceptionHandlerStub;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -52,7 +54,7 @@ class ChainedExceptionHandlerTest {
 
         chained.on(clazz, message, thrown);
 
-        assertEquals(List.of("first", "second"), order);
+        assertEquals(Arrays.asList("first", "second"), order);
     }
 
     @Test
@@ -74,12 +76,12 @@ class ChainedExceptionHandlerTest {
         }
 
         @Override
-        public void on(Class<?> clazz, String message, Throwable thrown) {
+        public void on(@NotNull Class<?> clazz, String message, Throwable thrown) {
             order.add(name);
         }
 
         @Override
-        public void on(org.slf4j.Logger logger, String message, Throwable thrown) {
+        public void on(org.slf4j.@NotNull Logger logger, String message, Throwable thrown) {
             throw new AssertionError("Logger overload should not be used");
         }
     }

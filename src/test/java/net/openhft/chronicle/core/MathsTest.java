@@ -311,17 +311,17 @@ class MathsTest extends CoreTestCommon {
         for (int i = 0; i < 1000; i++) {
             double d = Math.pow(1e18, rand.nextDouble()) / 1e6;
             @NotNull BigDecimal bd = new BigDecimal(d);
-            assertEquals(bd.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue(), Maths.round2(d), 5e-2);
-            assertEquals(bd.setScale(4, BigDecimal.ROUND_HALF_UP).doubleValue(), Maths.round4(d), 5e-4);
-            assertEquals(bd.setScale(6, BigDecimal.ROUND_HALF_UP).doubleValue(), Maths.round6(d), 5e-6);
+            assertEquals(bd.setScale(2, RoundingMode.HALF_UP).doubleValue(), Maths.round2(d), 5e-2);
+            assertEquals(bd.setScale(4, RoundingMode.HALF_UP).doubleValue(), Maths.round4(d), 5e-4);
+            assertEquals(bd.setScale(6, RoundingMode.HALF_UP).doubleValue(), Maths.round6(d), 5e-6);
             if (d < 1e8)
-                assertEquals(bd.setScale(8, BigDecimal.ROUND_HALF_UP).doubleValue(), Maths.round8(d), 5e-8);
+                assertEquals(bd.setScale(8, RoundingMode.HALF_UP).doubleValue(), Maths.round8(d), 5e-8);
         }
     }
 
     @Test
     void sampledRound4ProducesCompactStrings() {
-        @NotNull double[] ds = new double[17];
+        double @NotNull [] ds = new double[17];
         ds[0] = 1e-4;
         for (int i = 1; i < ds.length; i++)
             ds[i] = 2 * ds[i - 1];
@@ -411,6 +411,7 @@ class MathsTest extends CoreTestCommon {
         String a1 = "Test";
         long ah1 = Maths.hash64(a1);
 
+        @SuppressWarnings("StringBufferReplaceableByString")
         String a2 = new StringBuilder().append("T").append("e") + "st";
         long ah2 = Maths.hash64(a2);
 

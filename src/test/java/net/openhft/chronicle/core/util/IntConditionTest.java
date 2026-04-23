@@ -101,9 +101,8 @@ class IntConditionTest extends CoreTestCommon {
                       Map.Entry<Integer, Boolean>... expected) {
 
         Arrays.stream(expected)
-                .forEach(e -> {
-                    assertEquals(e.getValue(), predicate.test(e.getKey()), e.getKey() + " expected " + e.getValue());
-                });
+                .forEach(e ->
+                        assertEquals(e.getValue(), predicate.test(e.getKey()), e.getKey() + " expected " + e.getValue()));
     }
 
     private static Map.Entry<Integer, Boolean> entry(int value, boolean expected) {

@@ -52,7 +52,7 @@ class JvmSafepointTest extends CoreTestCommon {
     @Test
     void safePointPerf() {
         // This will enable the C2 compiler to kick in.
-        FlakyTestRunner.<RuntimeException>builder(this::safePointPerf0).withFlakyOnThisArchitecture(true).withMaxIterations(3).build().run();
+        FlakyTestRunner.builder(this::safePointPerf0).withFlakyOnThisArchitecture(true).withMaxIterations(3).build().run();
     }
 
     private void safePointPerf0() {

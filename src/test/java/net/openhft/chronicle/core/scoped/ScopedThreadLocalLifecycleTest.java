@@ -102,12 +102,6 @@ class ScopedThreadLocalLifecycleTest {
         }
     }
 
-    private static void acquireAndClose(ScopedThreadLocal<CloseableProbe> pool) {
-        try (ScopedResource<CloseableProbe> ignored = pool.get()) {
-            // scope closes immediately
-        }
-    }
-
     private static void forceGc(WeakReference<?> ref) {
         for (int i = 0; i < 50 && ref.get() != null; i++) {
             System.gc();

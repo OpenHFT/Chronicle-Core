@@ -16,6 +16,6 @@ class ReferenceOwnerTest {
         Set<Integer> ints = new HashSet<>();
         for (int i = 0; i < 101; i++)
             ints.add(new VanillaReferenceOwner("hi").referenceId());
-        assertEquals(100.0, (double) ints.size(), 1.0);
+        assertEquals(100.0, ints.size(), 1.0);
     }
 }
