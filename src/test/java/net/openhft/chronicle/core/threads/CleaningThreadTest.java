@@ -40,10 +40,10 @@ class CleaningThreadTest extends CoreTestCommon {
     @Test
     void resetThreadAffinity() throws InterruptedException {
         final BitSet affinity = Affinity.getAffinity();
-        assumeTrue(affinity.cardinality() > 2);
-        assumeTrue(AffinityLock.BASE_AFFINITY.cardinality() > 2);
+        assumeTrue(affinity.cardinality() > 1);
+        assumeTrue(AffinityLock.BASE_AFFINITY.cardinality() > 1);
         try {
-            Affinity.setAffinity(1);
+            Affinity.setAffinity(affinity.nextSetBit(0));
             BitSet[] nestedAffinity = {null};
             CleaningThread ct = new CleaningThread(() -> nestedAffinity[0] = Affinity.getAffinity());
             ct.start();

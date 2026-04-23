@@ -320,19 +320,21 @@ class MathsTest extends CoreTestCommon {
     }
 
     @Test
-    @Disabled("Long running")
-    void longRunningRound() {
+    void sampledRound4ProducesCompactStrings() {
         @NotNull double[] ds = new double[17];
         ds[0] = 1e-4;
         for (int i = 1; i < ds.length; i++)
             ds[i] = 2 * ds[i - 1];
 
-        DoubleStream.of(ds).parallel()
-                .forEach(x -> {
-                    for (double d = x; d <= 2 * x && d < 10; d += Math.ulp(d))
-                        if (Double.toString(Maths.round4(d)).length() > 6)
-                            fail("d: " + d);
-                });
+        DoubleStream.of(ds).forEach(x -> {
+            double upper = Math.min(2 * x, 10);
+            double step = (upper - x) / 4096;
+            for (int i = 0; i <= 4096; i++) {
+                double d = x + i * step;
+                assertTrue(Double.toString(Maths.round4(d)).length() <= 6, "d: " + d);
+                assertTrue(Double.toString(Maths.round4(Math.nextUp(d))).length() <= 6, "d: " + Math.nextUp(d));
+            }
+        });
     }
 
     @Test

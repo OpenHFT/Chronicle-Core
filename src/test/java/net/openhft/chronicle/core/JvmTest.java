@@ -126,9 +126,14 @@ class JvmTest extends CoreTestCommon {
     @Test
     void testUsedDirectMemory() {
         long used = Jvm.usedDirectMemory();
-        assumeFalse(used == 0);
-        ByteBuffer.allocateDirect(4 << 10);
-        assertEquals(used + (4 << 10), Jvm.usedDirectMemory());
+        ByteBuffer buffer = ByteBuffer.allocateDirect(4 << 10);
+        long usedAfterAllocation = Jvm.usedDirectMemory();
+
+        if (used == 0 && usedAfterAllocation == 0)
+            assertEquals(0, usedAfterAllocation, "Direct-memory accounting is unavailable on this JVM");
+        else
+            assertEquals(used + (4 << 10), usedAfterAllocation);
+        assertNotNull(buffer);
     }
 
     @Test

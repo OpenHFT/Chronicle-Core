@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 import java.nio.ByteBuffer;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assumptions.*;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 class DirectBufferUtilTest {
 
@@ -25,11 +25,14 @@ class DirectBufferUtilTest {
     }
 
     @Test
-    void cleanIfInstanceOfDirectBufferShouldCleanDirectBuffer() {
-        assumeFalse(Jvm.isJava9Plus());
+    void cleanIfInstanceOfDirectBufferShouldFollowJvmAccessModel() {
         ByteBuffer directBuffer = ByteBuffer.allocateDirect(1024);
 
-        assertDoesNotThrow(() -> DirectBufferUtil.cleanIfInstanceOfDirectBuffer(directBuffer), "Cleaning a direct buffer should not throw an exception");
+        try {
+            DirectBufferUtil.cleanIfInstanceOfDirectBuffer(directBuffer);
+        } catch (IllegalAccessError e) {
+            assertTrue(Jvm.isJava9Plus(), "Only Java 9+ module access should reject DirectBuffer cleaner access");
+        }
     }
 
     @Test
