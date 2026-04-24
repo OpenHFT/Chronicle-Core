@@ -80,4 +80,4 @@ When a `ThreadingIllegalStateException` is thrown:
 == 6. Related Requirements and Properties
 * **Project Requirements**: `CORE-FN-040`, `CORE-FN-041`, `CORE-FN-042`, `CORE-FN-043` detail these features.
 * **System Property**: `disable.single.threaded.check` can disable these checks globally (see `systemProperties.adoc`).
-* **Further Reading**: See the `README.adoc` for an initial overview of thread safety checks.
+* **Further Reading**: See the `README.adoc` for an initial overview of thread-safety checks.

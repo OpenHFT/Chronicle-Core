@@ -242,7 +242,7 @@ Creating a stack trace can take microseconds to milliseconds.
 Test in your environment.
 
 . *Memory*
-Each `StackTraceElement` can hold a class name, method name, file name, line number, etc. A large number of frames can consume memory.
+Each `StackTraceElement` can hold a class name, method name, filename, line number, etc. A large number of frames can consume memory.
 
 . *Thread-Safety*
 `forThread(Thread)` is thread-safe, but if the thread is in native code or unwinding, frames might be incomplete.

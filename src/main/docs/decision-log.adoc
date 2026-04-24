@@ -109,7 +109,7 @@ Context::
 * Initialisation steps for some applications must run before Chronicle reads any system properties.
 * Other hooks must execute after `Jvm` static initialisation completes.
 Decision Statement::
-* Provide `ChronicleInit` to load and run classes specified by
+* Provide `ChronicleInit` to load and run classes named by
 `chronicle.init.runnable` and `chronicle.postinit.runnable` system properties.
 * Support `ChronicleInitRunnable` implementations discovered via `ServiceLoader`.
 Alternatives Considered::

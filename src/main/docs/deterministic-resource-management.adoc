@@ -18,7 +18,7 @@ Resource tracing helps diagnose leaks and incorrect resource usage by tracking r
 * **Enabling**: Set system property `jvm.resource.tracing=true`.
 Alternatively, call `AbstractCloseable.enableCloseableTracing()` and `AbstractReferenceCounted.enableReferenceTracing()`.
 * **Debugging**: In tests, use `CloseableUtils.assertCloseablesClosed()` and `ReferenceCountedUtils.assertReferencesReleased()` to verify all tracked resources are properly released.
-* **Tracking Mechanism**: Utilizes `WeakIdentityHashMap` to store references to managed resources without preventing them from being garbage collected if all other references are gone.
+* **Tracking Mechanism**: Uses `WeakIdentityHashMap` to store references to managed resources without preventing them from being garbage collected if all other references are gone.
 
 == 2. `Closeable` Resources with `AbstractCloseable`
 
