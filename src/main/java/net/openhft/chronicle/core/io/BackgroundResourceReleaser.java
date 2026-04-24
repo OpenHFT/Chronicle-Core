@@ -155,9 +155,13 @@ public final class BackgroundResourceReleaser {
                 offerPoisonPill(false);
 
             if (!interrupted)
-                for (int i = 0; i < 1000 && COUNTER.get() > 0; i++)
-                    //noinspection BusyWait
-                    Thread.sleep(1);
+                for (int i = 0; i < 1000 && COUNTER.get() > 0; i++) {
+                    Jvm.pause(1);
+                    if (Thread.currentThread().isInterrupted()) {
+                        interrupted = true;
+                        break;
+                    }
+                }
             long left = COUNTER.get();
             if (left != 0)
                 Jvm.perf().on(BackgroundResourceReleaser.class, "Still got " + left + " resources to clean");

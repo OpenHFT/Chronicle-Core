@@ -18,10 +18,7 @@ import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.net.Socket;
+import java.net.*;
 import java.nio.channels.FileChannel;
 import java.security.SecureRandom;
 import java.util.Scanner;
@@ -117,7 +114,7 @@ public final class OS {
         String target = Jvm.getProperty("project.build.directory");
         if (target != null) {
             final File tmp = new File(target, "tmp");
-            tmp.mkdir();
+            tmp.mkdirs();
             return tmp.getPath();
         }
         final String tmp = Jvm.getProperty("java.io.tmpdir");
@@ -702,7 +699,7 @@ public final class OS {
         static String getIpAddressByLocalHost() {
             try {
                 return InetAddress.getLocalHost().getHostAddress();
-            } catch (Throwable e) {
+            } catch (UnknownHostException e) {
                 return "";
             }
         }
@@ -714,7 +711,7 @@ public final class OS {
                     socket.connect(new InetSocketAddress("google.com", 80));
                     return socket.getLocalAddress().getHostAddress();
                 }
-            } catch (Throwable e) {
+            } catch (IOException e) {
                 return "";
             }
         }
@@ -726,7 +723,7 @@ public final class OS {
                     socket.connect(InetAddress.getByName(GOOGLE_DNS), 10002);
                     return socket.getLocalAddress().getHostAddress();
                 }
-            } catch (Throwable e) {
+            } catch (IOException e) {
                 return null;
             }
         }
@@ -746,7 +743,7 @@ public final class OS {
             }
             try {
                 return InetAddress.getLocalHost().getHostName();
-            } catch (Throwable e) {
+            } catch (UnknownHostException e) {
                 try {
                     return execHostname();
                 } catch (IOException ioe) {
