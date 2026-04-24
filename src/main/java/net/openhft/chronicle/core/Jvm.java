@@ -529,7 +529,8 @@ public final class Jvm {
      * @see SecurityManager#checkPermission
      * @see RuntimePermission
      */
-    @SuppressWarnings("java:S3011") // Justification: delegates to centralised ClassUtil.setAccessible for audited bypass.
+    @SuppressWarnings("java:S3011")
+    // Justification: delegates to centralised ClassUtil.setAccessible for audited bypass.
     public static void setAccessible(@NotNull final AccessibleObject accessibleObject) {
         ClassUtil.setAccessible(accessibleObject);
     }
@@ -1647,7 +1648,9 @@ public final class Jvm {
     static class ReserveMemoryHolder {
         private ReserveMemoryHolder() {
         }
+
         static final Supplier<Long> reservedMemory;
+
         static {
             Supplier<Long> reservedMemoryGetter;
             try {
@@ -1669,9 +1672,11 @@ public final class Jvm {
             reservedMemory = reservedMemoryGetter;
         }
     }
+
     static class MaxMemoryHolder {
         private MaxMemoryHolder() {
         }
+
         static final long MAX_DIRECT_MEMORY = maxDirectMemory0();
 
         private static long maxDirectMemory0() {
@@ -1685,10 +1690,9 @@ public final class Jvm {
 
                 final Field f = getField(clz, "directMemory");
                 return f.getLong(null);
-            } catch (ClassNotFoundException | IllegalAccessException e) {
-                // ignore
+            } catch (Throwable e) {
+                System.err.println(Jvm.class.getName() + ": Unable to determine max direct memory, will always report 0, " + e);
             }
-            System.err.println(Jvm.class.getName() + ": Unable to determine max direct memory, will always report 0");
             return 0L;
         }
     }
