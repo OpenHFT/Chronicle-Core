@@ -122,7 +122,7 @@ public final class OS {
                 && new File(tmp).isDirectory()
                 && new File(tmp).canWrite())
             return tmp;
-        new File("tmp").mkdirs();
+        new File("tmp").mkdir();
         return "tmp";
     }
 
