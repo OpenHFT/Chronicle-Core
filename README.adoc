@@ -52,7 +52,7 @@ See the section on <<os-calls,OS Calls>>
 
 See the section on <<jvm-access-methods,JVM Access Methods>>
 
-*Memory Mapped Files:* The library offers an interface for managing memory mapped files, which is useful for high-performance I/O operations.
+*Memory-Mapped Files:* The library offers an interface for managing memory-mapped files, which is useful for high-performance I/O operations.
 
 [source,java]
 ----
@@ -104,10 +104,10 @@ public class AbstractReferenceCountedTest {
 
 See the section on <<resource-reference-counting,Resource Reference Counting>>
 
-*Thread safety checks:* The library enables the use of thread safety checks for single-threaded components.
+*Thread-safety checks:* The library enables the use of thread-safety checks for single-threaded components.
 See the section on <<thread-safety-checks,Thread Safety Checks>>
 
-This library also wraps up low level access to
+This library also wraps up low-level access to
 
 * <<system-properties-from-file,System properties from a file>>
 * <<off-heap-memory-access,Off Heap Memory Access>>
@@ -115,7 +115,7 @@ This library also wraps up low level access to
 * <<class-local-caching,Class Local Caching>>
 * <<maths-functions,Maths Functions>> for casting types, rounding double, faster hashing.
 * <<serializable-lambdas,Serializable Lambdas>>
-* <<histogram,Histogram>> A high performance wide range histogram.
+* <<histogram,Histogram>> A high-performance wide range histogram.
 
 == System properties from file
 
@@ -137,7 +137,7 @@ For example with Jvm.getInteger or Jvm.getLong.
 
 A number of relevant system properties are listed in link:docs/systemProperties.adoc[systemProperties.adoc].
 
-NOTE: Command line-specified system properties override those in the `system.properties` file.
+NOTE: Command-line-specified system properties override those in the `system.properties` file.
 
 == Chronicle-Core Initialization
 
@@ -163,7 +163,7 @@ It can provide both init and post-init functionalities by implementing the `Chro
 
 == Off Heap Memory Access
 
-This allows you to access native memory using primitives and some thread safe operations.
+This allows you to access native memory using primitives and some thread-safe operations.
 
 [source,java]
 ----
@@ -225,7 +225,7 @@ String username = OS.getUserName();
 String targetDir = OS.getTarget(); // location the target directory during builds
 ----
 
-Memory mapped files
+Memory-mapped files
 
 [source,java]
 ----
@@ -496,11 +496,11 @@ There are a number of implementations of this in Chronicle-Core, including `net.
 When the user calls a method which _must_ be called single-threaded, these methods call a private method to check that `Thread.currentThread()` is the same as the first thread that used the object, and throws an exception if not.
 `AbstractCloseable` also provides very helpful functionality (if resource tracing is on) to keep track of the stack trace of where it was used first by the use-by thread - this provides invaluable when diagnosing unexpected sharing of an object between threads.
 
-Thread safety checking can be turned off with the system property `disable.single.threaded.check`, once the application is thoroughly tested.
+Thread-safety checking can be turned off with the system property `disable.single.threaded.check`, once the application is thoroughly tested.
 
 An object can be handed-off between threads by calling `singleThreadedCheckReset`.
 
-=== Thread safety patterns
+=== Thread-safety patterns
 
 Some patterns which are commonly used in Chronicle's libraries are below.
 
