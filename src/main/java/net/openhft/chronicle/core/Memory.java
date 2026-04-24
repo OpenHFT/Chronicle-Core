@@ -56,11 +56,11 @@ public interface Memory {
     void freeMemory(long address, long size);
 
     /**
-     * Allocates memory and returns the low level base address of the newly allocated
+     * Allocates memory and returns the low-level base address of the newly allocated
      * memory region.
      *
      * @param capacity to allocate
-     * @return the low level base address of the newly allocated memory region
+     * @return the low-level base address of the newly allocated memory region
      * @throws IllegalArgumentException If the capacity is non-positive
      * @throws OutOfMemoryError         if there are not enough memory to allocate
      */

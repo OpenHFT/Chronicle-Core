@@ -401,7 +401,7 @@ public class Histogram implements NanoSampler {
     @NotNull
     private String p(double v) {
         double v2 = v * 100 / (1 << fractionBits);
-        // Uses non thread safe static fields.
+        // Uses non-thread-safe static fields.
         synchronized (Histogram.class) {
             return v2 < 1 ? F3.format(v) :
                     v2 < 10 ? F2.format(v) :

@@ -29,7 +29,7 @@ import net.openhft.chronicle.core.io.ThreadingIllegalStateException;
  * Additionally, the interface provides default implementations for setting the second value to the maximum or minimum
  * of the current value and a specified value, and for atomically setting and retrieving both values.
  * <p>
- * Implementations can also include additional behaviors or optimizations not specified in this interface.
+ * Implementations can also include additional behaviors or optimizations not defined in this interface.
  * Note: The {@link #getValue()} and {@link #setValue(long)} methods inherited from {@link LongValue} are applicable
  * to the first {@code long} value. Implementations must ensure that all methods are thread-safe and that changes
  * to the values are correctly synchronized across threads.

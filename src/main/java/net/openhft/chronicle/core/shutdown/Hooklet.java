@@ -29,7 +29,7 @@ public abstract class Hooklet implements Comparable<Hooklet> {
      * Hooks with lesser priority will be called before hooks with greater priority.
      * <p>
      * It is advised to allocate an unique priority in the range of 0-100.
-     * In general, more high level code needs to do its shutdown routines before lower level code.
+     * In general, more high-level code needs to do its shutdown routines before lower level code.
      * An example priority layout is given below:
      * <p>
      * 0: Run before all hooks. For test/example use.

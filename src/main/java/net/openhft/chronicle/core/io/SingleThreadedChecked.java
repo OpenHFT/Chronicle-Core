@@ -32,7 +32,7 @@ public interface SingleThreadedChecked {
      * When set to {@code true}, this resource can be shared between threads
      * as long as the users ensure that it is used in a thread-safe manner.
      *
-     * @param singleThreadedCheckDisabled {@code true} to turn off the thread safety check,
+     * @param singleThreadedCheckDisabled {@code true} to turn off the thread-safety check,
      *                                    {@code false} to enable it.
      */
     void singleThreadedCheckDisabled(boolean singleThreadedCheckDisabled);

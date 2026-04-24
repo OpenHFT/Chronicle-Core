@@ -361,10 +361,10 @@ public final class IOTools {
 
     /**
      * Creates a temporary name for a file by appending the system's current
-     * nanosecond time to the file name.
+     * nanosecond time to the filename.
      *
-     * @param filename The original file name
-     * @return A temporary file name
+     * @param filename The original filename
+     * @return A temporary filename
      */
     @NotNull
     public static String tempName(@NotNull String filename) {

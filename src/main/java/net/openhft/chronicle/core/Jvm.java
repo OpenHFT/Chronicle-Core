@@ -1392,7 +1392,7 @@ public final class Jvm {
     }
 
     /**
-     * Retrieve an annotation of the specified {@code annotationType} that is present on the given
+     * Returns an annotation of the specified {@code annotationType} that is present on the given
      * {@code annotatedElement}, including considering nested annotations and method inheritance.
      * If the annotation isn't found, this method returns {@code null}.
      *

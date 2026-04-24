@@ -247,7 +247,7 @@ public interface AnalyticsFacade {
         Builder withDebugLogger(@NotNull Consumer<? super String> debugLogger);
 
         /**
-         * Specifies a custom file name to use when storing a persistent client id
+         * Specifies a custom filename to use when storing a persistent client id
          * used to identify returning users.
          * <p>
          * By default, a file named "chronicle.analytics.client.id" located

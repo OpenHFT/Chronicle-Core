@@ -51,7 +51,7 @@ import java.util.concurrent.TimeUnit;
  *
  * StackTrace can be used to diagnose resource leaks, single-threaded resource enforcement,
  * diagnosing when a resource is used after closing and monitoring long-running threads on demand.
- * Taking a StackTrace isn't free; however, if used judiciously, it can be utilized in production
+ * Taking a StackTrace isn't free; however, if used judiciously, it can be used in production
  * to provide on-demand profiling.
  * <p>
  * For a deep dive into the StackTrace class see <a href="https://github.com/OpenHFT/Chronicle-Core/tree/ea/src/main/docs/StackTrace-user-guide.adoc">StackTrace User Guide.adoc</a>

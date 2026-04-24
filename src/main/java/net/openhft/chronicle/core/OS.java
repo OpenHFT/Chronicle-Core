@@ -33,7 +33,7 @@ import static net.openhft.chronicle.core.util.Longs.requireNonNegative;
 import static net.openhft.chronicle.core.util.Longs.requirePositive;
 
 /**
- * Low level access to OS class. The OS class provides utility methods related to the operating system.
+ * Low-level access to OS class. The OS class provides utility methods related to the operating system.
  */
 @SuppressWarnings("java:S1191") // Justification: uses Sun internal classes for performance-critical file mapping on select JDKs; guarded by version checks and fallbacks.
 public final class OS {

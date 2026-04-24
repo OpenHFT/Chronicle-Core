@@ -7,11 +7,11 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * The StringValue interface represents a reference to a String value. It provides methods to
- * retrieve and set the String value. Implementations of this interface may handle the storage
+ * get and set the String value. Implementations of this interface may handle the storage
  * and retrieval of the String value in various formats or mediums.
  *
  * <p>The {@code getValue} method retrieves the String value and the {@code setValue} method
- * sets the String value. The {@code getUsingValue} method retrieves the String value into a
+ * sets the String value. The {@code getUsingValue} method copies the String value into a
  * supplied {@code StringBuilder} instance, which can be beneficial in scenarios where minimizing
  * object allocations is desirable.
  *
@@ -49,7 +49,7 @@ public interface StringValue {
     void setValue(@MaxBytes CharSequence value);
 
     /**
-     * Retrieves the String value into a supplied {@code StringBuilder} instance. This is useful
+     * Copies the String value into a supplied {@code StringBuilder} instance. This is useful
      * in scenarios where minimizing object allocations is desirable.
      *
      * @param stringBuilder The {@code StringBuilder} instance to populate with the String value.

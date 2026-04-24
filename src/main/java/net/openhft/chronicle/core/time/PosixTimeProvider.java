@@ -7,7 +7,7 @@ import net.openhft.posix.ClockId;
 import net.openhft.posix.PosixAPI;
 
 /**
- * Provides time based on the Posix standard, particularly utilizing native code
+ * Provides time based on the Posix standard, particularly using native code
  * to access high-resolution time.
  * <p>
  * This provider interfaces directly with the native method {@code clock_gettime}

@@ -17,7 +17,7 @@ import java.util.stream.Stream;
  *
  * <p>This enum serves as a utility class for obtaining generic type information of methods
  * and classes at runtime. This is especially useful for reflective operations that deal with
- * generic types, as Java utilizes type erasure.
+ * generic types, as Java uses type erasure.
  *
  * <p>Note: This is an enum with a single instance (a singleton), but used purely as a namespace
  * for utility methods, and cannot be instantiated.

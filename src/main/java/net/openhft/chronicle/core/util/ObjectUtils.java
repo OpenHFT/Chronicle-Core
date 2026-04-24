@@ -497,7 +497,7 @@ public final class ObjectUtils {
     /**
      * Retrieves the element type of array class or Object if it's not an array.
      *
-     * @param eClass The class to retrieve the element type from.
+     * @param eClass The class whose element type is returned.
      * @param <E>    The type of the class.
      * @return The element type of the array class or Object if it's not an array.
      */
@@ -647,7 +647,7 @@ public final class ObjectUtils {
     /**
      * Returns the default value associated with the specified primitive type.
      *
-     * @param type The class type for which to return the default value.
+     * @param type The class type whose default value is returned.
      *             Must be a primitive type or its corresponding wrapper type.
      * @param <T>  The type of the class. Note: primitive classes return their boxed type.
      * @return The default value for the given primitive class, or null for object classes.
@@ -738,7 +738,7 @@ public final class ObjectUtils {
     /**
      * Retrieves all the interfaces implemented by the given object or class.
      *
-     * @param o The object or class for which to retrieve the implemented interfaces.
+     * @param o The object or class whose implemented interfaces are returned.
      * @return An array of Class objects representing all the interfaces implemented by the given object or class.
      * @throws AssertionError If an illegal argument is encountered.
      */
@@ -751,7 +751,7 @@ public final class ObjectUtils {
     /**
      * Recursively accumulates all interfaces implemented by the given object or class.
      *
-     * @param o           The object or class for which to retrieve the implemented interfaces.
+     * @param o           The object or class whose implemented interfaces are returned.
      * @param accumulator A function that accumulates the interfaces.
      * @throws IllegalArgumentException If the accumulator is null.
      */
@@ -772,7 +772,7 @@ public final class ObjectUtils {
     /**
      * Recursively accumulates all interfaces for a given class.
      *
-     * @param clazz       The class for which to retrieve the implemented interfaces.
+     * @param clazz       The class whose implemented interfaces are returned.
      * @param accumulator A function that accumulates the interfaces.
      */
     private static void getAllInterfacesForClass(Class<?> clazz, Function<Class<?>, Boolean> accumulator) {
@@ -842,7 +842,7 @@ public final class ObjectUtils {
      * Retrieves the implementation class to use for a given class.
      *
      * @param <T>    The type of the class.
-     * @param tClass The class for which to retrieve the implementation.
+     * @param tClass The class whose implementation is returned.
      * @return The implementation class to use.
      */
     public static <T> Class<T> implementationToUse(Class<T> tClass) {

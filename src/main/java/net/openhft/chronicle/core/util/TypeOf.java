@@ -9,7 +9,7 @@ import java.lang.reflect.Type;
 /**
  * Utility class for capturing and retaining a generic type.
  *
- * <p> This class is intended to be subclassed and allows for type information
+ * <p> This class is intended to be subclassed and allows type information
  * to be retained at runtime. When subclassing, the generic type parameter should be specified.
  *
  * <p> Example usage:

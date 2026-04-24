@@ -231,7 +231,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
      * that requires it to be open.
      *
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
-     * @throws ThreadingIllegalStateException If the thread safety check fails.
+     * @throws ThreadingIllegalStateException If the thread-safety check fails.
      */
     @Override
     public void throwExceptionIfClosed() throws ClosedIllegalStateException, ThreadingIllegalStateException {
@@ -249,7 +249,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
      * This method is used to ensure that the resource is open before attempting to modify its state.
      *
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
-     * @throws ThreadingIllegalStateException If the thread safety check fails.
+     * @throws ThreadingIllegalStateException If the thread-safety check fails.
      */
     public void throwExceptionIfClosedInSetter() throws ClosedIllegalStateException, ThreadingIllegalStateException {
         if (isClosed())
@@ -336,7 +336,7 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     }
 
     /**
-     * Performs a thread safety check on the component.
+     * Performs a thread-safety check on the component.
      * If the component is not thread-safe and is accessed by multiple threads,
      * an {@link ThreadingIllegalStateException} is thrown.
      * This method is intended to be called before operations that require thread safety.
@@ -367,8 +367,8 @@ public abstract class AbstractCloseable implements ReferenceOwner, ManagedClosea
     }
 
     /**
-     * Resets the state of the thread safety check.
-     * After calling this method, the component's thread safety check state will be cleared,
+     * Resets the state of the thread-safety check.
+     * After calling this method, the component's thread-safety check state will be cleared,
      * and it will no longer remember which thread it was last accessed by.
      */
     public void singleThreadedCheckReset() {

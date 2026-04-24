@@ -60,7 +60,7 @@ public interface ClassLookup {
      * Retrieves the alias for the given class. This method is intended for use with
      * non-lambda classes. For lambda classes, this method will throw an IllegalArgumentException.
      *
-     * @param clazz The class to retrieve the alias for.
+     * @param clazz The class whose alias is returned.
      * @return A String representing the alias for the given class.
      * @throws IllegalArgumentException If this method is used on a lambda function.
      */
@@ -86,7 +86,7 @@ public interface ClassLookup {
     /**
      * Applies an alias transformation to the given class name if an alias exists. This method
      * searches for an alias of the specified class name and returns the alias if found. If no alias
-     * is found, it returns the original class name. This mechanism allows for the flexible use of
+     * is found, it returns the original class name. This mechanism allows the flexible use of
      * aliases in place of fully qualified class names, simplifying the referencing of classes within
      * an application.
      *

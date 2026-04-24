@@ -29,7 +29,7 @@ public final class CloseableUtils {
      * Set of closeable resources being tracked.
      * <p>
      * NOTE: This assumes the collection will not be replaced concurrently, and a particular lifecycle is used.
-     * It is set and reset between tests in a single threaded manner. The set itself could be changed concurrently.
+     * It is set and reset between tests in a single-threaded manner. The set itself could be changed concurrently.
      */
     private static final AtomicReference<Set<ManagedCloseable>> CLOSEABLES = new AtomicReference<>();
 

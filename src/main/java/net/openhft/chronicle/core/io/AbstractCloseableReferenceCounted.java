@@ -55,7 +55,7 @@ public abstract class AbstractCloseableReferenceCounted
      * @param from resource
      * @param to   resource
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
-     * @throws ThreadingIllegalStateException If used in a non thread safe way
+     * @throws ThreadingIllegalStateException If used in a non-thread-safe way
      */
     @Override
     public void reserveTransfer(ReferenceOwner from, ReferenceOwner to) throws ClosedIllegalStateException, ThreadingIllegalStateException {

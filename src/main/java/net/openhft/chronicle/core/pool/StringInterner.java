@@ -16,7 +16,7 @@ import java.util.stream.Stream;
  * <p>
  * It doesn't guarantee that all threads see the same data, nor that multiple threads will return the same String object for the same string. It is designed to be a best-effort basis so it can be as lightweight as possible.
  * <p>
- * So while technically not thread safe, it doesn't prevent it operating correctly when used from multiple threads, but it is faster than added explicit locking or thread safety. NOTE: It does rely on String being thread safe, something which was guaranteed from Java 5.0 onwards c.f. JSR 133.
+ * So while technically not thread-safe, it doesn't prevent it operating correctly when used from multiple threads, but it is faster than added explicit locking or thread safety. NOTE: It does rely on String being thread-safe, something which was guaranteed from Java 5.0 onwards c.f. JSR 133.
  * <p>
  * Discussion <a href="https://stackoverflow.com/questions/63383745/string-array-needless-synchronization/63383983">...</a>
  * <p>

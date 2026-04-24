@@ -11,7 +11,7 @@ import static net.openhft.chronicle.core.util.ObjectUtils.requireNonNull;
 
 /**
  * This utility class provides centralized access to the
- * internal class sun.nio.ch.DirectBuffer in order to reduce
+ * internal class sun.nio.ch.DirectBuffer to reduce
  * compile time warnings.
  */
 public final class DirectBufferUtil {

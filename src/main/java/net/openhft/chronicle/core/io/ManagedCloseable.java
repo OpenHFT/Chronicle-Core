@@ -47,7 +47,7 @@ public interface ManagedCloseable extends Closeable {
      * The exception message indicates whether the resource is already closed or is currently in the process of closing.
      *
      * @throws ClosedIllegalStateException    If the resource has been released or closed.
-     * @throws ThreadingIllegalStateException If the thread safety check fails.
+     * @throws ThreadingIllegalStateException If the thread-safety check fails.
      */
     default void throwExceptionIfClosed() throws ClosedIllegalStateException, ThreadingIllegalStateException {
         if (isClosing())

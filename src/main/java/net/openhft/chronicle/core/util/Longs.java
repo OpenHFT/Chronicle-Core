@@ -98,7 +98,7 @@ public final class Longs {
      * Returns a human-readable form of a failure message provided that the provided {@code value} <em>did not</em>
      * satisfy the provided {@code requirement}.
      *
-     * @param requirement to imposed on the provided values
+     * @param requirement to impose on the provided values
      * @param value       the value to check
      * @return a human-readable form of a failure message provided that the provided {@code value} <em>did not</em>
      * satisfy the provided {@code requirement}
