@@ -83,7 +83,7 @@ public final class ReferenceCountedUtils {
 
                 try {
                     key.throwExceptionIfNotReleased();
-                } catch (Exception e) {
+                } catch (IllegalStateException e) {
                     openFiles.addSuppressed(e);
                 }
             }

@@ -325,9 +325,10 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         if (value == null) return;
         try {
             cleanup.accept(value);
-        } catch (Exception ex) {
+            // CSCatchThrowable keep this catch-all cleanup boundary because this is the last attempt to clean up resources when a cleaning thread dies or when a test finishes and cleanup tracking must continue
+        } catch (Throwable ex) {
             Jvm.warn().on(getClass(),
-                    "Exception during cleanup of " + value.getClass(), ex);
+                    "Throwable during cleanup of " + value.getClass(), ex);
         }
     }
 
