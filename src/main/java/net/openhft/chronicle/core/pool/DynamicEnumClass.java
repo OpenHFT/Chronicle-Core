@@ -99,12 +99,6 @@ public class DynamicEnumClass<E extends CoreDynamicEnum<E>> extends EnumCache<E>
      * @param name the name of the enum instance to be retrieved.
      * @return the enum instance with the specified name, or {@code null} if not present.
      */
-    /**
-     * Returns the enum instance if it exists in the map.
-     *
-     * @param name the enum name to retrieve
-     * @return the enum instance or {@code null}
-     */
     @Override
     @Nullable
     public E get(String name) {
