@@ -1337,7 +1337,12 @@ public final class Jvm {
     private static boolean isProcessAlive0(final long pid, final String command) {
 
         try {
-            Process exec = getRuntime().exec(command);
+            // Use ProcessBuilder so we can merge stderr into stdout: otherwise a
+            // child that writes to stderr can block on a full stderr pipe while
+            // the parent is reading stdout (classic pipe-buffer deadlock).
+            Process exec = new ProcessBuilder(command.split(" "))
+                    .redirectErrorStream(true)
+                    .start();
             try (InputStreamReader isReader = new InputStreamReader(exec.getInputStream());
                  BufferedReader bReader = new BufferedReader(isReader)) {
                 String strLine;
@@ -1352,8 +1357,15 @@ public final class Jvm {
                 IOTools.destroyProcess(exec);
             }
         } catch (IOException ex) {
+            // The child failed to start or its output could not be read: treat
+            // the process as alive (fail-open) so callers do not prematurely
+            // assume a peer is gone.
             return true;
         }
+        // NOTE: Other unexpected exceptions (SecurityException, RuntimeException
+        // from the stream pipeline, etc.) are deliberately allowed to propagate.
+        // The previous `catch (Exception)` swallowed them and this masked real
+        // configuration / sandbox issues; surfacing them is the intended behaviour now.
     }
 
     public static boolean isAzulZing() {

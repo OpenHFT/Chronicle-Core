@@ -139,7 +139,10 @@ public enum CpuCoolers implements CpuCooler {
     SERIALIZATION {
         @Override
         public void disturb() {
-            // ByteArrayOutputStream.close() inherits `throws IOException` but never throws; wrapping in try-with-resources would force disturb() to add a dead catch block
+            // ByteArrayOutputStream holds no native resources and its close() is
+            // a no-op, so wrapping `out` in a try-with-resources adds boilerplate
+            // (a forced try-block scope plus a dead catch path that cannot be
+            // exercised in tests) without any cleanup benefit. Leave it un-wrapped.
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             try (XMLEncoder oos = new XMLEncoder(out)) {
                 oos.writeObject(System.getProperties());

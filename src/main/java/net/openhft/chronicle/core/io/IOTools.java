@@ -300,6 +300,14 @@ public final class IOTools {
      * Creates and returns a new InputStream from the provided {@code url}.
      * <p>
      * It is up to the caller to close the returned InputStream after being used.
+     * If this method throws, no resources remain open.
+     *
+     * <p>Gzip detection uses {@link URL#getPath()} so that a query string
+     * (for example, {@code .../foo.gz?token=abc}) does not defeat the suffix
+     * match. Unexpected throwables from {@link GZIPInputStream}'s constructor
+     * (for example, {@link OutOfMemoryError}) are deliberately allowed to
+     * propagate after the underlying stream has been closed; they are not
+     * silently swallowed.
      *
      * @param url to create an InputStream from
      * @return an InputStream
@@ -308,16 +316,16 @@ public final class IOTools {
     @SuppressWarnings("java:S2095")
     public static InputStream open(URL url) throws IOException {
         final InputStream in = url.openStream();
-        if (url.getFile().endsWith(".gz")) {
+        if (url.getPath().endsWith(".gz")) {
             try {
                 return new GZIPInputStream(in);
-            } catch (IOException ioe) {
+            } catch (IOException | RuntimeException | Error t) {
                 try {
                     in.close();
                 } catch (IOException ioe2) {
-                    ioe.addSuppressed(ioe2);
+                    t.addSuppressed(ioe2);
                 }
-                throw ioe;
+                throw t;
             }
         }
         return in;
@@ -339,6 +347,7 @@ public final class IOTools {
         URL url = urlFor(clazz, name);
         // readAsBytes closes the stream
         InputStream is = open(url);
+
         return readAsBytes(is);
     }
 
@@ -531,27 +540,45 @@ public final class IOTools {
 
     /**
      * Best-effort cleanup of a child {@link Process}: waits up to one second
-     * for the process to exit, then calls {@link Process#destroy()}. Intended
-     * for {@code finally}-block use after the caller has drained stdout; the
-     * {@code destroy()} step still runs even when the wait times out or is
-     * interrupted, so the child is not left behind.
+     * for the process to exit, calls {@link Process#destroy()}, waits up to
+     * another second for the SIGTERM to take effect, and finally escalates to
+     * {@link Process#destroyForcibly()} if the child is still alive. The
+     * parent's pipe streams to/from the child ({@code stdin}, {@code stdout},
+     * {@code stderr}) are closed proactively so file descriptors are not held
+     * until the {@link Process} object is reaped.
      *
-     * <p>This helper does not escalate to {@link Process#destroyForcibly()} if
-     * the child ignores the termination signal, and it does not report the
-     * exit code. Callers that need either should handle them directly.</p>
-     *
-     * <p>If the current thread is interrupted while waiting, the interrupt
-     * flag is restored before {@code destroy()} is invoked.</p>
+     * <p>Intended for {@code finally}-block use after the caller has drained
+     * stdout (and stderr, unless {@code redirectErrorStream(true)} is set).
+     * If the current thread is interrupted while waiting, the interrupt flag
+     * is restored before destruction is attempted, so the child is not left
+     * behind.</p>
      *
      * @param process the child process to tear down; must not be {@code null}
      */
     public static void destroyProcess(@NotNull Process process) {
+        Objects.requireNonNull(process, "process");
         try {
-            process.waitFor(1, TimeUnit.SECONDS);
+            if (waitForProcess(process))
+                return;
+        } finally {
+            closeQuietly(
+                    process.getOutputStream(),
+                    process.getInputStream(),
+                    process.getErrorStream());
+        }
+        process.destroy();
+        if (!waitForProcess(process))
+            process.destroyForcibly();
+    }
+
+    private static boolean waitForProcess(@NotNull Process process) {
+        try {
+            if (process.waitFor(1, TimeUnit.SECONDS))
+                return true;
         } catch (InterruptedException ie) {
             Thread.currentThread().interrupt();
         }
-        process.destroy();
+        return false;
     }
 
     private static final class Language {
