@@ -21,10 +21,10 @@ public final class CpuClass {
     static final String CPU_MODEL;
 
     private static final String PROCESS = "process ";
+    private static final Logger LOGGER = LoggerFactory.getLogger(CpuClass.class);
 
     static {
         String model = System.getProperty("os.arch", "unknown");
-        Logger logger = LoggerFactory.getLogger(CpuClass.class);
 
         try {
             final Path path = Paths.get("/proc/cpuinfo");
@@ -36,63 +36,44 @@ public final class CpuClass {
                             .findFirst().orElse(model);
                 }
             } else if (Bootstrap.IS_WIN) {
-                String cmd = "wmic cpu get name";
-                Process process = new ProcessBuilder(cmd.split(" "))
-                        .redirectErrorStream(true)
-                        .start();
-                try {
-                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                        model = reader.lines()
-                                .map(String::trim)
-                                .filter(s -> !"Name".equals(s) && !s.isEmpty())
-                                .findFirst().orElse(model);
-                    }
-                    try {
-                        int ret = process.waitFor();
-                        if (ret != 0)
-                            logger.warn(PROCESS + cmd + " returned " + ret);
-                    } catch (InterruptedException e) {
-                        logger.warn(PROCESS + cmd + " waitFor threw ", e);
-                        // Restore the interrupt state...
-                        Thread.currentThread().interrupt();
-                    }
-                } finally {
-                    IOTools.destroyProcess(process);
-                }
-
+                model = readModelFromCommand(model, "wmic cpu get name", line ->
+                        !"Name".equals(line) && !line.isEmpty() ? line : null);
             } else if (Bootstrap.IS_MAC) {
-
-                String cmd = "sysctl -a";
-                Process process = new ProcessBuilder(cmd.split(" "))
-                        .redirectErrorStream(true)
-                        .start();
-                try {
-                    try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                        model = reader.lines()
-                                .map(String::trim)
-                                .filter(s -> s.startsWith("machdep.cpu.brand_string"))
-                                .map(removingTag())
-                                .findFirst().orElse(model);
-                    }
-                    try {
-                        int ret = process.waitFor();
-                        if (ret != 0)
-                            logger.warn(PROCESS + cmd + " returned " + ret);
-                    } catch (InterruptedException e) {
-                        logger.warn(PROCESS + cmd + " waitFor threw ", e);
-                        // Restore the interrupt state...
-                        Thread.currentThread().interrupt();
-                    }
-                } finally {
-                    IOTools.destroyProcess(process);
-                }
-
+                model = readModelFromCommand(model, "sysctl -a", line ->
+                        line.startsWith("machdep.cpu.brand_string") ? removingTag().apply(line) : null);
             }
 
         } catch (IOException e) {
-            logger.debug("Unable to read cpuinfo", e);
+            LOGGER.debug("Unable to read cpuinfo", e);
         }
         CPU_MODEL = model;
+    }
+
+    private static String readModelFromCommand(String fallback, String cmd, Function<String, String> mapping) throws IOException {
+        Process process = new ProcessBuilder(cmd.split(" "))
+                .redirectErrorStream(true)
+                .start();
+        try {
+            String result = fallback;
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+                result = reader.lines()
+                        .map(String::trim)
+                        .map(mapping)
+                        .filter(s -> s != null && !s.isEmpty())
+                        .findFirst().orElse(fallback);
+            }
+            try {
+                int ret = process.waitFor();
+                if (ret != 0)
+                    LOGGER.warn(PROCESS + cmd + " returned " + ret);
+            } catch (InterruptedException e) {
+                LOGGER.warn(PROCESS + cmd + " waitFor threw ", e);
+                Thread.currentThread().interrupt();
+            }
+            return result;
+        } finally {
+            IOTools.destroyProcess(process);
+        }
     }
 
     // Suppresses default constructor, ensuring non-instantiability.

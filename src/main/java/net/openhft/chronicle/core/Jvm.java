@@ -1318,29 +1318,21 @@ public final class Jvm {
      * @return if a process with the provided {@code pid} process id is alive
      */
     public static boolean isProcessAlive(long pid) {
-        if (isWindows()) {
-            final String command = "cmd /c tasklist /FI \"PID eq " + pid + "\"";
-            return isProcessAlive0(pid, command);
-        }
-        if (isLinux() && PROC_EXISTS) {
+        if (isWindows())
+            return isProcessAlive0(pid, "cmd", "/c", "tasklist", "/NH", "/FI", "PID eq " + pid);
+        if (isLinux() && PROC_EXISTS)
             return new File("/proc/" + pid).exists();
-        }
-        if (isMacOSX() || isLinux()) {
-            final String command = "ps -p " + pid;
-            return isProcessAlive0(pid, command);
-        }
+        if (isMacOSX() || isLinux())
+            return isProcessAlive0(pid, "ps", "-p", Long.toString(pid));
 
         throw new UnsupportedOperationException("Not supported on this OS");
     }
 
-    @SuppressWarnings("deprecation")
-    private static boolean isProcessAlive0(final long pid, final String command) {
-
+    private static boolean isProcessAlive0(final long pid, final String... argv) {
         try {
-            // Use ProcessBuilder so we can merge stderr into stdout: otherwise a
-            // child that writes to stderr can block on a full stderr pipe while
-            // the parent is reading stdout (classic pipe-buffer deadlock).
-            Process exec = new ProcessBuilder(command.split(" "))
+            // Merge stderr into stdout so a stderr-heavy child cannot deadlock
+            // on a full pipe while the parent reads stdout.
+            Process exec = new ProcessBuilder(argv)
                     .redirectErrorStream(true)
                     .start();
             try (InputStreamReader isReader = new InputStreamReader(exec.getInputStream());
@@ -1357,15 +1349,10 @@ public final class Jvm {
                 IOTools.destroyProcess(exec);
             }
         } catch (IOException ex) {
-            // The child failed to start or its output could not be read: treat
-            // the process as alive (fail-open) so callers do not prematurely
-            // assume a peer is gone.
+            // Fail-open: child could not be started or its output could not be read.
             return true;
         }
-        // NOTE: Other unexpected exceptions (SecurityException, RuntimeException
-        // from the stream pipeline, etc.) are deliberately allowed to propagate.
-        // The previous `catch (Exception)` swallowed them and this masked real
-        // configuration / sandbox issues; surfacing them is the intended behaviour now.
+        // Other exceptions propagate so sandbox / configuration issues are not masked.
     }
 
     public static boolean isAzulZing() {

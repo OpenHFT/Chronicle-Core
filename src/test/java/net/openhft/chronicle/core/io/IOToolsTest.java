@@ -458,9 +458,6 @@ class IOToolsTest extends CoreTestCommon {
         try {
             IOTools.destroyProcess(process);
 
-            // First waitFor was interrupted → finally closes pipes → destroy →
-            // second waitFor (interrupt flag still set, throws immediately) →
-            // escalate to destroyForcibly.
             assertEquals(Arrays.asList(
                     "waitFor(1, SECONDS)",
                     "destroy",
@@ -558,10 +555,11 @@ class IOToolsTest extends CoreTestCommon {
         final AtomicBoolean outClosed = new AtomicBoolean();
         final AtomicBoolean inClosed  = new AtomicBoolean();
         final AtomicBoolean errClosed = new AtomicBoolean();
-        private int waitForCalls;
+        private boolean armedToInterrupt;
 
         private StubProcess(Mode mode) {
             this.mode = mode;
+            this.armedToInterrupt = (mode == Mode.INTERRUPTED);
         }
 
         @Override
@@ -606,20 +604,11 @@ class IOToolsTest extends CoreTestCommon {
         @Override
         public boolean waitFor(long timeout, TimeUnit unit) throws InterruptedException {
             events.add("waitFor(" + timeout + ", " + unit.name() + ")");
-            waitForCalls++;
-            switch (mode) {
-                case EXITED:
-                    return true;
-                case INTERRUPTED:
-                    // Only the first call throws; later calls behave as
-                    // TIMED_OUT so the helper can progress to destroyForcibly.
-                    if (waitForCalls == 1)
-                        throw new InterruptedException("interrupted for test");
-                    return false;
-                case TIMED_OUT:
-                default:
-                    return false;
+            if (armedToInterrupt) {
+                armedToInterrupt = false;
+                throw new InterruptedException("interrupted for test");
             }
+            return mode == Mode.EXITED;
         }
 
         @Override

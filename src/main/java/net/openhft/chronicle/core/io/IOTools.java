@@ -541,31 +541,22 @@ public final class IOTools {
     /**
      * Best-effort cleanup of a child {@link Process}: waits up to one second
      * for the process to exit, calls {@link Process#destroy()}, waits up to
-     * another second for the SIGTERM to take effect, and finally escalates to
-     * {@link Process#destroyForcibly()} if the child is still alive. The
-     * parent's pipe streams to/from the child ({@code stdin}, {@code stdout},
-     * {@code stderr}) are closed proactively so file descriptors are not held
-     * until the {@link Process} object is reaped.
-     *
-     * <p>Intended for {@code finally}-block use after the caller has drained
-     * stdout (and stderr, unless {@code redirectErrorStream(true)} is set).
-     * If the current thread is interrupted while waiting, the interrupt flag
-     * is restored before destruction is attempted, so the child is not left
-     * behind.</p>
+     * another second, and finally escalates to {@link Process#destroyForcibly()}
+     * if the child is still alive. When destruction is needed the pipe streams
+     * are closed so file descriptors are not held until the {@link Process}
+     * object is reaped. If the current thread is interrupted while waiting,
+     * the interrupt flag is restored before destruction is attempted.
      *
      * @param process the child process to tear down; must not be {@code null}
      */
     public static void destroyProcess(@NotNull Process process) {
         Objects.requireNonNull(process, "process");
-        try {
-            if (waitForProcess(process))
-                return;
-        } finally {
-            closeQuietly(
-                    process.getOutputStream(),
-                    process.getInputStream(),
-                    process.getErrorStream());
-        }
+        if (waitForProcess(process))
+            return;
+        closeQuietly(
+                process.getOutputStream(),
+                process.getInputStream(),
+                process.getErrorStream());
         process.destroy();
         if (!waitForProcess(process))
             process.destroyForcibly();
