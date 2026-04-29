@@ -8,6 +8,7 @@ import net.openhft.chronicle.core.internal.*;
 import net.openhft.chronicle.core.internal.Bootstrap;
 import net.openhft.chronicle.core.internal.util.DirectBufferUtil;
 import net.openhft.chronicle.core.internal.util.MapUtil;
+import net.openhft.chronicle.core.io.IOTools;
 import net.openhft.chronicle.core.onoes.*;
 import net.openhft.chronicle.core.util.ClassMetrics;
 import net.openhft.chronicle.core.util.ObjectUtils;
@@ -1317,40 +1318,41 @@ public final class Jvm {
      * @return if a process with the provided {@code pid} process id is alive
      */
     public static boolean isProcessAlive(long pid) {
-        if (isWindows()) {
-            final String command = "cmd /c tasklist /FI \"PID eq " + pid + "\"";
-            return isProcessAlive0(pid, command);
-        }
-        if (isLinux() && PROC_EXISTS) {
+        if (isWindows())
+            return isProcessAlive0(pid, "cmd", "/c", "tasklist", "/NH", "/FI", "PID eq " + pid);
+        if (isLinux() && PROC_EXISTS)
             return new File("/proc/" + pid).exists();
-        }
-        if (isMacOSX() || isLinux()) {
-            final String command = "ps -p " + pid;
-            return isProcessAlive0(pid, command);
-        }
+        if (isMacOSX() || isLinux())
+            return isProcessAlive0(pid, "ps", "-p", Long.toString(pid));
 
         throw new UnsupportedOperationException("Not supported on this OS");
     }
 
-    @SuppressWarnings("deprecation")
-    private static boolean isProcessAlive0(final long pid, final String command) {
-
+    private static boolean isProcessAlive0(final long pid, final String... argv) {
         try {
-            InputStreamReader isReader = new InputStreamReader(
-                    getRuntime().exec(command).getInputStream());
-
-            final BufferedReader bReader = new BufferedReader(isReader);
-            String strLine;
-            while ((strLine = bReader.readLine()) != null) {
-                if (strLine.contains(" " + pid + " ") || strLine.startsWith(pid + " ")) {
-                    return true;
+            // Merge stderr into stdout so a stderr-heavy child cannot deadlock
+            // on a full pipe while the parent reads stdout.
+            Process exec = new ProcessBuilder(argv)
+                    .redirectErrorStream(true)
+                    .start();
+            try (InputStreamReader isReader = new InputStreamReader(exec.getInputStream());
+                 BufferedReader bReader = new BufferedReader(isReader)) {
+                String strLine;
+                while ((strLine = bReader.readLine()) != null) {
+                    if (strLine.contains(" " + pid + " ") || strLine.startsWith(pid + " ")) {
+                        return true;
+                    }
                 }
-            }
 
-            return false;
-        } catch (Exception ex) {
+                return false;
+            } finally {
+                IOTools.destroyProcess(exec);
+            }
+        } catch (IOException ex) {
+            // Fail-open: child could not be started or its output could not be read.
             return true;
         }
+        // Other exceptions propagate so sandbox / configuration issues are not masked.
     }
 
     public static boolean isAzulZing() {

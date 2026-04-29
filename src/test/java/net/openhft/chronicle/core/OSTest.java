@@ -33,12 +33,8 @@ class OSTest extends CoreTestCommon {
 
     @BeforeEach
     void beforeEachOSTest(TestInfo testInfo) {
-        setUp(testInfo);
-        threadDump();
-    }
-
-    public void setUp(TestInfo testInfo) {
         testName = testInfo.getTestMethod().map(Method::getName).orElse("unknown");
+        threadDump = new ThreadDump();
     }
 
     @Test
@@ -69,11 +65,6 @@ class OSTest extends CoreTestCommon {
     @Test
     void testFindFile() {
         assertEquals(new File("./last").getAbsolutePath(), OS.findFile("first", "last").getAbsolutePath());
-    }
-
-    @Override
-    public void threadDump() {
-        threadDump = new ThreadDump();
     }
 
     @Override
@@ -190,7 +181,6 @@ class OSTest extends CoreTestCommon {
 
     @Test
     void getHostname() throws IOException {
-        System.out.println("exec hostname: " + OS.HostnameHolder.execHostname());
         final String hostName = OS.getHostName();
         System.out.println("hostname: " + hostName);
         assertNotNull(hostName);
