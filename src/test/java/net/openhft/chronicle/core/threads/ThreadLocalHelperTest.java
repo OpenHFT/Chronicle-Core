@@ -6,7 +6,6 @@ package net.openhft.chronicle.core.threads;
 import org.junit.jupiter.api.Test;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 

@@ -3,27 +3,25 @@
  */
 package net.openhft.chronicle.core.cooler;
 
+import net.openhft.chronicle.core.test.RecordingCallable;
 import org.junit.jupiter.api.Test;
-import java.util.concurrent.Callable;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CoolerTesterTest {
 
     @Test
-    void shouldExecuteCallableWithEachCooler() throws Exception {
-        Callable<?> mockTask = mock(Callable.class);
-        CpuCooler mockCooler = mock(CpuCooler.class);
+    void shouldExecuteCallableWithEachCooler() {
+        RecordingCallable<?> task = new RecordingCallable<>();
+        RecordingCpuCooler cooler = new RecordingCpuCooler();
 
-        CoolerTester tester = new CoolerTester(mockCooler, mockTask);
+        CoolerTester tester = new CoolerTester(cooler, task);
         tester.repeat(1).minCount(1).maxCount(1);
 
         tester.run();
 
-        verify(mockTask, atLeastOnce()).call();
-        verify(mockCooler, atLeastOnce()).disturb();
+        assertTrue(task.callCount() > 0);
+        assertTrue(cooler.disturbCount > 0);
     }
 
     @Test
@@ -40,10 +38,19 @@ class CoolerTesterTest {
 
     @Test
     void runMethodShouldExecuteWithoutErrors() {
-        Callable<?> mockTask = mock(Callable.class);
-        CpuCooler mockCooler = mock(CpuCooler.class);
+        RecordingCallable<?> task = new RecordingCallable<>();
+        RecordingCpuCooler cooler = new RecordingCpuCooler();
 
-        CoolerTester tester = new CoolerTester(mockCooler, mockTask);
+        CoolerTester tester = new CoolerTester(cooler, task);
         assertDoesNotThrow(tester::run);
+    }
+
+    private static final class RecordingCpuCooler implements CpuCooler {
+        private int disturbCount;
+
+        @Override
+        public void disturb() {
+            disturbCount++;
+        }
     }
 }

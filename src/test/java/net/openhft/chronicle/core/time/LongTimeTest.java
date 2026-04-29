@@ -4,13 +4,13 @@
 package net.openhft.chronicle.core.time;
 
 import net.openhft.chronicle.core.CoreTestCommon;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class LongTimeTest extends CoreTestCommon {
+class LongTimeTest extends CoreTestCommon {
     @Test
-    public void secs() {
+    void secs() {
         long epoch = LongTime.EPOCH_SECS;
         assertTrue(LongTime.isSecs(epoch));
         assertTrue(LongTime.isSecs(LongTime.MAX_SECS));
@@ -23,7 +23,7 @@ public class LongTimeTest extends CoreTestCommon {
     }
 
     @Test
-    public void millis() {
+    void millis() {
         long epoch = LongTime.EPOCH_MILLIS;
         assertTrue(LongTime.isMillis(epoch));
         assertTrue(LongTime.isMillis(LongTime.MAX_MILLIS));
@@ -37,7 +37,7 @@ public class LongTimeTest extends CoreTestCommon {
     }
 
     @Test
-    public void micros() {
+    void micros() {
         long epoch = LongTime.EPOCH_MICROS;
         assertTrue(LongTime.isMicros(epoch));
         assertTrue(LongTime.isMicros(LongTime.MAX_MICROS));
@@ -51,7 +51,7 @@ public class LongTimeTest extends CoreTestCommon {
     }
 
     @Test
-    public void nanos() {
+    void nanos() {
         long epoch = LongTime.EPOCH_NANOS;
         assertTrue(LongTime.isNanos(epoch));
         assertTrue(LongTime.isNanos(LongTime.MAX_NANOS));

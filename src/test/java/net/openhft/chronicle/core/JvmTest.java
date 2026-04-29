@@ -7,12 +7,12 @@ import net.openhft.chronicle.core.onoes.ExceptionHandler;
 import net.openhft.chronicle.core.onoes.ExceptionKey;
 import net.openhft.chronicle.core.onoes.NullExceptionHandler;
 import net.openhft.chronicle.core.onoes.ThreadLocalisedExceptionHandler;
+import net.openhft.chronicle.core.test.RecordingExceptionHandlerStub;
 import net.openhft.chronicle.core.threads.ThreadDump;
 import net.openhft.chronicle.core.util.Time;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import sun.nio.ch.DirectBuffer;
 
 import javax.naming.ConfigurationException;
@@ -30,27 +30,28 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static net.openhft.chronicle.core.Jvm.*;
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeFalse;
-import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
-public class JvmTest extends CoreTestCommon {
+class JvmTest extends CoreTestCommon {
 
     private ThreadDump threadDump;
 
-    @Before
+    @BeforeEach
+    @Override
     public void threadDump() {
         threadDump = new ThreadDump();
     }
 
-    @After
-    public void checkThreadDump() {
+    @AfterEach
+    @Override
+    void checkThreadDump() {
         resetExceptionHandlers();
         threadDump.assertNoNewThreads();
     }
 
     @Test
-    public void addToClassPath() {
+    void addToClassPath() {
         final String propertyBefore = System.getProperty(JAVA_CLASS_PATH);
         Jvm.addToClassPath(JvmTest.class);
         final String propertyAfter = System.getProperty(JAVA_CLASS_PATH);
@@ -62,18 +63,20 @@ public class JvmTest extends CoreTestCommon {
         }
     }
 
-    @Test(expected = ConfigurationException.class)
-    public void testRethrow() {
-        throw Jvm.rethrow(new ConfigurationException());
+    @Test
+    void testRethrow() {
+        assertThrows(ConfigurationException.class, () -> {
+            throw Jvm.rethrow(new ConfigurationException());
+        });
     }
 
     @Test
-    public void shouldGetMajorVersion() {
+    void shouldGetMajorVersion() {
         assertTrue(Jvm.majorVersion() > 0);
     }
 
     @Test
-    public void resetExceptionHandlersSetHandlersBackToTheirDefaults() throws IllegalAccessException {
+    void resetExceptionHandlersSetHandlersBackToTheirDefaults() throws IllegalAccessException {
         Jvm.setExceptionHandlers(null, null, null, null);
         Jvm.resetExceptionHandlers();
         assertSame(Jvm.getField(Jvm.class, "DEFAULT_PERF_EXCEPTION_HANDLER").get(null), Jvm.perf().defaultHandler());
@@ -98,22 +101,22 @@ public class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    public void reportThis() {
+    void reportThis() {
         final Map<ExceptionKey, Integer> map = recordExceptions();
         ReportUnoptimised.reportOnce();
 
         final String actual = map.keySet().toString();
-        assertTrue(actual, actual.contains("JvmTest.reportThis(JvmTest.java"));
+        assertTrue(actual.contains("JvmTest.reportThis(JvmTest.java"), actual);
     }
 
     @Test
-    public void testIsInternal() {
+    void testIsInternal() {
         assertTrue(Jvm.isInternal(String.class.getName()));
         assertFalse(Jvm.isInternal(getClass().getName()));
     }
 
     @Test
-    public void testGetValue() {
+    void testGetValue() {
         ByteBuffer bb = ByteBuffer.allocateDirect(128);
         long address = Jvm.getValue(bb, "address");
         assertEquals(((DirectBuffer) bb).address(), address);
@@ -121,21 +124,26 @@ public class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    public void testUsedDirectMemory() {
+    void testUsedDirectMemory() {
         long used = Jvm.usedDirectMemory();
-        assumeFalse(used == 0);
-        ByteBuffer.allocateDirect(4 << 10);
-        assertEquals(used + (4 << 10), Jvm.usedDirectMemory());
+        ByteBuffer buffer = ByteBuffer.allocateDirect(4 << 10);
+        long usedAfterAllocation = Jvm.usedDirectMemory();
+
+        if (used == 0 && usedAfterAllocation == 0)
+            assertEquals(0, usedAfterAllocation, "Direct-memory accounting is unavailable on this JVM");
+        else
+            assertEquals(used + (4 << 10), usedAfterAllocation);
+        assertNotNull(buffer);
     }
 
     @Test
-    public void testMaxDirectMemory() {
+    void testMaxDirectMemory() {
         long maxDirectMemory = Jvm.maxDirectMemory();
         assertTrue(maxDirectMemory > 0);
     }
 
     @Test
-    public void enableSignals() {
+    void enableSignals() {
         final AtomicBoolean failed = new AtomicBoolean();
         final ExceptionHandler handler = (c, m, t) -> failed.set(true);
         Jvm.setWarnExceptionHandler(handler);
@@ -147,7 +155,7 @@ public class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    public void classMetrics() throws IllegalArgumentException {
+    void classMetrics() throws IllegalArgumentException {
         assumeFalse(isArm());
         try {
             Jvm.classMetrics(ClassD.class);
@@ -158,7 +166,7 @@ public class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    public void microPause() {
+    void microPause() {
         for (int t = 0; t < 4; t++) {
             long start = System.nanoTime();
             int count = 1000_000;
@@ -173,7 +181,7 @@ public class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    public void address() {
+    void address() {
         ByteBuffer bb = ByteBuffer.allocateDirect(64);
         assertNotEquals(0, Jvm.address(bb));
         try {
@@ -185,14 +193,14 @@ public class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    public void arrayByteBaseOffset() {
+    void arrayByteBaseOffset() {
         byte[] bytes = {0};
         UnsafeMemory.MEMORY.writeByte(bytes, Jvm.arrayByteBaseOffset(), (byte) 1);
         assertEquals(1, bytes[0]);
     }
 
     @Test
-    public void doNotCloseOnInterrupt() throws IOException {
+    void doNotCloseOnInterrupt() throws IOException {
         final AtomicBoolean failed = new AtomicBoolean();
         final ExceptionHandler handler = (c, m, t) -> failed.set(true);
         Jvm.setWarnExceptionHandler(handler);
@@ -212,17 +220,17 @@ public class JvmTest extends CoreTestCommon {
      * tests that the process is still running
      */
     @Test
-    public void isProcessAliveTest() {
+    void isProcessAliveTest() {
         long pid = getProcessId();
-        Assert.assertTrue(Jvm.isProcessAlive(pid));
+        assertTrue(Jvm.isProcessAlive(pid));
         if (OS.isLinux())
-            Assert.assertTrue(Jvm.isProcessAlive(1)); // the kernel
-        Assert.assertFalse(Jvm.isProcessAlive(-1));
+            assertTrue(Jvm.isProcessAlive(1)); // the kernel
+        assertFalse(Jvm.isProcessAlive(-1));
     }
 
     @Test
-    public void testGetMethod() {
-        Assert.assertNotNull(Jvm.getMethod(ClassIWDM.class, "hello", CharSequence.class));
+    void testGetMethod() {
+        assertNotNull(Jvm.getMethod(ClassIWDM.class, "hello", CharSequence.class));
         boolean fail = false;
         try {
             Jvm.getMethod(ClassIWDM.class, "helloDefault", CharSequence.class);
@@ -268,13 +276,13 @@ public class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    public void findAnnotationOnClass() {
+    void findAnnotationOnClass() {
         final RealAnno ra = findAnnotation(Foo.class, RealAnno.class);
         assertEquals("Hello", ra.value());
     }
 
     @Test
-    public void findAnnotationOnMethod() throws NoSuchMethodException {
+    void findAnnotationOnMethod() throws NoSuchMethodException {
         final RealAnno ra = findAnnotation(Foo.class.getDeclaredMethod("inheritedAnno"), RealAnno.class);
         assertEquals("Hello", ra.value());
 
@@ -291,12 +299,12 @@ public class JvmTest extends CoreTestCommon {
         assertEquals("Hello", raz.value());
 
         // This case still fails
-         final RealAnno raz2 = findAnnotation(Baz.class.getMethod("directAnno"), RealAnno.class);
-         assertEquals("G'Day", raz2.value());
+        final RealAnno raz2 = findAnnotation(Baz.class.getMethod("directAnno"), RealAnno.class);
+        assertEquals("G'Day", raz2.value());
     }
 
     @Test
-    public void findAnnotationOnField() throws NoSuchFieldException {
+    void findAnnotationOnField() throws NoSuchFieldException {
         final RealAnno ra = findAnnotation(DTO.class.getDeclaredField("inheritedAnno"), RealAnno.class);
         assertEquals("Hello", ra.value());
 
@@ -305,7 +313,7 @@ public class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    public void isLambdaClass() {
+    void isLambdaClass() {
         Runnable r = () -> System.out.println("Hello, Lambda!");
 
         assertTrue(Jvm.isLambdaClass(r.getClass()));
@@ -318,19 +326,19 @@ public class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    public void testCompileThreshold() {
+    void testCompileThreshold() {
         int threshold = Jvm.compileThreshold();
         assertTrue(threshold > 0);
     }
 
     @Test
-    public void testMajorVersion() {
+    void testMajorVersion() {
         int majorVersion = Jvm.majorVersion();
         assertTrue(majorVersion >= 8);
     }
 
     @Test
-    public void testJavaVersionChecks() {
+    void testJavaVersionChecks() {
         assertEquals(Jvm.majorVersion() >= 9, Jvm.isJava9Plus());
         assertEquals(Jvm.majorVersion() >= 12, Jvm.isJava12Plus());
         assertEquals(Jvm.majorVersion() >= 14, Jvm.isJava14Plus());
@@ -341,15 +349,15 @@ public class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    public void testGetProcessId() {
+    void testGetProcessId() {
         int processId = Jvm.getProcessId();
         assertTrue(processId > 0);
     }
 
     @Test
-    public void testTrimStackTrace() {
+    void testTrimStackTrace() {
         StringBuilder sb = new StringBuilder();
-        StackTraceElement[] stes = new StackTraceElement[] {
+        StackTraceElement[] stes = new StackTraceElement[]{
                 new StackTraceElement("Class1", "method1", "Class1.java", 1),
                 new StackTraceElement("Class2", "method2", "Class2.java", 2)
         };
@@ -359,67 +367,69 @@ public class JvmTest extends CoreTestCommon {
     }
 
     @Test
-    public void testUsedNativeMemory() {
+    void testUsedNativeMemory() {
         long memory = Jvm.usedNativeMemory();
         assertTrue(memory >= 0);
     }
 
     @Test
-    public void testDisableDebugHandler() {
+    void testDisableDebugHandler() {
         Jvm.disableDebugHandler();
         assertSame(NullExceptionHandler.NOTHING, ThreadLocalisedExceptionHandler.unwrap(Jvm.debug()));
     }
 
     @Test
-    public void testDisablePerfHandler() {
+    void testDisablePerfHandler() {
         Jvm.disablePerfHandler();
         assertSame(NullExceptionHandler.NOTHING, ThreadLocalisedExceptionHandler.unwrap(Jvm.perf()));
     }
 
     @Test
-    public void testDisableWarnHandler() {
+    void testDisableWarnHandler() {
         Jvm.disableWarnHandler();
         assertSame(NullExceptionHandler.NOTHING, ThreadLocalisedExceptionHandler.unwrap(Jvm.warn()));
     }
 
     @Test
-    public void testSetThreadLocalExceptionHandlers() {
-        ExceptionHandler mockErrorHandler = mock(ExceptionHandler.class);
-        Jvm.setThreadLocalExceptionHandlers(mockErrorHandler, null, null);
-        assertSame(mockErrorHandler, ThreadLocalisedExceptionHandler.unwrap(Jvm.error()));
+    void testSetThreadLocalExceptionHandlers() {
+        ExceptionHandler errorHandler = new RecordingExceptionHandlerStub();
+        Jvm.setThreadLocalExceptionHandlers(errorHandler, null, null);
+        assertSame(errorHandler, ThreadLocalisedExceptionHandler.unwrap(Jvm.error()));
         assertEquals(NullExceptionHandler.NOTHING, ThreadLocalisedExceptionHandler.unwrap(Jvm.warn()));
         assertEquals(NullExceptionHandler.NOTHING, ThreadLocalisedExceptionHandler.unwrap(Jvm.debug()));
     }
 
     @Test
-    public void testIsDebugEnabledAndIsPerfEnabled() {
+    void testIsDebugEnabledAndIsPerfEnabled() {
         assertTrue(Jvm.isDebugEnabled(SomeClass.class));
         assertTrue(Jvm.isPerfEnabled(SomeClass.class));
     }
 
     @Test
-    public void testGetSize() {
+    void testGetSize() {
         long defaultValue = 1024;
         assertEquals(defaultValue, Jvm.getSize("nonexistentProperty", defaultValue));
     }
 
     @Test
-    public void testGetCpuClass() {
+    void testGetCpuClass() {
         String cpuClass = Jvm.getCpuClass();
         assertNotNull(cpuClass);
     }
 
     @Test
-    public void testCommonInterruptible() {
-        FileChannel mockFileChannel = mock(FileChannel.class);
-        Jvm.CommonInterruptible commonInterruptible = new Jvm.CommonInterruptible(getClass(), mockFileChannel);
+    void testCommonInterruptible() throws IOException {
+        try (FileChannel fileChannel = FileChannel.open(Paths.get("target", "common-interruptible.tmp"),
+                StandardOpenOption.CREATE, StandardOpenOption.READ, StandardOpenOption.WRITE)) {
+            Jvm.CommonInterruptible commonInterruptible = new Jvm.CommonInterruptible(getClass(), fileChannel);
 
-        commonInterruptible.interrupt();
-        assertNotNull(commonInterruptible);
+            commonInterruptible.interrupt();
+            assertNotNull(commonInterruptible);
+        }
     }
 
     @Test
-    public void getPackageName() {
+    void getPackageName() {
         assertEquals("net.openhft.chronicle.core", Jvm.getPackageName(Jvm.class));
     }
 
@@ -433,12 +443,14 @@ public class JvmTest extends CoreTestCommon {
 
         String value();
     }
+
     @Target(value = {ElementType.FIELD, ElementType.TYPE, ElementType.METHOD})
     @Retention(RetentionPolicy.RUNTIME)
     @RealAnno("Hello")
     @interface AnnoAlias {
 
     }
+
     static class DTO {
         @AnnoAlias
         long inheritedAnno;

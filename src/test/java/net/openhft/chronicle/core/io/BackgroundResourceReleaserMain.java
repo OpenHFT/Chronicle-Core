@@ -7,7 +7,7 @@ import net.openhft.chronicle.core.Jvm;
 
 import java.util.concurrent.atomic.AtomicLong;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BackgroundResourceReleaserMain {
     private final AtomicLong closed = new AtomicLong();

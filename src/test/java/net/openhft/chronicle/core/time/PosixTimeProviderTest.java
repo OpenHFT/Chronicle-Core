@@ -11,14 +11,13 @@ import net.openhft.chronicle.testframework.FlakyTestRunner;
 import net.openhft.posix.ClockId;
 import net.openhft.posix.PosixAPI;
 import org.jetbrains.annotations.NotNull;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import static net.openhft.chronicle.core.time.SystemTimeProviderTest.assertBetween;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assume.assumeFalse;
-import static org.junit.Assume.assumeTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
-public class PosixTimeProviderTest extends CoreTestCommon {
+class PosixTimeProviderTest extends CoreTestCommon {
 
     public static void main(String[] args) {
         for (ClockId value : ClockId.values()) {
@@ -27,7 +26,7 @@ public class PosixTimeProviderTest extends CoreTestCommon {
     }
 
     @Test
-    public void currentTimeMicros() throws IllegalStateException {
+    void currentTimeMicros() throws IllegalStateException {
         assumeFalse(OS.isMacOSX() || Jvm.isArm());
         FlakyTestRunner.builder(this::currentTimeMicros0)
                 .withMaxIterations(3)
@@ -91,7 +90,7 @@ public class PosixTimeProviderTest extends CoreTestCommon {
     }
 
     @Test
-    public void currentTime() throws IllegalStateException {
+    void currentTime() throws IllegalStateException {
         assumeTrue(!OS.isMacOSX());
         TimeProvider tp = PosixTimeProvider.INSTANCE;
         for (int i = 3; i >= 0; i--) {
@@ -110,7 +109,7 @@ public class PosixTimeProviderTest extends CoreTestCommon {
     }
 
     @Test
-    public void resolution() {
+    void resolution() {
         assumeTrue(!OS.isMacOSX());
         final PosixTimeProvider instance = PosixTimeProvider.INSTANCE;
         for (int j = 0; j < 3; j++) {

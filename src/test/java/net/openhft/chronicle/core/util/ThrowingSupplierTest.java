@@ -17,7 +17,7 @@ class ThrowingSupplierTest {
 
     @Test
     void getShouldThrowException() {
-        ThrowingSupplier<String, Exception> throwingSupplier = () -> alwaysThrows();
+        ThrowingSupplier<String, Exception> throwingSupplier = ThrowingSupplierTest::alwaysThrows;
         Exception exception = assertThrows(Exception.class, throwingSupplier::get);
         assertEquals("error", exception.getMessage());
     }

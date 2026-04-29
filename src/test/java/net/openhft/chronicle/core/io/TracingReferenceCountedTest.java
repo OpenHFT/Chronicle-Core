@@ -3,21 +3,21 @@
  */
 package net.openhft.chronicle.core.io;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Pattern;
 
 import static net.openhft.chronicle.core.internal.CloseableUtils.asString;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class TracingReferenceCountedTest extends MonitorReferenceCountedContractTest {
+class TracingReferenceCountedTest extends MonitorReferenceCountedContractTest {
 
     private AtomicInteger onReleaseCallCount;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    void setUp() {
         onReleaseCallCount = new AtomicInteger(0);
     }
 
@@ -27,7 +27,7 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
     }
 
     @Test
-    public void reserveWillThrowAndNotReserveWhenReferenceOwnerAttemptsToMakeASecondReservation() {
+    void reserveWillThrowAndNotReserveWhenReferenceOwnerAttemptsToMakeASecondReservation() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -39,7 +39,7 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
     }
 
     @Test
-    public void releaseWillFailWhenResourceOwnerHasNoReservation() {
+    void releaseWillFailWhenResourceOwnerHasNoReservation() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -47,7 +47,7 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
     }
 
     @Test
-    public void releaseLastWillThrowWithReferenceDetailsWhenReleaseIsNotLast() {
+    void releaseLastWillThrowWithReferenceDetailsWhenReleaseIsNotLast() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -62,7 +62,7 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
     }
 
     @Test
-    public void releaseLastWillThrowWithSuppressedInnerFailuresWhenReleaseFails() {
+    void releaseLastWillThrowWithSuppressedInnerFailuresWhenReleaseFails() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -77,13 +77,13 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
     }
 
     @Test
-    public void asStringWillIncludeReferenceCountedDetails() {
+    void asStringWillIncludeReferenceCountedDetails() {
         final TracingReferenceCounted referenceCounted = createReferenceCounted();
         assertTrue(Pattern.matches("TracingReferenceCounted@\\w+ refCount=1", asString(referenceCounted)));
     }
 
     @Test
-    public void asStringWillIncludeCloseableDetails() {
+    void asStringWillIncludeCloseableDetails() {
         class SomeCloseable implements QueryCloseable, ReferenceOwner {
 
             @Override
@@ -100,7 +100,7 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
     }
 
     @Test
-    public void asStringRenderClassNameAndAddressForPojos() {
+    void asStringRenderClassNameAndAddressForPojos() {
         class SomePlainObject {
 
         }
@@ -108,14 +108,14 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
     }
 
     @Test
-    public void createdHereWillReturnCreatedStackTrace() {
+    void createdHereWillReturnCreatedStackTrace() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
         assertNotNull(referenceCounted.createdHere());
     }
 
     @Test
-    public void reserveTransferWillThrowWhenFromHasNoReservation() {
+    void reserveTransferWillThrowWhenFromHasNoReservation() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -125,7 +125,7 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
     }
 
     @Test
-    public void reserveTransferWillThrowWhenToAlreadyHasAReservation() {
+    void reserveTransferWillThrowWhenToAlreadyHasAReservation() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
         ReferenceOwner a = ReferenceOwner.temporary("a");
@@ -137,7 +137,7 @@ public class TracingReferenceCountedTest extends MonitorReferenceCountedContract
     }
 
     @Test
-    public void reserveWillThrowWhenCalledWithSelf() {
+    void reserveWillThrowWhenCalledWithSelf() {
         TracingReferenceCounted referenceCounted = createReferenceCounted();
 
         assertThrows(AssertionError.class, () -> referenceCounted.reserve(referenceCounted));

@@ -3,39 +3,36 @@
  */
 package net.openhft.chronicle.core.io;
 
-import static org.junit.Assert.*;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class ClosedIORuntimeExceptionTest {
+import org.junit.jupiter.api.Test;
+
+class ClosedIORuntimeExceptionTest {
 
     @Test
-    public void testConstructorWithMessage() {
+    void testConstructorWithMessage() {
         String testMessage = "Test message";
         ClosedIORuntimeException exception = new ClosedIORuntimeException(testMessage);
 
-        assertEquals("The message should match the one provided to the constructor",
-                testMessage, exception.getMessage());
+        assertEquals(testMessage, exception.getMessage(), "The message should match the one provided to the constructor");
     }
 
     @Test
-    public void testConstructorWithMessageAndCause() {
+    void testConstructorWithMessageAndCause() {
         String testMessage = "Test message";
         Throwable testCause = new Throwable("Test cause");
         ClosedIORuntimeException exception = new ClosedIORuntimeException(testMessage, testCause);
 
-        assertEquals("The message should match the one provided to the constructor",
-                testMessage, exception.getMessage());
-        assertEquals("The cause should match the one provided to the constructor",
-                testCause, exception.getCause());
+        assertEquals(testMessage, exception.getMessage(), "The message should match the one provided to the constructor");
+        assertEquals(testCause, exception.getCause(), "The cause should match the one provided to the constructor");
     }
 
     @Test
-    public void testConstructorWithNullCause() {
+    void testConstructorWithNullCause() {
         String testMessage = "Test message";
         ClosedIORuntimeException exception = new ClosedIORuntimeException(testMessage, null);
 
-        assertEquals("The message should match the one provided to the constructor",
-                testMessage, exception.getMessage());
-        assertNull("The cause should be null", exception.getCause());
+        assertEquals(testMessage, exception.getMessage(), "The message should match the one provided to the constructor");
+        assertNull(exception.getCause(), "The cause should be null");
     }
 }

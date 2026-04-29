@@ -6,19 +6,19 @@ package net.openhft.chronicle.core.util;
 import net.openhft.chronicle.core.CoreTestCommon;
 import net.openhft.chronicle.core.Jvm;
 import net.openhft.chronicle.core.io.Closeable;
-import org.junit.Test;
+import net.openhft.chronicle.core.test.RecordingCloseable;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+
 import org.junit.jupiter.api.BeforeEach;
-import org.mockito.Mockito;
+
 import java.lang.reflect.Method;
 
-import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assumptions.*;
 
 class ConcreteInvocationHandler extends AbstractInvocationHandler {
     ConcreteInvocationHandler() {
@@ -31,31 +31,22 @@ class ConcreteInvocationHandler extends AbstractInvocationHandler {
     }
 }
 
-public class AbstractInvocationHandlerTest extends CoreTestCommon {
-
-    private AbstractInvocationHandler handler;
-    private Method exampleMethod;
-
-    @BeforeEach
-    public void setUp() throws NoSuchMethodException {
-        handler = new ConcreteInvocationHandler();
-        exampleMethod = String.class.getMethod("length");
-    }
+class AbstractInvocationHandlerTest extends CoreTestCommon {
 
     @Test
-    public void testCloseable() throws Throwable {
+    void testCloseable() throws Throwable {
         AbstractInvocationHandler handler = new ConcreteInvocationHandler();
-        Closeable mockCloseable = mock(Closeable.class);
-        handler.onClose(mockCloseable);
+        RecordingCloseable closeable = new RecordingCloseable();
+        handler.onClose(closeable);
 
         Method closeMethod = Closeable.class.getMethod("close");
-        handler.invoke(mockCloseable, closeMethod, null);
+        handler.invoke(closeable, closeMethod, null);
 
-        verify(mockCloseable, times(1)).close();
+        assertEquals(1, closeable.closeCount());
     }
 
     @Test
-    public void testMethodHandleForProxy() throws Throwable {
+    void testMethodHandleForProxy() throws Throwable {
         assumeTrue(Jvm.majorVersion() >= 17);
         AbstractInvocationHandler handler = new ConcreteInvocationHandler();
         Method exampleMethod = String.class.getMethod("length");
@@ -64,9 +55,9 @@ public class AbstractInvocationHandlerTest extends CoreTestCommon {
     }
 
     @Test
-    public void testInvoke() {
+    void testInvoke() {
         final List<String> messages = new ArrayList<>();
-        final Consumer<String> consumer = s -> messages.add(s);
+        final Consumer<String> consumer = messages::add;
         final CallMe mocked = Mocker.intercepting(CallMe.class, "", consumer);
         mocked.method1();
         mocked.method2();

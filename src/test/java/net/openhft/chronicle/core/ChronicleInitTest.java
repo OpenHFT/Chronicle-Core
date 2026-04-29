@@ -4,7 +4,7 @@
 package net.openhft.chronicle.core;
 
 import net.openhft.chronicle.testframework.process.JavaProcessBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -20,12 +20,12 @@ public class ChronicleInitTest extends CoreTestCommon {
     private final PrintStream originalErr = System.err;
 
     @BeforeEach
-    public void setUpStream() {
+    void setUpStream() {
         System.setErr(new PrintStream(errContent));
     }
 
     @AfterEach
-    public void restoreStream() {
+    void restoreStream() {
         System.setErr(originalErr);
     }
 
@@ -40,23 +40,23 @@ public class ChronicleInitTest extends CoreTestCommon {
     }
 
     @Test
-    public void initShouldNotThrowException() {
+    void initShouldNotThrowException() {
         assertDoesNotThrow(ChronicleInit::init, "Calling init should not throw an exception");
     }
 
     @Test
-    public void postInitShouldNotThrowException() {
+    void postInitShouldNotThrowException() {
         assertDoesNotThrow(ChronicleInit::postInit, "Calling postInit should not throw an exception");
     }
 
     @Test
-    public void shouldLoadServiceProviders() {
+    void shouldLoadServiceProviders() {
         ServiceLoader<ChronicleInitRunnable> runnableLoader = ServiceLoader.load(ChronicleInitRunnable.class);
         assertTrue(runnableLoader.iterator().hasNext(), "Service providers should be loaded");
     }
 
     @Test
-    public void testPositive() throws Exception {
+    void testPositive() throws Exception {
         Process process = JavaProcessBuilder.create(ChronicleInitTest.class)
                 .withJvmArguments("-Dchronicle.init.runnable=" + ResourceTracingInit.class.getName()).start();
 
@@ -68,7 +68,7 @@ public class ChronicleInitTest extends CoreTestCommon {
     }
 
     @Test
-    public void testPostInitNegative() throws Exception {
+    void testPostInitNegative() throws Exception {
         Process process = JavaProcessBuilder.create(ChronicleInitTest.class)
                 .withJvmArguments("-Dchronicle.postinit.runnable=" + ResourceTracingInit.class.getName()).start();
 
@@ -80,7 +80,7 @@ public class ChronicleInitTest extends CoreTestCommon {
     }
 
     @Test
-    public void testNoInit() throws Exception {
+    void testNoInit() throws Exception {
         Process process = JavaProcessBuilder.create(ChronicleInitTest.class).start();
 
         try {
@@ -91,7 +91,7 @@ public class ChronicleInitTest extends CoreTestCommon {
     }
 
     @Test
-    public void testBadClass() throws Exception {
+    void testBadClass() throws Exception {
         Process process = JavaProcessBuilder.create(ChronicleInitTest.class)
                 .withJvmArguments("-Dchronicle.init.class=" + ChronicleInitTest.class.getName()).start();
 
