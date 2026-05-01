@@ -218,16 +218,23 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
      * seconds, once a minute, or only at JVM shutdown).</p>
      */
     public static void cleanupNonCleaningThreads() {
+        // Drain stale entries under the lock, then run user cleanup
+        // callbacks outside it so slow cleanup code never blocks
+        // set()/remove()/initialValue() across the JVM.
+        List<Runnable> pendingCleanups;
         synchronized (cleaningThreadLocals) {
             if (cleaningThreadLocals.isEmpty())
                 return;
-
-            cleaningThreadLocals.removeIf(CleaningThreadLocal::doCleanupNonCleaningThreads);
+            pendingCleanups = new ArrayList<>();
+            cleaningThreadLocals.removeIf(ctl -> ctl.drainStaleInto(pendingCleanups));
         }
+
+        for (Runnable r : pendingCleanups)
+            r.run();
     }
 
     // holds lock on cleaningThreadLocals
-    private boolean doCleanupNonCleaningThreads() {
+    private boolean drainStaleInto(List<Runnable> sink) {
         if (!trackNonCleaningThreads)
             return true;
 
@@ -237,7 +244,8 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
 
             Map.Entry<Thread, Object> e = mapIt.next();
             if (!e.getKey().isAlive()) {
-                cleanup(uncheckedCast(e.getValue()));
+                Object staleValue = e.getValue();
+                sink.add(() -> cleanup(uncheckedCast(staleValue)));
                 mapIt.remove();
             }
         }
@@ -253,10 +261,7 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         T value = supplier.get();
         if (trackNonCleaningThreads &&
                 !(Thread.currentThread() instanceof CleaningThread)) {
-            synchronized (cleaningThreadLocals) {
-                // trackNonCleaningThreads is true so nonCleaningThreadValue != null
-                nonCleaningThreadValues.put(Thread.currentThread(), value);
-            }
+            putTrackedValue(Thread.currentThread(), value);
         }
         return value;
     }
@@ -282,13 +287,7 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         if (thread instanceof CleaningThread) {
             CleaningThread.performCleanup(thread, this);
         } else if (trackNonCleaningThreads) {
-            T previous;
-            synchronized (cleaningThreadLocals) {
-                // trackNonCleaningThreads is true so nonCleaningThreadValue != null
-                @SuppressWarnings("unchecked")
-                T t = (T) nonCleaningThreadValues.put(thread, value);
-                previous = t;
-            }
+            T previous = putTrackedValue(thread, value);
             cleanup(previous);
         }
         super.set(value);
@@ -303,13 +302,7 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         if (thread instanceof CleaningThread) {
             CleaningThread.performCleanup(thread, this);
         } else if (trackNonCleaningThreads) {
-            T previous;
-            synchronized (cleaningThreadLocals) {
-                // trackNonCleaningThreads is true so nonCleaningThreadValue != null
-                @SuppressWarnings("unchecked")
-                T t = (T) nonCleaningThreadValues.remove(thread);
-                previous = t;
-            }
+            T previous = removeTrackedValue(thread);
             cleanup(previous);
         }
         super.remove();
@@ -332,6 +325,23 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
             nonCleaningThreadValues = Collections.synchronizedMap(new LinkedHashMap<>());
         }
         return true;
+    }
+
+    private T putTrackedValue(Thread thread, T value) {
+        synchronized (cleaningThreadLocals) {
+            cleaningThreadLocals.add(this);
+            Object previous = nonCleaningThreadValues.put(thread, value);
+            return uncheckedCast(previous);
+        }
+    }
+
+    private T removeTrackedValue(Thread thread) {
+        synchronized (cleaningThreadLocals) {
+            Object previous = nonCleaningThreadValues.remove(thread);
+            if (nonCleaningThreadValues.isEmpty())
+                cleaningThreadLocals.remove(this);
+            return uncheckedCast(previous);
+        }
     }
 
     /**

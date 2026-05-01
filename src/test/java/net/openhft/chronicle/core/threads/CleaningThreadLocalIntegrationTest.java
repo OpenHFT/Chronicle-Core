@@ -111,6 +111,28 @@ class CleaningThreadLocalIntegrationTest {
         assertEquals(orphans, releases.get(), "all reference-counted values should be released once");
     }
 
+    @Test
+    void trackedLocalRegistersAgainAfterEmptySweep() throws Exception {
+        AtomicInteger cleaned = new AtomicInteger();
+        CleaningThreadLocal<TrackedResource> ctl = new CleaningThreadLocal<>(
+                TrackedResource::new,
+                resource -> {
+                    resource.clean();
+                    cleaned.incrementAndGet();
+                },
+                UnaryOperator.identity(),
+                Boolean.TRUE);
+
+        CleaningThreadLocal.cleanupNonCleaningThreads();
+
+        int orphans = 16;
+        createOrphans(ctl, orphans);
+        CleaningThreadLocal.cleanupNonCleaningThreads();
+
+        assertEquals(0, trackedEntryCount(ctl), "no tracked entries should remain");
+        assertEquals(orphans, cleaned.get(), "orphans created after an empty sweep should be cleaned");
+    }
+
     private static void createOrphans(CleaningThreadLocal<?> ctl, int count) throws InterruptedException {
         Thread[] threads = new Thread[count];
         for (int i = 0; i < count; i++) {
