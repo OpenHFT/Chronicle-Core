@@ -217,13 +217,16 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
      * <p>Call at whatever cadence suits your application (e.g.&nbsp;every few
      * seconds, once a minute, or only at JVM shutdown).</p>
      */
-    public static synchronized void cleanupNonCleaningThreads() {
-        if (cleaningThreadLocals.isEmpty())
-            return;
+    public static void cleanupNonCleaningThreads() {
+        synchronized (cleaningThreadLocals) {
+            if (cleaningThreadLocals.isEmpty())
+                return;
 
-        cleaningThreadLocals.removeIf(CleaningThreadLocal::doCleanupNonCleaningThreads);
+            cleaningThreadLocals.removeIf(CleaningThreadLocal::doCleanupNonCleaningThreads);
+        }
     }
 
+    // holds lock on cleaningThreadLocals
     private boolean doCleanupNonCleaningThreads() {
         if (!trackNonCleaningThreads)
             return true;
@@ -250,7 +253,10 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         T value = supplier.get();
         if (trackNonCleaningThreads &&
                 !(Thread.currentThread() instanceof CleaningThread)) {
-            nonCleaningThreadValues.put(Thread.currentThread(), value);
+            synchronized (cleaningThreadLocals) {
+                // trackNonCleaningThreads is true so nonCleaningThreadValue != null
+                nonCleaningThreadValues.put(Thread.currentThread(), value);
+            }
         }
         return value;
     }
@@ -276,8 +282,13 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         if (thread instanceof CleaningThread) {
             CleaningThread.performCleanup(thread, this);
         } else if (trackNonCleaningThreads) {
-            @SuppressWarnings("unchecked")
-            T previous = (T) nonCleaningThreadValues.put(thread, value);
+            T previous;
+            synchronized (cleaningThreadLocals) {
+                // trackNonCleaningThreads is true so nonCleaningThreadValue != null
+                @SuppressWarnings("unchecked")
+                T t = (T) nonCleaningThreadValues.put(thread, value);
+                previous = t;
+            }
             cleanup(previous);
         }
         super.set(value);
@@ -292,8 +303,13 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         if (thread instanceof CleaningThread) {
             CleaningThread.performCleanup(thread, this);
         } else if (trackNonCleaningThreads) {
-            @SuppressWarnings("unchecked")
-            T previous = (T) nonCleaningThreadValues.remove(thread);
+            T previous;
+            synchronized (cleaningThreadLocals) {
+                // trackNonCleaningThreads is true so nonCleaningThreadValue != null
+                @SuppressWarnings("unchecked")
+                T t = (T) nonCleaningThreadValues.remove(thread);
+                previous = t;
+            }
             cleanup(previous);
         }
         super.remove();
@@ -311,8 +327,10 @@ public class CleaningThreadLocal<T> extends ThreadLocal<T> {
         // prune any stale CTLs before adding a new one
         cleanupNonCleaningThreads();
 
-        cleaningThreadLocals.add(this);
-        nonCleaningThreadValues = Collections.synchronizedMap(new LinkedHashMap<>());
+        synchronized (cleaningThreadLocals) {
+            cleaningThreadLocals.add(this);
+            nonCleaningThreadValues = Collections.synchronizedMap(new LinkedHashMap<>());
+        }
         return true;
     }
 
